@@ -2837,6 +2837,166 @@ class efbFunction {
 			"prvPiiAuto" => $state && isset($ac->text->prvPiiAuto) ? $ac->text->prvPiiAuto : esc_html__('By field type (%s)','easy-form-builder'),
 			/* translators: F13: option of the anonymization field setting: keep the answer */
 			"prvPiiNo" => $state && isset($ac->text->prvPiiNo) ? $ac->text->prvPiiNo : esc_html__('No','easy-form-builder'),
+			/* translators: F11: shown instead of a form that reached its total number of answers */
+			"limFullM" => $state && isset($ac->text->limFullM) ? $ac->text->limFullM : esc_html__('This form has reached its limit and no longer accepts answers.','easy-form-builder'),
+			/* translators: F11: above a form with a total limit. %s: number of places */
+			"limLeft" => $state && isset($ac->text->limLeft) ? $ac->text->limLeft : esc_html__('%s places left','easy-form-builder'),
+			/* translators: F11: a person who already sent the form as often as allowed */
+			"limReachedM" => $state && isset($ac->text->limReachedM) ? $ac->text->limReachedM : esc_html__('You have already sent this form.','easy-form-builder'),
+			/* translators: F11: per-person limit with a period. %s: date and time */
+			"limReachedUntilM" => $state && isset($ac->text->limReachedUntilM) ? $ac->text->limReachedUntilM : esc_html__('You can send this form again after %s.','easy-form-builder'),
+			/* translators: F11: before the form opens. %s: date and time */
+			"schedPendingM" => $state && isset($ac->text->schedPendingM) ? $ac->text->schedPendingM : esc_html__('This form opens on %s.','easy-form-builder'),
+			/* translators: F11: after the form closed. %s: date and time */
+			"schedClosedM" => $state && isset($ac->text->schedClosedM) ? $ac->text->schedClosedM : esc_html__('This form closed on %s and no longer accepts answers.','easy-form-builder'),
+			/* translators: F11: a logged-in user whose role may not use a private form */
+			"roleDeniedM" => $state && isset($ac->text->roleDeniedM) ? $ac->text->roleDeniedM : esc_html__('Your account does not have access to this form.','easy-form-builder'),
+			/* translators: F11: builder section title (form settings) */
+			"accessLimits" => $state && isset($ac->text->accessLimits) ? $ac->text->accessLimits : esc_html__('Access and limits','easy-form-builder'),
+			/* translators: F11: builder label */
+			"limTotal" => $state && isset($ac->text->limTotal) ? $ac->text->limTotal : esc_html__('Maximum number of answers','easy-form-builder'),
+			/* translators: F11: builder help */
+			"limTotalHelp" => $state && isset($ac->text->limTotalHelp) ? $ac->text->limTotalHelp : esc_html__('Empty = no limit. Deleting an answer frees its place.','easy-form-builder'),
+			/* translators: F11: builder switch */
+			"limShowLeft" => $state && isset($ac->text->limShowLeft) ? $ac->text->limShowLeft : esc_html__('Show the number of places left','easy-form-builder'),
+			/* translators: F11: builder label */
+			"limFullMsg" => $state && isset($ac->text->limFullMsg) ? $ac->text->limFullMsg : esc_html__('Message when the form is full','easy-form-builder'),
+			/* translators: F11: builder label */
+			"limPerUser" => $state && isset($ac->text->limPerUser) ? $ac->text->limPerUser : esc_html__('Answers per logged-in user','easy-form-builder'),
+			/* translators: F11: builder label */
+			"limPerIp" => $state && isset($ac->text->limPerIp) ? $ac->text->limPerIp : esc_html__('Answers per IP address','easy-form-builder'),
+			/* translators: F11: builder label */
+			"limPerCookie" => $state && isset($ac->text->limPerCookie) ? $ac->text->limPerCookie : esc_html__('Answers per browser (cookie)','easy-form-builder'),
+			/* translators: F11: builder label */
+			"limPerEmail" => $state && isset($ac->text->limPerEmail) ? $ac->text->limPerEmail : esc_html__('Answers per email address','easy-form-builder'),
+			/* translators: F11: builder label */
+			"limEmailField" => $state && isset($ac->text->limEmailField) ? $ac->text->limEmailField : esc_html__('Email field for this limit','easy-form-builder'),
+			/* translators: F11: builder label */
+			"limPeriod" => $state && isset($ac->text->limPeriod) ? $ac->text->limPeriod : esc_html__('Period of the limits','easy-form-builder'),
+			/* translators: F11: option of the period */
+			"limEver" => $state && isset($ac->text->limEver) ? $ac->text->limEver : esc_html__('Ever','easy-form-builder'),
+			/* translators: F11: option of the period */
+			"limDay" => $state && isset($ac->text->limDay) ? $ac->text->limDay : esc_html__('Per day','easy-form-builder'),
+			/* translators: F11: option of the period */
+			"limWeek" => $state && isset($ac->text->limWeek) ? $ac->text->limWeek : esc_html__('Per week','easy-form-builder'),
+			/* translators: F11: option of the period */
+			"limMonth" => $state && isset($ac->text->limMonth) ? $ac->text->limMonth : esc_html__('Per month','easy-form-builder'),
+			/* translators: F11: option of the period */
+			"limYear" => $state && isset($ac->text->limYear) ? $ac->text->limYear : esc_html__('Per year','easy-form-builder'),
+			/* translators: F11: builder label */
+			"limUserMsg" => $state && isset($ac->text->limUserMsg) ? $ac->text->limUserMsg : esc_html__('Message when a person reached the limit','easy-form-builder'),
+			/* translators: F11: builder button: set the per-person counters of this form to zero */
+			"limReset" => $state && isset($ac->text->limReset) ? $ac->text->limReset : esc_html__('Reset the counters','easy-form-builder'),
+			/* translators: F11: after the reset button */
+			"limResetDone" => $state && isset($ac->text->limResetDone) ? $ac->text->limResetDone : esc_html__('The counters of this form were reset.','easy-form-builder'),
+			/* translators: F11: builder warning under the IP limit */
+			"limSharedIpWarn" => $state && isset($ac->text->limSharedIpWarn) ? $ac->text->limSharedIpWarn : esc_html__('Many people can share one address (office, school, mobile network). A cookie limit is easy to clear.','easy-form-builder'),
+			/* translators: F11: save warning */
+			"limPlanWarn" => $state && isset($ac->text->limPlanWarn) ? $ac->text->limPlanWarn : esc_html__('Limits per person need Free Plus or Pro; they are not applied on this site now.','easy-form-builder'),
+			/* translators: F11: save warning */
+			"limIpOffWarn" => $state && isset($ac->text->limIpOffWarn) ? $ac->text->limIpOffWarn : esc_html__('This form stores no IP addresses, so the limit per IP address is not applied.','easy-form-builder'),
+			/* translators: F11: save warning */
+			"limEmailFieldWarn" => $state && isset($ac->text->limEmailFieldWarn) ? $ac->text->limEmailFieldWarn : esc_html__('Choose the email field for the limit per email address.','easy-form-builder'),
+			/* translators: F11: save warning. %s: number of entries */
+			"limTotalReachedWarn" => $state && isset($ac->text->limTotalReachedWarn) ? $ac->text->limTotalReachedWarn : esc_html__('This form already has %s entries, so it is full now.','easy-form-builder'),
+			/* translators: F11: builder label */
+			"schedOpen" => $state && isset($ac->text->schedOpen) ? $ac->text->schedOpen : esc_html__('Opens on','easy-form-builder'),
+			/* translators: F11: builder label */
+			"schedClose" => $state && isset($ac->text->schedClose) ? $ac->text->schedClose : esc_html__('Closes on','easy-form-builder'),
+			/* translators: F11: builder label */
+			"schedGrace" => $state && isset($ac->text->schedGrace) ? $ac->text->schedGrace : esc_html__('Minutes still accepted after closing (for pages opened before)','easy-form-builder'),
+			/* translators: F11: builder help. %1$s: date and time, %2$s: time zone */
+			"schedSiteTime" => $state && isset($ac->text->schedSiteTime) ? $ac->text->schedSiteTime : esc_html__('Site time now: %1$s (%2$s)','easy-form-builder'),
+			/* translators: F11: builder and save error */
+			"schedOrderErr" => $state && isset($ac->text->schedOrderErr) ? $ac->text->schedOrderErr : esc_html__('The form must close after it opens.','easy-form-builder'),
+			/* translators: F11: builder label */
+			"schedPendingMsg" => $state && isset($ac->text->schedPendingMsg) ? $ac->text->schedPendingMsg : esc_html__('Message before the form opens','easy-form-builder'),
+			/* translators: F11: builder label */
+			"schedClosedMsg" => $state && isset($ac->text->schedClosedMsg) ? $ac->text->schedClosedMsg : esc_html__('Message after the form closed','easy-form-builder'),
+			/* translators: F11: builder label (private form) */
+			"allowedRoles" => $state && isset($ac->text->allowedRoles) ? $ac->text->allowedRoles : esc_html__('Only these roles (empty = every logged-in user)','easy-form-builder'),
+			/* translators: F11: builder label */
+			"customCss" => $state && isset($ac->text->customCss) ? $ac->text->customCss : esc_html__('Custom CSS for this form','easy-form-builder'),
+			/* translators: F11: builder help */
+			"customCssHelp" => $state && isset($ac->text->customCssHelp) ? $ac->text->customCssHelp : esc_html__('Applies to this form only. :root, html and body mean the form itself.','easy-form-builder'),
+			/* translators: F11: builder note */
+			"customCssNoPerm" => $state && isset($ac->text->customCssNoPerm) ? $ac->text->customCssNoPerm : esc_html__('Only users who may post unfiltered HTML can change this CSS.','easy-form-builder'),
+			/* translators: F11: builder note. %s: number */
+			"customCssDropped" => $state && isset($ac->text->customCssDropped) ? $ac->text->customCssDropped : esc_html__('%s rules were removed because they could load content from outside the page.','easy-form-builder'),
+			/* translators: F11: builder switch */
+			"draftOn" => $state && isset($ac->text->draftOn) ? $ac->text->draftOn : esc_html__('Save and continue later','easy-form-builder'),
+			/* translators: F11: builder label */
+			"draftDays" => $state && isset($ac->text->draftDays) ? $ac->text->draftDays : esc_html__('Saved answers are kept for (days)','easy-form-builder'),
+			/* translators: F11: builder switch */
+			"partialOn" => $state && isset($ac->text->partialOn) ? $ac->text->partialOn : esc_html__('Keep partial answers (abandoned forms)','easy-form-builder'),
+			/* translators: F11: builder switch */
+			"partialNeedContact" => $state && isset($ac->text->partialNeedContact) ? $ac->text->partialNeedContact : esc_html__('Only when an email or mobile number is filled in','easy-form-builder'),
+			/* translators: F11: builder label */
+			"partialDays" => $state && isset($ac->text->partialDays) ? $ac->text->partialDays : esc_html__('Partial answers are kept for (days)','easy-form-builder'),
+			/* translators: F11: builder label */
+			"partialConsentMode" => $state && isset($ac->text->partialConsentMode) ? $ac->text->partialConsentMode : esc_html__('How visitors agree','easy-form-builder'),
+			/* translators: F11: option */
+			"partialConsentBox" => $state && isset($ac->text->partialConsentBox) ? $ac->text->partialConsentBox : esc_html__('A checkbox the visitor ticks','easy-form-builder'),
+			/* translators: F11: option */
+			"partialConsentNotice" => $state && isset($ac->text->partialConsentNotice) ? $ac->text->partialConsentNotice : esc_html__('A notice above the form','easy-form-builder'),
+			/* translators: F11: tab of the entries list */
+			"partialEntries" => $state && isset($ac->text->partialEntries) ? $ac->text->partialEntries : esc_html__('Partial','easy-form-builder'),
+			/* translators: F11: column */
+			"partialProgress" => $state && isset($ac->text->partialProgress) ? $ac->text->partialProgress : esc_html__('Progress','easy-form-builder'),
+			/* translators: F11: column */
+			"partialStep" => $state && isset($ac->text->partialStep) ? $ac->text->partialStep : esc_html__('Last step','easy-form-builder'),
+			/* translators: F11: column */
+			"partialContact" => $state && isset($ac->text->partialContact) ? $ac->text->partialContact : esc_html__('Contact','easy-form-builder'),
+			/* translators: F11: empty list */
+			"partialNone" => $state && isset($ac->text->partialNone) ? $ac->text->partialNone : esc_html__('No partial answers.','easy-form-builder'),
+			/* translators: F11: block option */
+			"popupMode" => $state && isset($ac->text->popupMode) ? $ac->text->popupMode : esc_html__('Show as a popup','easy-form-builder'),
+			/* translators: F11: block option */
+			"popupLabel" => $state && isset($ac->text->popupLabel) ? $ac->text->popupLabel : esc_html__('Popup button text','easy-form-builder'),
+			/* translators: F11: block option */
+			"popupStyleBtn" => $state && isset($ac->text->popupStyleBtn) ? $ac->text->popupStyleBtn : esc_html__('Button','easy-form-builder'),
+			/* translators: F11: block option */
+			"popupStyleLink" => $state && isset($ac->text->popupStyleLink) ? $ac->text->popupStyleLink : esc_html__('Link','easy-form-builder'),
+			/* translators: F11: close button of the popup */
+			"popupClose" => $state && isset($ac->text->popupClose) ? $ac->text->popupClose : esc_html__('Close','easy-form-builder'),
+			/* translators: F11: default text of the button that opens a popup form */
+			"popupOpen" => $state && isset($ac->text->popupOpen) ? $ac->text->popupOpen : esc_html__('Open the form','easy-form-builder'),
+			/* translators: F11: button next to Next */
+			"draftSave" => $state && isset($ac->text->draftSave) ? $ac->text->draftSave : esc_html__('Save and continue later','easy-form-builder'),
+			/* translators: F11: dialog title */
+			"draftSaved" => $state && isset($ac->text->draftSaved) ? $ac->text->draftSaved : esc_html__('Your answers are saved.','easy-form-builder'),
+			/* translators: F11: dialog button */
+			"draftCopy" => $state && isset($ac->text->draftCopy) ? $ac->text->draftCopy : esc_html__('Copy link','easy-form-builder'),
+			/* translators: F11: dialog field */
+			"draftEmail" => $state && isset($ac->text->draftEmail) ? $ac->text->draftEmail : esc_html__('Email address','easy-form-builder'),
+			/* translators: F11: dialog button */
+			"draftSendLink" => $state && isset($ac->text->draftSendLink) ? $ac->text->draftSendLink : esc_html__('Send link','easy-form-builder'),
+			/* translators: F11: dialog message */
+			"draftLinkSent" => $state && isset($ac->text->draftLinkSent) ? $ac->text->draftLinkSent : esc_html__('The link was sent.','easy-form-builder'),
+			/* translators: F11: dialog. %s: date */
+			"draftExpires" => $state && isset($ac->text->draftExpires) ? $ac->text->draftExpires : esc_html__('This link works until %s.','easy-form-builder'),
+			/* translators: F11: dialog */
+			"draftNotSaved" => $state && isset($ac->text->draftNotSaved) ? $ac->text->draftNotSaved : esc_html__('Passwords, files, recordings, signatures and payment details are not saved.','easy-form-builder'),
+			/* translators: F11: dialog */
+			"draftKeepSafe" => $state && isset($ac->text->draftKeepSafe) ? $ac->text->draftKeepSafe : esc_html__('Anyone with this link can see your saved answers. Keep it private.','easy-form-builder'),
+			/* translators: F11: banner after opening a resume link */
+			"draftRestored" => $state && isset($ac->text->draftRestored) ? $ac->text->draftRestored : esc_html__('Your saved answers were restored. Enter files and passwords again.','easy-form-builder'),
+			/* translators: F11: banner button */
+			"draftStartOver" => $state && isset($ac->text->draftStartOver) ? $ac->text->draftStartOver : esc_html__('Start over','easy-form-builder'),
+			/* translators: F11: resume link expired or wrong */
+			"draftInvalid" => $state && isset($ac->text->draftInvalid) ? $ac->text->draftInvalid : esc_html__('This link has expired or is not valid.','easy-form-builder'),
+			/* translators: F11: saving the answers failed */
+			"draftFailed" => $state && isset($ac->text->draftFailed) ? $ac->text->draftFailed : esc_html__('Your answers could not be saved. Please try again.','easy-form-builder'),
+			/* translators: F11: checkbox above the first step */
+			"partialConsent" => $state && isset($ac->text->partialConsent) ? $ac->text->partialConsent : esc_html__('Save my answers before I send them.','easy-form-builder'),
+			/* translators: F11: notice above the form */
+			"partialNotice" => $state && isset($ac->text->partialNotice) ? $ac->text->partialNotice : esc_html__('Your answers are saved as you type so the site owner can follow up.','easy-form-builder'),
+			/* translators: F11: email subject. %s: form name */
+			"resumeLinkSub" => $state && isset($ac->text->resumeLinkSub) ? $ac->text->resumeLinkSub : esc_html__('Continue your form: %s','easy-form-builder'),
+			/* translators: F11: email. %s: date */
+			"resumeLinkBody" => $state && isset($ac->text->resumeLinkBody) ? $ac->text->resumeLinkBody : esc_html__('Use this link to continue the form. It works until %s. If you did not ask for it, ignore this email.','easy-form-builder'),
+			/* translators: F11: email button */
+			"resumeLinkBtn" => $state && isset($ac->text->resumeLinkBtn) ? $ac->text->resumeLinkBtn : esc_html__('Continue the form','easy-form-builder'),
 			/* translators: F13: name of the plugin in WordPress' personal data export and erase tools */
 			"prvExporterName" => $state && isset($ac->text->prvExporterName) ? $ac->text->prvExporterName : esc_html__('Easy Form Builder entries','easy-form-builder'),
 			/* translators: F13: section title of a personal data export */
@@ -4623,6 +4783,37 @@ class efbFunction {
 					case 'step_bg_text':
 					case 'mobile_step_bg':
 						$valp[$key][$k] = function_exists('efb_step_bg_sanitize_key_efb') ? efb_step_bg_sanitize_key_efb($k, $v) : '';
+					break;
+					// F11 form gate, save and resume, custom CSS (row 0 only): allow-lists, numbers in range,
+					// local date-times, existing role slugs, base64 CSS cleaned by Form_Css. '' = not set.
+					case 'lim_total':
+					case 'lim_user':
+					case 'lim_ip':
+					case 'lim_cookie':
+					case 'lim_email':
+					case 'lim_period':
+					case 'lim_email_field':
+					case 'lim_show_left':
+					case 'lim_full_msg':
+					case 'lim_user_msg':
+					case 'sched_open':
+					case 'sched_close':
+					case 'sched_grace':
+					case 'sched_pending_msg':
+					case 'sched_closed_msg':
+					case 'allowed_roles':
+					case 'custom_css':
+					case 'draft_on':
+					case 'draft_days':
+					case 'partial_on':
+					case 'partial_days':
+					case 'partial_consent':
+					case 'partial_need_contact':
+						if ((int) $key === 0 && class_exists('\\Emsfb\\Form_Gate')) {
+							$valp[$key][$k] = \Emsfb\Form_Gate::sanitize_key($k, $v);
+						} else {
+							$valp[$key][$k] = is_scalar($v) ? sanitize_text_field($v) : '';
+						}
 					break;
 					// PAY00 payment field (pf_*, on the gateway field row) and payment actions (pay_act_*,
 					// row 0): allow-lists, canonical lists, plain text; never CSS or HTML. '' = not set.

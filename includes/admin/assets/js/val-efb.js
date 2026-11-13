@@ -2290,6 +2290,7 @@ function show_setting_window_efb(idset, opts) {
             </button>
           </div>
           <!-- conditional logic section end -->` : '<!-- conditional logic addon not active -->'}
+          ${typeof accessLimitsEls === 'function' ? accessLimitsEls() : '<!-- F11 form-limits-efb.js not loaded -->'}
           ${privacyEls()}
           <div class="efb  d-grid gap-2">
             <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">

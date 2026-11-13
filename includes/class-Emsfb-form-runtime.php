@@ -12,7 +12,8 @@ class Form_Runtime {
         register_deactivation_hook(EMSFB_PLUGIN_FILE,static function () { wp_clear_scheduled_hook('emsfb_operation_cleanup'); });
     }
     private static function fingerprint($data) {
-        unset($data['runtime_token'],$data['request_id'],$data['sid'],$data['valid'],$data['nonce'],$data['response_token']);
+        // draft_token (F11): the saved answers a submission completes, not part of what was sent.
+        unset($data['runtime_token'],$data['request_id'],$data['sid'],$data['valid'],$data['nonce'],$data['response_token'],$data['draft_token']);
         ksort($data);
         return hash('sha256',wp_json_encode($data));
     }
@@ -29,9 +30,10 @@ class Form_Runtime {
         if ($status->get_data()['state']==='done') return new \WP_REST_Response(array('success'=>true,'data'=>$status->get_data()['result']),200);
         return new \WP_Error('efb_operation_pending',__('The result of the previous request is not yet confirmed. Do not submit it again.', 'easy-form-builder'),array('status'=>409));
     }
-    public static function token($fid, $sid, $owner = '') {
+    /** $t0 = when this tab's session started (F11 sched_grace, F12); kept across refreshes. */
+    public static function token($fid, $sid, $owner = '', $t0 = null) {
         $owner = $owner ?: gmdate('Ymd') . '-' . wp_generate_uuid4();
-        $data = array('fid'=>(int)$fid, 'sid'=>(string)$sid, 'uid'=>get_current_user_id(), 'auth'=>hash_hmac('sha256',wp_get_session_token(),wp_salt('auth')), 'owner'=>$owner, 'exp'=>strtotime(substr($owner,0,8).' UTC')+7*DAY_IN_SECONDS);
+        $data = array('fid'=>(int)$fid, 'sid'=>(string)$sid, 'uid'=>get_current_user_id(), 'auth'=>hash_hmac('sha256',wp_get_session_token(),wp_salt('auth')), 'owner'=>$owner, 'exp'=>strtotime(substr($owner,0,8).' UTC')+7*DAY_IN_SECONDS, 't0'=>$t0 ? (int) $t0 : time());
         $body = rtrim(strtr(base64_encode(wp_json_encode($data)), '+/', '-_'), '=');
         return $body . '.' . hash_hmac('sha256', $body, wp_salt('nonce'));
     }

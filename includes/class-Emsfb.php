@@ -410,6 +410,20 @@ class Emsfb {
             \Emsfb\Privacy::register();
         }
 
+        // F11: atomic counters (shared with F02), the visitor's address for limits, the form
+        // gate (schedule, caps, per-person limits, roles), per-form CSS and saved / partial
+        // answers. Optional: every caller checks class_exists().
+        $f11_ok = $this->require_plugin_file_efb('includes/class-Emsfb-rate-limit.php')
+            && $this->require_plugin_file_efb('includes/class-Emsfb-client-ip.php')
+            && $this->require_plugin_file_efb('includes/class-Emsfb-form-css.php')
+            && $this->require_plugin_file_efb('includes/class-Emsfb-form-gate.php');
+        if ($f11_ok) {
+            \Emsfb\Form_Gate::register();
+        }
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-drafts.php') && method_exists('\Emsfb\Drafts', 'register')) {
+            \Emsfb\Drafts::register();
+        }
+
         // Input masks and format validators (F01). Optional: every caller checks
         // class_exists('\Emsfb\Masks'), so a missing file only disables masks.
         $this->require_plugin_file_efb('includes/class-Emsfb-masks.php');

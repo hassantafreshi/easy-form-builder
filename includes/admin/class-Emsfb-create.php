@@ -328,6 +328,8 @@ class Create {
 		$efb_val_js_path = EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/val-efb.js';
 		$efb_val_js_version = is_readable($efb_val_js_path) ? (string) filemtime($efb_val_js_path) : EMSFB_PLUGIN_VERSION;
 		wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js', array('jquery', 'efb-email-test-ui'), $efb_val_js_version, true);
+		// F11: the form settings' "Access and limits" section and the per-form CSS cleaner (twin of Form_Css).
+		wp_enqueue_script('efb-form-limits-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/form-limits-efb.js', array('efb-val-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/form-limits-efb.js'), true);
 		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js', array('jquery','efb-recorder-js'), EMSFB_PLUGIN_VERSION, true);
@@ -425,6 +427,15 @@ class Create {
 		}
 		// A5: a notification whose add-on is not active is stored switched off, with a warning.
 		$save_warnings_efb = array();
+		// F11: the same server rules as an update (no previous CSS on a new form).
+		if (is_array($valp) && class_exists('\Emsfb\Form_Gate')) {
+			$valp = \Emsfb\Form_Gate::normalize_form_settings($valp, null);
+			$gate_checks_efb = \Emsfb\Form_Gate::save_checks($valp, 0);
+			if (!empty($gate_checks_efb['errors'])) {
+				wp_send_json_success(array('success' => false, 'm' => $gate_checks_efb['errors'][0]['m'], 'code' => $gate_checks_efb['errors'][0]['code']), 200);
+			}
+			$save_warnings_efb = array_merge($save_warnings_efb, $gate_checks_efb['warnings']);
+		}
 		if (is_array($valp) && class_exists('\Emsfb\Builder_Api')) {
 			list($valp, $save_warnings_efb) = Builder_Api::disable_unavailable_notifiers($valp, get_setting_Emsfb('decoded', array()), $lang);
 			// PAY00: what the form's payment gateways need (currency, mapped fields, the gateway's own checks); never refuses the save.

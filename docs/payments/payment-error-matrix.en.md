@@ -100,7 +100,9 @@ script-filled request) and answers with the same code and `field_id`.
 | Paid but the webhook is late | all | — (the poll / reconcile asks the provider; finalize once) | R | "Payment received. Thank you!" |
 | Duplicate click on Pay | all | replay of the same attempt (`in_progress` while the first is being created) | V | "Your payment is already being prepared. Please wait a moment." |
 | Browser Back after paying | all | `attempt_used` on a re-send of the same attempt; the return page reads the server's state | V / R | "This payment attempt has already been used. Please reload the page and try again." |
-| Form quota / schedule closed between page load and Pay | all | the form's own closed message (submit handler, before anything is stored) | V | the form's "closed" text |
+| Form gate (F11) before Pay: closed, not open yet, full, per-person limit, role | all | `efb_form_closed` / `efb_form_pending` / `efb_form_full` / `efb_limit_reached` / `efb_role_denied` (403 from the submit handler that serves `payments/create`, **before anything is stored**: no entry, no payment row; also from `forms/session/prepare`) | V, payment field (`role="alert"` status line) and the form's alert | the form's own text (`sched_closed_msg`, `lim_full_msg`, `lim_user_msg`, `sched_pending_msg`) or "This form closed on %s and no longer accepts answers." / "This form opens on %s." / "This form has reached its limit and no longer accepts answers." / "You can send this form again after %s." / "Your account does not have access to this form." |
+| The last place was taken by someone else between the check and the store (F11 atomic reserve) | all | `efb_form_full` / `efb_limit_reached` (in-band, `success: false`) | V, payment field | as above; nothing stored, no payment created |
+| "Try again" after a failed / expired payment when the form filled up or closed meanwhile (F11) | all | `efb_form_full` / `efb_limit_reached` / `efb_form_closed` from `payments/retry` (filter `efb_payment_retry_gate`) | V, payment field | as above; no new attempt is created |
 | Quote changed between page load and Pay (price or logic changed) | all | `quote_changed` | V | "The amount was updated to %s. Please check and press Pay again." |
 | Try again no longer possible (10 attempts, paid twin, entry finalized) | all | `retry_unavailable` | V | "This payment can no longer be started again here. Please reload the page and send the form again." |
 | Gateway-specific visitor texts | Payplug (Oney range), Xendit (whole amounts, rate limit), Tap / Paymob (`messages()` overrides) | `gateway_declined` / own | V | the add-on's text |
@@ -179,3 +181,18 @@ what is special to its provider.
   the status texts), the visitor messages of §2, and the add-on's texts (method names "All methods",
   "Card", "mada", "KNET", "BENEFIT"; the KNET / BENEFIT / mada notes; the e-mail message). Tap's own
   page is Arabic. WordPress's own `ar` pack is needed for `is_rtl()` (`wp language core install ar`).
+
+## 6. Form limits and payments (F11, 2026-11-13)
+
+A payment entry takes its place in the form's total cap and per-person limits **when it is stored**
+(`payments/create`, before the visitor goes to the provider), so two visitors can never pay for the
+last place. The place is **given back** when the payment fails, is cancelled or expires and no other
+attempt of the same entry is still open (`efb_payment_status_changed`), so an abandoned or failed
+payment does not consume it. "Try again" takes it again (refused with `efb_form_full` when the form
+filled up meanwhile). A paid payment keeps it; a payment paid after its place had been given back is
+counted even when that goes over the cap (the money was taken; the owner sees the extra entry).
+The claimed counters are kept in the option `efb_gh_<entry id>` (counter ids only) until the payment
+is paid or the entry is deleted. The total cap is rebuilt from the real entries after a delete; an
+entry whose payment failed, was cancelled or expired (with no open attempt) is not counted.
+Readiness (`pay_not_ready`) is unchanged and is checked first; a form that is closed or full is not
+"not ready". Tests: `tests/test-form-gate-payment.php`, `tests/test-form-gate-http.php` (B6), e2e scenario `f11` (a paid form hitting the cap).

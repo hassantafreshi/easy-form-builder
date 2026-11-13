@@ -63,7 +63,7 @@ $grab = function ($name) use ($src) {
 eval('class StoreFixture { public $db; public $id; public $name = "F"; public $value = "[]"; public $ip = "203.0.113.1"; public $operation_key = ""; public $operation_data = array();
 	private function generate_track_code_efb($s) { return "TRK" . mt_rand(10000, 99999); }
 	private function claim_uploaded_files_efb($c) { \Emsfb\Upload_Guard::release_pending_uploads(array_keys(\Emsfb\Privacy::files_in_content($c, array()))); }
-	' . $grab('begin_operation_efb') . $grab('finish_operation_efb') . $grab('store_entry_efb') . $grab('insert_message_db') . $grab('efb_email_noti_type_efb') . ' }');
+	' . $grab('begin_operation_efb') . $grab('finish_operation_efb') . $grab('gate_reserve_efb') . $grab('gate_after_insert_efb') . $grab('store_entry_efb') . $grab('insert_message_db') . $grab('efb_email_noti_type_efb') . ' }');
 
 $tmp = sys_get_temp_dir() . '/efb-prv-ns-' . getmypid();
 @mkdir($tmp . '/uploads/2026/11', 0777, true);

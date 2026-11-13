@@ -189,7 +189,7 @@ $method = preg_replace('/^\tpublic function/', 'public function', $ins);
 $method = str_replace(array('\\Emsfb\\Form_Runtime', '\\Emsfb\\Request_Health'), array('\\Emsfb\\Form_Runtime', '\\Emsfb\\Request_Health'), $method);
 // insert_message_db() runs the idempotency guard through these two (F13-C).
 $ops = '';
-foreach (array('begin_operation_efb', 'finish_operation_efb') as $op) {
+foreach (array('begin_operation_efb', 'finish_operation_efb', 'gate_reserve_efb', 'gate_after_insert_efb') as $op) { // F11: the form gate's places
 	if (preg_match('/\tprivate function ' . $op . '\(.*?\n\t\}\n/s', $pub, $mo)) $ops .= $mo[0];
 }
 eval('class InsertFixture { public $db; public $name = "F"; public $value = "[]"; public $id = 3; public $ip = "203.0.113.9"; private $operation_key = ""; private $operation_data = array();

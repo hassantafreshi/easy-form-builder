@@ -35,6 +35,14 @@ class _Public {
 	private $mask_ids_efb = array();
 	/* PAY00: set by payment_create_api_efb() for the one request it serves (payments/create). */
 	private $pay_create_efb = null;
+	/* F11: the form gate of the submission this request serves (Form_Gate). */
+	private $gate_s0 = null;
+	private $gate_fid = 0;
+	private $gate_ctx = array();
+	private $gate_items = array();
+	private $gate_claims = array();
+	private $gate_cookie = '';
+	private $gate_reserved = false;
 	/** PAY00: the instance (webhooks, cron and the return URL run actions through it). */
 	public static $instance_efb = null;
 
@@ -236,17 +244,29 @@ public function check_nonce_permission_efb($request) {
 		$fid = $request->get_param('form_id');
 		if (!is_scalar($fid) || !preg_match('/^[0-9]{1,10}$/D',(string)$fid)) return new \WP_Error('efb_form_invalid','Invalid form.',array('status'=>400));
 		$fid = (int)$fid;
+		$gate_s0 = null;
 		if ($fid > 0) {
 			$form = $this->get_form_data_efb($fid);
 			if (!$form) return new \WP_Error('efb_form_missing',__('Form not found.', 'easy-form-builder'),array('status'=>404));
 			$structure = \emsfb_json_decode_efb($form->form_structer,true);
 			if (in_array($structure[0]['stateForm'] ?? false,array(true,1,'1'),true) && !is_user_logged_in()) return new \WP_Error('efb_login_required',__('Please log in to use this form.', 'easy-form-builder'),array('status'=>403));
+			if (is_array($structure) && isset($structure[0]) && is_array($structure[0])) $gate_s0 = $structure[0];
 		}
 		if (!class_exists('\\Emsfb\\Form_Runtime')) return new \WP_Error('efb_runtime_unavailable','Form runtime unavailable.',array('status'=>503));
 		$previous = $request->get_param('runtime_token');
 		$proof = $previous ? \Emsfb\Form_Runtime::verify($previous,$fid) : false;
 		if (is_wp_error($proof)) return $proof;
 		if ($previous && !$proof) return new \WP_Error('efb_context_expired',__('This form has expired. Please refresh the page and send it again.', 'easy-form-builder'),array('status'=>409));
+		/* F11: role, schedule, total cap and per-person limits, for a cached widget or popup too.
+		 * 403 with a stable code (efb_role_denied, efb_form_pending, efb_form_closed, efb_form_full,
+		 * efb_limit_reached), the visitor's sentence and data.reopen_at when it is known. */
+		$gate_block = null;
+		if ($gate_s0 !== null && class_exists('\\Emsfb\\Form_Gate') && ($gate_s0['type'] ?? '') !== 'login') {
+			$gate_ctx = \Emsfb\Form_Gate::context($fid, array('t0' => $proof && isset($proof['t0']) ? (int) $proof['t0'] : null));
+			$gate_err = \Emsfb\Form_Gate::check($gate_s0, $gate_ctx);
+			if ($gate_err) return $gate_err;
+			if (\Emsfb\Form_Gate::has_rules(\Emsfb\Form_Gate::cfg($gate_s0))) $gate_block = \Emsfb\Form_Gate::public_status($gate_s0, $gate_ctx);
+		}
 		$this->efbFunction = get_efbFunction();
 		$sid = $proof ? $proof['sid'] : '';
 		if (!$sid || !$this->efbFunction->efb_code_validate_check($sid,$fid)) {
@@ -257,7 +277,9 @@ public function check_nonce_permission_efb($request) {
 			$sid = $this->efbFunction->efb_code_validate_create($fid,0,'visit',0);
 		} else $this->efbFunction->efb_code_touch_session($sid,$fid);
 		if (!$sid) return new \WP_Error('efb_session_storage_failed',__('The form session could not be saved.', 'easy-form-builder'),array('status'=>503));
-		return new \WP_REST_Response(array('nonce'=>$nonce->get_data()['nonce'],'sid'=>$sid,'runtime_token'=>\Emsfb\Form_Runtime::token($fid,$sid,$proof ? $proof['owner'] : ''),'refresh_after'=>240),200);
+		$answer = array('nonce'=>$nonce->get_data()['nonce'],'sid'=>$sid,'runtime_token'=>\Emsfb\Form_Runtime::token($fid,$sid,$proof ? $proof['owner'] : '',$proof && isset($proof['t0']) ? (int) $proof['t0'] : null),'refresh_after'=>240);
+		if ($gate_block !== null) $answer['gate'] = $gate_block;
+		return new \WP_REST_Response($answer,200);
 	}
 
 	public function operation_status_api($request) {
@@ -1215,7 +1237,11 @@ public function check_nonce_permission_efb($request) {
 			/* Submit failures: the cause in plain words (core-efb.js efb_visitor_text_efb). */
 			'requestBlocked','formsClosed','formTooLarge','formNotSentCode','formExpiredSendAgain','loginChangedSendAgain','noAnswerCheckFirst','requestFailedCode','noAnswerRetry','tooManyRequests','paymentNotCompleted','paymentNotStartedNoCharge',
 			/* F01 input masks: messages of masked fields (core-efb.js efb_mask_error_efb). */
-			'mskFormat_','mskChecksum_','mskRule_','mskIncomplete_','mskRange_'];
+			'mskFormat_','mskChecksum_','mskRule_','mskIncomplete_','mskRange_',
+			/* F11: the form gate's sentences, save and continue, partial answers, popup. */
+			'limFullM','limLeft','limReachedM','limReachedUntilM','schedPendingM','schedClosedM','roleDeniedM',
+			'draftSave','draftSaved','draftCopy','draftEmail','draftSendLink','draftLinkSent','draftExpires','draftNotSaved','draftKeepSafe','draftRestored','draftStartOver','draftInvalid','draftFailed',
+			'partialConsent','partialNotice','popupClose'];
 
 			/* Only now is a form or response box really printed. A form in a widget,
 			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
@@ -1280,7 +1306,16 @@ public function check_nonce_permission_efb($request) {
 				'bi-pen',
 				'bi-star',
 				'bi-reply',
-				'bi-x'
+				'bi-x',
+				/* F11: the form gate's cards and the save-and-continue dialog. */
+				'bi-hourglass-split',
+				'bi-calendar-x',
+				'bi-people-fill',
+				'bi-person-check',
+				'bi-check2-circle',
+				'bi-bookmark',
+				'bi-clipboard',
+				'bi-envelope'
 			]];
 			$bootstrap_icons ='';
 			 $iconst_html_preload ='<div style="display:none;">';
@@ -1471,6 +1506,15 @@ public function check_nonce_permission_efb($request) {
 					$this->ajax_object_efm_efb($ar_core ,$values ,$typeOfForm ,$state ,$lang ,$poster ,$img ,$pro ,$page_builder ,$is_user ,$username,$lanText);
 					return $content;
 				}
+
+			   /* F11: the form gate (schedule, total cap, per-person limits, roles). A page that is not
+			    * cached shows the card instead of the form; a cacheable one (widget, popup, footer)
+			    * carries both and core-efb.js asks forms/session/prepare which one to show. The submit
+			    * decides again in any case. */
+			   $gate_render_efb = (class_exists('\\Emsfb\\Form_Gate') && (($valj_efb[0]->type ?? '') !== 'login')) ? \Emsfb\Form_Gate::render_gate($valj_efb[0], $this->id) : null;
+			   if ($gate_render_efb && $gate_render_efb['card_only']) {
+					return $bootstrap_icons . "<div class='efb row pb-3 efb px-2 v4 efb-gate-wrap' data-formid='" . intval($this->id) . "'" . (is_rtl() ? " dir='rtl'" : '') . ">" . $gate_render_efb['html'] . ($efb_m ?? '') . ($s_m ?? '') . "</div>";
+			   }
 
 			   $count = count($valj_efb);
 				$step_no= 0;
@@ -1915,7 +1959,8 @@ public function check_nonce_permission_efb($request) {
                         $content_new = $this->hoist_to_head_efb($head_payload_efb).$console_script_efb.$iconst_html_preload.'
 				<!-- start body_efb-->
 
-				<div id="body_efb_'.$form_id.'" class="efb row pb-3 efb px-2 pre-efb body_efb efb-waiting-'.$this->id.' '.$dShow.'" data-currentstep="1" data-steps="'.$valj_efb[0]->steps.'" data-formid="'.$this->id.'"'.$direction_attr.'>
+				'.($gate_render_efb ? $gate_render_efb['html'] : '').'
+				<div id="body_efb_'.$form_id.'" class="efb row pb-3 efb px-2 pre-efb body_efb efb-waiting-'.$this->id.' '.$dShow.(($gate_render_efb && $gate_render_efb['hide_form']) ? ' d-none' : '').'" data-currentstep="1" data-steps="'.$valj_efb[0]->steps.'" data-formid="'.$this->id.'"'.$direction_attr.'>
 					<form id="efbform" class="mx-0 px-0 efb" data-formid="'.$this->id.'"'.$direction_attr.'>
 						<div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2 view-efb" id="view-efb" data-formid="'.$this->id.'">
 						' . (intval($valj_efb[0]->show_icon) != 1
@@ -2451,7 +2496,9 @@ public function check_nonce_permission_efb($request) {
 			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN',
 			'surveyResults', 'responses', 'submitBlocked', 'enterValidDate',
 			/* F01 input masks: server messages for masked fields. */
-			'mskFormat_', 'mskChecksum_', 'mskRule_', 'mskIncomplete_', 'mskRange_'
+			'mskFormat_', 'mskChecksum_', 'mskRule_', 'mskIncomplete_', 'mskRange_',
+			/* F11 form gate (Form_Gate::message() reads them through text_efb() too). */
+			'limFullM', 'limReachedM', 'limReachedUntilM', 'schedPendingM', 'schedClosedM', 'roleDeniedM'
 		];
 		$efbFunction = get_efbFunction();
 
@@ -2571,6 +2618,31 @@ public function check_nonce_permission_efb($request) {
 			$replay=\Emsfb\Form_Runtime::replay('form',$this->id,$this->operation_data);
 			if (is_wp_error($replay)) wp_send_json_error(array('code'=>$replay->get_error_code(),'m'=>$replay->get_error_message()),$replay->get_error_data()['status']);
 			if ($replay instanceof \WP_REST_Response) wp_send_json($replay->get_data(),$replay->get_status());
+		}
+		/* F11: the authoritative gate (role, schedule, total cap, per-person limits), after the
+		 * replay so a repeated request still gets its first answer. Every submit endpoint comes
+		 * through here: forms/message/add, payments/create (before anything is stored), the
+		 * offline add-on's restore and any API client. The legacy gateway follow-up (type
+		 * payment with payid) completes an entry that already took its place, so it is not
+		 * refused again. The places themselves are taken in insert_message_db(). */
+		$this->gate_s0 = null;
+		$this->gate_claims = array();
+		$this->gate_cookie = '';
+		$this->gate_reserved = false;
+		$gate_followup_efb = $submission_type === 'payment' && !empty($request_data['payid']) && empty($this->pay_create_efb);
+		if (class_exists('\\Emsfb\\Form_Gate') && is_array($access_structure) && isset($access_structure[0]) && is_array($access_structure[0])
+			&& !$gate_followup_efb && !in_array($submission_type, array('logout', 'recovery'), true) && ($form_db_data->form_type ?? '') !== 'login') {
+			$this->gate_fid = (int) $this->id;
+			$this->gate_ctx = \Emsfb\Form_Gate::context($this->gate_fid, array('t0' => isset($runtime_proof) && is_array($runtime_proof) && isset($runtime_proof['t0']) ? (int) $runtime_proof['t0'] : null));
+			$gate_err_efb = \Emsfb\Form_Gate::check($access_structure[0], $this->gate_ctx);
+			if ($gate_err_efb) {
+				$this->efb_trace('submit.blocked', array('form_id' => intval($this->id), 'gate' => 'form_gate', 'reason' => $gate_err_efb->get_error_code()));
+				$gate_data_efb = $gate_err_efb->get_error_data();
+				$gate_answer_efb = array('code' => $gate_err_efb->get_error_code(), 'm' => $gate_err_efb->get_error_message());
+				if (is_array($gate_data_efb) && isset($gate_data_efb['reopen_at'])) $gate_answer_efb['reopen_at'] = (int) $gate_data_efb['reopen_at'];
+				wp_send_json_error($gate_answer_efb, 403);
+			}
+			$this->gate_s0 = $access_structure[0];
 		}
 		$should_send_email=false;
 		$email_recipients = [];
@@ -3553,6 +3625,7 @@ public function check_nonce_permission_efb($request) {
 					wp_send_json_success($response, 200);
 				}
 				$this->value = $this->efb_encode_rows_for_storage_efb($validated_items);
+				$this->gate_items = $validated_items; // F11: the normalized e-mail for lim_email
 				if ($form_condition == 'booking') {
 					$table_name = $this->db->prefix . "emsfb_form";
 					$id = sanitize_text_field($request_data['id']);
@@ -4796,7 +4869,9 @@ public function check_nonce_permission_efb($request) {
 			return $this->insert_message_db(0, false, $style_trackingCode);
 		}
 		$this->begin_operation_efb();
+		$this->gate_reserve_efb();
 		$track = $this->generate_track_code_efb($style_trackingCode);
+		$this->gate_after_insert_efb(0);
 		if (class_exists('\\Emsfb\\Request_Health')) \Emsfb\Request_Health::mark_saved();
 		\Emsfb\Privacy::ledger_nostore_files($this->value);
 		$this->finish_operation_efb($track);
@@ -4804,8 +4879,62 @@ public function check_nonce_permission_efb($request) {
 		// End privacy store gate.
 	}
 
+	/**
+	 * F11: takes the places of the gate (total cap, per-person limits) for the submission this
+	 * request serves, after the idempotency guard and before anything is stored. Refused: the
+	 * guard is released and the visitor reads why (the answers stay in the form).
+	 */
+	private function gate_reserve_efb() {
+		if (!empty($this->gate_reserved) || empty($this->gate_s0) || !class_exists('\\Emsfb\\Form_Gate')) return;
+		$r = \Emsfb\Form_Gate::reserve_for_submit($this->gate_s0, is_array($this->gate_items) ? $this->gate_items : array(), $this->gate_fid, $this->gate_ctx);
+		if (is_wp_error($r)) {
+			\Emsfb\Form_Runtime::abort($this->operation_key);
+			$this->efb_trace('submit.blocked', array('form_id' => intval($this->gate_fid), 'gate' => 'form_gate_reserve', 'reason' => $r->get_error_code()));
+			$d = $r->get_error_data();
+			$answer = array('success' => false, 'm' => $r->get_error_message(), 'code' => $r->get_error_code());
+			if (is_array($d) && isset($d['reopen_at'])) $answer['reopen_at'] = (int) $d['reopen_at'];
+			wp_send_json_success($answer, 200);
+		}
+		$this->gate_claims = $r['claims'];
+		$this->gate_cookie = $r['cookie'];
+		$this->gate_reserved = true;
+	}
+
+	/**
+	 * F11: the gate of an endpoint that stores an entry without the submit handler (the legacy
+	 * Stripe add-on route). Refuses at once; the places are taken in insert_message_db().
+	 */
+	private function gate_prepare_for_endpoint_efb($fid) {
+		$this->gate_s0 = null;
+		$this->gate_reserved = false;
+		if ($fid <= 0 || !class_exists('\\Emsfb\\Form_Gate')) return;
+		$form = $this->get_form_data_efb($fid, array('form_structer', 'form_type'));
+		if (!$form) return;
+		$rows = \emsfb_json_decode_efb(\emsfb_json_normalize_efb($form->form_structer), true);
+		if (!is_array($rows) || !isset($rows[0]) || !is_array($rows[0])) return;
+		$this->gate_fid = (int) $fid;
+		$this->gate_ctx = \Emsfb\Form_Gate::context($this->gate_fid);
+		$err = \Emsfb\Form_Gate::check($rows[0], $this->gate_ctx);
+		if ($err) wp_send_json_success(array('success' => false, 'code' => $err->get_error_code(), 'm' => $err->get_error_message()), 200);
+		$this->gate_s0 = $rows[0];
+		$this->gate_items = array();
+	}
+
+	/** F11: after the entry is stored: the cookie of a cookie limit, the hold of a pending payment. */
+	private function gate_after_insert_efb($msg_id) {
+		if (empty($this->gate_reserved) || !class_exists('\\Emsfb\\Form_Gate')) return;
+		if ($this->gate_cookie !== '') {
+			$cfg = \Emsfb\Form_Gate::cfg($this->gate_s0);
+			\Emsfb\Form_Gate::set_cookie($this->gate_fid, $this->gate_cookie, $cfg['period']);
+		}
+		if ((int) $msg_id > 0 && !empty($this->pay_create_efb) && $this->gate_claims) {
+			\Emsfb\Form_Gate::hold_save((int) $msg_id, $this->gate_fid, $this->gate_claims);
+		}
+	}
+
 	public function insert_message_db($read,$uniqid,$style_trackingCode = 'date_en_mix'){
 		$this->begin_operation_efb();
+		$this->gate_reserve_efb();
 		if(isset($read)==false) $read=0;
 
 		if($uniqid==false){
@@ -4839,9 +4968,12 @@ public function check_nonce_permission_efb($request) {
 		}
 		if ($inserted === false) {
 			\Emsfb\Form_Runtime::abort($this->operation_key);
+			// F11: the places this submission took are given back.
+			if (!empty($this->gate_reserved) && class_exists('\\Emsfb\\Form_Gate')) { \Emsfb\Form_Gate::release($this->gate_claims); $this->gate_reserved = false; $this->gate_claims = array(); }
 			if (class_exists('\\Emsfb\\Request_Health')) \Emsfb\Request_Health::record('form',500,'server','storage_failed');
 			wp_send_json_error(array('code'=>'efb_storage_failed','m'=>__('The form could not be saved. Your input has been kept.', 'easy-form-builder')),500);
 		}
+		$this->gate_after_insert_efb(isset($this->db->insert_id) ? (int) $this->db->insert_id : 0);
 		\Emsfb\Request_Health::mark_saved();
 		$this->finish_operation_efb($uniqid);
 		$this->claim_uploaded_files_efb($this->value);
@@ -6901,6 +7033,8 @@ public function check_nonce_permission_efb($request) {
 		$uid= $user->exists() ? $user->user_nicename :  esc_html__('Guest','easy-form-builder') ;
 		$this->id =sanitize_text_field($data_POST['id'] ?? '');
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
+		// F11: the legacy Stripe endpoint stores the pending entry itself: same gate, same places.
+		$this->gate_prepare_for_endpoint_efb((int) $this->id);
 
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
 		if(gettype($r)=="string"){

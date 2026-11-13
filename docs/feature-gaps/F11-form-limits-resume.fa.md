@@ -375,12 +375,12 @@ if (($this->operation_data['type'] ?? '') !== 'payment_followup' && class_exists
 - پذیرش: فرم بسته هم در رندر، هم در prepare و هم در ارسال مستقیم REST رد شود. صفحهٔ ابزارک کش‌شده با کارت «در انتظار» پس از رسیدن زمان باز شدن، فرم را نشان دهد. سقف ۳ با ۱۰ ارسال هم‌زمان دقیقاً ۳ پاسخ ذخیره کند. حذف یک پاسخ یک جا آزاد کند. مرز زمان برای `Asia/Tehran` و `America/Los_Angeles` درست باشد.
 - تست: `php tests/test-form-gate-unit.php` (مستقل؛ `state()`، `period_slot()`، مرزها)، `php tests/test-form-gate-http.php` (WordPress واقعی؛ prepare و message/add با فرم seed؛ هم‌زمانی)، `php tests/test-f11-sanitize-roundtrip.php` (گسترش الگوی `test-conditional-logic-save-roundtrip.php` با stub که آرایه را `''` می‌کند)، `node tests/test-form-gate-client.js` (vm و DOM جعلی برای `efb_failure_cause_efb` و جابه‌جایی کارت)، Playwright `tests/form-gate-cache-browser.js` (ورودی پیکربندی از stdin مثل `test-cache-guest-browser.js`).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۳، انجام شد)
+- فایل‌های تغییرکرده: `includes/class-Emsfb-form-gate.php` (تازه: `cfg`، `sanitize_key`، `state`، `check`، `period_slot`، `reserve_for_submit`، `release`، `public_status`، `status`، `save_checks`، `normalize_form_settings`، کارت قفل، نگه‌داشت جای پرداخت معلق)، `class-Emsfb-public.php` (رندر کارت یا هر دو در صفحهٔ قابل کش، `prepare` با بلوک `gate` و ۴۰۳، گیت ارسال پس از replay، رزرو در `insert_message_db` و مسیر nostore، مسیر قدیمی Stripe، `$translation_keys` و زیرمجموعهٔ عمومی)، `class-Emsfb-form-runtime.php` (`t0` در توکن، `draft_token` بیرون از fingerprint)، `functions.php` (caseهای F11 و عبارت‌ها)، `admin/class-Emsfb-admin.php` و `class-Emsfb-create.php` (قواعد ذخیره، خطای `sched_order`، هشدارها)، `includes/admin/assets/js/form-limits-efb.js` (بخش «دسترسی و محدودیت» و قواعد همزاد)، `val-efb.js`، `builder-api-efb.js` (`setFormSettings`، `formGate`)، `core-efb.js` (علت `form_gate`، `efb_gate_*`)، `request-health-efb.js`، `payments/class-Emsfb-payment-service.php` (فیلتر `efb_payment_retry_gate` و متن کدها)، `docs/payments/payment-error-matrix.en.md`.
+- تست‌ها: `test-form-gate-unit.php` (۷۹)، `test-form-gate-http.php` روی وردپرس واقعی (۲۷: رندر/prepare/ارسال فرم بسته، در انتظار، سقف ۳ با ۱۰ ارسال هم‌زمان دقیقاً ۳، حذف یک جا آزاد می‌کند، `payments/create` روی فرم پر پیش از ذخیره رد می‌شود، نقش‌ها)، `test-f11-sanitize-roundtrip.php` (۹)، `test-form-gate-client.js` (۲۴)، `test-f11-parity.js` (۵۳)، `test-form-gate-payment.php` (۱۷).
+- وضعیت ترجمه: عبارت‌ها انگلیسی‌اند (دستور مالک: ترجمه نشود)؛ فهرست با `extract.php` در پایان تازه می‌شود.
+- مورد باز: `formsClosed` دوباره استفاده نشد (معنای دیگری دارد). ترتیب گیت ارسال: پس از replay و پس از بررسی آمادگی پرداخت.
+- اقدام بعدی: C.
 
 ### C — محدودیت کاربر، IP، کوکی و ایمیل
 - فایل‌ها: `Form_Gate` (`reserve_for_submit` و `release`)، `insert_message_db` (کوکی)، سازنده (کنترل‌ها و `limResetBtn`)، AJAX `efb_limits_reset_Emsfb`.

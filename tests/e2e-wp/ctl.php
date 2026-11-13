@@ -221,6 +221,21 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( get_option( isset( $efb_e2e_rest[0] ) ? $efb_e2e_rest[0] : '', null ) );
 		break;
 
+	case 'set-option':
+		// set-option <name> <value> | set-option <name> --delete
+		$n = isset( $efb_e2e_rest[0] ) ? $efb_e2e_rest[0] : '';
+		if ( isset( $efb_e2e_rest[1] ) && '--delete' === $efb_e2e_rest[1] ) delete_option( $n ); else update_option( $n, isset( $efb_e2e_rest[1] ) ? $efb_e2e_rest[1] : '1', false );
+		efb_e2e_out( array( $n => get_option( $n, null ) ) );
+		break;
+
+	case 'f11-mu':
+		// Copy tests/e2e-wp/mu-plugins/efb-e2e-f11.php into the site's mu-plugins (F11 tests).
+		$dst = WPMU_PLUGIN_DIR . '/efb-e2e-f11.php';
+		if ( ! is_dir( WPMU_PLUGIN_DIR ) ) wp_mkdir_p( WPMU_PLUGIN_DIR );
+		$ok = copy( dirname( __FILE__ ) . '/mu-plugins/efb-e2e-f11.php', $dst );
+		efb_e2e_out( array( 'copied' => $ok, 'path' => $dst ) );
+		break;
+
 	case 'setting':
 		$s = get_setting_Emsfb( 'decoded' );
 		$k = isset( $efb_e2e_rest[0] ) ? $efb_e2e_rest[0] : '';
@@ -333,6 +348,82 @@ switch ( $efb_e2e_cmd ) {
 		$fid = (int) $wpdb->insert_id;
 		do_action( 'efb_form_created', $fid, $clean, array( 'form_id' => $fid, 'source' => 'e2e', 'user_id' => 1 ) );
 		efb_e2e_out( array( 'form_id' => $fid, 'email' => $em, 'pf' => $pf, 'radio' => $rad, 'o1' => $o1, 'o2' => $o2, 'guests' => $num, 'total' => $tot ) );
+		break;
+
+	case 'f11-form':
+		wp_set_current_user( 1 ); // custom_css is kept only for a user who may write unfiltered HTML
+		// F11: a plain form (email, name, optionally a password and a second step) saved through the
+		// builder's sanitizer and Form_Gate's save rules. Args: [name] [row-0 overrides k=v&k=v] [steps 1|2] [type]
+		$name  = isset( $efb_e2e_rest[0] ) && '' !== $efb_e2e_rest[0] ? $efb_e2e_rest[0] : 'F11 form';
+		$steps = isset( $efb_e2e_rest[2] ) ? max( 1, (int) $efb_e2e_rest[2] ) : 1;
+		$ftype = isset( $efb_e2e_rest[3] ) && '' !== $efb_e2e_rest[3] ? $efb_e2e_rest[3] : 'form';
+		$rid   = function () { return substr( str_shuffle( 'abcdefghijklmnopqrstuvwxyz0123456789' ), 0, 9 ); };
+		$em = $rid(); $nm = $rid(); $pw = $rid(); $ph = $rid(); $tx = $rid();
+		$base = array( 'step' => 1, 'amount' => 0, 'size' => 100, 'required' => 0, 'label_text_size' => 'fs-6', 'label_position' => 'up', 'el_text_size' => 'fs-6', 'label_text_color' => 'text-labelEfb', 'el_border_color' => 'border-d', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'el_height' => 'h-d-efb', 'label_align' => 'txt-left', 'message_align' => 'justify-content-start', 'el_align' => 'justify-content-start', 'classes' => '', 'message' => '', 'placeholder' => '', 'value' => '', 'icon_input' => '' );
+		$row0 = array( 'type' => $ftype, 'steps' => $steps, 'formName' => $name, 'email' => 'owner@example.test', 'trackingCode' => '1', 'EfbVersion' => 2, 'button_single_text' => 'Send', 'button_Next_text' => 'Next', 'button_Previous_text' => 'Previous', 'button_Next_icon' => 'bi-chevron-right', 'button_Previous_icon' => 'bi-chevron-left', 'button_color' => 'btn-darkb', 'icon' => 'bi-ui-checks-grid', 'button_state' => 'single', 'email_to' => $em, 'show_icon' => '1', 'captcha' => '', 'sendEmail' => '1', 'stateForm' => 0, 'thank_you' => 'msg', 'thank_you_message' => array( 'icon' => 'bi-hand-thumbs-up', 'thankYou' => 'Thank you', 'done' => 'Done', 'trackingCode' => 'Confirmation Code', 'pleaseFillInRequiredFields' => 'Please fill in all required fields.' ), 'dShowBg' => '1', 'btns_align' => 'justify-content-center', 'label_text_color' => 'text-labelEfb', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'icon_color' => 'text-white', 'el_height' => 'h-d-efb' );
+		$step = function ( $n ) { return array( 'id_' => (string) $n, 'type' => 'step', 'dataId' => (string) $n, 'classes' => '', 'id' => (string) $n, 'name' => 'Step ' . $n, 'icon' => 'bi-ui-checks-grid', 'step' => $n, 'amount' => $n === 1 ? 1 : 10, 'EfbVersion' => 2, 'message' => '', 'label_text_size' => 'fs-5', 'el_text_size' => 'fs-5', 'label_text_color' => 'text-darkb', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'icon_color' => 'text-darkb', 'visible' => 1 ); };
+		$rows = array( $row0, $step( 1 ) );
+		$rows[] = array_merge( $base, array( 'id_' => $em, 'dataId' => $em . '-id', 'type' => 'email', 'elementId' => 'email', 'name' => 'Email', 'amount' => 2, 'required' => 1 ) );
+		$rows[] = array_merge( $base, array( 'id_' => $nm, 'dataId' => $nm . '-id', 'type' => 'text', 'elementId' => 'text', 'name' => 'Name', 'amount' => 3 ) );
+		if ( $steps > 1 ) {
+			$rows[] = $step( 2 );
+			$rows[] = array_merge( $base, array( 'id_' => $ph, 'dataId' => $ph . '-id', 'type' => 'text', 'elementId' => 'text', 'name' => 'City', 'amount' => 11, 'step' => 2 ) );
+			$rows[] = array_merge( $base, array( 'id_' => $pw, 'dataId' => $pw . '-id', 'type' => 'password', 'elementId' => 'password', 'name' => 'Secret', 'amount' => 12, 'step' => 2 ) );
+			$rows[] = array_merge( $base, array( 'id_' => $tx, 'dataId' => $tx . '-id', 'type' => 'textarea', 'elementId' => 'textarea', 'name' => 'Notes', 'amount' => 13, 'step' => 2 ) );
+		}
+		if ( isset( $efb_e2e_rest[1] ) && '' !== $efb_e2e_rest[1] ) {
+			foreach ( explode( '&', $efb_e2e_rest[1] ) as $kv ) {
+				list( $k, $v ) = array_pad( explode( '=', $kv, 2 ), 2, '' );
+				$v = urldecode( $v );
+				$rows[0][ $k ] = '{email}' === $v ? $em : $v;
+			}
+		}
+		$fn = get_efbFunction();
+		$clean = $fn->sanitize_obj_msg_efb( $rows );
+		if ( class_exists( '\Emsfb\Form_Gate' ) ) $clean = \Emsfb\Form_Gate::normalize_form_settings( $clean, null );
+		$json = str_replace( '"', '\\"', wp_json_encode( $clean, JSON_UNESCAPED_UNICODE ) );
+		$wpdb->insert( $wpdb->prefix . 'emsfb_form', array( 'form_name' => $name, 'form_structer' => $json, 'form_email' => '', 'form_type' => $ftype, 'form_created_by' => '1', 'form_access_by' => '', 'form_create_date' => current_time( 'mysql' ), 'status' => 1 ) );
+		$fid = (int) $wpdb->insert_id;
+		do_action( 'efb_form_created', $fid, $clean, array( 'form_id' => $fid, 'source' => 'e2e', 'user_id' => 1 ) );
+		efb_e2e_out( array( 'form_id' => $fid, 'email' => $em, 'name' => $nm, 'city' => $ph, 'password' => $pw, 'notes' => $tx, 'row0' => $clean[0] ) );
+		break;
+
+	case 'f11-set':
+		// F11: change row-0 keys of a stored form (as a builder save would, through the sanitizer). Args: <form_id> <k=v&k=v>
+		wp_set_current_user( 1 );
+		$fid  = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
+		$raw  = $wpdb->get_var( $wpdb->prepare( "SELECT form_structer FROM {$wpdb->prefix}emsfb_form WHERE form_id = %d", $fid ) ); // phpcs:ignore
+		$rows = efb_e2e_decode_json( $raw );
+		foreach ( explode( '&', isset( $efb_e2e_rest[1] ) ? $efb_e2e_rest[1] : '' ) as $kv ) {
+			if ( '' === $kv ) continue;
+			list( $k, $v ) = array_pad( explode( '=', $kv, 2 ), 2, '' );
+			$rows[0][ $k ] = urldecode( $v );
+		}
+		$clean = get_efbFunction()->sanitize_obj_msg_efb( $rows );
+		if ( class_exists( '\Emsfb\Form_Gate' ) ) $clean = \Emsfb\Form_Gate::normalize_form_settings( $clean, $rows );
+		$json = str_replace( '"', '\\"', wp_json_encode( $clean, JSON_UNESCAPED_UNICODE ) );
+		$wpdb->update( $wpdb->prefix . 'emsfb_form', array( 'form_structer' => $json ), array( 'form_id' => $fid ) );
+		wp_cache_flush();
+		efb_e2e_out( array( 'form_id' => $fid, 'row0' => $clean[0] ) );
+		break;
+
+	case 'f11-counters':
+		// F11: the counters of a form (scopes lt/lu/li/lc/le:<id>); never a raw key (buckets are HMACs).
+		$fid  = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT bucket, scope, hits, window_end FROM {$wpdb->prefix}emsfb_vrfy_rl_ WHERE scope IN (%s,%s,%s,%s,%s) ORDER BY scope", 'lt:' . $fid, 'lu:' . $fid, 'li:' . $fid, 'lc:' . $fid, 'le:' . $fid ), ARRAY_A ); // phpcs:ignore
+		efb_e2e_out( $rows ? $rows : array() );
+		break;
+
+	case 'f11-drafts':
+		$fid  = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}emsfb_draft_ WHERE fid = %d ORDER BY id", $fid ), ARRAY_A ); // phpcs:ignore
+		efb_e2e_out( $rows ? $rows : array() );
+		break;
+
+	case 'f11-delete-entry':
+		$mid = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
+		$out = class_exists( '\Emsfb\Privacy' ) ? \Emsfb\Privacy::delete_entries( array( $mid ) ) : null;
+		efb_e2e_out( $out );
 		break;
 
 	case 'payments':

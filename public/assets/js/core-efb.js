@@ -2409,6 +2409,8 @@ async function efb_response_info_efb(response) {
 function efb_failure_cause_efb(info) {
   const s = info ? Number(info.status) || 0 : 0, c = info ? String(info.code || '') : '';
   if (!s) return 'unknown_outcome';
+  // F11: the form gate (closed, not open yet, full, per-person limit, role) says it in its own words.
+  if (['efb_form_pending', 'efb_form_closed', 'efb_form_full', 'efb_limit_reached', 'efb_role_denied'].includes(c)) return 'form_gate';
   // The X-WP-Nonce header never arrived: a proxy, firewall or security plugin removed it.
   if (c === 'efb_nonce_missing') return 'blocked';
   if (['rest_cookie_invalid_nonce', 'efb_nonce_expired'].includes(c)) return 'stale_token';
@@ -2436,6 +2438,7 @@ function efb_visitor_text_efb(cause, info) {
     case 'stale_token': return t.nonceExpired || 'Your session has expired. Please refresh the page and try again.';
     case 'stale_context': return t.formExpiredSendAgain || 'The form expired while this page was open. It has been renewed, so please send it again. Your answers are kept.';
     case 'identity_changed': return t.loginChangedSendAgain || 'You signed in or out in another tab. Please send the form again.';
+    case 'form_gate':
     case 'server_refusal':
     case 'server_failed': if (info && info.m) return info.m; break;
     case 'closed': return t.formsClosed || 'This website is not accepting forms from visitors right now. Please contact the site owner.';
@@ -4849,4 +4852,95 @@ const check_form_payment_filled_efb = (form_id=0) =>{
 
     }
 
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * F11: the form gate in the page (docs/feature-gaps/F11-form-limits-resume.fa.md, "رندر").
+ * The server decides (render, forms/session/prepare, every submit); these only show it.
+ * efb_gate_card_html_efb() is the twin of Form_Gate::card_html() (tests/test-f11-parity.js).
+ * A card in "swap" mode sits in a cacheable page (widget, popup) next to the hidden or shown
+ * form: prepare says which one is right now. A card in "card" mode (or a hidden one that only
+ * carries the next change) reloads the page when the form opens or closes within a day.
+ * ------------------------------------------------------------------------------------------- */
+const EFB_GATE_CODES = ['efb_form_pending', 'efb_form_closed', 'efb_form_full', 'efb_limit_reached', 'efb_role_denied'];
+const EFB_GATE_STATES = { efb_form_pending: 'pending', efb_form_closed: 'closed', efb_form_full: 'full', efb_limit_reached: 'limited', efb_role_denied: 'role' };
+const EFB_GATE_ICONS = { open: 'bi-check2-circle', pending: 'bi-hourglass-split', closed: 'bi-calendar-x', full: 'bi-people-fill', limited: 'bi-person-check', role: 'bi-shield-lock-fill' };
+function efb_gate_escape_efb(v) {
+  return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+function efb_gate_card_html_efb(state, message, fid, next, mode) {
+  state = Object.prototype.hasOwnProperty.call(EFB_GATE_ICONS, state) ? state : 'closed';
+  const hidden = state === 'open' ? ' d-none' : '';
+  const n = next ? String(Math.floor(Number(next)) || '') : '';
+  return '<div class="efb efb-gate-card text-center my-4 p-4' + hidden + '" id="efb-gate-' + (parseInt(fid, 10) || 0) + '" role="status" data-efb-gate="' + state + '" data-efb-gate-next="' + n + '" data-efb-gate-mode="' + (mode === 'swap' ? 'swap' : 'card') + '" data-formid="' + (parseInt(fid, 10) || 0) + '">'
+    + '<div class="efb efb-gate-icon ' + EFB_GATE_ICONS[state] + ' display-4 mb-2" aria-hidden="true"></div>'
+    + '<p class="efb efb-gate-msg fs-5 mb-0">' + efb_gate_escape_efb(message) + '</p>'
+    + '</div>';
+}
+/* The language's digits (twin of Form_Gate::locale_digits()). */
+function efb_gate_digits_efb(s, locale) {
+  const lang = String(locale || '').toLowerCase().split(/[_-]/)[0];
+  let base = 0;
+  if (['fa', 'ps', 'azb', 'haz'].includes(lang)) base = 0x06F0;
+  else if (['ar', 'ary', 'arq', 'ckb', 'ur'].includes(lang)) base = 0x0660;
+  if (!base) return String(s);
+  return String(s).replace(/[0-9]/g, (d) => String.fromCharCode(base + Number(d)));
+}
+function efb_gate_left_html_efb(left, fid, text, locale, grouped) {
+  const t = String(text || '%s places left').replace('%s', efb_gate_digits_efb(grouped != null ? grouped : String(left), locale));
+  return '<p class="efb efb-gate-left text-center fs-6 my-2" id="efb-gate-left-' + (parseInt(fid, 10) || 0) + '" aria-live="polite" data-left="' + (parseInt(left, 10) || 0) + '">' + efb_gate_escape_efb(t) + '</p>';
+}
+function efb_gate_locale_efb() {
+  try { if (typeof ajax_object_efm !== 'undefined' && ajax_object_efm && ajax_object_efm.language) return ajax_object_efm.language; } catch (e) {}
+  try { return document.documentElement.lang || ''; } catch (e) { return ''; }
+}
+/* Show the card or the form of one cached widget, as forms/session/prepare answers now. */
+async function efb_gate_check_efb(fid) {
+  if (!window.EFBRuntime || typeof window.EFBRuntime.prepare !== 'function') return null;
+  const card = document.getElementById('efb-gate-' + fid);
+  const body = document.getElementById('body_efb_' + fid);
+  if (!card) return null;
+  let state = 'open', message = '', next = 0, left = null;
+  try {
+    const v = await window.EFBRuntime.prepare(Number(fid), true);
+    if (v && v.gate) { state = v.gate.state || 'open'; if (v.gate.closes_at) next = Number(v.gate.closes_at) || 0; if (v.gate.left != null) left = Number(v.gate.left); }
+  } catch (error) {
+    if (!error || !EFB_GATE_STATES[error.code]) return null; // another refusal: the submit explains it
+    state = EFB_GATE_STATES[error.code];
+    message = error.message || '';
+    next = Number(error.reopen_at) || 0;
+  }
+  card.outerHTML = efb_gate_card_html_efb(state, message, fid, next, 'swap');
+  if (body) body.classList.toggle('d-none', state !== 'open');
+  if (left != null) {
+    const t = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm && ajax_object_efm.text) ? ajax_object_efm.text.limLeft : '';
+    const old = document.getElementById('efb-gate-left-' + fid);
+    const html = efb_gate_left_html_efb(left, fid, t, efb_gate_locale_efb());
+    if (old) old.outerHTML = html; else if (body) body.insertAdjacentHTML('beforebegin', html);
+  }
+  efb_gate_timer_efb(fid, next, 'swap');
+  return state;
+}
+function efb_gate_timer_efb(fid, next, mode) {
+  const at = Number(next) * 1000;
+  if (!at) return;
+  const wait = at - Date.now() + 1500;
+  if (wait <= 0 || wait > 86400000) return;
+  setTimeout(() => {
+    if (mode === 'swap') efb_gate_check_efb(fid);
+    else { try { location.reload(); } catch (e) {} }
+  }, wait);
+}
+function efb_gate_boot_efb(root) {
+  const cards = (root || document).querySelectorAll('[data-efb-gate]');
+  cards.forEach((card) => {
+    const fid = Number(card.getAttribute('data-formid')) || 0;
+    if (!fid) return;
+    if (card.getAttribute('data-efb-gate-mode') === 'swap') efb_gate_check_efb(fid);
+    else efb_gate_timer_efb(fid, card.getAttribute('data-efb-gate-next'), 'card');
+  });
+}
+if (typeof document !== 'undefined' && typeof window !== 'undefined' && !window.EFB_GATE_NO_BOOT) {
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => efb_gate_boot_efb(document));
+  else setTimeout(() => efb_gate_boot_efb(document), 0);
 }

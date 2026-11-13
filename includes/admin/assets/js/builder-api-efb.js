@@ -559,9 +559,68 @@
     });
   }
 
+  /**
+   * F11: change form settings (row 0) with the server's rules, e.g.
+   * setFormSettings({lim_total: '100', sched_close: '2026-12-31T23:59', lim_period: 'day'}).
+   * The F11 keys (efb_var.capabilities.form_gate.keys) are normalized as the save keeps them
+   * (Persian / Arabic digits accepted); a value the server would drop, closing before opening,
+   * or custom_css without unfiltered_html throws (code invalid_setting / sched_order /
+   * no_unfiltered_html) and changes nothing. Other scalar keys are written as strings.
+   * Returns {changed: [keys], values: {key: stored value}}. Saving stays the owner's Save.
+   */
+  function setFormSettings(patch, opts) {
+    var r = rows();
+    if (!r || !r[0]) throw fail('builder_not_ready', 'The builder is not ready.');
+    if (!patch || typeof patch !== 'object' || Array.isArray(patch)) throw fail('invalid_setting', 'setFormSettings() needs an object of row-0 keys.');
+    var keys = Object.keys(patch);
+    keys.forEach(function (k) {
+      var v = patch[k];
+      if (!/^[A-Za-z0-9_]+$/.test(k) || k === 'type' || k === 'id_') throw fail('invalid_setting', 'key ' + k + ' cannot be set here.');
+      if (v !== null && typeof v === 'object') throw fail('invalid_setting', k + ' must be a string, number or boolean.');
+    });
+    if (typeof efb_limits_validate_efb === 'function') {
+      var errs = efb_limits_validate_efb(patch, r[0]);
+      if (errs.length) throw fail(errs[0].code, errs[0].message);
+    }
+    var values = {};
+    keys.forEach(function (k) {
+      var v = patch[k];
+      var f11 = typeof efb_limits_value_efb === 'function' ? efb_limits_value_efb(k, v) : null;
+      values[k] = f11 !== null ? f11 : (v === true ? '1' : v === false ? '' : String(v == null ? '' : v));
+    });
+    keys.forEach(function (k) { r[0][k] = values[k]; });
+    try { sessionStorage.setItem('valj_efb', JSON.stringify(r)); } catch (e) {}
+    apiChanged('setFormSettings', []);
+    if (!opts || opts.refresh !== false) { try { refreshSettingsPanel(); } catch (e) {} }
+    return { changed: keys, values: values };
+  }
+
+  /**
+   * F11: the stored form's gate as the server sees it now (read only):
+   * {form_id, state: open|pending|closed|full|limited|role, code, message, opens_at, closes_at,
+   *  timezone, total: {limit, used, left}|null, person, roles, drafts, inactive: [reasons]}.
+   */
+  function formGate(opts) {
+    opts = opts || {};
+    var ev = window.efb_var || {};
+    var cap = ev.capabilities && ev.capabilities.form_gate;
+    var url = (cap && cap.rest) || ((ev.rest_url || '/wp-json/') + 'Emsfb/v1/forms/gate');
+    var id = Number(opts.formId || (typeof form_ID_emsFormBuilder !== 'undefined' ? form_ID_emsFormBuilder : 0)) || 0;
+    if (!id) return Promise.reject(fail('unknown_form', 'The form is not saved yet.'));
+    url += (url.indexOf('?') === -1 ? '?' : '&') + 'form_id=' + id;
+    return fetch(url, { credentials: 'same-origin', headers: { 'X-WP-Nonce': ev.nonce || '' } }).then(function (res) {
+      return res.json().then(function (j) {
+        if (!res.ok) throw fail((j && j.code) || 'gate_failed', (j && j.message) || 'The form gate could not be read.');
+        return j;
+      });
+    });
+  }
+
   var api = {
     version: API_VERSION,
     paymentReadiness: paymentReadiness,
+    setFormSettings: setFormSettings,
+    formGate: formGate,
     newItems: newItems,
     setFormType: setFormType,
     paletteIds: function () { return paletteIds().slice(); },

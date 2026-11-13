@@ -58,7 +58,9 @@
   // that rewrites Origin) falls back to the request 4.3.0 sent: the page nonce and sid,
   // no runtime_token or request_id. The server still checks that request in full and
   // Form_Runtime::begin() accepts it as an older client.
-  const FINAL = ['efb_login_required', 'efb_context_expired', 'efb_identity_changed', 'efb_form_missing', 'efb_form_invalid'];
+  // F11: the form gate (role, schedule, total cap, per-person limit) is final as well.
+  const FINAL = ['efb_login_required', 'efb_context_expired', 'efb_identity_changed', 'efb_form_missing', 'efb_form_invalid',
+    'efb_role_denied', 'efb_form_pending', 'efb_form_closed', 'efb_form_full', 'efb_limit_reached'];
   const TICKET_FINAL = ['efb_ticket_denied', 'efb_ticket_invalid', 'efb_context_expired', 'efb_identity_changed'];
   const REUSE_MAX = 3600000; // A context prepared on this page within the hour is still signed and live.
   function timeout(ms) {
@@ -119,7 +121,9 @@
       const code=value && typeof value.code==='string' ? value.code : '';
       if (FINAL.includes(code)) {
         const error=new Error(value.message || 'The form could not be prepared. Your input has been kept.');
-        error.status=status; error.code=code; throw error;
+        error.status=status; error.code=code;
+        if (value.data && value.data.reopen_at) error.reopen_at=Number(value.data.reopen_at)||0;
+        throw error;
       }
       context.retry=Date.now()+(status===429 ? 60000 : 15000);
       return legacy(fid,context);
@@ -174,7 +178,7 @@
       }
       data.sid=value.sid; data.runtime_token=value.runtime_token;
       const canonical=Object.assign({},data);
-      ['sid','runtime_token','request_id','valid','nonce'].forEach(k=>delete canonical[k]);
+      ['sid','runtime_token','request_id','valid','nonce','draft_token'].forEach(k=>delete canonical[k]);
       const fingerprint=JSON.stringify(canonical), key=kind+':'+fid;
       let intent=intents.get(key);
       if (!intent || intent.fingerprint!==fingerprint) { intent={fingerprint,id:uuid()}; intents.set(key,intent); }

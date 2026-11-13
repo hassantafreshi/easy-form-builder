@@ -308,6 +308,8 @@ class Panel_edit  {
 			$efb_val_js_path = EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/val-efb.js';
 			$efb_val_js_version = is_readable($efb_val_js_path) ? (string) filemtime($efb_val_js_path) : EMSFB_PLUGIN_VERSION;
 			wp_enqueue_script('efb-val-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/val-efb.js', array('jquery', 'efb-email-test-ui'), $efb_val_js_version);
+			// F11: the form settings' "Access and limits" section and the per-form CSS cleaner (twin of Form_Css).
+			wp_enqueue_script('efb-form-limits-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/form-limits-efb.js', array('efb-val-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/form-limits-efb.js'));
 			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);
 			$lng_ = get_locale();
 			if ( strlen( $lng_ ) > 0 ) {

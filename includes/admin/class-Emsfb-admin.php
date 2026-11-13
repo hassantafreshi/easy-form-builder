@@ -436,6 +436,23 @@ class Admin {
         if (is_array($valp) && class_exists('\Emsfb\Privacy')) {
             $valp = \Emsfb\Privacy::normalize_form_settings($valp);
         }
+        // F11: lim_email_field must name an email field; custom_css changes only for users who may
+        // write unfiltered HTML (the stored value stays otherwise); closing before opening refuses
+        // the save; the rest are warnings in the answer.
+        if (is_array($valp) && class_exists('\Emsfb\Form_Gate')) {
+            if(empty($this->db)){
+                global $wpdb;
+                $this->db = $wpdb;
+            }
+            $old_structer_efb = $this->db->get_var($this->db->prepare("SELECT form_structer FROM `{$this->db->prefix}emsfb_form` WHERE form_id = %d", $id));
+            $old_rows_efb = is_string($old_structer_efb) ? json_decode(\emsfb_json_normalize_efb($old_structer_efb), true) : null;
+            $valp = \Emsfb\Form_Gate::normalize_form_settings($valp, $old_rows_efb);
+            $gate_checks_efb = \Emsfb\Form_Gate::save_checks($valp, $id);
+            if (!empty($gate_checks_efb['errors'])) {
+                wp_send_json_success(['success' => false, 'm' => $gate_checks_efb['errors'][0]['m'], 'code' => $gate_checks_efb['errors'][0]['code']], 200);
+            }
+            $save_warnings_efb = array_merge($save_warnings_efb, $gate_checks_efb['warnings']);
+        }
         $form_type = $valp[0]['type'];
 		$value =json_encode($valp,JSON_UNESCAPED_UNICODE);
         $value_ =str_replace('"', '\"', $value);

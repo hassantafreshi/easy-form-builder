@@ -201,6 +201,14 @@ class Service {
 				return __( 'This payment can no longer be started again here. Please reload the page and send the form again.', 'easy-form-builder' );
 			case 'pay_not_ready':
 				return Readiness::visitor_text();
+			// F11 form gate on payments/create and payments/retry: the gate's own sentence (closed, full, …).
+			case 'efb_form_pending':
+			case 'efb_form_closed':
+			case 'efb_form_full':
+			case 'efb_limit_reached':
+			case 'efb_role_denied':
+				if ( isset( $extra['visitor'] ) && $extra['visitor'] !== '' ) return $extra['visitor'];
+				return __( 'This form does not accept answers at the moment.', 'easy-form-builder' );
 			case 'currency_unsupported':
 			case 'pay_unavailable':
 			default:
@@ -626,6 +634,12 @@ class Service {
 		$method = isset( $a['method'] ) && is_string( $a['method'] ) && preg_match( '/^[a-z0-9_]{1,30}$/', $a['method'] ) ? $a['method'] : '';
 		$limit = self::method_limit( $gw, $settings, $method, (int) $prev['amount_minor'], $prev['currency'], $locale );
 		if ( $limit ) return $limit;
+		// F11: an entry whose place was given back (failed / expired payment) takes it again, or the
+		// form filled up or closed meanwhile: refused before a new attempt is created.
+		if ( function_exists( 'apply_filters' ) ) {
+			$gate = apply_filters( 'efb_payment_retry_gate', null, $prev );
+			if ( is_array( $gate ) && ! empty( $gate['code'] ) ) return self::fail( (string) $gate['code'], array( 'visitor' => isset( $gate['m'] ) ? (string) $gate['m'] : '' ) );
+		}
 
 		$p = Store::insert( array(
 			'uid'          => Store::new_uid(),
