@@ -1026,6 +1026,66 @@ default. `bk_*` keys belong to the future Booking add-on and are kept as plain J
   scenarios `f06a` … `f06d`, `f06pay` (AutoPilot: `f06a` `setDateConfig`, `insertItems` refusal,
   capabilities, save refusal).
 
+### F07. File uploads: several files per field, camera, resizing, where files are kept (field keys, `efbBuilderApi.setUploadConfig`, `window.EFBUpload`, codes)
+
+Spec: `docs/feature-gaps/F07-file-upload.fa.md`. The `file` and `dadfile` types are unchanged; a field
+without the keys below behaves exactly as before (one file, the uploads folder). Save rule for every key:
+`Emsfb\Uploads::sanitize_key()` = `EFBUpload.rules.sanitizeKey()` (`public/assets/js/upload-efb.js`,
+vectors in `tests/fixtures/upload-keys-vectors.json`); `''` means "not set". Persian / Arabic-Indic digits
+are accepted and stored in Latin digits.
+
+| Keys (as the save keeps them) | Plan (F07 §13) |
+|---|---|
+| `max_files` (1..20, filter `emsfb_upload_max_files_cap`), `min_files` (≤ `max_files`; a required field needs at least 1), `max_total_mb` (≥ the per-file `max_fsize`) | **Free Plus** (both types) |
+| `capture` (`''` / `user` / `environment`, only for the `image` and `media` presets) | Free |
+| `img_max_px` (0 or 320..8000, presets `image`, `allformat`, `customize`), `img_quality` (0.5..0.95, default 0.85) | **Free Plus** |
+| `file_store`: `''` (uploads folder), `media` (Media Library, private attachments; only a user with `upload_files` may set it) | **Free Plus** |
+| `file_store`: `private` (uploads/efb-private, reached only through WordPress) | Free |
+| row 0 `email_attach` (`'1'`: the files ride on the owner's notification, up to 10 MB, filter `emsfb_email_attach_max_bytes`) | **Pro** |
+
+- **Plan gating** is one function (`Uploads::config()`, the JS twin `EFBUpload.rules.config()`) used by
+  the renderers, the quota and every submit route: a key above the site's plan is stored but ignored
+  (fail-open). Filter `efb_upload_plan_ok($ok, $part)` (`multi`, `resize`, `media`, `private`, `capture`, `attach`).
+- **Builder.** `efbBuilderApi.insertItems` / `setForm` refuse a value the rules cannot keep with
+  `upload_invalid` (`path`, e.g. `rows[3].max_files`) and `min_files` above `max_files` with `upload_config`
+  (`reason: min_after_max`). `setUploadConfig(id, patch)` (id = `id_` or `dataId`) writes upload keys with
+  the same checks and returns `{changed, values, plan}` (`plan` = keys the site's plan ignores); throws
+  `invalid_setting`, `unknown_field`, `upload_invalid`, `upload_config`. Saving stays the owner's Save.
+- **Save answer** (never refuses): `warnings[]` with `upload_total_lt_file`, `upload_media_denied`,
+  `upload_plan`, `upload_attach_plan`, and `upload_security_change` (`changes: [{field, key, from, to}]`
+  when `file_store` or `max_files` of a saved field changed).
+- **Registry.** `setting:upload_multi`, `setting:upload_resize`, `setting:upload_media` (Free Plus),
+  `setting:upload_capture`, `setting:upload_private` (free), `setting:email_attach` (Pro), each with
+  `form_keys`; top level `uploads` = `{keys, form_keys, types, max_files_cap, stores, plan, builder:
+  'efbBuilderApi.setUploadConfig', page_api: 'window.EFBUpload', assistant: 'visitor_only',
+  error_code_prefix: 'efb_file_', codes, save_warnings, require_token}`.
+- **Visitor page.** An upload field is `visitor_only`: an assistant never uploads or attaches a file.
+  `forms/{id}/schema` gives `assistant: 'visitor_only'`, `fill: {api: 'visitor_only'}` and `upload:
+  {accept, max_files, min_files, max_mb, max_total_mb}` (never the storage mode or a path).
+  `window.EFBUpload` (`bind`, `queue`, `remove`, `retry`, `rows`, `count`, `check`, `isBusy`, `isMulti`,
+  `resizeImage`, `rules`) runs the file list of a field with `data-max-files` > 1.
+- **Upload route.** `forms/file/upload` answers `ut` (a signed token of the stored name, form, field and
+  the visitor's session, valid as long as an unclaimed file is kept) and `size` besides `file.url` and
+  `name`. The page sends one row per file: `{id_, value: '@file@', url, id_ob: <stored name>, ut, fnm}`.
+- **Submit.** Every route (`forms/message/add`, `payments/create`, the legacy gateway follow-up, the
+  offline queue, API clients) checks each file again (size, sniffed type, content), its owner (the token,
+  or for a page cached before F07 a pending-ledger row of this form field; filter
+  `emsfb_upload_require_token` turns the fallback off), and the field (count, minimum, total). A refusal
+  answers `{success:false, m, field_id, code}` with `efb_file_max_files`, `efb_file_min_files`,
+  `efb_file_max_total`, `efb_file_not_owned`, `efb_file_invalid`. The stored row gets `id_ob` (stored name),
+  `fsz` (the server's size) and `fnm` (the visitor's file name, cleaned); `ut` is never stored.
+- **Private files.** Admin download `admin-ajax.php?action=efb_file_get_Emsfb&f=YYYY/MM/<name>&nonce=`
+  (capability and nonce); signed link `GET Emsfb/v1/files/signed?f=&exp=&sig=` (e-mails and personal-data
+  exports, Settings > Privacy `prv_file_link_days`, 30 requests per minute per address). Nothing private
+  is in the form JSON, the schema or a REST answer.
+- **Conditional Logic** (core evaluator of notification, confirmation and webhook rules): an upload
+  field's value is its number of files (`"0"` counts as empty), so `is_empty`, `is_not_empty`, `gt`,
+  `gte`, `lt`, `lte` work. The Conditional Logic add-on has no file-count operators yet.
+- **Tests.** `test-upload-keys-roundtrip.php`, `test-upload-keys-parity.js`, `test-upload-token.php`,
+  `test-upload-queue-browser.js`, `test-upload-viewer-csv.js`, `test-upload-plan-gating.js`,
+  `test-upload-multi-submit-http.php`, `test-addon-googlesheet-files.php` and the e2e scenarios `f07a` …
+  `f07e`, `f07pay` (AutoPilot: `f07a` `setUploadConfig`, `insertItems` refusal, capabilities, schema).
+
 ### PAY01. Mollie gateway field (`mollie`, add-on `AdnMOL`)
 
 Add-on `vendores-efb/mollie` on the PAY00 contract; nothing new in core. For agents:

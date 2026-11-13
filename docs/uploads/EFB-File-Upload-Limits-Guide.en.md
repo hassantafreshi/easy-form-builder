@@ -28,7 +28,7 @@ A file upload field is one of the most useful things you can put on a form, and 
 ## Quick answer
 
 - Easy Form Builder limits uploads **out of the box**, with no add-on and no setting to switch on.
-- Each visitor may upload **3 files for every file upload field on the form**. A one-field form allows 3, a four-field form allows 12.
+- Each visitor may upload **3 files for every file slot on the form**. A field that takes one file is one slot; a field set to take up to 5 files is five slots. A one-field form allows 3, a four-field form allows 12, a single field of 5 files allows 15. The total is capped at **60 an hour** by default.
 - The **reply box** on a confirmation-code conversation allows **3 files**.
 - The allowance **resets after one hour**.
 - Each field's **Max File Size** setting is enforced on the server. Fields with no value set use **20 MB**.
@@ -62,7 +62,7 @@ That is not a dramatic attack. It is closer to a slow leak: no error appears any
 
 You do not need to install or enable anything. Easy Form Builder calculates an upload budget from your own form.
 
-**The rule: each visitor may upload 3 files for every file upload field on the form.**
+**The rule: each visitor may upload 3 files for every file slot on the form** (a field counts as many slots as the files it may hold: its "Maximum number of files", 1 when not set). The budget is capped at 60 per hour (filter `emsfb_upload_quota_cap`), and one IP address may upload at most 200 files an hour over every form and session (filter `emsfb_upload_ip_quota_limit`). The counters live in the plugin's atomic counter table, so two uploads at the same moment can never both take the last place.
 
 The plugin counts these five field types when working out the budget:
 
@@ -304,7 +304,7 @@ Only files that were uploaded through this plugin, are older than 24 hours, and 
 No. The upload budget, the enforced size limit, the file type checking, and the cleanup are all part of the main plugin. The Form Security & Spam Protection add-on only adds the admin controls, the per-minute rate limit, and the security log.
 
 **Will this change how my existing forms behave?**
-Only if a visitor tries to upload more than three files per upload field within an hour. Ordinary use is unaffected, and no setting you have already saved is altered.
+Only if a visitor tries to upload more than three files per file slot within an hour. Ordinary use is unaffected, and no setting you have already saved is altered.
 
 **Is a visitor's file counted if it was refused?**
 No. The budget is only charged for files that were actually stored. Someone who tries three files that are too large has spent none of their allowance.

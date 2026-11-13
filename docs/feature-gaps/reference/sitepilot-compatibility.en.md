@@ -1024,6 +1024,28 @@ Telegram texts, logic rules, payment keys, F03 `pattern_b64` and `email_domains`
 `img_quality`, `file_store`; row-0 `email_attach` (Pro). Fill: `visitor_only`. Read entries: `fnm`,
 `fsz`, never `url` for private storage. Must add: validate clamps `max_files` to the plan and to
 `emsfb_upload_max_files_cap` with a warning; schema exposes `accept` and `max_files`.
+*Status 2026-11-13 (F07 shipped on `dev4`):* the eight keys are saved by explicit cases of
+`sanitize_obj_msg_efb` → `Uploads::sanitize_key()` = `EFBUpload.rules.sanitizeKey()` (shared vectors
+`tests/fixtures/upload-keys-vectors.json`); after the sanitizer `Uploads::normalize_rows()` clamps
+`max_files` to `emsfb_upload_max_files_cap` (20), lowers `min_files` to `max_files`, raises a total under
+the per-file size, clears `capture` / `img_max_px` for presets that cannot use them and refuses the Media
+Library for a user without `upload_files`, answering save warnings `upload_total_lt_file`,
+`upload_media_denied`, `upload_plan`, `upload_attach_plan` and **`upload_security_change`** (`changes:
+[{field, key: file_store|max_files, from, to}]`, the preview's `security_changes`). `efbBuilderApi.insertItems`
+/ `setForm` refuse `upload_invalid` (`path`) and `upload_config` (`reason: min_after_max`);
+`setUploadConfig(id, patch)` answers `{changed, values, plan}` (`plan` lists keys the site's plan ignores).
+Plan (fail-open like F03/F06): a key above the plan is stored and ignored on render, quota and submit
+(`Uploads::config()`); several files, the total, resizing and the Media Library are Free Plus; the camera,
+private storage and the token are free; `email_attach` is Pro (real Pro, `Builder_Api::plan_at_least('pro')`).
+Registry: `setting:upload_multi`, `upload_capture`, `upload_resize`, `upload_media`, `upload_private`,
+`email_attach`, and `capabilities.uploads` (`keys`, `form_keys`, `types`, `max_files_cap`, `stores`, `plan`,
+`builder`, `page_api: window.EFBUpload`, `assistant: visitor_only`, `error_code_prefix: efb_file_`, `codes`,
+`save_warnings`, `require_token`). `forms/{id}/schema` gives an upload field `assistant: 'visitor_only'`,
+`fill: {api: 'visitor_only'}` and `upload: {accept, max_files, min_files, max_mb, max_total_mb}` (never the
+storage mode or a path). Submit refusals: `efb_file_max_files`, `efb_file_min_files`, `efb_file_max_total`,
+`efb_file_not_owned`, `efb_file_invalid` with `field_id`. An `entries.read` route does not exist in core yet;
+when it is built it must give `fnm` and `fsz` only and never a private file's address (the stored rows
+already carry `fnm` and the server's `fsz`; `ut` is never stored).
 
 **F08 hidden fields and smart tags.** Create: `hiddenField` with template `value`,
 `hdn_visitor_mail`, `prefill_key`, `prefill_lock`; tags in labels/placeholders. Fill: hidden is

@@ -1,6 +1,6 @@
 # F07 — آپلود فایل: چند فایل در یک فیلد، کتابخانهٔ رسانه، دوربین و حفاظت فایل
 
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 · تلاش: M (با بارگذاری تکه‌ای: L) · وابستگی: — (هماهنگ با F09 برای فایل داخل ردیف، F13 برای نگهداری و حذف داده، F14 برای خروجی)
+وضعیت: **پیاده‌سازی شد** (A تا H و J در ۲۳ آبان ۱۴۰۵ / 2026-11-13؛ I یعنی بارگذاری تکه‌ای طبق §۷.۶ منتظر تصمیم مالک؛ ترجمه‌ها طبق دستور مالک انجام نشده‌اند؛ گزارش و تصمیم‌ها در «وضعیت پیاده‌سازی» در انتهای سند) · اولویت: P0 · تلاش: M (با بارگذاری تکه‌ای: L) · وابستگی: — (هماهنگ با F09 برای فایل داخل ردیف، F13 برای نگهداری و حذف داده، F14 برای خروجی)
 
 > شاخهٔ مبنا `dev4`، نسخهٔ 4.3.1، بررسی‌شده در 2026-11-11. همهٔ ارجاع‌های `file:line` با خواندن کد تأیید شده‌اند. پیش از ویرایش، نام تابع را دوباره grep کن، چون شماره‌خط‌ها جابه‌جا می‌شوند.
 > مرجع‌ها: [راهنمای پیاده‌سازی](IMPLEMENTATION-PLAYBOOK.en.md) (§1.6، §2، §2.7، §2.8، §5.1، §9، §10)، [امکانات فعلی](reference/current-capabilities.en.md) (§2 ردیف‌های `file` و `dadfile`)، [ماتریس رقبا](reference/competitor-matrix.en.md) §4، و اسناد کاربری [`docs/uploads/`](../uploads/README.md).
@@ -350,119 +350,119 @@ public static function verify_upload_token($token, $basename, $form_id, $field_i
 - پذیرش: کلیدها پس از ذخیره و بارگذاری دوباره باقی می‌مانند. `min_files>max_files` ممکن نیست. `capture` با پیش‌تنظیم غیرتصویری پاک می‌شود. پیش‌فرض نمایشی ۲۰ است. پس از ذخیره، `get_upload_field_definition_efb` مقدار تازه را می‌بیند.
 - تست: `php tests/test-upload-keys-roundtrip.php` (الگوی `test-conditional-logic-save-roundtrip.php` با stub آرایه‌وفادار و مسیر `__DIR__`).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+Checkpoint (انجام شد، ۲۰۲۶-۱۱-۱۳)
+- فایل‌های تغییرکرده: `includes/class-Emsfb-uploads.php` (تازه: `sanitize_key`، `config`، `normalize_rows`، `accept_attribute`)، `includes/functions.php` (`case`های صریح در `sanitize_obj_msg_efb` برای هشت کلید، و عبارت‌ها)، `includes/admin/assets/js/upload-builder-efb.js` (تازه: کنترل‌ها و handlerها، الگوی F03 بدون `change_el_edit_Efb`)، `val-efb.js` (درج کنترل‌ها، پیش‌فرض نمایشی ۲۰ مگابایت، کلید فرم `email_attach` در Advanced)، `admin-efb.js` (`fileTypeEl` دوربین و تغییر اندازه را پاک یا نمایش می‌دهد، پیش‌نمایش بوم)، `class-Emsfb-admin.php` و `class-Emsfb-create.php` (`Uploads::normalize_rows` پس از sanitizer؛ پس از ذخیره کلید کش `['form_structer']` تازه و `upload_fields:<id>` حذف می‌شود)، `builder-api-efb.js` (`setUploadConfig` و بررسی در `insertItems` / `setForm`).
+- تست‌ها: `tests/test-upload-keys-roundtrip.php` (۸۹)، `tests/test-upload-keys-parity.js` (۷۳، بردارهای مشترک `tests/fixtures/upload-keys-vectors.json`)، `tests/test-upload-plan-gating.js` (۱۵)، e2e `f07a`.
+- وضعیت ترجمه: عبارت‌ها انگلیسی و در فهرست عبارت‌ها (دستور مالک: ترجمه نشده).
+- مورد باز: —
+- اقدام بعدی: B.
 
 ### B — توکن آپلود، جایگاه‌های سهمیه و رفع پاک‌کن
 - فایل‌ها: `class-Emsfb-upload-guard.php` (`issue/verify_upload_token`، `count_upload_slots`، مسیر نسبی در دفتر و پاک‌کن)، `class-Emsfb-public.php` (`file_upload_api` 5496، نام با `wp_generate_password`، گام توکن در 3186)، `admin/class-Emsfb-admin.php:3558` (نام)، `docs/uploads/*`.
 - پذیرش: (۱) ردیف با URL یک رسانهٔ سایت، فایل فرم دیگر یا فایل فیلد دیگر رد می‌شود. (۲) توکن دستکاری‌شده یا منقضی رد می‌شود. (۳) بدون توکن، در حالت گذار فقط نام موجود در دفتر پذیرفته می‌شود. (۴) فرمی با یک فیلد `max_files=5` سهمیهٔ ۱۵ دارد. (۵) پاک‌کن فایل رهاشدهٔ `2026/11/…` را حذف می‌کند و فایل ثبت‌شده را نه.
 - تست: `php tests/test-upload-token.php` (stub ‏`wp_salt`، `hash_hmac` واقعی)، بخش جدید در `tests/test-upload-guard.php` (زیرپوشه با پوشهٔ موقت)، به‌روزرسانی `test-upload-multifield-form.php` و `test-upload-guard-humanshield-bridge.php`.
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+Checkpoint (انجام شد)
+- فایل‌های تغییرکرده: `class-Emsfb-upload-guard.php` (`issue_upload_token` / `verify_upload_token` با `wp_salt('nonce')` و `hash_equals`، `token_bucket` = نشست فرم یا IP، `require_token` با فیلتر `emsfb_upload_require_token` پیش‌فرض `false`، `count_upload_slots` و alias، سقف ۶۰ با `emsfb_upload_quota_cap`، `quota_reserve` / `quota_release` اتمیک روی `Rate_Limit` به‌اضافهٔ سقف هر IP با `emsfb_upload_ip_quota_limit` پیش‌فرض ۲۰۰، دفتر معلق «زمان|فرم|فیلد» و `pending_entry`، پاک‌کن در پوشهٔ خصوصی و حذف پیوست کتابخانهٔ رسانه)، `class-Emsfb-public.php` (`file_upload_api`: رزرو و بازگرداندن سهمیه، نام `wp_generate_password(12)`، پاسخ `ut` و `size`؛ ضبط‌ها هم توکن می‌گیرند و برای نخستین بار در دفتر معلق ثبت می‌شوند)، `admin/class-Emsfb-admin.php` (نام).
+- تست‌ها: `tests/test-upload-token.php` (۵۳، SQLite با DDL واقعی `Rate_Limit`)، آزمون‌های موجود آپلود بدون تغییر سبز، `tests/test-upload-multi-submit-http.php` (۴۹ روی وردپرس واقعی).
+- وضعیت ترجمه: —
+- مورد باز: رفع پاک‌کن (§۱ ردیف ۱۷) را F13-D پیش‌تر با `locate_upload` انجام داده بود؛ F07 پوشهٔ خصوصی را به آن افزود.
+- اقدام بعدی: نسخهٔ بعد `emsfb_upload_require_token` را `true` کند.
 
 ### C — رابط چندفایلی در کلاینت
 - فایل‌ها: `public/assets/js/upload-efb.js` (جدید)، `new-efb.js` (`uid`، `onProgress`)، `core-efb.js` (715-728، 827-845، 1413-1475، 1515-1520)، `pro_els-efb.js` (271-466)، رندرکننده‌های §۶، CSS در `public/assets/css/` و نسخهٔ RTL، و enqueue در `class-Emsfb-public.php` و `class-Emsfb-create.php`.
 - پذیرش: انتخاب و رهاکردن چند فایل؛ پیشرفت مستقل؛ حذف و تلاش دوباره؛ سقف تعداد و مجموع پیش از ارسال؛ Next/Submit تا پایان ارسال قفل؛ دو فرم در یک صفحه مستقل؛ تک‌فایل بدون تغییر ظاهری؛ RTL و ارقام فارسی؛ صفحه‌کلید و `aria-live`.
 - تست: `node tests/test-upload-queue.js` (vm با DOM ساختگی: صف، هم‌زمانی ۲، سقف‌ها، کلید `id_+uid` در `sendBack`)، Playwright ‏`tests/test-upload-multi-browser.js` (fa و en، دسکتاپ و `iPhone 13`، اسکرین‌شات در `tests/screenshots/`)، و رگرسیون `node tests/test-core-multiform-validation-scope.js` و `tests/layout-regression.js`.
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+Checkpoint (انجام شد)
+- فایل‌های تغییرکرده: `public/assets/js/upload-efb.js` (تازه، `window.EFBUpload`: `bind`، `queue`، `remove`، `retry`، `rows`، `check`، `isBusy`، `resizeImage`، `rules`)، `public/assets/css/upload-efb.css` (تازه، فقط ویژگی‌های منطقی)، `core-efb.js` (فیلد چندفایلی به `EFBUpload` سپرده می‌شود، ردیف جای‌نگهدار ندارد؛ `fun_sendBack` برای چندفایلی با `id_` و `id_ob`؛ بررسی Next/Send: در حال ارسال و حداقل؛ `validation_before_send_efb` فایل‌های یک فیلد را یک بار می‌شمارد؛ سقف پیش‌فرض ۲۰)، رندر PHP (`file` و `dadfile`: `accept` مشترک، `multiple`، `capture`، `data-*`، فهرست بیرون از label)، رندر JS (`EFBUpload.attrs` / `listMarkup`)، `pro_els-efb.js` (متغیر سراسری `fileEfb` در مسیر فیلد حذف و متن «Release to Upload File» از عبارت)، enqueue در صفحهٔ عمومی (فقط فرم دارای فیلد فایل) و پیشخوان.
+- تست‌ها: `tests/test-upload-queue-browser.js` (۳۷ در Chromium: صف، هم‌زمانی ۲، سقف‌ها، ردیف هر فایل، حذف و فوکوس، تلاش دوباره، ناحیهٔ رهاکردن با کیبورد، fa_IR در ۳۷۵px)، e2e `f07b` و `f07c`.
+- وضعیت ترجمه: —
+- مورد باز: پیش‌نمایش PC/موبایل در بیلدر ویژگی‌ها و فهرست را نشان می‌دهد ولی آپلود چندتایی فقط در صفحهٔ عمومی کار می‌کند.
+- اقدام بعدی: D.
 
 ### D — اعتبارسنجی سرور چندفایلی
 - فایل‌ها: `class-Emsfb-public.php` (جمع‌بندی فیلد پس از 2752، `filter_attributes_by_type_efb` 9097-9099، `fsz`/`fnm` سرورساز، `$translation_keys`).
 - پذیرش: ۶ فایل برای `max_files=5` رد می‌شود (`field_id` درست)؛ مجموع بالای سقف رد می‌شود؛ `min_files` برای فیلد الزامی؛ فیلد اختیاری خالی پذیرفته می‌شود؛ فیلد پنهان با منطق بررسی نمی‌شود؛ `fsz` جعلی کلاینت با اندازهٔ واقعی جایگزین می‌شود؛ ردیف‌ها با `id_ob` متمایز ذخیره می‌شوند.
 - تست: `php tests/test-upload-multi-submit.php` (WP واقعی با `[SKIP]`، الگوی `test-submit-payload-robustness.php`)، و رگرسیون `test-submission-row-hardening-e2e.php`.
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+Checkpoint (انجام شد)
+- فایل‌های تغییرکرده: `class-Emsfb-public.php` (`validate_upload_field_efb`: همهٔ ردیف‌های یک فیلد بارگذاری با هم؛ مالکیت با توکن یا دفتر معلق همان فرم و فیلد؛ فایل ثبت‌شده در پاسخ دیگر یا دوبار در همین ارسال رد می‌شود؛ `Uploads::check_field` برای تعداد، حداقل و مجموع؛ `fsz` و `id_ob` را سرور می‌سازد و `fnm` تمیز می‌شود؛ `ut` ذخیره نمی‌شود؛ رد با `efb_file_max_files` / `min_files` / `max_total` / `not_owned` / `invalid` و `field_id`)، `filter_attributes_by_type_efb` (هر دو نسخه: `fsz`، `fnm`)، `$translation_keys`، منطق شرطی (مقدار فیلد بارگذاری = تعداد فایل‌ها، `"0"` خالی است). پیگیری درگاه قدیمی ورودی خودش را «جای دیگر» حساب نمی‌کند.
+- تست‌ها: `tests/test-upload-multi-submit-http.php` (۴۹، شامل حالت‌های امنیتی)، e2e `f07b` و `f07pay` (`payments/create` فایل جابه‌جاشده را پیش از ساخت پرداخت رد می‌کند).
+- وضعیت ترجمه: —
+- مورد باز: —
+- اقدام بعدی: E.
 
 ### E — نمایش: نمایشگر، CSV، ایمیل، پیوست
 - فایل‌ها: `response-viewer-efb.js` (935-968، 1650)، `list_form-efb.js` (3664-3666)، `class-Emsfb-public.php` (`email_get_content_efb` 7814، پیوست در مسیر ارسال)، `class-email-handler.php` (پارامتر `$attachments`).
 - پذیرش: سه فایل یک فیلد در یک ردیف نمایشگر و ایمیل؛ تصویر بندانگشتی با پسوند؛ CSV با `" | "`؛ نام فایل خصمانه escape می‌شود؛ پیوست فقط برای مدیر و تا ۱۰ مگابایت.
 - تست: گسترش `node tests/test-response-viewer-escaping.js` (`fnm` = `<img onerror>`)، `php tests/test-email-file-rows.php` (stub ‏`wp_mail` که `$attachments` را ضبط می‌کند)، و `node tests/test-csv-multi-file.js`.
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+Checkpoint (انجام شد)
+- فایل‌های تغییرکرده: `response-viewer-efb.js` (فایل‌های یک فیلد در یک ردیف به‌صورت کارت؛ نوع از پسوند نشانی؛ باگ `lastIndexOf` رفع شد؛ فایل خصوصی از راه دانلود ادمین؛ `data-csv`؛ CSV تک‌پاسخ با `" | "`)، `response-viewer-efb.css`، `list_form-efb.js` (CSV فرم: فایل‌های یک فیلد در یک خانه با `" | "`)، `email_get_content_efb` (فایل‌های یک فیلد در یک ردیف با فهرست لینک؛ فایل خصوصی لینک امضاشده و هرگز تصویر درون ایمیل)، پیوست ایمیل مدیر با فیلتر `wp_mail` فقط روی نسخهٔ مدیر و تا `emsfb_email_attach_max_bytes` (۱۰ مگابایت).
+- تست‌ها: `tests/test-upload-viewer-csv.js` (۱۵)، `tests/test-upload-multi-submit-http.php` (ایمیل مدیر: پیوست‌ها و لینک امضاشده)، e2e `f07b` و `f07e`.
+- وضعیت ترجمه: —
+- مورد باز: `send_email_state_new` پارامتر `$attachments` نگرفت؛ همان اثر با فیلتر `wp_mail` محدود به گیرنده و موضوع نسخهٔ مدیر به دست آمد و مسیر ایمیل‌های دیگر دست نخورد.
+- اقدام بعدی: H.
 
 ### F — دوربین و تغییر اندازهٔ تصویر
 - فایل‌ها: رندرکننده‌های §۶ (`capture`)، `upload-efb.js` (`resizeImage`).
 - پذیرش: JPEG ۴۰۰۰ پیکسلی با `img_max_px=1920` حداکثر ۱۹۲۰ پیکسل است و EXIF GPS ندارد؛ جهت عکس درست است؛ GIF و HEIC دست نخورده می‌مانند؛ اگر خروجی بزرگ‌تر شد، اصل فرستاده می‌شود؛ `capture` فقط در پیش‌تنظیم image/media.
 - تست: Playwright ‏`tests/test-upload-resize-browser.js` (fixture عکس با EXIF؛ بررسی ابعاد و نبود GPS در فایل ذخیره‌شده با `exif_read_data` در یک اسکریپت PHP کمکی).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+Checkpoint (انجام شد)
+- فایل‌های تغییرکرده: رندرکننده‌ها (`capture` فقط برای پیش‌تنظیم image و media)، `upload-efb.js` (`resizeImage` با `createImageBitmap(..., {imageOrientation:'from-image'})` و canvas؛ JPEG با کیفیت تنظیم، PNG همان PNG؛ GIF، HEIC و SVG دست نمی‌خورند؛ خروجی بزرگ‌تر = اصل؛ بدون API = اصل).
+- تست‌ها: `tests/test-upload-queue-browser.js` (JPEG ‏۴۰۰۰×۳۰۰۰ با EXIF شامل GPS و جهت ۶ ← ۱۴۴۰×۱۹۲۰ بدون EXIF)، e2e `f07d` (فایل ذخیره‌شده روی سرور ۱۹۲۰×۱۴۴۰ و بدون EXIF با `exif_read_data`).
+- وضعیت ترجمه: —
+- مورد باز: —
+- اقدام بعدی: G.
 
 ### G — حالت‌های ذخیره: کتابخانهٔ رسانه و خصوصی
 - فایل‌ها: `class-Emsfb-upload-guard.php` (`store_file($tmp,$name,$mode,$ctx)`، پوشهٔ خصوصی و probe)، `class-Emsfb-public.php` (`file_upload_api`، مسیر REST امضاشده پس از خط 99)، `admin/class-Emsfb-admin.php` (AJAX دانلود و probe در `init_hooks` 39-70)، `class-Emsfb-request-health.php:19`، نمایشگر و ایمیل.
 - پذیرش: پیوست رسانه `private` است و از `/wp/v2/media` بی‌احراز دیده نمی‌شود؛ فایل خصوصی با URL مستقیم ۴۰۳ می‌دهد (Apache)؛ probe روی nginx هشدار می‌دهد؛ دانلود ادمین بدون مجوز ۴۰۳ می‌دهد؛ لینک امضاشده پس از `exp` یا با امضای دستکاری‌شده رد می‌شود؛ ۳۰ درخواست در دقیقه محدود می‌شود.
 - تست: `php tests/test-upload-private-store.php` (امضا، مسیر، traversal با `../`)، و Playwright ‏`tests/test-upload-private-browser.js` (WP واقعی).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+Checkpoint (انجام شد)
+- فایل‌های تغییرکرده: `class-Emsfb-uploads.php` (`store_upload`، پوشهٔ `uploads/efb-private/YYYY/MM` با `.htaccess` و `index.php`، فیلتر `emsfb_private_upload_dir`، `signed_url` / `verify_signed` با `wp_salt('auth')` و انقضا، REST ‏`GET Emsfb/v1/files/signed` با محدودیت ۳۰ در دقیقه روی `Rate_Limit`، AJAX ‏`efb_file_get_Emsfb` و `efb_private_dir_probe_Emsfb`، هدرهای `nosniff` و `no-store` و `attachment` برای غیرتصویر، `register_media` هنگام ثبت پاسخ با `post_status=private`، `post_author=0` و متاهای `_efb_form_id` / `_efb_field_id` / `_efb_track`)، `class-Emsfb-request-health.php` (مسیر تازه)، تنظیم سراسری `prv_file_link_days` در Settings > Privacy (به‌جای `fileLinkTtl`، تا در خط F13 بماند)، exporter حریم خصوصی (لینک امضاشده و نام فایل).
+- تست‌ها: `tests/test-upload-multi-submit-http.php` (پوشهٔ خصوصی، دانلود بی‌اجازه، لینک امضاشده، دستکاری، انقضا، `../`، کتابخانهٔ رسانه و `/wp/v2/media`)، e2e `f07a` (هشدار probe با قاعدهٔ nginx) و `f07e`.
+- وضعیت ترجمه: —
+- مورد باز: سرور تست (سرور داخلی PHP) `.htaccess` را نمی‌خواند، پس «۴۰۳ با URL مستقیم روی Apache» فقط با محتوای `.htaccess` آزموده شد. اگر probe پاسخی نگیرد (سرور تک‌رشته‌ای)، نام نرم‌افزار سرور تصمیم می‌گیرد.
+- اقدام بعدی: H.
 
 ### H — حذف فایل با پاسخ
 - فایل‌ها: `class-Emsfb-privacy.php` و `class-Emsfb-upload-guard.php` (تابع مشترک F13 §۶.۳: `purge_entries`، `path_from_url`، با سهم F07 در §۱۱.۱)، `admin/class-Emsfb-admin.php` (226، 268، 3676)، و تنظیم `delFilesEntry` در صفحهٔ تنظیمات. اگر F13 پیش‌تر اجرا شده، فقط سهم F07 اضافه می‌شود.
 - پذیرش: با تنظیم روشن، حذف تکی و گروهی و حذف فرم، فایل‌ها، پیوست‌های رسانه و پیوست‌های response box را حذف می‌کند؛ فایلی که در پاسخ دیگری آمده حذف نمی‌شود؛ با تنظیم خاموش هیچ فایلی حذف نمی‌شود؛ حذف تکی `emsfb_rsp_` را هم پاک می‌کند.
 - تست: `php tests/test-upload-delete-with-entry.php` (stub ‏`$wpdb` و پوشهٔ موقت)، و اگر F13 اجرا شده، رگرسیون تست‌های purge آن.
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+Checkpoint (انجام شد؛ سهم F07)
+- فایل‌های تغییرکرده: F13 تابع مشترک `Privacy::purge_entries` و تنظیم `prv_files` (همان `delFilesEntry`) را پیش‌تر ساخته بود. سهم F07: `Upload_Guard::path_from_url` و `locate_upload` پوشهٔ خصوصی را می‌شناسند، `delete_stored_file` پیوست کتابخانهٔ رسانه را با `wp_delete_attachment($id, true)` حذف می‌کند (فقط پیوست‌های دارای `_efb_form_id`)، و `upload_is_referenced` همان بررسی «در پاسخ دیگری نیامده» است.
+- تست‌ها: `tests/test-upload-multi-submit-http.php` (حذف دو پاسخ: فایل خصوصی، فایل رسانه و پیوست آن)، e2e `f07e` (حذف از پنل)، آزمون‌های `test-privacy-*` بدون تغییر سبز.
+- وضعیت ترجمه: —
+- مورد باز: —
+- اقدام بعدی: J.
 
 ### I — (اختیاری) بارگذاری تکه‌ای
 - طبق §۷.۶، پس از تأیید مالک.
 - پذیرش: فایل ۵۰ مگابایتی روی هاست با سقف ۸ مگابایت؛ قطع و ادامه؛ تکه‌های ناتمام پس از ۶ ساعت حذف می‌شوند؛ فایل هم‌گذاری‌شدهٔ ناسالم (پسوند pdf با محتوای PHP) رد می‌شود؛ سهمیه یک بار برای هر فایل کم می‌شود، نه برای هر تکه.
 - تست: `php tests/test-upload-chunks.php` و Playwright با `--max-upload` ساختگی.
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+Checkpoint (ساخته نشد؛ تصمیم §۷.۶)
+- فایل‌های تغییرکرده: —
+- تست‌ها: —
+- وضعیت ترجمه: —
+- مورد باز: طبق §۷.۶ و سؤال باز ۴ فقط با تأیید مالک. طراحی همان §۷.۶ می‌ماند؛ نقطه‌های اتصال آماده‌اند (`validate_stored_file`، `quota_reserve` یک بار برای هر فایل، دفتر معلق و پاک‌کن).
+- اقدام بعدی: تصمیم مالک.
 
 ### J — ترجمه، مستندات و گِیت پلن
 - همهٔ کلیدهای §۱۴ در همهٔ زبان‌ها؛ گِیت UI و سرور طبق §۱۳؛ به‌روزرسانی `docs/uploads/*` و `reference/current-capabilities.en.md` (ردیف‌های `file`/`dadfile`).
 - تست: `php tests/core-i18n/check-locale.php --locale=<each> --quiet`، و `node tests/test-upload-plan-gating.js` (الگوی `tests/test-conditional-logic-plan-gating.js`).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+Checkpoint (انجام شد، جز ترجمه)
+- فایل‌های تغییرکرده: گیت پلن در `Uploads::config` (یک نرمال‌سازی برای رندر، سهمیه و همهٔ مسیرهای ثبت؛ فیلتر `efb_upload_plan_ok`) و در بیلدر از رجیستری؛ رجیستری `setting:upload_multi` / `upload_capture` / `upload_resize` / `upload_media` / `upload_private` / `email_attach` و بلوک `capabilities.uploads`؛ `forms/{id}/schema` (`assistant: visitor_only`، `accept`، `max_files`، حجم‌ها، بدون حالت ذخیره)؛ `docs/uploads/*`، `reference/current-capabilities.en.md`، `docs/autopilot-integration.md`، `reference/sitepilot-compatibility.en.md`، `readme.txt`.
+- تست‌ها: `tests/test-upload-plan-gating.js` (۱۵)، `tests/test-upload-keys-roundtrip.php` (بخش پلن).
+- وضعیت ترجمه: طبق دستور مالک ترجمه نشد؛ فهرست عبارت‌ها و `.pot` با `tests/core-i18n/extract.php` تازه شد.
+- مورد باز: ترجمهٔ همهٔ زبان‌ها.
+- اقدام بعدی: چرخهٔ ترجمه وقتی مالک بخواهد.
 
 ترتیب پیشنهادی: **B (رفع پاک‌کن و توکن، که امنیتی است و مستقل هم ارزش دارد) → A → C → D → E → H → F → G → J → I**.
 
@@ -498,3 +498,30 @@ Checkpoint
 - فیلد فایل برای دستیار بازدیدکننده `assistant: "visitor_only"` است. توکن `ut` به نشست خود بازدیدکننده گره خورده است و دستیار فایلی آپلود یا ضمیمه نمی‌کند. schema فقط `accept`، `max_files` و حجم مجاز را نشان می‌دهد.
 - در API خواندن پاسخ‌ها (`entries.read`) برای فایل فقط `fnm` و `fsz` برمی‌گردد. نشانی فایل خصوصی (`file_store: "private"`) هرگز برنمی‌گردد و لینک امضاشده فقط برای ایمیل است.
 - تغییر `file_store` یا `max_files` روی فرم موجود در `security_changes` پیش‌نمایش SitePilot گزارش می‌شود.
+
+---
+
+## وضعیت پیاده‌سازی (۲۰۲۶-۱۱-۱۳)
+
+ترتیب اجرا: A → B → C → D → E → F → G → H → J (H پس از G، چون حذف پیوست رسانه و فایل خصوصی به G وابسته بود). checkpoint هر زیرتسک زیر همان زیرتسک در §۱۵ است.
+
+**آنچه ساخته شد.**
+- کلیدهای §۴ با یک قاعدهٔ ذخیره در PHP و JS (`Uploads::sanitize_key` = `EFBUpload.rules.sanitizeKey`، بردارهای مشترک) و یک پیکربندی مؤثر (`Uploads::config`) که رندر، سهمیه و همهٔ مسیرهای ثبت می‌خوانند. فیلد بدون کلید = رفتار امروز.
+- توکن آپلود، جایگاه‌های سهمیه، سهمیهٔ اتمیک روی `Rate_Limit` (هر نشست و هر IP)، نام امن، اتصال دفتر معلق به فرم و فیلد، و بررسی مالکیت در هر مسیر ثبت (`forms/message/add`، `payments/create`، پیگیری درگاه قدیمی، صف آفلاین و کلاینت API، که همه به `get_form_public_efb` می‌رسند).
+- صف چندفایلی کلاینت (`upload-efb.js`) با پیشرفت مستقل، هم‌زمانی ۲، سقف‌ها پیش از ارسال، حذف و تلاش دوباره، کیبورد و `aria-live`، RTL و ارقام فارسی و عربی (`Intl` با `arabext` / `arab`)، و هر مقدار درج‌شده در جمله در `<bdi>` با `unicode-bidi: plaintext`.
+- دوربین و تغییر اندازه در مرورگر؛ سه حالت ذخیره؛ لینک امضاشده و دانلود ادمین؛ پیوست ایمیل مدیر؛ نمایش در نمایشگر، CSV، PDF، ایمیل و خروجی حریم خصوصی؛ حذف فایل‌ها با پاسخ از راه تابع مشترک F13.
+- افزونهٔ Google Sheets (مخزن افزونه‌ها): فایل‌های یک فیلد در یک خانه با `" | "` و فایل خصوصی به‌صورت لینک امضاشده (`googlesheet.zip` دوباره ساخته شد). Human Shield تغییری لازم نداشت: تعداد جایگاه را از `upload_field_count_for_form` می‌خواند و مسیر `files/signed` را محافظت نمی‌کند (لینک ایمیل توکن چالش ندارد). پیامک و تلگرام ردیف فایل نمی‌فرستند؛ وب‌هوک ردیف‌ها را همان‌طور که ذخیره شده می‌فرستد.
+
+**تصمیم‌ها (قابل تغییر با مالک).**
+- سطح پلن (§۱۳): چندفایلی و مجموع Free Plus برای هر دو نوع (`dadfile` خودش از پیش Free Plus است، پس «Pro برای dadfile» عملاً همان سطح خود فیلد است)؛ دوربین رایگان؛ تغییر اندازه Free Plus؛ کتابخانهٔ رسانه Free Plus؛ فایل خصوصی، لینک امضاشده، توکن، رفع پاک‌کن و حذف با پاسخ رایگان؛ پیوست ایمیل Pro. اگر پلن اجازه ندهد، کلید ذخیره می‌ماند ولی در رندر و ثبت نادیده گرفته می‌شود (فرم نمی‌شکند) و هشدار ذخیره (`upload_plan`، `upload_attach_plan`) می‌گوید چرا.
+- کتابخانهٔ رسانه: فقط کاربری که `upload_files` دارد می‌تواند آن را برای فیلدی انتخاب کند (در بیلدر غیرفعال و در ذخیره با هشدار `upload_media_denied` برگردانده می‌شود)؛ پیوست‌ها خصوصی‌اند و فقط برای کاربر واردشده با مجوز دیده می‌شوند. پیوست هنگام ثبت پاسخ ساخته می‌شود، نه هنگام آپلود، تا فایل رهاشده هرگز پیوست بی‌صاحب نسازد.
+- `delFilesEntry` همان `prv_files` در F13 است (پیش‌فرض روشن) و `fileLinkTtl` با نام `prv_file_link_days` (پیش‌فرض ۷ روز، ۱ تا ۹۰) در Settings > Privacy آمد.
+- بارگذاری تکه‌ای (§۷.۶) ساخته نشد: ارزش اصلی‌اش عبور از سقف هاست است و هزینه و ریسکش بالا؛ منتظر تصمیم مالک.
+- نسخهٔ پایگاه داده تغییر نکرد (1.8): جدول تازه‌ای لازم نشد؛ سهمیه در جدول شمارندهٔ F11 است.
+
+**پاسخ سؤال‌های باز §۱۷.** (۱) فایل خصوصی و توکن رایگان. (۲) F13 پیش‌تر `prv_files` را برای همه روشن گذاشته بود؛ همان ماند. (۳) نه در این فاز: صفحهٔ پیگیری بازدیدکننده لینک فایل خصوصی ندارد. (۴) به فاز بعد و تصمیم مالک. (۵) نه: پیوست فقط در نسخهٔ مدیر. (۶) بله، با فیلترهای `emsfb_upload_max_files_cap`، `emsfb_upload_quota_cap` و `emsfb_upload_ip_quota_limit` (پیش‌فرض ۲۰۰ در ساعت برای هر IP).
+
+**آزمون‌ها (۲۰۲۶-۱۱-۱۳).** واحد F07: هفت فایل تازه با ۲۸۶ assert (`test-upload-keys-roundtrip.php` ۸۹، `test-upload-keys-parity.js` ۷۳، `test-upload-token.php` ۵۳، `test-upload-queue-browser.js` ۳۷، `test-upload-viewer-csv.js` ۱۵، `test-upload-plan-gating.js` ۱۵، `test-addon-googlesheet-files.php` ۴) و `test-upload-multi-submit-http.php` روی وردپرس واقعی ۴۹؛ دامنهٔ brief (pay، addon، ap، privacy، upload) ۳۹۲۲ موفق / ۰ ناموفق در ۱۳۱ فایل؛ کل مجموعهٔ واحد (۳۳۳ فایل) در برابر commit پیش از F07 هیچ شکست تازه‌ای ندارد (۴۲ فایل غیرصفر، همان فایل‌های نیازمند WordPress در baseline). e2e کامل روی وردپرس واقعی: ۷۵۶ موفق / ۰ ناموفق در ۵۰ سناریو (F07: `f07a` ۱۸، `f07b` ۱۲، `f07c` ۹، `f07d` ۵، `f07e` ۷، `f07pay` ۴). اسکرین‌شات‌ها: `f07c-fa_IR-375.png`، `f07c-ar-375.png`، `f07b-list-en-1280.png`.
+
+**برای مالک.** روشن کردن `emsfb_upload_require_token` در نسخهٔ بعد؛ تصمیم بارگذاری تکه‌ای؛ ترجمهٔ عبارت‌ها؛ برای سایت nginx، قاعدهٔ `location ^~ /wp-content/uploads/efb-private/ { deny all; }` یا جابه‌جایی پوشه با `emsfb_private_upload_dir` (بیلدر هشدار را نشان می‌دهد)؛ افزونهٔ منطق شرطی (`AdnSMF`) عملگرهای «تعداد فایل» (`count_gte` / `count_lte`) را هنوز ندارد، هرچند ارزیاب هسته مقدار فیلد فایل را تعداد فایل‌ها می‌داند.
+

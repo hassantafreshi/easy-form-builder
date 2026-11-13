@@ -36,7 +36,8 @@ This guide explains, in plain language, what an attacker actually tries, what Ea
 - **`.html` and `.svg` are blocked too**, because both can run JavaScript on your site's own domain even though neither is an executable.
 - **Every accepted file is renamed** to a random name such as `efb-PLG-260817-1NBGMJ30.zip` before it is stored, so nobody can predict or guess a file's URL.
 - **The file is checked a second time when the form is submitted**, so a tampered URL in the submission cannot attach a file that was never validated.
-- **Each visitor gets 3 uploads per upload field per hour** by default, and files from abandoned forms are deleted automatically after 24 hours.
+- **Each visitor gets 3 uploads per file slot per hour** by default (a field that takes 5 files is 5 slots, at most 60 an hour), and files from abandoned forms are deleted automatically after 24 hours.
+- **A submitted file must belong to the visitor who sends it**: every upload gets a signed token for that form, field and session, so another visitor's file, a file of your media library or a file already used in an entry is refused.
 - **For per-IP rate limiting and bot detection**, enable the **Form Security & Spam Protection** add-on and set its mode to soft block.
 
 ## Table of contents
@@ -114,9 +115,15 @@ It confirms the URL really points inside your uploads folder, refuses anything c
 
 In practice this means a submission cannot smuggle in a file from somewhere else on your server, from another site, or from a field with looser rules.
 
+### The upload token
+
+Checking the file again is not enough on its own: a file another visitor uploaded a minute ago, or an image of your media library, sits in the same uploads folder and passes the same type checks. So every upload answers with an **upload token** (`ut`): a signature, made with your site's secret keys, of the stored file name, the form, the field and the visitor's form session, valid for as long as an unclaimed file is kept (24 hours). The page sends the token with the file, and the server accepts the file only when the token matches this form, this field and this session. A file that is already part of another entry is refused as well, and so is the same file twice.
+
+Pages cached before this release send no token. For them the plugin falls back to its own record of recent uploads, which also remembers the form and field each file was uploaded into. The filter `emsfb_upload_require_token` (default `false` in this release) turns that fallback off; the next release will turn it on.
+
 ## Layer 5: A budget per visitor
 
-Each visitor gets **3 uploads per upload field, per hour**. A form with one attachment field allows 3; a form with four attachment fields allows 12. The Response Box has a single attachment slot, so its budget is 3. When the budget is used up the visitor sees:
+Each visitor gets **3 uploads per file slot, per hour**. A field counts as many slots as the files it may hold. A form with one attachment field allows 3; a form with four attachment fields allows 12; one field that takes 5 files allows 15. The budget is capped at 60 an hour (`emsfb_upload_quota_cap`) and one IP address may upload at most 200 files an hour in total (`emsfb_upload_ip_quota_limit`). A file that is refused gives its place back. The Response Box has a single attachment slot, so its budget is 3. When the budget is used up the visitor sees:
 
 > **You can attach up to 3 files here. Please remove a file you already added, or wait about 60 minutes before trying again.**
 

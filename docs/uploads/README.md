@@ -26,7 +26,15 @@
 | فیلتر | کاربرد |
 | --- | --- |
 | `emsfb_upload_quota_limit` | مجموع بارگذاری مجاز هر بازدیدکننده در هر پنجره |
-| `emsfb_upload_retry_allowance` | تعداد بارگذاری به ازای هر فیلد فایل (پیش‌فرض ۳) |
+| `emsfb_upload_retry_allowance` | تعداد بارگذاری به ازای هر جایگاه فایل (پیش‌فرض ۳؛ فیلدی با «حداکثر تعداد فایل» ۵، پنج جایگاه است) |
+| `emsfb_upload_quota_cap` | سقف سهمیهٔ محاسبه‌شده در هر پنجره (پیش‌فرض ۶۰؛ ۰ = بدون سقف) |
+| `emsfb_upload_ip_quota_limit` | سقف بارگذاری هر IP در هر پنجره، همهٔ فرم‌ها و نشست‌ها با هم (پیش‌فرض ۲۰۰) |
+| `emsfb_upload_require_token` | ردکردن فایل بدون توکن آپلود (پیش‌فرض `false` در این نسخه؛ صفحه‌های کش‌شدهٔ قدیمی توکن ندارند) |
+| `emsfb_upload_max_files_cap` | سقف «حداکثر تعداد فایل» یک فیلد (پیش‌فرض ۲۰) |
+| `emsfb_private_upload_dir` | پوشهٔ فایل‌های خصوصی (پیش‌فرض `uploads/efb-private`؛ بیرون از webroot امن‌تر است) |
+| `emsfb_email_attach_max_bytes` | سقف حجم پیوست‌های ایمیل مدیر (پیش‌فرض ۱۰ مگابایت) |
+| `emsfb_signed_file_per_minute` | درخواست مجاز لینک امضاشده برای هر IP در دقیقه (پیش‌فرض ۳۰) |
+| `efb_upload_plan_ok` | دسترسی هر بخش F07 بر اساس پلن (`multi`، `resize`، `media`، `private`، `capture`، `attach`) |
 | `emsfb_upload_quota_window` | طول پنجرهٔ بازنشانی بر حسب ثانیه (پیش‌فرض ۳۶۰۰، کف ۶۰) |
 | `emsfb_upload_quota_enabled` | خاموش‌کردن کامل لایهٔ سهمیه |
 | `emsfb_upload_quota_message` | پیام نمایش‌داده‌شده هنگام پرشدن سهمیه |
@@ -43,5 +51,6 @@
 - `tests/test-upload-report-scenarios.php` — بازپخش دو سناریوی گزارش امنیتی تیر ۱۴۰۵ (سیل ۵۰ درخواستی و دور زدن `.pht`)
 - `tests/test-upload-guard-humanshield-bridge.php` — قرارداد override بین هستهٔ افزونه و افزودنی Human Shield
 - `tests/test-upload-multifield-form.php` — فرم چندفیلدی سرتاسر: شمارش فیلد، سهمیه، تنظیمات هر فیلد، و هم‌خوانی سقف دقیقه‌ای Human Shield با عرض فرم
+- F07 (چند فایل در یک فیلد، توکن آپلود، جایگاه‌ها، حالت‌های ذخیره): `tests/test-upload-token.php`، `tests/test-upload-keys-roundtrip.php`، `tests/test-upload-keys-parity.js`، `tests/test-upload-queue-browser.js`، `tests/test-upload-viewer-csv.js`، `tests/test-upload-plan-gating.js` و `tests/test-upload-multi-submit-http.php` (وردپرس واقعی)
 - `tests/test-upload-field-presets.php` — اعمال سمت سرور گزینه‌های «نوع فایل‌های قابل قبول» و معافیت کادر پاسخ
 - `tests/test-upload-html-blocklist.php` — رگرسیون قدیمی‌تر بلاک‌لیست پسوند

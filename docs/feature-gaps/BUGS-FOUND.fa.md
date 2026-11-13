@@ -9,7 +9,7 @@
 | شدت | مشکل | محل | تسک مرتبط |
 |---|---|---|---|
 | بالا | کل JSON فرم به مرورگر بازدیدکننده می‌رسد و فقط `email` و `rePage` پاک می‌شوند. `rePage` هم فقط از `$valj_efb` پاک می‌شود، نه از رشتهٔ `$fs` که واقعاً فرستاده می‌شود. احتمالاً گیرنده‌های اعلان، شمارهٔ موبایل مدیر و آدرس webhookها لو می‌روند. | `includes/class-Emsfb-public.php:1388-1405`، `1455`، `1836` | تسک امنیتی جدا |
-| بالا | هر فایلی که در پوشهٔ uploads است را می‌شود به‌عنوان پیوست فرم فرستاد، حتی فایل بازدیدکنندهٔ دیگر یا رسانه‌های سایت. فقط محل و نوع فایل بررسی می‌شود، نه مالکیت آن. | `includes/class-Emsfb-public.php:5215` (`validate_submitted_upload_url_efb`) | F07 |
+| بالا | هر فایلی که در پوشهٔ uploads است را می‌شود به‌عنوان پیوست فرم فرستاد، حتی فایل بازدیدکنندهٔ دیگر یا رسانه‌های سایت. فقط محل و نوع فایل بررسی می‌شود، نه مالکیت آن. | `includes/class-Emsfb-public.php:5215` (`validate_submitted_upload_url_efb`) | F07 — **رفع شد (F07-B/D)**: هر ردیف فایل با توکن آپلود (فرم، فیلد، نشست) یا ردیف دفتر معلق همان فرم و فیلد پذیرفته می‌شود؛ فایلی که پاسخ دیگری دارد رد می‌شود (`efb_file_not_owned`). تست `tests/test-upload-multi-submit-http.php` |
 | بالا | IP بازدیدکننده از هدرهای `Client-IP` و `X-Forwarded-For` خوانده می‌شود که قابل جعل‌اند. محدودیت نرخ درخواست، IP ذخیره‌شده و بررسی Shield Security تحت تأثیرند. | `includes/class-Emsfb-public.php:4767-4772`، `includes/functions.php:4461-4469` | F11، F12، F13 — **رفع شد (F13-B)**: هر چهار نسخهٔ `get_ip_address()` به `Privacy::client_ip()` سپرده شد؛ سرآیند فقط از proxy مورد اعتماد (loopback، شبکهٔ خصوصی، Cloudflare، فیلتر `efb_trusted_proxies`) و راست‌ترین آدرس نامطمئن `X-Forwarded-For`. تست `tests/test-privacy-ip-mode.php` |
 | متوسط | بررسی وجود اسکریپت هنگام ذخیرهٔ فرم هیچ‌وقت چیزی پیدا نمی‌کند، چون `json_encode` روی رشتهٔ ازپیش‌کدشده اجرا می‌شود و یک پرانتز جابه‌جاست (آزموده‌شده روی PHP 8.3). | `includes/admin/class-Emsfb-admin.php:317` | F15 |
 | متوسط | متن و مقدار گزینه‌ها بدون escape چاپ می‌شوند. | `includes/class-Emsfb-formbuilder.php:2088`، `2753` | F05 |
@@ -20,7 +20,7 @@
 | متوسط | ردیف‌های خروجی همهٔ فرم‌ها برای همیشه در `localStorage.rows_ws_p` مرورگر مدیر باقی می‌مانند. | `includes/admin/assets/js/list_form-efb.js:3746` | F13، F14 — **رفع شد (F13-E)**: ردیف‌ها در حافظهٔ همان صفحه می‌مانند و نسخهٔ قدیمی `rows_ws_p` پاک می‌شود. تست `tests/test-privacy-admin-js.js` |
 | متوسط | رمز عبورِ فیلد password در فرم عادی به‌صورت متن ساده در `emsfb_msg_.content` ذخیره می‌شود. | مسیر ذخیرهٔ پاسخ | F03 (پرسش باز ۱) |
 | کم | عبارت جست‌وجوی سراسری بدون escape در `LIKE` قرار می‌گیرد و `%` و `_` مثل wildcard عمل می‌کنند. | `includes/admin/class-Emsfb-admin.php:1953` | F14 |
-| کم | نام فایل‌های آپلودی با `str_shuffle` ساخته می‌شود که تصادفی امن نیست. | `includes/class-Emsfb-public.php:4858`، `5462`؛ `includes/admin/class-Emsfb-admin.php:3558` | F07 |
+| کم | نام فایل‌های آپلودی با `str_shuffle` ساخته می‌شود که تصادفی امن نیست. | `includes/class-Emsfb-public.php:4858`، `5462`؛ `includes/admin/class-Emsfb-admin.php:3558` | F07 — **رفع شد (F07-B)**: `wp_generate_password(12, false, false)` در هر سه نقطه |
 | کم | عبارت جست‌وجوی Nominatim URL-encode نمی‌شود. reverse geocoding برای هر نشانگر بدون کش و محدودیت ارسال می‌شود و قوانین استفادهٔ OSM را نقض می‌کند. | `includes/admin/assets/js/pro_els-efb.js:1401`، `1445`، `1515`، `1572` | F17 |
 | کم | مقدار ارسالی فیلدهای کشور، استان و شهر در سرور با گزینه‌های ذخیره‌شده مقایسه نمی‌شود. | `includes/class-Emsfb-public.php:3138-3152` | F17 |
 
@@ -42,7 +42,7 @@
 | متوسط | حداقل منفی در مرورگر `-1` خوانده می‌شود، در حالی که سرور مقدار واقعی را اعمال می‌کند. | `public/assets/js/core-efb.js:1347`، `3980` | F04 |
 | متوسط | حداقل و حداکثر انتخاب در فیلد چندانتخابی در سرور بررسی نمی‌شود. | `includes/class-Emsfb-public.php:3081-3101` | F05 |
 | متوسط | سرور هر خط جدید textarea را ۳ کاراکتر می‌شمارد، چون مرورگر آن را `@n#` می‌فرستد. | `includes/class-Emsfb-public.php:3389` | F03 |
-| متوسط | پیش‌فرض سقف حجم فایل ناهماهنگ است: مرورگر ۸ مگابایت، پیام خطای مرورگر و سرور ۲۰ مگابایت، و سازنده ۸ را پیش‌فرض نشان می‌دهد. | `public/assets/js/core-efb.js:1430`، `1466`؛ `includes/admin/assets/js/val-efb.js:1311` | F07 |
+| متوسط | پیش‌فرض سقف حجم فایل ناهماهنگ است: مرورگر ۸ مگابایت، پیام خطای مرورگر و سرور ۲۰ مگابایت، و سازنده ۸ را پیش‌فرض نشان می‌دهد. | `public/assets/js/core-efb.js:1430`، `1466`؛ `includes/admin/assets/js/val-efb.js:1311` | F07 — **رفع شد (F07-A/C)**: پیش‌فرض ۲۰ در مرورگر و سازنده، همان `Upload_Guard::DEFAULT_MAX_MB` |
 | کم | `$still_processing == false;` مقایسه است و کاری نمی‌کند. شرط `$item_value_len > 1` در خط ۲۷۶۱ مقدار یک‌کاراکتری را برای فیلد غیرفعال رد نمی‌کند. | `includes/class-Emsfb-public.php:2761`، `2764` | F03 |
 | کم | بررسی فیلد الزامی در یک شاخه از کلید `x.parents` استفاده می‌کند که هرگز مقدار نمی‌گیرد. | `public/assets/js/core-efb.js:1551`، `1554` | F07 |
 | کم | شرط `gettype($v)!="array" \|\| gettype($v)!="object"` همیشه درست است. | `includes/functions.php:3985` | F15 |
@@ -63,7 +63,7 @@
 | کم | `id="gRecaptcha"` برای همهٔ فرم‌های یک صفحه تکرار می‌شود. توکن کپچا پیش از حذف در localStorage ذخیره می‌شود. | `includes/class-Emsfb-formbuilder.php:2240`؛ `public/assets/js/core-efb.js:1180-1194` | F12 |
 | کم | ورودی پنهان و بی‌استفادهٔ `{id}-code` با placeholder «verify» در فیلد موبایل، که listenerهای عمومی به آن وصل می‌شوند. | `includes/class-Emsfb-formbuilder.php:1307`؛ `includes/admin/assets/js/pro_els-efb.js:718` | F02 — **رفع شد (F02)**: ورودی و دکمهٔ مخفی `type=submit` حذف شدند |
 | کم | تابع بی‌استفادهٔ `generateSwitchInput_efb` به متغیر تعریف‌نشدهٔ `$pos` اشاره می‌کند. | `includes/class-Emsfb-formbuilder.php:234-238` | — |
-| کم | متن انگلیسی hardcode‌شدهٔ «Release to Upload File» و متغیر سراسری مشترک `fileEfb`. | `includes/admin/assets/js/pro_els-efb.js:450` | F07 |
+| کم | متن انگلیسی hardcode‌شدهٔ «Release to Upload File» و متغیر سراسری مشترک `fileEfb`. | `includes/admin/assets/js/pro_els-efb.js:450` | F07 — **رفع شد (F07-C)**: متن از عبارت `releaseToUpload`؛ مسیر فیلد فایل متغیر خودش را دارد |
 | کم | غلط تایپی `'http://wwww.'` در بررسی host. | `includes/class-Emsfb-public.php:3198` | — |
 
 ## پیشخوان و مدیریت پاسخ‌ها
@@ -75,8 +75,8 @@
 | متوسط | پس از حذف یک پاسخ، کد فرمی را پیدا می‌کند که شناسه‌اش برابر شناسهٔ پاسخ است، آن را از فهرست فرم‌ها حذف می‌کند و فهرست فرم‌ها را دوباره رسم می‌کند. | `includes/admin/assets/js/list_form-efb.js:441-448`؛ فراخوانی در `admin-efb.js:5159` | F14 |
 | متوسط | تاریخ پاسخ‌ها به وقت محلی ذخیره ولی به‌عنوان UTC خوانده می‌شود، پس به اندازهٔ اختلاف ساعت سایت جابه‌جا نمایش داده می‌شود. | `includes/admin/class-Emsfb-admin.php:1430-1436` | F14 |
 | متوسط | جدول `emsfb_msg_` روی `form_id` ایندکس ندارد و هر پرس‌وجوی یک فرم کل جدول را می‌خواند. | `includes/class-Emsfb-install.php:88-100` | F14 |
-| متوسط | ستون‌های CSV با برچسب فیلد کلید می‌خورند، پس دو فیلد با برچسب یکسان در یک ستون ادغام می‌شوند. اگر یک فیلد چند فایل داشته باشد، فقط آخرینشان در CSV می‌ماند. | `includes/admin/assets/js/list_form-efb.js:3652`، `3664-3666` | F07، F14 |
-| متوسط | پیش‌نمایش تصویر در صفحهٔ پاسخ برای پاسخ‌های جدید هرگز اجرا نمی‌شود. جست‌وجوی پسوند فایل هم همیشه -1 برمی‌گرداند. | `includes/admin/assets/js/response-viewer-efb.js:944`، `959` | F07 |
+| متوسط | ستون‌های CSV با برچسب فیلد کلید می‌خورند، پس دو فیلد با برچسب یکسان در یک ستون ادغام می‌شوند. اگر یک فیلد چند فایل داشته باشد، فقط آخرینشان در CSV می‌ماند. | `includes/admin/assets/js/list_form-efb.js:3652`، `3664-3666` | F07، F14 — **رفع شد برای فایل‌ها (F07-E)**: فایل‌های یک فیلد در یک خانه با `" | "`؛ ادغام دو فیلد هم‌برچسب برای F14 باز است |
+| متوسط | پیش‌نمایش تصویر در صفحهٔ پاسخ برای پاسخ‌های جدید هرگز اجرا نمی‌شود. جست‌وجوی پسوند فایل هم همیشه -1 برمی‌گرداند. | `includes/admin/assets/js/response-viewer-efb.js:944`، `959` | F07 — **رفع شد (F07-E)**: نوع از پسوند نشانی و فایل‌های یک فیلد به‌صورت کارت؛ تست `tests/test-upload-viewer-csv.js` |
 | متوسط | اگر کاربری که پاسخ داده حذف شده باشد، خواندن `display_name` باعث خطا می‌شود. | `includes/admin/class-Emsfb-admin.php:1524-1525`؛ `includes/class-Emsfb-public.php:4603-4604` | F14 — **رفع شد (F13-E)**: نام نمایشی فقط وقتی کاربر وجود دارد خوانده می‌شود، وگرنه «پشتیبانی» |
 | کم | ویجت داشبورد بازدیدها را کمتر از واقع می‌شمارد و فقط `manage_options` را می‌پذیرد، نه نقش خود افزونه. | `includes/functions.php:6970-6983`؛ `includes/admin/class-Emsfb-dashboard-widget.php:149` | F14 |
 | کم | `JSON_UNESCAPED_UNICODE` به `isHTML()` داده می‌شود، نه به `json_encode`. | `includes/admin/class-Emsfb-admin.php:1300` | — |
@@ -315,3 +315,13 @@
 
 ### F16 (یادداشت بازبینی ۲۰۲۶-۱۱-۱۳): حباب خطای فیلد برچسب را می‌پوشاند
 - در صفحه‌های fa_IR و ar در عرض ۳۷۵ پیکسل، حباب خطای هسته (مثلاً «This value has already been used» در F03 یا «Please choose … or a later date» در F06) روی برچسب فیلد می‌نشیند و در عربی از لبهٔ چپ فرم بیرون می‌زند. این رفتار قدیمی نمایش خطای هسته است و به F06 ربط ندارد. در F16 (نمایش خطای درون‌خطی زیر فیلد با aria-describedby) برطرف شود. شاهد: اسکرین‌شات‌های `f03d-unique-fa-375.png` و `f06-ar-375-error.png` در خروجی e2e.
+
+## F07 (۲۰۲۶-۱۱-۱۳)
+
+| شدت | مشکل | محل | وضعیت |
+|---|---|---|---|
+| متوسط | ضبط‌های صدا، تصویر و صفحه هرگز در دفتر آپلودهای معلق ثبت نمی‌شدند و سهمیه را هم مصرف نمی‌کردند: شرط `$response['file']['file']` بود، در حالی که پاسخ ضبط این کلید را ندارد. ضبط رهاشده هیچ‌وقت پاک نمی‌شد. | `includes/class-Emsfb-public.php` (`file_upload_api`، شاخهٔ ضبط) | **رفع شد (F07-B)**: مسیر واقعی فایل (`stored_path`، که به مرورگر نمی‌رسد) ثبت و سهمیه رزرو می‌شود |
+| کم | سهمیهٔ آپلود «اول بخوان، بعد بشمار» با transient بود؛ دو آپلود هم‌زمان می‌توانستند آخرین جای خالی را با هم بگیرند. | `includes/class-Emsfb-upload-guard.php` (`quota_allows` / `quota_consume`) | **رفع شد (F07-B)**: `quota_reserve` اتمیک روی `Rate_Limit` و بازگرداندن جا برای فایل ردشده |
+| کم | `file_upload_public()` در کلاس عمومی به هیچ hook وصل نیست (کد مرده) و در پاسخ خود مسیر کامل فایل روی سرور (`$upload['file']`) را برمی‌گرداند. | `includes/class-Emsfb-public.php` (`file_upload_public`) | **باز**: فقط نام امن شد؛ حذف کد مرده برای مالک |
+| کم | در ذخیرهٔ فرم تازه (`add_form_structure`) هشدارهای F11 که همان‌جا جمع می‌شدند با خروجی `disable_unavailable_notifiers` بازنویسی و گم می‌شدند. | `includes/admin/class-Emsfb-create.php` | **رفع شد (F07، در گذر)**: هشدارها با هم ادغام می‌شوند |
+| کم | `core-efb.js` و `new-efb.js` آرایه‌های `sendBack_emsFormBuilder_pub` و `files_emsFormBuilder` را با `let` تعریف می‌کنند؛ این‌ها خاصیت `window` نیستند و افزونه یا اسکریپتی که `window.sendBack_emsFormBuilder_pub` را بخواند چیزی نمی‌بیند. | `includes/admin/assets/js/new-efb.js:42`، `public/assets/js/core-efb.js:382` | **یادداشت**: `upload-efb.js` آن‌ها را مستقیم می‌خواند؛ رفتار فعلی تغییری نکرد |
