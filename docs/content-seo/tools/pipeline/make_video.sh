@@ -12,7 +12,8 @@
 #   --voice-file MP3       use this narration audio (cached take) instead of calling the TTS API
 #   --lead SECONDS         voice-over starts this far into the video (default 2 = intro length)
 #   --music FILE           optional background bed (mixed at -24 dB)
-#   --fresh-site           rebuild the WordPress site from scratch first (wp-env/reset.sh, ~10 s with warm cache)
+#   --keep-site            do not rebuild the WordPress site (default: rebuild with wp-env/reset.sh, ~10 s warm cache,
+#                          so every run starts from identical forms/ids and an empty entries list)
 #   --crf N                x264 quality for Remotion (default 18)
 #
 # Idempotency / unattended rules
@@ -26,11 +27,11 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TOOLS="$(cd "$HERE/.." && pwd)"
 source "$TOOLS/wp-env/env.sh"
 
-SB=""; NAME=""; OUT=""; FORMATS="16x9,9x16"; STAGES="site,capture,voice,fit,render,mux"; REUSE=0; VOICE_FILE=""; LEAD=2; MUSIC=""; FRESH=0; CRF=18
+SB=""; NAME=""; OUT=""; FORMATS="16x9,9x16"; STAGES="site,capture,voice,fit,render,mux"; REUSE=0; VOICE_FILE=""; LEAD=2; MUSIC=""; FRESH=1; CRF=18
 while [ $# -gt 0 ]; do case "$1" in
   --storyboard) SB="$2"; shift 2;; --name) NAME="$2"; shift 2;; --out) OUT="$2"; shift 2;; --formats) FORMATS="$2"; shift 2;;
   --stages) STAGES="$2"; shift 2;; --reuse-capture) REUSE=1; shift;; --voice-file) VOICE_FILE="$2"; shift 2;; --lead) LEAD="$2"; shift 2;;
-  --music) MUSIC="$2"; shift 2;; --fresh-site) FRESH=1; shift;; --crf) CRF="$2"; shift 2;;
+  --music) MUSIC="$2"; shift 2;; --keep-site) FRESH=0; shift;; --crf) CRF="$2"; shift 2;;
   -h|--help) sed -n '2,28p' "$0"; exit 0;; *) echo "unknown arg $1" >&2; exit 2;; esac; done
 [ -n "$SB" ] || { echo "--storyboard required" >&2; exit 2; }
 SB="$(cd "$(dirname "$SB")" && pwd)/$(basename "$SB")"
@@ -39,7 +40,7 @@ OUT="${OUT:-$EFB_WORK/out/$NAME/$(date -u +%Y%m%dT%H%M%SZ)}"
 mkdir -p "$OUT/logs" "$EFB_WORK"
 exec 9>"$EFB_WORK/pipeline.lock"; flock -n 9 || { echo "another pipeline run holds $EFB_WORK/pipeline.lock" >&2; exit 75; }
 
-REPORT="$OUT/report.json"; echo '{"stages":{}}' > "$REPORT"
+REPORT="$OUT/report.json"; [ -f "$REPORT" ] || echo '{"stages":{}}' > "$REPORT"
 T_ALL=$(date +%s.%N)
 has() { [[ ",$STAGES," == *",$1,"* ]]; }
 record() { python3 - "$REPORT" "$1" "$2" "$3" <<'PY'
@@ -95,7 +96,7 @@ fi
 # --- mux ----------------------------------------------------------------------------------------------------------
 if has mux; then
   for f in ${FORMATS//,/ }; do
-    tmp="$OUT/.$NAME-$f.mp4.part"; final="$OUT/$NAME-$f.mp4"
+    tmp="$OUT/.$NAME-$f.part.mp4"; final="$OUT/$NAME-$f.mp4"
     args=(--video "$OUT/render/$NAME-$f.mp4" --voice "$OUT/voice/voiceover.mp3" --out "$tmp" --lead "$LEAD"); [ -n "$MUSIC" ] && args+=(--music "$MUSIC")
     run "mux-$f" 300 1 "$TOOLS/assemble/mux.sh" "${args[@]}"
     mv "$tmp" "$final"; "$TOOLS/assemble/verify.sh" "$final" | tee -a "$OUT/logs/verify.log"
