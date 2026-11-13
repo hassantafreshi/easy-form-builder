@@ -103,7 +103,10 @@ class Emsfb_Widgets_Helper {
         return $options;
     }
 
-    public static function generate_shortcode($form_id) {
+    /**
+     * @param array $popup F11-H: ['displayMode' => 'popup', 'popupLabel' => '', 'popupStyle' => 'button|link'].
+     */
+    public static function generate_shortcode($form_id, $popup = array()) {
         if (empty($form_id)) {
             return '';
         }
@@ -112,15 +115,22 @@ class Emsfb_Widgets_Helper {
             return '[Easy_Form_Builder_confirmation_code_finder]';
         }
 
-        return sprintf('[EMS_Form_Builder id="%d"]', intval($form_id));
+        $extra = '';
+        if (is_array($popup) && isset($popup['displayMode']) && $popup['displayMode'] === 'popup') {
+            $label = isset($popup['popupLabel']) && is_scalar($popup['popupLabel']) ? trim(str_replace(array('"', '[', ']'), '', wp_strip_all_tags((string) $popup['popupLabel']))) : '';
+            $style = isset($popup['popupStyle']) && $popup['popupStyle'] === 'link' ? 'link' : 'button';
+            $extra = ' popup="1" popup_style="' . $style . '"' . ($label !== '' ? ' popup_label="' . esc_attr($label) . '"' : '');
+        }
+
+        return sprintf('[EMS_Form_Builder id="%d"%s]', intval($form_id), $extra);
     }
 
-    public static function render_form($form_id) {
+    public static function render_form($form_id, $popup = array()) {
         if (empty($form_id)) {
             return self::render_placeholder_message(__('Please select a form to display.', 'easy-form-builder'));
         }
 
-        $shortcode = self::generate_shortcode($form_id);
+        $shortcode = self::generate_shortcode($form_id, $popup);
         return do_shortcode($shortcode);
     }
 

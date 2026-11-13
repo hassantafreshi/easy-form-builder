@@ -2,7 +2,7 @@
 (function(wp) {
     const { registerBlockType } = wp.blocks;
     const { useBlockProps, InspectorControls } = wp.blockEditor;
-    const { PanelBody, SelectControl, Placeholder, Spinner, SearchControl } = wp.components;
+    const { PanelBody, SelectControl, Placeholder, Spinner, SearchControl, TextControl } = wp.components;
     const { useState, useEffect, Fragment, useMemo } = wp.element;
     const { __ } = wp.i18n;
 
@@ -178,6 +178,37 @@
                                 help: __('Choose a form to display on your page.', 'easy-form-builder')
                             }
                         )
+                ),
+                // F11-H: show the form inline or in a popup (shortcode attributes popup, popup_label, popup_style).
+                formId && formId !== 'tracking' && wp.element.createElement(
+                    PanelBody,
+                    {
+                        title: __('Display', 'easy-form-builder'),
+                        initialOpen: false
+                    },
+                    wp.element.createElement(SelectControl, {
+                        label: __('Show as a popup', 'easy-form-builder'),
+                        value: attributes.displayMode || 'inline',
+                        options: [
+                            { value: 'inline', label: __('In the page', 'easy-form-builder') },
+                            { value: 'popup', label: __('In a popup (button or link)', 'easy-form-builder') }
+                        ],
+                        onChange: (v) => setAttributes({ displayMode: v === 'popup' ? 'popup' : 'inline' })
+                    }),
+                    (attributes.displayMode === 'popup') && wp.element.createElement(TextControl, {
+                        label: __('Popup button text', 'easy-form-builder'),
+                        value: attributes.popupLabel || '',
+                        onChange: (v) => setAttributes({ popupLabel: String(v || '').slice(0, 80) })
+                    }),
+                    (attributes.displayMode === 'popup') && wp.element.createElement(SelectControl, {
+                        label: __('Opens with', 'easy-form-builder'),
+                        value: attributes.popupStyle || 'button',
+                        options: [
+                            { value: 'button', label: __('Button', 'easy-form-builder') },
+                            { value: 'link', label: __('Link', 'easy-form-builder') }
+                        ],
+                        onChange: (v) => setAttributes({ popupStyle: v === 'link' ? 'link' : 'button' })
+                    })
                 ),
                 formId && wp.element.createElement(
                     PanelBody,

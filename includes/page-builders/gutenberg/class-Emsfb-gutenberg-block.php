@@ -170,7 +170,12 @@ class Emsfb_Gutenberg_Block {
             return '';
         }
 
-        $form_html = Emsfb_Widgets_Helper::render_form($form_id);
+        // F11-H: displayMode "popup" (popupLabel, popupStyle) becomes the shortcode's popup attributes.
+        $form_html = Emsfb_Widgets_Helper::render_form($form_id, array(
+            'displayMode' => isset($attributes['displayMode']) ? $attributes['displayMode'] : 'inline',
+            'popupLabel'  => isset($attributes['popupLabel']) ? $attributes['popupLabel'] : '',
+            'popupStyle'  => isset($attributes['popupStyle']) ? $attributes['popupStyle'] : 'button',
+        ));
 
         return sprintf(
             '<div class="wp-block-easy-form-builder-form%s%s">%s</div>',

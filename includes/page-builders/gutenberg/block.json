@@ -7,7 +7,15 @@
     "category": "widgets",
     "icon": "feedback",
     "description": "Display an Easy Form Builder form with drag and drop simplicity.",
-    "keywords": ["form", "contact", "easy form builder", "efb", "forms", "survey", "questionnaire"],
+    "keywords": [
+        "form",
+        "contact",
+        "easy form builder",
+        "efb",
+        "forms",
+        "survey",
+        "questionnaire"
+    ],
     "textdomain": "easy-form-builder",
     "attributes": {
         "formId": {
@@ -21,11 +29,34 @@
         "className": {
             "type": "string",
             "default": ""
+        },
+        "displayMode": {
+            "type": "string",
+            "default": "inline",
+            "enum": [
+                "inline",
+                "popup"
+            ]
+        },
+        "popupLabel": {
+            "type": "string",
+            "default": ""
+        },
+        "popupStyle": {
+            "type": "string",
+            "default": "button",
+            "enum": [
+                "button",
+                "link"
+            ]
         }
     },
     "supports": {
         "html": false,
-        "align": ["wide", "full"],
+        "align": [
+            "wide",
+            "full"
+        ],
         "className": true,
         "customClassName": true
     },

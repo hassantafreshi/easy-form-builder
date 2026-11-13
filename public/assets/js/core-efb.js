@@ -4940,7 +4940,46 @@ function efb_gate_boot_efb(root) {
     else efb_gate_timer_efb(fid, card.getAttribute('data-efb-gate-next'), 'card');
   });
 }
+/* F11-H: popup forms (native <dialog>, showModal): Esc and the close button close it, the focus goes
+ * back to the button that opened it, efb:popup-open (and a resize) lets maps, the signature pad and
+ * intl-tel-input measure again. popup_delay > 0 opens it once per browser session. */
+function efb_popup_open_efb(fid, opener) {
+  const dlg = document.getElementById('efb-dlg-' + fid);
+  if (!dlg || dlg.open) return false;
+  if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  dlg._efbOpener = opener || document.getElementById('efb-dlg-open-' + fid);
+  try { document.dispatchEvent(new CustomEvent('efb:popup-open', { detail: { formId: Number(fid), dialog: dlg } })); } catch (e) {}
+  try { window.dispatchEvent(new Event('resize')); } catch (e) {}
+  return true;
+}
+function efb_popup_close_efb(fid) {
+  const dlg = document.getElementById('efb-dlg-' + fid);
+  if (!dlg) return;
+  if (typeof dlg.close === 'function') dlg.close(); else dlg.removeAttribute('open');
+}
+function efb_popup_boot_efb(root) {
+  (root || document).querySelectorAll('[data-efb-popup]').forEach((btn) => {
+    if (btn._efbPopup) return;
+    btn._efbPopup = true;
+    const fid = btn.getAttribute('data-efb-popup');
+    btn.addEventListener('click', () => efb_popup_open_efb(fid, btn));
+    const dlg = document.getElementById('efb-dlg-' + fid);
+    if (dlg) {
+      dlg.addEventListener('close', () => { const o = dlg._efbOpener || btn; try { o.focus(); } catch (e) {} });
+      dlg.addEventListener('click', (e) => { if (e.target === dlg) efb_popup_close_efb(fid); });
+      const x = dlg.querySelector('[data-efb-popup-close]');
+      if (x) x.addEventListener('click', () => efb_popup_close_efb(fid));
+    }
+    const delay = Number(btn.getAttribute('data-efb-popup-delay')) || 0;
+    if (delay > 0) {
+      let seen = false;
+      try { seen = sessionStorage.getItem('efb_popup_' + fid) === '1'; } catch (e) {}
+      if (!seen) setTimeout(() => { if (efb_popup_open_efb(fid, btn)) { try { sessionStorage.setItem('efb_popup_' + fid, '1'); } catch (e) {} } }, delay * 1000);
+    }
+  });
+}
 if (typeof document !== 'undefined' && typeof window !== 'undefined' && !window.EFB_GATE_NO_BOOT) {
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => efb_gate_boot_efb(document));
-  else setTimeout(() => efb_gate_boot_efb(document), 0);
+  const efbF11Boot = () => { efb_gate_boot_efb(document); efb_popup_boot_efb(document); };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', efbF11Boot);
+  else setTimeout(efbF11Boot, 0);
 }

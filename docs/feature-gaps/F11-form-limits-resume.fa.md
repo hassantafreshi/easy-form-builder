@@ -447,12 +447,12 @@ if (($this->operation_data['type'] ?? '') !== 'payment_followup' && class_exists
 - پذیرش: `[EMS_Form_Builder id=5 popup=1]` فرم ۵ را نشان دهد. کانون در dialog بماند و Esc آن را ببندد. نقشه و امضا پس از باز شدن درست اندازه بگیرند. axe خطای serious یا critical نداشته باشد.
 - تست: `php tests/test-shortcode-attrs.php` (شناسه با ویژگی‌های اضافه)، Playwright `tests/popup-form-browser.js` (LTR و RTL، 375px).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۳، انجام شد)
+- فایل‌های تغییرکرده: `class-Emsfb-public.php` (`form_id_from_atts_efb`، `popup_atts_efb`، `popup_markup_efb`؛ پوشش `<dialog>` در `render_form_shortcode_efb` پیش از محافظ wpautop؛ Free Plus)، `class-Emsfb-widgets-helper.php` (`generate_shortcode($id, $popup)`)، گوتنبرگ (`block.json`: `displayMode`، `popupLabel`، `popupStyle`؛ `editor.js` پنل «Display»؛ `render_block()`)، `public/assets/js/core-efb.js` (`efb_popup_*`: `showModal`، Esc، بازگشت کانون، رویداد `efb:popup-open` و `resize`، `popup_delay` یک بار در هر نشست)، `public/assets/css/form-access-efb.css` (خاصیت‌های منطقی، تمام‌صفحه زیر ۵۷۶ پیکسل، دکمهٔ بستن ۴۴ پیکسل).
+- تست‌ها: `php tests/test-shortcode-attrs.php` (۲۴ مستقل؛ با `EFB_F11_WP_LOAD` روی وردپرس واقعی ۲۸: فرم درست داخل یک `<dialog>`، wpautop هیچ `<p>` داخل آن نگذاشت)؛ مرورگر در سناریوی e2e «f11».
+- وضعیت ترجمه: انگلیسی (`popupClose`، `popupOpen` و برچسب‌های بلوک).
+- مورد باز: محدودیت قبلی «هر فرم یک بار در هر صفحه» باقی است.
+- اقدام بعدی: E.
 
 ترتیب: A ← B ← (C، D، G، H موازی) ← E ← F. طبق README، B ارزان و پراثر است و می‌تواند زودتر منتشر شود.
 

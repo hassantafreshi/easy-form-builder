@@ -684,8 +684,71 @@ public function check_nonce_permission_efb($request) {
 	 * widget - nothing would swap the placeholder back, so the markup is
 	 * returned directly and the wpautop-proofing on it has to stand on its own.
 	 */
+	/**
+	 * F11-H: the form id of [EMS_Form_Builder id=5], [EMS_Form_Builder 5] or [EMS_Form_Builder id=5 popup=1].
+	 * end($atts) took the last attribute, so any extra attribute picked the wrong form. Order: the
+	 * id attribute, then the first bare positional number, then (old behaviour) the last value.
+	 */
+	public static function form_id_from_atts_efb( $atts ) {
+		if ( ! is_array( $atts ) ) return $atts;
+		if ( isset( $atts['id'] ) && is_scalar( $atts['id'] ) && '' !== (string) $atts['id'] ) return $atts['id'];
+		foreach ( $atts as $k => $v ) {
+			if ( is_int( $k ) && is_scalar( $v ) && preg_match( '/^\d+$/', (string) $v ) ) return $v;
+		}
+		return empty( $atts ) ? '' : end( $atts );
+	}
+
+	/** F11-H: the popup attributes of the shortcode (popup, popup_label, popup_style, popup_delay), or null. */
+	public static function popup_atts_efb( $atts ) {
+		if ( ! is_array( $atts ) || ! isset( $atts['popup'] ) || ! in_array( strtolower( (string) $atts['popup'] ), array( '1', 'true', 'yes', 'on' ), true ) ) return null;
+		$style = isset( $atts['popup_style'] ) && 'link' === strtolower( (string) $atts['popup_style'] ) ? 'link' : 'button';
+		$delay = isset( $atts['popup_delay'] ) && preg_match( '/^\d{1,4}$/', (string) $atts['popup_delay'] ) ? min( 3600, (int) $atts['popup_delay'] ) : 0;
+		$label = isset( $atts['popup_label'] ) && is_scalar( $atts['popup_label'] ) ? trim( wp_strip_all_tags( (string) $atts['popup_label'] ) ) : '';
+		return array( 'style' => $style, 'delay' => $delay, 'label' => function_exists( 'mb_substr' ) ? mb_substr( $label, 0, 80 ) : substr( $label, 0, 80 ) );
+	}
+
+	/**
+	 * F11-H: the form inside a native <dialog> (showModal: focus kept inside, Esc closes, focus goes
+	 * back to the button). aria-labelledby points at the form's name. Logical properties only (RTL);
+	 * full screen under 576 px (public/assets/css/form-popup-efb.css). One form once per page, as before.
+	 */
+	public static function popup_markup_efb( $inner, $form_id, array $p, $form_name, $close_label, $open_label ) {
+		$id = (int) $form_id;
+		$label = '' !== $p['label'] ? $p['label'] : $open_label;
+		$cls = 'link' === $p['style'] ? 'efb efb-popup-open btn btn-link p-0' : 'efb efb-popup-open btn btn-primary';
+		return '<div class="efb efb-popup-wrap" data-formid="' . $id . '">'
+			. '<button type="button" class="' . $cls . '" id="efb-dlg-open-' . $id . '" aria-haspopup="dialog" aria-controls="efb-dlg-' . $id . '" data-efb-popup="' . $id . '" data-efb-popup-delay="' . (int) $p['delay'] . '">' . esc_html( $label ) . '</button>'
+			. '<dialog id="efb-dlg-' . $id . '" class="efb efb-popup" aria-labelledby="efb-dlg-title-' . $id . '">'
+			. '<div class="efb efb-popup-head"><h2 class="efb efb-popup-title" id="efb-dlg-title-' . $id . '">' . esc_html( $form_name ) . '</h2>'
+			. '<button type="button" class="efb efb-popup-close" aria-label="' . esc_attr( $close_label ) . '" data-efb-popup-close="' . $id . '"><span aria-hidden="true">&times;</span></button></div>'
+			. '<div class="efb efb-popup-body">' . $inner . '</div>'
+			. '</dialog></div>';
+	}
+
+	/** F11: the styles of the popup, the save-and-continue dialog and the consent box. */
+	public static function enqueue_access_css_efb() {
+		if ( function_exists( 'wp_enqueue_style' ) ) {
+			wp_enqueue_style( 'efb-form-access', EMSFB_PLUGIN_URL . 'public/assets/css/form-access-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime( EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/form-access-efb.css' ) );
+		}
+	}
+
 	public function render_form_shortcode_efb( $atts = array(), $content = null, $tag = '' ) {
-		$markup = emsfb_autop_safe_markup_efb( $this->EFB_Form_Builder( $atts ) );
+		$markup = $this->EFB_Form_Builder( $atts );
+		// F11-H: [EMS_Form_Builder id=5 popup="1" popup_label="…" popup_style="button|link" popup_delay="0"] (Free Plus).
+		$popup = self::popup_atts_efb( $atts );
+		if ( $popup && is_string( $markup ) && '' !== $markup && ( ! class_exists( '\\Emsfb\\Form_Gate' ) || \Emsfb\Form_Gate::plan_ok( 'popup' ) ) ) {
+			$fid = (int) self::form_id_from_atts_efb( $atts );
+			$name = '';
+			$row = $fid > 0 ? $this->get_form_data_efb( $fid, array( 'form_structer', 'form_type' ) ) : null;
+			if ( $row && isset( $row->form_structer ) ) {
+				$rows = \emsfb_json_decode_efb( \emsfb_json_normalize_efb( $row->form_structer ), true );
+				if ( is_array( $rows ) && isset( $rows[0]['formName'] ) && is_string( $rows[0]['formName'] ) ) $name = str_replace( '@efb@dq#', '"', $rows[0]['formName'] );
+			}
+			$l = $this->efbFunction ? $this->efbFunction->text_efb( array( 'popupClose', 'popupOpen' ) ) : array();
+			$markup = self::popup_markup_efb( $markup, $fid, $popup, $name, isset( $l['popupClose'] ) ? $l['popupClose'] : 'Close', '' !== $name ? $name : ( isset( $l['popupOpen'] ) ? $l['popupOpen'] : 'Open the form' ) );
+			self::enqueue_access_css_efb();
+		}
+		$markup = emsfb_autop_safe_markup_efb( $markup );
 
 		if ( ! is_string( $markup ) || '' === $markup || ! $this->content_filter_is_running_efb() ) {
 			return $markup;
@@ -997,7 +1060,7 @@ public function check_nonce_permission_efb($request) {
 					$page_builder = 'Editor';
 				}
 
-				$form_id = is_array($id) ? end($id) : $id;
+				$form_id = self::form_id_from_atts_efb($id); // F11-H: not end($id)
 				$form_info = '';
 				if (!empty($form_id)) {
 					$form_info = '<div style="margin-top: 15px; padding: 10px 20px; background: rgba(255,255,255,0.2); border-radius: 6px; display: inline-block; font-size: 13px;">
@@ -1150,7 +1213,8 @@ public function check_nonce_permission_efb($request) {
 			}
 
 			// WordPress < 6.5 passes '' (not an array) for a shortcode without attributes.
-			$this->id = is_array($id) ? end($id) : $id;
+			// F11-H: the id attribute (or the bare number), not the last attribute: [EMS_Form_Builder id=5 popup=1] is form 5.
+			$this->id = self::form_id_from_atts_efb($id);
 			$this->id = intval($this->id);
 			$sid = $this->efbFunction->efb_code_validate_create( $this->id , 0, 'visit' , 0);
 			$value_form_data = $this->get_form_data_efb($this->id, array('form_structer', 'form_type'));
