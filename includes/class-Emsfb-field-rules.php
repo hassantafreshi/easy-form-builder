@@ -221,6 +221,11 @@ class Field_Rules {
 				return in_array($v, array('none', 'allow', 'deny'), true) ? $v : 'none';
 			case 'email_domains':
 				return is_scalar($v) ? self::domains_list((string) $v)['value'] : '';
+			case 'prefix':
+			case 'suffix':
+				return self::plain($v, 24);
+			case 'message_place':
+				return in_array($v, array('below', 'above', 'focus', 'tooltip'), true) ? $v : 'below';
 			case 'pattern_case':
 				return in_array($v, array(1, '1', true, 'true'), true) ? '1' : '0';
 			case 'pattern_ascii':

@@ -31,6 +31,11 @@
  *  f03f  F: read-only: the field is focusable and read-only for assistive technology (readonly, not
  *        disabled), typing changes nothing, the value is sent, a request that changes it is stored
  *        with the field's own value; builder: read-only and disabled switch each other off, Save.
+ *  f03g  G: prefix / suffix and the description's place: "+98" stays on the left of an LTR mobile in an
+ *        RTL form (fa_IR, 375 px, no horizontal scroll), aria-describedby has -pfx, -sfx, -des; the
+ *        help button opens with Enter, closes with Escape (focus back), opens with Space, closes on a
+ *        click outside; "while in focus" shows the text only on focus; the page has no stray <p>/<br>
+ *        in the field markup; builder: prefix, suffix and place save and the canvas shows the group.
  */
 'use strict';
 
@@ -515,5 +520,75 @@ module.exports = function (S) {
     await sleep(1200);
     const b = await admin.evaluate((id) => { const r = valj_efb.find((x) => x.id_ === id); return { ro: r.readonly, dis: Number(r.disabled), btn: document.getElementById('readonlyEl').classList.contains('active') }; }, t.id_);
     R.check('f03f: builder: read-only on switches disabled off, disabled on switches read-only off', a.ro === '1' && a.dis === 0 && !a.btn && b.ro === '0' && b.dis === 1 && !b.btn, { a, b });
+  });
+
+  scenario('f03g', 'F03-G prefix / suffix and description place: RTL + LTR input at 375 px, toggletip keyboard, focus help, builder', async ({ context, adminPage }) => {
+    plan3();
+    const F = form('F03 e2e help', [
+      { key: 'mobile', type: 'tel', name: 'Mobile', mask_preset: 'ir.mobile', prefix: '+98', message: 'We text you the code.', message_place: 'tooltip' },
+      { key: 'weight', type: 'number', name: 'Weight', suffix: 'kg', prefix: '≈', message: 'Your weight today.', message_place: 'focus' },
+      { key: 'city', type: 'text', name: 'City', message: 'Where you live.', message_place: 'above' },
+    ]);
+    const url = pageOf(F.form_id);
+    const html = await (await (await context({}, 'f03g-html')).request.get(url)).text();
+    const fieldHtml = (id) => { const a = html.indexOf('id="' + id + '"'); const b = html.indexOf('<!--endTag', a); return html.slice(a, b); };
+    const stray = [F.ids.mobile, F.ids.weight, F.ids.city].map((id) => (fieldHtml(id).match(/<p>|<br ?\/?>/g) || []).length);
+    R.check('f03g: the page has no <p> or <br> inside the three fields (wpautop)', stray.every((n) => n === 0), stray);
+    ctl('locale', 'fa_IR');
+    try {
+      const g = await (await context({ viewport: { width: 375, height: 800 } }, 'f03g-fa')).newPage();
+      await g.goto(url, { waitUntil: 'load' });
+      await g.waitForSelector(byId(F.ids.mobile + '_'), { timeout: 20000 });
+      await sleep(900);
+      const lay = await g.evaluate((ids) => {
+        const inp = document.getElementById(ids.mobile + '_');
+        const pfx = document.getElementById(ids.mobile + '_-pfx');
+        const w = document.getElementById(ids.weight + '_');
+        return { pfxLeft: pfx.getBoundingClientRect().right <= inp.getBoundingClientRect().left + 1, pageRtl: getComputedStyle(document.getElementById('body_efb_' + inp.dataset.formid)).direction, described: inp.getAttribute('aria-describedby'), wDescribed: w.getAttribute('aria-describedby'), scroll: document.documentElement.scrollWidth <= window.innerWidth + 1 };
+      }, F.ids);
+      R.check('f03g: fa_IR at 375 px: "+98" on the left of the LTR mobile in the RTL form, no horizontal scroll', lay.pfxLeft && lay.pageRtl === 'rtl' && lay.scroll, lay);
+      R.check('f03g: aria-describedby: -des and -pfx (mobile); -des, -pfx and -sfx (weight)', /-des/.test(lay.described) && lay.described.includes(F.ids.mobile + '_-pfx') && ['-des', '_-pfx', '_-sfx'].every((x) => lay.wDescribed.includes(x)), lay);
+      await g.screenshot({ path: SHOT('f03g-affix-help-fa-375') });
+      // Toggletip with the keyboard.
+      const btn = `[aria-controls="${F.ids.mobile}-desw"]`;
+      await g.focus(btn);
+      await g.keyboard.press('Enter');
+      const open1 = await g.evaluate((s) => ({ exp: document.querySelector(s).getAttribute('aria-expanded'), vis: getComputedStyle(document.getElementById(document.querySelector(s).getAttribute('aria-controls'))).display !== 'none' }), btn);
+      await g.screenshot({ path: SHOT('f03g-toggletip-fa-375') });
+      await g.keyboard.press('Escape');
+      const closed1 = await g.evaluate((s) => ({ exp: document.querySelector(s).getAttribute('aria-expanded'), focus: document.activeElement === document.querySelector(s) }), btn);
+      await g.keyboard.press(' ');
+      const open2 = await g.evaluate((s) => document.querySelector(s).getAttribute('aria-expanded'), btn);
+      await g.click('h1, body', { position: { x: 5, y: 5 } }).catch(() => {});
+      const closed2 = await g.evaluate((s) => document.querySelector(s).getAttribute('aria-expanded'), btn);
+      R.check('f03g: the help button: Enter opens (text shown), Escape closes and keeps focus, Space opens, a click outside closes', open1.exp === 'true' && open1.vis && closed1.exp === 'false' && closed1.focus && open2 === 'true' && closed2 === 'false', { open1, closed1, open2, closed2 });
+      const fb = await g.evaluate((id) => getComputedStyle(document.getElementById(id + '-desw')).display, F.ids.weight);
+      await g.focus(byId(F.ids.weight + '_'));
+      const fa = await g.evaluate((id) => getComputedStyle(document.getElementById(id + '-desw')).display, F.ids.weight);
+      R.check('f03g: "while in focus": hidden, shown when the field has focus', fb === 'none' && fa !== 'none', { fb, fa });
+      const above = await g.evaluate((id) => { const d = document.getElementById(id + '-des'); const i = document.getElementById(id + '_'); return d.getBoundingClientRect().bottom <= i.getBoundingClientRect().top + 1; }, F.ids.city);
+      R.check('f03g: "above the field": the description is above the input', above);
+    } finally { ctl('locale', ''); }
+
+    const admin = await adminPage();
+    await openNewForm(admin);
+    const t = await addTile(admin, 'text');
+    await admin.click(`#dropZoneEFB [data-id="${t.dataId}"] label, #dropZoneEFB [data-id="${t.dataId}"]`, { position: { x: 20, y: 10 } });
+    await admin.waitForSelector('#prefixEl', { timeout: 10000 });
+    await admin.fill('#prefixEl', '$'); await admin.dispatchEvent('#prefixEl', 'change');
+    await admin.fill('#suffixEl', 'USD'); await admin.dispatchEvent('#suffixEl', 'change');
+    await admin.selectOption('#messagePlaceEl', 'tooltip'); await admin.dispatchEvent('#messagePlaceEl', 'change');
+    await sleep(400);
+    const cv = await admin.evaluate((id) => { const i = document.querySelector('#dropZoneEFB [id="' + id + '_"]'); const g = i && i.parentElement; return g && g.classList.contains('efb-affix') ? Array.from(g.querySelectorAll('.efb-affix-text')).map((x) => x.textContent) : null; }, t.id_);
+    R.check('f03g: builder canvas shows the prefix and suffix around the input', JSON.stringify(cv) === '["$","USD"]', cv);
+    await closePanel(admin);
+    const saved = admin.waitForResponse((x) => /admin-ajax\.php/.test(x.url()) && x.request().method() === 'POST' && /add_form_Emsfb|update_form_Emsfb/.test(x.request().postData() || ''), { timeout: 20000 }).catch(() => null);
+    await admin.evaluate(() => saveFormEfb(1));
+    const sres = await saved;
+    const sj = sres ? await sres.json() : {};
+    await sleep(800);
+    const fid = Number(String((sj.data && (sj.data.value || sj.data.id)) || '').replace(/\D+/g, '')) || await admin.evaluate(() => Number(form_ID_emsFormBuilder));
+    const tr = (((ctl('form', String(fid)) || {}).form_structer) || []).find((r) => r && r.id_ === t.id_) || {};
+    R.check('f03g: Save stores prefix, suffix and message_place', tr.prefix === '$' && tr.suffix === 'USD' && tr.message_place === 'tooltip', { p: tr.prefix, s: tr.suffix, m: tr.message_place });
   });
 };

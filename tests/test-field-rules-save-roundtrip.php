@@ -146,6 +146,12 @@ roundtrip_keys($fn, array(
 /* F: read-only. */
 roundtrip_keys($fn, array(array('readonly', '1', '1'), array('readonly', true, '1'), array('readonly', 'on', '0'), array('readonly', '0', '0')));
 
+/* G: prefix / suffix (plain, ≤ 24) and the description's place. */
+roundtrip_keys($fn, array(
+	array('prefix', '+98', '+98'), array('suffix', 'تومان', 'تومان'), array('prefix', '<b>$</b>', '$'), array('suffix', str_repeat('x', 30), str_repeat('x', 24)), array('prefix', '% off', '% off'),
+	array('message_place', 'tooltip', 'tooltip'), array('message_place', 'above', 'above'), array('message_place', 'focus', 'focus'), array('message_place', 'side', 'below'),
+));
+
 /* An old form without the keys comes back with the same keys. */
 $old = form_with(array(fld('o1', array('milen' => '2', 'mlen' => '30', 'customRequiredMsg' => 'Please fill %s')), fld('o2', array('type' => 'textarea', 'value' => 'a@n#b'))));
 $back = save_and_read($fn, builder_payload($old));

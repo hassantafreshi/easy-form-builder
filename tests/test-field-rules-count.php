@@ -82,9 +82,9 @@ t('3 minimum with msg_minlen', $fx->run(array('id_' => 'ta', 'type' => 'textarea
 /* 4 renderer */
 $h = efb_fr_render(efb_fr_field('ta1', 'textarea', array('mlen' => '100', 'counter' => 'chars', 'message' => 'Desc')));
 t('4 textarea: maxlength from mlen', strpos($h, 'maxlength="100"') !== false, true);
-t('4 textarea: counter box (aria-hidden) before the description, hint referenced', (bool) preg_match('#<div class="efb efb-counter-wrap"><div id="ta1_-counter" class="efb efb-counter fs-7" aria-hidden="true" data-counter="chars" data-style="remaining" data-max="100"></div><span id="ta1_-limit" class="efb efb-vh">Up to 100 characters</span></div><div class="efb efb-field-description">#', $h) && strpos($h, 'aria-describedby="ta1-des ta1_-limit"') !== false, true);
+t('4 textarea: counter box (aria-hidden) before the description, hint referenced', (bool) preg_match('#<div class="efb efb-counter-wrap"><div id="ta1_-counter" class="efb efb-counter fs-7" aria-hidden="true" data-counter="chars" data-style="remaining" data-max="100"></div><div id="ta1_-limit" class="efb efb-vh">Up to 100 characters</div></div><div class="efb efb-field-description">#', $h) && strpos($h, 'aria-describedby="ta1-des ta1_-limit"') !== false, true);
 $h = efb_fr_render(efb_fr_field('tx1', 'text', array('counter' => 'words', 'counter_style' => 'used', 'wmax' => '5')), array('tvLimitWordsHint' => 'تا %s کلمه'));
-t('4 text: words counter, translated hint, aria-describedby made when there was none', strpos($h, 'data-counter="words" data-style="used" data-max="5"') !== false && strpos($h, '<span id="tx1_-limit" class="efb efb-vh">تا 5 کلمه</span>') !== false && strpos($h, 'aria-describedby="tx1_-limit"') !== false, true);
+t('4 text: words counter, translated hint, aria-describedby made when there was none', strpos($h, 'data-counter="words" data-style="used" data-max="5"') !== false && strpos($h, '<div id="tx1_-limit" class="efb efb-vh">تا 5 کلمه</div>') !== false && strpos($h, 'aria-describedby="tx1_-limit"') !== false, true);
 $h = efb_fr_render(efb_fr_field('tx2', 'text', array('counter' => 'chars')));
 t('4 counter without a maximum: no hint', strpos($h, 'tx2_-counter') !== false && strpos($h, 'tx2_-limit') === false, true);
 $old = efb_fr_render(efb_fr_field('ol1', 'text', array('milen' => '2', 'mlen' => '30', 'message' => 'Desc')));

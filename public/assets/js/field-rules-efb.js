@@ -128,6 +128,9 @@
       case 'unique_scope': return 'form';
       case 'email_domain_mode': return ['none', 'allow', 'deny'].indexOf(v) !== -1 ? v : 'none';
       case 'email_domains': return (v === null || v === undefined || typeof v === 'object') ? '' : domainsList(String(v)).value;
+      case 'prefix':
+      case 'suffix': return plain(v, 24);
+      case 'message_place': return ['below', 'above', 'focus', 'tooltip'].indexOf(v) !== -1 ? v : 'below';
       case 'pattern_case': return [1, '1', true, 'true'].indexOf(v) !== -1 ? '1' : '0';
       case 'pattern_ascii': return [0, '0', false, 'false'].indexOf(v) !== -1 ? '0' : '1';
     }

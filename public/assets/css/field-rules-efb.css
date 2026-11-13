@@ -9,3 +9,21 @@
 [dir="rtl"] .efb[data-efb-readonly="1"] { background-position: left .6rem center; }
 .efb[data-efb-readonly="1"]:dir(ltr) { background-position: right .6rem center; }
 .efb[data-efb-readonly="1"]:dir(rtl) { background-position: left .6rem center; }
+/* G: prefix / suffix (Bootstrap's input group; the input keeps the rest of the line). */
+.efb.input-group.efb-affix { position: relative; }
+.efb.input-group.efb-affix > .efb.form-control { width: 1% !important; flex: 1 1 auto; min-width: 0; }
+.efb.input-group.efb-affix > .efb-affix-text { white-space: nowrap; max-width: 45%; overflow: hidden; text-overflow: ellipsis; }
+/* G: the description while the field has focus, or behind a help button (toggletip). Hidden text is still
+ * read by screen readers through aria-describedby. */
+.efb.efb-help-focus { display: none; }
+.efb.ttEfb:focus-within > .efb.efb-help-focus { display: block; }
+.efb.efb-help-pop { display: none; }
+.efb.efb-help-pop.efb-help-open { display: block; }
+.efb.efb-help-btn { inline-size: 1.6rem; block-size: 1.6rem; min-inline-size: 24px; min-block-size: 24px; border-radius: 50%; border: 1px solid #657096; background: #fff; color: #1a1a2e; font-weight: 700; line-height: 1; padding: 0; cursor: pointer; }
+.efb.efb-help-btn[aria-expanded="true"] { background: #3644d2; color: #fff; border-color: #3644d2; }
+.efb.efb-help-btn:focus-visible { outline: 2px solid #3644d2; outline-offset: 2px; }
+/* An LTR input keeps its group LTR in an RTL form (admin-rtl-efb.css puts direction: rtl !important on every .efb). */
+.efb.input-group.efb-affix[dir="ltr"], .efb.input-group.efb-affix[dir="ltr"] > .efb.efb-affix-text { direction: ltr !important; }
+/* The help button sits above the input at the line's end (it comes after the input in the markup for wpautop). */
+.efb.ttEfb.show:has(> .efb-help-wrap) { display: flex !important; flex-direction: column; }
+.efb.ttEfb.show:has(> .efb-help-wrap) > .efb-help-wrap { order: -1; align-self: flex-end; margin-block-end: .25rem; }

@@ -1576,6 +1576,33 @@ function efb_rules_bind_counter_efb(el, form_id) {
   update();
 }
 
+/* F03-G: the help button of a field (toggletip): click / Enter / Space open and close it, Escape and a
+ * click outside close it; the text is also the field's aria-describedby, so it is read either way. */
+function efb_rules_toggletip_efb(btn, open) {
+  const pop = btn ? document.getElementById(btn.getAttribute('aria-controls')) : null;
+  if (!pop) return;
+  const on = open === undefined ? btn.getAttribute('aria-expanded') !== 'true' : !!open;
+  btn.setAttribute('aria-expanded', on ? 'true' : 'false');
+  pop.classList.toggle('efb-help-open', on);
+}
+if (typeof document !== 'undefined' && typeof window !== 'undefined' && document.addEventListener && !window.efb_toggletip_bound_efb) {
+  window.efb_toggletip_bound_efb = true;
+  document.addEventListener('click', (e) => {
+    const btn = e.target && e.target.closest ? e.target.closest('.efb-help-btn') : null;
+    document.querySelectorAll('.efb-help-btn[aria-expanded="true"]').forEach((b) => {
+      if (b !== btn && !(e.target.closest && e.target.closest('#' + CSS.escape(b.getAttribute('aria-controls'))))) efb_rules_toggletip_efb(b, false);
+    });
+    if (btn) { e.preventDefault(); efb_rules_toggletip_efb(btn); }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    document.querySelectorAll('.efb-help-btn[aria-expanded="true"]').forEach((b) => {
+      efb_rules_toggletip_efb(b, false);
+      if (document.activeElement && (document.activeElement === b || (document.getElementById(b.getAttribute('aria-controls')) || {}).contains?.(document.activeElement))) b.focus();
+    });
+  });
+}
+
 /** A server answer that names a field (field_id): the field shows the server's sentence. */
 function efb_rules_server_error_efb(form_id, field_id, m) {
   const el = efb_get_by_id_in_form_efb(form_id, `${field_id}_`);

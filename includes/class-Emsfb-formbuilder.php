@@ -323,10 +323,58 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$id = $rndm . '_-limit';
 			$hint = '';
 			if ($c['max'] > 0) {
-				$hint = sprintf('<span id="%s" class="efb efb-vh">%s</span>', esc_attr($id), esc_html(str_replace('%s', number_format_i18n_efb_fr($c['max']), $c['kind'] === 'words' ? $t('tvLimitWordsHint', 'Up to %s words') : $t('tvLimitHint', 'Up to %s characters'))));
+				$hint = sprintf('<div id="%s" class="efb efb-vh">%s</div>', esc_attr($id), esc_html(str_replace('%s', number_format_i18n_efb_fr($c['max']), $c['kind'] === 'words' ? $t('tvLimitWordsHint', 'Up to %s words') : $t('tvLimitHint', 'Up to %s characters'))));
 				$out['describedby'][] = $id;
 			}
 			$out['after'] .= sprintf('<div class="efb efb-counter-wrap"><div id="%s_-counter" class="efb efb-counter fs-7" aria-hidden="true" data-counter="%s" data-style="%s" data-max="%d"></div>%s</div>', esc_attr($rndm), esc_attr($c['kind']), esc_attr($c['style']), (int) $c['max'], $hint);
+		}
+		return $out;
+	}
+
+	/**
+	 * F03-G: prefix / suffix and where the description goes. Returns the pieces generateTextInput_efb()
+	 * and the textarea put around the input: ['before' => after the -f div opens, 'open' => before the
+	 * input (in place of the tooltip), 'close' => after the input, 'desc' => the description piece,
+	 * 'describedby' => ids]. Every piece starts with a block tag (wpautop); the tooltip <small> stays
+	 * the first child of the input group (generateTooltip_efb). Nothing changes for a field without keys.
+	 */
+	private function generateHelpAffix_efb($vj, $rndm, $desc, $ttip, $with_affix = true) {
+		$out = array('before' => '', 'open' => $ttip, 'close' => '', 'desc' => $desc, 'describedby' => array());
+		if (!class_exists('\\Emsfb\\Field_Rules')) return $out;
+		$f = is_object($vj) ? get_object_vars($vj) : (is_array($vj) ? $vj : array());
+		$texts = $this->pro_notice_texts_efb;
+		if ($with_affix && \Emsfb\Field_Rules::type_ok($f, 'affix')) {
+			$pfx = isset($f['prefix']) ? \Emsfb\Field_Rules::sanitize_key('prefix', $f['prefix']) : '';
+			$sfx = isset($f['suffix']) ? \Emsfb\Field_Rules::sanitize_key('suffix', $f['suffix']) : '';
+			if ($pfx !== '' || $sfx !== '') {
+				// The group follows the input's own direction (an LTR masked input keeps +98 on the left in RTL).
+				$masked = !empty($f['mask_preset']);
+				$out['open'] = '<div class="efb input-group efb-affix flex-nowrap"' . ($masked ? ' dir="ltr"' : '') . '>' . $ttip
+					. ($pfx !== '' ? '<span class="efb input-group-text efb-affix-text" id="' . esc_attr($rndm) . '_-pfx">' . esc_html($pfx) . '</span>' : '');
+				$out['close'] = ($sfx !== '' ? '<span class="efb input-group-text efb-affix-text" id="' . esc_attr($rndm) . '_-sfx">' . esc_html($sfx) . '</span>' : '') . '</div>';
+				if ($pfx !== '') $out['describedby'][] = $rndm . '_-pfx';
+				if ($sfx !== '') $out['describedby'][] = $rndm . '_-sfx';
+			}
+		}
+		$place = isset($f['message_place']) && in_array($f['message_place'], array('above', 'focus', 'tooltip'), true) && \Emsfb\Field_Rules::type_ok($f, 'help') && isset($f['message']) && trim((string) $f['message']) !== '' ? $f['message_place'] : 'below';
+		if ($place === 'above') {
+			// The description first; the tooltip and the input then get a block parent of their own, or
+			// wpautop would put the piece after the description's closing tag in a paragraph.
+			$out['before'] = $desc;
+			$out['desc'] = '';
+			if ($out['close'] === '') {
+				$out['open'] = '<div class="efb efb-input-wrap">' . $out['open'];
+				$out['close'] = '</div>';
+			}
+		} elseif ($place === 'focus' || $place === 'tooltip') {
+			$cls = $place === 'focus' ? 'efb-help-focus' : 'efb-help-pop';
+			$out['desc'] = str_replace('<div class="efb efb-field-description">', '<div class="efb efb-field-description ' . $cls . '" id="' . esc_attr($rndm) . '-desw">', $desc);
+			if ($place === 'tooltip') {
+				// After the input (a block piece there adds no paragraph); CSS puts it next to the label.
+				$name = isset($f['name']) ? (string) $f['name'] : '';
+				$label = str_replace('%s', $name, isset($texts['tvHelpBtn']) && is_string($texts['tvHelpBtn']) && $texts['tvHelpBtn'] !== '' ? $texts['tvHelpBtn'] : 'Help: %s');
+				$out['desc'] = '<div class="efb efb-help-wrap"><button type="button" class="efb efb-help-btn" aria-expanded="false" aria-controls="' . esc_attr($rndm) . '-desw" aria-label="' . esc_attr($label) . '"><span aria-hidden="true">?</span></button></div>' . $out['desc'];
+			}
 		}
 		return $out;
 	}
@@ -340,10 +388,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	}
 
 	private function generateTextInput_efb($type, $classes, $vj, $rndm, $desc, $label, $ttip, $div_f_id, $placeholder, $lenAttributes, $aire_describedby, $disabled, $autocomplete, $form_id, $telPattern = '') {
-		// F03: counter and limit hint (nothing for a field without the keys).
+		// F03: counter and limit hint, read-only, prefix / suffix, description place (nothing for a field without the keys).
 		$fr_efb = $this->generateRuleExtras_efb($vj, $rndm);
 		if ($fr_efb['after'] !== '') $desc = $fr_efb['after'] . $desc;
-		$aire_describedby = $this->mergeDescribedby_efb($aire_describedby, $fr_efb['describedby']);
+		$ha_efb = $this->generateHelpAffix_efb($vj, $rndm, $desc, $ttip);
+		$div_f_id .= $ha_efb['before'];
+		$ttip = $ha_efb['open'];
+		$desc = $ha_efb['close'] . $ha_efb['desc'];
+		$aire_describedby = $this->mergeDescribedby_efb($aire_describedby, array_merge($ha_efb['describedby'], $fr_efb['describedby']));
 		if ($fr_efb['attrs'] !== '') $telPattern = trim($telPattern . ' ' . trim($fr_efb['attrs']));
 
 		$corener = isset($vj->corner) ? $vj->corner : 'rounded-3';
@@ -2779,7 +2831,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 					}
 					$fr_efb = $this->generateRuleExtras_efb($vj, $element_Id);
 					if ($fr_efb['attrs'] !== '') $minlen = trim($minlen . ' ' . trim($fr_efb['attrs']));
-					$ta_desc_efb = $fr_efb['after'] . $desc;
+					$ha_efb = $this->generateHelpAffix_efb($vj, $element_Id, $fr_efb['after'] . $desc, $ttip, false);
+					$ta_desc_efb = $ha_efb['close'] . $ha_efb['desc'];
+					$ta_ttip_efb = $ha_efb['before'] . $ha_efb['open'];
 					$ta_described_efb = $this->mergeDescribedby_efb($aire_describedby, $fr_efb['describedby']);
 					// F01-H: mobile keyboard choice; nothing is added unless the field sets one.
 					$im_efb = $this->generateMaskAttributes_efb('textarea', $vj);
@@ -2797,8 +2851,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 							$label,
 							$pos[3],
 							$element_Id,
-							$ttip,
-							$vj->placeholder,
+							$ta_ttip_efb,
+							esc_attr(isset($vj->placeholder) ? $vj->placeholder : ''), // F03 §18.4: was printed raw into the attribute
 							($vj->required == 1 ? 'required' : ''),
 							$vj->el_height,
 							$corner,

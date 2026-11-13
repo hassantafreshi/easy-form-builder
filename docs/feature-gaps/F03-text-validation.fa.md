@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A تا F انجام شد، ۲۰۲۶-۱۱-۱۳) · اولویت: P0 · تلاش: M · وابستگی: F01 (نرمال‌ساز و `Emsfb\Masks`)؛ هماهنگ با F02 (`email_confirm_mode`) و F16 (نمایش خطا و ARIA)
+وضعیت: در حال پیاده‌سازی (A تا G انجام شد، ۲۰۲۶-۱۱-۱۳) · اولویت: P0 · تلاش: M · وابستگی: F01 (نرمال‌ساز و `Emsfb\Masks`)؛ هماهنگ با F02 (`email_confirm_mode`) و F16 (نمایش خطا و ARIA)
 
 # F03 — اعتبارسنجی فیلدهای متنی
 
@@ -394,12 +394,12 @@ if ($is_valid == 1 && is_array($validated_item) && class_exists('\Emsfb\Field_Ru
 - پذیرش: هیچ `<p>` یا `<br>` تازه‌ای در خروجی wpautop ظاهر نمی‌شود. پیشوند «+98» روی ورودی LTR در فرم RTL سمت چپ است. toggletip با Enter، Space و Escape کار می‌کند. `aria-describedby` شامل `-pfx`، `-sfx` و `-des` است.
 - تست‌ها: `php tests/test-field-rules-render.php`، `php tests/test-shortcode-content-filters.php` (موجود؛ باید پاس بماند)، و Playwright `tests/layout-regression.js` (موجود) به‌همراه سناریوی تازه در `tests/test-field-rules-browser.js`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۳، انجام شد)
+- فایل‌های تغییرکرده: `class-Emsfb-formbuilder.php` (`generateHelpAffix_efb`: گروه ورودی با tooltip به‌عنوان اولین فرزند، `-pfx`/`-sfx` در `aria-describedby`، گروه LTR برای ورودی ماسک‌دار، جای توضیح above/focus/tooltip با دکمهٔ «؟» دارای `aria-expanded`/`aria-controls`/`aria-label`؛ escape کردن placeholder textarea (§18.4)؛ متن مخفی شمارنده به `div`)، `Field_Rules` (case `prefix`/`suffix` ≤ ۲۴ و `message_place`)، `field-rules-efb.js` (همزاد)، `core-efb.js` (toggletip: کلیک/Enter/Space، Escape با برگرداندن فوکوس، کلیک بیرون)، `field-rules-efb.css` (گروه، `efb-help-focus`، `efb-help-pop`، جهت LTR گروه در فرم RTL، جای دکمه)، `field-rules-builder-efb.js` (کنترل‌های پیشوند، پسوند و جای توضیح، و نمایش روی کانواس).
+- تست‌ها: `php tests/test-field-rules-render.php` (۲۲، شامل wpautop خود وردپرس از سایت e2e: هیچ `<p>` یا `<br>` تازه‌ای)، `test-shortcode-content-filters.php` روی وردپرس e2e («all checks passed»)، `test-field-rules-count.php` (۴۶)، `test-field-rules-save-roundtrip.php` (۷۰)، e2e `f03g` (۹، fa_IR در ۳۷۵ پیکسل؛ اسکرین‌شات‌های `f03g-affix-help-fa-375.png` و `f03g-toggletip-fa-375.png`). اسکریپت جداگانهٔ `layout-regression.js` اجرا نشد؛ چیدمان در e2e بررسی شده است.
+- وضعیت ترجمه: انگلیسی (دستور مالک).
+- مورد باز: یافته در مسیر: طبق §7 قرار بود توضیح «above» بین `-f` و tooltip و دکمهٔ راهنما اولین فرزند `-f` باشند، ولی tooltip درون‌خطی است و wpautop تکهٔ پس از هر `</div>` را در `<p>` می‌پیچد. پس برای above، tooltip و ورودی در `efb-input-wrap` قرار می‌گیرند و دکمهٔ راهنما پس از ورودی می‌آید و CSS (`order: -1`) آن را بالای ورودی و در انتهای خط نشان می‌دهد. `admin-rtl-efb.css` روی همهٔ `.efb` جهت rtl را با `!important` می‌گذارد، پس گروه LTR قاعدهٔ `!important` خودش را دارد. attribute نامعتبر `value=` روی textarea (§18.4) دست نخورد، چون ممکن است اسکریپت دیگری آن را بخواند؛ در BUGS-FOUND ثبت شد. پیشوند و پسوند در خروجی ایمیل/CSV نمی‌آیند (پرسش باز ۵: نه در v1).
+- اقدام بعدی: H.
 
 ### H. رمز: تأیید، قدرت و نمایش
 - فایل‌ها: `passwordEls`، formbuilder (ورودی `${id}_confirm` و دکمهٔ toggle)، `core-efb.js` (`password_confirms` در payload و حذف از localStorage)، `raw_passwords_efb` (7673)، `pwScore` در هر دو زبان، `includes/data/common-passwords-efb.txt`، و `autocomplete="new-password"` (هماهنگ با جدول F16).

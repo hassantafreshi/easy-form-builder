@@ -132,6 +132,8 @@
     if (!R_) return '';
     let html = '';
     if (R_.typeOk(r, 'readonly')) html += toggleEl(r, idset, 'readonlyEl', 'readonly', T('tvReadonly', 'Read-only'));
+    if (R_.typeOk(r, 'affix')) html += `<div class="efb row g-2">${textEl(r, idset, 'prefixEl', 'prefix', T('tvPrefix', 'Prefix'), { max: 24, wrap: 'col-6' })}${textEl(r, idset, 'suffixEl', 'suffix', T('tvSuffix', 'Suffix'), { max: 24, wrap: 'col-6' })}</div>`;
+    if (R_.typeOk(r, 'help')) html += selEl(r, idset, 'messagePlaceEl', 'message_place', T('tvHelpPlace', 'Show the description'), [['below', T('tvHelpBelow', 'Below the field')], ['above', T('tvHelpAbove', 'Above the field')], ['focus', T('tvHelpFocus', 'While the field is in focus')], ['tooltip', T('tvHelpTip', 'Behind a help button')]], 'below');
     if (R_.typeOk(r, 'unique')) html += toggleEl(r, idset, 'uniqueEl', 'unique', T('tvUnique', 'Accept each value only once'), { plan: 'unique', help: esc(T('tvUniqueHint', 'Checked when the form is sent. Earlier entries are checked too.')) });
     return html ? `<div class="efb efb-fr-main mt-2">${html}</div>` : '';
   }
@@ -368,6 +370,30 @@
         // F: read-only in the PC / mobile preview (the canvas inputs are read-only anyway).
         if (R_.isReadonly(r)) { input.readOnly = true; input.setAttribute('data-efb-readonly', '1'); }
         else if (input.getAttribute('data-efb-readonly')) { input.removeAttribute('data-efb-readonly'); }
+        // G: prefix / suffix around the input, as the page shows them.
+        const pfx = R_.typeOk(r, 'affix') ? R_.sanitizeKey('prefix', r.prefix || '') : '';
+        const sfx = R_.typeOk(r, 'affix') ? R_.sanitizeKey('suffix', r.suffix || '') : '';
+        let group = input.parentElement && input.parentElement.classList.contains('efb-affix') ? input.parentElement : null;
+        if ((pfx || sfx) && !group) {
+          group = document.createElement('div');
+          group.className = 'efb input-group efb-affix flex-nowrap';
+          input.parentElement.insertBefore(group, input);
+          group.appendChild(input);
+        }
+        if (group) {
+          if (!pfx && !sfx) { group.parentElement.insertBefore(input, group); group.remove(); }
+          else {
+            group.querySelectorAll('.efb-affix-text').forEach((x) => x.remove());
+            if (pfx) { const a = document.createElement('span'); a.className = 'efb input-group-text efb-affix-text'; a.textContent = pfx; group.insertBefore(a, input); }
+            if (sfx) { const b = document.createElement('span'); b.className = 'efb input-group-text efb-affix-text'; b.textContent = sfx; group.appendChild(b); }
+          }
+        }
+        // G: where the description is (above / below; focus and help button show it in the page only).
+        const desw = host.querySelector(':scope > .efb-field-description') || (host.querySelector(`[id="${r.id_}-des"]`) || {}).parentElement;
+        if (desw && desw.parentElement === host) {
+          if (r.message_place === 'above' && host.firstElementChild !== desw) host.insertBefore(desw, host.firstElementChild);
+          else if (r.message_place !== 'above' && host.firstElementChild === desw) host.appendChild(desw);
+        }
         // B: counter preview (0 typed).
         const c = R_.counter(r);
         let box = host.querySelector(':scope > .efb-counter-wrap');
@@ -394,7 +420,8 @@
     const start = () => {
       const mo = new MutationObserver((list) => {
         // Only the builder's own redraws (not the pieces this file adds).
-        if (list.some((m) => Array.from(m.addedNodes).some((n) => n.nodeType === 1 && !(n.classList && n.classList.contains('efb-counter-wrap'))))) scheduleDecorate();
+        const own = (n) => n.classList && (n.classList.contains('efb-counter-wrap') || n.classList.contains('efb-affix') || n.classList.contains('efb-affix-text') || n.classList.contains('efb-field-description') || n.classList.contains('emsFormBuilder_v'));
+        if (list.some((m) => Array.from(m.addedNodes).some((n) => n.nodeType === 1 && !own(n)))) scheduleDecorate();
       });
       mo.observe(document.body, { childList: true, subtree: true });
       scheduleDecorate();

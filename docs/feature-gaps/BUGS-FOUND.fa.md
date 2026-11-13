@@ -276,3 +276,16 @@
 | کم | تست `test-pay-store.php` نسخهٔ پایگاه داده را دقیقاً `1.5` می‌خواست و با هر مهاجرت بعدی می‌شکست. | `tests/test-pay-store.php` | **رفع شد**: «۱.۵ یا بالاتر» مثل `test-privacy-schema.php` |
 | کم | راهنمای پیاده‌سازی (Recipe C بند ۷) پیشنهاد می‌کند `formsClosed` برای زمان‌بندی استفاده شود؛ آن عبارت یعنی «سایت فرم نمی‌پذیرد». | `docs/feature-gaps/IMPLEMENTATION-PLAYBOOK.en.md` §4 | **رفع شد در F11**: عبارت‌های تازهٔ `schedPendingM` و `schedClosedM` |
 
+
+## F03: اعتبارسنجی فیلدهای متنی (۲۰۲۶-۱۱-۱۳)
+
+| شدت | مشکل | محل | وضعیت |
+|---|---|---|---|
+| زیاد | فیلد email و url با `mlen = "0"` یا `""` (Max خالی سازنده) در سرور هر مقدار غیرخالی را رد می‌کرد، در حالی که مرورگر می‌پذیرفت (§18.1). | `class-Emsfb-public.php`، شاخهٔ `email` و `url` | **رفع شد (F03-A)** |
+| متوسط | شکست حداقل/حداکثر نویسهٔ ورودی متنی بدون `data-type` در مرورگر نادیده گرفته می‌شد و مقدار ارسال می‌شد (§18.2). حداقل ضمنی «۲ نویسه» فقط برای ورودی‌های دارای `data-type` باقی ماند تا پاسخ یک‌نویسه‌ای رد نشود. | `core-efb.js`، `handle_change_event_efb_v4` / `validate_len_efb_v4` | **رفع شد (F03-B)** |
+| متوسط | newline در textarea (توکن `@n#`) در هر دو طرف سه نویسه شمرده می‌شد (§18.3). | `class-Emsfb-public.php` شاخهٔ `default:`، `core-efb.js` | **رفع شد (F03-B)** |
+| متوسط | PHP با modifier `u` گزینهٔ PCRE2_UCP را روشن می‌کند؛ `\d` رقم فارسی و `\w` حرف «é» را می‌گرفت در حالی که JS ASCII است. | `Field_Rules::pcre_source()` | **رفع شد (F03-C)**: بازنویسی به کلاس‌های ASCII |
+| کم | placeholder textarea بدون `esc_attr` در attribute چاپ می‌شد (§18.4). | `class-Emsfb-formbuilder.php`، `case "textarea"` | **رفع شد (F03-G)** |
+| کم | textarea attribute نامعتبر `value="…"` دارد (§18.4). | `class-Emsfb-formbuilder.php`، `case "textarea"` | **باز**: دست نخورد، ممکن است کد دیگری بخواند |
+| کم | `$still_processing == false;` مقایسه است نه انتساب (§18.5)، و شرط `$item_value_len > 1` مقدار یک‌نویسه‌ای را برای فیلد `disabled` می‌پذیرد (§18.6). | `class-Emsfb-public.php`، ابتدای حلقهٔ فیلدها | **باز**: خارج از دامنهٔ F03، رفتار فرم‌های قدیمی تغییر نکرد |
+| کم | `admin-rtl-efb.css` روی همهٔ `.efb` جهت `rtl !important` می‌گذارد، پس هر بخش LTR (گروه پیشوند ورودی ماسک‌دار) قاعدهٔ `!important` جداگانه لازم دارد. | `includes/admin/assets/css/admin-rtl-efb.css:1` | **دورزده (F03-G)** |
