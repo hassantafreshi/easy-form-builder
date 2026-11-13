@@ -4,7 +4,7 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-13",
     "counts": {
-        "active": 3337,
+        "active": 3475,
         "obsolete": 379
     },
     "entries": [
@@ -470,6 +470,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%1$s to %2$s (%3$s)",
+            "context": null,
+            "plural": null,
+            "translators": "F06 range summary: %1$s first date, %2$s last date, %3$s length",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%1$s: %2$s cannot take %3$s, so it is not offered on this form. Choose other methods or change the currency.",
             "context": null,
             "plural": null,
@@ -821,7 +836,7 @@
             "msgid": "%s days",
             "context": null,
             "plural": null,
-            "translators": "%s: number of days.",
+            "translators": "F06 %s = number of days translators: %s: number of days.",
             "files": [
                 "includes/functions.php"
             ],
@@ -986,6 +1001,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%s left",
+            "context": null,
+            "plural": null,
+            "translators": "F06 booking, %s = places left",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s list",
             "context": null,
             "plural": null,
@@ -1005,6 +1035,21 @@
             "context": null,
             "plural": null,
             "translators": "F18: %s: feature name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s nights",
+            "context": null,
+            "plural": null,
+            "translators": "F06 %s = number of nights",
             "files": [
                 "includes/functions.php"
             ],
@@ -1753,6 +1798,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "A fixed date (YYYY-MM-DD)",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "A fixed total that ignores how many fields the form has. 0 keeps the automatic per-field calculation.",
             "context": null,
             "plural": null,
@@ -1794,6 +1854,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "A limit cannot name its own field.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "A limit names a date field that is not in this form.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -2793,6 +2883,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Add date",
+            "context": null,
+            "plural": null,
+            "translators": "F06 multiple dates",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Add forms created with Easy Form Builder",
             "context": null,
             "plural": null,
@@ -3187,7 +3292,7 @@
             "msgid": "Advanced",
             "context": null,
             "plural": null,
-            "translators": "Advanced = plan features description",
+            "translators": "Advanced = plan features description translators: F06 builder, advanced date field panel",
             "files": [
                 "includes/functions.php"
             ],
@@ -3355,6 +3460,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Age",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -4072,6 +4192,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Another date field",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Another plugin or a setting blocks the WordPress REST API for visitors (HTTP %d).",
             "context": null,
             "plural": null,
@@ -4477,6 +4612,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "As the visitor saw it",
+            "context": null,
+            "plural": null,
+            "translators": "F06 Settings: option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "As typed",
             "context": null,
             "plural": null,
@@ -4496,6 +4646,21 @@
             "context": null,
             "plural": null,
             "translators": "Shown when the current user cannot install plugins",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Ask for a time",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
             "files": [
                 "includes/functions.php"
             ],
@@ -4573,6 +4738,36 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-formbuilder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "At least",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "At most",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -4959,6 +5154,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Automatic, from the site language",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Automatically send form submissions to your Google Sheets in real time. Connect a service account, map fields to columns, and keep a live, styled spreadsheet of every response — no webhook or browser login required.",
             "context": null,
             "plural": null,
@@ -5049,12 +5259,42 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Back to days",
+            "context": null,
+            "plural": null,
+            "translators": "F06 picker",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Back to the default translation",
             "context": null,
             "plural": null,
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Back to the old field",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -6557,6 +6797,36 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Calendar",
+            "context": null,
+            "plural": null,
+            "translators": "F06 the calendar switch translators: F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Calendars the visitor can switch to",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Can your site send email?",
             "context": null,
             "plural": null,
@@ -6677,6 +6947,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Cannot be chosen",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Cannot install add-ons because this server has disabled the PHP filesystem functions needed to prepare the download. Please ask your hosting provider to enable mkdir and rename, or configure the WordPress filesystem.",
@@ -7586,6 +7871,66 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Choose date",
+            "context": null,
+            "plural": null,
+            "translators": "F06 picker button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Choose date, %s",
+            "context": null,
+            "plural": null,
+            "translators": "F06 dialog name, %s = month and year",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Choose dates",
+            "context": null,
+            "plural": null,
+            "translators": "F06 picker button of a range field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Choose month and year",
+            "context": null,
+            "plural": null,
+            "translators": "F06 picker: opens the month and year view",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Choose options",
             "context": null,
             "plural": null,
@@ -7754,7 +8099,7 @@
             "msgid": "Clear",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F06 picker",
             "files": [
                 "includes/functions.php"
             ],
@@ -8097,6 +8442,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Clock",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Close",
             "context": null,
             "plural": null,
@@ -8144,6 +8504,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Closed dates",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Closed days of the week",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -9603,6 +9993,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Count",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Countdown before recording",
             "context": null,
             "plural": null,
@@ -10570,7 +10975,7 @@
             "msgid": "Date",
             "context": null,
             "plural": null,
-            "translators": "Date = column header",
+            "translators": "F06 builder, advanced date field panel translators: Date = column header",
             "files": [
                 "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-admin.php",
@@ -10617,9 +11022,25 @@
             "msgid": "Date (YYYY-MM-DD)",
             "context": null,
             "plural": null,
-            "translators": "input format preset shown in the form builder's \"Format / mask\" list",
+            "translators": "input format preset shown in the form builder's \"Format / mask\" list translators: F06 builder, advanced date field panel",
             "files": [
-                "includes/data/masks-labels-efb.php"
+                "includes/data/masks-labels-efb.php",
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Date (advanced)",
+            "context": null,
+            "plural": null,
+            "translators": "palette name of the F06 field",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -10674,6 +11095,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Date display for admins",
+            "context": null,
+            "plural": null,
+            "translators": "F06 Settings: heading",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Date of birth",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Dates, hints, secondary titles",
             "context": null,
             "plural": null,
@@ -10685,6 +11136,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Days (every day must be open)",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Days from today",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -10903,7 +11384,7 @@
             "msgid": "Default value",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F06 builder, advanced date field panel",
             "files": [
                 "includes/functions.php"
             ],
@@ -11444,8 +11925,9 @@
             "msgid": "Digits",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F06 builder, advanced date field panel",
             "files": [
+                "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
@@ -12427,6 +12909,21 @@
             "context": null,
             "plural": null,
             "translators": "F03 builder after the check. %s: number of earlier duplicate entries found",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Earliest date",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
             "files": [
                 "includes/functions.php"
             ],
@@ -14008,6 +14505,21 @@
             "context": null,
             "plural": null,
             "translators": "F13: help under the form's automatic deletion days",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Empty, \"today\", \"today+N\" or a date as YYYY-MM-DD (Gregorian).",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
             "files": [
                 "includes/functions.php"
             ],
@@ -16591,6 +17103,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Format: %s",
+            "context": null,
+            "plural": null,
+            "translators": "F06 %s = a sample date in the expected format",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Format: +12345678900 or +1 (234) 567-8900",
             "context": null,
             "plural": null,
@@ -17059,9 +17586,25 @@
             "msgid": "From",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F06 range: first date",
             "files": [
+                "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "From (HH:mm)",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -17082,6 +17625,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "From the calendar and language",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "From the site language",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -17824,6 +18397,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Gregorian (YYYY-MM-DD)",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Gregorian, Hijri and Jalali Date Pickers",
             "context": null,
             "plural": null,
@@ -18547,6 +19135,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Hijri sighting adjustment (days)",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Hindi",
             "context": null,
             "plural": null,
@@ -18558,6 +19161,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Holiday lists",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Holidays",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -18588,6 +19221,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Hours per weekday",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "How advanced date answers are shown in the response viewer, CSV, PDF and notification e-mails.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 Settings: help",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -18650,6 +19313,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "How many (e.g. 1, -1, 2 week, 1 month)",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "How to Add Location Picker(maps) to Easy form Builder WordPress Plugin",
@@ -19138,6 +19816,21 @@
             "translators": "input format preset shown in the form builder's \"Format / mask\" list",
             "files": [
                 "includes/data/masks-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "ISO only (YYYY-MM-DD)",
+            "context": null,
+            "plural": null,
+            "translators": "F06 Settings: option",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -19924,6 +20617,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Input",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -21296,6 +22004,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Keep the old local format",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Keep the old local format in new answers",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Kept since",
             "context": null,
             "plural": null,
@@ -21332,6 +22070,21 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-drafts.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Kind of answer",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -21764,6 +22517,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Latest date",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Latest security decisions.",
             "context": null,
             "plural": null,
@@ -22020,6 +22788,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Let the visitor switch calendars",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Letter case",
             "context": null,
             "plural": null,
@@ -22128,7 +22911,7 @@
             "msgid": "Limits",
             "context": null,
             "plural": null,
-            "translators": "F02 settings section",
+            "translators": "F02 settings section translators: F06 builder, advanced date field panel",
             "files": [
                 "includes/functions.php"
             ],
@@ -23120,6 +23903,21 @@
             "context": null,
             "plural": null,
             "translators": "F18: name of a locked feature in the upgrade dialog",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Marked, can be chosen",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
             "files": [
                 "includes/functions.php"
             ],
@@ -24409,6 +25207,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Most dates (several dates)",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Move Down",
             "context": null,
             "plural": null,
@@ -25012,6 +25825,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Next 90 days: %1$s can be chosen.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Next Billing Date",
             "context": null,
             "plural": null,
@@ -25023,6 +25851,51 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Next month",
+            "context": null,
+            "plural": null,
+            "translators": "F06 picker",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Next year",
+            "context": null,
+            "plural": null,
+            "translators": "F06 picker",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Nights (check-out day can be closed)",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -25619,6 +26492,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "No limit",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "No logs yet.",
             "context": null,
             "plural": null,
@@ -25902,6 +26790,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "No time can be chosen on this day.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "No translation yet",
@@ -26535,6 +27438,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "OK",
+            "context": null,
+            "plural": null,
+            "translators": "F06 picker",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "OR",
             "context": null,
             "plural": null,
@@ -26621,6 +27539,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Oldest age",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -26775,6 +27708,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "One date",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "One discount code per person.",
             "context": null,
             "plural": null,
@@ -26910,6 +27858,51 @@
             "obsolete_since": null
         },
         {
+            "msgid": "One per line: YYYY-MM-DD or a range YYYY-MM-DD/YYYY-MM-DD (Gregorian).",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "One per line: a calendar, month-day and days (every year), or a Gregorian date, then the name.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "One weekday per line (1 = Monday … 7 = Sunday).",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "One-time",
             "context": null,
             "plural": null,
@@ -27015,12 +28008,42 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Only future dates (from tomorrow)",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Only logged-in visitors can use this form, as in Contact Form 7.",
             "context": null,
             "plural": null,
             "translators": "",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Only past dates",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -27041,6 +28064,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Only these dates",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -27704,6 +28742,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Own holidays",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "PDF Downloads and CSV Exports",
@@ -29732,6 +30785,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please choose %s or a later date.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error (%s is filled in)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Please choose %s or an earlier date.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error (%s is filled in)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please choose a Spreadsheet first.",
             "context": null,
             "plural": null,
@@ -29793,6 +30876,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please choose a time in steps of %s minutes.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error (%s is filled in)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Please choose a time.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please choose a valid amount.",
             "context": null,
             "plural": null,
@@ -29801,6 +30914,36 @@
                 "includes/payments/class-Emsfb-payment-admin.php",
                 "includes/payments/class-Emsfb-payment-frontend.php",
                 "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Please choose at least %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error (%s is filled in)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Please choose at most %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error (%s is filled in)",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -29838,6 +30981,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "Please choose the date it depends on first.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Please complete the %s field.",
@@ -30188,6 +31346,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please enter the date as %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error (%s is filled in)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please enter the phone number in \"%s\" with its country code, starting with + (for example +33 6 12 34 56 78).",
             "context": null,
             "plural": null,
@@ -30326,6 +31499,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please fill in this field.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please go to Panel > Settings > Email Settings, click \"Check Email Server\", then click \"Save\".",
             "context": null,
             "plural": null,
@@ -30421,6 +31609,7 @@
             "plural": null,
             "translators": "",
             "files": [
+                "includes/class-Emsfb-calendar-rest.php",
                 "includes/class-Emsfb-drafts.php",
                 "includes/class-Emsfb-public.php",
                 "includes/class-Emsfb-verification.php"
@@ -31154,6 +32343,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Previous month",
+            "context": null,
+            "plural": null,
+            "translators": "F06 picker",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Previous year",
+            "context": null,
+            "plural": null,
+            "translators": "F06 picker",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -31923,6 +33142,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Quick setup",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Quote",
             "context": null,
             "plural": null,
@@ -32024,6 +33258,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Range and several dates",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -32916,6 +34165,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Remove %s",
+            "context": null,
+            "plural": null,
+            "translators": "F06 %s = a date",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Remove leftover files from incomplete form submissions. These are uploads that were never finalized.",
             "context": null,
             "plural": null,
@@ -33134,6 +34398,21 @@
             "translators": "",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Replaced by the Date (advanced) field, which has every calendar without this add-on. Fields that use it keep working.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 add-ons page note on the Jalali and Hijri date add-ons",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -35029,6 +36308,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Second calendar under each day",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Secret Key",
             "context": null,
             "plural": null,
@@ -35665,6 +36959,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Selected dates",
+            "context": null,
+            "plural": null,
+            "translators": "F06 list of chosen dates",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -36411,6 +37720,21 @@
             "context": null,
             "plural": null,
             "translators": "Short notice after the first-run setup closes on a good email check result.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Several dates",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
             "files": [
                 "includes/functions.php"
             ],
@@ -37883,6 +39207,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Start and end (range)",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Start fresh",
             "context": null,
             "plural": null,
@@ -38085,6 +39424,21 @@
             "context": null,
             "plural": null,
             "translators": "F19: name of a locked feature in the upgrade dialog (solid background colour per form step)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Step in minutes",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
             "files": [
                 "includes/functions.php"
             ],
@@ -38304,6 +39658,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Stored value",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Straightening and Perming",
@@ -41086,6 +42455,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The advanced date field has every calendar, limits, holidays, ranges and times, without the old add-ons. New answers are stored as Gregorian dates (YYYY-MM-DD). If a webhook or Google Sheet expects the local date, keep the old format.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The age can be at most %s years.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error (%s is filled in)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The amount must be at least %s.",
             "context": null,
             "plural": null,
@@ -41184,6 +42583,36 @@
             "translators": "%s is a number or %amount% stays as written",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The calendar must be one of the calendars the visitor can use.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The calendar only",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -41508,6 +42937,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The dates you chose include %s, which cannot be chosen.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error (%s is filled in)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The delivery result is not known yet. You can finish setup and check again later.",
             "context": null,
             "plural": null,
@@ -41557,6 +43001,21 @@
             "context": null,
             "plural": null,
             "translators": "F02 builder and save warning",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The earliest date is after the latest date.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
             "files": [
                 "includes/functions.php"
             ],
@@ -41764,6 +43223,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The end date must come after the start date.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The entered data does not match the form type. If you are an admin, please review the form type.",
             "context": null,
             "plural": null,
@@ -41836,6 +43310,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The first time must come before the last time.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -43437,12 +44926,57 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The shortest stay is longer than the longest.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The site calendar, with the ISO date (2026-03-19)",
+            "context": null,
+            "plural": null,
+            "translators": "F06 Settings: option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The site owner confirmed that this host can send email. No delivery check was run.",
             "context": null,
             "plural": null,
             "translators": "",
             "files": [
                 "includes/admin/class-Emsfb-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The site's",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -43872,6 +45406,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The visitor's (within a day of the site)",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The website is not responding; please refresh and try again—saving or submitting is not available until it is restored.",
             "context": null,
             "plural": null,
@@ -43958,6 +45507,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The youngest age is above the oldest age.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -44262,6 +45826,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This calendar cannot be used in this field.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This check runs once after plugin activation. Please refresh the page in a few moments.",
             "context": null,
             "plural": null,
@@ -44288,6 +45867,111 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This date cannot be chosen.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This date does not exist.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This date is a holiday: %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error (%s is filled in)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This date is fully booked.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This date is not available.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This date may differ by one day from the official calendar.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 note on old or far Hijri dates",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This day of the week cannot be chosen.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -44410,6 +46094,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This field was upgraded from the old date field. Its old settings are kept.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -44609,6 +46308,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This form is not available for your account.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-calendar-rest.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -45444,6 +47158,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This time is not available.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This username or password combination is incorrect.",
             "context": null,
             "plural": null,
@@ -45564,6 +47293,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Time",
+            "context": null,
+            "plural": null,
+            "translators": "F06 picker translators: F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Time (12-hour)",
             "context": null,
             "plural": null,
@@ -45624,6 +47368,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Time zone for \"today\" and times",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Title",
             "context": null,
             "plural": null,
@@ -45672,8 +47431,9 @@
             "msgid": "To",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F06 range: last date",
             "files": [
+                "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
@@ -45880,6 +47640,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Today",
+            "context": null,
+            "plural": null,
+            "translators": "F06 picker",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Today or later",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Toggle navigation",
             "context": null,
             "plural": null,
@@ -46030,6 +47820,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Too many requests. Please wait a minute.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-calendar-rest.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -46562,6 +48367,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Two date fields limit each other in a circle.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Two-Strand Twists",
             "context": null,
             "plural": null,
@@ -46633,6 +48453,51 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Typed format",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Typing and the calendar",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Typing only",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -47343,6 +49208,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Until (HH:mm)",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Until then these languages use the translations from WordPress.org: %s",
             "context": null,
             "plural": null,
@@ -47491,6 +49371,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Upgrade to the advanced date",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -49479,6 +51374,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Week starts on",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Weekly",
             "context": null,
             "plural": null,
@@ -49840,6 +51750,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "When filled, only these dates can be chosen (closed weekdays stay closed).",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "When payment notifications are sent",
             "context": null,
             "plural": null,
@@ -49956,6 +51881,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Which field",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -51147,6 +53087,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Year",
+            "context": null,
+            "plural": null,
+            "translators": "F06 picker",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Yearly",
             "context": null,
             "plural": null,
@@ -51435,6 +53390,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "You can choose at most %s dates.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error (%s is filled in)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -51786,6 +53756,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "You must be at least %s years old.",
+            "context": null,
+            "plural": null,
+            "translators": "F06 visitor error (%s is filled in)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "You see this panel because you are signed in as an administrator. Visitors only see the message in the form.",
             "context": null,
             "plural": null,
@@ -51887,6 +53872,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Youngest age",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -54237,6 +56237,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "check the dates before use",
+            "context": null,
+            "plural": null,
+            "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "cities",
             "context": null,
             "plural": null,
@@ -54691,6 +56706,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "fully booked",
+            "context": null,
+            "plural": null,
+            "translators": "F06 booking",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "grade %s",
             "context": null,
             "plural": null,
@@ -54734,6 +56764,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "holiday",
+            "context": null,
+            "plural": null,
+            "translators": "F06 picker",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "honeypot spam protection WordPress",
@@ -54995,6 +57040,21 @@
             "context": null,
             "plural": null,
             "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "not available",
+            "context": null,
+            "plural": null,
+            "translators": "F06 a day that cannot be chosen",
             "files": [
                 "includes/functions.php"
             ],
@@ -55431,7 +57491,7 @@
             "msgid": "selected",
             "context": null,
             "plural": null,
-            "translators": "Selected = indicates something has been chosen",
+            "translators": "Selected = indicates something has been chosen translators: F06 picker",
             "files": [
                 "includes/functions.php"
             ],
@@ -55664,6 +57724,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "time in %s",
+            "context": null,
+            "plural": null,
+            "translators": "F06 %s = time zone name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
