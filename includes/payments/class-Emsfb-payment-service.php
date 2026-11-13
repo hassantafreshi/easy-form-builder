@@ -207,6 +207,7 @@ class Service {
 			case 'efb_form_full':
 			case 'efb_limit_reached':
 			case 'efb_role_denied':
+			case 'efb_field_unique': // F03: "Try again" of an entry whose value another entry took meanwhile
 				if ( isset( $extra['visitor'] ) && $extra['visitor'] !== '' ) return $extra['visitor'];
 				return __( 'This form does not accept answers at the moment.', 'easy-form-builder' );
 			case 'currency_unsupported':

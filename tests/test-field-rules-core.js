@@ -100,5 +100,11 @@ t('5 a passing value clears the error state', [fns.efb_rules_check_efb(input, fq
 fns.efb_rules_server_error_efb(1, 'q1', 'This value of <b>Q &amp; co</b> has already been used.');
 t('5 server answer → text at the field', [msgEl.textContent, input.attrs['aria-invalid']], ['This value of Q & co has already been used.', 'true']);
 
+/* 6 the comparison key of unique values = Unique_Values::key() (text, e-mail, number) */
+const uk = [[{ type: 'email' }, 'Ali@Gmail.COM'], [{ type: 'email' }, '\u200Eali۱۲\uFF20example.com '], [{ type: 'text' }, '  AB  ۱۲ '], [{ type: 'text' }, 'Cafe\u0301'], [{ type: 'text' }, 'x\u00A0y'],
+  [{ type: 'number' }, '12.50'], [{ type: 'number' }, '۱۲٫۵'], [{ type: 'number' }, '-0.0'], [{ type: 'text' }, 'İSTANBUL'], [{ type: 'textarea' }, 'a@n#b'], [{ type: 'url' }, 'HTTPS://Example.com/A']];
+const pk = php(uk.map((a) => ({ fn: 'unique_key', args: a })));
+uk.forEach((a, i) => t('6 uniqueKey = Unique_Values::key ' + a[0].type + ' ' + JSON.stringify(a[1]), R.uniqueKey(a[0], a[1]), pk[i]));
+
 console.log(`\nRESULTS: ${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

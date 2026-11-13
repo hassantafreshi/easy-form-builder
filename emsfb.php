@@ -36,7 +36,7 @@ if (!defined("EMSFB_DB_VERSION")) {
     // 1.5 (PAY00 payment framework): emsfb_pmt_, emsfb_pmt_evt_, emsfb_pmt_rfd_, emsfb_coupon_.
     // 1.6 (F11 form limits, save and resume): emsfb_vrfy_rl_ (atomic counters, shared with F02),
     // emsfb_draft_ (saved and partial answers), KEY form_id on emsfb_msg_ when no index starts with it.
-    define("EMSFB_DB_VERSION", 1.6);
+    define("EMSFB_DB_VERSION", 1.7);
 }
 if (!defined("EMSFB_API_VERSION")) {
     // Version of the integration API (efbBuilderApi, efb_var.capabilities, field templates,

@@ -3694,8 +3694,9 @@ public function check_nonce_permission_efb($request) {
 						if (!$rules_res_efb['ok']) {
 							$is_valid = 0;
 							$error_message = $rules_res_efb['m'];
-							$error_field_id = $f['id_'] ?? '';
-							$this->field_rules_code_efb = (string) $rules_res_efb['code'];
+							// A visitor testing values (unique refusals over the limit) is not told which field.
+							$error_field_id = empty($rules_res_efb['hide']) ? ($f['id_'] ?? '') : '';
+							$this->field_rules_code_efb = empty($rules_res_efb['hide']) ? (string) $rules_res_efb['code'] : '';
 							$validated_item = null;
 						} else {
 							$validated_item = $rules_res_efb['item'];
@@ -4316,6 +4317,11 @@ public function check_nonce_permission_efb($request) {
 								$email_content_rows = array_values($filtered);
 								$this->value = sanitize_text_field(json_encode($filtered, JSON_UNESCAPED_UNICODE));
 								$this->id = isset($request_data['payid']) ? sanitize_text_field($request_data['payid']) : '';
+								// F03: the legacy gateways store the answers on the paid entry: its unique values are claimed for it.
+								if (!empty($this->unique_pending_efb)) {
+									$pay_msg_efb = (int) $this->db->get_var($this->db->prepare("SELECT msg_id FROM `$table_name_` WHERE track = %s ORDER BY msg_id DESC LIMIT 1", $this->id));
+									$this->unique_claim_efb($pay_msg_efb > 0 ? $pay_msg_efb : null);
+								}
 								$db_update_result = $this->update_message_db();
 								if ($payment_gateway == "paypal") {
 									// error_log('[EFB][PayPal][SUBMIT] update_message_db result=' . var_export($db_update_result, true) . ', track=' . $this->id . ', final_count=' . count($filtered));
@@ -5009,6 +5015,9 @@ public function check_nonce_permission_efb($request) {
 		}
 		$this->begin_operation_efb();
 		$this->gate_reserve_efb();
+		// F03: a form that stores no entries still accepts each value once (the claim has no entry: msg_id 0,
+		// forgotten after the form's retention period by the daily job).
+		$this->unique_claim_efb(0);
 		$track = $this->generate_track_code_efb($style_trackingCode);
 		$this->gate_after_insert_efb(0);
 		if (class_exists('\\Emsfb\\Request_Health')) \Emsfb\Request_Health::mark_saved();
@@ -5037,6 +5046,34 @@ public function check_nonce_permission_efb($request) {
 		$this->gate_claims = $r['claims'];
 		$this->gate_cookie = $r['cookie'];
 		$this->gate_reserved = true;
+	}
+
+	/**
+	 * F03: takes the unique values of this submission (Unique_Values::claim, all or nothing) after
+	 * the F11 places. Refused: the operation and the F11 places are given back and the visitor reads
+	 * which field and why (or a general sentence once the refusals look like probing).
+	 */
+	private function unique_claim_efb($msg_id = null) {
+		if (empty($this->unique_pending_efb) || !class_exists('\\Emsfb\\Unique_Values')) return;
+		$fid = (int) $this->unique_pending_efb[0]['fid'];
+		$r = \Emsfb\Unique_Values::claim($fid, $this->unique_pending_efb, $msg_id);
+		if ($r['ok']) {
+			$this->unique_claimed_efb = $r['ids'];
+			$this->unique_pending_efb = array();
+			return;
+		}
+		\Emsfb\Form_Runtime::abort($this->operation_key);
+		if (!empty($this->gate_reserved) && class_exists('\\Emsfb\\Form_Gate')) { \Emsfb\Form_Gate::release($this->gate_claims); $this->gate_reserved = false; $this->gate_claims = array(); }
+		if (!empty($r['error'])) {
+			wp_send_json_error(array('code' => 'efb_storage_failed', 'm' => __('The form could not be saved. Your input has been kept.', 'easy-form-builder')), 500);
+		}
+		$this->efb_trace('submit.blocked', array('form_id' => $fid, 'gate' => 'unique', 'field' => $r['field_id']));
+		$m = '';
+		foreach ($this->unique_pending_efb as $p) { if ((string) $p['f'] === (string) $r['field_id']) { $m = $p['m']; break; } }
+		if (!\Emsfb\Unique_Values::fail_allowed($fid)) {
+			wp_send_json_success(array('success' => false, 'm' => isset($this->lanText['pleaseEnterVaildValue']) ? $this->lanText['pleaseEnterVaildValue'] : 'Please enter a valid value.'), 200);
+		}
+		wp_send_json_success(array('success' => false, 'm' => $m, 'field_id' => $r['field_id'], 'code' => 'efb_field_unique'), 200);
 	}
 
 	/**
@@ -5080,6 +5117,7 @@ public function check_nonce_permission_efb($request) {
 	public function insert_message_db($read,$uniqid,$style_trackingCode = 'date_en_mix'){
 		$this->begin_operation_efb();
 		$this->gate_reserve_efb();
+		$this->unique_claim_efb(); // F03, after the F11 places
 		if(isset($read)==false) $read=0;
 
 		if($uniqid==false){
@@ -5113,11 +5151,15 @@ public function check_nonce_permission_efb($request) {
 		}
 		if ($inserted === false) {
 			\Emsfb\Form_Runtime::abort($this->operation_key);
+			// F03: the values this submission took are given back.
+			if (!empty($this->unique_claimed_efb) && class_exists('\\Emsfb\\Unique_Values')) { \Emsfb\Unique_Values::drop_claims(0, $this->unique_claimed_efb); $this->unique_claimed_efb = array(); }
 			// F11: the places this submission took are given back.
 			if (!empty($this->gate_reserved) && class_exists('\\Emsfb\\Form_Gate')) { \Emsfb\Form_Gate::release($this->gate_claims); $this->gate_reserved = false; $this->gate_claims = array(); }
 			if (class_exists('\\Emsfb\\Request_Health')) \Emsfb\Request_Health::record('form',500,'server','storage_failed');
 			wp_send_json_error(array('code'=>'efb_storage_failed','m'=>__('The form could not be saved. Your input has been kept.', 'easy-form-builder')),500);
 		}
+		// F03: the claims belong to this entry now (deleting it frees the values).
+		if (!empty($this->unique_claimed_efb) && class_exists('\\Emsfb\\Unique_Values')) { \Emsfb\Unique_Values::attach($this->unique_claimed_efb, isset($this->db->insert_id) ? (int) $this->db->insert_id : 0); $this->unique_claimed_efb = array(); }
 		$this->gate_after_insert_efb(isset($this->db->insert_id) ? (int) $this->db->insert_id : 0);
 		\Emsfb\Request_Health::mark_saved();
 		$this->finish_operation_efb($uniqid);

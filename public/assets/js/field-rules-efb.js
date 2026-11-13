@@ -119,6 +119,8 @@
         if (src === null || src === '' || lintRegex(src) !== null) { return ''; }
         return b64urlEncode(src);
       }
+      case 'unique': return [1, '1', true, 'true'].indexOf(v) !== -1 ? '1' : '0';
+      case 'unique_scope': return 'form';
       case 'pattern_case': return [1, '1', true, 'true'].indexOf(v) !== -1 ? '1' : '0';
       case 'pattern_ascii': return [0, '0', false, 'false'].indexOf(v) !== -1 ? '0' : '1';
     }
@@ -422,6 +424,27 @@
   }
   // #endregion pattern
 
+  // #region unique
+  /**
+   * The comparison key of a value (Unique_Values::key): e-mail lower case after the e-mail normalizer,
+   * a number as a number, any other text normalized, lower case and NFC (a masked field's key is the
+   * F01 canonical value, which the server makes). The check itself is the server's (no public lookup in v1).
+   */
+  function uniqueKey(f, v) {
+    var s = valueText(v);
+    var type = typeOf(f);
+    if (type === 'email') {
+      s = asciiDigits(s).replace(/[\uFF20]/g, '@').replace(/[\uFF0E\u3002\u066B\u06D4]/g, '.').replace(/[\u00A0\u061C\u200B-\u200F\u202A-\u202E\u2060-\u2069\uFEFF]/g, '');
+      return s.trim().toLowerCase();
+    }
+    var n = asciiDigits(s).replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF\u00AD]/g, '').replace(/[\u00A0\u2007\u202F\u3000]/g, ' ')
+      .replace(/\u066B/g, '.').replace(/[\u066C\u060C]/g, ',').replace(/[\u2010-\u2015\u2212\uFE58\uFE63\uFF0D]/g, '-')
+      .replace(/\uFF0B/g, '+').replace(/\uFF0F/g, '/').replace(/\uFF1A/g, ':').replace(/[\t\n\v\f\r ]+/g, ' ').trim();
+    if (type === 'number' && n !== '' && isFinite(Number(n)) && /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(n)) { return String(Number(n)); }
+    return n.normalize('NFC').toLowerCase();
+  }
+  // #endregion unique
+
   // #region check
   /**
    * The first failing rule of a value, in the server's order (§4.1), or null.
@@ -454,7 +477,7 @@
     KEYS: KEYS, MSG_RULES: MSG_RULES, CODES: CODES, GATED: GATED, TYPES: TYPES, DEFAULTS: DEFAULTS,
     on: on, typeOk: typeOk, activeRules: activeRules, hasRules: hasRules, plain: plain, sanitizeKey: sanitizeKey,
     valueText: valueText, countChars: countChars, countWords: countWords, counter: counter, asciiDigits: asciiDigits, counterText: counterText, fmtNum: fmtNum, partOk: partOk,
-    b64urlEncode: b64urlEncode, b64urlDecode: b64urlDecode, lintRegex: lintRegex, patternSubject: patternSubject, checkPattern: checkPattern, fieldPattern: fieldPattern,
+    b64urlEncode: b64urlEncode, b64urlDecode: b64urlDecode, lintRegex: lintRegex, patternSubject: patternSubject, checkPattern: checkPattern, fieldPattern: fieldPattern, uniqueKey: uniqueKey,
     message: message, firstError: firstError
   };
 });

@@ -9,3 +9,4 @@
 - [Payment framework schema, DB 1.5 (2026-11-12)](payments-schema-2026-11-12.md)
 
 - [Form limits, save and resume schema, DB 1.6 (2026-11-13)](f11-limits-drafts-2026-11-13.md)
+- [Unique field values, DB 1.7 (2026-11-13)](f03-unique-values-2026-11-13.md)

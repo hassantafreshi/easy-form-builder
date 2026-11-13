@@ -436,6 +436,37 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( array( 'form_id' => $fid, 'ids' => $ids, 'rows' => $clean ) );
 		break;
 
+	case 'f03-uniq':
+		// F03: the unique-value claims of a form (hashes only) and the refusal counters reset with "reset".
+		$fid = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
+		if ( isset( $efb_e2e_rest[1] ) && 'reset' === $efb_e2e_rest[1] ) {
+			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}emsfb_vrfy_rl_ WHERE scope = %s", 'uqf' ) ); // phpcs:ignore
+		}
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, form_id, field_id, vhash, msg_id, date FROM {$wpdb->prefix}emsfb_uniq_ WHERE form_id = %d ORDER BY id", $fid ), ARRAY_A ); // phpcs:ignore
+		efb_e2e_out( array( 'rows' => $rows ? $rows : array(), 'backfill' => get_option( 'emsfb_uniq_bf_' . $fid, null ) ) );
+		break;
+
+	case 'f03-field':
+		// F03: change keys of one field of a stored form as a builder save would (sanitizer + efb_form_saved). Args: <form_id> <field id_> <k=v&k=v>
+		wp_set_current_user( 1 );
+		$fid  = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
+		$rows = efb_e2e_decode_json( $wpdb->get_var( $wpdb->prepare( "SELECT form_structer FROM {$wpdb->prefix}emsfb_form WHERE form_id = %d", $fid ) ) ); // phpcs:ignore
+		foreach ( $rows as $i => $r ) {
+			if ( $i < 1 || ! is_array( $r ) || ! isset( $r['id_'] ) || $r['id_'] !== ( $efb_e2e_rest[1] ?? '' ) ) continue;
+			foreach ( explode( '&', isset( $efb_e2e_rest[2] ) ? $efb_e2e_rest[2] : '' ) as $kv ) {
+				if ( '' === $kv ) continue;
+				list( $k, $v ) = array_pad( explode( '=', $kv, 2 ), 2, '' );
+				$rows[ $i ][ $k ] = urldecode( $v );
+			}
+		}
+		$clean = get_efbFunction()->sanitize_obj_msg_efb( $rows );
+		$json = str_replace( '"', '\\"', wp_json_encode( $clean, JSON_UNESCAPED_UNICODE ) );
+		$wpdb->update( $wpdb->prefix . 'emsfb_form', array( 'form_structer' => $json ), array( 'form_id' => $fid ) );
+		wp_cache_flush();
+		do_action( 'efb_form_saved', $fid, $clean, array( 'form_id' => $fid, 'source' => 'e2e', 'user_id' => 1 ) );
+		efb_e2e_out( array( 'form_id' => $fid, 'backfill' => get_option( 'emsfb_uniq_bf_' . $fid, null ) ) );
+		break;
+
 	case 'f11-set':
 		// F11: change row-0 keys of a stored form (as a builder save would, through the sanitizer). Args: <form_id> <k=v&k=v>
 		wp_set_current_user( 1 );

@@ -212,6 +212,10 @@ class Field_Rules {
 				$src = self::b64url_decode($v);
 				if ($src === null || $src === '' || self::lint_regex($src) !== null) return '';
 				return self::b64url_encode($src);
+			case 'unique':
+				return in_array($v, array(1, '1', true, 'true'), true) ? '1' : '0';
+			case 'unique_scope':
+				return 'form'; // only "in this form" in v1 (§4.2)
 			case 'pattern_case':
 				return in_array($v, array(1, '1', true, 'true'), true) ? '1' : '0';
 			case 'pattern_ascii':
@@ -250,10 +254,16 @@ class Field_Rules {
 		$masked = isset($f['mask_preset']) && is_string($f['mask_preset']) && $f['mask_preset'] !== '';
 		if (!$masked && self::type_ok($f, 'words') && (self::int($f, 'wmin') > 0 || self::int($f, 'wmax') > 0)) $out[] = 'words';
 		if (self::type_ok($f, 'pattern') && self::plan_ok('pattern') && self::field_pattern($f) !== '') $out[] = 'pattern';
+		if (self::is_unique($f)) $out[] = 'unique';
 		// Lengths: measured here when the field has rules or the owner's length messages (else the type branch does it).
 		if (!$masked && self::type_ok($f, 'length') && (self::int($f, 'milen') > 0 || self::int($f, 'mlen') > 0)
 			&& ($out || self::has_msg($f, 'minlen') || self::has_msg($f, 'maxlen'))) array_unshift($out, 'length');
 		return $out;
+	}
+
+	/** A field whose values are accepted once (type, switch and plan). */
+	public static function is_unique($f) {
+		return is_array($f) && isset($f['id_']) && self::type_ok($f, 'unique') && self::on($f, 'unique') && self::plan_ok('unique');
 	}
 
 	/** The counter of a field: ['kind' => chars|words, 'style' => remaining|used, 'max' => n] or null. */
@@ -352,6 +362,21 @@ class Field_Rules {
 		}
 		if (in_array('pattern', $rules, true) && !self::check_pattern($f, $v, isset($ctx['form_id']) ? (int) $ctx['form_id'] : 0)) {
 			return $fail('pattern', self::msg($f, 'pattern', 'tvPattern_', $lanText));
+		}
+		// unique: the last rule, server only (§4.1); the claim itself is taken when the entry is stored.
+		if (in_array('unique', $rules, true) && empty($ctx['no_db']) && class_exists('\\Emsfb\\Unique_Values')) {
+			$fid = isset($ctx['form_id']) ? (int) $ctx['form_id'] : 0;
+			$h = Unique_Values::vhash($fid, $f['id_'], Unique_Values::key($f, $item['value']));
+			$m = self::msg($f, 'unique', 'tvUnique_', $lanText);
+			if (Unique_Values::taken($fid, $f, $item, $h)) {
+				if (!Unique_Values::fail_allowed($fid)) {
+					// Someone is testing values: the answer no longer says which field or why.
+					$generic = is_array($lanText) && isset($lanText['pleaseEnterVaildValue']) ? $lanText['pleaseEnterVaildValue'] : 'Please enter a valid value.';
+					return array('ok' => false, 'code' => 'unique', 'm' => $generic, 'item' => $item, 'unique' => null, 'hide' => true);
+				}
+				return $fail('unique', $m);
+			}
+			$ok['unique'] = array('f' => (string) $f['id_'], 'h' => $h, 'm' => $m, 'fid' => $fid);
 		}
 		$ok['item'] = $item;
 		return $ok;

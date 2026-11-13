@@ -94,6 +94,7 @@
     if (['text', 'tel', 'postalcode'].includes(r.type)) out.push(['format', 'mskFormat_']);
     if (R_.typeOk(r, 'words')) out.push(['words', 'tvMinWords_']);
     if (R_.typeOk(r, 'pattern')) out.push(['pattern', 'tvPattern_']);
+    if (R_.typeOk(r, 'unique')) out.push(['unique', 'tvUnique_']);
     return out;
   }
 
@@ -123,7 +124,52 @@
 
   /** Controls of the main (not advanced) part of the panel. */
   function efbFieldRulesMainEls(indx, idset) {
-    return '<!-- F03 main -->';
+    if (typeof valj_efb === 'undefined' || !valj_efb[indx]) return '';
+    const r = valj_efb[indx];
+    const R_ = R();
+    if (!R_) return '';
+    let html = '';
+    if (R_.typeOk(r, 'unique')) html += toggleEl(r, idset, 'uniqueEl', 'unique', T('tvUnique', 'Accept each value only once'), { plan: 'unique', help: esc(T('tvUniqueHint', 'Checked when the form is sent. Earlier entries are checked too.')) });
+    return html ? `<div class="efb efb-fr-main mt-2">${html}</div>` : '';
+  }
+
+  /* D: after a Save, the older answers of a new unique field are hashed (efb_unique_backfill_Emsfb),
+   * with the progress in the page; the server's save hook already did the first batches. */
+  let backfillBusy = false;
+  function efb_fr_backfill_efb(fid) {
+    if (backfillBusy || !fid || typeof jQuery === 'undefined' || typeof valj_efb === 'undefined') return;
+    if (!valj_efb.some((r, i) => i > 1 && r && R() && R().on(r, 'unique'))) return;
+    backfillBusy = true;
+    const url = (root.efb_var && root.efb_var.ajax_url) || (typeof ajaxurl !== 'undefined' ? ajaxurl : '');
+    const nonce = typeof _efb_nonce_ !== 'undefined' ? _efb_nonce_ : (root.efb_var && root.efb_var.nonce);
+    let note = document.getElementById('efbUniqueBfEl');
+    const step = (n) => {
+      jQuery.post(url, { action: 'efb_unique_backfill_Emsfb', nonce: nonce, form_id: fid }, (res) => {
+        const d = res && res.data;
+        if (!d || !d.success) { backfillBusy = false; return; }
+        if (!d.done && n < 200) {
+          if (!note) { note = document.createElement('div'); note.id = 'efbUniqueBfEl'; note.className = 'efb alert alert-info fs-7 position-fixed bottom-0 end-0 m-3'; note.setAttribute('role', 'status'); document.body.appendChild(note); }
+          note.textContent = T('tvBackfill', 'Checking %s earlier entries for duplicates…').replace('%s', String(d.total));
+          step(n + 1);
+          return;
+        }
+        backfillBusy = false;
+        if (note) {
+          note.textContent = T('tvBackfillDone', 'Earlier entries checked. Duplicates already stored: %s').replace('%s', String(d.duplicates));
+          setTimeout(() => { if (note && note.parentNode) note.parentNode.removeChild(note); note = null; }, 6000);
+        }
+      }).fail(() => { backfillBusy = false; });
+    };
+    step(0);
+  }
+  if (typeof jQuery !== 'undefined' && typeof document !== 'undefined') {
+    jQuery(document).ajaxSuccess((ev, xhr, settings) => {
+      const body = settings && typeof settings.data === 'string' ? settings.data : '';
+      if (!/action=(add_form_Emsfb|update_form_Emsfb)/.test(body)) return;
+      const d = xhr && xhr.responseJSON && xhr.responseJSON.data;
+      if (!d || d.success !== true) return;
+      setTimeout(() => { const fid = typeof form_ID_emsFormBuilder !== 'undefined' ? Number(form_ID_emsFormBuilder) : 0; efb_fr_backfill_efb(fid); }, 300);
+    });
   }
 
   /** B: word limits and the live counter (text-like fields and textarea). */
@@ -310,7 +356,7 @@
     else if (typeof pro_show_efb === 'function') pro_show_efb(3);
   }
 
-  const api = { efbFieldRulesMainEls, efbFieldRulesAdvEls, efbFieldRulesMsgEls, efb_fr_change_efb, efb_fr_gem_efb, efb_fr_after_change_efb, efb_fr_decorate_efb, efb_fr_pattern_input_efb, efb_fr_pattern_test_efb };
+  const api = { efbFieldRulesMainEls, efbFieldRulesAdvEls, efbFieldRulesMsgEls, efb_fr_change_efb, efb_fr_gem_efb, efb_fr_after_change_efb, efb_fr_decorate_efb, efb_fr_pattern_input_efb, efb_fr_pattern_test_efb, efb_fr_backfill_efb };
   Object.keys(api).forEach((k) => { root[k] = api[k]; });
   if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

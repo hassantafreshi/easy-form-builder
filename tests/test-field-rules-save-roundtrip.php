@@ -130,6 +130,12 @@ roundtrip_keys($fn, array(
 	array('pattern_case', '1', '1'), array('pattern_case', 'yes', '0'), array('pattern_ascii', '0', '0'), array('pattern_ascii', '', '1'),
 ));
 
+/* D: unique. */
+roundtrip_keys($fn, array(
+	array('unique', '1', '1', array('type' => 'email')), array('unique', true, '1'), array('unique', 'yes', '0'), array('unique', 0, '0'),
+	array('unique_scope', 'form', 'form'), array('unique_scope', 'site', 'form'),
+));
+
 /* An old form without the keys comes back with the same keys. */
 $old = form_with(array(fld('o1', array('milen' => '2', 'mlen' => '30', 'customRequiredMsg' => 'Please fill %s')), fld('o2', array('type' => 'textarea', 'value' => 'a@n#b'))));
 $back = save_and_read($fn, builder_payload($old));

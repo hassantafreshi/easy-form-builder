@@ -11,6 +11,7 @@ function sanitize_text_field($v) { return is_array($v) ? '' : trim(preg_replace(
 function apply_filters($h, $v) { return $h === 'efb_f03_plan' ? 'free' : $v; }
 require __DIR__ . '/../includes/class-Emsfb-masks.php';
 require __DIR__ . '/../includes/class-Emsfb-field-rules.php';
+require __DIR__ . '/../includes/class-Emsfb-unique.php';
 use Emsfb\Field_Rules as FR;
 
 $in = json_decode(stream_get_contents(STDIN), true);
@@ -23,6 +24,7 @@ foreach ((array) $in as $c) {
 		case 'sanitize_key': $out[] = FR::sanitize_key($a[0], $a[1]); break;
 		case 'active_rules': $out[] = FR::active_rules($a[0]); break;
 		case 'count_chars': $out[] = FR::count_chars($a[0]); break;
+		case 'unique_key': $out[] = \Emsfb\Unique_Values::key($a[0], $a[1]); break;
 		case 'first_error':
 			// check() on one value; the code of the first failing rule (null = passes).
 			$f = $a[0];

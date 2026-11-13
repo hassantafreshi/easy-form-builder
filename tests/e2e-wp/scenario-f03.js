@@ -18,6 +18,11 @@
  *        save carrying a bad pattern_b64 is refused with its path; a guest: Persian digits accepted,
  *        a wrong value shows msg_pattern, a request changed after the browser check is refused
  *        (efb_field_pattern) and nothing is stored.
+ *  f03d  D: unique values: builder switch (Free Plus) and Save, the save hook hashes the older answers;
+ *        a guest with a used address gets "This value has already been used." at the field after Send
+ *        (role=alert, aria-invalid) and nothing is stored; a paid form (test gateway): a pending payment
+ *        holds the address, a failed one gives it back, another visitor pays with it, the first
+ *        visitor's "Try again" is refused with the sentence; fa_IR at 375 px.
  */
 'use strict';
 
@@ -301,5 +306,102 @@ module.exports = function (S) {
     const st = await tamper(g, 'EMP۱۲۳۴', 'EMPX234');
     const ans = await send(g);
     R.check('f03c: a request changed after the browser check → efb_field_pattern with the owner\'s sentence, nothing stored', st.done && ans && ans.success === false && ans.code === 'efb_field_pattern' && ans.m === 'Use EMP and 4 digits, like EMP1234.' && (ctl('entries', String(F.form_id)) || []).length === 0, { st, ans });
+  });
+
+  scenario('f03d', 'F03-D unique values: builder, older answers, guest refusal at the field, payments hold / give back / retry refused, fa_IR at 375 px', async ({ context, adminPage }) => {
+    plan3();
+    ctl('f11-mu');
+    ctl('set-option', 'efb_e2e_unique_fail_limit', 'del');
+    // Builder: the switch, Save, the save hook does the older answers.
+    const admin = await adminPage();
+    await openNewForm(admin);
+    const t = await addTile(admin, 'email');
+    await admin.click(`#dropZoneEFB [data-id="${t.dataId}"] label, #dropZoneEFB [data-id="${t.dataId}"]`, { position: { x: 20, y: 10 } });
+    await admin.waitForSelector('#uniqueEl', { timeout: 10000 });
+    await admin.click('#uniqueEl');
+    await sleep(300);
+    const sw = await admin.evaluate((id) => ({ pressed: document.getElementById('uniqueEl').getAttribute('aria-pressed'), v: valj_efb.find((r) => r.id_ === id).unique }), t.id_);
+    R.check('f03d: builder: the unique switch (aria-pressed) writes unique "1"', sw.pressed === 'true' && sw.v === '1', sw);
+    await closePanel(admin);
+    const saved = admin.waitForResponse((x) => /admin-ajax\.php/.test(x.url()) && x.request().method() === 'POST' && /add_form_Emsfb|update_form_Emsfb/.test(x.request().postData() || ''), { timeout: 20000 }).catch(() => null);
+    await admin.evaluate(() => saveFormEfb(1));
+    const sres = await saved;
+    const sj = sres ? await sres.json() : {};
+    await sleep(1500);
+    const fid = Number(String((sj.data && (sj.data.value || sj.data.id)) || '').replace(/\D+/g, '')) || await admin.evaluate(() => Number(form_ID_emsFormBuilder));
+    const tr = (((ctl('form', String(fid)) || {}).form_structer) || []).find((r) => r && r.id_ === t.id_) || {};
+    R.check('f03d: Save stores unique "1"', tr.unique === '1', tr.unique);
+
+    // Guest refusal at the field (server answer after Send).
+    const F = form('F03 e2e unique', [{ key: 'email', type: 'email', name: 'Email', required: 1, unique: '1' }, { key: 'name', type: 'text', name: 'Name' }]);
+    ctl('f03-uniq', String(F.form_id), 'reset');
+    const url = pageOf(F.form_id);
+    const sendAs = async (label, email, opts) => {
+      const p = await (await context(opts || {}, label)).newPage();
+      await p.goto(url, { waitUntil: 'load' });
+      await p.waitForSelector(byId(F.ids.email + '_'), { timeout: 20000 });
+      await sleep(800);
+      await p.fill(byId(F.ids.email + '_'), email);
+      await p.press(byId(F.ids.email + '_'), 'Tab');
+      await sleep(300);
+      return { p, ans: await send(p) };
+    };
+    const first = await sendAs('f03d-1', 'dup@example.test');
+    R.check('f03d: the first visitor is saved', first.ans && first.ans.success === true, first.ans);
+    const second = await sendAs('f03d-2', 'DUP@Example.test');
+    await sleep(400);
+    const st2 = await fieldState(second.p, F.ids.email);
+    R.check('f03d: the same address in other case: "This value has already been used." at the field (role=alert, aria-invalid), efb_field_unique, one entry', second.ans && second.ans.code === 'efb_field_unique' && st2.text === 'This value has already been used.' && st2.role === 'alert' && st2.invalid === 'true' && (ctl('entries', String(F.form_id)) || []).length === 1, { ans: second.ans, st2 });
+    ctl('locale', 'fa_IR');
+    try {
+      const fa = await sendAs('f03d-fa', 'dup@example.test', { viewport: { width: 375, height: 760 } });
+      await sleep(400);
+      const v = await fa.p.evaluate((i) => ({ dir: getComputedStyle(document.getElementById(i + '_-message')).direction, scroll: document.documentElement.scrollWidth <= window.innerWidth + 1 }), F.ids.email);
+      R.check('f03d: fa_IR at 375 px: the refusal at the field, right to left, no horizontal scroll', fa.ans && fa.ans.code === 'efb_field_unique' && v.dir === 'rtl' && v.scroll, v);
+      await fa.p.evaluate(() => { const b = document.getElementById('btn_prev_efb') || document.querySelector('[onclick*="efb_go_to_step_direct"]'); if (b) b.click(); });
+      await sleep(600);
+      await fa.p.screenshot({ path: SHOT('f03d-unique-fa-375') });
+    } finally { ctl('locale', ''); }
+
+    // Payments (test gateway): hold, give back, retry refused.
+    ctl('pay-mock', '1');
+    ctl('pay-keys', 'test');
+    const P = ctl('pay-form', 'fixed', 'F03 e2e paid unique');
+    ctl('f03-field', String(P.form_id), P.email, 'unique=1');
+    const purl = ctl('page', String(P.form_id)).url;
+    const startPay = async (label, email) => {
+      const p = await (await context({}, label)).newPage();
+      await p.goto(purl, { waitUntil: 'networkidle' });
+      await p.waitForSelector('.efb-pf [data-pf-pay]', { timeout: 20000 });
+      await p.fill(`[data-id="${P.email}-el"]`, email);
+      await p.click(`[id="${P.o1}"]`);
+      await sleep(400);
+      const create = p.waitForResponse((x) => /payments\/create/.test(x.url()), { timeout: 20000 }).catch(() => null);
+      await p.click('.efb-pf [data-pf-pay]');
+      const cr = await create;
+      let cj = null; try { cj = cr ? await cr.json() : null; } catch (e) { cj = null; }
+      return { p, cj: cj && (cj.data || cj) };
+    };
+    const A = await startPay('f03d-pay-a', 'payer@example.test');
+    await A.p.waitForURL(/payments\/mock\/checkout/, { timeout: 20000 });
+    const held = ctl('f03-uniq', String(P.form_id)).rows;
+    R.check('f03d/pay: visitor A is paying: the pending entry holds the address', held.length === 1 && Number(held[0].msg_id) > 0, held);
+    const B = await startPay('f03d-pay-b', 'Payer@example.test');
+    R.check('f03d/pay: visitor B with the same address is refused before any payment starts (efb_field_unique)', B.cj && B.cj.success === false && B.cj.code === 'efb_field_unique' && ctl('payments', String(P.form_id)).length === 1, B.cj);
+    await Promise.all([A.p.waitForURL((u) => u.toString().indexOf('payments/mock/checkout') === -1, { timeout: 20000 }), A.p.click('#fail')]);
+    await sleep(1500);
+    R.check('f03d/pay: A\'s payment failed: the address is given back', ctl('f03-uniq', String(P.form_id)).rows.length === 0);
+    const C = await startPay('f03d-pay-c', 'payer@example.test');
+    await C.p.waitForURL(/payments\/mock\/checkout/, { timeout: 20000 });
+    R.check('f03d/pay: visitor C now pays with the address', ctl('f03-uniq', String(P.form_id)).rows.length === 1);
+    await A.p.waitForSelector('.efb-pf-retry', { timeout: 15000 });
+    const retry = A.p.waitForResponse((x) => /payments\/retry/.test(x.url()), { timeout: 20000 }).catch(() => null);
+    await A.p.click('.efb-pf-retry');
+    const rr = await retry;
+    let rj = null; try { rj = rr ? await rr.json() : null; } catch (e) { rj = null; }
+    const rd = rj && (rj.data || rj);
+    await sleep(800);
+    const said = await A.p.evaluate(() => (document.querySelector('.efb-pf [data-pf-status]') || {}).textContent || '');
+    R.check('f03d/pay: A\'s "Try again" is refused with the sentence (no new attempt)', rd && rd.success === false && rd.code === 'efb_field_unique' && /already been used/.test(said) && ctl('payments', String(P.form_id)).length === 2, { rd, said });
   });
 };

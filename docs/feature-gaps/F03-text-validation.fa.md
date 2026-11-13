@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A تا C انجام شد، ۲۰۲۶-۱۱-۱۳) · اولویت: P0 · تلاش: M · وابستگی: F01 (نرمال‌ساز و `Emsfb\Masks`)؛ هماهنگ با F02 (`email_confirm_mode`) و F16 (نمایش خطا و ARIA)
+وضعیت: در حال پیاده‌سازی (A تا D انجام شد، ۲۰۲۶-۱۱-۱۳) · اولویت: P0 · تلاش: M · وابستگی: F01 (نرمال‌ساز و `Emsfb\Masks`)؛ هماهنگ با F02 (`email_confirm_mode`) و F16 (نمایش خطا و ARIA)
 
 # F03 — اعتبارسنجی فیلدهای متنی
 
@@ -358,12 +358,12 @@ if ($is_valid == 1 && is_array($validated_item) && class_exists('\Emsfb\Field_Ru
 - پذیرش: دو ارسال هم‌زمان با یک مقدار فقط یک ورودی می‌سازند (شبیه‌سازی با stub `$wpdb` که `UNIQUE` را مدل می‌کند). حذف پاسخ مقدار را دوباره آزاد می‌کند. backfill روی ۵۰۰ پاسخ با cursor کامل می‌شود و در اجرای دوباره چیزی اضافه نمی‌کند. `Gmail.COM` و `gmail.com` تکراری حساب می‌شوند. `۰۹۱۲…` و `0912…` در فیلد ماسک‌دار تکراری حساب می‌شوند. پس از ۱۰ تکرار در دقیقه، پاسخ عمومی برمی‌گردد. ارتقا از 1.3 و نصب تازه هر دو جدول را دارند.
 - تست‌ها: `php tests/test-unique-values.php`، `php tests/test-unique-schema.php` (الگوی `test-verify-schema.php` در F02)، و با WordPress `tests/test-unique-values-wp.php` (`[SKIP]` اگر `wp-load.php` نبود).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۳، انجام شد)
+- فایل‌های تغییرکرده: `includes/class-Emsfb-unique.php` (تازه، `Emsfb\Unique_Values`: `ddl`، راز جدای `emsfb_uniq_secret` (نه `wp_salt`)، `key`/`vhash`، `taken` با اسکن جایگزین، `claim` همه‌یا‌هیچ با `INSERT IGNORE`، `attach`، `drop_claims`، `forget_messages`/`forget_form`، محدودیت سوءاستفاده روی `Rate_Limit` و `Client_Ip` از F11، نگه‌داشت پرداخت، `retry_gate` با اولویت ۹ پیش از F11، backfill (هوک ذخیره، WP-Cron و AJAX `efb_unique_backfill_Emsfb`)، کار روزانه، exporter و eraser وردپرس)، `Field_Rules` (`is_unique`، پیش‌بررسی در `check`)، `class-Emsfb-public.php` (`unique_claim_efb` پس از جای F11 در `insert_message_db`، مسیر «ذخیره نکن» F13 با `msg_id = 0` و مسیر تکمیل درگاه‌های قدیمی؛ آزادسازی در شکست درج؛ پاسخ عمومی پس از سقف)، `class-Emsfb-install.php` (`f03_ddl`، `upgrade_f03_schema`)، `emsfb.php` (`EMSFB_DB_VERSION = 1.7`)، `class-Emsfb.php`، `payments/class-Emsfb-payment-service.php` (متن `efb_field_unique` در «Try again»)، `field-rules-builder-efb.js` (کلید unique و پیشرفت backfill پس از Save)، `field-rules-efb.js` (`uniqueKey`)، `docs/migrations/f03-unique-values-2026-11-13.md`، `docs/payments/payment-error-matrix.en.md`، `tests/e2e-wp/ctl.php` (`f03-uniq`، `f03-field`)، mu-plugin e2e (فیلتر سقف).
+- تست‌ها: `php tests/test-unique-values.php` (۳۷: کلیدها، ۲۰ فرایند هم‌زمان سه بار دقیقاً یک claim، همه‌یا‌هیچ، fail closed، حذف/فرم/پاک‌سازی روزانه، backfill ۵۰۰ پاسخ در ۳ گام و اجرای دوباره بدون افزودن، پرداخت، exporter/eraser)، `php tests/test-unique-schema.php` (۱۰)، `php tests/test-unique-values-wp.php` روی وردپرس واقعی (۱۴: ۱۰ ارسال هم‌زمان یک نشانی → یک پاسخ، حروف بزرگ، موبایل ماسک‌دار فارسی = لاتین، حذف آزاد می‌کند، backfill از هوک ذخیره، سقف دقیقه‌ای، فرم «ذخیره نکن»، فرم قدیمی بی‌تغییر)، برابری `uniqueKey` در `test-field-rules-core.js` (۴۷)، e2e `f03d` (۱۱، شامل پرداخت آزمایشی و fa_IR در ۳۷۵ پیکسل).
+- وضعیت ترجمه: انگلیسی (دستور مالک).
+- مورد باز: پرسش باز ۲: کلید `form_id` تازه لازم نشد (`form_date` از F13). پرسش باز ۳: پرداخت در انتظار مقدار را قفل می‌کند؛ پرداخت ناموفق/لغو/منقضی آزاد می‌کند (اگر تلاش زندهٔ دیگری نباشد) و «Try again» دوباره می‌گیرد یا با `efb_field_unique` رد می‌شود؛ پرداختی که دیر پرداخت شود مقدار را اگر آزاد باشد دوباره می‌گیرد. پرسش باز ۴: بدون `unique_case` (مقایسه بدون حساسیت به حروف). جدول جداگانهٔ spec به‌جای جدول Rate_Limit F11 ساخته شد چون آزادسازی با حذف پاسخ به `msg_id` نیاز دارد و راز نباید با `wp_salt` بچرخد؛ الگوی ادعای اتمیک (`INSERT IGNORE` تک‌دستور و قابل‌حمل) و محدودکنندهٔ F11 دوباره استفاده شد. ادعای بدون پاسخ پس از یک ساعت و ادعای فرم «ذخیره نکن» پس از مدت نگهداری F13 پاک می‌شود. پیش‌بررسی زندهٔ عمومی در v1 نیست.
+- اقدام بعدی: E.
 
 ### E. دامنهٔ ایمیل و اتصال به تکرار ایمیل F02
 - فایل‌ها: `matchDomain` در هر دو زبان، `emailDomainEls`، sanitizer `email_domains`، و شاخهٔ email در `Field_Rules::check`. اگر زیرتسک E1 از F02 هنوز اجرا نشده، همان‌جا و دقیقاً طبق F02 §4.1 پیاده شود و این سند چیزی به آن اضافه نکند، جز خواندن `msg_mismatch`.

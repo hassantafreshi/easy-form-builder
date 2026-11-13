@@ -1507,6 +1507,7 @@ function efb_rules_show_error_efb(el, text) {
   el.setAttribute('aria-invalid', 'true');
   if (vd) {
     vd.textContent = text;
+    vd.setAttribute('dir', 'auto'); // a sentence in another script than the page keeps its own order
     vd.setAttribute('role', 'alert');
     const ids = (el.getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean);
     if (ids.indexOf(vd.id) === -1) { ids.push(vd.id); el.setAttribute('aria-describedby', ids.join(' ')); }

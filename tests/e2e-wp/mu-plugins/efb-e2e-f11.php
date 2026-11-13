@@ -75,3 +75,14 @@ add_filter(
 	},
 	99
 );
+/*
+ * (4) F03: the per-minute limit of refused unique values (efb_unique_fail_per_minute) while the option
+ * efb_e2e_unique_fail_limit is set, so a test can reach it without sending dozens of requests.
+ */
+add_filter(
+	'efb_unique_fail_per_minute',
+	static function ( $n ) {
+		$v = (int) get_option( 'efb_e2e_unique_fail_limit', 0 );
+		return $v > 0 ? $v : $n;
+	}
+);

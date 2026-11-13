@@ -432,6 +432,9 @@ class Emsfb {
         // read-only, password confirm and strength. Optional: callers check class_exists().
         if ($this->require_plugin_file_efb('includes/class-Emsfb-field-rules.php') && method_exists('\Emsfb\Field_Rules', 'register')) {
             \Emsfb\Field_Rules::register();
+            if ($this->require_plugin_file_efb('includes/class-Emsfb-unique.php')) {
+                \Emsfb\Unique_Values::register();
+            }
         }
 
         // Builder API for integrations such as AutoPilot (docs/autopilot-integration.md).

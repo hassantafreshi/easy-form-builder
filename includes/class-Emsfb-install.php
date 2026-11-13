@@ -149,6 +149,10 @@ class Install {
 						foreach ( self::f11_ddl( $wpdb->prefix, $charset_collate ) as $sql ) {
 							self::create_table_if_absent( $sql );
 						}
+						// F03 (DB 1.7): the claims of unique values.
+						foreach ( self::f03_ddl( $wpdb->prefix, $charset_collate ) as $sql ) {
+							self::create_table_if_absent( $sql );
+						}
 
 				$user_id = get_current_user_id();
 				$usr =get_user_by('id',$user_id);
@@ -303,6 +307,9 @@ class Install {
 		// created by whichever of F02 / F11 comes first), the draft table and a form_id index on
 		// the entries. Idempotent, and before the emsfb_stts_ early return like the steps above.
 		$applied = array_merge( $applied, self::upgrade_f11_schema() );
+		// F03 (text field rules), DB version 1.7: the unique-value claims. emsfb_msg_ already has an
+		// index starting with form_id (F13 form_date), which the backfill and the fallback scan use.
+		$applied = array_merge( $applied, self::upgrade_f03_schema() );
 
 		$table   = $wpdb->prefix . 'emsfb_stts_';
 
@@ -382,6 +389,39 @@ class Install {
 			if ( $role && ! $role->has_cap( 'Emsfb_payments' ) ) {
 				$role->add_cap( 'Emsfb_payments' );
 			}
+		}
+		return $applied;
+	}
+
+	/** F03: CREATE TABLE statement of emsfb_uniq_ (dbDelta format). */
+	public static function f03_ddl( $prefix, $charset_collate = '' ) {
+		if ( ! class_exists( '\\Emsfb\\Unique_Values' ) && is_readable( __DIR__ . '/class-Emsfb-unique.php' ) ) {
+			require_once __DIR__ . '/class-Emsfb-unique.php';
+		}
+		return class_exists( '\\Emsfb\\Unique_Values' ) ? array( 'emsfb_uniq_' => \Emsfb\Unique_Values::ddl( $prefix, $charset_collate ) ) : array();
+	}
+
+	/** F03, DB version 1.7: emsfb_uniq_ when missing (idempotent). */
+	public static function upgrade_f03_schema() {
+		global $wpdb;
+		$applied = array();
+		if ( ! function_exists( 'dbDelta' ) && defined( 'ABSPATH' ) && is_readable( ABSPATH . 'wp-admin/includes/upgrade.php' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		}
+		if ( ! function_exists( 'dbDelta' ) ) {
+			return $applied;
+		}
+		$collate = method_exists( $wpdb, 'get_charset_collate' ) ? $wpdb->get_charset_collate() : '';
+		foreach ( self::f03_ddl( $wpdb->prefix, $collate ) as $short => $sql ) {
+			$table = $wpdb->prefix . $short;
+			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) {
+				continue;
+			}
+			self::create_table_if_absent( $sql );
+			$applied[] = "{$short}: CREATE TABLE";
+		}
+		if ( class_exists( '\\Emsfb\\Unique_Values' ) ) {
+			\Emsfb\Unique_Values::reset_ready();
 		}
 		return $applied;
 	}
