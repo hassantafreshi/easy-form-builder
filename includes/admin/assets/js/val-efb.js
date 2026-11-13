@@ -1698,6 +1698,7 @@ function show_setting_window_efb(idset, opts) {
                 ${typeof efbFieldRulesMainEls === 'function' ? efbFieldRulesMainEls(indx, idset) : '<!-- F03 field-rules-builder-efb.js not loaded -->'}
                 ${el.dataset.tag == "mobile" ? smsEnableEls : ''}
                 ${el.dataset.tag == "email" ? emailEls : ''}
+                ${(el.dataset.tag == "email" || el.dataset.tag == "mobile") && typeof efbVerifyBuilderEls === 'function' ? efbVerifyBuilderEls(indx, idset, el.dataset.tag) : ''}
                 ${el.dataset.tag == "mobile" ? ElcountriesListSelections(idset,indx) : ''}
                 <!--  not   advanced-->
                 <div class="efb  d-grid gap-2">

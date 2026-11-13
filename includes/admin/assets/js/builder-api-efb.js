@@ -666,6 +666,53 @@
   }
 
   /**
+   * F02: one-time code keys of a mobile or e-mail field, written with the save rules (EFBVerify.sanitizeKey
+   * = Verification::sanitize_key). setVerification('mobile1', {otp_enabled: 1, otp_countries: ['ir']}) or
+   * setVerification('email1', {email_confirm_mode: 'retype_otp'}). Throws unsupported_key (a mobile key on
+   * an e-mail field and the reverse), invalid_setting, unknown_field, plan (the plan does not include it),
+   * efb_verify_unavailable (a code this site cannot send now: e.mode = 'sms' | 'email', e.reason). Turning a
+   * code off on a saved form is a security change worth telling the owner. Returns {changed, values}.
+   */
+  var VRF_MOBILE = ['otp_enabled', 'otp_channel', 'otp_required_when', 'otp_countries', 'otp_btn_label'];
+  var VRF_EMAIL = ['email_confirm_mode', 'email_retype_label', 'email_otp_required_when', 'email_otp_subject', 'email_otp_body'];
+  function setVerification(id, patch, opts) {
+    var Vf = window.EFBVerify;
+    if (!Vf) throw fail('builder_not_ready', 'The verification rules (verify-efb.js) are not loaded.');
+    var list = rows();
+    var idx = fieldIndex(list, String(id));
+    if (idx < 0) idx = list.findIndex(function (r, i) { return i > 0 && r && r.dataId === String(id); });
+    if (idx < 1 || isOptionRow(list[idx])) throw fail('unknown_field', 'No field with id ' + id + '.');
+    if (!patch || typeof patch !== 'object' || Array.isArray(patch)) throw fail('invalid_setting', 'setVerification() needs an object of verification keys.');
+    var f = list[idx];
+    var allowed = f.type === 'mobile' ? VRF_MOBILE : (f.type === 'email' ? VRF_EMAIL : []);
+    var values = {};
+    Object.keys(patch).forEach(function (k) {
+      if (VRF_MOBILE.indexOf(k) === -1 && VRF_EMAIL.indexOf(k) === -1) throw fail('invalid_setting', 'key ' + k + ' is not a verification key.');
+      if (allowed.indexOf(k) === -1) throw fail('unsupported_key', k + ' does not apply to a ' + f.type + ' field.');
+      var v = patch[k];
+      if (v !== null && typeof v === 'object' && !(k === 'otp_countries' && Array.isArray(v))) throw fail('invalid_setting', k + ' must be a string, number or boolean.');
+      values[k] = Vf.sanitizeKey(k, v);
+    });
+    var after = Object.assign({}, f, values);
+    var spec = Vf.fieldSpec(after);
+    var vs = (window.efb_var && window.efb_var.verify) || {};
+    var cap = (window.efb_var && window.efb_var.capabilities && window.efb_var.capabilities.features) || {};
+    if (spec && spec.otp) {
+      var key = spec.channel === 'sms' ? 'setting:verify_sms_otp' : 'setting:verify_email_otp';
+      if (cap[key] && cap[key].reason === 'plan') { var ep = fail('plan', 'This plan does not include ' + (spec.channel === 'sms' ? 'SMS' : 'e-mail') + ' codes.'); ep.package = cap[key].package; throw ep; }
+      var st = vs[spec.channel];
+      if (st && st.ready === false) { var eu = fail('efb_verify_unavailable', 'Codes by ' + spec.channel + ' cannot be sent on this site now.'); eu.mode = spec.channel; eu.reason = st.reason; throw eu; }
+    }
+    if (values.email_otp_body && values.email_otp_body.indexOf('[otp_code]') === -1) throw fail('invalid_setting', 'email_otp_body must contain [otp_code].');
+    Object.keys(values).forEach(function (k) { f[k] = values[k]; });
+    if (values.otp_enabled === '1') { f.otp_channel = 'sms'; if (!f.otp_required_when) f.otp_required_when = 'filled'; }
+    persist();
+    apiChanged('setVerification', [f.id_]);
+    if (!opts || opts.refresh !== false) { try { refreshSettingsPanel(); } catch (e) {} }
+    return { changed: Object.keys(values), values: values };
+  }
+
+  /**
    * F11: the stored form's gate as the server sees it now (read only):
    * {form_id, state: open|pending|closed|full|limited|role, code, message, opens_at, closes_at,
    *  timezone, total: {limit, used, left}|null, person, roles, drafts, inactive: [reasons]}.
@@ -691,6 +738,7 @@
     paymentReadiness: paymentReadiness,
     setFormSettings: setFormSettings,
     setFieldRules: setFieldRules,
+    setVerification: setVerification,
     formGate: formGate,
     newItems: newItems,
     setFormType: setFormType,

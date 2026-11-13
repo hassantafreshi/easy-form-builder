@@ -334,6 +334,10 @@ class Create {
 		wp_enqueue_script('efb-field-rules-js', EMSFB_PLUGIN_URL . 'public/assets/js/field-rules-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/field-rules-efb.js'), true);
 		wp_enqueue_script('efb-field-rules-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/field-rules-builder-efb.js', array('efb-val-js', 'efb-field-rules-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/field-rules-builder-efb.js'), true);
 		wp_enqueue_style('efb-field-rules-css', EMSFB_PLUGIN_URL . 'public/assets/css/field-rules-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/field-rules-efb.css'));
+		// F02: the one-time code rules (twin of Verification) and the mobile / e-mail field controls.
+		wp_enqueue_script('efb-verify-js', EMSFB_PLUGIN_URL . 'public/assets/js/verify-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/verify-efb.js'), true);
+		wp_enqueue_script('efb-verify-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/verify-builder-efb.js', array('efb-val-js', 'efb-verify-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/verify-builder-efb.js'), true);
+		wp_enqueue_style('efb-verify-css', EMSFB_PLUGIN_URL . 'public/assets/css/verify-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/verify-efb.css'));
 		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js', array('jquery','efb-recorder-js'), EMSFB_PLUGIN_VERSION, true);
@@ -449,6 +453,9 @@ class Create {
 			list($valp, $save_warnings_efb) = Builder_Api::disable_unavailable_notifiers($valp, get_setting_Emsfb('decoded', array()), $lang);
 			// PAY00: what the form's payment gateways need (currency, mapped fields, the gateway's own checks); never refuses the save.
 			if (class_exists('\\Emsfb\\Payments\\Registry')) $save_warnings_efb = array_merge($save_warnings_efb, \Emsfb\Payments\Registry::form_warnings($valp));
+			// F02: a field asking for a code this site cannot send now (plan, SMS add-on, provider, e-mail off), on a
+			// registration / login form, or a custom e-mail text without [otp_code]; never refuses the save.
+			if (class_exists('\\Emsfb\\Verification')) $save_warnings_efb = array_merge($save_warnings_efb, \Emsfb\Verification::form_warnings($valp));
 			if (Builder_Api::sms_field_without_form($valp)) {
 				$save_warnings_efb[] = array('code' => 'sms_field_without_form', 'm' => $lang['smsFieldWithoutForm']);
 			}

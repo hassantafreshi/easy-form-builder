@@ -13,6 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
     /* F18: the element being rendered and the phrases, for the administrator's note on a locked field. */
     private $pro_notice_type_efb = '';
     private $pro_notice_texts_efb = array();
+    /** F02: whether a field of this form asks for a one-time code or a second e-mail copy. */
+    public $verify_fields_efb = false;
     /** The last plan notice built, so a field drawn as nothing but that notice can be wrapped like its real markup. */
     private $last_pro_notice_efb = null;
         public function __construct( $valj_efb, $pro_efb ) {
@@ -410,6 +412,64 @@ if ( ! defined( 'ABSPATH' ) ) {
 		return $out;
 	}
 
+	/**
+	 * F02: the pieces of a field that asks for a one-time code or a second copy (spec §3.1):
+	 * 'open' / 'close' wrap the input with the "Send code" button in one row (below it under 480 px),
+	 * 'after' is the second e-mail box and the code block (status line aria-live, errors role=alert,
+	 * one code input with autocomplete=one-time-code). The code input is not an answer: no
+	 * emsFormBuilder_v, efbField or data-vid, so it never reaches the submitted rows. No token or nonce
+	 * is ever printed; verify-efb.js asks the server with the tab's own runtime token.
+	 * Empty pieces for a field without the keys (byte-for-byte the old markup).
+	 */
+	private function generateVerify_efb($vj, $rndm, $form_id) {
+		$out = array('open' => '', 'close' => '', 'after' => '', 'describedby' => array());
+		if (!class_exists('\\Emsfb\\Verification')) return $out;
+		$f = is_object($vj) ? get_object_vars($vj) : (is_array($vj) ? $vj : array());
+		$spec = \Emsfb\Verification::field_spec($f);
+		if (!$spec) return $out;
+		$t = $this->pro_notice_texts_efb;
+		$tx = function ($k) use ($t) { return isset($t[$k]) && is_string($t[$k]) && $t[$k] !== '' ? $t[$k] : \Emsfb\Verification::t($k); };
+		$id = esc_attr($rndm);
+		$req = isset($f['required']) && in_array($f['required'], array(1, '1', true), true);
+		$lab_cls = implode(' ', array_filter(array(
+			isset($f['label_align']) ? (string) $f['label_align'] : '',
+			isset($f['label_text_color']) ? (string) $f['label_text_color'] : '',
+			isset($f['label_text_size']) && $f['label_text_size'] !== 'default' ? (string) $f['label_text_size'] : 'fs-6',
+		)));
+		$after = '';
+		if ($spec['retype']) {
+			$lab = isset($f['email_retype_label']) && trim((string) $f['email_retype_label']) !== '' ? (string) $f['email_retype_label'] : $tx('vrfEmailRetype');
+			$after .= '<div class="efb efb-vrf-confirm-wrap mt-2"><label for="' . $id . '_confirm" class="efb form-label d-block mb-1 ' . esc_attr($lab_cls) . '">' . esc_html($lab) . '</label>'
+				. '<input type="email" id="' . $id . '_confirm" class="efb input-efb form-control px-2 mb-0 w-100 efb-email-confirm ' . esc_attr(isset($f['el_border_color']) ? $f['el_border_color'] : '') . ' ' . esc_attr(isset($f['el_height']) ? $f['el_height'] : '') . '" data-for="' . $id . '" autocomplete="email" aria-describedby="' . $id . '_confirm-message"' . ($req ? ' required aria-required="true"' : '') . '>'
+				. '<div class="efb efb-vrf-confirm-msg fs-7 text-danger" id="' . $id . '_confirm-message" role="alert"></div></div>';
+		}
+		if ($spec['otp']) {
+			$s = \Emsfb\Verification::settings();
+			$len = (int) $s[$spec['channel']]['code_length'];
+			$btn = isset($f['otp_btn_label']) && trim((string) $f['otp_btn_label']) !== '' ? (string) $f['otp_btn_label'] : $tx('vrfSend');
+			$countries = $spec['channel'] === 'sms' ? \Emsfb\Verification::field_countries($f, $s) : array();
+			$out['open'] = '<div class="efb efb-vrf-row" id="' . $id . '_vrf-row">';
+			$out['close'] = '<button type="button" class="efb btn efb-vrf-send" id="' . $id . '_vrf-send" data-vid="' . $id . '" aria-describedby="' . $id . '_vrf-status" disabled>' . esc_html($btn) . '</button></div>';
+			$out['describedby'][] = $rndm . '_vrf-status';
+			$after .= '<div class="efb efb-vrf" id="' . $id . '_vrf" data-vid="' . $id . '" data-formid="' . esc_attr($form_id) . '" data-channel="' . esc_attr($spec['channel']) . '" data-len="' . $len . '" data-when="' . esc_attr($spec['when']) . '" data-retype="' . ($spec['retype'] ? '1' : '0') . '" data-countries="' . esc_attr(implode(',', $countries)) . '">'
+				. '<div class="efb efb-vrf-status fs-7" id="' . $id . '_vrf-status" role="status" aria-live="polite"></div>'
+				. '<div class="efb efb-vrf-error fs-7 text-danger" id="' . $id . '_vrf-error" role="alert"></div>'
+				. '<div class="efb efb-vrf-box" id="' . $id . '_vrf-box" hidden>'
+				. '<label class="efb form-label fs-7 mb-1 d-block ' . esc_attr(isset($f['label_align']) ? (string) $f['label_align'] : '') . '" for="' . $id . '_vrf-code">' . esc_html($tx('vrfCodeLabel')) . '</label>'
+				. '<div class="efb efb-vrf-coderow"><input type="text" class="efb form-control efb-vrf-code" id="' . $id . '_vrf-code" inputmode="numeric" autocomplete="one-time-code" maxlength="' . $len . '" pattern="[0-9]*" dir="ltr" spellcheck="false" placeholder="' . esc_attr($tx('verify')) . '" aria-describedby="' . $id . '_vrf-status ' . $id . '_vrf-error">'
+				. '<button type="button" class="efb btn efb-vrf-check" id="' . $id . '_vrf-check">' . esc_html($tx('vrfVerify')) . '</button></div>'
+				. '<div class="efb efb-vrf-actions fs-7"><button type="button" class="efb btn btn-link p-0 efb-vrf-resend" id="' . $id . '_vrf-resend" disabled>' . esc_html($tx('vrfResend')) . '</button>'
+				. ' <span class="efb efb-vrf-timer" id="' . $id . '_vrf-timer" aria-hidden="true"></span>'
+				. ' <button type="button" class="efb btn btn-link p-0 efb-vrf-edit" id="' . $id . '_vrf-edit">' . esc_html($tx('vrfEdit')) . '</button>'
+				. ' <button type="button" class="efb btn btn-link p-0 efb-vrf-help" id="' . $id . '_vrf-help" aria-expanded="false" aria-controls="' . $id . '_vrf-tips" hidden>' . esc_html($tx('vrfNoCode')) . '</button></div>'
+				. '<div class="efb efb-vrf-tips fs-7 text-muted" id="' . $id . '_vrf-tips" hidden>' . esc_html($tx('vrfNoCodeTips')) . '</div>'
+				. '</div></div>';
+		}
+		$out['after'] = $after;
+		if ($after !== '' || $out['open'] !== '') $this->verify_fields_efb = true;
+		return $out;
+	}
+
 	/** aria-describedby="…" with more ids (the existing attribute, or a new one). */
 	private function mergeDescribedby_efb($attr, array $ids) {
 		if (!$ids) return $attr;
@@ -431,7 +491,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$div_f_id .= $ha_efb['before'];
 		$ttip = $ha_efb['open'];
 		$desc = $ha_efb['close'] . $ha_efb['desc'];
-		$aire_describedby = $this->mergeDescribedby_efb($aire_describedby, array_merge($ha_efb['describedby'], $fr_efb['describedby']));
+		// F02: the e-mail field's "Send code" row, its second box and the code block (nothing for other fields).
+		$vr_efb = $type === 'email' ? $this->generateVerify_efb($vj, $rndm, $form_id) : array('open' => '', 'close' => '', 'after' => '', 'describedby' => array());
+		if ($vr_efb['open'] !== '' || $vr_efb['after'] !== '') {
+			$ttip = $ttip . $vr_efb['open'];
+			$desc = $vr_efb['close'] . $vr_efb['after'] . $desc;
+		}
+		$aire_describedby = $this->mergeDescribedby_efb($aire_describedby, array_merge($ha_efb['describedby'], $fr_efb['describedby'], $vr_efb['describedby']));
 		if ($fr_efb['attrs'] !== '') $telPattern = trim($telPattern . ' ' . trim($fr_efb['attrs']));
 
 		$corener = isset($vj->corner) ? $vj->corner : 'rounded-3';
@@ -1537,8 +1603,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     	);
 
 		$inputPhone = sprintf(
-			'<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formid="%13$s" data-vid="%7$s" id="%7$s_" aria-required="%8$s" aria-label="%9$s" %10$s %11$s %12$s data-utilsjs="%14$s" %15$s>
-			<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField d-none efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formid="%13$s" data-vid="%7$s" id="%7$s-code" placeholder="verify" %11$s %12$s %10$s data-utilsjs="%14$s"  %15$s>',
+			'<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formid="%13$s" data-vid="%7$s" id="%7$s_" aria-required="%8$s" aria-label="%9$s" %10$s %11$s %12$s data-utilsjs="%14$s" %15$s>',
 			$vj->el_border_color,
 			$vj->el_height,
 			$corner,
@@ -1577,12 +1642,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 				$value
 			);
 		}
-		$buttonSubmit = sprintf(
-			'<button id="%1$s-btn" type="submit" class="efb d-none">Submit</button>',
-			$rndm
-		);
+		/* F02: the hidden "-code" input (class emsFormBuilder_v, read by nothing, bound to the answer
+		 * listeners) and the hidden type=submit button are gone; a field with otp_enabled gets the
+		 * "Send code" row and the code block instead. */
+		$vr_efb = $this->generateVerify_efb($vj, $rndm, $form_id);
+		if ($vr_efb['open'] !== '') {
+			$inputPhone = $vr_efb['open'] . $inputPhone . $vr_efb['close'] . $vr_efb['after'];
+		}
 
-		return [$inputPhone  . $buttonSubmit ,$js];
+		return [$inputPhone, $js];
 	}
 
 	public function esign_el_pro_efb($previewSate,$pos, $rndm, $vj,$message, $formId,$updateUrbrowser) {

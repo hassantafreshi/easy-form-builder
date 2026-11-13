@@ -1068,7 +1068,10 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         // 989121234567+ in an RTL panel; number-like values are explicitly left to right.
         const ltrEfb = typeof c.value === 'string' && /^[+(0-9A-Z][0-9A-Z +\-\/().:]*$/.test(c.value);
         const bdiEfb = c.type.includes('imgRadio') ? text_nr_efb(q,1) : `<bdi${ltrEfb ? ' dir="ltr"' : ''}>${text_nr_efb(q,1)}</bdi>`;
-        m += `<div class="efb efb-msg-field-row"><span class="efb-msg-field-label">${title}:</span> <span class="efb-msg-field-value">${bdiEfb}</span></div>`
+        // F02: the server's badge on a value verified with a one-time code (never sent by the browser).
+        const vrfEfb = (c.verified === 'sms' || c.verified === 'email')
+          ? ` <span class="efb badge bg-success efb-vrf-badge" data-verified="${c.verified}"><i class="efb bi-patch-check" aria-hidden="true"></i> ${c.verified === 'sms' ? ((efb_var.text && efb_var.text.vrfBadgeSms) || 'Verified by SMS') : ((efb_var.text && efb_var.text.vrfBadgeEmail) || 'Verified by email')}</span>` : '';
+        m += `<div class="efb efb-msg-field-row"><span class="efb-msg-field-label">${title}:</span> <span class="efb-msg-field-value">${bdiEfb}</span>${vrfEfb}</div>`
       }
     if (c.type == "payment") {
       if(c.paymentGateway == "stripe" || c.paymentGateway == "paypal"){

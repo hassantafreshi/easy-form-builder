@@ -855,7 +855,11 @@ async function fun_sendBack_emsFormBuilder(ob) {
       indx = sendBack_emsFormBuilder_pub.findIndex( x => x!=null && x.hasOwnProperty('id_ob') && x.id_ob === ob.id_ob);
       indx == -1 ? sendBack_emsFormBuilder_pub.push(ob) : sendBack_emsFormBuilder_pub[indx]=ob;
     }else if(indx != -1 && ob.type == "mobile" ){
+      /* A changed number replaces the stored one. The value used to be computed and dropped, so the
+         first valid number typed was the one sent even after the visitor corrected it (and an F02
+         code verified for the corrected number could never match). */
       ob.value= ob.value.replace(/^(\+\d+)\1/, '$1');
+      sendBack_emsFormBuilder_pub[indx].value = ob.value;
     } else {
       if (indx == -1) {
         sendBack_emsFormBuilder_pub.push(ob)
@@ -1273,6 +1277,8 @@ async function actionSendData_emsFormBuilder(form_id=0) {
     }
     // F03-H: the second password boxes travel beside the answers, never as an answer (not stored, not in localStorage).
     efb_rules_add_confirms_efb(data, form_id);
+    // F02: the tokens of verified numbers / addresses and the second e-mail copies travel beside the answers.
+    if (window.EFBVerify && typeof window.EFBVerify.addToRequest === 'function') window.EFBVerify.addToRequest(data, form_id);
     /* PAY00: the field of a gateway add-on (payment framework) sends the form to
        payments/create: the server validates it, stores it as "pending payment" and starts the payment. */
     if (vj.type == "payment" && window.EFBPay && typeof window.EFBPay.isGateway === 'function') {
@@ -2148,9 +2154,12 @@ async function response_fill_form_efb(res ,form_id=0) {
     /* Validation failed for one specific field — remove only that field's rows
        (by id_, or by id_ob for chlCheckBox-style fields) so the rest of the
        already-filled-in form data survives and doesn't have to be re-entered. */
-    remove_sendback_rows_by_field_id_efb(res.data.field_id, form_id);
+    // F02: a verification refusal keeps the answer (the value is fine; it needs a code again).
+    if (!(typeof res.data.code === 'string' && res.data.code.indexOf('efb_verify_') === 0)) remove_sendback_rows_by_field_id_efb(res.data.field_id, form_id);
     // F03: a field rule refused it on the server (e.g. a value already used): the field shows why.
     if (typeof res.data.code === 'string' && res.data.code.indexOf('efb_field_') === 0) efb_rules_server_error_efb(form_id, res.data.field_id, res.data.m);
+    // F02: the field's code block goes back to "Send code" with the server's sentence.
+    if (typeof res.data.code === 'string' && res.data.code.indexOf('efb_verify_') === 0 && window.EFBVerify) window.EFBVerify.serverError(form_id, res.data.field_id, res.data.code, res.data.m);
   }
   let btn_prev ='';
   const t = valj_efb_new.find(x => x.id == form_id);
@@ -3606,6 +3615,12 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
       const _vt = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.text) ? ajax_object_efm.text : {};
       alert_message_efb(_vt.pleaseEnterVaildValue || 'Please enter a valid value.', '', 8, 'warning');
       efb_steps_debug_efb('navigate:stop:invalid-filled-field', { form_id: form_id, fields: invalidFilled.map(x => x.id_) });
+      return false;
+    }
+    /* F02: a filled field that asks for a one-time code moves on only once verified (and a "type it
+       twice" e-mail only when both copies match); the reason is shown at the field. */
+    if (window.EFBVerify && typeof window.EFBVerify.guard === 'function' && !window.EFBVerify.guard(form_id, no_step, btn_state, max_step)) {
+      efb_steps_debug_efb('navigate:stop:verification', { form_id: form_id });
       return false;
     }
   }

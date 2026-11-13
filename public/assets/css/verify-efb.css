@@ -1,0 +1,36 @@
+/* F02: one-time code block of a mobile / e-mail field (spec §3.1, §3.4). Logical properties only, so
+ * the same rules serve left-to-right and right-to-left pages; the code and the number stay LTR. */
+.efb-vrf-row { display: flex; align-items: stretch; gap: .5rem; width: 100%; }
+.efb-vrf-row > .iti, .efb-vrf-row > input { flex: 1 1 auto; min-width: 0; }
+.efb-vrf-row > .efb-vrf-send { flex: 0 0 auto; white-space: nowrap; margin-inline-start: 0; }
+.efb.btn.efb-vrf-send, .efb.btn.efb-vrf-check { min-height: 44px; padding-inline: 1rem; border: 1px solid #202a8d !important; border-radius: .5rem; background: #fff; color: #202a8d !important; font-weight: 600; }
+.efb.btn.efb-vrf-send:not(:disabled):hover, .efb.btn.efb-vrf-check:not(:disabled):hover { background: #202a8d; color: #fff !important; }
+.efb-vrf-send:disabled, .efb-vrf-check:disabled { opacity: .55; cursor: not-allowed; }
+.efb-vrf-send[hidden] { display: none !important; }
+.efb-vrf { margin-top: .35rem; }
+/* A sentence in another script than the page (English text, a Persian number) keeps its own order. */
+.efb-vrf-status, .efb-vrf-error, .efb-vrf-tips, .efb-vrf-confirm-msg, .efb-vrf-actions { unicode-bidi: plaintext; text-align: start; }
+.efb-vrf-status:empty, .efb-vrf-error:empty, .efb-vrf-confirm-msg:empty { display: none; }
+.efb-vrf-status bdi, .efb-vrf-error bdi, .efb-vrf-timer bdi { unicode-bidi: isolate; }
+.efb-vrf-status bdi[dir="ltr"], .efb-vrf-timer bdi { white-space: nowrap; }
+.efb-vrf-box { margin-top: .5rem; padding: .75rem; border: 1px dashed #c3c8e6; border-radius: .5rem; }
+.efb-vrf-box[hidden], .efb-vrf-tips[hidden], .efb-vrf-help[hidden], .efb-vrf-error[hidden], .efb-vrf-resend[hidden] { display: none !important; }
+.efb-vrf-coderow { display: flex; gap: .5rem; align-items: stretch; }
+.efb-vrf-code { flex: 1 1 auto; min-width: 0; direction: ltr; text-align: center; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 1.35rem; letter-spacing: .45em; padding-inline: .5rem; min-height: 44px; }
+.efb-vrf-code[aria-invalid="true"] { border-color: #dc3545 !important; }
+.efb-vrf-actions { display: flex; flex-wrap: wrap; gap: .25rem 1rem; align-items: center; margin-top: .5rem; }
+.efb-vrf-actions .btn-link { min-height: 32px; text-decoration: underline; }
+.efb-vrf-timer { color: #6b7280; unicode-bidi: plaintext; display: inline-block; }
+.efb-vrf-timer:empty { display: none; }
+.efb-vrf-ok { color: #157347; font-weight: 600; }
+.efb-vrf-ok::before { content: "\2713"; margin-inline-end: .35em; }
+input.efb-vrf-done { border-color: #198754 !important; }
+.efb-vrf-confirm-wrap { margin-top: .5rem; }
+.efb-vrf-preview .efb-vrf-send { min-height: 32px; font-size: .85rem; }
+/* Phones: the button under the field, full width (§3.1). */
+@media (max-width: 479.98px) {
+  .efb-vrf-row { flex-direction: column; }
+  .efb-vrf-row > .efb-vrf-send { width: 100%; }
+  .efb-vrf-coderow { flex-direction: column; }
+  .efb-vrf-check { width: 100%; }
+}

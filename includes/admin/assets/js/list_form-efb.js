@@ -1390,6 +1390,7 @@ function fun_show_setting__emsFormBuilder() {
                             <button class="efb nav-link" id="nav-stripe-tab" data-efb-tab="payments" data-bs-toggle="tab" data-bs-target="#nav-stripe" type="button" role="tab" aria-controls="nav-stripe" aria-selected="false"><i class="efb  bi bi-credit-card mx-2"></i>${efb_var.text.payments}</button>
                             <button class="efb nav-link" id="nav-smsconfig-tab" data-efb-tab="sms" data-bs-toggle="tab" data-bs-target="#nav-smsconfig" type="button" role="tab" aria-controls="nav-smsconfig" aria-selected="false"><i class="efb  bi bi-chat-left-dots mx-2"></i>${efb_var.text.sms_config}</button>
                             <button class="efb nav-link" id="nav-privacy-tab" data-efb-tab="privacy" data-bs-toggle="tab" data-bs-target="#nav-privacy" type="button" role="tab" aria-controls="nav-privacy" aria-selected="false"><i class="efb  bi bi-shield-lock mx-2"></i>${efb_prv_t_efb('prvTitle', 'Privacy')}</button>
+                            <button class="efb nav-link" id="nav-verify-tab" data-efb-tab="verify" data-bs-toggle="tab" data-bs-target="#nav-verify" type="button" role="tab" aria-controls="nav-verify" aria-selected="false"><i class="efb  bi bi-patch-check mx-2"></i>${efb_prv_t_efb('vrfTab', 'Verification')}</button>
                         </div>
                         </nav>
                         <div class="efb tab-content" id="nav-tabContent">
@@ -1788,6 +1789,9 @@ function fun_show_setting__emsFormBuilder() {
                         <div class="efb tab-pane fade" id="nav-privacy" role="tabpanel" aria-labelledby="nav-privacy-tab">
                           ${efb_privacy_tab_efb(prvSettings, mxCSize4)}
                         </div>
+                        <div class="efb tab-pane fade" id="nav-verify" role="tabpanel" aria-labelledby="nav-verify-tab">
+                          ${typeof efbVerifySettingsHtml === 'function' ? efbVerifySettingsHtml(mxCSize4) : ''}
+                        </div>
                         <div class="efb tab-pane fade" id="nav-smsconfig" role="tabpanel" aria-labelledby="nav-smsconfig-tab">
                           <div class="efb mx-3 my-2">
 
@@ -1859,7 +1863,7 @@ function fun_show_setting__emsFormBuilder() {
  * The slug lives on the button itself (data-efb-tab) so the markup stays the
  * single source of truth; these are public URLs admins bookmark and the form
  * builder links to 'email' directly, so slugs must not be renamed. */
-const EFB_SETTING_TABS_EFB = ['general', 'responses', 'captchas', 'email', 'email-template', 'localization', 'payments', 'sms', 'privacy'];
+const EFB_SETTING_TABS_EFB = ['general', 'responses', 'captchas', 'email', 'email-template', 'localization', 'payments', 'sms', 'privacy', 'verify'];
 
 const EFB_SETTING_TAB_ALIASES_EFB = {
   'response': 'responses',
@@ -1874,6 +1878,8 @@ const EFB_SETTING_TAB_ALIASES_EFB = {
   'payment': 'payments',
   'smsconfig': 'sms',
   'sms_config': 'sms',
+  'verification': 'verify',
+  'otp': 'verify',
 };
 
 /* ------------------------------------------------------------------ *
