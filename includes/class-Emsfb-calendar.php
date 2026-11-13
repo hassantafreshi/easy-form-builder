@@ -608,6 +608,8 @@ class Calendar {
 	private static function json($v) { return function_exists('wp_json_encode') ? (string) wp_json_encode($v) : (string) json_encode($v); }
 	private static function has($o, $k) { return is_array($o) && array_key_exists($k, $o) && $o[$k] !== null; }
 	private static function on($o, $k) { $v = self::has($o, $k) ? $o[$k] : 0; return $v === 1 || $v === '1' || $v === true || $v === 'true'; }
+	/** A whole number inside [lo, hi], else null (no clamping). */
+	public static function int_exact($v, $lo, $hi) { $n = self::int_in($v, -1000000000, 1000000000, null); return $n !== null && $n >= $lo && $n <= $hi ? $n : null; }
 	public static function int_in($v, $lo, $hi, $dflt) {
 		if ($v === '' || $v === null || is_bool($v) || is_array($v) || is_object($v)) return $dflt;
 		$s = self::normalize($v);
@@ -617,7 +619,7 @@ class Calendar {
 	}
 	public static function list_of($v) {
 		if (is_object($v)) $v = json_decode(self::json($v), true);
-		if (is_array($v)) return array_values($v);
+		if (is_array($v)) return $v === array() || array_keys($v) === range(0, count($v) - 1) ? $v : array();
 		if (is_string($v) && $v !== '') {
 			$j = json_decode($v, true);
 			if (is_array($j) && array_keys($j) === range(0, count($j) - 1)) return $j;
@@ -627,9 +629,9 @@ class Calendar {
 	}
 	private static function obj_of($v) {
 		if (is_object($v)) $v = json_decode(self::json($v), true);
-		if (is_array($v)) return $v;
-		if (is_string($v) && $v !== '') { $j = json_decode($v, true); if (is_array($j)) return $j; }
-		return array();
+		if (is_string($v) && $v !== '') { $j = json_decode($v, true); $v = is_array($j) ? $j : array(); }
+		// A JSON list is not an object (the JS twin reads it as {}).
+		return is_array($v) && ($v === array() || array_keys($v) !== range(0, count($v) - 1)) ? $v : array();
 	}
 	public static function limit_of($v) {
 		$v = self::obj_of($v);
@@ -665,7 +667,7 @@ class Calendar {
 		foreach (self::list_of($v) as $x) {
 			if (count($out) >= 500) break;
 			$r = self::obj_of($x);
-			if (isset($r['cal'], $r['md']) && is_string($r['cal']) && in_array($r['cal'], self::TIER12, true) && is_string($r['md']) && preg_match('/^\d{2}-\d{2}$/', $r['md'])) {
+			if (isset($r['cal'], $r['md']) && is_string($r['cal']) && in_array($r['cal'], self::TIER12, true) && is_string($r['md']) && preg_match('/^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/', $r['md'])) {
 				$out[] = array('cal' => $r['cal'], 'md' => $r['md'], 'days' => self::int_in(isset($r['days']) ? $r['days'] : 1, 1, 14, 1), 'label' => isset($r['label']) ? $r['label'] : '');
 			} elseif (isset($r['date']) && is_string($r['date'])) {
 				$d = self::dates_list(array($r['date']), 1);
@@ -747,7 +749,7 @@ class Calendar {
 			'range_max_days'   => self::int_in(isset($f['range_max_days']) ? $f['range_max_days'] : 0, 0, 3660, 0),
 			'multi_max'        => self::int_in(isset($f['multi_max']) ? $f['multi_max'] : 0, 0, 366, 0),
 			'time_enabled'     => self::on($f, 'time_enabled') ? 1 : 0,
-			'time_format'      => isset($f['time_format']) && in_array((string) $f['time_format'], array('12', '24'), true) ? (string) $f['time_format'] : (!empty($ld['hour12']) ? '12' : '24'),
+			'time_format'      => isset($f['time_format']) && is_scalar($f['time_format']) && in_array((string) $f['time_format'], array('12', '24'), true) ? (string) $f['time_format'] : (!empty($ld['hour12']) ? '12' : '24'),
 			'time_step'        => self::int_in(isset($f['time_step']) ? $f['time_step'] : 15, 1, 720, 15),
 			'time_min'         => isset($f['time_min']) && is_string($f['time_min']) && preg_match($hm, $f['time_min']) ? $f['time_min'] : '',
 			'time_max'         => isset($f['time_max']) && is_string($f['time_max']) && preg_match($hm, $f['time_max']) ? $f['time_max'] : '',
@@ -759,7 +761,7 @@ class Calendar {
 			'required'         => self::on($f, 'required') ? 1 : 0,
 		);
 		foreach (self::list_of(isset($f['disabled_weekdays']) ? $f['disabled_weekdays'] : array()) as $w) {
-			$w = self::int_in($w, 1, 7, null);
+			$w = self::int_exact($w, 1, 7);
 			if ($w !== null && !in_array($w, $c['disabled_weekdays'], true)) $c['disabled_weekdays'][] = $w;
 		}
 		sort($c['disabled_weekdays']);
@@ -1188,7 +1190,7 @@ class Calendar {
 	 * plain text, three levels deep.
 	 */
 	public static function sanitize_key($k, $v) {
-		$txt = function ($x) { return function_exists('sanitize_text_field') ? sanitize_text_field((string) $x) : trim(strip_tags((string) $x)); };
+		$txt = function ($x) { return function_exists('sanitize_text_field') ? sanitize_text_field((string) $x) : trim(preg_replace('/[\r\n\t ]+/', ' ', strip_tags((string) $x))); };
 		$known = function ($c, $tier3 = false) { return is_string($c) && (in_array($c, self::TIER12, true) || ($tier3 && in_array($c, self::TIER3, true))); };
 		$int = function ($x, $lo, $hi, $d) { return self::int_in($x, $lo, $hi, $d); };
 		$hm = function ($x) { return is_string($x) && preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $x) ? $x : ''; };
@@ -1221,7 +1223,7 @@ class Calendar {
 			case 'date_min': case 'date_max': return self::limit_of($v);
 			case 'disabled_weekdays':
 				$o = array();
-				foreach (self::list_of($v) as $w) { $w = $int($w, 1, 7, null); if ($w !== null && !in_array($w, $o, true)) $o[] = $w; }
+				foreach (self::list_of($v) as $w) { $w = self::int_exact($w, 1, 7); if ($w !== null && !in_array($w, $o, true)) $o[] = $w; }
 				sort($o);
 				return $o;
 			case 'disabled_dates': case 'enabled_dates':
@@ -1243,7 +1245,7 @@ class Calendar {
 			case 'range_unit': return $v === 'days' ? 'days' : 'nights';
 			case 'range_min_days': case 'range_max_days': return $int($v, 0, 3660, 0);
 			case 'multi_max': return $int($v, 0, 366, 0);
-			case 'time_format': return in_array((string) $v, array('12', '24'), true) ? (string) $v : 'auto';
+			case 'time_format': return is_scalar($v) && in_array((string) $v, array('12', '24'), true) ? (string) $v : 'auto';
 			case 'time_step': return $int($v, 1, 720, 15);
 			case 'time_min': case 'time_max': return $hm($v);
 			case 'time_by_weekday': $w = self::weekday_windows($v); return $w ? $w : new \stdClass();
@@ -1256,8 +1258,161 @@ class Calendar {
 		}
 		return is_scalar($v) ? $txt($v) : '';
 	}
+	/** What the builder save and AutoPilot refuse (twin of EFBCalendar.rules.configIssues). @return array list of [code, key, field] */
+	public static function config_issues($row, array $rows) {
+		$row = self::obj_of($row);
+		$out = array(); $id = isset($row['id_']) ? (string) $row['id_'] : '';
+		$mn = self::limit_of(isset($row['date_min']) ? $row['date_min'] : null); $mx = self::limit_of(isset($row['date_max']) ? $row['date_max'] : null);
+		if ($mn['type'] === 'absolute' && $mx['type'] === 'absolute' && $mn['value'] > $mx['value']) $out[] = array('code' => 'date_min_after_max', 'key' => 'date_min', 'field' => $id);
+		$hm = '/^([01]\d|2[0-3]):[0-5]\d$/';
+		$tmin = isset($row['time_min']) && is_string($row['time_min']) && preg_match($hm, $row['time_min']) ? $row['time_min'] : '';
+		$tmax = isset($row['time_max']) && is_string($row['time_max']) && preg_match($hm, $row['time_max']) ? $row['time_max'] : '';
+		if ($tmin !== '' && $tmax !== '' && $tmin >= $tmax) $out[] = array('code' => 'time_min_after_max', 'key' => 'time_min', 'field' => $id);
+		$rmin = self::int_in(isset($row['range_min_days']) ? $row['range_min_days'] : 0, 0, 3660, 0); $rmax = self::int_in(isset($row['range_max_days']) ? $row['range_max_days'] : 0, 0, 3660, 0);
+		if ($rmin && $rmax && $rmin > $rmax) $out[] = array('code' => 'range_min_after_max', 'key' => 'range_min_days', 'field' => $id);
+		$amin = self::int_in(isset($row['age_min']) ? $row['age_min'] : null, 0, 150, null); $amax = self::int_in(isset($row['age_max']) ? $row['age_max'] : null, 0, 150, null);
+		if ($amin !== null && $amax !== null && $amin > $amax) $out[] = array('code' => 'age_min_after_max', 'key' => 'age_min', 'field' => $id);
+		$dates = array();
+		foreach ($rows as $i => $r) { $r = self::obj_of($r); if ($i > 0 && isset($r['type'], $r['id_']) && $r['type'] === 'advdate') $dates[(string) $r['id_']] = $r; }
+		foreach (array('date_min', 'date_max') as $k) {
+			$l = self::limit_of(isset($row[$k]) ? $row[$k] : null);
+			if ($l['type'] !== 'field') continue;
+			if ($l['field'] === $id || !isset($dates[$l['field']])) { $out[] = array('code' => $l['field'] === $id ? 'limit_self' : 'dangling_reference', 'key' => $k, 'field' => $id); continue; }
+			$seen = array(); $cur = $l['field']; $steps = 0;
+			while ($cur !== null && isset($dates[$cur]) && $steps < 50) {
+				if ($cur === $id) { $out[] = array('code' => 'limit_cycle', 'key' => $k, 'field' => $id); break; }
+				if (isset($seen[$cur])) break;
+				$seen[$cur] = 1; $steps++;
+				$a = self::limit_of(isset($dates[$cur]['date_min']) ? $dates[$cur]['date_min'] : null); $b = self::limit_of(isset($dates[$cur]['date_max']) ? $dates[$cur]['date_max'] : null);
+				$cur = $a['type'] === 'field' ? $a['field'] : ($b['type'] === 'field' ? $b['field'] : null);
+			}
+		}
+		$allowed = self::list_of(isset($row['cal_allowed']) ? $row['cal_allowed'] : array());
+		if (!empty($row['cal_default']) && $row['cal_default'] !== 'auto' && $allowed && !in_array($row['cal_default'], $allowed, true)) $out[] = array('code' => 'default_not_allowed', 'key' => 'cal_default', 'field' => $id);
+		return $out;
+	}
+	/** Error codes of config_issues() that refuse a save; the others are warnings (the rules ignore what they name). */
+	const SAVE_ERRORS = array('date_min_after_max', 'time_min_after_max', 'range_min_after_max', 'age_min_after_max', 'limit_cycle', 'limit_self');
+	const ISSUE_TEXT = array(
+		'date_min_after_max'  => array('cal_b_err_minmax', 'The earliest date is after the latest date.'),
+		'time_min_after_max'  => array('cal_b_err_time', 'The first time must come before the last time.'),
+		'range_min_after_max' => array('cal_b_err_range', 'The shortest stay is longer than the longest.'),
+		'age_min_after_max'   => array('cal_b_err_age', 'The youngest age is above the oldest age.'),
+		'dangling_reference'  => array('cal_b_err_dangling', 'A limit names a date field that is not in this form.'),
+		'limit_self'          => array('cal_b_err_self', 'A limit cannot name its own field.'),
+		'limit_cycle'         => array('cal_b_err_cycle', 'Two date fields limit each other in a circle.'),
+		'default_not_allowed' => array('cal_b_err_default', 'The calendar must be one of the calendars the visitor can use.'),
+	);
+	/**
+	 * Save check of a whole form (builder, AutoPilot, API clients): ['errors' => [...], 'warnings' => [...]],
+	 * each ['code' => 'date_<issue>', 'path' => 'rows[i].<key>', 'field' => id_, 'm' => sentence].
+	 */
+	public static function validate_rows($rows) {
+		$out = array('errors' => array(), 'warnings' => array());
+		if (!is_array($rows)) return $out;
+		$lang = array();
+		if (function_exists('get_efbFunction')) {
+			$fn = get_efbFunction();
+			if ($fn && method_exists($fn, 'text_efb')) $lang = (array) $fn->text_efb(array_map(function ($x) { return $x[0]; }, array_values(self::ISSUE_TEXT)));
+		}
+		foreach ($rows as $i => $r) {
+			if (!is_array($r) || !isset($r['type']) || $r['type'] !== 'advdate') continue;
+			foreach (self::config_issues($r, $rows) as $x) {
+				$t = self::ISSUE_TEXT[$x['code']];
+				$e = array('code' => 'date_' . $x['code'], 'path' => 'rows[' . $i . '].' . $x['key'], 'field' => $x['field'], 'm' => !empty($lang[$t[0]]) ? $lang[$t[0]] : $t[1]);
+				if (in_array($x['code'], self::SAVE_ERRORS, true)) $out['errors'][] = $e; else $out['warnings'][] = $e;
+			}
+		}
+		return $out;
+	}
 	/** Keys sanitize_key() owns (the save sanitizer switches on these for advdate rows). */
 	public static function is_key($k) { return in_array($k, self::FIELD_KEYS, true) || strpos((string) $k, 'bk_') === 0; }
+
+	/* ---------------------------------------------------------------- upgrade (F06 §6.4; twin of EFBCalendar.rules.upgradeRow) */
+
+	const LEGACY_CAL = array('date' => 'gregory', 'pdate' => 'persian', 'ardate' => 'islamic-umalqura');
+
+	private static function legacy_limit($v) {
+		$s = self::normalize(is_scalar($v) ? $v : '');
+		if ($s === '1') return array('type' => 'relative', 'value' => 0, 'unit' => 'day');
+		if (self::iso_valid($s)) return array('type' => 'absolute', 'value' => $s);
+		return array('type' => 'none');
+	}
+	/** date / pdate / ardate -> advdate; the old keys stay (milen, mlen, upg_from, upg_value) so the field can go back. */
+	public static function upgrade_row(array $row, $keep_local = false) {
+		$from = isset($row['type']) ? $row['type'] : '';
+		if (!isset(self::LEGACY_CAL[$from])) return $row;
+		$cal = self::LEGACY_CAL[$from];
+		$r = $row;
+		$r['upg_from'] = $from;
+		$r['upg_elid'] = isset($row['elementId']) && is_string($row['elementId']) ? $row['elementId'] : $from;
+		$r['upg_value'] = isset($row['value']) && is_string($row['value']) ? $row['value'] : '';
+		$r['type'] = 'advdate'; $r['elementId'] = 'advdate';
+		$r['cal_v'] = 1; $r['cal_default'] = $cal; $r['cal_allowed'] = array($cal); $r['date_mode'] = 'single';
+		$value = isset($row['value']) && is_scalar($row['value']) ? (string) $row['value'] : '';
+		if ($from === 'date') {
+			$r['date_min'] = self::legacy_limit(isset($row['milen']) ? $row['milen'] : '');
+			$r['date_max'] = self::legacy_limit(isset($row['mlen']) ? $row['mlen'] : '');
+			$r['value'] = self::iso_valid(self::normalize($value)) ? self::normalize($value) : '';
+		} else {
+			$r['date_min'] = array('type' => 'none'); $r['date_max'] = array('type' => 'none');
+			$p = self::parse_local(self::engine($cal), $value, 'YYYY-MM-DD');
+			$r['value'] = $p ? self::local_to_iso($p, $cal, 0) : '';
+			if ($keep_local) $r['store_format'] = 'legacy_local';
+		}
+		return $r;
+	}
+	public static function rollback_row(array $row) {
+		if (empty($row['upg_from']) || !isset(self::LEGACY_CAL[$row['upg_from']])) return $row;
+		$r = array();
+		foreach ($row as $k => $v) if (!in_array($k, self::FIELD_KEYS, true)) $r[$k] = $v;
+		$r['type'] = $row['upg_from'];
+		$r['elementId'] = isset($row['upg_elid']) && is_string($row['upg_elid']) && $row['upg_elid'] !== '' ? $row['upg_elid'] : $row['upg_from'];
+		$r['value'] = isset($row['upg_value']) && is_string($row['upg_value']) ? $row['upg_value'] : '';
+		unset($r['upg_from'], $r['upg_value'], $r['upg_elid']);
+		return $r;
+	}
+
+	/** The builder's / panel's picture of the calendar settings (window.EFB_CAL_ADMIN). */
+	public static function admin_config() {
+		$locale = function_exists('get_locale') ? get_locale() : 'en_US';
+		$sets = array();
+		foreach (self::holiday_sets(self::holiday_set_ids()) as $id => $d) {
+			$sets[] = array('id' => $id, 'label' => self::label_of(isset($d['label']) ? $d['label'] : $id, $locale), 'verified' => !empty($d['verified']));
+		}
+		return array('locale' => $locale, 'locale_defaults' => self::locale_defaults_filtered($locale), 'site_tz' => self::site_tz(), 'plan' => self::plan_name(),
+			'holiday_sets' => $sets, 'admin_display' => self::admin_display_mode(), 'version' => self::VERSION);
+	}
+	/** Settings > "Date display for admins" (cal_admin_display): site | visitor | iso. */
+	public static function admin_display_mode() {
+		$s = function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null;
+		$v = is_object($s) && isset($s->cal_admin_display) ? (string) $s->cal_admin_display : 'site';
+		return in_array($v, array('site', 'visitor', 'iso'), true) ? $v : 'site';
+	}
+	/** Every engine, the picker and the names of fa / ar / en for the builder and the entries panel. */
+	public static function enqueue_admin($builder = false) {
+		if (!function_exists('wp_enqueue_script')) return;
+		$url = defined('EMSFB_PLUGIN_URL') ? EMSFB_PLUGIN_URL : '';
+		$dir = dirname(__DIR__) . '/';
+		$ver = function ($rel) use ($dir) { return is_readable($dir . $rel) ? (string) filemtime($dir . $rel) : (defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '1'); };
+		$base = 'public/assets/js/calendar/';
+		wp_register_script('efb-cal-core', $url . $base . 'efb-calendar-core.js', array(), $ver($base . 'efb-calendar-core.js'), true);
+		$deps = array('efb-cal-core');
+		foreach (array('persian' => 'efb-cal-persian.js', 'islamic' => 'efb-cal-islamic.js', 'intl' => 'efb-cal-intl.js') as $k => $f) {
+			wp_register_script('efb-cal-' . $k, $url . $base . $f, array('efb-cal-core'), $ver($base . $f), true);
+			$deps[] = 'efb-cal-' . $k;
+		}
+		wp_register_script('efb-cal-ui', $url . $base . 'efb-calendar-ui.js', $deps, $ver($base . 'efb-calendar-ui.js'), true);
+		wp_enqueue_script('efb-cal-ui');
+		wp_enqueue_style('efb-cal-css', $url . 'public/assets/css/calendar-efb.css', array(), $ver('public/assets/css/calendar-efb.css'));
+		$names = self::names();
+		unset($names['_comment']);
+		wp_add_inline_script('efb-cal-core', 'window.EFB_CAL_HOLIDAYS_URL=' . wp_json_encode($url . 'public/assets/json/holidays/') . ';window.EFB_CAL_ADMIN=' . wp_json_encode(self::admin_config(), JSON_UNESCAPED_UNICODE)
+			. ';if(window.EFBCalendar){EFBCalendar._.setNames(' . wp_json_encode($names, JSON_UNESCAPED_UNICODE) . ');EFBCalendar._.setSiteTz(' . wp_json_encode(self::site_tz()) . ');}', 'after');
+		if ($builder) {
+			wp_enqueue_script('efb-cal-builder-js', $url . 'includes/admin/assets/js/calendar-builder-efb.js', array('efb-cal-ui', 'efb-val-js'), $ver('includes/admin/assets/js/calendar-builder-efb.js'), true);
+		}
+	}
 
 	/* ---------------------------------------------------------------- holiday sets (F06 §16) */
 

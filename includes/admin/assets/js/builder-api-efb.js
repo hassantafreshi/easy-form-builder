@@ -245,6 +245,8 @@
     var frErrs = fieldRulesErrors(items, 0);
     if (frErrs.length) throw failRules(frErrs);
     var next = clone(items);
+    var adErrs = advdateCheck(next.slice(1), [next[0]], 1);
+    if (adErrs.length) throw failAdvdate(adErrs);
     if (typeof efbNormalizeOrderEfb === 'function') efbNormalizeOrderEfb(next);
     valj_efb = next;
     if (typeof form_type_emsFormBuilder !== 'undefined') form_type_emsFormBuilder = next[0].type;
@@ -265,6 +267,8 @@
     var frErrs = fieldRulesErrors(items, 0);
     if (frErrs.length) throw failRules(frErrs);
     var add = clone(items);
+    var adErrs = advdateCheck(add, list, 0);
+    if (adErrs.length) throw failAdvdate(adErrs);
     // The canvas finds a row by dataId (id_ + '-id'); fill it when the caller left it out.
     add.forEach(function (r) { if (!r.dataId && r.type !== 'step') r.dataId = r.id_ + '-id'; });
     var at;
@@ -617,6 +621,96 @@
     });
     return out;
   }
+
+  /* ---------------- F06 advanced date ---------------- */
+
+  /**
+   * F06: the advdate rows of items are written with the save rules (EFBCalendar.rules.sanitizeKey, twin
+   * of Calendar::sanitize_key): a value the rules cannot use (an unknown calendar, a limit that is not a
+   * limit, a date that does not exist, a word outside a list) is refused with advdate_invalid and the
+   * path of the key; limits that contradict each other (min after max, a circle of field limits) with
+   * advdate_config. Nothing changes on a throw.
+   */
+  function advdateCheck(items, existing, offset) {
+    var C = window.EFBCalendar;
+    var out = [];
+    if (!C || !C.rules || !C.rules.sanitizeKey) return out;
+    var all = (existing || []).concat(items || []);
+    (items || []).forEach(function (r, i) {
+      if (!r || r.type !== 'advdate') return;
+      var path = 'rows[' + (i + (offset || 0)) + '].';
+      C.rules.fieldKeys.forEach(function (k) {
+        if (r[k] === undefined || r[k] === null) return;
+        var v = r[k], s = C.rules.sanitizeKey(k, v), bad = false;
+        if (['cal_default', 'cal_secondary', 'cal_digits', 'date_mode', 'holiday_mode', 'range_unit', 'store_format', 'input_mode', 'display_format', 'tz', 'availability', 'cal_locale'].indexOf(k) !== -1) bad = String(v) !== String(s) && !(v === '' && (s === '' || s === 'auto' || s === 'none'));
+        else if (k === 'cal_allowed' || k === 'disabled_weekdays' || k === 'holiday_sets' || k === 'disabled_dates' || k === 'enabled_dates' || k === 'holidays_custom') bad = !Array.isArray(v) || s.length !== v.length;
+        else if (k === 'date_min' || k === 'date_max') bad = !!(v && typeof v === 'object' && v.type && v.type !== s.type);
+        else if (k === 'time_min' || k === 'time_max') bad = v !== '' && s === '';
+        else if (k === 'time_by_weekday') bad = !v || typeof v !== 'object' || Array.isArray(v) || Object.keys(v).some(function (d) { return !Array.isArray(v[d]) || !s[d] || s[d].length !== v[d].length; });
+        else if (['cal_hijri_adjust', 'range_min_days', 'range_max_days', 'multi_max', 'time_step', 'age_min', 'age_max', 'week_start'].indexOf(k) !== -1) bad = v !== '' && v !== 'auto' && String(s) !== String(Number(v));
+        if (bad) out.push({ code: 'advdate_invalid', path: path + k, key: k, field: r.id_ });
+        else r[k] = s;
+      });
+      C.rules.configIssues(r, all).forEach(function (x) {
+        if (x.code === 'dangling_reference' || x.code === 'default_not_allowed') return;
+        out.push({ code: 'advdate_config', reason: x.code, path: path + x.key, key: x.key, field: r.id_ });
+      });
+    });
+    return out;
+  }
+  function failAdvdate(errs) {
+    var e = fail(errs[0].code, errs[0].code === 'advdate_config' ? 'These date limits contradict each other: ' + errs[0].reason + ' (' + errs[0].path + ')' : 'This value cannot be used for ' + errs[0].key + ' (' + errs[0].path + ')');
+    e.path = errs[0].path; e.errors = errs; if (errs[0].reason) e.reason = errs[0].reason;
+    return e;
+  }
+  /**
+   * F06: change the advanced date keys of one field with the save rules, e.g.
+   * setDateConfig('appt', {cal_default: 'persian', cal_allowed: ['persian', 'gregory'], cal_switch: 1,
+   * date_min: {type: 'relative', value: 1}, disabled_weekdays: [5], holiday_sets: ['ir-official']}).
+   * A key that is not an advdate key throws invalid_setting; a value the rules cannot use advdate_invalid;
+   * contradicting limits advdate_config. Returns {changed, values}. Saving stays the owner's Save.
+   */
+  function setDateConfig(id, patch) {
+    var C = window.EFBCalendar;
+    if (!C || !C.rules) throw fail('builder_not_ready', 'The calendar engine (efb-calendar-core.js) is not loaded.');
+    var list = rows();
+    var idx = fieldIndex(list, String(id));
+    if (idx < 0) idx = list.findIndex(function (r, i) { return i > 0 && r && r.dataId === String(id); });
+    if (idx < 1 || list[idx].type !== 'advdate') throw fail('unknown_field', 'No advanced date field with id ' + id + '.');
+    if (!patch || typeof patch !== 'object' || Array.isArray(patch)) throw fail('invalid_setting', 'setDateConfig() needs an object of advdate keys.');
+    Object.keys(patch).forEach(function (k) { if (C.rules.fieldKeys.indexOf(k) === -1 && k !== 'value' && k.indexOf('bk_') !== 0) throw fail('invalid_setting', 'key ' + k + ' is not an advanced date key.'); });
+    var next = clone(list[idx]);
+    Object.keys(patch).forEach(function (k) { next[k] = clone(patch[k]); });
+    var probe = list.slice(); probe[idx] = next;
+    var errs = advdateCheck([next], probe.filter(function (r, i) { return i !== idx; }), idx);
+    if (errs.length) throw failAdvdate(errs);
+    list[idx] = next;
+    apiChanged('setDateConfig', [next.id_]);
+    var values = {};
+    Object.keys(patch).forEach(function (k) { values[k] = clone(next[k]); });
+    return { changed: Object.keys(patch), values: values };
+  }
+  /** F06 §6.4: date / pdate / ardate -> advdate (old keys kept for the way back); opts.keepLocal = store the local string. */
+  function upgradeDateField(id, opts) {
+    var C = window.EFBCalendar;
+    if (!C || !C.rules) throw fail('builder_not_ready', 'The calendar engine (efb-calendar-core.js) is not loaded.');
+    var list = rows();
+    var idx = fieldIndex(list, String(id));
+    if (idx < 1 || ['date', 'pdate', 'ardate'].indexOf(list[idx].type) === -1) throw fail('unknown_field', 'No date, pdate or ardate field with id ' + id + '.');
+    list[idx] = C.rules.upgradeRow(list[idx], { keepLocal: !!(opts && opts.keepLocal) });
+    apiChanged('upgradeDateField', [list[idx].id_]);
+    return { id: list[idx].id_, row: clone(list[idx]) };
+  }
+  function rollbackDateField(id) {
+    var C = window.EFBCalendar;
+    if (!C || !C.rules) throw fail('builder_not_ready', 'The calendar engine (efb-calendar-core.js) is not loaded.');
+    var list = rows();
+    var idx = fieldIndex(list, String(id));
+    if (idx < 1 || list[idx].type !== 'advdate' || !list[idx].upg_from) throw fail('unknown_field', 'No upgraded date field with id ' + id + '.');
+    list[idx] = C.rules.rollbackRow(list[idx]);
+    apiChanged('rollbackDateField', [list[idx].id_]);
+    return { id: list[idx].id_, row: clone(list[idx]) };
+  }
   function failRules(errs) {
     var e = fail('pattern_invalid', 'This pattern cannot be used: ' + errs[0].reason + ' (' + errs[0].path + ')');
     e.path = errs[0].path; e.reason = errs[0].reason; e.pos = errs[0].pos;
@@ -738,6 +832,9 @@
     paymentReadiness: paymentReadiness,
     setFormSettings: setFormSettings,
     setFieldRules: setFieldRules,
+    setDateConfig: setDateConfig,
+    upgradeDateField: upgradeDateField,
+    rollbackDateField: rollbackDateField,
     setVerification: setVerification,
     formGate: formGate,
     newItems: newItems,

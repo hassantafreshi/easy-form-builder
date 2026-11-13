@@ -47,6 +47,9 @@
   "date": {
    "pro": false
   },
+  "advdate": {
+   "pro": false
+  },
   "file": {
    "pro": false
   },
@@ -716,6 +719,42 @@
      "el_align": "justify-content-start",
      "pro": false,
      "icon_input": ""
+    }
+   ],
+   "form_patch": null
+  },
+  "advdate": {
+   "rows": [
+    {
+     "id_": "⟦id:0⟧",
+     "dataId": "⟦id:0⟧-id",
+     "type": "advdate",
+     "elementId": "advdate",
+     "placeholder": "",
+     "value": "",
+     "size": 100,
+     "message": "",
+     "id": "",
+     "classes": "",
+     "name": "⟦advdate⟧",
+     "required": 0,
+     "label_text_size": "fs-6",
+     "label_position": "up",
+     "el_text_size": "fs-6",
+     "label_text_color": "text-labelEfb",
+     "el_border_color": "border-d",
+     "el_text_color": "text-labelEfb",
+     "message_text_color": "text-muted",
+     "el_height": "h-d-efb",
+     "label_align": "txt-left",
+     "message_align": "justify-content-start",
+     "el_align": "justify-content-start",
+     "pro": false,
+     "icon_input": "",
+     "cal_v": 1,
+     "cal_default": "auto",
+     "date_mode": "single",
+     "input_mode": "both"
     }
    ],
    "form_patch": null

@@ -2588,7 +2588,7 @@ let change_el_edit_Efb = (el) => {
         const reqEl = document.getElementById(`${valj_efb[indx].id_}_req`);
         if(reqEl) reqEl.innerHTML = valj_efb[indx].required  == true ? '*' : '';
         const aId = {
-          email: "_", text: "_", password: "_", tel: "_", url: "_", date: "_", color: "_", range: "_", number: "_", file: "_",
+          email: "_", text: "_", password: "_", tel: "_", url: "_", date: "_", advdate: "_", color: "_", range: "_", number: "_", file: "_",
           textarea: "_", dadfile: "_", maps: "-map", checkbox: "_options", radio: "_options", select: "_options",
           multiselect: "_options", esign: "-sig-data", rating: "-stared", yesNo: "_yn",
           audio_recorder: "_file", video_recorder: "_file", screen_recorder: "_file"
@@ -4850,6 +4850,10 @@ let sampleElpush_efb = (rndm, elementId) => {
         document.getElementById('maps').draggable = false;
         if (document.getElementById('maps_b')) document.getElementById('maps_b').classList.add('disabled')
       }, valj_efb.length * 5);
+    } else if (elementId == "advdate") {
+      // F06 defaults (contract §4.1): the calendar follows the site language until the owner picks one.
+      const indx =(valj_efb.length) - 1;
+      Object.assign(valj_efb[indx], { cal_v: 1, cal_default: 'auto', date_mode: 'single', input_mode: 'both', placeholder: '' });
     } else if (elementId == "multiselect" || elementId == "payMultiselect") {
       const indx =(valj_efb.length) - 1;
       Object.assign(valj_efb[indx], {
@@ -7447,6 +7451,17 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
         ${ttip}
         <input type="${type}"   class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 ${classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-id="${rndm}-el" data-vid='${rndm}' data-css="${rndm}" id="${rndm}_" ${placeholder}  ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} autocomplete="${autocompleteEfb}"  ${maxlen} ${minlen} ${previewSate != true ? 'readonly' : ''} ${disabled =="disabled" ? 'readonly' :''}>
+        ${desc}`
+      dataTag = elementId;
+      break;
+    case 'advdate':
+      // F06: the advanced date field; the markup and the picker come from efb-calendar-ui.js (EFBCalendar.markup),
+      // drawn live only in the preview (the canvas shows it read-only).
+      ui = `
+      ${label}
+      <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
+        ${ttip}
+        ${typeof efbAdvdateCanvas === 'function' ? efbAdvdateCanvas(valj_efb[iVJ], previewSate == true, `${valj_efb[iVJ].el_border_color} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color}`) : ''}
         ${desc}`
       dataTag = elementId;
       break;

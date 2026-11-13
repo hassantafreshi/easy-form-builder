@@ -24,6 +24,9 @@ foreach ((array) $in as $q) {
 			break;
 		case 'normalize_field': $n = C::normalize_field($a[0], $a[1]); if (!$n['time_by_weekday']) $n['time_by_weekday'] = new stdClass(); $out[] = $n; break;
 		case 'holidays': $c = C::normalize_field($a[0], $a[1]); $r = C::resolve($c, $a[1]); $out[] = (object) C::list_holidays($c, $r, $a[1]); break;
+		case 'sanitize_key': $v = C::sanitize_key($a[0], $a[1]); $out[] = $v instanceof stdClass ? new stdClass() : $v; break;
+		case 'config_issues': $out[] = C::config_issues($a[0], $a[1]); break;
+		case 'upgrade_row': $u = C::upgrade_row($a[0], !empty($a[1])); $out[] = array($u, C::rollback_row($u)); break;
 		default: $out[] = null;
 	}
 }

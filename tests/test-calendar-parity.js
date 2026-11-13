@@ -109,5 +109,24 @@ const hol = Object.keys(SETS).map((id) => ({ fn: 'holidays', args: [{ holiday_se
   .concat([{ fn: 'holidays', args: [{ holiday_sets: ['ir-official'], holidays_custom: [{ cal: 'islamic-umalqura', md: '09-01', days: 3, label: { en: 'Ramadan start' } }], cal_hijri_adjust: -1 }, { locale: 'en_US', now: '2026-11-13T10:00:00Z', site_tz: 'UTC', plan: 'pro' }] }]);
 batch('7 holiday lists', hol, (c) => { const n = C.rules.normalizeField(c.args[0], c.args[1]); const r = C.rules.resolve(n, c.args[1]); return C.rules.listHolidays(n, r, Object.assign({ holidaySets: SETS }, c.args[1])); });
 
+/* 8 save */
+const sk = [];
+const vals = [null, '', 'x', 0, 1, '1', true, -3, '7', 'persian', 'auto', ['persian', 'x', 'persian', 'gregory'], 'gregory,persian', { type: 'relative', value: '5', unit: 'week' }, '{"type":"absolute","value":"2026-01-01"}',
+  [5, '6', 9, 'x'], ['2026-01-01', '2026-02-30', '2026-03-01/2026-03-05', '<b>2026-04-01</b>'], [{ cal: 'persian', md: '01-01', days: 4, label: ' <i>Nowruz</i>  ' }, { date: '2026-12-25', label: { en: 'X', fa: '<b>ی</b>' } }],
+  '09:30', '24:00', { 6: [['09:00', '13:00']], 8: [] }, 'Asia/Tehran', 'Mars/Base', 'visitor', 'DD.MM.YYYY', 'legacy_local', 'typed', 'booking', 'BOOKING!', { a: { b: { c: { d: { e: 1 } } } }, t: '<b>x</b>' }];
+for (const k of C.rules.fieldKeys.concat(['bk_capacity'])) for (const v of vals) sk.push({ fn: 'sanitize_key', args: [k, v] });
+batch('8 sanitize_key (every key x hostile values)', sk, (c) => { const r = C.rules.sanitizeKey(c.args[0], c.args[1]); return r && typeof r === 'object' && !Array.isArray(r) && !Object.keys(r).length ? {} : r; });
+const rowsF = [{ type: 'form' }, { id_: 'a', type: 'advdate', date_min: { type: 'field', field: 'b' } }, { id_: 'b', type: 'advdate', date_min: { type: 'field', field: 'a' } }, { id_: 'c', type: 'advdate', date_min: { type: 'field', field: 'zz' }, date_max: { type: 'field', field: 'c' } },
+  { id_: 'd', type: 'advdate', date_min: { type: 'absolute', value: '2026-02-01' }, date_max: { type: 'absolute', value: '2026-01-01' }, time_min: '10:00', time_max: '09:00', range_min_days: 5, range_max_days: 2, age_min: 70, age_max: 18, cal_default: 'persian', cal_allowed: ['gregory'] },
+  { id_: 'e', type: 'advdate', date_min: { type: 'field', field: 'a', offset: 1 } }, { id_: 'f', type: 'text' }];
+batch('8 config_issues', rowsF.slice(1).map((r) => ({ fn: 'config_issues', args: [r, rowsF] })), (c) => C.rules.configIssues(c.args[0], c.args[1]));
+
+const up = [
+  [{ id_: 'a', type: 'pdate', elementId: 'pdate', value: '۱۴۰۳/۱۲/۳۰', milen: '1', name: 'P' }, 0], [{ id_: 'a', type: 'pdate', value: '1404-12-30' }, 1],
+  [{ id_: 'b', type: 'ardate', value: '١٤٤٦-١٠-٠١', required: '1' }, 1], [{ id_: 'c', type: 'date', value: '2026-12-01', milen: '1', mlen: '2027-01-31' }, 0],
+  [{ id_: 'd', type: 'date', value: 'x', milen: '0', mlen: '' }, 0], [{ id_: 'e', type: 'text', value: 'x' }, 0]
+].map((x) => ({ fn: 'upgrade_row', args: x }));
+batch('8 upgrade_row / rollback_row', up, (c) => { const u = C.rules.upgradeRow(c.args[0], { keepLocal: !!c.args[1] }); return [u, C.rules.rollbackRow(u)]; });
+
 console.log(`\nRESULTS: ${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

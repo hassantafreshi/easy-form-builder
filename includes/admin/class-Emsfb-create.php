@@ -338,6 +338,8 @@ class Create {
 		wp_enqueue_script('efb-verify-js', EMSFB_PLUGIN_URL . 'public/assets/js/verify-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/verify-efb.js'), true);
 		wp_enqueue_script('efb-verify-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/verify-builder-efb.js', array('efb-val-js', 'efb-verify-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/verify-builder-efb.js'), true);
 		wp_enqueue_style('efb-verify-css', EMSFB_PLUGIN_URL . 'public/assets/css/verify-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/verify-efb.css'));
+		// F06: the calendar engines, the picker (canvas and preview) and the advanced date field's panel.
+		if (class_exists('\\Emsfb\\Calendar')) \Emsfb\Calendar::enqueue_admin(true);
 		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('efb-forms-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/forms-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 		 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js', array('jquery','efb-recorder-js'), EMSFB_PLUGIN_VERSION, true);
@@ -433,6 +435,9 @@ class Create {
 		    $rules_err_efb = \Emsfb\Field_Rules::validate_rows($valp);
 		    if ($rules_err_efb) wp_send_json_success(['success' => false, 'm' => sprintf(__('This pattern cannot be used: %s', 'easy-form-builder'), $rules_err_efb[0]['reason']), 'code' => 'pattern_invalid', 'path' => $rules_err_efb[0]['path'], 'errors' => $rules_err_efb], 200);
 		}
+		// F06: advanced date limits that contradict each other refuse the save (builder, AutoPilot, API clients).
+		$date_chk_efb = class_exists('\\Emsfb\\Calendar') && is_array($valp) ? \Emsfb\Calendar::validate_rows($valp) : array('errors' => array(), 'warnings' => array());
+		if ($date_chk_efb['errors']) wp_send_json_success(['success' => false, 'm' => $date_chk_efb['errors'][0]['m'], 'code' => $date_chk_efb['errors'][0]['code'], 'path' => $date_chk_efb['errors'][0]['path'], 'errors' => $date_chk_efb['errors']], 200);
 		$valp = $efbFunction->sanitize_obj_msg_efb($valp);
 		// F13: privacy keys follow the server rules (allow-lists, form type, existing email field).
 		if (is_array($valp) && class_exists('\Emsfb\Privacy')) {
@@ -456,6 +461,7 @@ class Create {
 			// F02: a field asking for a code this site cannot send now (plan, SMS add-on, provider, e-mail off), on a
 			// registration / login form, or a custom e-mail text without [otp_code]; never refuses the save.
 			if (class_exists('\\Emsfb\\Verification')) $save_warnings_efb = array_merge($save_warnings_efb, \Emsfb\Verification::form_warnings($valp));
+			if (!empty($date_chk_efb['warnings'])) $save_warnings_efb = array_merge($save_warnings_efb, $date_chk_efb['warnings']); // F06
 			if (Builder_Api::sms_field_without_form($valp)) {
 				$save_warnings_efb[] = array('code' => 'sms_field_without_form', 'm' => $lang['smsFieldWithoutForm']);
 			}

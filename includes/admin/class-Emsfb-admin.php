@@ -439,6 +439,10 @@ class Admin {
             $rules_err_efb = \Emsfb\Field_Rules::validate_rows($valp);
             if ($rules_err_efb) wp_send_json_success(['success' => false, 'm' => sprintf(__('This pattern cannot be used: %s', 'easy-form-builder'), $rules_err_efb[0]['reason']), 'code' => 'pattern_invalid', 'path' => $rules_err_efb[0]['path'], 'errors' => $rules_err_efb], 200);
         }
+        // F06: advanced date limits that contradict each other refuse the save (builder, AutoPilot, API clients).
+        $date_chk_efb = class_exists('\\Emsfb\\Calendar') && is_array($valp) ? \Emsfb\Calendar::validate_rows($valp) : array('errors' => array(), 'warnings' => array());
+        if ($date_chk_efb['errors']) wp_send_json_success(['success' => false, 'm' => $date_chk_efb['errors'][0]['m'], 'code' => $date_chk_efb['errors'][0]['code'], 'path' => $date_chk_efb['errors'][0]['path'], 'errors' => $date_chk_efb['errors']], 200);
+        if (!empty($date_chk_efb['warnings'])) $save_warnings_efb = array_merge(isset($save_warnings_efb) ? $save_warnings_efb : array(), $date_chk_efb['warnings']);
         $valp = $efbFunction->sanitize_obj_msg_efb($valp);
         // F13: privacy keys follow the server rules (allow-lists, form type, existing email field).
         if (is_array($valp) && class_exists('\Emsfb\Privacy')) {

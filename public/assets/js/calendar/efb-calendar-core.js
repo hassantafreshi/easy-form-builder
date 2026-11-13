@@ -426,6 +426,9 @@
   var TIER12 = ['gregory', 'persian', 'islamic-umalqura', 'islamic-civil', 'islamic-tbla', 'buddhist', 'roc', 'japanese'];
   var TIER3 = ['hebrew', 'indian', 'coptic', 'ethiopic'];
   var HM = /^([01]\d|2[0-3]):([0-5]\d)$/;
+  var MD = /^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+  /** A whole number inside [lo, hi], else null (no clamping: a weekday 8 is not Sunday). */
+  function intExact(v, lo, hi) { var n = intIn(v, -1e9, 1e9, null); return n !== null && n >= lo && n <= hi ? n : null; }
   var ISO_OR_RANGE = /^(\d{4}-\d{2}-\d{2})(?:\/(\d{4}-\d{2}-\d{2}))?$/;
   /** Plan of each part (F06 §10.1): what a lower plan ignores, on render and on submit alike. */
   var PLAN_RANK = { free: 0, free_plus: 1, pro: 2 };
@@ -480,7 +483,7 @@
     var out = [], l = listOf(v);
     for (var i = 0; i < l.length && out.length < 500; i++) {
       var r = objOf(l[i]);
-      if (typeof r.cal === 'string' && TIER12.indexOf(r.cal) !== -1 && /^\d{2}-\d{2}$/.test(r.md || '')) {
+      if (typeof r.cal === 'string' && TIER12.indexOf(r.cal) !== -1 && MD.test(r.md || '')) {
         out.push({ cal: r.cal, md: r.md, days: intIn(r.days, 1, 14, 1), label: r.label || '' });
       } else if (typeof r.date === 'string') {
         var d = datesList([r.date], 1);
@@ -556,7 +559,7 @@
       required: on(f, 'required') ? 1 : 0
     };
     var wd = listOf(f.disabled_weekdays);
-    for (var j = 0; j < wd.length; j++) { var w = intIn(wd[j], 1, 7, null); if (w !== null && c.disabled_weekdays.indexOf(w) === -1) { c.disabled_weekdays.push(w); } }
+    for (var j = 0; j < wd.length; j++) { var w = intExact(wd[j], 1, 7); if (w !== null && c.disabled_weekdays.indexOf(w) === -1) { c.disabled_weekdays.push(w); } }
     c.disabled_weekdays.sort();
     var hs = listOf(f.holiday_sets);
     for (var k = 0; k < hs.length; k++) { if (typeof hs[k] === 'string' && /^[a-z0-9-]{2,40}$/.test(hs[k]) && c.holiday_sets.indexOf(hs[k]) === -1) { c.holiday_sets.push(hs[k]); } }
@@ -822,6 +825,144 @@
   // #endregion
 
 
+
+  // #region save (twin of Calendar::sanitize_key / Calendar::config_issues)
+  var FIELD_KEYS = ['cal_v', 'cal_default', 'cal_allowed', 'cal_switch', 'cal_secondary', 'cal_hijri_adjust', 'cal_locale', 'cal_digits',
+    'week_start', 'date_mode', 'date_min', 'date_max', 'disabled_weekdays', 'disabled_dates', 'enabled_dates', 'holiday_sets', 'holidays_custom',
+    'holiday_mode', 'range_unit', 'range_min_days', 'range_max_days', 'multi_max', 'time_enabled', 'time_format', 'time_step', 'time_min',
+    'time_max', 'time_by_weekday', 'age_min', 'age_max', 'tz', 'display_format', 'store_format', 'input_mode', 'availability'];
+  function txt(x) { return String(x === null || x === undefined ? '' : x).replace(/<[^>]*>/g, '').replace(/[\r\n\t ]+/g, ' ').replace(/^\s+|\s+$/g, ''); }
+  /** One advdate key as the save stores it (the builder writes valj_efb through this; the server runs the twin). */
+  function sanitizeKey(k, v) {
+    var known = function (c, t3) { return typeof c === 'string' && (TIER12.indexOf(c) !== -1 || (t3 && TIER3.indexOf(c) !== -1)); };
+    if (String(k).indexOf('bk_') === 0) {
+      var clean = function (x, depth) {
+        if (x && typeof x === 'object') {
+          if (depth > 3) { return []; }
+          var o = Array.isArray(x) ? [] : {};
+          for (var q in x) { if (x.hasOwnProperty(q)) { o[Array.isArray(x) ? q : txt(q)] = clean(x[q], depth + 1); } }
+          return o;
+        }
+        return typeof x === 'number' || typeof x === 'boolean' ? x : txt(x);
+      };
+      return clean(v, 0);
+    }
+    var o, i, l;
+    switch (k) {
+      case 'cal_v': return 1;
+      case 'cal_default': return known(v) ? v : 'auto';
+      case 'cal_allowed': o = []; l = listOf(v); for (i = 0; i < l.length; i++) { if (known(l[i]) && o.indexOf(l[i]) === -1) { o.push(l[i]); } } return o;
+      case 'cal_switch': case 'time_enabled': return v === 1 || v === '1' || v === true || v === 'true' ? 1 : 0;
+      case 'cal_secondary': return known(v, true) ? v : '';
+      case 'cal_hijri_adjust': return intIn(v, -2, 2, 0);
+      case 'cal_locale': return typeof v === 'string' && /^[a-zA-Z]{2,3}([_-][A-Za-z0-9]{2,8})*$/.test(v) ? v : 'auto';
+      case 'cal_digits': return ['latn', 'arabext', 'arab'].indexOf(v) !== -1 ? v : 'auto';
+      case 'week_start': var w = intIn(v, 1, 7, null); return w === null ? 'auto' : w;
+      case 'date_mode': return ['single', 'range', 'multiple'].indexOf(v) !== -1 ? v : 'single';
+      case 'date_min': case 'date_max': return limitOf(v);
+      case 'disabled_weekdays': o = []; l = listOf(v); for (i = 0; i < l.length; i++) { var d = intExact(l[i], 1, 7); if (d !== null && o.indexOf(d) === -1) { o.push(d); } } return o.sort();
+      case 'disabled_dates': case 'enabled_dates': return datesList(v).map(function (x) { return Array.isArray(x) ? x.join('/') : x; });
+      case 'holiday_sets': o = []; l = listOf(v); for (i = 0; i < l.length; i++) { if (typeof l[i] === 'string' && /^[a-z0-9-]{2,40}$/.test(l[i]) && o.indexOf(l[i]) === -1 && o.length < 20) { o.push(l[i]); } } return o;
+      case 'holidays_custom':
+        return holidayRules(v).map(function (r) {
+          var lb = r.label;
+          if (lb && typeof lb === 'object') { var m = {}; for (var q in lb) { if (lb.hasOwnProperty(q) && typeof lb[q] !== 'object') { m[q] = txt(lb[q]); } } lb = m; } else { lb = txt(lb); }
+          return r.date ? { date: Array.isArray(r.date) ? r.date.join('/') : r.date, label: lb } : { cal: r.cal, md: r.md, days: r.days, label: lb };
+        });
+      case 'holiday_mode': return v === 'mark' ? 'mark' : 'disable';
+      case 'range_unit': return v === 'days' ? 'days' : 'nights';
+      case 'range_min_days': case 'range_max_days': return intIn(v, 0, 3660, 0);
+      case 'multi_max': return intIn(v, 0, 366, 0);
+      case 'time_format': return String(v) === '12' || String(v) === '24' ? String(v) : 'auto';
+      case 'time_step': return intIn(v, 1, 720, 15);
+      case 'time_min': case 'time_max': return HM.test(v || '') ? v : '';
+      case 'time_by_weekday': return weekdayWindows(v);
+      case 'age_min': case 'age_max': var a = intIn(v, 0, 150, null); return a === null ? '' : a;
+      case 'tz': return v === 'visitor' || (typeof v === 'string' && v !== 'site' && /^[A-Za-z_]+(\/[A-Za-z0-9_+\-]+){1,2}$|^UTC$/.test(v) && validTz(v)) ? v : 'site';
+      case 'display_format': return typeof v === 'string' && /^(YYYY|MM|M|DD|D|[\/.\- ])+$/.test(v) && /YYYY/.test(v) && /M/.test(v) && /D/.test(v) ? v : 'auto';
+      case 'store_format': return v === 'legacy_local' ? 'legacy_local' : 'iso';
+      case 'input_mode': return ['both', 'picker', 'typed'].indexOf(v) !== -1 ? v : 'both';
+      case 'availability': return typeof v === 'string' && /^[a-z0-9_-]{1,40}$/.test(v) ? v : 'none';
+    }
+    return typeof v === 'object' ? '' : txt(v);
+  }
+  /**
+   * What the builder save and AutoPilot refuse (F06 §6.2): min after max (both absolute), time_min not
+   * before time_max, range min above max, age min above max, a field limit naming no advdate field of
+   * the form or itself, and a cycle of field limits. rows = the whole form. [{code, key, field}]
+   */
+  function configIssues(row, rows) {
+    var out = [], id = row && row.id_ ? String(row.id_) : '';
+    var mn = limitOf(row.date_min), mx = limitOf(row.date_max);
+    if (mn.type === 'absolute' && mx.type === 'absolute' && mn.value > mx.value) { out.push({ code: 'date_min_after_max', key: 'date_min', field: id }); }
+    var tmin = HM.test(row.time_min || '') ? row.time_min : '', tmax = HM.test(row.time_max || '') ? row.time_max : '';
+    if (tmin && tmax && tmin >= tmax) { out.push({ code: 'time_min_after_max', key: 'time_min', field: id }); }
+    var rmin = intIn(row.range_min_days, 0, 3660, 0), rmax = intIn(row.range_max_days, 0, 3660, 0);
+    if (rmin && rmax && rmin > rmax) { out.push({ code: 'range_min_after_max', key: 'range_min_days', field: id }); }
+    var amin = intIn(row.age_min, 0, 150, null), amax = intIn(row.age_max, 0, 150, null);
+    if (amin !== null && amax !== null && amin > amax) { out.push({ code: 'age_min_after_max', key: 'age_min', field: id }); }
+    var dates = {};
+    (rows || []).forEach(function (r, i) { if (i > 0 && r && r.type === 'advdate' && r.id_) { dates[String(r.id_)] = r; } });
+    ['date_min', 'date_max'].forEach(function (k) {
+      var l = limitOf(row[k]);
+      if (l.type !== 'field') { return; }
+      if (l.field === id || !dates.hasOwnProperty(l.field)) { out.push({ code: l.field === id ? 'limit_self' : 'dangling_reference', key: k, field: id }); return; }
+      var seen = {}, cur = l.field, steps = 0;
+      while (cur && dates[cur] && steps < 50) {
+        if (cur === id) { out.push({ code: 'limit_cycle', key: k, field: id }); return; }
+        if (seen[cur]) { return; }
+        seen[cur] = 1; steps++;
+        var a = limitOf(dates[cur].date_min), b = limitOf(dates[cur].date_max);
+        cur = a.type === 'field' ? a.field : (b.type === 'field' ? b.field : null);
+      }
+    });
+    var allowed = listOf(row.cal_allowed);
+    if (row.cal_default && row.cal_default !== 'auto' && allowed.length && allowed.indexOf(row.cal_default) === -1) { out.push({ code: 'default_not_allowed', key: 'cal_default', field: id }); }
+    return out;
+  }
+  // #endregion
+
+
+  // #region upgrade of the old date fields (F06 §6.4; twin of Calendar::upgrade_row / rollback_row)
+  var LEGACY_CAL = { date: 'gregory', pdate: 'persian', ardate: 'islamic-umalqura' };
+  function legacyLimit(v) {
+    var s = normalize(v);
+    if (s === '1') { return { type: 'relative', value: 0, unit: 'day' }; }
+    if (isoValid(s)) { return { type: 'absolute', value: s }; }
+    return { type: 'none' };
+  }
+  /** date / pdate / ardate -> advdate with the old keys kept (milen, mlen, the old value in upg_value), so it can go back. */
+  function upgradeRow(row, opts) {
+    var r = {}, k;
+    for (k in row) { if (row.hasOwnProperty(k)) { r[k] = row[k]; } }
+    var from = r.type, cal = LEGACY_CAL[from];
+    if (!cal) { return r; }
+    r.upg_from = from;
+    r.upg_elid = typeof r.elementId === 'string' ? r.elementId : from;
+    r.upg_value = typeof r.value === 'string' ? r.value : '';
+    r.type = 'advdate'; r.elementId = 'advdate';
+    r.cal_v = 1; r.cal_default = cal; r.cal_allowed = [cal]; r.date_mode = 'single';
+    if (from === 'date') {
+      r.date_min = legacyLimit(row.milen); r.date_max = legacyLimit(row.mlen);
+      r.value = isoValid(normalize(row.value)) ? normalize(row.value) : '';
+    } else {
+      r.date_min = { type: 'none' }; r.date_max = { type: 'none' };
+      var e = engines.get(cal), p = e ? e.parse(row.value || '', 'YYYY-MM-DD') : null;
+      r.value = p ? localToIso(p, cal, 0) : '';
+      if (opts && opts.keepLocal) { r.store_format = 'legacy_local'; }
+    }
+    return r;
+  }
+  function rollbackRow(row) {
+    if (!row || !row.upg_from || !LEGACY_CAL[row.upg_from]) { return row; }
+    var r = {}, k;
+    for (k in row) { if (row.hasOwnProperty(k) && FIELD_KEYS.indexOf(k) === -1) { r[k] = row[k]; } }
+    r.type = row.upg_from; r.elementId = typeof row.upg_elid === 'string' && row.upg_elid !== '' ? row.upg_elid : row.upg_from; r.value = typeof row.upg_value === 'string' ? row.upg_value : '';
+    delete r.upg_from; delete r.upg_value; delete r.upg_elid;
+    return r;
+  }
+  // #endregion
+
   // #region messages (twin of Calendar::MESSAGES / Calendar::message)
   var MESSAGES = {
     invalid_format: 'Please enter the date as %s.',
@@ -901,7 +1042,8 @@
     rules: {
       normalizeField: normalizeField, resolve: resolve, refuse: refuse, holidayOf: holidayOf, listHolidays: listHolidays,
       validateValue: validateValue, buildRow: buildRow, firstDate: firstDate, timeError: timeError,
-      message: message, messages: MESSAGES, formatHint: formatHint, typedPatternOf: typedPatternOf
+      message: message, messages: MESSAGES, formatHint: formatHint, typedPatternOf: typedPatternOf,
+      sanitizeKey: sanitizeKey, configIssues: configIssues, fieldKeys: FIELD_KEYS, upgradeRow: upgradeRow, rollbackRow: rollbackRow
     },
     convert: convert,
     today: today,

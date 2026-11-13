@@ -383,6 +383,8 @@ class Panel_edit  {
 			} else {
 				$ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0.0.0.0';
 			}
+			// F06: the calendar engines for advanced date answers in the response viewer and CSV.
+			if (class_exists('\\Emsfb\\Calendar')) \Emsfb\Calendar::enqueue_admin(false);
 			wp_register_script('Emsfb-list_form-efb-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form-efb.js', array('efb-main-js', 'efb-email-test-ui'),EMSFB_PLUGIN_VERSION, true);
 			wp_enqueue_script('Emsfb-list_form-efb-js');
 

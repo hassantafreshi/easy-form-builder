@@ -156,6 +156,9 @@ const fields_efb = [
 
   { name: efb_var.text.range, icon: 'bi-arrow-left-right', id: 'range', pro: false, tag:'basic all' },
   { name: efb_var.text.ddate, icon: 'bi-calendar-date', id: 'date', pro: false, tag:'basic all' },
+  // F06: the advanced date field (every calendar, limits, holidays, range, time). Free; parts of it are
+  // Free Plus / Pro (setting:advdate_* in the capability registry). Not counted in the Free 20 above.
+  { name: efb_var.text.advdate || 'Date (advanced)', icon: 'bi-calendar-range', id: 'advdate', pro: false, tag:'basic all' },
   { name: efb_var.text.file, icon: 'bi-file-earmark-plus', id: 'file', pro: false, tag:'basic all' },
   { name: efb_var.text.dadfile, icon: 'bi-plus-square-dotted', id: 'dadfile', pro: true, tag:'advance all' },
   { name: efb_var.text.audio_recorder, icon: 'bi-mic', id: 'audio_recorder', pro: true, tag:'advance all' },
@@ -1697,6 +1700,7 @@ function show_setting_window_efb(idset, opts) {
                 ${inputmodeTypesEfb.includes(el.dataset.tag) ? inputmodeEls() : ''}
                 ${typeof efbFieldRulesMainEls === 'function' ? efbFieldRulesMainEls(indx, idset) : '<!-- F03 field-rules-builder-efb.js not loaded -->'}
                 ${el.dataset.tag == "mobile" ? smsEnableEls : ''}
+                ${(el.dataset.tag == 'pdate' || el.dataset.tag == 'ardate') && typeof efbAdvdateUpgradeEls === 'function' ? efbAdvdateUpgradeEls(indx, idset) : ''}
                 ${el.dataset.tag == "email" ? emailEls : ''}
                 ${(el.dataset.tag == "email" || el.dataset.tag == "mobile") && typeof efbVerifyBuilderEls === 'function' ? efbVerifyBuilderEls(indx, idset, el.dataset.tag) : ''}
                 ${el.dataset.tag == "mobile" ? ElcountriesListSelections(idset,indx) : ''}
@@ -1868,6 +1872,7 @@ function show_setting_window_efb(idset, opts) {
                 `
         break;
       case "date":
+      case "advdate":
       case "color":
       case "range":
       case "esign":
@@ -1878,6 +1883,8 @@ function show_setting_window_efb(idset, opts) {
         <div class="efb  mb-3">
         <!--  not   advanced-->
         ${Nadvanced}
+        ${el.dataset.tag == 'advdate' && typeof efbAdvdatePanelEls === 'function' ? efbAdvdatePanelEls(indx, idset) : ''}
+        ${el.dataset.tag == 'date' && typeof efbAdvdateUpgradeEls === 'function' ? efbAdvdateUpgradeEls(indx, idset) : ''}
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">
             <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
