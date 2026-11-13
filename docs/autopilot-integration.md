@@ -730,7 +730,8 @@ only on test sites (registered by the e2e mu-plugin).
   add-on is active. An agent fixes `fix.kind:'field'` issues with `setForm()`; `settings` / `addons` /
   `plan` issues are the owner's (never enter keys or activate add-ons for them).
   `field_schema[]` entries of type `field` may carry `format` (`email`, `phone`, `phone_e164`,
-  `country`), `countries` (ISO codes) and `invalid_message`: the page and the server check a value
+  `country`), `countries` (ISO codes), `reject` (characters the provider refuses, e.g. `+` in a
+  Payplug Oney e-mail) and `invalid_message`: the page and the server check a value
   the chosen method needs against them (visitor answer `payer_missing` / `payer_invalid` with
   `field_id`), so a test submission must fill those fields in that format.
 - **Registry.** `field:<slug>` (Free Plus + its add-on, `form_patch`), `setting:pay_style`,
@@ -785,8 +786,10 @@ Add-on `vendores-efb/payplug` on the PAY00 contract; nothing new in core. For ag
   `{type:'payment', getway:'payplug', currency:'EUR'}`. Payplug takes **EUR only**, 0.30 to 20,000 EUR
   (Oney 100 to 3,000 EUR): set no other currency. Only the core `pf_*` keys, plus the optional billing
   map `pgw_map_first`, `pgw_map_last`, `pgw_map_email`, `pgw_map_address`, `pgw_map_postcode`,
-  `pgw_map_city`, `pgw_map_country` (each = the `id_` of a field of the same form; written with
-  `setForm`, there is no panel control yet). `pf_methods` takes `card`, `american_express`,
+  `pgw_map_city`, `pgw_map_country`, `pgw_map_phone` (each = the `id_` of a field of the same form).
+  Oney (2026-11-13, from Payplug's documentation): billing countries FR, IT, GP, MQ, GF, RE, YT (not
+  Monaco, Spain or Belgium), 100–3,000 EUR, an e-mail without "+", the mobile number in E.164; a test
+  submission must use such values. `pf_methods` takes `card`, `american_express`,
   `bancontact`, `ideal`, `mybank`, `satispay`, `scalapay`, `wero`, `oney_x3_with_fees`, … (only those
   the owner switched on are offered).
 - **Registry.** `payment_gateways.payplug` lists `methods` and `configured` per mode; never a key.

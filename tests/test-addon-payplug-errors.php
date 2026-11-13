@@ -48,6 +48,37 @@ list($r, $p) = efb_ppg_create($db, $form, $rows('0033 6 12 34 56 78', 'France'),
 $b = efb_ppg_last('POST', '/v1/payments')['body'];
 $t('Oney with everything → started; billing.mobile_phone_number in E.164, country FR from the form\'s country field', array($r['success'], $b['billing']['mobile_phone_number'], $b['billing']['country'], $b['shipping']['mobile_phone_number']), array(true, '+33612345678', 'FR', '+33612345678'));
 
+// Payplug's documented Oney rules (https://docs.payplug.com/api/apiref.html, "Specific parameters rules
+// for Oney payments"); the fake refuses what Payplug refuses. Each check fails on the add-on before this change.
+$t('Oney: authorized_amount (not amount) and auto_capture', array($b['authorized_amount'], array_key_exists('amount', $b), $b['auto_capture']), array(15800, false, true));
+$cart = isset($b['payment_context']['cart'][0]) ? $b['payment_context']['cart'][0] : array();
+$t('Oney: payment_context.cart with one line of the payment (price, quantity 1, total, delivery type, date)', array(count($b['payment_context']['cart']), $cart['price'], $cart['quantity'], $cart['total_amount'], $cart['delivery_type'], (bool) preg_match('/^\d{4}-\d{2}-\d{2}$/', $cart['expected_delivery_date']), $cart['merchant_item_id'] === $p['uid'], $cart['name'] !== '' && $cart['brand'] !== ''),
+	array(1, 15800, 1, 15800, 'edelivery', true, true, true));
+$t('Oney: shipping has company_name (the payer\'s name) and delivery_type, the same country as billing, and the e-mail', array($b['shipping']['company_name'], $b['shipping']['delivery_type'], $b['shipping']['country'], $b['shipping']['email']), array($b['billing']['first_name'] . ' ' . $b['billing']['last_name'], 'DIGITAL_GOODS', 'FR', 'jeanne@example.test'));
+$schema = (new Payplug_Gateway())->field_schema();
+$country = array_values(array_filter($schema, function ($d) { return $d['key'] === 'pgw_map_country'; }))[0];
+$t('Oney countries as documented: FR, IT, GP, MQ, GF, RE, YT (Italy in, Monaco out)', $country['countries'], array('FR', 'IT', 'GP', 'MQ', 'GF', 'RE', 'YT'));
+array_splice($form, 10, 0, array(array('id_' => 'cit', 'parent' => 'co', 'type' => 'option', 'value' => 'Italia', 'id_op' => 'IT'), array('id_' => 'cmc', 'parent' => 'co', 'type' => 'option', 'value' => 'Monaco', 'id_op' => 'MC'), array('id_' => 'ces', 'parent' => 'co', 'type' => 'option', 'value' => 'España', 'id_op' => 'ES')));
+list($r) = efb_ppg_create($db, $form, $rows('+39 312 345 6789', 'Italia'), array('method' => 'oney_x3_with_fees'));
+$t('Oney with an Italian address → started, country IT (before: refused at the country field)', array($r['success'], efb_ppg_last('POST', '/v1/payments')['body']['billing']['country']), array(true, 'IT'));
+foreach (array('Monaco' => 'MC', 'España' => 'ES') as $cn => $cc) {
+	$n1 = count(EfbPayplugFake::$log);
+	list($r) = efb_ppg_create($db, $form, $rows('+377 6 12 34 56 78', $cn), array('method' => 'oney_x3_with_fees'));
+	$t("Oney with a {$cc} address → payer_invalid at the country field, nothing sent (before: MC was allowed)", array($r['code'], $r['field_id'], count(EfbPayplugFake::$log) - $n1), array('payer_invalid', 'co', 0));
+}
+$plus = efb_ppg_rows('ro2', array(array('id_' => 'mo', 'type' => 'mobile', 'value' => '+33 6 12 34 56 78'), array('id_' => 'co', 'type' => 'conturyList', 'value' => 'France')));
+$plus[0]['value'] = 'jeanne+atelier@example.test';
+$n1 = count(EfbPayplugFake::$log); $e1 = $db->count('wp_emsfb_msg_');
+list($r) = efb_ppg_create($db, $form, $plus, array('method' => 'oney_x3_with_fees'));
+$t('Oney and an e-mail with "+" → payer_invalid at the e-mail field in plain words, nothing sent, nothing stored', array($r['code'], $r['field_id'], $r['m'], count(EfbPayplugFake::$log) - $n1, $db->count('wp_emsfb_msg_') - $e1),
+	array('payer_invalid', 'em', 'This payment method does not accept + in "Email". Please enter it without +, or choose another payment method.', 0, 0));
+list($r, $po) = efb_ppg_create($db, $form, $rows('+33 6 12 34 56 78', 'France'), array('method' => 'oney_x3_with_fees'));
+EfbPayplugFake::$payments[$po['gateway_ref']]['payment_method'] = array('type' => 'oney_x3_with_fees', 'is_pending' => true);
+$a = Service::status_answer(Store::get($po['id']), 'status');
+$t('"Oney pending" (payment_method.is_pending) → still pending, the visitor reads that Oney is reviewing the request', array($a['state'], strpos(isset($a['message']) ? $a['message'] : '', 'Oney is reviewing') !== false), array('pending', true));
+list($r) = efb_ppg_create($db, $form, array_merge($plus, array()), array('method' => 'card'));
+$t('...the card takes that e-mail (the "+" rule is Oney\'s only)', $r['success'], true);
+
 EfbPayplugFake::$once['POST /v1/payments'] = array(400, array('object' => 'error', 'message' => 'The parameters are invalid.', 'details' => array('billing' => array('postcode' => 'Invalid postcode for this country.'))));
 list($r) = efb_ppg_create($db, $form, $rows('+33 6 12 34 56 78', 'France'), array('method' => 'oney_x3_with_fees'));
 $t('Payplug refuses a billing value (400 billing.postcode) → payer_invalid at the postcode field', array($r['code'], $r['field_id'], strpos($r['m'], '"Code postal"') !== false), array('payer_invalid', 'pc', true));

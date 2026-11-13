@@ -235,6 +235,10 @@
          }
          var val = String(got.value).split('@efb@dq#').join('"');
          var problem = C().payerProblem ? C().payerProblem(d, val, d.format === 'country' ? C().countryIso(s, target, val) : '') : '';
+         if (problem === 'chars') {
+            var chars = Array.from(String(d.reject || '')).join(' ');
+            return { code: 'payer_invalid', message: (T('payerChars') || '%2$s').split('%1$s').join(chars).split('%2$s').join(name), field_id: target };
+         }
          if (problem) {
             var key = problem === 'country' ? 'payerCountryNo' : ({ email: 'payerEmail', phone: 'payerPhone', phone_e164: 'payerPhoneIntl', country: 'payerCountry' })[d.format];
             var own = d.invalid_message || ((g.messages || {}).payer_invalid || '').split('%field%').join(name).split('%method%').join(m.label);

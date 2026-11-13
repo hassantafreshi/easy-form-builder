@@ -15,7 +15,8 @@
  *    cancel URLs, metadata; the payer goes to hosted_payment.payment_url;
  *  - JPY (zero decimals) and KWD (three decimals) are refused before any request (EUR only);
  *    below 0.30 / above 20,000 refused by the server quote;
- *  - methods: a method not switched on is refused; Oney only from 100 to 3,000 EUR; Bancontact sends
+ *  - methods: a method not switched on is refused; Oney only from 100 to 3,000 EUR, as a deferred
+ *    payment (authorized_amount, auto_capture; before: amount, which Payplug refuses for Oney); Bancontact sends
  *    payment_method;
  *  - Integrated Payment: integration INTEGRATED_PAYMENT, next embedded with public data only;
  *  - a provider error or an is_live that does not match → the payment fails, nothing is shown;
@@ -152,8 +153,13 @@ $t('Bancontact → payment_method "bancontact"', array($res['success'], efb_ppg_
 EfbPayplugFake::$log = array();
 list($res, ) = efb_ppg_create($db, null, null, array('method' => 'oney_x3_with_fees'));
 $t('Oney for 33.00 EUR (below 100): refused, no request', array($res['success'], count(EfbPayplugFake::$log)), array(false, 0));
-list($res, ) = efb_ppg_create($db, null, efb_ppg_rows('ro2'), array('method' => 'oney_x3_with_fees'));
-$t('Oney for 158.00 EUR → payment_method oney_x3_with_fees', array($res['success'], efb_ppg_last('POST', '/v1/payments')['body']['payment_method'], efb_ppg_last('POST', '/v1/payments')['body']['amount']), array(true, 'oney_x3_with_fees', 15800));
+// Oney needs the mobile number and the country too (Payplug's Oney rules); the form maps them.
+$oform = efb_ppg_form(array('pgw_map_phone' => 'mo', 'pgw_map_country' => 'co'));
+$oform[] = array('id_' => 'mo', 'type' => 'mobile', 'name' => 'Mobile', 'step' => 1);
+$oform[] = array('id_' => 'co', 'type' => 'text', 'name' => 'Pays', 'step' => 1);
+list($res, ) = efb_ppg_create($db, $oform, efb_ppg_rows('ro2', array(array('id_' => 'mo', 'type' => 'mobile', 'value' => '+33 6 12 34 56 78'), array('id_' => 'co', 'type' => 'text', 'value' => 'FR'))), array('method' => 'oney_x3_with_fees'));
+$ob = efb_ppg_last('POST', '/v1/payments')['body'];
+$t('Oney for 158.00 EUR → payment_method oney_x3_with_fees, a deferred payment: authorized_amount 15800 (no amount), auto_capture', array($res['success'], $ob['payment_method'], $ob['authorized_amount'], isset($ob['amount']), $ob['auto_capture']), array(true, 'oney_x3_with_fees', 15800, false, true));
 $t('the logos follow the methods (Bancontact, Oney once)', array_map(function ($l) { return $l[1]; }, $g->logos()), array('CB', 'Visa', 'Mastercard', 'Bancontact', 'Oney'));
 
 // Integrated Payment.

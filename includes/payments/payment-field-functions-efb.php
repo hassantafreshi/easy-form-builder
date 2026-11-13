@@ -285,6 +285,8 @@ class Field {
 				'format'      => isset( $d['format'] ) && is_string( $d['format'] ) && in_array( $d['format'], self::FORMATS, true ) ? $d['format'] : '',
 				'countries'   => array(),
 				'invalid_message' => self::text( isset( $d['invalid_message'] ) && is_string( $d['invalid_message'] ) ? $d['invalid_message'] : '', 200 ),
+				// Characters the provider refuses in this value (e.g. "+" in an Oney e-mail): up to 10 symbols, no letter, digit or space.
+				'reject'      => '',
 				'options'     => array(),
 				'max'         => 0,
 				'field_types' => array(),
@@ -314,7 +316,13 @@ class Field {
 					if ( is_string( $cc ) && preg_match( '/^[A-Za-z]{2}$/', $cc ) && ! in_array( strtoupper( $cc ), $e['countries'], true ) && count( $e['countries'] ) < 250 ) $e['countries'][] = strtoupper( $cc );
 				}
 			}
-			if ( $d['type'] !== 'field' ) { $e['format'] = ''; $e['countries'] = array(); }
+			if ( isset( $d['reject'] ) && is_string( $d['reject'] ) ) {
+				$chars = preg_split( '//u', $d['reject'], -1, PREG_SPLIT_NO_EMPTY );
+				foreach ( is_array( $chars ) ? $chars : array() as $ch ) {
+					if ( preg_match( '/^[^\p{L}\p{N}\s<>"\'&\\\\]$/u', $ch ) && strpos( $e['reject'], $ch ) === false && mb_strlen( $e['reject'] ) < 10 ) $e['reject'] .= $ch;
+				}
+			}
+			if ( $d['type'] !== 'field' ) { $e['format'] = ''; $e['countries'] = array(); $e['reject'] = ''; }
 			if ( isset( $d['required_for'] ) && is_array( $d['required_for'] ) ) {
 				foreach ( $d['required_for'] as $mid ) {
 					if ( is_string( $mid ) && preg_match( '/^[a-z0-9_]{1,30}$/', $mid ) && ! in_array( $mid, $e['required_for'], true ) && count( $e['required_for'] ) < 40 ) $e['required_for'][] = $mid;
@@ -427,12 +435,23 @@ class Field {
 
 	/**
 	 * Whether a payer value fits the option's format: '' = fine (or nothing to check), else the
-	 * problem: 'format' (not an e-mail / phone / country) or 'country' (a country outside the list).
-	 * $iso is the value as a country code (country_iso()) for the country format. Twin: efbPayCoreEfb.payerProblem().
+	 * problem: 'format' (not an e-mail / phone / country), 'country' (a country outside the list) or
+	 * 'chars' (a character the provider refuses, schema "reject"). $iso is the value as a country code (country_iso()) for the country format. Twin: efbPayCoreEfb.payerProblem().
 	 */
 	public static function payer_problem( array $d, $value, $iso = '' ) {
 		$v = is_scalar( $value ) ? trim( (string) $value ) : '';
-		if ( $v === '' || $d['format'] === '' ) return '';
+		if ( $v === '' ) return '';
+		// Characters the provider refuses (schema "reject"), after the format itself: 'chars'.
+		$p = $d['format'] === '' ? '' : self::format_problem( $d, $v, $iso );
+		if ( $p === '' && isset( $d['reject'] ) && $d['reject'] !== '' ) {
+			foreach ( preg_split( '//u', $d['reject'], -1, PREG_SPLIT_NO_EMPTY ) as $ch ) {
+				if ( strpos( $v, $ch ) !== false ) return 'chars';
+			}
+		}
+		return $p;
+	}
+
+	private static function format_problem( array $d, $v, $iso ) {
 		switch ( $d['format'] ) {
 			case 'email':
 				return filter_var( $v, FILTER_VALIDATE_EMAIL ) && preg_match( '/^[^@\s]+@[^@\s]+\.[^@\s]+$/', $v ) ? '' : 'format';

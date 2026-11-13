@@ -307,6 +307,7 @@
             format: typeof d.format === 'string' && FORMATS.indexOf(d.format) !== -1 ? d.format : '',
             countries: [],
             invalid_message: text(typeof d.invalid_message === 'string' ? d.invalid_message : '', 200),
+            reject: '',
             options: [], max: 0, field_types: [], default: ''
          };
          if (d.type === 'select' && d.options && typeof d.options === 'object') {
@@ -329,7 +330,10 @@
          if (Array.isArray(d.countries)) {
             d.countries.forEach(function (cc) { if (typeof cc === 'string' && /^[A-Za-z]{2}$/.test(cc) && e.countries.indexOf(cc.toUpperCase()) === -1 && e.countries.length < 250) e.countries.push(cc.toUpperCase()); });
          }
-         if (d.type !== 'field') { e.format = ''; e.countries = []; }
+         if (typeof d.reject === 'string') {
+            Array.from(d.reject).forEach(function (ch) { if (/^[^\p{L}\p{N}\s<>"'&\\]$/u.test(ch) && e.reject.indexOf(ch) === -1 && Array.from(e.reject).length < 10) e.reject += ch; });
+         }
+         if (d.type !== 'field') { e.format = ''; e.countries = []; e.reject = ''; }
          if (Array.isArray(d.required_for)) {
             d.required_for.forEach(function (mid) { if (typeof mid === 'string' && /^[a-z0-9_]{1,30}$/.test(mid) && e.required_for.indexOf(mid) === -1 && e.required_for.length < 40) e.required_for.push(mid); });
          }
@@ -369,10 +373,15 @@
       }
       return '';
    }
-   /** Twin of Field::payer_problem(): '' = fine, 'format' or 'country'. (The server's e-mail check is stricter.) */
+   /** Twin of Field::payer_problem(): '' = fine, 'format', 'country' or 'chars' (a character of d.reject). (The server's e-mail check is stricter.) */
    function payerProblem(d, value, iso) {
       var v = isScalar(value) ? ptrim(phpStr(value)) : '';
-      if (v === '' || !d || !d.format) return '';
+      if (v === '' || !d) return '';
+      var p = d.format ? formatProblem(d, v, iso) : '';
+      if (p === '' && typeof d.reject === 'string' && d.reject !== '' && Array.from(d.reject).some(function (ch) { return v.indexOf(ch) !== -1; })) return 'chars';
+      return p;
+   }
+   function formatProblem(d, v, iso) {
       if (d.format === 'email') return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) ? '' : 'format';
       if (d.format === 'phone' || d.format === 'phone_e164') {
          var n = latinDigits(v).replace(/[\s().\-]/g, '');

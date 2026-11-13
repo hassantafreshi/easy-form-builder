@@ -249,3 +249,11 @@
 | زیاد | فرمی که هرگز نمی‌تواند پرداخت بگیرد (مثلاً فرم «survey» با فیلد پرداخت، یا ارزی که درگاه نمی‌پذیرد) در صفحهٔ عمومی دکمهٔ پرداخت را نشان می‌داد و `payments/create` تا درگاه می‌رفت؛ فقط هشدار قرمز سازنده وجود داشت. | `Service::create()`، `Frontend::field_markup()` | **رفع شد**: `Readiness`؛ پاسخ `pay_not_ready` پیش از ذخیره؛ اعلان به‌جای فیلد؛ تست `test-pay-readiness.php` |
 | زیاد | فیلد پرداخت افزونه‌ای که غیرفعال شده بود در صفحهٔ عمومی هیچ چیزی رسم نمی‌کرد و فرم با Send عادی بی‌پرداخت ذخیره می‌شد (فرم غیر «payment») یا پیام نامربوط «پرداخت انجام نشده» می‌داد. | `class-Emsfb-formbuilder.php`، `class-Emsfb-public.php` | **رفع شد**: `pay_addon_inactive`، اعلان، رد سمت سرور در همهٔ مسیرهای ارسال |
 | کم | فیلد نگاشته‌شده‌ای که حذف شده بود همیشه خطا (قرمز) بود، حتی وقتی فقط Oney آن را لازم دارد و کارت بی آن کار می‌کند. | `Field::warnings()` و همزاد JS | **رفع شد**: خطا فقط وقتی همهٔ روش‌های پیشنهادی آن را لازم دارند؛ وگرنه هشدار |
+
+## Payplug Oney در برابر مستند Payplug (۲۰۲۶-۱۱-۱۳)
+
+| شدت | مشکل | محل | وضعیت |
+|---|---|---|---|
+| زیاد | پرداخت Oney در Payplug با `amount` فرستاده می‌شد؛ مستند Payplug می‌گوید Oney باید پرداخت تعویقی با `authorized_amount` باشد و `payment_context.cart` و `shipping.company_name` الزامی‌اند؛ هر پرداخت Oney رد می‌شد. | `vendores-efb/payplug` (`create`, `billing`) | **رفع شد**: `authorized_amount` + `auto_capture`، سبد یک‌سطری، `company_name`؛ جعلی api.payplug.com تست‌ها اکنون قاعده‌های Oney را اجرا می‌کند |
+| متوسط | کشورهای Oney `FR MC GP MQ GF RE YT` بود؛ مستند Payplug `FR IT GP MQ GF RE YT` است (موناکو نه، ایتالیا بله). | `vendores-efb/payplug` (`ONEY_COUNTRIES`) | **رفع شد**؛ تست `test-addon-payplug-errors.php` |
+| کم | ایمیل دارای «+» برای Oney پس از ذخیرهٔ ورودی از Payplug رد می‌شد. | هسته (`field_schema` کلید تازهٔ `reject`) و `payplug` | **رفع شد**: پیام کنار فیلد پیش از ذخیره |

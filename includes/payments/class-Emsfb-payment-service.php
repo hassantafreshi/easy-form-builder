@@ -136,6 +136,9 @@ class Service {
 					case 'country':
 						/* translators: %s: name of the form field (e.g. Country) */
 						return sprintf( __( 'Please choose a country in "%s".', 'easy-form-builder' ), $lab );
+					case 'chars':
+						/* translators: %1$s: characters (e.g. +), %2$s: name of the form field (e.g. Email) */
+						return sprintf( __( 'This payment method does not accept %1$s in "%2$s". Please enter it without %1$s, or choose another payment method.', 'easy-form-builder' ), isset( $extra['chars'] ) ? implode( ' ', preg_split( '//u', (string) $extra['chars'], -1, PREG_SPLIT_NO_EMPTY ) ) : '', $lab );
 					case 'country_not_allowed':
 						/* translators: %s: name of the form field (e.g. Country) */
 						return sprintf( __( 'Payments with this method are not available for the country in "%s". Please check it or choose another payment method.', 'easy-form-builder' ), $lab );
@@ -537,7 +540,7 @@ class Service {
 			$name = self::field_name( $form, $fid, $d['label'] );
 			if ( $val === '' ) return self::fail( 'payer_missing', array( 'gateway' => $gw->slug(), 'field_id' => $fid, 'label' => $name, 'method' => $for, 'visitor' => $d['visitor_message'] ) );
 			$problem = Field::payer_problem( $d, $val, $d['format'] === 'country' ? Field::country_iso( $form, $fid, $val ) : '' );
-			if ( $problem !== '' ) return self::fail( 'payer_invalid', array( 'gateway' => $gw->slug(), 'field_id' => $fid, 'label' => $name, 'format' => $problem === 'country' ? 'country_not_allowed' : $d['format'], 'method' => $for, 'visitor' => $d['invalid_message'] ) );
+			if ( $problem !== '' ) return self::fail( 'payer_invalid', array( 'gateway' => $gw->slug(), 'field_id' => $fid, 'label' => $name, 'format' => $problem === 'country' ? 'country_not_allowed' : ( $problem === 'chars' ? 'chars' : $d['format'] ), 'chars' => $d['reject'], 'method' => $for, 'visitor' => $problem === 'chars' ? '' : $d['invalid_message'] ) );
 		}
 		return null;
 	}

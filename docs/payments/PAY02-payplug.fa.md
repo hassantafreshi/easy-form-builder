@@ -302,3 +302,32 @@ fixtureها: `tests/fixtures/payments/payplug/`: `create-201.json`، `get-paid.j
 #### Checkpoint: error scenarios (2026-11-12)
 
 Payplug: Oney needs first and last name, e-mail, mobile number (new option `pgw_map_phone`, format `phone_e164`), street, postcode, city and a country Oney serves (`FR MC GP MQ GF RE YT`): `required_for` the Oney methods, so core warns the owner per method and stops Pay at the empty / malformed field; `billing` / `shipping.mobile_phone_number` in E.164; a 400 naming `billing.<field>` → `payer_invalid` at that field; `failure.code` → reason. vendores-efb `ab4ab48`; tests `test-addon-payplug-errors.php` (12). Matrix: [payment-error-matrix.en.md](payment-error-matrix.en.md).
+
+#### Oney checked against Payplug's documentation (2026-11-13, owner request)
+
+Sources: the REST reference, section "Specific parameters rules for Oney payments" and "Oney"
+(https://docs.payplug.com/api/apiref.html, read 2026-11-13), the Create a payment parameters on the
+same page, and Payplug's own WooCommerce plugin (https://github.com/payplug/payplug-woocommerce,
+`src/Gateway/PayplugGatewayOney3x.php`, `src/Gateway/Oney/OneyAccountMapper.php`,
+`src/Gateway/PayplugAddressData.php`).
+
+| Rule (Payplug's words) | Before | Now |
+|---|---|---|
+| "Available countries are France (FR), Italy (IT), and France's overseas departments and regions (GP, MQ, GF, RE, YT)"; "billing.country must be the same as shipping.country" | `FR MC GP MQ GF RE YT` (Monaco allowed, Italy refused) | `FR IT GP MQ GF RE YT` (`ONEY_COUNTRIES`, the country option's `countries`); billing and shipping get the same country. Monaco, Spain and Belgium are not in Payplug's list: the visitor gets "Payments with this method are not available for the country in …" at the country field |
+| "Oney payments must be deferred payments … the payment's amount must be given through the field authorized_amount and not amount"; `auto_capture` "can come in handy for Oney payments which can switch from a pending state to an authorized state at any time" | `amount` (Payplug refuses it for Oney) | `authorized_amount` + `auto_capture: true` (captured as soon as Oney accepts; Payplug then sends two notifications: authorized, paid) |
+| "The amount for an Oney payment ranges between 10000 and 300000 cents" (one range for 3x / 4x, with or without fees; the fees only decide who pays them) | 100–3,000 EUR | unchanged. An account may have a narrower range: Payplug's plugin reads `configuration.oney.min_amounts` / `max_amounts` from `GET /v1/account`, which the public reference does not document, so it is not read here (owner decision below) |
+| Mandatory: `payment_context`; in billing and shipping `first_name`, `last_name`, `address1`, `postcode`, `city`, `country`, `email`, `mobile_phone_number`; in shipping only `company_name`, `delivery_type` | no `payment_context`, no `company_name` | `payment_context.cart` = one line (the form's payment: `name` = form name, `price` = `total_amount` = the amount, `quantity` 1, `merchant_item_id` = payment uid, `brand` / `delivery_label` = site name, `delivery_type` `edelivery`, `expected_delivery_date` today); `shipping.company_name` = the payer's first and last name (as Payplug's plugin does when the company is empty); `delivery_type` `DIGITAL_GOODS` |
+| "Email addresses cannot contain a plus sign (+)" (billing.email, shipping.email); e-mail at most 255 characters | not checked (Payplug refused it after the entry was stored) | the e-mail option declares `reject: '+'` (new gateway-neutral schema key in core: characters the provider refuses, checked on the page and on the server only when the chosen method needs the value): "This payment method does not accept + in "Email". Please enter it without +, or choose another payment method." at the field, nothing stored; the card still takes such an address |
+| `mobile_phone_number`: "international format in the E.164 standard" | `phone_e164` | unchanged. Payplug's plugin also refuses a number libphonenumber does not classify as a mobile; the API reference does not ask for it, so EFB does not guess number types (Payplug refuses a landline at create → `payer_invalid` at the field) |
+| `language`: "Supported languages: fr, en and it" | fr / en / it from the page locale | unchanged |
+| "The sum of quantities of the cart … must be less than 1000" | — | one line, quantity 1 |
+| Oney pending: "the field payment_method is set … with the sub-field type … and the sub-field pending set to true" (`is_pending` in the payment object) | the generic waiting text | the visitor reads "Oney is reviewing your instalment request. We will confirm the payment as soon as Oney decides; you do not need to pay again." |
+| Italy / Spain / Belgium | — | Italy is a documented Oney country with its own acceptance criteria page (FR - IT) and the `it` language; no other difference in the API. Spain and Belgium are not documented for Payplug's Oney (Oney itself serves them through other PSPs): refused |
+
+Tests (each fails on the add-on before this change): `test-addon-payplug-errors.php` 22 (authorized_amount
+/ auto_capture, cart, company_name, IT accepted, MC and ES refused, `+` refused before anything is
+stored and accepted for the card, Oney pending text), `test-addon-payplug-create.php` (Oney body), the
+fake `api.payplug.com` of the unit tests now refuses an Oney request that breaks the documented rules;
+core `test-pay-error-twins.js` (`reject`), `test-pay-field-messages-browser.js` (the `+` message at the
+field). Owner decision: read the account's own Oney range and countries from `GET /v1/account` on
+"Test connection" (undocumented endpoint, used by Payplug's plugins) or keep the documented ones.

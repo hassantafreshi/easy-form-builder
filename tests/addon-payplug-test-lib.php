@@ -83,6 +83,28 @@ class EfbPayplugFake {
 			return self::answer(200, $list);
 		}
 		if ($method === 'POST' && $path === '/v1/payments') {
+			// Oney, as documented (https://docs.payplug.com/api/apiref.html, "Specific parameters rules for
+			// Oney payments"): authorized_amount (not amount) 10000-300000, payment_context.cart, billing and
+			// shipping with the eight fields, shipping company_name and delivery_type, the same country in
+			// FR IT GP MQ GF RE YT, no "+" in the e-mails.
+			if (isset($body['payment_method']) && strpos((string) $body['payment_method'], 'oney_') === 0) {
+				$bad = array();
+				if (isset($body['amount']) || !isset($body['authorized_amount'])) $bad[] = 'amount';
+				$aa = (int) ($body['authorized_amount'] ?? 0);
+				if ($aa < 10000 || $aa > 300000) $bad[] = 'authorized_amount';
+				if (empty($body['payment_context']['cart']) || !is_array($body['payment_context']['cart'])) $bad[] = 'payment_context';
+				foreach (array('billing', 'shipping') as $o) {
+					foreach (array('first_name', 'last_name', 'address1', 'postcode', 'city', 'country', 'email', 'mobile_phone_number') as $k) {
+						if (empty($body[$o][$k])) $bad[] = $o . '.' . $k;
+					}
+					if (isset($body[$o]['email']) && strpos((string) $body[$o]['email'], '+') !== false) $bad[] = $o . '.email';
+				}
+				if (empty($body['shipping']['company_name'])) $bad[] = 'shipping.company_name';
+				if (empty($body['shipping']['delivery_type'])) $bad[] = 'shipping.delivery_type';
+				if (($body['billing']['country'] ?? '') !== ($body['shipping']['country'] ?? '') || !in_array($body['billing']['country'] ?? '', array('FR', 'IT', 'GP', 'MQ', 'GF', 'RE', 'YT'), true)) $bad[] = 'billing.country';
+				if ($bad) return self::answer(400, array('object' => 'error', 'message' => 'The parameters are invalid.', 'details' => array_fill_keys($bad, 'invalid')));
+				$body['amount'] = $aa;
+			}
 			$amount = (int) ($body['amount'] ?? 0);
 			if ($amount < 30 || $amount > 2000000 || ($body['currency'] ?? '') !== 'EUR') { $f = efb_ppg_fixture('error-400'); return self::answer(400, $f['response']['body']); }
 			if (!isset($body['billing']) || !isset($body['shipping'])) return self::answer(400, array('object' => 'error', 'message' => 'billing and shipping are required'));

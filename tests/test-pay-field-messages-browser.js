@@ -8,7 +8,8 @@
  *  2 a required payer field left empty → the message AT that field (role alert, aria-live, the input
  *    aria-invalid + aria-describedby, focus), no payments/create request; typing clears it;
  *  3 a value in the wrong format (e-mail, phone with the country code, a country the method does not
- *    take) → its own message at the field, no request; everything right → one create request;
+ *    take, a character the provider refuses such as "+") → its own message at the field, no request;
+ *    everything right → one create request;
  *  4 the server's field answer (payer_invalid with field_id) is shown at that field too;
  *  5 the provider's refusal (insufficient funds), EFB's rate limit and a network failure each have
  *    their own words, never "cannot take payments";
@@ -52,10 +53,10 @@ const form = [
   { id_: 'pf', type: 'gwa', name: 'Pay', pf_fixed: '150', pgw_map_email: 'em', pgw_map_phone: 'mo', pgw_map_country: 'co' }
 ];
 const requires = core.cleanSchema([
-  { key: 'pgw_map_email', type: 'field', label: 'Payer e-mail', required: true, format: 'email' },
+  { key: 'pgw_map_email', type: 'field', label: 'Payer e-mail', required: true, format: 'email', reject: '+' },
   { key: 'pgw_map_phone', type: 'field', label: 'Mobile number', required_for: ['oney'], format: 'phone_e164' },
   { key: 'pgw_map_country', type: 'field', label: 'Country', required_for: ['oney'], format: 'country', countries: ['FR'] }
-]).map((d) => ({ key: d.key, label: d.label, required: d.required && !d.required_for.length, required_for: d.required_for, visitor_message: d.visitor_message, format: d.format, countries: d.countries, invalid_message: d.invalid_message }));
+]).map((d) => ({ key: d.key, label: d.label, required: d.required && !d.required_for.length, required_for: d.required_for, visitor_message: d.visitor_message, format: d.format, countries: d.countries, invalid_message: d.invalid_message, reject: d.reject }));
 const fieldHtml = (id, name, input) => `<div class="efb row" id="${id}"><label for="${id}_" id="${id}_labG"><span id="${id}_lab">${name}</span><span class="efb mx-1 text-danger" id="${id}_req" role="none"></span></label>${input}<small id="${id}_-message" class="efb py-1 fs-7 tx ttiptext px-2" style="display:none"> ! </small></div>`;
 
 async function setup(page, query, dir) {
@@ -136,6 +137,12 @@ const slot = (page, id) => page.evaluate((id) => { const s = document.getElement
   await page.waitForTimeout(150);
   s = await slot(page, 'em');
   t('3: e-mail without a domain → "Please enter a valid e-mail address in "Email"." at the field, no request', s.text === 'Please enter a valid e-mail address in "Email".' && s.focus && creates() === 0, s);
+  // A character the provider refuses in the value (schema "reject", e.g. "+" in an Oney e-mail).
+  await page.fill('#em_', 'ana+shop@example.test');
+  await page.click('[data-pf-pay]');
+  await page.waitForTimeout(150);
+  s = await slot(page, 'em');
+  t('3: a "+" the provider refuses in the e-mail → "This payment method does not accept + in "Email" …" at the field, no request', s.text === 'This payment method does not accept + in "Email". Please enter it without +, or choose another payment method.' && s.focus && creates() === 0, s);
   await page.fill('#em_', 'ana@example.test');
   await page.click('[data-pf-method="oney"]');
   await page.fill('#mo_', '06 12 34 56 78');

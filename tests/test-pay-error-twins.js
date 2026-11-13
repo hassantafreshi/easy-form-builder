@@ -76,7 +76,12 @@ const P = [
   ['country by option id', { key: 'pgw_map_country', type: 'field', format: 'country' }, 'cde', 'co'],
   ['no format', { key: 'pgw_map_name', type: 'field' }, 'anything'],
   ['format on a select is ignored', { key: 'pgw_x', type: 'select', options: { a: 'A' }, format: 'email' }, 'a'],
-  ['unknown format', { key: 'pgw_map_name', type: 'field', format: 'iban' }, 'x']
+  ['unknown format', { key: 'pgw_map_name', type: 'field', format: 'iban' }, 'x'],
+  ['reject: e-mail with +', { key: 'pgw_map_email', type: 'field', format: 'email', reject: '+' }, 'ana+shop@example.test'],
+  ['reject: e-mail without +', { key: 'pgw_map_email', type: 'field', format: 'email', reject: '+' }, 'ana@example.test'],
+  ['reject: a malformed e-mail is a format problem first', { key: 'pgw_map_email', type: 'field', format: 'email', reject: '+' }, 'ana+@x'],
+  ['reject without a format', { key: 'pgw_map_name', type: 'field', reject: '#$' }, 'Room #4'],
+  ['reject: letters, digits, spaces and markup are dropped', { key: 'pgw_map_name', type: 'field', reject: 'a1 <+' }, 'a1 b<c']
 ];
 const form = base();
 const cases = W.map(([name, f, i, site]) => ({ op: 'warnings', form: f, infos: i, site: site || {}, name }))
@@ -103,6 +108,8 @@ t('warnings: two payment fields → one error, the second field still checked', 
 t('warnings: a deleted mapped field → warning when some methods work without it, error when every offered method needs it', codes('mapped field deleted, needed by some methods only') === 'pay_test_mode:info pay_option_field_missing:warning' && codes('mapped field deleted, needed by every offered method') === 'pay_test_mode:info pay_option_field_missing:error', [codes('mapped field deleted, needed by some methods only'), codes('mapped field deleted, needed by every offered method')]);
 t('warnings: survey / no type → pay_form_type error', codes('survey form').indexOf('pay_form_type:error') === 0 && codes('no type').indexOf('pay_form_type:error') === 0);
 const pr = (name) => R(name).problem + (R(name).iso ? '/' + R(name).iso : '');
+// Schema "reject" (characters the provider refuses, e.g. "+" in an Oney e-mail): 'chars', after the format.
+t('payer: reject → chars (after the format; letters, digits, spaces and markup cannot be rejected)', [pr('reject: e-mail with +'), pr('reject: e-mail without +'), pr('reject: a malformed e-mail is a format problem first'), pr('reject without a format'), pr('reject: letters, digits, spaces and markup are dropped')].join(',') === 'chars,,format,chars,', [pr('reject: e-mail with +'), pr('reject: e-mail without +'), pr('reject: a malformed e-mail is a format problem first'), pr('reject without a format'), pr('reject: letters, digits, spaces and markup are dropped')]);
 t('payer: e-mail formats', [pr('email ok'), pr('email no domain'), pr('email two @'), pr('email empty')].join(',') === ',format,format,', [pr('email ok'), pr('email no domain'), pr('email two @'), pr('email empty')]);
 t('payer: phone 7-15 digits (Arabic digits read), letters refused', [pr('phone ok'), pr('phone Arabic digits'), pr('phone too short'), pr('phone letters')].join(',') === ',,format,format');
 t('payer: phone_e164: + or 00 and the country code (Persian digits read)', [pr('e164 ok'), pr('e164 00 prefix'), pr('e164 Persian digits'), pr('e164 no plus'), pr('e164 +0')].join(',') === ',,,format,format');

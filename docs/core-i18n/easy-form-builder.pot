@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
 #. translators: %1$s: name of a form field (e.g. Mobile), %2$s: gateway name
-#: includes/payments/class-Emsfb-payment-frontend.php:333
+#: includes/payments/class-Emsfb-payment-frontend.php:335
 #: includes/payments/class-Emsfb-payment-registry.php:278
 #, php-format
 msgid "\"%1$s\" is needed by %2$s for the payment but is not marked Required. Visitors are asked for it when they press Pay; mark it Required so they see it earlier."
@@ -44,21 +44,21 @@ msgstr ""
 
 #. translators: %1$s: payment method, %2$s: amount with currency
 #: includes/payments/class-Emsfb-payment-frontend.php:56
-#: includes/payments/class-Emsfb-payment-service.php:191
+#: includes/payments/class-Emsfb-payment-service.php:194
 #, php-format
 msgid "%1$s accepts amounts from %2$s. Please choose another payment method."
 msgstr ""
 
 #. translators: %1$s: payment method, %2$s: amount with currency
 #: includes/payments/class-Emsfb-payment-frontend.php:58
-#: includes/payments/class-Emsfb-payment-service.php:194
+#: includes/payments/class-Emsfb-payment-service.php:197
 #, php-format
 msgid "%1$s accepts amounts up to %2$s. Please choose another payment method."
 msgstr ""
 
 #. translators: %1$s: gateway name, %2$s: the gateway's minimum, %3$s: the
 #. form's fixed amount
-#: includes/payments/class-Emsfb-payment-frontend.php:345
+#: includes/payments/class-Emsfb-payment-frontend.php:347
 #: includes/payments/class-Emsfb-payment-registry.php:299
 #, php-format
 msgid "%1$s accepts payments from %2$s. The fixed amount of this form is %3$s; visitors can only pay when other choices raise the total."
@@ -66,7 +66,7 @@ msgstr ""
 
 #. translators: %1$s: gateway name, %2$s: the gateway's minimum, %3$s: the
 #. donation minimum of the form
-#: includes/payments/class-Emsfb-payment-frontend.php:349
+#: includes/payments/class-Emsfb-payment-frontend.php:351
 #: includes/payments/class-Emsfb-payment-registry.php:305
 #, php-format
 msgid "%1$s accepts payments from %2$s. The smallest donation of this form (%3$s) is below it."
@@ -74,7 +74,7 @@ msgstr ""
 
 #. translators: %1$s: gateway name, %2$s: the gateway's maximum, %3$s: the
 #. form's fixed amount
-#: includes/payments/class-Emsfb-payment-frontend.php:343
+#: includes/payments/class-Emsfb-payment-frontend.php:345
 #: includes/payments/class-Emsfb-payment-registry.php:297
 #, php-format
 msgid "%1$s accepts payments up to %2$s. The fixed amount of this form is %3$s, so visitors cannot pay."
@@ -82,7 +82,7 @@ msgstr ""
 
 #. translators: %1$s: gateway name, %2$s: the gateway's maximum, %3$s: the
 #. donation maximum of the form
-#: includes/payments/class-Emsfb-payment-frontend.php:347
+#: includes/payments/class-Emsfb-payment-frontend.php:349
 #: includes/payments/class-Emsfb-payment-registry.php:303
 #, php-format
 msgid "%1$s accepts payments up to %2$s. The largest donation of this form (%3$s) is above it."
@@ -133,7 +133,7 @@ msgstr ""
 
 #. translators: %1$s: gateway name, %2$s: currency codes, %3$s: the form's
 #. currency
-#: includes/payments/class-Emsfb-payment-frontend.php:320
+#: includes/payments/class-Emsfb-payment-frontend.php:322
 #: includes/payments/class-Emsfb-payment-registry.php:263
 #, php-format
 msgid "%1$s only accepts %2$s. This form uses %3$s, so visitors cannot pay. Change the currency in the payment field."
@@ -142,7 +142,7 @@ msgstr ""
 #. translators: %1$s: gateway name, %2$s: what is needed (option name, e.g.
 #. Payer e-mail), %3$s: payment methods, %4$s: kind of field (e.g. an Email
 #. field)
-#: includes/payments/class-Emsfb-payment-frontend.php:324
+#: includes/payments/class-Emsfb-payment-frontend.php:326
 #: includes/payments/class-Emsfb-payment-registry.php:341
 #, php-format
 msgid "%1$s requires \"%2$s\" to pay with %3$s. Add %4$s to the form and select it in the payment field's \"%2$s\" option."
@@ -150,7 +150,7 @@ msgstr ""
 
 #. translators: %1$s: gateway name, %2$s: what is needed (option name, e.g.
 #. Payer e-mail), %3$s: kind of field (e.g. an Email field)
-#: includes/payments/class-Emsfb-payment-frontend.php:322
+#: includes/payments/class-Emsfb-payment-frontend.php:324
 #: includes/payments/class-Emsfb-payment-registry.php:344
 #, php-format
 msgid "%1$s requires \"%2$s\". Add %3$s to the form and select it in the payment field's \"%2$s\" option."
@@ -164,7 +164,7 @@ msgstr ""
 
 #. translators: %1$s: gateway name, %2$s: payment methods, %3$s: the form's
 #. currency
-#: includes/payments/class-Emsfb-payment-frontend.php:351
+#: includes/payments/class-Emsfb-payment-frontend.php:353
 #: includes/payments/class-Emsfb-payment-registry.php:314
 #, php-format
 msgid "%1$s: %2$s cannot take %3$s, so it is not offered on this form. Choose other methods or change the currency."
@@ -172,7 +172,7 @@ msgstr ""
 
 #. translators: %1$s: gateway name, %2$s: name of an option of the payment
 #. field
-#: includes/payments/class-Emsfb-payment-frontend.php:329
+#: includes/payments/class-Emsfb-payment-frontend.php:331
 #: includes/payments/class-Emsfb-payment-registry.php:268
 #, php-format
 msgid "%1$s: the field chosen for \"%2$s\" is no longer in the form. Choose another one."
@@ -180,7 +180,7 @@ msgstr ""
 
 #. translators: %1$s: gateway name, %2$s: name of an option of the payment
 #. field
-#: includes/payments/class-Emsfb-payment-frontend.php:331
+#: includes/payments/class-Emsfb-payment-frontend.php:333
 #: includes/payments/class-Emsfb-payment-registry.php:271
 #, php-format
 msgid "%1$s: the field chosen for \"%2$s\" is not the right kind of field."
@@ -328,14 +328,14 @@ msgid "%s entries will be removed on the next run."
 msgstr ""
 
 #. translators: %s: gateway name
-#: includes/payments/class-Emsfb-payment-frontend.php:335
+#: includes/payments/class-Emsfb-payment-frontend.php:337
 #: includes/payments/class-Emsfb-payment-registry.php:282
 #, php-format
 msgid "%s has no keys for Live mode yet, so visitors cannot pay. Add them in Payments → Gateways."
 msgstr ""
 
 #. translators: %s: gateway name
-#: includes/payments/class-Emsfb-payment-frontend.php:337
+#: includes/payments/class-Emsfb-payment-frontend.php:339
 #: includes/payments/class-Emsfb-payment-registry.php:284
 #, php-format
 msgid "%s has no keys for Test mode yet, so the form cannot be tried. Add them in Payments → Gateways."
@@ -353,7 +353,7 @@ msgid "%s is currently unavailable."
 msgstr ""
 
 #. translators: %s: gateway name
-#: includes/payments/class-Emsfb-payment-frontend.php:339
+#: includes/payments/class-Emsfb-payment-frontend.php:341
 #: includes/payments/class-Emsfb-payment-registry.php:287
 #, php-format
 msgid "%s is in Test mode: no real payments are taken. Switch it to Live in Payments → Gateways when you are ready."
@@ -663,17 +663,17 @@ msgid "A new user has registered on your website."
 msgstr ""
 
 #. translators: %s: the form's type (e.g. survey)
-#: includes/payments/class-Emsfb-payment-frontend.php:354
+#: includes/payments/class-Emsfb-payment-frontend.php:356
 #: includes/payments/class-Emsfb-payment-registry.php:319
 #, php-format
 msgid "A payment field only works in a payment form. This form is a \"%s\" form: create a payment form or remove the payment field."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:1397
+#: includes/payments/class-Emsfb-payment-service.php:1400
 msgid "A payment needs your attention"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:1397
+#: includes/payments/class-Emsfb-payment-service.php:1400
 msgid "A payment was not completed"
 msgstr ""
 
@@ -763,7 +763,7 @@ msgstr ""
 msgid "Aadhaar number"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:287
+#: includes/payments/class-Emsfb-payment-frontend.php:289
 msgid "Above"
 msgstr ""
 
@@ -772,7 +772,7 @@ msgstr ""
 msgid "Accent"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:293
+#: includes/payments/class-Emsfb-payment-frontend.php:295
 msgid "Accent and focus colour"
 msgstr ""
 
@@ -866,7 +866,7 @@ msgid "Active"
 msgstr ""
 
 #: includes/functions.php:2140
-#: includes/payments/class-Emsfb-payment-frontend.php:238
+#: includes/payments/class-Emsfb-payment-frontend.php:240
 msgid "Add"
 msgstr ""
 
@@ -892,7 +892,7 @@ msgstr ""
 msgid "Add New API Connection"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:237
+#: includes/payments/class-Emsfb-payment-frontend.php:239
 msgid "Add a language (locale, e.g. de_DE)"
 msgstr ""
 
@@ -1051,7 +1051,7 @@ msgstr ""
 msgid "After changing the Development Mode (Sandbox) option, save the settings, then deactivate and reactivate Easy Form Builder plugin from the Plugins page for the changes to take effect."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:301
+#: includes/payments/class-Emsfb-payment-frontend.php:303
 msgid "After payment"
 msgstr ""
 
@@ -1060,7 +1060,7 @@ msgstr ""
 msgid "After submission, visitors can see aggregate survey results"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:274
+#: includes/payments/class-Emsfb-payment-frontend.php:276
 msgid "After the text"
 msgstr ""
 
@@ -1132,7 +1132,7 @@ msgstr ""
 msgid "All required add-ons were restored."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:250
+#: includes/payments/class-Emsfb-payment-frontend.php:252
 msgid "Allow another amount"
 msgstr ""
 
@@ -1180,12 +1180,12 @@ msgstr ""
 #: includes/payments/class-Emsfb-payment-admin.php:210
 #: includes/payments/class-Emsfb-payment-admin.php:223
 #: includes/payments/class-Emsfb-payment-frontend.php:37
-#: includes/payments/class-Emsfb-payment-frontend.php:310
-#: includes/payments/class-Emsfb-payment-service.php:1401
+#: includes/payments/class-Emsfb-payment-frontend.php:312
+#: includes/payments/class-Emsfb-payment-service.php:1404
 msgid "Amount"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:217
+#: includes/payments/class-Emsfb-payment-frontend.php:219
 msgid "Amount (donation)"
 msgstr ""
 
@@ -1201,7 +1201,7 @@ msgstr ""
 msgid "Amount in Toman"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:231
+#: includes/payments/class-Emsfb-payment-frontend.php:233
 msgid "Amount title"
 msgstr ""
 
@@ -1213,7 +1213,7 @@ msgstr ""
 msgid "An auto-saved version exists"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:1397
+#: includes/payments/class-Emsfb-payment-service.php:1400
 msgid "An entry was paid twice"
 msgstr ""
 
@@ -1230,7 +1230,7 @@ msgstr ""
 msgid "An image in the form was not carried over."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:304
+#: includes/payments/class-Emsfb-payment-frontend.php:306
 msgid "An unpaid entry stays \"pending payment\". Choose when each notification goes out."
 msgstr ""
 
@@ -1320,7 +1320,7 @@ msgstr ""
 msgid "Area Code"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:306
+#: includes/payments/class-Emsfb-payment-frontend.php:308
 msgid "As on wide screens"
 msgstr ""
 
@@ -1463,7 +1463,7 @@ msgstr ""
 #. translators: F19: text colour option: black or white, whichever is easier to
 #. read
 #: includes/functions.php:2743
-#: includes/payments/class-Emsfb-payment-frontend.php:259
+#: includes/payments/class-Emsfb-payment-frontend.php:261
 msgid "Automatic (readable)"
 msgstr ""
 
@@ -1501,12 +1501,12 @@ msgstr ""
 msgid "Back (environment)"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:239
+#: includes/payments/class-Emsfb-payment-frontend.php:241
 msgid "Back to the default translation"
 msgstr ""
 
 #: includes/functions.php:3647
-#: includes/payments/class-Emsfb-payment-frontend.php:290
+#: includes/payments/class-Emsfb-payment-frontend.php:292
 msgid "Background"
 msgstr ""
 
@@ -1570,7 +1570,7 @@ msgstr ""
 msgid "Before activating this option, install"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:273
+#: includes/payments/class-Emsfb-payment-frontend.php:275
 msgid "Before the text"
 msgstr ""
 
@@ -1585,7 +1585,7 @@ msgstr ""
 
 #. translators: Beside = next to/alongside (label position)
 #: includes/functions.php:2217
-#: includes/payments/class-Emsfb-payment-frontend.php:288
+#: includes/payments/class-Emsfb-payment-frontend.php:290
 msgid "Beside"
 msgstr ""
 
@@ -1646,7 +1646,7 @@ msgid "Bootstrap Template"
 msgstr ""
 
 #: includes/page-builders/elementor/class-Emsfb-elementor-widget.php:119
-#: includes/payments/class-Emsfb-payment-frontend.php:291
+#: includes/payments/class-Emsfb-payment-frontend.php:293
 msgid "Border"
 msgstr ""
 
@@ -1662,7 +1662,7 @@ msgstr ""
 msgid "Border Radius (px)"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:303
+#: includes/payments/class-Emsfb-payment-frontend.php:305
 msgid "Both"
 msgstr ""
 
@@ -1683,7 +1683,7 @@ msgstr ""
 msgid "Box Shadow"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:292
+#: includes/payments/class-Emsfb-payment-frontend.php:294
 msgid "Box corner radius (px)"
 msgstr ""
 
@@ -1777,7 +1777,7 @@ msgid "Business Card"
 msgstr ""
 
 #: includes/functions.php:3605
-#: includes/payments/class-Emsfb-payment-frontend.php:311
+#: includes/payments/class-Emsfb-payment-frontend.php:313
 msgid "Button"
 msgstr ""
 
@@ -1809,13 +1809,13 @@ msgid "Button color"
 msgstr ""
 
 #. translators: %s is a number or %amount% stays as written
-#: includes/payments/class-Emsfb-payment-frontend.php:257
+#: includes/payments/class-Emsfb-payment-frontend.php:259
 msgid "Button colour"
 msgstr ""
 
 #. translators: %s is a number or %amount% stays as written
-#: includes/payments/class-Emsfb-payment-frontend.php:227
-#: includes/payments/class-Emsfb-payment-frontend.php:256
+#: includes/payments/class-Emsfb-payment-frontend.php:229
+#: includes/payments/class-Emsfb-payment-frontend.php:258
 msgid "Button text (%amount% = amount)"
 msgstr ""
 
@@ -1991,7 +1991,7 @@ msgstr ""
 msgid "Card"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:219
+#: includes/payments/class-Emsfb-payment-frontend.php:221
 msgid "Card / QR area"
 msgstr ""
 
@@ -2062,7 +2062,7 @@ msgstr ""
 msgid "Change rating"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:255
+#: includes/payments/class-Emsfb-payment-frontend.php:257
 msgid "Charging a mandatory fee on consumer cards is not allowed in the EU. Use the optional \"cover the fee\" setting for donations instead."
 msgstr ""
 
@@ -2409,7 +2409,7 @@ msgstr ""
 msgid "Colors & Fonts"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:261
+#: includes/payments/class-Emsfb-payment-frontend.php:263
 msgid "Colour on hover"
 msgstr ""
 
@@ -2463,7 +2463,7 @@ msgstr ""
 #: includes/functions.php:2157 includes/functions.php:4489
 #: includes/payments/class-Emsfb-payment-admin.php:150
 #: includes/payments/class-Emsfb-payment-admin.php:189
-#: includes/payments/class-Emsfb-payment-service.php:1399
+#: includes/payments/class-Emsfb-payment-service.php:1402
 msgid "Confirmation Code"
 msgstr ""
 
@@ -2596,7 +2596,7 @@ msgid "Contrast %s:1 — easy to read"
 msgstr ""
 
 #. translators: %s is a number or %amount% stays as written
-#: includes/payments/class-Emsfb-payment-frontend.php:214
+#: includes/payments/class-Emsfb-payment-frontend.php:216
 #, php-format
 msgid "Contrast %s:1, readable."
 msgstr ""
@@ -2669,7 +2669,7 @@ msgstr ""
 msgid "Core form fields"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:262
+#: includes/payments/class-Emsfb-payment-frontend.php:264
 msgid "Corner radius (px)"
 msgstr ""
 
@@ -2785,7 +2785,7 @@ msgid "Curly Cut"
 msgstr ""
 
 #: includes/functions.php:2394
-#: includes/payments/class-Emsfb-payment-frontend.php:245
+#: includes/payments/class-Emsfb-payment-frontend.php:247
 msgid "Currency"
 msgstr ""
 
@@ -2807,7 +2807,7 @@ msgstr ""
 #. translators: F19: text colour option: a colour the admin picks translators:
 #. Fallback label shown for a social link with no preset name
 #: includes/functions.php:2745 includes/functions.php:3751
-#: includes/payments/class-Emsfb-payment-frontend.php:260
+#: includes/payments/class-Emsfb-payment-frontend.php:262
 msgid "Custom"
 msgstr ""
 
@@ -3010,7 +3010,7 @@ msgid "Declined"
 msgstr ""
 
 #: includes/functions.php:1805
-#: includes/payments/class-Emsfb-payment-frontend.php:213
+#: includes/payments/class-Emsfb-payment-frontend.php:215
 msgid "Default"
 msgstr ""
 
@@ -3198,11 +3198,11 @@ msgstr ""
 msgid "Digit grouping"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:295
+#: includes/payments/class-Emsfb-payment-frontend.php:297
 msgid "Digits"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:296
+#: includes/payments/class-Emsfb-payment-frontend.php:298
 msgid "Digits of the language"
 msgstr ""
 
@@ -3313,7 +3313,7 @@ msgstr ""
 msgid "Donation amounts on payments"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:248
+#: includes/payments/class-Emsfb-payment-frontend.php:250
 msgid "Donation: the visitor chooses the amount"
 msgstr ""
 
@@ -3405,7 +3405,7 @@ msgstr ""
 msgid "Drinks"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:282
+#: includes/payments/class-Emsfb-payment-frontend.php:284
 msgid "Drop-down"
 msgstr ""
 
@@ -3442,15 +3442,15 @@ msgstr ""
 msgid "Dutch postcode"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:305
+#: includes/payments/class-Emsfb-payment-frontend.php:307
 msgid "E-mail the owner when a payment fails or expires"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:297
+#: includes/payments/class-Emsfb-payment-frontend.php:299
 msgid "E-mail to the owner"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:298
+#: includes/payments/class-Emsfb-payment-frontend.php:300
 msgid "E-mail to the payer"
 msgstr ""
 
@@ -4188,7 +4188,7 @@ msgstr ""
 msgid "Every feature, with no limits, and support included."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:284
+#: includes/payments/class-Emsfb-payment-frontend.php:286
 msgid "Every item"
 msgstr ""
 
@@ -4281,7 +4281,7 @@ msgstr ""
 msgid "Failing since: %s"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:235
+#: includes/payments/class-Emsfb-payment-frontend.php:237
 msgid "Failure message"
 msgstr ""
 
@@ -4415,7 +4415,7 @@ msgstr ""
 msgid "Fish and seafood"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:269
+#: includes/payments/class-Emsfb-payment-frontend.php:271
 msgid "Fit the text"
 msgstr ""
 
@@ -4423,7 +4423,7 @@ msgstr ""
 msgid "Fix it in the payment field"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:246
+#: includes/payments/class-Emsfb-payment-frontend.php:248
 msgid "Fixed amount (added to the total)"
 msgstr ""
 
@@ -4822,7 +4822,7 @@ msgstr ""
 msgid "Full Report"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:268
+#: includes/payments/class-Emsfb-payment-frontend.php:270
 msgid "Full width"
 msgstr ""
 
@@ -4839,8 +4839,8 @@ msgstr ""
 #: includes/payments/class-Emsfb-payment-admin.php:137
 #: includes/payments/class-Emsfb-payment-admin.php:150
 #: includes/payments/class-Emsfb-payment-admin.php:186
-#: includes/payments/class-Emsfb-payment-frontend.php:309
-#: includes/payments/class-Emsfb-payment-service.php:1400
+#: includes/payments/class-Emsfb-payment-frontend.php:311
+#: includes/payments/class-Emsfb-payment-service.php:1403
 msgid "Gateway"
 msgstr ""
 
@@ -4852,7 +4852,7 @@ msgstr ""
 msgid "Gateway settings"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:243
+#: includes/payments/class-Emsfb-payment-frontend.php:245
 msgid "Gateway settings and keys"
 msgstr ""
 
@@ -5022,7 +5022,7 @@ msgstr ""
 msgid "Gregorian, Hijri and Jalali Date Pickers"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:280
+#: includes/payments/class-Emsfb-payment-frontend.php:282
 msgid "Grid"
 msgstr ""
 
@@ -5137,7 +5137,7 @@ msgstr ""
 msgid "Hi, I placed my order last week and still have no tracking code. Could you check it?"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:289
+#: includes/payments/class-Emsfb-payment-frontend.php:291
 msgid "Hidden (screen readers only)"
 msgstr ""
 
@@ -5175,7 +5175,7 @@ msgstr ""
 msgid "Hide label on mobile"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:307
+#: includes/payments/class-Emsfb-payment-frontend.php:309
 msgid "Hide on phones (comma separated: summary, secure, logos, methods, amount)"
 msgstr ""
 
@@ -5351,7 +5351,7 @@ msgstr ""
 
 #. translators: Field label for the icon picker on a social-link block
 #: includes/functions.php:1842 includes/functions.php:3739
-#: includes/payments/class-Emsfb-payment-frontend.php:270
+#: includes/payments/class-Emsfb-payment-frontend.php:272
 msgid "Icon"
 msgstr ""
 
@@ -5365,7 +5365,7 @@ msgstr ""
 msgid "Icon Size (px)"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:272
+#: includes/payments/class-Emsfb-payment-frontend.php:274
 msgid "Icon position"
 msgstr ""
 
@@ -5682,7 +5682,7 @@ msgid "Invalid or expired nonce"
 msgstr ""
 
 #: includes/class-Emsfb-public.php:10149 includes/class-Emsfb-public.php:10202
-#: includes/payments/class-Emsfb-payment-service.php:182
+#: includes/payments/class-Emsfb-payment-service.php:185
 msgid "Invalid payment selection. Please review your choices and try again. If the problem persists, contact the site administrator."
 msgstr ""
 
@@ -6005,8 +6005,8 @@ msgstr ""
 
 #. translators: Label = text label for a form element
 #: includes/functions.php:1645
-#: includes/payments/class-Emsfb-payment-frontend.php:244
-#: includes/payments/class-Emsfb-payment-frontend.php:286
+#: includes/payments/class-Emsfb-payment-frontend.php:246
+#: includes/payments/class-Emsfb-payment-frontend.php:288
 msgid "Label"
 msgstr ""
 
@@ -6041,7 +6041,7 @@ msgstr ""
 msgid "Lakh (12,34,567)"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:236
+#: includes/payments/class-Emsfb-payment-frontend.php:238
 msgid "Language"
 msgstr ""
 
@@ -6060,7 +6060,7 @@ msgid "Languages affected: %s"
 msgstr ""
 
 #: includes/functions.php:1807
-#: includes/payments/class-Emsfb-payment-frontend.php:266
+#: includes/payments/class-Emsfb-payment-frontend.php:268
 msgid "Large"
 msgstr ""
 
@@ -6097,8 +6097,8 @@ msgstr ""
 
 #. translators: Category labels for email builder blocks panel
 #: includes/functions.php:3622
-#: includes/payments/class-Emsfb-payment-frontend.php:275
-#: includes/payments/class-Emsfb-payment-frontend.php:312
+#: includes/payments/class-Emsfb-payment-frontend.php:277
+#: includes/payments/class-Emsfb-payment-frontend.php:314
 msgid "Layout"
 msgstr ""
 
@@ -6250,7 +6250,7 @@ msgstr ""
 msgid "Links to uploaded files in the email work for %s days; then the files are deleted."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:279
+#: includes/payments/class-Emsfb-payment-frontend.php:281
 msgid "List"
 msgstr ""
 
@@ -6264,7 +6264,7 @@ msgstr ""
 msgid "Live Preview"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:240
+#: includes/payments/class-Emsfb-payment-frontend.php:242
 msgid "Live: connected"
 msgstr ""
 
@@ -6338,11 +6338,11 @@ msgstr ""
 msgid "Logo"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:294
+#: includes/payments/class-Emsfb-payment-frontend.php:296
 msgid "Logo size"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:222
+#: includes/payments/class-Emsfb-payment-frontend.php:224
 msgid "Logos"
 msgstr ""
 
@@ -6501,7 +6501,7 @@ msgstr ""
 msgid "Max wait time"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:252
+#: includes/payments/class-Emsfb-payment-frontend.php:254
 msgid "Maximum"
 msgstr ""
 
@@ -6528,7 +6528,7 @@ msgid "Media"
 msgstr ""
 
 #: includes/functions.php:2423
-#: includes/payments/class-Emsfb-payment-frontend.php:265
+#: includes/payments/class-Emsfb-payment-frontend.php:267
 msgid "Medium"
 msgstr ""
 
@@ -6580,11 +6580,11 @@ msgstr ""
 msgid "Method payment"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:278
+#: includes/payments/class-Emsfb-payment-frontend.php:280
 msgid "Methods"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:230
+#: includes/payments/class-Emsfb-payment-frontend.php:232
 msgid "Methods title"
 msgstr ""
 
@@ -6615,7 +6615,7 @@ msgstr ""
 msgid "Minimal Clean"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:251
+#: includes/payments/class-Emsfb-payment-frontend.php:253
 msgid "Minimum"
 msgstr ""
 
@@ -6758,11 +6758,11 @@ msgstr ""
 msgid "Move Up"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:226
+#: includes/payments/class-Emsfb-payment-frontend.php:228
 msgid "Move down"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:225
+#: includes/payments/class-Emsfb-payment-frontend.php:227
 msgid "Move up"
 msgstr ""
 
@@ -6831,7 +6831,7 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:247
+#: includes/payments/class-Emsfb-payment-frontend.php:249
 msgid "Name of the fixed amount"
 msgstr ""
 
@@ -6839,7 +6839,7 @@ msgstr ""
 msgid "National language"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:74
+#: includes/payments/class-Emsfb-payment-frontend.php:76
 msgid "Needed for the payment"
 msgstr ""
 
@@ -7077,7 +7077,7 @@ msgstr ""
 msgid "No keys for Test mode: the payment forms cannot be tried. Enter the Test keys and press Test connection."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:242
+#: includes/payments/class-Emsfb-payment-frontend.php:244
 msgid "No keys yet"
 msgstr ""
 
@@ -7159,7 +7159,7 @@ msgstr ""
 #. F01 builder: "no input format" option, and "no check digit" option
 #: includes/functions.php:2701 includes/functions.php:4086
 #: includes/functions.php:4175
-#: includes/payments/class-Emsfb-payment-frontend.php:271
+#: includes/payments/class-Emsfb-payment-frontend.php:273
 msgid "None"
 msgstr ""
 
@@ -7259,7 +7259,7 @@ msgstr ""
 msgid "Notification emails are turned off"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:314
+#: includes/payments/class-Emsfb-payment-frontend.php:316
 msgid "Notifications"
 msgstr ""
 
@@ -7391,7 +7391,7 @@ msgstr ""
 
 #. translators: %1$s: date and time, %2$s: gateway name, %3$s: Live or Test,
 #. %4$s: error code
-#: includes/payments/class-Emsfb-payment-service.php:500
+#: includes/payments/class-Emsfb-payment-service.php:503
 #, php-format
 msgid "On %1$s a visitor could not pay because %2$s refused the payment set-up of %3$s mode (%4$s). Check the keys and the account (currencies, payment methods), then press Test connection."
 msgstr ""
@@ -7404,7 +7404,7 @@ msgstr ""
 msgid "Once Weekly (Easy Form Builder)"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:276
+#: includes/payments/class-Emsfb-payment-frontend.php:278
 msgid "One column"
 msgstr ""
 
@@ -7448,7 +7448,7 @@ msgstr ""
 msgid "Online payments are not part of the plan of this site, so visitors cannot pay. Choose a plan that includes payments."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:1328
+#: includes/payments/class-Emsfb-payment-service.php:1331
 msgid "Only a paid payment can be refunded."
 msgstr ""
 
@@ -7606,14 +7606,14 @@ msgstr ""
 msgid "Order follow-up"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:223
+#: includes/payments/class-Emsfb-payment-frontend.php:225
 msgid "Order of the parts"
 msgstr ""
 
 #. translators: %s is a number or %amount% stays as written
 #: includes/payments/class-Emsfb-payment-admin.php:200
 #: includes/payments/class-Emsfb-payment-frontend.php:30
-#: includes/payments/class-Emsfb-payment-frontend.php:216
+#: includes/payments/class-Emsfb-payment-frontend.php:218
 msgid "Order summary"
 msgstr ""
 
@@ -7624,7 +7624,7 @@ msgid "Other"
 msgstr ""
 
 #: includes/payments/class-Emsfb-payment-frontend.php:38
-#: includes/payments/class-Emsfb-payment-frontend.php:232
+#: includes/payments/class-Emsfb-payment-frontend.php:234
 msgid "Other amount"
 msgstr ""
 
@@ -7784,7 +7784,7 @@ msgstr ""
 msgid "Pay amount"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:220
+#: includes/payments/class-Emsfb-payment-frontend.php:222
 msgid "Pay button"
 msgstr ""
 
@@ -7819,7 +7819,7 @@ msgstr ""
 msgid "Payer"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:316
+#: includes/payments/class-Emsfb-payment-frontend.php:318
 msgid "Payer details and gateway options"
 msgstr ""
 
@@ -7854,7 +7854,7 @@ msgstr ""
 msgid "Payment Single choose"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:1396
+#: includes/payments/class-Emsfb-payment-service.php:1399
 msgid "Payment amount does not match"
 msgstr ""
 
@@ -7887,11 +7887,11 @@ msgstr ""
 msgid "Payment gateways"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:218
+#: includes/payments/class-Emsfb-payment-frontend.php:220
 msgid "Payment methods"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:317
+#: includes/payments/class-Emsfb-payment-frontend.php:319
 msgid "Payment methods (order and choice)"
 msgstr ""
 
@@ -7900,7 +7900,7 @@ msgid "Payment not completed"
 msgstr ""
 
 #: includes/payments/class-Emsfb-payment-frontend.php:33
-#: includes/payments/class-Emsfb-payment-service.php:1177
+#: includes/payments/class-Emsfb-payment-service.php:1180
 msgid "Payment received. Thank you!"
 msgstr ""
 
@@ -7936,7 +7936,7 @@ msgstr ""
 
 #. translators: %s: name of the form field (e.g. Country)
 #: includes/payments/class-Emsfb-payment-frontend.php:73
-#: includes/payments/class-Emsfb-payment-service.php:141
+#: includes/payments/class-Emsfb-payment-service.php:144
 #, php-format
 msgid "Payments with this method are not available for the country in \"%s\". Please check it or choose another payment method."
 msgstr ""
@@ -8009,11 +8009,11 @@ msgstr ""
 msgid "Phone keypad"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:308
+#: includes/payments/class-Emsfb-payment-frontend.php:310
 msgid "Phone layout of the field is part of Pro."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:315
+#: includes/payments/class-Emsfb-payment-frontend.php:317
 msgid "Phones"
 msgstr ""
 
@@ -8138,7 +8138,7 @@ msgstr ""
 #: includes/payments/class-Emsfb-payment-admin.php:461
 #: includes/payments/class-Emsfb-payment-admin.php:471
 #: includes/payments/class-Emsfb-payment-frontend.php:49
-#: includes/payments/class-Emsfb-payment-service.php:177
+#: includes/payments/class-Emsfb-payment-service.php:180
 msgid "Please choose a valid amount."
 msgstr ""
 
@@ -8406,7 +8406,7 @@ msgstr ""
 msgid "Please wait, you will be redirected shortly."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:1336
+#: includes/payments/class-Emsfb-payment-service.php:1339
 msgid "Please write why (for example: refunded in the gateway dashboard)."
 msgstr ""
 
@@ -8492,7 +8492,7 @@ msgstr ""
 msgid "Preparing your form"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:253
+#: includes/payments/class-Emsfb-payment-frontend.php:255
 msgid "Preselected amount"
 msgstr ""
 
@@ -9214,7 +9214,7 @@ msgid "SID Validation Error"
 msgstr ""
 
 #: includes/functions.php:3032
-#: includes/payments/class-Emsfb-payment-frontend.php:299
+#: includes/payments/class-Emsfb-payment-frontend.php:301
 #: vendor/smssended/class-Emsfb-sms.php:62
 msgid "SMS"
 msgstr ""
@@ -9471,8 +9471,8 @@ msgid "Security check failed. Please reload the page."
 msgstr ""
 
 #. translators: %s is a number or %amount% stays as written
-#: includes/payments/class-Emsfb-payment-frontend.php:221
-#: includes/payments/class-Emsfb-payment-frontend.php:228
+#: includes/payments/class-Emsfb-payment-frontend.php:223
+#: includes/payments/class-Emsfb-payment-frontend.php:230
 msgid "Security note"
 msgstr ""
 
@@ -9828,7 +9828,7 @@ msgstr ""
 
 #. translators: Show = field-level show/hide action option
 #: includes/functions.php:2645
-#: includes/payments/class-Emsfb-payment-frontend.php:224
+#: includes/payments/class-Emsfb-payment-frontend.php:226
 msgid "Show"
 msgstr ""
 
@@ -9933,7 +9933,7 @@ msgstr ""
 msgid "Site URL"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:263
+#: includes/payments/class-Emsfb-payment-frontend.php:265
 msgid "Size"
 msgstr ""
 
@@ -9968,7 +9968,7 @@ msgid "Slug"
 msgstr ""
 
 #: includes/functions.php:1806 includes/functions.php:2424
-#: includes/payments/class-Emsfb-payment-frontend.php:264
+#: includes/payments/class-Emsfb-payment-frontend.php:266
 msgid "Small"
 msgstr ""
 
@@ -10179,7 +10179,7 @@ msgstr ""
 #. translators: Status = generic column header
 #: includes/payments/class-Emsfb-payment-admin.php:139
 #: includes/payments/class-Emsfb-payment-admin.php:150
-#: includes/payments/class-Emsfb-payment-service.php:1402
+#: includes/payments/class-Emsfb-payment-service.php:1405
 #: includes/phrases.php:632
 msgid "Status"
 msgstr ""
@@ -10388,7 +10388,7 @@ msgstr ""
 msgid "Subscription suspended successfully."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:234
+#: includes/payments/class-Emsfb-payment-frontend.php:236
 msgid "Success message"
 msgstr ""
 
@@ -10407,19 +10407,19 @@ msgstr ""
 msgid "Sudanese mobile"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:249
+#: includes/payments/class-Emsfb-payment-frontend.php:251
 msgid "Suggested amounts (comma separated, up to 8)"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:283
+#: includes/payments/class-Emsfb-payment-frontend.php:285
 msgid "Summary"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:277
+#: includes/payments/class-Emsfb-payment-frontend.php:279
 msgid "Summary beside (wide screens)"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:229
+#: includes/payments/class-Emsfb-payment-frontend.php:231
 msgid "Summary title"
 msgstr ""
 
@@ -10533,7 +10533,7 @@ msgstr ""
 msgid "System Ready"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:281
+#: includes/payments/class-Emsfb-payment-frontend.php:283
 msgid "Tabs"
 msgstr ""
 
@@ -10690,7 +10690,7 @@ msgstr ""
 msgid "Test gateway"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:241
+#: includes/payments/class-Emsfb-payment-frontend.php:243
 msgid "Test mode only (no real payments)"
 msgstr ""
 
@@ -10750,7 +10750,7 @@ msgstr ""
 msgid "Text color"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:258
+#: includes/payments/class-Emsfb-payment-frontend.php:260
 msgid "Text colour"
 msgstr ""
 
@@ -10760,7 +10760,7 @@ msgstr ""
 msgid "Text may be hard to read: contrast %s:1, at least 4.5:1 is needed. Choose “Automatic” text color or change the background."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:313
+#: includes/payments/class-Emsfb-payment-frontend.php:315
 msgid "Texts and languages"
 msgstr ""
 
@@ -10987,7 +10987,7 @@ msgstr ""
 msgid "The add-on is already installed."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:1334
+#: includes/payments/class-Emsfb-payment-service.php:1337
 msgid "The add-on of this gateway is not active, so it cannot refund. Activate it, or refund in the gateway's dashboard and use \"Mark as refunded outside EFB\"."
 msgstr ""
 
@@ -11004,18 +11004,18 @@ msgid "The add-ons are already being reinstalled in another tab or in the backgr
 msgstr ""
 
 #: includes/payments/class-Emsfb-payment-frontend.php:53
-#: includes/payments/class-Emsfb-payment-service.php:173
+#: includes/payments/class-Emsfb-payment-service.php:176
 #, php-format
 msgid "The amount must be at least %s."
 msgstr ""
 
 #: includes/payments/class-Emsfb-payment-frontend.php:54
-#: includes/payments/class-Emsfb-payment-service.php:175
+#: includes/payments/class-Emsfb-payment-service.php:178
 #, php-format
 msgid "The amount must be at most %s."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:171
+#: includes/payments/class-Emsfb-payment-service.php:174
 #, php-format
 msgid "The amount was updated to %s. Please check and press Pay again."
 msgstr ""
@@ -11034,16 +11034,16 @@ msgid "The automatic cleanup has not run yet."
 msgstr ""
 
 #. translators: %s is a number or %amount% stays as written
-#: includes/payments/class-Emsfb-payment-frontend.php:215
+#: includes/payments/class-Emsfb-payment-frontend.php:217
 #, php-format
 msgid "The button text may be hard to read: contrast %s:1, at least 4.5:1 is needed."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:150
+#: includes/payments/class-Emsfb-payment-service.php:153
 msgid "The card details were not accepted. You have not been charged. Please check the card number, expiry date and security code, or use another card."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:152
+#: includes/payments/class-Emsfb-payment-service.php:155
 msgid "The card security check (3-D Secure) was not completed. You have not been charged. Please try again or use another card."
 msgstr ""
 
@@ -11345,13 +11345,13 @@ msgid "The gateway declined this refund?"
 msgstr ""
 
 #. translators: %s: error code
-#: includes/payments/class-Emsfb-payment-service.php:1342
+#: includes/payments/class-Emsfb-payment-service.php:1345
 #, php-format
 msgid "The gateway refused the refund (%s). Nothing was refunded. Try again later or refund it in the gateway's dashboard."
 msgstr ""
 
 #. translators: %s: the gateway's reason
-#: includes/payments/class-Emsfb-payment-service.php:1340
+#: includes/payments/class-Emsfb-payment-service.php:1343
 #, php-format
 msgid "The gateway refused the refund: %s Nothing was refunded."
 msgstr ""
@@ -11477,30 +11477,30 @@ msgstr ""
 msgid "The payment could not be started and nothing was charged. Please try again."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:184
-#: includes/payments/class-Emsfb-payment-service.php:196
+#: includes/payments/class-Emsfb-payment-service.php:187
+#: includes/payments/class-Emsfb-payment-service.php:199
 msgid "The payment could not be started. You have not been charged. Please try again in a moment."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:156
+#: includes/payments/class-Emsfb-payment-service.php:159
 msgid "The payment is above the limit of your card or account. You have not been charged. Please use another card or payment method."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:211
+#: includes/payments/class-Emsfb-payment-frontend.php:213
 msgid "The payment page or card fields of the gateway open here."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:154
+#: includes/payments/class-Emsfb-payment-service.php:157
 msgid "The payment provider could not accept this payment. You have not been charged. Please use another payment method or contact the site."
 msgstr ""
 
 #. translators: %s: name of the form field
-#: includes/payments/class-Emsfb-payment-service.php:144
+#: includes/payments/class-Emsfb-payment-service.php:147
 #, php-format
 msgid "The payment provider did not accept the value of \"%s\". Please check it and press Pay again."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:164
+#: includes/payments/class-Emsfb-payment-service.php:167
 msgid "The payment service is not responding right now. You have not been charged. Please try again in a few minutes."
 msgstr ""
 
@@ -11509,24 +11509,24 @@ msgid "The payment tables are being created. Please reload this page in a moment
 msgstr ""
 
 #: includes/payments/class-Emsfb-payment-frontend.php:47
-#: includes/payments/class-Emsfb-payment-service.php:1178
+#: includes/payments/class-Emsfb-payment-service.php:1181
 msgid "The payment time ran out. Please try again."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:160
+#: includes/payments/class-Emsfb-payment-service.php:163
 msgid "The payment time ran out. You have not been charged. Please try again."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:158
+#: includes/payments/class-Emsfb-payment-service.php:161
 msgid "The payment was cancelled. You have not been charged. You can try again when you are ready."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:148
+#: includes/payments/class-Emsfb-payment-service.php:151
 msgid "The payment was declined because there were not enough funds. You have not been charged. Please use another card or payment method."
 msgstr ""
 
 #: includes/payments/class-Emsfb-payment-frontend.php:34
-#: includes/payments/class-Emsfb-payment-service.php:1178
+#: includes/payments/class-Emsfb-payment-service.php:1181
 msgid "The payment was not completed. You have not been charged. You can try again."
 msgstr ""
 
@@ -11574,7 +11574,7 @@ msgid "The recording upload could not be verified. Please record it again and re
 msgstr ""
 
 #. translators: %s: the amount left to refund
-#: includes/payments/class-Emsfb-payment-service.php:1330
+#: includes/payments/class-Emsfb-payment-service.php:1333
 #, php-format
 msgid "The refund amount must be more than 0 and at most %s (what is left after earlier and pending refunds)."
 msgstr ""
@@ -11756,7 +11756,7 @@ msgstr ""
 msgid "The text box of the last choice of “%s” is now a separate text field right after it."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:254
+#: includes/payments/class-Emsfb-payment-frontend.php:256
 msgid "The total also counts the priced choices and price fields of the form. The server computes the amount; the browser only shows it."
 msgstr ""
 
@@ -11864,7 +11864,7 @@ msgstr ""
 msgid "There is no translation of %1$s into %2$s yet, so it stays in English."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:179
+#: includes/payments/class-Emsfb-payment-service.php:182
 msgid "There is nothing to pay yet. Please choose an amount."
 msgstr ""
 
@@ -11998,7 +11998,7 @@ msgid "This file type is not accepted here. Please attach one of the file types 
 msgstr ""
 
 #: includes/payments/class-Emsfb-payment-frontend.php:52
-#: includes/payments/class-Emsfb-payment-service.php:204
+#: includes/payments/class-Emsfb-payment-service.php:207
 msgid "This form cannot take payments at the moment. Please contact the site owner."
 msgstr ""
 
@@ -12010,7 +12010,7 @@ msgstr ""
 msgid "This form has expired. Please refresh the page and send it again."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:352
+#: includes/payments/class-Emsfb-payment-frontend.php:354
 #: includes/payments/class-Emsfb-payment-registry.php:316
 msgid "This form has more than one payment field. A form can take one payment: remove the others."
 msgstr ""
@@ -12055,16 +12055,16 @@ msgid "This format sets the length. Remove the minimum and maximum length?"
 msgstr ""
 
 #. translators: %s: the amount left to refund
-#: includes/payments/class-Emsfb-payment-service.php:1326
+#: includes/payments/class-Emsfb-payment-service.php:1329
 #, php-format
 msgid "This gateway can only refund the full remaining amount (%s)."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:1323
+#: includes/payments/class-Emsfb-payment-service.php:1326
 msgid "This gateway cannot refund through Easy Form Builder. Refund it in the gateway's dashboard, then use \"Mark as refunded outside EFB\"."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:212
+#: includes/payments/class-Emsfb-payment-frontend.php:214
 msgid "This gateway has no keys yet. Visitors will see \"cannot take payments\" until it is set up."
 msgstr ""
 
@@ -12153,11 +12153,11 @@ msgstr ""
 msgid "This panel is only visible to site administrators."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:186
+#: includes/payments/class-Emsfb-payment-service.php:189
 msgid "This payment attempt has already been used. Please reload the page and try again."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:198
+#: includes/payments/class-Emsfb-payment-service.php:201
 msgid "This payment can no longer be started again here. Please reload the page and send the form again."
 msgstr ""
 
@@ -12176,7 +12176,15 @@ msgstr ""
 msgid "This payment method cannot be refunded through the API. Use the %s dashboard."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:169
+#. translators: %1$s: characters (e.g. +), %2$s: name of the form field (e.g.
+#. Email)
+#: includes/payments/class-Emsfb-payment-frontend.php:75
+#: includes/payments/class-Emsfb-payment-service.php:141
+#, php-format
+msgid "This payment method does not accept %1$s in \"%2$s\". Please enter it without %1$s, or choose another payment method."
+msgstr ""
+
+#: includes/payments/class-Emsfb-payment-service.php:172
 msgid "This payment method is not available for this payment right now. Please choose another payment method."
 msgstr ""
 
@@ -12192,7 +12200,7 @@ msgstr ""
 msgid "This refund is no longer waiting."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:1332
+#: includes/payments/class-Emsfb-payment-service.php:1335
 msgid "This refund was already requested."
 msgstr ""
 
@@ -12216,7 +12224,7 @@ msgstr ""
 
 #. translators: %s: gateway name
 #: includes/payments/class-Emsfb-payment-admin.php:363
-#: includes/payments/class-Emsfb-payment-frontend.php:341
+#: includes/payments/class-Emsfb-payment-frontend.php:343
 #: includes/payments/class-Emsfb-payment-registry.php:290
 #, php-format
 msgid "This site cannot be reached from the internet, so %s cannot send payment confirmations to it. Payments are confirmed when the visitor comes back and by the regular check."
@@ -12382,8 +12390,8 @@ msgid "Too many attempts. Please wait a few minutes and try again."
 msgstr ""
 
 #: includes/class-Emsfb-public.php:9973
-#: includes/payments/class-Emsfb-payment-frontend.php:77
-#: includes/payments/class-Emsfb-payment-service.php:167
+#: includes/payments/class-Emsfb-payment-frontend.php:79
+#: includes/payments/class-Emsfb-payment-service.php:170
 msgid "Too many payment attempts. Please wait a minute and try again."
 msgstr ""
 
@@ -12413,7 +12421,7 @@ msgstr ""
 msgid "Total"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:285
+#: includes/payments/class-Emsfb-payment-frontend.php:287
 msgid "Total only"
 msgstr ""
 
@@ -12759,7 +12767,7 @@ msgstr ""
 msgid "Unlocked by a free activation, which is enough for this feature."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:318
+#: includes/payments/class-Emsfb-payment-frontend.php:320
 msgid "Unticked methods are not offered on this form. The gateway still checks every payment."
 msgstr ""
 
@@ -13001,7 +13009,7 @@ msgid "Visitor IP address and browser"
 msgstr ""
 
 #. translators: %s: gateway name
-#: includes/payments/class-Emsfb-payment-service.php:491
+#: includes/payments/class-Emsfb-payment-service.php:494
 #, php-format
 msgid "Visitors cannot pay with %s"
 msgstr ""
@@ -13069,7 +13077,7 @@ msgstr ""
 msgid "Waiting for the test email to arrive…"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:233
+#: includes/payments/class-Emsfb-payment-frontend.php:235
 msgid "Waiting message"
 msgstr ""
 
@@ -13127,7 +13135,7 @@ msgid "We are sorry, the booking time for the %s option has expired. Please choo
 msgstr ""
 
 #: includes/payments/class-Emsfb-payment-frontend.php:32
-#: includes/payments/class-Emsfb-payment-service.php:1179
+#: includes/payments/class-Emsfb-payment-service.php:1182
 msgid "We are waiting for the payment confirmation. You can keep this page open; we will update it automatically."
 msgstr ""
 
@@ -13161,7 +13169,7 @@ msgstr ""
 msgid "We could not reach our server, so your note was not sent. The plugin will still be deactivated."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:75
+#: includes/payments/class-Emsfb-payment-frontend.php:77
 msgid "We could not reach the site. Check your internet connection and try again. You have not been charged."
 msgstr ""
 
@@ -13258,7 +13266,7 @@ msgstr ""
 msgid "Webhook signing secret"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:300
+#: includes/payments/class-Emsfb-payment-frontend.php:302
 msgid "Webhooks"
 msgstr ""
 
@@ -13382,7 +13390,7 @@ msgstr ""
 msgid "When someone fills in a form, your site emails you. Email is sent by your hosting company, so it sometimes goes missing or lands in spam. We can check this in about a minute and email you the full report."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:302
+#: includes/payments/class-Emsfb-payment-frontend.php:304
 msgid "When the form is sent (before payment)"
 msgstr ""
 
@@ -13443,7 +13451,7 @@ msgid "Why this happens and which option to pick"
 msgstr ""
 
 #: includes/functions.php:1816
-#: includes/payments/class-Emsfb-payment-frontend.php:267
+#: includes/payments/class-Emsfb-payment-frontend.php:269
 msgid "Width"
 msgstr ""
 
@@ -13897,8 +13905,8 @@ msgstr ""
 msgid "You have successfully subscribed. Thank you!"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:76
-#: includes/payments/class-Emsfb-payment-service.php:162
+#: includes/payments/class-Emsfb-payment-frontend.php:78
+#: includes/payments/class-Emsfb-payment-service.php:165
 msgid "You left the payment page before paying. You have not been charged. You can try again."
 msgstr ""
 
@@ -14213,11 +14221,11 @@ msgstr ""
 msgid "Your payment has not been completed. Please pay before sending the form."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:188
+#: includes/payments/class-Emsfb-payment-service.php:191
 msgid "Your payment is already being prepared. Please wait a moment."
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-service.php:146
+#: includes/payments/class-Emsfb-payment-service.php:149
 msgid "Your payment was declined. You have not been charged. Please try another card or payment method."
 msgstr ""
 
@@ -14474,12 +14482,12 @@ msgstr ""
 msgid "[%1$s] %2$s could not install its language files"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:327
+#: includes/payments/class-Emsfb-payment-frontend.php:329
 #: includes/payments/class-Emsfb-payment-registry.php:332
 msgid "a field for it"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:326
+#: includes/payments/class-Emsfb-payment-frontend.php:328
 #: includes/payments/class-Emsfb-payment-registry.php:332
 msgid "a phone number field"
 msgstr ""
@@ -14488,7 +14496,7 @@ msgstr ""
 msgid "amount"
 msgstr ""
 
-#: includes/payments/class-Emsfb-payment-frontend.php:325
+#: includes/payments/class-Emsfb-payment-frontend.php:327
 #: includes/payments/class-Emsfb-payment-registry.php:331
 msgid "an Email field"
 msgstr ""

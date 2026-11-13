@@ -68,7 +68,8 @@ if ( ! function_exists( 'efb_e2e_payplug_fixture' ) ) {
 			return efb_e2e_payplug_answer( 200, $l );
 		}
 		if ( $method === 'POST' && $path === '/v1/payments' ) {
-			$amount = isset( $body['amount'] ) ? (int) $body['amount'] : 0;
+			// Oney is a deferred payment: its amount comes as authorized_amount (Payplug's Oney rules).
+			$amount = isset( $body['amount'] ) ? (int) $body['amount'] : ( isset( $body['authorized_amount'] ) && isset( $body['payment_method'] ) && strpos( (string) $body['payment_method'], 'oney_' ) === 0 ? (int) $body['authorized_amount'] : 0 );
 			if ( $amount < 30 || $amount > 2000000 || ( isset( $body['currency'] ) ? $body['currency'] : '' ) !== 'EUR' || ! isset( $body['billing'], $body['shipping'] ) ) {
 				return efb_e2e_payplug_answer( 400, efb_e2e_payplug_fixture( 'error-400' ) );
 			}

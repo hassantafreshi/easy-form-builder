@@ -4,7 +4,7 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-13",
     "counts": {
-        "active": 3066,
+        "active": 3067,
         "obsolete": 378
     },
     "entries": [
@@ -42220,6 +42220,22 @@
             "translators": "%s: gateway name",
             "files": [
                 "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This payment method does not accept %1$s in \"%2$s\". Please enter it without %1$s, or choose another payment method.",
+            "context": null,
+            "plural": null,
+            "translators": "%1$s: characters (e.g. +), %2$s: name of the form field (e.g. Email)",
+            "files": [
+                "includes/payments/class-Emsfb-payment-frontend.php",
+                "includes/payments/class-Emsfb-payment-service.php"
             ],
             "scope": [
                 "core"

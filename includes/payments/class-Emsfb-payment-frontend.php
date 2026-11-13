@@ -71,6 +71,8 @@ class Frontend {
 			'payerCountry' => __( 'Please choose a country in "%s".', 'easy-form-builder' ),
 			/* translators: %s: name of the form field (e.g. Country) */
 			'payerCountryNo' => __( 'Payments with this method are not available for the country in "%s". Please check it or choose another payment method.', 'easy-form-builder' ),
+			/* translators: %1$s: characters (e.g. +), %2$s: name of the form field (e.g. Email) */
+			'payerChars' => __( 'This payment method does not accept %1$s in "%2$s". Please enter it without %1$s, or choose another payment method.', 'easy-form-builder' ),
 			'neededForPay' => __( 'Needed for the payment', 'easy-form-builder' ),
 			'network' => __( 'We could not reach the site. Check your internet connection and try again. You have not been charged.', 'easy-form-builder' ),
 			'returnedCancel' => __( 'You left the payment page before paying. You have not been charged. You can try again.', 'easy-form-builder' ),
@@ -177,7 +179,7 @@ class Frontend {
 			// some methods): the page stops Pay at the empty field with this message.
 			$requires = array();
 			foreach ( $info['field_schema'] as $d ) {
-				if ( $d['type'] === 'field' && ( $d['required'] || $d['required_for'] ) ) $requires[] = array( 'key' => $d['key'], 'label' => $d['label'], 'required' => $d['required'] && ! $d['required_for'], 'required_for' => $d['required_for'], 'visitor_message' => $d['visitor_message'], 'format' => $d['format'], 'countries' => $d['countries'], 'invalid_message' => $d['invalid_message'] );
+				if ( $d['type'] === 'field' && ( $d['required'] || $d['required_for'] ) ) $requires[] = array( 'key' => $d['key'], 'label' => $d['label'], 'required' => $d['required'] && ! $d['required_for'], 'required_for' => $d['required_for'], 'visitor_message' => $d['visitor_message'], 'format' => $d['format'], 'countries' => $d['countries'], 'invalid_message' => $d['invalid_message'], 'reject' => $d['reject'] );
 			}
 			$messages = array();
 			try { $own = $g->messages(); } catch ( \Throwable $e ) { $own = array(); }
