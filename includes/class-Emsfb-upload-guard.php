@@ -57,6 +57,16 @@ class Upload_Guard {
     /** Transient prefix for the rolling upload counters. */
     const QUOTA_PREFIX = 'emsfb_uq_';
 
+    /** F07 §7.5: ceiling of the derived per-session budget (slots × allowance), per window. */
+    const DEFAULT_QUOTA_CAP = 60;
+
+    /** F07: uploads one IP address may make per window, every form together. */
+    const DEFAULT_IP_QUOTA = 200;
+
+    /** F07: Rate_Limit scopes of the per-session budget and the per-IP ceiling. */
+    const QUOTA_SCOPE = 'upq';
+    const QUOTA_IP_SCOPE = 'upip';
+
     /** Option holding files written but not yet attached to a submission. */
     const PENDING_OPTION = 'emsfb_pending_uploads';
 
@@ -243,7 +253,7 @@ class Upload_Guard {
             // Union of every other preset: no narrowing beyond the global list.
             'allformat' => array(),
 
-            'image'    => array('png', 'jpg', 'jpeg', 'gif', 'heic', 'heif'),
+            'image'    => array('png', 'jpg', 'jpeg', 'gif', 'webp', 'heic', 'heif'), // F07: webp (browsers and phones save it; sniffed as image/webp)
 
             'media'    => array('mp3', 'wav', 'ogg', 'oga', 'webm', 'm4a', 'aac',
                                 'mp4', 'mkv', 'avi', 'mpeg', 'mpg', 'mov'),
@@ -570,6 +580,35 @@ class Upload_Guard {
      * @return int Number of file/dadfile/recorder fields, minimum 0.
      */
     public static function count_upload_fields($structure) {
+        /* F07 §7.5: the budget follows file slots, not fields. The old name stays
+         * for Human Shield (tests/test-upload-guard-humanshield-bridge.php) and
+         * answers the same slot count, so both limiters keep agreeing. */
+        return self::count_upload_slots($structure);
+    }
+
+    /**
+     * Number of files one field may hold (F07): max_files of a multi-file field
+     * on a plan that includes it, 1 for everything else (recorders included).
+     *
+     * @param object|array $field
+     * @return int
+     */
+    public static function field_slots($field) {
+        if (class_exists('\\Emsfb\\Uploads')) {
+            $config = Uploads::config($field);
+            return max(1, (int) $config['max_files']);
+        }
+        return 1;
+    }
+
+    /**
+     * File slots of a form: every upload field counts max(1, max_files).
+     *
+     * @param mixed $structure Decoded form structure, or the raw escaped string
+     *                         exactly as it is stored in form_structer.
+     * @return int Minimum 0.
+     */
+    public static function count_upload_slots($structure) {
         $types = array('file', 'dadfile', 'audio_recorder', 'video_recorder', 'screen_recorder');
 
         if (is_string($structure)) {
@@ -601,7 +640,7 @@ class Upload_Guard {
                 $type = (string) $field['type'];
             }
             if (in_array($type, $types, true)) {
-                $count++;
+                $count += self::field_slots($field);
             }
         }
 
@@ -687,6 +726,13 @@ class Upload_Guard {
 
         $limit = $fields * $allowance;
 
+        /* F07 §7.5: a form of many multi-file fields must not turn into a large
+         * free budget; 60 an hour by default. The filter below still decides last. */
+        $cap = (int) apply_filters('emsfb_upload_quota_cap', self::DEFAULT_QUOTA_CAP, $context);
+        if ($cap > 0) {
+            $limit = min($limit, max($cap, $allowance));
+        }
+
         /**
          * Total uploads allowed per visitor per window.
          *
@@ -756,8 +802,96 @@ class Upload_Guard {
      * @return int
      */
     public static function quota_used($context = array()) {
+        if (self::quota_on_rate_limit()) {
+            $v = Rate_Limit::peek(self::QUOTA_SCOPE, self::quota_key($context), self::quota_slot($context));
+            return $v === null ? 0 : (int) $v;
+        }
         $value = get_transient(self::quota_key($context));
         return is_numeric($value) ? (int) $value : 0;
+    }
+
+    /**
+     * F07: the counters live in the shared atomic table of F11 (Rate_Limit) when
+     * it exists, so two parallel uploads cannot both take the last place; the
+     * transient below is the fallback of a site whose table is missing.
+     */
+    public static function quota_on_rate_limit() {
+        return class_exists('\\Emsfb\\Rate_Limit') && Rate_Limit::ready();
+    }
+
+    /** Fixed window number of the current hour (Rate_Limit slot). */
+    public static function quota_slot($context = array()) {
+        $window = self::quota_window($context);
+        $now = class_exists('\\Emsfb\\Rate_Limit') ? Rate_Limit::time() : time();
+        return (string) (int) floor($now / $window);
+    }
+
+    private static function quota_window_end($context = array()) {
+        $window = self::quota_window($context);
+        return gmdate('Y-m-d H:i:s', ((int) self::quota_slot($context) + 1) * $window + 60);
+    }
+
+    /** Uploads one address may make in one window, every form and session together. */
+    public static function ip_quota_limit($context = array()) {
+        /**
+         * Per-IP upload ceiling per window (F07), over every form and session.
+         *
+         * @param int   $limit   Default 200.
+         * @param array $context Upload context.
+         */
+        return max(1, (int) apply_filters('emsfb_upload_ip_quota_limit', self::DEFAULT_IP_QUOTA, $context));
+    }
+
+    /**
+     * Take one place of the visitor's budget before the file is examined, atomically
+     * (F07). The per-session budget and the per-IP ceiling are both taken, or none.
+     * quota_release() gives it back when the file is then refused.
+     *
+     * @param array $context Upload context.
+     * @return bool
+     */
+    public static function quota_reserve($context = array()) {
+        if (!apply_filters('emsfb_upload_quota_enabled', true, $context)) {
+            return true;
+        }
+        if (!self::quota_on_rate_limit()) {
+            if (!self::quota_allows($context)) return false;
+            self::quota_consume($context);
+            return true;
+        }
+        $slot = self::quota_slot($context);
+        $end  = self::quota_window_end($context);
+        if (!Rate_Limit::reserve(self::QUOTA_SCOPE, self::quota_key($context), $slot, $end, self::quota_limit($context))) {
+            return false;
+        }
+        $ip = isset($context['ip']) ? (string) $context['ip'] : '';
+        if ($ip !== '' && !Rate_Limit::reserve(self::QUOTA_IP_SCOPE, $ip, $slot, $end, self::ip_quota_limit($context))) {
+            Rate_Limit::release(self::QUOTA_SCOPE, self::quota_key($context), $slot);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Give back a place taken by quota_reserve() (the file was refused or not stored).
+     *
+     * @param array $context Upload context.
+     * @return void
+     */
+    public static function quota_release($context = array()) {
+        if (!apply_filters('emsfb_upload_quota_enabled', true, $context)) {
+            return;
+        }
+        if (!self::quota_on_rate_limit()) {
+            $key  = self::quota_key($context);
+            $used = self::quota_used($context);
+            if ($used > 0) set_transient($key, $used - 1, self::quota_window($context));
+            return;
+        }
+        $slot = self::quota_slot($context);
+        Rate_Limit::release(self::QUOTA_SCOPE, self::quota_key($context), $slot);
+        $ip = isset($context['ip']) ? (string) $context['ip'] : '';
+        if ($ip !== '') Rate_Limit::release(self::QUOTA_IP_SCOPE, $ip, $slot);
     }
 
     /**
@@ -770,6 +904,11 @@ class Upload_Guard {
      * @return int The new count.
      */
     public static function quota_consume($context = array()) {
+        if (self::quota_on_rate_limit()) {
+            $bucket = Rate_Limit::bucket(self::QUOTA_SCOPE, self::quota_key($context), self::quota_slot($context));
+            Rate_Limit::force_bucket($bucket, self::QUOTA_SCOPE, self::quota_window_end($context));
+            return self::quota_used($context);
+        }
         $key   = self::quota_key($context);
         $used  = self::quota_used($context);
         $used += 1;
@@ -1111,7 +1250,7 @@ class Upload_Guard {
      * @param string $path Absolute path to the stored file.
      * @return void
      */
-    public static function track_pending_upload($path) {
+    public static function track_pending_upload($path, $form_id = 0, $field_id = '') {
         $path = (string) $path;
         if ($path === '' || !file_exists($path)) {
             return;
@@ -1122,7 +1261,14 @@ class Upload_Guard {
             $pending = array();
         }
 
-        $pending[wp_basename($path)] = time();
+        /* F07: "time|form|field" binds a file to the form field it was uploaded
+         * into, so a submission without an upload token (a page cached before
+         * F07) can still not attach it to another form or field. Readers that
+         * cast the value to int still read the time. */
+        $field_id = preg_replace('/[^A-Za-z0-9_-]/', '', (string) $field_id);
+        $pending[wp_basename($path)] = ((int) $form_id > 0 || $field_id !== '')
+            ? time() . '|' . (int) $form_id . '|' . $field_id
+            : time();
 
         /* Keep only the newest rows. An overflowing ledger means uploads are
          * arriving faster than they are being claimed, and the oldest entries
@@ -1159,6 +1305,92 @@ class Upload_Guard {
         if ($changed) {
             update_option(self::PENDING_OPTION, $pending, false);
         }
+    }
+
+    /**
+     * The ledger row of one pending upload: [time, form_id, field_id], or null.
+     * A row written before F07 has no binding (form 0, field '').
+     *
+     * @param string $basename
+     * @return array|null
+     */
+    public static function pending_entry($basename) {
+        $basename = wp_basename((string) $basename);
+        $pending = get_option(self::PENDING_OPTION, array());
+        if (!is_array($pending) || !isset($pending[$basename])) {
+            return null;
+        }
+        $parts = explode('|', (string) $pending[$basename]);
+        return array((int) $parts[0], isset($parts[1]) ? (int) $parts[1] : 0, isset($parts[2]) ? (string) $parts[2] : '');
+    }
+
+    /* ---------------------------------------------------------------------
+     * Upload tokens (F07 §7.1)
+     * ------------------------------------------------------------------ */
+
+    /** Lifetime of an upload token: as long as the sweeper keeps an unclaimed file. */
+    public static function token_ttl() {
+        return max(3600, (int) apply_filters('emsfb_upload_orphan_ttl', self::DEFAULT_ORPHAN_TTL));
+    }
+
+    private static function token_key() {
+        return function_exists('wp_salt') ? wp_salt('nonce') : 'efb-upload-token';
+    }
+
+    /**
+     * Who an upload belongs to: the form session (sid) when there is one, else the address.
+     * The same value must be reachable at submit time, which a refreshed nonce is not.
+     */
+    public static function token_bucket($sid, $ip = '') {
+        $sid = trim((string) $sid);
+        return $sid !== '' ? 'sid:' . $sid : 'ip:' . (string) $ip;
+    }
+
+    /**
+     * Signed proof that this stored file was uploaded into this form field by this
+     * session. Returned with every upload; never stored.
+     *
+     * @return string "<expiry>.<32 hex>"
+     */
+    public static function issue_upload_token($basename, $form_id, $field_id, $bucket, $exp = null) {
+        $exp = $exp === null ? time() + self::token_ttl() : (int) $exp;
+        $mac = hash_hmac('sha256', 'efb-ut-v1|' . wp_basename((string) $basename) . '|' . (int) $form_id . '|' . (string) $field_id . '|' . (string) $bucket . '|' . $exp, self::token_key());
+        return $exp . '.' . substr($mac, 0, 32);
+    }
+
+    /**
+     * @param string          $token
+     * @param string          $basename
+     * @param int             $form_id
+     * @param string          $field_id
+     * @param string|string[] $buckets  Every bucket the submitting request can prove.
+     * @return bool
+     */
+    public static function verify_upload_token($token, $basename, $form_id, $field_id, $buckets) {
+        if (!is_string($token) || !preg_match('/^([0-9]{9,11})\.([a-f0-9]{32})$/', $token, $m)) {
+            return false;
+        }
+        $exp = (int) $m[1];
+        if ($exp < time() || $exp > time() + self::token_ttl() + 60) {
+            return false;
+        }
+        foreach ((array) $buckets as $bucket) {
+            if (!is_string($bucket) || $bucket === '' || $bucket === 'sid:') continue;
+            $want = self::issue_upload_token($basename, $form_id, $field_id, $bucket, $exp);
+            if (hash_equals($want, $token)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Whether a submission without a valid upload token is refused. False in the
+     * first F07 release (pages cached before it send no token: their files are
+     * checked against the pending ledger instead), true from the next one.
+     */
+    public static function require_token() {
+        return (bool) apply_filters('emsfb_upload_require_token', false);
     }
 
     /**
@@ -1247,9 +1479,7 @@ class Upload_Guard {
                 continue;
             }
 
-            if (function_exists('wp_delete_file')) {
-                wp_delete_file($real);
-            }
+            self::delete_stored_file($real);
 
             if (!file_exists($real)) {
                 $deleted++;
@@ -1323,7 +1553,13 @@ class Upload_Guard {
         if ($rel === '' || strpos($rel, '..') !== false || strpos($rel, "\0") !== false) {
             return '';
         }
-        return self::contained_upload($dirs['basedir'] . ltrim($rel, '/'), $dirs['basedir']);
+        // F07: a private file's address names uploads/efb-private/…; the file may live elsewhere (filter).
+        $rel = ltrim($rel, '/');
+        if (class_exists('\\Emsfb\\Uploads') && strpos($rel, Uploads::PRIVATE_DIR . '/') === 0) {
+            $pdir = Uploads::private_dir();
+            return $pdir === '' ? '' : self::contained_upload($pdir . substr($rel, strlen(Uploads::PRIVATE_DIR) + 1), $pdir);
+        }
+        return self::contained_upload($dirs['basedir'] . $rel, $dirs['basedir']);
     }
 
     /**
@@ -1351,21 +1587,62 @@ class Upload_Guard {
                 return $hit;
             }
         }
+        // F07: the private folder (uploads/efb-private/YYYY/MM, or where emsfb_private_upload_dir puts it).
+        if (class_exists('\\Emsfb\\Uploads')) {
+            $pdir = Uploads::private_dir();
+            if ($pdir !== '') {
+                foreach ((array) glob($pdir . '[0-9][0-9][0-9][0-9]/[0-9][0-9]/' . $basename) as $candidate) {
+                    $hit = self::contained_upload($candidate, $pdir);
+                    if ($hit !== '') {
+                        return $hit;
+                    }
+                }
+            }
+        }
         return '';
     }
 
     /** Whether any stored entry or reply still names this upload. */
-    public static function upload_is_referenced($basename) {
+    public static function upload_is_referenced($basename, $exclude_track = '') {
         global $wpdb;
         $like = '%' . $wpdb->esc_like(wp_basename((string) $basename)) . '%';
         foreach (array('emsfb_msg_', 'emsfb_rsp_') as $t) {
             $table = $wpdb->prefix . $t;
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            if ((int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(1) FROM `{$table}` WHERE content LIKE %s", $like)) > 0) {
+            // F07: the legacy gateway follow-up rewrites its own pending entry, which may already name the file.
+            if ($t === 'emsfb_msg_' && (string) $exclude_track !== '') {
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $n = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(1) FROM `{$table}` WHERE content LIKE %s AND track <> %s", $like, (string) $exclude_track));
+            } else {
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $n = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(1) FROM `{$table}` WHERE content LIKE %s", $like));
+            }
+            if ($n > 0) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Remove one stored upload: its Media Library attachment too when the file was
+     * registered there (F07 file_store "media"), so no attachment is left without
+     * its file.
+     *
+     * @param string $path Absolute path, already contained (path_from_url / locate_upload).
+     * @return void
+     */
+    public static function delete_stored_file($path) {
+        $path = (string) $path;
+        if ($path === '') return;
+        if (class_exists('\\Emsfb\\Uploads')) {
+            $attachment = Uploads::attachment_for_path($path);
+            if ($attachment > 0 && function_exists('wp_delete_attachment')) {
+                wp_delete_attachment($attachment, true);
+            }
+        }
+        if (file_exists($path) && function_exists('wp_delete_file')) {
+            wp_delete_file($path);
+        }
     }
 
     /**
@@ -1389,9 +1666,7 @@ class Upload_Guard {
         if ($path === '') {
             return false;
         }
-        if (function_exists('wp_delete_file')) {
-            wp_delete_file($path);
-        }
+        self::delete_stored_file($path);
         self::release_pending_uploads(array($basename));
         self::release_response_attachment_reservations(array($basename));
         return !file_exists($path);

@@ -1,0 +1,15 @@
+{
+  "note": "F07: Emsfb\\Uploads::sanitize_key() and EFBUpload.rules.sanitizeKey() must give the same stored value (tests/test-upload-keys-roundtrip.php, tests/test-upload-keys-parity.js). Cap of max_files: 20.",
+  "vectors": [
+    ["max_files", "5", "5"], ["max_files", 5, "5"], ["max_files", "۵", "5"], ["max_files", "٧", "7"], ["max_files", "0", ""], ["max_files", "", ""],
+    ["max_files", "-3", ""], ["max_files", "99", "20"], ["max_files", "3.5", ""], ["max_files", "<b>4</b>", ""], ["max_files", null, ""], ["max_files", true, "1"],
+    ["min_files", "2", "2"], ["min_files", "0", ""], ["min_files", "۲", "2"], ["min_files", "21", "20"], ["min_files", "x", ""],
+    ["max_total_mb", "50", "50"], ["max_total_mb", "12.5", "12.5"], ["max_total_mb", "12.556", "12.56"], ["max_total_mb", "۱۲٫۵", "12.5"], ["max_total_mb", "0", ""],
+    ["max_total_mb", "99999", "10240"], ["max_total_mb", "1e3", ""], ["max_total_mb", "abc", ""], ["max_total_mb", "1,024", "1024"],
+    ["capture", "user", "user"], ["capture", "environment", "environment"], ["capture", "ENVIRONMENT", "environment"], ["capture", "front", ""], ["capture", "", ""], ["capture", "user\" onload=\"x", ""],
+    ["img_max_px", "1920", "1920"], ["img_max_px", "100", "320"], ["img_max_px", "9000", "8000"], ["img_max_px", "0", ""], ["img_max_px", "۱۹۲۰", "1920"], ["img_max_px", "1920px", ""],
+    ["img_quality", "0.85", "0.85"], ["img_quality", ".7", "0.7"], ["img_quality", "0.3", "0.5"], ["img_quality", "1", "0.95"], ["img_quality", "0.999", "0.95"], ["img_quality", "", ""], ["img_quality", "x", ""],
+    ["file_store", "media", "media"], ["file_store", "private", "private"], ["file_store", "Private", "private"], ["file_store", "public", ""], ["file_store", "", ""], ["file_store", "../etc", ""],
+    ["email_attach", "1", "1"], ["email_attach", 1, "1"], ["email_attach", true, "1"], ["email_attach", "0", ""], ["email_attach", "", ""], ["email_attach", "yes", ""]
+  ]
+}

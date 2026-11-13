@@ -17,6 +17,7 @@ class Request_Health {
         '/Emsfb/v1/forms/response/get' => 'tracker',
         '/Emsfb/v1/forms/response/add' => 'reply',
         '/Emsfb/v1/forms/file/upload' => 'upload',
+        '/Emsfb/v1/files/signed' => 'download',
         '/Emsfb/v1/nonce/refresh' => 'refresh',
         '/Emsfb/v1/forms/session/prepare' => 'prepare',
         '/Emsfb/v1/forms/operation/status' => 'status',

@@ -309,7 +309,7 @@ class Builder_Api {
 		// F13: the site's privacy settings (Settings > Privacy), free. settings_keys are the
 		// emsfb_setting keys; only an administrator (manage_options) may change them.
 		$add('setting:privacy_site', 'setting', 'free', null, array('form_keys' => array(), 'scope' => 'site', 'label_key' => 'prvTitle',
-			'settings_keys' => array('prv_ip_mode', 'prv_days', 'prv_action', 'prv_files', 'prv_nostore_file_days', 'prv_erase_mode')));
+			'settings_keys' => array('prv_ip_mode', 'prv_days', 'prv_action', 'prv_files', 'prv_nostore_file_days', 'prv_erase_mode', 'prv_file_link_days')));
 		// PAY00 payment framework: one field:<slug> per registered gateway (Free Plus, plus its add-on),
 		// and the settings of the payment field. Proposed levels; the owner confirms them.
 		if (class_exists('\\Emsfb\\Payments\\Registry')) {

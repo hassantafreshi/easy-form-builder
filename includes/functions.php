@@ -5086,6 +5086,111 @@ class efbFunction {
 			/* translators: F06 add-ons page note on the Jalali and Hijri date add-ons */
 			"cal_addon_replaced" => $state && isset($ac->text->cal_addon_replaced) ? $ac->text->cal_addon_replaced : esc_html__('Replaced by the Date (advanced) field, which has every calendar without this add-on. Fields that use it keep working.','easy-form-builder'),
 			/* F06 phrases end */
+			/* translators: F07 builder: label of the number of files a field takes */
+			"maxFiles" => $state && isset($ac->text->maxFiles) ? $ac->text->maxFiles : esc_html__('Maximum number of files','easy-form-builder'),
+			/* translators: F07 builder: label */
+			"minFiles" => $state && isset($ac->text->minFiles) ? $ac->text->minFiles : esc_html__('Minimum number of files','easy-form-builder'),
+			/* translators: F07 builder: label */
+			"maxTotalSize" => $state && isset($ac->text->maxTotalSize) ? $ac->text->maxTotalSize : esc_html__('Maximum total size (MB)','easy-form-builder'),
+			/* translators: F07 builder: warning under the total size */
+			"maxTotalLtFile" => $state && isset($ac->text->maxTotalLtFile) ? $ac->text->maxTotalLtFile : esc_html__('The total size must be at least the per-file size.','easy-form-builder'),
+			/* translators: F07 builder: warning; %s is a number of megabytes */
+			"maxTotalHostWarn" => $state && isset($ac->text->maxTotalHostWarn) ? $ac->text->maxTotalHostWarn : esc_html__('Visitors cannot send more than %s MB in this field with the hosting\'s upload limit.','easy-form-builder'),
+			/* translators: F07 builder: label of the camera option */
+			"fileCapture" => $state && isset($ac->text->fileCapture) ? $ac->text->fileCapture : esc_html__('Camera','easy-form-builder'),
+			/* translators: F07 builder: help under the camera option */
+			"fileCaptureHelp" => $state && isset($ac->text->fileCaptureHelp) ? $ac->text->fileCaptureHelp : esc_html__('With a camera set, phones open the camera only and the gallery cannot be used.','easy-form-builder'),
+			/* translators: F07 builder: camera option */
+			"captureNone" => $state && isset($ac->text->captureNone) ? $ac->text->captureNone : esc_html__('None (file or camera)','easy-form-builder'),
+			/* translators: F07 builder: camera option */
+			"captureUser" => $state && isset($ac->text->captureUser) ? $ac->text->captureUser : esc_html__('Front camera','easy-form-builder'),
+			/* translators: F07 builder: camera option */
+			"captureEnv" => $state && isset($ac->text->captureEnv) ? $ac->text->captureEnv : esc_html__('Back camera','easy-form-builder'),
+			/* translators: F07 builder: label */
+			"imgMaxPx" => $state && isset($ac->text->imgMaxPx) ? $ac->text->imgMaxPx : esc_html__('Resize images to at most (pixels)','easy-form-builder'),
+			/* translators: F07 builder: help; resizing in the browser also removes location data */
+			"imgMaxPxHelp" => $state && isset($ac->text->imgMaxPxHelp) ? $ac->text->imgMaxPxHelp : esc_html__('0 = keep the original. Photos are made smaller in the visitor\'s browser before upload, which also removes their location data (EXIF).','easy-form-builder'),
+			/* translators: F07 builder: label */
+			"imgQuality" => $state && isset($ac->text->imgQuality) ? $ac->text->imgQuality : esc_html__('Image quality','easy-form-builder'),
+			/* translators: F07 builder: label */
+			"fileStore" => $state && isset($ac->text->fileStore) ? $ac->text->fileStore : esc_html__('Where to store files','easy-form-builder'),
+			/* translators: F07 builder: storage option */
+			"fileStorePublic" => $state && isset($ac->text->fileStorePublic) ? $ac->text->fileStorePublic : esc_html__('Uploads folder (public link)','easy-form-builder'),
+			/* translators: F07 builder: storage option */
+			"fileStoreMedia" => $state && isset($ac->text->fileStoreMedia) ? $ac->text->fileStoreMedia : esc_html__('Media Library','easy-form-builder'),
+			/* translators: F07 builder: storage option */
+			"fileStorePrivate" => $state && isset($ac->text->fileStorePrivate) ? $ac->text->fileStorePrivate : esc_html__('Private (download through WordPress only)','easy-form-builder'),
+			/* translators: F07 builder: help under the storage option */
+			"fileStoreHelp" => $state && isset($ac->text->fileStoreHelp) ? $ac->text->fileStoreHelp : esc_html__('Private files are kept out of the public uploads address and reach you through the entry viewer or a signed link in the e-mail.','easy-form-builder'),
+			/* translators: F07 builder: warning when the web server serves the private folder */
+			"privateDirUnsafe" => $state && isset($ac->text->privateDirUnsafe) ? $ac->text->privateDirUnsafe : esc_html__('Your web server serves the private folder publicly. Add the rule below or choose another storage.','easy-form-builder'),
+			/* translators: F07 builder: result of the private folder check */
+			"privateDirOk" => $state && isset($ac->text->privateDirOk) ? $ac->text->privateDirOk : esc_html__('The private folder is not reachable from the web.','easy-form-builder'),
+			/* translators: F07 save warning */
+			"fileStoreMediaDenied" => $state && isset($ac->text->fileStoreMediaDenied) ? $ac->text->fileStoreMediaDenied : esc_html__('Only a user who may upload files can store answers in the Media Library. This field keeps the uploads folder.','easy-form-builder'),
+			/* translators: F07 save warning */
+			"fileMultiPlan" => $state && isset($ac->text->fileMultiPlan) ? $ac->text->fileMultiPlan : esc_html__('Several files in one field need Free Plus or Pro. Visitors can attach one file until then.','easy-form-builder'),
+			/* translators: F07 save warning */
+			"emailAttachPlan" => $state && isset($ac->text->emailAttachPlan) ? $ac->text->emailAttachPlan : esc_html__('Attaching files to the e-mail needs Pro. The e-mail keeps the links until then.','easy-form-builder'),
+			/* translators: F07 save warning */
+			"fileStoreChanged" => $state && isset($ac->text->fileStoreChanged) ? $ac->text->fileStoreChanged : esc_html__('Where uploaded files are kept, or how many a field takes, has changed. New uploads follow the new setting.','easy-form-builder'),
+			/* translators: F07 form settings: switch */
+			"emailAttach" => $state && isset($ac->text->emailAttach) ? $ac->text->emailAttach : esc_html__('Attach uploaded files to the admin email','easy-form-builder'),
+			/* translators: F07 form settings: help */
+			"emailAttachHelp" => $state && isset($ac->text->emailAttachHelp) ? $ac->text->emailAttachHelp : esc_html__('Up to 10 MB in total; larger files stay links. Visitors never receive the files by e-mail.','easy-form-builder'),
+			/* translators: F07 Settings > Privacy: label */
+			"prvFileLinkDays" => $state && isset($ac->text->prvFileLinkDays) ? $ac->text->prvFileLinkDays : esc_html__('Download links to private files work for (days)','easy-form-builder'),
+			/* translators: F07 response viewer: accessible name of a group of files; %s = number of files */
+			"filesOfField" => $state && isset($ac->text->filesOfField) ? $ac->text->filesOfField : esc_html__('%s files','easy-form-builder'),
+			/* translators: F07 response viewer: link title */
+			"downloadFile" => $state && isset($ac->text->downloadFile) ? $ac->text->downloadFile : esc_html__('Download','easy-form-builder'),
+			/* translators: F07 visitor: drop zone of a field that takes several files */
+			"dragAndDropMany" => $state && isset($ac->text->dragAndDropMany) ? $ac->text->dragAndDropMany : esc_html__('Drag and drop files here','easy-form-builder'),
+			/* translators: F07 visitor: shown while files are dragged over the drop zone */
+			"releaseToUpload" => $state && isset($ac->text->releaseToUpload) ? $ac->text->releaseToUpload : esc_html__('Release to upload','easy-form-builder'),
+			/* translators: F07 visitor: counter; 1: files chosen, 2: files allowed */
+			"filesCountOf" => $state && isset($ac->text->filesCountOf) ? $ac->text->filesCountOf : esc_html__('%1$s of %2$s files','easy-form-builder'),
+			/* translators: F07 visitor: a size in megabytes; %s = the number */
+			"fileSizeMB" => $state && isset($ac->text->fileSizeMB) ? $ac->text->fileSizeMB : esc_html__('%s MB','easy-form-builder'),
+			/* translators: F07 visitor: a size in kilobytes; %s = the number */
+			"fileSizeKB" => $state && isset($ac->text->fileSizeKB) ? $ac->text->fileSizeKB : esc_html__('%s KB','easy-form-builder'),
+			/* translators: F07 visitor: state of one file */
+			"fileQueued" => $state && isset($ac->text->fileQueued) ? $ac->text->fileQueued : esc_html__('Waiting','easy-form-builder'),
+			/* translators: F07 visitor: state of one file */
+			"fileUploading" => $state && isset($ac->text->fileUploading) ? $ac->text->fileUploading : esc_html__('Uploading','easy-form-builder'),
+			/* translators: F07 visitor: state of one file */
+			"fileUploaded" => $state && isset($ac->text->fileUploaded) ? $ac->text->fileUploaded : esc_html__('Uploaded','easy-form-builder'),
+			/* translators: F07 visitor: state of one file */
+			"fileFailed" => $state && isset($ac->text->fileFailed) ? $ac->text->fileFailed : esc_html__('Upload failed','easy-form-builder'),
+			/* translators: F07 visitor: button */
+			"retryUpload" => $state && isset($ac->text->retryUpload) ? $ac->text->retryUpload : esc_html__('Try again','easy-form-builder'),
+			/* translators: F07 visitor: remove button label; %s = the file name */
+			"removeFileNamed" => $state && isset($ac->text->removeFileNamed) ? $ac->text->removeFileNamed : esc_html__('Remove %s','easy-form-builder'),
+			/* translators: F07 visitor: shown when the field is full */
+			"maxFilesReached" => $state && isset($ac->text->maxFilesReached) ? $ac->text->maxFilesReached : esc_html__('Maximum number of files reached','easy-form-builder'),
+			/* translators: F07 visitor and server; 1: number, 2: field name */
+			"maxFilesMsg" => $state && isset($ac->text->maxFilesMsg) ? $ac->text->maxFilesMsg : esc_html__('You can attach up to %1$s files to %2$s.','easy-form-builder'),
+			/* translators: F07 visitor and server; 1: number, 2: field name */
+			"minFilesMsg" => $state && isset($ac->text->minFilesMsg) ? $ac->text->minFilesMsg : esc_html__('Please attach at least %1$s files to %2$s.','easy-form-builder'),
+			/* translators: F07 visitor and server; 1: field name, 2: megabytes */
+			"maxTotalMsg" => $state && isset($ac->text->maxTotalMsg) ? $ac->text->maxTotalMsg : esc_html__('The files attached to %1$s exceed the total limit of %2$s MB.','easy-form-builder'),
+			/* translators: F07 server: a file that was not uploaded into this form by this visitor */
+			"fileNotOwned" => $state && isset($ac->text->fileNotOwned) ? $ac->text->fileNotOwned : esc_html__('This file could not be verified. Please attach it again.','easy-form-builder'),
+			/* translators: F07 visitor: one file is too large; %s = megabytes */
+			"fileTooBigMB" => $state && isset($ac->text->fileTooBigMB) ? $ac->text->fileTooBigMB : esc_html__('This file is larger than %s MB.','easy-form-builder'),
+			/* translators: F07 visitor: one file of a type the field does not take */
+			"fileTypeRefused" => $state && isset($ac->text->fileTypeRefused) ? $ac->text->fileTypeRefused : esc_html__('This file type is not accepted here.','easy-form-builder'),
+			/* translators: F07 visitor: one file would pass the total; %s = megabytes */
+			"fileTotalOver" => $state && isset($ac->text->fileTotalOver) ? $ac->text->fileTotalOver : esc_html__('This file would pass the total limit of %s MB.','easy-form-builder'),
+			/* translators: F07 visitor: Next / Send pressed while files are still uploading */
+			"fileWaitUploads" => $state && isset($ac->text->fileWaitUploads) ? $ac->text->fileWaitUploads : esc_html__('Please wait until the files finish uploading.','easy-form-builder'),
+			/* translators: F07 visitor: button of a field that takes several files */
+			"filesAddMore" => $state && isset($ac->text->filesAddMore) ? $ac->text->filesAddMore : esc_html__('Add files','easy-form-builder'),
+			/* translators: F07 visitor: screen reader announcement; %s = the file name */
+			"fileRemovedA11y" => $state && isset($ac->text->fileRemovedA11y) ? $ac->text->fileRemovedA11y : esc_html__('%s removed','easy-form-builder'),
+			/* translators: F07 visitor: state of one photo being made smaller */
+			"fileResizing" => $state && isset($ac->text->fileResizing) ? $ac->text->fileResizing : esc_html__('Preparing','easy-form-builder'),
+			/* F07 phrases end */
 
 		];
 
@@ -5378,6 +5483,17 @@ class efbFunction {
 					break;
 					case 'webhook_rules':
 						$valp[$key][$k] = is_array($v) ? $this->sanitize_webhook_rules($v, $valp) : array();
+					break;
+					// F07 upload keys: numbers in range and allow-lists ('' = not set, one file in the uploads folder).
+					case 'max_files':
+					case 'min_files':
+					case 'max_total_mb':
+					case 'capture':
+					case 'img_max_px':
+					case 'img_quality':
+					case 'file_store':
+					case 'email_attach':
+						$valp[$key][$k] = class_exists('\\Emsfb\\Uploads') ? \Emsfb\Uploads::sanitize_key($k, $v) : (is_scalar($v) ? sanitize_text_field($v) : '');
 					break;
 					// F01 input masks: allow-lists, so a save accepts exactly what the builder offers.
 					case 'mask_preset':

@@ -1728,6 +1728,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$fileTypeAttr = isset($filetype_efb[$vj->value]) ? $filetype_efb[$vj->value] : '';
 		$requiredClass = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$readonlyAttr = $previewSate != true ? 'disabled' : '';
+		/* F07: one accept list shared with the file field and the server (Uploads::accept_attribute()),
+		 * multiple / capture / data-* limits, and the drop zone's text for several files. */
+		$upload_attrs = '';
+		$drop_text = $texts['dragAndDropA'];
+		if (class_exists('\\Emsfb\\Uploads')) {
+			$upload_attrs = \Emsfb\Uploads::input_attributes($vj);
+			if (\Emsfb\Uploads::config($vj)['multi']) {
+				$drop_text = isset($texts['dragAndDropMany']) && $texts['dragAndDropMany'] !== '' ? $texts['dragAndDropMany'] : esc_html__('Drag and drop files here', 'easy-form-builder');
+				$name_type_file = '';
+			}
+		}
 
 		return sprintf(
 			'<div class="efb icon efb">
@@ -1738,11 +1749,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<div class="efb btn %7$s efb-btn-lg fs-6 mb-1" id="%3$s_b" %8$s>
 				<i class="efb bi-upload mx-2 fs-6"></i>%9$s
 			</div>
-			<div class="efb d-none"><input type="file" hidden="" accept="%10$s" data-type="dadfile" data-vid="%3$s" data-id="%3$s" class="efb emsFormBuilder_v %11$s dadfile" id="%3$s_" data-id="%3$s-el" data-formid="%13$s" %12$s %8$s></div>',
+			<div class="efb d-none"><input type="file" hidden=""%14$s data-type="dadfile" data-vid="%3$s" data-id="%3$s" class="efb emsFormBuilder_v %11$s dadfile" id="%3$s_" data-id="%3$s-el" data-formid="%13$s" %12$s %8$s></div>',
 			$vj->icon,
 			$vj->icon_color,
 			$vj->id_,
-			$texts['dragAndDropA'],
+			$drop_text,
 			$name_type_file ,
 			$texts['or'],
 			$vj->button_color,
@@ -1751,7 +1762,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$fileTypeAttr,
 			$requiredClass,
 			$readonlyAttr,
-			$form_id
+			$form_id,
+			$upload_attrs !== '' ? $upload_attrs : ' accept="' . esc_attr($fileTypeAttr) . '"'
 		);
 	}
 
@@ -1860,13 +1872,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
 
 		$ui = $this->ui_dadfile_efb($vj, $previewSate, $form_id, $texts , $disabled, $corner);
+		/* F07: a field of several files gets its file list after the drop zone (outside the label, so
+		 * its buttons are not part of the label), and the drop zone is a keyboard button. */
+		$multi_efb = class_exists('\\Emsfb\\Uploads') && \Emsfb\Uploads::config($vj)['multi'];
 		return sprintf(
 			'<div class="efb mb-3" id="uploadFilePreEfb" data-formid="%s">
 				<label for="%s_" class="efb form-label">
 					<div class="efb dadFile-efb py-0 %s %s %s efb1 %s %s"  id="%s_box" aria-describedby="%s" %s>
 						%s
 					</div>
-				</label>
+				</label>' . ($multi_efb ? \Emsfb\Uploads::list_markup($vj->id_) : '') . '
 			</div>',
 			$form_id,
 			$rndm,
@@ -2475,8 +2490,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			'persiapay' => ['amount' => true],'ardate'=>true,'pdate'=>true ,'textarea'=>true,
 			/* F06: the server recomputes every key but cal (the calendar used) and tz (a visitor-zone field). */
 			'advdate' => ['cal' => true, 'local' => true, 'disp' => true, 'tz' => true, 'mode' => true, 'v' => true, 'time' => true, 'utc' => true, 'approx' => true, 'iso' => true],
-			'payment' => ['amount' => true], 'file' => ['url' => true], 'address_line'=>true,
-			'dadfile' => ['url' => true], 'esign' => true, 'maps' => true,
+			'payment' => ['amount' => true], 'file' => ['url' => true, 'fsz' => true, 'fnm' => true], 'address_line'=>true,
+			'dadfile' => ['url' => true, 'fsz' => true, 'fnm' => true], 'esign' => true, 'maps' => true,
 			'color' => true, 'range' => true, 'number' => true, 'prcfld' => true,
 			'checkbox' => true, 'table_matrix' => true, 'trmCheckbox' => true,
 			'ttlprc' => true, 'smartcr' => true, 'pointr5' => true,'tel'=>true,
@@ -2942,12 +2957,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 					$dataTag = $elementId;
 				break;
 				case 'file':
+					/* F07: accept (the server's own list), multiple, capture and the limits as data-*;
+					 * the file list follows a field that takes several files. */
+					$upload_attrs_efb = class_exists('\\Emsfb\\Uploads') ? \Emsfb\Uploads::input_attributes($vj) : '';
+					$upload_list_efb = class_exists('\\Emsfb\\Uploads') && \Emsfb\Uploads::config($vj)['multi'] ? \Emsfb\Uploads::list_markup($vj->id_) : '';
 					$ui = sprintf('
 						%1$s
 						%2$s
 						%3$s
-						<input type="%4$s" class="efb input-efb px-2 py-1 emsFormBuilder_v w-100 %5$s %6$s %7$s efbField efb1 %8$s %16$s" data-css="%9$s" data-vid="%9$s" data-id="%9$s-el" data-formid="%15$s" id="%9$s_" aria-required="%10$s" aria-label="%11$s" %12$s %13$s>
-						%14$s',
+						<input type="%4$s" class="efb input-efb px-2 py-1 emsFormBuilder_v w-100 %5$s %6$s %7$s efbField efb1 %8$s %16$s" data-css="%9$s" data-vid="%9$s" data-id="%9$s-el" data-formid="%15$s" id="%9$s_" aria-required="%10$s" aria-label="%11$s" %12$s %13$s%17$s>
+						%18$s%14$s',
 						$label,
 						$div_f_id,
 						$ttip,
@@ -2963,7 +2982,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 						($disabled == "disabled" ? 'readonly' : ''),
 						$desc,
 						$form_id,
-						$corner
+						$corner,
+						$upload_attrs_efb,
+						$upload_list_efb
 					);
 					$dataTag = $elementId;
 					break;

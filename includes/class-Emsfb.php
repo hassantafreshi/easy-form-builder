@@ -402,6 +402,11 @@ class Emsfb {
         if (class_exists('\\Emsfb\\Upload_Guard')) {
             \Emsfb\Upload_Guard::register();
         }
+        // F07: several files per field, the camera, resizing, where files are kept (uploads folder,
+        // Media Library, private folder with signed links). Optional: callers check class_exists().
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-uploads.php')) {
+            \Emsfb\Uploads::register();
+        }
 
         // Privacy and retention (F13): IP storage mode, per-form privacy keys, retention.
         // Optional for the request to work (callers check class_exists), but loaded on

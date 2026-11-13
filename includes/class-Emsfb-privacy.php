@@ -58,6 +58,8 @@ class Privacy {
 			'prv_files'             => '1',
 			'prv_erase_mode'        => 'delete',
 			'prv_nostore_file_days' => '30',
+			// F07 §4.3: days a signed link to a private file works (owner e-mail, personal-data export).
+			'prv_file_link_days'    => '7',
 		);
 	}
 
@@ -134,6 +136,9 @@ class Privacy {
 			case 'prv_nostore_file_days':
 				$d = self::digits($value);
 				return $d === '' ? $defaults['prv_nostore_file_days'] : (string) min(365, max(1, (int) $d));
+			case 'prv_file_link_days':
+				$d = self::digits($value);
+				return $d === '' ? $defaults['prv_file_link_days'] : (string) min(90, max(1, (int) $d));
 		}
 		return null;
 	}
@@ -1066,7 +1071,11 @@ class Privacy {
 		}
 		if ($type === 'esign') return '[' . $l['esign'] . ']';
 		if ($v === '@file@' || (isset($r['url']) && is_string($r['url']) && $r['url'] !== '' && in_array($type, array('file', 'dadfile', 'allformat', 'audio_recorder', 'video_recorder', 'screen_recorder', 'image', 'media', 'document'), true))) {
-			return isset($r['url']) && is_string($r['url']) ? $r['url'] : '';
+			$u = isset($r['url']) && is_string($r['url']) ? $r['url'] : '';
+			// F07: a private file is exported as a signed, expiring link (never its blocked address).
+			if ($u !== '' && class_exists('\\Emsfb\\Uploads')) $u = Uploads::display_url($u, 'export');
+			$fnm = isset($r['fnm']) && is_string($r['fnm']) && $r['fnm'] !== '' ? $r['fnm'] . ' — ' : '';
+			return $fnm . $u;
 		}
 		if (is_array($v)) $v = wp_json_encode($v);
 		$v = str_replace(array('@efb@dq#', '@efb@sq#', '@efb@vq#', '@efb@nq#', '@n#'), array('"', "'", '`', "\n", "\n"), (string) $v);

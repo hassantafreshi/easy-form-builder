@@ -465,6 +465,17 @@ class Admin {
             }
             $save_warnings_efb = array_merge($save_warnings_efb, $gate_checks_efb['warnings']);
         }
+        // F07: upload keys checked against each other; a change of file_store / max_files is reported
+        // (security_changes of the SitePilot preview); never refuses.
+        if (is_array($valp) && class_exists('\Emsfb\Uploads')) {
+            if (!isset($old_rows_efb)) {
+                if(empty($this->db)){ global $wpdb; $this->db = $wpdb; }
+                $old_structer_up_efb = $this->db->get_var($this->db->prepare("SELECT form_structer FROM `{$this->db->prefix}emsfb_form` WHERE form_id = %d", $id));
+                $old_rows_efb = is_string($old_structer_up_efb) ? json_decode(\emsfb_json_normalize_efb($old_structer_up_efb), true) : null;
+            }
+            list($valp, $upload_warn_efb) = \Emsfb\Uploads::normalize_rows($valp, $old_rows_efb);
+            $save_warnings_efb = array_merge($save_warnings_efb, $upload_warn_efb);
+        }
         $form_type = $valp[0]['type'];
 		$value =json_encode($valp,JSON_UNESCAPED_UNICODE);
         $value_ =str_replace('"', '\"', $value);
@@ -496,6 +507,10 @@ class Admin {
                 'form_type' => $form_type
             );
             $this->update_form_cache_efb($id, $cache_data, array('form_structer', 'form_type'));
+            /* F07 / playbook §2.8: the upload route and the quota read the ['form_structer'] key and the
+             * slot count; both were left stale for up to an hour after a save on a persistent cache. */
+            $this->update_form_cache_efb($id, (object) array('form_structer' => $value_), array('form_structer'));
+            if (function_exists('wp_cache_delete')) wp_cache_delete('upload_fields:' . $id, 'emsfb');
         }
 
         $value_="";
@@ -3690,7 +3705,7 @@ class Admin {
 		$file_tmp  = isset($_FILES['file']['tmp_name']) ? $_FILES['file']['tmp_name'] : '';
 		$file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : '';
 
-		$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name, PATHINFO_EXTENSION) ;
+		$name = 'efb-PLG-'. wp_date("ymd"). '-'.wp_generate_password(12, false, false).'.'.pathinfo($file_name, PATHINFO_EXTENSION) ;
 
 		if (\Emsfb\Upload_Guard::is_blocked_extension(\Emsfb\Upload_Guard::extension_of($name))) {
 			$response = array( 'success' => false, 'error' => \Emsfb\Upload_Guard::type_message(), 'efb_user_message' => true );

@@ -57,6 +57,11 @@ class _Public {
 	private $verification_claims = array();
 	/* F02: one-time code assets on this page (verify-efb.js). */
 	private $verify_page_efb = false;
+	/* F07: files accepted in this submission ([path, url, field_id, store, fnm, size]) and the upload refusal code. */
+	private $upload_files_efb = array();
+	private $upload_form_row_efb = array();
+	private $efb_conditional_upload_ids = array();
+	private $upload_code_efb = '';
 	/* F06: advdate context of one submission, its refusal code and the rows the commit filters see. */
 	private $advdate_ctx_efb = array();
 	private $advdate_code_efb = '';
@@ -1334,7 +1339,10 @@ public function check_nonce_permission_efb($request) {
 			'vrfWrong','vrfExpired','vrfLocked','vrfCountry','vrfLimit','vrfFailed','vrfRequired','vrfUnavailable','vrfEmailRetype','vrfEmailMismatch',
 			'vrfDestination','vrfBlocked','vrfRefresh','vrfNoCode','vrfNoCodeTips','vrfCodeSentA11y','verify',
 			/* F06 advanced date field: picker words and its error sentences (efb-calendar-ui.js, EFBCalendar.rules.message). */
-			'cal_choose_date','cal_choose_range','cal_today','cal_clear','cal_ok','cal_prev_month','cal_next_month','cal_prev_year','cal_next_year','cal_month_year_view','cal_from','cal_to','cal_nights_n','cal_days_n','cal_time','cal_selected_dates','cal_remove_date','cal_format_hint','cal_closed','cal_holiday','cal_full','cal_remaining_n','cal_tz_note','cal_approx_note','cal_switch_label','cal_add_date','cal_year','cal_selected','cal_range_sum','cal_dialog','cal_back','cal_err_invalid_format','cal_err_invalid_date','cal_err_calendar_not_allowed','cal_err_before_min','cal_err_after_max','cal_err_weekday_disabled','cal_err_date_disabled','cal_err_not_enabled','cal_err_holiday','cal_err_unavailable','cal_err_full','cal_err_range_order','cal_err_range_too_short','cal_err_range_too_long','cal_err_range_contains_disabled','cal_err_too_many_dates','cal_err_time_required','cal_err_time_out_of_range','cal_err_time_step','cal_err_time_closed_weekday','cal_err_age_too_young','cal_err_age_too_old','cal_err_depends_on_empty','cal_err_required'];
+			'cal_choose_date','cal_choose_range','cal_today','cal_clear','cal_ok','cal_prev_month','cal_next_month','cal_prev_year','cal_next_year','cal_month_year_view','cal_from','cal_to','cal_nights_n','cal_days_n','cal_time','cal_selected_dates','cal_remove_date','cal_format_hint','cal_closed','cal_holiday','cal_full','cal_remaining_n','cal_tz_note','cal_approx_note','cal_switch_label','cal_add_date','cal_year','cal_selected','cal_range_sum','cal_dialog','cal_back','cal_err_invalid_format','cal_err_invalid_date','cal_err_calendar_not_allowed','cal_err_before_min','cal_err_after_max','cal_err_weekday_disabled','cal_err_date_disabled','cal_err_not_enabled','cal_err_holiday','cal_err_unavailable','cal_err_full','cal_err_range_order','cal_err_range_too_short','cal_err_range_too_long','cal_err_range_contains_disabled','cal_err_too_many_dates','cal_err_time_required','cal_err_time_out_of_range','cal_err_time_step','cal_err_time_closed_weekday','cal_err_age_too_young','cal_err_age_too_old','cal_err_depends_on_empty','cal_err_required',
+			/* F07 upload fields: the file list, its states and counts, and the messages (upload-efb.js). */
+			'dragAndDropMany','releaseToUpload','filesCountOf','fileSizeMB','fileSizeKB','fileQueued','fileUploading','fileUploaded','fileFailed','retryUpload','removeFileNamed','maxFilesReached',
+			'maxFilesMsg','minFilesMsg','maxTotalMsg','fileNotOwned','fileTooBigMB','fileTypeRefused','fileTotalOver','fileWaitUploads','filesAddMore','fileRemovedA11y','fileResizing'];
 
 			/* Only now is a form or response box really printed. A form in a widget,
 			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
@@ -2419,6 +2427,13 @@ public function check_nonce_permission_efb($request) {
 			$core_deps[] = 'efb-verify-js';
 			$this->verify_page_efb = true;
 		}
+		// F07: the file list of upload fields that take several files (and the resize / camera options).
+		if (is_string($form_structure_json) && preg_match('/type\\\\?"\s*:\s*\\\\?"(?:file|dadfile)\\\\?"/', $form_structure_json)) {
+			wp_register_script('efb-upload-js', EMSFB_PLUGIN_URL . 'public/assets/js/upload-efb.js', array(), $asset_version('public/assets/js/upload-efb.js'), true);
+			wp_enqueue_script('efb-upload-js');
+			wp_enqueue_style('efb-upload-css', EMSFB_PLUGIN_URL . 'public/assets/css/upload-efb.css', array(), $asset_version('public/assets/css/upload-efb.css'));
+			$core_deps[] = 'efb-upload-js';
+		}
 		// F06: the advanced date field's engines and picker, only on pages with one (and only the calendars it can show).
 		if (class_exists('\\Emsfb\\Calendar') && \Emsfb\Calendar::enqueue_public($form_structure_json)) {
 			$core_deps[] = 'efb-cal-ui';
@@ -2626,6 +2641,8 @@ public function check_nonce_permission_efb($request) {
 			/* F02 one-time codes (Verification::server_keys()). */
 			'vrfExpired', 'vrfRequired', 'vrfEmailMismatch', 'vrfUnavailable', 'vrfRefresh',
 			/* F06 advanced date field (Calendar::message()). */
+			/* F07 upload fields (Uploads::check_field() and the ownership check). */
+			'maxFilesMsg', 'minFilesMsg', 'maxTotalMsg', 'fileNotOwned',
 			'cal_err_invalid_format', 'cal_err_invalid_date', 'cal_err_calendar_not_allowed', 'cal_err_before_min', 'cal_err_after_max', 'cal_err_weekday_disabled', 'cal_err_date_disabled', 'cal_err_not_enabled', 'cal_err_holiday', 'cal_err_unavailable', 'cal_err_full', 'cal_err_range_order', 'cal_err_range_too_short', 'cal_err_range_too_long', 'cal_err_range_contains_disabled', 'cal_err_too_many_dates', 'cal_err_time_required', 'cal_err_time_out_of_range', 'cal_err_time_step', 'cal_err_time_closed_weekday', 'cal_err_age_too_young', 'cal_err_age_too_old', 'cal_err_depends_on_empty', 'cal_err_required', 'cal_nights_n', 'cal_days_n'
 		];
 		$efbFunction = get_efbFunction();
@@ -3015,11 +3032,48 @@ public function check_nonce_permission_efb($request) {
 				// F06: the context of the advdate fields of this submission (other fields' values for
 				// field limits, fields hidden by Conditional Logic, the request's calendar and zone).
 				$this->advdate_prepare_efb($form_fields_array, $submitted_values, isset($_ignored_set) ? $_ignored_set : array());
+				// F07: who may attach a file to this submission (the upload token's session or address)
+				// and which entry a legacy gateway follow-up rewrites (its own files are not "elsewhere").
+				$upload_ctx_efb = array(
+					'form_id' => (int) $this->id,
+					'buckets' => array_values(array_unique(array_filter(array(
+						\Emsfb\Upload_Guard::token_bucket((string) $session_id, ''),
+						isset($runtime_proof) && is_array($runtime_proof) && isset($runtime_proof['sid']) ? \Emsfb\Upload_Guard::token_bucket((string) $runtime_proof['sid'], '') : '',
+						\Emsfb\Upload_Guard::token_bucket('', $this->get_ip_address()),
+					)))),
+					'exclude_track' => ($submission_type === 'payment' && !empty($request_data['payid'])) ? (string) $request_data['payid'] : '',
+				);
+				$this->upload_files_efb = array();
+				$this->upload_code_efb = '';
+				$this->upload_form_row_efb = isset($form_fields_array[0]) && is_array($form_fields_array[0]) ? $form_fields_array[0] : array();
 				foreach ($form_fields_array as $key => $f) {
 					$validated_item = null;
 					$still_processing = true;
 					if ($key < 2 && !isset($f['id_'])){ continue;}
 					if ($is_valid == 0) {break;}
+					/* F07: an upload field answers with one row per file. Its rows are checked
+					 * together (ownership, count, minimum, total); a field Conditional Logic hid
+					 * is not checked (its rows are dropped below). */
+					if (isset($f['type']) && in_array($f['type'], array('file', 'dadfile', 'audio_recorder', 'video_recorder', 'screen_recorder'), true)) {
+						if (isset($_ignored_set) && isset($f['id_']) && isset($_ignored_set[$f['id_']])) continue;
+						$up_efb = $this->validate_upload_field_efb($f, $submitted_values, $upload_ctx_efb);
+						if (!$up_efb['ok']) {
+							$is_valid = 0;
+							$error_message = $up_efb['m'];
+							$error_field_id = $up_efb['field_id'];
+							$this->upload_code_efb = $up_efb['code'];
+							break;
+						}
+						foreach ($up_efb['items'] as $up_item_efb) {
+							$up_item_efb['type'] = $this->stored_row_type_efb($up_item_efb, $f, $form_fields_array);
+							$up_item_efb['name'] = $this->stored_row_name_efb($up_item_efb, $f, $form_fields_array);
+							array_push($validated_items, $up_item_efb);
+						}
+						$this->upload_files_efb = array_merge($this->upload_files_efb, $up_efb['files']);
+						$error_message = '';
+						$error_field_id = '';
+						continue;
+					}
 					$it = array_filter($submitted_values, function ($item) use ($f, $key, &$is_valid, &$email_recipients, &$validated_item, &$form_fields_array, &$still_processing, &$error_message, &$error_field_id, $form_condition, &$sms_notification_enabled, &$phone_numbers) {
 						if ($still_processing == false) {
 							return;
@@ -3811,6 +3865,8 @@ public function check_nonce_permission_efb($request) {
 					if ($this->field_rules_code_efb !== '') $response['code'] = 'efb_field_' . $this->field_rules_code_efb;
 					// F06: the stable code of a date rule (calendar-engine-contract §4.3), for assistants.
 					if ($this->advdate_code_efb !== '' && $error_field_id !== '') $response['code'] = 'efb_date_' . $this->advdate_code_efb;
+					// F07: the stable code of an upload refusal (efb_file_max_files, _min_files, _max_total, _not_owned, _invalid).
+					if ($this->upload_code_efb !== '' && $error_field_id !== '') $response['code'] = 'efb_file_' . $this->upload_code_efb;
 					wp_send_json_success($response, 200);
 				}
 				// Verification gate: every field that requires a one-time code must carry a valid token
@@ -5409,6 +5465,8 @@ public function check_nonce_permission_efb($request) {
 		\Emsfb\Request_Health::mark_saved();
 		$this->finish_operation_efb($uniqid);
 		$this->claim_uploaded_files_efb($this->value);
+		// F07 §7.4: the files of Media Library fields become private attachments of this entry.
+		if (!empty($this->upload_files_efb) && class_exists('\\Emsfb\\Uploads')) \Emsfb\Uploads::register_media($this->upload_files_efb, (int) $this->id, (string) $uniqid);
 		return $uniqid;
 	}
 
@@ -5472,6 +5530,10 @@ public function check_nonce_permission_efb($request) {
 		$table_name = $this->db->prefix . "emsfb_msg_";
 		$updated = $this->db->update( $table_name, array( 'content' => $this->value , 'read_' =>0,  'ip'=>$this->ip , 'read_date'=>wp_date('Y-m-d H:i:s') ), array( 'track' => $this->id ) );
 		$this->claim_uploaded_files_efb($this->value);
+		if (!empty($this->upload_files_efb) && class_exists('\\Emsfb\\Uploads')) {
+			$form_of_entry_efb = (int) $this->db->get_var($this->db->prepare("SELECT form_id FROM `{$table_name}` WHERE track = %s ORDER BY msg_id DESC LIMIT 1", (string) $this->id));
+			\Emsfb\Uploads::register_media($this->upload_files_efb, $form_of_entry_efb, (string) $this->id);
+		}
 		return $updated;
 
 	}
@@ -5550,7 +5612,7 @@ public function check_nonce_permission_efb($request) {
 		$file_name_raw = isset($_FILES['file']['name']) ? sanitize_file_name( wp_unslash( $_FILES['file']['name'] ) ) : '';
 		$file_tmp = isset($_FILES['file']['tmp_name']) ? $_FILES['file']['tmp_name'] : '';
 
-		$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($file_name_raw, PATHINFO_EXTENSION) ;
+		$name = 'efb-PLG-'. wp_date("ymd"). '-'.wp_generate_password(12, false, false).'.'.pathinfo($file_name_raw, PATHINFO_EXTENSION) ;
 
 		if (\Emsfb\Upload_Guard::is_blocked_extension(\Emsfb\Upload_Guard::extension_of($name))) {
 			wp_send_json_success($this->upload_rejected_response_efb(\Emsfb\Upload_Guard::type_message()), 200);
@@ -5901,7 +5963,107 @@ public function check_nonce_permission_efb($request) {
 			return $this->recorder_upload_error_response_efb(esc_html__('The server could not store the recording. Please try again or contact the site administrator.','easy-form-builder'));
 		}
 		if (is_ssl()) $upload['url'] = str_replace('http://', 'https://', $upload['url']);
-		return array('success' => true, 'ID' => 'id', 'file' => array('url' => $upload['url'], 'type' => $upload['type'] ?? ''), 'name' => $stored_file['name'], 'type' => $detected_mime, 'duration' => $actual_duration);
+		return array('success' => true, 'ID' => 'id', 'file' => array('url' => $upload['url'], 'type' => $upload['type'] ?? ''), 'name' => wp_basename(isset($upload['file']) ? $upload['file'] : $stored_file['name']), 'type' => $detected_mime, 'duration' => $actual_duration, 'stored_path' => isset($upload['file']) ? $upload['file'] : '');
+	}
+
+	/**
+	 * F07 §7.1 / §8.2: every row a submission names for one upload field (file, dadfile,
+	 * recorders), on every submit endpoint (forms/message/add, payments/create, the legacy
+	 * gateway follow-up, the offline queue, API clients).
+	 *
+	 * Each row must point at a stored file of this plugin that passes the field's size and
+	 * type checks again (validate_submitted_upload_url_efb()), and that belongs to this
+	 * submission: a valid upload token (form, field and session of the upload), or, for a
+	 * page cached before F07 (no token, filter emsfb_upload_require_token false), a pending
+	 * ledger row of this form field. A file another entry or reply already names is refused,
+	 * and so is the same file twice. Then the field's count, minimum and total size
+	 * (Uploads::check_field()). The stored rows are rebuilt by the server: id_ob = the stored
+	 * name (rows stay distinct), fsz = the size on disk, fnm = the visitor's file name, cleaned.
+	 *
+	 * @return array{ok:bool,items:array,files:array,m:string,field_id:string,code:string}
+	 */
+	private function validate_upload_field_efb($f, $submitted_values, $ctx) {
+		$out = array('ok' => true, 'items' => array(), 'files' => array(), 'm' => '', 'field_id' => '', 'code' => '');
+		$fid_s = isset($f['id_']) ? (string) $f['id_'] : '';
+		$fail = function ($m, $code = 'invalid') use (&$out, $fid_s) {
+			$out['ok'] = false;
+			$out['items'] = array();
+			$out['files'] = array();
+			$out['m'] = $m;
+			$out['field_id'] = $fid_s;
+			$out['code'] = $code;
+			return $out;
+		};
+		$name_msg = isset($this->lanText['mnvvXXX_']) && isset($f['name'])
+			? str_replace('%s', '<b>' . esc_html((string) $f['name']) . '</b>', $this->lanText['mnvvXXX_'])
+			: \Emsfb\Upload_Guard::type_message();
+		$rows = array();
+		foreach ((array) $submitted_values as $item) {
+			if (!is_array($item) || !isset($item['id_']) || (string) $item['id_'] !== $fid_s || $fid_s === '') continue;
+			$rows[] = $item;
+		}
+		$disabled = isset($f['disabled']) && in_array($f['disabled'], array(1, '1', true), true)
+			&& (!isset($f['hidden']) || !in_array($f['hidden'], array(1, '1', true), true));
+		if ($disabled && !empty($rows)) return $fail($name_msg);
+		$host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
+		$seen = array();
+		$sizes = array();
+		$is_upload_class = class_exists('\\Emsfb\\Uploads');
+		$store = $is_upload_class ? \Emsfb\Uploads::config($f)['file_store'] : '';
+		foreach ($rows as $raw) {
+			$ut = isset($raw['ut']) && is_string($raw['ut']) ? $raw['ut'] : '';
+			$fnm = isset($raw['fnm']) && is_scalar($raw['fnm']) ? (string) $raw['fnm'] : '';
+			$item = $this->normalize_submitted_row_efb($raw, (string) $f['type']);
+			$item = $this->filter_attributes_by_type_efb($item, $f['type']);
+			if (!is_array($item)) return $fail($name_msg);
+			$item['type'] = $f['type'];
+			$url = isset($item['url']) && is_string($item['url']) ? $item['url'] : '';
+			if (strlen($url) <= 5) return $fail($name_msg);
+			$same_host = false;
+			foreach (array('http://wwww.' . $host, 'https://wwww.' . $host, 'http://' . $host, 'https://' . $host) as $prefix) {
+				if ($host !== '' && strpos($url, $prefix) === 0) { $same_host = true; break; }
+			}
+			$check = $same_host ? $this->validate_submitted_upload_url_efb($url, $f) : false;
+			if ($check !== true) {
+				return $fail(is_string($check) && $check !== '' ? $check : \Emsfb\Upload_Guard::type_message(), 'invalid');
+			}
+			$basename = wp_basename((string) strtok($url, '?#'));
+			$not_owned = isset($this->lanText['fileNotOwned']) && $this->lanText['fileNotOwned'] !== '' ? $this->lanText['fileNotOwned'] : esc_html__('This file could not be verified. Please attach it again.', 'easy-form-builder');
+			if (isset($seen[$basename]) || !\Emsfb\Upload_Guard::is_plugin_upload_name($basename)) return $fail($not_owned, 'not_owned');
+			$seen[$basename] = true;
+			$owned = false;
+			if ($ut !== '') {
+				$owned = \Emsfb\Upload_Guard::verify_upload_token($ut, $basename, (int) $ctx['form_id'], $fid_s, $ctx['buckets']);
+				if (!$owned) return $fail($not_owned, 'not_owned');
+			} elseif (!\Emsfb\Upload_Guard::require_token()) {
+				$entry = \Emsfb\Upload_Guard::pending_entry($basename);
+				$owned = $entry !== null
+					&& ($entry[1] === 0 || $entry[1] === (int) $ctx['form_id'])
+					&& ($entry[2] === '' || $entry[2] === $fid_s);
+			}
+			if (!$owned) return $fail($not_owned, 'not_owned');
+			if (\Emsfb\Upload_Guard::upload_is_referenced($basename, $ctx['exclude_track'])) return $fail($not_owned, 'not_owned');
+			$path = \Emsfb\Upload_Guard::path_from_url($url);
+			if ($path === '') $path = \Emsfb\Upload_Guard::locate_upload($basename);
+			$size = $path !== '' ? (int) @filesize($path) : 0;
+			$item['url'] = sanitize_url($url);
+			$item['value'] = '@file@';
+			$item['id_ob'] = $basename;
+			$item['fsz'] = (string) $size;
+			$clean = $is_upload_class ? \Emsfb\Uploads::clean_display_name($fnm) : '';
+			if ($clean !== '') $item['fnm'] = $clean; else unset($item['fnm']);
+			$sizes[] = $size;
+			$out['items'][] = $item;
+			$out['files'][] = array('path' => $path, 'url' => $item['url'], 'field_id' => $fid_s, 'store' => $store, 'fnm' => $clean, 'size' => $size);
+		}
+		if ($is_upload_class && in_array($f['type'], \Emsfb\Uploads::MULTI_TYPES, true)) {
+			$agg = \Emsfb\Uploads::check_field($f, $sizes, (array) $this->lanText);
+			if ($agg !== null) return $fail($agg[1], $agg[0]);
+		} elseif (count($out['items']) > 1) {
+			// A recorder keeps one recording; a request with two is not the page's.
+			return $fail($name_msg);
+		}
+		return $out;
 	}
 
 	/* Final form submission is separate from the upload request. Re-check every
@@ -5910,6 +6072,12 @@ public function check_nonce_permission_efb($request) {
 	private function validate_submitted_upload_url_efb($url, $field) {
 		if (!is_string($url) || $url === '' || !function_exists('wp_upload_dir')) return false;
 		if (!is_array($field) || empty($field['type'])) return false;
+		// F07: a private file's address is resolved into the private folder (which a filter may move).
+		if (class_exists('\\Emsfb\\Uploads') && \Emsfb\Uploads::is_private_url($url)) {
+			$private_path = \Emsfb\Upload_Guard::path_from_url($url);
+			if ($private_path === '') return false;
+			return $this->validate_stored_upload_file_efb($private_path, $field);
+		}
 		$uploads = wp_upload_dir();
 		$base_url = rtrim(isset($uploads['baseurl']) ? $uploads['baseurl'] : '', '/');
 		$base_dir = isset($uploads['basedir']) ? $uploads['basedir'] : '';
@@ -5920,6 +6088,11 @@ public function check_nonce_permission_efb($request) {
 		$base_path = wp_normalize_path(realpath($base_dir));
 		$real_path = realpath($path);
 		if ($base_path === false || $real_path === false || strpos(wp_normalize_path($real_path), trailingslashit($base_path)) !== 0 || !is_file($real_path)) return false;
+		return $this->validate_stored_upload_file_efb($real_path, $field);
+	}
+
+	/** The size / type / content checks of one stored file against the saved field (split out for F07). */
+	private function validate_stored_upload_file_efb($real_path, $field) {
 		$field_max_mb = isset($field['max_fsize']) && is_numeric($field['max_fsize']) && floatval($field['max_fsize']) > 0
 			? floatval($field['max_fsize'])
 			: null;
@@ -6092,7 +6265,9 @@ public function check_nonce_permission_efb($request) {
 			$_POST['id']
 		);
 
-		if (!\Emsfb\Upload_Guard::quota_allows($upload_context)) {
+		/* F07: the place is taken atomically here (Rate_Limit, per session and per address) and
+		 * given back below whenever the file is refused or not stored. */
+		if (!\Emsfb\Upload_Guard::quota_reserve($upload_context)) {
 			wp_send_json_success(
 				$this->upload_rejected_response_efb(\Emsfb\Upload_Guard::quota_message($upload_context)),
 				200
@@ -6112,10 +6287,17 @@ public function check_nonce_permission_efb($request) {
 			}
 			$duration = isset($_POST['recording_duration']) ? sanitize_text_field(wp_unslash($_POST['recording_duration'])) : '';
 			$response = $this->process_recorder_upload_efb($recorder_field, $_FILES['async-upload'], $duration);
-			if (!empty($response['success']) && !empty($response['file']['file'])) {
-				\Emsfb\Upload_Guard::quota_consume($upload_context);
-				\Emsfb\Upload_Guard::track_pending_upload($response['file']['file']);
+			/* The old test read $response['file']['file'], which the answer never has: recordings
+			 * were never put in the pending ledger (so never swept) nor counted. F07: both, and the
+			 * recording carries an upload token like any other file (§12). */
+			if (!empty($response['success']) && !empty($response['stored_path'])) {
+				\Emsfb\Upload_Guard::track_pending_upload($response['stored_path'], $fid, $_POST['id']);
+				$response['ut'] = \Emsfb\Upload_Guard::issue_upload_token($response['name'], $fid, $_POST['id'], \Emsfb\Upload_Guard::token_bucket($upload_context['sid'], $upload_context['ip']));
+				$response['size'] = (int) @filesize($response['stored_path']);
+			} else {
+				\Emsfb\Upload_Guard::quota_release($upload_context);
 			}
+			unset($response['stored_path']);
 			wp_send_json_success($response, 200);
 		}
 
@@ -6147,6 +6329,7 @@ public function check_nonce_permission_efb($request) {
 		 * the old gate that trusted the client-declared Content-Type. */
 		$validation = \Emsfb\Upload_Guard::validate_file($_FILES['async-upload'], $upload_context);
 		if ($validation !== true) {
+			\Emsfb\Upload_Guard::quota_release($upload_context);
 			wp_send_json_success($this->upload_rejected_response_efb($validation), 200);
 		}
 
@@ -6154,21 +6337,28 @@ public function check_nonce_permission_efb($request) {
 		$async_file_tmp  = isset($_FILES['async-upload']['tmp_name']) ? $_FILES['async-upload']['tmp_name'] : '';
 		$async_file_type = isset($_FILES['async-upload']['type']) ? sanitize_text_field( wp_unslash( $_FILES['async-upload']['type'] ) ) : '';
 
-		$name = 'efb-PLG-'. wp_date("ymd"). '-'.substr(str_shuffle("0123456789ASDFGHJKLQWERTYUIOPZXCVBNM"), 0, 8).'.'.pathinfo($async_file_name, PATHINFO_EXTENSION) ;
+		// F07 §11: a random name from WordPress' generator (str_shuffle is not a secure source).
+		$name = 'efb-PLG-'. wp_date("ymd"). '-'.wp_generate_password(12, false, false).'.'.strtolower(pathinfo($async_file_name, PATHINFO_EXTENSION));
 
 		/* Redundant with the allow-list above, kept as a second net so that a
 		 * future allow-list entry cannot quietly re-admit an executable. */
 		if (\Emsfb\Upload_Guard::is_blocked_extension(\Emsfb\Upload_Guard::extension_of($name))) {
+			\Emsfb\Upload_Guard::quota_release($upload_context);
 			wp_send_json_success($this->upload_rejected_response_efb(\Emsfb\Upload_Guard::type_message()), 200);
 		}
 
 		$file_contents = emsfb_read_file_efb($async_file_tmp);
 		if ($file_contents === false) {
+			\Emsfb\Upload_Guard::quota_release($upload_context);
 			$response = array( 'success' => false, 'error' => $this->lanText["errorFilePer"]);
 			wp_send_json_success($response,200);
 		}
-		$upload = wp_upload_bits($name, null, $file_contents);
+		// F07 §7.4: the private folder for a field set to "private"; the uploads folder otherwise
+		// (a Media Library field's files become attachments when the entry is stored).
+		$store_mode = $is_form_upload && class_exists('\\Emsfb\\Uploads') ? \Emsfb\Uploads::config($field_definition)['file_store'] : '';
+		$upload = class_exists('\\Emsfb\\Uploads') ? \Emsfb\Uploads::store_upload($name, $file_contents, $store_mode) : wp_upload_bits($name, null, $file_contents);
 		if (!is_array($upload) || !empty($upload['error']) || empty($upload['url'])) {
+			\Emsfb\Upload_Guard::quota_release($upload_context);
 			wp_send_json_success($this->upload_rejected_response_efb(\Emsfb\Upload_Guard::type_message()), 200);
 		}
 		if(is_ssl()==true){
@@ -6184,15 +6374,22 @@ public function check_nonce_permission_efb($request) {
 				 * returned to the browser: otherwise it could be attached to a
 				 * different conversation during the reservation outage. */
 				if (function_exists('wp_delete_file')) wp_delete_file($upload['file']);
+				\Emsfb\Upload_Guard::quota_release($upload_context);
 				wp_send_json_success($this->upload_rejected_response_efb(esc_html__('The response attachment could not be secured. Please try again.','easy-form-builder')), 200);
 			}
-			\Emsfb\Upload_Guard::track_pending_upload($upload['file']);
+			\Emsfb\Upload_Guard::track_pending_upload($upload['file'], $is_form_upload ? $fid : 0, $is_form_upload ? $_POST['id'] : '');
 		}
-		\Emsfb\Upload_Guard::quota_consume($upload_context);
+		$stored_name = !empty($upload['file']) ? wp_basename($upload['file']) : $name;
 
 		/* wp_handle_upload() also returns the absolute server path in 'file';
 		 * the browser only needs the address. */
-		$response = array( 'success' => true  ,'ID'=>"id" , "file"=>array('url' => $upload['url'], 'type' => $upload['type'] ?? '') ,"name"=>$name ,'type'=>$async_file_type);
+		/* F07: ut binds the stored file to this form, field and session (checked at submit,
+		 * never stored); size is the server's own count. */
+		$response = array( 'success' => true  ,'ID'=>"id" , "file"=>array('url' => $upload['url'], 'type' => $upload['type'] ?? '') ,"name"=>$stored_name ,'type'=>$async_file_type);
+		if ($is_form_upload) {
+			$response['ut'] = \Emsfb\Upload_Guard::issue_upload_token($stored_name, $fid, $_POST['id'], \Emsfb\Upload_Guard::token_bucket($upload_context['sid'], $upload_context['ip']));
+			$response['size'] = !empty($upload['file']) ? (int) @filesize($upload['file']) : 0;
+		}
 		wp_send_json_success($response,200);
 	}
 	public function set_rMessage_id_Emsfb_api($data_POST_) {
@@ -6682,10 +6879,23 @@ public function check_nonce_permission_efb($request) {
 		}
 
 		$values = [];
+		// F07 §10: an upload field's value is how many files it holds ("0", "2"), so is_empty,
+		// not_empty and the number comparisons work on a field of several files.
+		$this->efb_conditional_upload_ids = array();
+		foreach ((array) $form_fields_array as $item) {
+			if (is_array($item) && isset($item['id_'], $item['type']) && in_array($item['type'], array('file', 'dadfile', 'audio_recorder', 'video_recorder', 'screen_recorder'), true)) {
+				$this->efb_conditional_upload_ids[(string) $item['id_']] = true;
+				$values[(string) $item['id_']] = '0';
+			}
+		}
 		foreach ($submitted_values as $row) {
 			if (!is_array($row) || empty($row['id_'])) continue;
 			$field_id = (string) $row['id_'];
 			$type = strtolower((string)($row['type'] ?? ''));
+			if (isset($this->efb_conditional_upload_ids[$field_id])) {
+				if (($row['value'] ?? '') === '@file@' && is_string($row['url'] ?? null) && $row['url'] !== '') $values[$field_id] = (string) ((int) $values[$field_id] + 1);
+				continue;
+			}
 			if (strpos($type, 'checkbox') !== false) {
 				if (!isset($values[$field_id]) || !is_array($values[$field_id])) $values[$field_id] = [];
 				$option = $row['id_ob'] ?? ($row['value'] ?? '');
@@ -6892,8 +7102,8 @@ public function check_nonce_permission_efb($request) {
 				if (count($range) < 2 || !is_numeric($value) || !is_numeric($range[0]) || !is_numeric($range[1])) return false;
 				$inside = (float)$value >= (float)$range[0] && (float)$value <= (float)$range[1];
 				return $compare === 'between' ? $inside : !$inside;
-			case 'is_empty': return $value === '';
-			case 'is_not_empty': return $value !== '';
+			case 'is_empty': return $value === '' || ($value === '0' && isset($this->efb_conditional_upload_ids[(string) $field_id]));
+			case 'is_not_empty': return $value !== '' && !($value === '0' && isset($this->efb_conditional_upload_ids[(string) $field_id]));
 			/* Whether a payment went through is recorded on the ROW (status,
 			 * gateway reference), not in the field's own value — reading the
 			 * value alone called an unpaid gateway field "paid" whenever it
@@ -7449,7 +7659,30 @@ public function check_nonce_permission_efb($request) {
         $reply_to_cb = function () use ($reply_to) { return $reply_to; };
         add_filter('emsfb_owner_reply_to_efb', $reply_to_cb);
     }
+    // F07 §7.2 (Pro, form key email_attach): the files of this submission ride on the owner's copy only,
+    // up to emsfb_email_attach_max_bytes; the visitor's copy never carries them. The links stay in the text.
+    $attach_cb_efb = null;
+    if (is_array($state) && isset($state[0]) && $state[0] === 'newMessage' && !empty($this->upload_files_efb) && class_exists('\\Emsfb\\Uploads')) {
+        $attach_paths_efb = \Emsfb\Uploads::email_attachments($this->upload_form_row_efb, $this->upload_files_efb);
+        if (!empty($attach_paths_efb)) {
+            $admins_efb = array();
+            $owner_to_efb = is_array($to) && isset($to[0]) ? $to[0] : $to;
+            foreach ((array) $owner_to_efb as $a_efb) foreach (explode(',', (string) $a_efb) as $one_efb) if (trim($one_efb) !== '') $admins_efb[] = strtolower(trim($one_efb));
+            $owner_subject_efb = is_array($subject) ? (string) $subject[0] : (string) $subject;
+            $attach_cb_efb = function ($args) use ($attach_paths_efb, $admins_efb, $owner_subject_efb) {
+                if (!is_array($args)) return $args;
+                $rcpt = array();
+                foreach ((array) (isset($args['to']) ? $args['to'] : array()) as $r) foreach (explode(',', (string) $r) as $one) $rcpt[] = strtolower(trim($one));
+                if ((string) (isset($args['subject']) ? $args['subject'] : '') === $owner_subject_efb && array_intersect($rcpt, $admins_efb)) {
+                    $args['attachments'] = array_values(array_unique(array_merge((array) (isset($args['attachments']) ? $args['attachments'] : array()), $attach_paths_efb)));
+                }
+                return $args;
+            };
+            add_filter('wp_mail', $attach_cb_efb, 20);
+        }
+    }
     $check = $this->efbFunction->send_email_state_new($to, $subject, $cont, $pro, $state, $link_w, $this->setting);
+    if (null !== $attach_cb_efb) remove_filter('wp_mail', $attach_cb_efb, 20);
     if (null !== $reply_to_cb) {
         remove_filter('emsfb_owner_reply_to_efb', $reply_to_cb);
     }
@@ -8564,11 +8797,36 @@ public function check_nonce_permission_efb($request) {
 				}
 
 				if (isset($c['value']) && $c['value']==='@file@' && !in_array(($c['url'] ?? ''), $list)) {
+					/* F07 §9: every file of one field in one row, one link per line (the visitor's file
+					 * name when the server kept it). A private file is a signed, expiring link and is
+					 * never shown inline. */
+					$group_efb = array();
+					$fid_efb = isset($c['id_']) && is_string($c['id_']) ? $c['id_'] : '';
+					if ($fid_efb !== '') {
+						foreach ($content as $o_efb) {
+							if (is_array($o_efb) && ($o_efb['value'] ?? '') === '@file@' && ($o_efb['id_'] ?? '') === $fid_efb && is_string($o_efb['url'] ?? null) && $o_efb['url'] !== '' && !in_array($o_efb['url'], $list, true)) $group_efb[$o_efb['url']] = $o_efb;
+						}
+					}
+					if (count($group_efb) > 1) {
+						$lines_efb = array();
+						foreach ($group_efb as $g_url_efb => $g_efb) {
+							$list[] = $g_url_efb;
+							$g_show_efb = class_exists('\\Emsfb\\Uploads') ? \Emsfb\Uploads::display_url($g_url_efb, 'email') : $g_url_efb;
+							$g_name_efb = isset($g_efb['fnm']) && is_string($g_efb['fnm']) && $g_efb['fnm'] !== '' ? $g_efb['fnm'] : wp_basename((string) strtok($g_url_efb, '?#'));
+							$lines_efb[] = '<a href="'.esc_url($g_show_efb).'" target="_blank" rel="noopener noreferrer" style="text-decoration:none;unicode-bidi:plaintext;" dir="auto">'.esc_html($g_name_efb).'</a>';
+						}
+						$addPair($title ?: 'file', implode('<br>', $lines_efb));
+						continue;
+					}
 					$url = $c['url'] ?? '';
-					$nm  = $c['name'] ?? (substr($url, strrpos($url,'/')+1));
+					$nm  = isset($c['fnm']) && is_string($c['fnm']) && $c['fnm'] !== '' ? $c['fnm'] : ($c['name'] ?? (substr($url, strrpos($url,'/')+1)));
 					$t   = strtolower($c['type'] ?? '');
 
 					$list[] = $url;
+					if (class_exists('\\Emsfb\\Uploads') && \Emsfb\Uploads::is_private_url($url)) {
+						$url = \Emsfb\Uploads::display_url($url, 'email');
+						if ($t === 'image') $t = 'document';
+					}
 
 					if (in_array($t, array('audio_recorder', 'video_recorder', 'screen_recorder'), true)) {
 						$kind_label = $t === 'audio_recorder' ? esc_html__('Audio recording','easy-form-builder') : ($t === 'video_recorder' ? esc_html__('Video recording','easy-form-builder') : esc_html__('Screen recording','easy-form-builder'));
@@ -9869,8 +10127,8 @@ public function check_nonce_permission_efb($request) {
 			'persiapay' => ['amount' => true], 'persiaPay' => ['amount' => true],'ardate'=>true,'pdate'=>true ,'textarea'=>true,
 			/* F06: the server recomputes every key but cal (the calendar used) and tz (a visitor-zone field). */
 			'advdate' => ['cal' => true, 'local' => true, 'disp' => true, 'tz' => true, 'mode' => true, 'v' => true, 'time' => true, 'utc' => true, 'approx' => true, 'iso' => true, 'loc' => true],
-			'payment' => ['amount' => true], 'file' => ['url' => true], 'address_line'=>true,
-			'dadfile' => ['url' => true], 'esign' => true, 'maps' => true,
+			'payment' => ['amount' => true], 'file' => ['url' => true, 'fsz' => true, 'fnm' => true], 'address_line'=>true,
+			'dadfile' => ['url' => true, 'fsz' => true, 'fnm' => true], 'esign' => true, 'maps' => true,
 			'audio_recorder' => ['url' => true, 'recording_duration' => true], 'video_recorder' => ['url' => true, 'recording_duration' => true], 'screen_recorder' => ['url' => true, 'recording_duration' => true],
 			'color' => true, 'range' => true, 'number' => true, 'prcfld' => true,
 			'checkbox' => true, 'table_matrix' => true, 'trmCheckbox' => true,

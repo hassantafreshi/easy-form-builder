@@ -337,6 +337,10 @@ class Create {
 		// F02: the one-time code rules (twin of Verification) and the mobile / e-mail field controls.
 		wp_enqueue_script('efb-verify-js', EMSFB_PLUGIN_URL . 'public/assets/js/verify-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/verify-efb.js'), true);
 		wp_enqueue_script('efb-verify-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/verify-builder-efb.js', array('efb-val-js', 'efb-verify-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/verify-builder-efb.js'), true);
+		// F07: the upload rules (twin of Uploads::sanitize_key) and the file / dadfile controls (several files, camera, resizing, storage).
+		wp_enqueue_script('efb-upload-js', EMSFB_PLUGIN_URL . 'public/assets/js/upload-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/upload-efb.js'), true);
+		wp_enqueue_script('efb-upload-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/upload-builder-efb.js', array('efb-val-js', 'efb-upload-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/upload-builder-efb.js'), true);
+		wp_enqueue_style('efb-upload-css', EMSFB_PLUGIN_URL . 'public/assets/css/upload-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/upload-efb.css'));
 		wp_enqueue_style('efb-verify-css', EMSFB_PLUGIN_URL . 'public/assets/css/verify-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/verify-efb.css'));
 		// F06: the calendar engines, the picker (canvas and preview) and the advanced date field's panel.
 		if (class_exists('\\Emsfb\\Calendar')) \Emsfb\Calendar::enqueue_admin(true);
@@ -455,7 +459,9 @@ class Create {
 			$save_warnings_efb = array_merge($save_warnings_efb, $gate_checks_efb['warnings']);
 		}
 		if (is_array($valp) && class_exists('\Emsfb\Builder_Api')) {
-			list($valp, $save_warnings_efb) = Builder_Api::disable_unavailable_notifiers($valp, get_setting_Emsfb('decoded', array()), $lang);
+			// (F07, in passing: the F11 warnings gathered just above used to be overwritten here.)
+			list($valp, $notifier_warn_efb) = Builder_Api::disable_unavailable_notifiers($valp, get_setting_Emsfb('decoded', array()), $lang);
+			$save_warnings_efb = array_merge($save_warnings_efb, $notifier_warn_efb);
 			// PAY00: what the form's payment gateways need (currency, mapped fields, the gateway's own checks); never refuses the save.
 			if (class_exists('\\Emsfb\\Payments\\Registry')) $save_warnings_efb = array_merge($save_warnings_efb, \Emsfb\Payments\Registry::form_warnings($valp));
 			// F02: a field asking for a code this site cannot send now (plan, SMS add-on, provider, e-mail off), on a
@@ -471,6 +477,12 @@ class Create {
 				$m = str_replace(array('%1$s', '%2$s'), array($type_label_efb, implode(', ', $auth_missing_efb)), isset($lang['authFieldsMissing']) ? $lang['authFieldsMissing'] : 'A %1$s form needs these fields: %2$s.');
 				wp_send_json_success(array('success' => false, 'm' => $m, 'code' => 'auth_fields_missing', 'missing' => $auth_missing_efb), 200);
 			}
+		}
+		// F07: upload keys checked against each other (minimum ≤ maximum, total ≥ per-file size, camera
+		// and resizing only for their presets, the Media Library for users who may upload); never refuses.
+		if (is_array($valp) && class_exists('\Emsfb\Uploads')) {
+			list($valp, $upload_warn_efb) = \Emsfb\Uploads::normalize_rows($valp, null);
+			$save_warnings_efb = array_merge($save_warnings_efb, $upload_warn_efb);
 		}
 		$this->formtype =  sanitize_text_field($_POST['type']);
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){
