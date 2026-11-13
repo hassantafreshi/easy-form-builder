@@ -1,0 +1,469 @@
+{
+ "_comment": "Month and weekday names for fa, ar and en, taken from CLDR (Intl in Node 22, ICU 78.3) on 2026-11-13. Used by the calendar engines in PHP (class-Emsfb-calendar.php) and JS (efb-calendar-core.js keeps the same table inline; tests/test-calendar-engines.js checks they are equal) so that the server's display text equals the picker's. Other languages take their names from Intl / ext-intl.",
+ "v": 1,
+ "fa": {
+  "months": {
+   "gregory": {
+    "long": [
+     "ژانویه",
+     "فوریه",
+     "مارس",
+     "آوریل",
+     "مه",
+     "ژوئن",
+     "ژوئیه",
+     "اوت",
+     "سپتامبر",
+     "اکتبر",
+     "نوامبر",
+     "دسامبر"
+    ],
+    "short": [
+     "ژانویه",
+     "فوریه",
+     "مارس",
+     "آوریل",
+     "مه",
+     "ژوئن",
+     "ژوئیه",
+     "اوت",
+     "سپتامبر",
+     "اکتبر",
+     "نوامبر",
+     "دسامبر"
+    ]
+   },
+   "persian": {
+    "long": [
+     "فروردین",
+     "اردیبهشت",
+     "خرداد",
+     "تیر",
+     "مرداد",
+     "شهریور",
+     "مهر",
+     "آبان",
+     "آذر",
+     "دی",
+     "بهمن",
+     "اسفند"
+    ],
+    "short": [
+     "فروردین",
+     "اردیبهشت",
+     "خرداد",
+     "تیر",
+     "مرداد",
+     "شهریور",
+     "مهر",
+     "آبان",
+     "آذر",
+     "دی",
+     "بهمن",
+     "اسفند"
+    ]
+   },
+   "islamic": {
+    "long": [
+     "محرم",
+     "صفر",
+     "ربیع‌الاول",
+     "ربیع‌الثانی",
+     "جمادی‌الاول",
+     "جمادی‌الثانی",
+     "رجب",
+     "شعبان",
+     "رمضان",
+     "شوال",
+     "ذیقعده",
+     "ذیحجه"
+    ],
+    "short": [
+     "محرم",
+     "صفر",
+     "ربیع‌الاول",
+     "ربیع‌الثانی",
+     "جمادی‌الاول",
+     "جمادی‌الثانی",
+     "رجب",
+     "شعبان",
+     "رمضان",
+     "شوال",
+     "ذیقعده",
+     "ذیحجه"
+    ]
+   }
+  },
+  "weekdays": {
+   "long": [
+    "دوشنبه",
+    "سه‌شنبه",
+    "چهارشنبه",
+    "پنجشنبه",
+    "جمعه",
+    "شنبه",
+    "یکشنبه"
+   ],
+   "short": [
+    "دوشنبه",
+    "سه‌شنبه",
+    "چهارشنبه",
+    "پنجشنبه",
+    "جمعه",
+    "شنبه",
+    "یکشنبه"
+   ],
+   "narrow": [
+    "د",
+    "س",
+    "چ",
+    "پ",
+    "ج",
+    "ش",
+    "ی"
+   ]
+  },
+  "calendars": {
+   "gregory": "تقویم میلادی",
+   "persian": "تقویم هجری شمسی",
+   "islamic-umalqura": "تقویم هجری قمری ام‌القری",
+   "islamic-civil": "تقویم هجری قمری جدولی مدنی",
+   "islamic-tbla": "تقویم هجری قمری جدولی نجومی",
+   "buddhist": "تقویم بودایی",
+   "roc": "تقویم جمهوری چین (تایوان)",
+   "japanese": "تقویم ژاپنی",
+   "hebrew": "تقویم عبری",
+   "indian": "تقویم ملی هند",
+   "coptic": "تقویم قبطی",
+   "ethiopic": "تقویم اتیوپیایی"
+  },
+  "calendars_short": {
+   "gregory": "میلادی",
+   "persian": "شمسی",
+   "islamic-umalqura": "قمری",
+   "islamic-civil": "قمری (جدولی)",
+   "islamic-tbla": "قمری (نجومی)",
+   "buddhist": "بودایی",
+   "roc": "مینگو",
+   "japanese": "ژاپنی",
+   "hebrew": "عبری",
+   "indian": "هندی",
+   "coptic": "قبطی",
+   "ethiopic": "اتیوپیایی"
+  },
+  "ampm": [
+   "ق.ظ.",
+   "ب.ظ."
+  ]
+ },
+ "ar": {
+  "months": {
+   "gregory": {
+    "long": [
+     "يناير",
+     "فبراير",
+     "مارس",
+     "أبريل",
+     "مايو",
+     "يونيو",
+     "يوليو",
+     "أغسطس",
+     "سبتمبر",
+     "أكتوبر",
+     "نوفمبر",
+     "ديسمبر"
+    ],
+    "short": [
+     "يناير",
+     "فبراير",
+     "مارس",
+     "أبريل",
+     "مايو",
+     "يونيو",
+     "يوليو",
+     "أغسطس",
+     "سبتمبر",
+     "أكتوبر",
+     "نوفمبر",
+     "ديسمبر"
+    ]
+   },
+   "persian": {
+    "long": [
+     "فرفردن",
+     "أذربيهشت",
+     "خرداد",
+     "تار",
+     "مرداد",
+     "شهرفار",
+     "مهر",
+     "آيان",
+     "آذر",
+     "دي",
+     "بهمن",
+     "اسفندار"
+    ],
+    "short": [
+     "فرفردن",
+     "أذربيهشت",
+     "خرداد",
+     "تار",
+     "مرداد",
+     "شهرفار",
+     "مهر",
+     "آيان",
+     "آذر",
+     "دي",
+     "بهمن",
+     "اسفندار"
+    ]
+   },
+   "islamic": {
+    "long": [
+     "محرم",
+     "صفر",
+     "ربيع الأول",
+     "ربيع الآخر",
+     "جمادى الأولى",
+     "جمادى الآخرة",
+     "رجب",
+     "شعبان",
+     "رمضان",
+     "شوال",
+     "ذو القعدة",
+     "ذو الحجة"
+    ],
+    "short": [
+     "محرم",
+     "صفر",
+     "ربيع الأول",
+     "ربيع الآخر",
+     "جمادى الأولى",
+     "جمادى الآخرة",
+     "رجب",
+     "شعبان",
+     "رمضان",
+     "شوال",
+     "ذو القعدة",
+     "ذو الحجة"
+    ]
+   }
+  },
+  "weekdays": {
+   "long": [
+    "الاثنين",
+    "الثلاثاء",
+    "الأربعاء",
+    "الخميس",
+    "الجمعة",
+    "السبت",
+    "الأحد"
+   ],
+   "short": [
+    "الاثنين",
+    "الثلاثاء",
+    "الأربعاء",
+    "الخميس",
+    "الجمعة",
+    "السبت",
+    "الأحد"
+   ],
+   "narrow": [
+    "ن",
+    "ث",
+    "ر",
+    "خ",
+    "ج",
+    "س",
+    "ح"
+   ]
+  },
+  "calendars": {
+   "gregory": "التقويم الميلادي",
+   "persian": "التقويم الفارسي",
+   "islamic-umalqura": "التقويم الهجري (أم القرى)",
+   "islamic-civil": "التقويم الهجري المدني",
+   "islamic-tbla": "التقويم الهجري (الحسابات الفلكية)",
+   "buddhist": "التقويم البوذي",
+   "roc": "تقويم مينجو",
+   "japanese": "التقويم الياباني",
+   "hebrew": "التقويم العبري",
+   "indian": "التقويم القومي الهندي",
+   "coptic": "التقويم القبطي",
+   "ethiopic": "التقويم الإثيوبي"
+  },
+  "calendars_short": {
+   "gregory": "ميلادي",
+   "persian": "شمسي",
+   "islamic-umalqura": "هجري",
+   "islamic-civil": "هجري (جدولي)",
+   "islamic-tbla": "هجري (فلكي)",
+   "buddhist": "بوذي",
+   "roc": "مينجو",
+   "japanese": "ياباني",
+   "hebrew": "عبري",
+   "indian": "هندي",
+   "coptic": "قبطي",
+   "ethiopic": "إثيوبي"
+  },
+  "ampm": [
+   "ص",
+   "م"
+  ]
+ },
+ "en": {
+  "months": {
+   "gregory": {
+    "long": [
+     "January",
+     "February",
+     "March",
+     "April",
+     "May",
+     "June",
+     "July",
+     "August",
+     "September",
+     "October",
+     "November",
+     "December"
+    ],
+    "short": [
+     "Jan",
+     "Feb",
+     "Mar",
+     "Apr",
+     "May",
+     "Jun",
+     "Jul",
+     "Aug",
+     "Sep",
+     "Oct",
+     "Nov",
+     "Dec"
+    ]
+   },
+   "persian": {
+    "long": [
+     "Farvardin",
+     "Ordibehesht",
+     "Khordad",
+     "Tir",
+     "Mordad",
+     "Shahrivar",
+     "Mehr",
+     "Aban",
+     "Azar",
+     "Dey",
+     "Bahman",
+     "Esfand"
+    ],
+    "short": [
+     "Farvardin",
+     "Ordibehesht",
+     "Khordad",
+     "Tir",
+     "Mordad",
+     "Shahrivar",
+     "Mehr",
+     "Aban",
+     "Azar",
+     "Dey",
+     "Bahman",
+     "Esfand"
+    ]
+   },
+   "islamic": {
+    "long": [
+     "Muharram",
+     "Safar",
+     "Rabiʻ I",
+     "Rabiʻ II",
+     "Jumada I",
+     "Jumada II",
+     "Rajab",
+     "Shaʻban",
+     "Ramadan",
+     "Shawwal",
+     "Dhuʻl-Qiʻdah",
+     "Dhuʻl-Hijjah"
+    ],
+    "short": [
+     "Muh.",
+     "Saf.",
+     "Rab. I",
+     "Rab. II",
+     "Jum. I",
+     "Jum. II",
+     "Raj.",
+     "Sha.",
+     "Ram.",
+     "Shaw.",
+     "Dhuʻl-Q.",
+     "Dhuʻl-H."
+    ]
+   }
+  },
+  "weekdays": {
+   "long": [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday"
+   ],
+   "short": [
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat",
+    "Sun"
+   ],
+   "narrow": [
+    "M",
+    "T",
+    "W",
+    "T",
+    "F",
+    "S",
+    "S"
+   ]
+  },
+  "calendars": {
+   "gregory": "Gregorian Calendar",
+   "persian": "Persian Calendar",
+   "islamic-umalqura": "Hijri Calendar (Umm al-Qura)",
+   "islamic-civil": "Hijri Calendar (tabular, civil epoch)",
+   "islamic-tbla": "Hijri Calendar (tabular, astronomical epoch)",
+   "buddhist": "Buddhist Calendar",
+   "roc": "Minguo Calendar",
+   "japanese": "Japanese Calendar",
+   "hebrew": "Hebrew Calendar",
+   "indian": "Indian National Calendar",
+   "coptic": "Coptic Calendar",
+   "ethiopic": "Ethiopic Calendar"
+  },
+  "calendars_short": {
+   "gregory": "Gregorian",
+   "persian": "Persian",
+   "islamic-umalqura": "Hijri",
+   "islamic-civil": "Hijri (tabular)",
+   "islamic-tbla": "Hijri (astronomical)",
+   "buddhist": "Buddhist",
+   "roc": "Minguo",
+   "japanese": "Japanese",
+   "hebrew": "Hebrew",
+   "indian": "Indian",
+   "coptic": "Coptic",
+   "ethiopic": "Ethiopic"
+  },
+  "ampm": [
+   "AM",
+   "PM"
+  ]
+ }
+}
