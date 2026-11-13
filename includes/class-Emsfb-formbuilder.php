@@ -2541,7 +2541,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$next_icon
 		);
 
-		return sprintf('<div class="efb footer-test p-1">%s</div>', $state == 0 ? $s : $d);
+		/* F11-E: "Save and continue later" under the buttons (draft_on, Pro; the routes check again). */
+		$draft = '';
+		if (!empty($valj_efb[0]->draft_on) && in_array($valj_efb[0]->draft_on, array(true, 1, '1'), true) && class_exists('\\Emsfb\\Drafts') && method_exists('\\Emsfb\\Drafts', 'button_html')
+			&& (!class_exists('\\Emsfb\\Form_Gate') || \Emsfb\Form_Gate::plan_ok('drafts'))) {
+			$draft = \Emsfb\Drafts::button_html(is_array($efb_var) && isset($efb_var['draftSave']) ? $efb_var['draftSave'] : 'Save and continue later', $formId, false);
+		}
+		return sprintf('<div class="efb footer-test p-1">%s%s</div>', $state == 0 ? $s : $d, $draft);
 	}
 
 	public function addNewElement_efb($i, $rndm,$form_id,$texts,$pro) {

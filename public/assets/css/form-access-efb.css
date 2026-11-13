@@ -56,3 +56,14 @@ dialog.efb-popup::backdrop { background: rgba(15, 23, 42, .55); }
 	dialog.efb-popup[open] { animation: efb-popup-in .15s ease-out; }
 	@keyframes efb-popup-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 }
+/* E: "Save and continue later" (full width on phones) and its dialog; F: the consent box. */
+.efb-draft-zone { flex-wrap: wrap; gap: .25rem; }
+.efb-draft-zone .efb-draft-status { flex-basis: 100%; text-align: center; }
+.efb-draft-link input[readonly] { background: #f6f7fb; }
+.efb-draft-dialog .efb-popup-body label { font-weight: 600; }
+.efb-partial-consent .form-check-input { margin-inline-end: .4rem; }
+@media (max-width: 575.98px) {
+	.efb-draft-zone .efb-draft-save { inline-size: 100%; min-block-size: 44px; }
+	.efb-draft-link { flex-direction: column; }
+	.efb-draft-link .btn { min-block-size: 44px; }
+}

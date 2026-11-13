@@ -411,24 +411,24 @@ if (($this->operation_data['type'] ?? '') !== 'payment_followup' && class_exists
 - پذیرش: رمز، فایل، امضا و پرداخت در ردیف DB نباشند (بررسی مستقیم `content`). توکن غلط پس از ۱۰ تلاش 429 بدهد. پیش‌نویس کاربر واردشده برای کاربر دیگر باز نشود. ارسال موفق محتوای پیش‌نویس را پاک کند. لینک از نوار نشانی حذف شود.
 - تست: `php tests/test-drafts-http.php`، `node tests/test-drafts-client.js` (فیلتر نوع‌ها، بازیابی از مسیر change handler)، Playwright `tests/drafts-resume-browser.js` (چندمرحله‌ای، RTL fa، موبایل 375px، کیبورد و Esc در دیالوگ).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۳، انجام شد)
+- فایل‌های تغییرکرده: `includes/class-Emsfb-drafts.php` (مسیرهای `forms/draft/save|load|email|discard` و `forms/partial/save`، `clean_rows` که نوع‌های ذخیره‌نشدنی و هر شناسهٔ بیرون از فرم را حذف می‌کند و هر ردیف را با `normalize_submitted_row_efb` + `filter_attributes_by_type_efb` تمیز می‌کند، `complete`، `cleanup`، exporter/eraser، `button_html`)، `class-Emsfb-public.php` (`draft_clean_row_efb`، تکمیل پیش‌نویس و پاسخ نیمه‌کاره پس از ذخیرهٔ ارسال، `f11` در `ajax_object_efm`)، `class-Emsfb-formbuilder.php` (دکمه در ناحیهٔ دکمه‌ها)، `new-efb.js` (همزاد `efb_draft_button_html_efb` در پیش‌نمایش، غیرفعال)، `class-email-handler.php` (state `resumeLink`)، `core-efb.js` (`efb_apply_saved_rows_efb` مشترک با بازیابی آفلاین، دیالوگ بومی، کپی، ارسال ایمیل، بازیابی با `?efb_resume` و حذف آن با `history.replaceState`، رفتن به مرحلهٔ ذخیره‌شده با «بعدی»، نوار «شروع از ابتدا»، `draft_token` در ارسال)، `public/assets/css/form-access-efb.css`.
+- تست‌ها: `php tests/test-drafts-http.php` روی وردپرس واقعی (۳۱: رمز، فایل، شناسهٔ ناشناخته و پرداخت در `content` نیستند؛ توکن و IP خام ذخیره نمی‌شوند؛ ۱۰ توکن غلط ← 429؛ پیش‌نویس کاربر A برای B و مهمان باز نمی‌شود؛ ایمیل فقط لینک و نام فرم؛ ارسال، پیش‌نویس را completed و خالی می‌کند؛ discard؛ بدون runtime token 409، مبدأ دیگر 403، فرم بسته؛ exporter/eraser و پاک‌سازی روزانه)، `node tests/test-drafts-client.js` (۱۴)، دکمه در `test-f11-parity.js`.
+- وضعیت ترجمه: انگلیسی.
+- مورد باز: پرسش باز ۵ (رمزنگاری پیش‌نویس مهمان با کلید مشتق از توکن) — انجام نشد؛ فقط هش توکن ذخیره می‌شود و محتوا برای مدیر خواناست (مثل پاسخ‌ها). Pro بودن طبق «سطح نسخه»؛ روی سایت آزمایشی (بدون مجوز Pro) تست‌ها از فیلتر خود افزونه `efb_f11_plan` استفاده می‌کنند.
+- اقدام بعدی: F.
 
 ### F — پاسخ نیمه‌کاره
 - فایل‌ها: `Drafts` (kind `partial`)، `core-efb.js` (رضایت، debounce و `keepalive`)، `class-Emsfb-admin.php` (AJAX)، `list_form-efb.js` (زبانه)، `response-viewer-efb.js` (نمایش با همان مسیر escape، 860).
 - پذیرش: بدون رضایت هیچ درخواستی به `partial/save` نرود (بررسی شبکه در Playwright). با `partial_need_contact` و بدون ایمیل، چیزی ذخیره نشود. ارسال کامل، مورد نیمه‌کاره را از فهرست خارج کند. مقدار خصمانه در نمایشگر escape شود (گسترش `tests/test-response-viewer-escaping.js`).
 - تست: `php tests/test-partial-entries-http.php`، Playwright `tests/partial-entries-browser.js`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۳، انجام شد)
+- فایل‌های تغییرکرده: مسیر `forms/partial/save` و فهرست/حذف AJAX در `class-Emsfb-drafts.php` (کامیت E)، کادر رضایت یا متن اطلاع‌رسانی و ذخیره با رضایت، debounce سه ثانیه، حداکثر هر ۱۰ ثانیه، رفتن به مرحلهٔ بعد و `pagehide` با `keepalive` در `core-efb.js` (کامیت E)، زبانهٔ «Partial» در `list_form-efb.js` (تاریخ، پیشرفت، آخرین مرحله، تماس پوشیده، باز کردن با همان نمایشگر escape‌شده، حذف تکی و گروهی).
+- تست‌ها: `php tests/test-partial-entries-http.php` روی وردپرس واقعی (۱۳: بدون رضایت 403، بدون تماس ذخیره نمی‌شود، یک ردیف برای هر تب، تماس پوشیده، بدون رمز و IP خام، فهرست مدیر، subscriber رد، ارسال کامل همان تب آن را completed می‌کند، حالت notice، حذف، طرح، exporter/eraser)، `node tests/test-response-viewer-escaping.js` (۵۱؛ مقدار خصمانه در زبانه escape می‌شود)، `node tests/test-drafts-client.js`.
+- وضعیت ترجمه: انگلیسی.
+- مورد باز: خروجی گروهی CSV پاسخ‌های نیمه‌کاره به F14 سپرده شد.
+- اقدام بعدی: سناریوهای e2e، مستندات AutoPilot، فهرست عبارت‌ها.
 
 ### G — CSS اختصاصی فرم
 - فایل‌ها: `includes/class-Emsfb-form-css.php`، `functions.php` (case `custom_css`)، `class-Emsfb-admin.php:299` (حفظ مقدار برای کاربر بدون مجوز)، رندر 1843، `val-efb.js` و `admin-efb.js` (کنترل، استثنای گیت و `efb_scope_css_preview_efb`).

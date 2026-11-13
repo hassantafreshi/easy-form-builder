@@ -1861,15 +1861,24 @@ async function efb_restore_offline_answers_efb() {
     if (!Array.isArray(structure) || !structure[0]) continue;
     const head = structure[0];
     if (!(head.AfLnFrm === true || Number(head.AfLnFrm) === 1) || head.type === 'payment') continue;
-    for (const row of rows) {
+    await efb_apply_saved_rows_efb(fid, rows);
+  }
+}
+/* Fills a form with saved answers through the normal change handler, so every check and rule
+ * runs (shared by the offline restore and F11 "save and continue later"). Returns the ids of
+ * the rows it could not show (types that draw their own UI): the visitor fills those again. */
+async function efb_apply_saved_rows_efb(fid, rows) {
+  fid = Number(fid);
+  const skipped = [];
+  for (const row of (Array.isArray(rows) ? rows : [])) {
       if (!row || typeof row !== 'object' || Number(row.form_id) !== fid || !row.id_ob) continue;
       // Only fields whose visible state is the control itself. Yes/No, switch,
       // image choices, ratings, phone (intl-tel-input) and the like draw their
       // own UI: checking their hidden input put an answer in the entry that
       // the visitor could not see.
-      if (EFB_RESTORABLE_FIELD_TYPES.indexOf(String(row.type || '')) === -1) continue;
+      if (EFB_RESTORABLE_FIELD_TYPES.indexOf(String(row.type || '')) === -1) { skipped.push(row.id_); continue; }
       const el = document.getElementById(row.id_ob);
-      if (!el || el.disabled || el.readOnly || el.classList.contains('intlPhone')) continue;
+      if (!el || el.disabled || el.readOnly || el.classList.contains('intlPhone')) { skipped.push(row.id_); continue; }
       if (el.dataset && el.dataset.formid && Number(el.dataset.formid) !== fid) continue;
       const tag = el.tagName;
       const type = String(el.type || '').toLowerCase();
@@ -1887,11 +1896,12 @@ async function efb_restore_offline_answers_efb() {
         if (value === '' || el.value === value || !Array.prototype.some.call(el.options, o => o.value === value)) continue;
         el.value = value;
       } else {
+        skipped.push(row.id_);
         continue;
       }
       try { await handle_change_event_efb_v4(el, fid); } catch (e) {}
-    }
   }
+  return skipped;
 }
 function efb_get_error_panel_efb() {
   return window.EFB_ERROR_PANEL || (typeof EFB_ERROR_PANEL !== 'undefined' ? EFB_ERROR_PANEL : null);
@@ -2511,6 +2521,8 @@ async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
 }
  post_api_forms_efb=async(data,form_id)=>{
     let runtime;
+    // F11-E: the saved answers this submission completes (emptied on the server once it is stored).
+    try { const dt = sessionStorage.getItem('efb_draft_' + Number(form_id)); if (dt && /^[a-f0-9]{64}$/.test(dt)) data.draft_token = dt; } catch (e) {}
     try {
       if (window.EFBRuntime) runtime=await window.EFBRuntime.decorate(data,Number(form_id)||0,'form');
     } catch (error) {
@@ -2587,6 +2599,7 @@ async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
       throw unreadable;
     }
 	if (window.EFBRuntime && responseData?.data?.success === true) window.EFBRuntime.complete(Number(form_id)||0,'form');
+    if (responseData?.data?.success === true) { try { sessionStorage.removeItem('efb_draft_' + Number(form_id)); } catch (e) {} if (typeof efb_partial_stop_efb === 'function') efb_partial_stop_efb(form_id); }
 
     await response_fill_form_efb(responseData, form_id);
     if (localStorage.getItem('sendback')) localStorage.removeItem('sendback');
@@ -2791,6 +2804,8 @@ document.addEventListener("DOMContentLoaded",async function() {
   }
   // After the logic runtime is up, so restored answers run their rules too.
   try { await efb_restore_offline_answers_efb(); } catch (e) {}
+  // F11: a resume link (?efb_resume=…) fills the form; partial answers start listening.
+  try { await efb_f11_after_init_efb(); } catch (e) {}
   fun_wait_form_load_efb(false,'nfast');
   let captcha = false ;
   valj_efb_new.forEach((valj_efb) => {
@@ -4982,4 +4997,262 @@ if (typeof document !== 'undefined' && typeof window !== 'undefined' && !window.
   const efbF11Boot = () => { efb_gate_boot_efb(document); efb_popup_boot_efb(document); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', efbF11Boot);
   else setTimeout(efbF11Boot, 0);
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * F11-E/F: "Save and continue later" and partial answers (docs/feature-gaps/F11-form-limits-resume.fa.md
+ * §5, §6). The server keeps only what it may (Emsfb\Drafts::clean_rows); the browser leaves out the
+ * same types first. Routes: forms/draft/save|load|email|discard, forms/partial/save (runtime token,
+ * nonce, same origin). The resume token lives in sessionStorage of this tab only.
+ * ------------------------------------------------------------------------------------------- */
+const EFB_DRAFT_NOT_SAVED = ['password', 'file', 'dadfile', 'esign', 'audio_recorder', 'video_recorder', 'screen_recorder', 'image', 'document', 'media', 'allformat', 'zip',
+  'stripe', 'paypal', 'persiaPay', 'persiapay', 'zarinPal', 'payment', 'captcha_v2', 'prcfld', 'ttlprc', 'html', 'heading', 'link', 'step', 'steps', 'w_link'];
+function efb_f11_text_efb(k, fb) {
+  try { const t = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm && ajax_object_efm.text) ? ajax_object_efm.text : null; if (t && t[k]) return t[k]; } catch (e) {}
+  return fb;
+}
+function efb_f11_flag_efb(k) {
+  try { return !!(typeof ajax_object_efm !== 'undefined' && ajax_object_efm.f11 && ajax_object_efm.f11[k]); } catch (e) { return false; }
+}
+function efb_f11_row0_efb(fid) {
+  try { const s = get_structure_by_form_id_efb(Number(fid)); return Array.isArray(s) && s[0] ? s[0] : null; } catch (e) { return null; }
+}
+const efb_f11_on_efb = (v) => ['1', 'true', 1, true].includes(v);
+/* The answers of one form that a draft may keep (no password, file, signature, payment, …). */
+function efb_draft_rows_efb(fid) {
+  if (typeof sendBack_emsFormBuilder_pub === 'undefined' || !Array.isArray(sendBack_emsFormBuilder_pub)) return [];
+  const gw = (typeof efb_var !== 'undefined' && efb_var && efb_var.pay && Array.isArray(efb_var.pay.gateways)) ? efb_var.pay.gateways : [];
+  return sendBack_emsFormBuilder_pub.filter((r) => r && typeof r === 'object' && Number(r.form_id) === Number(fid)
+    && !EFB_DRAFT_NOT_SAVED.includes(String(r.type || '')) && !gw.includes(String(r.type || ''))
+    && !(r.id_ob && document.getElementById(r.id_ob) && document.getElementById(r.id_ob).closest('[data-efb-logic-hidden="1"], .efb-logic-hidden')))
+    .map((r) => { const o = {}; ['id_', 'id_ob', 'name', 'type', 'value', 'amount', 'form_id', 'qty'].forEach((k) => { if (r[k] !== undefined) o[k] = r[k]; }); return o; });
+}
+function efb_f11_step_efb(fid) {
+  const b = document.getElementById('body_efb_' + fid);
+  return b ? (Number(b.dataset.currentstep) || 1) : 1;
+}
+async function efb_f11_post_efb(route, fid, body, keepalive) {
+  const rest = (typeof efb_var !== 'undefined' && efb_var.rest_url) ? efb_var.rest_url : '/wp-json/';
+  let rt = null;
+  try { rt = window.EFBRuntime ? await window.EFBRuntime.prepare(Number(fid)) : null; } catch (e) { const err = new Error(e.message || ''); err.code = e.code; throw err; }
+  if (!rt || !rt.runtime_token) { const err = new Error(efb_f11_text_efb('nonceExpired', 'Your session has expired. Please refresh the page and try again.')); err.code = 'efb_context_expired'; throw err; }
+  const r = await fetch(rest + 'Emsfb/v1/' + route, {
+    method: 'POST', credentials: 'same-origin', cache: 'no-store', keepalive: !!keepalive,
+    headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': rt.nonce, 'sid': rt.sid, 'form-id': String(fid) },
+    body: JSON.stringify(Object.assign({ form_id: Number(fid), runtime_token: rt.runtime_token }, body)),
+  });
+  let j = null;
+  try { j = await r.json(); } catch (e) { j = null; }
+  if (!r.ok) { const err = new Error((j && (j.message || (j.data && j.data.m))) || efb_f11_text_efb('draftFailed', 'Your answers could not be saved. Please try again.')); err.code = j && j.code; err.status = r.status; throw err; }
+  return j;
+}
+function efb_f11_page_url_efb() {
+  try { const u = new URL(location.href); u.hash = ''; u.searchParams.delete('efb_resume'); return u.toString(); } catch (e) { return location.href.split('#')[0]; }
+}
+function efb_draft_status_efb(fid, msg, kind) {
+  const zone = document.querySelector('.efb-draft-zone[data-formid="' + fid + '"]');
+  if (!zone) return;
+  let st = zone.querySelector('.efb-draft-status');
+  if (!st) { st = document.createElement('p'); st.className = 'efb efb-draft-status fs-7 mb-0 mx-2'; st.setAttribute('role', 'status'); st.setAttribute('aria-live', 'polite'); zone.appendChild(st); }
+  st.textContent = msg || '';
+  st.classList.toggle('text-danger', kind === 'error');
+}
+async function efb_draft_save_efb(fid, btn) {
+  fid = Number(fid);
+  if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); }
+  try {
+    let token = '';
+    try { token = sessionStorage.getItem('efb_draft_' + fid) || ''; } catch (e) {}
+    const res = await efb_f11_post_efb('forms/draft/save', fid, { rows: efb_draft_rows_efb(fid), step: efb_f11_step_efb(fid), resume_token: token, url: efb_f11_page_url_efb() });
+    try { if (res.resume_token) sessionStorage.setItem('efb_draft_' + fid, res.resume_token); } catch (e) {}
+    efb_draft_status_efb(fid, '', '');
+    efb_draft_dialog_efb(fid, res);
+    return res;
+  } catch (e) {
+    efb_draft_status_efb(fid, e.message || efb_f11_text_efb('draftFailed', 'Your answers could not be saved. Please try again.'), 'error');
+    return null;
+  } finally {
+    if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); }
+  }
+}
+/* The dialog after saving: link + copy, until when, e-mail it, what is not saved. */
+function efb_draft_dialog_efb(fid, res) {
+  const id = 'efb-draft-dlg-' + fid;
+  let dlg = document.getElementById(id);
+  const t = (k, fb) => efb_gate_escape_efb(efb_f11_text_efb(k, fb));
+  const rtl = (typeof efb_var !== 'undefined' && efb_var.rtl) ? ' dir="rtl"' : '';
+  const row0 = efb_f11_row0_efb(fid) || {};
+  const html = '<div class="efb efb-popup-head"><h2 class="efb efb-popup-title" id="' + id + '-title">' + t('draftSaved', 'Your answers are saved.') + '</h2>'
+    + '<button type="button" class="efb efb-popup-close" aria-label="' + t('popupClose', 'Close') + '" data-efb-draft-close="' + fid + '"><span aria-hidden="true">&times;</span></button></div>'
+    + '<div class="efb efb-popup-body">'
+    + '<label class="efb form-label" for="' + id + '-url">' + t('draftCopy', 'Copy link') + '</label>'
+    + '<div class="efb efb-draft-link d-flex gap-2"><input type="text" readonly dir="ltr" class="efb form-control" id="' + id + '-url" value="' + efb_gate_escape_efb(res.url || '') + '">'
+    + '<button type="button" class="efb btn btn-primary" data-efb-draft-copy="' + fid + '"><i class="efb bi-clipboard me-1" aria-hidden="true"></i>' + t('draftCopy', 'Copy link') + '</button></div>'
+    + '<p class="efb fs-7 mt-2 mb-1">' + efb_gate_escape_efb(efb_f11_text_efb('draftExpires', 'This link works until %s.').replace('%s', res.expires_text || '')) + '</p>'
+    + '<p class="efb fs-7 text-muted mb-3">' + t('draftKeepSafe', 'Anyone with this link can see your saved answers. Keep it private.') + '</p>'
+    + '<label class="efb form-label" for="' + id + '-email">' + t('draftEmail', 'Email address') + '</label>'
+    + '<div class="efb efb-draft-link d-flex gap-2"><input type="email" dir="ltr" autocomplete="email" class="efb form-control" id="' + id + '-email" value="">'
+    + '<button type="button" class="efb btn btn-outline-primary" data-efb-draft-email="' + fid + '"><i class="efb bi-envelope me-1" aria-hidden="true"></i>' + t('draftSendLink', 'Send link') + '</button></div>'
+    + '<p class="efb fs-7 mt-1 mb-2" id="' + id + '-msg" role="status" aria-live="polite"></p>'
+    + '<p class="efb fs-7 text-muted mb-0"><i class="efb bi-info-circle me-1" aria-hidden="true"></i>' + t('draftNotSaved', 'Passwords, files, recordings, signatures and payment details are not saved.') + '</p>'
+    + '</div>';
+  if (!dlg) {
+    dlg = document.createElement('dialog');
+    dlg.id = id;
+    dlg.className = 'efb efb-popup efb-draft-dialog';
+    dlg.setAttribute('aria-labelledby', id + '-title');
+    if (rtl) dlg.setAttribute('dir', 'rtl');
+    document.body.appendChild(dlg);
+    dlg.addEventListener('click', async (e) => {
+      const tgt = e.target && e.target.closest ? e.target : null;
+      if (!tgt) return;
+      if (tgt === dlg || tgt.closest('[data-efb-draft-close]')) { dlg.close(); return; }
+      if (tgt.closest('[data-efb-draft-copy]')) {
+        const inp = document.getElementById(id + '-url');
+        try { await navigator.clipboard.writeText(inp.value); } catch (x) { try { inp.select(); document.execCommand('copy'); } catch (y) {} }
+        document.getElementById(id + '-msg').textContent = efb_f11_text_efb('copiedClipboard', 'Copied');
+        return;
+      }
+      if (tgt.closest('[data-efb-draft-email]')) {
+        const btn = tgt.closest('[data-efb-draft-email]');
+        const msg = document.getElementById(id + '-msg');
+        const em = document.getElementById(id + '-email');
+        btn.disabled = true;
+        try {
+          let token = '';
+          try { token = sessionStorage.getItem('efb_draft_' + fid) || ''; } catch (x) {}
+          const r = await efb_f11_post_efb('forms/draft/email', fid, { resume_token: token, email: em.value.trim(), url: efb_f11_page_url_efb() });
+          msg.textContent = r && r.success ? efb_f11_text_efb('draftLinkSent', 'The link was sent.') : efb_f11_text_efb('draftFailed', 'Your answers could not be saved. Please try again.');
+          em.removeAttribute('aria-invalid');
+        } catch (x) { msg.textContent = x.message || ''; em.setAttribute('aria-invalid', 'true'); }
+        btn.disabled = false;
+      }
+    });
+    const opener = document.getElementById('efb-draft-save-' + fid);
+    dlg.addEventListener('close', () => { try { (opener || document.body).focus(); } catch (e) {} });
+  }
+  dlg.innerHTML = html;
+  // The e-mail field starts with the address typed into the form's own e-mail field (email_to).
+  try {
+    const rows = efb_draft_rows_efb(fid);
+    const e = rows.find((r) => r.id_ && row0.email_to && r.id_ === row0.email_to) || rows.find((r) => r.type === 'email');
+    if (e && e.value) document.getElementById(id + '-email').value = String(e.value);
+  } catch (e) {}
+  if (typeof dlg.showModal === 'function') { if (!dlg.open) dlg.showModal(); } else dlg.setAttribute('open', '');
+  const first = document.getElementById(id + '-url');
+  try { first.focus(); first.select(); } catch (e) {}
+  return dlg;
+}
+/* Banner after a resume link: restored (and what to enter again), or the link did not work. */
+function efb_draft_banner_efb(fid, text, kind, startOver) {
+  const body = document.getElementById('body_efb_' + fid);
+  if (!body) return null;
+  const old = document.getElementById('efb-draft-banner-' + fid);
+  if (old) old.remove();
+  const div = document.createElement('div');
+  div.id = 'efb-draft-banner-' + fid;
+  div.className = 'efb alert ' + (kind === 'error' ? 'alert-warning' : 'alert-info') + ' d-flex flex-wrap align-items-center gap-2 mx-3 my-2 efb-draft-banner';
+  div.setAttribute('role', 'status');
+  div.innerHTML = '<span class="efb">' + efb_gate_escape_efb(text) + '</span>' + (startOver ? ' <button type="button" class="efb btn btn-sm btn-outline-secondary" data-efb-draft-startover="' + fid + '">' + efb_gate_escape_efb(efb_f11_text_efb('draftStartOver', 'Start over')) + '</button>' : '');
+  body.parentNode.insertBefore(div, body);
+  const so = div.querySelector('[data-efb-draft-startover]');
+  if (so) so.addEventListener('click', async () => {
+    let token = '';
+    try { token = sessionStorage.getItem('efb_draft_' + fid) || ''; sessionStorage.removeItem('efb_draft_' + fid); } catch (e) {}
+    try { if (token) await efb_f11_post_efb('forms/draft/discard', fid, { resume_token: token }); } catch (e) {}
+    try { location.replace(efb_f11_page_url_efb()); } catch (e) { location.reload(); }
+  });
+  return div;
+}
+async function efb_draft_resume_efb() {
+  let token = '';
+  try { token = new URL(location.href).searchParams.get('efb_resume') || ''; } catch (e) { token = ''; }
+  if (!/^[a-f0-9]{64}$/.test(token)) return false;
+  // The link leaves the address bar at once (shared screens, history, Referer).
+  try { const u = new URL(location.href); u.searchParams.delete('efb_resume'); history.replaceState(history.state, '', u.toString()); } catch (e) {}
+  const forms = (typeof valj_efb_new !== 'undefined' && Array.isArray(valj_efb_new)) ? valj_efb_new : [];
+  for (const f of forms) {
+    const fid = Number(f.id);
+    const row0 = f.form_structer && f.form_structer[0];
+    if (!row0 || !efb_f11_on_efb(row0.draft_on)) continue;
+    const rest = (typeof efb_var !== 'undefined' && efb_var.rest_url) ? efb_var.rest_url : '/wp-json/';
+    let rt = null;
+    try { rt = window.EFBRuntime ? await window.EFBRuntime.prepare(fid) : null; } catch (e) { rt = null; }
+    let res = null;
+    try {
+      const r = await fetch(rest + 'Emsfb/v1/forms/draft/load', { method: 'POST', credentials: 'same-origin', cache: 'no-store', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': rt ? rt.nonce : (efb_var.nonce || ''), 'sid': rt ? rt.sid : '' }, body: JSON.stringify({ form_id: fid, resume_token: token }) });
+      res = r.ok ? await r.json() : null;
+    } catch (e) { res = null; }
+    if (!res || !res.success) { efb_draft_banner_efb(fid, efb_f11_text_efb('draftInvalid', 'This link has expired or is not valid.'), 'error', false); continue; }
+    try { sessionStorage.setItem('efb_draft_' + fid, token); } catch (e) {}
+    const rows = (res.rows || []).map((r) => Object.assign({}, r, { form_id: fid }));
+    await efb_apply_saved_rows_efb(fid, rows);
+    // To the saved step: Next as the visitor would press it (every step is checked).
+    for (let i = 1; i < Number(res.step || 1); i++) {
+      const body = document.getElementById('body_efb_' + fid);
+      const next = body ? body.querySelector('#next_efb') : null;
+      if (!next || next.closest('.d-none')) break;
+      const before = efb_f11_step_efb(fid);
+      try { await btn_navigate_handle_efb(String(fid), row0.type, 'next_efb', next); } catch (e) { break; }
+      await new Promise((ok) => setTimeout(ok, 350));
+      if (efb_f11_step_efb(fid) === before) break;
+    }
+    efb_draft_banner_efb(fid, efb_f11_text_efb('draftRestored', 'Your saved answers were restored. Enter files and passwords again.'), 'info', true);
+    return true;
+  }
+  return false;
+}
+
+/* F: partial answers, only with the visitor's consent. */
+const EFB_PARTIAL = {};
+function efb_partial_contact_ok_efb(rows) {
+  return rows.some((r) => (r.type === 'email' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(r.value || '').trim()))
+    || (['mobile', 'tel'].includes(r.type) && String(efb_ascii_digits_efb(String(r.value || ''))).replace(/\D+/g, '').length >= 7));
+}
+async function efb_partial_send_efb(fid, keepalive) {
+  const st = EFB_PARTIAL[fid];
+  if (!st || st.stopped) return false;
+  if (st.mode === 'checkbox') { const cb = document.getElementById('efb-partial-consent-' + fid); if (!cb || !cb.checked) return false; }
+  const rows = efb_draft_rows_efb(fid);
+  if (!rows.length || (st.needContact && !efb_partial_contact_ok_efb(rows))) return false;
+  const sig = JSON.stringify(rows);
+  if (sig === st.last) return false;
+  st.last = sig;
+  st.at = Date.now();
+  try { await efb_f11_post_efb('forms/partial/save', fid, { rows, step: efb_f11_step_efb(fid), consent: 1 }, keepalive); return true; } catch (e) { st.last = ''; return false; }
+}
+function efb_partial_stop_efb(fid) { if (EFB_PARTIAL[Number(fid)]) EFB_PARTIAL[Number(fid)].stopped = true; }
+function efb_partial_boot_efb(fid, row0) {
+  fid = Number(fid);
+  if (!efb_f11_on_efb(row0.partial_on) || !efb_f11_flag_efb('partials') || EFB_PARTIAL[fid]) return;
+  const body = document.getElementById('body_efb_' + fid);
+  const form = body ? body.querySelector('form') : null;
+  if (!form) return;
+  const mode = row0.partial_consent === 'notice' ? 'notice' : 'checkbox';
+  // Not part of the answers: no emsFormBuilder_v class, no data-vid (F02 §1.3).
+  const html = mode === 'notice'
+    ? '<p class="efb efb-partial-notice fs-7 text-muted mx-3 my-2" role="note">' + efb_gate_escape_efb(efb_f11_text_efb('partialNotice', 'Your answers are saved as you type so the site owner can follow up.')) + '</p>'
+    : '<div class="efb efb-partial-consent form-check mx-3 my-2"><input type="checkbox" class="efb form-check-input" id="efb-partial-consent-' + fid + '"><label class="efb form-check-label fs-7" for="efb-partial-consent-' + fid + '">' + efb_gate_escape_efb(efb_f11_text_efb('partialConsent', 'Save my answers before I send them.')) + '</label></div>';
+  form.insertAdjacentHTML('afterbegin', html);
+  const st = EFB_PARTIAL[fid] = { mode, needContact: row0.partial_need_contact !== '0', last: '', at: 0, timer: null, stopped: false };
+  const later = () => {
+    clearTimeout(st.timer);
+    const wait = Math.max(3000, 10000 - (Date.now() - st.at));
+    st.timer = setTimeout(() => efb_partial_send_efb(fid, false), wait);
+  };
+  body.addEventListener('input', later, true);
+  body.addEventListener('change', (e) => { if (e.target && e.target.id === 'efb-partial-consent-' + fid) { if (e.target.checked) later(); return; } later(); }, true);
+  body.addEventListener('click', (e) => { if (e.target && e.target.closest && e.target.closest('#next_efb')) setTimeout(() => efb_partial_send_efb(fid, false), 400); }, true);
+  window.addEventListener('pagehide', () => { clearTimeout(st.timer); efb_partial_send_efb(fid, true); });
+}
+async function efb_f11_after_init_efb() {
+  if (typeof document === 'undefined') return;
+  document.querySelectorAll('.efb-draft-save[data-formid]').forEach((b) => {
+    if (b._efbDraft || b.disabled) return;
+    b._efbDraft = true;
+    b.addEventListener('click', () => efb_draft_save_efb(b.getAttribute('data-formid'), b));
+  });
+  const forms = (typeof valj_efb_new !== 'undefined' && Array.isArray(valj_efb_new)) ? valj_efb_new : [];
+  forms.forEach((f) => { const r0 = f.form_structer && f.form_structer[0]; if (r0) efb_partial_boot_efb(f.id, r0); });
+  await efb_draft_resume_efb();
 }

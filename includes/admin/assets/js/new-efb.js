@@ -457,9 +457,21 @@ let add_buttons_zone_efb = (state, id) => {
     if(valj_efb[0].captcha == true) document.getElementById('dropZoneEFB').classList.add('captcha');
     c = ` <div class="efb col-12 mb-2 mb-5 pb-5 mt-3 mx-1 bottom-0 ${valj_efb[0].captcha != true ? 'd-none' : ''} " id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>  <div class="efb bottom-0 " id="button_group_efb"> <div class="efb  ${row}  showBtns efb" id="button_group" data-id="button_group" data-tag="buttonNav">${s} ${d} ${stng} </div></div>`
   }
+  // F11-E: the "Save and continue later" button, shown (disabled) in the preview when draft_on is set.
+  if ((id == 'preview' || id == 'body_efb') && ['1', 'true'].includes(String(valj_efb[0].draft_on || ''))) {
+    c += efb_draft_button_html_efb((efb_var.text && efb_var.text.draftSave) || 'Save and continue later', (typeof form_ID_emsFormBuilder !== 'undefined' ? form_ID_emsFormBuilder : 0), true);
+  }
   if (id != 'preview' && id != 'body_efb' && !document.getElementById('button_group')) { document.getElementById(id).innerHTML += c } else {
     return c;
   }
+}
+/* F11-E: twin of Emsfb\Drafts::button_html() (tests/test-f11-parity.js). */
+function efb_draft_button_html_efb(label, fid, preview) {
+  const e = (v) => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+  const id = parseInt(fid, 10) || 0;
+  return '<div class="efb efb-draft-zone d-flex justify-content-center mt-2 mx-3" data-formid="' + id + '">'
+    + '<button type="button" class="efb btn btn-outline-secondary btn-sm efb-draft-save" id="efb-draft-save-' + id + '" data-formid="' + id + '"' + (preview ? ' disabled aria-disabled="true"' : '') + '>'
+    + '<i class="efb bi-bookmark me-1" aria-hidden="true"></i>' + e(label) + '</button></div>';
 }
 const colorTextChangerEfb = (classes, color) => { return classes.replace(/(text-primary|text-darkb|text-muted|text-secondary|text-pinkEfb|text-success|text-white|text-light|\btext-colorDEfb-+[\w\-]+|text-danger|text-warning|text-info|text-dark|text-labelEfb)/, ` ${color} `) ?? `${classes} ${color}`; }
 const alignChangerElEfb = (classes, value) => { return classes.replace(/(justify-content-start|justify-content-end|justify-content-center)/, ` ${value} `) ?? `${classes} ${value} `; }

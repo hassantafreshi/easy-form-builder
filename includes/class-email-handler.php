@@ -526,9 +526,11 @@ class EmsfbEmailHandler {
         // heading, no "View message" button (its link is 'null'), and the body
         // is already composed and escaped by the caller.
         $isProblemReportState = in_array($state, ['addonsDlProblem', 'reportProblem'], true);
+        // F11-E: the "continue your form" link (Drafts::email_html(): form name, link, its end; no answers).
+        $isResumeState = $state === 'resumeLink';
 
         $tracking_section = "";
-        if ($email_content_type != 'just_message' && !$isRegistrationState && !$isRecoveryState && !$isAdminNoticeState && !$isProblemReportState) {
+        if ($email_content_type != 'just_message' && !$isRegistrationState && !$isRecoveryState && !$isAdminNoticeState && !$isProblemReportState && !$isResumeState) {
             $safe_link = esc_url($link);
             $tracking_section = "
             <div style='text-align:center; margin: 30px 0;'>
@@ -571,10 +573,14 @@ class EmsfbEmailHandler {
             $title = esc_html__('Report problem', 'easy-form-builder') . ' [' . esc_html__('Easy Form Builder', 'easy-form-builder') . ']';
         }
 
+        if ($isResumeState) {
+            $title = esc_html__('Continue your form', 'easy-form-builder');
+        }
+
         if ($state == "testMailServer") {
             $title = $lang['serverEmailAble'];
             $message = $this->generate_test_server_message($lang, $l, $wp_lan);
-        } else if ($isAdminNoticeState || $isProblemReportState) {
+        } else if ($isAdminNoticeState || $isProblemReportState || $isResumeState) {
             $message = is_string($m) ? $m : '';
         } else if ($isRecoveryState) {
             // Recovery email - m contains username, link contains the full recovery URL

@@ -232,8 +232,12 @@ switch ( $efb_e2e_cmd ) {
 		// Copy tests/e2e-wp/mu-plugins/efb-e2e-f11.php into the site's mu-plugins (F11 tests).
 		$dst = WPMU_PLUGIN_DIR . '/efb-e2e-f11.php';
 		if ( ! is_dir( WPMU_PLUGIN_DIR ) ) wp_mkdir_p( WPMU_PLUGIN_DIR );
-		$ok = copy( dirname( __FILE__ ) . '/mu-plugins/efb-e2e-f11.php', $dst );
-		efb_e2e_out( array( 'copied' => $ok, 'path' => $dst ) );
+		$src = dirname( __FILE__ ) . '/mu-plugins/efb-e2e-f11.php';
+		$same = is_readable( $dst ) && md5_file( $dst ) === md5_file( $src );
+		$ok = $same || copy( $src, $dst );
+		// A changed file: give the server's opcache (revalidate_freq) time to see it.
+		if ( ! $same ) sleep( 3 );
+		efb_e2e_out( array( 'copied' => $ok, 'changed' => ! $same, 'path' => $dst ) );
 		break;
 
 	case 'setting':
@@ -358,7 +362,7 @@ switch ( $efb_e2e_cmd ) {
 		$steps = isset( $efb_e2e_rest[2] ) ? max( 1, (int) $efb_e2e_rest[2] ) : 1;
 		$ftype = isset( $efb_e2e_rest[3] ) && '' !== $efb_e2e_rest[3] ? $efb_e2e_rest[3] : 'form';
 		$rid   = function () { return substr( str_shuffle( 'abcdefghijklmnopqrstuvwxyz0123456789' ), 0, 9 ); };
-		$em = $rid(); $nm = $rid(); $pw = $rid(); $ph = $rid(); $tx = $rid();
+		$em = $rid(); $nm = $rid(); $pw = $rid(); $ph = $rid(); $tx = $rid(); $fl = $rid();
 		$base = array( 'step' => 1, 'amount' => 0, 'size' => 100, 'required' => 0, 'label_text_size' => 'fs-6', 'label_position' => 'up', 'el_text_size' => 'fs-6', 'label_text_color' => 'text-labelEfb', 'el_border_color' => 'border-d', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'el_height' => 'h-d-efb', 'label_align' => 'txt-left', 'message_align' => 'justify-content-start', 'el_align' => 'justify-content-start', 'classes' => '', 'message' => '', 'placeholder' => '', 'value' => '', 'icon_input' => '' );
 		$row0 = array( 'type' => $ftype, 'steps' => $steps, 'formName' => $name, 'email' => 'owner@example.test', 'trackingCode' => '1', 'EfbVersion' => 2, 'button_single_text' => 'Send', 'button_Next_text' => 'Next', 'button_Previous_text' => 'Previous', 'button_Next_icon' => 'bi-chevron-right', 'button_Previous_icon' => 'bi-chevron-left', 'button_color' => 'btn-darkb', 'icon' => 'bi-ui-checks-grid', 'button_state' => 'single', 'email_to' => $em, 'show_icon' => '1', 'captcha' => '', 'sendEmail' => '1', 'stateForm' => 0, 'thank_you' => 'msg', 'thank_you_message' => array( 'icon' => 'bi-hand-thumbs-up', 'thankYou' => 'Thank you', 'done' => 'Done', 'trackingCode' => 'Confirmation Code', 'pleaseFillInRequiredFields' => 'Please fill in all required fields.' ), 'dShowBg' => '1', 'btns_align' => 'justify-content-center', 'label_text_color' => 'text-labelEfb', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'icon_color' => 'text-white', 'el_height' => 'h-d-efb' );
 		$step = function ( $n ) { return array( 'id_' => (string) $n, 'type' => 'step', 'dataId' => (string) $n, 'classes' => '', 'id' => (string) $n, 'name' => 'Step ' . $n, 'icon' => 'bi-ui-checks-grid', 'step' => $n, 'amount' => $n === 1 ? 1 : 10, 'EfbVersion' => 2, 'message' => '', 'label_text_size' => 'fs-5', 'el_text_size' => 'fs-5', 'label_text_color' => 'text-darkb', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'icon_color' => 'text-darkb', 'visible' => 1 ); };
@@ -370,6 +374,7 @@ switch ( $efb_e2e_cmd ) {
 			$rows[] = array_merge( $base, array( 'id_' => $ph, 'dataId' => $ph . '-id', 'type' => 'text', 'elementId' => 'text', 'name' => 'City', 'amount' => 11, 'step' => 2 ) );
 			$rows[] = array_merge( $base, array( 'id_' => $pw, 'dataId' => $pw . '-id', 'type' => 'password', 'elementId' => 'password', 'name' => 'Secret', 'amount' => 12, 'step' => 2 ) );
 			$rows[] = array_merge( $base, array( 'id_' => $tx, 'dataId' => $tx . '-id', 'type' => 'textarea', 'elementId' => 'textarea', 'name' => 'Notes', 'amount' => 13, 'step' => 2 ) );
+			$rows[] = array_merge( $base, array( 'id_' => $fl, 'dataId' => $fl . '-id', 'type' => 'file', 'elementId' => 'file', 'name' => 'Attachment', 'amount' => 14, 'step' => 2, 'file' => 'Document', 'max_fsize' => '2' ) );
 		}
 		if ( isset( $efb_e2e_rest[1] ) && '' !== $efb_e2e_rest[1] ) {
 			foreach ( explode( '&', $efb_e2e_rest[1] ) as $kv ) {
@@ -385,7 +390,7 @@ switch ( $efb_e2e_cmd ) {
 		$wpdb->insert( $wpdb->prefix . 'emsfb_form', array( 'form_name' => $name, 'form_structer' => $json, 'form_email' => '', 'form_type' => $ftype, 'form_created_by' => '1', 'form_access_by' => '', 'form_create_date' => current_time( 'mysql' ), 'status' => 1 ) );
 		$fid = (int) $wpdb->insert_id;
 		do_action( 'efb_form_created', $fid, $clean, array( 'form_id' => $fid, 'source' => 'e2e', 'user_id' => 1 ) );
-		efb_e2e_out( array( 'form_id' => $fid, 'email' => $em, 'name' => $nm, 'city' => $ph, 'password' => $pw, 'notes' => $tx, 'row0' => $clean[0] ) );
+		efb_e2e_out( array( 'form_id' => $fid, 'email' => $em, 'name' => $nm, 'city' => $ph, 'password' => $pw, 'notes' => $tx, 'file' => $fl, 'row0' => $clean[0] ) );
 		break;
 
 	case 'f11-set':
@@ -418,6 +423,19 @@ switch ( $efb_e2e_cmd ) {
 		$fid  = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
 		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}emsfb_draft_ WHERE fid = %d ORDER BY id", $fid ), ARRAY_A ); // phpcs:ignore
 		efb_e2e_out( $rows ? $rows : array() );
+		break;
+
+	case 'f11-drafts-op':
+		// F11-E/F: expire <form_id> (every draft of the form ends now) | cleanup (the daily job) |
+		// export <email> | erase <email> (WordPress' personal-data tools, the drafts part).
+		$op  = isset( $efb_e2e_rest[0] ) ? $efb_e2e_rest[0] : '';
+		$arg = isset( $efb_e2e_rest[1] ) ? $efb_e2e_rest[1] : '';
+		$out = null;
+		if ( 'expire' === $op ) $out = $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->prefix}emsfb_draft_ SET expires_at = %s WHERE fid = %d", gmdate( 'Y-m-d H:i:s', time() - 60 ), (int) $arg ) ); // phpcs:ignore
+		if ( 'cleanup' === $op ) $out = \Emsfb\Drafts::cleanup();
+		if ( 'export' === $op ) $out = \Emsfb\Drafts::export( $arg, 1 );
+		if ( 'erase' === $op ) $out = \Emsfb\Drafts::erase( $arg, 1 );
+		efb_e2e_out( $out );
 		break;
 
 	case 'f11-delete-entry':

@@ -46,3 +46,19 @@ add_filter(
 	5,
 	2
 );
+/*
+ * (3) Save-and-continue and partial answers are Pro. On this test site a Pro plan without a licence
+ * falls back to Free Plus on the next page view, so the tests open the two parts through the plugin's
+ * own filter efb_f11_plan (what a site owner could do) while the option efb_e2e_f11_plan is set.
+ */
+add_filter(
+	'efb_f11_plan',
+	static function ( $need, $part ) {
+		if ( in_array( $part, array( 'drafts', 'partials' ), true ) && get_option( 'efb_e2e_f11_plan' ) ) {
+			return 'free';
+		}
+		return $need;
+	},
+	10,
+	2
+);

@@ -43,6 +43,8 @@ class _Public {
 	private $gate_claims = array();
 	private $gate_cookie = '';
 	private $gate_reserved = false;
+	/* F11-E/F: the runtime owner of the tab that submits (its partial entry is completed). */
+	private $runtime_owner_efb = '';
 	/** PAY00: the instance (webhooks, cron and the return URL run actions through it). */
 	public static $instance_efb = null;
 
@@ -1576,6 +1578,7 @@ public function check_nonce_permission_efb($request) {
 			    * carries both and core-efb.js asks forms/session/prepare which one to show. The submit
 			    * decides again in any case. */
 			   $gate_render_efb = (class_exists('\\Emsfb\\Form_Gate') && (($valj_efb[0]->type ?? '') !== 'login')) ? \Emsfb\Form_Gate::render_gate($valj_efb[0], $this->id) : null;
+			   if (isset($valj_efb[0]->draft_on) || isset($valj_efb[0]->partial_on)) self::enqueue_access_css_efb(); // F11-E/F styles
 			   if ($gate_render_efb && $gate_render_efb['card_only']) {
 					return $bootstrap_icons . "<div class='efb row pb-3 efb px-2 v4 efb-gate-wrap' data-formid='" . intval($this->id) . "'" . (is_rtl() ? " dir='rtl'" : '') . ">" . $gate_render_efb['html'] . ($efb_m ?? '') . ($s_m ?? '') . "</div>";
 			   }
@@ -2712,6 +2715,7 @@ public function check_nonce_permission_efb($request) {
 			}
 			$this->gate_s0 = $access_structure[0];
 		}
+		$this->runtime_owner_efb = isset($runtime_proof) && is_array($runtime_proof) && isset($runtime_proof['owner']) ? (string) $runtime_proof['owner'] : '';
 		$should_send_email=false;
 		$email_recipients = [];
 		// The form client always posts `value` as a JSON string, but nothing
@@ -4988,8 +4992,14 @@ public function check_nonce_permission_efb($request) {
 		$this->gate_items = array();
 	}
 
-	/** F11: after the entry is stored: the cookie of a cookie limit, the hold of a pending payment. */
+	/** F11: after the entry is stored: the cookie of a cookie limit, the hold of a pending payment,
+	 * the saved answers (draft_token) and the partial entry of this tab are completed and emptied. */
 	private function gate_after_insert_efb($msg_id) {
+		if (class_exists('\\Emsfb\\Drafts') && method_exists('\\Emsfb\\Drafts', 'complete') && (int) ($this->id) > 0) {
+			$draft_token = isset($this->operation_data['draft_token']) && is_string($this->operation_data['draft_token']) ? $this->operation_data['draft_token'] : '';
+			$owner = isset($this->runtime_owner_efb) ? (string) $this->runtime_owner_efb : '';
+			if ($draft_token !== '' || $owner !== '') \Emsfb\Drafts::complete(!empty($this->gate_fid) ? (int) $this->gate_fid : (int) $this->id, $draft_token, $owner, (int) $msg_id);
+		}
 		if (empty($this->gate_reserved) || !class_exists('\\Emsfb\\Form_Gate')) return;
 		if ($this->gate_cookie !== '') {
 			$cfg = \Emsfb\Form_Gate::cfg($this->gate_s0);
@@ -9142,6 +9152,17 @@ public function check_nonce_permission_efb($request) {
 	 * same way an empty value does. null is left alone so isset() semantics in
 	 * the branches are unchanged.
 	 */
+	/**
+	 * F11-E/F: one saved-answers row cleaned exactly like a submitted row (the keys a type may carry,
+	 * scalars only). false = drop it.
+	 */
+	public function draft_clean_row_efb($item, $field_type) {
+		if (!is_array($item)) return false;
+		$row = $this->normalize_submitted_row_efb($item, $field_type);
+		$row = $this->filter_attributes_by_type_efb($row, $field_type);
+		return is_array($row) ? $row : false;
+	}
+
 	private function normalize_submitted_row_efb($item, $field_type) {
 		if (!is_array($item)) {
 			return array('id_' => '', 'id_ob' => '', 'type' => '', 'name' => '', 'amount' => '');
@@ -9849,6 +9870,8 @@ public function check_nonce_permission_efb($request) {
 			'user_name' => $username,
 			'admin_sc' => isset($_GET['sc']) ? sanitize_text_field(wp_unslash($_GET['sc'])) : '',
 			'nonce' => wp_create_nonce('wp_rest'),
+			// F11: whether this site's plan saves drafts / partial answers (the server checks again).
+			'f11' => class_exists('\\Emsfb\\Form_Gate') ? array('drafts' => \Emsfb\Form_Gate::plan_ok('drafts'), 'partials' => \Emsfb\Form_Gate::plan_ok('partials')) : array('drafts' => false, 'partials' => false),
 			'upload_max' => function_exists('wp_max_upload_size') ? (int) floor(wp_max_upload_size() / MB_IN_BYTES) : 0,
 			/* Conditional-logic runtime env (source: 'user'). core-efb.js replaces
 			 * efb_var with this object on a form page, so it must carry the same
