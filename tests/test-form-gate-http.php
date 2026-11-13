@@ -38,7 +38,7 @@ $F = $H->ctl('f11-form', 'F11 closed', 'sched_open=2025-01-01T09:00&sched_close=
 $fid = $F['form_id'];
 $html = $H->http('GET', $H->page($fid), null, array(), false)['body'];
 t('B1 render: the closed card (role=status), no form markup', (bool) (preg_match('/data-efb-gate="closed"/', $html) && strpos($html, 'role="status"') !== false && strpos($html, 'id="body_efb_' . $fid . '"') === false), true);
-t('B1 render: the owner\'s own sentence with the closing date', (bool) preg_match('/Registration closed on [^<]*2025[^<]*6:00 ?pm\./i', $html), true);
+t('B1 render: the owner\'s own sentence with the closing date', (bool) preg_match('/Registration closed on [^<]*2025[^<]*6:00 ?pm\x{2069}?\./iu', $html), true);
 $p = $H->prepare($fid);
 t('B1 prepare: 403 efb_form_closed with the sentence', array($p['status'], $p['json']['code'] ?? '', (bool) preg_match('/Registration closed on/', $p['json']['message'] ?? '')), array(403, 'efb_form_closed', true));
 $s = $H->submit($fid, $rows($F), array('runtime_token' => '', 'request_id' => ''), $H->prepare(0));
@@ -51,7 +51,7 @@ t('B1 forms/gate/state (cached widgets): 200 closed with the sentence, no sessio
 $F = $H->ctl('f11-form', 'F11 pending', 'sched_open=2030-06-01T09:30');
 $fid = $F['form_id'];
 $html = $H->http('GET', $H->page($fid), null, array(), false)['body'];
-t('B2 render: the pending card names the opening', (bool) (preg_match('/data-efb-gate="pending"/', $html) && preg_match('/This form opens on [^<]*2030[^<]*9:30 ?am\./i', $html)), true);
+t('B2 render: the pending card names the opening', (bool) (preg_match('/data-efb-gate="pending"/', $html) && preg_match('/This form opens on [^<]*2030[^<]*9:30 ?am\x{2069}?\./iu', $html)), true);
 $p = $H->prepare($fid);
 t('B2 prepare: 403 efb_form_pending, data.reopen_at = the opening', array($p['status'], $p['json']['code'] ?? '', isset($p['json']['data']['reopen_at']) && $p['json']['data']['reopen_at'] > time()), array(403, 'efb_form_pending', true));
 

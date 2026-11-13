@@ -9,7 +9,7 @@
  *
  * Every command prints one JSON document on its last line.
  *
- *   wipe                      remove everything Easy Form Builder stored (tables, options, caps,
+ *   wipe                      remove everything Easy Form Builder stored (tables incl. F03 emsfb_uniq_, options, caps,
  *                             transients) plus the pages and users this suite created. Run between
  *                             `wp plugin deactivate` and `wp plugin activate` = a fresh install.
  *   state                     plan option, package_type in the settings, onboarding flags, locale
@@ -79,7 +79,7 @@ global $wpdb;
 switch ( $efb_e2e_cmd ) {
 	case 'wipe':
 		$dropped = array();
-		foreach ( array( 'emsfb_form', 'emsfb_msg_', 'emsfb_rsp_', 'emsfb_setting', 'emsfb_stts_', 'emsfb_pmt_', 'emsfb_pmt_evt_', 'emsfb_pmt_rfd_', 'emsfb_coupon_', 'emsfb_vrfy_rl_', 'emsfb_draft_' ) as $t ) {
+		foreach ( array( 'emsfb_form', 'emsfb_msg_', 'emsfb_rsp_', 'emsfb_setting', 'emsfb_stts_', 'emsfb_pmt_', 'emsfb_pmt_evt_', 'emsfb_pmt_rfd_', 'emsfb_coupon_', 'emsfb_vrfy_rl_', 'emsfb_draft_', 'emsfb_uniq_' ) as $t ) {
 			$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}{$t}" ); // phpcs:ignore
 			$dropped[] = $wpdb->prefix . $t;
 		}

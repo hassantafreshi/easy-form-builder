@@ -254,9 +254,13 @@ module.exports = function (S) {
     R.check('f11g: live preview scoped to the canvas; the javascript: rule removed and counted', prev.css.indexOf('#dropZoneEFB .efb label') !== -1 && prev.css.indexOf('javascript') === -1 && /1 rules were removed/.test(prev.note), prev);
     const saved = admin.waitForResponse((x) => /admin-ajax\.php/.test(x.url()) && /add_form_Emsfb|update_form_Emsfb/.test(x.request().postData() || ''), { timeout: 20000 }).catch(() => null);
     await admin.evaluate(() => saveFormEfb(1)); // the settings panel can cover the link while it slides
-    await saved;
+    const sres = await saved;
+    let sj = {};
+    try { sj = sres ? await sres.json() : {}; } catch (e) { sj = {}; }
+    // The id from the save answer ("[EMS_Form_Builder id=N]"), else the builder's global once it is set (a slow save).
+    let fid = Number(String((sj.data && (sj.data.value || sj.data.id)) || '').replace(/\D+/g, '')) || 0;
+    if (!fid) { await admin.waitForFunction(() => Number(form_ID_emsFormBuilder) > 0, null, { timeout: 30000 }).catch(() => {}); fid = await admin.evaluate(() => Number(form_ID_emsFormBuilder)); }
     await sleep(800);
-    const fid = await admin.evaluate(() => Number(form_ID_emsFormBuilder));
     const url = ctl('page', String(fid)).url;
     const g = await (await context({}, 'f11-css')).newPage();
     await g.goto(url, { waitUntil: 'load' });

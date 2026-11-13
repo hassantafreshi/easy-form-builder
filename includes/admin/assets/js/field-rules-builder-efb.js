@@ -445,8 +445,9 @@
 
   function efb_fr_gem_efb(btn) {
     const cap = btn && btn.getAttribute('data-cap');
-    if (typeof efb_capability_prompt_efb === 'function') efb_capability_prompt_efb(cap, 3, btn);
-    else if (typeof pro_show_efb === 'function') pro_show_efb(3);
+    // F18: the upgrade dialog of the registry entry (its text and plan come from the registry).
+    if (typeof efb_upgrade_prompt_efb === 'function') efb_upgrade_prompt_efb({ feature: cap, fallback: 'free_plus', origin: 'field_settings', opener: btn });
+    else if (typeof efb_capability_prompt_efb === 'function') efb_capability_prompt_efb(cap, 3, btn);
   }
 
   const api = { efbFieldRulesMainEls, efbFieldRulesAdvEls, efbFieldRulesMsgEls, efb_fr_change_efb, efb_fr_gem_efb, efb_fr_after_change_efb, efb_fr_decorate_efb, efb_fr_pattern_input_efb, efb_fr_pattern_test_efb, efb_fr_backfill_efb, efb_fr_domains_change_efb };
