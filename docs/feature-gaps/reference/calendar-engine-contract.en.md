@@ -4,8 +4,7 @@ Status: **implemented** on `dev4`, 2026-11-13 (proposal 2026-11-10). Differences
 as built: the global PHP functions live in `includes/calendar-functions-efb.php` and the routes in
 `includes/class-Emsfb-calendar-rest.php`; refusals on submit carry `code: efb_date_<code>`;
 `efb_date_validated` is a filter (return a `WP_Error` to refuse); the `availability` route is not
-plan-gated (it answers from the filters an add-on registers); the schema route has no
-`efb_form_schema` filters yet; `date_is_holiday` and a `cal` unit on limits were not built. Details:
+plan-gated (it answers from the filters an add-on registers); `date_is_holiday` and a `cal` unit on limits were not built. Details:
 `docs/autopilot-integration.md` (F06) and the status section at the end of the spec. Companion of `../F06-advanced-calendar.fa.md` (the product spec,
 in Persian). This file holds the parts other code relies on: the engine interface, the public JS
 API, the PHP API and hooks, the REST routes, the machine-readable field schema, the stored value

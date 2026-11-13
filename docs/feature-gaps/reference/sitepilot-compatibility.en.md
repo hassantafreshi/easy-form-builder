@@ -1017,8 +1017,8 @@ submit alike). **`GET Emsfb/v1/forms/{id}/schema` now exists** (`Emsfb\Form_Sche
 forms only, `private, no-store`): fields, labels, options, `required`, advdate `fill` / `value_schema` /
 `x-efb-date`, other fields `fill: {api: 'dom'}`; it leaves out notification e-mails, webhook URLs, SMS /
 Telegram texts, logic rules, payment keys, F03 `pattern_b64` and `email_domains` (tested in
-`tests/test-calendar-rest-http.php`). Not yet in it: F02 `verify`, F11 `gate`, the §8.1 filters
-`efb_form_schema` / `efb_form_schema_field`, `window.EFBForm`.
+`tests/test-calendar-rest-http.php`). Filters `efb_form_schema` / `efb_form_schema_field`. Not yet in it: F02 `verify`, F11 `gate`;
+`window.EFBForm` is not built.
 
 **F07 file upload.** Create: `max_files`, `min_files`, `max_total_mb`, `capture`, `img_max_px`,
 `img_quality`, `file_store`; row-0 `email_attach` (Pro). Fill: `visitor_only`. Read entries: `fnm`,
