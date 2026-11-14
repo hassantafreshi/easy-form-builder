@@ -4,7 +4,7 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-14",
     "counts": {
-        "active": 3946,
+        "active": 4003,
         "obsolete": 376
     },
     "entries": [
@@ -1873,6 +1873,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%s will show here on the page.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: builder preview: placeholder of the CAPTCHA (%s = the service name)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s words left",
             "context": null,
             "plural": null,
@@ -2109,6 +2124,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "0 keeps spam until you delete it.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: help under Delete spam after",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -2544,6 +2574,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "A field visitors never see or reach. Bots that fill every field are caught; people are not asked anything.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: help under the honeypot switch",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -4580,6 +4625,51 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Akismet",
+            "context": null,
+            "plural": null,
+            "translators": "F12: spam reason",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Akismet is not installed or active.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: Settings: why the Akismet switch is off",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Akismet sends the answers to Automattic to check them.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: privacy note under the Akismet switch",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Alert Email",
             "context": null,
             "plural": null,
@@ -5183,6 +5273,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "An answer sent sooner after the visitor starts the form is treated as spam. 0 turns this off.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: help under Minimum time",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "An auto-saved version exists",
             "context": null,
             "plural": null,
@@ -5367,6 +5472,21 @@
             "context": null,
             "plural": null,
             "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Another plugin",
+            "context": null,
+            "plural": null,
+            "translators": "F12: spam reason: a plugin decided through the efb_spam_verdict filter",
             "files": [
                 "includes/functions.php"
             ],
@@ -7138,6 +7258,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Block the submission",
+            "context": null,
+            "plural": null,
+            "translators": "F12: an answer that looks like spam is refused",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Block these domains",
             "context": null,
             "plural": null,
@@ -8015,6 +8150,21 @@
             "context": null,
             "plural": null,
             "translators": "F10: builder, Signature font: chosen from the first letter of the name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "CAPTCHA service",
+            "context": null,
+            "plural": null,
+            "translators": "F12: builder form settings and Settings > Captchas: which CAPTCHA a form shows",
             "files": [
                 "includes/functions.php"
             ],
@@ -9026,10 +9176,40 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Check WordPress' disallowed words",
+            "context": null,
+            "plural": null,
+            "translators": "F12: Settings: Settings > Discussion > Disallowed Comment Keys",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Check again",
             "context": null,
             "plural": null,
             "translators": "Button that runs the email check again after a failed one.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Check answers with Akismet",
+            "context": null,
+            "plural": null,
+            "translators": "F12: Settings: send answers to Akismet",
             "files": [
                 "includes/functions.php"
             ],
@@ -9135,6 +9315,21 @@
             "context": null,
             "plural": null,
             "translators": "F02 visitor: delivery tips",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Check this form with Akismet",
+            "context": null,
+            "plural": null,
+            "translators": "F12: builder form settings: Akismet for this form",
             "files": [
                 "includes/functions.php"
             ],
@@ -9912,6 +10107,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Clear the page cache of pages that show a form in a widget after you change CAPTCHA keys.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: Settings: note after changing CAPTCHA keys",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Clear this answer when anonymizing",
             "context": null,
             "plural": null,
@@ -10253,6 +10463,21 @@
             "context": null,
             "plural": null,
             "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Cloudflare Turnstile",
+            "context": null,
+            "plural": null,
+            "translators": "F12: CAPTCHA service name",
             "files": [
                 "includes/functions.php"
             ],
@@ -13423,6 +13648,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Delete spam after (days)",
+            "context": null,
+            "plural": null,
+            "translators": "F12: Settings: spam answers are deleted after this many days",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Delete the group and the %s fields inside it?",
             "context": null,
             "plural": null,
@@ -14006,6 +14246,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Disallowed words",
+            "context": null,
+            "plural": null,
+            "translators": "F12: spam reason",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -15172,6 +15427,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Easy Form Builder can now catch spam without a CAPTCHA: a hidden trap field and a minimum time to fill. Turn them on in Settings › Captchas.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: dismissible admin notice on sites updated from an older version",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Easy Form Builder cannot display the form because jQuery is not properly loaded. This issue might be due to incorrect jQuery invocation by another plugin or the current website theme.",
@@ -19040,6 +19310,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "For an internal form only: the hidden field, the minimum time and the content checks are skipped. The CAPTCHA still applies.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: help under Turn off spam checks",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "For countries, use the Country field.",
             "context": null,
             "plural": null,
@@ -20633,6 +20918,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Get the keys",
+            "context": null,
+            "plural": null,
+            "translators": "F12: Settings: link to the CAPTCHA service's key page",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Get your activation code now and unlock exclusive features ! Click here.",
             "context": null,
             "plural": null,
@@ -20960,6 +21260,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Google reCAPTCHA v3",
+            "context": null,
+            "plural": null,
+            "translators": "F12: CAPTCHA service name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -21646,6 +21961,36 @@
             "context": null,
             "plural": null,
             "translators": "F08 builder: palette tile and default name of a hidden field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Hidden field filled",
+            "context": null,
+            "plural": null,
+            "translators": "F12: spam reason",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Hidden trap field (honeypot)",
+            "context": null,
+            "plural": null,
+            "translators": "F12: Settings: a field people never see; bots that fill it are caught",
             "files": [
                 "includes/functions.php"
             ],
@@ -25051,6 +25396,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Keys are not set for this service.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: builder: a CAPTCHA service without its keys in Settings",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Keys are stored encrypted and are never shown again. Leave a key field empty to keep the stored key. For extra protection define EFB_PAYMENTS_KEY in wp-config.php.",
             "context": null,
             "plural": null,
@@ -25790,6 +26150,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Leave this field empty",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-spam.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Lebanese IBAN",
             "context": null,
             "plural": null,
@@ -26421,6 +26796,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Loading the security check…",
+            "context": null,
+            "plural": null,
+            "translators": "F12: visitor: while the CAPTCHA widget loads",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Loading&hellip;",
             "context": null,
             "plural": null,
@@ -26792,6 +27182,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Low reCAPTCHA score",
+            "context": null,
+            "plural": null,
+            "translators": "F12: spam reason",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Low score",
+            "context": null,
+            "plural": null,
+            "translators": "F12: reCAPTCHA v3: what a score under the minimum does",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -28151,6 +28571,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Minimum score",
+            "context": null,
+            "plural": null,
+            "translators": "F12: reCAPTCHA v3: the score an answer needs",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Minimum strength",
             "context": null,
             "plural": null,
@@ -28179,6 +28614,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Minimum time to fill (seconds)",
+            "context": null,
+            "plural": null,
+            "translators": "F12: Settings: answers sent faster than this look like spam",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Minimum value",
@@ -31885,6 +32335,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Only after checking Request Health: visitors whose firewall blocks the plugin's REST route, and pages cached before this version, would be treated as spam.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: warning under Require JavaScript",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Only an administrator can change the privacy settings.",
             "context": null,
             "plural": null,
@@ -34027,6 +34492,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Payment, registration and login forms always refuse spam.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: help under What to do with spam",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Payments",
             "context": null,
             "plural": null,
@@ -35948,6 +36428,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Please try again.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-public.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -38462,6 +38957,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Refuse it (nothing is saved)",
+            "context": null,
+            "plural": null,
+            "translators": "F12: Settings: spam is refused with an error message",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Refused",
             "context": null,
             "plural": null,
@@ -39230,6 +39740,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Require JavaScript",
+            "context": null,
+            "plural": null,
+            "translators": "F12: Settings: an answer sent without the page's script is treated as spam",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Require admin login to view responses",
@@ -40860,6 +41385,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Save as spam",
+            "context": null,
+            "plural": null,
+            "translators": "F12: an answer that looks like spam is kept with the Spam status",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Save changes",
             "context": null,
             "plural": null,
@@ -40965,6 +41505,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Saved as spam",
+            "context": null,
+            "plural": null,
+            "translators": "F12: entries history: the answer was saved with the Spam status when it was sent",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Saved to continue later",
             "context": null,
             "plural": null,
@@ -40986,6 +41541,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Saved. Type a new key to replace it.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: Settings: placeholder of a stored secret key",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -41051,6 +41621,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Scores run from 0.0 (likely a bot) to 1.0 (likely a person). 0.5 suits most sites.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: help under Minimum score",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -41355,6 +41940,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Security check",
+            "context": null,
+            "plural": null,
+            "translators": "F12: visitor: label of the CAPTCHA widget (read by screen readers)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -42420,6 +43020,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Sent too fast",
+            "context": null,
+            "plural": null,
+            "translators": "F12: spam reason",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Sent without JavaScript",
+            "context": null,
+            "plural": null,
+            "translators": "F12: spam reason",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Separate masks with || to accept any of them, for example (99) 9999-9999||(99) 99999-9999.",
             "context": null,
             "plural": null,
@@ -42832,6 +43462,21 @@
             "translators": "input format preset shown in the form builder's \"Format / mask\" list",
             "files": [
                 "includes/data/masks-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Shield Security is a separate plugin; Human Shield is the security add-on of Easy Form Builder.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: Settings > Captchas: tells the two products apart",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -43610,6 +44255,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Site default",
+            "context": null,
+            "plural": null,
+            "translators": "F12: builder: the CAPTCHA service of the site's settings",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Site default (now %s)",
+            "context": null,
+            "plural": null,
+            "translators": "F12: builder select: the site's CAPTCHA service (%s = its name)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Site language",
             "context": null,
             "plural": null,
@@ -44257,10 +44932,55 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Spam protection of this form was turned off.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: save notice (and the AI preview): CAPTCHA off or spam checks off",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Spam protection without CAPTCHA",
+            "context": null,
+            "plural": null,
+            "translators": "F12: Settings > Captchas: section title",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Spam risk",
             "context": null,
             "plural": null,
             "translators": "Label next to the delivery score: below 20, the email is treated as spam.",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Spam: %s",
+            "context": null,
+            "plural": null,
+            "translators": "F12: entries: why an answer is spam (%s = reasons, comma separated)",
             "files": [
                 "includes/functions.php"
             ],
@@ -48168,6 +48888,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The check expired. Please complete it again.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: visitor: the CAPTCHA token timed out",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The choices of “%1$s” came from a list (%2$s) that is not available here. Add the choices in the builder.",
             "context": null,
             "plural": null,
@@ -49007,6 +49742,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The form is not shown because the keys of its CAPTCHA service are not in the Easy Form Builder settings.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-public.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -50401,6 +51151,21 @@
             "context": null,
             "plural": null,
             "translators": "F10: section settings help",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The security check could not be completed. Please try again.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: visitor: the CAPTCHA widget could not load or answer",
             "files": [
                 "includes/functions.php"
             ],
@@ -52685,6 +53450,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This key does not look like a Cloudflare Turnstile key.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: Settings > Captchas: a Turnstile key in the wrong format (it starts with 0x)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This key is not a %s key.",
             "context": null,
             "plural": null,
@@ -53114,6 +53894,21 @@
             "context": null,
             "plural": null,
             "translators": "F02 builder and save warning",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: under a form with reCAPTCHA v3 (Google's required wording; keep the names Privacy Policy and Terms of Service as Google's page titles)",
             "files": [
                 "includes/functions.php"
             ],
@@ -54401,6 +55196,21 @@
             "translators": "input format preset shown in the form builder's \"Format / mask\" list",
             "files": [
                 "includes/data/masks-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Turn off spam checks for this form",
+            "context": null,
+            "plural": null,
+            "translators": "F12: builder form settings (advanced)",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -56295,6 +57105,21 @@
             "context": null,
             "plural": null,
             "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Uses the list in Settings › Discussion › Disallowed Comment Keys.",
+            "context": null,
+            "plural": null,
+            "translators": "F12: help under the disallowed words switch",
             "files": [
                 "includes/functions.php"
             ],
@@ -58315,6 +59140,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "What to do with spam",
+            "context": null,
+            "plural": null,
+            "translators": "F12: Settings: save as spam or refuse",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -63723,6 +64563,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "hCaptcha",
+            "context": null,
+            "plural": null,
+            "translators": "F12: CAPTCHA service name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "holiday",

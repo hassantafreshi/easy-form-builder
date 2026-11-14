@@ -5783,6 +5783,8 @@ class efbFunction {
 			"captchaSecretSaved" => $state && isset($ac->text->captchaSecretSaved) ? $ac->text->captchaSecretSaved : esc_html__('Saved. Type a new key to replace it.','easy-form-builder'),
 			/* translators: F12: Settings: link to the CAPTCHA service's key page */
 			"captchaGetKeys" => $state && isset($ac->text->captchaGetKeys) ? $ac->text->captchaGetKeys : esc_html__('Get the keys','easy-form-builder'),
+			/* translators: F12: Settings > Captchas: a Turnstile key in the wrong format (it starts with 0x) */
+			"captchaKeyBad" => $state && isset($ac->text->captchaKeyBad) ? $ac->text->captchaKeyBad : esc_html__('This key does not look like a Cloudflare Turnstile key.','easy-form-builder'),
 			/* translators: F14: %s = number */
 			"entExported" => $state && isset($ac->text->entExported) ? $ac->text->entExported : esc_html__('%s entries exported.','easy-form-builder'),
 			/* translators: F14: export column */

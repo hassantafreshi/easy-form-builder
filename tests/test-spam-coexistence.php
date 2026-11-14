@@ -38,6 +38,9 @@ t('Cache_Compat keeps efb-recaptcha, efb-hcaptcha and efb-turnstile out of optim
 $sp = file_get_contents($root . '/includes/class-Emsfb-spam.php');
 t('Spam gates side effects at priority 1 (before Human Shield\'s stop-loss)', strpos($sp, "add_filter('efb_shield_allow_side_effect', array(__CLASS__, 'allow_side_effect'), 1, 2);") !== false, true);
 t('the hooks for a security add-on: efb_core_spam_checks, efb_spam_verdict', strpos($sp, "apply_filters('efb_core_spam_checks'") !== false && strpos($sp, "apply_filters('efb_spam_verdict'") !== false, true);
+$pub = file_get_contents($root . '/includes/class-Emsfb-public.php');
+preg_match('/static \$attribute_map_efb = \[(.*?)\];/s', $pub, $am);
+t('filter_attributes_by_type_efb(): no CAPTCHA row type and no efb_hp key survive into a stored answer', isset($am[1]) && stripos($am[1], 'captcha') === false && strpos($am[1], 'efb_hp') === false, true);
 $hs = '/home/user/vendores-efb/human-shield/class-Emsfb-human-shield-notification-gate.php';
 if (is_readable($hs)) {
 	$g = file_get_contents($hs);
