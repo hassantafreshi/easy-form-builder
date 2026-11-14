@@ -122,7 +122,7 @@ for (const [id, input, want] of [['prvIpEl', 'none', 'none'], ['prvIpEl', 'bogus
   const key = keyOf[id];
   t(`builder ${id} "${input}" → ${key} "${want}"`, valj_efb[indx][key] === want, valj_efb[indx][key]);
 }
-t('builder: the per-field "clear when anonymizing" control is in the shared advanced block', /\$\{desEls\}\s*\$\{prvPiiEls\(indx\)\}`/.test(VAL));
+t('builder: the per-field "clear when anonymizing" control is in the shared advanced block', /const Nadvanced = `[^`]*\$\{desEls\}\s*\$\{prvPiiEls\(indx\)\}[^`]*`/.test(VAL));
 t('builder: the field-type default mirrors the server list', (() => {
   const m = VAL.match(/const EFB_PRV_NON_PII_TYPES = (\[[^\]]*\]);/);
   const php = fs.readFileSync(path.join(ROOT, 'includes/class-Emsfb-privacy.php'), 'utf8').match(/const NON_PII_TYPES = array\(([\s\S]*?)\);/);

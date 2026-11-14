@@ -4067,6 +4067,8 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
             rows[parseInt(i_count)][parseInt(value_col_index)] = !signed ? ''
               : (ajaxUrl && v.msg_id ? ajaxUrl + (ajaxUrl.indexOf('?') === -1 ? '?' : '&') + 'action=efb_esign_image&msg=' + encodeURIComponent(v.msg_id) + '&field=' + encodeURIComponent(content[c].id_)
                 : '[' + (efb_var.text.esign || 'Signature') + ']');
+            // F10-E: a typed signature's name after " — " in the same cell.
+            if (signed && content[c].sig_mode === 'type' && typeof content[c].sig_text === 'string' && content[c].sig_text !== '') rows[parseInt(i_count)][parseInt(value_col_index)] += ' — ' + content[c].sig_text.replace(/@efb@dq#/g, '"');
           }else if (content[c].type == "maps"){
             let val =''
             content[c].value.forEach(r => {

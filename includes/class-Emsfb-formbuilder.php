@@ -1738,7 +1738,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		return [$inputPhone, $js];
 	}
 
-	public function esign_el_pro_efb($previewSate,$pos, $rndm, $vj,$message, $formId,$updateUrbrowser) {
+	public function esign_el_pro_efb($previewSate,$pos, $rndm, $vj,$message, $formId,$updateUrbrowser, $texts = array()) {
 
 		$disabled = isset($vj->disabled) && $vj->disabled == 1 ? 'disabled' : '';
 		$required = $vj->required == 1 || $vj->required == true ? 'required' : '';
@@ -1751,12 +1751,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
 		$additional_classes = isset($vj->classes) ? str_replace(',', ' ', $vj->classes) : '';
 		$randomId =$vj->id_;
+		// F10-E: a field that may be typed gets the tabs (draw / type) and the name box; a draw-only field (every old
+		// form) prints exactly what it printed before.
+		list($sig_tabs, $sig_attrs, $sig_input) = $this->esign_typed_parts_efb($vj, $previewSate, is_array($texts) ? $texts : array());
 
 			$ui = sprintf(
 				"<div class='efb %s {$this->mobile_pos[3]}' id='%s-f' data-formid='%s'>
-					<canvas class='efb sign-efb bg-white %s %s %s %s efb1 %s' data-css='%s' data-code='%s' data-id='%s-el' id='%s_' %s>
+					%s<canvas class='efb sign-efb bg-white %s %s %s %s efb1 %s' data-css='%s' data-code='%s' data-id='%s-el' id='%s_' %s%s>
 						%s
-					</canvas>
+					</canvas>%s
 					%s
 					<div class='efb mx-1' data-formid='%s'>%s</div>
 					<div class='efb mb-3' data-formid='%s'>
@@ -1768,11 +1771,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 				",
 				$pos[3],
 				$randomId, $formId,
+				$sig_tabs,
 				$el_height, $corner, $el_text_color, $vj->el_border_color,
 				str_replace(',', ' ', $classes),
 				$randomId, $randomId, $randomId, $randomId,
-				$ariaDescribedBy,
+				$ariaDescribedBy, $sig_attrs,
 				$updateUrbrowser,
+				$sig_input,
 				$previewSate ? sprintf(
 					"<input type='hidden' data-type='esign' data-vid='%s' class='efb emsFormBuilder_v %s' id='%s-sig-data' value='Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==' data-formid='%s'>",
 					$randomId,$required, $randomId, $formId
@@ -1787,6 +1792,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 			return $ui;
 
+	}
+
+	/**
+	 * F10-E: the parts of an e-signature that may be typed: [tabs, canvas attributes, name box]. Draw-only ('' each).
+	 * esign_mode "type": the name box alone (the canvas shows the drawn name); "both": two tabs (role tablist), Draw
+	 * first. The JS twin is efbLayoutSigParts() (layout-builder-efb.js); EFBSign (layout-efb.js) runs them.
+	 */
+	public function esign_typed_parts_efb($vj, $previewSate, $texts) {
+		$mode = class_exists('\\Emsfb\\Layout') ? \Emsfb\Layout::sig_mode($vj) : 'draw';
+		if ($mode === 'draw') return array('', '', '');
+		$font = isset($vj->esign_font) && in_array($vj->esign_font, array('latin', 'arabic'), true) ? $vj->esign_font : 'auto';
+		$id = esc_attr($vj->id_);
+		$t = function ($k, $fb) use ($texts) { return esc_html(isset($texts[$k]) && is_string($texts[$k]) && $texts[$k] !== '' ? $texts[$k] : $fb); };
+		$disabled = isset($vj->disabled) && ($vj->disabled == 1 || $vj->disabled === true) ? ' disabled' : '';
+		$tabs = '';
+		if ($mode === 'both') {
+			$tabs = "<div class='efb efb-sig-tabs' role='tablist' aria-label='" . esc_attr(isset($vj->name) && is_string($vj->name) ? $vj->name : '') . "' id='{$id}_sigtabs'>"
+				. "<button type='button' class='efb efb-sig-tab' role='tab' id='{$id}_sigtab_draw' aria-selected='true' aria-controls='{$id}_' tabindex='0' data-sig-tab='draw'{$disabled}><i class='efb bi-pen' aria-hidden='true'></i>" . $t('sigDraw', 'Draw') . "</button>"
+				. "<button type='button' class='efb efb-sig-tab' role='tab' id='{$id}_sigtab_type' aria-selected='false' aria-controls='{$id}_sigtype' tabindex='-1' data-sig-tab='type'{$disabled}><i class='efb bi-keyboard' aria-hidden='true'></i>" . $t('sigType', 'Type') . "</button></div>";
+		}
+		$attrs = " data-sig-mode='{$mode}' data-sig-font='{$font}'";
+		$input = "<label class='efb visually-hidden' for='{$id}_sigtype'>" . $t('sigTypeLbl', 'Type your full name') . "</label>"
+			. "<input type='text' class='efb form-control efb-sig-type" . ($mode === 'both' ? ' d-none' : '') . "' id='{$id}_sigtype' autocomplete='name' maxlength='60' dir='auto' placeholder='" . $t('sigTypeLbl', 'Type your full name') . "' data-sig-for='{$id}'{$disabled}>";
+		return array($tabs, $attrs, $input);
 	}
 
 	public function ui_dadfile_efb($vj, $previewSate, $form_id, $texts, $disabled, $corner) {
@@ -3584,7 +3613,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					$ui = '
 					' . $label . '
 					' . $ttip . '
-					' . ($pro == true ? $this->esign_el_pro_efb(true, $pos, $rndm, $vj, $desc,$form_id,$texts['updateUrbrowser']) : '<div class="efb ' . $pos[3] . ' ' . $this->mobile_pos[3] . '" id="' . $element_Id . '-f">' . $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : ''));
+					' . ($pro == true ? $this->esign_el_pro_efb(true, $pos, $rndm, $vj, $desc,$form_id,$texts['updateUrbrowser'], $texts) : '<div class="efb ' . $pos[3] . ' ' . $this->mobile_pos[3] . '" id="' . $element_Id . '-f">' . $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : ''));
 					// Like esign_el_pro_efb(), the notice opens the field's "-f" wrapper,
 					// which the shared closing tag after the switch closes. Without it that
 					// tag closed the form itself and the following fields fell outside it.

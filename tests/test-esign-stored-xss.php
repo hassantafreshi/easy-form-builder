@@ -134,6 +134,40 @@ $escaped_attack = str_replace(
 t_xss('escaper output cannot open an HTML tag',
 	strpos($escaped_attack, '<img') === false && strpos($escaped_attack, '&lt;img') !== false);
 
+/* ---------------------------------------------------------------------------
+ * 4. F10-E: a typed signature's own keys (Layout::sig_attrs(), the real code). The name is plain text of at most
+ *    60 characters, a forged "type" on a draw-only field keeps none of the keys, the font is the field's or the
+ *    name's script; the e-mail and the viewer print the name escaped.
+ * ------------------------------------------------------------------------- */
+if (!function_exists('sanitize_text_field')) {
+	function sanitize_text_field($v) { if (is_array($v) || is_object($v)) return ''; $s = strip_tags((string) $v); $s = preg_replace('/%[a-f0-9]{2}/i', '', $s); return trim(preg_replace('/[\r\n\t ]+/', ' ', $s)); }
+}
+if (!defined('ABSPATH')) define('ABSPATH', __DIR__ . '/');
+require_once __DIR__ . '/../includes/class-Emsfb-layout.php';
+$png = $legit_signature;
+$row = function ($extra) use ($png) { return array_merge(array('id_' => 's1', 'name' => 'Sign', 'type' => 'esign', 'value' => $png), $extra); };
+$both = array('id_' => 's1', 'type' => 'esign', 'esign_mode' => 'both');
+$draw = array('id_' => 's1', 'type' => 'esign');
+$x = \Emsfb\Layout::sig_attrs($row(array('sig_mode' => 'type', 'sig_text' => '<img src=x onerror=alert(1)>Jane "Q" Doe', 'sig_font' => '"><script>')), $both);
+t_xss('F10-E hostile sig_text: tags gone, the name kept as text', ($x['sig_text'] ?? null) === 'Jane "Q" Doe' && ($x['sig_mode'] ?? null) === 'type');
+t_xss('F10-E sig_font is the server\'s (never the browser\'s): latin for a Latin name', ($x['sig_font'] ?? null) === 'latin');
+$x = \Emsfb\Layout::sig_attrs($row(array('sig_mode' => 'type', 'sig_text' => 'محمد رضایی')), $both);
+t_xss('F10-E a Persian name: kept, font arabic (auto)', ($x['sig_text'] ?? null) === 'محمد رضایی' && ($x['sig_font'] ?? null) === 'arabic');
+$x = \Emsfb\Layout::sig_attrs($row(array('sig_mode' => 'type', 'sig_text' => 'عبدالله ۱۲۳')), array('type' => 'esign', 'esign_mode' => 'type', 'esign_font' => 'latin'));
+t_xss('F10-E the field\'s font wins over the script; digits kept as typed', ($x['sig_font'] ?? null) === 'latin' && ($x['sig_text'] ?? null) === 'عبدالله ۱۲۳');
+$x = \Emsfb\Layout::sig_attrs($row(array('sig_mode' => 'type', 'sig_text' => str_repeat('ب', 80))), $both);
+t_xss('F10-E the name is cut at 60 characters', mb_strlen($x['sig_text'] ?? '', 'UTF-8') === 60);
+$x = \Emsfb\Layout::sig_attrs($row(array('sig_mode' => 'type', 'sig_text' => 'Jane Doe', 'sig_font' => 'latin')), $draw);
+t_xss('F10-E a forged "type" on a draw-only field (an old form): no sig key is kept', !isset($x['sig_mode']) && !isset($x['sig_text']) && !isset($x['sig_font']) && $x['value'] === $png);
+$x = \Emsfb\Layout::sig_attrs($row(array('sig_mode' => 'type', 'sig_text' => array('x'))), $both);
+t_xss('F10-E an array name or an empty one: a drawn signature (no key)', !isset($x['sig_mode']) && !isset($x['sig_text']));
+$x = \Emsfb\Layout::sig_attrs($row(array('sig_mode' => 'draw', 'sig_text' => 'ignored')), $both);
+t_xss('F10-E a drawn signature carries no sig key', !isset($x['sig_mode']) && !isset($x['sig_text']));
+$esign_slice2 = $esign_start !== false ? substr($public_src, $esign_start, 2600) : '';
+t_xss('F10-E the esign branch and the payment merge apply sig_attrs()', strpos($esign_slice2, 'Layout::sig_attrs($item, $f)') !== false && strpos($merge_slice, 'Layout::sig_attrs($clean, $field)') !== false);
+t_xss('F10-E the e-mail prints the typed name through esc_html', (bool) preg_match('/sig_text_of\(\$c\).{0,400}esc_html\(/s', $public_src));
+t_xss('F10-E the viewer prints the name from the escaped tree (c.sig_text), never innerHTML of raw data', strpos($viewer_src, "c.sig_mode === 'type' && typeof c.sig_text === 'string'") !== false && strpos($viewer_src, 'content = escResponseTreeEfb(content);') !== false);
+
 echo "\n========================================\n";
 echo "RESULTS: $pass passed, $fail failed\n";
 echo "========================================\n";

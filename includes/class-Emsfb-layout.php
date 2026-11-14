@@ -17,6 +17,11 @@
  *     forms/{id}/schema; filter_submission() drops their answers and their required check on every submit route.
  *     A page holding such a form is kept out of page caches; when the site keeps it cacheable anyway, the page has
  *     only the fields every visitor sees (vis_view "public") and the submit follows that view.
+ *  E  a typed signature on an e-signature field (esign_mode draw | type | both, esign_font auto | latin | arabic):
+ *     the page draws the typed name on the field's canvas with a bundled font (Dancing Script, Aref Ruqaa; SIL OFL)
+ *     and sends that PNG like a drawn one, with sig_mode "type", sig_text (the name, ≤ 60) and sig_font; the server
+ *     keeps them only on a field that allows typing (sig_attrs()), so every display shows the same image and
+ *     "Typed signature: name".
  *
  * The save rules of every F10 key are here (sanitize_key(), called from sanitize_obj_msg_efb()); the
  * browser's twin is EFBLayoutCore.sanitizeKey() in layout-efb.js (tests/test-layout-parity.js).
@@ -33,21 +38,25 @@ class Layout {
 	 * The plan of each part (spec §14). The owner may change it with the filter efb_layout_plan
 	 * ($need, $part). The review page and sections are free.
 	 */
-	const PLAN = array('review' => 'free', 'section' => 'free', 'rich_text' => 'free_plus', 'vis' => 'pro');
+	const PLAN = array('review' => 'free', 'section' => 'free', 'rich_text' => 'free_plus', 'vis' => 'pro', 'sig' => 'free_plus');
 
 	/** Row-0 keys of the review page. */
 	const FORM_KEYS = array('review_before_submit', 'review_hide_empty', 'review_title', 'section_accordion');
 
 	/** Field keys. collapsible is shared with F09's repeater group (Repeater::sanitize_key keeps '1' / '0'). */
-	const FIELD_KEYS = array('collapsed', 'rich_text', 'rich_toolbar', 'vis_mode', 'vis_roles');
+	const FIELD_KEYS = array('collapsed', 'rich_text', 'rich_toolbar', 'vis_mode', 'vis_roles', 'esign_mode', 'esign_font');
 
 	/** Keys of the page only: never saved. */
 	const RUNTIME_KEYS = array('vis_view', 'vis_empty');
 
-	const LIMITS = array('review_title' => 120, 'rich_raw_max' => 65535, 'rich_raw_min' => 4096);
+	const LIMITS = array('review_title' => 120, 'rich_raw_max' => 65535, 'rich_raw_min' => 4096, 'sig_text' => 60);
 
 	/** The defaults when a key is missing (old forms). */
-	const DEFAULTS = array('review_before_submit' => '0', 'review_hide_empty' => '1', 'review_title' => '', 'section_accordion' => '0', 'collapsible' => '1', 'collapsed' => '0', 'rich_text' => '0', 'rich_toolbar' => 'basic', 'vis_mode' => 'all', 'vis_roles' => '');
+	const DEFAULTS = array('review_before_submit' => '0', 'review_hide_empty' => '1', 'review_title' => '', 'section_accordion' => '0', 'collapsible' => '1', 'collapsed' => '0', 'rich_text' => '0', 'rich_toolbar' => 'basic', 'vis_mode' => 'all', 'vis_roles' => '', 'esign_mode' => 'draw', 'esign_font' => 'auto');
+	const SIG_MODES = array('draw', 'type', 'both');
+	const SIG_FONTS = array('auto', 'latin', 'arabic');
+	/** The bundled fonts (public/assets/fonts, SIL OFL): the font id stored with a typed signature → family. */
+	const SIG_FAMILIES = array('latin' => 'Dancing Script', 'arabic' => 'Aref Ruqaa');
 	const VIS_MODES = array('all', 'in', 'out', 'roles');
 	/** Login / register rows the visibility rule never touches (fixed ids the handlers read). */
 	const VIS_FIXED_IDS = array('emaillogin', 'passwordlogin', 'usernameRegisterEFB', 'passwordRegisterEFB', 'repasswordRegisterEFB', 'emailRegisterEFB');
@@ -130,6 +139,10 @@ class Layout {
 				return in_array($v, self::RICH_TOOLBARS, true) ? $v : 'basic';
 			case 'vis_mode':
 				return in_array($v, self::VIS_MODES, true) ? $v : 'all';
+			case 'esign_mode':
+				return in_array($v, self::SIG_MODES, true) ? $v : 'draw';
+			case 'esign_font':
+				return in_array($v, self::SIG_FONTS, true) ? $v : 'auto';
 			case 'vis_roles':
 				return implode(',', self::vis_roles_clean($v));
 			case 'review_title':
@@ -162,7 +175,12 @@ class Layout {
 	 */
 	public static function json_needs_runtime($json) {
 		if (!is_string($json) || $json === '') return false;
-		return (bool) preg_match('/\\\\?"review_before_submit\\\\?"\s*:\s*\\\\?"?(?:1|true)|type\\\\?"\s*:\s*\\\\?"section\\\\?"/', $json) || self::json_has_rich($json);
+		return (bool) preg_match('/\\\\?"review_before_submit\\\\?"\s*:\s*\\\\?"?(?:1|true)|type\\\\?"\s*:\s*\\\\?"section\\\\?"/', $json) || self::json_has_rich($json) || self::json_has_typed_sig($json);
+	}
+
+	/** Whether the stored form JSON has an e-signature that may be typed (the fonts and the typing on the page). */
+	public static function json_has_typed_sig($json) {
+		return is_string($json) && (bool) preg_match('/\\\\?"esign_mode\\\\?"\s*:\s*\\\\?"(?:type|both)/', $json);
 	}
 
 	/** Whether the stored form JSON has a rich textarea (rich-text-efb.js on the page). */
@@ -435,6 +453,47 @@ class Layout {
 		return $vars;
 	}
 
+	/* ------------------------------------------------------------------ E: typed signature */
+
+	/** The field's signing mode (draw | type | both; no key = draw, an old form). */
+	public static function sig_mode($field) {
+		$m = self::s($field, 'esign_mode', 'draw');
+		return in_array($m, self::SIG_MODES, true) ? $m : 'draw';
+	}
+
+	/** The font id for a name: arabic when its first strong letter is Arabic script (Persian too), else latin. */
+	public static function sig_font_for($text, $choice = 'auto') {
+		if ($choice === 'latin' || $choice === 'arabic') return $choice;
+		if (preg_match('/[\p{Arabic}]|[\p{Latin}]/u', (string) $text, $m)) return preg_match('/\p{Arabic}/u', $m[0]) ? 'arabic' : 'latin';
+		return 'latin';
+	}
+
+	/**
+	 * The signature row's own keys as stored: on a field that allows typing, a row sent with sig_mode "type" keeps
+	 * sig_mode, sig_text (plain text, ≤ 60 characters) and sig_font (the field's font, or the name's script when
+	 * "auto"); anything else (a drawn signature, a forged "type" on a draw-only field, an empty name) carries none of
+	 * them, as before F10. The value (the PNG) is checked by canonical_esign_value_efb() as for every signature.
+	 */
+	public static function sig_attrs(array $item, $field) {
+		$sent = isset($item['sig_mode']) && is_scalar($item['sig_mode']) ? (string) $item['sig_mode'] : '';
+		$text = isset($item['sig_text']) && is_scalar($item['sig_text']) ? (string) $item['sig_text'] : '';
+		unset($item['sig_mode'], $item['sig_text'], $item['sig_font']);
+		if ($sent !== 'type' || self::sig_mode($field) === 'draw') return $item;
+		$text = function_exists('sanitize_text_field') ? sanitize_text_field($text) : trim(strip_tags($text));
+		$text = function_exists('mb_substr') ? mb_substr($text, 0, self::LIMITS['sig_text'], 'UTF-8') : substr($text, 0, self::LIMITS['sig_text']);
+		$text = trim($text);
+		if ($text === '') return $item;
+		$item['sig_mode'] = 'type';
+		$item['sig_text'] = $text;
+		$item['sig_font'] = self::sig_font_for($text, self::s($field, 'esign_font', 'auto'));
+		return $item;
+	}
+
+	/** The typed name of a stored signature row ('' for a drawn one). */
+	public static function sig_text_of($row) {
+		return self::s($row, 'sig_mode') === 'type' ? self::s($row, 'sig_text') : '';
+	}
+
 	/* ------------------------------------------------------------------ capabilities */
 
 	/** efb_capabilities: setting:review_before_submit and capabilities.layout (SitePilot manifest features.layout). */
@@ -451,6 +510,7 @@ class Layout {
 		};
 		$out['features']['setting:review_before_submit'] = $entry('review', 'setting', array('review_before_submit', 'review_hide_empty', 'review_title'), 'rvwBfrSbmt', array('not_on' => 'legacy payment forms (stripe, paypal, persiaPay fields)'));
 		$out['features']['setting:vis_mode'] = $entry('vis', 'setting', array('vis_mode', 'vis_roles'), 'visFor', array('scope' => 'field', 'enforced' => 'always (the server applies a saved rule on every plan)'));
+		$out['features']['setting:esign_mode'] = $entry('sig', 'setting', array('esign_mode', 'esign_font'), 'sigModeLbl', array('scope' => 'field', 'types' => array('esign'), 'plan_note' => 'the e-signature field\'s own plan'));
 		$out['features']['setting:rich_text'] = $entry('rich_text', 'setting', array('rich_text', 'rich_toolbar'), 'richText', array('types' => array('textarea')));
 		$out['features']['field:section'] = array_merge(isset($out['features']['field:section']) && is_array($out['features']['field:section']) ? $out['features']['field:section'] : array(),
 			$entry('section', 'field', array('name', 'message', 'collapsible', 'collapsed', 'icon', 'el_text_color', 'el_text_size', 'section_accordion'), 'section'), array('pii_default' => null));
@@ -466,6 +526,8 @@ class Layout {
 				'answer' => 'value = cleaned HTML, fmt = "html" (written by the server); length limits count the text', 'assistant' => 'type plain text; the server keeps only the allowed tags'),
 			'visibility' => array('keys' => array('vis_mode', 'vis_roles'), 'modes' => self::VIS_MODES, 'roles' => self::site_roles(), 'enforced' => 'render, forms/{id}/schema, every submit route (a hidden field is never required, its answer dropped)',
 				'cache' => 'a page with such a form is not page-cached; a page the site caches anyway shows only the fields every visitor sees', 'administrators' => 'follow the rule like any role'),
+			'typed_signature' => array('keys' => array('esign_mode', 'esign_font'), 'modes' => self::SIG_MODES, 'fonts' => self::SIG_FONTS, 'families' => self::SIG_FAMILIES,
+				'answer' => 'value = the PNG drawn from the typed name (as a drawn one), sig_mode "type", sig_text (≤ 60), sig_font', 'assistant' => 'visitor_only (an assistant never signs)'),
 			'section'   => array('type' => 'section', 'keys' => array('collapsible', 'collapsed'), 'form_key' => 'section_accordion', 'members' => 'the fields after it in its step, up to the next section or step (never stored)',
 				'answer' => 'none (no row is sent)', 'not_in' => 'a repeater group (a group may sit inside a section)', 'assistant' => 'none'),
 			'plan'      => array_map(array(__CLASS__, 'need'), array_combine(array_keys(self::PLAN), array_keys(self::PLAN))),

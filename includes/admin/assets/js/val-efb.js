@@ -1988,6 +1988,7 @@ function show_setting_window_efb(idset, opts) {
         <div class="efb  mb-3">
         <!--  not   advanced-->
         ${Nadvanced}
+        ${el.dataset.tag == 'esign' && typeof efbLayoutSigEls === 'function' ? efbLayoutSigEls(indx, idset) : ''}
         ${el.dataset.tag == 'advdate' && typeof efbAdvdatePanelEls === 'function' ? efbAdvdatePanelEls(indx, idset) : ''}
         ${el.dataset.tag == 'date' && typeof efbAdvdateUpgradeEls === 'function' ? efbAdvdateUpgradeEls(indx, idset) : ''}
         ${typeof efbPrefillEls === 'function' ? efbPrefillEls(indx, idset) : ''}

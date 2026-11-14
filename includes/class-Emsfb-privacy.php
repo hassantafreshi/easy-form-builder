@@ -629,7 +629,7 @@ class Privacy {
 			}
 			if (!self::row_is_personal($row, $pii_map)) continue;
 			$files = array_merge($files, self::files_in_content('', array($row)));
-			foreach (array('url', 'src', 'sub_value', 'qty') as $k) {
+			foreach (array('url', 'src', 'sub_value', 'qty', 'sig_text') as $k) { // F10-E: a typed signature's name too
 				if (array_key_exists($k, $row)) $rows[$i][$k] = '';
 			}
 			$rows[$i]['value'] = self::REDACTED;
@@ -1069,7 +1069,7 @@ class Privacy {
 			foreach ($v as $p) if (is_array($p)) $out[] = trim(implode(', ', array_filter(array(isset($p['lat']) ? $p['lat'] : '', isset($p['lng']) ? $p['lng'] : '', isset($p['address']) ? $p['address'] : ''), 'strlen')));
 			return implode('; ', $out);
 		}
-		if ($type === 'esign') return '[' . $l['esign'] . ']';
+		if ($type === 'esign') return '[' . $l['esign'] . ']' . (isset($r['sig_mode'], $r['sig_text']) && $r['sig_mode'] === 'type' && is_string($r['sig_text']) && $r['sig_text'] !== '' ? ' ' . str_replace('@efb@dq#', '"', $r['sig_text']) : ''); // F10-E: the typed name is personal data
 		if ($v === '@file@' || (isset($r['url']) && is_string($r['url']) && $r['url'] !== '' && in_array($type, array('file', 'dadfile', 'allformat', 'audio_recorder', 'video_recorder', 'screen_recorder', 'image', 'media', 'document'), true))) {
 			$u = isset($r['url']) && is_string($r['url']) ? $r['url'] : '';
 			// F07: a private file is exported as a signed, expiring link (never its blocked address).

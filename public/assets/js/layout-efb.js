@@ -20,11 +20,15 @@
   /* ================================================================== core (no DOM) */
 
   var FORM_KEYS = ['review_before_submit', 'review_hide_empty', 'review_title', 'section_accordion'];
-  var FIELD_KEYS = ['collapsed', 'rich_text', 'rich_toolbar', 'vis_mode', 'vis_roles'];
+  var FIELD_KEYS = ['collapsed', 'rich_text', 'rich_toolbar', 'vis_mode', 'vis_roles', 'esign_mode', 'esign_font'];
   var RUNTIME_KEYS = ['vis_view', 'vis_empty'];
-  var LIMITS = { review_title: 120, rich_raw_max: 65535, rich_raw_min: 4096 };
-  var DEFAULTS = { review_before_submit: '0', review_hide_empty: '1', review_title: '', section_accordion: '0', collapsible: '1', collapsed: '0', rich_text: '0', rich_toolbar: 'basic', vis_mode: 'all', vis_roles: '' };
+  var LIMITS = { review_title: 120, rich_raw_max: 65535, rich_raw_min: 4096, sig_text: 60 };
+  var DEFAULTS = { review_before_submit: '0', review_hide_empty: '1', review_title: '', section_accordion: '0', collapsible: '1', collapsed: '0', rich_text: '0', rich_toolbar: 'basic', vis_mode: 'all', vis_roles: '', esign_mode: 'draw', esign_font: 'auto' };
   var VIS_MODES = ['all', 'in', 'out', 'roles'];
+  var SIG_MODES = ['draw', 'type', 'both'];
+  var SIG_FONTS = ['auto', 'latin', 'arabic'];
+  /** The bundled signature fonts (public/assets/fonts, SIL OFL; @font-face in layout-efb.css): font id → family. */
+  var SIG_FAMILIES = { latin: 'EFB Sig Latin', arabic: 'EFB Sig Arabic' };
   var LEGACY_PAY_TYPES = ['stripe', 'paypal', 'persiaPay', 'persiapay', 'zarinPal'];
   /** Rows that are never an answer on the review page (structure, secrets, hidden values). */
   var SKIP_TYPES = ['form', 'step', 'option', 'r_matrix', 'html', 'heading', 'link', 'steps', 'buttonNav', 'ttlprc', 'section',
@@ -58,6 +62,10 @@
         return cut(textField(v), LIMITS.review_title);
       case 'vis_mode':
         return VIS_MODES.indexOf(v) !== -1 ? v : 'all';
+      case 'esign_mode':
+        return SIG_MODES.indexOf(v) !== -1 ? v : 'draw';
+      case 'esign_font':
+        return SIG_FONTS.indexOf(v) !== -1 ? v : 'auto';
       case 'vis_roles':
         return visRoles(v, siteRoles()).join(',');
     }
@@ -76,6 +84,15 @@
     });
     return out;
   }
+
+  /** The font id for a typed name: arabic when its first strong letter is Arabic script (Persian too), else latin. Twin of Layout::sig_font_for(). */
+  function sigFontFor(text, choice) {
+    if (choice === 'latin' || choice === 'arabic') return choice;
+    var m = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]|[A-Za-z\u00C0-\u024F\u1E00-\u1EFF]/.exec(str(text));
+    return m && /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(m[0]) ? 'arabic' : 'latin';
+  }
+  /** The field's signing mode (no key = draw). */
+  function sigMode(field) { var m = str(field && field.esign_mode); return SIG_MODES.indexOf(m) !== -1 ? m : 'draw'; }
 
   function legacyPayment(rows) {
     return (rows || []).some(function (r, i) { return i > 0 && r && LEGACY_PAY_TYPES.indexOf(str(r.type)) !== -1; });
@@ -173,7 +190,8 @@
   }
 
   var core = {
-    FORM_KEYS: FORM_KEYS, FIELD_KEYS: FIELD_KEYS, RUNTIME_KEYS: RUNTIME_KEYS, LIMITS: LIMITS, DEFAULTS: DEFAULTS, LEGACY_PAY_TYPES: LEGACY_PAY_TYPES, SKIP_TYPES: SKIP_TYPES, VIS_MODES: VIS_MODES,
+    FORM_KEYS: FORM_KEYS, FIELD_KEYS: FIELD_KEYS, RUNTIME_KEYS: RUNTIME_KEYS, LIMITS: LIMITS, DEFAULTS: DEFAULTS, LEGACY_PAY_TYPES: LEGACY_PAY_TYPES, SKIP_TYPES: SKIP_TYPES, VIS_MODES: VIS_MODES, SIG_MODES: SIG_MODES, SIG_FONTS: SIG_FONTS, SIG_FAMILIES: SIG_FAMILIES,
+    sigFontFor: sigFontFor, sigMode: sigMode,
     on: on, sanitizeKey: sanitizeKey, visRoles: visRoles, legacyPayment: legacyPayment, reviewOn: reviewOn, answerText: answerText, plainOfHtml: plainOfHtml, untoken: untoken
   };
 
@@ -652,8 +670,164 @@
       mountSections: mountSections, revealSection: revealSection, setSectionOpen: setOpen };
   })();
 
+  /* ================================================================== E: typed signature (page) */
+
+  /**
+   * EFBSign: an e-signature with data-sig-mode "type" or "both" (the PHP renderer's esign_typed_parts_efb()). The
+   * typed name is drawn on the field's own canvas with the bundled font (layout-efb.css @font-face; the font id from
+   * the field or the name's script), centred, shrunk to the canvas width, right to left for Arabic script; the PNG
+   * goes where a drawn signature goes (the hidden input, the answer row) with sig_mode "type", sig_text and sig_font.
+   * "both": two tabs (role tablist, arrow keys); switching clears the other way's signature. While typing is the way,
+   * the pointer does not draw on the canvas. An empty name clears the answer.
+   */
+  var sign = (function () {
+    function doc() { return typeof document !== 'undefined' ? document : null; }
+    function fieldIdOf(cv) { return str(cv.id).replace(/_$/, ''); }
+    function partsOf(cv) {
+      var wrap = cv.parentNode;
+      return { wrap: wrap, input: wrap.querySelector('.efb-sig-type'), hidden: wrap.querySelector('input[data-type="esign"]'), tabs: wrap.querySelector('.efb-sig-tabs') };
+    }
+    function formIdOf(cv) { var w = cv.closest ? cv.closest('[data-formid]') : null; return w ? str(w.dataset.formid) : ''; }
+    function rowOf(fid, id) {
+      try { var v = typeof get_structure_by_form_id_efb === 'function' ? get_structure_by_form_id_efb(fid) : null; return v ? v.find(function (x) { return x && x.id_ === id; }) : null; } catch (e) { return null; }
+    }
+    var EMPTY = 'Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
+    function wipe(cv) {
+      var c = cv.getContext('2d');
+      var w = cv.width; cv.width = 1; cv.width = w;
+      c.lineWidth = 5; c.strokeStyle = '#000000'; c.lineCap = 'round'; c.lineJoin = 'round';
+    }
+    function dropAnswer(cv) {
+      var p = partsOf(cv);
+      if (p.hidden) p.hidden.value = EMPTY;
+      try { if (typeof fun_remove_row_sendback_efb === 'function') fun_remove_row_sendback_efb(fieldIdOf(cv)); } catch (e) { /* no answer yet */ }
+    }
+    /** The canvas's pixels follow its size on the page (the default 300 × 150 is stretched by the CSS height, and a
+     * typed name would come out squeezed); at most twice the CSS pixels. A canvas not shown yet keeps its size. */
+    function fit(cv) {
+      var w = cv.clientWidth, h = cv.clientHeight;
+      if (!w || !h) return;
+      var k = Math.min(2, Math.max(1, root.devicePixelRatio || 1));
+      var W = Math.round(w * k), H = Math.round(h * k);
+      if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    }
+    /** The name drawn on the canvas (font size fitted to the width); resolves to the font id used. */
+    function drawName(cv, text, fontId) {
+      var fam = core.SIG_FAMILIES[fontId] || core.SIG_FAMILIES.latin;
+      var arabic = fontId === 'arabic' || core.sigFontFor(text, 'auto') === 'arabic';
+      var load = doc() && doc().fonts && doc().fonts.load ? doc().fonts.load('48px "' + fam + '"', text).catch(function () { return []; }) : Promise.resolve([]);
+      return load.then(function () {
+        fit(cv);
+        wipe(cv);
+        var c = cv.getContext('2d');
+        var W = cv.width, H = cv.height;
+        var size = Math.max(10, Math.floor(H * 0.55));
+        var family = '"' + fam + '", cursive';
+        c.font = size + 'px ' + family;
+        var m = c.measureText(text).width;
+        if (m > W * 0.9) { size = Math.max(8, Math.floor(size * (W * 0.9) / m)); c.font = size + 'px ' + family; }
+        try { c.direction = arabic ? 'rtl' : 'ltr'; } catch (e) { /* older canvas */ }
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.fillStyle = '#000000';
+        c.fillText(text, W / 2, H / 2);
+        return fontId;
+      });
+    }
+    function commit(cv, text) {
+      var id = fieldIdOf(cv);
+      var fid = formIdOf(cv);
+      var f = rowOf(fid, id) || {};
+      text = Array.from(textField(text)).slice(0, core.LIMITS.sig_text).join('');
+      var seq = (cv._efbSigSeq = (cv._efbSigSeq || 0) + 1);
+      if (text === '') { wipe(cv); dropAnswer(cv); return Promise.resolve(null); }
+      var fontId = core.sigFontFor(text, str(f.esign_font) || cv.dataset.sigFont || 'auto');
+      return drawName(cv, text, fontId).then(function () {
+        if (seq !== cv._efbSigSeq) return null; // a newer key press drew after this one
+        var data = cv.toDataURL('image/png');
+        var p = partsOf(cv);
+        if (p.hidden) p.hidden.value = data;
+        var msg = doc().getElementById(id + '_-message');
+        if (msg) { msg.innerHTML = ''; msg.style.display = 'none'; }
+        var row = { id_: id, name: f.name, amount: f.amount, type: 'esign', value: data, session: typeof sessionPub_emsFormBuilder !== 'undefined' ? sessionPub_emsFormBuilder : '', form_id: fid, sig_mode: 'type', sig_text: text, sig_font: fontId };
+        // fun_sendBack_emsFormBuilder() updates the value of a row it already holds: the name and font follow here.
+        var sync = function () {
+          try {
+            var list = typeof sendBack_emsFormBuilder_pub !== 'undefined' ? sendBack_emsFormBuilder_pub : [];
+            list.forEach(function (x) { if (x && x.id_ === id && String(x.form_id) === String(fid)) { x.sig_mode = 'type'; x.sig_text = text; x.sig_font = fontId; x.value = data; } });
+          } catch (e) { /* no rows yet */ }
+        };
+        var sent = typeof fun_sendBack_emsFormBuilder === 'function' ? fun_sendBack_emsFormBuilder(row) : null;
+        if (sent && typeof sent.then === 'function') return sent.then(function () { sync(); return row; }); // eslint-disable-line
+        sync();
+        return row;
+      });
+    }
+    /** Pointer drawing on the canvas is held back while typing is the way (capture listeners on its wrapper). */
+    function block(e) { var cv = e.target; if (cv && cv.dataset && cv.dataset.sigWay === 'type' && cv.tagName === 'CANVAS') { e.stopPropagation(); if (e.cancelable) e.preventDefault(); } }
+    function setWay(cv, way, focus) {
+      var p = partsOf(cv);
+      if (cv.dataset.sigWay === way) return;
+      cv.dataset.sigWay = way;
+      // The other way's signature goes: a visitor signs one way.
+      wipe(cv); dropAnswer(cv);
+      if (p.input) { if (way === 'draw') p.input.value = ''; p.input.classList.toggle('d-none', way !== 'type'); }
+      if (p.tabs) Array.prototype.forEach.call(p.tabs.querySelectorAll('[role="tab"]'), function (b) { var on = b.dataset.sigTab === way; b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; });
+      cv.setAttribute('aria-hidden', way === 'type' ? 'true' : 'false');
+      if (focus) { if (way === 'type' && p.input) p.input.focus(); else if (focus === 'tab' && p.tabs) { var t = p.tabs.querySelector('[aria-selected="true"]'); if (t) t.focus(); } }
+    }
+    function mount(cv) {
+      if (!cv || cv._efbSig || !cv.dataset || !cv.dataset.sigMode) return;
+      var mode = cv.dataset.sigMode;
+      if (mode !== 'type' && mode !== 'both') return;
+      cv._efbSig = true;
+      fit(cv);
+      wipe(cv);
+      var p = partsOf(cv);
+      ['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend', 'pointerdown'].forEach(function (t) { p.wrap.addEventListener(t, block, true); });
+      cv.dataset.sigWay = mode === 'type' ? 'type' : 'draw';
+      if (mode === 'type') cv.setAttribute('aria-hidden', 'true');
+      if (p.input) {
+        var run = function () { commit(cv, p.input.value); };
+        p.input.addEventListener('input', run);
+        p.input.addEventListener('change', run);
+      }
+      if (p.tabs) {
+        p.tabs.addEventListener('click', function (e) { var b = e.target.closest ? e.target.closest('[role="tab"]') : null; if (b && !b.disabled) setWay(cv, b.dataset.sigTab, true); });
+        p.tabs.addEventListener('keydown', function (e) {
+          var list = Array.prototype.slice.call(p.tabs.querySelectorAll('[role="tab"]'));
+          var i = list.indexOf(doc().activeElement);
+          if (i === -1) return;
+          var rtl = getComputedStyle(p.tabs).direction === 'rtl';
+          var k = e.key, n = -1;
+          if (k === 'ArrowRight') n = rtl ? i - 1 : i + 1; else if (k === 'ArrowLeft') n = rtl ? i + 1 : i - 1; else if (k === 'Home') n = 0; else if (k === 'End') n = list.length - 1;
+          if (n === -1 && k !== 'Home') return;
+          e.preventDefault();
+          n = (n + list.length) % list.length;
+          setWay(cv, list[n].dataset.sigTab, 'tab');
+        });
+      }
+      // The form's own Clear button empties the typed name too (fun_clear_esign_efb).
+    }
+    function mountIn(rootEl) {
+      var d = doc();
+      if (!d) return;
+      Array.prototype.forEach.call((rootEl || d).querySelectorAll('canvas[data-sig-mode]'), mount);
+    }
+    /** fun_clear_esign_efb(): the typed name goes with the drawing. */
+    function cleared(id) {
+      var cv = doc() ? doc().getElementById(id + '_') : null;
+      if (!cv) return;
+      var p = partsOf(cv);
+      if (p.input) p.input.value = '';
+      cv._efbSigSeq = (cv._efbSigSeq || 0) + 1;
+    }
+    return { mount: mount, mountIn: mountIn, commit: commit, setWay: setWay, cleared: cleared, drawName: drawName };
+  })();
+
   root.EFBLayoutCore = core;
   root.EFBLayout = page;
+  root.EFBSign = sign;
   /** F10-B: opens the section of a field (core-efb.js calls it before it scrolls to a field with an error). */
   root.efb_section_reveal_efb = function (id, fid) { try { return page.revealSection(id, fid); } catch (e) { return false; } };
   if (typeof module === 'object' && module.exports) module.exports = core;

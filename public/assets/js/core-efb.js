@@ -606,6 +606,8 @@ function efb_init_fields_in_efb(root) {
   root = root || document;
   // F10-C: rich text boxes first (the textarea stays the value; its own set-up below runs as before).
   if (window.EFBRich) { try { window.EFBRich.mountIn(root); } catch (e) { /* the plain textarea is used */ } }
+  // F10-E: e-signatures that may be typed (the canvas set-up of fun_event_esign_efb() stays as it is).
+  if (window.EFBSign) { try { window.EFBSign.mountIn(root); } catch (e) { /* drawing still works */ } }
   for (let el of root.querySelectorAll(`.emsFormBuilder_v`)) {
     let form_id = el.dataset.formid  || 0;
     if (el.tagName == "OPTION" || el.tagName=='P' || el.tagName=='A' || ( el.tagName=='INPUT' && el.type=='hidden')) continue;

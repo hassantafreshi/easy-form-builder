@@ -25,6 +25,11 @@
  *        of the form) and opens on step 2 because step 1 holds only that field, the entry is stored without it; an
  *        editor gets step 1, the field is required there, the entry holds it; fa_IR and ar at 375 px (the guest's
  *        page right to left, no horizontal scroll) and the builder control in fa_IR.
+ *  f10f  Typed signature (E): the builder's "How visitors sign" (Draw or type) and the font, Save; a guest signs with
+ *        the keyboard alone (Type tab, a Latin name): the entry holds the PNG with sig_mode type, sig_text, sig_font
+ *        latin; a draw-only signature in the same form is unchanged; the entries viewer shows the image and "Typed
+ *        signature: Jane Doe"; the export cell ends with " — Jane Doe"; fa_IR and ar at 375 px with Persian
+ *        "محمد رضایی" and Arabic "عبدالله" (the Arabic-script font, the tabs right to left, 44 px, no scroll).
  *  f10pay A payment-framework form (test gateway) with the review page: the amount row is the server's own text
  *        (payments/quote: €27.00 for Adult 25 + fee 2), nothing stored before Confirm, then the provider is asked
  *        for 2700 and the entry is paid.
@@ -513,6 +518,102 @@ module.exports = function (S) {
       await ad.locator('#efbLayoutVis').scrollIntoViewIfNeeded().catch(() => null);
       await ad.screenshot({ path: SHOT('f10e-builder-vis-fa_IR') });
     } finally { ctl('locale', ''); ctl('set-option', 'efb_e2e_f10_plan', 'del'); }
+  });
+
+  /* ------------------------------------------------------------------ f10f */
+  scenario('f10f', 'F10-E typed signature: builder setting and Save, a guest signs with the keyboard, the entry, the viewer and the export show the name; Persian / Arabic names at 375 px', async ({ context, adminPage }) => {
+    plan(3);
+    ctl('locale', '');
+    const admin = await adminPage();
+    await openNewForm(admin);
+    const sg = await addTile(admin, 'esign');
+    await closePanel(admin);
+    await admin.click(`#dropZoneEFB [data-id="${sg.dataId}"]`, { position: { x: 20, y: 10 } });
+    await admin.waitForSelector('#sigModeEl', { timeout: 8000 });
+    await admin.selectOption('#sigModeEl', 'both');
+    await sleep(400);
+    await admin.selectOption('#sigFontEl', 'auto');
+    await sleep(400);
+    const b = await admin.evaluate((id) => { const x = valj_efb.find((q) => q.id_ === id); return { mode: x.esign_mode, font: x.esign_font, tabs: !!document.querySelector(`#dropZoneEFB [id="${id}_sigtabs"]`) }; }, sg.id_);
+    R.check('f10f: "How visitors sign" writes esign_mode both, esign_font auto; the canvas shows the tabs', b.mode === 'both' && b.font === 'auto' && b.tabs, b);
+    await admin.screenshot({ path: SHOT('f10f-builder-sig-en') });
+    await closePanel(admin);
+    const saved = admin.waitForResponse((x) => /admin-ajax\.php/.test(x.url()) && /add_form_Emsfb|update_form_Emsfb/.test(x.request().postData() || ''), { timeout: 20000 }).catch(() => null);
+    await admin.evaluate(() => saveFormEfb(1));
+    const sres = await saved;
+    const sj = sres ? await sres.json() : {};
+    await sleep(800);
+    const sfid = Number(String((sj.data && (sj.data.value || sj.data.id)) || '').replace(/\D+/g, '')) || await admin.evaluate(() => Number(form_ID_emsFormBuilder));
+    const st = (ctl('form', String(sfid)).form_structer || []).find((x) => x.id_ === sg.id_) || {};
+    R.check('f10f: Save stores esign_mode "both" and esign_font "auto"', st.esign_mode === 'both' && st.esign_font === 'auto', { mode: st.esign_mode, font: st.esign_font });
+
+    // A guest, keyboard only.
+    const F = form('F10 e2e typed signature', [
+      { key: 'nm', type: 'text', name: 'Name' },
+      { key: 'sg', type: 'esign', name: 'Signature', required: 1, esign_mode: 'both', button_single_text: 'Clear', icon: 'bi-x-lg', icon_color: 'default', button_color: 'btn-secondary' },
+      { key: 'sd', type: 'esign', name: 'Witness', button_single_text: 'Clear', icon: 'bi-x-lg', icon_color: 'default', button_color: 'btn-secondary' },
+    ]);
+    const ids = F.ids;
+    const g = await open(context, pageOf(F.form_id), 'f10f-guest');
+    await g.waitForSelector(byId(ids.sg + '_sigtab_type'), { timeout: 10000 });
+    const draw = await g.evaluate((id) => ({ mode: document.getElementById(id + '_').hasAttribute('data-sig-mode'), box: !!document.getElementById(id + '_sigtype') }), ids.sd);
+    R.check('f10f: the draw-only signature has no tabs and no name box (as before F10)', !draw.mode && !draw.box, draw);
+    await g.focus(byId(ids.sg + '_sigtab_draw'));
+    await g.keyboard.press('ArrowRight');
+    await sleep(300);
+    const foc = await g.evaluate(() => document.activeElement && document.activeElement.id);
+    await g.keyboard.type('Jane Doe');
+    await sleep(1200);
+    R.check('f10f: ArrowRight selects Type and puts the focus in the name box', foc === ids.sg + '_sigtype', foc);
+    await type(g, ids.nm, 'Jane');
+    await g.screenshot({ path: SHOT('f10f-typed-en-1280'), fullPage: true });
+    const resp = g.waitForResponse((x) => /forms\/message\/add/.test(x.url()), { timeout: 30000 }).catch(() => null);
+    await g.click('#btn_send_efb');
+    await resp;
+    await sleep(1500);
+    const e = lastEntry(F.form_id);
+    const row = ((e && e.content) || []).find((x) => x.id_ === ids.sg) || {};
+    R.check('f10f: the entry holds the PNG with sig_mode type, sig_text "Jane Doe", sig_font latin', /^data:image\/png;base64,/.test(row.value || '') && row.sig_mode === 'type' && row.sig_text === 'Jane Doe' && row.sig_font === 'latin', { mode: row.sig_mode, text: row.sig_text, font: row.sig_font, png: /^data:image\/png/.test(row.value || '') });
+    await g.close();
+    // The entries viewer.
+    await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+    await admin.waitForFunction(() => typeof fun_get_messages_by_id === 'function' && window.EfbEntries, null, { timeout: 20000 });
+    const btn = await admin.$(`.efb-act-msg[data-id="${F.form_id}"]`);
+    if (btn) await btn.click(); else await admin.evaluate((id) => { form_type_emsFormBuilder = 'form'; fun_get_messages_by_id(Number(id)); }, F.form_id);
+    await admin.waitForSelector('#efbEnt .efb-ent-table', { timeout: 20000 });
+    await sleep(500);
+    await admin.click(`#btn-m-${e.msg_id}`);
+    await admin.waitForSelector('#resp_efb .efb-msg-esign-img', { timeout: 20000 });
+    const vw = await admin.evaluate(() => { const n = document.querySelector('#resp_efb .efb-sig-typed-note'); return { note: n ? n.textContent.trim() : '', img: !!document.querySelector('#resp_efb .efb-msg-esign-img') }; });
+    R.check('f10f: the viewer shows the signature image and "Typed signature: Jane Doe"', vw.img && /Typed signature: Jane Doe/.test(vw.note), vw);
+    await admin.locator('#resp_efb .efb-msg-esign-img').scrollIntoViewIfNeeded().catch(() => null);
+    await admin.screenshot({ path: SHOT('f10f-viewer-en') });
+    const cell = ctl('f14-export-cell', String(e.msg_id), ids.sg);
+    if (cell !== null && cell !== undefined) R.check('f10f: the export cell is the link and " — Jane Doe"', /efb_esign_image.* — Jane Doe$/.test(String(cell)), cell);
+
+    // Persian and Arabic names at 375 px.
+    try {
+      for (const loc of ['fa_IR', 'ar']) {
+        ctl('locale', loc);
+        const fa = loc === 'fa_IR';
+        const name = fa ? 'محمد رضایی' : 'عبدالله';
+        const L = form('F10 e2e sig ' + loc, [{ key: 'sg', type: 'esign', name: fa ? 'امضا' : 'التوقيع', esign_mode: 'both', label_align: 'txt-right', button_single_text: fa ? 'پاک کردن' : 'مسح', icon: 'bi-x-lg', icon_color: 'default', button_color: 'btn-secondary' }]);
+        const p = await open(context, pageOf(L.form_id), 'f10f-' + loc, { viewport: { width: 375, height: 800 }, isMobile: true, hasTouch: true, locale: fa ? 'fa-IR' : 'ar' });
+        await p.waitForSelector(byId(L.ids.sg + '_sigtab_type'), { timeout: 10000 });
+        await p.click(byId(L.ids.sg + '_sigtab_type'));
+        await p.fill(byId(L.ids.sg + '_sigtype'), name);
+        await sleep(1500);
+        const facts = await p.evaluate((p2) => {
+          const tabs = [...document.querySelectorAll(`[id="${p2.id}_sigtabs"] [role="tab"]`)];
+          const r = sendBack_emsFormBuilder_pub.find((x) => x.id_ === p2.id) || {};
+          return { dir: getComputedStyle(tabs[0].parentNode).direction, drawRight: tabs[0].getBoundingClientRect().left > tabs[1].getBoundingClientRect().left, minH: Math.min(...tabs.map((x) => x.getBoundingClientRect().height)),
+            font: r.sig_font, text: r.sig_text, loaded: document.fonts.check('40px "EFB Sig Arabic"', p2.name), scroll: document.documentElement.scrollWidth <= window.innerWidth + 1 };
+        }, { id: L.ids.sg, name });
+        R.check(`f10f (${loc} 375): "${name}" drawn with the Arabic-script font (loaded), sig_font arabic; tabs right to left, 44 px; no horizontal scroll`, facts.dir === 'rtl' && facts.drawRight && facts.minH >= 44 && facts.font === 'arabic' && facts.text === name && facts.loaded && facts.scroll, facts);
+        await p.screenshot({ path: SHOT(`f10f-sig-${loc}-375`), fullPage: true });
+        await p.close();
+      }
+    } finally { ctl('locale', ''); }
   });
 
   /* ------------------------------------------------------------------ f10pay */

@@ -5649,6 +5649,32 @@ class efbFunction {
 			"visNoRole" => $state && isset($ac->text->visNoRole) ? $ac->text->visNoRole : esc_html__('No role chosen: nobody sees this field','easy-form-builder'),
 			/* translators: F10: builder help under Show this field to */
 			"visHelp" => $state && isset($ac->text->visHelp) ? $ac->text->visHelp : esc_html__('The site leaves this field out of the page and out of the sent answers for anyone else, and it is never required for them. Administrators follow the rule too.','easy-form-builder'),
+			/* translators: F10: e-signature tab: sign by drawing with a mouse, a pen or a finger */
+			"sigDraw" => $state && isset($ac->text->sigDraw) ? $ac->text->sigDraw : esc_html__('Draw','easy-form-builder'),
+			/* translators: F10: e-signature tab: sign by typing the name */
+			"sigType" => $state && isset($ac->text->sigType) ? $ac->text->sigType : esc_html__('Type','easy-form-builder'),
+			/* translators: F10: e-signature: the box where the visitor types the name that is drawn as the signature */
+			"sigTypeLbl" => $state && isset($ac->text->sigTypeLbl) ? $ac->text->sigTypeLbl : esc_html__('Type your full name','easy-form-builder'),
+			/* translators: F10: shown with a signature that was typed, followed by the name, e.g. 'Typed signature: Jane Doe' */
+			"sigTyped" => $state && isset($ac->text->sigTyped) ? $ac->text->sigTyped : esc_html__('Typed signature','easy-form-builder'),
+			/* translators: F10: builder, e-signature setting */
+			"sigModeLbl" => $state && isset($ac->text->sigModeLbl) ? $ac->text->sigModeLbl : esc_html__('How visitors sign','easy-form-builder'),
+			/* translators: F10: builder, How visitors sign: drawing only (as before) */
+			"sigModeDraw" => $state && isset($ac->text->sigModeDraw) ? $ac->text->sigModeDraw : esc_html__('Draw only','easy-form-builder'),
+			/* translators: F10: builder, How visitors sign: typing only */
+			"sigModeType" => $state && isset($ac->text->sigModeType) ? $ac->text->sigModeType : esc_html__('Type the name only','easy-form-builder'),
+			/* translators: F10: builder, How visitors sign: two tabs */
+			"sigModeBoth" => $state && isset($ac->text->sigModeBoth) ? $ac->text->sigModeBoth : esc_html__('Draw or type','easy-form-builder'),
+			/* translators: F10: builder, e-signature setting: the font of a typed signature */
+			"sigFontLbl" => $state && isset($ac->text->sigFontLbl) ? $ac->text->sigFontLbl : esc_html__('Signature font','easy-form-builder'),
+			/* translators: F10: builder, Signature font: chosen from the first letter of the name */
+			"sigFontAuto" => $state && isset($ac->text->sigFontAuto) ? $ac->text->sigFontAuto : esc_html__('By the name\'s script','easy-form-builder'),
+			/* translators: F10: builder, Signature font; Dancing Script is a font name, keep it */
+			"sigFontLatin" => $state && isset($ac->text->sigFontLatin) ? $ac->text->sigFontLatin : esc_html__('Latin script (Dancing Script)','easy-form-builder'),
+			/* translators: F10: builder, Signature font; Aref Ruqaa is a font name, keep it */
+			"sigFontArabic" => $state && isset($ac->text->sigFontArabic) ? $ac->text->sigFontArabic : esc_html__('Persian / Arabic script (Aref Ruqaa)','easy-form-builder'),
+			/* translators: F10: builder help under How visitors sign */
+			"sigTypeHelp" => $state && isset($ac->text->sigTypeHelp) ? $ac->text->sigTypeHelp : esc_html__('A typed name is drawn as a signature image and kept with the answer, so visitors without a mouse or a touch screen can sign too.','easy-form-builder'),
 			/* translators: F14: %s = number */
 			"entExported" => $state && isset($ac->text->entExported) ? $ac->text->entExported : esc_html__('%s entries exported.','easy-form-builder'),
 			/* translators: F14: export column */
@@ -6599,6 +6625,8 @@ class efbFunction {
 					case 'rich_toolbar':
 					case 'vis_mode':
 					case 'vis_roles':
+					case 'esign_mode':
+					case 'esign_font':
 					case 'vis_view':
 					case 'vis_empty':
 						if (!class_exists('\\Emsfb\\Layout') && is_readable(__DIR__ . '/class-Emsfb-layout.php')) require_once __DIR__ . '/class-Emsfb-layout.php';

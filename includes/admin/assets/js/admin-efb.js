@@ -2533,6 +2533,8 @@ let change_el_edit_Efb = (el) => {
       case "richTextEl":
       case "richToolbarEl":
       case "visModeEl":
+      case "sigModeEl":
+      case "sigFontEl":
         // F10: the review page, sections, rich text, visibility by role, typed signature (layout-builder-efb.js).
         if (typeof efbLayoutBuilderChange === 'function') efbLayoutBuilderChange(el, indx);
         break;

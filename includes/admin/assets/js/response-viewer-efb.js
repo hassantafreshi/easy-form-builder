@@ -1103,6 +1103,8 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
          before the server enforced that may hold any string. */
       const esignSrc = /^data:image\/png;base64,[A-Za-z0-9+\/]+={0,2}$/.test(c.value) ? c.value : '';
       value = esignSrc ? `<img src="${esignSrc}" alt="${c.name}" class="efb img-thumbnail efb-msg-esign-img">` : `<code>${c.value}</code>`;
+      /* F10-E: a typed signature says so, with the name (escaped with the row). */
+      if (esignSrc && c.sig_mode === 'type' && typeof c.sig_text === 'string' && c.sig_text !== '') value += `<small class="efb efb-sig-typed-note text-muted" dir="auto" data-sig-text="${c.sig_text}">${(efb_var.text && efb_var.text.sigTyped) || 'Typed signature'}: ${c.sig_text}</small>`;
       m += `<div class="efb efb-msg-field-row efb-msg-field-block"><span class="efb-msg-field-label"><i class="bi bi-pen"></i> ${title}:</span><div class="efb-msg-field-value"> ${value}</div></div>`;
     } else if (typeof c.__efbRich === 'string') {
       /* F10-C: a rich answer, as the allow-list keeps it (efbRichSafeHtml); its own direction per paragraph. */
@@ -1933,6 +1935,9 @@ function generateCSV_EFB(id) {
       if (esignImg) {
         var src = esignImg.getAttribute('src') || '';
         cellVal = src.startsWith('data:') ? '[Signature]' : src;
+        // F10-E: the typed name after " — " (the same cell).
+        var typedNote = row.querySelector('.efb-sig-typed-note');
+        if (typedNote) cellVal += ' — ' + (typedNote.getAttribute('data-sig-text') || '');
 
       // F07: several files of one field (cards with data-csv), joined with " | ".
       } else if (row.querySelector('[data-csv]')) {

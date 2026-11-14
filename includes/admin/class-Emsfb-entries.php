@@ -1293,7 +1293,10 @@ class Entries {
 		}
 		if ($type === 'esign') {
 			$ok = is_string($v) && strpos($v, 'data:image/') === 0;
-			return $ok && function_exists('admin_url') ? add_query_arg(array('action' => 'efb_esign_image', 'msg' => (int) $msg_id, 'field' => isset($r['id_']) ? (string) $r['id_'] : ''), admin_url('admin-ajax.php')) : '';
+			$link = $ok && function_exists('admin_url') ? add_query_arg(array('action' => 'efb_esign_image', 'msg' => (int) $msg_id, 'field' => isset($r['id_']) ? (string) $r['id_'] : ''), admin_url('admin-ajax.php')) : '';
+			// F10-E: a typed signature's name after " — " in the same cell.
+			$typed = $ok && class_exists('\\Emsfb\\Layout') ? Layout::sig_text_of($r) : '';
+			return $typed !== '' ? $link . ' — ' . self::decode_text($typed) : $link;
 		}
 		if ($type === 'maps' && is_array($v)) {
 			$out = array();

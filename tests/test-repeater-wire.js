@@ -64,7 +64,9 @@ t('JS wire and PHP fold give the same rows', JSON.parse(php), JSON.parse(JSON.st
 
 /* core-efb.js uses it once, after localStorage, before the request is built; the legacy Stripe route too. */
 const core = fs.readFileSync(path.join(ROOT, 'public', 'assets', 'js', 'core-efb.js'), 'utf8');
-const send = core.slice(core.indexOf('async function actionSendData_emsFormBuilder'), core.indexOf('function efb_page_query_efb'));
+// actionSendData ends where the next function starts (F10-A's efb_review_quote_efb, which sends wire rows too, follows it).
+const sendEnd = [core.indexOf('async function efb_review_quote_efb'), core.indexOf('function efb_page_query_efb')].filter((i) => i > core.indexOf('async function actionSendData_emsFormBuilder')).sort((x, y) => x - y)[0];
+const send = core.slice(core.indexOf('async function actionSendData_emsFormBuilder'), sendEnd);
 t('actionSendData: one conversion, after localStorage is written and before data is built', [send.split('efb_repeater_wire_rows_efb(').length - 1, send.indexOf("localStorage.setItem('sendback'") < send.indexOf('efb_repeater_wire_rows_efb('), send.indexOf('efb_repeater_wire_rows_efb(') < send.indexOf('let  data = {')], [1, true, true]);
 const stripe = fs.readFileSync(path.join(ROOT, 'public', 'assets', 'js', 'stripe_pay-efb.js'), 'utf8');
 t('stripe_pay-efb.js sends the converted rows', (stripe.match(/efb_repeater_wire_rows_efb\(sendBack_emsFormBuilder_pub, form_id\)/g) || []).length, 2);

@@ -45,10 +45,12 @@ maps_el_pro_efb =(previewSate, pos , rndm,iVJ)=>{
 esign_el_pro_efb =(previewSate, pos , rndm,iVJ,desc)=>{
     const corner = valj_efb[iVJ].hasOwnProperty('corner') ? valj_efb[iVJ].corner: 'rounded-3'
     let disabled = valj_efb[iVJ].hasOwnProperty('disabled') &&  valj_efb[iVJ].disabled==1? 'disabled' : ''
+    // F10-E: the tabs and the name box of a signature that may be typed (layout-builder-efb.js); nothing for draw-only.
+    const sigParts = typeof efbLayoutSigParts === 'function' ? efbLayoutSigParts(valj_efb[iVJ], previewSate != true) : ['', '', ''];
     return `<div class="efb  ${pos[3]} col-sm-12" id ="${rndm}-f">
-    <canvas class="efb  sign-efb bg-white ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_border_color} efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-code="${rndm}"  data-id="${rndm}-el" id="${rndm}_"  ${valj_efb[iVJ].message!='' ? `aria-describedby="${valj_efb[iVJ].id_}-des"` : ""} >
+    ${sigParts[0]}<canvas class="efb  sign-efb bg-white ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].el_border_color} efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-code="${rndm}"  data-id="${rndm}-el" id="${rndm}_"  ${valj_efb[iVJ].message!='' ? `aria-describedby="${valj_efb[iVJ].id_}-des"` : ""}${sigParts[1]} >
         ${efb_var.text.updateUrbrowser}
-    </canvas>
+    </canvas>${sigParts[2]}
    ${previewSate == true ? `<input type="hidden" data-type="esign" data-vid='${rndm}' class="efb  emsFormBuilder_v ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}" id="${rndm}-sig-data" value="Data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==">` : ``}
     <div class="efb  mx-1">${desc}</div>
     <div class="efb  mb-3"><button type="button" class="efb  btn ${corner} ${valj_efb[iVJ].button_color} efb-btn-lg mt-1 fs-6 ${disabled}" id="${rndm}_b" onclick="fun_clear_esign_efb('${rndm}')">  <i class="efb  ${valj_efb[iVJ].icon} mx-2 ${valj_efb[iVJ].icon_color != "default" ? valj_efb[iVJ].icon_color : ''} " id="${rndm}_icon"></i><span id="${rndm}_button_single_text" class="efb  ${valj_efb[iVJ].icon_color} efb " ${disabled}>${valj_efb[iVJ].button_single_text}</span></button></div>
@@ -500,6 +502,8 @@ function fun_clear_esign_efb(id) {
     const o = [{ id_: id }];
     const indx = get_row_sendback_by_id_efb(id);
     if (indx != -1) sendBack_emsFormBuilder_pub.splice(indx, 1)
+    // F10-E: a typed name goes with the drawing.
+    if (typeof window !== 'undefined' && window.EFBSign) window.EFBSign.cleared(id);
   }
   window.requestAnimFrame = ((callback) => {
     return window.requestAnimationFrame ||
@@ -1736,7 +1740,12 @@ fun_event_esign_efb=(id,form_id,disabled,v)=>{
     const data = canvas.toDataURL();
     document.getElementById(`${canvas_id_efb}-sig-data`).value = data;
 
+    /* A signature drawn with a finger is an answer too: it was written to the hidden input only and never reached
+     * the answer rows, so a touch-only visitor could not send a required signature (F10-E, BUGS-FOUND). */
     const value = document.getElementById(`${id}-sig-data`).value;
+    const msg = document.getElementById(`${id}_-message`);
+    if (msg) { msg.innerHTML = ''; msg.style.display = 'none'; }
+    fun_sendBack_emsFormBuilder({ id_: id, name: v.name, amount: v.amount, type: v.type, value: value, session: sessionPub_emsFormBuilder, form_id: form_id });
   }, false);
 }
 

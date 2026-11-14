@@ -835,6 +835,22 @@ switch ( $efb_e2e_cmd ) {
 		break;
 
 	/* ---- F14 entries management (scenarios f14*, tests/test-entries-*-wp.php) ---- */
+	case 'f14-export-cell':
+		// F10-E: the export cell of one answer: f14-export-cell <msg_id> <field id_>.
+		$e = \Emsfb\Entries::entry( (int) ( $efb_e2e_rest[0] ?? 0 ) );
+		$cell = null;
+		if ( $e ) {
+			foreach ( (array) \Emsfb\Privacy::decode_content( (string) $e['content'] ) as $r ) {
+				if ( is_array( $r ) && isset( $r['id_'] ) && $r['id_'] === ( $efb_e2e_rest[1] ?? '' ) ) {
+					$m = new ReflectionMethod( '\Emsfb\Entries', 'export_row_text' );
+					$m->setAccessible( true );
+					$cell = $m->invoke( null, $r, (int) $e['msg_id'], array( 'opt_val' => 'label', 'sep_multi' => ' | ' ) );
+				}
+			}
+		}
+		efb_e2e_out( $cell );
+		break;
+
 	case 'f14-schema':
 		$cols = $wpdb->get_col( "SHOW COLUMNS FROM {$wpdb->prefix}emsfb_msg_" ); // phpcs:ignore
 		$keys = array();

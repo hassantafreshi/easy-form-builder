@@ -1392,7 +1392,7 @@ public function check_nonce_permission_efb($request) {
 			/* F10: the review page before sending (layout-efb.js). */
 			'rvwTtl','rvwEdit','rvwEditStep','rvwEditField','rvwBackToReview','rvwConfirm','rvwNoAnswer','rvwAmount','rvwAmountLoading','rvwAmountLater','rvwSigned','rvwFilesN','rvwHelp',
 			/* F10: the rich text editor (rich-text-efb.js). */
-			'rteToolbar','rteBold','rteItalic','rteUnderline','rteBullets','rteNumbers','rteLink','rteQuote','rteHeading','rteClear','rteLinkPrompt','rteLinkBad'];
+			'rteToolbar','rteBold','rteItalic','rteUnderline','rteBullets','rteNumbers','rteLink','rteQuote','rteHeading','rteClear','rteLinkPrompt','rteLinkBad','sigDraw','sigType','sigTypeLbl','sigTyped'];
 
 			/* Only now is a form or response box really printed. A form in a widget,
 			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
@@ -8815,6 +8815,9 @@ public function check_nonce_permission_efb($request) {
 					$q = $esign_src !== ''
 						? '<img src="'.$esign_src.'" alt="'.esc_attr($title).'" style="display:block;max-width:100%;height:auto;border:0;">'
 						: '<code>'.$this->email_escape_leaf_efb($c['value'] ?? '').'</code>';
+					// F10-E: a typed signature says so, with the name (text).
+					$sig_typed_efb = class_exists('\\Emsfb\\Layout') ? \Emsfb\Layout::sig_text_of($c) : '';
+					if ($esign_src !== '' && $sig_typed_efb !== '') $q .= '<div dir="auto" style="unicode-bidi:plaintext;font-size:13px;color:#555;">' . esc_html((isset($this->lanText['sigTyped']) ? $this->lanText['sigTyped'] : __('Typed signature', 'easy-form-builder')) . ': ' . str_replace('@efb@dq#', '"', $sig_typed_efb)) . '</div>';
 					$addPair($title, $q);
 					continue;
 				}
@@ -10098,6 +10101,8 @@ public function check_nonce_permission_efb($request) {
 							$esign_value = isset($item['value']) ? $this->canonical_esign_value_efb($item['value']) : '';
 							if ($esign_value !== '') {
 								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+								// F10-E: sig_mode / sig_text / sig_font only on a field that allows typing (a forged "type" on a draw-only field is dropped).
+								if (is_array($item) && class_exists('\\Emsfb\\Layout')) $item = \Emsfb\Layout::sig_attrs($item, $f);
 								if (is_array($item)) {
 									$item['value'] = $esign_value;
 									/* The kind of a stored row is decided by the saved field,
@@ -10957,6 +10962,7 @@ public function check_nonce_permission_efb($request) {
 			$esign_value = isset($clean['value']) ? $this->canonical_esign_value_efb($clean['value']) : '';
 			if ($esign_value === '') return null;
 			$clean['value'] = $esign_value;
+			if (class_exists('\\Emsfb\\Layout')) $clean = \Emsfb\Layout::sig_attrs($clean, $field);
 		} elseif (isset($clean['value'])) {
 			if (is_array($clean['value'])) {
 				$markers = array();
@@ -10994,7 +11000,9 @@ public function check_nonce_permission_efb($request) {
 			/* F06: the server recomputes every key but cal (the calendar used) and tz (a visitor-zone field). */
 			'advdate' => ['cal' => true, 'local' => true, 'disp' => true, 'tz' => true, 'mode' => true, 'v' => true, 'time' => true, 'utc' => true, 'approx' => true, 'iso' => true, 'loc' => true],
 			'payment' => ['amount' => true], 'file' => ['url' => true, 'fsz' => true, 'fnm' => true], 'address_line'=>true,
-			'dadfile' => ['url' => true, 'fsz' => true, 'fnm' => true], 'esign' => true, 'maps' => true,
+			'dadfile' => ['url' => true, 'fsz' => true, 'fnm' => true],
+			/* F10-E: a typed signature's name, its mode and font; Layout::sig_attrs() keeps them only on a field that allows typing. */
+			'esign' => ['sig_mode' => true, 'sig_text' => true, 'sig_font' => true], 'maps' => true,
 			'audio_recorder' => ['url' => true, 'recording_duration' => true], 'video_recorder' => ['url' => true, 'recording_duration' => true], 'screen_recorder' => ['url' => true, 'recording_duration' => true],
 			'color' => true, 'range' => ['lo' => true, 'hi' => true], 'number' => true, 'prcfld' => true,
 			'checkbox' => true, 'table_matrix' => true, 'trmCheckbox' => true,
