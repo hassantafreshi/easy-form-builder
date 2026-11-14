@@ -14,6 +14,8 @@
 
 **متغیرهای محیطی (نام‌ها را عیناً بسازید):**
 
+> مقدارهای غیرمحرمانه (`WP_*_URL`، `PUBLISH_MODE`، کلیدهای تست عمومی reCAPTCHA، نام نویسنده) در [`site-config.json`](site-config.json) هم هست؛ اگر جای ردیف در Environment کم بود، می‌توانید آن‌ها را از Environment حذف کنید. متغیر محیطی، اگر باشد، اولویت دارد.
+
 | متغیر | مقدار |
 |---|---|
 | `WP_EN_URL` / `WP_EN_USER` / `WP_EN_APP_PASSWORD` | `https://whitestudio.team` / نام کاربری ربات / Application Password |

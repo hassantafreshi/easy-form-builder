@@ -1,0 +1,11 @@
+{
+  "_note": "Non-secret settings. The pipeline reads these when the matching environment variable is absent (an environment variable, when set, wins). Secrets (passwords, tokens, API keys) never go here.",
+  "WP_EN_URL": "https://whitestudio.team",
+  "WP_AR_URL": "https://ar.whitestudio.team",
+  "WP_DE_URL": "https://de.whitestudio.team",
+  "PUBLISH_MODE": "draft",
+  "RECAPTCHA_TEST_SITE_KEY": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
+  "RECAPTCHA_TEST_SECRET": "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe",
+  "_recaptcha_note": "These are Google's publicly documented reCAPTCHA v2 test keys (always pass, show a 'testing only' banner); they are not secrets.",
+  "AUTHOR_NAME": "Hassan Tafreshi"
+}
