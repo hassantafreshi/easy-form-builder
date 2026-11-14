@@ -8,7 +8,9 @@
  *  4. numbers: Persian digits stored canonical; a step / decimals / min / max refusal with its efb_num_* code
  *     and field_id; an old number stores exactly what it stored before;
  *  5. a two-handle slider: "lo..hi" with lo / hi, lo > hi refused (efb_num_order), {id.lo} / {id.hi} in a formula;
- *  6. the Free plan: no calc result is stored (the field shows the plan notice).
+ *  6. the Free plan: no calc result is stored;
+ *  7. forms/{id}/schema: calc fields are the server's (refs, never the formula), number fields carry step / limits.
+ *  (6 runs last.) no calc result is stored (the field shows the plan notice).
  *
  * Run (under the e2e lock): source the e2e env; php tests/test-calc-submit-http.php
  */
@@ -79,6 +81,14 @@ $a = $send(array($n('price', '10'), $n('qty', '2'), array('id_' => $ids['bud'], 
 t('5 lo > hi: efb_num_order at the field', array($a['code'] ?? null, $a['field_id'] ?? null), array('efb_num_order', $ids['bud']));
 $a = $send(array($n('price', '10'), $n('qty', '2'), array('id_' => $ids['bud'], 'name' => 'Budget', 'id_ob' => $ids['bud'] . '_', 'type' => 'range', 'value' => '5..40')));
 t('5 a handle outside the limits: efb_num_min', $a['code'] ?? null, 'efb_num_min');
+
+/* 7 (schema) */
+$sc = $H->http('GET', '/wp-json/Emsfb/v1/forms/' . $fid . '/schema');
+$fields = is_array($sc['json']) && isset($sc['json']['fields']) ? $sc['json']['fields'] : array();
+$byid = array(); foreach ($fields as $x) if (is_array($x) && isset($x['id'])) $byid[$x['id']] = $x;
+$tot = isset($byid[$ids['tot']]) ? $byid[$ids['tot']] : array();
+t('7 forms/{id}/schema: a calc field is the server\'s (assistant none) with the ids it reads, never the formula', array($tot['assistant'] ?? null, isset($tot['calc']['refs']) ? count($tot['calc']['refs']) : 0, strpos(json_encode($sc['json']), '@@') === false && strpos(json_encode($tot), 'formula"') === false), array('none', 3, true));
+t('7 a number field shows its step and limits', array($byid[$ids['price']]['number']['step'] ?? null, $byid[$ids['price']]['number']['min'] ?? null), array('0.5', '-10'));
 
 /* 6 */
 $H->ctl('plan', '2');
