@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P1 · تلاش: M (هستهٔ پنج‌گانه)، +M برای گسترش‌های فاز ۲ · وابستگی: — (بخش «نمایش بر اساس نقش» با F08 در خواندن کاربر جاری هم‌پوشانی دارد؛ ترتیب مهم نیست)
+وضعیت: **پیاده‌سازی شد (۲۰۲۶-۱۱-۱۴، زیرتسک‌های A تا E، قرارداد AutoPilot/SitePilot؛ ترجمه: فقط فهرست عبارت‌ها، به دستور مالک)** · اولویت: P1 · تلاش: M (هستهٔ پنج‌گانه)، +M برای گسترش‌های فاز ۲ · وابستگی: — (بخش «نمایش بر اساس نقش» با F08 در خواندن کاربر جاری هم‌پوشانی دارد؛ ترتیب مهم نیست)
 
 # F10 — چیدمان و فیلدهای ویژه: مرور پیش از ارسال، بخش تاشو، ویرایشگر غنی، نمایش بر اساس نقش، امضای تایپی
 
@@ -325,11 +325,11 @@ $submitted_values = array_values( array_filter( $submitted_values, function ( $r
 - تست‌ها: `node tests/test-review-step.js` (اجرای `core-efb.js` در `vm` با DOM جعلی به الگوی `tests/test-final-step-loading-reset.js`)؛ Playwright `tests/review-step-browser.js` (نیازمند WordPress، الگوی `tests/test-cache-guest-browser.js`).
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: جدید `includes/class-Emsfb-layout.php` (`Emsfb\Layout`: کلیدها، قاعدهٔ ذخیره، پلن، رجیستری)، `public/assets/js/layout-efb.js` (`EFBLayoutCore` همزاد PHP و `EFBLayout`: صفحهٔ مرور با `textContent`/`<bdi>`، ویرایش مرحله و فیلد، «بازگشت به مرور»، تأیید از مسیر Send خود فرم)، `public/assets/css/layout-efb.css`، `includes/admin/assets/js/layout-builder-efb.js`؛ `core-efb.js` (قلاب‌های `btn_navigate_handle_efb`)، `val-efb.js` (formSet)، `functions.php` (کلیدها و عبارت‌ها)، `class-Emsfb-public.php` (زیرمجموعهٔ عمومی، enqueue شرطی، مسیر جدید `POST payments/quote`: همان بررسی‌های `payments/create` بی ذخیره، با سقف نرخ و `no-store`)، `payments/class-Emsfb-payment-service.php` (`Service::quote`). commit ‏`ba2cbf4e`.
+- تست‌ها: `node tests/test-review-step.js` (۲۵، Chromium روی markup رندرگر PHP: هر نوع فیلد، تکرارشونده، پرداخت)، `php tests/test-layout-keys.php` (۴۰)، `node tests/test-layout-parity.js` (۴)، `php tests/test-review-quote-http.php` (۹، وردپرس واقعی)؛ e2e ‏`f10a` (۹)، `f10b` (۱۱، fa_IR و ar در ۳۷۵px)، `f10pay` (۵).
+- وضعیت ترجمه: عبارت‌ها انگلیسی با دامنهٔ `easy-form-builder` افزوده و در فهرست عبارت‌ها آمدند (commit ‏`18c95b61`)؛ ترجمه نشدند (دستور مالک).
+- مورد باز: پیش‌نمایش سازنده صفحهٔ مرور را اجرا نمی‌کند (بخش و ویرایشگر غنی را اجرا می‌کند).
+- اقدام بعدی: B.
 
 ### B — بخش تاشو
 - فایل‌ها: `val-efb.js` (`fields_efb`، `case "section"`)، `admin-efb.js` (`sampleElpush_efb`، `addNewElement`، handlerها)، `class-Emsfb-formbuilder.php` (`generate_section_efb`، switch، `$single_close_efb`)، `core-efb.js` (`efb_sections_mount_efb(form_id)` پس از رندر، `efb_section_reveal_efb`، استثنای ساختاری در `fun_validation_efb_v4`)، `class-Emsfb-public.php:8742`.
@@ -337,11 +337,11 @@ Checkpoint
 - تست‌ها: `php tests/test-section-render.php` (الگوی `tests/test-password-placeholder-render.php`، شمارش تگ‌های باز و بسته در markup فرمی با heading، section و text)؛ `node tests/test-section-mount.js`؛ ادامهٔ Playwright بند A.
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-formbuilder.php` (`generate_section_efb`، `$single_close_efb`)، `layout-efb.js` (`mountSections`، `revealSection`، آکاردئون)، `layout-builder-efb.js` (`efbLayoutSectionMarkup` همزاد بایت‌به‌بایت PHP، پنل، سوییچ «فقط یک بخش باز»)، `val-efb.js` و `admin-efb.js` (کاشی پالت، بوم، پیش‌نمایش)، `core-efb.js` (رد فیلدهای بخش پنهان، باز شدن بخش هنگام خطا)، `class-Emsfb-public.php` (`$structural_types`، بخشِ پنهان با منطق اعضایش را پنهان می‌کند: `Layout::expand_hidden_sections`)، فهرست‌های ساختاری (تقویم، پیش‌نویس، محاسبه، برچسب هوشمند، پاسخ‌ها). commit ‏`7013e6a6`.
+- تست‌ها: `php tests/test-section-render.php` (۱۹: همزاد JS، تعادل تگ‌ها، فرم‌های قدیمی بایت‌به‌بایت با fixture ‏`tests/fixtures/f10-old-form-*.json`)، `node tests/test-section-mount.js` (۱۴)، `php tests/test-addon-logic-layout.php` (۵)؛ e2e ‏`f10c` (۱۰، با fa_IR و ar در ۳۷۵px).
+- وضعیت ترجمه: همان A.
+- مورد باز: بخش در خود سازنده تاشو نیست (پرسش باز ۷).
+- اقدام بعدی: C.
 
 ### C — ویرایشگر متن غنی
 - فایل‌ها: جدید `public/assets/js/rich-text-efb.js` و `public/assets/css/rich-text-efb.css` (+ قواعد RTL در `includes/admin/assets/css/admin-rtl-efb.css`)؛ `class-Emsfb-formbuilder.php:2614`؛ `admin-efb.js` (بوم و handler)؛ `val-efb.js:1487`؛ `core-efb.js:4056`؛ `class-Emsfb-public.php` (case جدید پیش از `default:`، `$attribute_map_efb` 9096، ایمیل 7735)؛ `functions.php` (`visitor_rich_text_allowed_html_efb`)؛ `response-viewer-efb.js` (`efbRichSafeHtml`)، `list_form-efb.js` (CSV).
@@ -349,11 +349,11 @@ Checkpoint
 - تست‌ها: `php tests/test-rich-text-kses.php` (WordPress واقعی با `[SKIP]` در نبودنش، پلی‌بوک §9.1)؛ گسترش `node tests/test-response-viewer-escaping.js` با ردیف `fmt:'html'` خصمانه؛ `node tests/test-rich-text-editor.js` (پاک‌ساز paste در `vm`).
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: جدید `public/assets/js/rich-text-efb.js` (`EFBRichCore`: فهرست مجاز با tokenizer، بی کتابخانه؛ `EFBRich`: نوار ابزار با roving tabindex، `role=textbox`، `dir=auto`، پاک‌سازی paste) و `public/assets/css/rich-text-efb.css`؛ `Layout::rich_sanitize()` (‏`wp_kses` با فهرست مجاز، `rel="nofollow ugc noopener" target="_blank"`)، `rich_plain()`، `rich_check()`؛ `class-Emsfb-public.php` (شاخهٔ `textarea` در `validate_rows_efb` مشترک با ویرایش F14، `fmt:"html"` را سرور می‌نویسد، ایمیل، نقشهٔ مقدار منطق)؛ `response-viewer-efb.js` (`efbRichSafeHtml`)، `entries-efb.js`، `class-Emsfb-entries.php` (خروجی متن ساده)، Smart Tags؛ افزونه‌ها: منطق شرطی و Google Sheets متن ساده می‌خوانند (`vendores-efb` ‏`0bcbde4`). commit ‏`d0bea770`.
+- تست‌ها: `node tests/test-rich-text-editor.js` (۱۹)، `node tests/test-rich-text-browser.js` (۱۳)، `php tests/test-rich-text-kses.php` (۱۶، `wp_kses` واقعی)، `tests/test-response-viewer-hostile-rows-browser.js` (ردیف‌های غنی خصمانه)، `php tests/test-addon-googlesheet-rich.php` (۳)؛ e2e ‏`f10d` (۹).
+- وضعیت ترجمه: همان A.
+- مورد باز: —
+- اقدام بعدی: D.
 
 ### D — نمایش بر اساس نقش (اعمال در سرور)
 - فایل‌ها: `functions.php` (`filter_rows_for_viewer_efb`، `field_visible_for_viewer_efb($row, $user=null)`، case‌های `vis_mode`/`vis_roles` در `sanitize_obj_msg_efb` 3977)؛ `class-Emsfb-public.php` (رندر پس از 1393 با بازکدگذاری `$fs` و اصلاح `rePage`، ارسال پس از 2600، `render_bypass`)؛ `class-Emsfb-create.php:289` (`efb_var.roles`)؛ `val-efb.js` (`Nadvanced`)؛ `admin-efb.js` (handlerها، نشان روی بوم)؛ `core-efb.js` (رد مرحلهٔ `efb-step-empty`).
@@ -361,11 +361,11 @@ Checkpoint
 - تست‌ها: `php tests/test-field-visibility.php` (stubهای `is_user_logged_in`، `wp_get_current_user`، `wp_roles` و stub آرایه‌وفادار `sanitize_text_field` مثل `tests/test-conditional-logic-save-roundtrip.php` با مسیر `__DIR__.'/..'`)؛ `php tests/test-field-visibility-submit.php` (WordPress واقعی، الگوی `tests/test-submit-payload-robustness.php`: مهمان، مشترک و ویرایشگر).
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-layout.php` (`row_visible`، `filter_rows`، `filter_submission`، `vis_roles_clean` با `wp_roles()`، `localize_vars` ← `efb_var.roles`)، `class-Emsfb-public.php` (رندر: حذف فیلدها از HTML و `$fs` و بازکدگذاری که `rePage` را هم پاک می‌کند، `data-vis-empty` روی مرحلهٔ خالی، `render_bypass(…,'vis')`؛ ارسال: پیش از هر خواندن فرم در `get_form_public_efb` برای همهٔ مسیرها)، `class-Emsfb-cache-compat.php` (`is_dynamic()`)، `class-Emsfb-calendar-rest.php` (schema)، `admin/class-Emsfb-entries.php` (entries.read)، `core-efb.js` (رد مرحلهٔ خالی در Next/Back و شروع، `vis_view` و سرآیند `X-EFB-Vis-View`)، `layout-builder-efb.js`/`val-efb.js`/`admin-efb.js` (کنترل «نمایش برای»، نشان قفل روی بوم). commitها ‏`914f4c6a`، `b1bd7864`.
+- تست‌ها: `php tests/test-field-visibility.php` (۳۰)، `php tests/test-field-visibility-submit.php` (۲۲، وردپرس واقعی: مهمان، مشترک، ویرایشگر؛ پذیرش ۱ تا ۶)، `node tests/test-field-visibility-browser.js` (۱۷)؛ e2e ‏`f10e` (۱۲، fa_IR و ar در ۳۷۵px).
+- وضعیت ترجمه: همان A.
+- مورد باز: افزونهٔ منطق شرطی: `jump_to_step` به مرحلهٔ خالی و هشدار کنار قاعدهٔ فیلد نقش‌دار (BUGS-FOUND).
+- اقدام بعدی: E.
 
 ### E — امضای تایپی
 - فایل‌ها: `class-Emsfb-formbuilder.php:1354` (زبانه‌ها)، `pro_els-efb.js:486, 1619`، `admin-efb.js` (بوم و handler)، `val-efb.js:1666` (کنترل‌ها)، `public/assets/fonts/` (دو woff2 با فایل مجوز OFL)، `class-Emsfb-public.php` (`$attribute_map_efb`، شاخهٔ esign 3247 برای `sig_mode`/`sig_text`، ایمیل 7847)، `response-viewer-efb.js:971`.
@@ -373,11 +373,11 @@ Checkpoint
 - تست‌ها: گسترش `php tests/test-esign-stored-xss.php` با `sig_text` خصمانه؛ Playwright `tests/esign-typed-browser.js` (اندازه‌گیری پهنای رسم در RTL و LTR).
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-formbuilder.php` (`esign_typed_parts_efb`: زبانه‌ها، `data-sig-mode`/`data-sig-font`، کادر نام؛ حالت draw بی‌تغییر)، `layout-efb.js` (`EFBSign`: رسم نام با فونت، اندازهٔ خودکار، `ctx.direction`، پیکسل‌های بوم برابر اندازهٔ صفحه)، `public/assets/fonts/` (Dancing Script و Aref Ruqaa، woff2 با فایل‌های مجوز OFL)، `layout-efb.css` (`@font-face`)، `pro_els-efb.js` (رفع `touchend`، پاک کردن نام تایپی)، `Layout::sig_attrs()` در شاخهٔ esign و ادغام پرداخت، ایمیل، نمایشگر، CSV، خروجی، F13 (ناشناس‌سازی و خروجی دادهٔ شخصی)، سازنده («روش امضا»، «فونت امضا»). commit ‏`7620f826`.
+- تست‌ها: `node tests/test-esign-typed-browser.js` (۱۹)، `php tests/test-esign-stored-xss.php` (۳۴، ۱۱ تازه)، `node tests/test-layout-builder-change.js` (۱۶)، `php tests/test-privacy-repeater-rows.php` (۷)؛ e2e ‏`f10f` (۱۰، «محمد رضایی» و «عبدالله» در ۳۷۵px).
+- وضعیت ترجمه: همان A.
+- مورد باز: بوم حالت «کشیدن» همچنان ۳۰۰×۱۵۰ است و با CSS کشیده می‌شود (رفتار قدیمی، BUGS-FOUND).
+- اقدام بعدی: قرارداد AutoPilot/SitePilot (`470eca30`)، فهرست عبارت‌ها (`18c95b61`).
 
 ---
 
@@ -414,6 +414,20 @@ Checkpoint
 5. متن غنی: آیا پیوند در نوار ابزار «basic» هم لازم است؟ (خطر اسپم پیوند؛ `rel=nofollow ugc` اضافه می‌شود.)
 6. CSV فیلد `blanks`: یک ستون برای هر جای خالی یا یک ستون؟
 7. آیا بخش تاشو باید در خود سازنده هم تاشو باشد (برای فرم‌های بلند)؟ این با F15 (نمای فشرده) هم‌پوشانی دارد.
+
+### تصمیم‌ها (پیاده‌سازی، ۲۰۲۶-۱۱-۱۴)
+
+1. **مرور در فرم پرداخت:** روی فرمی که فیلد Stripe، PayPal یا PersiaPay دارد (پرداخت داخل فرم پیش از Send) مرور نیست: سوییچ سازنده غیرفعال با توضیح، ذخیره آن را `0` می‌کند (`layout_review_payment`) و API رد می‌کند. فرم‌های چارچوب پرداخت (PAY00) مرور دارند و مبلغ را از سرور می‌گیرند (`POST payments/quote`).
+2. **مرور به‌صورت فیلد:** فقط صفحهٔ پایانی (نسخهٔ ۱).
+3. **مدیر کل:** قاعده دقیقاً اعمال می‌شود (پیشنهاد سند). entries.read فقط قاعدهٔ «نقش‌های مشخص» را برای خواننده اعمال می‌کند («واردشده» و «مهمان» دربارهٔ پرکننده‌اند، نه خوانندهٔ پاسخ). ویرایش پاسخ در F14 فیلتر نمی‌شود.
+4. **فونت عربی:** Aref Ruqaa ماند: زیرمجموعهٔ عربی آن پ، چ، ژ، گ، ک، ی و ارقام ۰–۹ و ٠–٩ را دارد (بررسی cmap با fontTools)؛ برای اعداد و فاصله زیرمجموعهٔ لاتین همان فونت بسته‌بندی شد. تأیید نهایی با مالک.
+5. **پیوند در نوار basic:** نه؛ پیوند، نقل‌قول و تیتر فقط در «full».
+6. **CSV فیلد `blanks`:** موضوعیت ندارد (`blanks` در فاز ۲ است و ساخته نشد).
+7. **بخش تاشو در سازنده:** نه؛ سرصفحهٔ بخش روی بوم بی‌اثر است و فقط شروع بخش را نشان می‌دهد (هم‌پوشانی با F15).
+- **پلن‌ها (§۱۴، `Layout::PLAN`، فیلتر `efb_layout_plan`):** مرور و بخش رایگان؛ ویرایشگر غنی Free Plus؛ کنترل «نمایش برای» Pro و قاعده در هر پلن اعمال می‌شود؛ امضای تایپی هم‌سطح فیلد امضا (Free Plus). گیت با `efb_plan_at_least_efb` / `Builder_Api::plan_at_least`.
+- **کش:** فرمِ دارای قاعدهٔ نمایش با زمینهٔ جدید `vis` از کش بیرون می‌رود؛ اگر سایت (فیلتر `emsfb_cache_bypass`) صفحه را کش‌پذیر نگه دارد، صفحه فقط فیلدهای همگانی را دارد (`vis_view: "public"`) و ارسال همان نما را اعلام می‌کند (فقط محدودتر می‌کند).
+- **امضای تایپی:** PNG همان امضاست (یکسان در نمایشگر، چاپ، PDF و ایمیل) و `sig_mode`/`sig_text`/`sig_font` کنارش؛ امضای کشیده هیچ کلید `sig_*` نمی‌گیرد (مثل پیش از F10).
+- **بخش و تکرارشونده:** بخش فرزند گروه نمی‌شود؛ گروه می‌تواند درون بخش باشد. عضویت بخش ذخیره نمی‌شود (ترتیب ردیف‌ها در مرحله).
 
 ## ۱۹. یافته‌های جانبی هنگام بررسی (باگ)
 

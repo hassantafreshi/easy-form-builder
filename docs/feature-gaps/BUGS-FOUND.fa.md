@@ -8,7 +8,7 @@
 
 | شدت | مشکل | محل | تسک مرتبط |
 |---|---|---|---|
-| بالا | کل JSON فرم به مرورگر بازدیدکننده می‌رسد و فقط `email` و `rePage` پاک می‌شوند. `rePage` هم فقط از `$valj_efb` پاک می‌شود، نه از رشتهٔ `$fs` که واقعاً فرستاده می‌شود. احتمالاً گیرنده‌های اعلان، شمارهٔ موبایل مدیر و آدرس webhookها لو می‌روند. | `includes/class-Emsfb-public.php:1388-1405`، `1455`، `1836` | تسک امنیتی جدا |
+| بالا | کل JSON فرم به مرورگر بازدیدکننده می‌رسد و فقط `email` و `rePage` پاک می‌شوند. `rePage` هم فقط از `$valj_efb` پاک می‌شود، نه از رشتهٔ `$fs` که واقعاً فرستاده می‌شود. احتمالاً گیرنده‌های اعلان، شمارهٔ موبایل مدیر و آدرس webhookها لو می‌روند. | `includes/class-Emsfb-public.php:1388-1405`، `1455`، `1836` | تسک امنیتی جدا — **`rePage` رفع شد (F10-D)**: نسخهٔ فرم در صفحه دوباره از ردیف‌های پاک‌شده ساخته می‌شود؛ تست `tests/test-field-visibility-submit.php`. بقیهٔ JSON هنوز باز است. |
 | بالا | هر فایلی که در پوشهٔ uploads است را می‌شود به‌عنوان پیوست فرم فرستاد، حتی فایل بازدیدکنندهٔ دیگر یا رسانه‌های سایت. فقط محل و نوع فایل بررسی می‌شود، نه مالکیت آن. | `includes/class-Emsfb-public.php:5215` (`validate_submitted_upload_url_efb`) | F07 — **رفع شد (F07-B/D)**: هر ردیف فایل با توکن آپلود (فرم، فیلد، نشست) یا ردیف دفتر معلق همان فرم و فیلد پذیرفته می‌شود؛ فایلی که پاسخ دیگری دارد رد می‌شود (`efb_file_not_owned`). تست `tests/test-upload-multi-submit-http.php` |
 | بالا | IP بازدیدکننده از هدرهای `Client-IP` و `X-Forwarded-For` خوانده می‌شود که قابل جعل‌اند. محدودیت نرخ درخواست، IP ذخیره‌شده و بررسی Shield Security تحت تأثیرند. | `includes/class-Emsfb-public.php:4767-4772`، `includes/functions.php:4461-4469` | F11، F12، F13 — **رفع شد (F13-B)**: هر چهار نسخهٔ `get_ip_address()` به `Privacy::client_ip()` سپرده شد؛ سرآیند فقط از proxy مورد اعتماد (loopback، شبکهٔ خصوصی، Cloudflare، فیلتر `efb_trusted_proxies`) و راست‌ترین آدرس نامطمئن `X-Forwarded-For`. تست `tests/test-privacy-ip-mode.php` |
 | متوسط | بررسی وجود اسکریپت هنگام ذخیرهٔ فرم هیچ‌وقت چیزی پیدا نمی‌کند، چون `json_encode` روی رشتهٔ ازپیش‌کدشده اجرا می‌شود و یک پرانتز جابه‌جاست (آزموده‌شده روی PHP 8.3). | `includes/admin/class-Emsfb-admin.php:317` | F15 |
@@ -389,3 +389,17 @@
 | کم | ویجت داشبورد فقط برای `manage_options` است و نقش `Emsfb` آن را نمی‌بیند. | `class-Emsfb-dashboard-widget.php` | باز (تصمیم مالک) |
 | کم | CSS پیشخوان هر `label input[type=radio].efb` را پنهان می‌کند؛ رادیوی داخل برچسب در پنجره‌های تازه دیده نمی‌شد. | `admin-efb.css` | دور زده شد (F14): رادیو بیرون از برچسب |
 
+## F10: مرور پیش از ارسال، بخش، متن غنی، نمایش بر اساس نقش، امضای تایپی (۲۰۲۶-۱۱-۱۴)
+
+| شدت | مشکل | محل | وضعیت |
+|---|---|---|---|
+| متوسط | امضایی که با انگشت کشیده می‌شد هیچ‌وقت به ردیف‌های پاسخ نمی‌رسید: `touchend` فقط hidden input را می‌نوشت؛ بازدیدکنندهٔ لمسی امضای اجباری را نمی‌توانست بفرستد. | `includes/admin/assets/js/pro_els-efb.js` (`fun_event_esign_efb`) | **رفع شد (F10-E)**: مثل `mouseup` ردیف فرستاده می‌شود؛ تست `tests/test-esign-typed-browser.js` (رویدادهای لمسی) |
+| متوسط | نشانی تغییر مسیر (`rePage`) در نسخهٔ فرمِ صفحه (`ajax_value_forms`) می‌ماند (§19 سند F10، بند ۱). | `includes/class-Emsfb-public.php` (`EFB_Form_Builder`) | **رفع شد (F10-D)** |
+| کم | placeholder ناحیهٔ متن بی `esc_attr` (§19 سند F10، بند ۲). | `class-Emsfb-formbuilder.php` | پیش‌تر در F03 رفع شده بود (بررسی‌شده) |
+| کم | بوم امضا با اندازهٔ پیش‌فرض ۳۰۰×۱۵۰ پیکسل ساخته و با CSS کشیده می‌شود؛ امضای کشیده‌شده در تصویر ذخیره‌شده کج و کشیده است. | `pro_els-efb.js`، `class-Emsfb-formbuilder.php` (`esign_el_pro_efb`) | **باز** برای حالت کشیدن (رفتار فرم‌های قدیمی دست نخورد)؛ در حالت تایپی بوم به اندازهٔ صفحه تنظیم می‌شود (`EFBSign.fit`) |
+| کم | افزونهٔ منطق شرطی دو نسخه از `class-Emsfb-logic-validator.php` دارد (`logic/` و `logic/logic/`)؛ هسته `logic/logic/` را بار می‌کند. | `vendores-efb/logic` | **یادداشت**: در F10-C هر دو یکسان شدند؛ یکی باید حذف شود (مالک افزونه) |
+| کم | پرش `jump_to_step` افزونهٔ منطق شرطی به مرحله‌ای که برای این بیننده هیچ فیلدی ندارد (`data-vis-empty`) آن را رد نمی‌کند؛ سازندهٔ افزونه کنار قاعده‌ای که به فیلد نقش‌دار ارجاع می‌دهد هشدار نمی‌دهد. | `vendores-efb/logic/logic/assets/public/js/conditional-logic-efb.js` | **باز** (پیگیری برای افزونه؛ هسته مرحلهٔ خالی را در Next و Back رد می‌کند) |
+| کم | نسخهٔ دوم و بی‌استفادهٔ `filter_attributes_by_type_efb()` در `Formbuilder` (private، فراخوانی نمی‌شود) با نسخهٔ `_Public` هماهنگ نیست. | `includes/class-Emsfb-formbuilder.php` | **باز** (حذف پیشنهاد می‌شود) |
+| کم | `tests/test-repeater-wire.js` و `tests/test-privacy-admin-js.js` به شکل متن کد وابسته بودند و با افزودن تابع بعد از `actionSendData` (F10-A) و کنترل نمایش (F10-D) می‌شکستند. | تست | **رفع شد (F10-E)**: مرز تابع و بلوک مشترک تنظیمات پیشرفته خوانده می‌شود |
+| کم | `tests/test-response-viewer-hostile-rows-browser.js` در این محیط Chromium را پیدا نمی‌کرد (پیش از F10 شکست می‌خورد). | تست | **رفع شد (F10-C)**: fallback به `chromium_headless_shell` مثل بقیهٔ تست‌های مرورگری |
+| کم | `tests/test-blank-form-and-upload-defaults.php` جدیدترین فرم سایت را برمی‌داشت؛ فرم‌های e2e (سقف، زمان‌بندی، آپلود اجباری) نتیجه را عوض می‌کردند. | تست | **رفع شد (F10)**: فرم خودش را می‌سازد و پاک می‌کند |
