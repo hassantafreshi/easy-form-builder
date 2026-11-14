@@ -4,8 +4,8 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-14",
     "counts": {
-        "active": 3758,
-        "obsolete": 378
+        "active": 3896,
+        "obsolete": 376
     },
     "entries": [
         {
@@ -271,6 +271,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%1$s changed “%2$s” from “%3$s” to “%4$s”",
+            "context": null,
+            "plural": null,
+            "translators": "F14 history: %1$s = person, %2$s = field, %3$s = old value, %4$s = new value",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%1$s choices, %2$s repeated labels",
             "context": null,
             "plural": null,
@@ -297,6 +312,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s deleted a note",
+            "context": null,
+            "plural": null,
+            "translators": "F14 history: %1$s = person",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s exported %2$s entries",
+            "context": null,
+            "plural": null,
+            "translators": "F14 history: %1$s = person, %2$s = number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -350,6 +395,51 @@
             "context": null,
             "plural": null,
             "translators": "F02 SMS text: %1$s = code, %2$s = site name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s marked the entry as read",
+            "context": null,
+            "plural": null,
+            "translators": "F14 history: %1$s = person",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s marked the entry as unread",
+            "context": null,
+            "plural": null,
+            "translators": "F14 history: %1$s = person",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s moved the entry from %2$s to %3$s",
+            "context": null,
+            "plural": null,
+            "translators": "F14 history: %1$s = person, %2$s = old status, %3$s = new status",
             "files": [
                 "includes/functions.php"
             ],
@@ -528,6 +618,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%1$s read the entries through %2$s",
+            "context": null,
+            "plural": null,
+            "translators": "F14 history: %1$s = person, %2$s = application",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s removed the star",
+            "context": null,
+            "plural": null,
+            "translators": "F14 history: %1$s = person",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%1$s requires \"%2$s\" to pay with %3$s. Add %4$s to the form and select it in the payment field's \"%2$s\" option.",
             "context": null,
             "plural": null,
@@ -560,12 +680,42 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%1$s resent the notification to %2$s recipients",
+            "context": null,
+            "plural": null,
+            "translators": "F14 history: %1$s = person, %2$s = number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%1$s sent %2$d payment confirmations in the last 24 hours that were refused because their signature or token did not match. Check the secret key / webhook secret in the gateway's dashboard and here; payments are still checked by the regular job.",
             "context": null,
             "plural": null,
             "translators": "%1$s: gateway name, %2$d: number of refused deliveries",
             "files": [
                 "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s starred the entry",
+            "context": null,
+            "plural": null,
+            "translators": "F14 history: %1$s = person",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -672,6 +822,21 @@
             "context": null,
             "plural": null,
             "translators": "F09: CSV column with the number of rows; %s = the group name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s (deleted)",
+            "context": null,
+            "plural": null,
+            "translators": "F14: export column of a removed field; %s = its label",
             "files": [
                 "includes/functions.php"
             ],
@@ -1058,6 +1223,141 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%s entries deleted permanently.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = number of entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s entries exported.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s entries marked as read.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = number of entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s entries marked as spam.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = number of entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s entries marked as unread.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = number of entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s entries moved back from spam.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = number of entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s entries moved to trash.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = number of entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s entries restored.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = number of entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s entries starred.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = number of entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s entries will be removed on the next run.",
             "context": null,
             "plural": null,
@@ -1170,6 +1470,21 @@
             "context": null,
             "plural": null,
             "translators": "F18: upgrade dialog headline. %s: name of the locked feature",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s is not a valid e-mail address.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = the address typed",
             "files": [
                 "includes/functions.php"
             ],
@@ -1393,6 +1708,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%s result",
+            "context": null,
+            "plural": null,
+            "translators": "F14: announcement; %s = 1",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s results",
+            "context": null,
+            "plural": null,
+            "translators": "F14: announcement; %s = number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s rows",
             "context": null,
             "plural": null,
@@ -1429,6 +1774,36 @@
             "translators": "%s: name of a page cache plugin",
             "files": [
                 "includes/class-Emsfb-formbuilder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s selected",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = number of selected entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s stars removed.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = number of entries",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -1644,6 +2019,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "(old value) %s",
+            "context": null,
+            "plural": null,
+            "translators": "F14: an option that no longer exists; %s = the stored answer",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -2098,6 +2488,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "A database update is required. Please reload the page.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: error before the DB update ran",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "A detailed HTML report with full diagnostics is being prepared and emailed to you.",
             "context": null,
             "plural": null,
@@ -2304,6 +2709,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "A note can have at most %s characters.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = the most characters",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -2525,6 +2945,21 @@
             "translators": "%s: a Contact Form 7 tag type such as \"text\"",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "AI assistants: access to entries",
+            "context": null,
+            "plural": null,
+            "translators": "F14 settings",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -3095,8 +3530,9 @@
             "msgid": "Active",
             "context": null,
             "plural": null,
-            "translators": "Active = status shown for an enabled API connection",
+            "translators": "F14: status name translators: Active = status shown for an enabled API connection",
             "files": [
+                "includes/functions.php",
                 "includes/phrases.php"
             ],
             "scope": [
@@ -3348,6 +3784,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Add condition",
+            "context": null,
+            "plural": null,
+            "translators": "F14: button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Add custom CSS classes for styling.",
             "context": null,
             "plural": null,
@@ -3438,6 +3889,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Add note",
+            "context": null,
+            "plural": null,
+            "translators": "F14: button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Add the SPF and DKIM records to your domain settings.",
             "context": null,
             "plural": null,
@@ -3517,6 +3983,21 @@
             "context": null,
             "plural": null,
             "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Add value",
+            "context": null,
+            "plural": null,
+            "translators": "F14: fill a field that has no answer",
             "files": [
                 "includes/functions.php"
             ],
@@ -3795,6 +4276,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Administrator only",
+            "context": null,
+            "plural": null,
+            "translators": "F14: resend option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -4192,7 +4688,7 @@
             "msgid": "All",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F14 entries tab",
             "files": [
                 "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-admin.php"
@@ -4201,6 +4697,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "All %s entries on this page are selected.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = number of entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "All %s results are selected.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = number of results",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -4777,6 +5303,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Another address",
+            "context": null,
+            "plural": null,
+            "translators": "F14: resend option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Another date field",
             "context": null,
             "plural": null,
@@ -5227,6 +5768,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "As originally sent",
+            "context": null,
+            "plural": null,
+            "translators": "F14: resend option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "As shown to the visitor",
             "context": null,
             "plural": null,
@@ -5411,6 +5967,51 @@
             "context": null,
             "plural": null,
             "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "At most %s addresses.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: resend, %s = number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "At most %s entries at once.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: resend, %s = number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "At most %s entries can be printed at once.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = number",
             "files": [
                 "includes/functions.php"
             ],
@@ -7715,7 +8316,7 @@
             "msgid": "Cancel",
             "context": null,
             "plural": null,
-            "translators": "Cancel = discards the edits made in the Colors & Fonts dialog translators: Cancel = generic cancel action",
+            "translators": "Cancel = discards the edits made in the Colors & Fonts dialog translators: F14: dialog button translators: Cancel = generic cancel action",
             "files": [
                 "includes/functions.php",
                 "includes/importers/cf7/class-Emsfb-cf7-importer.php",
@@ -8241,6 +8842,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Changes saved.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: edit saved",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -9101,6 +9717,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Clear filters",
+            "context": null,
+            "plural": null,
+            "translators": "F14: button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Clear formatting",
             "context": null,
             "plural": null,
@@ -9112,6 +9743,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Clear selection",
+            "context": null,
+            "plural": null,
+            "translators": "F14: button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -9419,6 +10065,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Closed",
+            "context": null,
+            "plural": null,
+            "translators": "F14 entries tab: closed tickets",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -9783,6 +10444,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Columns",
+            "context": null,
+            "plural": null,
+            "translators": "F14: button that chooses the table columns",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Columns to export",
+            "context": null,
+            "plural": null,
+            "translators": "F14: export",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Come back and claim the code",
             "context": null,
             "plural": null,
@@ -9876,7 +10567,7 @@
             "msgid": "Condition",
             "context": null,
             "plural": null,
-            "translators": "Condition = singular label for one condition row",
+            "translators": "F14: accessible name",
             "files": [
                 "includes/functions.php"
             ],
@@ -9884,8 +10575,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.2.0"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Conditional Email Notifications and Recipient Routing",
@@ -10600,6 +11291,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Conversion rate",
+            "context": null,
+            "plural": null,
+            "translators": "F14: statistics",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Cookie",
             "context": null,
             "plural": null,
@@ -11084,6 +11790,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Counts only",
+            "context": null,
+            "plural": null,
+            "translators": "F14 settings option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -12507,6 +13228,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Delete permanently",
+            "context": null,
+            "plural": null,
+            "translators": "F14: action in the trash",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Delete permanently? This cannot be undone.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: question before deleting entries for good",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Delete the group and the %s fields inside it?",
             "context": null,
             "plural": null,
@@ -13896,10 +14647,40 @@
             "obsolete_since": null
         },
         {
+            "msgid": "E-mail addresses (separate with commas)",
+            "context": null,
+            "plural": null,
+            "translators": "F14: resend input",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "E-mail codes",
             "context": null,
             "plural": null,
             "translators": "F02 settings section",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "E-mail notifications are turned off in the settings.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: resend error",
             "files": [
                 "includes/functions.php"
             ],
@@ -14020,6 +14801,21 @@
             "context": null,
             "plural": null,
             "translators": "Description of option 1",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Each of the %s selected entries is sent to its own recipients.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: resend preview, %s = number",
             "files": [
                 "includes/functions.php"
             ],
@@ -14499,12 +15295,57 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Edit entry",
+            "context": null,
+            "plural": null,
+            "translators": "F14: button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Edit in builder",
             "context": null,
             "plural": null,
             "translators": "",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Edited",
+            "context": null,
+            "plural": null,
+            "translators": "F14: badge of an edited entry",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Edited %s",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = date and time",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -15732,6 +16573,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Empty the trash after (days, 0 = never)",
+            "context": null,
+            "plural": null,
+            "translators": "F14 settings",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Empty trash",
+            "context": null,
+            "plural": null,
+            "translators": "F14: action",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Empty, \"today\", \"today+N\" or a date as YYYY-MM-DD (Gregorian).",
             "context": null,
             "plural": null,
@@ -16349,6 +17220,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Entries",
+            "context": null,
+            "plural": null,
+            "translators": "F14: export translators: F14 settings section title",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Entries (personal answers hidden)",
+            "context": null,
+            "plural": null,
+            "translators": "F14 settings option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Entries are deleted automatically %s days after their last activity.",
             "context": null,
             "plural": null,
@@ -16379,10 +17280,70 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Entries in the trash are deleted after %s days.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = number of days",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Entries matching the current filters (%s)",
+            "context": null,
+            "plural": null,
+            "translators": "F14: export scope; %s = number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Entries older than %1$s days will be removed. This cannot be undone. Continue?",
             "context": null,
             "plural": null,
             "translators": "F13: confirmation before saving automatic deletion. %1$s: number of days",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Entry details",
+            "context": null,
+            "plural": null,
+            "translators": "F14: export column group",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Entry status",
+            "context": null,
+            "plural": null,
+            "translators": "F14: accessible name of the tab list",
             "files": [
                 "includes/functions.php"
             ],
@@ -16818,7 +17779,7 @@
             "msgid": "Export",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F14: button",
             "files": [
                 "includes/functions.php"
             ],
@@ -17208,6 +18169,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Field visibility rules are not applied when an administrator edits an entry.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: edit form note",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Fields",
             "context": null,
             "plural": null,
@@ -17329,6 +18305,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "File format",
+            "context": null,
+            "plural": null,
+            "translators": "F14: export",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "File upload",
             "context": null,
             "plural": null,
@@ -17380,6 +18371,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Filters",
+            "context": null,
+            "plural": null,
+            "translators": "F14: button",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -18907,7 +19913,7 @@
             "msgid": "From",
             "context": null,
             "plural": null,
-            "translators": "F06 range: first date",
+            "translators": "F06 range: first date translators: F14: date range start",
             "files": [
                 "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-admin.php"
@@ -19976,6 +20982,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "HTML is not allowed in notes.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "HTML tags are not allowed.",
             "context": null,
             "plural": null,
@@ -20632,6 +21653,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "History",
+            "context": null,
+            "plural": null,
+            "translators": "F14: tab",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -21987,6 +23023,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "In one cell",
+            "context": null,
+            "plural": null,
+            "translators": "F14: export option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "In the page",
             "context": null,
             "plural": null,
@@ -22021,6 +23072,21 @@
             "context": null,
             "plural": null,
             "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Include notes",
+            "context": null,
+            "plural": null,
+            "translators": "F14: print option",
             "files": [
                 "includes/functions.php"
             ],
@@ -24017,10 +25083,55 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Last %s days",
+            "context": null,
+            "plural": null,
+            "translators": "F14: statistics period; %s = number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Last 24 hours: %1$s codes sent, %2$s verified.",
             "context": null,
             "plural": null,
             "translators": "F02 settings: %1$s = codes sent, %2$s = codes verified",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Last 30 days",
+            "context": null,
+            "plural": null,
+            "translators": "F14: date shortcut",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Last 7 days",
+            "context": null,
+            "plural": null,
+            "translators": "F14: date shortcut",
             "files": [
                 "includes/functions.php"
             ],
@@ -24058,6 +25169,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Last edit",
+            "context": null,
+            "plural": null,
+            "translators": "F14: column",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -25625,6 +26751,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Mark as spam",
+            "context": null,
+            "plural": null,
+            "translators": "F14: action",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Mark as unread",
+            "context": null,
+            "plural": null,
+            "translators": "F14: action",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Mark selected as read",
             "context": null,
             "plural": null,
@@ -26980,6 +28136,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "More actions",
+            "context": null,
+            "plural": null,
+            "translators": "F14: menu button of a row",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "More than %s",
+            "context": null,
+            "plural": null,
+            "translators": "F14: an estimated total; %s = number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Moroccan CIN (national ID card)",
             "context": null,
             "plural": null,
@@ -27163,8 +28349,9 @@
             "msgid": "Move down",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F14: column order",
             "files": [
+                "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
@@ -27205,11 +28392,27 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Move to trash",
+            "context": null,
+            "plural": null,
+            "translators": "F14: action",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Move up",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F14: column order",
             "files": [
+                "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
@@ -27948,6 +29151,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "No access",
+            "context": null,
+            "plural": null,
+            "translators": "F14 settings option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "No action needed. The visitor was asked to refresh the page and send the form again.",
             "context": null,
             "plural": null,
@@ -28027,6 +29245,21 @@
             "context": null,
             "plural": null,
             "translators": "F19: mobile background option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "No changes yet.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: empty history",
             "files": [
                 "includes/functions.php"
             ],
@@ -28158,6 +29391,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "No data yet",
+            "context": null,
+            "plural": null,
+            "translators": "F14: statistics",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "No decisions recorded in the last 24 hours.",
             "context": null,
             "plural": null,
@@ -28214,6 +29462,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "No entries match these filters.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: empty list with filters",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -28509,6 +29772,21 @@
             "context": null,
             "plural": null,
             "translators": "F03 builder minimum strength option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "No notes yet.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: empty notes",
             "files": [
                 "includes/functions.php"
             ],
@@ -29061,6 +30339,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Not spam",
+            "context": null,
+            "plural": null,
+            "translators": "F14: action",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Not what I needed",
             "context": null,
             "plural": null,
@@ -29087,6 +30380,51 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Note added.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: announcement",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Note deleted.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: announcement",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Notes",
+            "context": null,
+            "plural": null,
+            "translators": "F14: tab and column",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -29151,6 +30489,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Nothing was changed.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: edit",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Nothing was received during the test window, so your server most likely cannot send email.",
             "context": null,
             "plural": null,
@@ -29207,6 +30560,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Notification sent to %s recipients.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -29751,6 +31119,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "One column per choice",
+            "context": null,
+            "plural": null,
+            "translators": "F14: export option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "One date",
             "context": null,
             "plural": null,
@@ -30055,6 +31438,21 @@
             "context": null,
             "plural": null,
             "translators": "F07 save warning",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Only administrators can see notes.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: note area help",
             "files": [
                 "includes/functions.php"
             ],
@@ -31048,8 +32446,9 @@
             "msgid": "Pages",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F14: accessible name of the page links",
             "files": [
+                "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
@@ -32041,6 +33440,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Payment pending",
+            "context": null,
+            "plural": null,
+            "translators": "F14 entries tab",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Payment received. Thank you!",
             "context": null,
             "plural": null,
@@ -32130,6 +33544,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Payment status",
+            "context": null,
+            "plural": null,
+            "translators": "F14: export column",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Payment successful",
@@ -32274,6 +33703,21 @@
             "context": null,
             "plural": null,
             "translators": "F11: option of the period",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Per page",
+            "context": null,
+            "plural": null,
+            "translators": "F14: label of the page size",
             "files": [
                 "includes/functions.php"
             ],
@@ -34810,6 +36254,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Print",
+            "context": null,
+            "plural": null,
+            "translators": "F14: button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Privacy",
             "context": null,
             "plural": null,
@@ -36086,6 +37545,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Reason (optional)",
+            "context": null,
+            "plural": null,
+            "translators": "F14: edit form",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Reasons",
             "context": null,
             "plural": null,
@@ -36142,6 +37616,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Recipients",
+            "context": null,
+            "plural": null,
+            "translators": "F14: resend preview label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -36718,6 +38207,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Remove file",
+            "context": null,
+            "plural": null,
+            "translators": "F14: edit, file field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Remove leftover files from incomplete form submissions. These are uploads that were never finalized.",
             "context": null,
             "plural": null,
@@ -36737,6 +38241,21 @@
             "context": null,
             "plural": null,
             "translators": "F09: label of the button that removes a row; %s = the row number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Remove star",
+            "context": null,
+            "plural": null,
+            "translators": "F14: button",
             "files": [
                 "includes/functions.php"
             ],
@@ -36979,6 +38498,21 @@
             "context": null,
             "plural": null,
             "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Replace file",
+            "context": null,
+            "plural": null,
+            "translators": "F14: edit, file field",
             "files": [
                 "includes/functions.php"
             ],
@@ -37292,6 +38826,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Resend notification",
+            "context": null,
+            "plural": null,
+            "translators": "F14: button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Reservation",
             "context": null,
             "plural": null,
@@ -37558,6 +39107,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Restore",
+            "context": null,
+            "plural": null,
+            "translators": "F14: action in the trash",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -39101,6 +40665,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Search answers, codes and notes",
+            "context": null,
+            "plural": null,
+            "translators": "F14: search placeholder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Search forms…",
             "context": null,
             "plural": null,
@@ -39668,7 +41247,22 @@
             "msgid": "Select all",
             "context": null,
             "plural": null,
-            "translators": "F05",
+            "translators": "F05 translators: F14: export",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Select all %s results",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %s = number of results",
             "files": [
                 "includes/functions.php"
             ],
@@ -39706,6 +41300,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Select every entry on this page",
+            "context": null,
+            "plural": null,
+            "translators": "F14: accessible name of the header check box",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -39791,6 +41400,36 @@
             "context": null,
             "plural": null,
             "translators": "F06 list of chosen dates",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Selected entries",
+            "context": null,
+            "plural": null,
+            "translators": "F14: accessible name of the selection bar",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Selected entries (%s)",
+            "context": null,
+            "plural": null,
+            "translators": "F14: export scope; %s = number",
             "files": [
                 "includes/functions.php"
             ],
@@ -40555,6 +42194,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Several choices",
+            "context": null,
+            "plural": null,
+            "translators": "F14: export option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Several dates",
             "context": null,
             "plural": null,
@@ -41103,6 +42757,21 @@
             "context": null,
             "plural": null,
             "translators": "F03 builder switch on a password field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Showing %1$s–%2$s of %3$s",
+            "context": null,
+            "plural": null,
+            "translators": "F14: %1$s = first, %2$s = last, %3$s = total",
             "files": [
                 "includes/functions.php"
             ],
@@ -41956,6 +43625,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Spam",
+            "context": null,
+            "plural": null,
+            "translators": "F14 entries tab",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Spam Score Report on the Way!",
             "context": null,
             "plural": null,
@@ -42154,7 +43838,7 @@
             "msgid": "Star",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F14: button",
             "files": [
                 "includes/functions.php"
             ],
@@ -42162,6 +43846,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Star removed",
+            "context": null,
+            "plural": null,
+            "translators": "F14: announcement",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Starred",
+            "context": null,
+            "plural": null,
+            "translators": "F14 entries tab translators: F14: announcement",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -42346,12 +44060,28 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Statistics",
+            "context": null,
+            "plural": null,
+            "translators": "F14: tab",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Status",
             "context": null,
             "plural": null,
-            "translators": "Status = generic column header",
+            "translators": "F14: column translators: Status = generic column header",
             "files": [
                 "includes/class-Emsfb-verification.php",
+                "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-admin.php",
                 "includes/payments/class-Emsfb-payment-service.php",
                 "includes/phrases.php"
@@ -42999,7 +44729,7 @@
             "msgid": "Submissions",
             "context": null,
             "plural": null,
-            "translators": "Dashboard widget — card label: number of form submissions",
+            "translators": "Dashboard widget — card label: number of form submissions translators: F14: statistics",
             "files": [
                 "includes/class-Emsfb-email-monitor.php",
                 "includes/functions.php"
@@ -46829,6 +48559,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The form's notification rules decide the administrator's copy.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: resend preview",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The formula has an error near “%s”.",
             "context": null,
             "plural": null,
@@ -47354,6 +49099,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The notification could not be sent.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: resend error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The number of rows in %s does not match the number you selected.",
             "context": null,
             "plural": null,
@@ -47465,6 +49225,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The payment of this entry cannot change: price fields stay as paid.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: edit form note on a paid entry",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -48500,6 +50275,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The trash is empty.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: empty trash tab",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The two passwords do not match.",
             "context": null,
             "plural": null,
@@ -48890,6 +50680,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "There is no recipient for this choice.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: resend",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "There is no translation of %1$s into %2$s yet, so it stays in English.",
             "context": null,
             "plural": null,
@@ -49134,6 +50939,21 @@
             "context": null,
             "plural": null,
             "translators": "F18: warning before switching a lapsed Pro site to Free Plus",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This answer cannot be edited.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: edit form",
             "files": [
                 "includes/functions.php"
             ],
@@ -49398,6 +51218,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This entry was changed in the meantime. Refresh and try again.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: edit conflict",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -50278,6 +52113,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This month",
+            "context": null,
+            "plural": null,
+            "translators": "F14: date shortcut",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This notification was resent too many times. Try again later.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: resend limit",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This option is only available in the Pro version.",
             "context": null,
             "plural": null,
@@ -50931,7 +52796,7 @@
             "msgid": "To",
             "context": null,
             "plural": null,
-            "translators": "F06 range: last date",
+            "translators": "F06 range: last date translators: F14: date range end",
             "files": [
                 "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-admin.php"
@@ -51143,7 +53008,7 @@
             "msgid": "Today",
             "context": null,
             "plural": null,
-            "translators": "F06 picker",
+            "translators": "F06 picker translators: F14: date shortcut",
             "files": [
                 "includes/functions.php"
             ],
@@ -51275,6 +53140,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Too many entries. Choose a shorter date range.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: export limit",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Too many payment attempts. Please wait a minute and try again.",
             "context": null,
             "plural": null,
@@ -51359,6 +53239,21 @@
             "context": null,
             "plural": null,
             "translators": "F19: position of a radial gradient",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Top forms",
+            "context": null,
+            "plural": null,
+            "translators": "F14: dashboard widget",
             "files": [
                 "includes/functions.php"
             ],
@@ -51524,16 +53419,16 @@
             "msgid": "Transaction ID",
             "context": null,
             "plural": null,
-            "translators": "Transaction ID = field label",
+            "translators": "F14: export column",
             "files": [
-                "includes/phrases.php"
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.2.0"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Transaction Id",
@@ -51562,6 +53457,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Trash",
+            "context": null,
+            "plural": null,
+            "translators": "F14 entries tab",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -52486,7 +54396,7 @@
             "msgid": "Undo",
             "context": null,
             "plural": null,
-            "translators": "Toolbar & sidebar labels for email builder",
+            "translators": "Toolbar & sidebar labels for email builder translators: F14: button in the message after moving to the trash",
             "files": [
                 "includes/functions.php",
                 "includes/importers/cf7/class-Emsfb-cf7-importer.php"
@@ -52855,6 +54765,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Unread",
+            "context": null,
+            "plural": null,
+            "translators": "F14 entries tab",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -54258,6 +56183,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Views",
+            "context": null,
+            "plural": null,
+            "translators": "F14: statistics",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Views count each new visit session of the form page.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: statistics help",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Visit Website",
             "context": null,
             "plural": null,
@@ -54322,6 +56277,21 @@
             "context": null,
             "plural": null,
             "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Visitor only",
+            "context": null,
+            "plural": null,
+            "translators": "F14: resend option",
             "files": [
                 "includes/functions.php"
             ],
@@ -57049,6 +59019,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "XLSX export is included in Free Plus and Pro.",
+            "context": null,
+            "plural": null,
+            "translators": "F14: export",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -60548,6 +62533,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "contains",
+            "context": null,
+            "plural": null,
+            "translators": "F14: condition operator",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "date & time",
             "context": null,
             "plural": null,
@@ -61058,6 +63058,51 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "is",
+            "context": null,
+            "plural": null,
+            "translators": "F14: condition operator",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "is empty",
+            "context": null,
+            "plural": null,
+            "translators": "F14: condition operator",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "is not empty",
+            "context": null,
+            "plural": null,
+            "translators": "F14: condition operator",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
