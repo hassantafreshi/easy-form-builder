@@ -203,6 +203,8 @@ const fields_efb = [
   { name: efb_var.text.ranking || 'Ranking', icon: 'bi-sort-numeric-down', id: 'ranking', pro: true, tag:'advance all' },
   // F04: a calculation from the other answers (formula, choice calculation values). Free Plus (field:calc in the capability registry).
   { name: efb_var.text.calcField || 'Calculation', icon: 'bi-calculator', id: 'calc', pro: true, tag:'advance all' },
+  // F09: a group of fields the visitor can repeat (rows). Free Plus for a group shown once; repeating rows are Pro (field:repeater / setting:repeater_rows).
+  { name: efb_var.text.repeater || 'Repeater group', icon: 'bi-collection', id: 'repeater', pro: true, tag:'advance all' },
   // F08: a hidden value (UTM, referrer, page, user, IP, date, unique id, cookie or a fixed text). Free.
   { name: efb_var.text.hiddenField || 'Hidden field', icon: 'bi-eye-slash', id: 'hiddenField', pro: false, tag:'basic all' },
 
@@ -1784,6 +1786,36 @@ function show_setting_window_efb(idset, opts) {
                   ${mobileWidthEls}
                   ${classesEls}
                   ${hiddenEls}
+                  </div>
+                </div><div class="efb  clearfix"></div>
+                `
+        break;
+      case "repeater":
+        // F09: the group's title, description and required, its rows (limits, from a field, title, collapsible,
+        // layout, the Add button) and the layout settings like other fields.
+        body = `
+                <div class="efb  mb-3">
+                ${idHidden}
+                ${labelEls}
+                ${hideLabelEls}
+                ${requireEls}
+                ${desEls}
+                ${typeof efbRptPanelEls === 'function' ? efbRptPanelEls(indx, idset) : '<!-- F09 repeater-builder-efb.js not loaded -->'}
+                <div class="efb  d-grid gap-2">
+                  <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+                        <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+                    </button>
+                </div>
+                <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
+                  <div class="efb  mb-3 px-3 row">
+                  ${labelFontSizeEls}
+                  ${selectColorEls('label','text')}
+                  ${selectColorEls('description','text')}
+                  ${ElementAlignEls('label',indx,idset)}
+                  ${ElementAlignEls('description',indx,idset)}
+                  ${widthEls}
+                  ${mobileWidthEls}
+                  ${classesEls}
                   </div>
                 </div><div class="efb  clearfix"></div>
                 `

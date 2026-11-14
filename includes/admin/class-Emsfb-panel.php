@@ -332,6 +332,10 @@ class Panel_edit  {
 			wp_enqueue_script('efb-calc-js', EMSFB_PLUGIN_URL . 'public/assets/js/calc-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/calc-efb.js'));
 			wp_enqueue_script('efb-calc-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/calc-builder-efb.js', array('efb-val-js', 'efb-calc-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/calc-builder-efb.js'));
 			wp_enqueue_style('efb-calc-css', EMSFB_PLUGIN_URL . 'public/assets/css/calc-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/calc-efb.css'));
+			// F09: the repeater group (EFBRepeaterCore, the twin of Repeater; the page runtime for the preview) and its builder controls.
+			wp_enqueue_script('efb-repeater-js', EMSFB_PLUGIN_URL . 'public/assets/js/repeater-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/repeater-efb.js'));
+			wp_enqueue_script('efb-repeater-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/repeater-builder-efb.js', array('efb-val-js', 'efb-repeater-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/repeater-builder-efb.js'));
+			wp_enqueue_style('efb-repeater-css', EMSFB_PLUGIN_URL . 'public/assets/css/repeater-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/repeater-efb.css'));
 			wp_enqueue_script('efb-verify-settings-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/verify-settings-efb.js', array('efb-verify-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/verify-settings-efb.js'));
 			wp_enqueue_style('efb-verify-css', EMSFB_PLUGIN_URL . 'public/assets/css/verify-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/verify-efb.css'));
 			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION);

@@ -5451,6 +5451,108 @@ class efbFunction {
 			"calc" => $state && isset($ac->text->calc) ? $ac->text->calc : esc_html__('Calculation','easy-form-builder'),
 			/* translators: F04 builder: palette tile of the calculation field */
 			"calcField" => $state && isset($ac->text->calcField) ? $ac->text->calcField : esc_html__('Calculation','easy-form-builder'),
+			/* translators: F09 builder: palette tile and type name of the repeater group (a set of fields the visitor can repeat) */
+			"repeater" => $state && isset($ac->text->repeater) ? $ac->text->repeater : esc_html__('Repeater group','easy-form-builder'),
+			/* translators: F09 builder: the fewest rows a repeater group needs */
+			"minRows" => $state && isset($ac->text->minRows) ? $ac->text->minRows : esc_html__('Minimum rows','easy-form-builder'),
+			/* translators: F09 builder: the most rows a repeater group allows */
+			"maxRows" => $state && isset($ac->text->maxRows) ? $ac->text->maxRows : esc_html__('Maximum rows','easy-form-builder'),
+			/* translators: F09 builder: how many rows a repeater group shows when the form opens */
+			"defaultRows" => $state && isset($ac->text->defaultRows) ? $ac->text->defaultRows : esc_html__('Rows shown at start','easy-form-builder'),
+			/* translators: F09 builder: take the number of rows from another field (e.g. "Number of travellers") */
+			"rowsFrom" => $state && isset($ac->text->rowsFrom) ? $ac->text->rowsFrom : esc_html__('Number of rows from field','easy-form-builder'),
+			/* translators: F09 builder: choice meaning the visitor adds and removes rows */
+			"rowsFromManual" => $state && isset($ac->text->rowsFromManual) ? $ac->text->rowsFromManual : esc_html__('Visitor adds rows','easy-form-builder'),
+			/* translators: F09 builder: the title of each row of a repeater group */
+			"rowLabel" => $state && isset($ac->text->rowLabel) ? $ac->text->rowLabel : esc_html__('Row title','easy-form-builder'),
+			/* translators: F09 builder: help under the row title; {n} must stay as it is */
+			"rowLabelHelp" => $state && isset($ac->text->rowLabelHelp) ? $ac->text->rowLabelHelp : esc_html__('Use {n} for the row number.','easy-form-builder'),
+			/* translators: F09 builder: switch that lets the visitor fold rows */
+			"collapsibleRows" => $state && isset($ac->text->collapsibleRows) ? $ac->text->collapsibleRows : esc_html__('Rows can be collapsed','easy-form-builder'),
+			/* translators: F09 builder: switch that folds the earlier rows when a row is added */
+			"collapsePrev" => $state && isset($ac->text->collapsePrev) ? $ac->text->collapsePrev : esc_html__('Collapse earlier rows when a row is added','easy-form-builder'),
+			/* translators: F09 builder: how the fields of a row are placed */
+			"rptLayout" => $state && isset($ac->text->rptLayout) ? $ac->text->rptLayout : esc_html__('Row layout','easy-form-builder'),
+			/* translators: F09 builder: layout choice, each row in its own card */
+			"rptLayoutBlocks" => $state && isset($ac->text->rptLayoutBlocks) ? $ac->text->rptLayoutBlocks : esc_html__('One card per row','easy-form-builder'),
+			/* translators: F09 builder: layout choice, the fields of a row next to each other */
+			"rptLayoutInline" => $state && isset($ac->text->rptLayoutInline) ? $ac->text->rptLayoutInline : esc_html__('Fields side by side','easy-form-builder'),
+			/* translators: F09 builder: the text of the button that adds a row */
+			"rptBtnAdd" => $state && isset($ac->text->rptBtnAdd) ? $ac->text->rptBtnAdd : esc_html__('Add button text','easy-form-builder'),
+			/* translators: F09 builder: switch that asks the visitor before a row is removed */
+			"rmvConfirm" => $state && isset($ac->text->rmvConfirm) ? $ac->text->rmvConfirm : esc_html__('Ask before removing a row','easy-form-builder'),
+			/* translators: F09 builder: error when a field type cannot go inside a repeater group */
+			"rptTypeNotAllowed" => $state && isset($ac->text->rptTypeNotAllowed) ? $ac->text->rptTypeNotAllowed : esc_html__('This field type cannot be placed inside a repeater group.','easy-form-builder'),
+			/* translators: F09 builder: error on save; %s = the group name */
+			"rptNoChildren" => $state && isset($ac->text->rptNoChildren) ? $ac->text->rptNoChildren : esc_html__('Add at least one field to the repeater group %s.','easy-form-builder'),
+			/* translators: F09 builder: field toolbar button that moves the field into a repeater group */
+			"moveToGroup" => $state && isset($ac->text->moveToGroup) ? $ac->text->moveToGroup : esc_html__('Move into group','easy-form-builder'),
+			/* translators: F09 builder: field toolbar button that moves the field out of its repeater group */
+			"moveOutGroup" => $state && isset($ac->text->moveOutGroup) ? $ac->text->moveOutGroup : esc_html__('Move out of group','easy-form-builder'),
+			/* translators: F09 builder: delete question for a group; %s = number of fields inside it */
+			"rptDeleteConfirm" => $state && isset($ac->text->rptDeleteConfirm) ? $ac->text->rptDeleteConfirm : esc_html__('Delete the group and the %s fields inside it?','easy-form-builder'),
+			/* translators: F09 builder: warning about the Conditional Logic add-on and rules inside rows */
+			"rptLogicRowsUnsupported" => $state && isset($ac->text->rptLogicRowsUnsupported) ? $ac->text->rptLogicRowsUnsupported : esc_html__('Your Conditional Logic add-on does not support per-row rules yet; required checks inside rows are relaxed on the server.','easy-form-builder'),
+			/* translators: F09: CSV column with the number of rows; %s = the group name */
+			"rptCount" => $state && isset($ac->text->rptCount) ? $ac->text->rptCount : esc_html__('%s (count)','easy-form-builder'),
+			/* translators: F09 builder: hint inside an empty repeater group on the canvas */
+			"rptDropHere" => $state && isset($ac->text->rptDropHere) ? $ac->text->rptDropHere : esc_html__('Drop fields here','easy-form-builder'),
+			/* translators: F09 builder: line on the canvas; %1$s = minimum, %2$s = maximum number of rows */
+			"rptRowsRange" => $state && isset($ac->text->rptRowsRange) ? $ac->text->rptRowsRange : esc_html__('Rows: %1$s – %2$s','easy-form-builder'),
+			/* translators: F09 builder: error; %s = the most fields a group may hold */
+			"rptChildrenCap" => $state && isset($ac->text->rptChildrenCap) ? $ac->text->rptChildrenCap : esc_html__('A repeater group holds at most %s fields.','easy-form-builder'),
+			/* translators: F09 builder: error on save; %s = the most groups a form may hold */
+			"rptGroupsCap" => $state && isset($ac->text->rptGroupsCap) ? $ac->text->rptGroupsCap : esc_html__('A form holds at most %s repeater groups.','easy-form-builder'),
+			/* translators: F09 builder: message when there is no group to move a field into */
+			"rptNoGroup" => $state && isset($ac->text->rptNoGroup) ? $ac->text->rptNoGroup : esc_html__('Add a repeater group to the form first.','easy-form-builder'),
+			/* translators: F09 builder: help under the row limits; %s = the most rows */
+			"rptLimitsHelp" => $state && isset($ac->text->rptLimitsHelp) ? $ac->text->rptLimitsHelp : esc_html__('At most %s rows.','easy-form-builder'),
+			/* translators: F09 builder: error for a row limit that is not a whole number */
+			"rptLimitsBad" => $state && isset($ac->text->rptLimitsBad) ? $ac->text->rptLimitsBad : esc_html__('Please enter a whole number.','easy-form-builder'),
+			/* translators: F09 builder: error; %s = the most rows allowed */
+			"rptMaxBad" => $state && isset($ac->text->rptMaxBad) ? $ac->text->rptMaxBad : esc_html__('The maximum must be between 1 and %s.','easy-form-builder'),
+			/* translators: F09 builder: error for a minimum above the maximum */
+			"rptMinBad" => $state && isset($ac->text->rptMinBad) ? $ac->text->rptMinBad : esc_html__('The minimum cannot be more than the maximum.','easy-form-builder'),
+			/* translators: F09 builder: error for the starting rows */
+			"rptDefaultBad" => $state && isset($ac->text->rptDefaultBad) ? $ac->text->rptDefaultBad : esc_html__('Rows shown at start must be between the minimum and the maximum.','easy-form-builder'),
+			/* translators: F09 builder: error for the field that gives the number of rows */
+			"rptFromBad" => $state && isset($ac->text->rptFromBad) ? $ac->text->rptFromBad : esc_html__('Choose a number or choice field placed before the group.','easy-form-builder'),
+			/* translators: F09: the default title of a row; %s = the row number */
+			"rowN" => $state && isset($ac->text->rowN) ? $ac->text->rowN : esc_html__('Row %s','easy-form-builder'),
+			/* translators: F09: the button that adds a row to a repeater group */
+			"addRow" => $state && isset($ac->text->addRow) ? $ac->text->addRow : esc_html__('Add another','easy-form-builder'),
+			/* translators: F09: label of the button that removes a row; %s = the row number */
+			"removeRow" => $state && isset($ac->text->removeRow) ? $ac->text->removeRow : esc_html__('Remove row %s','easy-form-builder'),
+			/* translators: F09: question shown inside a row before it is removed */
+			"removeRowConfirm" => $state && isset($ac->text->removeRowConfirm) ? $ac->text->removeRowConfirm : esc_html__('Remove this row?','easy-form-builder'),
+			/* translators: F09: button that confirms removing a row */
+			"rptRemoveBtn" => $state && isset($ac->text->rptRemoveBtn) ? $ac->text->rptRemoveBtn : esc_html__('Remove','easy-form-builder'),
+			/* translators: F09: button that keeps a row (cancels removing it) */
+			"rptKeepBtn" => $state && isset($ac->text->rptKeepBtn) ? $ac->text->rptKeepBtn : esc_html__('Keep','easy-form-builder'),
+			/* translators: F09: screen reader announcement; %s = the row number */
+			"rowAdded" => $state && isset($ac->text->rowAdded) ? $ac->text->rowAdded : esc_html__('Row %s added','easy-form-builder'),
+			/* translators: F09: screen reader announcement after a row is removed */
+			"rowRemoved" => $state && isset($ac->text->rowRemoved) ? $ac->text->rowRemoved : esc_html__('Row removed','easy-form-builder'),
+			/* translators: F09: label of the button that opens a folded row; %s = the row number */
+			"expandRow" => $state && isset($ac->text->expandRow) ? $ac->text->expandRow : esc_html__('Show row %s','easy-form-builder'),
+			/* translators: F09: label of the button that folds a row; %s = the row number */
+			"collapseRow" => $state && isset($ac->text->collapseRow) ? $ac->text->collapseRow : esc_html__('Hide row %s','easy-form-builder'),
+			/* translators: F09: message when no more rows can be added; %s = the most rows */
+			"rptMaxReached" => $state && isset($ac->text->rptMaxReached) ? $ac->text->rptMaxReached : esc_html__('You have reached the maximum of %s rows.','easy-form-builder'),
+			/* translators: F09: error; %1$s = the group name, %2$s = the fewest rows */
+			"rptMinRowsMsg" => $state && isset($ac->text->rptMinRowsMsg) ? $ac->text->rptMinRowsMsg : esc_html__('%1$s needs at least %2$s rows.','easy-form-builder'),
+			/* translators: F09: error; %1$s = the group name, %2$s = the most rows */
+			"rptMaxRowsMsg" => $state && isset($ac->text->rptMaxRowsMsg) ? $ac->text->rptMaxRowsMsg : esc_html__('%1$s allows at most %2$s rows.','easy-form-builder'),
+			/* translators: F09: error; %s = the group name */
+			"rptCountMismatch" => $state && isset($ac->text->rptCountMismatch) ? $ac->text->rptCountMismatch : esc_html__('The number of rows in %s does not match the number you selected.','easy-form-builder'),
+			/* translators: F09: error; %1$s = the field name, %2$s = the row number */
+			"rptRowRequired" => $state && isset($ac->text->rptRowRequired) ? $ac->text->rptRowRequired : esc_html__('%1$s in row %2$s is required.','easy-form-builder'),
+			/* translators: F09: accessible name of a field inside a row; %1$s = the field label, %2$s = the row number */
+			"rptChildLabel" => $state && isset($ac->text->rptChildLabel) ? $ac->text->rptChildLabel : esc_html__('%1$s, row %2$s','easy-form-builder'),
+			/* translators: F09: number of rows in the response viewer; %s = the number */
+			"rptRowsCount" => $state && isset($ac->text->rptRowsCount) ? $ac->text->rptRowsCount : esc_html__('%s rows','easy-form-builder'),
+			/* translators: F09 e-mail: after the first rows of a long group; %s = rows not shown */
+			"rptMoreRows" => $state && isset($ac->text->rptMoreRows) ? $ac->text->rptMoreRows : esc_html__('%s more rows. See the whole answer in the dashboard.','easy-form-builder'),
 			/* translators: F04 builder: the step of a number field (e.g. 0.5) */
 			"numStep" => $state && isset($ac->text->numStep) ? $ac->text->numStep : esc_html__('Step','easy-form-builder'),
 			/* translators: F04 builder: help under the step box */

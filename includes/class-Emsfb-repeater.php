@@ -63,6 +63,61 @@ final class Repeater {
 		'rptRowRequired' => '%1$s in row %2$s is required.', 'rptCount' => '%s (count)', 'rptRowsCount' => '%s rows', 'yes' => 'Yes', 'no' => 'No',
 	);
 
+	/** WordPress hooks (builder variables, the capability registry, forms/{id}/schema). */
+	public static function register() {
+		if (!function_exists('add_filter')) return;
+		add_filter('efb_admin_localize_vars', array(__CLASS__, 'localize_vars'), 28, 2);
+		add_filter('efb_capabilities', array(__CLASS__, 'capabilities'), 27, 2);
+	}
+
+	/** efb_admin_localize_vars: efb_var.repeater = {plan, caps, child_types}. */
+	public static function localize_vars($vars, $context = '') {
+		if (!is_array($vars)) return $vars;
+		$vars['repeater'] = array(
+			'plan'        => array('group' => self::plan_ok('group'), 'repeat' => self::plan_ok('repeat')),
+			'caps'        => self::caps(),
+			'child_types' => self::child_types(),
+		);
+		return $vars;
+	}
+
+	/** efb_capabilities: field:repeater (Free Plus), setting:repeater_rows (Pro) and capabilities.repeater (the contract). */
+	public static function capabilities($out, $args = array()) {
+		if (!is_array($out) || !isset($out['features']) || !is_array($out['features'])) return $out;
+		$package = isset($out['plan']['package_type']) ? (int) $out['plan']['package_type'] : null;
+		$entry = function ($part, $kind, $keys, $label) use ($package) {
+			$need = isset(self::PLAN[$part]) ? self::PLAN[$part] : 'pro';
+			if (function_exists('apply_filters')) $need = apply_filters('efb_repeater_plan', $need, $part);
+			$ok = $need === 'free' ? true : (class_exists('\\Emsfb\\Builder_Api') ? Builder_Api::plan_at_least($need, $package) : false);
+			return array('kind' => $kind, 'scope' => 'field', 'package' => $need, 'addon' => null, 'available_now' => $ok, 'reason' => $ok ? null : 'plan',
+				'prompt_state' => $need === 'free_plus' ? 3 : ($need === 'pro' ? 1 : 0),
+				'message_key' => $need === 'free_plus' ? 'thisFeatureAvailableFreePlusPro' : ($need === 'pro' ? 'proUnlockMsg' : null),
+				'form_keys' => $keys, 'label_key' => $label);
+		};
+		$out['features']['field:repeater'] = array_merge(isset($out['features']['field:repeater']) && is_array($out['features']['field:repeater']) ? $out['features']['field:repeater'] : array(),
+			$entry('group', 'field', array('min_rows', 'max_rows', 'default_rows', 'row_label', 'btn_add_text', 'rmv_confirm', 'group'), 'repeater'), array('pii_default' => null));
+		$out['features']['setting:repeater_rows'] = $entry('repeat', 'setting', array('max_rows', 'rows_from', 'collapsible', 'collapse_prev', 'rpt_layout'), 'repeater');
+		$out['repeater'] = array(
+			'type'        => 'repeater',
+			'keys'        => self::KEYS,
+			'child_key'   => 'group',
+			'child_types' => self::child_types(),
+			'count_from'  => self::COUNT_SOURCE_TYPES,
+			'enums'       => array('rpt_layout' => array('blocks', 'inline'), 'collapsible' => array('0', '1'), 'collapse_prev' => array('0', '1'), 'rmv_confirm' => array('0', '1')),
+			'defaults'    => self::DEFAULTS,
+			'caps'        => self::caps(),
+			'runtime'     => array('virtual_id' => '{child}_r{n}', 'never_saved' => self::RUNTIME_KEYS),
+			'answer'      => array('summary' => '{id_: group, type: "repeater", value: "<rows>"}', 'row' => 'the child id_ with rg (group, set by the server) and ri (row from 0)'),
+			'rules'       => array('children right after the group, in its step', 'no group inside a group', 'a child type outside child_types is an ordinary field', 'rows_from: a number or choice field before the group, outside it'),
+			'codes'       => array_values(self::CODES),
+			'builder'     => array('efbBuilderApi.insertItems', 'efbBuilderApi.setForm', 'efbBuilderApi.addGroup', 'efbBuilderApi.moveIntoGroup'),
+			'plan'        => array('group' => self::PLAN['group'], 'repeat' => self::PLAN['repeat']),
+			'spec'        => 'F09',
+		);
+		return $out;
+	}
+
+	/* ------------------------------------------------------------------ the model */
 	/* ------------------------------------------------------------------ the model */
 
 	public static function child_types() {

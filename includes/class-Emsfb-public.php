@@ -1371,7 +1371,10 @@ public function check_nonce_permission_efb($request) {
 			/* F05 choices: Other, Select all, limits, capacity, ranking, the booking messages of the page. */
 			'otherOpt','otherReq','selectAll','minSelM_','maxSelM_','soldOut','invLeftN','rnkUp','rnkDown','rnkMoved','rnkConfirm','rnkReq','rnkHelp','bkXpM_','bkFlM_',
 			/* F04 numbers and calculations: number messages, the calc error, the slider handles. */
-			'numStepM_','numDecM_','numNanM_','numRange','calcErr','rngLo','rngHi','rngOrder'];
+			'numStepM_','numDecM_','numNanM_','numRange','calcErr','rngLo','rngHi','rngOrder',
+			/* F09 repeater group: rows, buttons, announcements and messages (repeater-efb.js). */
+			'repeater','rowN','addRow','removeRow','removeRowConfirm','rptRemoveBtn','rptKeepBtn','rowAdded','rowRemoved','expandRow','collapseRow',
+			'rptMaxReached','rptMinRowsMsg','rptMaxRowsMsg','rptCountMismatch','rptRowRequired','rptChildLabel'];
 
 			/* Only now is a form or response box really printed. A form in a widget,
 			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
@@ -2737,6 +2740,8 @@ public function check_nonce_permission_efb($request) {
 			'otherOpt', 'otherReq', 'minSelM_', 'maxSelM_', 'soldOut', 'rnkReq',
 			/* F04 numbers and calculations (Calc::check_row(), Calc::evaluate_form()). */
 			'numStepM_', 'numDecM_', 'numNanM_', 'calcErr', 'mcplen', 'mxcplen', 'rngOrder',
+			/* F09 repeater group (Repeater::validate()). */
+			'repeater', 'rowN', 'rptMinRowsMsg', 'rptMaxRowsMsg', 'rptCountMismatch', 'rptRowRequired',
 			'cal_err_invalid_format', 'cal_err_invalid_date', 'cal_err_calendar_not_allowed', 'cal_err_before_min', 'cal_err_after_max', 'cal_err_weekday_disabled', 'cal_err_date_disabled', 'cal_err_not_enabled', 'cal_err_holiday', 'cal_err_unavailable', 'cal_err_full', 'cal_err_range_order', 'cal_err_range_too_short', 'cal_err_range_too_long', 'cal_err_range_contains_disabled', 'cal_err_too_many_dates', 'cal_err_time_required', 'cal_err_time_out_of_range', 'cal_err_time_step', 'cal_err_time_closed_weekday', 'cal_err_age_too_young', 'cal_err_age_too_old', 'cal_err_depends_on_empty', 'cal_err_required', 'cal_nights_n', 'cal_days_n'
 		];
 		$efbFunction = get_efbFunction();

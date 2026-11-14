@@ -2530,6 +2530,19 @@ let change_el_edit_Efb = (el) => {
       case "numSfxEl":
       case "numCurrencyEl":
       case "numMaxZeroEl":
+      case "minRowsEl":
+      case "maxRowsEl":
+      case "defaultRowsEl":
+      case "rowsFromEl":
+      case "rowLabelEl":
+      case "btnAddTextEl":
+      case "collapsibleEl":
+      case "collapsePrevEl":
+      case "rmvConfirmEl":
+      case "rptLayoutEl":
+        // F09: the repeater group's settings (repeater-builder-efb.js; refused values are put back).
+        if (typeof efbRptBuilderChange === 'function') efbRptBuilderChange(el, indx);
+        break;
       case "calcFormulaEl":
       case "calcShowEl":
       case "calcEmptyEl":
@@ -2613,7 +2626,7 @@ let change_el_edit_Efb = (el) => {
         const aId = {
           email: "_", text: "_", password: "_", tel: "_", url: "_", date: "_", advdate: "_", color: "_", range: "_", number: "_", file: "_",
           textarea: "_", dadfile: "_", maps: "-map", checkbox: "_options", radio: "_options", select: "_options",
-          multiselect: "_options", esign: "-sig-data", rating: "-stared", yesNo: "_yn", ranking: "_options", calc: "_out",
+          multiselect: "_options", esign: "-sig-data", rating: "-stared", yesNo: "_yn", ranking: "_options", calc: "_out", repeater: "_rptbody",
           audio_recorder: "_file", video_recorder: "_file", screen_recorder: "_file"
         }
         postId = aId[valj_efb[indx].type]
@@ -4577,8 +4590,10 @@ const saveFormEfb = async (stated) => {
           }
         }
         const authMissing = efb_auth_fields_missing_efb(valj_efb);
+        // F09: a repeater group without fields (or holding a field a row may not hold) is not saved.
+        const rptErrEfb = typeof efbRptSaveCheck === 'function' ? efbRptSaveCheck() : '';
 
-        if (valj_efb.length > 2 && proState == true && stepState == true && authMissing.length === 0 && (((valj_efb[0].type == "payment" && gateway != -1) || (valj_efb[0].type == "persiaPay" && gateway != -1)) || valj_efb[0].type != "payment")) {
+        if (valj_efb.length > 2 && proState == true && stepState == true && authMissing.length === 0 && rptErrEfb === '' && (((valj_efb[0].type == "payment" && gateway != -1) || (valj_efb[0].type == "persiaPay" && gateway != -1)) || valj_efb[0].type != "payment")) {
           title = efb_var.text.save;
           box = `saveBox`;
           icon = `bi-check2-circle`;
@@ -4608,6 +4623,10 @@ const saveFormEfb = async (stated) => {
           };
           returnState = true;
 
+        } else if (rptErrEfb !== '') {
+          message = rptErrEfb;
+          icon = 'bi-exclamation-triangle';
+          returnState = true;
         } else if (stepState == false) {
           btnText = efb_var.text.help;
           btnFun = `open_whiteStudio_efb('emptyStep')`;
@@ -4737,6 +4756,8 @@ let editFormEfb =async () => {
       }
     }
 
+    // F09: each child of a repeater group into its group's container.
+    if (typeof efbRptPlaceChildren === 'function') efbRptPlaceChildren();
     fub_shwBtns_efb()
 
     // editFormEfb also runs while the mobile frame is open (duplicate field,
@@ -4876,6 +4897,10 @@ let sampleElpush_efb = (rndm, elementId) => {
         document.getElementById('maps').draggable = false;
         if (document.getElementById('maps_b')) document.getElementById('maps_b').classList.add('disabled')
       }, valj_efb.length * 5);
+    } else if (elementId == "repeater") {
+      // F09: a repeater group (its fields are rows with group = this id; efbRptAfterAdd() adds the first one).
+      Object.assign(valj_efb[valj_efb.length - 1], { placeholder: '', min_rows: '1', max_rows: '10', default_rows: '1', rows_from: '', row_label: '',
+        collapsible: '0', collapse_prev: '1', rpt_layout: 'blocks', btn_add_text: '', rmv_confirm: '1' });
     } else if (elementId == "hiddenField") {
       // F08: a hidden value; no placeholder, never required, a template in value ('' = nothing until set).
       const indx =(valj_efb.length) - 1;
@@ -5109,6 +5134,15 @@ function create_dargAndDrop_el() {
     _efbClearIndicators();
 
     const t = event.dataTransfer.getData("text/plain");
+    // F09: dropped inside a repeater group's container: the field becomes one of the group's fields.
+    const rptBodyEfb = event.target && event.target.closest ? event.target.closest('[data-rpt-body]') : null;
+    if (rptBodyEfb && t && t !== "step" && t !== "steps" && typeof efbRptDropInto === 'function') {
+      const afterChild = event.target.closest('section.efbField');
+      efbRptDropInto(rptBodyEfb.dataset.rptBody, t, afterChild && afterChild.parentElement === rptBodyEfb ? afterChild : null);
+      _efbDropTarget = null;
+      _efbDropPos = 'after';
+      return;
+    }
     if (t !== "step" && t != null && t != "") {
       let insertAfterEl = null;
       if (_efbDropTarget) {
@@ -5224,6 +5258,8 @@ const sort_obj_el_efb_ = () => {
 
     }
   }
+  // F09: `group` from the DOM (a field inside a group's container is its child).
+  if (typeof efbRptSyncFromDom === 'function') efbRptSyncFromDom();
 
   if (len > 20) {
     sort_obj_efb()
@@ -5293,7 +5329,10 @@ function add_option_edit_pro_efb(parent, tag, len) {
 function show_delete_window_efb(idset,iVJ) {
 
   let itemLabel = valj_efb[iVJ] && valj_efb[iVJ].hasOwnProperty('type') ? `${valj_efb[iVJ].type} &rsaquo; ${valj_efb[iVJ].name ?? valj_efb[iVJ].value}` : '';
-  const body = efb_build_confirm_body('danger', 'bi-trash', efb_var.text.delete, efb_var.text.areYouSureYouWantDeleteItem, itemLabel);
+  // F09: a group is deleted with the fields inside it; say how many.
+  const delRowEfb = valj_efb.find(x => x && x.dataId == idset);
+  const delMsgEfb = delRowEfb && delRowEfb.type == 'repeater' && typeof efbRptDeleteText === 'function' ? efbRptDeleteText(delRowEfb.id_) : efb_var.text.areYouSureYouWantDeleteItem;
+  const body = efb_build_confirm_body('danger', 'bi-trash', efb_var.text.delete, delMsgEfb, itemLabel);
   const is_step = document.getElementById(idset) ? document.getElementById(idset).classList.contains('stepNavEfb') : false;
   // The first step cannot be removed, so there is no question to ask.
   const step_el = is_step ? document.getElementById(idset) : null;
@@ -5357,6 +5396,10 @@ const obj_delete_row = (dataid, is_step) => {
       form_type_emsFormBuilder = "form";
      }
 
+    } else if (el_type == 'repeater' && typeof efbRptOnDelete === 'function') {
+      // F09: the group's fields and their options go with it (they are after it in the array).
+      efbRptOnDelete(valj_efb[foundIndex].id_);
+      foundIndex = valj_efb.findIndex(x => x.dataId == dataid);
     } else if (fun_el_select_in_efb(el_type) || fun_el_check_radio_in_efb(el_type)) {
       obj_delete_options(valj_efb[foundIndex].id_)
     } else if (valj_efb[foundIndex].type == 'email' && valj_efb[0].email_to == valj_efb[foundIndex].id_) {
@@ -5568,6 +5611,10 @@ fun_efb_add_el = (t, insertAfterEl) => {
         dropZoneEFB.innerHTML += el;
       }
       switch(t){
+        case 'repeater':
+          // F09: a new group starts with one text field inside it.
+          if (typeof efbRptAfterAdd === 'function') setTimeout(() => efbRptAfterAdd(rndm), 0);
+          break;
         case 'mobile':
           break;
         case 'persiaPay':
@@ -6408,6 +6455,11 @@ function  fun_confirm_dup_emsFormBuilder(id,type) {
   if(type=="form"){
     fun_dup_request_server_efb(parseInt(id),type);
 
+  }else if(type=="input" && typeof efbRptDuplicate === 'function' && valj_efb.some(x => x && x.id_ == id && x.type == 'repeater')){
+    // F09: a group is copied with its fields and their options (new ids, group remapped).
+    efbRptDuplicate(id);
+    sessionStorage.setItem('valj_efb' , JSON.stringify(valj_efb));
+    setTimeout(() => { editFormEfb() }, 200);
   }else if(type=="input"){
 
     document.getElementById('dupElEFb-'+id).innerHTML=svg_loading_efb('text-light')
@@ -7728,6 +7780,17 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       `;
       if (previewSate == true && valj_efb[iVJ].calc_show === 'hidden') hidden = 'd-none';
       break;
+    case 'repeater':
+      // F09: a container for the group's fields (repeater-builder-efb.js); the preview draws the rows (efbRptPreviewEls).
+      dataTag = elementId;
+      ui = `
+      ${label}
+      <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show efb-rpt-cv" data-id="${rndm}-el" id='${rndm}-f'>
+      ${ttip}
+      ${typeof efbRptCanvas === 'function' ? efbRptCanvas(valj_efb[iVJ], previewSate == true) : `<div class="efb efb-rpt-body" data-rpt-body="${rndm}" id="${rndm}_rptbody"></div>`}
+      <div class="efb  mb-3">${desc}</div>
+      `;
+      break;
     case 'ranking':
       // F05-G: an ordered list of the field's choices (choices-builder-efb.js draws it like the page does).
       dataTag = elementId;
@@ -8328,6 +8391,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     </button>
     ${addDeleteBtnState ? '' : `<button type="button" class="efb  btn btn-edit btn-sm" id="deleteElEFb"   data-id="${rndm}-id" data-bs-toggle="tooltip"  title="${efb_var.text.delete}" onclick="show_delete_window_efb('${rndm}-id' ,${iVJ})"> <i class="efb  bi-trash text-danger"></i></button>`}
     <span class="efb  btn btn-edit btn-sm "  id="moveElEFb" onclick="move_show_efb()"><i class="efb text-dark bi-arrows-move"></i></span>
+    ${typeof efbRptToolbar === 'function' ? efbRptToolbar(valj_efb[iVJ], rndm) : ''}
     `
     const proActiv = `
     <div class="efb btn-edit-holder efb d-none zindex-10-efb " id="btnSetting-${rndm}-id">

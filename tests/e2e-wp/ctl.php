@@ -269,6 +269,17 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( array( 'copied' => $ok, 'changed' => ! $same, 'path' => $dst ) );
 		break;
 
+	case 'f09-mu':
+		// Copy tests/e2e-wp/mu-plugins/efb-e2e-f09.php into the site's mu-plugins (F09 tests).
+		$dst = WPMU_PLUGIN_DIR . '/efb-e2e-f09.php';
+		if ( ! is_dir( WPMU_PLUGIN_DIR ) ) wp_mkdir_p( WPMU_PLUGIN_DIR );
+		$src = dirname( __FILE__ ) . '/mu-plugins/efb-e2e-f09.php';
+		$same = is_readable( $dst ) && md5_file( $dst ) === md5_file( $src );
+		$ok = $same || copy( $src, $dst );
+		if ( ! $same ) sleep( 3 );
+		efb_e2e_out( array( 'copied' => $ok, 'changed' => ! $same, 'path' => $dst ) );
+		break;
+
 	case 'f05-mu':
 		// Copy tests/e2e-wp/mu-plugins/efb-e2e-f05.php into the site's mu-plugins (F05 tests).
 		$dst = WPMU_PLUGIN_DIR . '/efb-e2e-f05.php';

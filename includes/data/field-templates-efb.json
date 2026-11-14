@@ -152,6 +152,9 @@
   "calc": {
    "pro": true
   },
+  "repeater": {
+   "pro": true
+  },
   "hiddenField": {
    "pro": false
   },
@@ -6176,6 +6179,48 @@
      "calc_show": "visible",
      "calc_empty": "zero",
      "num_decimals": "2"
+    }
+   ],
+   "form_patch": null
+  },
+  "repeater": {
+   "rows": [
+    {
+     "id_": "⟦id:0⟧",
+     "dataId": "⟦id:0⟧-id",
+     "type": "repeater",
+     "elementId": "repeater",
+     "placeholder": "",
+     "value": "",
+     "size": 100,
+     "message": "",
+     "id": "",
+     "classes": "",
+     "name": "⟦repeater⟧",
+     "required": 0,
+     "label_text_size": "fs-6",
+     "label_position": "up",
+     "el_text_size": "fs-6",
+     "label_text_color": "text-labelEfb",
+     "el_border_color": "border-d",
+     "el_text_color": "text-labelEfb",
+     "message_text_color": "text-muted",
+     "el_height": "h-d-efb",
+     "label_align": "txt-left",
+     "message_align": "justify-content-start",
+     "el_align": "justify-content-start",
+     "pro": true,
+     "icon_input": "",
+     "min_rows": "1",
+     "max_rows": "10",
+     "default_rows": "1",
+     "rows_from": "",
+     "row_label": "",
+     "collapsible": "0",
+     "collapse_prev": "1",
+     "rpt_layout": "blocks",
+     "btn_add_text": "",
+     "rmv_confirm": "1"
     }
    ],
    "form_patch": null

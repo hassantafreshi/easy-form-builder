@@ -2044,6 +2044,11 @@ require('./scenario-f05.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewFo
  * plans and old forms, a paid form whose amount is a calc: tests/e2e-wp/scenario-f04.js. */
 require('./scenario-f04.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle });
 
+/* F09 repeater group: builder, page (rows, add / remove, min / max, collapsible, rows_from), the answers on the
+ * server, display, drafts, conditions, calculations, files, fa_IR / ar at 375 px, a paid form whose price comes
+ * from rows: tests/e2e-wp/scenario-f09.js. */
+require('./scenario-f09.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */

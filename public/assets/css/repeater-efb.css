@@ -1,0 +1,43 @@
+/* Easy Form Builder - F09 repeater group (page, preview and builder canvas). Logical properties only, so the
+   same rules hold right to left. */
+
+/* ---------------------------------------------------------------- page */
+.efb.efb-rpt { border: 0; margin: 0; padding: 0; min-width: 0; }
+.efb.efb-rpt > legend.efb-rpt-legend { float: none; width: 100%; font-size: inherit; margin: 0; padding: 0; }
+.efb.efb-rpt-rows { display: flex; flex-direction: column; gap: .75rem; margin-block: .5rem; padding: 0; list-style: none; }
+.efb.efb-rpt-row { border: 1px solid rgba(0, 0, 0, .125); border-radius: .5rem; padding: .5rem .75rem .25rem; background: rgba(0, 0, 0, .015); }
+.efb.efb-rpt-row:focus-within { border-color: rgba(13, 110, 253, .45); }
+.efb.efb-rpt-head { display: flex; align-items: center; gap: .5rem; min-height: 44px; }
+.efb.efb-rpt-title { font-weight: 600; flex: 0 1 auto; min-width: 0; overflow-wrap: anywhere; unicode-bidi: plaintext; text-align: start; }
+.efb.efb-rpt-summary { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: .75; unicode-bidi: plaintext; text-align: start; }
+.efb.efb-rpt-tools { display: flex; gap: .25rem; margin-inline-start: auto; flex: 0 0 auto; }
+.efb.efb-rpt-tools .efb.btn, .efb.efb-rpt-add, .efb.efb-rpt-confirm .efb.btn { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: .35rem; }
+.efb.efb-rpt-toggle .bi-chevron-down { transition: transform .15s ease; }
+.efb.efb-rpt-row.efb-rpt-collapsed .efb-rpt-toggle .bi-chevron-down { transform: rotate(-90deg); }
+[dir="rtl"] .efb.efb-rpt-row.efb-rpt-collapsed .efb-rpt-toggle .bi-chevron-down, .rtl .efb.efb-rpt-row.efb-rpt-collapsed .efb-rpt-toggle .bi-chevron-down { transform: rotate(90deg); }
+.efb.efb-rpt-row.efb-rpt-collapsed > .efb-rpt-body { display: none !important; }
+.efb.efb-rpt-row:not(.efb-rpt-collapsed) .efb-rpt-summary { display: none; }
+.efb.efb-rpt-body { margin: 0; }
+.efb.efb-rpt-confirm { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .5rem; margin-block: .25rem; border-radius: .375rem; background: rgba(220, 53, 69, .08); unicode-bidi: plaintext; }
+.efb.efb-rpt-confirm[hidden] { display: none !important; }
+.efb.efb-rpt-foot { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.efb.efb-rpt-max { font-size: .85em; opacity: .8; unicode-bidi: plaintext; }
+.efb.efb-rpt-add[disabled], .efb.efb-rpt-remove[disabled] { opacity: .5; cursor: not-allowed; }
+.efb.efb-rpt-from .efb-rpt-add, .efb.efb-rpt-from .efb-rpt-remove { display: none !important; }
+.efb.efb-rpt-row.efb-rpt-err { border-color: #dc3545; }
+/* Fields side by side on wide screens; one under the other below 576 px. */
+@media (min-width: 576px) {
+  .efb.efb-rpt[data-layout="inline"] .efb-rpt-row > .efb-rpt-body { display: flex; flex-wrap: nowrap; gap: .5rem; }
+  .efb.efb-rpt[data-layout="inline"] .efb-rpt-row > .efb-rpt-body > .efbField { flex: 1 1 0; width: auto; max-width: none; }
+}
+.efb.efb-rpt .visually-hidden { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
+@media print { .efb.efb-rpt-row { break-inside: avoid; } }
+
+/* ---------------------------------------------------------------- builder canvas */
+.efb.efb-rpt-body[data-rpt-body] { min-height: 3rem; border: 2px dashed rgba(0, 0, 0, .15); border-radius: .5rem; padding: .25rem; margin-block: .25rem; }
+.efb.efb-rpt-drop-hint { pointer-events: none; }
+.efb.efb-rpt-in, .efb.efb-rpt-out { display: none; }
+#dropZoneEFB > section .efb-rpt-in { display: inline-block; }
+[data-rpt-body] .efb-rpt-out { display: inline-block; }
+[data-rpt-body] .efb-rpt-in { display: none !important; }
+.efb.efb-rpt-add-cv[disabled] { opacity: .7; }
