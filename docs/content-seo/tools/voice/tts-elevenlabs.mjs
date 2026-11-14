@@ -29,6 +29,14 @@ fs.mkdirSync(a['out-dir'], { recursive: true });
 
 if (a.force || !fs.existsSync(mp3)) {
   if (!process.env.ELEVENLABS_API_KEY) { console.error('no cached audio for this script and ELEVENLABS_API_KEY is not set'); process.exit(3); }
+  // credit guard: ~1 credit per character (measured with eleven_v4). The ledger is a text file in the repo so fresh
+  // containers know what was spent this month. Refuse rather than overspend.
+  const ledger = path.join(path.dirname(new URL(import.meta.url).pathname), 'usage-ledger.csv');
+  const month = new Date().toISOString().slice(0, 7);
+  const rows = fs.existsSync(ledger) ? fs.readFileSync(ledger, 'utf8').trim().split('\n').slice(1) : [];
+  const spent = rows.filter((r) => r.startsWith(month)).reduce((n, r) => n + Number(r.split(',')[2] || 0), 0);
+  const cap = Number(process.env.ELEVENLABS_MONTHLY_CREDIT_CAP || 28000);
+  if (spent + text.length > cap) { console.error(`[tts] credit guard: ${spent} spent this month + ${text.length} > cap ${cap}; not generating`); process.exit(5); }
   const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${a.voice}/with-timestamps?output_format=mp3_44100_128`, {
     method: 'POST', headers: { 'xi-api-key': process.env.ELEVENLABS_API_KEY, 'content-type': 'application/json' },
     body: JSON.stringify({ text, model_id: a.model }), signal: AbortSignal.timeout(120000),
@@ -37,6 +45,8 @@ if (a.force || !fs.existsSync(mp3)) {
   const j = await res.json();
   fs.writeFileSync(mp3, Buffer.from(j.audio_base64, 'base64'));
   fs.writeFileSync(meta, JSON.stringify(j.alignment));
+  if (!fs.existsSync(ledger)) fs.writeFileSync(ledger, 'date,cache_key,characters,voice,model\n');
+  fs.appendFileSync(ledger, `${new Date().toISOString().slice(0, 10)},${key},${text.length},${a.voice},${a.model}\n`);
 }
 const al = JSON.parse(fs.readFileSync(meta, 'utf8'));
 // map each sentence to its character range in `text`, then to start/end seconds
