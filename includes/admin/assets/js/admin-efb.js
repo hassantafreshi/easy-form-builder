@@ -7783,6 +7783,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     case 'repeater':
       // F09: a container for the group's fields (repeater-builder-efb.js); the preview draws the rows (efbRptPreviewEls).
       dataTag = elementId;
+      if (previewSate == true && typeof efbRptPreviewEls === 'function') { ui = efbRptPreviewEls(valj_efb[iVJ], desc, ttip); break; }
       ui = `
       ${label}
       <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show efb-rpt-cv" data-id="${rndm}-el" id='${rndm}-f'>
@@ -8412,7 +8413,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     ${previewSate != true && pro_efb == false && pro_el==true ? proActiv : ''}
     ${previewSate != true ? contorl : '<!--efb.app-->'}
     ${previewSate != true && pro_efb == false && pro_el==true  ? '</div>' : ''}
-    ${(previewSate == true && elementId != 'option' && elementId != "html" && elementId != "stripe" && elementId != "heading" && elementId != "link") || previewSate != true ? endTags : '</div>'}
+    ${(previewSate == true && elementId != 'option' && elementId != "html" && elementId != "stripe" && elementId != "heading" && elementId != "link" && !(elementId == 'repeater' && typeof efbRptPreviewEls === 'function')) || previewSate != true ? endTags : '</div>'}
     ${previewSate == false  ? ` </section><!--endTag EFB-->` :''}
      <!--endTag EFB-->
     `;
@@ -8625,6 +8626,18 @@ const sub =lan_subdomain_wsteam_efb();
   window.open(link, "_blank")
 }
 
+/* F09: the phone preview is a page of its own (an iframe): when the form has a repeater group, it gets the rows'
+ * runtime (repeater-efb.js, from this page's own copy) and runs it on a copy of the form, so Add / Remove work. */
+function efbRptMobilePreviewScriptsEfb() {
+  if (!Array.isArray(valj_efb) || !valj_efb.some((r) => r && r.type == 'repeater')) return '';
+  const js = Array.from(document.querySelectorAll('script[src]')).map((x) => x.src).find((u) => /\/repeater-efb\.js(\?|$)/.test(u));
+  const css = Array.from(document.querySelectorAll('link[rel="stylesheet"][href]')).map((x) => x.href).find((u) => /\/repeater-efb\.css(\?|$)/.test(u));
+  if (!js || !/^https?:\/\//.test(js)) return '';
+  const fid = typeof efb_builder_preview_form_id_efb === 'function' ? efb_builder_preview_form_id_efb() : 0;
+  const rows = JSON.stringify(valj_efb).replace(/</g, '\\u003c');
+  return `${css && /^https?:\/\//.test(css) ? `<link rel="stylesheet" href="${css.replace(/"/g, '%22')}">` : ''}<script src="${js.replace(/"/g, '%22')}"></script>`
+    + `<script>try{EFBRepeater.isolate(${Number(fid)},${rows});EFBRepeater.init();EFBRepeater.ready();}catch(e){}</script>`;
+}
 function ReadyElForViewEfb(content) {
   setTimeout(() => {
     const t = valj_efb[0].steps == 1 ? 0 : 1;
@@ -8640,11 +8653,13 @@ function ReadyElForViewEfb(content) {
     ${btns}
     handle_navbtn_efb(${valj_efb[0].steps},'mobile')
     </script>
+    ${efbRptMobilePreviewScriptsEfb()}
     </body>
     `
     let iframe = document.createElement('iframe');
     iframe.id = `efbMobileView`;
-    iframe.src = 'data:text/html;charset=utf-8,' + encodeURI(html);
+    // encodeURIComponent: a "#" in the form (a colour, an anchor) no longer ends the page as a URL fragment.
+    iframe.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
     document.getElementById('parentMobileView-efb').innerHTML = "";
     document.getElementById('parentMobileView-efb').appendChild(iframe)
   }, 1000)
@@ -9799,7 +9814,10 @@ function previewFormEfb(state) {
   }
   try {
     let count =0;
+    // F09: a repeater group's fields are drawn inside its rows (efbRptPreviewEls), not on their own.
+    const rptKidsEfb = typeof EFBRepeaterCore !== 'undefined' ? EFBRepeaterCore.childGroups(valj_efb) : {};
     valj_efb.forEach((value, index) => {
+      if (rptKidsEfb[value.id_] !== undefined || (value.type == 'option' && rptKidsEfb[value.parent] !== undefined)) return;
       let t = value.type.toLowerCase();
       if (valj_efb[index].type != "html" && valj_efb[index].type != "link" && valj_efb[index].type != "heading" && valj_efb[index].type != "persiaPay") Object.entries(valj_efb[index]).forEach(([key, val]) => { fun_addStyle_costumize_efb(val.toString(), key, index) });
       if (step_no < value.step && value.type == "step") {
@@ -10137,6 +10155,8 @@ function previewFormEfb(state) {
       handle_navbtn_efb(valj_efb[0].steps, 'pc');
     }
     efb_builder_init_logic_preview_efb();
+    // F09: the preview's repeater rows (Add / Remove, limits) on a copy of the form.
+    if (typeof efbRptPreviewInit === 'function') { try { efbRptPreviewInit(document); } catch (e) {} }
   }
   if (state == 'run') {
     sitekye_emsFormBuilder.length > 1 ? loadCaptcha_efb() : '';

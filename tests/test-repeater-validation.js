@@ -49,7 +49,7 @@ const html = JSON.parse(execFileSync('php', [path.join(__dirname, 'repeater-rend
   await page.route('**/*', (r) => r.fulfill({ status: 200, contentType: 'text/html', body }));
   await page.goto('http://site.test/form/');
   await page.addScriptTag({ content: `var efb_var = { text: { enterTheValueThisField: 'Required', fillrequiredfields: 'Fill', rptMinRowsMsg: '%1$s needs at least %2$s rows.', rptMaxRowsMsg: '%1$s allows at most %2$s rows.', rowN: 'Row %s' }, rtl: 0, id: 7, wp_lan: 'en_US', language: 'en_US' };
-    var ajax_object_efm = { text: efb_var.text, form_setting: {}, ajax_value_forms: [], wp_lan: 'en_US' };` });
+    var ajax_object_efm = { text: efb_var.text, form_setting: {}, ajax_value_forms: [], wp_lan: 'en_US', language: 'en_US' };` });
   for (const js of ['includes/admin/assets/js/jquery.min-efb.js', 'includes/admin/assets/js/new-efb.js', 'public/assets/js/repeater-efb.js', 'public/assets/js/core-efb.js']) await page.addScriptTag({ path: path.join(ROOT, js) });
   await page.evaluate((rows) => {
     valj_efb_new = [{ id: 7, form_structer: [{ type: 'form', steps: 1, captcha: 0, logic: false }, { id_: '1', type: 'step', step: '1' }].concat(rows) }];

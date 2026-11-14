@@ -2208,6 +2208,8 @@ async function efb_restore_offline_answers_efb() {
 async function efb_apply_saved_rows_efb(fid, rows) {
   fid = Number(fid);
   const skipped = [];
+  // F09: repeater rows first get their rows, then each saved answer names the copy of its row.
+  if (window.EFBRepeater && typeof window.EFBRepeater.restore === 'function') { try { rows = window.EFBRepeater.restore(fid, rows); } catch (e) {} }
   for (const row of (Array.isArray(rows) ? rows : [])) {
       if (!row || typeof row !== 'object' || Number(row.form_id) !== fid || !row.id_ob) continue;
       // F05: an "Other" text and a ranking go back through their own controls.
@@ -5516,10 +5518,12 @@ const efb_f11_on_efb = (v) => ['1', 'true', 1, true].includes(v);
 function efb_draft_rows_efb(fid) {
   if (typeof sendBack_emsFormBuilder_pub === 'undefined' || !Array.isArray(sendBack_emsFormBuilder_pub)) return [];
   const gw = (typeof efb_var !== 'undefined' && efb_var && efb_var.pay && Array.isArray(efb_var.pay.gateways)) ? efb_var.pay.gateways : [];
-  return sendBack_emsFormBuilder_pub.filter((r) => r && typeof r === 'object' && Number(r.form_id) === Number(fid)
+  const rows = sendBack_emsFormBuilder_pub.filter((r) => r && typeof r === 'object' && Number(r.form_id) === Number(fid)
     && !EFB_DRAFT_NOT_SAVED.includes(String(r.type || '')) && !gw.includes(String(r.type || ''))
-    && !(r.id_ob && document.getElementById(r.id_ob) && document.getElementById(r.id_ob).closest('[data-efb-logic-hidden="1"], .efb-logic-hidden')))
-    .map((r) => { const o = {}; ['id_', 'id_ob', 'name', 'type', 'value', 'amount', 'form_id', 'qty', 'ids'].forEach((k) => { if (r[k] !== undefined) o[k] = r[k]; }); return o; });
+    && !(r.id_ob && document.getElementById(r.id_ob) && document.getElementById(r.id_ob).closest('[data-efb-logic-hidden="1"], .efb-logic-hidden')));
+  // F09: saved as sent (each child's own id with rg / ri), so the server's draft keeps them.
+  return (typeof efb_repeater_wire_rows_efb === 'function' ? efb_repeater_wire_rows_efb(rows, fid) : rows)
+    .map((r) => { const o = {}; ['id_', 'id_ob', 'name', 'type', 'value', 'amount', 'form_id', 'qty', 'ids', 'rg', 'ri'].forEach((k) => { if (r[k] !== undefined) o[k] = r[k]; }); return o; });
 }
 function efb_f11_step_efb(fid) {
   const b = document.getElementById('body_efb_' + fid);

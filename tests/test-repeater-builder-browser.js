@@ -206,6 +206,61 @@ const STEP = { id_: '1', type: 'step', dataId: '1', classes: '', id: '1', name: 
   check('the toolbar of a top-level text field has "Move into group"', await page.evaluate(() => !!document.querySelector('section[id="t1"] .efb-rpt-in')));
   check('no group toolbar button on the group itself', await page.evaluate((g) => !document.querySelector(`section[id="${g}"] > div > .btn-edit-holder .efb-rpt-in`), fresh.g));
 
+  /* ---- the admin preview (spec §7.2, subtask M): the rows as on the page, Add / Remove, the form untouched ---- */
+  const PF = [FORM0, STEP, grp('pg', { amount: 2, default_rows: '2', max_rows: '3', row_label: 'Guest {n}', rmv_confirm: '0' }), fld('pn', { group: 'pg', amount: 3, name: 'Name' }),
+    fld('pc', { type: 'checkbox', elementId: 'checkbox', group: 'pg', amount: 4, name: 'Extras' }), opt('pc1', 'pc', 'Bag'), opt('pc2', 'pc', 'Seat'), fld('after', { amount: 7, name: 'After' })];
+  await draw(PF);
+  await page.evaluate(() => {
+    if (!document.getElementById('settingModalEfb')) document.body.insertAdjacentHTML('beforeend', '<div id="settingModalEfb"><div id="settingModalEfb_"><i id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span><div id="settingModalEfb-body"></div></div></div>');
+    window.state_modal_show_efb = () => {};
+    window.efb_builder_init_logic_preview_efb = () => {};
+    window.handle_navbtn_efb = () => {};
+  });
+  const before = await state();
+  await page.evaluate(() => previewFormEfb('pc'));
+  await page.waitForTimeout(400);
+  const pv = await page.evaluate(() => {
+    const fs = document.querySelector('#settingModalEfb-body fieldset[data-rpt="pg"]');
+    const rows = fs ? Array.from(fs.querySelectorAll('[id="pg_rows"] > .efb-rpt-row')) : [];
+    return { fs: !!fs, rows: rows.map((r) => [r.getAttribute('data-rpt-n'), r.querySelector('.efb-rpt-title').textContent]), ids: rows.map((r) => Array.from(r.querySelectorAll('[id]')).map((e) => e.id).filter((i) => /^(pn|pc)/.test(i))),
+      loose: Array.from(document.querySelectorAll('#settingModalEfb-body [id="pn_"], #settingModalEfb-body [id="pc1"]')).length, tpl: !!document.querySelector('#settingModalEfb-body script.efb-rpt-tpl[id="pg_tpl"]'),
+      after: !!document.querySelector('#settingModalEfb-body [id="after_"]'), ri: document.querySelectorAll('#settingModalEfb-body [id*="__RI__"]').length, state: !!EFBRepeater.state(efb_builder_preview_form_id_efb(), 'pg') };
+  });
+  check('preview: the group is drawn as on the page (fieldset, 2 starting rows "Guest 1", "Guest 2", the template), its fields only inside the rows', pv.fs && JSON.stringify(pv.rows) === JSON.stringify([['0', 'Guest 1'], ['1', 'Guest 2']]) && pv.tpl && pv.loose === 0 && pv.ri === 0 && pv.after, pv);
+  check('preview: each row holds its own copies (pn_r0_, pc1_r0 … pn_r1_)', pv.ids[0].includes('pn_r0_') && pv.ids[0].includes('pc1_r0') && pv.ids[1].includes('pn_r1_') && pv.ids[1].includes('pc2_r1'), pv.ids);
+  check('preview: the rows run (EFBRepeater knows the group)', pv.state === true);
+  await page.click('#settingModalEfb-body [id="pg_add"]');
+  await page.waitForTimeout(200);
+  const pv2 = await page.evaluate(() => ({ n: document.querySelectorAll('#settingModalEfb-body [id="pg_rows"] > .efb-rpt-row').length, add: document.querySelector('#settingModalEfb-body [id="pg_add"]').disabled, t: document.querySelectorAll('#settingModalEfb-body .efb-rpt-title')[2].textContent }));
+  check('preview: Add → row 3 "Guest 3"; at the maximum (3) Add is disabled', pv2.n === 3 && pv2.add === true && pv2.t === 'Guest 3', pv2);
+  await page.click('#settingModalEfb-body [id="pg_rows"] > .efb-rpt-row:nth-child(2) .efb-rpt-remove');
+  await page.waitForTimeout(200);
+  const pv3 = await page.evaluate(() => ({ n: document.querySelectorAll('#settingModalEfb-body [id="pg_rows"] > .efb-rpt-row').length, titles: Array.from(document.querySelectorAll('#settingModalEfb-body .efb-rpt-row .efb-rpt-title')).map((x) => x.textContent) }));
+  check('preview: Remove → 2 rows renumbered', pv3.n === 2 && pv3.titles.join('|') === 'Guest 1|Guest 2', pv3);
+  const afterPv = await state();
+  check('preview: the form being built is untouched (no row copies in valj_efb)', JSON.stringify(afterPv) === JSON.stringify(before), afterPv.filter((r) => r.rpt_base !== undefined).map((r) => r.id_));
+  // Parity with the PHP renderer: the same ids, row titles and group attributes.
+  const php = JSON.parse(require('child_process').execFileSync('php', [path.join(__dirname, 'repeater-render-lib.php')], { input: JSON.stringify({ forms: [{ id: 0, rows: PF.slice(2).map((r) => Object.assign({}, r, { step: '1', amount: String(r.amount) })) }], plan: 'pro', texts: { rowN: 'T:rowN', addRow: 'T:addRow', removeRow: 'T:removeRow', removeRowConfirm: 'T:removeRowConfirm', rptRemoveBtn: 'T:rptRemoveBtn', rptKeepBtn: 'T:rptKeepBtn', rptMaxReached: 'T:rptMaxReached', collapseRow: 'T:collapseRow', nothingSelected: 'Nothing selected' } }) }).toString('utf8'))['0'];
+  await draw(PF);
+  await page.evaluate(() => previewFormEfb('pc'));
+  await page.waitForTimeout(300);
+  const sig = (root) => {
+    const fs = root.querySelector('fieldset[data-rpt]');
+    const attrs = ['data-rpt', 'data-min', 'data-max', 'data-default', 'data-from', 'data-layout', 'data-collapsible', 'data-collapse-prev', 'data-confirm', 'data-label'].map((a) => a + '=' + fs.getAttribute(a));
+    const ids = Array.from(fs.querySelectorAll('[id]')).map((e) => e.id).filter((i) => /^pg|^pn|^pc/.test(i));
+    const tpl = fs.querySelector('script.efb-rpt-tpl').textContent.replace(/<\\\//g, '</');
+    const tdiv = document.createElement('div'); tdiv.innerHTML = tpl;
+    return { attrs, ids, titles: Array.from(fs.querySelectorAll('.efb-rpt-title')).map((t) => t.textContent), tplIds: Array.from(tdiv.querySelectorAll('[id]')).map((e) => e.id).filter((i) => /^pg|^pn|^pc/.test(i)) };
+  };
+  const both = await page.evaluate(([phpHtml, sigSrc]) => {
+    const f = new Function('return ' + sigSrc)();
+    const d = document.createElement('div'); d.innerHTML = phpHtml;
+    return { js: f(document.getElementById('settingModalEfb-body')), php: f(d) };
+  }, [php, sig.toString()]);
+  check('preview ↔ PHP renderer: same group attributes', both.php.attrs.length === 10 && JSON.stringify(both.js.attrs) === JSON.stringify(both.php.attrs), both);
+  check('preview ↔ PHP renderer: same ids in the rows and the template (rows, copies, options, buttons, live region)', both.js.ids.length > 15 && both.js.tplIds.length > 5 && JSON.stringify(both.js.ids) === JSON.stringify(both.php.ids) && JSON.stringify(both.js.tplIds) === JSON.stringify(both.php.tplIds), { js: both.js.ids, php: both.php.ids });
+  check('preview ↔ PHP renderer: same row titles', JSON.stringify(both.js.titles) === JSON.stringify(both.php.titles), [both.js.titles, both.php.titles]);
+
   const late = errors.filter((e) => !/ResizeObserver/.test(e));
   check('no page errors', late.length === 0, late.slice(0, 3));
   await browser.close();

@@ -27,6 +27,9 @@
  *  f09l  Display: a guest sends two rows; the response viewer shows the group as one block ("Travellers: 2 rows",
  *        "Row 1", "Row 2", each with its own answers, nothing repeated as loose answers, mixed script isolated);
  *        the form CSV has the stable columns "{group} (count)" / "{group} › {field} #k"; fa_IR at 375 px.
+ *  f09m  Saved answers and the preview: an F11 draft of rows (a middle row removed before saving) is saved as sent
+ *        (rg / ri), kept by the server, and restored by the link in another browser (same rows, in order), then
+ *        sent; the builder's PC and phone previews run the rows (Add / Remove) without touching the form.
  */
 'use strict';
 
@@ -487,5 +490,86 @@ module.exports = function (S) {
       const clip = await fa.evaluate(() => { const p = document.querySelector('.efb-msg-rpt').getBoundingClientRect(); const t = document.querySelector('.efb-msg-rpt-title').getBoundingClientRect(); return { p: [p.left, p.right], rows: Array.from(document.querySelectorAll('.efb-msg-rpt-row')).map((r) => { const b = r.getBoundingClientRect(); return [b.left, b.right]; }), title: [t.left, t.right] }; });
       R.check('f09l: fa_IR at 375 px: each row card fits inside the block (not cut at either side); its title starts at the right', clip.rows.every((b) => b[0] >= clip.p[0] - 1 && b[1] <= clip.p[1] + 1) && clip.title[1] >= clip.rows[0][1] - 20, clip);
     } finally { ctl('locale', ''); }
+  });
+
+  /* ------------------------------------------------------------------ f09m */
+  scenario('f09m', 'F09 saved answers and the builder preview: an F11 draft with rows (a middle row removed) restored in another browser; PC and phone preview with Add / Remove', async ({ context, adminPage }) => {
+    pro(true);
+    ctl('locale', '');
+    ctl('f11-mu');
+    ctl('set-option', 'efb_e2e_f11_plan', '1');
+    try {
+      const F = travellers({ g: { collapsible: '0', rmv_confirm: '0', max_rows: '4' } }, 'draft_on=1');
+      const ids = F.ids;
+      const g = await open(context, pageOf(F.form_id), 'f09m');
+      await g.fill(`[id="${ids.nm}_r0_"]`, 'Sara');
+      await g.press(`[id="${ids.nm}_r0_"]`, 'Tab');
+      await g.selectOption(`[id="${ids.meal}_r0_options"]`, { label: 'Halal' }).catch(async () => { await g.evaluate((id) => { const s = document.querySelector(`[id="${id}_r0_options"]`); s.value = Array.from(s.options).find((o) => o.textContent.trim() === 'Halal').value; s.dispatchEvent(new Event('change', { bubbles: true })); }, ids.meal); });
+      await g.click(`[id="${ids.g}_add"]`); await sleep(400);
+      await g.fill(`[id="${ids.nm}_r1_"]`, 'Gone'); await g.press(`[id="${ids.nm}_r1_"]`, 'Tab');
+      await g.click(`[id="${ids.g}_add"]`); await sleep(400);
+      await g.fill(`[id="${ids.nm}_r2_"]`, 'Omid'); await g.press(`[id="${ids.nm}_r2_"]`, 'Tab');
+      await g.check(`[id="${ids.e2}_r2"]`);
+      // Row 2 removed before saving: the saved rows are 0 and 2.
+      await g.click(`[id="${ids.g}_row1"] .efb-rpt-remove`); await sleep(400);
+      await g.fill(`[id="${ids.after}_"]`, 'later@example.test'); await g.press(`[id="${ids.after}_"]`, 'Tab');
+      await sleep(300);
+      const save = g.waitForResponse((x) => /forms\/draft\/save/.test(x.url()), { timeout: 20000 }).catch(() => null);
+      await g.click('#efb-draft-save-' + F.form_id);
+      const sv = await save;
+      let sent = null;
+      try { sent = JSON.parse(sv.request().postData() || '{}').rows; } catch (e) { sent = null; }
+      R.check('f09m: the draft is saved as sent (each child\'s own id with rg / ri 0 / 1; no copy id)', Array.isArray(sent) && !/_r\d/.test(JSON.stringify(sent.map((r) => [r.id_, r.id_ob]))) && sent.filter((r) => r.id_ === ids.nm).map((r) => r.value + '@' + r.ri).join(',') === 'Sara@0,Omid@1', sent);
+      await g.waitForSelector('#efb-draft-dlg-' + F.form_id + '[open]', { timeout: 10000 });
+      const link = await g.evaluate((fid) => document.getElementById('efb-draft-dlg-' + fid + '-url').value, F.form_id);
+      const db = ctl('f11-drafts', String(F.form_id));
+      R.check('f09m: the stored draft keeps rg / ri', db.length === 1 && /"rg":"/.test(db[0].content.replace(/\\/g, '')) && /"ri":"1"/.test(db[0].content.replace(/\\/g, '')), db.map((r) => r.content.slice(0, 400)));
+      // Another browser opens the link.
+      const h = await (await context({}, 'f09m-resume')).newPage();
+      await h.goto(link, { waitUntil: 'load' });
+      await h.waitForSelector('#efb-draft-banner-' + F.form_id, { timeout: 20000 });
+      await sleep(900);
+      const st = await h.evaluate((a) => {
+        const rows = EFBRepeater.rowsOf(a.fid, a.g);
+        return { rows: rows.map((r) => { const sel = document.querySelector(`[id="${a.meal}_r${r.n}_options"]`); return { name: document.querySelector(`[id="${a.nm}_r${r.n}_"]`).value, meal: sel && sel.selectedIndex > -1 ? sel.options[sel.selectedIndex].textContent.trim() : '', seat: !!(document.getElementById(`${a.e2}_r${r.n}`) || {}).checked }; }),
+          mail: document.querySelector(`[id="${a.after}_"]`).value, count: (sendBack_emsFormBuilder_pub.find((r) => r.id_ === a.g) || {}).value, banner: document.getElementById('efb-draft-banner-' + a.fid).textContent };
+      }, { fid: F.form_id, g: ids.g, nm: ids.nm, meal: ids.meal, e2: ids.e2, after: ids.after });
+      R.check('f09m: the link restores two rows in order: Sara (Halal), Omid (Seat); the e-mail; the group says 2', st.rows.length === 2 && st.rows[0].name === 'Sara' && st.rows[0].meal === 'Halal' && st.rows[1].name === 'Omid' && st.rows[1].seat === true && st.mail === 'later@example.test' && String(st.count) === '2', st);
+      await h.screenshot({ path: SHOT('f09m-draft-restored-en'), fullPage: true });
+      const out = await send(h);
+      const c = ((lastEntry(F.form_id) || {}).content) || [];
+      R.check('f09m: sent from the restored page: stored with ri 0 / 1', out.res && out.res.success === true && c.filter((r) => r.id_ === ids.nm).map((r) => r.value + '@' + r.ri).join(',') === 'Sara@0,Omid@1', { res: out.res, c });
+
+      // The builder's preview (PC, then phone).
+      const admin = await adminPage();
+      await reopen(admin, F.form_id);
+      await admin.evaluate(() => previewFormEfb('pc'));
+      await admin.waitForSelector('#settingModalEfb-body fieldset[data-rpt]', { timeout: 15000 });
+      await sleep(600);
+      const loose = await admin.evaluate((a) => ({ n: document.querySelectorAll(`#settingModalEfb-body [id="${a.e1}"], #settingModalEfb-body [id="${a.nm}_"], #settingModalEfb-body [id*="__RI__"]`).length }), { e1: ids.e1, nm: ids.nm });
+      R.check('f09m: PC preview: the group\'s fields only inside its rows (none drawn on their own, no template row outside its script block)', loose.n === 0, loose);
+      const rowsIn = () => admin.evaluate(() => document.querySelectorAll('#settingModalEfb-body fieldset[data-rpt] .efb-rpt-rows > .efb-rpt-row').length);
+      const n0 = await rowsIn();
+      await admin.click(`#settingModalEfb-body [id="${ids.g}_add"]`); await sleep(300);
+      const n1 = await rowsIn();
+      await admin.click(`#settingModalEfb-body [id="${ids.g}_rows"] > .efb-rpt-row:last-child .efb-rpt-remove`); await sleep(300);
+      const n2 = await rowsIn();
+      const clean = await admin.evaluate(() => !valj_efb.some((r) => r && r.rpt_base !== undefined));
+      R.check('f09m: PC preview: the group\'s rows (1), Add → 2, Remove → 1; the form being built gets no row copy', n0 === 1 && n1 === 2 && n2 === 1 && clean, { n0, n1, n2, clean });
+      await admin.click(`#settingModalEfb-body [id="${ids.g}_add"]`); await sleep(300);
+      await admin.screenshot({ path: SHOT('f09m-preview-pc') });
+      await admin.evaluate(() => previewFormEfb('mobile'));
+      const fr = await admin.waitForSelector('#efbMobileView', { timeout: 15000 }).then((x) => x.contentFrame()).catch(() => null);
+      let mob = null;
+      if (fr) {
+        await fr.waitForFunction(() => window.EFBRepeater && document.querySelector('fieldset[data-rpt] .efb-rpt-row'), null, { timeout: 15000 }).catch(() => {});
+        const before = await fr.evaluate(() => document.querySelectorAll('fieldset[data-rpt] .efb-rpt-rows > .efb-rpt-row').length).catch(() => -1);
+        await fr.click(`[id="${ids.g}_add"]`).catch(() => {});
+        await sleep(300);
+        mob = { before, after: await fr.evaluate(() => document.querySelectorAll('fieldset[data-rpt] .efb-rpt-rows > .efb-rpt-row').length).catch(() => -1) };
+      }
+      R.check('f09m: phone preview: the rows run there too (Add → one more row)', mob && mob.before === 1 && mob.after === 2, mob);
+      await admin.screenshot({ path: SHOT('f09m-preview-mobile') });
+    } finally { ctl('set-option', 'efb_e2e_f11_plan', 'del'); }
   });
 };

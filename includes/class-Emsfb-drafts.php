@@ -180,8 +180,11 @@ class Drafts {
 		if (!is_array($rows)) return array();
 		$types = array();
 		$hidden_client = array();
+		$member = array();
 		foreach ($form as $i => $f) {
 			if ($i > 0 && is_array($f) && isset($f['id_'], $f['type'])) $types[(string) $f['id_']] = (string) $f['type'];
+			// F09: a child of a repeater group (its answers come with rg = the group and ri = the row).
+			if ($i > 0 && is_array($f) && isset($f['id_'], $f['group']) && is_scalar($f['group']) && (string) $f['group'] !== '') $member[(string) $f['id_']] = (string) $f['group'];
 			// F08: a hidden value is kept only when the visitor is its source (a campaign parameter, the referrer);
 			// one the server decides (user, IP, date, a fixed text …) is rebuilt on submit and never stored here.
 			if ($i > 0 && is_array($f) && ($f['type'] ?? '') === 'hiddenField' && isset($f['id_']) && class_exists('\\Emsfb\\Smart_Tags')
@@ -199,6 +202,15 @@ class Drafts {
 			if ($type === 'hiddenField' && !isset($hidden_client[$id])) continue;
 			$r['type'] = $type;
 			$r['form_id'] = isset($r['form_id']) ? (int) $r['form_id'] : 0;
+			$rpt = null;
+			if (isset($r['rg'], $r['ri']) && is_scalar($r['rg']) && is_scalar($r['ri'])) {
+				$rg = (string) $r['rg'];
+				// Only a real child of that group, in a row the group may have.
+				if (!isset($member[$id]) || $member[$id] !== $rg || ($types[$rg] ?? '') !== 'repeater' || !preg_match('/^\d{1,4}$/D', (string) $r['ri'])) continue;
+				$rpt = array('rg' => $rg, 'ri' => (string) (int) $r['ri']);
+			} elseif (isset($member[$id]) && ($types[$member[$id]] ?? '') === 'repeater') {
+				continue; // a child of a group always names its row
+			}
 			if ($pub && method_exists($pub, 'draft_clean_row_efb')) {
 				$c = $pub->draft_clean_row_efb($r, $type);
 				if (!is_array($c)) continue;
@@ -213,6 +225,7 @@ class Drafts {
 				elseif (is_scalar($v)) $r[$k] = sanitize_text_field((string) $v);
 				else unset($r[$k]);
 			}
+			if ($rpt) $r = array_merge($r, $rpt);
 			$out[] = $r;
 		}
 		return $out;

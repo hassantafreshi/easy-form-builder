@@ -57,6 +57,89 @@
       <button type="button" class="efb btn btn-sm btn-outline-pink efb-rpt-add-cv mt-1" id="${id}_rptaddcv" tabindex="-1" disabled><i class="efb bi-plus-lg"></i> <span id="${id}_rptaddtxt">${esc(add)}</span></button>`;
   }
 
+  /* ------------------------------------------------------------------ preview */
+
+  /**
+   * The group in the builder's preview (spec §7.2): the same markup as the PHP renderer
+   * (Formbuilder::generate_repeater_efb(), tests/test-repeater-preview-parity.js compares them): the starting rows,
+   * each child drawn by addNewElement() on a copy {child}_r{n} that is put into the form only while it is drawn,
+   * the row template (inert script block) and the Add button; window.EFBRepeater runs it (efbRptPreviewInit).
+   */
+  function efbRptPreviewEls(r, desc, ttip) {
+    if (!r || !C() || typeof addNewElement !== 'function') return '';
+    const gid = String(r.id_), g = esc(gid);
+    const L = list();
+    const repeat = repeatOk();
+    const l = C().limits(r, repeat, { rows: capOf('rows', 50) });
+    const from = repeat && r.rows_from ? String(r.rows_from) : '';
+    const collapsible = repeat && String(r.collapsible) === '1';
+    const layout = repeat && r.rpt_layout === 'inline' ? 'inline' : 'blocks';
+    const tpl = r.row_label != null ? String(r.row_label) : '';
+    const addText = r.btn_add_text ? String(r.btn_add_text) : T('addRow', 'Add another');
+    const disabled = r.disabled == 1 || r.disabled === true;
+    const loc = (root.efb_var && (root.efb_var.wp_lan || root.efb_var.language)) || 'en_US';
+    const dg = (x) => C().digits(String(x), loc);
+    const row = (n) => {
+      const num = n === '__RI__' ? '__NUM__' : dg(Number(n) + 1);
+      const title = (tpl !== '' ? tpl : T('rowN', 'Row %s')).replace(/\{field:[A-Za-z0-9_-]{1,40}\}/g, '').replace(/\{n\}|%s/g, num);
+      const copies = C().copyRows(L, gid, n);
+      let body = '';
+      copies.forEach((c) => {
+        if (c.type === 'option' || c.type === 'r_matrix') return;
+        const mine = copies.filter((x) => x === c || ((x.type === 'option' || x.type === 'r_matrix') && x.parent === c.id_));
+        const at = L.length;
+        mine.forEach((x) => L.push(x));
+        try { body += addNewElement(c.type, c.id_, true, true); } finally { L.splice(at); }
+      });
+      const rid = `${g}_row${esc(n)}`;
+      let tools = '';
+      if (collapsible) tools += `<button type="button" class="efb btn btn-sm btn-light efb-rpt-toggle" aria-expanded="true" aria-controls="${rid}_b" aria-label="${esc(T('collapseRow', 'Hide row %s').replace('%s', num))}"><i class="efb bi-chevron-down" aria-hidden="true"></i></button>`;
+      tools += `<button type="button" class="efb btn btn-sm btn-light efb-rpt-remove" aria-label="${esc(T('removeRow', 'Remove row %s').replace('%s', num))}"${disabled ? ' disabled' : ''}><i class="efb bi-trash" aria-hidden="true"></i></button>`;
+      return `<div class="efb efb-rpt-row" role="listitem" data-rpt-n="${esc(n)}" id="${rid}"><div class="efb efb-rpt-head">`
+        + `<span class="efb efb-rpt-title" id="${rid}_t" dir="auto">${esc(title)}</span><span class="efb efb-rpt-summary" id="${rid}_s" dir="auto" aria-hidden="true"></span>`
+        + `<span class="efb efb-rpt-tools">${tools}</span></div>`
+        + `<div class="efb efb-rpt-confirm" id="${rid}_c" role="group" aria-labelledby="${rid}_cq" hidden><span id="${rid}_cq" dir="auto">${esc(T('removeRowConfirm', 'Remove this row?'))}</span>`
+        + `<button type="button" class="efb btn btn-sm btn-danger efb-rpt-yes">${esc(T('rptRemoveBtn', 'Remove'))}</button><button type="button" class="efb btn btn-sm btn-light efb-rpt-no">${esc(T('rptKeepBtn', 'Keep'))}</button></div>`
+        + `<div class="efb efb-rpt-body row mx-0" id="${rid}_b" role="group" aria-labelledby="${rid}_t">${body}</div></div>`;
+    };
+    // addNewElement() builds its markup in the global newElement: the group's own call is still running, so what
+    // it had is put back after the rows are drawn (else the last row's markup would follow the group).
+    const savedEl = root.newElement;
+    let rows = '', template = '';
+    try {
+      for (let n = 0; n < l.default; n++) rows += row(n);
+      // The template is text inside a script block: "</" written "<\/" (EFBRepeater.addRow() reads it back).
+      template = row('__RI__').replace(/<\//g, '<\\/');
+    } finally { root.newElement = savedEl; }
+    const labelCls = ['efb efb-rpt-legend mx-0 px-0 pt-2 pb-1 col-form-label', r.label_text_color || '', r.label_align || '', r.label_text_size && r.label_text_size !== 'default' ? r.label_text_size : '', r.hflabel == 1 ? 'd-none' : ''].join(' ').replace(/\s+/g, ' ').trim();
+    const required = r.required == 1 || r.required === true;
+    const fid = typeof efb_builder_preview_form_id_efb === 'function' ? efb_builder_preview_form_id_efb() : 0;
+    const data = ` data-rpt="${g}" data-formid="${esc(fid)}" data-min="${l.min}" data-max="${l.max}" data-default="${l.default}" data-from="${esc(from)}" data-layout="${layout}" data-collapsible="${collapsible ? '1' : '0'}"`
+      + ` data-collapse-prev="${String(r.collapse_prev) === '0' ? '0' : '1'}" data-confirm="${String(r.rmv_confirm) === '0' ? '0' : '1'}" data-label="${esc(tpl)}"${required ? ' data-required="1"' : ''}${disabled ? ' data-disabled="1"' : ''}`;
+    return `<fieldset class="efb efb-rpt col-12 px-0 mx-0${from !== '' ? ' efb-rpt-from' : ''}${required ? ' required' : ''}" id="${g}-f"${data}${r.message ? ` aria-describedby="${g}-des"` : ''}>`
+      + `<legend class="${esc(labelCls)}" id="${g}_labG"><span id="${g}_lab" class="efb">${esc(r.name || '')}</span><span class="efb mx-1 text-danger" id="${g}_req" role="none">${required ? '*' : ''}</span></legend>`
+      + (desc || '')
+      + `<div class="efb efb-rpt-rows" role="list" id="${g}_rows">${rows}</div>`
+      + `<script type="text/html" class="efb-rpt-tpl" id="${g}_tpl">${template}</script>`
+      + `<div class="efb efb-rpt-foot"><button type="button" class="efb btn btn-outline-pink efb-rpt-add" id="${g}_add"${disabled ? ' disabled' : ''}><i class="efb bi-plus-lg" aria-hidden="true"></i> <span dir="auto">${esc(addText)}</span></button>`
+      + `<span class="efb efb-rpt-max" id="${g}_maxmsg" dir="auto" hidden>${esc(T('rptMaxReached', 'You have reached the maximum of %s rows.').replace('%s', dg(l.max)))}</span>${ttip || ''}</div>`
+      + `<div class="efb visually-hidden" aria-live="polite" aria-atomic="true" id="${g}_live"></div></fieldset>`;
+  }
+
+  /**
+   * After the preview is shown: window.EFBRepeater runs its groups on a copy of the form (the rows it adds never
+   * reach the form being built), so Add / Remove / the limits work as on the page.
+   */
+  function efbRptPreviewInit(doc) {
+    const R = root.EFBRepeater;
+    if (!R || typeof R.isolate !== 'function' || !list().some((x) => isGroup(x))) return false;
+    const fid = typeof efb_builder_preview_form_id_efb === 'function' ? efb_builder_preview_form_id_efb() : 0;
+    R.isolate(fid, JSON.parse(JSON.stringify(list())));
+    R.init(doc);
+    R.ready();
+    return true;
+  }
+
   /** Buttons in a field's toolbar: Move into group / Move out of group (CSS shows the one that applies). */
   function efbRptToolbar(r, rndm) {
     if (!r || isGroup(r) || !allowed(r.elementId || r.type) || !allowed(r.type)) return '';
@@ -374,7 +457,8 @@
   }
 
   const api = { efbRptCanvas, efbRptToolbar, efbRptPlaceChildren, efbRptSyncFromDom, efbRptDropInto, efbRptAfterAdd, efbRptMoveIntoAsk, efbRptMoveOut,
-    efbRptMoveInto: moveInto, efbRptOnDelete, efbRptDeleteText, efbRptDuplicate, efbRptPanelEls, efbRptBuilderChange, efbRptSaveCheck, efbRptChildrenOf: childrenOf };
+    efbRptMoveInto: moveInto, efbRptOnDelete, efbRptDeleteText, efbRptDuplicate, efbRptPanelEls, efbRptBuilderChange, efbRptSaveCheck, efbRptChildrenOf: childrenOf,
+    efbRptPreviewEls, efbRptPreviewInit };
   Object.keys(api).forEach((k) => { root[k] = api[k]; });
   if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

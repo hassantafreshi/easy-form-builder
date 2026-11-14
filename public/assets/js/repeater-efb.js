@@ -223,7 +223,9 @@
     }
     function forms() { return typeof valj_efb_new !== 'undefined' && valj_efb_new instanceof Array ? valj_efb_new : (root.valj_efb_new instanceof Array ? root.valj_efb_new : []); }
     /** The form's structure array itself (row copies are added to it, so every reader of the form sees them). */
+    var OWN = {}; // fid -> a structure of its own (the builder's preview: never the form being built)
     function structure(fid) {
+      if (Object.prototype.hasOwnProperty.call(OWN, String(Number(fid)))) return OWN[String(Number(fid))];
       var f = forms().filter(function (x) { return x && Number(x.id) === Number(fid); })[0];
       if (f && f.form_structer instanceof Array) return f.form_structer;
       return typeof valj_efb !== 'undefined' && valj_efb instanceof Array ? valj_efb : [];
@@ -550,11 +552,19 @@
     }
 
     /** The groups of the page: copies of the server's first rows registered, buttons wired (before the fields are set up). */
-    function init() {
-      var d = doc();
+    function init(within) {
+      var d = within && within.querySelectorAll ? within : doc();
       if (!d) return;
       var all = d.querySelectorAll('fieldset[data-rpt]');
       for (var i = 0; i < all.length; i++) initGroup(all[i]);
+    }
+    /**
+     * The builder's preview: forget the groups of form fid (a preview drawn again) and keep its row copies in
+     * `rows` (a copy of the form) instead of the form's own array; no rows = back to the page's forms.
+     */
+    function isolate(fid, rows) {
+      for (var k in S) if (Object.prototype.hasOwnProperty.call(S, k) && S[k].fid === Number(fid)) delete S[k];
+      if (rows instanceof Array) OWN[String(Number(fid))] = rows; else delete OWN[String(Number(fid))];
     }
     /** After the page's fields are set up: numbering, accessible names, a rows_from source that already has a value. */
     function ready() {
@@ -598,6 +608,77 @@
       return r ? base + '_r' + r.n : null;
     }
 
+    /**
+     * Saved answers back into the rows (spec §15.1): the offline copy (copies {child}_r{n}) and an F11 draft (each
+     * child's own id with rg / ri). Each group first gets as many rows as were saved (its own row's count, or the
+     * last row that has an answer), then each answer is renamed to the copy of the row at the same place: the saved
+     * n's are taken in order, so a row removed before saving leaves no gap. The group's own row is dropped (the
+     * rows themselves say it). Rows of other fields come back as they are.
+     */
+    function restore(fid, rows) {
+      if (!(rows instanceof Array)) return rows;
+      var stru = structure(fid);
+      var m = childrenMap(stru);
+      var groups = Object.keys(m).filter(function (g) { return !!stateOf(fid, g); });
+      if (!groups.length) return rows;
+      var kidG = {}, optG = {};
+      groups.forEach(function (g) {
+        m[g].forEach(function (i) {
+          var id = str(stru[i].id_);
+          kidG[id] = g;
+          stru.forEach(function (o, oi) { if (oi > 0 && o && (o.type === 'option' || o.type === 'r_matrix') && str(o.parent) === id && o.rpt_base === undefined) optG[str(o.id_)] = g; });
+        });
+      });
+      var virt = /^(.+)_r(\d{1,6})$/;
+      var place = {}, count = {};
+      groups.forEach(function (g) { place[g] = {}; count[g] = 0; });
+      var info = rows.map(function (r) {
+        if (!r || typeof r !== 'object' || Number(r.form_id) !== Number(fid)) return null;
+        var id = str(r.id_);
+        if (Object.prototype.hasOwnProperty.call(place, id) && r.type === 'repeater') { count[id] = Math.max(count[id], intOf(r.value, 0)); return { drop: true }; }
+        if (r.rg !== undefined && kidG[id] === str(r.rg)) { var ri = intOf(r.ri, -1); if (ri < 0) return { drop: true }; count[kidG[id]] = Math.max(count[kidG[id]], ri + 1); return { g: kidG[id], base: id, ri: ri }; }
+        var v = virt.exec(id);
+        if (v && kidG[v[1]]) { place[kidG[v[1]]][v[2]] = true; return { g: kidG[v[1]], base: v[1], n: v[2] }; }
+        return null;
+      });
+      groups.forEach(function (g) {
+        var ns = Object.keys(place[g]).map(Number).sort(function (a, b) { return a - b; });
+        place[g] = {};
+        ns.forEach(function (n, i) { place[g][String(n)] = i; });
+        count[g] = Math.max(count[g], ns.length);
+        if (count[g] > 0) ensureRows(fid, g, count[g], { keep: false });
+      });
+      var nOf = {};
+      groups.forEach(function (g) { nOf[g] = rowsOf(fid, g).map(function (r) { return r.n; }); });
+      var out = [];
+      rows.forEach(function (r, i) {
+        var x = info[i];
+        if (!x) { out.push(r); return; }
+        if (x.drop) return;
+        var pos = x.ri !== undefined ? x.ri : place[x.g][x.n];
+        var n = nOf[x.g][pos];
+        if (n === undefined) return; // beyond the group's maximum
+        var sfx = '_r' + n, oldSfx = x.n !== undefined ? '_r' + x.n : '';
+        var w = {};
+        for (var k in r) if (Object.prototype.hasOwnProperty.call(r, k)) w[k] = r[k];
+        delete w.rg; delete w.ri;
+        w.id_ = x.base + sfx;
+        var mapOb = function (ob) {
+          ob = str(ob);
+          if (oldSfx) {
+            var mm = /^(.+?)_r(\d{1,6})(.*)$/.exec(ob);
+            return mm && (kidG[mm[1]] === x.g || optG[mm[1]] === x.g) && '_r' + mm[2] === oldSfx ? mm[1] + sfx + mm[3] : ob;
+          }
+          if (optG[ob] === x.g) return ob + sfx;
+          return ob.indexOf(x.base) === 0 ? x.base + sfx + ob.slice(x.base.length) : ob;
+        };
+        if (w.id_ob !== undefined) w.id_ob = mapOb(w.id_ob);
+        if (typeof w.ids === 'string' && w.ids !== '') w.ids = w.ids.split(',').map(mapOb).join(',');
+        out.push(w);
+      });
+      return out;
+    }
+
     /** The answers of a form as they are sent (core-efb.js efb_repeater_wire_rows_efb). */
     function wireRows(rows, fid) {
       var order = {};
@@ -609,7 +690,7 @@
       return wire(rows, structure(fid), order);
     }
 
-    return { init: init, ready: ready, addRow: addRow, check: check, reveal: reveal, fieldAt: fieldAt, wire: wireRows, removeRow: removeRow, ensureRows: ensureRows, rowsOf: rowsOf, onAnswer: onAnswer, renumber: renumber,
+    return { init: init, ready: ready, addRow: addRow, check: check, reveal: reveal, fieldAt: fieldAt, wire: wireRows, restore: restore, isolate: isolate, removeRow: removeRow, ensureRows: ensureRows, rowsOf: rowsOf, onAnswer: onAnswer, renumber: renumber,
       state: stateOf, groups: function () { return Object.keys(S).map(function (k) { return { form_id: S[k].fid, group: S[k].g }; }); }, structure: structure };
   })();
 
