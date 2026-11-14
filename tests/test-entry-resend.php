@@ -27,6 +27,7 @@ function t($name, $actual, $expected) {
 }
 require __DIR__ . '/f11-http-lib.php';
 $H = new EfbF11Http();
+if ($why = $H->unavailable()) { echo "[SKIP] {$why}\nRESULTS: 0 passed, 0 failed\n"; exit(0); }
 $H->ctl('plan', '3');
 
 $F = $H->ctl('f03-form', 'F14 resend', json_encode(array(
