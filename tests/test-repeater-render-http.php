@@ -30,6 +30,9 @@ $check = function ($ok, $label, $detail = null) use (&$passed, &$failed) {
 $efb = get_efbFunction();
 $plan = get_option('emsfb_pro');
 update_option('emsfb_pro', 3);
+// F12: a new site renders the hidden trap field after <form id="efbform"> (a site setting, not F09's): the markup is
+// compared without it, through the core's own filter (what a site without the setting renders).
+add_filter('efb_core_spam_checks', function ($c) { $c['honeypot'] = false; return $c; });
 $forms = array();
 
 $f = function ($id, $type, $extra = array()) {
