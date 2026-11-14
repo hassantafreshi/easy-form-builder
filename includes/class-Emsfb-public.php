@@ -1722,6 +1722,8 @@ public function check_nonce_permission_efb($request) {
 			$style .= ' .efb-waiting-' . $form_id_int . '::after { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120px; height: 30px; background: url("data:image/svg+xml,' . $loading_svg_encoded . '") no-repeat center center; background-size: contain; z-index: 9999; }';
 
 			$is_file_element_exist = false;
+			// F09: the fields of a repeater group are drawn by the group (copies in its rows), not here.
+			$rpt_children_efb = class_exists('\\Emsfb\\Repeater') && \Emsfb\Repeater::has_groups($valj_efb) ? \Emsfb\Repeater::child_groups($valj_efb) : array();
 			$list_pro_elements = ['calc','prcfld','dadfile','ttlprc','table_matrix','smartcr','pointr5','pointr10','booking','heading','zarinPal','persiaPay','stripe','paypal','link','yesNo','html','cityList','city','statePro','stateProvince','country','conturyList','paySelect','rating','esign','switch','trmCheckbox','imgRadio','chlRadio','chlCheckBox','payRadio','payCheckbox','mobile','maps','ardate','pdate'];
 			for( $i=0; $i<$count; $i++){
 				$randomId = wp_unique_id('efb_');
@@ -1849,6 +1851,7 @@ public function check_nonce_permission_efb($request) {
 						$is_file_element_exist = true;
 					}
 
+					if ($rpt_children_efb && isset($valj_efb[$i]->id_) && isset($rpt_children_efb[(string) $valj_efb[$i]->id_])) continue;
 					$r = $efbFormBuilder->addNewElement_efb($i, $randomId, $form_id, $lanText ,$pro);
 					if($pro==true ){
 
@@ -2519,6 +2522,13 @@ public function check_nonce_permission_efb($request) {
 			wp_enqueue_script('efb-calc-js');
 			wp_enqueue_style('efb-calc-css', EMSFB_PLUGIN_URL . 'public/assets/css/calc-efb.css', array(), $asset_version('public/assets/css/calc-efb.css'));
 			$core_deps[] = 'efb-calc-js';
+		}
+		// F09: the repeater group's rows (add / remove, min / max, collapsible, rows_from), only on a form with one.
+		if (is_string($form_structure_json) && preg_match('/type\\\\?"\s*:\s*\\\\?"repeater\\\\?"/', $form_structure_json)) {
+			wp_register_script('efb-repeater-js', EMSFB_PLUGIN_URL . 'public/assets/js/repeater-efb.js', array(), $asset_version('public/assets/js/repeater-efb.js'), true);
+			wp_enqueue_script('efb-repeater-js');
+			wp_enqueue_style('efb-repeater-css', EMSFB_PLUGIN_URL . 'public/assets/css/repeater-efb.css', array(), $asset_version('public/assets/css/repeater-efb.css'));
+			$core_deps[] = 'efb-repeater-js';
 		}
 		// F06: the advanced date field's engines and picker, only on pages with one (and only the calendars it can show).
 		if (class_exists('\\Emsfb\\Calendar') && \Emsfb\Calendar::enqueue_public($form_structure_json)) {
@@ -10266,7 +10276,7 @@ public function check_nonce_permission_efb($request) {
 	private static function plan_locked_field_types_efb() {
 		return array('pdate', 'ardate', 'mobile', 'dadfile', 'audio_recorder', 'video_recorder', 'screen_recorder',
 			'esign', 'maps', 'stateprovince', 'statepro', 'city', 'citylist', 'html', 'link', 'yesno',
-			'pointr5', 'pointr10', 'smartcr', 'table_matrix', 'prcfld', 'ttlprc', 'stripe', 'ranking', 'calc');
+			'pointr5', 'pointr10', 'smartcr', 'table_matrix', 'prcfld', 'ttlprc', 'stripe', 'ranking', 'calc', 'repeater');
 	}
 
 	private function validate_required_fields_present_efb($form_fields_array, $submitted_values, $is_pro = true) {

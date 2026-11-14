@@ -702,6 +702,11 @@ if ( ! defined( 'ABSPATH' ) ) {
                         if ($i === 0) continue;
                         if (!isset($vj->id_)) continue;
                         $id = $vj->id_;
+                        // F09: a repeater child is drawn as copies ({id}_r{n}); its rules select them all.
+                        if (isset($vj->group) && is_scalar($vj->group) && isset($this->rpt_children_efb[(string) $vj->id_])) {
+                                $css .= $this->rpt_mobile_css_efb($vj);
+                                continue;
+                        }
 
                         if ((isset($this->valj_efb[0]->global_mobile_hflabel) && (int) $this->valj_efb[0]->global_mobile_hflabel === 1) || (isset($vj->mobile_hflabel) && (int) $vj->mobile_hflabel === 1)) {
                                 $css .= '#' . $id . '_labG { display: none !important; }' . "\n";
@@ -2899,6 +2904,126 @@ if ( ! defined( 'ABSPATH' ) ) {
 		return $out;
 	}
 
+	/** F09: child id => group id of this form (set by generate_repeater_efb and the mobile CSS). */
+	private $rpt_children_efb = array();
+
+	/** F09: the mobile CSS of a repeater child, for all its copies ([data-rpt-base] wrapper). */
+	private function rpt_mobile_css_efb($vj) {
+		$b = '[data-rpt-base="' . esc_attr((string) $vj->id_) . '"] ';
+		$css = '';
+		if ((isset($this->valj_efb[0]->global_mobile_hflabel) && (int) $this->valj_efb[0]->global_mobile_hflabel === 1) || (isset($vj->mobile_hflabel) && (int) $vj->mobile_hflabel === 1)) $css .= $b . '[id$="_labG"] { display: none !important; }' . "\n";
+		if (isset($vj->mobile_hfdescription) && (int) $vj->mobile_hfdescription === 1) $css .= $b . '[id$="-des"] { display: none !important; }' . "\n";
+		if (isset($vj->mobile_label_align) && $vj->mobile_label_align !== '') $css .= $b . '[id$="_labG"] { ' . $this->get_align_css($vj->mobile_label_align) . ' }' . "\n";
+		if (isset($vj->mobile_message_align) && $vj->mobile_message_align !== '') $css .= $b . '[id$="-des"] { ' . $this->get_align_css_desc($vj->mobile_message_align) . ' }' . "\n";
+		return $css;
+	}
+
+	/**
+	 * F09: the markup of a repeater group (spec §7.1): a fieldset with its title, the rows the page starts with
+	 * and a <template> of one row (__RI__ in its ids); each row holds copies of the group's fields ({child}_r{n},
+	 * options {option}_r{n}) drawn by addNewElement_efb() itself, so a field in a row is the same markup as
+	 * outside. The template is a <script type="text/html"> block: inert, and wpautop never reaches into it. The copies are added to $this->valj_efb only while they are drawn. The markup is closed (the
+	 * wrapper is closed by the single closing tag of $single_close_efb) and starts with a block tag (wpautop).
+	 */
+	private function generate_repeater_efb($index, $vj, $gid, $form_id, $texts, $pro, $desc, $ttip, &$js_s, &$style) {
+		if (!class_exists('\\Emsfb\\Repeater') || !\Emsfb\Repeater::plan_ok('group')) {
+			return $this->public_pro_message_efb(isset($texts['tfnapca']) ? $texts['tfnapca'] : '', isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
+		}
+		$R = '\\Emsfb\\Repeater';
+		$map = $R::children_map($this->valj_efb);
+		foreach ($map as $g => $idx) foreach ($idx as $ci) $this->rpt_children_efb[(string) $this->valj_efb[$ci]->id_] = $g;
+		$kids = array();
+		foreach (isset($map[$gid]) ? $map[$gid] : array() as $ci) $kids[] = $this->valj_efb[$ci];
+		$opts = array();
+		foreach ($this->valj_efb as $o) {
+			if (isset($o->type, $o->parent) && in_array($o->type, array('option', 'r_matrix'), true)) $opts[(string) $o->parent][] = $o;
+		}
+		$repeat = $R::plan_ok('repeat');
+		$l = $R::limits($vj, $repeat);
+		$from = $repeat && isset($vj->rows_from) && is_scalar($vj->rows_from) ? (string) $vj->rows_from : '';
+		$collapsible = $repeat && isset($vj->collapsible) && (string) $vj->collapsible === '1';
+		$layout = $repeat && isset($vj->rpt_layout) && $vj->rpt_layout === 'inline' ? 'inline' : 'blocks';
+		$tpl = isset($vj->row_label) && is_scalar($vj->row_label) ? (string) $vj->row_label : '';
+		$add_text = isset($vj->btn_add_text) && is_scalar($vj->btn_add_text) && $vj->btn_add_text !== '' ? (string) $vj->btn_add_text : $R::t('addRow', $texts);
+		$g = esc_attr($gid);
+		$disabled = isset($vj->disabled) && $vj->disabled == 1;
+		$kid_ids = array();
+		foreach ($kids as $k) $kid_ids[] = (string) $k->id_;
+
+		$row = function ($n) use ($kids, $opts, $kid_ids, $gid, $g, $R, $tpl, $texts, $collapsible, $form_id, $pro, $disabled, &$js_s, &$style) {
+			$sfx = '_r' . $n;
+			$num = $n === '__RI__' ? '__NUM__' : $R::digits((string) ((int) $n + 1));
+			$title = $tpl !== '' ? $tpl : $R::t('rowN', $texts);
+			$title = str_replace(array('{n}', '%s'), $num, preg_replace('/\{field:[A-Za-z0-9_-]{1,40}\}/', '', $title));
+			$body = '';
+			foreach ($kids as $k) {
+				$c = clone $k;
+				$c->id_ = $k->id_ . $sfx;
+				$c->dataId = $c->id_ . '-id';
+				$c->rpt_base = (string) $k->id_;
+				$c->rpt_n = (string) $n;
+				$c->rpt_group = (string) $gid;
+				unset($c->group);
+				if (isset($c->type) && $c->type === 'file') $c->max_files = '1';
+				if (isset($c->formula) && is_scalar($c->formula)) $c->formula = $R::rewrite_formula((string) $c->formula, $kid_ids, $sfx);
+				$added = array($c);
+				foreach (isset($opts[(string) $k->id_]) ? $opts[(string) $k->id_] : array() as $o) {
+					$oc = clone $o;
+					$oc->id_ = $o->id_ . $sfx;
+					if (isset($oc->id_op)) $oc->id_op = $oc->id_;
+					$oc->dataId = $oc->id_ . '-id';
+					$oc->parent = $c->id_;
+					$added[] = $oc;
+				}
+				$at = count($this->valj_efb);
+				foreach ($added as $a) $this->valj_efb[] = $a;
+				$r = $this->addNewElement_efb($at, $c->id_, $form_id, $texts, $pro);
+				array_splice($this->valj_efb, $at);
+				if (is_array($r)) { $body .= $r[0]; $style .= $r[1]; if ($r[2] !== '') $js_s .= $r[2]; }
+			}
+			$rid = $g . '_row' . $n;
+			$tools = '';
+			if ($collapsible) {
+				$tools .= '<button type="button" class="efb btn btn-sm btn-light efb-rpt-toggle" aria-expanded="true" aria-controls="' . $rid . '_b" aria-label="' . esc_attr(str_replace('%s', $num, $R::t('collapseRow', $texts))) . '"><i class="efb bi-chevron-down" aria-hidden="true"></i></button>';
+			}
+			$tools .= '<button type="button" class="efb btn btn-sm btn-light efb-rpt-remove" aria-label="' . esc_attr(str_replace('%s', $num, $R::t('removeRow', $texts))) . '"' . ($disabled ? ' disabled' : '') . '><i class="efb bi-trash" aria-hidden="true"></i></button>';
+			return '<div class="efb efb-rpt-row" role="listitem" data-rpt-n="' . esc_attr((string) $n) . '" id="' . $rid . '">'
+				. '<div class="efb efb-rpt-head">'
+				. '<span class="efb efb-rpt-title" id="' . $rid . '_t" dir="auto">' . esc_html($title) . '</span>'
+				. '<span class="efb efb-rpt-summary" id="' . $rid . '_s" dir="auto" aria-hidden="true"></span>'
+				. '<span class="efb efb-rpt-tools">' . $tools . '</span>'
+				. '</div>'
+				. '<div class="efb efb-rpt-confirm" id="' . $rid . '_c" role="group" aria-labelledby="' . $rid . '_cq" hidden><span id="' . $rid . '_cq" dir="auto">' . esc_html($R::t('removeRowConfirm', $texts)) . '</span>'
+				. '<button type="button" class="efb btn btn-sm btn-danger efb-rpt-yes">' . esc_html($R::t('rptRemoveBtn', $texts)) . '</button>'
+				. '<button type="button" class="efb btn btn-sm btn-light efb-rpt-no">' . esc_html($R::t('rptKeepBtn', $texts)) . '</button></div>'
+				. '<div class="efb efb-rpt-body row mx-0" id="' . $rid . '_b" role="group" aria-labelledby="' . $rid . '_t">' . $body . '</div>'
+				. '</div>';
+		};
+
+		$rows = '';
+		for ($n = 0; $n < $l['default']; $n++) $rows .= $row($n);
+		$template = $row('__RI__');
+		$label_cls = trim('efb efb-rpt-legend mx-0 px-0 pt-2 pb-1 col-form-label ' . (isset($vj->label_text_color) ? $vj->label_text_color : '') . ' ' . (isset($vj->label_align) ? $vj->label_align : '') . ' ' . (isset($vj->label_text_size) && $vj->label_text_size !== 'default' ? $vj->label_text_size : '') . ' ' . (isset($vj->hflabel) && $vj->hflabel == 1 ? 'd-none' : ''));
+		$required = isset($vj->required) && ($vj->required == 1 || $vj->required === true);
+		$data = ' data-rpt="' . $g . '" data-formid="' . esc_attr($form_id) . '" data-min="' . (int) $l['min'] . '" data-max="' . (int) $l['max'] . '" data-default="' . (int) $l['default'] . '"'
+			. ' data-from="' . esc_attr($from) . '" data-layout="' . $layout . '" data-collapsible="' . ($collapsible ? '1' : '0') . '"'
+			. ' data-collapse-prev="' . (isset($vj->collapse_prev) && (string) $vj->collapse_prev === '0' ? '0' : '1') . '" data-confirm="' . (isset($vj->rmv_confirm) && (string) $vj->rmv_confirm === '0' ? '0' : '1') . '"'
+			. ' data-label="' . esc_attr($tpl) . '"' . ($required ? ' data-required="1"' : '') . ($disabled ? ' data-disabled="1"' : '');
+		return '<fieldset class="efb efb-rpt col-12 px-0 mx-0' . ($from !== '' ? ' efb-rpt-from' : '') . ($required ? ' required' : '') . '" id="' . $g . '-f"' . $data . (!empty($vj->message) ? ' aria-describedby="' . $g . '-des"' : '') . '>'
+			. '<legend class="' . esc_attr($label_cls) . '" id="' . $g . '_labG"><span id="' . $g . '_lab" class="efb">' . esc_html(isset($vj->name) ? $vj->name : '') . '</span><span class="efb mx-1 text-danger" id="' . $g . '_req" role="none">' . ($required ? '*' : '') . '</span></legend>'
+			. $desc
+			. '<div class="efb efb-rpt-rows" role="list" id="' . $g . '_rows">' . $rows . '</div>'
+			// The row template is inert text (wpautop does not reach into a script block; no duplicate ids in the DOM).
+			. '<script type="text/html" class="efb-rpt-tpl" id="' . $g . '_tpl">' . $template . '</script>'
+			. '<div class="efb efb-rpt-foot">'
+			. '<button type="button" class="efb btn btn-outline-pink efb-rpt-add" id="' . $g . '_add"' . ($disabled ? ' disabled' : '') . '><i class="efb bi-plus-lg" aria-hidden="true"></i> <span dir="auto">' . esc_html($add_text) . '</span></button>'
+			. '<span class="efb efb-rpt-max" id="' . $g . '_maxmsg" dir="auto" hidden>' . esc_html(str_replace('%s', $R::digits((string) $l['max']), $R::t('rptMaxReached', $texts))) . '</span>'
+			. $ttip
+			. '</div>'
+			. '<div class="efb visually-hidden" aria-live="polite" aria-atomic="true" id="' . $g . '_live"></div>'
+			. '</fieldset>';
+	}
+
 	public function addNewElement_efb($i, $rndm,$form_id,$texts,$pro) {
 		$this->pro_efb =$pro;
 
@@ -2957,6 +3082,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 		} else {
 			$corner= isset($vj->corner) ? $vj->corner : 'rounded-3';
 			switch ($vj->type) {
+
+				case 'repeater':
+					// F09: a repeater group (Free Plus; repeating rows Pro): its rows rendered from its fields' own markup.
+					$ui = $this->generate_repeater_efb($indexVJ, $vj, $element_Id, $form_id, $texts, $pro, $desc, $ttip, $js_s, $style);
+					$dataTag = 'repeater';
+					break;
 
 				case 'calc':
 					// F04: a calculation (Free Plus): a read-only result the page computes and the server computes again.
@@ -3793,7 +3924,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$tagT = in_array($elementId, ["esign", "yesNo", "rating"]) ? '' : 'def';
 			$stepNo = (int)$vj->step - 1;
 			// Field types whose markup opens no inner "-f" wrapper: they get one closing tag below.
-			$single_close_efb = ['option', 'html', 'stripe', 'heading', 'link','conturyList','country','stateProvince','statePro','city','cityList','maps','ttlprc','audio_recorder','video_recorder','screen_recorder'];
+			$single_close_efb = ['option', 'html', 'stripe', 'heading', 'link','conturyList','country','stateProvince','statePro','city','cityList','maps','ttlprc','audio_recorder','video_recorder','screen_recorder','repeater'];
 			// Every other type gets two, the first for its "-f" wrapper. On a plan
 			// without the field, its markup is only the plan notice, so that first
 			// tag closed the form container and the following fields fell outside it.
@@ -3801,7 +3932,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				$ui = '<div class="efb ' . $pos[3] . ' ' . $this->mobile_pos[3] . '" id="' . $element_Id . '-f">' . $ui;
 			}
 			$newElement = sprintf(
-				'<!--startTag %1$s--><div class="efb my-1 mx-0 %1$s %2$s %3$s %4$s ttEfb %5$s %6$s %12$s efbField %7$s" data-step="%8$s" data-amount="%9$s" data-id="%10$s-id" id="%10$s" data-tag="%11$s">',
+				'<!--startTag %1$s--><div class="efb my-1 mx-0 %1$s %2$s %3$s %4$s ttEfb %5$s %6$s %12$s efbField %7$s" data-step="%8$s" data-amount="%9$s" data-id="%10$s-id" id="%10$s"%13$s data-tag="%11$s">',
 				$elementId,
 				$tagT,
 				$hidden,
@@ -3813,7 +3944,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 				$vj->amount,
 				$element_Id,
 				$elementId,
-				$mobile_pos[1]
+				$mobile_pos[1],
+				// F09: a copy of a repeater child in a row: data-rpt-base (CSS of the field reaches every row).
+				isset($vj->rpt_base) && is_scalar($vj->rpt_base) ? ' data-rpt-base="' . esc_attr((string) $vj->rpt_base) . '" data-rpt-n="' . esc_attr((string) $vj->rpt_n) . '"' : ''
 			);
 
 			if ($elementId != 'option') {

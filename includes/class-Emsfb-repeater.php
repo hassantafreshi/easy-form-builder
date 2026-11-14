@@ -235,6 +235,24 @@ final class Repeater {
 		return array('min' => $min, 'max' => $max, 'default' => $def);
 	}
 
+	/** A number in the page language's digits (Persian, Arabic-Indic); the stored ri is always Latin. Twin: EFBRepeaterCore.digits(). */
+	public static function digits($s, $locale = null) {
+		return class_exists('\\Emsfb\\Form_Gate') && method_exists('\\Emsfb\\Form_Gate', 'locale_digits') ? Form_Gate::locale_digits((string) $s, $locale) : (string) $s;
+	}
+
+	/**
+	 * The formula of a calc child in a row: {sibling} (and {field:sibling}, {sibling.part}) read the same row,
+	 * i.e. the copy {sibling}{suffix}; other references are unchanged (F04 §6.4). Twin: EFBRepeaterCore.rewriteFormula().
+	 */
+	public static function rewrite_formula($formula, array $siblings, $suffix) {
+		if (!is_string($formula) || $formula === '' || !$siblings) return (string) $formula;
+		$set = array_flip(array_map('strval', $siblings));
+		return preg_replace_callback('/\{(field:)?([A-Za-z0-9_-]{1,40})(\.[A-Za-z0-9_-]{1,40})?\}/', function ($m) use ($set, $suffix) {
+			if (!isset($set[$m[2]])) return $m[0];
+			return '{' . $m[1] . $m[2] . $suffix . (isset($m[3]) ? $m[3] : '') . '}';
+		}, $formula);
+	}
+
 	/* ------------------------------------------------------------------ the save (sanitize_obj_msg_efb) */
 
 	public static function is_key($k) {
