@@ -4,7 +4,7 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-14",
     "counts": {
-        "active": 3706,
+        "active": 3758,
         "obsolete": 378
     },
     "entries": [
@@ -211,6 +211,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%1$s allows at most %2$s rows.",
+            "context": null,
+            "plural": null,
+            "translators": "F09: error; %1$s = the group name, %2$s = the most rows",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%1$s can have at most %2$s characters.",
             "context": null,
             "plural": null,
@@ -282,6 +297,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s in row %2$s is required.",
+            "context": null,
+            "plural": null,
+            "translators": "F09: error; %1$s = the field name, %2$s = the row number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -381,6 +411,21 @@
             "context": null,
             "plural": null,
             "translators": "F03 visitor error. %1$s: field label, %2$s: number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s needs at least %2$s rows.",
+            "context": null,
+            "plural": null,
+            "translators": "F09: error; %1$s = the group name, %2$s = the fewest rows",
             "files": [
                 "includes/functions.php"
             ],
@@ -560,6 +605,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%1$s, row %2$s",
+            "context": null,
+            "plural": null,
+            "translators": "F09: accessible name of a field inside a row; %1$s = the field label, %2$s = the row number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%1$s: %2$s cannot take %3$s, so it is not offered on this form. Choose other methods or change the currency.",
             "context": null,
             "plural": null,
@@ -599,6 +659,21 @@
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php",
                 "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s (count)",
+            "context": null,
+            "plural": null,
+            "translators": "F09: CSV column with the number of rows; %s = the group name",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -1181,6 +1256,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%s more rows. See the whole answer in the dashboard.",
+            "context": null,
+            "plural": null,
+            "translators": "F09 e-mail: after the first rows of a long group; %s = rows not shown",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s needs an add-on",
             "context": null,
             "plural": null,
@@ -1292,6 +1382,21 @@
             "context": null,
             "plural": null,
             "translators": "F07 visitor: screen reader announcement; %s = the file name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s rows",
+            "context": null,
+            "plural": null,
+            "translators": "F09: number of rows in the response viewer; %s = the number",
             "files": [
                 "includes/functions.php"
             ],
@@ -2068,6 +2173,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "A form holds at most %s repeater groups.",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: error on save; %s = the most groups a form may hold",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "A form, response box or upload request encountered an error. Some requests may have recovered automatically; counts are not lost submissions. Browser reports are unverified; a 403 alone does not prove a cache or firewall problem. Submission status may be unknown.",
             "context": null,
             "plural": null,
@@ -2270,6 +2390,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "A repeater group holds at most %s fields.",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: error; %s = the most fields a group may hold",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -3108,10 +3243,70 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Add a repeater group to the form first.",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: message when there is no group to move a field into",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Add an “Other” choice",
             "context": null,
             "plural": null,
             "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Add another",
+            "context": null,
+            "plural": null,
+            "translators": "F09: the button that adds a row to a repeater group",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Add at least one field to the repeater group %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: error on save; %s = the group name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Add button text",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: the text of the button that adds a row",
             "files": [
                 "includes/functions.php"
             ],
@@ -5092,6 +5287,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Ask before removing a row",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: switch that asks the visitor before a row is removed",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Ask for a time",
             "context": null,
             "plural": null,
@@ -5201,6 +5411,21 @@
             "context": null,
             "plural": null,
             "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "At most %s rows.",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: help under the row limits; %s = the most rows",
             "files": [
                 "includes/functions.php"
             ],
@@ -8456,6 +8681,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Choose a number or choice field placed before the group.",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: error for the field that gives the number of rows",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Choose a payment method",
             "context": null,
             "plural": null,
@@ -9307,6 +9547,21 @@
             "context": null,
             "plural": null,
             "translators": "F02 builder and save warning",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Collapse earlier rows when a row is added",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: switch that folds the earlier rows when a row is added",
             "files": [
                 "includes/functions.php"
             ],
@@ -12252,6 +12507,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Delete the group and the %s fields inside it?",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: delete question for a group; %s = number of fields inside it",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Delete this form's entries automatically after (days)",
             "context": null,
             "plural": null,
@@ -13487,6 +13757,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Drop fields here",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: hint inside an empty repeater group on the canvas",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -16938,6 +17223,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Fields side by side",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: layout choice, the fields of a row next to each other",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Fields: %s",
             "context": null,
             "plural": null,
@@ -20186,6 +20486,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Hide row %s",
+            "context": null,
+            "plural": null,
+            "translators": "F09: label of the button that folds a row; %s = the row number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Hide the label",
             "context": null,
             "plural": null,
@@ -23145,6 +23460,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Keep",
+            "context": null,
+            "plural": null,
+            "translators": "F09: button that keeps a row (cancels removing it)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Keep Free Plus",
             "context": null,
             "plural": null,
@@ -25611,6 +25941,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Maximum rows",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: the most rows a repeater group allows",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Maximum total size (MB)",
             "context": null,
             "plural": null,
@@ -26260,6 +26605,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Minimum rows",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: the fewest rows a repeater group needs",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Minimum strength",
             "context": null,
             "plural": null,
@@ -26806,6 +27166,36 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Move into group",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: field toolbar button that moves the field into a repeater group",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Move out of group",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: field toolbar button that moves the field out of its repeater group",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -28986,6 +29376,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Number of rows from field",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: take the number of rows from another field (e.g. \"Number of travellers\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Number or amount",
             "context": null,
             "plural": null,
@@ -29297,6 +29702,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "One card per row",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: layout choice, each row in its own card",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -33149,6 +33569,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please enter a whole number.",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: error for a row limit that is not a whole number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please enter an email address.",
             "context": null,
             "plural": null,
@@ -36253,6 +36688,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Remove",
+            "context": null,
+            "plural": null,
+            "translators": "F09: button that confirms removing a row",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Remove %s",
             "context": null,
             "plural": null,
@@ -36279,6 +36729,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Remove row %s",
+            "context": null,
+            "plural": null,
+            "translators": "F09: label of the button that removes a row; %s = the row number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -36317,6 +36782,21 @@
             "context": null,
             "plural": null,
             "translators": "F19: button that removes a colour from a gradient",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Remove this row?",
+            "context": null,
+            "plural": null,
+            "translators": "F09: question shown inside a row before it is removed",
             "files": [
                 "includes/functions.php"
             ],
@@ -36471,6 +36951,21 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-public.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Repeater group",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: palette tile and type name of the repeater group (a set of fields the visitor can repeat)",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -37292,6 +37787,111 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Row %s",
+            "context": null,
+            "plural": null,
+            "translators": "F09: the default title of a row; %s = the row number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Row %s added",
+            "context": null,
+            "plural": null,
+            "translators": "F09: screen reader announcement; %s = the row number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Row layout",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: how the fields of a row are placed",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Row removed",
+            "context": null,
+            "plural": null,
+            "translators": "F09: screen reader announcement after a row is removed",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Row title",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: the title of each row of a repeater group",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Rows",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: heading of the repeater fields in the formula's \"Insert field\" list (each gives a list of values, one per row)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Rows can be collapsed",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: switch that lets the visitor fold rows",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Rows per page",
             "context": null,
             "plural": null,
@@ -37305,6 +37905,51 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Rows shown at start",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: how many rows a repeater group shows when the form opens",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Rows shown at start must be between the minimum and the maximum.",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: error for the starting rows",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Rows: %1$s – %2$s",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: line on the canvas; %1$s = minimum, %2$s = maximum number of rows",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Rule trace",
@@ -40315,6 +40960,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Show row %s",
+            "context": null,
+            "plural": null,
+            "translators": "F09: label of the button that opens a folded row; %s = the row number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -46544,6 +47204,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The maximum must be between 1 and %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: error; %s = the most rows allowed",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The maximum number of characters allowed in the input element is 524288",
             "context": null,
             "plural": null,
@@ -46619,6 +47294,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The minimum cannot be more than the maximum.",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: error for a minimum above the maximum",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The missing add-on files could not be restored. Check the server connection and file permissions, then try again.",
             "context": null,
             "plural": null,
@@ -46655,6 +47345,21 @@
             "translators": "1: an address setting such as \"[your-email]\", 2: email address(es)",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The number of rows in %s does not match the number you selected.",
+            "context": null,
+            "plural": null,
+            "translators": "F09: error; %s = the group name",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -48768,6 +49473,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This field type cannot be placed inside a repeater group.",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: error when a field type cannot go inside a repeater group",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -52786,6 +53506,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Use {n} for the row number.",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: help under the row title; {n} must stay as it is",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Use {{field_id}} placeholders for dynamic values from form fields",
             "context": null,
             "plural": null,
@@ -53557,6 +54292,21 @@
             "context": null,
             "plural": null,
             "translators": "F13: setting: whether the visitor's IP address and browser are stored with each entry",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Visitor adds rows",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: choice meaning the visitor adds and removes rows",
             "files": [
                 "includes/functions.php"
             ],
@@ -57076,6 +57826,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "You have reached the maximum of %s rows.",
+            "context": null,
+            "plural": null,
+            "translators": "F09: message when no more rows can be added; %s = the most rows",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "You have requested to reset your password.",
             "context": null,
             "plural": null,
@@ -57261,6 +58026,21 @@
             "context": null,
             "plural": null,
             "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your Conditional Logic add-on does not support per-row rules yet; required checks inside rows are relaxed on the server.",
+            "context": null,
+            "plural": null,
+            "translators": "F09 builder: warning about the Conditional Logic add-on and rules inside rows",
             "files": [
                 "includes/functions.php"
             ],
