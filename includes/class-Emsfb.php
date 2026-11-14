@@ -474,6 +474,12 @@ class Emsfb {
             \Emsfb\Stock::register();
         }
 
+        // F04: numbers and calculations (one formula grammar, server twin of calc-efb.js; the server's own
+        // result of every calc field on submit). Optional: every caller checks class_exists('\Emsfb\Calc').
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-calc.php')) {
+            \Emsfb\Calc::register();
+        }
+
         // Builder API for integrations such as AutoPilot (docs/autopilot-integration.md).
         // Optional: callers check class_exists('\Emsfb\Builder_Api').
         $this->require_plugin_file_efb('includes/class-Emsfb-builder-api.php');

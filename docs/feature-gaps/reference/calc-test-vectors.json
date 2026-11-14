@@ -1,0 +1,2243 @@
+{
+ "about": "F04 shared vectors: run by public/assets/js/calc-efb.js and includes/class-Emsfb-calc.php (tests/test-calc-engine.js|php, tests/test-calc-parity.js). calc: formula, values (id or id.part -> number, numeric text, \"\" = empty, list, {error}), decimals (\"\" = free, up to 6 without trailing zeros), opts.empty; expect = canonical text, or error = code (pos / near for parse errors, in code points). parse_input / check / format: a field row and a locale (and the form currency).",
+ "calc": [
+  {
+   "formula": "round(2.5)",
+   "values": {},
+   "decimals": "",
+   "expect": "3"
+  },
+  {
+   "formula": "round(-2.5)",
+   "values": {},
+   "decimals": "",
+   "expect": "-3"
+  },
+  {
+   "formula": "round(1.005,2)",
+   "values": {},
+   "decimals": 2,
+   "expect": "1.01"
+  },
+  {
+   "formula": "round(0.5)",
+   "values": {},
+   "decimals": "",
+   "expect": "1"
+  },
+  {
+   "formula": "round(-0.5)",
+   "values": {},
+   "decimals": "",
+   "expect": "-1"
+  },
+  {
+   "formula": "round(1.4999)",
+   "values": {},
+   "decimals": "",
+   "expect": "1"
+  },
+  {
+   "formula": "round(2.675,2)",
+   "values": {},
+   "decimals": 2,
+   "expect": "2.68"
+  },
+  {
+   "formula": "round(-1.005,2)",
+   "values": {},
+   "decimals": 2,
+   "expect": "-1.01"
+  },
+  {
+   "formula": "round(123.456,1)",
+   "values": {},
+   "decimals": 1,
+   "expect": "123.5"
+  },
+  {
+   "formula": "0.1+0.2",
+   "values": {},
+   "decimals": 2,
+   "expect": "0.30"
+  },
+  {
+   "formula": "0.1+0.2",
+   "values": {},
+   "decimals": "",
+   "expect": "0.3"
+  },
+  {
+   "formula": "1/3",
+   "values": {},
+   "decimals": "",
+   "expect": "0.333333"
+  },
+  {
+   "formula": "1/3",
+   "values": {},
+   "decimals": 2,
+   "expect": "0.33"
+  },
+  {
+   "formula": "2/3",
+   "values": {},
+   "decimals": 3,
+   "expect": "0.667"
+  },
+  {
+   "formula": "-2/3",
+   "values": {},
+   "decimals": 2,
+   "expect": "-0.67"
+  },
+  {
+   "formula": "1.005",
+   "values": {},
+   "decimals": 2,
+   "expect": "1.01"
+  },
+  {
+   "formula": "1.005",
+   "values": {},
+   "decimals": 0,
+   "expect": "1"
+  },
+  {
+   "formula": "10/4",
+   "values": {},
+   "decimals": "",
+   "expect": "2.5"
+  },
+  {
+   "formula": "10/4",
+   "values": {},
+   "decimals": 2,
+   "expect": "2.50"
+  },
+  {
+   "formula": "7",
+   "values": {},
+   "decimals": 6,
+   "expect": "7.000000"
+  },
+  {
+   "formula": "-0.0000001",
+   "values": {},
+   "decimals": 2,
+   "expect": "0.00"
+  },
+  {
+   "formula": "-0.0000001",
+   "values": {},
+   "decimals": "",
+   "expect": "0"
+  },
+  {
+   "formula": "ceil(1.2)",
+   "values": {},
+   "decimals": "",
+   "expect": "2"
+  },
+  {
+   "formula": "ceil(-1.2)",
+   "values": {},
+   "decimals": "",
+   "expect": "-1"
+  },
+  {
+   "formula": "floor(1.8)",
+   "values": {},
+   "decimals": "",
+   "expect": "1"
+  },
+  {
+   "formula": "floor(-1.2)",
+   "values": {},
+   "decimals": "",
+   "expect": "-2"
+  },
+  {
+   "formula": "ceil(0.1*3,1)",
+   "values": {},
+   "decimals": 1,
+   "expect": "0.3"
+  },
+  {
+   "formula": "floor(0.7*3,1)",
+   "values": {},
+   "decimals": 1,
+   "expect": "2.1"
+  },
+  {
+   "formula": "ceil(1.001,2)",
+   "values": {},
+   "decimals": 2,
+   "expect": "1.01"
+  },
+  {
+   "formula": "floor(2.999,2)",
+   "values": {},
+   "decimals": 2,
+   "expect": "2.99"
+  },
+  {
+   "formula": "round(1,7)",
+   "values": {},
+   "decimals": "",
+   "error": "calcArgs"
+  },
+  {
+   "formula": "round(1,-1)",
+   "values": {},
+   "decimals": "",
+   "error": "calcArgs"
+  },
+  {
+   "formula": "round(1,1.5)",
+   "values": {},
+   "decimals": "",
+   "error": "calcArgs"
+  },
+  {
+   "formula": "round()",
+   "values": {},
+   "decimals": "",
+   "error": "calcArgs",
+   "pos": 0,
+   "near": "round"
+  },
+  {
+   "formula": "1+2*3",
+   "values": {},
+   "decimals": "",
+   "expect": "7"
+  },
+  {
+   "formula": "(1+2)*3",
+   "values": {},
+   "decimals": "",
+   "expect": "9"
+  },
+  {
+   "formula": "2*3+4*5",
+   "values": {},
+   "decimals": "",
+   "expect": "26"
+  },
+  {
+   "formula": "10-4-3",
+   "values": {},
+   "decimals": "",
+   "expect": "3"
+  },
+  {
+   "formula": "100/10/5",
+   "values": {},
+   "decimals": "",
+   "expect": "2"
+  },
+  {
+   "formula": "-3*-2",
+   "values": {},
+   "decimals": "",
+   "expect": "6"
+  },
+  {
+   "formula": "--5",
+   "values": {},
+   "decimals": "",
+   "expect": "5"
+  },
+  {
+   "formula": "+5",
+   "values": {},
+   "decimals": "",
+   "expect": "5"
+  },
+  {
+   "formula": "-(2+3)*2",
+   "values": {},
+   "decimals": "",
+   "expect": "-10"
+  },
+  {
+   "formula": "2*-3",
+   "values": {},
+   "decimals": "",
+   "expect": "-6"
+  },
+  {
+   "formula": "1-+1",
+   "values": {},
+   "decimals": "",
+   "expect": "0"
+  },
+  {
+   "formula": "({price}+50)*{qty}",
+   "values": {
+    "price": "1200",
+    "qty": "3"
+   },
+   "decimals": 2,
+   "expect": "3750.00"
+  },
+  {
+   "formula": "{a}+{field:b}",
+   "values": {
+    "a": 2,
+    "b": 3
+   },
+   "decimals": "",
+   "expect": "5"
+  },
+  {
+   "formula": "{a.count}",
+   "values": {
+    "a.count": 2
+   },
+   "decimals": "",
+   "expect": "2"
+  },
+  {
+   "formula": "{r.lo}+{r.hi}",
+   "values": {
+    "r.lo": "10",
+    "r.hi": "50"
+   },
+   "decimals": "",
+   "expect": "60"
+  },
+  {
+   "formula": "{a}*2",
+   "values": {
+    "a": ""
+   },
+   "decimals": "",
+   "expect": "0"
+  },
+  {
+   "formula": "{a}*2",
+   "values": {
+    "a": null
+   },
+   "decimals": "",
+   "expect": "0"
+  },
+  {
+   "formula": "{a}*2",
+   "values": {
+    "a": ""
+   },
+   "decimals": "",
+   "expect": "",
+   "opts": {
+    "empty": "blank"
+   }
+  },
+  {
+   "formula": "if(1,5,{a})",
+   "values": {
+    "a": ""
+   },
+   "decimals": "",
+   "expect": "5",
+   "opts": {
+    "empty": "blank"
+   }
+  },
+  {
+   "formula": "if(0,5,{a})",
+   "values": {
+    "a": ""
+   },
+   "decimals": "",
+   "expect": "",
+   "opts": {
+    "empty": "blank"
+   }
+  },
+  {
+   "formula": "{a}",
+   "values": {
+    "a": "1,250,000"
+   },
+   "decimals": "",
+   "expect": "1250000"
+  },
+  {
+   "formula": "{a}",
+   "values": {
+    "a": "۱۲٫۵"
+   },
+   "decimals": "",
+   "expect": "12.5"
+  },
+  {
+   "formula": "{a}",
+   "values": {
+    "a": "١٢٫٥"
+   },
+   "decimals": "",
+   "expect": "12.5"
+  },
+  {
+   "formula": "{a}",
+   "values": {
+    "a": "-4"
+   },
+   "decimals": "",
+   "expect": "-4"
+  },
+  {
+   "formula": "{a}",
+   "values": {
+    "a": "۱٬۲۵۰"
+   },
+   "decimals": "",
+   "expect": "1250"
+  },
+  {
+   "formula": "{t}",
+   "values": {
+    "t": "abc"
+   },
+   "decimals": "",
+   "error": "calcNaN"
+  },
+  {
+   "formula": "{t}+1",
+   "values": {
+    "t": "12abc"
+   },
+   "decimals": "",
+   "error": "calcNaN"
+  },
+  {
+   "formula": "{t}",
+   "values": {
+    "t": "1e5"
+   },
+   "decimals": "",
+   "error": "calcNaN"
+  },
+  {
+   "formula": "{t}",
+   "values": {
+    "t": "0x10"
+   },
+   "decimals": "",
+   "error": "calcNaN"
+  },
+  {
+   "formula": "{x}",
+   "values": {},
+   "decimals": "",
+   "error": "calcRef"
+  },
+  {
+   "formula": "{a}+{x}",
+   "values": {
+    "a": 1
+   },
+   "decimals": "",
+   "error": "calcRef"
+  },
+  {
+   "formula": "if(eq({q},0),0,{p}/{q})",
+   "values": {
+    "q": 0,
+    "p": 5
+   },
+   "decimals": "",
+   "expect": "0"
+  },
+  {
+   "formula": "if(eq({q},0),0,{p}/{q})",
+   "values": {
+    "q": 2,
+    "p": 5
+   },
+   "decimals": "",
+   "expect": "2.5"
+  },
+  {
+   "formula": "{a}/0",
+   "values": {
+    "a": 1
+   },
+   "decimals": "",
+   "error": "calcDiv0"
+  },
+  {
+   "formula": "{p}/{q}",
+   "values": {
+    "p": 1,
+    "q": ""
+   },
+   "decimals": "",
+   "error": "calcDiv0"
+  },
+  {
+   "formula": "1/(2-2)",
+   "values": {},
+   "decimals": "",
+   "error": "calcDiv0"
+  },
+  {
+   "formula": "۱۲+{a}",
+   "values": {
+    "a": 3
+   },
+   "decimals": "",
+   "expect": "15"
+  },
+  {
+   "formula": "١٢+٣",
+   "values": {},
+   "decimals": "",
+   "expect": "15"
+  },
+  {
+   "formula": "۲٫۵*۲",
+   "values": {},
+   "decimals": "",
+   "expect": "5"
+  },
+  {
+   "formula": "max(۱،۲،۳)",
+   "values": {},
+   "decimals": "",
+   "expect": "3"
+  },
+  {
+   "formula": "١٠ × ٢",
+   "values": {},
+   "decimals": "",
+   "expect": "20"
+  },
+  {
+   "formula": "10 ÷ 4",
+   "values": {},
+   "decimals": "",
+   "expect": "2.5"
+  },
+  {
+   "formula": "5 − 2",
+   "values": {},
+   "decimals": "",
+   "expect": "3"
+  },
+  {
+   "formula": "sum({r.x})",
+   "values": {
+    "r.x": [
+     1,
+     2,
+     3
+    ]
+   },
+   "decimals": "",
+   "expect": "6"
+  },
+  {
+   "formula": "avg({r.x})",
+   "values": {
+    "r.x": [
+     1,
+     2,
+     3
+    ]
+   },
+   "decimals": "",
+   "expect": "2"
+  },
+  {
+   "formula": "min({r.x},0)",
+   "values": {
+    "r.x": [
+     1,
+     2,
+     3
+    ]
+   },
+   "decimals": "",
+   "expect": "0"
+  },
+  {
+   "formula": "max({r.x})",
+   "values": {
+    "r.x": [
+     1,
+     2,
+     3
+    ]
+   },
+   "decimals": "",
+   "expect": "3"
+  },
+  {
+   "formula": "count({r.x})",
+   "values": {
+    "r.x": [
+     1,
+     2,
+     3
+    ]
+   },
+   "decimals": "",
+   "expect": "3"
+  },
+  {
+   "formula": "sum({r.x})",
+   "values": {
+    "r.x": []
+   },
+   "decimals": "",
+   "expect": "0"
+  },
+  {
+   "formula": "avg({r.x})",
+   "values": {
+    "r.x": []
+   },
+   "decimals": "",
+   "error": "calcArgs"
+  },
+  {
+   "formula": "{r.x}+1",
+   "values": {
+    "r.x": [
+     1,
+     2
+    ]
+   },
+   "decimals": "",
+   "error": "calcListCtx"
+  },
+  {
+   "formula": "round({r.x})",
+   "values": {
+    "r.x": [
+     1
+    ]
+   },
+   "decimals": "",
+   "error": "calcListCtx"
+  },
+  {
+   "formula": "sum({r.x},{a})",
+   "values": {
+    "r.x": [
+     1,
+     2,
+     3
+    ],
+    "a": 4
+   },
+   "decimals": "",
+   "expect": "10"
+  },
+  {
+   "formula": "sum({r.x})",
+   "values": {
+    "r.x": [
+     1,
+     "",
+     2
+    ]
+   },
+   "decimals": "",
+   "expect": "3"
+  },
+  {
+   "formula": "sum({r.x})",
+   "values": {
+    "r.x": [
+     1,
+     "",
+     2
+    ]
+   },
+   "decimals": "",
+   "expect": "",
+   "opts": {
+    "empty": "blank"
+   }
+  },
+  {
+   "formula": "sum({r.x})",
+   "values": {
+    "r.x": [
+     1,
+     "x"
+    ]
+   },
+   "decimals": "",
+   "error": "calcNaN"
+  },
+  {
+   "formula": "min(3,1,2)",
+   "values": {},
+   "decimals": "",
+   "expect": "1"
+  },
+  {
+   "formula": "max(-1,-5)",
+   "values": {},
+   "decimals": "",
+   "expect": "-1"
+  },
+  {
+   "formula": "abs(-7.5)",
+   "values": {},
+   "decimals": "",
+   "expect": "7.5"
+  },
+  {
+   "formula": "sum(1,2,3)",
+   "values": {},
+   "decimals": "",
+   "expect": "6"
+  },
+  {
+   "formula": "avg(1,2)",
+   "values": {},
+   "decimals": "",
+   "expect": "1.5"
+  },
+  {
+   "formula": "count(5,6,7)",
+   "values": {},
+   "decimals": "",
+   "expect": "3"
+  },
+  {
+   "formula": "gt(2,1)",
+   "values": {},
+   "decimals": "",
+   "expect": "1"
+  },
+  {
+   "formula": "gt(1,1)",
+   "values": {},
+   "decimals": "",
+   "expect": "0"
+  },
+  {
+   "formula": "gte(1,1)",
+   "values": {},
+   "decimals": "",
+   "expect": "1"
+  },
+  {
+   "formula": "lt(1,2)",
+   "values": {},
+   "decimals": "",
+   "expect": "1"
+  },
+  {
+   "formula": "lte(2,2)",
+   "values": {},
+   "decimals": "",
+   "expect": "1"
+  },
+  {
+   "formula": "lte(3,2)",
+   "values": {},
+   "decimals": "",
+   "expect": "0"
+  },
+  {
+   "formula": "eq(0.1+0.2,0.3)",
+   "values": {},
+   "decimals": "",
+   "expect": "1"
+  },
+  {
+   "formula": "neq(0.1+0.2,0.3)",
+   "values": {},
+   "decimals": "",
+   "expect": "0"
+  },
+  {
+   "formula": "eq(1,1.0001)",
+   "values": {},
+   "decimals": "",
+   "expect": "0"
+  },
+  {
+   "formula": "and(1,1,1)",
+   "values": {},
+   "decimals": "",
+   "expect": "1"
+  },
+  {
+   "formula": "and(1,0)",
+   "values": {},
+   "decimals": "",
+   "expect": "0"
+  },
+  {
+   "formula": "or(0,0,2)",
+   "values": {},
+   "decimals": "",
+   "expect": "1"
+  },
+  {
+   "formula": "or(0)",
+   "values": {},
+   "decimals": "",
+   "expect": "0"
+  },
+  {
+   "formula": "not(0)",
+   "values": {},
+   "decimals": "",
+   "expect": "1"
+  },
+  {
+   "formula": "not(5)",
+   "values": {},
+   "decimals": "",
+   "expect": "0"
+  },
+  {
+   "formula": "and(0,1/0)",
+   "values": {},
+   "decimals": "",
+   "expect": "0"
+  },
+  {
+   "formula": "or(1,1/0)",
+   "values": {},
+   "decimals": "",
+   "expect": "1"
+  },
+  {
+   "formula": "mod(10,3)",
+   "values": {},
+   "decimals": "",
+   "expect": "1"
+  },
+  {
+   "formula": "mod(-10,3)",
+   "values": {},
+   "decimals": "",
+   "expect": "-1"
+  },
+  {
+   "formula": "mod(5.5,2)",
+   "values": {},
+   "decimals": "",
+   "expect": "1.5"
+  },
+  {
+   "formula": "mod(1,0)",
+   "values": {},
+   "decimals": "",
+   "error": "calcDiv0"
+  },
+  {
+   "formula": "pow(2,10)",
+   "values": {},
+   "decimals": "",
+   "expect": "1024"
+  },
+  {
+   "formula": "pow(2,-2)",
+   "values": {},
+   "decimals": "",
+   "expect": "0.25"
+  },
+  {
+   "formula": "pow(-3,3)",
+   "values": {},
+   "decimals": "",
+   "expect": "-27"
+  },
+  {
+   "formula": "pow(5,0)",
+   "values": {},
+   "decimals": "",
+   "expect": "1"
+  },
+  {
+   "formula": "pow(2,0.5)",
+   "values": {},
+   "decimals": "",
+   "error": "calcArgs"
+  },
+  {
+   "formula": "pow(2,11)",
+   "values": {},
+   "decimals": "",
+   "error": "calcArgs"
+  },
+  {
+   "formula": "pow(0,-1)",
+   "values": {},
+   "decimals": "",
+   "error": "calcDiv0"
+  },
+  {
+   "formula": "if(gt({a},100),{a}*0.9,{a})",
+   "values": {
+    "a": 200
+   },
+   "decimals": "",
+   "expect": "180"
+  },
+  {
+   "formula": "if(gt({a},100),{a}*0.9,{a})",
+   "values": {
+    "a": 50
+   },
+   "decimals": "",
+   "expect": "50"
+  },
+  {
+   "formula": "IF(1,2,3)",
+   "values": {},
+   "decimals": "",
+   "expect": "2"
+  },
+  {
+   "formula": "Round(2.5)",
+   "values": {},
+   "decimals": "",
+   "expect": "3"
+  },
+  {
+   "formula": "round({w}/pow({h}/100,2),1)",
+   "values": {
+    "w": "70",
+    "h": "175"
+   },
+   "decimals": 1,
+   "expect": "22.9"
+  },
+  {
+   "formula": "1000000000000000*10",
+   "values": {},
+   "decimals": "",
+   "error": "calcRange"
+  },
+  {
+   "formula": "999999999999999",
+   "values": {},
+   "decimals": 0,
+   "expect": "999999999999999"
+  },
+  {
+   "formula": "99999999999999*1000",
+   "values": {},
+   "decimals": "",
+   "error": "calcRange"
+  },
+  {
+   "formula": "9000000000000*1000",
+   "values": {},
+   "decimals": 2,
+   "error": "calcRange"
+  },
+  {
+   "formula": "pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)*pow(10,10)",
+   "values": {},
+   "decimals": "",
+   "error": "calcRange"
+  },
+  {
+   "formula": "1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1",
+   "values": {},
+   "decimals": "",
+   "error": "calcTokens",
+   "pos": 512,
+   "near": "1"
+  },
+  {
+   "formula": "1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1+1",
+   "values": {},
+   "decimals": "",
+   "expect": "256"
+  },
+  {
+   "formula": "(((((((((((((((((((((((((((((((((1)))))))))))))))))))))))))))))))))",
+   "values": {},
+   "decimals": "",
+   "error": "calcDepth",
+   "pos": 32,
+   "near": "("
+  },
+  {
+   "formula": "(((((((((((((((((((((((((((((((1)))))))))))))))))))))))))))))))",
+   "values": {},
+   "decimals": "",
+   "expect": "1"
+  },
+  {
+   "formula": "---------------------------------1",
+   "values": {},
+   "decimals": "",
+   "error": "calcDepth",
+   "pos": 32,
+   "near": "-"
+  },
+  {
+   "formula": "1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ",
+   "values": {},
+   "decimals": "",
+   "error": "calcLong",
+   "pos": 2000,
+   "near": ""
+  },
+  {
+   "formula": "{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}",
+   "values": {
+    "a": 1
+   },
+   "decimals": "",
+   "error": "calcRefs",
+   "pos": 400,
+   "near": "{a}"
+  },
+  {
+   "formula": "{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}+{a}",
+   "values": {
+    "a": 1
+   },
+   "decimals": "",
+   "expect": "100"
+  },
+  {
+   "formula": "",
+   "values": {},
+   "decimals": "",
+   "error": "calcEmpty",
+   "pos": 0,
+   "near": ""
+  },
+  {
+   "formula": "   ",
+   "values": {},
+   "decimals": "",
+   "error": "calcEmpty",
+   "pos": 0,
+   "near": ""
+  },
+  {
+   "formula": "2*",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 2,
+   "near": ""
+  },
+  {
+   "formula": "(1+2",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 4,
+   "near": ""
+  },
+  {
+   "formula": "1+2)",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 3,
+   "near": ")"
+  },
+  {
+   "formula": "1 2",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 2,
+   "near": "2"
+  },
+  {
+   "formula": "1..2",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "1..2"
+  },
+  {
+   "formula": "1.",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "1."
+  },
+  {
+   "formula": ".5",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "."
+  },
+  {
+   "formula": "1e5",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "1e5"
+  },
+  {
+   "formula": "2x",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "2x"
+  },
+  {
+   "formula": "foo(1)",
+   "values": {},
+   "decimals": "",
+   "error": "calcFn",
+   "pos": 0,
+   "near": "foo"
+  },
+  {
+   "formula": "round",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "round"
+  },
+  {
+   "formula": "round(1,2,3)",
+   "values": {},
+   "decimals": "",
+   "error": "calcArgs",
+   "pos": 0,
+   "near": "round"
+  },
+  {
+   "formula": "if(1,2)",
+   "values": {},
+   "decimals": "",
+   "error": "calcArgs",
+   "pos": 0,
+   "near": "if"
+  },
+  {
+   "formula": "min()",
+   "values": {},
+   "decimals": "",
+   "error": "calcArgs",
+   "pos": 0,
+   "near": "min"
+  },
+  {
+   "formula": "1 > 2",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 2,
+   "near": ">"
+  },
+  {
+   "formula": "1 < 2",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 2,
+   "near": "<"
+  },
+  {
+   "formula": "\"a\"",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "\""
+  },
+  {
+   "formula": "10 % 3",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 3,
+   "near": "%"
+  },
+  {
+   "formula": "2^3",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 1,
+   "near": "^"
+  },
+  {
+   "formula": "alert(1)",
+   "values": {},
+   "decimals": "",
+   "error": "calcFn",
+   "pos": 0,
+   "near": "alert"
+  },
+  {
+   "formula": "constructor",
+   "values": {},
+   "decimals": "",
+   "error": "calcFn",
+   "pos": 0,
+   "near": "constructor"
+  },
+  {
+   "formula": "__proto__(1)",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "_"
+  },
+  {
+   "formula": "eval(1)",
+   "values": {},
+   "decimals": "",
+   "error": "calcFn",
+   "pos": 0,
+   "near": "eval"
+  },
+  {
+   "formula": "process.exit()",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 7,
+   "near": "."
+  },
+  {
+   "formula": "{a};1",
+   "values": {
+    "a": 1
+   },
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 3,
+   "near": ";"
+  },
+  {
+   "formula": "{a b}",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "{a b}"
+  },
+  {
+   "formula": "{}",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "{}"
+  },
+  {
+   "formula": "{a",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "{a"
+  },
+  {
+   "formula": "{field:}",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "{field:}"
+  },
+  {
+   "formula": "{<b>}",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "{<b>}"
+  },
+  {
+   "formula": "{a}{b}",
+   "values": {
+    "a": 1,
+    "b": 2
+   },
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 3,
+   "near": "{b}"
+  },
+  {
+   "formula": "<script>",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "<"
+  },
+  {
+   "formula": "${a}",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "$"
+  },
+  {
+   "formula": "{a}.x",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 3,
+   "near": "."
+  },
+  {
+   "formula": "1/*c*/2",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 2,
+   "near": "*"
+  },
+  {
+   "formula": "sum(1,)",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 6,
+   "near": ")"
+  },
+  {
+   "formula": "(,1)",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 1,
+   "near": ","
+  },
+  {
+   "formula": "max(1;2)",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 5,
+   "near": ";"
+  },
+  {
+   "formula": "ok‮(1)",
+   "values": {},
+   "decimals": "",
+   "error": "calcFn",
+   "pos": 0,
+   "near": "ok"
+  },
+  {
+   "formula": "١٢٫٥٫١",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "12.5.1"
+  },
+  {
+   "formula": "{ا}",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "{ا}"
+  },
+  {
+   "formula": "سلام",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "س"
+  },
+  {
+   "formula": "{aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "{aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}"
+  },
+  {
+   "formula": "{aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}",
+   "values": {
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": 7
+   },
+   "decimals": "",
+   "expect": "7"
+  },
+  {
+   "formula": "1111111111111111111111111111111",
+   "values": {},
+   "decimals": "",
+   "error": "calcSyntax",
+   "pos": 0,
+   "near": "111111111111"
+  },
+  {
+   "formula": " 1 +\t2\n",
+   "values": {},
+   "decimals": "",
+   "expect": "3"
+  },
+  {
+   "formula": "1 + 2",
+   "values": {},
+   "decimals": "",
+   "expect": "3"
+  },
+  {
+   "formula": "{field:k3x9a2b1c}*2",
+   "values": {
+    "k3x9a2b1c": 4
+   },
+   "decimals": "",
+   "expect": "8"
+  },
+  {
+   "formula": "{a-b_c}+1",
+   "values": {
+    "a-b_c": 1
+   },
+   "decimals": "",
+   "expect": "2"
+  }
+ ],
+ "parse_input": [
+  {
+   "raw": "12.5",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "expect": "12.5"
+  },
+  {
+   "raw": "۱۲٫۵",
+   "field": {
+    "type": "number"
+   },
+   "locale": "fa_IR",
+   "expect": "12.5"
+  },
+  {
+   "raw": "١٢٫٥",
+   "field": {
+    "type": "number"
+   },
+   "locale": "ar",
+   "expect": "12.5"
+  },
+  {
+   "raw": "۱۲.۵",
+   "field": {
+    "type": "number"
+   },
+   "locale": "fa_IR",
+   "expect": "12.5"
+  },
+  {
+   "raw": "1,250,000",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "expect": "1250000"
+  },
+  {
+   "raw": "1٬250٬000",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "expect": "1250000"
+  },
+  {
+   "raw": "۱،۲۵۰",
+   "field": {
+    "type": "number"
+   },
+   "locale": "fa_IR",
+   "expect": "1250"
+  },
+  {
+   "raw": "1.250.000,5",
+   "field": {
+    "type": "number",
+    "num_dec_sep": ",",
+    "num_grp_sep": "."
+   },
+   "locale": "en_US",
+   "expect": "1250000.5"
+  },
+  {
+   "raw": "1.250,5",
+   "field": {
+    "type": "number"
+   },
+   "locale": "de_DE",
+   "expect": "1250.5"
+  },
+  {
+   "raw": "1 250,5",
+   "field": {
+    "type": "number"
+   },
+   "locale": "fr_FR",
+   "expect": "1250.5"
+  },
+  {
+   "raw": "1'250.5",
+   "field": {
+    "type": "number"
+   },
+   "locale": "de_CH",
+   "expect": "1250.5"
+  },
+  {
+   "raw": "-12",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "expect": "-12"
+  },
+  {
+   "raw": "−12",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "expect": "-12"
+  },
+  {
+   "raw": "-0",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "expect": "0"
+  },
+  {
+   "raw": "0012.500",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "expect": "12.5"
+  },
+  {
+   "raw": "12.",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "expect": "12"
+  },
+  {
+   "raw": ".5",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "expect": "0.5"
+  },
+  {
+   "raw": "-.5",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "expect": "-0.5"
+  },
+  {
+   "raw": ".",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "err": "nan"
+  },
+  {
+   "raw": " 7 ",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "expect": "7"
+  },
+  {
+   "raw": "",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "err": "empty"
+  },
+  {
+   "raw": "   ",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "err": "empty"
+  },
+  {
+   "raw": "abc",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "err": "nan"
+  },
+  {
+   "raw": "1.2.3",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "err": "nan"
+  },
+  {
+   "raw": "1e5",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "err": "nan"
+  },
+  {
+   "raw": "--1",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "err": "nan"
+  },
+  {
+   "raw": "1-2",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "err": "nan"
+  },
+  {
+   "raw": "$12.5",
+   "field": {
+    "type": "number",
+    "num_prefix": "$"
+   },
+   "locale": "en_US",
+   "expect": "12.5"
+  },
+  {
+   "raw": "70 kg",
+   "field": {
+    "type": "number",
+    "num_suffix": "kg"
+   },
+   "locale": "en_US",
+   "expect": "70"
+  },
+  {
+   "raw": "۱۲۰۰ تومان",
+   "field": {
+    "type": "number",
+    "num_suffix": "تومان"
+   },
+   "locale": "fa_IR",
+   "expect": "1200"
+  },
+  {
+   "raw": "$1,234.50",
+   "field": {
+    "type": "number",
+    "num_currency": "form"
+   },
+   "locale": "en_US",
+   "currency": {
+    "s": "$",
+    "d": 2
+   },
+   "expect": "1234.5"
+  },
+  {
+   "raw": "12‎.5",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "expect": "12.5"
+  },
+  {
+   "raw": "11111111111111111111111111111111111111111111111111111111111111111",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "err": "nan"
+  },
+  {
+   "raw": "12,5",
+   "field": {
+    "type": "number"
+   },
+   "locale": "de_DE",
+   "expect": "12.5"
+  },
+  {
+   "raw": "12,5",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "expect": "125"
+  },
+  {
+   "raw": "1,2,3.4",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "expect": "123.4"
+  },
+  {
+   "raw": "1.5,0",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "err": "nan"
+  }
+ ],
+ "check": [
+  {
+   "canon": "12.5",
+   "field": {
+    "type": "number",
+    "num_step": "0.5"
+   },
+   "locale": "en_US",
+   "expect": ""
+  },
+  {
+   "canon": "12.3",
+   "field": {
+    "type": "number",
+    "num_step": "0.5"
+   },
+   "locale": "en_US",
+   "expect": "step"
+  },
+  {
+   "canon": "0.3",
+   "field": {
+    "type": "number",
+    "num_step": "0.1"
+   },
+   "locale": "en_US",
+   "expect": ""
+  },
+  {
+   "canon": "0.30000001",
+   "field": {
+    "type": "number",
+    "num_step": "0.1"
+   },
+   "locale": "en_US",
+   "expect": "step"
+  },
+  {
+   "canon": "7",
+   "field": {
+    "type": "number",
+    "num_step": "5",
+    "milen": "2"
+   },
+   "locale": "en_US",
+   "expect": ""
+  },
+  {
+   "canon": "8",
+   "field": {
+    "type": "number",
+    "num_step": "5",
+    "milen": "2"
+   },
+   "locale": "en_US",
+   "expect": "step"
+  },
+  {
+   "canon": "-3",
+   "field": {
+    "type": "number",
+    "num_step": "5",
+    "milen": "-8"
+   },
+   "locale": "en_US",
+   "expect": ""
+  },
+  {
+   "canon": "-4",
+   "field": {
+    "type": "number",
+    "num_step": "5",
+    "milen": "-8"
+   },
+   "locale": "en_US",
+   "expect": "step"
+  },
+  {
+   "canon": "-10",
+   "field": {
+    "type": "number",
+    "milen": "-10",
+    "mlen": "9.5"
+   },
+   "locale": "en_US",
+   "expect": ""
+  },
+  {
+   "canon": "-10.5",
+   "field": {
+    "type": "number",
+    "milen": "-10",
+    "mlen": "9.5"
+   },
+   "locale": "en_US",
+   "expect": "min"
+  },
+  {
+   "canon": "9.5",
+   "field": {
+    "type": "number",
+    "milen": "-10",
+    "mlen": "9.5"
+   },
+   "locale": "en_US",
+   "expect": ""
+  },
+  {
+   "canon": "9.51",
+   "field": {
+    "type": "number",
+    "milen": "-10",
+    "mlen": "9.5"
+   },
+   "locale": "en_US",
+   "expect": "max"
+  },
+  {
+   "canon": "1000",
+   "field": {
+    "type": "number",
+    "mlen": "0"
+   },
+   "locale": "en_US",
+   "expect": ""
+  },
+  {
+   "canon": "-1",
+   "field": {
+    "type": "number",
+    "milen": "-5",
+    "mlen": "0"
+   },
+   "locale": "en_US",
+   "expect": ""
+  },
+  {
+   "canon": "1",
+   "field": {
+    "type": "number",
+    "milen": "-5",
+    "mlen": "0",
+    "num_max_zero": "1"
+   },
+   "locale": "en_US",
+   "expect": "max"
+  },
+  {
+   "canon": "0",
+   "field": {
+    "type": "number",
+    "milen": "-5",
+    "mlen": "0",
+    "num_max_zero": "1"
+   },
+   "locale": "en_US",
+   "expect": ""
+  },
+  {
+   "canon": "1.234",
+   "field": {
+    "type": "number",
+    "num_decimals": "2"
+   },
+   "locale": "en_US",
+   "expect": "dec"
+  },
+  {
+   "canon": "1.23",
+   "field": {
+    "type": "number",
+    "num_decimals": "2"
+   },
+   "locale": "en_US",
+   "expect": ""
+  },
+  {
+   "canon": "1.5",
+   "field": {
+    "type": "number",
+    "num_decimals": "0"
+   },
+   "locale": "en_US",
+   "expect": "dec"
+  },
+  {
+   "canon": "1.5",
+   "field": {
+    "type": "number",
+    "num_step": "1",
+    "num_decimals": ""
+   },
+   "locale": "en_US",
+   "expect": "step"
+  },
+  {
+   "canon": "1.234",
+   "field": {
+    "type": "number",
+    "num_decimals": "2",
+    "num_step": "0.5",
+    "milen": "5"
+   },
+   "locale": "en_US",
+   "expect": "dec"
+  },
+  {
+   "canon": "2.5",
+   "field": {
+    "type": "number",
+    "num_step": "2",
+    "milen": "5"
+   },
+   "locale": "en_US",
+   "expect": "step"
+  },
+  {
+   "canon": "2",
+   "field": {
+    "type": "number",
+    "num_step": "1",
+    "milen": "5"
+   },
+   "locale": "en_US",
+   "expect": "min"
+  },
+  {
+   "canon": "123456789012.25",
+   "field": {
+    "type": "number",
+    "num_step": "0.25"
+   },
+   "locale": "en_US",
+   "expect": ""
+  },
+  {
+   "canon": "99999999999999.99",
+   "field": {
+    "type": "number",
+    "num_step": "0.01"
+   },
+   "locale": "en_US",
+   "expect": ""
+  },
+  {
+   "canon": "0.000001",
+   "field": {
+    "type": "number",
+    "num_step": "0.000001"
+   },
+   "locale": "en_US",
+   "expect": ""
+  },
+  {
+   "canon": "12.34",
+   "field": {
+    "type": "number",
+    "num_currency": "form"
+   },
+   "locale": "en_US",
+   "expect": "dec"
+  }
+ ],
+ "format": [
+  {
+   "canon": "1250000",
+   "field": {
+    "type": "number",
+    "num_format": "group",
+    "num_digits": "native",
+    "num_suffix": "تومان"
+   },
+   "locale": "fa_IR",
+   "expect": "۱٬۲۵۰٬۰۰۰ تومان"
+  },
+  {
+   "canon": "1250000",
+   "field": {
+    "type": "number"
+   },
+   "locale": "fa_IR",
+   "expect": "1250000"
+  },
+  {
+   "canon": "1250000.5",
+   "field": {
+    "type": "number",
+    "num_format": "group"
+   },
+   "locale": "en_US",
+   "expect": "1,250,000.5"
+  },
+  {
+   "canon": "1250000.5",
+   "field": {
+    "type": "number",
+    "num_format": "group"
+   },
+   "locale": "de_DE",
+   "expect": "1.250.000,5"
+  },
+  {
+   "canon": "1250000.5",
+   "field": {
+    "type": "number",
+    "num_format": "group"
+   },
+   "locale": "fr_FR",
+   "expect": "1 250 000,5"
+  },
+  {
+   "canon": "12.5",
+   "field": {
+    "type": "number",
+    "num_digits": "auto"
+   },
+   "locale": "ar",
+   "expect": "١٢٫٥"
+  },
+  {
+   "canon": "12.5",
+   "field": {
+    "type": "number",
+    "num_digits": "auto"
+   },
+   "locale": "ar_MA",
+   "expect": "12.5"
+  },
+  {
+   "canon": "12.5",
+   "field": {
+    "type": "number",
+    "num_digits": "auto"
+   },
+   "locale": "en_US",
+   "expect": "12.5"
+  },
+  {
+   "canon": "-1234.5",
+   "field": {
+    "type": "calc",
+    "num_format": "group",
+    "num_digits": "native"
+   },
+   "locale": "fa_IR",
+   "expect": "-۱٬۲۳۴٫۵"
+  },
+  {
+   "canon": "1234.5",
+   "field": {
+    "type": "calc",
+    "num_currency": "form"
+   },
+   "locale": "en_US",
+   "expect": "$1,234.50",
+   "currency": {
+    "s": "$",
+    "d": 2
+   }
+  },
+  {
+   "canon": "1234",
+   "field": {
+    "type": "calc",
+    "num_currency": "form",
+    "num_digits": "native"
+   },
+   "locale": "fa_IR",
+   "expect": "۱٬۲۳۴ ریال",
+   "currency": {
+    "s": "ریال",
+    "d": 0
+   }
+  },
+  {
+   "canon": "70",
+   "field": {
+    "type": "number",
+    "num_suffix": "kg"
+   },
+   "locale": "en_US",
+   "expect": "70 kg"
+  },
+  {
+   "canon": "70",
+   "field": {
+    "type": "number",
+    "num_prefix": "$"
+   },
+   "locale": "en_US",
+   "expect": "$70"
+  },
+  {
+   "canon": "70",
+   "field": {
+    "type": "number",
+    "num_prefix": "USD"
+   },
+   "locale": "en_US",
+   "expect": "USD 70"
+  },
+  {
+   "canon": "5",
+   "field": {
+    "type": "calc",
+    "num_suffix": "%"
+   },
+   "locale": "en_US",
+   "expect": "5%"
+  },
+  {
+   "canon": "70",
+   "field": {
+    "type": "number",
+    "suffix": "kg"
+   },
+   "locale": "en_US",
+   "expect": "70 kg"
+  },
+  {
+   "canon": "abc",
+   "field": {
+    "type": "number",
+    "num_format": "group"
+   },
+   "locale": "en_US",
+   "expect": "abc"
+  },
+  {
+   "canon": "",
+   "field": {
+    "type": "number",
+    "num_format": "group"
+   },
+   "locale": "en_US",
+   "expect": ""
+  },
+  {
+   "canon": "<b>1</b>",
+   "field": {
+    "type": "number"
+   },
+   "locale": "en_US",
+   "expect": "<b>1</b>"
+  },
+  {
+   "canon": "1234567",
+   "field": {
+    "type": "number",
+    "num_format": "group",
+    "num_grp_sep": ",",
+    "num_dec_sep": "."
+   },
+   "locale": "fa_IR",
+   "expect": "1,234,567"
+  },
+  {
+   "canon": "1234567.25",
+   "field": {
+    "type": "number",
+    "num_format": "group"
+   },
+   "locale": "de_CH",
+   "expect": "1'234'567.25"
+  },
+  {
+   "canon": "1234567",
+   "field": {
+    "type": "number",
+    "num_format": "group",
+    "num_grp_sep": "space"
+   },
+   "locale": "en_US",
+   "expect": "1 234 567"
+  },
+  {
+   "canon": "1234.5",
+   "field": {
+    "type": "number",
+    "num_dec_sep": "momayez"
+   },
+   "locale": "en_US",
+   "expect": "1234٫5"
+  },
+  {
+   "canon": "1234.5",
+   "field": {
+    "type": "range",
+    "num_format": "group"
+   },
+   "locale": "en_US",
+   "expect": "1,234.5"
+  },
+  {
+   "canon": "1234.5",
+   "field": {
+    "type": "text",
+    "num_format": "group",
+    "num_digits": "native"
+   },
+   "locale": "fa_IR",
+   "expect": "1234.5"
+  },
+  {
+   "canon": "0.5",
+   "field": {
+    "type": "calc",
+    "num_digits": "native"
+   },
+   "locale": "fa_IR",
+   "expect": "۰٫۵"
+  }
+ ]
+}
