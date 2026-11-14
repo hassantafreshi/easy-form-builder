@@ -56,6 +56,15 @@ class Entries {
 		if (!function_exists('add_action')) return;
 		add_action(self::BACKFILL_HOOK, array(__CLASS__, 'run_backfill'), 10, 0);
 		add_action('wp_ajax_efb_entries_query_Emsfb', array(__CLASS__, 'ajax_query'));
+		add_action('wp_ajax_efb_entries_bulk_Emsfb', array(__CLASS__, 'ajax_bulk'));
+		add_action('wp_ajax_efb_entries_cols_Emsfb', array(__CLASS__, 'ajax_cols'));
+		add_action('wp_ajax_efb_entry_get_Emsfb', array(__CLASS__, 'ajax_get'));
+		// Notes and history go with the entry (every permanent delete path of F13).
+		add_action('efb_entries_purged', array(__CLASS__, 'on_entries_purged'), 15, 4);
+		// The trash is emptied after trash_days by the daily job, after F13's retention (30).
+		add_action('emsfb_daily_maintenance', array(__CLASS__, 'purge_trash'), 35, 0);
+		add_filter('efb_admin_localize_vars', array(__CLASS__, 'localize_vars'), 29, 2);
+		add_filter('efb_capabilities', array(__CLASS__, 'capabilities'), 28, 2);
 	}
 
 	/* ------------------------------------------------------------ schema (A) */
@@ -523,6 +532,49 @@ class Entries {
 		return $out;
 	}
 
+	/** Types that carry no answer (structure and decoration). */
+	const NO_VALUE_TYPES = array('step', 'option', 'html', 'heading', 'link', 'buttonNav', 'steps', 'ttlprc', 'table_matrix', 'w_link', 'form', 'login', 'register', 'subscribe', 'survey', 'payment_page');
+
+	/** Choice types whose options are rows of the form (parent = field id). */
+	const CHOICE_TYPES = array('radio', 'checkbox', 'select', 'multiselect', 'imgRadio', 'payRadio', 'payCheckbox', 'paySelect', 'payMultiselect', 'chlRadio', 'chlCheckBox', 'trmCheckbox', 'ranking', 'conturyList', 'stateProvince', 'cityList', 'yesNo', 'switch');
+
+	/** The stored form's rows (decoded), cached per request. */
+	public static function form_rows($form_id) {
+		static $cache = array();
+		$form_id = (int) $form_id;
+		if (array_key_exists($form_id, $cache)) return $cache[$form_id];
+		global $wpdb;
+		$row = $form_id > 0 ? $wpdb->get_row($wpdb->prepare("SELECT form_structer, form_type, form_name FROM `{$wpdb->prefix}emsfb_form` WHERE form_id = %d", $form_id), ARRAY_A) : null;
+		$rows = $row ? Privacy::decode_content($row['form_structer']) : null;
+		return $cache[$form_id] = is_array($rows) ? $rows : null;
+	}
+
+	/**
+	 * The answer fields of a form for the list's columns and conditions: id, name, type, step, amount, the repeater
+	 * group (rg) and the options of a choice field, in the order of the form (step, then amount).
+	 */
+	public static function form_fields($form_id) {
+		$rows = self::form_rows($form_id);
+		if (!is_array($rows)) return array();
+		$opts = array();
+		foreach ($rows as $i => $r) {
+			if ($i > 0 && is_array($r) && ($r['type'] ?? '') === 'option' && isset($r['parent'], $r['id_'])) {
+				$opts[(string) $r['parent']][] = array('id' => (string) $r['id_'], 'value' => isset($r['value']) && is_scalar($r['value']) ? (string) $r['value'] : '');
+			}
+		}
+		$out = array();
+		foreach ($rows as $i => $r) {
+			if ($i < 1 || !is_array($r) || !isset($r['id_'], $r['type']) || in_array($r['type'], self::NO_VALUE_TYPES, true)) continue;
+			$f = array('id' => (string) $r['id_'], 'name' => isset($r['name']) && is_scalar($r['name']) ? (string) $r['name'] : (string) $r['id_'], 'type' => (string) $r['type'],
+				'step' => isset($r['step']) ? (int) $r['step'] : 0, 'amount' => isset($r['amount']) ? (float) $r['amount'] : 0);
+			if (isset($r['group']) && is_scalar($r['group']) && $r['group'] !== '') $f['group'] = (string) $r['group'];
+			if (isset($opts[$f['id']])) $f['options'] = $opts[$f['id']];
+			$out[] = $f;
+		}
+		usort($out, function ($a, $b) { return $a['step'] === $b['step'] ? ($a['amount'] < $b['amount'] ? -1 : ($a['amount'] > $b['amount'] ? 1 : 0)) : ($a['step'] < $b['step'] ? -1 : 1); });
+		return $out;
+	}
+
 	/** AJAX efb_entries_query_Emsfb: the page, the tab counts and the nonce of the response box. */
 	public static function ajax_query() {
 		self::guard();
@@ -531,6 +583,7 @@ class Entries {
 		$in['conds'] = self::post_json('conds');
 		$a = self::args($in);
 		if ($a['form_id'] <= 0) wp_send_json_success(array('success' => false, 'code' => 'efb_invalid', 'm' => self::t('somethingWentWrongPleaseRefresh', 'Something went wrong. Please refresh the page.')), 200);
+		if (!empty($a['conds']) && !self::plan_ok('filter')) wp_send_json_success(self::plan_error('filter'), 200);
 		$cols = self::user_cols($a['form_id']);
 		$r = self::query($a, array('ip' => in_array('_ip', $cols, true)));
 		$uid = get_current_user_id();
@@ -546,7 +599,392 @@ class Entries {
 			'cols'              => $cols,
 			'nonce_msg'         => wp_create_nonce('efb' . $a['form_id']),
 			'id'                => $a['form_id'],
+			'fields'            => self::post('fields') === '1' ? self::form_fields($a['form_id']) : null,
 		), 200);
+	}
+
+	/* ------------------------------------------------------------ plans (spec §13) */
+
+	/**
+	 * Plan of each part (spec §13; filter efb_entries_plan). Free: the list, tabs, search, dates, star, spam,
+	 * trash, notes, print and CSV with chosen columns and filters. Free Plus: field-value filters, table columns,
+	 * per-form statistics, XLSX, resend, edit with history. Pro: print / PDF without the "made with" line.
+	 */
+	const PLAN = array('filter' => 'free_plus', 'columns' => 'free_plus', 'stats' => 'free_plus', 'xlsx' => 'free_plus', 'resend' => 'free_plus', 'edit' => 'free_plus', 'nobrand' => 'pro');
+
+	/** Registry keys (efb_var.capabilities) of each part. */
+	const FEATURES = array('filter' => 'setting:entries_filter', 'columns' => 'setting:entries_columns', 'stats' => 'setting:entries_stats', 'xlsx' => 'setting:entries_xlsx', 'resend' => 'setting:entries_resend', 'edit' => 'setting:entries_edit', 'nobrand' => 'setting:entries_print_nobrand');
+
+	public static function plan_need($part) {
+		$need = isset(self::PLAN[$part]) ? self::PLAN[$part] : 'pro';
+		return function_exists('apply_filters') ? (string) apply_filters('efb_entries_plan', $need, $part) : $need;
+	}
+
+	public static function plan_ok($part, $package = null) {
+		$need = self::plan_need($part);
+		if ($need === 'free') return true;
+		if ($package === null && function_exists('efb_plan_at_least_efb')) return (bool) efb_plan_at_least_efb($need);
+		return class_exists('\\Emsfb\\Builder_Api') ? (bool) Builder_Api::plan_at_least($need, $package) : false;
+	}
+
+	/** The plan refusal of a part (code efb_plan_required, the registry key and the plan it needs). */
+	public static function plan_error($part) {
+		return array('success' => false, 'code' => 'efb_plan_required', 'feature' => self::FEATURES[$part], 'required_plan' => self::plan_need($part),
+			'm' => self::plan_need($part) === 'pro' ? self::t('proUnlockMsg', 'This feature is available in the Pro version.') : self::t('thisFeatureAvailableFreePlusPro', 'This feature is available in Free Plus and Pro.'));
+	}
+
+	/** efb_capabilities: the F14 entries of the registry (scope "site": they are screens, not form keys). */
+	public static function capabilities($out, $args = array()) {
+		if (!is_array($out) || !isset($out['features']) || !is_array($out['features'])) return $out;
+		$package = isset($out['plan']['package_type']) ? (int) $out['plan']['package_type'] : null;
+		$labels = array('filter' => 'entAddCond', 'columns' => 'entColumns', 'stats' => 'entStats', 'xlsx' => 'entExportFmt', 'resend' => 'entResend', 'edit' => 'entEdit', 'nobrand' => 'entPrint');
+		foreach (self::FEATURES as $part => $key) {
+			$need = self::plan_need($part);
+			$ok = $need === 'free' ? true : (class_exists('\\Emsfb\\Builder_Api') ? Builder_Api::plan_at_least($need, $package) : false);
+			$out['features'][$key] = array('kind' => 'setting', 'scope' => 'site', 'package' => $need, 'addon' => null, 'available_now' => $ok, 'reason' => $ok ? null : 'plan',
+				'prompt_state' => $need === 'free_plus' ? 3 : ($need === 'pro' ? 1 : 0), 'message_key' => $need === 'free_plus' ? 'thisFeatureAvailableFreePlusPro' : ($need === 'pro' ? 'proUnlockMsg' : null),
+				'form_keys' => array(), 'label_key' => $labels[$part]);
+		}
+		// The site setting that opens entries to assistants (SitePilot entries.read): free, administrators only.
+		$out['features']['setting:entries_ai'] = array('kind' => 'setting', 'scope' => 'site', 'package' => 'free', 'addon' => null, 'available_now' => true, 'reason' => null,
+			'prompt_state' => 0, 'message_key' => null, 'form_keys' => array(), 'label_key' => 'entAiAccess', 'settings_keys' => array('ai_entries_access', 'trash_days'));
+		$out['entries'] = array(
+			'spec'     => 'F14',
+			'status'   => array('active' => self::ACTIVE, 'spam' => self::SPAM, 'trash' => self::TRASH),
+			'tabs'     => self::TABS,
+			'per_page' => self::PER_PAGE,
+			'ops'      => self::OPS,
+			'conds'    => array('max' => 3, 'ops' => self::COND_OPS),
+			'plan'     => array_map(array(__CLASS__, 'plan_need'), array_combine(array_keys(self::PLAN), array_keys(self::PLAN))),
+			'api'      => array('functions' => array('efb_api_entries_query', 'efb_api_entry_get', 'efb_api_entries_stats'), 'setting' => 'ai_entries_access', 'modes' => array('off', 'stats', 'rows'), 'read_only' => true),
+			'hooks'    => array('efb_entry_updated', 'efb_entry_status_changed', 'efb_entries_purged', 'efb_message_deleted', 'efb_api_entries_read'),
+		);
+		return $out;
+	}
+
+	/* ------------------------------------------------------------ settings */
+
+	/** Global settings of F14 (emsfb_setting) and their defaults. */
+	public static function setting_defaults() {
+		return array('trash_days' => '30', 'ai_entries_access' => 'off');
+	}
+
+	public static function is_setting_key($key) {
+		return array_key_exists((string) $key, self::setting_defaults());
+	}
+
+	public static function sanitize_setting($key, $value) {
+		if ($key === 'trash_days') {
+			$d = preg_replace('/[^0-9]/', '', self::latin_digits(is_scalar($value) ? (string) $value : ''));
+			return $d === '' ? '30' : (string) min(3650, (int) $d);
+		}
+		if ($key === 'ai_entries_access') {
+			$v = is_scalar($value) ? strtolower(trim((string) $value)) : '';
+			return in_array($v, array('off', 'stats', 'rows'), true) ? $v : 'off';
+		}
+		return null;
+	}
+
+	public static function setting($key, $settings = null) {
+		$defaults = self::setting_defaults();
+		if (!array_key_exists($key, $defaults)) return null;
+		if ($settings === null && function_exists('get_setting_Emsfb')) $settings = get_setting_Emsfb('decoded');
+		if (is_array($settings)) $settings = (object) $settings;
+		if (!is_object($settings) || !isset($settings->$key)) return $defaults[$key];
+		return self::sanitize_setting($key, $settings->$key);
+	}
+
+	/** Days the trash keeps an entry (filter efb_trash_days; 0 = until deleted by hand). */
+	public static function trash_days() {
+		$d = (int) self::setting('trash_days');
+		return function_exists('apply_filters') ? max(0, (int) apply_filters('efb_trash_days', $d)) : $d;
+	}
+
+	/** efb_admin_localize_vars: efb_var.entries on the panel. */
+	public static function localize_vars($vars, $context = '') {
+		if (!is_array($vars)) return $vars;
+		$uid = function_exists('get_current_user_id') ? get_current_user_id() : 0;
+		$pp = $uid > 0 && function_exists('get_user_meta') ? (int) get_user_meta($uid, 'efb_pp', true) : 0;
+		$user = $uid > 0 && function_exists('get_userdata') ? get_userdata($uid) : null;
+		$vars['entries'] = array(
+			'ready'      => self::ready(),
+			'per_page'   => in_array($pp, self::PER_PAGE, true) ? $pp : 20,
+			'trash_days' => self::trash_days(),
+			'user'       => $user && isset($user->display_name) ? (string) $user->display_name : '',
+			'user_id'    => (int) $uid,
+			'can_manage' => function_exists('current_user_can') && current_user_can('manage_options'),
+			'plan'       => array_map(array(__CLASS__, 'plan_ok'), array_combine(array_keys(self::PLAN), array_keys(self::PLAN))),
+			'features'   => self::FEATURES,
+			'max_print'  => 50,
+			'max_resend' => 50,
+			'note_max'   => 5000,
+			'export_url' => function_exists('admin_url') ? admin_url('admin-post.php') : '',
+			'export_nonce' => function_exists('wp_create_nonce') ? wp_create_nonce('efb_export') : '',
+			'export_max' => self::export_max(),
+			'settings'   => array('trash_days' => self::setting('trash_days'), 'ai_entries_access' => self::setting('ai_entries_access')),
+		);
+		return $vars;
+	}
+
+	/** At most this many entries in one export (filter efb_export_sync_max; a background export is phase 2). */
+	public static function export_max() {
+		return function_exists('apply_filters') ? max(1, (int) apply_filters('efb_export_sync_max', 20000)) : 20000;
+	}
+
+	/* ------------------------------------------------------------ star, read, spam, trash (C) */
+
+	const OPS = array('read', 'unread', 'star', 'unstar', 'spam', 'unspam', 'trash', 'restore', 'delete');
+
+	const STATUS_NAMES = array(0 => 'active', 1 => 'spam', 2 => 'trash');
+
+	private static function now() {
+		return function_exists('wp_date') ? wp_date('Y-m-d H:i:s') : gmdate('Y-m-d H:i:s');
+	}
+
+	/** One history row (spec §5.2). Values are cut at 64 KB; meta at 255 and never holds an address. */
+	public static function log($msg_id, $action, $field_id = '', $old = null, $new = null, $meta = '') {
+		global $wpdb;
+		if (!is_object($wpdb)) return false;
+		$cut = function ($v) {
+			if ($v === null) return null;
+			$v = is_scalar($v) ? (string) $v : (string) wp_json_encode($v, JSON_UNESCAPED_UNICODE);
+			return strlen($v) > 65535 ? substr($v, 0, 65532) . '…' : $v;
+		};
+		$row = array(
+			'msg_id'   => (int) $msg_id,
+			'user_id'  => function_exists('get_current_user_id') ? (int) get_current_user_id() : 0,
+			'action'   => substr(preg_replace('/[^a-z_]/', '', strtolower((string) $action)), 0, 20),
+			'field_id' => substr((string) $field_id, 0, 40),
+			'meta'     => function_exists('mb_substr') ? mb_substr((string) $meta, 0, 255, 'UTF-8') : substr((string) $meta, 0, 255),
+			'date'     => self::now(),
+		);
+		if ($old !== null) $row['old_value'] = $cut($old);
+		if ($new !== null) $row['new_value'] = $cut($new);
+		return $wpdb->insert($wpdb->prefix . self::LOG, $row) !== false;
+	}
+
+	/**
+	 * Applies one list operation to entries of one form (spec §8.2). read_ changes only for read / unread, and
+	 * never from or to 2 (pending payment) or 4 (closed): read takes 0 / 3 to 1, unread takes 1 to 0. Spam and
+	 * "not spam" move the spam count of the entry's day. Trash keeps everything the entry holds (F05 places,
+	 * F03 values, F11 places): only "Delete permanently", from the trash, removes it, through F13's purge.
+	 * Returns ['done' => changed entries, 'ids' => their ids].
+	 */
+	public static function apply_op($form_id, $op, array $ids) {
+		global $wpdb;
+		$out = array('done' => 0, 'ids' => array());
+		$ids = array_values(array_unique(array_filter(array_map('intval', $ids), function ($i) { return $i > 0; })));
+		if (!$ids || !in_array($op, self::OPS, true)) return $out;
+		$msg = $wpdb->prefix . 'emsfb_msg_';
+		foreach (array_chunk($ids, 500) as $chunk) {
+			$in = implode(',', array_fill(0, count($chunk), '%d'));
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, placeholders built above
+			$rows = $wpdb->get_results($wpdb->prepare("SELECT msg_id, form_id, entry_status, starred, read_, `date` FROM `{$msg}` WHERE form_id = %d AND msg_id IN ({$in})", array_merge(array((int) $form_id), $chunk)), ARRAY_A);
+			$todo = array();
+			foreach ((array) $rows as $r) {
+				$st = (int) $r['entry_status']; $rd = (int) $r['read_']; $sr = (int) $r['starred'];
+				$ok = false;
+				switch ($op) {
+					case 'read':    $ok = in_array($rd, array(0, 3), true); break;
+					case 'unread':  $ok = $rd === 1; break;
+					case 'star':    $ok = $sr === 0; break;
+					case 'unstar':  $ok = $sr === 1; break;
+					case 'spam':    $ok = $st !== self::SPAM; break;
+					case 'unspam':  $ok = $st === self::SPAM; break;
+					case 'trash':   $ok = $st !== self::TRASH; break;
+					case 'restore': $ok = $st === self::TRASH; break;
+					case 'delete':  $ok = $st === self::TRASH; break;
+				}
+				if ($ok) $todo[(int) $r['msg_id']] = $r;
+			}
+			if (!$todo) continue;
+			$tids = array_keys($todo);
+			if ($op === 'delete') {
+				$res = class_exists('\\Emsfb\\Privacy') ? Privacy::delete_entries($tids) : array('deleted' => 0);
+				$out['done'] += (int) $res['deleted'];
+				$out['ids'] = array_merge($out['ids'], $tids);
+				continue;
+			}
+			$tin = implode(',', array_fill(0, count($tids), '%d'));
+			$set = '';
+			$args = array();
+			switch ($op) {
+				case 'read':    $set = 'read_ = 1, read_date = %s'; $args[] = self::now(); break;
+				case 'unread':  $set = 'read_ = 0'; break;
+				case 'star':    $set = 'starred = 1'; break;
+				case 'unstar':  $set = 'starred = 0'; break;
+				case 'spam':    $set = 'entry_status = 1, trashed_at = NULL'; break;
+				case 'unspam':  $set = 'entry_status = 0'; break;
+				case 'trash':   $set = 'entry_status = 2, trashed_at = %s'; $args[] = self::now(); break;
+				case 'restore': $set = 'entry_status = 0, trashed_at = NULL'; break;
+			}
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, SET from the literal map above, placeholders built above
+			$n = $wpdb->query($wpdb->prepare("UPDATE `{$msg}` SET {$set} WHERE msg_id IN ({$tin})", array_merge($args, $tids)));
+			if ($n === false) continue;
+			$out['done'] += count($tids);
+			$out['ids'] = array_merge($out['ids'], $tids);
+			$spam_days = array();
+			foreach ($todo as $id => $r) {
+				$st = (int) $r['entry_status'];
+				if (in_array($op, array('spam', 'unspam', 'trash', 'restore'), true)) {
+					$to = $op === 'spam' ? self::SPAM : ($op === 'trash' ? self::TRASH : self::ACTIVE);
+					self::log($id, 'status', '', self::STATUS_NAMES[$st], self::STATUS_NAMES[$to]);
+					if ($op === 'spam' || $op === 'unspam') {
+						$day = substr((string) $r['date'], 0, 10);
+						$spam_days[$day] = (isset($spam_days[$day]) ? $spam_days[$day] : 0) + ($op === 'spam' ? 1 : -1);
+					}
+					if (function_exists('do_action')) do_action('efb_entry_status_changed', (int) $id, (int) $form_id, self::STATUS_NAMES[$st], self::STATUS_NAMES[$to]);
+				} elseif ($op === 'star' || $op === 'unstar') {
+					self::log($id, 'star', '', (string) $r['starred'], $op === 'star' ? '1' : '0');
+				} else {
+					self::log($id, 'read', '', (string) $r['read_'], $op === 'read' ? '1' : '0');
+				}
+			}
+			foreach ($spam_days as $day => $n) if ($n !== 0 && preg_match('/^\d{4}-\d{2}-\d{2}$/', $day)) self::bump((int) $form_id, 'spam', $n, $day);
+		}
+		return $out;
+	}
+
+	/** The ids of every entry a list filter matches (the "select all N results" of the list), in batches. */
+	public static function ids_of_filter(array $a, $limit = 20000) {
+		global $wpdb;
+		$a = self::args($a);
+		$msg = $wpdb->prefix . 'emsfb_msg_';
+		list($where, $vals) = self::build_where($a);
+		$out = array();
+		$after = 0;
+		while (count($out) < $limit) {
+			$cols = empty($a['conds']) ? 'm.msg_id' : 'm.msg_id, m.content';
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, clause built with placeholders
+			$batch = $wpdb->get_results($wpdb->prepare("SELECT {$cols} FROM `{$msg}` m WHERE {$where} AND m.msg_id > %d ORDER BY m.msg_id ASC LIMIT %d", array_merge($vals, array($after, self::SCAN_BATCH))), ARRAY_A);
+			if (!$batch) break;
+			foreach ($batch as $r) {
+				$after = (int) $r['msg_id'];
+				if (!empty($a['conds']) && !self::post_match(Privacy::decode_content($r['content']), $a['conds'])) continue;
+				$out[] = (int) $r['msg_id'];
+			}
+			if (count($batch) < self::SCAN_BATCH) break;
+		}
+		return array_slice($out, 0, $limit);
+	}
+
+	/** One entry with what the viewer needs (IP, who read it, raw and shown date), or null. */
+	public static function entry($msg_id) {
+		global $wpdb;
+		$msg = $wpdb->prefix . 'emsfb_msg_';
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		$r = $wpdb->get_row($wpdb->prepare("SELECT * FROM `{$msg}` WHERE msg_id = %d", (int) $msg_id), ARRAY_A);
+		if (!$r) return null;
+		return array(
+			'msg_id' => (int) $r['msg_id'], 'form_id' => (int) $r['form_id'], 'track' => (string) $r['track'], 'ip' => (string) $r['ip'],
+			'read_by' => isset($r['read_by']) ? (string) $r['read_by'] : '0', 'read_' => (int) $r['read_'], 'content' => (string) $r['content'],
+			'date_iso' => (string) $r['date'], 'date' => self::display_date((string) $r['date']),
+			'entry_status' => isset($r['entry_status']) ? (int) $r['entry_status'] : 0, 'starred' => isset($r['starred']) ? (int) $r['starred'] : 0,
+			'edited_at' => !empty($r['edited_at']) ? (string) $r['edited_at'] : '', 'edited_at_display' => !empty($r['edited_at']) ? self::display_date((string) $r['edited_at']) : '',
+			'trashed_at' => !empty($r['trashed_at']) ? (string) $r['trashed_at'] : '', 'prv_state' => isset($r['prv_state']) ? (int) $r['prv_state'] : 0,
+			'hash' => md5((string) $r['content']),
+		);
+	}
+
+	/** AJAX efb_entry_get_Emsfb: one entry for the viewer, with its notes and history (D). */
+	public static function ajax_get() {
+		self::guard();
+		$e = self::entry(absint(self::post('msg_id')));
+		if (!$e) wp_send_json_success(array('success' => false, 'code' => 'efb_not_found', 'm' => self::t('notFound', 'Not found')), 200);
+		$out = array('success' => true, 'entry' => $e);
+		if (function_exists('apply_filters')) $out = apply_filters('efb_entry_get_answer', $out, $e);
+		wp_send_json_success($out, 200);
+	}
+
+	/** AJAX efb_entries_bulk_Emsfb: op with ids (at most 500) or the list's filter ("all N results"). */
+	public static function ajax_bulk() {
+		self::guard();
+		$op = self::post('op');
+		$fid = absint(self::post('form_id'));
+		if (!in_array($op, self::OPS, true) || $fid <= 0) wp_send_json_success(array('success' => false, 'code' => 'efb_invalid', 'm' => self::t('somethingWentWrongPleaseRefresh', 'Something went wrong. Please refresh the page.')), 200);
+		$filter = self::post_json('filter');
+		if (is_array($filter)) {
+			$filter['form_id'] = $fid;
+			if (!empty($filter['conds']) && !self::plan_ok('filter')) wp_send_json_success(self::plan_error('filter'), 200);
+			$ids = self::ids_of_filter($filter);
+		} else {
+			$ids = self::args(array('ids' => self::post_json('ids')))['ids'];
+		}
+		if ($op === 'delete') {
+			// "Delete permanently" exists only in the trash: anything else is moved there first by the list.
+			$ids = array_values($ids);
+		}
+		$r = self::apply_op($fid, $op, $ids);
+		wp_send_json_success(array('success' => true, 'op' => $op, 'done' => $r['done'], 'ids' => $r['ids'], 'counts' => self::counts($fid)), 200);
+	}
+
+	/** AJAX efb_entries_cols_Emsfb: the columns of a form's list for this user (user meta efb_cols_{form}). */
+	public static function ajax_cols() {
+		self::guard(false);
+		$fid = absint(self::post('form_id'));
+		$cols = self::clean_cols(self::post_json('cols'));
+		if ($fid <= 0) wp_send_json_success(array('success' => false, 'code' => 'efb_invalid'), 200);
+		$field_cols = array_filter($cols, function ($c) { return $c[0] !== '_'; });
+		if ($field_cols && !self::plan_ok('columns')) wp_send_json_success(self::plan_error('columns'), 200);
+		update_user_meta(get_current_user_id(), 'efb_cols_' . $fid, $cols);
+		wp_send_json_success(array('success' => true, 'cols' => $cols), 200);
+	}
+
+	/**
+	 * The daily job: entries in the trash longer than trash_days are deleted through F13's purge (their replies,
+	 * notes, history and files with them). A payment entry is anonymized instead when F13 keeps payments.
+	 * At most 2000 entries or 20 s per run.
+	 */
+	public static function purge_trash($max_rows = 2000, $max_seconds = 20) {
+		global $wpdb;
+		$sum = array('deleted' => 0, 'anonymized' => 0, 'retained' => 0, 'files' => 0);
+		if (!is_numeric($max_rows)) $max_rows = 2000;
+		$days = self::trash_days();
+		if ($days <= 0 || !self::ready() || !class_exists('\\Emsfb\\Privacy')) return $sum;
+		$msg = $wpdb->prefix . 'emsfb_msg_';
+		$cut = Privacy::cutoff($days);
+		$keep = function_exists('apply_filters') ? (bool) apply_filters('efb_privacy_keep_payment_entries', true) : true;
+		$files = Privacy::setting('prv_files') === '1';
+		$t0 = microtime(true);
+		$done = 0;
+		$after = 0;
+		while ($done < $max_rows && (microtime(true) - $t0) < $max_seconds) {
+			$prv = Privacy::schema_ready() ? ' AND prv_state = 0' : '';
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+			$ids = array_map('intval', (array) $wpdb->get_col($wpdb->prepare("SELECT msg_id FROM `{$msg}` WHERE entry_status = 2 AND trashed_at IS NOT NULL AND trashed_at < %s AND msg_id > %d{$prv} ORDER BY msg_id ASC LIMIT 200", $cut, $after)));
+			if (!$ids) break;
+			$after = max($ids);
+			$r = Privacy::purge_entries($ids, 'delete', $files, $keep);
+			foreach ($sum as $k => $v) $sum[$k] += (int) $r[$k];
+			$done += count($ids);
+		}
+		return $sum;
+	}
+
+	/**
+	 * efb_entries_purged (F13; every permanent delete path): the notes and the history of a deleted entry go with
+	 * it. Anonymization (retention "anonymize", an erasure in anonymize mode) deletes the notes too (an
+	 * administrator may have typed personal data into them; spec §17-5) and empties the old / new values of the
+	 * history, keeping who did what and when.
+	 */
+	public static function on_entries_purged($ids, $mode = 'delete', $out = array(), $form_ids = array()) {
+		global $wpdb;
+		$ids = array_values(array_filter(array_map('intval', (array) $ids), function ($i) { return $i > 0; }));
+		if (!$ids || !self::ready()) return;
+		$notes = $wpdb->prefix . self::NOTES;
+		$log = $wpdb->prefix . self::LOG;
+		foreach (array_chunk($ids, 200) as $chunk) {
+			$in = implode(',', array_fill(0, count($chunk), '%d'));
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- tables from $wpdb->prefix, placeholders built above
+			$wpdb->query($wpdb->prepare("DELETE FROM `{$notes}` WHERE msg_id IN ({$in})", $chunk));
+			if ($mode === 'anon') {
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- tables from $wpdb->prefix, placeholders built above
+				$wpdb->query($wpdb->prepare("UPDATE `{$log}` SET old_value = NULL, new_value = NULL WHERE msg_id IN ({$in})", $chunk));
+			} else {
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- tables from $wpdb->prefix, placeholders built above
+				$wpdb->query($wpdb->prepare("DELETE FROM `{$log}` WHERE msg_id IN ({$in})", $chunk));
+			}
+		}
 	}
 
 	/* ------------------------------------------------------------ statistics (J) and their backfill (A) */

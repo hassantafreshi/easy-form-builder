@@ -4,6 +4,13 @@
  *  f14a  Schema and the list on the server (A, B): DB 1.10 columns / keys / tables; from the admin page the new
  *        action answers one page (tabs, counts, a search with "%", a date range, a field condition), and a
  *        request without the nonce is refused.
+ *  f14b  The list screen in en_US at 1280 px (C): tabs with counts, a page of 20 and page 2, the star at once
+ *        (aria-pressed, stored), "Move to trash" with Undo, restore from the Trash tab, delete permanently, spam
+ *        from the row menu, the search and a date shortcut, "select all N results" and a bulk "mark as read",
+ *        a field column, keyboard j / s, the panel's unread count without spam / trash, the old §18 bug.
+ *  f14c  fa_IR and ar at 375 px (C): right to left, counts and pages in Persian / Arabic-Indic digits, the
+ *        "Showing" sentence keeps its order (plaintext, values isolated), the filters fold behind one button,
+ *        cards instead of the table, 44 px targets, no horizontal scroll, the selection bar.
  */
 'use strict';
 
@@ -29,6 +36,204 @@ module.exports = function (S) {
     await admin.waitForFunction(() => typeof fun_get_messages_by_id === 'function' && typeof ajaxurl === 'string', null, { timeout: 20000 });
     return admin;
   }
+
+  /** The list of a form opened from the forms list (its "messages" button), as a person does. */
+  async function openList(admin, fid) {
+    await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+    await admin.waitForFunction(() => typeof fun_get_messages_by_id === 'function' && window.EfbEntries, null, { timeout: 20000 });
+    const btn = await admin.$(`.efb-act-msg[data-id="${fid}"]`);
+    if (btn) await btn.click(); else await admin.evaluate((id) => { form_type_emsFormBuilder = 'form'; fun_get_messages_by_id(Number(id)); }, fid);
+    await admin.waitForSelector('#efbEnt .efb-ent-table', { timeout: 20000 });
+    await sleep(400);
+  }
+  const listState = (admin) => admin.evaluate(() => ({
+    rows: Array.from(document.querySelectorAll('#efbEnt .efb-ent-row')).map((r) => Number(r.dataset.msgid)),
+    counts: Object.fromEntries(Array.from(document.querySelectorAll('#efbEnt [role="tab"]')).map((t) => [t.dataset.tab, t.querySelector('.efb-ent-count').textContent.trim()])),
+    tab: (document.querySelector('#efbEnt [role="tab"][aria-selected="true"]') || {}).dataset ? document.querySelector('#efbEnt [role="tab"][aria-selected="true"]').dataset.tab : '',
+    showing: (document.querySelector('.efb-ent-showing') || {}).textContent || '', live: (document.getElementById('efbEntLive') || {}).textContent || '',
+  }));
+  const waitIdle = (admin) => admin.waitForFunction(() => window.EfbEntries && !EfbEntries.state.loading, null, { timeout: 15000 }).then(() => sleep(250));
+  /** A form with a name, an e-mail and a checkbox, and n entries (dates one hour apart, the newest last). */
+  function listForm(name, n, extra) {
+    const F = form(name, [{ key: 'nm', type: 'text', name: 'Name' }, { key: 'em', type: 'email', name: 'E-mail' }, { key: 'pets', type: 'checkbox', name: 'Pets' }, { key: 'p1', type: 'option', parent_key: 'pets', value: 'Cat' }, { key: 'p2', type: 'option', parent_key: 'pets', value: 'Bird' }]);
+    const ids = F.ids;
+    F.msgs = [];
+    for (let i = 0; i < n; i++) {
+      const hh = String(i % 24).padStart(2, '0');
+      const dd = String(1 + Math.floor(i / 24)).padStart(2, '0');
+      const rows = [{ id_: ids.nm, name: 'Name', type: 'text', value: (extra && extra.names && extra.names[i]) || `Person ${i + 1}` }, { id_: ids.em, name: 'E-mail', type: 'email', value: `p${i + 1}@example.test` }];
+      if (i % 3 === 0) rows.push({ id_: ids.pets, id_ob: ids.p2, name: 'Pets', type: 'checkbox', value: 'Bird' });
+      F.msgs.push(seed(F.form_id, rows, `date=2026-10-${dd} ${hh}:00:00&read_=${i % 4 === 0 ? 0 : 1}`).msg_id);
+    }
+    return F;
+  }
+
+  /* ------------------------------------------------------------------ f14b */
+  scenario('f14b', 'F14 list screen (en_US, 1280 px): tabs, pages, star, trash with Undo, restore, delete, spam, search, select all, columns, keyboard', async ({ adminPage }) => {
+    plan(3);
+    ctl('locale', '');
+    const F = listForm('F14 e2e screen', 25, { names: { 24: 'Ali 100% sure' } });
+    const newest = F.msgs[24];
+    const admin = await adminPage();
+    await openList(admin, F.form_id);
+    let st = await listState(admin);
+    R.check('f14b: the list opens on "All" with 20 rows of 25, newest first; "Showing 1–20 of 25"', st.tab === 'all' && st.rows.length === 20 && st.rows[0] === newest && /1–20 of 25/.test(st.showing), st);
+    R.check('f14b: tab counts (All 25, Unread 7)', st.counts.all === '25' && st.counts.unread === '7' && st.counts.trash === '0', st.counts);
+    const a11y = await admin.evaluate(() => ({ tablist: !!document.querySelector('#efbEnt [role="tablist"]'), selected: document.querySelectorAll('#efbEnt [role="tab"][aria-selected="true"]').length, sort: (document.querySelector('#efbEnt th[aria-sort]') || {}).getAttribute ? document.querySelector('#efbEnt th[aria-sort]').getAttribute('aria-sort') : '', live: (document.getElementById('efbEntLive') || {}).getAttribute ? document.getElementById('efbEntLive').getAttribute('aria-live') : '', labels: Array.from(document.querySelectorAll('#efbEnt .efb-ent-row:first-child td')).every((td) => td.hasAttribute('data-label')) }));
+    R.check('f14b: a11y: role=tablist with one selected tab, aria-sort on the date, a polite live region, data-label on every cell', a11y.tablist && a11y.selected === 1 && a11y.sort === 'descending' && a11y.live === 'polite' && a11y.labels, a11y);
+    await admin.screenshot({ path: SHOT('f14b-list-en-1280'), fullPage: true });
+    await admin.click('#efbEnt [data-ent="page"][data-page="2"]');
+    await waitIdle(admin);
+    st = await listState(admin);
+    R.check('f14b: page 2: the 5 oldest, "21–25 of 25"', st.rows.length === 5 && st.rows[4] === F.msgs[0] && /21–25 of 25/.test(st.showing), st);
+    await admin.click('#efbEnt [data-ent="page"][data-page="1"]');
+    await waitIdle(admin);
+    // Star at once.
+    await admin.click(`#efbEnt .efb-ent-star[data-msgid="${newest}"]`);
+    await sleep(900);
+    const starBtn = await admin.evaluate((id) => document.querySelector(`#efbEnt .efb-ent-star[data-msgid="${id}"]`).getAttribute('aria-pressed'), newest);
+    let row = entries(F.form_id).find((e) => Number(e.msg_id) === newest);
+    R.check('f14b: the star is pressed at once and stored (starred 1)', starBtn === 'true' && String(row.starred) === '1', { starBtn, starred: row.starred });
+    // Trash with Undo.
+    await admin.click(`#efbEnt .efb-act-delete[data-msgid="${F.msgs[23]}"]`);
+    await admin.waitForSelector('#efbEntUndo', { timeout: 8000 });
+    const toastTxt = await admin.textContent('#efbEntToast');
+    row = entries(F.form_id).find((e) => Number(e.msg_id) === F.msgs[23]);
+    R.check('f14b: "Move to trash" → entry_status 2, trashed_at set, a message "1 entries moved to trash." with Undo', String(row.entry_status) === '2' && !!row.trashed_at && /moved to trash/.test(toastTxt), { st: row.entry_status, toastTxt });
+    await admin.click('#efbEntUndo');
+    await waitIdle(admin);
+    row = entries(F.form_id).find((e) => Number(e.msg_id) === F.msgs[23]);
+    st = await listState(admin);
+    R.check('f14b: Undo restores it (entry_status 0, trashed_at empty), back in the list', String(row.entry_status) === '0' && !row.trashed_at && st.rows.includes(F.msgs[23]), { st: row.entry_status });
+    // Trash two, restore one from the Trash tab, delete the other permanently.
+    for (const id of [F.msgs[22], F.msgs[21]]) { await admin.click(`#efbEnt .efb-act-delete[data-msgid="${id}"]`); await waitIdle(admin); }
+    await admin.click('#efbEntTab-trash');
+    await waitIdle(admin);
+    st = await listState(admin);
+    R.check('f14b: the Trash tab holds the two, its count says 2, All says 23', st.tab === 'trash' && st.rows.length === 2 && st.counts.trash === '2' && st.counts.all === '23', st);
+    await admin.screenshot({ path: SHOT('f14b-trash-en-1280') });
+    await admin.click(`#efbEnt [data-ent="op"][data-op="restore"][data-msgid="${F.msgs[22]}"]`);
+    await waitIdle(admin);
+    await admin.click(`#efbEnt [data-ent="op"][data-op="delete"][data-msgid="${F.msgs[21]}"]`);
+    await admin.waitForSelector('#efbEntDlg [role="dialog"] #efbEntDelYes', { timeout: 5000 });
+    const dlg = await admin.evaluate(() => ({ modal: document.querySelector('#efbEntDlg [role="dialog"]').getAttribute('aria-modal'), focus: document.activeElement && document.activeElement.id }));
+    R.check('f14b: "Delete permanently" asks first in a modal dialog, focus on its button', dlg.modal === 'true' && dlg.focus === 'efbEntDelYes', dlg);
+    await admin.click('#efbEntDelYes');
+    await waitIdle(admin);
+    const after = entries(F.form_id).map((e) => Number(e.msg_id));
+    R.check('f14b: restore from the trash, and "Delete permanently" removes the entry from the database', after.includes(F.msgs[22]) && !after.includes(F.msgs[21]) && after.length === 24, after.length);
+    // Spam from the row menu.
+    await admin.click('#efbEntTab-all');
+    await waitIdle(admin);
+    await admin.click(`#efbEnt .efb-ent-more[data-msgid="${F.msgs[20]}"]`);
+    await admin.waitForSelector('#efbEntMenu [role="menuitem"]', { timeout: 5000 });
+    const menuFocus = await admin.evaluate(() => document.activeElement && document.activeElement.getAttribute('role'));
+    await admin.click(`#efbEntMenu [data-op="spam"]`);
+    await waitIdle(admin);
+    row = entries(F.form_id).find((e) => Number(e.msg_id) === F.msgs[20]);
+    st = await listState(admin);
+    const stats = ctl('f14-stats', String(F.form_id)) || [];
+    R.check('f14b: the row menu (focus on its first item) → "Mark as spam": entry_status 1, Spam tab 1, the spam count of that day', menuFocus === 'menuitem' && String(row.entry_status) === '1' && st.counts.spam === '1' && stats.some((x) => x.day === '2026-10-01' && Number(x.spam) === 1), { menuFocus, st: row.entry_status, stats });
+    // Search with a literal %.
+    await admin.fill('#efbEntQ', '100%');
+    await admin.press('#efbEntQ', 'Enter');
+    await waitIdle(admin);
+    st = await listState(admin);
+    R.check('f14b: the search "100%" finds only "Ali 100% sure"; the filters are in the address (efbq)', st.rows.length === 1 && st.rows[0] === newest && /efbq=/.test(admin.url()), { rows: st.rows, url: admin.url() });
+    await admin.click('#efbEnt [data-ent="clear"]');
+    await waitIdle(admin);
+    await admin.click('#efbEnt [data-ent="range"][data-range="7"]');
+    await waitIdle(admin);
+    st = await listState(admin);
+    R.check('f14b: "Last 7 days" (entries are from October 2026): nothing, "No entries match these filters."', st.rows.length === 0 && /No entries match/.test(await admin.textContent('#efbEnt tbody')), st.rows.length);
+    await admin.click('#efbEnt [data-ent="clear"]');
+    await waitIdle(admin);
+    // Select all N results → mark as read.
+    await admin.check('#efbEnt .efb-ent-all');
+    await sleep(300);
+    const bar = await admin.evaluate(() => ({ sel: (document.querySelector('.efb-ent-selall') || {}).textContent || '', bar: !document.querySelector('.efb-ent-bulkbar').hidden }));
+    await admin.click('#efbEnt [data-ent="selall"]');
+    await sleep(200);
+    await admin.click('#efbEnt .efb-ent-bulkbar [data-op="read"]');
+    await waitIdle(admin);
+    const unread = entries(F.form_id).filter((e) => String(e.entry_status) === '0' && (String(e.read_) === '0' || String(e.read_) === '3')).length;
+    st = await listState(admin);
+    R.check('f14b: header check → "Select all 23 results" → Mark as read: every active entry is read (also those on page 2); the live region says so', /Select all 23 results/.test(bar.sel) && bar.bar && unread === 0 && /marked as read/.test(st.live), { bar, unread, live: st.live });
+    // A field column.
+    await admin.click('#efbEnt [data-ent="cols"]');
+    await admin.waitForSelector('#efbEntDlg [data-colid]', { timeout: 5000 });
+    await admin.check(`#efbEntDlg [data-colid="${F.ids.em}"]`);
+    await admin.check('#efbEntDlg [data-colid="_notes"]');
+    await admin.click('#efbEntColsSave');
+    await waitIdle(admin);
+    const col = await admin.evaluate((id) => ({ th: Array.from(document.querySelectorAll('#efbEnt thead th')).map((t) => t.textContent.trim()), cell: (document.querySelector(`#efbEnt .efb-ent-row td[data-col="${id}"]`) || {}).textContent }), F.ids.em);
+    R.check('f14b: Columns → "E-mail" and "Notes" added to the table, the value shown (user meta)', col.th.some((t) => /E-mail/.test(t)) && col.th.some((t) => /Notes/.test(t)) && /@example\.test/.test(col.cell || ''), col);
+    // Keyboard: j then s stars the focused row.
+    await admin.click('#efbEntTitle');
+    await admin.keyboard.press('j');
+    await admin.keyboard.press('j');
+    const focused = await admin.evaluate(() => Number((document.activeElement.closest('.efb-ent-row') || {}).dataset ? document.activeElement.closest('.efb-ent-row').dataset.msgid : 0));
+    await admin.keyboard.press('s');
+    await sleep(900);
+    row = entries(F.form_id).find((e) => Number(e.msg_id) === focused);
+    R.check('f14b: keyboard: j moves to the next row, s stars it', focused > 0 && String(row.starred) === '1', { focused, starred: row && row.starred });
+    // The response viewer still opens from the list (the old #btn-m- button).
+    await admin.click(`#btn-m-${newest}`);
+    await admin.waitForFunction(() => document.querySelectorAll('.efb-msg-field-row').length >= 2, null, { timeout: 20000 });
+    R.check('f14b: the response viewer opens from the list (IP from the full entry)', await admin.evaluate(() => /Ali 100% sure/.test(document.getElementById('resp_efb').textContent) && /203\.0\.113\.20/.test(document.getElementById('resp_efb').textContent)), true);
+    await admin.screenshot({ path: SHOT('f14b-viewer-en-1280') });
+    // The panel counts new entries without spam and trash.
+    await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+    const unreadIds = await admin.evaluate((fid) => (window.ajax_object_efm && ajax_object_efm.messages_state || []).filter((m) => Number(m.form_id) === fid).map((m) => Number(m.msg_id)), F.form_id);
+    R.check('f14b: the panel\'s "new entries" list leaves spam and trash out', !unreadIds.includes(F.msgs[20]), unreadIds);
+    // §18: deleting an entry in the old list no longer removes a form from the forms list.
+    const bug = await admin.evaluate(() => { const src = String(fun_confirm_remove_message_emsFormBuilder); return /valueJson_ws_messages/.test(src) && !/valueJson_ws_form/.test(src); });
+    R.check('f14b: §18: the old single delete updates the entries, not the forms list', bug, bug);
+    SHARED_F14.screen = F;
+  });
+
+  /* ------------------------------------------------------------------ f14c */
+  scenario('f14c', 'F14 list screen in fa_IR and ar at 375 px: RTL, local digits, sentence order, folded filters, cards, 44 px, no horizontal scroll', async ({ adminPage }) => {
+    plan(3);
+    const F = listForm('F14 e2e فهرست', 23, { names: { 22: 'علی Ahmadi ۱۲' } });
+    for (const [loc, dg, file] of [['fa_IR', '۲۳', 'fa_IR'], ['ar', '٢٣', 'ar']]) {
+      ctl('locale', loc);
+      try {
+        const admin = await adminPage({ viewport: { width: 375, height: 800 } }, 'admin-' + loc);
+        await openList(admin, F.form_id);
+        const v = await admin.evaluate(() => {
+          const ent = document.getElementById('efbEnt');
+          const showing = document.querySelector('.efb-ent-showing');
+          const toggle = document.querySelector('.efb-ent-filters-toggle');
+          const body = document.getElementById('efbEntFiltersBody');
+          const star = document.querySelector('.efb-ent-star').getBoundingClientRect();
+          const tab = document.querySelector('.efb-ent-tab').getBoundingClientRect();
+          const tr = document.querySelector('.efb-ent-row');
+          return { dir: getComputedStyle(ent).direction, all: document.querySelector('#efbEntTab-all .efb-ent-count').textContent.trim(), showing: showing.textContent.trim(), bidi: getComputedStyle(showing).unicodeBidi,
+            bdis: showing.querySelectorAll('bdi').length, toggle: !!toggle && getComputedStyle(toggle).display !== 'none', folded: getComputedStyle(body).display === 'none',
+            scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth, star: [Math.round(star.width), Math.round(star.height)], tab: Math.round(tab.height), card: getComputedStyle(tr).display };
+        });
+        R.check(`f14c: ${loc} 375 px: right to left, the counts in local digits (${dg})`, v.dir === 'rtl' && v.all === dg, v);
+        R.check(`f14c: ${loc} 375 px: the "Showing" sentence is plaintext with its 3 numbers isolated (<bdi>) and local digits`, v.bidi === 'plaintext' && v.bdis === 3 && v.showing.indexOf(dg) !== -1, v);
+        R.check(`f14c: ${loc} 375 px: the filters fold behind one button; rows are cards; star and tabs ≥ 44 px; no horizontal scroll`, v.toggle && v.folded && v.card === 'block' && v.star[0] >= 44 && v.star[1] >= 44 && v.tab >= 44 && v.scroll <= 1, v);
+        await admin.screenshot({ path: SHOT(`f14c-list-${file}-375`), fullPage: false });
+        await admin.click('#efbEnt .efb-ent-filters-toggle');
+        await sleep(300);
+        const open = await admin.evaluate(() => ({ exp: document.querySelector('.efb-ent-filters-toggle').getAttribute('aria-expanded'), shown: getComputedStyle(document.getElementById('efbEntFiltersBody')).display !== 'none', scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth }));
+        R.check(`f14c: ${loc} 375 px: the Filters button opens the panel (aria-expanded true), still no horizontal scroll`, open.exp === 'true' && open.shown && open.scroll <= 1, open);
+        await admin.check('#efbEnt .efb-ent-row:first-child .efb-ent-one');
+        await sleep(300);
+        const bar = await admin.evaluate(() => { const b = document.querySelector('.efb-ent-bulkbar'); const r = b.getBoundingClientRect(); return { shown: !b.hidden, text: b.querySelector('.efb-ent-nsel').textContent.trim(), bidi: getComputedStyle(b.querySelector('.efb-ent-nsel')).unicodeBidi, inView: r.bottom <= window.innerHeight + 1 && r.left >= -1 }; });
+        R.check(`f14c: ${loc} 375 px: one row selected → the selection bar says it in local digits, kept in order`, bar.shown && bar.text.indexOf(loc === 'ar' ? '١' : '۱') !== -1 && bar.bidi === 'plaintext', bar);
+        await admin.screenshot({ path: SHOT(`f14c-list-${file}-375-selected`), fullPage: true });
+        const desk = await adminPage({ viewport: { width: 1280, height: 900 } }, 'admin-desk-' + loc);
+        await openList(desk, F.form_id);
+        await desk.screenshot({ path: SHOT(`f14c-list-${file}-1280`) });
+        const mix = await desk.evaluate(() => { const c = Array.from(document.querySelectorAll('.efb-preview-text')).find((x) => /Ahmadi/.test(x.textContent)); return c ? { text: c.textContent, bdi: !!c.closest('td').querySelector('bdi, .efb-preview-text') } : null; });
+        R.check(`f14c: ${loc} 1280 px: the mixed-script answer is shown as typed`, !!mix && /علی Ahmadi ۱۲/.test(mix.text), mix);
+      } finally { ctl('locale', ''); }
+    }
+  });
 
   /* ------------------------------------------------------------------ f14a */
   scenario('f14a', 'F14 schema (DB 1.10) and the list on the server: tabs, counts, search with %, dates, a field condition, the nonce', async ({ adminPage }) => {

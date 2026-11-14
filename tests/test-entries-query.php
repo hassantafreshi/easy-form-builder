@@ -34,6 +34,7 @@ if (!function_exists('wp_create_nonce')) { function wp_create_nonce($a) { return
 class EfbJsonExit extends Exception { public $data; public function __construct($d) { $this->data = $d; parent::__construct('json'); } }
 if (!function_exists('wp_send_json_success')) { function wp_send_json_success($d = null, $s = 200) { throw new EfbJsonExit($d); } }
 if (!function_exists('check_ajax_referer')) { function check_ajax_referer($a, $f = false, $die = true) { return !empty($GLOBALS['efb_nonce_ok']); } }
+if (!function_exists('efb_plan_at_least_efb')) { function efb_plan_at_least_efb($need) { return true; } }
 require_once __DIR__ . '/../includes/class-Emsfb-privacy.php';
 require_once __DIR__ . '/../includes/admin/class-Emsfb-entries.php';
 use Emsfb\Entries;

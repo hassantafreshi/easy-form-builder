@@ -407,6 +407,11 @@ class Panel_edit  {
 			wp_register_script('Emsfb-list_form-efb-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form-efb.js', array('efb-main-js', 'efb-email-test-ui'),EMSFB_PLUGIN_VERSION, true);
 			wp_enqueue_script('Emsfb-list_form-efb-js');
 
+			// F14: the entries screen (list on the server, filters, star / spam / trash, notes, edit, resend, export, print, statistics).
+			wp_register_script('efb-entries-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/entries-efb.js', array('Emsfb-list_form-efb-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/entries-efb.js'), true);
+			wp_enqueue_script('efb-entries-js');
+			wp_enqueue_style('efb-entries-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/entries-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/css/entries-efb.css'));
+
 			wp_register_script('Emsfb-email-template-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/email-template-builder-efb.js', array('Emsfb-list_form-efb-js'), EMSFB_PLUGIN_VERSION, true);
 			wp_enqueue_script('Emsfb-email-template-builder-js');
 			wp_localize_script( 'Emsfb-list_form-efb-js', 'ajax_object_efm',

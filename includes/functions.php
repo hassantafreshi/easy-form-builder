@@ -5555,6 +5555,300 @@ class efbFunction {
 			"rptRowsCount" => $state && isset($ac->text->rptRowsCount) ? $ac->text->rptRowsCount : esc_html__('%s rows','easy-form-builder'),
 			/* translators: F09 e-mail: after the first rows of a long group; %s = rows not shown */
 			"rptMoreRows" => $state && isset($ac->text->rptMoreRows) ? $ac->text->rptMoreRows : esc_html__('%s more rows. See the whole answer in the dashboard.','easy-form-builder'),
+			/* translators: F14 entries tab */
+			"entAll" => $state && isset($ac->text->entAll) ? $ac->text->entAll : esc_html__('All','easy-form-builder'),
+			/* translators: F14 entries tab */
+			"entUnread" => $state && isset($ac->text->entUnread) ? $ac->text->entUnread : esc_html__('Unread','easy-form-builder'),
+			/* translators: F14 entries tab */
+			"entStarred" => $state && isset($ac->text->entStarred) ? $ac->text->entStarred : esc_html__('Starred','easy-form-builder'),
+			/* translators: F14 entries tab */
+			"entPending" => $state && isset($ac->text->entPending) ? $ac->text->entPending : esc_html__('Payment pending','easy-form-builder'),
+			/* translators: F14 entries tab: closed tickets */
+			"entClosed" => $state && isset($ac->text->entClosed) ? $ac->text->entClosed : esc_html__('Closed','easy-form-builder'),
+			/* translators: F14 entries tab */
+			"entSpam" => $state && isset($ac->text->entSpam) ? $ac->text->entSpam : esc_html__('Spam','easy-form-builder'),
+			/* translators: F14 entries tab */
+			"entTrash" => $state && isset($ac->text->entTrash) ? $ac->text->entTrash : esc_html__('Trash','easy-form-builder'),
+			/* translators: F14: accessible name of the tab list */
+			"entStatusTabs" => $state && isset($ac->text->entStatusTabs) ? $ac->text->entStatusTabs : esc_html__('Entry status','easy-form-builder'),
+			/* translators: F14: button */
+			"entStar" => $state && isset($ac->text->entStar) ? $ac->text->entStar : esc_html__('Star','easy-form-builder'),
+			/* translators: F14: button */
+			"entUnstar" => $state && isset($ac->text->entUnstar) ? $ac->text->entUnstar : esc_html__('Remove star','easy-form-builder'),
+			/* translators: F14: action */
+			"entMarkUnread" => $state && isset($ac->text->entMarkUnread) ? $ac->text->entMarkUnread : esc_html__('Mark as unread','easy-form-builder'),
+			/* translators: F14: action */
+			"entMarkSpam" => $state && isset($ac->text->entMarkSpam) ? $ac->text->entMarkSpam : esc_html__('Mark as spam','easy-form-builder'),
+			/* translators: F14: action */
+			"entNotSpam" => $state && isset($ac->text->entNotSpam) ? $ac->text->entNotSpam : esc_html__('Not spam','easy-form-builder'),
+			/* translators: F14: action */
+			"entMoveTrash" => $state && isset($ac->text->entMoveTrash) ? $ac->text->entMoveTrash : esc_html__('Move to trash','easy-form-builder'),
+			/* translators: F14: action in the trash */
+			"entRestore" => $state && isset($ac->text->entRestore) ? $ac->text->entRestore : esc_html__('Restore','easy-form-builder'),
+			/* translators: F14: action in the trash */
+			"entDeleteForever" => $state && isset($ac->text->entDeleteForever) ? $ac->text->entDeleteForever : esc_html__('Delete permanently','easy-form-builder'),
+			/* translators: F14: question before deleting entries for good */
+			"entDeleteConfirm" => $state && isset($ac->text->entDeleteConfirm) ? $ac->text->entDeleteConfirm : esc_html__('Delete permanently? This cannot be undone.','easy-form-builder'),
+			/* translators: F14: action */
+			"entEmptyTrash" => $state && isset($ac->text->entEmptyTrash) ? $ac->text->entEmptyTrash : esc_html__('Empty trash','easy-form-builder'),
+			/* translators: F14: button in the message after moving to the trash */
+			"entUndo" => $state && isset($ac->text->entUndo) ? $ac->text->entUndo : esc_html__('Undo','easy-form-builder'),
+			/* translators: F14: %s = number of entries */
+			"entMovedTrash" => $state && isset($ac->text->entMovedTrash) ? $ac->text->entMovedTrash : esc_html__('%s entries moved to trash.','easy-form-builder'),
+			/* translators: F14: %s = number of entries */
+			"entRestored" => $state && isset($ac->text->entRestored) ? $ac->text->entRestored : esc_html__('%s entries restored.','easy-form-builder'),
+			/* translators: F14: %s = number of entries */
+			"entDeleted" => $state && isset($ac->text->entDeleted) ? $ac->text->entDeleted : esc_html__('%s entries deleted permanently.','easy-form-builder'),
+			/* translators: F14: %s = number of entries */
+			"entMarkedSpam" => $state && isset($ac->text->entMarkedSpam) ? $ac->text->entMarkedSpam : esc_html__('%s entries marked as spam.','easy-form-builder'),
+			/* translators: F14: %s = number of entries */
+			"entMarkedNotSpam" => $state && isset($ac->text->entMarkedNotSpam) ? $ac->text->entMarkedNotSpam : esc_html__('%s entries moved back from spam.','easy-form-builder'),
+			/* translators: F14: %s = number of entries */
+			"entMarkedRead" => $state && isset($ac->text->entMarkedRead) ? $ac->text->entMarkedRead : esc_html__('%s entries marked as read.','easy-form-builder'),
+			/* translators: F14: %s = number of entries */
+			"entMarkedUnread" => $state && isset($ac->text->entMarkedUnread) ? $ac->text->entMarkedUnread : esc_html__('%s entries marked as unread.','easy-form-builder'),
+			/* translators: F14: %s = number of entries */
+			"entStarredN" => $state && isset($ac->text->entStarredN) ? $ac->text->entStarredN : esc_html__('%s entries starred.','easy-form-builder'),
+			/* translators: F14: %s = number of entries */
+			"entUnstarredN" => $state && isset($ac->text->entUnstarredN) ? $ac->text->entUnstarredN : esc_html__('%s stars removed.','easy-form-builder'),
+			/* translators: F14: announcement */
+			"entStarredOne" => $state && isset($ac->text->entStarredOne) ? $ac->text->entStarredOne : esc_html__('Starred','easy-form-builder'),
+			/* translators: F14: announcement */
+			"entUnstarredOne" => $state && isset($ac->text->entUnstarredOne) ? $ac->text->entUnstarredOne : esc_html__('Star removed','easy-form-builder'),
+			/* translators: F14: %s = number of days */
+			"entTrashAuto" => $state && isset($ac->text->entTrashAuto) ? $ac->text->entTrashAuto : esc_html__('Entries in the trash are deleted after %s days.','easy-form-builder'),
+			/* translators: F14: empty trash tab */
+			"entTrashEmpty" => $state && isset($ac->text->entTrashEmpty) ? $ac->text->entTrashEmpty : esc_html__('The trash is empty.','easy-form-builder'),
+			/* translators: F14: empty list with filters */
+			"entNoMatch" => $state && isset($ac->text->entNoMatch) ? $ac->text->entNoMatch : esc_html__('No entries match these filters.','easy-form-builder'),
+			/* translators: F14: %s = number of results */
+			"entSelectAllN" => $state && isset($ac->text->entSelectAllN) ? $ac->text->entSelectAllN : esc_html__('Select all %s results','easy-form-builder'),
+			/* translators: F14: %s = number of results */
+			"entAllSelectedN" => $state && isset($ac->text->entAllSelectedN) ? $ac->text->entAllSelectedN : esc_html__('All %s results are selected.','easy-form-builder'),
+			/* translators: F14: %s = number of entries */
+			"entPageSelected" => $state && isset($ac->text->entPageSelected) ? $ac->text->entPageSelected : esc_html__('All %s entries on this page are selected.','easy-form-builder'),
+			/* translators: F14: %s = number of selected entries */
+			"entNSelected" => $state && isset($ac->text->entNSelected) ? $ac->text->entNSelected : esc_html__('%s selected','easy-form-builder'),
+			/* translators: F14: button */
+			"entUnselect" => $state && isset($ac->text->entUnselect) ? $ac->text->entUnselect : esc_html__('Clear selection','easy-form-builder'),
+			/* translators: F14: accessible name of the selection bar */
+			"entSelection" => $state && isset($ac->text->entSelection) ? $ac->text->entSelection : esc_html__('Selected entries','easy-form-builder'),
+			/* translators: F14: accessible name of the header check box */
+			"entSelectPage" => $state && isset($ac->text->entSelectPage) ? $ac->text->entSelectPage : esc_html__('Select every entry on this page','easy-form-builder'),
+			/* translators: F14: %1$s = first, %2$s = last, %3$s = total */
+			"entShowingXY" => $state && isset($ac->text->entShowingXY) ? $ac->text->entShowingXY : esc_html__('Showing %1$s–%2$s of %3$s','easy-form-builder'),
+			/* translators: F14: an estimated total; %s = number */
+			"entMoreThan" => $state && isset($ac->text->entMoreThan) ? $ac->text->entMoreThan : esc_html__('More than %s','easy-form-builder'),
+			/* translators: F14: announcement; %s = 1 */
+			"entOneResult" => $state && isset($ac->text->entOneResult) ? $ac->text->entOneResult : esc_html__('%s result','easy-form-builder'),
+			/* translators: F14: announcement; %s = number */
+			"entNResults" => $state && isset($ac->text->entNResults) ? $ac->text->entNResults : esc_html__('%s results','easy-form-builder'),
+			/* translators: F14: label of the page size */
+			"entPerPage" => $state && isset($ac->text->entPerPage) ? $ac->text->entPerPage : esc_html__('Per page','easy-form-builder'),
+			/* translators: F14: accessible name of the page links */
+			"entPages" => $state && isset($ac->text->entPages) ? $ac->text->entPages : esc_html__('Pages','easy-form-builder'),
+			/* translators: F14: menu button of a row */
+			"entMore" => $state && isset($ac->text->entMore) ? $ac->text->entMore : esc_html__('More actions','easy-form-builder'),
+			/* translators: F14: button that chooses the table columns */
+			"entColumns" => $state && isset($ac->text->entColumns) ? $ac->text->entColumns : esc_html__('Columns','easy-form-builder'),
+			/* translators: F14: column order */
+			"entMoveUp" => $state && isset($ac->text->entMoveUp) ? $ac->text->entMoveUp : esc_html__('Move up','easy-form-builder'),
+			/* translators: F14: column order */
+			"entMoveDown" => $state && isset($ac->text->entMoveDown) ? $ac->text->entMoveDown : esc_html__('Move down','easy-form-builder'),
+			/* translators: F14: column */
+			"entEditedCol" => $state && isset($ac->text->entEditedCol) ? $ac->text->entEditedCol : esc_html__('Last edit','easy-form-builder'),
+			/* translators: F14: column */
+			"entStatusCol" => $state && isset($ac->text->entStatusCol) ? $ac->text->entStatusCol : esc_html__('Status','easy-form-builder'),
+			/* translators: F14: badge of an edited entry */
+			"entEditedShort" => $state && isset($ac->text->entEditedShort) ? $ac->text->entEditedShort : esc_html__('Edited','easy-form-builder'),
+			/* translators: F14: button */
+			"entFilters" => $state && isset($ac->text->entFilters) ? $ac->text->entFilters : esc_html__('Filters','easy-form-builder'),
+			/* translators: F14: search placeholder */
+			"entSearchPh" => $state && isset($ac->text->entSearchPh) ? $ac->text->entSearchPh : esc_html__('Search answers, codes and notes','easy-form-builder'),
+			/* translators: F14: button */
+			"entAddCond" => $state && isset($ac->text->entAddCond) ? $ac->text->entAddCond : esc_html__('Add condition','easy-form-builder'),
+			/* translators: F14: accessible name */
+			"entCondition" => $state && isset($ac->text->entCondition) ? $ac->text->entCondition : esc_html__('Condition','easy-form-builder'),
+			/* translators: F14: button */
+			"entClearFilters" => $state && isset($ac->text->entClearFilters) ? $ac->text->entClearFilters : esc_html__('Clear filters','easy-form-builder'),
+			/* translators: F14: date range start */
+			"entFrom" => $state && isset($ac->text->entFrom) ? $ac->text->entFrom : esc_html__('From','easy-form-builder'),
+			/* translators: F14: date range end */
+			"entTo" => $state && isset($ac->text->entTo) ? $ac->text->entTo : esc_html__('To','easy-form-builder'),
+			/* translators: F14: date shortcut */
+			"entToday" => $state && isset($ac->text->entToday) ? $ac->text->entToday : esc_html__('Today','easy-form-builder'),
+			/* translators: F14: date shortcut */
+			"entLast7" => $state && isset($ac->text->entLast7) ? $ac->text->entLast7 : esc_html__('Last 7 days','easy-form-builder'),
+			/* translators: F14: date shortcut */
+			"entLast30" => $state && isset($ac->text->entLast30) ? $ac->text->entLast30 : esc_html__('Last 30 days','easy-form-builder'),
+			/* translators: F14: date shortcut */
+			"entThisMonth" => $state && isset($ac->text->entThisMonth) ? $ac->text->entThisMonth : esc_html__('This month','easy-form-builder'),
+			/* translators: F14: condition operator */
+			"entOpEq" => $state && isset($ac->text->entOpEq) ? $ac->text->entOpEq : esc_html__('is','easy-form-builder'),
+			/* translators: F14: condition operator */
+			"entOpHas" => $state && isset($ac->text->entOpHas) ? $ac->text->entOpHas : esc_html__('contains','easy-form-builder'),
+			/* translators: F14: condition operator */
+			"entOpEmpty" => $state && isset($ac->text->entOpEmpty) ? $ac->text->entOpEmpty : esc_html__('is empty','easy-form-builder'),
+			/* translators: F14: condition operator */
+			"entOpFilled" => $state && isset($ac->text->entOpFilled) ? $ac->text->entOpFilled : esc_html__('is not empty','easy-form-builder'),
+			/* translators: F14: dialog button */
+			"entCancel" => $state && isset($ac->text->entCancel) ? $ac->text->entCancel : esc_html__('Cancel','easy-form-builder'),
+			/* translators: F14: tab and column */
+			"entNotes" => $state && isset($ac->text->entNotes) ? $ac->text->entNotes : esc_html__('Notes','easy-form-builder'),
+			/* translators: F14: button */
+			"entNoteAdd" => $state && isset($ac->text->entNoteAdd) ? $ac->text->entNoteAdd : esc_html__('Add note','easy-form-builder'),
+			/* translators: F14: note area help */
+			"entNotePrivate" => $state && isset($ac->text->entNotePrivate) ? $ac->text->entNotePrivate : esc_html__('Only administrators can see notes.','easy-form-builder'),
+			/* translators: F14: %s = the most characters */
+			"entNoteTooLong" => $state && isset($ac->text->entNoteTooLong) ? $ac->text->entNoteTooLong : esc_html__('A note can have at most %s characters.','easy-form-builder'),
+			/* translators: F14: error */
+			"entNoteHtml" => $state && isset($ac->text->entNoteHtml) ? $ac->text->entNoteHtml : esc_html__('HTML is not allowed in notes.','easy-form-builder'),
+			/* translators: F14: announcement */
+			"entNoteDeleted" => $state && isset($ac->text->entNoteDeleted) ? $ac->text->entNoteDeleted : esc_html__('Note deleted.','easy-form-builder'),
+			/* translators: F14: announcement */
+			"entNoteSaved" => $state && isset($ac->text->entNoteSaved) ? $ac->text->entNoteSaved : esc_html__('Note added.','easy-form-builder'),
+			/* translators: F14: empty notes */
+			"entNoNotes" => $state && isset($ac->text->entNoNotes) ? $ac->text->entNoNotes : esc_html__('No notes yet.','easy-form-builder'),
+			/* translators: F14: tab */
+			"entHistory" => $state && isset($ac->text->entHistory) ? $ac->text->entHistory : esc_html__('History','easy-form-builder'),
+			/* translators: F14: empty history */
+			"entNoHistory" => $state && isset($ac->text->entNoHistory) ? $ac->text->entNoHistory : esc_html__('No changes yet.','easy-form-builder'),
+			/* translators: F14 history: %1$s = person, %2$s = field, %3$s = old value, %4$s = new value */
+			"entHistEdit" => $state && isset($ac->text->entHistEdit) ? $ac->text->entHistEdit : esc_html__('%1$s changed “%2$s” from “%3$s” to “%4$s”','easy-form-builder'),
+			/* translators: F14 history: %1$s = person, %2$s = old status, %3$s = new status */
+			"entHistStatus" => $state && isset($ac->text->entHistStatus) ? $ac->text->entHistStatus : esc_html__('%1$s moved the entry from %2$s to %3$s','easy-form-builder'),
+			/* translators: F14 history: %1$s = person */
+			"entHistStar" => $state && isset($ac->text->entHistStar) ? $ac->text->entHistStar : esc_html__('%1$s starred the entry','easy-form-builder'),
+			/* translators: F14 history: %1$s = person */
+			"entHistUnstar" => $state && isset($ac->text->entHistUnstar) ? $ac->text->entHistUnstar : esc_html__('%1$s removed the star','easy-form-builder'),
+			/* translators: F14 history: %1$s = person */
+			"entHistRead" => $state && isset($ac->text->entHistRead) ? $ac->text->entHistRead : esc_html__('%1$s marked the entry as read','easy-form-builder'),
+			/* translators: F14 history: %1$s = person */
+			"entHistUnread" => $state && isset($ac->text->entHistUnread) ? $ac->text->entHistUnread : esc_html__('%1$s marked the entry as unread','easy-form-builder'),
+			/* translators: F14 history: %1$s = person, %2$s = number */
+			"entHistResend" => $state && isset($ac->text->entHistResend) ? $ac->text->entHistResend : esc_html__('%1$s resent the notification to %2$s recipients','easy-form-builder'),
+			/* translators: F14 history: %1$s = person */
+			"entHistNoteDel" => $state && isset($ac->text->entHistNoteDel) ? $ac->text->entHistNoteDel : esc_html__('%1$s deleted a note','easy-form-builder'),
+			/* translators: F14 history: %1$s = person, %2$s = number */
+			"entHistExport" => $state && isset($ac->text->entHistExport) ? $ac->text->entHistExport : esc_html__('%1$s exported %2$s entries','easy-form-builder'),
+			/* translators: F14 history: %1$s = person, %2$s = application */
+			"entHistApi" => $state && isset($ac->text->entHistApi) ? $ac->text->entHistApi : esc_html__('%1$s read the entries through %2$s','easy-form-builder'),
+			/* translators: F14: status name */
+			"entStActive" => $state && isset($ac->text->entStActive) ? $ac->text->entStActive : esc_html__('Active','easy-form-builder'),
+			/* translators: F14: button */
+			"entEdit" => $state && isset($ac->text->entEdit) ? $ac->text->entEdit : esc_html__('Edit entry','easy-form-builder'),
+			/* translators: F14: %s = date and time */
+			"entEdited" => $state && isset($ac->text->entEdited) ? $ac->text->entEdited : esc_html__('Edited %s','easy-form-builder'),
+			/* translators: F14: edit form */
+			"entReason" => $state && isset($ac->text->entReason) ? $ac->text->entReason : esc_html__('Reason (optional)','easy-form-builder'),
+			/* translators: F14: edit conflict */
+			"entConflict" => $state && isset($ac->text->entConflict) ? $ac->text->entConflict : esc_html__('This entry was changed in the meantime. Refresh and try again.','easy-form-builder'),
+			/* translators: F14: an option that no longer exists; %s = the stored answer */
+			"entOldValue" => $state && isset($ac->text->entOldValue) ? $ac->text->entOldValue : esc_html__('(old value) %s','easy-form-builder'),
+			/* translators: F14: fill a field that has no answer */
+			"entAddValue" => $state && isset($ac->text->entAddValue) ? $ac->text->entAddValue : esc_html__('Add value','easy-form-builder'),
+			/* translators: F14: edit form */
+			"entReadOnly" => $state && isset($ac->text->entReadOnly) ? $ac->text->entReadOnly : esc_html__('This answer cannot be edited.','easy-form-builder'),
+			/* translators: F14: edit form note */
+			"entLogicNote" => $state && isset($ac->text->entLogicNote) ? $ac->text->entLogicNote : esc_html__('Field visibility rules are not applied when an administrator edits an entry.','easy-form-builder'),
+			/* translators: F14: edit form note on a paid entry */
+			"entPaidLocked" => $state && isset($ac->text->entPaidLocked) ? $ac->text->entPaidLocked : esc_html__('The payment of this entry cannot change: price fields stay as paid.','easy-form-builder'),
+			/* translators: F14: edit saved */
+			"entSaved" => $state && isset($ac->text->entSaved) ? $ac->text->entSaved : esc_html__('Changes saved.','easy-form-builder'),
+			/* translators: F14: edit */
+			"entNoChange" => $state && isset($ac->text->entNoChange) ? $ac->text->entNoChange : esc_html__('Nothing was changed.','easy-form-builder'),
+			/* translators: F14: edit, file field */
+			"entRemoveFile" => $state && isset($ac->text->entRemoveFile) ? $ac->text->entRemoveFile : esc_html__('Remove file','easy-form-builder'),
+			/* translators: F14: edit, file field */
+			"entReplaceFile" => $state && isset($ac->text->entReplaceFile) ? $ac->text->entReplaceFile : esc_html__('Replace file','easy-form-builder'),
+			/* translators: F14: button */
+			"entResend" => $state && isset($ac->text->entResend) ? $ac->text->entResend : esc_html__('Resend notification','easy-form-builder'),
+			/* translators: F14: resend option */
+			"entResendOrig" => $state && isset($ac->text->entResendOrig) ? $ac->text->entResendOrig : esc_html__('As originally sent','easy-form-builder'),
+			/* translators: F14: resend option */
+			"entResendAdmin" => $state && isset($ac->text->entResendAdmin) ? $ac->text->entResendAdmin : esc_html__('Administrator only','easy-form-builder'),
+			/* translators: F14: resend option */
+			"entResendVisitor" => $state && isset($ac->text->entResendVisitor) ? $ac->text->entResendVisitor : esc_html__('Visitor only','easy-form-builder'),
+			/* translators: F14: resend option */
+			"entResendCustom" => $state && isset($ac->text->entResendCustom) ? $ac->text->entResendCustom : esc_html__('Another address','easy-form-builder'),
+			/* translators: F14: resend preview label */
+			"entResendTo" => $state && isset($ac->text->entResendTo) ? $ac->text->entResendTo : esc_html__('Recipients','easy-form-builder'),
+			/* translators: F14: resend input */
+			"entResendEmails" => $state && isset($ac->text->entResendEmails) ? $ac->text->entResendEmails : esc_html__('E-mail addresses (separate with commas)','easy-form-builder'),
+			/* translators: F14: resend */
+			"entResendNone" => $state && isset($ac->text->entResendNone) ? $ac->text->entResendNone : esc_html__('There is no recipient for this choice.','easy-form-builder'),
+			/* translators: F14: resend limit */
+			"entResendLimit" => $state && isset($ac->text->entResendLimit) ? $ac->text->entResendLimit : esc_html__('This notification was resent too many times. Try again later.','easy-form-builder'),
+			/* translators: F14: %s = number */
+			"entResent" => $state && isset($ac->text->entResent) ? $ac->text->entResent : esc_html__('Notification sent to %s recipients.','easy-form-builder'),
+			/* translators: F14: %s = the address typed */
+			"entResendBad" => $state && isset($ac->text->entResendBad) ? $ac->text->entResendBad : esc_html__('%s is not a valid e-mail address.','easy-form-builder'),
+			/* translators: F14: resend error */
+			"entResendFailed" => $state && isset($ac->text->entResendFailed) ? $ac->text->entResendFailed : esc_html__('The notification could not be sent.','easy-form-builder'),
+			/* translators: F14: button */
+			"entPrint" => $state && isset($ac->text->entPrint) ? $ac->text->entPrint : esc_html__('Print','easy-form-builder'),
+			/* translators: F14: print option */
+			"entPrintNotes" => $state && isset($ac->text->entPrintNotes) ? $ac->text->entPrintNotes : esc_html__('Include notes','easy-form-builder'),
+			/* translators: F14: %s = number */
+			"entPrintMax" => $state && isset($ac->text->entPrintMax) ? $ac->text->entPrintMax : esc_html__('At most %s entries can be printed at once.','easy-form-builder'),
+			/* translators: F14: button */
+			"entExport" => $state && isset($ac->text->entExport) ? $ac->text->entExport : esc_html__('Export','easy-form-builder'),
+			/* translators: F14: export */
+			"entExportFmt" => $state && isset($ac->text->entExportFmt) ? $ac->text->entExportFmt : esc_html__('File format','easy-form-builder'),
+			/* translators: F14: export */
+			"entExportCols" => $state && isset($ac->text->entExportCols) ? $ac->text->entExportCols : esc_html__('Columns to export','easy-form-builder'),
+			/* translators: F14: export */
+			"entExportRows" => $state && isset($ac->text->entExportRows) ? $ac->text->entExportRows : esc_html__('Entries','easy-form-builder'),
+			/* translators: F14: export scope; %s = number */
+			"entExportFiltered" => $state && isset($ac->text->entExportFiltered) ? $ac->text->entExportFiltered : esc_html__('Entries matching the current filters (%s)','easy-form-builder'),
+			/* translators: F14: export scope; %s = number */
+			"entExportSelected" => $state && isset($ac->text->entExportSelected) ? $ac->text->entExportSelected : esc_html__('Selected entries (%s)','easy-form-builder'),
+			/* translators: F14: export option */
+			"entExportMulti" => $state && isset($ac->text->entExportMulti) ? $ac->text->entExportMulti : esc_html__('Several choices','easy-form-builder'),
+			/* translators: F14: export option */
+			"entExportJoin" => $state && isset($ac->text->entExportJoin) ? $ac->text->entExportJoin : esc_html__('In one cell','easy-form-builder'),
+			/* translators: F14: export option */
+			"entExportSplit" => $state && isset($ac->text->entExportSplit) ? $ac->text->entExportSplit : esc_html__('One column per choice','easy-form-builder'),
+			/* translators: F14: export limit */
+			"entExportTooMany" => $state && isset($ac->text->entExportTooMany) ? $ac->text->entExportTooMany : esc_html__('Too many entries. Choose a shorter date range.','easy-form-builder'),
+			/* translators: F14: export column of a removed field; %s = its label */
+			"entDeletedField" => $state && isset($ac->text->entDeletedField) ? $ac->text->entDeletedField : esc_html__('%s (deleted)','easy-form-builder'),
+			/* translators: F14: export column group */
+			"entExportMeta" => $state && isset($ac->text->entExportMeta) ? $ac->text->entExportMeta : esc_html__('Entry details','easy-form-builder'),
+			/* translators: F14: export */
+			"entSelectAllCols" => $state && isset($ac->text->entSelectAllCols) ? $ac->text->entSelectAllCols : esc_html__('Select all','easy-form-builder'),
+			/* translators: F14: export */
+			"entXlsxPlan" => $state && isset($ac->text->entXlsxPlan) ? $ac->text->entXlsxPlan : esc_html__('XLSX export is included in Free Plus and Pro.','easy-form-builder'),
+			/* translators: F14: tab */
+			"entStats" => $state && isset($ac->text->entStats) ? $ac->text->entStats : esc_html__('Statistics','easy-form-builder'),
+			/* translators: F14: statistics */
+			"entViews" => $state && isset($ac->text->entViews) ? $ac->text->entViews : esc_html__('Views','easy-form-builder'),
+			/* translators: F14: statistics */
+			"entSubmits" => $state && isset($ac->text->entSubmits) ? $ac->text->entSubmits : esc_html__('Submissions','easy-form-builder'),
+			/* translators: F14: statistics */
+			"entConv" => $state && isset($ac->text->entConv) ? $ac->text->entConv : esc_html__('Conversion rate','easy-form-builder'),
+			/* translators: F14: statistics */
+			"entNoStatsYet" => $state && isset($ac->text->entNoStatsYet) ? $ac->text->entNoStatsYet : esc_html__('No data yet','easy-form-builder'),
+			/* translators: F14: dashboard widget */
+			"entTopForms" => $state && isset($ac->text->entTopForms) ? $ac->text->entTopForms : esc_html__('Top forms','easy-form-builder'),
+			/* translators: F14: statistics period; %s = number */
+			"entDays" => $state && isset($ac->text->entDays) ? $ac->text->entDays : esc_html__('Last %s days','easy-form-builder'),
+			/* translators: F14: statistics help */
+			"entStatsHelp" => $state && isset($ac->text->entStatsHelp) ? $ac->text->entStatsHelp : esc_html__('Views count each new visit session of the form page.','easy-form-builder'),
+			/* translators: F14: error before the DB update ran */
+			"entDbUpgrade" => $state && isset($ac->text->entDbUpgrade) ? $ac->text->entDbUpgrade : esc_html__('A database update is required. Please reload the page.','easy-form-builder'),
+			/* translators: F14 settings */
+			"entAiAccess" => $state && isset($ac->text->entAiAccess) ? $ac->text->entAiAccess : esc_html__('AI assistants: access to entries','easy-form-builder'),
+			/* translators: F14 settings option */
+			"entAiOff" => $state && isset($ac->text->entAiOff) ? $ac->text->entAiOff : esc_html__('No access','easy-form-builder'),
+			/* translators: F14 settings option */
+			"entAiStats" => $state && isset($ac->text->entAiStats) ? $ac->text->entAiStats : esc_html__('Counts only','easy-form-builder'),
+			/* translators: F14 settings option */
+			"entAiRows" => $state && isset($ac->text->entAiRows) ? $ac->text->entAiRows : esc_html__('Entries (personal answers hidden)','easy-form-builder'),
+			/* translators: F14 settings */
+			"entTrashDays" => $state && isset($ac->text->entTrashDays) ? $ac->text->entTrashDays : esc_html__('Empty the trash after (days, 0 = never)','easy-form-builder'),
+			/* translators: F14 settings section title */
+			"entSettingsTitle" => $state && isset($ac->text->entSettingsTitle) ? $ac->text->entSettingsTitle : esc_html__('Entries','easy-form-builder'),
 			/* translators: F04 builder: the step of a number field (e.g. 0.5) */
 			"numStep" => $state && isset($ac->text->numStep) ? $ac->text->numStep : esc_html__('Step','easy-form-builder'),
 			/* translators: F04 builder: help under the step box */

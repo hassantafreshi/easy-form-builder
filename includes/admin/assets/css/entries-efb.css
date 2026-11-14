@@ -1,0 +1,103 @@
+/*
+ * F14: the entries screen (entries-efb.js). Logical properties (inline-start / inline-end) so one stylesheet
+ * serves left-to-right and right-to-left; a sentence with inserted values is unicode-bidi: plaintext with each
+ * value in <bdi>. The table becomes cards under 768 px (admin-efb.css, data-label); the filters fold under 576 px;
+ * the selection bar sticks to the bottom of the screen.
+ */
+.efb-ent { --efb-ent-accent: #4636f1; --efb-ent-soft: #f1f0ff; --efb-ent-line: #e2e8f0; --efb-ent-muted: #64748b; position: relative; padding-bottom: 72px; }
+.efb-ent-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin: 8px 0 10px; }
+.efb-ent-title { margin: 0; display: flex; align-items: center; gap: 6px; }
+.efb-ent-headbtns { display: flex; flex-wrap: wrap; gap: 6px; }
+.efb-ent-headbtns .btn, .efb-ent-filter-actions .btn, .efb-ent-pages .btn, .efb-ent-bulkbtns .btn { min-height: 36px; }
+
+.efb-ent-tabs { display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid var(--efb-ent-line); margin-bottom: 10px; scrollbar-width: thin; }
+.efb-ent-tab { border: 0; background: transparent; padding: 8px 12px; border-bottom: 3px solid transparent; color: #334155; white-space: nowrap; min-height: 44px; font-size: .9rem; }
+.efb-ent-tab.active { border-bottom-color: var(--efb-ent-accent); color: var(--efb-ent-accent); font-weight: 600; }
+.efb-ent-tab:focus-visible { outline: 2px solid var(--efb-ent-accent); outline-offset: -2px; }
+.efb-ent-count { color: var(--efb-ent-muted); font-weight: 400; unicode-bidi: isolate; }
+
+.efb-ent-filters { margin-bottom: 8px; }
+.efb-ent .efb-ent-filters-toggle.btn { display: none !important; min-height: 40px; }
+.efb-ent .visually-hidden, .efb-ent-dlg .visually-hidden { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
+.efb-preview-text { unicode-bidi: plaintext; }
+.efb-ent-filters-body { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; }
+.efb-ent-search { flex: 1 1 220px; }
+.efb-ent-dates { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.efb-ent-dates label { font-size: .8rem; color: var(--efb-ent-muted); margin: 0; }
+.efb-ent-dates input[type="date"] { width: auto; min-height: 36px; }
+.efb-ent-shortcuts .btn { padding: 2px 6px; font-size: .8rem; }
+.efb-ent-conds { display: flex; flex-direction: column; gap: 6px; flex: 1 1 100%; }
+.efb-ent-conds:empty { display: none; }
+.efb-ent-cond { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.efb-ent-cond select, .efb-ent-cond input { width: auto; min-width: 140px; min-height: 36px; }
+.efb-ent-filter-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.efb-ent-selall { background: var(--efb-ent-soft); border-radius: 8px; padding: 6px 12px; margin-bottom: 6px; unicode-bidi: plaintext; }
+.efb-ent-table { margin-bottom: 0; }
+.efb-ent-table th, .efb-ent-table td { vertical-align: middle; }
+.efb-ent-row.efb-ent-unread td { font-weight: 600; }
+.efb-ent-row.efb-ent-selected { background: var(--efb-ent-soft); }
+.efb-ent-row:focus { outline: 2px solid var(--efb-ent-accent); outline-offset: -2px; }
+.efb-ent-cb { width: 36px; }
+.efb-ent-starcol { width: 44px; }
+.efb-ent-star { border: 0; background: transparent; color: #94a3b8; min-width: 36px; min-height: 36px; border-radius: 50%; }
+.efb-ent-star.is-on { color: #f59e0b; }
+.efb-ent-star:hover, .efb-ent-star:focus-visible { background: #fef3c7; }
+.efb-ent-open-txt { border: 0; background: transparent; padding: 0; text-align: start; color: inherit; max-width: 100%; }
+.efb-ent-sort { border: 0; background: transparent; padding: 0; font-weight: 600; color: inherit; }
+.efb-ent-val { display: inline-block; max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
+.efb-ent-badge { font-size: .7rem; font-weight: 500; margin-inline-start: 4px; }
+.efb-ent-badge-spam { background: #fde68a; color: #78350f; }
+.efb-ent-badge-trash { background: #fecaca; color: #7f1d1d; }
+.efb-ent-badge-pending { background: #e0e7ff; color: #3730a3; }
+.efb-ent-badge-edited { background: #e2e8f0; color: #334155; }
+.efb-ent-notes-ind { color: #a16207; font-size: .8rem; margin-inline-start: 4px; white-space: nowrap; }
+
+.efb-ent-pager { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 2px; }
+.efb-ent-showing { unicode-bidi: plaintext; color: var(--efb-ent-muted); font-size: .9rem; }
+.efb-ent-pages { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.efb-ent-pages .btn { min-width: 36px; }
+.efb-ent-gap { padding: 0 4px; color: var(--efb-ent-muted); }
+.efb-ent-pp { display: flex; align-items: center; gap: 6px; margin: 0; font-size: .85rem; }
+.efb-ent-pp select { width: auto; min-height: 36px; }
+
+.efb-ent-bulkbar { position: sticky; bottom: 0; z-index: 30; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: #1e1b4b; color: #fff; padding: 8px 12px; border-radius: 12px; box-shadow: 0 -2px 14px rgba(15, 23, 42, .25); margin-top: 8px; }
+.efb-ent-bulkbar[hidden] { display: none; }
+.efb-ent-nsel { font-weight: 600; unicode-bidi: plaintext; }
+.efb-ent-bulkbtns { display: flex; flex-wrap: wrap; gap: 6px; }
+.efb-ent-bulkbar .btn-outline-secondary, .efb-ent-bulkbar .btn-outline-danger, .efb-ent-bulkbar .btn-link { color: #fff; border-color: rgba(255, 255, 255, .5); }
+.efb-ent-bulkbar .btn-outline-secondary:hover { background: rgba(255, 255, 255, .15); }
+
+.efb-ent-toast { position: fixed; inset-inline-start: 50%; bottom: 24px; transform: translateX(-50%); z-index: 100060; background: #0f172a; color: #fff; padding: 10px 16px; border-radius: 10px; box-shadow: 0 6px 24px rgba(0, 0, 0, .25); display: flex; align-items: center; gap: 10px; unicode-bidi: plaintext; max-width: calc(100vw - 32px); }
+[dir="rtl"] .efb-ent-toast { transform: translateX(50%); }
+.efb-ent-toast[hidden] { display: none; }
+
+.efb-ent-menu { min-width: 200px; z-index: 100050; padding: 4px 0; }
+.efb-ent-menu .dropdown-item { display: flex; gap: 8px; align-items: center; min-height: 40px; white-space: nowrap; }
+
+.efb-ent-dlg-back { position: fixed; inset: 0; background: rgba(15, 23, 42, .45); z-index: 100055; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.efb-ent-dlg { background: #fff; border-radius: 14px; width: min(560px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; box-shadow: 0 18px 50px rgba(0, 0, 0, .3); }
+.efb-ent-dlg-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--efb-ent-line, #e2e8f0); gap: 8px; }
+.efb-ent-dlg-body { padding: 14px 16px; overflow: auto; unicode-bidi: plaintext; }
+.efb-ent-dlg-foot { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--efb-ent-line, #e2e8f0); }
+.efb-ent-dlg-foot .btn { min-height: 40px; }
+.efb-ent-collist { margin: 0; }
+.efb-ent-colitem { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 0; border-bottom: 1px solid #f1f5f9; }
+.efb-ent-colitem label { display: flex; align-items: center; gap: 8px; margin: 0; min-height: 36px; }
+
+/* Phone: the filters fold behind one button, the table is cards (admin-efb.css), the actions stay 44 px. */
+@media (max-width: 768px) {
+  .efb-ent-table tbody tr > td[data-label]::before { margin-right: 0 !important; margin-inline-end: 10px; }
+  .efb-ent-table .efb-ent-val { max-width: 60vw; }
+  .efb-ent-pager { justify-content: center; }
+}
+@media (max-width: 576px) {
+  .efb-ent .efb-ent-filters-toggle.btn { display: inline-flex !important; align-items: center; gap: 6px; }
+  .efb-ent-filters-body { display: none; margin-top: 8px; flex-direction: column; align-items: stretch; }
+  .efb-ent-filters.is-open .efb-ent-filters-body { display: flex; }
+  .efb-ent-dates input[type="date"] { flex: 1 1 40%; }
+  .efb-ent-cond select, .efb-ent-cond input { flex: 1 1 100%; }
+  .efb-ent-bulkbar { border-radius: 0; margin-inline: -12px; }
+  .efb-ent-tab, .efb-act-btn, .efb-ent-star { min-height: 44px; min-width: 44px; }
+  .efb-ent-headbtns .btn span { display: none; }
+}

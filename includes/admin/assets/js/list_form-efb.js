@@ -456,9 +456,11 @@ function fun_confirm_remove_message_emsFormBuilder(id) {
 
   fun_delete_message_with_id_by_server(parseInt(id));
 
-  const foundIndex = Object.keys(valueJson_ws_form).length > 0 ? valueJson_ws_form.findIndex(x => Number(x.form_id) == Number(id)) : -1
-  if (foundIndex != -1) valueJson_ws_form.splice(foundIndex, 1);
-  fun_emsFormBuilder_render_view(count_row_emsFormBuilder);
+  /* F14 §18: the entry leaves the list of entries; the forms list (and a form whose id happened to equal
+     the entry's id) is not touched any more. */
+  const foundIndex = Array.isArray(valueJson_ws_messages) ? valueJson_ws_messages.findIndex(x => Number(x.msg_id) == Number(id)) : -1
+  if (foundIndex != -1) valueJson_ws_messages.splice(foundIndex, 1);
+  fun_ws_show_list_messages(valueJson_ws_messages);
 
 }
 function fun_confirm_remove_all_message_emsFormBuilder(val) {
@@ -917,7 +919,18 @@ function fun_update_message_state_by_id(id) {
     })
   });
 }
+/* F14: the entries screen (entries-efb.js) lists one page from the server. A database that has not reached
+   DB 1.10 yet, or a login form, keeps the old list below (fun_get_messages_by_id_legacy_efb). */
 function fun_get_messages_by_id(id) {
+  const ent = (typeof efb_var !== 'undefined' && efb_var.entries) || null;
+  if (typeof EfbEntries !== 'undefined' && EfbEntries.openForm && ent && ent.ready && form_type_emsFormBuilder !== 'login') {
+    if (!navigator.onLine) { alert_message_efb('', efb_var.text.offlineSend, 17, 'danger'); return; }
+    EfbEntries.openForm(Number(id), form_type_emsFormBuilder);
+    return;
+  }
+  fun_get_messages_by_id_legacy_efb(id);
+}
+function fun_get_messages_by_id_legacy_efb(id) {
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')
     return;
@@ -1969,8 +1982,32 @@ function efb_privacy_tab_efb(prv, mx) {
       </div>
       ${efb_privacy_retention_html_efb(prv, mx, dis)}
       ${efb_privacy_requests_html_efb(prv, mx, dis)}
+      ${efb_entries_settings_html_efb(mx, dis)}
       <!--efb-privacy-extra-->
     </div>`;
+}
+/* F14: how long the trash keeps entries, and what AI assistants (SitePilot entries.read) may read. */
+function efb_entries_settings_html_efb(mx, dis) {
+  const ent = (typeof efb_var !== 'undefined' && efb_var.entries && efb_var.entries.settings) || {};
+  const days = String(ent.trash_days == null ? '30' : ent.trash_days);
+  const ai = ['off', 'stats', 'rows'].includes(ent.ai_entries_access) ? ent.ai_entries_access : 'off';
+  const radio = (val, key, fb) => `
+      <div class="efb form-check my-1">
+        <input class="efb form-check-input" type="radio" name="entAiAccess_efb" id="entAiAccess_${val}_efb" value="${val}" ${ai === val ? 'checked' : ''} ${dis}>
+        <label class="efb form-check-label mx-2" for="entAiAccess_${val}_efb">${efb_prv_t_efb(key, fb)}</label>
+      </div>`;
+  return `
+      <fieldset class="efb card-body ${mx} py-1 mt-3 border-0" id="entSettings_efb">
+        <legend class="efb fs-6 fw-bold mb-1">${efb_prv_t_efb('entSettingsTitle', 'Entries')}</legend>
+        <label class="efb form-label" for="entTrashDays_efb">${efb_prv_t_efb('entTrashDays', 'Empty the trash after (days, 0 = never)')}</label>
+        <input type="text" inputmode="numeric" class="efb form-control w-auto" id="entTrashDays_efb" value="${efb_prv_number_efb(Number(days))}" maxlength="5" ${dis}>
+        <div class="efb fw-bold mt-3 mb-1" id="entAiLbl_efb">${efb_prv_t_efb('entAiAccess', 'AI assistants: access to entries')}</div>
+        <div role="radiogroup" aria-labelledby="entAiLbl_efb">
+        ${radio('off', 'entAiOff', 'No access')}
+        ${radio('stats', 'entAiStats', 'Counts only')}
+        ${radio('rows', 'entAiRows', 'Entries (personal answers hidden)')}
+        </div>
+      </fieldset>`;
 }
 /* WordPress personal-data requests (F13 E): what an erasure does, and where the tools are. */
 function efb_privacy_requests_html_efb(prv, mx, dis) {
@@ -2105,6 +2142,11 @@ function efb_privacy_patch_efb() {
   // F07: how long a signed link to a private file works (owner e-mail, personal-data export).
   const fl = document.getElementById('prvFileLinkDays_efb');
   if (fl) { const d = Number(efb_prv_digits_efb(fl.value).replace(/[^0-9]/g, '')) || 7; out.prv_file_link_days = String(Math.min(90, Math.max(1, d))); }
+  // F14: the trash and assistants' access to entries.
+  const td = document.getElementById('entTrashDays_efb');
+  if (td) { const d = efb_prv_digits_efb(td.value).replace(/[^0-9]/g, ''); out.trash_days = String(Math.min(3650, Number(d === '' ? 30 : d))); }
+  const ai = document.querySelector('input[name="entAiAccess_efb"]:checked');
+  if (ai && ['off', 'stats', 'rows'].includes(ai.value)) out.ai_entries_access = ai.value;
   return out;
 }
 function efb_privacy_post_efb(action, extra) {

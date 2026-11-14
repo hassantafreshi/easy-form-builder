@@ -1,0 +1,817 @@
+/**
+ * F14: the entries screen of a form (docs/feature-gaps/F14-entries-management.fa.md §4, §6).
+ *
+ * One page of entries from the server (efb_entries_query_Emsfb), never every entry in the browser: status tabs
+ * with counts, search, a date range with shortcuts, field conditions, chosen columns, pages, star, read / unread,
+ * spam, trash with Undo, restore, delete permanently, "select all N results", and keyboard shortcuts (j / k / s / #).
+ * Everything written into the page is escaped (escHtmlEfb); numbers and dates use the site's digits (fa / ar); a
+ * mixed-script sentence keeps its order (unicode-bidi: plaintext and <bdi> around every inserted value).
+ *
+ * The response viewer, the old list (fun_ws_show_list_messages) and its CSV stay: a site whose database has not
+ * reached DB 1.10 keeps them (efb_db_upgrade), and the survey chart still reads the whole form from the old action.
+ * No build step: this file is loaded as is on the panel (class-Emsfb-panel.php) after list_form-efb.js.
+ */
+(function (root) {
+  'use strict';
+  const W = root;
+  const D = W.document;
+
+  /* ------------------------------------------------------------------ helpers */
+  /* Phrases arrive escaped once by esc_html__(): decoded here, escaped again where they are written (esc). */
+  const dec = (s) => String(s).replace(/&#0?39;|&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+  const T = (k, fb) => { const t = (W.efb_var && W.efb_var.text) || {}; return t[k] !== undefined && t[k] !== null && t[k] !== '' ? dec(t[k]) : fb; };
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const cfg = () => (W.efb_var && W.efb_var.entries) || {};
+  const locale = () => String((W.efb_var && (W.efb_var.wp_lan || W.efb_var.language)) || 'en_US');
+  const script = () => { const l = locale(); return /^(fa|ps|ckb)/.test(l) ? 'fa' : (/^ar(?!y)/.test(l) ? 'ar' : ''); };
+  const isRtl = () => !!((W.efb_var && Number(W.efb_var.rtl) === 1) || (D && D.documentElement && D.documentElement.dir === 'rtl'));
+  /** Latin digits to the site's (Persian ۰-۹ for fa, Arabic-Indic ٠-٩ for ar). */
+  const digits = (s) => { const sc = script(); if (!sc) return String(s); const base = sc === 'fa' ? 0x06F0 : 0x0660; return String(s).replace(/[0-9]/g, (d) => String.fromCharCode(base + Number(d))); };
+  /** Persian / Arabic-Indic digits typed by a person to Latin. */
+  const latin = (s) => String(s == null ? '' : s).replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06F0)).replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660));
+  /** A count in the site's digits with grouping (1,234 / ۱٬۲۳۴ / ١٬٢٣٤). */
+  const num = (n) => { const v = Number(n) || 0; let s; try { s = v.toLocaleString(locale().replace('_', '-')); } catch (e) { s = String(v); } return digits(s); };
+  /** A sentence with values: every value is isolated (<bdi>) so a mixed-script sentence keeps its order. */
+  const fill = (tpl, vals) => { let out = esc(tpl); vals.forEach((v, i) => { out = out.split(`%${i + 1}$s`).join(`<bdi>${v}</bdi>`); }); if (vals.length === 1) out = out.split('%s').join(`<bdi>${vals[0]}</bdi>`); return out; };
+  const icon = (name) => `<i class="efb bi ${name}" aria-hidden="true"></i>`;
+
+  /* The admin scripts keep their state in top-level let bindings (list_form-efb.js, admin-efb.js), which are not
+     properties of window: read and write them by name when they exist, else on window (tests, other screens). */
+  function getGlobal(name) {
+    switch (name) {
+      case 'valueJson_ws_messages': return typeof valueJson_ws_messages !== 'undefined' ? valueJson_ws_messages : W[name]; // eslint-disable-line no-undef
+      case 'form_type_emsFormBuilder': return typeof form_type_emsFormBuilder !== 'undefined' ? form_type_emsFormBuilder : W[name]; // eslint-disable-line no-undef
+      case 'form_ID_emsFormBuilder': return typeof form_ID_emsFormBuilder !== 'undefined' ? form_ID_emsFormBuilder : W[name]; // eslint-disable-line no-undef
+    }
+    return W[name];
+  }
+  function setGlobal(name, v) {
+    /* eslint-disable no-undef, no-global-assign */
+    switch (name) {
+      case 'valueJson_ws_messages': if (typeof valueJson_ws_messages !== 'undefined') { valueJson_ws_messages = v; return; } break;
+      case 'form_ID_emsFormBuilder': if (typeof form_ID_emsFormBuilder !== 'undefined') { form_ID_emsFormBuilder = v; return; } break;
+    }
+    /* eslint-enable no-undef, no-global-assign */
+    W[name] = v;
+  }
+
+  /* ------------------------------------------------------------------ state */
+  const S = {
+    fid: 0, formType: 'form', page: 1, per_page: 20, tab: 'all', from: '', to: '', q: '', conds: [], sort: 'date_desc',
+    cols: [], fields: null, rows: [], total: 0, estimate: false, counts: {}, selected: new Set(), allMatching: false,
+    loading: false, focusIdx: -1, filtersOpen: false, undo: null, lastLive: '',
+  };
+  const TABS = [['all', 'entAll', 'All'], ['unread', 'entUnread', 'Unread'], ['starred', 'entStarred', 'Starred'], ['pending', 'entPending', 'Payment pending'], ['closed', 'entClosed', 'Closed'], ['spam', 'entSpam', 'Spam'], ['trash', 'entTrash', 'Trash']];
+  const META_COLS = [['_ip', 'ip', 'IP'], ['_notes', 'entNotes', 'Notes'], ['_edited', 'entEditedCol', 'Last edit'], ['_status', 'entStatusCol', 'Status']];
+  const planOk = (part) => { const p = cfg().plan; return !p || p[part] !== false; };
+  const feature = (part) => (cfg().features || {})[part] || ('setting:entries_' + part);
+  const gate = (part, opener) => { if (planOk(part)) return true; if (typeof W.efb_gate_efb === 'function') W.efb_gate_efb(feature(part), { fallback: part === 'nobrand' ? 'pro' : 'free_plus', origin: 'entries', opener }); return false; };
+
+  /* ------------------------------------------------------------------ server */
+  function post(data) {
+    const nonce = (typeof W._efb_core_nonce_ !== 'undefined' && W._efb_core_nonce_) || (W.efb_var && W.efb_var.nonce) || '';
+    const body = new URLSearchParams(Object.assign({ nonce }, data));
+    const url = (W.ajax_object_efm && W.ajax_object_efm.ajax_url) || (W.efb_var && W.efb_var.ajax_url) || W.ajaxurl;
+    return fetch(url, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body })
+      .then((r) => r.json()).then((j) => (j && j.data !== undefined ? j.data : j)).catch(() => ({ success: false, code: 'efb_network', m: T('somethingWentWrongPleaseRefresh', 'Something went wrong. Please refresh the page.') }));
+  }
+  const filterArgs = () => ({ tab: S.tab, from: S.from, to: S.to, q: S.q, conds: S.conds.filter((c) => c.id && c.op && (c.op === 'empty' || c.op === 'filled' || String(c.v).trim() !== '')), sort: S.sort });
+
+  /* ------------------------------------------------------------------ the stored answers */
+  function rowsOf(content) {
+    try {
+      const raw = typeof W.replaceContentMessageEfb === 'function' ? W.replaceContentMessageEfb(content, true) : String(content).replace(/\\"/g, '"');
+      const v = typeof W.efbParseJson === 'function' ? W.efbParseJson(raw) : JSON.parse(raw);
+      return Array.isArray(v) ? v : [];
+    } catch (e) { return []; }
+  }
+  /** The answer of one field as text (checkbox options and repeater rows joined), stored quote token decoded. */
+  function valueOf(rows, id) {
+    const out = [];
+    for (const r of rows) {
+      if (!r || String(r.id_) !== String(id) || r.value === undefined || r.value === null || typeof r.value === 'object') continue;
+      let v = String(r.value);
+      if (v === '@file@') v = r.url ? String(r.url).split('/').pop() : '';
+      if (v === '@prv@') v = T('prvRedacted', 'Removed for privacy');
+      v = v.replace(/@efb@dq#/g, '"').replace(/@efb!/g, ', ').replace(/@n#/g, ' ').replace(/,\s*$/, '').trim();
+      if (typeof r.disp === 'string' && r.disp !== '') v = r.disp;
+      if (v !== '') out.push(r.ri !== undefined && r.ri !== null && r.ri !== '' ? `${v}` : v);
+    }
+    return out.join(' | ');
+  }
+  /**
+   * The content preview: "label: value | label: value", the first 50 characters. Each label and each value is
+   * isolated (<bdi>) so a Persian label beside a Latin value, or the reverse, keeps the order it was typed in.
+   * short is HTML (escaped), full is plain text (the tooltip).
+   */
+  function preview(content) {
+    const skip = ['maps', 'esign', 'payment', 'w_link', 'repeater'];
+    const parts = [];
+    for (const r of rowsOf(content)) {
+      if (!r || r.value === undefined || r.value === null || r.value === '' || r.value === '@file@' || typeof r.value === 'object' || skip.includes(r.type)) continue;
+      const v = (r.value === '@prv@' ? T('prvRedacted', 'Removed for privacy') : String(typeof r.disp === 'string' && r.disp !== '' ? r.disp : r.value))
+        .replace(/<[^>]*>/g, '').replace(/@efb@dq#/g, '"').replace(/@efb!/g, ', ').replace(/@n#/g, ' ').replace(/@efb[^#]*#/g, ' ').replace(/,\s*$/, '').trim();
+      if (v === '') continue;
+      parts.push([String(r.name || r.id_ || '').replace(/@efb@dq#/g, '"'), v]);
+    }
+    if (!parts.length) return { short: '—', full: '—' };
+    const full = parts.map((x) => (x[0] ? x[0] + ': ' : '') + x[1]).join(' | ');
+    let left = 50;
+    const out = [];
+    for (const [l, v] of parts) {
+      if (left <= 0) break;
+      const lab = l.slice(0, left); left -= lab.length + 2;
+      const val = left > 0 ? (v.length > left ? v.slice(0, Math.max(0, left)) + '…' : v) : '';
+      left -= val.length + 3;
+      out.push(`${lab ? `<bdi>${esc(lab)}</bdi>: ` : ''}${val ? `<bdi>${esc(val)}</bdi>` : '…'}`);
+    }
+    return { short: out.join(' | '), full };
+  }
+
+  /* ------------------------------------------------------------------ rendering (pure: state → HTML) */
+  function colLabel(c) {
+    const meta = META_COLS.find((m) => m[0] === c);
+    if (meta) return T(meta[1], meta[2]);
+    const f = (S.fields || []).find((x) => x.id === c);
+    return f ? f.name : c;
+  }
+
+  /** The table head for the chosen columns (aria-sort on the date). */
+  function renderHead(cols) {
+    const sortDir = S.sort === 'date_asc' ? 'ascending' : 'descending';
+    const extra = cols.map((c) => `<th scope="col" class="efb efb-ent-col" data-col="${esc(c)}">${esc(colLabel(c))}</th>`).join('');
+    return `<tr>
+      <th scope="col" class="efb efb-ent-cb"><input class="efb form-check-input efb-ent-all" type="checkbox" aria-label="${esc(T('entSelectPage', 'Select every entry on this page'))}"></th>
+      <th scope="col" class="efb efb-ent-starcol"><span class="visually-hidden">${esc(T('entStarred', 'Starred'))}</span>${icon('bi-star')}</th>
+      <th scope="col" class="efb">${esc(T('content', 'Content'))}</th>
+      <th scope="col" class="efb">${esc(T('trackNo', 'Confirmation Code'))}</th>
+      <th scope="col" class="efb" aria-sort="${sortDir}"><button type="button" class="efb efb-ent-sort" data-ent="sort">${esc(T('ddate', 'Date'))} ${icon(S.sort === 'date_asc' ? 'bi-sort-up' : 'bi-sort-down')}</button></th>
+      ${extra}
+      <th scope="col" class="efb">${esc(T('actions', 'Actions'))}</th>
+    </tr>`;
+  }
+
+  function cellOf(row, rows, c) {
+    if (c === '_ip') return `<bdi dir="ltr">${esc(row.ip || '')}</bdi>`;
+    if (c === '_notes') return row.notes_count ? `<span class="efb badge bg-warning text-dark">${num(row.notes_count)}</span>` : '';
+    if (c === '_edited') return row.edited_at ? `<bdi>${esc(digits(row.edited_at))}</bdi>` : '';
+    if (c === '_status') return statusBadge(row);
+    const full = valueOf(rows, c);
+    const short = full.length > 60 ? full.slice(0, 60) + '…' : full;
+    return `<span class="efb efb-ent-val" title="${esc(full)}"><bdi>${esc(short)}</bdi></span>`;
+  }
+
+  function statusBadge(row) {
+    if (Number(row.entry_status) === 1) return `<span class="efb badge efb-ent-badge efb-ent-badge-spam">${esc(T('entSpam', 'Spam'))}</span>`;
+    if (Number(row.entry_status) === 2) return `<span class="efb badge efb-ent-badge efb-ent-badge-trash">${esc(T('entTrash', 'Trash'))}</span>`;
+    if (Number(row.read_) === 2) return `<span class="efb badge efb-ent-badge efb-ent-badge-pending">${esc(T('entPending', 'Payment pending'))}</span>`;
+    return '';
+  }
+
+  /** One row: check, star, preview, code, date, chosen columns, actions; every cell has data-label (phone cards). */
+  function renderRow(row, cols) {
+    const id = Number(row.msg_id);
+    const rows = rowsOf(row.content);
+    const pv = preview(row.content);
+    const unread = Number(row.entry_status) === 0 && (Number(row.read_) === 0 || Number(row.read_) === 3);
+    const starred = Number(row.starred) === 1;
+    const st = Number(row.entry_status);
+    const sel = S.allMatching || S.selected.has(id);
+    const extra = cols.map((c) => `<td class="efb efb-ent-col" data-col="${esc(c)}" data-label="${esc(colLabel(c))}">${cellOf(row, rows, c)}</td>`).join('');
+    const edited = row.edited_at ? ` <span class="efb badge efb-ent-badge efb-ent-badge-edited" title="${esc(digits(row.edited_at))}">${esc(T('entEditedShort', 'Edited'))}</span>` : '';
+    const notes = row.notes_count && !cols.includes('_notes') ? ` <span class="efb efb-ent-notes-ind" title="${esc(T('entNotes', 'Notes'))}">${icon('bi-sticky')}<bdi>${num(row.notes_count)}</bdi></span>` : '';
+    return `<tr class="efb efb-ent-row${unread ? ' efb-ent-unread' : ''}${sel ? ' efb-ent-selected' : ''}" data-msgid="${id}" tabindex="-1">
+      <td class="efb efb-ent-cb" data-label="${esc(T('select', 'Select'))}"><input class="efb form-check-input efb-ent-one" type="checkbox" value="${id}" ${sel ? 'checked' : ''} aria-label="${esc(T('select', 'Select'))} ${esc(row.track)}"></td>
+      <td class="efb efb-ent-starcol" data-label="${esc(T('entStarred', 'Starred'))}"><button type="button" class="efb efb-ent-star${starred ? ' is-on' : ''}" data-ent="star" data-msgid="${id}" aria-pressed="${starred ? 'true' : 'false'}" aria-label="${esc(starred ? T('entUnstar', 'Remove star') : T('entStar', 'Star'))}">${icon(starred ? 'bi-star-fill' : 'bi-star')}</button></td>
+      <td class="efb efb-content-cell" data-label="${esc(T('content', 'Content'))}"><button type="button" class="efb efb-ent-open-txt" data-ent="open" data-msgid="${id}"><span class="efb-preview-text" title="${esc(pv.full)}">${pv.short}</span></button>${statusBadge(row) ? ' ' + statusBadge(row) : ''}${edited}${notes}</td>
+      <td class="efb" data-label="${esc(T('trackNo', 'Confirmation Code'))}"><code class="efb text-muted user-select-all"><bdi dir="ltr">${esc(row.track)}</bdi></code></td>
+      <td class="efb" data-label="${esc(T('ddate', 'Date'))}"><bdi>${esc(digits(row.date))}</bdi></td>
+      ${extra}
+      <td class="efb efb-actions-cell" data-label="${esc(T('actions', 'Actions'))}"><div class="efb-actions-group">
+        <button type="button" class="efb efb-act-btn efb-act-open${unread ? ' efb-has-badge' : ''}" id="btn-m-${id}" data-ent="open" data-msgid="${id}" aria-label="${esc(unread ? T('newResponse', 'New response') : T('read', 'Read'))}">${icon(unread ? 'bi-envelope-fill' : 'bi-envelope-open')}</button>
+        ${st === 2
+          ? `<button type="button" class="efb efb-act-btn" data-ent="op" data-op="restore" data-msgid="${id}" aria-label="${esc(T('entRestore', 'Restore'))}">${icon('bi-arrow-counterclockwise')}</button>
+             <button type="button" class="efb efb-act-btn efb-act-delete" data-ent="op" data-op="delete" data-msgid="${id}" aria-label="${esc(T('entDeleteForever', 'Delete permanently'))}">${icon('bi-x-octagon')}</button>`
+          : `<button type="button" class="efb efb-act-btn efb-act-delete" data-ent="op" data-op="trash" data-msgid="${id}" aria-label="${esc(T('entMoveTrash', 'Move to trash'))}">${icon('bi-trash3')}</button>`}
+        <button type="button" class="efb efb-act-btn efb-ent-more" data-ent="menu" data-msgid="${id}" aria-haspopup="menu" aria-expanded="false" aria-label="${esc(T('entMore', 'More actions'))}">${icon('bi-three-dots-vertical')}</button>
+      </div></td>
+    </tr>`;
+  }
+
+  function renderTabs() {
+    return `<div class="efb efb-ent-tabs" role="tablist" aria-label="${esc(T('entStatusTabs', 'Entry status'))}">${TABS.filter((t) => t[0] !== 'pending' || S.formType === 'payment' || (S.counts.pending || 0) > 0).map((t) => {
+      const on = S.tab === t[0];
+      return `<button type="button" role="tab" class="efb efb-ent-tab${on ? ' active' : ''}" id="efbEntTab-${t[0]}" aria-selected="${on ? 'true' : 'false'}" aria-controls="efbEntPanel" tabindex="${on ? '0' : '-1'}" data-ent="tab" data-tab="${t[0]}">${esc(T(t[1], t[2]))} <span class="efb efb-ent-count"><bdi>${num(S.counts[t[0]] || 0)}</bdi></span></button>`;
+    }).join('')}</div>`;
+  }
+
+  function renderConds() {
+    const fields = (S.fields || []).filter((f) => f.type !== 'repeater');
+    return S.conds.map((c, i) => {
+      const f = fields.find((x) => x.id === c.id);
+      const opts = f && Array.isArray(f.options) && f.options.length;
+      const val = c.op === 'empty' || c.op === 'filled' ? '' : (opts
+        ? `<select class="efb form-select form-select-sm efb-ent-cond-v" data-i="${i}" aria-label="${esc(T('value', 'Value'))}"><option value=""></option>${f.options.map((o) => `<option value="${esc(o.value)}" ${o.value === c.v ? 'selected' : ''}>${esc(o.value)}</option>`).join('')}</select>`
+        : `<input type="text" class="efb form-control form-control-sm efb-ent-cond-v" data-i="${i}" value="${esc(c.v)}" aria-label="${esc(T('value', 'Value'))}" dir="auto">`);
+      return `<div class="efb efb-ent-cond" data-i="${i}">
+        <select class="efb form-select form-select-sm efb-ent-cond-f" data-i="${i}" aria-label="${esc(T('field', 'Field'))}"><option value=""></option>${fields.map((x) => `<option value="${esc(x.id)}" ${x.id === c.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>
+        <select class="efb form-select form-select-sm efb-ent-cond-op" data-i="${i}" aria-label="${esc(T('entCondition', 'Condition'))}">${[['eq', 'entOpEq', 'is'], ['has', 'entOpHas', 'contains'], ['empty', 'entOpEmpty', 'is empty'], ['filled', 'entOpFilled', 'is not empty']].map((o) => `<option value="${o[0]}" ${o[0] === c.op ? 'selected' : ''}>${esc(T(o[1], o[2]))}</option>`).join('')}</select>
+        ${val}
+        <button type="button" class="efb btn btn-sm btn-outline-secondary" data-ent="cond-del" data-i="${i}" aria-label="${esc(T('delete', 'Delete'))}">${icon('bi-x-lg')}</button>
+      </div>`;
+    }).join('');
+  }
+
+  function renderFilters() {
+    const gem = planOk('filter') ? '' : ` ${icon('bi-gem')}`;
+    return `<div class="efb efb-ent-filters${S.filtersOpen ? ' is-open' : ''}">
+      <button type="button" class="efb btn btn-sm btn-outline-secondary efb-ent-filters-toggle" data-ent="filters" aria-expanded="${S.filtersOpen ? 'true' : 'false'}" aria-controls="efbEntFiltersBody">${icon('bi-funnel')} ${esc(T('entFilters', 'Filters'))}</button>
+      <div class="efb efb-ent-filters-body" id="efbEntFiltersBody">
+        <div class="efb efb-ent-search"><label class="efb visually-hidden" for="efbEntQ">${esc(T('search', 'Search'))}</label>
+          <input type="search" class="efb form-control form-control-sm" id="efbEntQ" maxlength="100" value="${esc(S.q)}" placeholder="${esc(T('entSearchPh', 'Search answers, codes and notes'))}" dir="auto"></div>
+        <div class="efb efb-ent-dates">
+          <label class="efb" for="efbEntFrom">${esc(T('entFrom', 'From'))}</label><input type="date" class="efb form-control form-control-sm" id="efbEntFrom" value="${esc(S.from)}">
+          <label class="efb" for="efbEntTo">${esc(T('entTo', 'To'))}</label><input type="date" class="efb form-control form-control-sm" id="efbEntTo" value="${esc(S.to)}">
+          <span class="efb efb-ent-shortcuts">${[['today', 'entToday', 'Today'], ['7', 'entLast7', 'Last 7 days'], ['30', 'entLast30', 'Last 30 days'], ['month', 'entThisMonth', 'This month']].map((x) => `<button type="button" class="efb btn btn-sm btn-link" data-ent="range" data-range="${x[0]}">${esc(T(x[1], x[2]))}</button>`).join('')}</span>
+        </div>
+        <div class="efb efb-ent-conds">${renderConds()}</div>
+        <div class="efb efb-ent-filter-actions">
+          ${S.conds.length < 3 ? `<button type="button" class="efb btn btn-sm btn-outline-pink" data-ent="cond-add">${icon('bi-plus-lg')} ${esc(T('entAddCond', 'Add condition'))}${gem}</button>` : ''}
+          <button type="button" class="efb btn btn-sm btn-outline-secondary" data-ent="clear">${esc(T('entClearFilters', 'Clear filters'))}</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function renderPager() {
+    const from = S.total ? (S.page - 1) * S.per_page + 1 : 0;
+    const to = Math.min(S.total, (S.page - 1) * S.per_page + S.rows.length);
+    const pages = Math.max(1, Math.ceil(S.total / S.per_page));
+    const totalTxt = S.estimate ? fill(T('entMoreThan', 'More than %s'), [num(S.total)]) : `<bdi>${num(S.total)}</bdi>`;
+    const list = [];
+    const add = (p) => { if (p >= 1 && p <= pages && !list.includes(p)) list.push(p); };
+    [1, S.page - 1, S.page, S.page + 1, pages].forEach(add);
+    list.sort((a, b) => a - b);
+    let btns = '';
+    let last = 0;
+    for (const p of list) {
+      if (last && p - last > 1) btns += '<span class="efb efb-ent-gap" aria-hidden="true">…</span>';
+      btns += `<button type="button" class="efb btn btn-sm ${p === S.page ? 'btn-primary' : 'btn-outline-secondary'}" data-ent="page" data-page="${p}" ${p === S.page ? 'aria-current="page"' : ''} aria-label="${esc(T('page', 'Page'))} ${digits(p)}">${digits(p)}</button>`;
+      last = p;
+    }
+    return `<nav class="efb efb-ent-pager" aria-label="${esc(T('entPages', 'Pages'))}">
+      <span class="efb efb-ent-showing">${esc(T('entShowingXY', 'Showing %1$s–%2$s of %3$s')).split('%1$s').join(`<bdi>${num(from)}</bdi>`).split('%2$s').join(`<bdi>${num(to)}</bdi>`).split('%3$s').join(totalTxt)}</span>
+      <span class="efb efb-ent-pages">
+        <button type="button" class="efb btn btn-sm btn-outline-secondary" data-ent="page" data-page="${S.page - 1}" ${S.page <= 1 ? 'disabled' : ''}>${esc(T('previous', 'Previous'))}</button>
+        ${btns}
+        <button type="button" class="efb btn btn-sm btn-outline-secondary" data-ent="page" data-page="${S.page + 1}" ${S.page >= pages ? 'disabled' : ''}>${esc(T('next', 'Next'))}</button>
+      </span>
+      <label class="efb efb-ent-pp"><span>${esc(T('entPerPage', 'Per page'))}</span> <select class="efb form-select form-select-sm" id="efbEntPP">${[20, 50, 100].map((n) => `<option value="${n}" ${n === S.per_page ? 'selected' : ''}>${digits(n)}</option>`).join('')}</select></label>
+    </nav>`;
+  }
+
+  /** The actions of the selection (or of one row's menu): the trash has restore / delete, the spam "not spam". */
+  function bulkButtons() {
+    const b = (op, k, fb, ic, extra) => `<button type="button" class="efb btn btn-sm ${extra || 'btn-outline-secondary'}" data-ent="bulk" data-op="${op}">${icon(ic)} <span>${esc(T(k, fb))}</span></button>`;
+    if (S.tab === 'trash') return b('restore', 'entRestore', 'Restore', 'bi-arrow-counterclockwise') + b('delete', 'entDeleteForever', 'Delete permanently', 'bi-x-octagon', 'btn-danger');
+    let h = b('read', 'mread', 'Mark as read', 'bi-envelope-open') + b('unread', 'entMarkUnread', 'Mark as unread', 'bi-envelope') + b('star', 'entStar', 'Star', 'bi-star-fill') + b('unstar', 'entUnstar', 'Remove star', 'bi-star');
+    h += S.tab === 'spam' ? b('unspam', 'entNotSpam', 'Not spam', 'bi-shield-check') : b('spam', 'entMarkSpam', 'Mark as spam', 'bi-shield-exclamation');
+    h += b('trash', 'entMoveTrash', 'Move to trash', 'bi-trash3', 'btn-outline-danger');
+    for (const x of (W.EfbEntries && W.EfbEntries.extraBulk) || []) h += x();
+    return h;
+  }
+
+  function renderBulkBar() {
+    const n = S.allMatching ? S.total : S.selected.size;
+    return `<div class="efb efb-ent-bulkbar${n ? ' is-on' : ''}" role="region" aria-label="${esc(T('entSelection', 'Selected entries'))}" ${n ? '' : 'hidden'}>
+      <span class="efb efb-ent-nsel">${fill(T('entNSelected', '%s selected'), [num(n)])}</span>
+      <span class="efb efb-ent-bulkbtns">${bulkButtons()}</span>
+      <button type="button" class="efb btn btn-sm btn-link" data-ent="unselect">${esc(T('entUnselect', 'Clear selection'))}</button>
+    </div>`;
+  }
+
+  function renderSelectAll() {
+    const pageAll = S.rows.length > 0 && S.rows.every((r) => S.selected.has(Number(r.msg_id)));
+    if (S.allMatching) return `<div class="efb efb-ent-selall">${fill(T('entAllSelectedN', 'All %s results are selected.'), [num(S.total)])} <button type="button" class="efb btn btn-sm btn-link" data-ent="unselect">${esc(T('entUnselect', 'Clear selection'))}</button></div>`;
+    if (pageAll && S.total > S.rows.length) return `<div class="efb efb-ent-selall">${fill(T('entPageSelected', 'All %s entries on this page are selected.'), [num(S.rows.length)])} <button type="button" class="efb btn btn-sm btn-link" data-ent="selall">${fill(T('entSelectAllN', 'Select all %s results'), [S.estimate ? T('entMoreThan', 'More than %s').replace('%s', num(S.total)) : num(S.total)])}</button></div>`;
+    return '';
+  }
+
+  function renderEmpty() {
+    const filtered = S.q || S.from || S.to || S.conds.length;
+    return `<tr class="efb"><td colspan="${6 + S.cols.length}" class="efb text-center py-5"><div class="efb-empty-state">${icon('bi-inbox efb-empty-icon')}
+      <p class="efb-empty-title">${esc(filtered ? T('entNoMatch', 'No entries match these filters.') : (S.tab === 'trash' ? T('entTrashEmpty', 'The trash is empty.') : T('noResponse', 'No response')))}</p>
+      ${S.tab === 'trash' && cfg().trash_days ? `<p class="efb-empty-desc">${fill(T('entTrashAuto', 'Entries in the trash are deleted after %s days.'), [num(cfg().trash_days)])}</p>` : ''}</div></td></tr>`;
+  }
+
+  /** The whole screen (head buttons, tabs, filters, table, pages, selection bar, live region). */
+  function renderAll() {
+    const t = (k, fb) => esc(T(k, fb));
+    const hb = (W.EfbEntries && W.EfbEntries.headButtons) || [];
+    const head = hb.length ? hb.map((f) => f()).join('') : `<button type="button" class="efb btn btn-sm btn-primary text-white ec-efb" data-eventform="generateCSV" data-formtype="${esc(S.formType)}" title="${t('downloadCSVFileSub', 'Download CSV')}">${icon('bi-download')} <span>${t('downloadCSVFile', 'CSV')}</span></button>`;
+    const partial = (S.formType === 'form' || S.formType === 'payment') ? `<button type="button" class="efb btn btn-sm btn-outline-pink" id="efbPartialTabBtn" onclick="efb_partial_tab_efb()">${icon('bi-hourglass-split')} <span>${t('partialEntries', 'Partial')}</span></button>` : '';
+    const survey = S.formType === 'survey' ? `<button type="button" class="efb btn btn-sm btn-outline-pink" data-ent="chart">${icon('bi-bar-chart-line')} <span>${t('chart', 'Chart')}</span></button>` : '';
+    return `<div class="efb efb-ent ${isRtl() ? 'efb-ent-rtl' : ''}" id="efbEnt" data-fid="${S.fid}">
+      <div class="efb efb-ent-head">
+        <h2 class="efb efb-ent-title fs-5" id="efbEntTitle">${icon('bi-archive')} ${t('messages', 'Responses')}</h2>
+        <div class="efb efb-ent-headbtns">${head}${survey}${partial}
+          <button type="button" class="efb btn btn-sm btn-outline-secondary" data-ent="cols" aria-haspopup="dialog">${icon('bi-layout-three-columns')} <span>${t('entColumns', 'Columns')}</span></button>
+        </div>
+      </div>
+      ${renderTabs()}
+      ${renderFilters()}
+      <div class="efb visually-hidden" id="efbEntLive" role="status" aria-live="polite" aria-atomic="true"></div>
+      <div id="efbEntPanel" role="tabpanel" aria-labelledby="efbEntTab-${S.tab}">
+        ${renderSelectAll()}
+        <div class="efb card efb efb-ent-card">
+        <table class="efb table table-hover efb-ent-table" id="emsFormBuilder-list" aria-labelledby="efbEntTitle" aria-busy="${S.loading ? 'true' : 'false'}">
+          <thead class="efb">${renderHead(S.cols)}</thead>
+          <tbody class="efb">${S.rows.length ? S.rows.map((r) => renderRow(r, S.cols)).join('') : renderEmpty()}</tbody>
+        </table>
+        </div>
+        ${renderPager()}
+      </div>
+      ${renderBulkBar()}
+      <div class="efb efb-ent-toast" id="efbEntToast" role="status" aria-live="polite" hidden></div>
+      ${typeof W.efb_powered_by === 'function' ? W.efb_powered_by() : ''}
+    </div>`;
+  }
+
+  /* ------------------------------------------------------------------ actions */
+  function announce(text) {
+    const live = D.getElementById('efbEntLive');
+    if (!live) return;
+    live.textContent = '';
+    setTimeout(() => { live.textContent = text; }, 30);
+    S.lastLive = text;
+  }
+  const plain = (html) => String(html).replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+
+  function saveState() {
+    const q = filterArgs();
+    q.page = S.page;
+    const enc = (() => { try { return btoa(unescape(encodeURIComponent(JSON.stringify(q)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); } catch (e) { return ''; } })();
+    try { sessionStorage.setItem('efb_entq_' + S.fid, JSON.stringify(q)); } catch (e) { /* storage off: the URL keeps it */ }
+    try {
+      const u = new URL(W.location.href);
+      u.searchParams.set('efbq', enc);
+      W.history.replaceState(W.history.state, '', u.toString());
+    } catch (e) { /* no URL API */ }
+  }
+  function restoreState() {
+    let q = null;
+    try { const u = new URL(W.location.href); const v = u.searchParams.get('efbq'); if (v) q = JSON.parse(decodeURIComponent(escape(atob(v.replace(/-/g, '+').replace(/_/g, '/'))))); } catch (e) { q = null; }
+    if (!q) { try { q = JSON.parse(sessionStorage.getItem('efb_entq_' + S.fid) || 'null'); } catch (e) { q = null; } }
+    if (!q || typeof q !== 'object') return;
+    if (TABS.some((t) => t[0] === q.tab)) S.tab = q.tab;
+    S.from = /^\d{4}-\d{2}-\d{2}$/.test(q.from || '') ? q.from : '';
+    S.to = /^\d{4}-\d{2}-\d{2}$/.test(q.to || '') ? q.to : '';
+    S.q = typeof q.q === 'string' ? q.q.slice(0, 100) : '';
+    S.conds = Array.isArray(q.conds) ? q.conds.slice(0, 3).filter((c) => c && typeof c.id === 'string') : [];
+    S.sort = q.sort === 'date_asc' ? 'date_asc' : 'date_desc';
+    S.page = Math.max(1, Number(q.page) || 1);
+  }
+
+  function load(opts) {
+    opts = opts || {};
+    S.loading = true;
+    const tbl = D.getElementById('emsFormBuilder-list');
+    if (tbl) tbl.setAttribute('aria-busy', 'true');
+    const args = filterArgs();
+    const data = { action: 'efb_entries_query_Emsfb', form_id: S.fid, page: S.page, per_page: S.per_page, tab: args.tab, from: args.from, to: args.to, q: args.q, sort: args.sort, conds: JSON.stringify(args.conds) };
+    if (S.fields === null) data.fields = '1';
+    return post(data).then((res) => {
+      S.loading = false;
+      if (!res || res.success !== true) {
+        if (res && res.code === 'efb_db_upgrade') return legacy();
+        if (res && res.code === 'efb_plan_required') { S.conds = []; gate('filter'); return load(); }
+        if (typeof W.alert_message_efb === 'function') W.alert_message_efb('', (res && res.m) || T('somethingWentWrongPleaseRefresh', 'Something went wrong. Please refresh the page.'), 8, 'danger');
+        return null;
+      }
+      if (Array.isArray(res.fields)) S.fields = res.fields;
+      if (Array.isArray(res.cols)) S.cols = res.cols.filter((c) => c.charAt(0) === '_' || (S.fields || []).some((f) => f.id === c));
+      S.rows = res.rows || [];
+      S.total = Number(res.total) || 0;
+      S.estimate = !!res.total_is_estimate;
+      S.counts = res.counts || {};
+      // efb_var may be frozen on this screen (the old list's same assignments failed silently there too).
+      try { if (res.nonce_msg && W.efb_var) W.efb_var.nonce_msg = res.nonce_msg; } catch (e) { /* read-only */ }
+      try { if (W.efb_var) W.efb_var.msg_id = S.fid; } catch (e) { /* read-only */ }
+      // The response viewer reads the open page from valueJson_ws_messages (the old list's shape, string ids).
+      setGlobal('valueJson_ws_messages', S.rows.map((r) => ({ msg_id: String(r.msg_id), form_id: String(r.form_id), track: r.track, content: r.content, date: r.date, ip: r.ip || '', read_: String(r.read_), read_by: '0', entry_status: r.entry_status, starred: r.starred, edited_at: r.edited_at })));
+      if (S.page > 1 && !S.rows.length && S.total > 0) { S.page = Math.max(1, Math.ceil(S.total / S.per_page)); return load(opts); }
+      paint();
+      // The page's CSV of the old list (window.efb_export_rows_efb, in memory) stays for this page's rows.
+      if (S.formType !== 'login' && typeof W.fun_export_rows_for_Subscribe_emsFormBuilder === 'function') { W.efb_export_src_efb = getGlobal('valueJson_ws_messages'); try { W.fun_export_rows_for_Subscribe_emsFormBuilder(getGlobal('valueJson_ws_messages')); } catch (e) { /* the CSV of the page only */ } }
+      saveState();
+      const n = S.estimate ? T('entMoreThan', 'More than %s').replace('%s', num(S.total)) : num(S.total);
+      announce(plain(fill(S.total === 1 ? T('entOneResult', '%s result') : T('entNResults', '%s results'), [n])));
+      if (opts.focus) { const el = D.querySelector(opts.focus); if (el) el.focus(); }
+      return res;
+    });
+  }
+
+  /** The old list (a database that has not reached DB 1.10 yet): the old action and renderer, as before F14. */
+  function legacy() {
+    if (typeof W.fun_get_messages_by_id_legacy_efb === 'function') W.fun_get_messages_by_id_legacy_efb(S.fid);
+    return null;
+  }
+
+  function paint() {
+    const host = D.getElementById('content-efb');
+    if (!host) return;
+    const active = D.activeElement && D.activeElement.id ? D.activeElement.id : '';
+    host.innerHTML = renderAll();
+    if (active && D.getElementById(active)) D.getElementById(active).focus();
+    const all = host.querySelector('.efb-ent-all');
+    if (all) { const n = S.rows.filter((r) => S.selected.has(Number(r.msg_id))).length; all.checked = S.allMatching || (n > 0 && n === S.rows.length); all.indeterminate = !S.allMatching && n > 0 && n < S.rows.length; }
+    if (W.EfbEntries && Array.isArray(W.EfbEntries.afterPaint)) W.EfbEntries.afterPaint.forEach((f) => f(host));
+  }
+
+  /** Bulk or one-row operation. ids = list, or null for the selection (or every matching result). */
+  function op(name, ids, opener) {
+    if (name === 'delete' && typeof W.efb_gate_efb === 'function' && !W.efb_gate_efb('setting:delete_response', { fallback: 'free_plus', origin: 'responses', opener })) return Promise.resolve(null);
+    if ((name === 'read' || name === 'unread') && !ids && typeof W.efb_gate_efb === 'function' && !W.efb_gate_efb('setting:bulk_read', { fallback: 'free_plus', origin: 'responses', opener })) return Promise.resolve(null);
+    const data = { action: 'efb_entries_bulk_Emsfb', form_id: S.fid, op: name };
+    let list = ids;
+    if (!list && S.allMatching) data.filter = JSON.stringify(filterArgs());
+    else data.ids = JSON.stringify(list || Array.from(S.selected));
+    if (!data.filter && !JSON.parse(data.ids).length) return Promise.resolve(null);
+    const doIt = () => post(data).then((res) => {
+      if (!res || res.success !== true) {
+        if (res && res.code === 'efb_plan_required') gate('filter', opener);
+        else if (typeof W.alert_message_efb === 'function') W.alert_message_efb('', (res && res.m) || T('error', 'Error'), 8, 'danger');
+        return null;
+      }
+      const n = Number(res.done) || 0;
+      S.counts = res.counts || S.counts;
+      if (!ids) { S.selected.clear(); S.allMatching = false; }
+      const msgs = { trash: ['entMovedTrash', '%s entries moved to trash.'], restore: ['entRestored', '%s entries restored.'], delete: ['entDeleted', '%s entries deleted permanently.'], spam: ['entMarkedSpam', '%s entries marked as spam.'], unspam: ['entMarkedNotSpam', '%s entries moved back from spam.'], read: ['entMarkedRead', '%s entries marked as read.'], unread: ['entMarkedUnread', '%s entries marked as unread.'], star: ['entStarredN', '%s entries starred.'], unstar: ['entUnstarredN', '%s stars removed.'] };
+      const text = plain(fill(T(msgs[name][0], msgs[name][1]), [num(n)]));
+      return load().then(() => {
+        announce(text);
+        if (name === 'trash' && n > 0) toast(text, () => op('restore', res.ids, null));
+        else if (n > 0 && name !== 'star' && name !== 'unstar') toast(text, null);
+        return res;
+      });
+    });
+    if (name === 'delete') {
+      // The question in this screen's own dialog (focus kept inside, Escape = no).
+      return new Promise((resolve) => {
+        const d = dialog(T('entDeleteForever', 'Delete permanently'), `<p class="efb m-0">${esc(T('entDeleteConfirm', 'Delete permanently? This cannot be undone.'))}</p>`,
+          `<button type="button" class="efb btn btn-sm btn-danger" id="efbEntDelYes">${icon('bi-x-octagon')} ${esc(T('entDeleteForever', 'Delete permanently'))}</button>`, { focus: '#efbEntDelYes' });
+        d.querySelector('#efbEntDelYes').addEventListener('click', () => { closeDialog(); resolve(doIt()); });
+      });
+    }
+    return doIt();
+  }
+
+  /** A short message with an optional Undo, for 8 seconds (spec §4.1). */
+  function toast(text, undo) {
+    const el = D.getElementById('efbEntToast');
+    if (!el) return;
+    clearTimeout(S.toastTimer);
+    el.innerHTML = `<span>${esc(text)}</span>${undo ? ` <button type="button" class="efb btn btn-sm btn-light" id="efbEntUndo">${esc(T('entUndo', 'Undo'))}</button>` : ''}`;
+    el.hidden = false;
+    if (undo) {
+      const b = D.getElementById('efbEntUndo');
+      b.addEventListener('click', () => { el.hidden = true; clearTimeout(S.toastTimer); undo(); });
+    }
+    S.toastTimer = setTimeout(() => { el.hidden = true; }, 8000);
+  }
+
+  /** The star of one row, at once (optimistic), put back if the server refuses. */
+  function star(id, btn) {
+    const row = S.rows.find((r) => Number(r.msg_id) === Number(id));
+    if (!row) return;
+    const on = Number(row.starred) !== 1;
+    row.starred = on ? 1 : 0;
+    if (btn) {
+      btn.classList.toggle('is-on', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.setAttribute('aria-label', on ? T('entUnstar', 'Remove star') : T('entStar', 'Star'));
+      btn.innerHTML = icon(on ? 'bi-star-fill' : 'bi-star');
+    }
+    S.counts.starred = Math.max(0, (S.counts.starred || 0) + (on ? 1 : -1));
+    const tab = D.querySelector('#efbEntTab-starred .efb-ent-count bdi');
+    if (tab) tab.textContent = num(S.counts.starred);
+    post({ action: 'efb_entries_bulk_Emsfb', form_id: S.fid, op: on ? 'star' : 'unstar', ids: JSON.stringify([Number(id)]) }).then((res) => {
+      if (!res || res.success !== true) { row.starred = on ? 0 : 1; paint(); return; }
+      S.counts = res.counts || S.counts;
+      announce(on ? T('entStarredOne', 'Starred') : T('entUnstarredOne', 'Star removed'));
+    });
+  }
+
+  /** Opens an entry in the response viewer (the full entry is read first: IP, the reader, notes, history). */
+  function open(id) {
+    const row = S.rows.find((r) => Number(r.msg_id) === Number(id));
+    if (!row) return;
+    const state = Number(row.read_);
+    const go = () => {
+      if (typeof W.fun_open_message_emsFormBuilder === 'function') W.fun_open_message_emsFormBuilder(Number(id), state);
+      if (state === 0 || state === 3) { row.read_ = 1; S.counts.unread = Math.max(0, (S.counts.unread || 0) - 1); const tr = D.querySelector(`.efb-ent-row[data-msgid="${Number(id)}"]`); if (tr) tr.classList.remove('efb-ent-unread'); }
+    };
+    post({ action: 'efb_entry_get_Emsfb', msg_id: id }).then((res) => {
+      if (res && res.success === true && res.entry) {
+        const list = getGlobal('valueJson_ws_messages') || [];
+        const i = list.findIndex((x) => String(x.msg_id) === String(id));
+        if (i !== -1) Object.assign(list[i], { ip: res.entry.ip || '', read_by: res.entry.read_by || '0', content: res.entry.content });
+        S.current = res;
+      } else {
+        S.current = null;
+      }
+      go();
+    });
+  }
+
+  function menu(btn, id) {
+    closeMenu();
+    const row = S.rows.find((r) => Number(r.msg_id) === Number(id));
+    if (!row) return;
+    const st = Number(row.entry_status);
+    const unread = Number(row.read_) === 0 || Number(row.read_) === 3;
+    const items = [];
+    const it = (op, k, fb, ic) => items.push(`<button type="button" role="menuitem" class="efb dropdown-item" data-ent="op" data-op="${op}" data-msgid="${Number(id)}" tabindex="-1">${icon(ic)} ${esc(T(k, fb))}</button>`);
+    if (st === 2) { it('restore', 'entRestore', 'Restore', 'bi-arrow-counterclockwise'); it('delete', 'entDeleteForever', 'Delete permanently', 'bi-x-octagon'); }
+    else {
+      if (Number(row.read_) !== 2 && Number(row.read_) !== 4) unread ? it('read', 'mread', 'Mark as read', 'bi-envelope-open') : it('unread', 'entMarkUnread', 'Mark as unread', 'bi-envelope');
+      st === 1 ? it('unspam', 'entNotSpam', 'Not spam', 'bi-shield-check') : it('spam', 'entMarkSpam', 'Mark as spam', 'bi-shield-exclamation');
+      it('trash', 'entMoveTrash', 'Move to trash', 'bi-trash3');
+    }
+    for (const x of (W.EfbEntries && W.EfbEntries.extraMenu) || []) { const h = x(row); if (h) items.push(h); }
+    const m = D.createElement('div');
+    m.className = 'efb efb-ent-menu dropdown-menu show';
+    m.setAttribute('role', 'menu');
+    m.id = 'efbEntMenu';
+    m.innerHTML = items.join('');
+    D.body.appendChild(m);
+    const r = btn.getBoundingClientRect();
+    const w = m.offsetWidth || 200;
+    const left = isRtl() ? Math.max(8, r.left) : Math.max(8, Math.min(W.innerWidth - w - 8, r.right - w));
+    m.style.position = 'fixed';
+    m.style.top = Math.min(W.innerHeight - m.offsetHeight - 8, r.bottom + 4) + 'px';
+    m.style.left = left + 'px';
+    btn.setAttribute('aria-expanded', 'true');
+    S.menuBtn = btn;
+    const first = m.querySelector('[role="menuitem"]');
+    if (first) first.focus();
+  }
+  function closeMenu(refocus) {
+    const m = D.getElementById('efbEntMenu');
+    if (m) m.remove();
+    if (S.menuBtn) { S.menuBtn.setAttribute('aria-expanded', 'false'); if (refocus) S.menuBtn.focus(); }
+    S.menuBtn = null;
+  }
+
+  /** A small dialog of this screen (columns, export, resend, print): focus kept inside, Escape closes. */
+  function dialog(title, body, buttons, opts) {
+    opts = opts || {};
+    closeDialog();
+    const back = D.createElement('div');
+    back.className = 'efb efb-ent-dlg-back';
+    back.id = 'efbEntDlg';
+    back.innerHTML = `<div class="efb efb-ent-dlg${isRtl() ? ' efb-ent-rtl' : ''}" role="dialog" aria-modal="true" aria-labelledby="efbEntDlgTitle" dir="${isRtl() ? 'rtl' : 'ltr'}">
+      <div class="efb efb-ent-dlg-head"><h3 class="efb fs-6 m-0" id="efbEntDlgTitle">${esc(title)}</h3><button type="button" class="efb btn-close" data-ent="dlg-close" aria-label="${esc(T('close', 'Close'))}"></button></div>
+      <div class="efb efb-ent-dlg-body">${body}</div>
+      <div class="efb efb-ent-dlg-foot">${buttons || ''}<button type="button" class="efb btn btn-sm btn-outline-secondary" data-ent="dlg-close">${esc(T('entCancel', 'Cancel'))}</button></div>
+    </div>`;
+    S.dlgOpener = D.activeElement;
+    D.body.appendChild(back);
+    back.addEventListener('click', (e) => { if (e.target === back || (e.target.closest && e.target.closest('[data-ent="dlg-close"]'))) closeDialog(); });
+    back.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { e.stopPropagation(); closeDialog(); return; }
+      if (e.key !== 'Tab') return;
+      const f = Array.from(back.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')).filter((x) => !x.disabled && x.offsetParent !== null);
+      if (!f.length) return;
+      if (e.shiftKey && D.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && D.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+    });
+    const first = back.querySelector(opts.focus || 'input, select, textarea, button:not(.btn-close)');
+    if (first) first.focus();
+    return back;
+  }
+  function closeDialog() {
+    const d = D.getElementById('efbEntDlg');
+    if (d) d.remove();
+    if (S.dlgOpener && S.dlgOpener.focus && D.contains(S.dlgOpener)) S.dlgOpener.focus();
+    S.dlgOpener = null;
+  }
+
+  /** The columns dialog: meta columns for every plan, field columns on Free Plus; order with up / down. */
+  function colsDialog(opener) {
+    const fields = (S.fields || []).filter((f) => f.type !== 'repeater');
+    const all = META_COLS.map((m) => ({ id: m[0], name: T(m[1], m[2]), meta: true })).concat(fields.map((f) => ({ id: f.id, name: f.name, meta: false })));
+    let order = S.cols.slice();
+    const draw = () => {
+      const chosen = order.map((id) => all.find((x) => x.id === id)).filter(Boolean);
+      const rest = all.filter((x) => !order.includes(x.id));
+      const li = (x, on, i) => `<li class="efb efb-ent-colitem"><label class="efb"><input type="checkbox" class="efb form-check-input" data-colid="${esc(x.id)}" ${on ? 'checked' : ''} ${!x.meta && !planOk('columns') ? 'data-gem="1"' : ''}> <bdi>${esc(x.name)}</bdi>${!x.meta && !planOk('columns') ? ' ' + icon('bi-gem') : ''}</label>
+        ${on ? `<span class="efb efb-ent-colmove"><button type="button" class="efb btn btn-sm btn-link" data-colup="${i}" aria-label="${esc(T('entMoveUp', 'Move up'))} ${esc(x.name)}" ${i === 0 ? 'disabled' : ''}>${icon('bi-arrow-up')}</button><button type="button" class="efb btn btn-sm btn-link" data-coldown="${i}" aria-label="${esc(T('entMoveDown', 'Move down'))} ${esc(x.name)}" ${i === chosen.length - 1 ? 'disabled' : ''}>${icon('bi-arrow-down')}</button></span>` : ''}</li>`;
+      return `<ul class="efb list-unstyled efb-ent-collist">${chosen.map((x, i) => li(x, true, i)).join('')}${rest.map((x) => li(x, false, -1)).join('')}</ul>`;
+    };
+    const dlg = dialog(T('entColumns', 'Columns'), draw(), `<button type="button" class="efb btn btn-sm btn-primary" id="efbEntColsSave">${esc(T('save', 'Save'))}</button>`);
+    const body = dlg.querySelector('.efb-ent-dlg-body');
+    body.addEventListener('change', (e) => {
+      const cb = e.target.closest('[data-colid]');
+      if (!cb) return;
+      if (cb.dataset.gem && cb.checked) { cb.checked = false; gate('columns', cb); return; }
+      const id = cb.dataset.colid;
+      order = cb.checked ? order.concat([id]) : order.filter((x) => x !== id);
+      body.innerHTML = draw();
+      const again = body.querySelector(`[data-colid="${CSS.escape ? CSS.escape(id) : id}"]`);
+      if (again) again.focus();
+    });
+    body.addEventListener('click', (e) => {
+      const up = e.target.closest('[data-colup]'); const dn = e.target.closest('[data-coldown]');
+      if (!up && !dn) return;
+      const i = Number((up || dn).dataset[up ? 'colup' : 'coldown']);
+      const j = up ? i - 1 : i + 1;
+      if (j < 0 || j >= order.length) return;
+      [order[i], order[j]] = [order[j], order[i]];
+      body.innerHTML = draw();
+      const b = body.querySelector(`[data-${up ? 'colup' : 'coldown'}="${j}"]`) || body.querySelector(`[data-colup="${j}"]`) || body.querySelector(`[data-coldown="${j}"]`);
+      if (b) b.focus();
+    });
+    D.getElementById('efbEntColsSave').addEventListener('click', () => {
+      post({ action: 'efb_entries_cols_Emsfb', form_id: S.fid, cols: JSON.stringify(order) }).then((res) => {
+        if (res && res.success === true) { S.cols = res.cols; closeDialog(); load(); }
+        else if (res && res.code === 'efb_plan_required') gate('columns', opener);
+      });
+    });
+  }
+
+  function setRange(kind) {
+    const pad = (n) => String(n).padStart(2, '0');
+    const fmt = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const now = new Date();
+    S.to = fmt(now);
+    if (kind === 'today') S.from = S.to;
+    else if (kind === 'month') S.from = fmt(new Date(now.getFullYear(), now.getMonth(), 1));
+    else S.from = fmt(new Date(now.getFullYear(), now.getMonth(), now.getDate() - (Number(kind) - 1)));
+    S.page = 1;
+    load();
+  }
+
+  /* ------------------------------------------------------------------ events */
+  let wired = false;
+  function wire() {
+    if (wired || !D) return;
+    wired = true;
+    D.addEventListener('click', (e) => {
+      if (!e.target.closest) return;
+      const menuOpen = D.getElementById('efbEntMenu');
+      if (menuOpen && !e.target.closest('#efbEntMenu') && !e.target.closest('[data-ent="menu"]')) closeMenu();
+      const el = e.target.closest('[data-ent]');
+      if (!el || !(el.closest('#efbEnt') || el.closest('#efbEntMenu') || el.closest('#efbEntDlg'))) return;
+      const id = Number(el.dataset.msgid || 0);
+      switch (el.dataset.ent) {
+        case 'tab': if (S.tab !== el.dataset.tab) { S.tab = el.dataset.tab; S.page = 1; S.selected.clear(); S.allMatching = false; load({ focus: `#efbEntTab-${S.tab}` }); } break;
+        case 'page': { const p = Number(el.dataset.page); if (p >= 1 && p !== S.page) { S.page = p; S.allMatching = false; load({ focus: '#efbEntPanel .efb-ent-pager [aria-current="page"]' }); } break; }
+        case 'sort': S.sort = S.sort === 'date_asc' ? 'date_desc' : 'date_asc'; S.page = 1; load({ focus: '.efb-ent-sort' }); break;
+        case 'star': star(id, el); break;
+        case 'open': open(id); break;
+        case 'menu': if (D.getElementById('efbEntMenu') && S.menuBtn === el) closeMenu(); else menu(el, id); break;
+        case 'op': closeMenu(); op(el.dataset.op, [id], el); break;
+        case 'bulk': op(el.dataset.op, null, el); break;
+        case 'selall': S.allMatching = true; paint(); announce(plain(fill(T('entAllSelectedN', 'All %s results are selected.'), [num(S.total)]))); break;
+        case 'unselect': S.selected.clear(); S.allMatching = false; paint(); break;
+        case 'filters': S.filtersOpen = !S.filtersOpen; paint(); break;
+        case 'range': setRange(el.dataset.range); break;
+        case 'cond-add':
+          if (!gate('filter', el)) break;
+          if (S.conds.length < 3) { S.conds.push({ id: '', op: 'eq', v: '' }); paint(); const s = D.querySelector(`.efb-ent-cond-f[data-i="${S.conds.length - 1}"]`); if (s) s.focus(); }
+          break;
+        case 'cond-del': S.conds.splice(Number(el.dataset.i), 1); S.page = 1; load(); break;
+        case 'clear': S.q = ''; S.from = ''; S.to = ''; S.conds = []; S.page = 1; load({ focus: '#efbEntQ' }); break;
+        case 'cols': colsDialog(el); break;
+        case 'chart': surveyChart(); break;
+        default:
+          if (W.EfbEntries && W.EfbEntries.actions && typeof W.EfbEntries.actions[el.dataset.ent] === 'function') W.EfbEntries.actions[el.dataset.ent](el, id);
+      }
+    });
+    D.addEventListener('change', (e) => {
+      const t = e.target;
+      if (!t.closest || !t.closest('#efbEnt')) return;
+      if (t.classList.contains('efb-ent-one')) {
+        const id = Number(t.value);
+        if (S.allMatching) { S.allMatching = false; S.rows.forEach((r) => S.selected.add(Number(r.msg_id))); }
+        t.checked ? S.selected.add(id) : S.selected.delete(id);
+        paint();
+        const again = D.querySelector(`.efb-ent-one[value="${id}"]`);
+        if (again) again.focus();
+      } else if (t.classList.contains('efb-ent-all')) {
+        S.allMatching = false;
+        S.rows.forEach((r) => (t.checked ? S.selected.add(Number(r.msg_id)) : S.selected.delete(Number(r.msg_id))));
+        paint();
+        const again = D.querySelector('.efb-ent-all');
+        if (again) again.focus();
+      } else if (t.id === 'efbEntFrom' || t.id === 'efbEntTo') {
+        S[t.id === 'efbEntFrom' ? 'from' : 'to'] = /^\d{4}-\d{2}-\d{2}$/.test(t.value) ? t.value : '';
+        S.page = 1; load({ focus: '#' + t.id });
+      } else if (t.id === 'efbEntPP') {
+        S.per_page = [20, 50, 100].includes(Number(t.value)) ? Number(t.value) : 20; S.page = 1; load({ focus: '#efbEntPP' });
+      } else if (t.classList.contains('efb-ent-cond-f') || t.classList.contains('efb-ent-cond-op') || t.classList.contains('efb-ent-cond-v')) {
+        const i = Number(t.dataset.i);
+        const c = S.conds[i];
+        if (!c) return;
+        if (t.classList.contains('efb-ent-cond-f')) { c.id = t.value; c.v = ''; }
+        else if (t.classList.contains('efb-ent-cond-op')) c.op = t.value;
+        else c.v = latin(t.value).slice(0, 200) === t.value ? t.value.slice(0, 200) : t.value.slice(0, 200);
+        S.page = 1;
+        const focusSel = `.${t.classList.contains('efb-ent-cond-f') ? 'efb-ent-cond-f' : (t.classList.contains('efb-ent-cond-op') ? 'efb-ent-cond-op' : 'efb-ent-cond-v')}[data-i="${i}"]`;
+        if (c.id && (c.op === 'empty' || c.op === 'filled' || String(c.v).trim() !== '')) load({ focus: focusSel }); else { paint(); const el = D.querySelector(focusSel); if (el) el.focus(); }
+      }
+    });
+    let qTimer = null;
+    D.addEventListener('input', (e) => {
+      if (e.target.id !== 'efbEntQ') return;
+      clearTimeout(qTimer);
+      const v = e.target.value;
+      qTimer = setTimeout(() => { if (v === S.q) return; S.q = v.slice(0, 100); S.page = 1; load({ focus: '#efbEntQ' }); }, 450);
+    });
+    D.addEventListener('keydown', (e) => {
+      const menuEl = D.getElementById('efbEntMenu');
+      if (menuEl && (e.key === 'Escape' || e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+        if (e.key === 'Escape') { e.preventDefault(); closeMenu(true); return; }
+        const items = Array.from(menuEl.querySelectorAll('[role="menuitem"]'));
+        const i = items.indexOf(D.activeElement);
+        const n = e.key === 'ArrowDown' ? (i + 1) % items.length : (i - 1 + items.length) % items.length;
+        if (items[n]) { e.preventDefault(); items[n].focus(); }
+        return;
+      }
+      const tab = e.target.closest && e.target.closest('[role="tab"]');
+      if (tab && tab.closest('#efbEnt') && (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End')) {
+        const tabs = Array.from(D.querySelectorAll('#efbEnt [role="tab"]'));
+        let i = tabs.indexOf(tab);
+        const fwd = (e.key === 'ArrowRight') !== isRtl();
+        i = e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : (fwd ? (i + 1) % tabs.length : (i - 1 + tabs.length) % tabs.length);
+        e.preventDefault();
+        tabs[i].click();
+        return;
+      }
+      if (e.key === 'Enter' && e.target.id === 'efbEntQ') { e.preventDefault(); clearTimeout(qTimer); S.q = e.target.value.slice(0, 100); S.page = 1; load({ focus: '#efbEntQ' }); return; }
+      shortcuts(e);
+    });
+  }
+
+  /** j / k next / previous row, s star, # trash, Enter open: only on this screen, never while typing. */
+  function shortcuts(e) {
+    if (!D.getElementById('efbEnt') || D.getElementById('efbEntDlg') || e.ctrlKey || e.metaKey || e.altKey) return;
+    const t = e.target;
+    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+    const modal = D.getElementById('settingModalEfb');
+    if (modal && modal.classList.contains('show')) return;
+    const rows = Array.from(D.querySelectorAll('#efbEnt .efb-ent-row'));
+    if (!rows.length) return;
+    const cur = t && t.closest ? t.closest('.efb-ent-row') : null;
+    let i = cur ? rows.indexOf(cur) : S.focusIdx;
+    if (e.key === 'j' || e.key === 'k') {
+      i = e.key === 'j' ? Math.min(rows.length - 1, i + 1) : Math.max(0, i - 1);
+      S.focusIdx = i;
+      rows[i].focus();
+      e.preventDefault();
+      return;
+    }
+    if (i < 0 || !rows[i]) return;
+    const id = Number(rows[i].dataset.msgid);
+    if (e.key === 's') { e.preventDefault(); star(id, rows[i].querySelector('.efb-ent-star')); }
+    else if (e.key === '#') { e.preventDefault(); op(S.tab === 'trash' ? 'restore' : 'trash', [id], rows[i]); }
+    else if (e.key === 'Enter' && cur === t) { e.preventDefault(); open(id); }
+  }
+
+  /** The survey chart reads every active answer of the form (the old action), as before F14. */
+  function surveyChart() {
+    post({ action: 'get_messages_id_Emsfb', id: S.fid }).then((res) => {
+      if (!res || res.success !== true || !Array.isArray(res.ajax_value)) return;
+      if (typeof W.fun_export_rows_for_Subscribe_emsFormBuilder === 'function') W.fun_export_rows_for_Subscribe_emsFormBuilder(res.ajax_value);
+      if (typeof W.convert_to_dataset_emsFormBuilder === 'function') W.convert_to_dataset_emsFormBuilder();
+    });
+  }
+
+  /* ------------------------------------------------------------------ entry point */
+  /** Opens the entries screen of a form (replaces the old list when the database is ready). */
+  function openForm(fid, formType) {
+    wire();
+    S.fid = Number(fid);
+    S.formType = formType || getGlobal('form_type_emsFormBuilder') || 'form';
+    S.page = 1; S.tab = 'all'; S.from = ''; S.to = ''; S.q = ''; S.conds = []; S.sort = 'date_desc';
+    S.fields = null; S.cols = []; S.selected = new Set(); S.allMatching = false; S.rows = []; S.counts = {};
+    S.per_page = [20, 50, 100].includes(Number(cfg().per_page)) ? Number(cfg().per_page) : 20;
+    setGlobal('form_ID_emsFormBuilder', S.fid);
+    restoreState();
+    return load();
+  }
+
+  W.EfbEntries = Object.assign(W.EfbEntries || {}, {
+    state: S, openForm, load, paint, op, open, star, dialog, closeDialog, post, toast, announce, gate, planOk,
+    rowsOf, valueOf, digits, latin, num, fill, esc, T, isRtl,
+    renderHead, renderRow, renderAll, renderPager, renderTabs, renderFilters,
+    headButtons: (W.EfbEntries && W.EfbEntries.headButtons) || [],
+    extraBulk: (W.EfbEntries && W.EfbEntries.extraBulk) || [],
+    extraMenu: (W.EfbEntries && W.EfbEntries.extraMenu) || [],
+    afterPaint: (W.EfbEntries && W.EfbEntries.afterPaint) || [],
+    actions: (W.EfbEntries && W.EfbEntries.actions) || {},
+  });
+  /* The renderers by the names of the spec (§6). */
+  W.efb_entries_render_head_efb = renderHead;
+  W.efb_entries_render_row_efb = renderRow;
+})(typeof window !== 'undefined' ? window : globalThis);

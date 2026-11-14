@@ -2033,6 +2033,11 @@ class Admin {
                 $m[$key] = current_user_can('manage_options')
                     ? \Emsfb\Privacy::sanitize_setting($key, $value)
                     : \Emsfb\Privacy::setting($key, $ac);
+            }else if(class_exists('\Emsfb\Entries') && \Emsfb\Entries::is_setting_key($key)){
+                // F14: trash_days and ai_entries_access (assistants reading entries) are an administrator's choice.
+                $m[$key] = current_user_can('manage_options')
+                    ? \Emsfb\Entries::sanitize_setting($key, $value)
+                    : \Emsfb\Entries::setting($key, $ac);
             }else if($key == 'text' && is_array($value)){
                 // Localization tab: phrase key => custom text. sanitize_text_field()
                 // on the whole array stored "", so no custom text was ever kept.
@@ -2058,6 +2063,15 @@ class Admin {
             foreach (array_keys(\Emsfb\Privacy::setting_defaults()) as $prv_key_efb) {
                 if (!array_key_exists($prv_key_efb, $m) && isset($ac->$prv_key_efb)) {
                     $m[$prv_key_efb] = \Emsfb\Privacy::setting($prv_key_efb, $ac);
+                }
+            }
+        }
+
+        // F14: a settings page that does not send these keys keeps what is stored.
+        if (class_exists('\Emsfb\Entries') && is_object($ac)) {
+            foreach (array_keys(\Emsfb\Entries::setting_defaults()) as $ent_key_efb) {
+                if (!array_key_exists($ent_key_efb, $m) && isset($ac->$ent_key_efb)) {
+                    $m[$ent_key_efb] = \Emsfb\Entries::setting($ent_key_efb, $ac);
                 }
             }
         }
