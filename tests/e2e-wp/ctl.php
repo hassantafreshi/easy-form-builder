@@ -1151,6 +1151,67 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( array( 'first' => $a1, 'second' => $a2, 'db_version' => get_option( 'Emsfb_db_version' ), 'const' => EMSFB_DB_VERSION, 'table' => $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . 'emsfb_form_rev_' ) ) ) );
 		break;
 
+	case 'f15-pkg-export':
+		// F15-D: the package of a form: <form_id> [with_emails 0|1] [context].
+		wp_set_current_user( 1 );
+		$r = \Emsfb\Form_Package::export( (int) $efb_e2e_rest[0], array( 'with_emails' => isset( $efb_e2e_rest[1] ) && '1' === $efb_e2e_rest[1], 'context' => isset( $efb_e2e_rest[2] ) ? $efb_e2e_rest[2] : 'export' ) );
+		efb_e2e_out( is_wp_error( $r ) ? array( 'error' => $r->get_error_code() ) : $r );
+		break;
+
+	case 'f15-pkg-validate':
+	case 'f15-pkg-import':
+		// F15-D: <path of a JSON file> [name]; validate writes nothing, import makes a new form (as user 1).
+		wp_set_current_user( 1 );
+		$raw = (string) file_get_contents( (string) $efb_e2e_rest[0] );
+		if ( 'f15-pkg-validate' === $efb_e2e_cmd ) { efb_e2e_out( \Emsfb\Form_Package::validate( $raw ) ); }
+		$r = \Emsfb\Form_Package::import( $raw, isset( $efb_e2e_rest[1] ) ? array( 'name' => $efb_e2e_rest[1] ) : array() );
+		efb_e2e_out( is_wp_error( $r ) ? array( 'error' => $r->get_error_code(), 'data' => $r->get_error_data() ) : $r );
+		break;
+
+	case 'f15-pkg-roundtrip-all':
+		// F15-D: every form of the site exported and imported again; the imported copies are deleted. Prints a summary:
+		// forms, refused (code), with drops / remapped ids, identical (stored JSON equal but the keys an export never keeps).
+		wp_set_current_user( 1 );
+		$sum = array( 'forms' => 0, 'refused' => array(), 'dropped' => array(), 'remapped' => array(), 'repaired' => array(), 'identical' => 0, 'different' => array() );
+		$norm = function ( $rows ) {
+			foreach ( (array) $rows as $i => $r ) {
+				if ( ! is_array( $r ) ) continue;
+				if ( 0 === $i ) { foreach ( array( 'autofill_id', 'st_uses', 'email' ) as $k ) unset( $rows[0][ $k ] ); }
+				unset( $rows[ $i ]['registered_count'] );
+			}
+			return wp_json_encode( $rows, JSON_UNESCAPED_UNICODE );
+		};
+		$ids = $wpdb->get_col( "SELECT form_id FROM {$wpdb->prefix}emsfb_form ORDER BY form_id" ); // phpcs:ignore
+		foreach ( $ids as $fid ) {
+			$fid = (int) $fid;
+			$pkg = \Emsfb\Form_Package::export( $fid, array( 'with_emails' => true ) );
+			if ( is_wp_error( $pkg ) ) { $sum['refused'][ $fid ] = $pkg->get_error_code(); continue; }
+			$sum['forms']++;
+			$res = \Emsfb\Form_Package::import( wp_json_encode( $pkg ) );
+			if ( is_wp_error( $res ) ) { $sum['refused'][ $fid ] = $res->get_error_code(); continue; }
+			$new = (int) $res['form_id'];
+			if ( $res['dropped'] ) $sum['dropped'][ $fid ] = array_values( array_unique( array_column( $res['dropped'], 'code' ) ) );
+			if ( $res['id_map'] ) $sum['remapped'][ $fid ] = count( $res['id_map'] );
+			if ( in_array( 'step_added', array_column( (array) $res['notices'], 'code' ), true ) ) { $sum['repaired'][ $fid ] = 'step_added'; $res['dropped'][] = array( 'code' => 'step_added' ); }
+			$a = efb_e2e_decode_json( $wpdb->get_var( $wpdb->prepare( "SELECT form_structer FROM {$wpdb->prefix}emsfb_form WHERE form_id = %d", $fid ) ) ); // phpcs:ignore
+			$b = efb_e2e_decode_json( $wpdb->get_var( $wpdb->prepare( "SELECT form_structer FROM {$wpdb->prefix}emsfb_form WHERE form_id = %d", $new ) ) ); // phpcs:ignore
+			if ( ! $res['dropped'] && ! $res['id_map'] ) {
+				if ( $norm( $a ) === $norm( $b ) ) $sum['identical']++;
+				else {
+					$diff = array();
+					foreach ( (array) $a as $i => $r ) { if ( ! isset( $b[ $i ] ) || wp_json_encode( $r ) !== wp_json_encode( $b[ $i ] ) ) { foreach ( array_unique( array_merge( array_keys( (array) $r ), array_keys( (array) ( $b[ $i ] ?? array() ) ) ) ) as $k ) { if ( wp_json_encode( $r[ $k ] ?? null ) !== wp_json_encode( $b[ $i ][ $k ] ?? null ) ) $diff[] = $i . '.' . $k; } } }
+					$sum['different'][ $fid ] = array_slice( array_values( array_diff( $diff, array( '0.autofill_id', '0.st_uses', '0.email' ) ) ), 0, 8 );
+					if ( ! $sum['different'][ $fid ] ) { unset( $sum['different'][ $fid ] ); $sum['identical']++; }
+				}
+			}
+			if ( class_exists( '\\Emsfb\\Revisions' ) ) \Emsfb\Revisions::delete_for_form( $new );
+			$wpdb->delete( $wpdb->prefix . 'emsfb_form', array( 'form_id' => $new ) );
+			do_action( 'efb_form_deleted', $new );
+		}
+		wp_cache_flush();
+		efb_e2e_out( $sum );
+		break;
+
 	case 'f15-usermeta':
 		// F15: a builder preference of the admin (user 1): <meta key> [value | del].
 		$k = (string) $efb_e2e_rest[0];

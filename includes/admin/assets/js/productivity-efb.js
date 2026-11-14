@@ -643,7 +643,7 @@
 
   /* ================================================================== C: form versions */
 
-  var saveMeta = { restore: null, api: false, user: false };
+  var saveMeta = { restore: null, revId: 0, api: false, user: false };
   document.addEventListener('efb:form-changed', function (e) {
     var d = e.detail || {};
     if (d.source === 'api') saveMeta.api = true;
@@ -651,12 +651,12 @@
   });
   /** rev_source / rev_note sent with a save (actionSendData_emsFormBuilder): a restored version, AutoPilot, the builder. */
   W.efbSaveMetaEfb = function () {
-    if (saveMeta.restore) return { rev_source: 'restore', rev_note: saveMeta.restore };
+    if (saveMeta.restore) return { rev_source: 'restore', rev_note: saveMeta.restore, rev_extras: saveMeta.revId || 0 };
     return { rev_source: saveMeta.api && !saveMeta.user ? 'autopilot' : 'builder', rev_note: '' };
   };
   /** After a successful save (actionSendData_emsFormBuilder dispatches efb:form-saved). */
   document.addEventListener('efb:form-saved', function () {
-    saveMeta = { restore: null, api: false, user: false };
+    saveMeta = { restore: null, revId: 0, api: false, user: false };
     updateRevBtn();
   });
 
@@ -696,6 +696,7 @@
     var p = applyState(JSON.stringify(next), { dir: 'restore' });
     if (h) h.record(String(T('hRestoreRev', 'Restore version from %s')).replace('%s', when), 'restore|' + rev.rev_id);
     saveMeta.restore = String(T('revRestoredNote', 'Restored from the version of %s')).replace('%s', when).slice(0, 190);
+    saveMeta.revId = Number(rev.rev_id) || 0;
     showToast(sentence(T('revRestored', 'Version from %s loaded. Save to keep it.'), [when]));
     updateHistUi();
     return p;

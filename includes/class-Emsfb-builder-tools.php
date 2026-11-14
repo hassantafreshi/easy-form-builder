@@ -93,7 +93,7 @@ class Builder_Tools {
 			'undo_chars'  => self::UNDO_MAX_CHARS,
 			'merge_ms'    => 1000,
 			'revisions'   => class_exists('\\Emsfb\\Revisions') ? Revisions::client_config() : null,
-			'transfer'    => class_exists('\\Emsfb\\Form_Transfer') ? Form_Transfer::client_config() : null,
+			'package'     => class_exists('\Emsfb\Form_Package') ? array('version' => Form_Package::API_VERSION, 'schema' => Form_Package::SCHEMA) : null,
 		);
 		return $vars;
 	}

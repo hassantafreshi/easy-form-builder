@@ -618,6 +618,12 @@ class Install {
 		foreach ( self::f15_ddl( $wpdb->prefix, $collate ) as $short => $sql ) {
 			$table = $wpdb->prefix . $short;
 			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) {
+				// A table made by an early build of 1.11 has no extras column (F15-D): added once, looked up first.
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+				if ( 'emsfb_form_rev_' === $short && ! $wpdb->get_results( $wpdb->prepare( "SHOW COLUMNS FROM `{$table}` LIKE %s", 'extras' ) )
+					&& false !== $wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `extras` MEDIUMTEXT NULL" ) ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$applied[] = 'emsfb_form_rev_: ADD COLUMN extras';
+				}
 				continue;
 			}
 			self::create_table_if_absent( $sql );

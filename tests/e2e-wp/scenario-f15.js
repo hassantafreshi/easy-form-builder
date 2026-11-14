@@ -19,6 +19,10 @@
  *        version" with its note, the entries are untouched; Settings › General: "Number of earlier versions" typed in
  *        Persian digits is stored and capped by the plan; fa_IR and ar at 375 px: the dialog right to left, dates and
  *        names isolated, cards instead of the table, 44 px buttons, no horizontal scroll.
+ *  f15d  The form package (D; core has no screen for it, the plugin Easy Form Builder Data Tools has): a form with a
+ *        calc formula, a smart tag, a repeater group and an invalid id exported through the PHP API and imported as a
+ *        new form; the copy opens in the builder (every field drawn, no console error), its page renders for a guest,
+ *        the calculation follows the renamed field and the answer is stored; a duplicate keeps the add-on's block.
  */
 'use strict';
 
@@ -427,5 +431,60 @@ module.exports = function (S) {
         } finally { ctl('locale', ''); }
       }
     } finally { ctl('f15-setting', 'del'); cleanup(); }
+  });
+
+  /* ------------------------------------------------------------------ f15d */
+  scenario('f15d', 'F15-D form package round trip on the real site: export → import (new ids followed), the copy in the builder and on its page (a guest sends it, the calculation follows)', async ({ adminPage, context }) => {
+    const fs = require('fs');
+    const path = require('path');
+    const file = path.join(CFG.out, 'f15d-package.json');
+    try {
+      plan(3);
+      ctl('locale', '');
+      const F = form('F15 e2e package', [
+        { key: 'qty', type: 'number', name: 'Quantity' },
+        { key: 'tot', type: 'calc', name: 'Total', formula: '{field:@@qty@@}*5' },
+        { key: 'cp', type: 'hiddenField', name: 'Copy', value: '{field:@@qty@@|0}' },
+        { key: 'grp', type: 'repeater', name: 'Guests', min_rows: '1', max_rows: '3', default_rows: '1' },
+        { key: 'gn', type: 'text', name: 'Guest name', group: '@@grp@@' },
+      ]);
+      made.push(F.form_id);
+      const pkg = ctl('f15-pkg-export', String(F.form_id));
+      R.check('f15d: the PHP API exports the form (schema 1, rows, extras)', pkg.schema === 1 && Array.isArray(pkg.form.form_structer) && typeof pkg.extras === 'object', Object.keys(pkg));
+      // The quantity field gets an id that is not allowed: the import gives it a new one and every reference follows.
+      const q = F.ids.qty;
+      fs.writeFileSync(file, JSON.stringify(pkg).split(q).join('qty #1'));
+      const r = ctl('f15-pkg-import', file);
+      made.push(r.form_id);
+      const nid = (r.id_map || {})['qty #1'];
+      const st = ctl('form', String(r.form_id)).form_structer;
+      const calc = st.find((x) => x.type === 'calc');
+      R.check('f15d: imported as a NEW form "… (imported)"; the new id followed by the calc formula and the hidden value', r.form_id > F.form_id && /\(imported\)$/.test(r.form_name) && /^[a-z0-9]{9}$/.test(nid || '') && calc.formula === `{field:${nid}}*5` && st.find((x) => x.type === 'hiddenField').value === `{field:${nid}|0}`, { r, calc });
+      const admin = await adminPage();
+      await reopen(admin, r.form_id);
+      const drawn = await admin.evaluate(() => valj_efb.filter((x, i) => i > 0 && x.type !== 'option' && x.type !== 'step').every((x) => !!document.querySelector(`#dropZoneEFB [data-id="${x.dataId}"]`)));
+      R.check('f15d: the copy opens in the builder, every field drawn', drawn);
+      const url = ctl('page', String(r.form_id)).url;
+      const g = await (await context({}, 'f15d-guest')).newPage();
+      await g.goto(url, { waitUntil: 'load' });
+      await g.waitForSelector('[id^="body_efb_"]', { state: 'attached', timeout: 20000 });
+      await sleep(1200);
+      await g.fill(`[id="${nid}_"]`, '3');
+      await g.press(`[id="${nid}_"]`, 'Tab');
+      await sleep(600);
+      const tot = await g.evaluate(() => { const c = document.querySelector('[data-efb-calc], .efb-calc-out, output'); return c ? c.textContent.trim() : ''; });
+      const rowIn = await g.$('fieldset[data-rpt] input[type="text"]');
+      if (rowIn) await rowIn.fill('Ada');
+      const resp = g.waitForResponse((x) => /forms\/message\/add|forms%2Fmessage%2Fadd/.test(x.url()), { timeout: 30000 }).catch(() => null);
+      await g.click('#btn_send_efb');
+      const res = await resp;
+      const j = res ? await res.json().catch(() => null) : null;
+      await sleep(1000);
+      const ent = ctl('entries', String(r.form_id));
+      const rows = (ent[0] && ent[0].content) || [];
+      const crow = rows.find((x) => x.type === 'calc');
+      R.check('f15d: a guest sends the copy; the calculation reads the renamed field (3 × 5 = 15 stored); the answer is kept', j && (j.data || j).success === true && ent.length === 1 && crow && Number(crow.value) === 15, { res: j && (j.data || j), tot, crow });
+      await g.screenshot({ path: SHOT('f15d-imported-form-en') });
+    } finally { try { fs.unlinkSync(file); } catch (e) { /* none */ } cleanup(); }
   });
 };

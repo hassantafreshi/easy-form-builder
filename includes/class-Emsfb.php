@@ -513,6 +513,12 @@ class Emsfb {
         if ($this->require_plugin_file_efb('includes/class-Emsfb-builder-tools.php') && method_exists('\Emsfb\Builder_Tools', 'register')) {
             \Emsfb\Builder_Tools::register();
         }
+        // F15-D: the form package (a versioned PHP contract to export / validate / import one form; no screen in core:
+        // the plugin Easy Form Builder Data Tools uses it). Optional: callers check efb_form_package_api().
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-form-package.php') && method_exists('\Emsfb\Form_Package', 'register')) {
+            \Emsfb\Form_Package::register();
+            $this->require_plugin_file_efb('includes/form-package-functions-efb.php');
+        }
         // F15-C: form versions (kept on every save through efb_form_saved / efb_form_created). Optional.
         if ($this->require_plugin_file_efb('includes/class-Emsfb-revisions.php') && method_exists('\Emsfb\Revisions', 'register')) {
             \Emsfb\Revisions::register();

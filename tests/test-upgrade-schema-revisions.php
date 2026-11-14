@@ -30,11 +30,16 @@ class EfbRevSchemaDb extends EfbF11TestDb {
 		return parent::exec_mysql_ddl($sql);
 	}
 	public function get_results($q, $output = OBJECT) {
-		if (preg_match('/^\s*SHOW (INDEX|COLUMNS) FROM/i', $q)) return array();
+		if (preg_match("/^\\s*SHOW COLUMNS FROM `?(\\w+)`? LIKE '(\\w+)'/i", $q, $m)) {
+			$cols = array_column($this->pdo->query("PRAGMA table_info('{$m[1]}')")->fetchAll(PDO::FETCH_ASSOC), 'name');
+			return in_array($m[2], $cols, true) ? array((object) array('Field' => $m[2])) : array();
+		}
+		if (preg_match('/^\\s*SHOW (INDEX|COLUMNS) FROM/i', $q)) return array();
 		return parent::get_results($q, $output);
 	}
 	public function query($q) {
-		if (preg_match('/^\s*ALTER TABLE/i', $q)) { $this->alters[] = $q; return 1; }
+		if (preg_match('/^\\s*ALTER TABLE `?(\\w+)`? ADD COLUMN `?(\\w+)`? (.*)$/i', $q, $m)) { $this->alters[] = $q; return $this->pdo->exec("ALTER TABLE {$m[1]} ADD COLUMN {$m[2]} {$m[3]}") === false ? false : 1; }
+		if (preg_match('/^\\s*ALTER TABLE/i', $q)) { $this->alters[] = $q; return 1; }
 		return parent::query($q);
 	}
 	public function get_charset_collate() { return ''; }
@@ -57,12 +62,18 @@ t('the site has no emsfb_stts_ (upgrade_schema() returns early there)', $db->get
 $first = \Emsfb\Install::upgrade_schema();
 t('a 1.10 site without emsfb_stts_: the whole upgrade creates emsfb_form_rev_', in_array('emsfb_form_rev_: CREATE TABLE', $first, true), true);
 $cols = array_column($db->pdo->query("PRAGMA table_info('wp_emsfb_form_rev_')")->fetchAll(PDO::FETCH_ASSOC), 'name');
-t('the table has the columns of the DDL', $cols, array('rev_id', 'form_id', 'form_name', 'form_type', 'form_structer', 'struct_hash', 'field_count', 'step_count', 'user_id', 'source', 'note', 'created'));
+t('the table has the columns of the DDL', $cols, array('rev_id', 'form_id', 'form_name', 'form_type', 'form_structer', 'struct_hash', 'field_count', 'step_count', 'user_id', 'source', 'note', 'extras', 'created'));
 $second = \Emsfb\Install::upgrade_schema();
 t('second run: no F15 step (idempotent)', in_array('emsfb_form_rev_: CREATE TABLE', $second, true), false);
 t('upgrade_f15_schema() alone a second time applies nothing', \Emsfb\Install::upgrade_f15_schema(), array());
 t('no ALTER on any table for F15', count(array_filter($db->alters, function ($q) { return strpos($q, 'form_rev') !== false; })), 0);
 \Emsfb\Revisions::reset_ready();
 t('Revisions::ready() after the upgrade', \Emsfb\Revisions::ready(), true);
+
+/* A table made by an early build of 1.11 (no extras column, F15-D): one ALTER, then nothing. */
+$db2 = $GLOBALS['wpdb'] = new EfbRevSchemaDb();
+$db2->pdo->exec('CREATE TABLE wp_emsfb_form_rev_ (rev_id INTEGER PRIMARY KEY AUTOINCREMENT, form_id INTEGER, note TEXT)');
+t('a table without extras: one ALTER adds it', \Emsfb\Install::upgrade_f15_schema(), array('emsfb_form_rev_: ADD COLUMN extras'));
+t('…the column is there and the next run applies nothing', array(in_array('extras', array_column($db2->pdo->query("PRAGMA table_info('wp_emsfb_form_rev_')")->fetchAll(PDO::FETCH_ASSOC), 'name'), true), \Emsfb\Install::upgrade_f15_schema()), array(true, array()));
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

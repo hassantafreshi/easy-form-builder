@@ -579,6 +579,8 @@ class Admin {
         // (kept as the "initial" version when the form has none yet) for Revisions::on_saved().
         $rev_ctx_efb = class_exists('\Emsfb\Revisions') ? \Emsfb\Revisions::request_meta() : array();
         if (isset($old_rows_efb) && is_array($old_rows_efb)) $rev_ctx_efb['old_rows'] = $old_rows_efb;
+        // F15-D / P23: a restored version brings back the add-ons' settings it kept (before the new version is written).
+        if (!empty($rev_ctx_efb['rev_extras'])) \Emsfb\Revisions::apply_extras($id, $rev_ctx_efb['rev_extras']);
         do_action('efb_form_saved', $id, $valp, array('form_id' => $id, 'source' => 'builder', 'user_id' => get_current_user_id()) + $rev_ctx_efb);
         $m = $lang['updated'];
         $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_Form_Builder id=$id]"];
@@ -3867,6 +3869,13 @@ class Admin {
                 'form_create_date' =>  $date,
             ));
             $this->id_  = $this->db->insert_id;
+            if ($r !== false && $this->id_ > 0) {
+                // F15-D / P23: the add-ons' settings of the form (SMS / Telegram texts and numbers, a sheet mapping …)
+                // go with the copy; the save hooks run as for a new form (versions "duplicate", privacy map, unique values).
+                if (class_exists('\Emsfb\Form_Package')) \Emsfb\Form_Package::duplicate_extras($id, $this->id_);
+                $dup_rows_efb = json_decode(\emsfb_json_normalize_efb($val->form_structer), true);
+                if (is_array($dup_rows_efb)) do_action('efb_form_created', (int) $this->id_, $dup_rows_efb, array('form_id' => (int) $this->id_, 'source' => 'duplicate', 'user_id' => get_current_user_id()));
+            }
             $response = ['success' => true, "m" =>$lang['copy'] , 'form_id'=>$this->id_ , 'form_name'=>$form_name ,
             'date'=>$date , 'form_type'=>$val->form_type];
             wp_send_json_success($response, 200);

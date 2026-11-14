@@ -44,6 +44,7 @@ function get_userdata($id) { return $id ? (object) array('display_name' => 'User
 require_once __DIR__ . '/../includes/class-Emsfb-builder-api.php';
 // The plan of the site: Builder_Api::current_package() reads the option emsfb_pro (stand-in: $GLOBALS['efb_plan']).
 require_once __DIR__ . '/../includes/class-Emsfb-revisions.php';
+require_once __DIR__ . '/../includes/class-Emsfb-form-package.php';
 
 class EfbRevTestDb extends EfbF11TestDb {
 	public function exec_mysql_ddl($sql) {
@@ -150,6 +151,20 @@ $R::record(30, form_rows(1));
 $e = $R::erase('editor@example.test');
 t('the WordPress eraser for an editor\'s address sets user_id 0', array($e['items_removed'], $e['done'], (int) $db->get_var("SELECT COUNT(*) FROM {$db->prefix}emsfb_form_rev_ WHERE user_id = 7")), array(true, true, 0));
 t('the eraser for an unknown address removes nothing', $R::erase('nobody@example.test')['items_removed'], false);
+
+// F15-D / P23: the add-ons' blocks of the form are kept with each version (secrets removed) and applied again on a restore save.
+$GLOBALS['efb_settings'] = (object) array('AdnSS' => 1);
+$GLOBALS['efb_filters']['efb_form_export_extras'] = function ($x, $fid, $ctx) { $x['sms'] = array('v' => 1, 'addon' => 'AdnSS', 'data' => array('new_noti' => 'Text of ' . $fid . ' (' . $ctx['context'] . ')', 'admin_numbers' => '+1555')); return $x; };
+$rx = $R::record(40, form_rows(2));
+$gx = $R::get($rx);
+t('a version keeps the extras of the form (context revision, the admin numbers removed)', $gx['extras'], array('sms' => array('v' => 1, 'addon' => 'AdnSS', 'data' => array('new_noti' => 'Text of 40 (revision)'))));
+$seen = null;
+$GLOBALS['efb_filters']['efb_form_import_extras'] = function ($rep, $fid, $blocks, $ctx) use (&$seen) { $seen = array($fid, array_keys($blocks), $ctx['context']); $rep['applied'][] = 'sms'; return $rep; };
+$ap = $R::apply_extras(40, $rx);
+t('apply_extras(): the blocks of the restored version go to efb_form_import_extras (context revision)', array($seen, $ap['applied']), array(array(40, array('sms'), 'revision'), array('sms')));
+t('apply_extras() for a version of another form does nothing', $R::apply_extras(41, $rx), null);
+unset($GLOBALS['efb_filters']['efb_form_export_extras'], $GLOBALS['efb_filters']['efb_form_import_extras']);
+$GLOBALS['efb_settings'] = (object) array();
 
 // registry
 $caps = $R::capabilities(array('features' => array()), array('package' => 2));

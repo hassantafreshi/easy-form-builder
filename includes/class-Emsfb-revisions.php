@@ -70,6 +70,7 @@ class Revisions {
   user_id bigint(20) unsigned NOT NULL DEFAULT 0,
   source varchar(20) NOT NULL DEFAULT 'builder',
   note varchar(190) NOT NULL DEFAULT '',
+  extras mediumtext NULL,
   created datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
   PRIMARY KEY  (rev_id),
   KEY form_rev (form_id, rev_id),
@@ -162,6 +163,7 @@ class Revisions {
 				self::insert($form_id, $args['old_rows'], $old_json, array('source' => 'initial', 'user_id' => 0, 'name' => $name, 'note' => ''));
 			}
 		}
+		if (!isset($args['extras']) && class_exists('\Emsfb\Form_Package')) $args['extras'] = Form_Package::export_extras($form_id, array('context' => 'revision'));
 		$id = self::insert($form_id, $rows, $json, $args + array('name' => $name));
 		if ($id) self::prune($form_id, strlen($json) > self::BIG_FORM ? min($keep, self::BIG_FORM_KEEP) : $keep);
 		return $id;
@@ -176,13 +178,18 @@ class Revisions {
 		$note = function_exists('mb_substr') ? mb_substr($note, 0, 190, 'UTF-8') : substr($note, 0, 190);
 		$type = isset($rows[0]['type']) && is_scalar($rows[0]['type']) ? substr((string) $rows[0]['type'], 0, 15) : 'form';
 		$uid = isset($args['user_id']) ? (int) $args['user_id'] : (function_exists('get_current_user_id') ? (int) get_current_user_id() : 0);
-		$ok = $wpdb->insert(self::table(), array(
+		$row = array(
 			'form_id' => (int) $form_id, 'form_name' => substr((string) $args['name'], 0, 250), 'form_type' => $type,
 			// Stored like emsfb_form.form_structer (quotes escaped); read with emsfb_json_normalize_efb().
 			'form_structer' => str_replace('"', '\\"', $json), 'struct_hash' => md5($json),
 			'field_count' => $fields, 'step_count' => $steps, 'user_id' => max(0, $uid), 'source' => $source, 'note' => $note,
+			// F15-D / P23: the add-ons' blocks of the form at this save (secrets removed), applied again when a restored version is saved.
+			'extras' => isset($args['extras']) && is_array($args['extras']) && $args['extras'] ? (function_exists('wp_json_encode') ? wp_json_encode($args['extras'], JSON_UNESCAPED_UNICODE) : json_encode($args['extras'], JSON_UNESCAPED_UNICODE)) : null,
 			'created' => function_exists('current_time') ? current_time('mysql') : gmdate('Y-m-d H:i:s'),
-		));
+		);
+		$ok = $wpdb->insert(self::table(), $row);
+		// A table made before the extras column (an early build of DB 1.11, until its upgrade step ran): the version is still kept.
+		if ($ok === false && array_key_exists('extras', $row)) { unset($row['extras']); $ok = $wpdb->insert(self::table(), $row); }
 		if ($ok === false) {
 			if (function_exists('error_log')) error_log('Easy Form Builder: a version of form ' . (int) $form_id . ' could not be kept: ' . $wpdb->last_error); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
 			return 0;
@@ -238,8 +245,21 @@ class Revisions {
 	/** rev_source / rev_note of a save request (the builder sends them; anything else is ignored). */
 	public static function request_meta() {
 		$src = isset($_POST['rev_source']) ? sanitize_key(wp_unslash($_POST['rev_source'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification -- the caller checked the nonce
+		$rex = isset($_POST['rev_extras']) ? absint(wp_unslash($_POST['rev_extras'])) : 0; // phpcs:ignore WordPress.Security.NonceVerification
 		$note = isset($_POST['rev_note']) ? sanitize_text_field(wp_unslash($_POST['rev_note'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification
-		return array('rev_source' => in_array($src, array('builder', 'autopilot', 'restore'), true) ? $src : '', 'rev_note' => function_exists('mb_substr') ? mb_substr($note, 0, 190, 'UTF-8') : substr($note, 0, 190));
+		return array('rev_source' => in_array($src, array('builder', 'autopilot', 'restore'), true) ? $src : '', 'rev_note' => function_exists('mb_substr') ? mb_substr($note, 0, 190, 'UTF-8') : substr($note, 0, 190), 'rev_extras' => $src === 'restore' ? $rex : 0);
+	}
+
+	/**
+	 * A restored version is being saved: the add-ons' blocks it kept are applied again to the form (context revision:
+	 * this site's credentials stay). Called by the save before efb_form_saved, so the new version has them.
+	 * @return array|null the import report, or null.
+	 */
+	public static function apply_extras($form_id, $rev_id) {
+		if ((int) $rev_id < 1 || !class_exists('\Emsfb\Form_Package')) return null;
+		$r = self::get((int) $rev_id);
+		if (!$r || (int) $r['form_id'] !== (int) $form_id || empty($r['extras'])) return null;
+		return Form_Package::import_extras((int) $form_id, $r['extras'], array('context' => 'revision'));
 	}
 
 	public static function forget_user($user_id) {
@@ -299,6 +319,8 @@ class Revisions {
 		$rows = json_decode($json, true);
 		if (!is_array($rows)) return null;
 		$r['rows'] = $rows;
+		$r['extras'] = isset($r['extras']) && is_string($r['extras']) && $r['extras'] !== '' ? json_decode($r['extras'], true) : array();
+		if (!is_array($r['extras'])) $r['extras'] = array();
 		unset($r['form_structer']);
 		return $r;
 	}
@@ -337,6 +359,7 @@ class Revisions {
 		wp_send_json_success(array('success' => true, 'revision' => array(
 			'rev_id' => (int) $r['rev_id'], 'form_id' => (int) $r['form_id'], 'form_name' => (string) $r['form_name'], 'form_type' => (string) $r['form_type'],
 			'source' => (string) $r['source'], 'note' => (string) $r['note'], 'created' => (string) $r['created'], 'hash' => (string) $r['struct_hash'], 'rows' => $r['rows'],
+			'extras' => array_keys((array) $r['extras']),
 		)), 200);
 	}
 
