@@ -349,6 +349,10 @@ class Create {
 		wp_enqueue_script('efb-smart-tags-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/smart-tags-builder-efb.js', array('efb-val-js', 'efb-smart-tags-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/smart-tags-builder-efb.js'), true);
 		wp_enqueue_style('efb-upload-css', EMSFB_PLUGIN_URL . 'public/assets/css/upload-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/upload-efb.css'));
 		wp_enqueue_style('efb-verify-css', EMSFB_PLUGIN_URL . 'public/assets/css/verify-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/verify-efb.css'));
+		// F04: the formula and number engine (twin of Calc) and the number / calc / slider controls.
+		wp_enqueue_script('efb-calc-js', EMSFB_PLUGIN_URL . 'public/assets/js/calc-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/calc-efb.js'), true);
+		wp_enqueue_script('efb-calc-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/calc-builder-efb.js', array('efb-val-js', 'efb-calc-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/calc-builder-efb.js'), true);
+		wp_enqueue_style('efb-calc-css', EMSFB_PLUGIN_URL . 'public/assets/css/calc-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/calc-efb.css'));
 		// F06: the calendar engines, the picker (canvas and preview) and the advanced date field's panel.
 		if (class_exists('\\Emsfb\\Calendar')) \Emsfb\Calendar::enqueue_admin(true);
 		wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);

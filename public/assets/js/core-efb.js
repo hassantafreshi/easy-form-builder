@@ -633,6 +633,8 @@ async function createStepsOfPublic() {
             const mask_bound_efb = (el.type === 'text' || el.type === 'tel') ? efb_bind_mask_efb(el, form_id) : false;
             // F03: the live counter of a field with one (nothing on other fields).
             if (el.type === 'text' || el.type === 'textarea') efb_rules_bind_counter_efb(el, form_id);
+            // F04: a number box with the F04 keys formats while typing (local digits, separators, caret kept).
+            if (el.type === 'text' && el.dataset && el.dataset.num === '1' && window.EFBCalc) window.EFBCalc.bindNumber(el, window.EFBCalc.cfgOf(el) || {});
             let init_change_efb = null;
             if(el.value && el.value.length>0){
               if(el.type!="range" && el.type!="color"){
@@ -1344,6 +1346,29 @@ function efb_typed_date_efb(str, kind) {
   if (d > max) return null;
   return m[1] + '-' + (mo < 10 ? '0' : '') + mo + '-' + (d < 10 ? '0' : '') + d;
 }
+/* F04: a number box with the F04 keys (data-num="1", settings in data-numcfg from the server): what the visitor
+ * typed is read with local digits and separators and checked in the server's order (decimals, step, min, max;
+ * EFBCalc.checkInput, twin of Calc::check_row). On success the box shows the formatted number; on failure the
+ * field's message says why. Returns {empty} | {ok:false} | {ok:true, canon}. */
+function efb_num_check_efb(el, ob) {
+  const cfg = window.EFBCalc.cfgOf(el) || {};
+  const form_id = el.dataset.formid || 0;
+  if (!ob) {
+    const st = typeof get_structure_by_form_id_efb === 'function' ? get_structure_by_form_id_efb(form_id) : (typeof valj_efb !== 'undefined' ? valj_efb : []);
+    ob = Array.isArray(st) ? st.find((x) => x && x.id_ === el.dataset.vid) : null;
+  }
+  const r = window.EFBCalc.checkInput(el.value, cfg, (typeof efb_var !== 'undefined' && efb_var.text) || {}, ob && ob.name ? ob.name : '');
+  const vd = document.getElementById(`${el.id}-message`);
+  if (r.empty) return r;
+  if (!r.ok) {
+    el.className = colorBorderChangerEfb(el.className, "border-danger");
+    if (vd) { vd.textContent = r.msg; show_msg_efb(vd); }
+    return r;
+  }
+  const shown = window.EFBCalc.formatBare(r.canon, cfg);
+  if (el.value !== shown) el.value = shown;
+  return r;
+}
 function efb_ascii_digits_efb(str) {
   return String(str).replace(/[\u06F0-\u06F9]/g, function (d) { return String(d.charCodeAt(0) - 0x06F0); })
     .replace(/[\u0660-\u0669]/g, function (d) { return String(d.charCodeAt(0) - 0x0660); });
@@ -1467,6 +1492,10 @@ function valid_typed_value_efb(type, el) {
   }
   if (type == 'email') return valid_email_emsFormBuilder(el);
   if (type == 'tel') return valid_phone_emsFormBuilder(el);
+  if (type == 'number' && el.dataset && el.dataset.num === '1' && window.EFBCalc) {
+    const nr = efb_num_check_efb(el, null);
+    return !!(nr.empty || nr.ok);
+  }
   if (type == 'number') {
     const n = Number(el.value);
     if (isNaN(n)) return false;
@@ -4486,6 +4515,21 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       return;
     }
     value = mr.stored;
+    state = true;
+    el.className = colorBorderChangerEfb(el.className, "border-success");
+    hide_msg_efb(document.getElementById(`${el.id}-message`));
+  } else if (el.type === 'text' && el.dataset && el.dataset.num === '1' && window.EFBCalc) {
+    // F04: a number box with the F04 keys: the canonical number is sent (1250000.5), the box shows it formatted.
+    const nr = efb_num_check_efb(el, ob);
+    if (nr.empty) { el_empty_value(id_); return; }
+    if (!nr.ok) {
+      sendback_state_handler_efb_v4(id_,false,0,form_id);
+      delete_by_id(id_);
+      updateStepButtonState_efb(form_id);
+      efb_reevaluate_logic_after_change_efb(form_id, el);
+      return;
+    }
+    value = nr.canon;
     state = true;
     el.className = colorBorderChangerEfb(el.className, "border-success");
     hide_msg_efb(document.getElementById(`${el.id}-message`));

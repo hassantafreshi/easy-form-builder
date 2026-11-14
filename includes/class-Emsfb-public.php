@@ -47,6 +47,8 @@ class _Public {
 	private $unique_pending_efb = array();
 	/* F05: the stable code of a choice refusal, and what insert_message_db() reserves (\Emsfb\Stock). */
 	private $choices_code_efb = '';
+	/* F04: the stable code of a number refusal (efb_num_nan, _dec, _step, _min, _max, _order) and of a calc field. */
+	private $num_code_efb = '';
 	private $stock_rows_efb = null;
 	private $stock_form_efb = null;
 	private $stock_fid_efb = 0;
@@ -1367,7 +1369,9 @@ public function check_nonce_permission_efb($request) {
 			'dragAndDropMany','releaseToUpload','filesCountOf','fileSizeMB','fileSizeKB','fileQueued','fileUploading','fileUploaded','fileFailed','retryUpload','removeFileNamed','maxFilesReached',
 			'maxFilesMsg','minFilesMsg','maxTotalMsg','fileNotOwned','fileTooBigMB','fileTypeRefused','fileTotalOver','fileWaitUploads','filesAddMore','fileRemovedA11y','fileResizing',
 			/* F05 choices: Other, Select all, limits, capacity, ranking, the booking messages of the page. */
-			'otherOpt','otherReq','selectAll','minSelM_','maxSelM_','soldOut','invLeftN','rnkUp','rnkDown','rnkMoved','rnkConfirm','rnkReq','rnkHelp','bkXpM_','bkFlM_'];
+			'otherOpt','otherReq','selectAll','minSelM_','maxSelM_','soldOut','invLeftN','rnkUp','rnkDown','rnkMoved','rnkConfirm','rnkReq','rnkHelp','bkXpM_','bkFlM_',
+			/* F04 numbers and calculations: number messages, the calc error, the slider handles. */
+			'numStepM_','numDecM_','numNanM_','numRange','calcErr','rngLo','rngHi','rngOrder'];
 
 			/* Only now is a form or response box really printed. A form in a widget,
 			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
@@ -2506,6 +2510,13 @@ public function check_nonce_permission_efb($request) {
 			wp_enqueue_style('efb-choices-css', EMSFB_PLUGIN_URL . 'public/assets/css/choices-efb.css', array(), $asset_version('public/assets/css/choices-efb.css'));
 			$core_deps[] = 'efb-choices-js';
 		}
+		// F04: numbers with the F04 keys, calc fields, choice calc values and two-handle sliders (only on a form that uses one).
+		if (class_exists('\\Emsfb\\Calc') && \Emsfb\Calc::json_needs_runtime($form_structure_json)) {
+			wp_register_script('efb-calc-js', EMSFB_PLUGIN_URL . 'public/assets/js/calc-efb.js', array(), $asset_version('public/assets/js/calc-efb.js'), true);
+			wp_enqueue_script('efb-calc-js');
+			wp_enqueue_style('efb-calc-css', EMSFB_PLUGIN_URL . 'public/assets/css/calc-efb.css', array(), $asset_version('public/assets/css/calc-efb.css'));
+			$core_deps[] = 'efb-calc-js';
+		}
 		// F06: the advanced date field's engines and picker, only on pages with one (and only the calendars it can show).
 		if (class_exists('\\Emsfb\\Calendar') && \Emsfb\Calendar::enqueue_public($form_structure_json)) {
 			$core_deps[] = 'efb-cal-ui';
@@ -2700,6 +2711,7 @@ public function check_nonce_permission_efb($request) {
 		$this->operation_data = is_array($request_data) ? $request_data : array();
 		// F05: nothing of an earlier request in this process (choice refusal code, capacities to take).
 		$this->choices_code_efb = '';
+		$this->num_code_efb = '';
 		$this->stock_rows_efb = null;
 		$this->stock_form_efb = null;
 		$this->stock_fid_efb = 0;
@@ -2723,6 +2735,8 @@ public function check_nonce_permission_efb($request) {
 			'maxFilesMsg', 'minFilesMsg', 'maxTotalMsg', 'fileNotOwned',
 			/* F05 choices (Choices::message(), Stock): Other, minimum / maximum, capacity, ranking. */
 			'otherOpt', 'otherReq', 'minSelM_', 'maxSelM_', 'soldOut', 'rnkReq',
+			/* F04 numbers and calculations (Calc::check_row(), Calc::evaluate_form()). */
+			'numStepM_', 'numDecM_', 'numNanM_', 'calcErr', 'mcplen', 'mxcplen', 'rngOrder',
 			'cal_err_invalid_format', 'cal_err_invalid_date', 'cal_err_calendar_not_allowed', 'cal_err_before_min', 'cal_err_after_max', 'cal_err_weekday_disabled', 'cal_err_date_disabled', 'cal_err_not_enabled', 'cal_err_holiday', 'cal_err_unavailable', 'cal_err_full', 'cal_err_range_order', 'cal_err_range_too_short', 'cal_err_range_too_long', 'cal_err_range_contains_disabled', 'cal_err_too_many_dates', 'cal_err_time_required', 'cal_err_time_out_of_range', 'cal_err_time_step', 'cal_err_time_closed_weekday', 'cal_err_age_too_young', 'cal_err_age_too_old', 'cal_err_depends_on_empty', 'cal_err_required', 'cal_nights_n', 'cal_days_n'
 		];
 		$efbFunction = get_efbFunction();
@@ -3763,6 +3777,23 @@ public function check_nonce_permission_efb($request) {
 								case 'number':
 								case 'prcfld':
 									$is_valid = 0;
+									/* F04: a number or slider is read with local digits and separators, and a field with the
+									 * F04 keys is checked for decimals, step and its limits as decimals (Calc::check_row());
+									 * an old field keeps today's rule and today's stored text. */
+									if ($f['type'] !== 'prcfld' && class_exists('\\Emsfb\\Calc')) {
+										$num_efb = \Emsfb\Calc::check_row($f, is_array($item) ? $item : array(), $this->lanText, isset($form_fields_array[0]) ? $form_fields_array[0] : null);
+										if ($num_efb['ok']) {
+											$num_efb['row']['value'] = sanitize_text_field((string) $num_efb['row']['value']);
+											$validated_item = $this->filter_attributes_by_type_efb($num_efb['row'], $f['type']);
+											$is_valid = is_array($validated_item) ? 1 : 0;
+										} else {
+											$error_message = $num_efb['m'];
+											$error_field_id = isset($f['id_']) ? $f['id_'] : '';
+											$this->num_code_efb = $num_efb['code'];
+										}
+										$still_processing = false;
+										break;
+									}
 									if (isset($item['value']) && is_numeric($item['value'])) {
 										$item['value'] = sanitize_text_field($item['value']);
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
@@ -4004,6 +4035,8 @@ public function check_nonce_permission_efb($request) {
 					if ($this->upload_code_efb !== '' && $error_field_id !== '') $response['code'] = 'efb_file_' . $this->upload_code_efb;
 					// F05: the stable code of a choice refusal (efb_choice_other, _min, _max, _ranking, _invalid).
 					if ($this->choices_code_efb !== '' && $error_field_id !== '') $response['code'] = $this->choices_code_efb;
+					// F04: the stable code of a number / calc refusal (efb_num_nan, _dec, _step, _min, _max, _order, efb_calc_required).
+					if ($this->num_code_efb !== '' && $error_field_id !== '') $response['code'] = strpos($this->num_code_efb, 'efb_') === 0 ? $this->num_code_efb : 'efb_num_' . $this->num_code_efb;
 					wp_send_json_success($response, 200);
 				}
 				// Verification gate: every field that requires a one-time code must carry a valid token

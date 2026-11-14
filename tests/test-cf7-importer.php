@@ -231,7 +231,13 @@ $f = efb_cf7t_fields( $m )[0];
 efb_cf7t( 'number: min/max/default', 'number' === $f['type'] && '18' === $f['milen'] && '99' === $f['mlen'] && '30' === $f['value'] && empty( $m['notes'] ) );
 $m = efb_cf7t_map( '<label>Score [range score min:-5 max:10.5 step:0.5]</label>' );
 $f = efb_cf7t_fields( $m )[0];
-efb_cf7t( 'range: negative/decimal limits and step are reported, not stored', 'range' === $f['type'] && ! isset( $f['milen'] ) && ! isset( $f['mlen'] ) && efb_cf7t_notes_match( $m, 'min:-5 max:10.5 step:0.5' ) );
+efb_cf7t( 'range (F04): negative/decimal limits and the step are kept (num_step, never "step"), no note', 'range' === $f['type'] && '-5' === $f['milen'] && '10.5' === $f['mlen'] && '0.5' === $f['num_step'] && 1 === (int) $f['step'] && empty( $m['notes'] ), $f );
+$m = efb_cf7t_map( '<label>N [number n min:-5 max:9.5 step:0.5]</label>' );
+$f = efb_cf7t_fields( $m )[0];
+efb_cf7t( 'number (F04): [number n min:-5 max:9.5 step:0.5] imported without a "dropped" note', 'number' === $f['type'] && '-5' === $f['milen'] && '9.5' === $f['mlen'] && '0.5' === $f['num_step'] && empty( $m['notes'] ), array( $f, $m['notes'] ) );
+$m = efb_cf7t_map( '<label>T [number t min:-10 max:.5]</label><label>Z [number z min:-3 max:0]</label>' );
+$f = efb_cf7t_fields( $m );
+efb_cf7t( 'number (F04): a decimal limit without a step: num_format none (shown as typed); ".5" read as 0.5; max:0 kept (num_max_zero)', '-10' === $f[0]['milen'] && '0.5' === $f[0]['mlen'] && 'none' === $f[0]['num_format'] && '0' === $f[1]['mlen'] && '1' === $f[1]['num_max_zero'] && empty( $m['notes'] ), $f );
 $f = efb_cf7t_fields( efb_cf7t_map( '[range r min:1 max:10 "5"]' ) )[0];
 efb_cf7t( 'range: min/max/default', '1' === $f['milen'] && '10' === $f['mlen'] && '5' === $f['value'] );
 

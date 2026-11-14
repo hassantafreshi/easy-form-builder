@@ -612,6 +612,229 @@
     return (pre ? pre + (/[A-Za-z\u0600-\u06FF]$/.test(pre) ? ' ' : '') : '') + body + (suf ? (/^[A-Za-z\u0600-\u06FF]/.test(suf) ? ' ' : '') + suf : '');
   }
 
+
+
+  /* ------------------------------------------------------------------ save rule (twin of Calc::sanitize_key) */
+
+  var FIELD_KEYS = ['num_step', 'num_decimals', 'num_format', 'num_dec_sep', 'num_grp_sep', 'num_digits', 'num_prefix', 'num_suffix', 'num_currency', 'num_max_zero',
+    'formula', 'formula_err', 'calc_show', 'calc_empty', 'calc_as_price', 'range_mode'];
+  var ENUMS = {
+    num_format: ['none', 'group'], num_dec_sep: ['.', ',', 'momayez'], num_grp_sep: [',', '.', 'space', 'apos', 'arabic', 'none'],
+    num_digits: ['auto', 'latin', 'native'], num_currency: ['form'], calc_show: ['visible', 'hidden'], calc_empty: ['zero', 'blank'],
+    range_mode: ['single', 'dual']
+  };
+  var NUMBER_TYPES = ['number', 'range', 'prcfld', 'calc'];
+
+  function phpTrim(s) { return s.replace(/^[ \t\n\r\0\x0B]+|[ \t\n\r\0\x0B]+$/g, ''); }
+
+  /** One F04 key as stored ('' = not set). Twin: Calc::sanitize_key(). */
+  function sanitizeKey(k, v, type) {
+    if (v === null || v === undefined || typeof v === 'object') return '';
+    if (typeof v === 'boolean') v = v ? '1' : '';
+    var raw = String(v);
+    var s = phpTrim(normalizeDigits(raw));
+    switch (k) {
+      case 'num_step': return /^\d{1,9}(\.\d{1,6})?$/.test(s) && Number(s) > 0 ? s.replace(/^0+(?=\d)/, '') : '';
+      case 'num_decimals': return /^[0-6]$/.test(s) ? s : '';
+      case 'calc': return /^-?\d{1,15}(\.\d{1,6})?$/.test(s) ? s : '';
+      case 'num_max_zero': case 'calc_as_price': return ['1', 'true', 'on'].indexOf(s.toLowerCase()) !== -1 ? '1' : '';
+      case 'num_prefix': case 'num_suffix': {
+        var t = raw.replace(/<[^>]*>/g, '').replace(/["<>`]/g, '');
+        t = phpTrim(t.replace(/[\x00-\x20\x7F]+/g, ' '));
+        var cps = t.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[\s\S]/g) || [];
+        return cps.slice(0, 20).join('');
+      }
+      case 'formula': {
+        var f = phpTrim(normalizeFormula(raw).replace(/[\x00-\x1F\x7F]+/g, ' '));
+        if (unescape(encodeURIComponent(f)).length > MAX_LEN || !/^[A-Za-z0-9_{}().,:\s+\-*\/]*$/.test(f) || /[^\x00-\x7F]/.test(f)) return '';
+        return f.replace(/ {2,}/g, ' ');
+      }
+      case 'formula_err': return '';
+    }
+    if (k === 'num_dec_sep' && s === '٫') return 'momayez';
+    if (k === 'num_grp_sep') { if (raw === ' ') return 'space'; if (s === '٬') return 'arabic'; if (s === "'") return 'apos'; }
+    if (Object.prototype.hasOwnProperty.call(ENUMS, k)) {
+      for (var i = 0; i < ENUMS[k].length; i++) if (ENUMS[k][i].toLowerCase() === s.toLowerCase()) return ENUMS[k][i];
+      return '';
+    }
+    return '';
+  }
+
+  /** Whether a key is one of F04's on this row type. Twin: Calc::is_key(). */
+  function isKey(k, type) {
+    if (k === 'calc') return type === 'option';
+    if (k === 'num_digits' || k === 'num_prefix' || k === 'num_suffix') return NUMBER_TYPES.indexOf(type) !== -1;
+    return FIELD_KEYS.indexOf(k) !== -1;
+  }
+
+
+  /* ------------------------------------------------------------------ a form's formulas (twin of Calc::form_errors) */
+
+  var LAYOUT_TYPES = ['option', 'step', 'form', 'r_matrix', 'heading', 'link', 'html', 'buttonNav', 'submit'];
+
+  function sortedKeys(o) { return Object.keys(o).sort(function (a, b) { return a < b ? -1 : (a > b ? 1 : 0); }); }
+
+  /** Ids of the calc fields on a cycle of references. Twin: Calc::cycle_ids(). */
+  function cycleIds(deps) {
+    var state = {}, on = {};
+    function visit(id, stack) {
+      if (state[id] === 2) return;
+      if (state[id] === 1) { var k = stack.indexOf(id); stack.slice(k < 0 ? 0 : k).forEach(function (c) { on[c] = true; }); return; }
+      state[id] = 1;
+      var st = stack.concat([id]);
+      (deps[id] || []).forEach(function (d) { if (Object.prototype.hasOwnProperty.call(deps, d)) visit(d, st); });
+      state[id] = 2;
+    }
+    sortedKeys(deps).forEach(function (id) { visit(id, []); });
+    return sortedKeys(on);
+  }
+
+  /** id => {code, pos, near, ref} for every calc field with a formula problem. Twin: Calc::form_errors(). */
+  function formErrors(rows) {
+    var out = {}, types = {}, calc = {}, order = [];
+    (rows || []).forEach(function (r, i) {
+      if (i < 1 || !r || r.id_ === undefined || r.type === undefined || typeof r.id_ === 'object' || typeof r.type === 'object') return;
+      var t = String(r.type);
+      if (t === 'option' || t === 'step') return;
+      types[String(r.id_)] = t;
+      if (t === 'calc') { if (!Object.prototype.hasOwnProperty.call(calc, String(r.id_))) order.push(String(r.id_)); calc[String(r.id_)] = r.formula === undefined || r.formula === null || typeof r.formula === 'object' ? '' : String(r.formula); }
+    });
+    var deps = {};
+    order.forEach(function (id) {
+      var p = parse(calc[id]);
+      if (!p.ok) { out[id] = { code: p.code, pos: p.pos, near: p.near, ref: '' }; return; }
+      deps[id] = [];
+      for (var i = 0; i < p.refs.length; i++) {
+        var rid = p.refs[i].id;
+        if (rid === id) { out[id] = { code: 'calcSelf', pos: -1, near: '{' + rid + '}', ref: rid }; break; }
+        if (!Object.prototype.hasOwnProperty.call(types, rid)) { out[id] = { code: 'calcRef', pos: -1, near: '{' + rid + '}', ref: rid }; break; }
+        if (FORBIDDEN_TYPES.indexOf(types[rid]) !== -1 || LAYOUT_TYPES.indexOf(types[rid]) !== -1) { out[id] = { code: 'calcForbidden', pos: -1, near: '{' + rid + '}', ref: rid }; break; }
+        if (types[rid] === 'calc' && deps[id].indexOf(rid) === -1) deps[id].push(rid);
+      }
+    });
+    cycleIds(deps).forEach(function (id) { if (!out[id]) out[id] = { code: 'calcCycle', pos: -1, near: '', ref: '' }; });
+    var sorted = {};
+    sortedKeys(out).forEach(function (k) { sorted[k] = out[k]; });
+    return sorted;
+  }
+
+  /** The calc fields in computing order (references first). Twin: Calc::topo_order(). */
+  function topoOrder(rows) {
+    var errs = formErrors(rows), deps = {}, ids = [];
+    (rows || []).forEach(function (r, i) {
+      if (i < 1 || !r || r.type !== 'calc' || r.id_ === undefined) return;
+      var id = String(r.id_);
+      if (!Object.prototype.hasOwnProperty.call(deps, id)) ids.push(id);
+      deps[id] = errs[id] ? null : refIds(r.formula === undefined || r.formula === null ? '' : String(r.formula));
+    });
+    var order = [], done = {};
+    function visit(id) {
+      if (done[id]) return;
+      done[id] = true;
+      (deps[id] || []).forEach(function (d) { if (Object.prototype.hasOwnProperty.call(deps, d)) visit(d); });
+      order.push(id);
+    }
+    ids.forEach(visit);
+    return order;
+  }
+
+  /* ------------------------------------------------------------------ typing (page) */
+
+  /** format() without the prefix, suffix or currency symbol (the input box; the affixes sit beside it). */
+  function formatBare(canon, cfg) {
+    var c = {};
+    for (var k in cfg) if (Object.prototype.hasOwnProperty.call(cfg, k)) c[k] = cfg[k];
+    c.prefix = ''; c.suffix = '';
+    c.cur = cfg && cfg.cur ? { s: '', d: cfg.cur.d } : null;
+    return format(canon, c);
+  }
+
+  /**
+   * One keystroke of a number box (spec §4.1): local digits to the shown digits, the thousands separator
+   * put back in its place, one decimal separator, at most `decimals` digits after it, a minus sign only
+   * first. The caret stays after the same digit. Returns {value, caret}.
+   */
+  function live(raw, caret, cfg) {
+    cfg = cfg || {};
+    raw = str(raw);
+    if (caret === undefined || caret === null || caret > raw.length) caret = raw.length;
+    var dec = cfg.dec || '.', grp = cfg.grp === undefined ? ',' : cfg.grp;
+    var maxDec = cfg.decimals === null || cfg.decimals === undefined || cfg.decimals === '' ? -1 : Number(cfg.decimals);
+    var neg = false, ip = '', dp = '', hasDec = false, before = 0;
+    for (var i = 0; i < raw.length; i++) {
+      var c = normalizeDigits(raw.charAt(i));
+      var kept = false;
+      if (c >= '0' && c <= '9') {
+        if (hasDec) { if (maxDec < 0 || dp.length < maxDec) { dp += c; kept = true; } } else { ip += c; kept = true; }
+      } else if (c === '-' || c === '−') {
+        if (!neg && ip === '' && !hasDec) { neg = true; kept = true; }
+      } else if (!hasDec && maxDec !== 0 && (c === dec || c === '٫' || (c === '.' && dec !== '.' && grp !== '.'))) {
+        hasDec = true; kept = true;
+      }
+      if (kept && i < caret) before++;
+    }
+    ip = ip.replace(/^0+(?=\d)/, '');
+    if (ip === '' && hasDec) ip = '0';
+    var gi = ip;
+    if (cfg.group && grp && ip.length > 3) {
+      gi = '';
+      for (var j = ip.length; j > 0; j -= 3) gi = ip.substring(Math.max(0, j - 3), j) + (gi ? grp + gi : '');
+    }
+    var out = toScript((neg ? '-' : '') + gi + (hasDec ? dec : '') + dp, cfg.script || 'latin');
+    // The caret goes after the same number of kept characters (digits, minus, separator).
+    var pos = 0, seen = 0;
+    while (pos < out.length && seen < before) {
+      var ch = normalizeDigits(out.charAt(pos));
+      if ((ch >= '0' && ch <= '9') || ch === '-' || (hasDec && ch === dec)) seen++;
+      pos++;
+    }
+    return { value: out, caret: pos };
+  }
+
+  /**
+   * A number box as the page and the server read it: {empty} | {ok:false, code, msg} | {ok:true, canon}.
+   * t = the texts (efb_var.text), name = the field label.
+   */
+  function checkInput(raw, cfg, t, name) {
+    t = t || {};
+    var p = parseInput(raw, cfg);
+    if (!p.ok && p.err === 'empty') return { empty: true };
+    var fill = function (k, en, a, b) {
+      var s = (t[k] || en);
+      return s.replace('%1$s', a).replace('%2$s', b).replace('%s', a).replace('NN', a);
+    };
+    if (!p.ok) return { ok: false, code: 'nan', msg: fill('numNanM_', 'Please enter a number in %s.', name || '', '') };
+    var c = check(p.canon, cfg);
+    if (c === 'dec') return { ok: false, code: c, msg: fill('numDecM_', '%1$s allows at most %2$s decimal places.', name || '', String(cfg.decimals)) };
+    if (c === 'step') return { ok: false, code: c, msg: fill('numStepM_', '%1$s must be a multiple of %2$s.', name || '', toScript(cfg.step, cfg.script)) };
+    if (c === 'min') return { ok: false, code: c, msg: fill('mcplen', 'Please enter a number that is greater than or equal to NN.', format(cfg.min, cfg), '') };
+    if (c === 'max') return { ok: false, code: c, msg: fill('mxcplen', 'Please enter a number that is less than or equal to NN', format(cfg.max, cfg), '') };
+    return { ok: true, canon: p.canon };
+  }
+
+  /** Live formatting of a number box (input event); the change handler of core-efb.js checks it. */
+  function bindNumber(el, cfg) {
+    if (!el || el.__efbNum) return;
+    el.__efbNum = true;
+    var composing = false;
+    el.addEventListener('compositionstart', function () { composing = true; });
+    el.addEventListener('compositionend', function () { composing = false; });
+    el.addEventListener('input', function () {
+      if (composing) return;
+      var c = el.selectionStart;
+      var r = live(el.value, c, cfg);
+      if (r.value !== el.value) {
+        el.value = r.value;
+        try { if (document.activeElement === el) el.setSelectionRange(r.caret, r.caret); } catch (e) { /* not a text box */ }
+      }
+    });
+  }
+
+  /** The number settings of a box rendered by the server (data-numcfg). */
+  function cfgOf(el) {
+    try { return el && el.getAttribute('data-numcfg') ? JSON.parse(el.getAttribute('data-numcfg')) : null; } catch (e) { return null; }
+  }
+
   /** A low..high pair of a two-handle slider ("10..50"), or null. */
   function splitRange(v) {
     var m = /^\s*(-?\d+(?:\.\d+)?)\s*\.\.\s*(-?\d+(?:\.\d+)?)\s*$/.exec(normalizeDigits(str(v)));
@@ -624,6 +847,9 @@
     normalizeDigits: normalizeDigits, normalizeFormula: normalizeFormula, tokenize: tokenize, parse: parse, refIds: refIds,
     evaluate: evaluate, finish: finish, run: run, valueOf: valueOf, roundHalfAway: roundHalfAway, toFixed: toFixed,
     config: config, parseInput: parseInput, check: check, cmpDec: cmpDec, onStep: onStep, format: format, toScript: toScript,
-    scriptOf: scriptOf, isRtl: isRtl, splitRange: splitRange
+    scriptOf: scriptOf, isRtl: isRtl, splitRange: splitRange,
+    formErrors: formErrors, cycleIds: cycleIds, topoOrder: topoOrder, LAYOUT_TYPES: LAYOUT_TYPES,
+    FIELD_KEYS: FIELD_KEYS, ENUMS: ENUMS, sanitizeKey: sanitizeKey, isKey: isKey,
+    formatBare: formatBare, live: live, checkInput: checkInput, bindNumber: bindNumber, cfgOf: cfgOf
   };
 });

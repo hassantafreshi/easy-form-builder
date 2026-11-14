@@ -46,9 +46,43 @@ final class Calc {
 	/** Field types a formula may not read (spec §6.3). */
 	const FORBIDDEN_TYPES = array('password', 'file', 'dadfile', 'esign', 'maps', 'html', 'audio_recorder', 'video_recorder', 'screen_recorder');
 
+	/** Plan of each part (spec §15; the owner may change it with the filter efb_calc_plan). */
+	const PLAN = array('number' => 'free', 'dual' => 'free', 'calc' => 'free_plus', 'option_calc' => 'free_plus', 'calc_price' => 'pro');
+
 	/** WordPress hooks (the submit, display and builder parts below). */
 	public static function register() {
 		if (!function_exists('add_filter')) return;
+		add_filter('efb_admin_localize_vars', array(__CLASS__, 'localize_vars'), 27, 2);
+		add_filter('efb_choices_calc_column', array(__CLASS__, 'choices_calc_column'), 10, 1);
+	}
+
+	/** Whether this site's plan has a part (free / free_plus / pro). */
+	public static function plan_ok($part, $package = null) {
+		$need = isset(self::PLAN[$part]) ? self::PLAN[$part] : 'pro';
+		if (function_exists('apply_filters')) $need = apply_filters('efb_calc_plan', $need, $part);
+		if ($need === 'free') return true;
+		return class_exists('\\Emsfb\\Builder_Api') ? (bool) \Emsfb\Builder_Api::plan_at_least($need, $package) : false;
+	}
+
+	/** F05's "Add in bulk" keeps a third column (the calculation value) when calc values are on this plan. */
+	public static function choices_calc_column($on) {
+		return $on || self::plan_ok('option_calc');
+	}
+
+	/** efb_admin_localize_vars: efb_var.calc = {currencies, functions, plan, limits}. */
+	public static function localize_vars($vars, $context = '') {
+		if (!is_array($vars)) return $vars;
+		$cur = array();
+		if (class_exists('\\Emsfb\\Formbuilder') && method_exists('\\Emsfb\\Formbuilder', 'currency_table_efb')) {
+			foreach (\Emsfb\Formbuilder::currency_table_efb() as $code => $d) $cur[$code] = array('s' => (string) $d['s'], 'd' => (int) $d['d']);
+		}
+		$vars['calc'] = array(
+			'currencies' => $cur,
+			'functions'  => array_keys(self::$FUNCS),
+			'plan'       => array('calc' => self::plan_ok('calc'), 'option_calc' => self::plan_ok('option_calc'), 'calc_price' => self::plan_ok('calc_price')),
+			'limits'     => array('formula' => self::MAX_FORMULA, 'tokens' => self::MAX_TOKENS, 'depth' => self::MAX_DEPTH, 'refs' => self::MAX_REFS),
+		);
+		return $vars;
 	}
 
 	/* ------------------------------------------------------------------ digits */
@@ -513,6 +547,302 @@ final class Calc {
 	public static function split_range($v) {
 		if (!preg_match('/^\s*(-?\d+(?:\.\d+)?)\s*\.\.\s*(-?\d+(?:\.\d+)?)\s*$/D', self::normalize_digits(self::str($v)), $m)) return null;
 		return array('lo' => $m[1], 'hi' => $m[2]);
+	}
+
+	/* ================================================================== WordPress part */
+
+	/** The F04 keys of a number field (spec §5.1); a field with none of them renders and stores as before. */
+	const NUM_KEYS = array('num_step', 'num_decimals', 'num_format', 'num_dec_sep', 'num_grp_sep', 'num_digits', 'num_prefix', 'num_suffix', 'num_currency', 'num_max_zero');
+
+	/** Default English texts of the F04 messages (the phrase map in functions.php is the source; these are fallbacks). */
+	const DEFAULTS = array(
+		'numStepM_' => '%1$s must be a multiple of %2$s.', 'numDecM_' => '%1$s allows at most %2$s decimal places.', 'numNanM_' => 'Please enter a number in %s.',
+		'calcErr' => 'This value cannot be calculated from the answers given.', 'numRange' => 'Between %1$s and %2$s',
+		'mcplen' => 'Please enter a number that is greater than or equal to NN.', 'mxcplen' => 'Please enter a number that is less than or equal to NN',
+		'mnvvXXX_' => 'Please enter valid value for the %s field.', 'rngOrder' => '%s: the lower value must not be above the upper value.',
+	);
+
+	private static function f($f) {
+		return is_object($f) ? get_object_vars($f) : (is_array($f) ? $f : array());
+	}
+
+	private static function has_key(array $f, $k) {
+		return array_key_exists($k, $f) && is_scalar($f[$k]) && (string) $f[$k] !== '';
+	}
+
+	/** Whether a number / range / calc field uses an F04 key (it then renders as a typed-number box). */
+	public static function is_f4($f) {
+		$f = self::f($f);
+		$type = isset($f['type']) && is_scalar($f['type']) ? (string) $f['type'] : '';
+		if (!in_array($type, array('number', 'range', 'calc'), true)) return false;
+		foreach (self::NUM_KEYS as $k) if (self::has_key($f, $k)) return true;
+		return false;
+	}
+
+	/** Keys of the save rule below (the option key calc, the field keys). */
+	const FIELD_KEYS = array('num_step', 'num_decimals', 'num_format', 'num_dec_sep', 'num_grp_sep', 'num_digits', 'num_prefix', 'num_suffix', 'num_currency', 'num_max_zero',
+		'formula', 'formula_err', 'calc_show', 'calc_empty', 'calc_as_price', 'range_mode');
+	const ENUMS = array(
+		'num_format' => array('none', 'group'), 'num_dec_sep' => array('.', ',', 'momayez'), 'num_grp_sep' => array(',', '.', 'space', 'apos', 'arabic', 'none'),
+		'num_digits' => array('auto', 'latin', 'native'), 'num_currency' => array('form'), 'calc_show' => array('visible', 'hidden'), 'calc_empty' => array('zero', 'blank'),
+		'range_mode' => array('single', 'dual'),
+	);
+	const MAX_FORMULA = 2000;
+
+	/**
+	 * One F04 key as stored ('' = not set). $type = the row's type: num_digits, num_prefix and num_suffix belong
+	 * to F01's numeric mask on other types (they are not touched here). Twin: EFBCalc.sanitizeKey().
+	 */
+	public static function sanitize_key($k, $v, $type = '') {
+		if ($v === null || is_array($v) || is_object($v)) return '';
+		if (is_bool($v)) $v = $v ? '1' : '';
+		$s = trim(self::normalize_digits((string) $v));
+		switch ($k) {
+			case 'num_step':
+				return preg_match('/^\d{1,9}(\.\d{1,6})?$/D', $s) && (float) $s > 0 ? preg_replace('/^0+(?=\d)/', '', $s) : '';
+			case 'num_decimals':
+				return preg_match('/^[0-6]$/D', $s) ? $s : '';
+			case 'calc':
+				return preg_match('/^-?\d{1,15}(\.\d{1,6})?$/D', $s) ? $s : '';
+			case 'num_max_zero':
+			case 'calc_as_price':
+				return in_array(strtolower($s), array('1', 'true', 'on'), true) ? '1' : '';
+			case 'num_prefix':
+			case 'num_suffix':
+				$t = preg_replace('/<[^>]*>/', '', (string) $v);
+				$t = str_replace(array('"', '<', '>', '`'), '', (string) $t);
+				$t = trim((string) preg_replace('/[\x00-\x20\x7F]+/', ' ', (string) $t));
+				return function_exists('mb_substr') ? mb_substr($t, 0, 20, 'UTF-8') : substr($t, 0, 20);
+			case 'formula':
+				$f = trim((string) preg_replace('/[\x00-\x1F\x7F]+/', ' ', self::normalize_formula((string) $v)));
+				if (strlen($f) > self::MAX_FORMULA || !preg_match('/^[A-Za-z0-9_{}().,:\s+\-*\/]*$/D', $f)) return '';
+				return (string) preg_replace('/ {2,}/', ' ', $f);
+			case 'formula_err':
+				return '';
+		}
+		if ($k === 'num_dec_sep') { $map = array("\u{066B}" => 'momayez'); if (isset($map[$s])) return $map[$s]; }
+		if ($k === 'num_grp_sep') { $map = array("\u{066C}" => 'arabic', "'" => 'apos', '' => ''); if ((string) $v === ' ') return 'space'; if (isset($map[$s])) return $map[$s]; }
+		if (isset(self::ENUMS[$k])) {
+			foreach (self::ENUMS[$k] as $e) if (strcasecmp($e, $s) === 0) return $e;
+			return '';
+		}
+		return '';
+	}
+
+	/** Whether a key is one of F04's on this row type. */
+	public static function is_key($k, $type = '') {
+		if ($k === 'calc') return $type === 'option';
+		if (in_array($k, array('num_digits', 'num_prefix', 'num_suffix'), true)) return in_array($type, self::NUMBER_TYPES, true);
+		return in_array($k, self::FIELD_KEYS, true);
+	}
+
+	/** Types a formula can read as a number (or a list of choices); everything else is text (a number or an error). */
+	const LAYOUT_TYPES = array('option', 'step', 'form', 'r_matrix', 'heading', 'link', 'html', 'buttonNav', 'submit');
+
+	/**
+	 * The formula problems of a form's calc fields: id => {code, pos, near, ref}. code: calcSyntax / calcLong /
+	 * calcTokens / calcDepth / calcRefs / calcFn / calcArgs / calcEmpty (parse), calcRef (no such field),
+	 * calcForbidden (a password, file, signature, map or html field), calcSelf, calcCycle (through other calc
+	 * fields). Twin: EFBCalc.formErrors(); the builder, efbBuilderApi.validateFormula() and the AutoPilot
+	 * validator give the same answer.
+	 */
+	public static function form_errors($rows) {
+		$out = array();
+		if (!is_array($rows)) return $out;
+		$types = array();
+		$calc = array();
+		foreach ($rows as $i => $r) {
+			$r = self::f($r);
+			if ($i < 1 || !isset($r['id_'], $r['type']) || !is_scalar($r['id_']) || !is_scalar($r['type'])) continue;
+			if ((string) $r['type'] === 'option' || (string) $r['type'] === 'step') continue;
+			$types[(string) $r['id_']] = (string) $r['type'];
+			if ((string) $r['type'] === 'calc') $calc[(string) $r['id_']] = isset($r['formula']) && is_scalar($r['formula']) ? (string) $r['formula'] : '';
+		}
+		$deps = array();
+		foreach ($calc as $id => $formula) {
+			$p = self::parse($formula);
+			if (!$p['ok']) { $out[$id] = array('code' => $p['code'], 'pos' => $p['pos'], 'near' => $p['near'], 'ref' => ''); continue; }
+			$deps[$id] = array();
+			foreach ($p['refs'] as $ref) {
+				$rid = $ref['id'];
+				if ($rid === $id) { $out[$id] = array('code' => 'calcSelf', 'pos' => -1, 'near' => '{' . $rid . '}', 'ref' => $rid); break; }
+				if (!isset($types[$rid])) { $out[$id] = array('code' => 'calcRef', 'pos' => -1, 'near' => '{' . $rid . '}', 'ref' => $rid); break; }
+				if (in_array($types[$rid], self::FORBIDDEN_TYPES, true) || in_array($types[$rid], self::LAYOUT_TYPES, true)) { $out[$id] = array('code' => 'calcForbidden', 'pos' => -1, 'near' => '{' . $rid . '}', 'ref' => $rid); break; }
+				if ($types[$rid] === 'calc' && !in_array($rid, $deps[$id], true)) $deps[$id][] = $rid;
+			}
+		}
+		foreach (self::cycle_ids($deps) as $id) {
+			if (!isset($out[$id])) $out[$id] = array('code' => 'calcCycle', 'pos' => -1, 'near' => '', 'ref' => '');
+		}
+		ksort($out, SORT_STRING);
+		return $out;
+	}
+
+	/** Ids of the calc fields that are on a cycle of references. */
+	public static function cycle_ids(array $deps) {
+		$state = array();
+		$on = array();
+		$visit = function ($id, array $stack) use (&$visit, &$state, &$on, $deps) {
+			if (isset($state[$id]) && $state[$id] === 2) return;
+			if (isset($state[$id]) && $state[$id] === 1) {
+				$k = array_search($id, $stack, true);
+				foreach (array_slice($stack, $k === false ? 0 : $k) as $c) $on[$c] = true;
+				return;
+			}
+			$state[$id] = 1;
+			$stack[] = $id;
+			foreach (isset($deps[$id]) ? $deps[$id] : array() as $d) if (isset($deps[$d])) $visit($d, $stack);
+			$state[$id] = 2;
+		};
+		$ids = array_keys($deps);
+		sort($ids, SORT_STRING);
+		foreach ($ids as $id) $visit($id, array());
+		$r = array_keys($on);
+		sort($r, SORT_STRING);
+		return $r;
+	}
+
+	/** The calc fields in the order they must be computed (references first; a cycle's fields left out). */
+	public static function topo_order(array $rows) {
+		$errs = self::form_errors($rows);
+		$deps = array();
+		foreach ($rows as $i => $r) {
+			$r = self::f($r);
+			if ($i < 1 || ($r['type'] ?? '') !== 'calc' || !isset($r['id_'])) continue;
+			$deps[(string) $r['id_']] = isset($errs[(string) $r['id_']]) ? null : self::ref_ids(isset($r['formula']) ? (string) $r['formula'] : '');
+		}
+		$order = array();
+		$done = array();
+		$visit = function ($id) use (&$visit, &$order, &$done, $deps) {
+			if (isset($done[$id])) return;
+			$done[$id] = true;
+			foreach ((array) $deps[$id] as $d) if (array_key_exists($d, $deps)) $visit($d);
+			$order[] = $id;
+		};
+		foreach (array_keys($deps) as $id) $visit($id);
+		return $order;
+	}
+
+	/** The save: formula_err = "1" on every calc field with a problem of form_errors(), removed otherwise. */
+	public static function normalize_rows($rows) {
+		if (!is_array($rows)) return $rows;
+		$errs = self::form_errors($rows);
+		foreach ($rows as $i => $r) {
+			if ($i < 1 || !is_array($r) || ($r['type'] ?? '') !== 'calc' || !isset($r['id_'])) continue;
+			if (isset($errs[(string) $r['id_']])) $rows[$i]['formula_err'] = '1';
+			else unset($rows[$i]['formula_err']);
+		}
+		return $rows;
+	}
+
+	/** Whether a form (its stored JSON text) needs calc-efb.js on the page. */
+	public static function json_needs_runtime($json) {
+		if (!is_string($json) || $json === '') return false;
+		return (bool) preg_match('/\\\\?"(?:num_step|num_decimals|num_format|num_dec_sep|num_grp_sep|num_currency|num_max_zero|range_mode|calc_as_price|calc)\\\\?"\s*:\s*\\\\?"[^"\\\\]|type\\\\?"\s*:\s*\\\\?"calc\\\\?"|\\\\?"num_(?:digits|prefix|suffix)\\\\?"\s*:\s*\\\\?"(?:auto|native|latin|[^"\\\\0-9])/', $json);
+	}
+
+	/** The site language (the page and the server use the same one: get_locale(), efb_var.wp_lan). */
+	public static function locale() {
+		$l = function_exists('get_locale') ? get_locale() : 'en_US';
+		return is_string($l) && $l !== '' ? $l : 'en_US';
+	}
+
+	/** Symbol and decimals of the form currency ({s, d}) or null. */
+	public static function currency($form0) {
+		$form0 = self::f($form0);
+		$code = isset($form0['currency']) && is_string($form0['currency']) ? trim($form0['currency']) : '';
+		if ($code === '') $code = 'USD';
+		if (class_exists('\\Emsfb\\Formbuilder') && method_exists('\\Emsfb\\Formbuilder', 'get_currency_details_efb')) {
+			$d = \Emsfb\Formbuilder::get_currency_details_efb($code);
+			if (is_array($d) && isset($d['s'])) return array('s' => (string) $d['s'], 'd' => isset($d['d']) ? (int) $d['d'] : 2);
+		}
+		return array('s' => strtoupper($code), 'd' => 2);
+	}
+
+	/** config() of a stored field with the site language and the form currency. */
+	public static function field_config($f, $form0 = null) {
+		return self::config($f, array('locale' => self::locale(), 'currency' => self::currency($form0)));
+	}
+
+	/** What the page needs of a config (data-numcfg). */
+	public static function client_config(array $cfg) {
+		return array(
+			'decimals' => $cfg['decimals'], 'step' => $cfg['step'], 'min' => $cfg['min'], 'max' => $cfg['max'], 'dec' => $cfg['dec'], 'grp' => $cfg['grp'],
+			'group' => $cfg['group'], 'script' => $cfg['script'], 'prefix' => $cfg['prefix'], 'suffix' => $cfg['suffix'], 'cur' => $cfg['cur'], 'rtl' => $cfg['rtl'],
+		);
+	}
+
+	/** A text of the phrase map (or the English default) with %1$s / %2$s / %s / NN filled. */
+	public static function t($key, $lanText = array(), array $args = array()) {
+		$s = is_array($lanText) && isset($lanText[$key]) && is_string($lanText[$key]) && $lanText[$key] !== '' ? $lanText[$key] : (isset(self::DEFAULTS[$key]) ? self::DEFAULTS[$key] : $key);
+		foreach ($args as $i => $a) $s = str_replace('%' . ($i + 1) . '$s', (string) $a, $s);
+		if (isset($args[0])) $s = str_replace('%s', (string) $args[0], $s);
+		if (isset($args[0])) $s = str_replace('NN', (string) $args[0], $s);
+		return $s;
+	}
+
+	/** Unicode isolation (FSI … PDI) of a value placed inside a sentence (RTL pages keep the order). */
+	public static function isolate($s) {
+		return "\u{2068}" . $s . "\u{2069}";
+	}
+
+	/**
+	 * The server check of one submitted number / range row (spec §10.2). Old fields without F04 keys keep
+	 * today's rule (is_numeric, min / max as values) and today's stored text, except that local digits and
+	 * separators are read (they were refused). Returns {ok, row, m, code}.
+	 */
+	public static function check_row($f, array $item, $lanText = array(), $form0 = null) {
+		$f = self::f($f);
+		$name = isset($f['name']) && is_scalar($f['name']) ? (string) $f['name'] : '';
+		$bname = '<b>' . (function_exists('esc_html') ? esc_html($name) : htmlspecialchars($name, ENT_QUOTES, 'UTF-8')) . '</b>';
+		$raw = isset($item['value']) && is_scalar($item['value']) ? (string) $item['value'] : '';
+		$bad = function ($m, $code) use ($item) { return array('ok' => false, 'row' => null, 'm' => $m, 'code' => $code); };
+		$cfg = self::field_config($f, $form0);
+		$f4 = self::is_f4($f);
+		if (!$f4 && is_numeric($raw)) {
+			// Today's rule, today's stored text.
+			$n = (float) $raw;
+			if ((isset($f['milen']) && is_numeric($f['milen']) && $n < (float) $f['milen']) || (isset($f['mlen']) && is_numeric($f['mlen']) && (float) $f['mlen'] != 0 && $n > (float) $f['mlen'])) {
+				return $bad(self::t('mnvvXXX_', $lanText, array($bname)), 'range');
+			}
+			return array('ok' => true, 'row' => $item, 'm' => '', 'code' => '');
+		}
+		$p = self::parse_input($raw, $cfg);
+		if (!$p['ok']) return $bad(self::t($f4 ? 'numNanM_' : 'mnvvXXX_', $lanText, array($bname)), 'nan');
+		$canon = $p['canon'];
+		if (!$f4) {
+			// An old field: the number read from local digits, checked as before.
+			$n = (float) $canon;
+			if ((isset($f['milen']) && is_numeric($f['milen']) && $n < (float) $f['milen']) || (isset($f['mlen']) && is_numeric($f['mlen']) && (float) $f['mlen'] != 0 && $n > (float) $f['mlen'])) {
+				return $bad(self::t('mnvvXXX_', $lanText, array($bname)), 'range');
+			}
+		} else {
+			$c = self::check($canon, $cfg);
+			if ($c === 'dec') return $bad(self::t('numDecM_', $lanText, array($bname, (string) $cfg['decimals'])), 'dec');
+			if ($c === 'step') return $bad(self::t('numStepM_', $lanText, array($bname, self::format($cfg['step'], array_merge($cfg, array('group' => false, 'cur' => null, 'prefix' => '', 'suffix' => ''))))), 'step');
+			if ($c === 'min') return $bad(self::t('mcplen', $lanText, array(self::format($cfg['min'], $cfg))), 'min');
+			if ($c === 'max') return $bad(self::t('mxcplen', $lanText, array(self::format($cfg['max'], $cfg))), 'max');
+		}
+		$item['value'] = $canon;
+		return array('ok' => true, 'row' => $item, 'm' => '', 'code' => '');
+	}
+
+	/**
+	 * The input attributes of a number field with F04 keys (PHP renderer; the builder twin is
+	 * efbNumInputAttrs() in calc-builder-efb.js): a text box for typed digits and separators.
+	 */
+	public static function input_attrs($f, $form0 = null) {
+		$cfg = self::field_config($f, $form0);
+		$json = function_exists('wp_json_encode') ? wp_json_encode(self::client_config($cfg), JSON_UNESCAPED_UNICODE) : json_encode(self::client_config($cfg), JSON_UNESCAPED_UNICODE);
+		$e = function ($v) { return function_exists('esc_attr') ? esc_attr($v) : htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); };
+		return 'inputmode="decimal" dir="ltr" data-num="1" data-numcfg="' . $e($json) . '"';
+	}
+
+	/** "Between min and max" for a screen reader ('' without both limits). */
+	public static function range_hint($f, $lanText = array(), $form0 = null) {
+		$cfg = self::field_config($f, $form0);
+		if ($cfg['min'] === '' || $cfg['max'] === '') return '';
+		return self::t('numRange', $lanText, array(self::format($cfg['min'], $cfg), self::format($cfg['max'], $cfg)));
 	}
 }
 

@@ -57,15 +57,33 @@ const raws = ['12.5', '۱۲٫۵', '١٢٫٥', '1,250,000', '1.250,5', '1 250,5',
 const nums = [];
 for (let i = 0; i < 400; i++) nums.push({ raw: raws[i % raws.length] + (i % 11 === 0 ? String(rnd(1000)) : ''), field: fields[i % fields.length], locale: locales[i % locales.length], currency: i % 2 ? { s: '$', d: 2 } : { s: 'ریال', d: 0 } });
 
+// Save rule of every F04 key (EFBCalc.sanitizeKey = Calc::sanitize_key) and the formula problems of whole forms.
+const keyVals = ['0.5', '۰٫۵', '0', '-1', '5', '1000000000', '0.0000001', '2', '6', '7', '', ' ', 'group', 'GROUP', 'none', '.', ',', 'momayez', '٫', '٬', "'", 'space', 'apos', 'arabic', 'auto', 'native', 'latin',
+  'form', 'x', '1', 'true', 'on', true, false, 0, 1, 2.5, null, 'visible', 'hidden', 'zero', 'blank', 'single', 'dual', 'kg', 'تومان', '<b>$</b>', 'a"b<c>d`e', 'x'.repeat(30), 'line\nbreak\ttab',
+  '({price}+50)*{qty}', 'round({a}/3,2)', '{a} > 1', '۱۲+{a}', '{a}%2', "alert('x')", '{field:a}*1.5', '1'.repeat(2100), '-12.5', '1e5', '12abc', '٣٫٥'];
+const keyCases = [];
+['num_step', 'num_decimals', 'num_format', 'num_dec_sep', 'num_grp_sep', 'num_digits', 'num_prefix', 'num_suffix', 'num_currency', 'num_max_zero', 'formula', 'formula_err', 'calc_show', 'calc_empty', 'calc_as_price', 'range_mode', 'calc']
+  .forEach((k) => keyVals.forEach((v) => keyCases.push([k, v, k === 'calc' ? 'option' : 'number'])));
+const forms = [
+  [{}, { id_: 'a', type: 'number' }, { id_: 'b', type: 'calc', formula: '{a}*2' }, { id_: 'c', type: 'calc', formula: '{b}+{a}' }],
+  [{}, { id_: 'a', type: 'number' }, { id_: 'b', type: 'calc', formula: '{c}+1' }, { id_: 'c', type: 'calc', formula: '{b}+1' }, { id_: 'd', type: 'calc', formula: '{c}*2' }],
+  [{}, { id_: 'p', type: 'password' }, { id_: 'b', type: 'calc', formula: '{p}+1' }, { id_: 'c', type: 'calc', formula: '{zz}' }, { id_: 'd', type: 'calc', formula: '2*' }, { id_: 'e', type: 'calc', formula: '{e}+1' }],
+  [{}, { id_: 'r', type: 'radio' }, { id_: 'o1', type: 'option', parent: 'r' }, { id_: 'h', type: 'html' }, { id_: 'b', type: 'calc', formula: '{r}+{o1}' }, { id_: 'c', type: 'calc', formula: '{h}' }, { id_: 'x', type: 'calc', formula: 'sum({r.count},{r.price})' }],
+  [{}, { id_: 'a', type: 'calc', formula: '{b}' }, { id_: 'b', type: 'calc', formula: '{c}' }, { id_: 'c', type: 'calc', formula: '{a}' }, { id_: 'z', type: 'calc', formula: '{a}+1' }, { id_: 'n', type: 'number' }],
+];
+
 const php = `define('ABSPATH', 'x'); require ${JSON.stringify(path.join(root, 'includes', 'class-Emsfb-calc.php'))};
 $in = json_decode(stream_get_contents(STDIN), true); $o = array('calc' => array(), 'num' => array());
 foreach ($in['cases'] as $c) { $r = \\Emsfb\\Calc::run($c['f'], $c['values'], $c['d'], $c['opts']); $p = \\Emsfb\\Calc::parse($c['f']); $o['calc'][] = array($r, $p['ok'] ? \\Emsfb\\Calc::ref_ids($p) : array($p['code'], $p['pos'], $p['near'])); }
 foreach ($in['nums'] as $n) { $cfg = \\Emsfb\\Calc::config($n['field'], array('locale' => $n['locale'], 'currency' => $n['currency'])); $pi = \\Emsfb\\Calc::parse_input($n['raw'], $cfg);
   $o['num'][] = array($cfg, $pi, $pi['ok'] ? \\Emsfb\\Calc::check($pi['canon'], $cfg) : '', \\Emsfb\\Calc::format($pi['ok'] ? $pi['canon'] : $n['raw'], $cfg)); }
+$o['keys'] = array(); foreach ($in['keys'] as $k) $o['keys'][] = \\Emsfb\\Calc::sanitize_key($k[0], $k[1], $k[2]);
+$o['forms'] = array(); foreach ($in['forms'] as $f) $o['forms'][] = array((object) \\Emsfb\\Calc::form_errors($f), \\Emsfb\\Calc::topo_order($f));
 echo json_encode($o, JSON_UNESCAPED_UNICODE);`;
-const r = spawnSync('php', ['-r', php], { input: JSON.stringify({ cases, nums }), encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+const r = spawnSync('php', ['-r', php], { input: JSON.stringify({ cases, nums, keys: keyCases, forms }), encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 if (r.status !== 0 || !r.stdout) { console.log('[FAIL] php did not run: ' + (r.stderr || r.error)); console.log('\nRESULTS: 0 passed, 1 failed'); process.exit(1); }
 const P = JSON.parse(r.stdout);
+const EFBsk = (k) => C.sanitizeKey(k[0], k[1], k[2]);
 cases.forEach((c, i) => {
   const jr = C.run(c.f, c.values, c.d, c.opts);
   const jp = C.parse(c.f);
@@ -76,6 +94,9 @@ nums.forEach((n, i) => {
   const pi = C.parseInput(n.raw, cfg);
   test('number #' + i + ' ' + n.raw + ' ' + n.locale, [cfg, pi, pi.ok ? C.check(pi.canon, cfg) : '', C.format(pi.ok ? pi.canon : n.raw, cfg)], P.num[i]);
 });
+keyCases.forEach((k, i) => test('sanitize_key ' + k[0] + ' ' + JSON.stringify(k[1]).slice(0, 40), EFBsk(k), P.keys[i]));
+forms.forEach((f, i) => test('form_errors / topo_order #' + i, [C.formErrors(f), C.topoOrder(f)], P.forms[i]));
+test('a cycle of three: all three marked, the field that reads it is not', Object.keys(C.formErrors(forms[4])), ['a', 'b', 'c']);
 const okCount = cases.filter((c) => C.run(c.f, c.values, c.d, c.opts).ok).length;
 test('the generated formulas include results and errors (' + okCount + ' with a result)', okCount > 200 && okCount < cases.length - 200, true);
 console.log('\nRESULTS: ' + pass + ' passed, ' + fail + ' failed');

@@ -845,7 +845,8 @@ function show_setting_window_efb(idset, opts) {
     const miLenEls = ()=>{
     let label =  efb_var.text.min;
     let type = "number"
-    if(valj_efb[indx].type=="range" || valj_efb[indx].type=="number") {label = efb_var.text.min}
+    // F04: the limits of a number, slider or calc field are values (negative, decimal, Persian digits).
+    if(['range','number','calc'].includes(valj_efb[indx].type)) {label = efb_var.text.min; type = 'text" inputmode="decimal" dir="ltr'}
     else if(valj_efb[indx].type=="date") {
       label = efb_var.text.mindt; ;
       type =  'text'}
@@ -857,7 +858,7 @@ function show_setting_window_efb(idset, opts) {
   const mLenEls = ()=>{
     let label =  efb_var.text.max;
     let type = "number"
-    if(valj_efb[indx].type=="range" || valj_efb[indx].type=="number") {label = efb_var.text.max}
+    if(['range','number','calc'].includes(valj_efb[indx].type)) {label = efb_var.text.max; type = 'text" inputmode="decimal" dir="ltr'}
     else if(valj_efb[indx].type=="date") {
       label = efb_var.text.mxdt;
       type =  'text'}
@@ -1704,6 +1705,7 @@ function show_setting_window_efb(idset, opts) {
                 ${maskKindEfb !== null ? maskEls() : ''}
                 ${inputmodeTypesEfb.includes(el.dataset.tag) ? inputmodeEls() : ''}
                 ${typeof efbFieldRulesMainEls === 'function' ? efbFieldRulesMainEls(indx, idset) : '<!-- F03 field-rules-builder-efb.js not loaded -->'}
+                ${el.dataset.tag == 'number' && typeof efbNumPanelEls === 'function' ? efbNumPanelEls(indx, idset, 'number') : ''}
                 ${typeof efbPrefillEls === 'function' ? efbPrefillEls(indx, idset) : ''}
                 ${el.dataset.tag == "mobile" ? smsEnableEls : ''}
                 ${(el.dataset.tag == 'pdate' || el.dataset.tag == 'ardate') && typeof efbAdvdateUpgradeEls === 'function' ? efbAdvdateUpgradeEls(indx, idset) : ''}
@@ -1934,6 +1936,7 @@ function show_setting_window_efb(idset, opts) {
                 ${el.dataset.tag == "range" || el.dataset.tag == "date" ?miLenEls():''}
                 ${el.dataset.tag == "range" || el.dataset.tag == "date" ? mLenEls() :''}
                 ${el.dataset.tag == "range" ?valueEls:''}
+                ${el.dataset.tag == 'range' && typeof efbNumPanelEls === 'function' ? efbNumPanelEls(indx, idset, 'range') : ''}
                 ${el.dataset.tag == "range" ? selectRangeThumbColorEls() :''}
                 ${el.dataset.tag == "range" ? selectRangeValueColorEls() :''}
 

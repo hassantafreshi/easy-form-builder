@@ -179,6 +179,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 				} elseif ($mask['attrs'] !== '') {
 					$telPattern = trim($telPattern . ' ' . $mask['attrs']);
 				}
+				// F04: a number with the F04 keys (step, decimals, format, digits, affixes, currency) is a box for
+				// typed digits and separators; the limits are values, read by the page from data-numcfg; the
+				// affixes or the form currency sit in the F03 input group; "between min and max" for a screen
+				// reader. A number without the keys renders byte for byte as before.
+				if ($elementId === 'number' && class_exists('\\Emsfb\\Calc') && \Emsfb\Calc::is_f4($vj)) {
+					$row0_efb = isset($this->valj_efb[0]) ? $this->valj_efb[0] : null;
+					$type = 'text';
+					$lenAttributes = ['maxlen' => '', 'minlen' => ''];
+					$telPattern = trim($telPattern . ' ' . \Emsfb\Calc::input_attrs($vj, $row0_efb));
+					$vj = $this->num_affix_efb($vj, $row0_efb);
+					$hint_efb = \Emsfb\Calc::range_hint($vj, $texts, $row0_efb);
+					if ($hint_efb !== '') {
+						$desc = '<span class="efb efb-vh" id="' . esc_attr($rndm) . '_-nr">' . esc_html($hint_efb) . '</span>' . $desc;
+						$aire_describedby = $this->mergeDescribedby_efb($aire_describedby, array($rndm . '_-nr'));
+					}
+				}
 
 				$fields['ui'] = $this->generateTextInput_efb(
 				$type,$classes,$vj,$rndm,$desc,$label,$ttip,$div_f_id,$placeholder,$lenAttributes,$aire_describedby,$disabled,$autocomplete,$form_id,$telPattern
@@ -505,6 +521,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 	}
 
 	/** aria-describedby="…" with more ids (the existing attribute, or a new one). */
+	/**
+	 * F04: a copy of a number field whose F03 prefix / suffix carry the F04 affix or the form currency
+	 * (the symbol before the number, after it on a right-to-left site, as Calc::format() writes it).
+	 */
+	private function num_affix_efb($vj, $row0) {
+		$v = clone $vj;
+		$cfg = \Emsfb\Calc::field_config($v, $row0);
+		if (!empty($cfg['cur']) && $cfg['cur']['s'] !== '') {
+			if ($cfg['rtl']) { $v->suffix = $cfg['cur']['s']; $v->prefix = ''; } else { $v->prefix = $cfg['cur']['s']; $v->suffix = ''; }
+			return $v;
+		}
+		if ((!isset($v->prefix) || (string) $v->prefix === '') && $cfg['prefix'] !== '') $v->prefix = $cfg['prefix'];
+		if ((!isset($v->suffix) || (string) $v->suffix === '') && $cfg['suffix'] !== '') $v->suffix = $cfg['suffix'];
+		return $v;
+	}
+
 	private function mergeDescribedby_efb($attr, array $ids) {
 		if (!$ids) return $attr;
 		$cur = preg_match('/aria-describedby="([^"]*)"/', (string) $attr, $m) ? preg_split('/\s+/', trim($m[1])) : array();
@@ -2146,7 +2178,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	 */
 	public static function get_currency_details_efb($currency) {
 		$currency = strtoupper($currency);
-		$symbols = array(
+		$symbols = self::currency_table_efb();
+		return isset($symbols[$currency]) ? $symbols[$currency] : array('s' => $currency, 'd' => 2);
+	}
+
+	/** F04: symbol and decimals of every currency the builder offers (ISO code => {s, d}). */
+	public static function currency_table_efb() {
+		return array(
 			'USD' => array('s' => '$', 'd' => 2),
 			'AED' => array('s' => 'د.إ', 'd' => 2),
 			'AFN' => array('s' => '؋', 'd' => 2),
@@ -2290,7 +2328,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			'TND' => array('s' => 'د.ت', 'd' => 3)
 		);
 
-		return isset($symbols[$currency]) ? $symbols[$currency] : array('s' => $currency, 'd' => 2);
+		
 	}
 
 	public function ColorNameToHexEfbOfElEfb($v, $n) {

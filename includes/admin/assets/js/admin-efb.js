@@ -2428,6 +2428,8 @@ let change_el_edit_Efb = (el) => {
         valj_efb[indx].dateExp = el.value;
         break;
       case "mLenEl":
+        // F04: the maximum of a number, slider or calc field is a value (negative and decimal accepted).
+        if (typeof efbNumLimit === 'function' && efbNumLimit(el, indx, 'mlen')) break;
         if (Number(el.value)>524288 && valj_efb[indx].type!="range"){
           el.value="";
           alert_message_efb("",efb_var.text.mmlen,15,"warning")
@@ -2474,6 +2476,9 @@ let change_el_edit_Efb = (el) => {
         document.getElementById(c).innerHTML=sanitize_text_efb(el.value);
         break;
       case "miLenEl":
+        // F04: the minimum of a number, slider or calc field is a value (negative and decimal accepted), and it
+        // no longer makes the field required (spec §19 question 1: "required" comes from its own switch only).
+        if (typeof efbNumLimit === 'function' && efbNumLimit(el, indx, 'milen')) break;
         if( Number(el.value)==0 ||Number(el.value)==-1 ){
           clss = document.getElementById(`${valj_efb[indx].id_}_req`).innerHTML;
 
@@ -2511,9 +2516,26 @@ let change_el_edit_Efb = (el) => {
             }
 
           }
-          if(valj_efb[indx].type!="range" || valj_efb[indx].type!="date")valj_efb[indx].required=1;
 
         }
+        break;
+      // F04: number settings, the calc field and the slider type (calc-builder-efb.js).
+      case "numStepEl":
+      case "numDecimalsEl":
+      case "numFormatEl":
+      case "numDecSepEl":
+      case "numGrpSepEl":
+      case "numScriptEl":
+      case "numPfxEl":
+      case "numSfxEl":
+      case "numCurrencyEl":
+      case "numMaxZeroEl":
+      case "calcFormulaEl":
+      case "calcShowEl":
+      case "calcEmptyEl":
+      case "calcAsPriceEl":
+      case "rangeModeEl":
+        if (typeof efbCalcBuilderChange === 'function') efbCalcBuilderChange(el, indx);
         break;
       case "adminFormEmailEl":
         // "a@x.com, b@x.com": each address is checked and stored without the
@@ -7461,12 +7483,16 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       const maskEfb = efb_mask_attrs_efb(valj_efb[iVJ], elementId);
       if (maskEfb.masked) { maxlen = maskEfb.attrs; minlen = ''; classes += ' efb-ltr-in-rtl'; }
       else if (maskEfb.attrs) { minlen = `${minlen} ${maskEfb.attrs}`.trim(); }
+      // F04: a number with the F04 keys is a box for typed digits and separators (twin of Calc::input_attrs()).
+      const numEfb = elementId === 'number' && typeof efbNumInputAttrs === 'function' ? efbNumInputAttrs(valj_efb[iVJ]) : null;
+      if (numEfb) { maxlen = numEfb.attrs; minlen = ''; }
+      const typeEfb = numEfb ? 'text' : type;
       const autocompleteEfb = maskEfb.autocomplete || autocomplete;
       ui = `
       ${label}
       <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f'>
         ${ttip}
-        <input type="${type}"   class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 ${classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-id="${rndm}-el" data-vid='${rndm}' data-css="${rndm}" id="${rndm}_" ${placeholder}  ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} autocomplete="${autocompleteEfb}"  ${maxlen} ${minlen} ${previewSate != true ? 'readonly' : ''} ${disabled =="disabled" ? 'readonly' :''}>
+        <input type="${typeEfb}"   class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 ${classes} ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-id="${rndm}-el" data-vid='${rndm}' data-css="${rndm}" id="${rndm}_" ${placeholder}  ${valj_efb[iVJ].value.length > 0 ? `value ="${valj_efb[iVJ].value}"` : ''} aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}" ${aire_describedby} autocomplete="${autocompleteEfb}"  ${maxlen} ${minlen} ${previewSate != true ? 'readonly' : ''} ${disabled =="disabled" ? 'readonly' :''}>
         ${desc}`
       dataTag = elementId;
       break;

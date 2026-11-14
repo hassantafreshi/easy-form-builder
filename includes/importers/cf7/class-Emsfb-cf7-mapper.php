@@ -822,25 +822,45 @@ class Mapper {
 		$min     = Parser::get_option( $tag, 'min', '[-]?(?:[0-9]+|(?:[0-9]+)?[.][0-9]+)' );
 		$max     = Parser::get_option( $tag, 'max', '[-]?(?:[0-9]+|(?:[0-9]+)?[.][0-9]+)' );
 		$dropped = array();
-		// EFB keeps whole, non-negative limits (a max of 0 means "no max").
+		// F04: limits are values (negative and decimal kept), the step is num_step (never "step": that key is the
+		// form step), a maximum of 0 is a real maximum (num_max_zero). A number with a negative or decimal limit
+		// becomes an F04 number (num_format "none": shown as typed) so the page and the server read it as a value.
+		$dec = static function ( $v ) {
+			$v = (string) $v;
+			if ( preg_match( '/^(-?)[.]([0-9]+)$/', $v, $m ) ) $v = $m[1] . '0.' . $m[2];
+			return preg_match( '/^-?[0-9]{1,15}([.][0-9]{1,6})?$/', $v ) ? $v : null;
+		};
+		$f4 = false;
 		if ( false !== $min ) {
-			if ( preg_match( '/^[0-9]+$/', $min ) ) {
-				$field['milen'] = $min;
+			$m = $dec( $min );
+			if ( null !== $m ) {
+				$field['milen'] = $m;
+				if ( ! preg_match( '/^[0-9]+$/', $m ) ) $f4 = true;
 			} else {
 				$dropped[] = 'min:' . $min;
 			}
 		}
 		if ( false !== $max ) {
-			if ( preg_match( '/^[0-9]+$/', $max ) && (int) $max > 0 ) {
-				$field['mlen'] = $max;
+			$m = $dec( $max );
+			if ( null !== $m ) {
+				$field['mlen'] = $m;
+				if ( ! preg_match( '/^[0-9]+$/', $m ) ) $f4 = true;
+				if ( 0.0 === (float) $m ) { $field['num_max_zero'] = '1'; $f4 = true; }
 			} else {
 				$dropped[] = 'max:' . $max;
 			}
 		}
 		$step = Parser::get_option( $tag, 'step', '(?:[0-9]+|(?:[0-9]+)?[.][0-9]+)' );
-		if ( false !== $step && '1' !== $step ) {
-			$dropped[] = 'step:' . $step;
+		if ( false !== $step ) {
+			$st = $dec( $step );
+			if ( null !== $st && (float) $st > 0 && ! preg_match( '/^-/', $st ) ) {
+				$field['num_step'] = $st;
+				$f4 = true;
+			} else {
+				$dropped[] = 'step:' . $step;
+			}
 		}
+		if ( $f4 && 'number' === $type && ! isset( $field['num_step'] ) ) $field['num_format'] = 'none';
 		if ( ! empty( $dropped ) ) {
 			$this->note(
 				sprintf(
