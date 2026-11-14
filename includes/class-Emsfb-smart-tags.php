@@ -820,6 +820,13 @@ class Smart_Tags {
 			if (isset($r['disp']) && is_string($r['disp']) && $r['disp'] !== '' && in_array($type, array('number', 'calc', 'range'), true)) $v = $r['disp'];
 			if ($v === '@file@') { $v = isset($r['fnm']) && is_scalar($r['fnm']) ? (string) $r['fnm'] : ''; }
 			$v = str_replace(array('@efb@dq#', '@n#'), array('"', ' '), $v);
+			// F09 (spec §11.3): a field of repeater rows (rg / ri) reads as the list of its rows' answers, in row
+			// order ({field:child} outside the group = "Sara, Reza"); the group's own row is its number of rows.
+			if (isset($r['rg']) && is_scalar($r['rg']) && (string) $r['rg'] !== '') {
+				if (!isset($vals[$id]) || !is_array($vals[$id])) $vals[$id] = isset($vals[$id]) && $vals[$id] !== '' ? array($vals[$id]) : array();
+				foreach (array_filter(array_map('trim', explode('@efb!', $v)), 'strlen') as $x) $vals[$id][] = $x;
+				continue;
+			}
 			if (strpos($v, '@efb!') !== false) {
 				$vals[$id] = array_values(array_filter(array_map('trim', explode('@efb!', $v)), 'strlen'));
 				continue;

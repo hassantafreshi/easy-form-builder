@@ -132,5 +132,17 @@ $vals = S::values_of(array(
 ));
 t('values_of: radio label, checkbox list, multiselect list, quotes back, no password', $vals, array('c' => 'Red', 'k' => array('PHP', 'JS'), 'm' => array('A', 'B'), 'q' => 'say "hi"'));
 
+// F09 §11.3: a field of repeater rows reads as the list of its rows' answers (row order); the group = its rows.
+$rv = S::values_of(array(
+	array('id_' => 'g', 'type' => 'repeater', 'value' => '2'),
+	array('id_' => 'nm', 'type' => 'text', 'value' => 'Sara', 'rg' => 'g', 'ri' => '0'),
+	array('id_' => 'ex', 'type' => 'checkbox', 'value' => 'Bag', 'rg' => 'g', 'ri' => '0'),
+	array('id_' => 'nm', 'type' => 'text', 'value' => 'Reza', 'rg' => 'g', 'ri' => '1'),
+	array('id_' => 'ex', 'type' => 'checkbox', 'value' => 'Seat', 'rg' => 'g', 'ri' => '1'),
+	array('id_' => 'solo', 'type' => 'text', 'value' => 'x'),
+));
+t('values_of (F09): a child of rows is the list of its rows, the group its count, other fields as before', $rv, array('g' => '2', 'nm' => array('Sara', 'Reza'), 'ex' => array('Bag', 'Seat'), 'solo' => 'x'));
+t('field_value (F09): {field:nm} outside the group = "Sara, Reza"', S::field_value('nm', array('values' => $rv)), 'Sara, Reza');
+
 echo "\nRESULTS: $pass passed, $fail failed\n";
 exit($fail ? 1 : 0);

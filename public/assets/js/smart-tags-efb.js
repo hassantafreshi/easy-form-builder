@@ -408,6 +408,8 @@
     (rows || []).forEach(function (r, i) {
       if (i < 1 || !r || !r.id_ || !r.type || inArr(['option', 'r_matrix', 'step'], r.type)) return;
       f[String(r.id_)] = { type: String(r.type), name: str(r.name), options: [] };
+      // F09: a repeater row's copy ({child}_r{n}) knows its field and row number.
+      if (r.rpt_base !== undefined) { f[String(r.id_)].base = str(r.rpt_base); f[String(r.id_)].n = Number(r.rpt_n) || 0; }
     });
     (rows || []).forEach(function (r, i) {
       if (i < 1 || !r || r.type !== 'option' || !r.parent || !f[String(r.parent)]) return;
@@ -433,6 +435,16 @@
       if (v.indexOf('@efb!') !== -1) { vals[id] = v.split('@efb!').map(function (x) { return x.trim(); }).filter(Boolean); return; }
       if (/checkbox/i.test(type) || Array.isArray(vals[id])) { if (!Array.isArray(vals[id])) vals[id] = vals[id] ? [vals[id]] : []; if (v !== '') vals[id].push(v); return; }
       vals[id] = v;
+    });
+    // F09 (spec §11.3): {field:child} outside its group reads the list of its rows' answers in row order, as the
+    // server does (Smart_Tags::values_of on rows with rg / ri).
+    var byBase = {};
+    Object.keys(fields || {}).forEach(function (id) { var f = fields[id]; if (f && f.base !== undefined && vals[id] !== undefined) (byBase[f.base] = byBase[f.base] || []).push({ n: f.n, v: vals[id] }); });
+    Object.keys(byBase).forEach(function (b) {
+      if (vals[b] !== undefined) return;
+      var list = [];
+      byBase[b].sort(function (x, y) { return x.n - y.n; }).forEach(function (e) { (Array.isArray(e.v) ? e.v : [e.v]).forEach(function (x) { if (x !== '') list.push(x); }); });
+      vals[b] = list;
     });
     return vals;
   }

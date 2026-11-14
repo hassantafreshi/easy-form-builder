@@ -65,5 +65,15 @@ test('normalizeRows: no prefill on a password', rows[3].prefill_key, undefined);
 test('normalizeRows: an invalid key is dropped', rows[4].prefill_key, undefined);
 test('normalizeRows: st_uses', rows[0].st_uses, 'get,user,field,user:email,prefill');
 
+// F09 §11.3: in the page, {field:child} outside its group reads its rows' copies ({child}_r{n}) in row order.
+{
+  const st = [{ type: 'form' }, { id_: 'g', type: 'repeater' }, { id_: 'nm', type: 'text', group: 'g' },
+    { id_: 'nm_r3', type: 'text', rpt_base: 'nm', rpt_n: 3, rpt_group: 'g' }, { id_: 'nm_r0', type: 'text', rpt_base: 'nm', rpt_n: 0, rpt_group: 'g' }];
+  win.sendBack_emsFormBuilder_pub = [{ id_: 'nm_r3', type: 'text', value: 'Reza', form_id: 7 }, { id_: 'nm_r0', type: 'text', value: 'Sara', form_id: 7 }];
+  const v = S.valuesOf(7, S.fieldsOf(st));
+  test('valuesOf (F09): {field:nm} = the rows in row order; each copy keeps its own answer', [v.nm, v.nm_r0, v.nm_r3], [['Sara', 'Reza'], 'Sara', 'Reza']);
+  delete win.sendBack_emsFormBuilder_pub;
+}
+
 console.log(`\nRESULTS: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
