@@ -910,6 +910,17 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( array( 'ok' => true ) );
 		break;
 
+	case 'f14-form-key':
+		// One key of row 0 of a stored form set to a JSON value (notification rules and the like): <form_id> <key> <json>.
+		$fid = (int) $efb_e2e_rest[0];
+		$raw = $wpdb->get_var( $wpdb->prepare( "SELECT form_structer FROM {$wpdb->prefix}emsfb_form WHERE form_id = %d", $fid ) ); // phpcs:ignore
+		$rows = json_decode( str_replace( '\\"', '"', (string) $raw ), true );
+		$rows[0][ preg_replace( '/[^A-Za-z0-9_]/', '', (string) $efb_e2e_rest[1] ) ] = json_decode( (string) $efb_e2e_rest[2], true );
+		$wpdb->update( $wpdb->prefix . 'emsfb_form', array( 'form_structer' => str_replace( '"', '\\"', wp_json_encode( $rows, JSON_UNESCAPED_UNICODE ) ) ), array( 'form_id' => $fid ) );
+		if ( function_exists( 'wp_cache_flush' ) ) wp_cache_flush();
+		efb_e2e_out( array( 'ok' => true ) );
+		break;
+
 	case 'f14-upload':
 		// A file in uploads/YYYY/MM with the plugin's name pattern (as a visitor's upload): prints url and path.
 		$name = 'efb-PLG-' . gmdate( 'ymd' ) . '-' . strtoupper( wp_generate_password( 8, false, false ) ) . '.pdf';

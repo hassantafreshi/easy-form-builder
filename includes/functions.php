@@ -5791,6 +5791,16 @@ class efbFunction {
 			"entResendBad" => $state && isset($ac->text->entResendBad) ? $ac->text->entResendBad : esc_html__('%s is not a valid e-mail address.','easy-form-builder'),
 			/* translators: F14: resend error */
 			"entResendFailed" => $state && isset($ac->text->entResendFailed) ? $ac->text->entResendFailed : esc_html__('The notification could not be sent.','easy-form-builder'),
+			/* translators: F14: resend, %s = number */
+			"entResendMax" => $state && isset($ac->text->entResendMax) ? $ac->text->entResendMax : esc_html__('At most %s entries at once.','easy-form-builder'),
+			/* translators: F14: resend, %s = number */
+			"entResendMany" => $state && isset($ac->text->entResendMany) ? $ac->text->entResendMany : esc_html__('At most %s addresses.','easy-form-builder'),
+			/* translators: F14: resend error */
+			"entMailOff" => $state && isset($ac->text->entMailOff) ? $ac->text->entMailOff : esc_html__('E-mail notifications are turned off in the settings.','easy-form-builder'),
+			/* translators: F14: resend preview */
+			"entResendRules" => $state && isset($ac->text->entResendRules) ? $ac->text->entResendRules : esc_html__('The form\'s notification rules decide the administrator\'s copy.','easy-form-builder'),
+			/* translators: F14: resend preview, %s = number */
+			"entResendBulk" => $state && isset($ac->text->entResendBulk) ? $ac->text->entResendBulk : esc_html__('Each of the %s selected entries is sent to its own recipients.','easy-form-builder'),
 			/* translators: F14: button */
 			"entPrint" => $state && isset($ac->text->entPrint) ? $ac->text->entPrint : esc_html__('Print','easy-form-builder'),
 			/* translators: F14: print option */

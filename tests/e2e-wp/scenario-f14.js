@@ -28,6 +28,9 @@
  *        repeater row, a file removed (deleted from disk) and another uploaded (out of the pending ledger), the
  *        reason in the history, the viewer and the list updated, a conflict when someone saved meanwhile; fa_IR
  *        at 375 px.
+ *  f14g  Resend (G): from a row's menu, the dialog shows the owner's and the visitor's address; "Visitor only"
+ *        sends one mail and announces it; "Another address" with an invalid address is refused at the field
+ *        (aria-invalid, the address named); the history shows the resend; fa_IR at 375 px.
  */
 'use strict';
 
@@ -592,6 +595,51 @@ module.exports = function (S) {
         R.check('f14f: fa_IR at 375 px: the edit form right to left, inside the screen', v.dir === 'rtl' && v.scroll <= 1 && v.w <= 375, v);
       } finally { ctl('locale', ''); }
     } finally { ctl('set-option', 'efb_e2e_f09_plan', 'del'); }
+  });
+
+  /* ------------------------------------------------------------------ f14g */
+  scenario('f14g', 'F14 resend: recipients shown, visitor only, invalid custom address at its field, history, fa_IR 375 px', async ({ adminPage }) => {
+    plan(3);
+    ctl('locale', '');
+    const F = form('F14 e2e resend', [{ key: 'nm', type: 'text', name: 'Name' }, { key: 'em', type: 'email', name: 'Email' }]);
+    const id = seed(F.form_id, [{ id_: F.ids.nm, name: 'Name', type: 'text', value: 'Sara' }, { id_: F.ids.em, name: 'Email', type: 'email', value: 'sara@example.test' }]).msg_id;
+    ctl('mails', 'clear');
+    const admin = await adminPage();
+    await openList(admin, F.form_id);
+    await admin.click(`#efbEnt .efb-ent-more[data-msgid="${id}"]`);
+    await admin.waitForSelector('#efbEntMenu [data-ent="resend"]', { timeout: 5000 });
+    await admin.click('#efbEntMenu [data-ent="resend"]');
+    await admin.waitForSelector('#efbRsPrev', { timeout: 10000 });
+    let v = await admin.evaluate(() => ({ prev: document.getElementById('efbRsPrev').textContent, focus: document.activeElement.id, modal: document.querySelector('#efbEntDlg [role="dialog"]').getAttribute('aria-modal') }));
+    R.check('f14g: the dialog (aria-modal) shows the owner\'s and the visitor\'s address, focus on "As originally sent"', /owner@example\.test/.test(v.prev) && /sara@example\.test/.test(v.prev) && v.focus === 'efbRsT-original' && v.modal === 'true', v);
+    await admin.screenshot({ path: SHOT('f14g-resend-en-1280') });
+    await admin.check('#efbRsT-visitor');
+    await admin.click('#efbRsGo');
+    await admin.waitForFunction(() => /Notification sent/.test(document.getElementById('efbRsMsg').textContent), null, { timeout: 15000 });
+    const sent = (ctl('mails') || []).map((m) => [].concat(m.to).join(','));
+    R.check('f14g: "Visitor only": one mail to the visitor, "Notification sent to 1 recipients." announced (role=status)', sent.length === 1 && sent[0] === 'sara@example.test' && (await admin.getAttribute('#efbRsMsg', 'role')) === 'status', sent);
+    await admin.check('#efbRsT-custom');
+    v = await admin.evaluate(() => ({ shown: !document.getElementById('efbRsCustomW').hidden, focus: document.activeElement.id }));
+    await admin.fill('#efbRsEmails', 'boss@example.test، not-an-address');
+    await admin.click('#efbRsGo');
+    await admin.waitForFunction(() => document.getElementById('efbRsEmails').getAttribute('aria-invalid') === 'true', null, { timeout: 15000 });
+    const err = await admin.evaluate(() => ({ m: document.getElementById('efbRsMsg').textContent, focus: document.activeElement.id }));
+    R.check('f14g: "Another address" opens the field; an invalid address is refused at the field and named', v.shown && v.focus === 'efbRsEmails' && /not-an-address/.test(err.m) && err.focus === 'efbRsEmails' && (ctl('mails') || []).length === 1, { v, err });
+    await admin.keyboard.press('Escape');
+    const hist = ctl('f14-log', String(id)).filter((l) => l.action === 'resend');
+    R.check('f14g: the history has the resend (target and count, no address)', hist.length === 1 && hist[0].meta === 'visitor:1', hist);
+    ctl('locale', 'fa_IR');
+    try {
+      const fa = await adminPage({ viewport: { width: 375, height: 800 } }, 'admin-fa-resend');
+      await openList(fa, F.form_id);
+      await fa.click(`#efbEnt .efb-ent-more[data-msgid="${id}"]`);
+      await fa.waitForSelector('#efbEntMenu [data-ent="resend"]', { timeout: 5000 });
+      await fa.click('#efbEntMenu [data-ent="resend"]');
+      await fa.waitForSelector('#efbRsPrev', { timeout: 10000 });
+      v = await fa.evaluate(() => { const d = document.querySelector('#efbEntDlg [role="dialog"]'); const r = d.getBoundingClientRect(); return { dir: d.getAttribute('dir'), left: Math.round(r.left), right: Math.round(r.right), scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth }; });
+      await fa.screenshot({ path: SHOT('f14g-resend-fa_IR-375') });
+      R.check('f14g: fa_IR at 375 px: the dialog right to left, inside the screen', v.dir === 'rtl' && v.left >= 0 && v.right <= 375 && v.scroll <= 1, v);
+    } finally { ctl('locale', ''); }
   });
 
   /* ------------------------------------------------------------------ f14a */

@@ -67,6 +67,7 @@ class Entries {
 		add_action('wp_ajax_efb_form_stats_Emsfb', array(__CLASS__, 'ajax_stats'));
 		add_action('wp_ajax_efb_entry_update_Emsfb', array(__CLASS__, 'ajax_update'));
 		add_action('wp_ajax_efb_entry_upload_Emsfb', array(__CLASS__, 'ajax_upload'));
+		add_action('wp_ajax_efb_entry_resend_Emsfb', array(__CLASS__, 'ajax_resend'));
 		// Notes and history go with the entry (every permanent delete path of F13).
 		add_action('efb_entries_purged', array(__CLASS__, 'on_entries_purged'), 15, 4);
 		// The trash is emptied after trash_days by the daily job, after F13's retention (30).
@@ -729,7 +730,7 @@ class Entries {
 			'plan'       => array_map(array(__CLASS__, 'plan_ok'), array_combine(array_keys(self::PLAN), array_keys(self::PLAN))),
 			'features'   => self::FEATURES,
 			'max_print'  => 50,
-			'max_resend' => 50,
+			'max_resend' => self::RESEND_MAX,
 			'note_max'   => 5000,
 			'export_url' => function_exists('admin_url') ? admin_url('admin-post.php') : '',
 			'export_nonce' => function_exists('wp_create_nonce') ? wp_create_nonce('efb_export') : '',
@@ -1838,6 +1839,133 @@ class Entries {
 			$out[] = array('msg_id' => $e['msg_id'], 'track' => $e['track'], 'ip' => $e['ip'], 'date' => $e['date'], 'content' => $e['content'], 'notes' => isset($notes[$e['msg_id']]) ? self::notes_of($e['msg_id']) : array());
 		}
 		wp_send_json_success(array('success' => true, 'entries' => $out), 200);
+	}
+
+	/* ------------------------------------------------------------ resend (G) */
+
+	/** Resend: at most this many entries per request, this many sends of one entry per hour, this many custom addresses. */
+	const RESEND_MAX = 50;
+	const RESEND_PER_HOUR = 5;
+	const RESEND_ADDRESSES = 10;
+	const RESEND_TARGETS = array('original', 'admin', 'visitor', 'custom');
+
+	/**
+	 * The custom addresses: separated by commas, semicolons, the Arabic comma (،) or spaces; each sanitize_email +
+	 * is_email; at most RESEND_ADDRESSES. Returns the list or ['code', 'm'].
+	 */
+	public static function resend_emails($text) {
+		$parts = preg_split('/[\s,;،]+/u', (string) $text, -1, PREG_SPLIT_NO_EMPTY);
+		$out = array();
+		foreach ((array) $parts as $p) {
+			$e = function_exists('sanitize_email') ? sanitize_email($p) : $p;
+			if ($e === '' || !is_email($e) || $e !== $p) return array('code' => 'efb_invalid_email', 'm' => str_replace('%s', $p, self::t('entResendBad', '%s is not a valid e-mail address.')));
+			if (!in_array(strtolower($e), array_map('strtolower', $out), true)) $out[] = $e;
+		}
+		if (!$out) return array('code' => 'efb_invalid_email', 'm' => self::t('entResendNone', 'There is no recipient for this choice.'));
+		if (count($out) > self::RESEND_ADDRESSES) return array('code' => 'efb_too_many', 'm' => str_replace('%s', (string) self::RESEND_ADDRESSES, self::t('entResendMany', 'At most %s addresses.')));
+		return $out;
+	}
+
+	/** One more resend of an entry this hour, or false when it had RESEND_PER_HOUR already (transient efb_rs_{id}). */
+	public static function resend_take($msg_id) {
+		$key = 'efb_rs_' . (int) $msg_id;
+		$now = time();
+		$v = get_transient($key);
+		if (!is_array($v) || !isset($v['n'], $v['until']) || (int) $v['until'] <= $now) $v = array('n' => 0, 'until' => $now + 3600);
+		if ((int) $v['n'] >= self::RESEND_PER_HOUR) return false;
+		$v['n'] = (int) $v['n'] + 1;
+		set_transient($key, $v, max(1, (int) $v['until'] - $now));
+		return true;
+	}
+
+	/**
+	 * Who would get the notification of one entry (the preview): the form's address(es) or "by the rules", and the
+	 * visitor's address (the field the form sends to). Addresses are shown to the administrator only.
+	 */
+	public static function resend_preview($msg_id) {
+		$e = self::entry($msg_id);
+		$form = $e ? self::form_rows($e['form_id']) : null;
+		if (!$e || !is_array($form) || empty($form[0])) return null;
+		$f0 = $form[0];
+		$rows = class_exists('\\Emsfb\\Privacy') ? (array) Privacy::decode_content($e['content']) : array();
+		$visitor = '';
+		$to = isset($f0['email_to']) && is_scalar($f0['email_to']) ? (string) $f0['email_to'] : '';
+		foreach ($rows as $r) if ($to !== '' && is_array($r) && isset($r['id_'], $r['value']) && (string) $r['id_'] === $to && is_string($r['value']) && is_email($r['value'])) { $visitor = $r['value']; break; }
+		$admin = array();
+		foreach (explode(',', isset($f0['email']) && is_string($f0['email']) ? $f0['email'] : '') as $a) if (trim($a) !== '' && is_email(trim($a))) $admin[] = trim($a);
+		$fallback = '';
+		if (!$admin && function_exists('get_setting_Emsfb')) {
+			$st = get_setting_Emsfb('decoded');
+			if (is_object($st) && !empty($st->emailSupporter) && is_string($st->emailSupporter)) $fallback = $st->emailSupporter;
+		}
+		return array('admin' => $admin, 'admin_fallback' => $fallback, 'visitor' => $visitor, 'rules' => isset($f0['notification_rules']) && is_array($f0['notification_rules']) && count($f0['notification_rules']) > 0);
+	}
+
+	/**
+	 * Resend the notification of entries (spec §8.5) through _Public::resend_entry_notification_efb(): per entry
+	 * the hourly limit, the side-effect guard (efb_shield_allow_side_effect, channel email, source resend), one
+	 * history row (resend, meta "target:count", never the addresses). Returns [msg_id => sent | failed | none |
+	 * limit | blocked | missing].
+	 */
+	public static function resend(array $ids, $target, array $emails = array()) {
+		$out = array();
+		$pub = class_exists('\\Emsfb\\_Public') ? \Emsfb\_Public::$instance_efb : null;
+		if (!$pub && class_exists('\\Emsfb\\_Public')) $pub = new \Emsfb\_Public();
+		foreach (array_slice(array_values(array_unique(array_map('intval', $ids))), 0, self::RESEND_MAX) as $id) {
+			$e = self::entry($id);
+			if (!$e || !$pub) { $out[$id] = 'missing'; continue; }
+			$allow = apply_filters('efb_shield_allow_side_effect', true, array('channel' => 'email', 'event' => 'resend', 'form_id' => $e['form_id'], 'tracking_code' => $e['track'], 'recipients' => $target === 'custom' ? $emails : array(), 'source' => 'efb_entry_resend'));
+			if (!$allow) { $out[$id] = 'blocked'; continue; }
+			if (!self::resend_take($id)) { $out[$id] = 'limit'; continue; }
+			$r = $pub->resend_entry_notification_efb($id, $target, $emails);
+			if ($r['code'] === 'efb_resend_none' || $r['code'] === 'efb_not_found' || $r['code'] === 'efb_mail_off') {
+				$out[$id] = $r['code'] === 'efb_mail_off' ? 'off' : 'none';
+				// Nothing went out: the try does not count against the hour.
+				$v = get_transient('efb_rs_' . $id);
+				if (is_array($v) && isset($v['n'])) { $v['n'] = max(0, (int) $v['n'] - 1); set_transient('efb_rs_' . $id, $v, max(1, (int) $v['until'] - time())); }
+				continue;
+			}
+			self::log($id, 'resend', '', null, null, $target . ':' . (int) $r['count']);
+			$out[$id] = $r['ok'] ? 'sent' : 'failed';
+			$out['_count'] = (isset($out['_count']) ? $out['_count'] : 0) + (int) $r['count'];
+		}
+		return $out;
+	}
+
+	/**
+	 * AJAX efb_entry_resend_Emsfb (Free Plus setting:entries_resend): op preview (one entry's recipients) or send
+	 * (ids ≤ 50, target original | admin | visitor | custom; custom only for manage_options).
+	 */
+	public static function ajax_resend() {
+		self::guard();
+		if (!self::plan_ok('resend')) wp_send_json_success(self::plan_error('resend'), 200);
+		$bad = array('success' => false, 'code' => 'efb_invalid', 'm' => self::t('somethingWentWrongPleaseRefresh', 'Something went wrong. Please refresh the page.'));
+		if (self::post('op') === 'preview') {
+			$p = self::resend_preview(absint(self::post('msg_id')));
+			wp_send_json_success($p ? array('success' => true, 'preview' => $p, 'custom' => current_user_can('manage_options')) : $bad, 200);
+		}
+		$target = self::post('target');
+		if (!in_array($target, self::RESEND_TARGETS, true)) wp_send_json_success($bad, 200);
+		$ids = self::args(array('ids' => self::post_json('ids')))['ids'];
+		if (!$ids) wp_send_json_success($bad, 200);
+		if (count($ids) > self::RESEND_MAX) wp_send_json_success(array('success' => false, 'code' => 'efb_too_many', 'm' => str_replace('%s', (string) self::RESEND_MAX, self::t('entResendMax', 'At most %s entries at once.'))), 200);
+		$emails = array();
+		if ($target === 'custom') {
+			if (!current_user_can('manage_options')) wp_send_json_success(array('success' => false, 'code' => 'efb_forbidden', 'm' => self::t('error403', 'You do not have permission to do this.')), 200);
+			$emails = self::resend_emails(self::post('emails'));
+			if (isset($emails['code'])) wp_send_json_success(array_merge(array('success' => false), $emails), 200);
+		}
+		$r = self::resend($ids, $target, $emails);
+		$count = isset($r['_count']) ? (int) $r['_count'] : 0;
+		unset($r['_count']);
+		$v = array_values($r);
+		$sent = count(array_keys($v, 'sent', true));
+		if ($sent > 0) $m = str_replace('%s', (function_exists('number_format_i18n') ? number_format_i18n($count) : (string) $count), self::t('entResent', 'Notification sent to %s recipients.'));
+		elseif (in_array('limit', $v, true)) $m = self::t('entResendLimit', 'This notification was resent too many times. Try again later.');
+		elseif (in_array('off', $v, true)) $m = self::t('entMailOff', 'E-mail notifications are turned off in the settings.');
+		elseif (in_array('none', $v, true)) $m = self::t('entResendNone', 'There is no recipient for this choice.');
+		else $m = self::t('entResendFailed', 'The notification could not be sent.');
+		wp_send_json_success(array('success' => $sent > 0, 'results' => $r, 'count' => $count, 'm' => $m, 'code' => $sent > 0 ? '' : (in_array('limit', $v, true) ? 'efb_resend_limit' : 'efb_resend_failed')), 200);
 	}
 
 	/* ------------------------------------------------------------ statistics (J) and their backfill (A) */

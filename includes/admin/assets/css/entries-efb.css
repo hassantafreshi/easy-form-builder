@@ -148,3 +148,8 @@
 .efb-ent-edit-err:empty { display: none; }
 .efb-ent-edit .form-check { display: flex; align-items: center; gap: 8px; padding-inline-start: 0; }
 .efb-ent-edit .form-check-input { margin: 0 !important; float: none !important; }
+
+/* G: resend dialog */
+.efb-ent-rs-prev dt { font-weight: 600; }
+.efb-ent-rs-prev dd { margin: 0 0 .5rem; text-align: start; }
+.efb-ent-rs-prev dd bdi { unicode-bidi: isolate; }

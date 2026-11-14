@@ -11818,6 +11818,105 @@ public function check_nonce_permission_efb($request) {
 		}
 	}
 
+	/**
+	 * F14-G: the notification of a stored entry once more, from the stored rows and the current form, through
+	 * the submit's own mail path (email_status_efb() → send_email_Emsfb_()). $target:
+	 *  - original: as the submit sent it: the form's notification rules evaluated again on the stored values (a
+	 *    matching rule replaces the owner's copy, as on submit), else the form's address; and the visitor's copy
+	 *    to the e-mail field the form sends to (email_to);
+	 *  - admin / visitor: only that copy;
+	 *  - custom: the owner's template to the given (already checked) addresses, without the owner's reply link
+	 *    (sc), which only the owner's own copy carries.
+	 * Smart tags resolve from the entry (its answers, its stored IP, its date and page link), never from the
+	 * administrator who resends. Uploads are not attached again. Returns ['ok', 'count' (addresses tried),
+	 * 'failed' (wp_mail failures), 'code'].
+	 */
+	public function resend_entry_notification_efb($msg_id, $target, array $emails = array()) {
+		global $wpdb;
+		if (empty($this->db)) $this->db = $wpdb;
+		$e = $wpdb->get_row($wpdb->prepare("SELECT msg_id, form_id, track, content, ip, date FROM {$wpdb->prefix}emsfb_msg_ WHERE msg_id = %d", (int) $msg_id), ARRAY_A); // phpcs:ignore
+		if (!$e) return array('ok' => false, 'code' => 'efb_not_found', 'count' => 0, 'failed' => 0);
+		$this->prepare_validation_efb((int) $e['form_id']);
+		$settings = $this->get_submission_settings_efb($settings_source);
+		if (!emsfb_is_email_sending_enabled_efb($settings)) return array('ok' => false, 'code' => 'efb_mail_off', 'count' => 0, 'failed' => 0);
+		$rows = class_exists('\\Emsfb\\Privacy') ? \Emsfb\Privacy::decode_content((string) $e['content']) : null;
+		$f = $this->get_form_data_efb((int) $e['form_id'], array('form_structer', 'form_type'));
+		$form = $f && isset($f->form_structer) ? \emsfb_json_decode_efb(\emsfb_json_normalize_efb($f->form_structer), true) : null;
+		if (!is_array($rows) || !is_array($form) || empty($form[0]) || !is_array($form[0])) return array('ok' => false, 'code' => 'efb_not_found', 'count' => 0, 'failed' => 0);
+		$form0 = $form[0];
+		$track = (string) $e['track'];
+		$link = '';
+		$plain = array();
+		foreach ($rows as $r) {
+			if (!is_array($r)) continue;
+			if (($r['type'] ?? '') === 'w_link') { if (isset($r['value']) && is_string($r['value']) && $this->is_same_site_url_efb($r['value'])) $link = $r['value']; continue; }
+			$plain[] = $r;
+		}
+		if ($link === '') $link = home_url('/');
+		// F08: the entry's own context (no request, no cookies, no current user).
+		$this->smart_ctx_efb = null;
+		if (class_exists('\\Emsfb\\Smart_Tags')) {
+			$ctx = \Emsfb\Smart_Tags::submit_context($form, (int) $e['form_id'], array('url' => $link, 'ip' => (string) $e['ip'], 'query' => array(), 'cookies' => array()));
+			$ctx['user'] = null;
+			$ctx['uid'] = function () { return ''; };
+			$ts = strtotime((string) $e['date']);
+			if ($ts) { $ctx['now'] = $ts - \Emsfb\Smart_Tags::site_offset($ts); $ctx['tz'] = \Emsfb\Smart_Tags::site_offset($ctx['now']); }
+			$ctx['values'] = \Emsfb\Smart_Tags::values_of($plain, $ctx['fields']);
+			$ctx['ovals'] = \Emsfb\Smart_Tags::ovals_of($plain);
+			$ctx['entry'] = array('track' => $track);
+			$this->smart_ctx_efb = $ctx;
+		}
+		$this->upload_files_efb = array();
+		$status_email = $this->email_status_efb($form, $plain, $track);
+		$has_track = isset($form0['trackingCode']) && in_array($form0['trackingCode'], array(true, 1, '1', 'true'), true);
+		$state = array('newMessage', $has_track ? 'notiToUserFormFilled_TrackingCode' : 'notiToUserFormFilled', $status_email['type'], $status_email['visitor_type']);
+		$is_pro = (bool) $this->pro_efb;
+		$to = array(array(), array());
+		$visitor = '';
+		$email_to = isset($form0['email_to']) && is_scalar($form0['email_to']) ? (string) $form0['email_to'] : '';
+		foreach ($plain as $r) {
+			if ($email_to !== '' && isset($r['id_'], $r['value']) && is_string($r['value']) && (string) $r['id_'] === $email_to) {
+				$c = sanitize_email(str_replace('@efb@dq#', '"', $r['value']));
+				if ($c !== '' && is_email($c)) $visitor = $c;
+				break;
+			}
+		}
+		$count = 0;
+		$failed = 0;
+		$on_fail = function () use (&$failed) { $failed++; };
+		$on_send = function ($args) use (&$count) { if (is_array($args) && isset($args['to'])) $count += count(array_filter((array) $args['to'])); return $args; };
+		add_action('wp_mail_failed', $on_fail);
+		add_filter('wp_mail', $on_send, 1);
+		if ($target === 'custom') {
+			$to[0] = array_values($emails);
+			$to[1] = '';
+			if (isset($settings['femail']) && is_email($settings['femail'])) $to[2] = $settings['femail'];
+			if ($to[0]) $this->send_email_Emsfb_($to, $track, $is_pro, array('newMessage', 'newMessage', $status_email['type'], $status_email['visitor_type']), '', $status_email['content'], $status_email['subject']);
+		} else {
+			$matched = 0;
+			if ($target === 'original') {
+				$has_rules = isset($form0['notification_rules']) && is_array($form0['notification_rules']) && count($this->efb_conditional_sorted_rules($form0['notification_rules'])) > 0;
+				if ($has_rules) $matched = $this->process_conditional_notification_rules($form, $plain, $track, $is_pro, $link, $status_email);
+			}
+			if (($target === 'original' && $matched === 0) || $target === 'admin') {
+				if (!empty($form0['email']) && is_string($form0['email'])) $this->email_list_efb($to, 0, $form0['email'], true);
+				if ($target === 'admin' && empty($to[0]) && is_array($settings) && !empty($settings['emailSupporter']) && is_string($settings['emailSupporter'])) $this->email_list_efb($to, 0, $settings['emailSupporter'], true);
+			}
+			if (($target === 'original' || $target === 'visitor') && $visitor !== '') $this->email_list_efb($to, 1, $visitor, true);
+			if (isset($settings['femail']) && is_email($settings['femail'])) $to[2] = $settings['femail'];
+			if (!empty($to[0]) || !empty($to[1])) {
+				if (empty($to[0])) $to[0] = '';
+				if (empty($to[1])) $to[1] = '';
+				$this->send_email_Emsfb_($to, $track, $is_pro, $state, $link, $status_email['content'], $status_email['subject']);
+			}
+		}
+		remove_filter('wp_mail', $on_send, 1);
+		remove_action('wp_mail_failed', $on_fail);
+		$this->smart_ctx_efb = null;
+		if ($count === 0) return array('ok' => false, 'code' => 'efb_resend_none', 'count' => 0, 'failed' => 0);
+		return array('ok' => $failed === 0, 'code' => $failed ? 'efb_resend_failed' : '', 'count' => $count, 'failed' => $failed);
+	}
+
 	public function fun_validation_pay_elements_efb($val_ ,$fs_){
 		$price_c =0;
 		$price_f =0;

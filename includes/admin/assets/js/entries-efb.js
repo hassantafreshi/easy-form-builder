@@ -993,6 +993,64 @@
     d.querySelector('#efbPrGo').addEventListener('click', () => { const notes = d.querySelector('#efbPrNotes').checked; closeDialog(); printEntries(ids, notes); });
   }
 
+  /* ------------------------------------------------------------------ resend (G) */
+  /**
+   * Resend the notification of one entry or of the selected ones (at most 50): as originally sent, to the
+   * administrator only, to the visitor only, or (administrators) to other addresses. One entry shows its
+   * recipients first; the result is announced in the dialog's live region.
+   */
+  function resendDialog(ids, opener) {
+    if (!gate('resend', opener)) return;
+    ids = (ids || Array.from(S.selected)).map(Number).filter((x) => x > 0);
+    if (!ids.length) return;
+    const max = Number(cfg().max_resend) || 50;
+    if (ids.length > max) {
+      if (typeof W.alert_message_efb === 'function') W.alert_message_efb('', T('entResendMax', 'At most %s entries at once.').replace('%s', num(max)), 8, 'warning');
+      return;
+    }
+    post({ action: 'efb_entry_resend_Emsfb', op: 'preview', msg_id: ids[0] }).then((res) => {
+      if (!res || res.success !== true) { if (res && res.code === 'efb_plan_required') gate('resend', opener); return; }
+      const p = res.preview;
+      const one = ids.length === 1;
+      const list = (a) => a.map((x) => `<bdi dir="ltr">${esc(x)}</bdi>`).join(isRtl() ? '، ' : ', ');
+      const adminTxt = p.admin.length ? list(p.admin) : (p.admin_fallback ? list([p.admin_fallback]) : '—');
+      const prev = one ? `<dl class="efb efb-ent-rs-prev small mb-2" id="efbRsPrev">
+          <dt>${esc(T('entResendAdmin', 'Administrator only'))}</dt><dd>${adminTxt}${p.rules ? `<div class="efb text-muted">${esc(T('entResendRules', "The form's notification rules decide the administrator's copy."))}</div>` : ''}</dd>
+          <dt>${esc(T('entResendVisitor', 'Visitor only'))}</dt><dd>${p.visitor ? list([p.visitor]) : '—'}</dd></dl>`
+        : `<p class="efb small" id="efbRsPrev">${esc(fill(T('entResendBulk', 'Each of the %s selected entries is sent to its own recipients.'), [num(ids.length)]))}</p>`;
+      const opt = (v, k, fb, dis) => `<div class="efb form-check"><input type="radio" class="efb form-check-input" name="efbRsT" id="efbRsT-${v}" value="${v}" ${v === 'original' ? 'checked' : ''} ${dis ? 'disabled' : ''}><label class="efb form-check-label" for="efbRsT-${v}">${esc(T(k, fb))}</label></div>`;
+      const body = `<fieldset class="efb"><legend class="efb fs-6">${esc(T('entResendTo', 'Recipients'))}</legend>
+          ${opt('original', 'entResendOrig', 'As originally sent')}${opt('admin', 'entResendAdmin', 'Administrator only')}${opt('visitor', 'entResendVisitor', 'Visitor only', one && !p.visitor)}${res.custom ? opt('custom', 'entResendCustom', 'Another address') : ''}</fieldset>
+        <div class="efb mt-2" id="efbRsCustomW" hidden><label class="efb form-label small" for="efbRsEmails">${esc(T('entResendEmails', 'E-mail addresses (separate with commas)'))}</label>
+          <input type="text" class="efb form-control form-control-sm" id="efbRsEmails" dir="ltr" inputmode="email" autocomplete="off" aria-describedby="efbRsMsg"></div>
+        ${prev}<div class="efb small" id="efbRsMsg" role="status" aria-live="polite"></div>`;
+      const d = dialog(T('entResend', 'Resend notification'), body, `<button type="button" class="efb btn btn-sm btn-primary" id="efbRsGo">${icon('bi-send')} ${esc(T('entResend', 'Resend notification'))}</button>`, { focus: '#efbRsT-original' });
+      const msg = d.querySelector('#efbRsMsg');
+      const field = d.querySelector('#efbRsEmails');
+      d.addEventListener('change', (e) => {
+        if (e.target && e.target.name === 'efbRsT') { const c = e.target.value === 'custom'; d.querySelector('#efbRsCustomW').hidden = !c; if (c) field.focus(); }
+      });
+      const go = d.querySelector('#efbRsGo');
+      go.addEventListener('click', () => {
+        const t = (d.querySelector('input[name="efbRsT"]:checked') || {}).value || 'original';
+        msg.textContent = '';
+        field.removeAttribute('aria-invalid');
+        go.disabled = true;
+        post({ action: 'efb_entry_resend_Emsfb', op: 'send', target: t, ids: JSON.stringify(ids), emails: t === 'custom' ? field.value : '' }).then((r) => {
+          go.disabled = false;
+          const text = (r && r.m) || T('entResendFailed', 'The notification could not be sent.');
+          msg.className = `efb small ${r && r.success === true ? 'text-success' : 'text-danger'}`;
+          msg.textContent = digits(text);
+          if (r && (r.code === 'efb_invalid_email' || r.code === 'efb_too_many')) { field.setAttribute('aria-invalid', 'true'); field.focus(); }
+          if (r && r.success === true && S.current && S.current.entry && ids.includes(Number(S.current.entry.msg_id))) {
+            const id = Number(S.current.entry.msg_id);
+            post({ action: 'efb_entry_get_Emsfb', msg_id: id }).then((g) => { if (g && g.success === true && S.current && Number(S.current.entry.msg_id) === id) { S.current.log = g.log; S.current.notes = g.notes; viewerRepaint(); } });
+          }
+        });
+      });
+    });
+  }
+
   /* ------------------------------------------------------------------ the entry in the response viewer (D) */
   const STATUS = { 0: ['entStActive', 'Active'], 1: ['entSpam', 'Spam'], 2: ['entTrash', 'Trash'] };
   function cur(msgId) { return S.current && S.current.entry && Number(S.current.entry.msg_id) === Number(msgId) ? S.current : null; }
@@ -1345,6 +1403,16 @@
     W.EfbEntries.actions.stats = (el) => statsToggle(el, 0);
     W.EfbEntries.actions['stats-days'] = (el) => statsToggle(el, Number(el.dataset.days));
     W.EfbEntries.afterPaint.push(() => { if (S.statsOpen && !D.getElementById('efbEntStats')) { const b = D.querySelector('#efbEnt [data-ent="stats"]'); if (b) statsToggle(b, S.statsDays || 30); } });
+  }
+
+  /* G: Resend notification on a row's menu, on a selection and in the response viewer (Free Plus). */
+  if (!W.EfbEntries.actions.resend) {
+    const gem = () => (planOk('resend') ? '' : ' ' + icon('bi-gem'));
+    W.EfbEntries.extraMenu.push((row) => (Number(row.entry_status) === 2 ? '' : `<button type="button" role="menuitem" class="efb dropdown-item" data-ent="resend" data-msgid="${Number(row.msg_id)}" tabindex="-1" aria-haspopup="dialog">${icon('bi-send')} ${esc(T('entResend', 'Resend notification'))}${gem()}</button>`));
+    W.EfbEntries.extraBulk.push(() => (S.tab === 'trash' || S.allMatching ? '' : `<button type="button" class="efb btn btn-sm btn-outline-secondary" data-ent="resend-sel" aria-haspopup="dialog">${icon('bi-send')} <span>${esc(T('entResend', 'Resend notification'))}</span>${gem()}</button>`));
+    W.EfbEntries.viewerButtons.push((e) => (Number(e.entry_status) === 2 ? '' : `<button type="button" class="efb btn btn-sm btn-outline-secondary" data-ent="resend" data-msgid="${Number(e.msg_id)}" aria-haspopup="dialog">${icon('bi-send')} ${esc(T('entResend', 'Resend notification'))}${gem()}</button>`));
+    W.EfbEntries.actions.resend = (el, id) => { closeMenu(); resendDialog([Number(id || el.dataset.msgid)], el); };
+    W.EfbEntries.actions['resend-sel'] = (el) => resendDialog(null, el);
   }
 
   /* F: Edit in the response viewer (Free Plus). */
