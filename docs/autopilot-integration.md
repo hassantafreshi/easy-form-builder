@@ -1209,6 +1209,75 @@ which now has `role="radiogroup"` / `"group"`, `aria-labelledby` and `data-formi
   `f05pay` (AutoPilot: `f05a` `setOptions`, `setChoices`, the `choice_value_dup` refusal of `insertItems`,
   capabilities and the real save).
 
+### F04. Numbers and calculations (`num_*` keys, type `calc`, option `calc`, `range_mode`, `efbBuilderApi.setCalc` / `validateFormula`, `window.EFBCalc`, codes)
+
+Spec: `docs/feature-gaps/F04-number-calculation.fa.md`. Server: `Emsfb\Calc` (`includes/class-Emsfb-calc.php`);
+page and builder engine: `window.EFBCalc` (`public/assets/js/calc-efb.js`, loaded on a page only when a form uses
+an F04 key, a calc field or an option's calc value); builder: `includes/admin/assets/js/calc-builder-efb.js`. One
+formula grammar with one shared vector file run by both engines
+(`docs/feature-gaps/reference/calc-test-vectors.json`: 193 formulas, 37 typed numbers, 27 checks, 26 formats,
+10 whole forms; `tests/test-calc-engine.js|php`, `tests/test-calc-parity.js`). No `eval` / `Function`.
+
+| Keys | Where | Plan (F04 §15, `Calc::PLAN`, filter `efb_calc_plan`) |
+|---|---|---|
+| `num_step` (`^\d{1,9}(\.\d{1,6})?$`, > 0; **never `step`**: that key is the form step), `num_decimals` (`''`, `0`–`6`), `num_format` (`none` \| `group`), `num_dec_sep` (`.` \| `,` \| `momayez` = ٫), `num_grp_sep` (`,` \| `.` \| `space` \| `apos` \| `arabic` = ٬ \| `none`), `num_digits` (`auto` \| `latin` \| `native`), `num_prefix` / `num_suffix` (plain text ≤ 20), `num_currency` (`form`), `num_max_zero` (`'1'`: a maximum of 0 is real); `milen` / `mlen` (minimum / maximum as decimals, negative allowed) | number, range, calc (prcfld keeps its own rules) | Free |
+| `range_mode` (`single` \| `dual`; dual `value` = `"lo..hi"`) | range | Free |
+| type `calc`: `formula` (≤ 2000, `[A-Za-z0-9_{}().,:\s+\-*/]` only), `calc_show` (`visible` \| `hidden`), `calc_empty` (`zero` \| `blank`), the number keys above (default `num_decimals` 2); `formula_err` is written by the server on save | field | **Free Plus** |
+| `calc` (a number, negative and decimal allowed) | option row of radio, checkbox, select, multiselect, imgRadio, pay* | **Free Plus** |
+| `calc_as_price` (`'1'`: the result is an amount to pay) | calc field of a payment form | **Pro** |
+
+`num_digits`, `num_prefix` and `num_suffix` are F04 keys on number / range / prcfld / calc rows only; on a text
+field they keep the F01 numeric-mask meaning (`num_digits` = decimal places 0–6), one save rule per row type.
+A number field with none of these keys renders and stores exactly as before (`type="number"`); with one of them it
+is a text box (`inputmode="decimal"`, `dir="ltr"`, `data-num="1"`, `data-numcfg`).
+
+- **Formula grammar.** `expr := term (('+'|'-') term)*`, `term := unary (('*'|'/') unary)*`, `unary := ('-'|'+')
+  unary | primary`, `primary := NUMBER | ref | fn(args) | (expr)`; refs `{id}`, `{field:id}`, `{id.count}`,
+  `{id.price}`, `{id.lo}`, `{id.hi}`; functions `round ceil floor` (scale 0–6, half away from zero), `min max sum
+  avg count abs`, `if` (short-circuit), `gt gte lt lte eq neq` (ε 1e-9), `and or not`, `mod`, `pow` (integer
+  exponent −10…10). Persian / Arabic digits, ٫ and ، are read. Limits: 2000 characters, 512 tokens, depth 32,
+  100 references, |x| ≤ 1e15. A choice field reads as the sum of the chosen options' `calc` (else a numeric
+  `opt_value`, else 0); a two-handle slider as `hi − lo`; a field hidden by Conditional Logic as empty (0, or an
+  empty result with `calc_empty: blank`); text that is not a number is an error, never 0.
+- **Answer rows.** Numbers are stored canonical ASCII (`1250000.5`); the server writes `disp` (the display:
+  separators, digits, affixes, currency) next to a formatted number, a calc result or a slider pair; a browser's
+  `disp` is dropped. A calc row in a request is always dropped: the server computes every calc on every submit
+  endpoint (forms/message/add, payments/create, the older payment routes, the offline restore, API clients) from
+  the checked answers and stores `{type: 'calc', value, disp}`. A two-handle slider stores `value` `"lo..hi"`,
+  `lo`, `hi`. Conditional Logic reads calc values as the server computes them (`Calc::logic_rows()`).
+- **Codes** (answer `code`, with `field_id`): `efb_num_nan`, `efb_num_dec`, `efb_num_step`, `efb_num_min`,
+  `efb_num_max`, `efb_num_order` (slider lo > hi), `efb_calc_required` (a required calc without a result),
+  `efb_calc_error` (a required calc that cannot be calculated). Payments: `price_not_computable` (the formula
+  fails), `invalid_selection` (a negative amount), `quote_changed`, readiness `pay_calc_plan` (a calc amount on a
+  plan without the part).
+- **Builder.** `efbBuilderApi.insertItems` / `setForm` run the save rules on F04 keys (`calc_invalid` with `path`),
+  check every formula of the form with the server's codes (`calc_formula` + `formula_code`: `calcSyntax`,
+  `calcEmpty`, `calcLong`, `calcTokens`, `calcDepth`, `calcRefs`, `calcFn`, `calcArgs`, `calcRef`,
+  `calcForbidden`, `calcCycle`; `near`) and need `{allow: {payment: true}}` for `calc_as_price` (`calc_payment`).
+  `validateFormula(formula, rows?)` → `{ok, code, pos, near, refs}` (= `Calc::validate_formula()` in PHP);
+  `setCalc(id, patch)` writes number / slider / calc / option keys of one field (`invalid_setting` for `step` or
+  another key, `unknown_field`) and returns `{changed, values, plan}`; `removeItems()` adds
+  `warnings: [{code: 'dangling_reference', field, ref}]` when a formula reads a removed field.
+- **Registry.** `setting:number_format`, `setting:range_dual` (free), `field:calc`, `setting:calc_option`
+  (Free Plus), `setting:calc_price` (Pro), each with `form_keys`; top level `calc` = `{types, field_keys,
+  option_keys, enums, functions, parts, grammar, limits, codes, answer, never: {step}, readonly: [formula_err],
+  validate, plan}`.
+- **Schema.** `forms/{id}/schema`: a calc field is `assistant: none` with `fill.api none` and `calc: {refs,
+  decimals, shown, error}` (the ids its formula reads, never the formula); number and range fields carry
+  `number: {step, decimals, min, max, input, dual}`.
+- **Validation for SitePilot.** `Calc::validate_rows($rows)` (`errors`: `calc_formula`, `calc_invalid`; `flags`:
+  `payment`) for efb_api_form_validate; the same rules run in `sanitize_obj_msg_efb` (explicit cases) and
+  `filter_attributes_by_type_efb` (`calc`, `range` → `lo`, `hi`).
+- **Visitor page.** `window.EFBCalc` (`parse`, `evaluate`, `run`, `evaluateForm`, `format`, `parseInput`, `check`,
+  `live`, `page.schedule / recompute`, `sliders`); results are recomputed 100 ms after an answer changes, in
+  dependency order, into an `<output role="status" aria-live="polite">`.
+- **Tests.** `test-calc-engine.js|php`, `test-calc-parity.js`, `test-number-render.php`,
+  `test-number-input-normalize.js`, `test-number-server-validation.php`, `test-number-format.js|php`,
+  `test-calc-save-roundtrip.php`, `test-calc-render.php`, `test-calc-runtime.js`, `test-calc-submit.php`,
+  `test-calc-submit-http.php`, `test-range-dual.js`, `test-range-dual-server.php`, `test-calc-payment.php`,
+  `test-calc-logic.php`, `test-ap-calc.js`, `test-addon-googlesheet-calc.php`, `test-cf7-importer.php`,
+  `test-response-viewer-escaping.js` and the e2e scenarios `f04a` … `f04e`, `f04pay`.
+
 ### PAY01. Mollie gateway field (`mollie`, add-on `AdnMOL`)
 
 Add-on `vendores-efb/mollie` on the PAY00 contract; nothing new in core. For agents:

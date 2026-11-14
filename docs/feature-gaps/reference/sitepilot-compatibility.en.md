@@ -992,6 +992,16 @@ future API should call `Emsfb\Field_Rules::validate_rows()`); the backfill start
 `assistant: none`; numbers accept localized digits and separators, stored ASCII. Must add: validate
 parses `formula` with the shared grammar and checks every `{id}` exists (dangling → error);
 `num_step` must never be written as `step`.
+*Built (2026-11-14):* the keys above with these names (`num_digits`, `num_prefix`, `num_suffix` are F04 keys on
+number / range / prcfld / calc rows; on a text row they keep F01's numeric-mask meaning), plus `calc_as_price`
+(Pro, needs `allow.payment`) and the answer keys `disp`, `lo`, `hi` (server-written). Validate:
+`Calc::validate_rows()` / `Calc::validate_formula()` and `efbBuilderApi.validateFormula()` give the same codes
+(`calc_formula` + `formula_code`, `calc_invalid`); removing a field a formula reads warns `dangling_reference`.
+Schema: calc fields are `assistant: none` with `calc.refs` (never the formula); number / range fields carry
+`number: {step, decimals, min, max}`. Codes: `efb_num_*`, `efb_calc_required`, `efb_calc_error`. Registry:
+`setting:number_format`, `setting:range_dual` (free), `field:calc`, `setting:calc_option` (Free Plus),
+`setting:calc_price` (Pro), `capabilities.calc`. `num_prefix` / `num_suffix` are at most 20 characters, plain
+text (`" < > \``` removed). See docs/autopilot-integration.md (F04).
 
 **F05 choices.** Create: option `opt_value`, `op_lock`, `inv_cap`; parent `op_random`, `op_other*`,
 `op_select_all`, `minSelect`/`maxSelect`, `inv_*`, `dyn_*` (opt-in for `users`), `ranking`, `rank_*`.

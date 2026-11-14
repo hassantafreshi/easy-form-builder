@@ -1,6 +1,6 @@
 # F04 — عدد، قالب‌بندی و محاسبه (Number formatting, calculation field, choice calc values, dual range)
 
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 · تلاش: L · وابستگی: F05 (کلید `calc` روی گزینه و جدایی مقدار از برچسب)، F01 (یکسان‌سازی ارقام)؛ F09 از قرارداد بخش ۶.۴ همین سند استفاده می‌کند
+وضعیت: **پیاده‌سازی شد (۲۰۲۶-۱۱-۱۴، زیرتسک‌های A تا G؛ H فقط فهرست عبارت‌ها، ترجمه به دستور مالک انجام نشد)** · اولویت: P0 · تلاش: L · وابستگی: F05 (کلید `calc` روی گزینه و جدایی مقدار از برچسب)، F01 (یکسان‌سازی ارقام)؛ F09 از قرارداد بخش ۶.۴ همین سند استفاده می‌کند
 
 > شاخهٔ مبنا `dev4`، نسخهٔ 4.3.1، بررسی ۲۰ آبان ۱۴۰۵ (2026-11-11). شماره‌خط‌ها با هر commit جابه‌جا می‌شوند؛ پیش از ویرایش، نام تابع را دوباره grep کن.
 > مرجع‌ها: [راهنمای پیاده‌سازی](IMPLEMENTATION-PLAYBOOK.en.md) (§۲ Recipe A، §۳ Recipe B، §۱.۶ sanitizer، §۲.۵ سرور، §۱۰ دام‌ها)، [امکانات فعلی](reference/current-capabilities.en.md) §۲، [ماتریس رقبا](reference/competitor-matrix.en.md) §۲، [راهنمای ماسک](reference/masks-and-validators.en.md) §۴ (یکسان‌سازی ارقام) و `reference/masks-ref/` (`normalizeDigits`، `efbm_normalize_digits`، `efbm_format_thousands`).
@@ -394,11 +394,11 @@ IDENT    := round | ceil | floor | min | max | abs | if | sum | avg | count
 - آزمون: `node tests/test-calc-engine.js`، `php tests/test-calc-engine.php`، `node tests/test-calc-parity.js` (هر دو را اجرا می‌کند و خروجی را diff می‌گیرد).
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `public/assets/js/calc-efb.js` (`window.EFBCalc`)، `includes/class-Emsfb-calc.php` (`Emsfb\Calc`، همزاد PHP)، `docs/feature-gaps/reference/calc-test-vectors.json` (۱۹۳ فرمول، ۳۷ عدد تایپ‌شده، ۲۷ بررسی، ۲۶ قالب، ۱۰ فرم کامل)، `includes/class-Emsfb.php`.
+- تست‌ها: `node tests/test-calc-engine.js` (۳۰۵)، `php tests/test-calc-engine.php` (۳۰۵)، `node tests/test-calc-parity.js` (۳۳۶۴: همهٔ بردارها + ۱۵۰۰ فرمول و ۴۰۰ عدد تولیدی + قاعدهٔ ذخیره و خطاهای فرم، بایت‌به‌بایت). grep نبودن `eval`/`Function`/`create_function` در هر دو فایل؛ ورودی ۱۰ هزار نویسه‌ای زیر ۵ میلی‌ثانیه با `calcLong` رد می‌شود؛ تودرتویی عمیق بدون سرریز پشته `calcDepth` می‌گیرد.
+- وضعیت ترجمه: عبارتی ندارد.
+- مورد باز: —
+- اقدام بعدی: B.
 
 ### B. گام، اعشار، min/max اعشاری و ارقام محلی در `number`
 - فایل‌ها: `class-Emsfb-formbuilder.php` (202-232، 3041-3070)، `admin-efb.js` (6872-6913، handlerهای 2104 و 2150)، `val-efb.js` (1481-1538)، `core-efb.js` (1338-1350، 3960-4096، تابع‌های تازه)، `class-Emsfb-public.php` (3325-3347)، `class-Emsfb-cf7-mapper.php` (810-858).
@@ -406,11 +406,11 @@ Checkpoint
 - آزمون: `php tests/test-number-render.php` (الگوی `tests/test-password-placeholder-render.php`)، `node tests/test-number-input-normalize.js` (الگوی `tests/test-response-viewer-escaping.js` با بیرون کشیدن تابع)، `php tests/test-number-server-validation.php` (بلوک case بین نشانگرهای کامنت ثابت از سورس استخراج شود)، و `php tests/test-cf7-importer.php`.
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-formbuilder.php` (عدد با کلید F04 ← جعبهٔ متنی `inputmode=decimal`، `dir=ltr`، `data-num`، `data-numcfg`؛ پیشوند/پسوند و ارز در گروه ورودی F03؛ «بین … و …» با `aria-describedby`)، `admin-efb.js` و `calc-builder-efb.js` (گام و اعشار، حداقل/حداکثر اعشاری و منفی، رفع باگ «حداقل = اجباری»)، `val-efb.js`، `core-efb.js` (`efb_num_check_efb`، قالب‌بندی زنده)، `class-Emsfb-public.php` (`Calc::check_row`، کدهای `efb_num_*`)، `functions.php` (caseهای صریح ذخیره)، `class-Emsfb-cf7-mapper.php`.
+- تست‌ها: `php tests/test-number-render.php` (۲۱؛ فرم قدیمی بایت‌به‌بایت با fixture ساخته‌شده از رندرکنندهٔ commit پیش از F04)، `node tests/test-number-input-normalize.js` (۲۰)، `php tests/test-number-server-validation.php` (۲۴)، `test-cf7-importer.php` روی وردپرس e2e (۱۸۴؛ `[number n min:-5 max:9.5 step:0.5]` بدون یادداشت).
+- وضعیت ترجمه: عبارت‌ها افزوده شد، ترجمه نشد (دستور مالک).
+- مورد باز: فیلد `number` **بدون** کلید F04 همان رفتار قبلی را دارد (از جمله `maxlength="9"` برای حداکثر ۹٫۵، باگ §۲۰) تا فرم‌های قدیمی دقیقاً همان بمانند؛ با گذاشتن هر کلید F04 (مثلاً گام) فیلد به جعبهٔ تازه می‌رود.
+- اقدام بعدی: C.
 
 ### C. قالب نمایش، پیشوند و پسوند، ارز
 - فایل‌ها: همان B به‌اضافهٔ `Calc::format`، `email_get_content_efb`، `response-viewer-efb.js` (ردیف عام و CSV)، `list_form-efb.js` (CSV)، و `admin-rtl-efb.css`.
@@ -418,11 +418,11 @@ Checkpoint
 - آزمون: `node tests/test-number-format.js` (fa، ar، en، de)، `php tests/test-number-format.php` (هم‌خوانی با JS)، Playwright `tests/test-number-field-browser.js`، و تمدید `node tests/test-response-viewer-escaping.js` با پیشوند خصمانه.
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `calc-builder-efb.js` (قالب، جداکننده‌ها، ارقام نمایشی، پیشوند/پسوند برای calc و اسلایدر، «نمایش با ارز فرم»، «حداکثر ۰ واقعی»، پیش‌نمایش)، `Calc::format/display/with_display` (کلید `disp` را سرور می‌نویسد)، ایمیل (`email_get_content_efb`، با `dir=auto` و `unicode-bidi:isolate`)، `response-viewer-efb.js` (`<bdi dir="auto">` و `data-csv`)، `smart-tags` (برچسب `{field:id}` نمایش و `{field:id.value}` عدد خام)، `Formbuilder::currency_table_efb()`.
+- تست‌ها: `node tests/test-number-format.js` (۱۸؛ fa، ar، en، de)، `php tests/test-number-format.php` (۱۱)، `node tests/test-response-viewer-escaping.js` (۶۳، `disp` خصمانه)، e2e `f04b` (مکان‌نما وسط عدد، ایمیل، نمایشگر، CSV) و `f04c` (fa_IR و ar در ۳۷۵px).
+- وضعیت ترجمه: افزوده، ترجمه نشد.
+- مورد باز: CSV از قبل `-12` را خنثی نمی‌کرد (الگوی عددی مستثنا بود)؛ تغییری لازم نشد.
+- اقدام بعدی: D.
 
 ### D. نوع `calc`: سازنده، رندر و runtime کلاینت
 - فایل‌ها: `val-efb.js` (`fields_efb`، case `calc`، ستون گزینه)، `admin-efb.js` (`sampleElpush_efb`، `addNewElement`، handlerها، `aId`)، `class-Emsfb-formbuilder.php` (case `calc`)، `core-efb.js` (زمان‌بندی و ثبت)، `class-Emsfb-public.php` (enqueue شرطی، `$list_pro_elements`)، `functions.php` (case `formula` در `sanitize_obj_msg_efb`).
@@ -430,11 +430,11 @@ Checkpoint
 - آزمون: `php tests/test-calc-save-roundtrip.php` (الگوی `tests/test-conditional-logic-save-roundtrip.php` با stub آرایه‌وفادار)، `php tests/test-calc-render.php`، `node tests/test-calc-runtime.js` (vm و DOM ساختگی، الگوی `tests/test-core-multiform-validation-scope.js`)، و Playwright `tests/test-calc-browser.js`.
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `val-efb.js` (کاشی «Calculation»، Free Plus، و پنل)، `admin-efb.js` (پیش‌فرض‌ها، `addNewElement`، `aId`)، `calc-builder-efb.js` (فرمول، «Insert field»، دکمه‌های تابع، خطا زیر جعبه، ستون «Calculation value» گزینه در ردیف ویژگی‌های F05)، `choices-builder-efb.js`، `class-Emsfb-formbuilder.php` (`case 'calc'`، اعلان پلن)، `core-efb.js` و `calc-efb.js` (`EFBCalc.page`: محاسبهٔ دوباره ۱۰۰ms پس از هر تغییر، ترتیب توپولوژیک، `<output role="status" aria-live="polite">`)، `includes/data/field-templates-efb.json`.
+- تست‌ها: `php tests/test-calc-save-roundtrip.php` (۴۰)، `php tests/test-calc-render.php` (۱۱)، `node tests/test-calc-runtime.js` (۱۳: دو فرم در یک صفحه، debounce، تقسیم بر صفر، منطق شرطی)، e2e `f04a`.
+- وضعیت ترجمه: افزوده، ترجمه نشد.
+- مورد باز: پیش‌نمایش سازنده نتیجه را از پاسخ‌های پیش‌نمایش حساب می‌کند ولی پرداخت را نشان نمی‌دهد.
+- اقدام بعدی: E.
 
 ### E. محاسبهٔ دوبارهٔ سرور و نمایش
 - فایل‌ها: `class-Emsfb-public.php` (case `calc`، فراخوانی پس از 3447، `$attribute_map_efb`، `$structural_types`، `$translation_keys`)، `class-Emsfb-calc.php` (`evaluate_form`)، ایمیل، نمایشگر و CSV.
@@ -442,11 +442,11 @@ Checkpoint
 - آزمون: `php tests/test-calc-submit.php` (stub، بلوک استخراج‌شده)، `php tests/test-submit-payload-robustness.php` (WP، رگرسیون)، و `php tests/test-calc-submit-wp.php` (WP، با `[SKIP]` اگر وردپرس نباشد).
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-public.php` (case `calc` ردیف مرورگر را دور می‌ریزد؛ `Calc::submit_rows` پس از `Choices::add_ov` و پیش از برچسب‌های هوشمند؛ `$structural_types`، `$attribute_map_efb` با `calc` و `range → lo/hi`، `plan_locked_field_types_efb`، `$list_pro_elements`؛ `Calc::logic_rows` پیش از `efb_logic_prepare_submission`)، `Calc::evaluate_form` (همزاد `EFBCalc.evaluateForm`).
+- تست‌ها: `php tests/test-calc-submit.php` (۱۴)، `php tests/test-calc-submit-http.php` (۱۴، وردپرس واقعی؛ نام spec: `test-calc-submit-wp.php`)، `php tests/test-calc-logic.php` (۶، اعتبارسنج واقعی افزونهٔ منطق)، e2e `f04b`، `f04e`.
+- وضعیت ترجمه: افزوده، ترجمه نشد.
+- مورد باز: —
+- اقدام بعدی: F.
 
 ### F. اسلایدر دوطرفه
 - فایل‌ها: `val-efb.js` (case range 1668)، `admin-efb.js` (6936، handler)، `class-Emsfb-formbuilder.php` (2551)، `core-efb.js` (رویدادها، `fun_show_val_range_efb` در `new-efb.js:1381`)، `class-Emsfb-public.php` (case range، `lo`/`hi`)، و CSS RTL.
@@ -454,11 +454,11 @@ Checkpoint
 - آزمون: `node tests/test-range-dual.js`، `php tests/test-range-dual-server.php`، و Playwright `tests/test-range-dual-browser.js` (fa و en، موبایل 375px).
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `Calc::range2_markup` / `range_setup` / `check_row` (dual)، `class-Emsfb-formbuilder.php` (case `range`)، `calc-builder-efb.js` (`rangeModeEl`، `efbRange2Canvas`)، `admin-efb.js`، `calc-efb.js` (`EFBCalc.sliders`: عبور نکردن دسته‌ها، PageUp/PageDown ده گام، `aria-valuetext`)، `calc-efb.css` (لمس ۴۴px، RTL).
+- تست‌ها: `node tests/test-range-dual.js` (۱۴، Chromium: fa در ۳۷۵px)، `php tests/test-range-dual-server.php` (۱۵)، `test-calc-submit-http.php` بخش ۵، e2e `f04c` و `f04d`.
+- وضعیت ترجمه: افزوده، ترجمه نشد.
+- مورد باز: Safari iOS آزموده نشد (فقط Chromium در این محیط).
+- اقدام بعدی: G.
 
 ### G. (اختیاری، Pro) `calc` به‌عنوان مبلغ پرداخت
 - فایل‌ها: `new-efb.js` (`fun_total_pay_efb` 1892، با `calc_as_price:"1"`)، `class-Emsfb-public.php` (`fun_validation_pay_elements_efb` 9794: مبلغ از `Calc::evaluate_form` روی ردیف‌های تأییدشده گرفته شود، نه از مرورگر؛ منفی رد شود)، و افزونه‌های درگاه در مخزن خودشان.
@@ -466,21 +466,21 @@ Checkpoint
 - آزمون: `php tests/test-payment-validation-input-types.php` (WP، رگرسیون) و `php tests/test-calc-payment.php`.
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `Calc::price_items` و `payment_readiness`، `includes/payments/class-Emsfb-payment-pricing.php` (مبلغ calc در `quote`)، `fun_validation_pay_elements_efb` (مسیرهای قدیمی Stripe/PayPal/PersiaPay)، `payment-core-efb.js` (نمایش quote)، `calc-efb.js` (`price` روی ردیف calc و جمع صفحه)، `calc-builder-efb.js` (کلید با دروازهٔ Pro).
+- تست‌ها: `php tests/test-calc-payment.php` (۱۳)، `test-pay-pricing.php`، `test-pay-readiness.php`، `test-ap-b7-computed-price.php` بدون تغییر و سبز، e2e `f04pay` (درگاه آزمایشی: ۱۳۱٫۰۰ از سرور، مبلغ جعلی `quote_changed`).
+- وضعیت ترجمه: افزوده، ترجمه نشد.
+- مورد باز: افزونه‌های درگاه تغییری لازم نداشتند (مبلغ را از `Pricing::quote` یا `fun_validation_pay_elements_efb` می‌گیرند).
+- اقدام بعدی: H.
 
 ### H. ترجمه و انتشار
 - همهٔ کلیدهای §۱۶ در همهٔ زبان‌ها، با تأیید `check-locale.php`، و یادداشت تغییرات در `docs/` (بدون migration، چون جدولی تغییر نکرده).
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `docs/core-i18n/catalog.json` و `docs/core-i18n/easy-form-builder.pot` با `php tests/core-i18n/extract.php` (۴۱ عبارت تازه)، `readme.txt` (Unreleased)، `docs/autopilot-integration.md` (F04)، `reference/sitepilot-compatibility.en.md`، `BUGS-FOUND.fa.md`، `tests/e2e-wp/README.md`.
+- تست‌ها: —
+- وضعیت ترجمه: پیاده‌شده و آزموده؛ **ترجمه نشده** (دستور مالک: فقط فهرست عبارت‌ها)؛ بسته ساخته و منتشر نشده.
+- مورد باز: ترجمهٔ ۷۰ زبان با `efb-core-i18n-translate` هر وقت مالک بخواهد.
+- اقدام بعدی: —
 
 ---
 
@@ -502,6 +502,17 @@ Checkpoint
 4. نمایش «عدد به حروف» (یک میلیون و دویست و پنجاه هزار تومان) برای مبلغ‌های فارسی و عربی (راهنمای ماسک، بخش «Amounts in Persian») به F04 اضافه شود یا تسک جدا؟
 5. سطح `calc`: Free Plus (پیشنهاد) یا Pro مثل اکشن `calculate` افزونه؟
 6. اگر فرمی هم فیلد `calc` و هم اکشن `calculate` افزونه روی یک هدف داشت، هشدار کافی است یا ذخیره رد شود؟
+
+### تصمیم‌ها (پیاده‌سازی، ۲۰۲۶-۱۱-۱۴)
+
+1. **رفع شد.** تعیین حداقل دیگر فیلد را اجباری نمی‌کند؛ اجباری بودن فقط از کلید «Required» می‌آید. فرم‌های ذخیره‌شده تغییر نمی‌کنند.
+2. **`num_max_zero:"1"` ساخته شد.** بی‌آن، `mlen="0"` مثل امروز «بی‌حد» است (واردکنندهٔ CF7 برای `max:0` این کلید را می‌گذارد).
+3. **خطا.** مقدار ناعددی یک فیلد متنی در فرمول خطای `calcNaN` است، نه صفر (قرارداد افزونهٔ منطق).
+4. **تسک جدا.** «عدد به حروف» در F04 نیامد.
+5. **Free Plus** برای فیلد `calc` و `calc` گزینه، **Pro** برای «نتیجه به‌عنوان مبلغ پرداخت»، **رایگان** برای گام، اعشار، قالب، پیشوند/پسوند، ارز و اسلایدر دوطرفه (`Calc::PLAN`، فیلتر `efb_calc_plan`). در صفحه، فیلد `calc` بدون پلن اعلان پلن را نشان می‌دهد و سرور هیچ ردیف `calc` ذخیره نمی‌کند؛ مبلغ calc روی پلن پایین‌تر نیست و آمادگی پرداخت `pay_calc_plan` می‌گوید.
+6. **هشدار کافی است، ولی عملاً لازم نشد.** سرور مقدار `calc` را همیشه خودش می‌سازد و پیش از منطق شرطی هم جایگزین می‌کند (`Calc::logic_rows`)، پس اکشن `calculate` افزونه روی فیلد `calc` اثری بر مقدار ذخیره‌شده ندارد؛ ذخیره رد نمی‌شود.
+
+تصمیم‌های دیگر: (الف) نام کلیدها همان §۵ ماند؛ `num_digits`، `num_prefix` و `num_suffix` که پیش‌تر در ماسک عددی F01 روی فیلد متنی معنای دیگری داشتند، قاعدهٔ ذخیره را بر اساس نوع ردیف می‌گیرند. (ب) پیشوند و پسوند فیلد `number` همان کنترل F03 است؛ `num_prefix`/`num_suffix` در سازنده برای `calc` و اسلایدر می‌آید و روی `number` اگر F03 خالی باشد به جایش می‌نشیند. (ج) فیلد `number` با هر کلید F04 به جعبهٔ متنی تبدیل می‌شود تا ارقام فارسی و عربی پذیرفته شوند؛ بدون کلید، همان `type=number` قبلی. (د) نمایش (`disp`) را سرور هنگام ارسال می‌نویسد و نمایشگر و ایمیل همان را نشان می‌دهند (مثل `disp` تاریخ F06)؛ CSV و Google Sheets عدد متعارف می‌گیرند. (هـ) خطای فرمول (`formula_err`) ذخیره را رد نمی‌کند؛ نشانه است و صفحه نتیجه را خالی می‌گذارد. (و) `prcfld` قاعدهٔ خودش را نگه داشت.
 
 ---
 
