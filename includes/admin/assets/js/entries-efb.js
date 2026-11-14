@@ -85,12 +85,19 @@
       return Array.isArray(v) ? v : [];
     } catch (e) { return []; }
   }
+  /** F10-C: the text of a stored rich answer (tags gone, entities read, paragraphs on their own lines). */
+  function richText(v) {
+    const h = String(v).replace(/@efb@dq#/g, '"');
+    if (W.EFBRichCore && typeof W.EFBRichCore.plain === 'function') return W.EFBRichCore.plain(h);
+    return h.replace(/<\s*br\s*\/?>/gi, '\n').replace(/<\/\s*(p|li|h3|h4|blockquote)\s*>/gi, '\n').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&amp;/g, '&').trim();
+  }
   /** The answer of one field as text (checkbox options and repeater rows joined), stored quote token decoded. */
   function valueOf(rows, id) {
     const out = [];
     for (const r of rows) {
       if (!r || String(r.id_) !== String(id) || r.value === undefined || r.value === null || typeof r.value === 'object') continue;
       let v = String(r.value);
+      if (r.fmt === 'html') v = richText(v); // F10-C: a rich answer as text
       if (v === '@file@') v = r.url ? String(r.url).split('/').pop() : '';
       if (v === '@prv@') v = T('prvRedacted', 'Removed for privacy');
       v = v.replace(/@efb@dq#/g, '"').replace(/@efb!/g, ', ').replace(/@n#/g, ' ').replace(/,\s*$/, '').trim();
@@ -109,7 +116,7 @@
     const parts = [];
     for (const r of rowsOf(content)) {
       if (!r || r.value === undefined || r.value === null || r.value === '' || r.value === '@file@' || typeof r.value === 'object' || skip.includes(r.type)) continue;
-      const v = (r.value === '@prv@' ? T('prvRedacted', 'Removed for privacy') : String(typeof r.disp === 'string' && r.disp !== '' ? r.disp : r.value))
+      const v = (r.value === '@prv@' ? T('prvRedacted', 'Removed for privacy') : (r.fmt === 'html' ? richText(String(r.value)).replace(/\n+/g, ' ') : String(typeof r.disp === 'string' && r.disp !== '' ? r.disp : r.value)))
         .replace(/<[^>]*>/g, '').replace(/@efb@dq#/g, '"').replace(/@efb!/g, ', ').replace(/@n#/g, ' ').replace(/@efb[^#]*#/g, ' ').replace(/,\s*$/, '').trim();
       if (v === '') continue;
       parts.push([String(r.name || r.id_ || '').replace(/@efb@dq#/g, '"'), v]);
@@ -769,7 +776,7 @@
       const typ = { email: 'email', url: 'url', color: 'color', date: /^\d{4}-\d{2}-\d{2}$/.test(init) || !init ? 'date' : 'text' }[f.type] || 'text';
       const num = ['number', 'range', 'rating', 'pointr5', 'pointr10', 'prcfld'].includes(f.type) ? ' inputmode="decimal"' : (['tel', 'mobile'].includes(f.type) ? ' inputmode="tel"' : '');
       input = f.type === 'textarea'
-        ? `<textarea class="efb form-control" rows="3" dir="auto" ${attrs} data-init="${esc(init)}">${esc(init)}</textarea>`
+        ? `<textarea class="efb form-control" rows="3" dir="auto" ${attrs} data-init="${esc(init)}"${f.rich ? ' data-rte="1" data-rte-tb="full"' : ''}>${esc(init)}</textarea>`
         : `<input type="${typ}" class="efb form-control" dir="auto"${num} ${attrs} data-init="${esc(init)}" value="${esc(init)}">`;
     }
     const missing = !rows.length && f.mode === 'edit';
@@ -811,6 +818,8 @@
     S.editing = { added: {}, uploading: 0 };
     box.innerHTML = form;
     box.style.maxHeight = 'none';
+    // F10-C: a rich answer is edited with the visitor's editor (only the allow-list is kept; the server cleans again).
+    if (W.EFBRich && typeof W.EFBRich.mountIn === 'function') { try { W.EFBRich.mountIn(box); } catch (e) { /* a plain textarea */ } }
     const first = box.querySelector('input:not([type=hidden]), select, textarea');
     if (first) first.focus();
   }

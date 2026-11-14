@@ -1390,7 +1390,9 @@ public function check_nonce_permission_efb($request) {
 			'repeater','rowN','addRow','removeRow','removeRowConfirm','rptRemoveBtn','rptKeepBtn','rowAdded','rowRemoved','expandRow','collapseRow',
 			'rptMaxReached','rptMinRowsMsg','rptMaxRowsMsg','rptCountMismatch','rptRowRequired','rptChildLabel',
 			/* F10: the review page before sending (layout-efb.js). */
-			'rvwTtl','rvwEdit','rvwEditStep','rvwEditField','rvwBackToReview','rvwConfirm','rvwNoAnswer','rvwAmount','rvwAmountLoading','rvwAmountLater','rvwSigned','rvwFilesN','rvwHelp'];
+			'rvwTtl','rvwEdit','rvwEditStep','rvwEditField','rvwBackToReview','rvwConfirm','rvwNoAnswer','rvwAmount','rvwAmountLoading','rvwAmountLater','rvwSigned','rvwFilesN','rvwHelp',
+			/* F10: the rich text editor (rich-text-efb.js). */
+			'rteToolbar','rteBold','rteItalic','rteUnderline','rteBullets','rteNumbers','rteLink','rteQuote','rteHeading','rteClear','rteLinkPrompt','rteLinkBad'];
 
 			/* Only now is a form or response box really printed. A form in a widget,
 			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
@@ -1475,6 +1477,8 @@ public function check_nonce_permission_efb($request) {
 				preg_match_all($pattern, $value, $icons_ );
 				// F05: the icons of the ranking field's buttons and handle (they are in the markup, not in the form JSON).
 				if (strpos((string) $value, 'ranking') !== false) { $icons_[0][] = 'bi-arrow-up'; $icons_[0][] = 'bi-arrow-down'; $icons_[0][] = 'bi-grip-vertical'; }
+				// F10-C: the rich text editor's toolbar icons (drawn by rich-text-efb.js, not in the form JSON).
+				if (class_exists('\\Emsfb\\Layout') && \Emsfb\Layout::json_has_rich((string) $value)) { foreach (array('bi-type-bold', 'bi-type-italic', 'bi-type-underline', 'bi-list-ul', 'bi-list-ol', 'bi-link-45deg', 'bi-quote', 'bi-type-h3', 'bi-eraser') as $rte_icon_efb) $icons_[0][] = $rte_icon_efb; }
 
 				$iconsd = array_merge($icons_[0] , $icons[0]);
 
@@ -2552,6 +2556,14 @@ public function check_nonce_permission_efb($request) {
 			wp_enqueue_script('efb-layout-js');
 			wp_enqueue_style('efb-layout-css', EMSFB_PLUGIN_URL . 'public/assets/css/layout-efb.css', array(), $asset_version('public/assets/css/layout-efb.css'));
 			$core_deps[] = 'efb-layout-js';
+		}
+		// F10-C: the visitor's rich text editor, only on a form with a rich textarea.
+		if (class_exists('\\Emsfb\\Layout') && \Emsfb\Layout::json_has_rich($form_structure_json)) {
+			wp_register_script('efb-rich-text-js', EMSFB_PLUGIN_URL . 'public/assets/js/rich-text-efb.js', array(), $asset_version('public/assets/js/rich-text-efb.js'), true);
+			wp_enqueue_script('efb-rich-text-js');
+			wp_enqueue_style('efb-rich-text-css', EMSFB_PLUGIN_URL . 'public/assets/css/rich-text-efb.css', array(), $asset_version('public/assets/css/rich-text-efb.css'));
+			$core_deps[] = 'efb-rich-text-js';
+			$main_deps[] = 'efb-rich-text-js';
 		}
 		// F06: the advanced date field's engines and picker, only on pages with one (and only the calendars it can show).
 		if (class_exists('\\Emsfb\\Calendar') && \Emsfb\Calendar::enqueue_public($form_structure_json)) {
@@ -6476,6 +6488,12 @@ public function check_nonce_permission_efb($request) {
 		}
 		$this->efb_conditional_max_step = $max_step > 0 ? $max_step : 1;
 		$this->efb_conditional_form = is_array($form_fields_array) ? $form_fields_array : null;
+		// F10-C: notification, confirmation and webhook rules read a rich answer as its text (contains, equals …).
+		if (is_array($submitted_values) && class_exists('\\Emsfb\\Layout')) {
+			foreach ($submitted_values as $rich_i_efb => $rich_r_efb) {
+				if (is_array($rich_r_efb) && isset($rich_r_efb['fmt']) && $rich_r_efb['fmt'] === 'html') $submitted_values[$rich_i_efb]['value'] = \Emsfb\Layout::row_text($rich_r_efb);
+			}
+		}
 		$this->efb_conditional_rows = is_array($submitted_values) ? $submitted_values : array();
 
 		if (class_exists('Emsfb\\Emsfb_Logic_Validator')) {
@@ -8624,6 +8642,14 @@ public function check_nonce_permission_efb($request) {
 					continue;
 				}
 
+				/* F10-C: a rich answer (fmt html) is cleaned again with the allow-list before it goes into the mail (the
+				 * second layer: the stored value was cleaned on submit), in a block that keeps its own direction. */
+				if (isset($c['fmt'], $c['value']) && $c['fmt'] === 'html' && is_string($c['value']) && class_exists('\\Emsfb\\Layout')) {
+					$rich_mail_efb = \Emsfb\Layout::rich_sanitize(str_replace('@efb@dq#', '"', $c['value']));
+					$addPair(isset($c['name']) && is_string($c['name']) ? str_replace('@efb@dq#', '"', $c['name']) : '', '<div dir="auto" style="unicode-bidi:plaintext">' . $rich_mail_efb . '</div>');
+					continue;
+				}
+
 				if (isset($c['currency'])) { $currency = $c['currency']; }
 
 				if (isset($c['value']) && $c['type']!=="maps") {
@@ -10204,6 +10230,37 @@ public function check_nonce_permission_efb($request) {
 							$validated_item = $item;
 							$still_processing = false;
 							break;
+						case 'textarea':
+							/* F10-C: a rich textarea's answer is HTML: the allow-list (wp_kses), a raw size cap, the
+							 * field's milen / mlen on its text (the browser counts the same), fmt = html written here.
+							 * Any other textarea goes on to default: exactly as before. */
+							if (class_exists('\\Emsfb\\Layout') && \Emsfb\Layout::rich_on($f) && isset($item['value'])) {
+								$is_valid = 0;
+								list($rich_ok_efb, $rich_html_efb, , $rich_code_efb) = \Emsfb\Layout::rich_check($item['value'], $f);
+								if (!$rich_ok_efb) {
+									$len_custom_efb = class_exists('\Emsfb\Field_Rules') ? array(\Emsfb\Field_Rules::custom_msg($f, 'minlen'), \Emsfb\Field_Rules::custom_msg($f, 'maxlen')) : array(null, null);
+									if ($rich_code_efb === 'min') {
+										$error_message = $len_custom_efb[0] !== null ? $len_custom_efb[0] : strtr($this->lanText['ptrnMmm_'], array('%1$s' => '<b>' . esc_html($f['name']) . '</b>', '%2$s' => '<b>' . (int) $f['milen'] . '</b>'));
+									} elseif ($rich_code_efb === 'max') {
+										$error_message = $len_custom_efb[1] !== null ? $len_custom_efb[1] : strtr($this->lanText['ptrnMmx_'], array('%1$s' => '<b>' . esc_html($f['name']) . '</b>', '%2$s' => '<b>' . (int) $f['mlen'] . '</b>'));
+									} else {
+										$error_message = str_replace('%s', '<b>' . esc_html($f['name']) . '</b>', $this->lanText['mnvvXXX_']);
+									}
+									$error_field_id = isset($f['id_']) ? $f['id_'] : '';
+									$still_processing = false;
+									break;
+								}
+								$item = $this->filter_attributes_by_type_efb($item, $f['type']);
+								if (is_array($item)) {
+									$item['value'] = $rich_html_efb;
+									$item['fmt'] = 'html';
+									$is_valid = 1;
+								}
+								$validated_item = $item;
+								$still_processing = false;
+								break;
+							}
+							// no break: a plain textarea is checked by default, as before F10.
 						default:
 							$is_valid = 0;
 							$t	= strtolower($item['type']);
@@ -10285,7 +10342,11 @@ public function check_nonce_permission_efb($request) {
 				// F14: an administrator's edit checks unique values itself, against the other entries (Entries::update).
 				$rules_ctx_efb = $this->field_rules_ctx_efb($form_fields_array, $submitted_values);
 				if ($this->validate_admin_edit_efb) $rules_ctx_efb['no_db'] = true;
+				// F10-C: the rules of a rich answer (words, length, pattern, unique) read its text; the HTML is kept.
+				$rich_keep_efb = isset($validated_item['fmt']) && $validated_item['fmt'] === 'html' && class_exists('\\Emsfb\\Layout') ? $validated_item['value'] : null;
+				if ($rich_keep_efb !== null) $validated_item['value'] = \Emsfb\Layout::rich_plain($rich_keep_efb);
 				$rules_res_efb = \Emsfb\Field_Rules::check($f, $validated_item, $request_data, $raw_passwords_efb, $this->lanText, $rules_ctx_efb);
+				if ($rich_keep_efb !== null) { $validated_item['value'] = $rich_keep_efb; if (!empty($rules_res_efb['ok']) && is_array($rules_res_efb['item'])) $rules_res_efb['item']['value'] = $rich_keep_efb; }
 				if (!$rules_res_efb['ok']) {
 					$is_valid = 0;
 					$error_message = $rules_res_efb['m'];

@@ -18,10 +18,10 @@
   /* ================================================================== core (no DOM) */
 
   var FORM_KEYS = ['review_before_submit', 'review_hide_empty', 'review_title', 'section_accordion'];
-  var FIELD_KEYS = ['collapsed'];
+  var FIELD_KEYS = ['collapsed', 'rich_text', 'rich_toolbar'];
   var RUNTIME_KEYS = ['vis_view'];
-  var LIMITS = { review_title: 120 };
-  var DEFAULTS = { review_before_submit: '0', review_hide_empty: '1', review_title: '', section_accordion: '0', collapsible: '1', collapsed: '0' };
+  var LIMITS = { review_title: 120, rich_raw_max: 65535, rich_raw_min: 4096 };
+  var DEFAULTS = { review_before_submit: '0', review_hide_empty: '1', review_title: '', section_accordion: '0', collapsible: '1', collapsed: '0', rich_text: '0', rich_toolbar: 'basic' };
   var LEGACY_PAY_TYPES = ['stripe', 'paypal', 'persiaPay', 'persiapay', 'zarinPal'];
   /** Rows that are never an answer on the review page (structure, secrets, hidden values). */
   var SKIP_TYPES = ['form', 'step', 'option', 'r_matrix', 'html', 'heading', 'link', 'steps', 'buttonNav', 'ttlprc', 'section',
@@ -47,7 +47,10 @@
       case 'review_hide_empty':
       case 'section_accordion':
       case 'collapsed':
+      case 'rich_text':
         return on(v) ? '1' : '0';
+      case 'rich_toolbar':
+        return v === 'basic' || v === 'full' ? v : 'basic';
       case 'review_title':
         return cut(textField(v), LIMITS.review_title);
     }
@@ -68,9 +71,10 @@
   function untoken(v) { return str(v).replace(/@efb@dq#/g, '"').replace(/@n#/g, '\n'); }
   /** The words of rich text (F10-C stores HTML): block ends and line breaks become new lines, every tag goes. */
   function plainOfHtml(html) {
-    var s = str(html).replace(/<\s*br\s*\/?>/gi, '\n').replace(/<\/\s*(p|li|h3|h4|blockquote|div)\s*>/gi, '\n').replace(/<[^>]*>/g, '');
+    if (root.EFBRichCore && typeof root.EFBRichCore.plain === 'function') return root.EFBRichCore.plain(html);
+    var s = str(html).replace(/<\s*br\s*\/?>/gi, '\n').replace(/<\/?\s*(p|ul|ol|li|h3|h4|blockquote|div)\b[^>]*>/gi, '\n').replace(/<[^>]*>/g, '');
     s = s.replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&amp;/g, '&');
-    return s.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+    return s.replace(/[ \t]+\n/g, '\n').replace(/\n[ \t]*/g, '\n').replace(/\n{2,}/g, '\n').trim();
   }
   function basename(u) { var s = str(u).split('?')[0].split('#')[0]; return s.slice(s.lastIndexOf('/') + 1); }
 

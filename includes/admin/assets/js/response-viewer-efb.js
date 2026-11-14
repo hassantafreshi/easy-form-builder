@@ -22,6 +22,21 @@ function escHtmlEfb(value) {
  * escaping. Anything else an attacker smuggled in (<img onerror=...>,
  * <script>) stays inert as &lt;…&gt;.
  */
+/**
+ * F10-C: a visitor's rich text (rows with fmt "html") as safe HTML for the viewer, print and PDF: the allow-list of
+ * the server (EFBRichCore.clean in rich-text-efb.js, a DOM-free walker: p br strong b em i u ul ol li blockquote h3
+ * h4 and http(s) / mailto links with rel="nofollow ugc noopener"); anything else is text. Without that script the
+ * answer is shown as plain text (line breaks kept). The input is the stored value (not escaped).
+ */
+function efbRichSafeHtml(str) {
+  const raw = String(str == null ? '' : str);
+  if (typeof window !== 'undefined' && window.EFBRichCore && typeof window.EFBRichCore.clean === 'function') return window.EFBRichCore.clean(raw, { display: true });
+  const text = raw.replace(/<(script|style|xml|head|title|template|object|iframe|noscript|svg|math|select|textarea|button|embed)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, '').replace(/<!--[\s\S]*?(-->|$)/g, '').replace(/<\s*br\s*\/?>/gi, '\n').replace(/<\/\s*(p|li|h3|h4|blockquote|div)\s*>/gi, '\n').replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&amp;/g, '&')
+    .split('\n').map((x) => x.trim()).join('\n').trim();
+  return escHtmlEfb(text).replace(/\n/g, '<br>');
+}
+
 function escResponseTreeEfb(node) {
   if (typeof node === 'string') {
     return escHtmlEfb(node).replace(/&lt;br\s*\/?&gt;/gi, '<br>');
@@ -935,7 +950,10 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
    * neutralises hostile values for all of them without any render branch below
    * having to remember to escape. Escaping happens exactly once — callers pass
    * raw parsed content and never pre-escape — so there is no double-encoding. */
+  // F10-C: rich answers are cleaned from their stored value (the tree below is escaped as text).
+  const richSafeEfb = Array.isArray(content) ? content.map((r) => (r && r.fmt === 'html' && typeof r.value === 'string' ? efbRichSafeHtml(r.value.replace(/@efb@dq#/g, '"')) : null)) : [];
   content = escResponseTreeEfb(content);
+
   /* The stored double-quote token, now that the tree is escaped: &quot; is
      right in element text and in attributes alike. */
   content = (function decodeQuoteTokenEfb(node) {
@@ -944,6 +962,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     if (node && typeof node === 'object') { for (const k in node) { if (Object.prototype.hasOwnProperty.call(node, k)) node[k] = decodeQuoteTokenEfb(node[k]); } }
     return node;
   })(content);
+  richSafeEfb.forEach((h, i) => { if (h !== null && content[i] && typeof content[i] === 'object') content[i].__efbRich = h; });
   userIp = escHtmlEfb(userIp);
   track = escHtmlEfb(track);
   date = escHtmlEfb(date);
@@ -1085,6 +1104,11 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       const esignSrc = /^data:image\/png;base64,[A-Za-z0-9+\/]+={0,2}$/.test(c.value) ? c.value : '';
       value = esignSrc ? `<img src="${esignSrc}" alt="${c.name}" class="efb img-thumbnail efb-msg-esign-img">` : `<code>${c.value}</code>`;
       m += `<div class="efb efb-msg-field-row efb-msg-field-block"><span class="efb-msg-field-label"><i class="bi bi-pen"></i> ${title}:</span><div class="efb-msg-field-value"> ${value}</div></div>`;
+    } else if (typeof c.__efbRich === 'string') {
+      /* F10-C: a rich answer, as the allow-list keeps it (efbRichSafeHtml); its own direction per paragraph. */
+      s = true;
+      const richTitle = c.hasOwnProperty('name') ? c.name : '';
+      m += `<div class="efb efb-msg-field-row efb-msg-field-block" data-type="rich"><span class="efb-msg-field-label">${richTitle}:</span><div class="efb efb-msg-field-value efb-msg-rich" dir="auto">${c.__efbRich}</div></div>`;
     } else if (c.type == "hiddenField") {
       /* F08: a hidden value (the tree is escaped already). An address (referrer, page) is a link, http(s) only,
          that sends no referrer and is not followed by search engines. */

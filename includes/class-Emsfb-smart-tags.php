@@ -819,6 +819,8 @@ class Smart_Tags {
 			// F04: a formatted number or a calc result reads as the field shows it (separators, digits, affixes, currency).
 			if (isset($r['disp']) && is_string($r['disp']) && $r['disp'] !== '' && in_array($type, array('number', 'calc', 'range'), true)) $v = $r['disp'];
 			if ($v === '@file@') { $v = isset($r['fnm']) && is_scalar($r['fnm']) ? (string) $r['fnm'] : ''; }
+			// F10-C: a rich answer reads as its text (never its HTML).
+			if (isset($r['fmt']) && $r['fmt'] === 'html' && class_exists('\\Emsfb\\Layout')) $v = preg_replace('/\s+/u', ' ', Layout::rich_plain(str_replace('@efb@dq#', '"', $v)));
 			$v = str_replace(array('@efb@dq#', '@n#'), array('"', ' '), $v);
 			// F09 (spec §11.3): a field of repeater rows (rg / ri) reads as the list of its rows' answers, in row
 			// order ({field:child} outside the group = "Sara, Reza"); the group's own row is its number of rows.

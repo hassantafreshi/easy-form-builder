@@ -3363,6 +3363,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 					if ($im_efb['attrs'] !== '') {
 						$minlen = trim($minlen . ' ' . $im_efb['attrs']);
 					}
+					// F10-C: a rich textarea (Free Plus): rich-text-efb.js puts the editor before it; without JavaScript it is a textarea.
+					if (class_exists('\\Emsfb\\Layout') && \Emsfb\Layout::rich_on($vj)) {
+						$minlen = trim($minlen . ' data-rte="1" data-rte-tb="' . (isset($vj->rich_toolbar) && $vj->rich_toolbar === 'full' ? 'full' : 'basic') . '"');
+					}
 					// F08: a default / placeholder with visitor tags is filled in the browser (data-st-value / data-st-ph);
 					// the extra attribute rides inside the quoted value so an old textarea renders byte for byte as before.
 					$ta_tpl_efb = $this->st_attr_efb(isset($vj->placeholder) ? $vj->placeholder : '', 'placeholder', 'data-st-ph');

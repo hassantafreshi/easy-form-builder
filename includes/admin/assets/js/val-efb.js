@@ -1712,6 +1712,7 @@ function show_setting_window_efb(idset, opts) {
                 <!--  not   advanced-->
                 ${Nadvanced}
                 ${placeholderEls}
+                ${el.dataset.tag == 'textarea' && typeof efbLayoutRichEls === 'function' ? efbLayoutRichEls(indx, idset) : ''}
                 ${maskKindEfb !== null ? maskEls() : ''}
                 ${inputmodeTypesEfb.includes(el.dataset.tag) ? inputmodeEls() : ''}
                 ${typeof efbFieldRulesMainEls === 'function' ? efbFieldRulesMainEls(indx, idset) : '<!-- F03 field-rules-builder-efb.js not loaded -->'}

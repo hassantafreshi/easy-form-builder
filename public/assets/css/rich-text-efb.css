@@ -1,0 +1,18 @@
+/* F10-C: the visitor's rich text editor (rich-text-efb.js). Logical properties: right to left needs no extra rule. */
+.efb.efb-rte { display: flex; flex-direction: column; gap: 0; width: 100%; }
+.efb.efb-rte .efb-rte-bar { display: flex; flex-wrap: wrap; gap: 2px; padding: 2px; border: 1px solid #ced4da; border-block-end: 0; border-start-start-radius: .375rem; border-start-end-radius: .375rem; background: #f8f9fa; }
+.efb.efb-rte .efb-rte-btn { min-width: 44px; min-height: 44px; padding: .25rem .5rem; border: 1px solid transparent; border-radius: .25rem; background: transparent; color: #212529; line-height: 1; cursor: pointer; }
+.efb.efb-rte .efb-rte-btn:hover { background: #e9ecef; }
+.efb.efb-rte .efb-rte-btn:focus-visible { outline: 2px solid #0d6efd; outline-offset: 1px; }
+.efb.efb-rte .efb-rte-btn[aria-pressed="true"] { background: #dee2e6; border-color: #adb5bd; }
+.efb.efb-rte .efb-rte-box { min-height: 8rem; height: auto !important; overflow-y: auto; max-height: 24rem; border-start-start-radius: 0; border-start-end-radius: 0; text-align: start; unicode-bidi: plaintext; white-space: pre-wrap; overflow-wrap: anywhere; }
+.efb.efb-rte .efb-rte-box:focus { outline: 2px solid #0d6efd; outline-offset: -1px; }
+.efb.efb-rte .efb-rte-box p, .efb.efb-rte .efb-rte-box li, .efb.efb-rte .efb-rte-box h3, .efb.efb-rte .efb-rte-box h4, .efb.efb-rte .efb-rte-box blockquote { unicode-bidi: plaintext; }
+.efb.efb-rte .efb-rte-box p { margin: 0 0 .5rem; }
+.efb.efb-rte .efb-rte-box blockquote { margin: 0 0 .5rem; padding-inline-start: .75rem; border-inline-start: 3px solid #adb5bd; }
+.efb.efb-rte .efb-rte-box.efb-rte-empty::before { content: attr(data-placeholder); color: #6c757d; pointer-events: none; }
+.efb.efb-rte .efb-rte-box[contenteditable="false"] { background: #e9ecef; }
+/* The answer in the viewer, the entries screen and print. */
+.efb-msg-rich p, .efb-msg-rich li, .efb-msg-rich h3, .efb-msg-rich h4, .efb-msg-rich blockquote { unicode-bidi: plaintext; text-align: start; margin-block: .25rem; }
+.efb-msg-rich h3 { font-size: 1.15em; } .efb-msg-rich h4 { font-size: 1.05em; }
+.efb-msg-rich blockquote { padding-inline-start: .75rem; border-inline-start: 3px solid #adb5bd; }

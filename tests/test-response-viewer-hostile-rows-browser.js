@@ -23,7 +23,17 @@ const legitPng = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAf
 let failures = 0;
 const check = (label, ok, detail) => { console.log((ok ? '[PASS] ' : '[FAIL] ') + label + (ok ? '' : ' ' + JSON.stringify(detail))); if (!ok) failures++; };
 (async () => {
-  const b = await chromium.launch(process.env.EFB_CHROMIUM ? { executablePath: process.env.EFB_CHROMIUM } : {});
+  // The installed headless shell when Playwright's own build is not there (as the other browser tests do).
+  const launchEfb = async () => {
+    if (process.env.EFB_CHROMIUM) return chromium.launch({ executablePath: process.env.EFB_CHROMIUM });
+    try { return await chromium.launch(); } catch (e) {
+      const base = process.env.PLAYWRIGHT_BROWSERS_PATH || '/opt/pw-browsers';
+      const dirs = fs.existsSync(base) ? fs.readdirSync(base).filter((d) => /^chromium_headless_shell-\d+$/.test(d)).sort().reverse() : [];
+      for (const d of dirs) { const exe = path.join(base, d, 'chrome-headless-shell-linux64', 'chrome-headless-shell'); if (fs.existsSync(exe)) return chromium.launch({ executablePath: exe }); }
+      throw e;
+    }
+  };
+  const b = await launchEfb();
   const ctx = await b.newContext();
   let dialogs = 0, external = [];
   const p = await ctx.newPage();
@@ -109,6 +119,25 @@ const check = (label, ok, detail) => { console.log((ok ? '[PASS] ' : '[FAIL] ') 
   check('RTL viewer: IBAN left to right', bidi.iban && bidi.iban.dir === 'ltr' && bidi.iban.css === 'ltr', bidi.iban);
   check('RTL viewer: Persian text isolated with its own direction (no forced ltr)', bidi.fa && bidi.fa.dir === null && bidi.fa.css === 'rtl', bidi.fa);
   check('RTL viewer: hostile value still escaped and not forced ltr', !bidi.hostileImg && bidi.hostile && bidi.hostile.dir === null, bidi);
+  // F10-C: a rich answer (fmt html) with hostile markup: only the allow-list reaches the page; without rich-text-efb.js, plain text.
+  const richRows = [{ id_: 'ta', name: 'Note <i>x</i>', type: 'textarea', fmt: 'html', amount: 1,
+    value: '<p onclick=alert(1)>Hi <b>there</b></p><img src=x onerror=alert(2)><a href=@efb@dq#javascript:alert(3)@efb@dq#>bad</a><a href=@efb@dq#https://ok.test/a?b=1&amp;c=2@efb@dq# onmouseover=alert(6)>ok</a><script>alert(4)</script><svg onload=alert(5)></svg><p style=@efb@dq#position:fixed@efb@dq# class=x>styled</p>' }];
+  const richView = () => p.evaluate((rows) => {
+    document.documentElement.dir = 'ltr';
+    const box = document.getElementById('resp_efb');
+    box.innerHTML = fun_emsFormBuilder_show_messages(JSON.parse(JSON.stringify(rows)).concat([{ type: 'w_link', value: 'x' }]), 0, '1.2.3.4', 'TRK1', '2026-11-04');
+    const v = box.querySelector('.efb-msg-rich');
+    const all = v ? [...v.querySelectorAll('*')] : [];
+    return { found: !!v, tags: all.map((e) => e.tagName.toLowerCase()), attrs: all.flatMap((e) => [...e.attributes].map((a) => a.name + '=' + a.value)), text: v ? v.textContent : '', label: (box.querySelector('[data-type="rich"] .efb-msg-field-label') || {}).innerHTML };
+  }, richRows);
+  const rp = await richView();
+  check('F10 rich, without the editor script: text only (no element from the data), the words kept', rp.found && rp.tags.every((t) => t === 'br') && /Hi there/.test(rp.text) && /styled/.test(rp.text) && !/alert\(4\)/.test(rp.text), rp);
+  await p.addScriptTag({ path: path.join(__dirname, '..', 'public', 'assets', 'js', 'rich-text-efb.js') });
+  const rs = await richView();
+  const okTags = rs.tags.every((t) => ['p', 'b', 'a', 'br', 'strong', 'em', 'i', 'u', 'ul', 'ol', 'li', 'blockquote', 'h3', 'h4'].includes(t));
+  const okAttrs = rs.attrs.every((a) => /^href=https:\/\/ok\.test\/a\?b=1&c=2$/.test(a) || a === 'rel=nofollow ugc noopener' || a === 'target=_blank');
+  check('F10 rich, with the allow-list: <p>, <b> and the https link (rel nofollow ugc noopener, _blank) only; no img / svg / script / style / class / on*= / javascript:', rs.found && okTags && okAttrs && rs.tags.includes('b') && rs.tags.filter((t) => t === 'a').length === 1 && !/alert/.test(rs.text), rs);
+  check('F10 rich: the field name stays escaped text', rs.label === 'Note &lt;i&gt;x&lt;/i&gt;:', rs.label);
   // F14: a hostile internal note, a hostile author name and a hostile edit in the history are text.
   await p.addScriptTag({ path: R + 'entries-efb.js' });
   const notes = await p.evaluate(() => {

@@ -7,6 +7,8 @@
  *    time" (section_accordion) in the form settings. efbLayoutSectionMarkup() is the twin of the PHP renderer's
  *    generate_section_efb() (byte for byte, tests/test-section-render.php); on the canvas it is inert and marks
  *    where the section starts, in the preview it opens and closes like the page.
+ *  - C: "Rich text editor" and its toolbar (basic / full) on a textarea (Free Plus: the switch is locked with the
+ *    plan gem below Free Plus; the server draws a plain textarea then).
  *
  * Every key goes through the save rule EFBLayoutCore.sanitizeKey (layout-efb.js, twin of \Emsfb\Layout::sanitize_key()).
  */
@@ -124,6 +126,57 @@
   function efbLayoutPreviewInit(root) {
     if (root && root.EFBLayout === undefined && typeof EFBLayout !== 'undefined') root = document;
     try { if (typeof EFBLayout !== 'undefined') EFBLayout.mountSections(root || document, { accordion: on((list()[0] || {}).section_accordion) }); } catch (e) { /* the preview without sections */ }
+    // The preview's rich textareas get the editor (never the canvas: its textareas are not data-rte there until the preview).
+    try { if (typeof EFBRich !== 'undefined') (root || document).querySelectorAll('textarea[data-rte="1"]').forEach((ta) => { if (!ta.closest('#dropZoneEFB')) EFBRich.mount(ta); }); } catch (e) { /* plain textareas */ }
+  }
+
+  /* ------------------------------------------------------------------ C: rich text */
+
+  /** Whether a plan part is open on this site (the registry efb_var.capabilities, else efb_var.pro). */
+  const planOk = (key, fallback) => (typeof efb_capability_available_efb === 'function' ? efb_capability_available_efb(key, fallback) : fallback);
+  const gemFor = (key, need) => `<a type="button" role="button" tabindex="0" class="efb pro-version-efb" onclick="if (typeof efb_upgrade_prompt_efb === 'function') efb_upgrade_prompt_efb({ feature: '${key}', fallback: '${need}', origin: 'field_settings', opener: this });" aria-label="${esc(T(need === 'pro' ? 'proUnlockMsg' : 'thisFeatureAvailableFreePlusPro', 'Upgrade'))}"><i class="efb bi-gem text-light" aria-hidden="true"></i></a>`;
+  /** The textarea's attributes for the editor (twin of the PHP renderer's data-rte / data-rte-tb). */
+  function efbLayoutRichAttrs(r) {
+    if (!r || r.type !== 'textarea' || !on(r.rich_text) || !planOk('setting:rich_text', !!(root.efb_var && (efb_var.pro == 1 || efb_var.pro === true)))) return '';
+    return `data-rte="1" data-rte-tb="${r.rich_toolbar === 'full' ? 'full' : 'basic'}"`;
+  }
+  /** The rich text switch and the toolbar choice (show_setting_window_efb, textarea). */
+  function efbLayoutRichEls(indx, idset) {
+    const r = list()[indx];
+    if (!r || r.type !== 'textarea') return '';
+    const ok = planOk('setting:rich_text', !!(root.efb_var && (efb_var.pro == 1 || efb_var.pro === true)));
+    const isOn = on(r.rich_text);
+    const tb = r.rich_toolbar === 'full' ? 'full' : 'basic';
+    return `<div class="efb efb-layout-rich mt-2" id="efbLayoutRich">
+      <div class="efb form-check form-switch mx-1 my-2 d-flex align-items-center gap-2">
+        <input type="checkbox" role="switch" class="efb elEdit form-check-input" id="richTextEl" data-id="${esc(idset)}" data-key="rich_text" ${isOn ? 'checked' : ''}${ok ? '' : ' disabled aria-disabled="true"'}>
+        <label class="efb form-check-label" for="richTextEl">${esc(T('richText', 'Rich text editor'))}</label>${ok ? '' : gemFor('setting:rich_text', 'free_plus')}
+      </div>
+      <div class="efb ${isOn && ok ? '' : 'd-none'}" id="efbLayoutRichTb">
+        <label for="richToolbarEl" class="efb form-label mt-2 mb-1">${esc(T('richToolbar', 'Toolbar'))}</label>
+        <select class="efb elEdit form-select border-d rounded-4 mb-1" id="richToolbarEl" data-id="${esc(idset)}" data-key="rich_toolbar">
+          <option value="basic" ${tb === 'basic' ? 'selected' : ''}>${esc(T('richBasic', 'Basic'))}</option>
+          <option value="full" ${tb === 'full' ? 'selected' : ''}>${esc(T('richFull', 'Full'))}</option>
+        </select>
+        <small class="efb form-text text-muted fs-8 d-block">${esc(T('richHelp', 'Bold, italic, underline and lists; Full adds links, quotes and headings. The site keeps only these formats.'))}</small>
+      </div>
+    </div>`;
+  }
+  /** The canvas: the textarea gets the same attributes and a small "Rich text" badge. */
+  function richCanvas(r) {
+    const ta = document.getElementById(`${r.id_}_`);
+    if (!ta) return;
+    const attrs = efbLayoutRichAttrs(r);
+    if (attrs) { ta.setAttribute('data-rte', '1'); ta.setAttribute('data-rte-tb', r.rich_toolbar === 'full' ? 'full' : 'basic'); } else { ta.removeAttribute('data-rte'); ta.removeAttribute('data-rte-tb'); }
+    let badge = document.getElementById(`${r.id_}_rtebadge`);
+    if (attrs && !badge) {
+      badge = document.createElement('span');
+      badge.id = `${r.id_}_rtebadge`;
+      badge.className = 'efb badge bg-light text-dark border fs-8 efb-rte-badge';
+      badge.innerHTML = `<i class="efb bi-type-bold" aria-hidden="true"></i> `;
+      badge.appendChild(document.createTextNode(T('richText', 'Rich text editor')));
+      ta.parentNode.insertBefore(badge, ta);
+    } else if (!attrs && badge) badge.remove();
   }
 
   /* ------------------------------------------------------------------ change handler */
@@ -153,6 +206,26 @@
         if (el.value !== L[0].review_title) el.value = L[0].review_title;
         changed('setting', []);
         return true;
+      case 'richTextEl': {
+        const r = L[indx];
+        if (!r || r.type !== 'textarea') return false;
+        if (!planOk('setting:rich_text', false)) { el.checked = false; if (typeof efb_upgrade_prompt_efb === 'function') efb_upgrade_prompt_efb({ feature: 'setting:rich_text', fallback: 'free_plus', origin: 'field_settings', opener: el }); return false; }
+        r.rich_text = sanitize('rich_text', el.checked ? '1' : '0');
+        if (el.checked && r.rich_toolbar === undefined) r.rich_toolbar = 'basic';
+        const tb = document.getElementById('efbLayoutRichTb');
+        if (tb) tb.classList.toggle('d-none', !el.checked);
+        richCanvas(r);
+        changed('setting', [r.id_]);
+        return true;
+      }
+      case 'richToolbarEl': {
+        const r = L[indx];
+        if (!r || r.type !== 'textarea') return false;
+        r.rich_toolbar = sanitize('rich_toolbar', el.value);
+        richCanvas(r);
+        changed('setting', [r.id_]);
+        return true;
+      }
       case 'sectionAccordionEl':
         L[0].section_accordion = sanitize('section_accordion', el.checked ? '1' : '0');
         changed('setting', []);
@@ -177,6 +250,7 @@
     return false;
   }
 
-  const api = { efbLayoutFormEls, efbLayoutBuilderChange, efbLayoutSectionMarkup, efbLayoutSectionRedraw, efbLayoutSectionPanelEls, efbLayoutAccordionEls, efbLayoutPreviewInit };
+  const api = { efbLayoutFormEls, efbLayoutBuilderChange, efbLayoutSectionMarkup, efbLayoutSectionRedraw, efbLayoutSectionPanelEls, efbLayoutAccordionEls, efbLayoutPreviewInit,
+    efbLayoutRichAttrs, efbLayoutRichEls };
   Object.keys(api).forEach((k) => { root[k] = api[k]; });
 })(typeof window !== 'undefined' ? window : globalThis);

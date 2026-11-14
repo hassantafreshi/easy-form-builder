@@ -2528,6 +2528,8 @@ let change_el_edit_Efb = (el) => {
       case "sectionAccordionEl":
       case "sectionCollapsibleEl":
       case "sectionCollapsedEl":
+      case "richTextEl":
+      case "richToolbarEl":
         // F10: the review page, sections, rich text, visibility by role, typed signature (layout-builder-efb.js).
         if (typeof efbLayoutBuilderChange === 'function') efbLayoutBuilderChange(el, indx);
         break;
@@ -7670,6 +7672,8 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       minlen = Number(minlen)!=0 ? `minlength="${minlen}"`:``;
       { const imEfb = efb_mask_attrs_efb(valj_efb[iVJ], 'textarea'); if (imEfb.attrs) minlen = `${minlen} ${imEfb.attrs}`.trim(); } // F01-H
       if (Number(valj_efb[iVJ].mlen) > 0) minlen = `${minlen} maxlength="${Number(valj_efb[iVJ].mlen)}"`.trim(); // F03: a textarea maximum, as on the page
+      // F10-C: a rich textarea, as on the page (the preview runs the editor; the canvas shows a badge).
+      if (typeof efbLayoutRichAttrs === 'function') minlen = `${minlen} ${efbLayoutRichAttrs(valj_efb[iVJ])}`.trim();
       ui = `
                 ${label}
                 <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show"  id='${rndm}-f' >

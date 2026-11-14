@@ -408,6 +408,7 @@
     (rows || []).forEach(function (r, i) {
       if (i < 1 || !r || !r.id_ || !r.type || inArr(['option', 'r_matrix', 'step'], r.type)) return;
       f[String(r.id_)] = { type: String(r.type), name: str(r.name), options: [] };
+      if (r.type === 'textarea' && (r.rich_text === '1' || r.rich_text === 1 || r.rich_text === true)) f[String(r.id_)].rich = true; // F10-C
       // F09: a repeater row's copy ({child}_r{n}) knows its field and row number.
       if (r.rpt_base !== undefined) { f[String(r.id_)].base = str(r.rpt_base); f[String(r.id_)].n = Number(r.rpt_n) || 0; }
     });
@@ -429,6 +430,8 @@
       if (!isScalar(v)) return;
       v = String(v);
       if (v === '@file@') v = str(r.fnm);
+      // F10-C: a rich textarea's answer reads as its text (never its HTML).
+      if ((r.fmt === 'html' || (type === 'textarea' && fields[id] && fields[id].rich)) && root.EFBRichCore) v = root.EFBRichCore.plain(v).replace(/\s+/g, ' ');
       v = v.replace(/@efb@dq#/g, '"').replace(/@n#/g, ' ');
       // F04: a formatted number or a calc result reads as the field shows it (disp; the server writes its own).
       if (typeof r.disp === 'string' && r.disp !== '' && inArr(['number', 'calc', 'range'], type)) v = r.disp;

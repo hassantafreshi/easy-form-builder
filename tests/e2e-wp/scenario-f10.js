@@ -15,6 +15,11 @@
  *        at load (aria-expanded false), keyboard Enter / Space, Send with an empty required field inside the closed
  *        section opens it and stops, then the entry is stored; fa_IR and ar at 375 px (header aligned right, 44 px,
  *        no horizontal scroll).
+ *  f10d  Rich text (C): the builder's "Rich text editor" switch and the Full toolbar (real clicks), Save; a guest
+ *        types with the keyboard (Ctrl+B, the toolbar's list and link buttons, a hostile paste), sends; the entry
+ *        holds the cleaned HTML (fmt html, rel="nofollow ugc noopener" written by the server); the entries screen's
+ *        viewer shows the formatting and no element from the data; its preview and the export are text; the
+ *        editor in fa_IR and ar at 375 px (toolbar right to left, 44 px buttons, Persian typed right to left).
  *  f10pay A payment-framework form (test gateway) with the review page: the amount row is the server's own text
  *        (payments/quote: €27.00 for Adult 25 + fee 2), nothing stored before Confirm, then the provider is asked
  *        for 2700 and the entry is paid.
@@ -281,6 +286,121 @@ module.exports = function (S) {
         }, L.ids);
         R.check(`f10c (${loc}): the header right to left, aligned right like the labels, the chevron at the end (left), 44 px, plaintext, no horizontal scroll`, facts.dir === 'rtl' && facts.align === 'right' && facts.labAlign === 'right' && facts.chevRight && facts.h >= 44 && facts.bidi === 'plaintext' && facts.scroll, facts);
         await g.screenshot({ path: SHOT(`f10c-sections-${loc}-375`), fullPage: true });
+        await g.close();
+      }
+    } finally { ctl('locale', ''); }
+  });
+
+  /* ------------------------------------------------------------------ f10d */
+  scenario('f10d', 'F10-C rich text: builder switch, a guest formats with the keyboard and the toolbar, the entry is clean HTML, the viewer shows it safely; fa_IR / ar at 375 px', async ({ context, adminPage }) => {
+    plan(3);
+    ctl('locale', '');
+    const admin = await adminPage();
+    await openNewForm(admin);
+    const ta = await addTile(admin, 'textarea');
+    await closePanel(admin);
+    await admin.click(`#dropZoneEFB [data-id="${ta.dataId}"]`, { position: { x: 20, y: 10 } });
+    await admin.waitForSelector('#richTextEl', { timeout: 8000 });
+    await admin.check('#richTextEl');
+    await sleep(400);
+    await admin.selectOption('#richToolbarEl', 'full');
+    await sleep(500);
+    const r = await admin.evaluate((id) => { const x = valj_efb.find((q) => q.id_ === id); return { rich: x.rich_text, tb: x.rich_toolbar, badge: !!document.getElementById(id + '_rtebadge') }; }, ta.id_);
+    R.check('f10d: the switch and the Full toolbar are written; the canvas shows the "Rich text editor" badge', r.rich === '1' && r.tb === 'full' && r.badge, r);
+    await admin.screenshot({ path: SHOT('f10d-builder-rich-en') });
+    await closePanel(admin);
+    const saved = admin.waitForResponse((x) => /admin-ajax\.php/.test(x.url()) && /add_form_Emsfb|update_form_Emsfb/.test(x.request().postData() || ''), { timeout: 20000 }).catch(() => null);
+    await admin.evaluate(() => saveFormEfb(1));
+    const sres = await saved;
+    const sj = sres ? await sres.json() : {};
+    await sleep(800);
+    const sfid = Number(String((sj.data && (sj.data.value || sj.data.id)) || '').replace(/\D+/g, '')) || await admin.evaluate(() => Number(form_ID_emsFormBuilder));
+    const st = (ctl('form', String(sfid)).form_structer || []).find((x) => x.type === 'textarea') || {};
+    R.check('f10d: Save stores rich_text "1" and rich_toolbar "full"', st.rich_text === '1' && st.rich_toolbar === 'full', { rich: st.rich_text, tb: st.rich_toolbar });
+
+    // A guest.
+    const F = form('F10 e2e rich', [{ key: 'nm', type: 'text', name: 'Name' }, { key: 'st', type: 'textarea', name: 'Your story', rich_text: '1', rich_toolbar: 'full', required: 1 }]);
+    const ids = F.ids;
+    const p = await open(context, pageOf(F.form_id), 'f10d-guest');
+    await p.waitForSelector(byId(ids.st + '_rte'), { timeout: 10000 });
+    // The link button asks for the address (window.prompt); the visitor types it.
+    await p.evaluate(() => { window.prompt = () => 'https://example.test/more?a=1&b=2'; });
+    await p.focus(byId(ids.st + '_rte'));
+    await p.keyboard.type('Dear team, ');
+    await p.keyboard.press('Control+b');
+    await p.keyboard.type('thank you');
+    await p.keyboard.press('Control+b');
+    await p.keyboard.press('Enter');
+    await p.click(`${byId(ids.st + '_rte')} >> xpath=preceding-sibling::div[1] >> [data-rte-cmd="bullets"]`);
+    await p.keyboard.type('first point');
+    await p.keyboard.press('Enter');
+    await p.keyboard.type('more');
+    await p.keyboard.down('Shift');
+    for (let i = 0; i < 4; i++) await p.keyboard.press('ArrowLeft');
+    await p.keyboard.up('Shift');
+    await p.click(`${byId(ids.st + '_rte')} >> xpath=preceding-sibling::div[1] >> [data-rte-cmd="link"]`);
+    await sleep(300);
+    await p.evaluate((id) => {
+      const box = document.getElementById(id + '_rte');
+      box.focus();
+      const r = document.createRange(); r.selectNodeContents(box); r.collapse(false); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      const dt = new DataTransfer();
+      dt.setData('text/html', '<p style="color:red" class="MsoNormal" onclick="window.__xss=1">Pasted <img src=x onerror="window.__xss=2"><script>window.__xss=3</script></p>');
+      box.dispatchEvent(new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true }));
+    }, ids.st);
+    await sleep(300);
+    await p.focus(byId(ids.nm + '_'));
+    await type(p, ids.nm, 'Sara');
+    await sleep(500);
+    await p.screenshot({ path: SHOT('f10d-rich-en-1280'), fullPage: true });
+    const resp = p.waitForResponse((x) => /forms\/message\/add/.test(x.url()), { timeout: 30000 }).catch(() => null);
+    await p.click('#btn_send_efb');
+    await resp;
+    await sleep(1200);
+    const e = lastEntry(F.form_id);
+    const row = ((e && e.content) || []).find((x) => x.id_ === ids.st) || {};
+    const v = String(row.value || '').replace(/@efb@dq#/g, '"');
+    R.check('f10d: the entry holds the cleaned HTML with fmt html: bold, the list, the link with the server\'s rel and target', row.fmt === 'html' && /<(b|strong)>thank you<\/(b|strong)>/.test(v) && /<ul><li>first point<\/li>/.test(v) && /<a href="https:\/\/example\.test\/more\?a=1&(#038;|amp;)b=2" rel="nofollow ugc noopener" target="_blank">more<\/a>/.test(v), v);
+    R.check('f10d: the paste kept the words only (no style, class, event, img, script)', /Pasted/.test(v) && !/style=|class=|onclick|<img|<script|__xss/.test(v) && !(await p.evaluate(() => window.__xss)), v);
+    await p.close();
+    // The entries screen.
+    await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+    await admin.waitForFunction(() => typeof fun_get_messages_by_id === 'function' && window.EfbEntries, null, { timeout: 20000 });
+    const btn = await admin.$(`.efb-act-msg[data-id="${F.form_id}"]`);
+    if (btn) await btn.click(); else await admin.evaluate((id) => { form_type_emsFormBuilder = 'form'; fun_get_messages_by_id(Number(id)); }, F.form_id);
+    await admin.waitForSelector('#efbEnt .efb-ent-table', { timeout: 20000 });
+    await sleep(500);
+    const prev = await admin.evaluate(() => (document.querySelector('#efbEnt .efb-ent-row') || {}).textContent || '');
+    R.check('f10d: the entries list preview shows the text (no tag)', /Dear team, thank you/.test(prev) && !/<b>|<ul>|&lt;/.test(prev), prev.slice(0, 200));
+    await admin.click(`#btn-m-${e.msg_id}`);
+    await admin.waitForSelector('#resp_efb .efb-msg-rich', { timeout: 20000 });
+    const vw = await admin.evaluate(() => {
+      const box = document.querySelector('#resp_efb .efb-msg-rich');
+      const all = [...box.querySelectorAll('*')];
+      return { tags: [...new Set(all.map((x) => x.tagName.toLowerCase()))], rel: (box.querySelector('a') || {}).rel, bad: all.some((x) => [...x.attributes].some((a) => /^on/.test(a.name) || a.name === 'style' || a.name === 'class')) };
+    });
+    R.check('f10d: the viewer shows the formatting (b / ul / li / a with rel nofollow ugc noopener), no other element or attribute', vw.tags.every((t) => ['p', 'b', 'strong', 'ul', 'li', 'a', 'br'].includes(t)) && vw.tags.includes('ul') && /nofollow ugc noopener/.test(vw.rel || '') && !vw.bad, vw);
+    await admin.screenshot({ path: SHOT('f10d-viewer-rich-en') });
+    // fa_IR and ar at 375 px.
+    try {
+      for (const loc of ['fa_IR', 'ar']) {
+        ctl('locale', loc);
+        const fa = loc === 'fa_IR';
+        const L = form('F10 e2e rich ' + loc, [{ key: 'st', type: 'textarea', name: fa ? 'توضیحات' : 'الوصف', rich_text: '1', rich_toolbar: 'full', label_align: 'txt-right' }]);
+        const g = await open(context, pageOf(L.form_id), 'f10d-' + loc, { viewport: { width: 375, height: 800 }, locale: fa ? 'fa-IR' : 'ar' });
+        await g.waitForSelector(byId(L.ids.st + '_rte'), { timeout: 10000 });
+        await g.focus(byId(L.ids.st + '_rte'));
+        await g.keyboard.type(fa ? 'سلام ACME ۱۲' : 'مرحبا ACME ١٢');
+        await sleep(300);
+        const facts = await g.evaluate((id) => {
+          const box = document.getElementById(id + '_rte');
+          const bar = box.previousElementSibling;
+          const btns = [...bar.querySelectorAll('button')];
+          return { dir: getComputedStyle(bar).direction, first: btns[0].getBoundingClientRect().left > btns[1].getBoundingClientRect().left, minH: Math.min(...btns.map((b) => b.getBoundingClientRect().height)),
+            boxDir: box.getAttribute('dir'), pDir: getComputedStyle(box.firstElementChild || box).direction, align: getComputedStyle(box.firstElementChild || box).textAlign, scroll: document.documentElement.scrollWidth <= window.innerWidth + 1 };
+        }, L.ids.st);
+        R.check(`f10d (${loc}): toolbar right to left (Bold first, on the right), 44 px buttons; the box dir=auto, the Persian / Arabic line right to left; no horizontal scroll`, facts.dir === 'rtl' && facts.first && facts.minH >= 44 && facts.boxDir === 'auto' && facts.pDir === 'rtl' && facts.scroll, facts);
+        await g.screenshot({ path: SHOT(`f10d-rich-${loc}-375`), fullPage: true });
         await g.close();
       }
     } finally { ctl('locale', ''); }

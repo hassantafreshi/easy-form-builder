@@ -5597,6 +5597,40 @@ class efbFunction {
 			"sectionCollapsed" => $state && isset($ac->text->sectionCollapsed) ? $ac->text->sectionCollapsed : esc_html__('Collapsed when the form opens','easy-form-builder'),
 			/* translators: F10: form setting (switch) */
 			"sectionAccordion" => $state && isset($ac->text->sectionAccordion) ? $ac->text->sectionAccordion : esc_html__('Keep only one section open at a time','easy-form-builder'),
+			/* translators: F10: textarea setting (switch): visitors can format their answer */
+			"richText" => $state && isset($ac->text->richText) ? $ac->text->richText : esc_html__('Rich text editor','easy-form-builder'),
+			/* translators: F10: rich text setting label */
+			"richToolbar" => $state && isset($ac->text->richToolbar) ? $ac->text->richToolbar : esc_html__('Toolbar','easy-form-builder'),
+			/* translators: F10: rich text toolbar choice */
+			"richBasic" => $state && isset($ac->text->richBasic) ? $ac->text->richBasic : esc_html__('Basic','easy-form-builder'),
+			/* translators: F10: rich text toolbar choice */
+			"richFull" => $state && isset($ac->text->richFull) ? $ac->text->richFull : esc_html__('Full','easy-form-builder'),
+			/* translators: F10: rich text setting help */
+			"richHelp" => $state && isset($ac->text->richHelp) ? $ac->text->richHelp : esc_html__('Bold, italic, underline and lists; Full adds links, quotes and headings. The site keeps only these formats.','easy-form-builder'),
+			/* translators: F10: accessible name of the editor's toolbar */
+			"rteToolbar" => $state && isset($ac->text->rteToolbar) ? $ac->text->rteToolbar : esc_html__('Formatting','easy-form-builder'),
+			/* translators: F10: editor button */
+			"rteBold" => $state && isset($ac->text->rteBold) ? $ac->text->rteBold : esc_html__('Bold','easy-form-builder'),
+			/* translators: F10: editor button */
+			"rteItalic" => $state && isset($ac->text->rteItalic) ? $ac->text->rteItalic : esc_html__('Italic','easy-form-builder'),
+			/* translators: F10: editor button */
+			"rteUnderline" => $state && isset($ac->text->rteUnderline) ? $ac->text->rteUnderline : esc_html__('Underline','easy-form-builder'),
+			/* translators: F10: editor button */
+			"rteBullets" => $state && isset($ac->text->rteBullets) ? $ac->text->rteBullets : esc_html__('Bulleted list','easy-form-builder'),
+			/* translators: F10: editor button */
+			"rteNumbers" => $state && isset($ac->text->rteNumbers) ? $ac->text->rteNumbers : esc_html__('Numbered list','easy-form-builder'),
+			/* translators: F10: editor button */
+			"rteLink" => $state && isset($ac->text->rteLink) ? $ac->text->rteLink : esc_html__('Link','easy-form-builder'),
+			/* translators: F10: editor button */
+			"rteQuote" => $state && isset($ac->text->rteQuote) ? $ac->text->rteQuote : esc_html__('Quote','easy-form-builder'),
+			/* translators: F10: editor button */
+			"rteHeading" => $state && isset($ac->text->rteHeading) ? $ac->text->rteHeading : esc_html__('Heading','easy-form-builder'),
+			/* translators: F10: editor button */
+			"rteClear" => $state && isset($ac->text->rteClear) ? $ac->text->rteClear : esc_html__('Clear formatting','easy-form-builder'),
+			/* translators: F10: prompt of the editor's link button */
+			"rteLinkPrompt" => $state && isset($ac->text->rteLinkPrompt) ? $ac->text->rteLinkPrompt : esc_html__('Link address (https://…)','easy-form-builder'),
+			/* translators: F10: editor message */
+			"rteLinkBad" => $state && isset($ac->text->rteLinkBad) ? $ac->text->rteLinkBad : esc_html__('Only web (http, https) and e-mail links are allowed.','easy-form-builder'),
 			/* translators: F10: section settings help */
 			"sectionHelp" => $state && isset($ac->text->sectionHelp) ? $ac->text->sectionHelp : esc_html__('The section holds the fields after it in this step, up to the next section.','easy-form-builder'),
 			/* translators: F14: %s = number */
@@ -6544,6 +6578,8 @@ class efbFunction {
 					case 'review_title':
 					case 'section_accordion':
 					case 'collapsed':
+					case 'rich_text':
+					case 'rich_toolbar':
 					case 'vis_view':
 						if (!class_exists('\\Emsfb\\Layout') && is_readable(__DIR__ . '/class-Emsfb-layout.php')) require_once __DIR__ . '/class-Emsfb-layout.php';
 						$valp[$key][$k] = class_exists('\\Emsfb\\Layout') ? \Emsfb\Layout::sanitize_key($k, $v, $type) : '';

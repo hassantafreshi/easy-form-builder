@@ -602,6 +602,8 @@ async function createStepsOfPublic() {
  */
 function efb_init_fields_in_efb(root) {
   root = root || document;
+  // F10-C: rich text boxes first (the textarea stays the value; its own set-up below runs as before).
+  if (window.EFBRich) { try { window.EFBRich.mountIn(root); } catch (e) { /* the plain textarea is used */ } }
   for (let el of root.querySelectorAll(`.emsFormBuilder_v`)) {
     let form_id = el.dataset.formid  || 0;
     if (el.tagName == "OPTION" || el.tagName=='P' || el.tagName=='A' || ( el.tagName=='INPUT' && el.type=='hidden')) continue;
@@ -1651,6 +1653,8 @@ function efb_rules_clear_error_efb(el) {
  */
 function efb_rules_check_efb(el, ob, value, form_id) {
   if (!efb_rules_active_efb(ob, form_id, el)) return true;
+  // F10-C: the rules of a rich textarea (words, length, pattern) read its text, as the server does.
+  if (el && el.dataset && el.dataset.rte === '1' && window.EFBRichCore) value = window.EFBRichCore.plain(value);
   const err = EfbRules.firstError(ob, value, efb_rules_ctx_efb(form_id, el));
   const confirm = el && el.type !== undefined ? document.getElementById(`${el.id}confirm`) : null;
   if (confirm) {
@@ -1699,7 +1703,8 @@ function efb_rules_bind_counter_efb(el, form_id) {
   const locale = (typeof efb_var !== 'undefined' && (efb_var.wp_lan || efb_var.language)) || document.documentElement.lang || 'en';
   let zone = null;
   const update = () => {
-    const n = c.kind === 'words' ? EfbRules.countWords(el.value) : EfbRules.countChars(el.value);
+    const src = el.dataset && el.dataset.rte === '1' && window.EFBRichCore ? window.EFBRichCore.plain(el.value) : el.value; // F10-C: the words, not the tags
+    const n = c.kind === 'words' ? EfbRules.countWords(src) : EfbRules.countChars(src);
     const r = EfbRules.counterText(c, n, (typeof efb_var !== 'undefined' && efb_var.text) || {}, locale);
     box.textContent = r.text;
     box.classList.toggle('efb-counter-over', r.over);
@@ -2277,6 +2282,7 @@ async function efb_apply_saved_rows_efb(fid, rows) {
         else value = efb_mask_display_efb(el, value); // F01: canonical +98912... back to 0912 ...
         if (value === '' || el.value === value) continue;
         el.value = value;
+        if (tag === 'TEXTAREA' && el.dataset && el.dataset.rte === '1' && window.EFBRich) window.EFBRich.refresh(el); // F10-C
       } else if (tag === 'INPUT' && (type === 'radio' || type === 'checkbox')) {
         if (el.checked) continue;
         el.checked = true;
@@ -4507,7 +4513,8 @@ async function handle_change_event_efb_v4(el ,form_id=0){
     const mi=()=> {return  el.type!="number" && el.dataset.hasOwnProperty('type') ? 2 :0}
     let len = el.hasAttribute('minlength')  ? el.minLength :mi();
     // F03 §18.3: a textarea newline travels as "@n#" and counts as one character (as on the server); code points, not UTF-16 units.
-    const vlen = Array.from(String(value).replace(/@n#/g, '\n')).length;
+    // F10-C: rich text is measured on its words (tags are not characters), as on the server.
+    const vlen = el.dataset && el.dataset.rte === '1' && window.EFBRichCore ? window.EFBRichCore.plainLength(value) : Array.from(String(value).replace(/@n#/g, '\n')).length;
     if (vlen < len && el.type!="number") {
       state = false;
       el.className = colorBorderChangerEfb(el.className, "border-danger");
@@ -4637,7 +4644,10 @@ async function handle_change_event_efb_v4(el ,form_id=0){
     case "date":
     case "textarea":
       const outp = el.type =="textarea" ?true : false
-      value = sanitize_text_efb(el.value,outp);
+      // F10-C: a rich textarea holds HTML: only the allow-list is kept (the server cleans again), never stripped to text.
+      const rte_efb = el.type == "textarea" && el.dataset && el.dataset.rte === '1' && window.EFBRichCore;
+      value = rte_efb ? window.EFBRichCore.clean(el.value) : sanitize_text_efb(el.value,outp);
+      if (rte_efb && window.EFBRichCore.plainLength(value) === 0) value = '';
       if(value.length==0){el_empty_value(id_); return;}
       if(el.classList.contains("intlPhone")==true){
         el.value = el.value.replace(/\s/g, '');

@@ -339,6 +339,9 @@ class Panel_edit  {
 			wp_enqueue_script('efb-layout-js', EMSFB_PLUGIN_URL . 'public/assets/js/layout-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/layout-efb.js'));
 			wp_enqueue_script('efb-layout-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/layout-builder-efb.js', array('efb-val-js', 'efb-layout-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/layout-builder-efb.js'));
 			wp_enqueue_style('efb-layout-css', EMSFB_PLUGIN_URL . 'public/assets/css/layout-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/layout-efb.css'));
+			// F10-C: the rich text editor (the preview, the entry editor) and its allow-list (the viewer shows rich answers with it).
+			wp_enqueue_script('efb-rich-text-js', EMSFB_PLUGIN_URL . 'public/assets/js/rich-text-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/rich-text-efb.js'));
+			wp_enqueue_style('efb-rich-text-css', EMSFB_PLUGIN_URL . 'public/assets/css/rich-text-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/rich-text-efb.css'));
 			wp_enqueue_style('efb-repeater-css', EMSFB_PLUGIN_URL . 'public/assets/css/repeater-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/repeater-efb.css'));
 			wp_enqueue_script('efb-verify-settings-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/verify-settings-efb.js', array('efb-verify-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/verify-settings-efb.js'));
 			wp_enqueue_style('efb-verify-css', EMSFB_PLUGIN_URL . 'public/assets/css/verify-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/verify-efb.css'));

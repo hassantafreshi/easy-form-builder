@@ -12,6 +12,9 @@
  *     a step (up to the next section or step; a repeater group's fields with it; options are not fields);
  *     expand_hidden_sections() hides the fields of a section that Conditional Logic hid (not required, ignored);
  *     field:section is free.
+ *  C  rich_text '1' / '0', rich_toolbar basic | full (else basic); rich_on() needs a textarea, the flag and the plan
+ *     (Free Plus; the owner's efb_layout_plan); rich_raw_cap() = min(65535, max(4 × mlen, 4096)); rich_check()
+ *     counts the text (min / max), refuses too much HTML; setting:rich_text is Free Plus.
  *
  * Run: php tests/test-layout-keys.php
  */
@@ -118,10 +121,27 @@ list($r3, $ig3) = Layout::expand_hidden_sections($s, array('d' => true));
 t('B nothing hidden at a section: the set and the rows are unchanged', array($ig3, $r3[4]['required']), array(array('d' => true), '1'));
 t('B json_needs_runtime: a form with a section', Layout::json_needs_runtime('[{\"type\":\"form\"},{\"type\":\"section\"}]'), true);
 
+/* ---- C: rich text ---- */
+$s = $save($form(array(), array($f('ta', 'textarea', '1', array('rich_text' => true, 'rich_toolbar' => 'FULL')), $f('tb', 'textarea', '1', array('rich_text' => 'x', 'rich_toolbar' => 'full')))));
+t('C rich_text true → "1", an unknown toolbar → basic', array($s[2]['rich_text'], $s[2]['rich_toolbar']), array('1', 'basic'));
+t('C rich_text "x" → "0", toolbar full kept', array($s[3]['rich_text'], $s[3]['rich_toolbar']), array('0', 'full'));
+t('C rich_on: a textarea with the flag on Pro', Layout::rich_on(array('type' => 'textarea', 'rich_text' => '1')), true);
+t('C rich_on: not on a text field, not without the flag', array(Layout::rich_on(array('type' => 'text', 'rich_text' => '1')), Layout::rich_on(array('type' => 'textarea'))), array(false, false));
+$GLOBALS['efb_plan'] = 'free';
+t('C rich_on: below Free Plus the textarea is plain again', Layout::rich_on(array('type' => 'textarea', 'rich_text' => '1')), false);
+$GLOBALS['efb_plan'] = 'pro';
+t('C rich_raw_cap: no maximum 65535, mlen 10 → 4096, mlen 5000 → 20000, mlen 50000 → 65535', array(Layout::rich_raw_cap(array()), Layout::rich_raw_cap(array('mlen' => '10')), Layout::rich_raw_cap(array('mlen' => '5000')), Layout::rich_raw_cap(array('mlen' => '50000'))), array(65535, 4096, 20000, 65535));
+t('C rich_check: mlen 10 on <b>12345678901</b> (the text is 11)', Layout::rich_check('<b>12345678901</b>', array('mlen' => '10'))[3], 'max');
+t('C rich_check: milen 3 on <b>ab</b>', Layout::rich_check('<b>ab</b>', array('milen' => '3'))[3], 'min');
+t('C rich_check: more HTML than the cap', Layout::rich_check(str_repeat('<b></b>', 1000), array('mlen' => '10'))[3], 'raw');
+t('C rich_plain: blocks and <br> as lines, entities read', Layout::rich_plain('<p>One &amp; two</p><ul><li>a</li><li>b</li></ul>x<br>y'), "One & two\na\nb\nx\ny");
+
 /* registry */
 $caps = Layout::capabilities(array('plan' => array('package_type' => 2), 'features' => array()));
 t('A registry: setting:review_before_submit is free and available on Free', array($caps['features']['setting:review_before_submit']['package'], $caps['features']['setting:review_before_submit']['available_now']), array('free', true));
 t('A registry: capabilities.layout lists the form keys (spec F10)', array($caps['layout']['spec'], $caps['layout']['form_keys']), array('F10', Layout::FORM_KEYS));
+$capsP = Layout::capabilities(array('plan' => array('package_type' => 2), 'features' => array()));
+t('C registry: setting:rich_text is Free Plus (locked on Free)', array($capsP['features']['setting:rich_text']['package'], $capsP['features']['setting:rich_text']['available_now']), array('free_plus', false));
 t('B registry: field:section is free and available on Free', array($caps['features']['field:section']['package'], $caps['features']['field:section']['available_now']), array('free', true));
 $GLOBALS['efb_filters']['efb_layout_plan'] = function ($need, $part) { return $part === 'review' ? 'pro' : $need; };
 $caps = Layout::capabilities(array('plan' => array('package_type' => 2), 'features' => array()));

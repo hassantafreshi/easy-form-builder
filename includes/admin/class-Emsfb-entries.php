@@ -1302,6 +1302,8 @@ class Entries {
 		}
 		if (!is_scalar($v)) return '';
 		$v = (string) $v;
+		// F10-C: a rich answer as text (paragraphs and list items on their own lines), never its HTML.
+		if (isset($r['fmt']) && $r['fmt'] === 'html' && class_exists('\\Emsfb\\Layout')) return Layout::rich_plain(str_replace('@efb@dq#', '"', $v));
 		if ($type === 'ranking') {
 			$src = $a['opt_val'] === 'value' && isset($r['ov']) && is_scalar($r['ov']) && $r['ov'] !== '' ? (string) $r['ov'] : $v;
 			return implode(' > ', array_filter(explode('@efb!', $src), 'strlen'));
@@ -1516,7 +1518,9 @@ class Entries {
 			if ($mode !== 'readonly' && class_exists('\\Emsfb\\Payments\\Registry') && Payments\Registry::is_field_type($type)) { $mode = 'readonly'; $why = 'type'; }
 			$out[] = array_merge($f, array('mode' => $mode, 'why' => $why, 'required' => isset($def['required']) && in_array($def['required'], array(1, '1', true), true),
 				'multi' => in_array($type, array_merge(self::OPTION_ROWS, array('multiselect', 'payMultiselect')), true), 'single' => in_array($type, self::SINGLE_CHOICE, true),
-				'on' => isset($def['on']) && is_scalar($def['on']) ? (string) $def['on'] : '', 'off' => isset($def['off']) && is_scalar($def['off']) ? (string) $def['off'] : ''));
+				'on' => isset($def['on']) && is_scalar($def['on']) ? (string) $def['on'] : '', 'off' => isset($def['off']) && is_scalar($def['off']) ? (string) $def['off'] : '',
+				// F10-C: a rich textarea is edited with the visitor's editor (the server cleans it again).
+				'rich' => is_array($def) && class_exists('\\Emsfb\\Layout') && Layout::rich_on($def)));
 		}
 		return $out;
 	}
