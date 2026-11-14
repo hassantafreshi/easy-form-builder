@@ -181,7 +181,7 @@ export function maskFieldsInitScript(ids) {
       if (!visible) continue;
       const padL = parseFloat(cs.paddingLeft) + parseFloat(cs.borderLeftWidth);
       Object.assign(ov.style, { left: `${r.left + padL}px`, top: `${r.top}px`, height: `${r.height}px`, width: `${Math.max(0, r.width - padL * 2)}px`, font: cs.font, letterSpacing: '0.5px' });
-      if (el.value) { ov.textContent = mask(el.value); ov.style.color = '#3b3f5c'; } else { ov.textContent = el.placeholder || ''; ov.style.color = '#a3a7bd'; }
+      if (el.value) { ov.textContent = '\u202A' + mask(el.value) + '\u202C'; /* LTR embedding: keeps "pk_test_" before the dots on RTL admin pages */ ov.style.color = '#3b3f5c'; } else { ov.textContent = el.placeholder || ''; ov.style.color = '#a3a7bd'; }
     }
     requestAnimationFrame(apply);
   };
