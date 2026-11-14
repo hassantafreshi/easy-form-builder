@@ -6058,6 +6058,27 @@ class efbFunction {
 						if (!class_exists('\\Emsfb\\Choices') && is_readable(__DIR__ . '/class-Emsfb-choices.php')) require_once __DIR__ . '/class-Emsfb-choices.php';
 						$valp[$key][$k] = class_exists('\\Emsfb\\Choices') ? \Emsfb\Choices::sanitize_key($k, $v) : (is_scalar($v) ? sanitize_text_field($v) : '');
 					break;
+					// F09 repeater group: its settings and a child's `group` (explicit cases: one rule set,
+					// Repeater::sanitize_key() = EFBRepeaterCore.sanitizeKey()); rpt_* are run-time keys, never stored.
+					case 'min_rows':
+					case 'max_rows':
+					case 'default_rows':
+					case 'rows_from':
+					case 'row_label':
+					case 'collapsible':
+					case 'collapse_prev':
+					case 'rpt_layout':
+					case 'btn_add_text':
+					case 'rmv_confirm':
+					case 'group':
+					case 'rpt_base':
+					case 'rpt_n':
+					case 'rpt_group':
+					case 'rpt_ri':
+						if (!class_exists('\\Emsfb\\Repeater') && is_readable(__DIR__ . '/class-Emsfb-repeater.php')) require_once __DIR__ . '/class-Emsfb-repeater.php';
+						$valp[$key][$k] = class_exists('\\Emsfb\\Repeater') ? \Emsfb\Repeater::sanitize_key($k, $v) : '';
+						if ($valp[$key][$k] === '' && !in_array($k, array('row_label', 'btn_add_text'), true)) unset($valp[$key][$k]);
+					break;
 					// The server's own marks on rows: never taken from a save (dyn = a choice built from the site, inv_mode = booking).
 					case 'dyn':
 					case 'inv_mode':
@@ -6166,6 +6187,9 @@ class efbFunction {
 			// is part of a cycle (the builder shows why; the page leaves the result empty).
 			if (!class_exists('\\Emsfb\\Calc') && is_readable(__DIR__ . '/class-Emsfb-calc.php')) require_once __DIR__ . '/class-Emsfb-calc.php';
 			if (class_exists('\\Emsfb\\Calc')) $valp = \Emsfb\Calc::normalize_rows($valp);
+			// F09: repeater limits in order, children in their group's step and right after it, `group` only where it makes a child.
+			if (!class_exists('\\Emsfb\\Repeater') && is_readable(__DIR__ . '/class-Emsfb-repeater.php')) require_once __DIR__ . '/class-Emsfb-repeater.php';
+			if (class_exists('\\Emsfb\\Repeater')) $valp = \Emsfb\Repeater::normalize_rows($valp);
 		}
 		return $valp;
 	}

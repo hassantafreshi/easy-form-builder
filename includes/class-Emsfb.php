@@ -480,6 +480,12 @@ class Emsfb {
             \Emsfb\Calc::register();
         }
 
+        // F09: the repeater group (the model, the save rules, the rows of a submission, display).
+        // Optional: every caller checks class_exists('\Emsfb\Repeater').
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-repeater.php') && method_exists('\Emsfb\Repeater', 'register')) {
+            \Emsfb\Repeater::register();
+        }
+
         // Builder API for integrations such as AutoPilot (docs/autopilot-integration.md).
         // Optional: callers check class_exists('\Emsfb\Builder_Api').
         $this->require_plugin_file_efb('includes/class-Emsfb-builder-api.php');
