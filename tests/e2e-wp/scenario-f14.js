@@ -18,6 +18,8 @@
  *        (BOM, two fields named alike in two columns, a formula written as text, the filter's entries only), an
  *        XLSX opened by openpyxl (header frozen, RTL off in en, numbers as numbers), "selected entries" from the
  *        selection bar, and Free: XLSX opens the plan dialog.
+ *  f14i  Print (I): three selected entries in one document, one per page (break after each section, print media),
+ *        notes only with "Include notes"; one entry from the viewer; fa_IR right to left; more than 50 refused.
  */
 'use strict';
 
@@ -372,6 +374,64 @@ module.exports = function (S) {
       const st = await free.evaluate(() => ({ csv: document.querySelector('input[name="efbXFmt"][value="csv"]').checked, dlg: !!document.querySelector('#settingModalEfb.show .efb-upg') }));
       R.check('f14h: on Free, choosing XLSX opens the plan dialog (Free Plus) and keeps CSV', st.csv && st.dlg, st);
     } finally { plan(3); }
+  });
+
+  /** Prints through the screen's dialog and returns the print window (a popup). */
+  async function printVia(admin, trigger, notes) {
+    await trigger();
+    await admin.waitForSelector('#efbEntDlg #efbPrGo', { timeout: 8000 });
+    if (notes) await admin.check('#efbPrNotes');
+    const pop = admin.waitForEvent('popup', { timeout: 20000 }).catch(() => null);
+    await admin.click('#efbPrGo');
+    const w = await pop;
+    if (!w) throw new Error('no print window; dialog: ' + await admin.evaluate(() => String(!!document.getElementById('efbEntDlg'))) + ' z: ' + await admin.evaluate(() => { const b = document.elementFromPoint(innerWidth / 2, innerHeight / 2); return b ? b.id + '.' + b.className : ''; }));
+    await w.waitForLoadState('domcontentloaded').catch(() => {});
+    await sleep(800);
+    return w;
+  }
+
+  /* ------------------------------------------------------------------ f14i */
+  scenario('f14i', 'F14 print: three entries one per page, notes only on request, one entry from the viewer, fa_IR right to left, at most 50', async ({ adminPage }) => {
+    plan(3);
+    ctl('locale', '');
+    const F = listForm('F14 e2e print', 3);
+    ctl('f14-note', String(F.msgs[0]), 'Private remark about the order.');
+    const admin = await adminPage();
+    await openList(admin, F.form_id);
+    for (const id of F.msgs) await admin.check(`#efbEnt .efb-ent-one[value="${id}"]`);
+    let w = await printVia(admin, () => admin.click('#efbEnt .efb-ent-bulkbar [data-ent="print-sel"]'), false);
+    let v = await w.evaluate(() => ({ sections: document.querySelectorAll('section.efb-print-entry').length, text: document.body.textContent, title: document.title }));
+    await w.emulateMedia({ media: 'print' });
+    const brk = await w.evaluate(() => { const s = document.querySelectorAll('section.efb-print-entry'); return [getComputedStyle(s[0]).breakAfter, getComputedStyle(s[s.length - 1]).breakAfter]; });
+    await w.screenshot({ path: SHOT('f14i-print-3-en'), fullPage: true });
+    R.check('f14i: three selected entries → one print document with three sections, a page break after each but the last (print media)', v.sections === 3 && brk[0] === 'page' && brk[1] === 'auto' && /Person 1/.test(v.text) && /Person 3/.test(v.text), { sections: v.sections, brk });
+    R.check('f14i: notes are not printed unless asked', !/Private remark/.test(v.text), v.text.slice(0, 100));
+    await w.close();
+    w = await printVia(admin, () => admin.click('#efbEnt .efb-ent-bulkbar [data-ent="print-sel"]'), true);
+    v = await w.evaluate(() => ({ notes: Array.from(document.querySelectorAll('.efb-print-notes')).map((n) => n.textContent) }));
+    R.check('f14i: with "Include notes" the note is printed with its entry', v.notes.length === 1 && /Private remark about the order/.test(v.notes[0]), v);
+    await w.close();
+    // One entry from the response viewer.
+    await admin.click(`#btn-m-${F.msgs[1]}`);
+    await admin.waitForSelector('#efbEntView [data-ent="print"]', { timeout: 20000 });
+    w = await printVia(admin, () => admin.click('#efbEntView [data-ent="print"]'), false);
+    v = await w.evaluate(() => ({ sections: document.querySelectorAll('section.efb-print-entry').length, text: document.body.textContent }));
+    R.check('f14i: "Print" in the response viewer prints that entry', v.sections === 1 && /Person 2/.test(v.text), v.sections);
+    await w.close();
+    const big = await admin.evaluate(() => EfbEntries.post({ action: 'efb_entries_print_Emsfb', form_id: EfbEntries.state.fid, ids: JSON.stringify(Array.from({ length: 51 }, (_, i) => i + 1)) }));
+    R.check('f14i: more than 50 entries at once are refused (efb_print_too_many)', big && big.success === false && big.code === 'efb_print_too_many', big);
+    ctl('locale', 'fa_IR');
+    try {
+      const fa = await adminPage({}, 'admin-fa-print');
+      await openList(fa, F.form_id);
+      await fa.check(`#efbEnt .efb-ent-one[value="${F.msgs[2]}"]`);
+      const pw = await printVia(fa, () => fa.click('#efbEnt .efb-ent-bulkbar [data-ent="print-sel"]'), false);
+      const d = await pw.evaluate(() => ({ dir: document.documentElement.dir, body: getComputedStyle(document.body).direction }));
+      await pw.emulateMedia({ media: 'print' });
+      await pw.screenshot({ path: SHOT('f14i-print-fa_IR'), fullPage: true });
+      R.check('f14i: fa_IR: the print document is right to left', d.dir === 'rtl' && d.body === 'rtl', d);
+      await pw.close();
+    } finally { ctl('locale', ''); }
   });
 
   /* ------------------------------------------------------------------ f14a */

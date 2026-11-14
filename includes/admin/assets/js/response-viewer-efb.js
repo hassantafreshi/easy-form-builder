@@ -1399,8 +1399,11 @@ function isRealPro_efb() {
   return packageType === 1;
 }
 
-function generatePDF_EFB(id)
+/* F14-I: opts.sections (HTML of several entries) prints one entry per page (page break after each section);
+   opts.title names the window. Without opts it is the single-card PDF / print of before. */
+function generatePDF_EFB(id, opts)
 {
+  opts = opts || {};
   var browserSupport = checkBrowserSupport_efb();
   var isRtl = efb_var.rtl == 1;
   var direction = isRtl ? 'rtl' : 'ltr';
@@ -1441,8 +1444,8 @@ function generatePDF_EFB(id)
   var googleFontName = indx !== -1 ? fonts_name[indx].font : 'Noto Sans';
   var fallbackFontName = getFallbackFont_efb(efb_var.wp_lan);
 
-  var divPrint = document.getElementById(id);
-  if (!divPrint) {
+  var divPrint = id ? document.getElementById(id) : null;
+  if (!divPrint && !Array.isArray(opts.sections)) {
     return;
   }
 
@@ -1563,7 +1566,12 @@ function generatePDF_EFB(id)
         '.efb-pdf-header{border-bottom-color:#ccc;}' +
         'a[href]:after{content:" (" attr(href) ")";font-size:0.75em;color:#888;}' +
         '.efb-msg-download,.efb-msg-header-actions{display:none!important;}' +
-      '}';
+        '.efb-print-entry{break-after:page;page-break-after:always;}' +
+        '.efb-print-entry:last-child{break-after:auto;page-break-after:auto;}' +
+      '}' +
+      '.efb-print-notes{margin:8px 0;padding:8px 12px;border:1px dashed #f59e0b;border-radius:8px;background:#fffbeb;unicode-bidi:plaintext;}' +
+      '.efb-print-notes h3{font-size:.9rem;margin:0 0 4px;}' +
+      '.efb-print-notes li{white-space:pre-wrap;}';
 
     return '<!DOCTYPE html><html lang="' + (efb_var.wp_lan || 'en') + '" dir="' + direction + '"><head>' +
       '<meta charset="utf-8">' +
@@ -1603,7 +1611,16 @@ function generatePDF_EFB(id)
   }
 
   function generatePDFContent_efb(useGoogleFonts) {
-    var processedContent = processLinksForPDF_efb(divPrint);
+    var processedContent = '';
+    if (Array.isArray(opts.sections)) {
+      for (var si = 0; si < opts.sections.length; si++) {
+        var holder = document.createElement('div');
+        holder.innerHTML = opts.sections[si];
+        processedContent += '<section class="efb-print-entry">' + processLinksForPDF_efb(holder) + '</section>';
+      }
+    } else {
+      processedContent = processLinksForPDF_efb(divPrint);
+    }
     var headMarkup = buildPrintCSS_efb(useGoogleFonts, googleFontName, fallbackFontName);
     var websiteUrl = window.location.protocol + '//' + window.location.hostname;
     var headerHtml = '<div class="efb-pdf-header">';
@@ -1621,7 +1638,7 @@ function generatePDF_EFB(id)
       '</div>'
     ) : '';
     return headMarkup +
-      '<title>' + (efb_var.text.download || 'Download') + ' - ' + window.location.hostname + '</title>' +
+      '<title>' + (opts.title || efb_var.text.download || 'Download') + ' - ' + window.location.hostname + '</title>' +
       '<body onload="winprint()">' +
       '<script>' +
         'function winprint(){setTimeout(function(){if(window.print)window.print();},200);}' +
@@ -1676,7 +1693,7 @@ function generatePDF_EFB(id)
       setTimeout(function() { if (printWindow && !printWindow.closed) printWindow.document.close(); }, 100);
     } catch (e) {
       if (confirm(efb_var.text.download || 'Popup blocked. Try again?')) {
-        setTimeout(function() { generatePDF_EFB(id); }, 1000);
+        setTimeout(function() { generatePDF_EFB(id, opts); }, 1000);
       } else {
         var iframe = document.createElement('iframe');
         iframe.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px;';
@@ -1717,7 +1734,9 @@ function toggleDlDropdown_EFB(btn) {
   menu.setAttribute('role', 'menu');
   menu.innerHTML =
     '<li><a class="efb-dl-item" href="#" data-efb-dl="pdf"><i class="bi bi-file-earmark-pdf"></i> PDF</a></li>' +
-    '<li><a class="efb-dl-item" href="#" data-efb-dl="csv"><i class="bi bi-filetype-csv"></i> CSV</a></li>';
+    '<li><a class="efb-dl-item" href="#" data-efb-dl="csv"><i class="bi bi-filetype-csv"></i> CSV</a></li>' +
+    // F14-I: the same document, printed (the print dialog of the browser instead of "Save as PDF").
+    '<li><a class="efb-dl-item" href="#" data-efb-dl="print"><i class="bi bi-printer"></i> ' + escHtmlEfb((typeof efb_var !== 'undefined' && efb_var.text && efb_var.text.entPrint) || 'Print') + '</a></li>';
 
   menu.addEventListener('click', function(e) {
     var item = e.target.closest('[data-efb-dl]');
@@ -1727,6 +1746,7 @@ function toggleDlDropdown_EFB(btn) {
     closeDlDropdown_EFB();
     if (action === 'pdf') generatePDF_EFB('resp_efb');
     if (action === 'csv') generateCSV_EFB('resp_efb');
+    if (action === 'print') generatePDF_EFB('resp_efb', { title: (efb_var.text && efb_var.text.entPrint) || 'Print' });
   });
 
   document.body.appendChild(menu);

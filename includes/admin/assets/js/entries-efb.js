@@ -722,6 +722,44 @@
     });
   }
 
+  /* ------------------------------------------------------------------ print (I) */
+  /**
+   * Prints entries (at most 50): each through the response viewer's own renderer, one per page, with its notes
+   * only when "Include notes" is ticked. ids = list, or null for the selection / every matching result.
+   */
+  function printEntries(ids, withNotes) {
+    const data = { action: 'efb_entries_print_Emsfb', form_id: S.fid, notes: withNotes ? '1' : '0' };
+    if (!ids && S.allMatching) data.filter = JSON.stringify(filterArgs());
+    else data.ids = JSON.stringify(ids || Array.from(S.selected));
+    return post(data).then((res) => {
+      if (!res || res.success !== true) {
+        if (typeof W.alert_message_efb === 'function') W.alert_message_efb('', (res && res.m) || T('error', 'Error'), 8, 'warning');
+        return null;
+      }
+      const sections = res.entries.map((e) => {
+        let html = typeof W.fun_emsFormBuilder_show_messages === 'function' ? W.fun_emsFormBuilder_show_messages(rowsOf(e.content), '#first', e.ip || '', e.track, e.date) : esc(e.track);
+        if (withNotes && e.notes && e.notes.length) {
+          html += `<div class="efb-print-notes"><h3>${esc(T('entNotes', 'Notes'))}</h3><ul>${e.notes.map((n) => `<li><bdi>${esc(n.author || '')}</bdi> · <bdi>${esc(digits(n.date))}</bdi>: <bdi>${esc(n.note)}</bdi></li>`).join('')}</ul></div>`;
+        }
+        return html;
+      });
+      if (!sections.length || typeof W.generatePDF_EFB !== 'function') return null;
+      W.generatePDF_EFB(null, { sections, title: T('entPrint', 'Print') });
+      return sections.length;
+    });
+  }
+  function printDialog(ids, opener) {
+    const n = ids ? ids.length : (S.allMatching ? S.total : S.selected.size);
+    if (n > (Number(cfg().max_print) || 50)) {
+      if (typeof W.alert_message_efb === 'function') W.alert_message_efb('', T('entPrintMax', 'At most %s entries can be printed at once.').replace('%s', num(Number(cfg().max_print) || 50)), 8, 'warning');
+      return;
+    }
+    const d = dialog(T('entPrint', 'Print'), `<p class="efb">${fill(T('entNSelected', '%s selected'), [num(n)])}</p>
+      <div class="efb form-check"><input type="checkbox" class="efb form-check-input" id="efbPrNotes"><label class="efb form-check-label" for="efbPrNotes">${esc(T('entPrintNotes', 'Include notes'))}</label></div>`,
+      `<button type="button" class="efb btn btn-sm btn-primary" id="efbPrGo">${icon('bi-printer')} ${esc(T('entPrint', 'Print'))}</button>`, { focus: '#efbPrGo' });
+    d.querySelector('#efbPrGo').addEventListener('click', () => { const notes = d.querySelector('#efbPrNotes').checked; closeDialog(); printEntries(ids, notes); });
+  }
+
   /* ------------------------------------------------------------------ the entry in the response viewer (D) */
   const STATUS = { 0: ['entStActive', 'Active'], 1: ['entSpam', 'Spam'], 2: ['entTrash', 'Trash'] };
   function cur(msgId) { return S.current && S.current.entry && Number(S.current.entry.msg_id) === Number(msgId) ? S.current : null; }
@@ -1036,7 +1074,7 @@
   }
 
   W.EfbEntries = Object.assign(W.EfbEntries || {}, {
-    state: S, openForm, load, paint, op, open, star, dialog, closeDialog, post, toast, announce, gate, planOk, viewerRepaint, viewerSay, historyLine, ago, cur, refreshExtras,
+    state: S, openForm, load, paint, op, open, star, dialog, closeDialog, post, toast, announce, gate, planOk, viewerRepaint, viewerSay, historyLine, ago, cur, refreshExtras, printEntries,
     rowsOf, valueOf, digits, latin, num, fill, esc, T, isRtl,
     renderHead, renderRow, renderAll, renderPager, renderTabs, renderFilters,
     headButtons: (W.EfbEntries && W.EfbEntries.headButtons) || [],
@@ -1056,6 +1094,16 @@
     W.EfbEntries.actions.export = (el) => exportDialog(el, false);
     W.EfbEntries.actions['export-sel'] = (el) => exportDialog(el, true);
   }
+
+  /* I: Print on a row's menu, on a selection and in the response viewer. */
+  if (!W.EfbEntries.actions.print) {
+    W.EfbEntries.extraMenu.push((row) => (Number(row.entry_status) === 2 ? '' : `<button type="button" role="menuitem" class="efb dropdown-item" data-ent="print" data-msgid="${Number(row.msg_id)}" tabindex="-1">${icon('bi-printer')} ${esc(T('entPrint', 'Print'))}</button>`));
+    W.EfbEntries.extraBulk.push(() => (S.tab === 'trash' ? '' : `<button type="button" class="efb btn btn-sm btn-outline-secondary" data-ent="print-sel">${icon('bi-printer')} <span>${esc(T('entPrint', 'Print'))}</span></button>`));
+    W.EfbEntries.viewerButtons.push((e) => `<button type="button" class="efb btn btn-sm btn-outline-secondary" data-ent="print" data-msgid="${Number(e.msg_id)}">${icon('bi-printer')} ${esc(T('entPrint', 'Print'))}</button>`);
+    W.EfbEntries.actions.print = (el, id) => { closeMenu(); printDialog([Number(id)], el); };
+    W.EfbEntries.actions['print-sel'] = (el) => printDialog(null, el);
+  }
+  W.efb_print_entries_efb = (ids, withNotes) => printEntries(ids, !!withNotes);
 
   /* The renderers by the names of the spec (§6). */
   W.efb_entries_render_head_efb = renderHead;

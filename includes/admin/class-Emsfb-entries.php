@@ -63,6 +63,7 @@ class Entries {
 		add_filter('efb_entry_get_answer', array(__CLASS__, 'entry_extras'), 10, 2);
 		add_action('wp_ajax_efb_entries_export_check_Emsfb', array(__CLASS__, 'ajax_export_check'));
 		add_action('admin_post_efb_export_entries', array(__CLASS__, 'admin_post_export'));
+		add_action('wp_ajax_efb_entries_print_Emsfb', array(__CLASS__, 'ajax_print'));
 		// Notes and history go with the entry (every permanent delete path of F13).
 		add_action('efb_entries_purged', array(__CLASS__, 'on_entries_purged'), 15, 4);
 		// The trash is emptied after trash_days by the daily job, after F13's retention (30).
@@ -1461,6 +1462,32 @@ class Entries {
 		readfile($tmp);
 		@unlink($tmp);
 		exit;
+	}
+
+	/* ------------------------------------------------------------ print (I) */
+
+	const PRINT_MAX = 50;
+
+	/** AJAX efb_entries_print_Emsfb: up to 50 entries (ids, or the list's filter) for one print document. */
+	public static function ajax_print() {
+		self::guard();
+		$fid = absint(self::post('form_id'));
+		$ids = self::args(array('ids' => self::post_json('ids')))['ids'];
+		$filter = self::post_json('filter');
+		if (is_array($filter) && $fid > 0) {
+			$filter['form_id'] = $fid;
+			if (!empty($filter['conds']) && !self::plan_ok('filter')) wp_send_json_success(self::plan_error('filter'), 200);
+			$ids = self::ids_of_filter($filter, self::PRINT_MAX + 1);
+		}
+		if (count($ids) > self::PRINT_MAX) wp_send_json_success(array('success' => false, 'code' => 'efb_print_too_many', 'm' => str_replace('%s', (string) self::PRINT_MAX, self::t('entPrintMax', 'At most %s entries can be printed at once.'))), 200);
+		$notes = self::post('notes') === '1' ? self::notes_text($ids) : array();
+		$out = array();
+		foreach ($ids as $id) {
+			$e = self::entry($id);
+			if (!$e || ($fid > 0 && $e['form_id'] !== $fid)) continue;
+			$out[] = array('msg_id' => $e['msg_id'], 'track' => $e['track'], 'ip' => $e['ip'], 'date' => $e['date'], 'content' => $e['content'], 'notes' => isset($notes[$e['msg_id']]) ? self::notes_of($e['msg_id']) : array());
+		}
+		wp_send_json_success(array('success' => true, 'entries' => $out), 200);
 	}
 
 	/* ------------------------------------------------------------ statistics (J) and their backfill (A) */

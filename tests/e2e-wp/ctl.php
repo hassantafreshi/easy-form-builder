@@ -881,6 +881,12 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( array( 'deleted' => $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}emsfb_msg_ WHERE form_id = %d", (int) $efb_e2e_rest[0] ) ) ) ); // phpcs:ignore
 		break;
 
+	case 'f14-note':
+		// A note on an entry, written as the administrator: <msg_id> <text>.
+		$wpdb->insert( $wpdb->prefix . 'emsfb_msg_notes_', array( 'msg_id' => (int) $efb_e2e_rest[0], 'user_id' => 1, 'note' => (string) $efb_e2e_rest[1], 'date' => wp_date( 'Y-m-d H:i:s' ) ) );
+		efb_e2e_out( array( 'note_id' => (int) $wpdb->insert_id ) );
+		break;
+
 	case 'f14-notes':
 		efb_e2e_out( $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}emsfb_msg_notes_ WHERE msg_id = %d ORDER BY note_id", (int) $efb_e2e_rest[0] ), ARRAY_A ) ); // phpcs:ignore
 		break;

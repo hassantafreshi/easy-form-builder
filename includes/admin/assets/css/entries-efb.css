@@ -68,14 +68,14 @@
 .efb-ent-bulkbar .btn-outline-secondary, .efb-ent-bulkbar .btn-outline-danger, .efb-ent-bulkbar .btn-link { color: #fff; border-color: rgba(255, 255, 255, .5); }
 .efb-ent-bulkbar .btn-outline-secondary:hover { background: rgba(255, 255, 255, .15); }
 
-.efb-ent-toast { position: fixed; inset-inline-start: 50%; bottom: 24px; transform: translateX(-50%); z-index: 100060; background: #0f172a; color: #fff; padding: 10px 16px; border-radius: 10px; box-shadow: 0 6px 24px rgba(0, 0, 0, .25); display: flex; align-items: center; gap: 10px; unicode-bidi: plaintext; max-width: calc(100vw - 32px); }
+.efb-ent-toast { position: fixed; inset-inline-start: 50%; bottom: 24px; transform: translateX(-50%); z-index: 170020; background: #0f172a; color: #fff; padding: 10px 16px; border-radius: 10px; box-shadow: 0 6px 24px rgba(0, 0, 0, .25); display: flex; align-items: center; gap: 10px; unicode-bidi: plaintext; max-width: calc(100vw - 32px); }
 [dir="rtl"] .efb-ent-toast { transform: translateX(50%); }
 .efb-ent-toast[hidden] { display: none; }
 
-.efb-ent-menu { min-width: 200px; z-index: 100050; padding: 4px 0; }
+.efb-ent-menu { min-width: 200px; z-index: 170010; padding: 4px 0; }
 .efb-ent-menu .dropdown-item { display: flex; gap: 8px; align-items: center; min-height: 40px; white-space: nowrap; }
 
-.efb-ent-dlg-back { position: fixed; inset: 0; background: rgba(15, 23, 42, .45); z-index: 100055; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.efb-ent-dlg-back { position: fixed; inset: 0; background: rgba(15, 23, 42, .45); z-index: 170000; display: flex; align-items: center; justify-content: center; padding: 16px; }
 .efb-ent-dlg { background: #fff; border-radius: 14px; width: min(560px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; box-shadow: 0 18px 50px rgba(0, 0, 0, .3); }
 .efb-ent-dlg-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--efb-ent-line, #e2e8f0); gap: 8px; }
 .efb-ent-dlg-body { padding: 14px 16px; overflow: auto; unicode-bidi: plaintext; }

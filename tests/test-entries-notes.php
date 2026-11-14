@@ -11,6 +11,7 @@
  *    public tracking / reply routes, not in the WordPress personal-data export (spec §5.2);
  *  - the history: each row with its author and, for an edit, the field's current label;
  *  - efb_entry_get_Emsfb answers the entry with its notes and history; nonce and capability checked;
+ *  - print (I): up to 50 entries of the form, the notes only on request, nonce checked;
  *  - deleting the entry permanently removes its notes and history (efb_entries_purged).
  *
  * Run: php tests/test-entries-notes.php
@@ -93,6 +94,19 @@ t('notes AJAX: an unknown op', $ajax('ajax_notes', array('op' => 'drop', 'msg_id
 $g = $ajax('ajax_get', array('msg_id' => $m));
 t('efb_entry_get_Emsfb: the entry with its IP, its notes and its history', array($g['success'], $g['entry']['ip'], count($g['notes']), count($g['log']) >= 3, $g['entry']['hash'] === md5($g['entry']['content'])), array(true, '203.0.113.5', 3, true, true));
 t('efb_entry_get_Emsfb: a missing entry', $ajax('ajax_get', array('msg_id' => 424242))['code'], 'efb_not_found');
+
+/* ------------------------------------------------------------------ print (I) */
+$GLOBALS['efb_caps'] = array('Emsfb' => true);
+$m2 = $db->add_entry($fid, array(array('id_' => 'nm', 'type' => 'text', 'name' => 'Full name', 'value' => 'Sara')), '2026-11-02 10:00:00');
+$other_form = $db->add_entry($fid + 100, array(array('id_' => 'x', 'type' => 'text', 'value' => 'other')), '2026-11-02 10:00:00');
+$p = $ajax('ajax_print', array('form_id' => $fid, 'ids' => json_encode(array($m, $m2, $other_form)), 'notes' => '0'));
+t('print: the entries of this form, no notes unless asked', array(count($p['entries']), $p['entries'][0]['notes']), array(2, array()));
+$p = $ajax('ajax_print', array('form_id' => $fid, 'ids' => json_encode(array($m)), 'notes' => '1'));
+t('print with "Include notes": the entry\'s notes come along', count($p['entries'][0]['notes']), 3);
+t('print: more than 50 entries are refused', $ajax('ajax_print', array('form_id' => $fid, 'ids' => json_encode(range(1, 51))))['code'], 'efb_print_too_many');
+$GLOBALS['efb_nonce_ok'] = false;
+t('print without the nonce → efb_forbidden', $ajax('ajax_print', array('form_id' => $fid, 'ids' => json_encode(array($m))))['code'], 'efb_forbidden');
+$GLOBALS['efb_nonce_ok'] = true;
 
 /* ------------------------------------------------------------------ permanent delete */
 $db->pdo->exec("UPDATE wp_emsfb_msg_ SET entry_status = 2 WHERE msg_id = {$m}");
