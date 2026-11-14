@@ -264,6 +264,35 @@ class Service {
 		);
 	}
 
+	/* ------------------------------------------------------------------ quote (F10 review page) */
+
+	/**
+	 * The amount payments/create would ask for these answers, for the review page (F10-A): the same readiness,
+	 * gateway, plan and Pricing::quote() checks as create(), nothing stored, no provider call, no attempt used.
+	 *
+	 * @param array $a form_id, form (stored rows), rows (validated rows), field_id, locale.
+	 * @return array {success, quote: {total_minor, currency, amount}} or a fail() answer (code, m).
+	 */
+	public static function quote( array $a ) {
+		$form = isset( $a['form'] ) && is_array( $a['form'] ) ? $a['form'] : array();
+		$fid = isset( $a['field_id'] ) ? (string) $a['field_id'] : '';
+		$field = null;
+		foreach ( $form as $i => $r ) {
+			if ( $i > 0 && is_array( $r ) && isset( $r['id_'], $r['type'] ) && Readiness::is_payment_type( (string) $r['type'] ) && ( $fid === '' || (string) $r['id_'] === $fid ) ) { $field = $r; break; }
+		}
+		$ready = Readiness::of_form( $form, isset( $a['form_id'] ) ? (int) $a['form_id'] : 0 );
+		if ( $ready['has_payment'] && ! $ready['ready'] ) return self::fail( 'pay_not_ready' );
+		$gw = $field ? Registry::get( (string) $field['type'] ) : null;
+		if ( ! $gw ) return self::fail( 'pay_unavailable' );
+		self::$gw_slug = $gw->slug();
+		if ( ! self::plan_ok() ) return self::fail( 'pay_unavailable' );
+		$sup = array_merge( ( new Gateway_Defaults() )->supports(), (array) $gw->supports() );
+		$quote = Pricing::quote( $form, isset( $a['rows'] ) && is_array( $a['rows'] ) ? $a['rows'] : array(), array( 'field_id' => (string) $field['id_'], 'gateway' => $gw->slug(), 'supports' => $sup ) );
+		if ( empty( $quote['ok'] ) ) return self::fail( $quote['error'], isset( $quote['field_id'] ) ? array( 'field_id' => $quote['field_id'] ) : array() );
+		$locale = isset( $a['locale'] ) && is_string( $a['locale'] ) && preg_match( '/^[a-z]{2,3}(_[A-Z]{2})?$/', $a['locale'] ) ? $a['locale'] : ( function_exists( 'determine_locale' ) ? determine_locale() : '' );
+		return array( 'success' => true, 'quote' => array( 'total_minor' => (int) $quote['total_minor'], 'currency' => $quote['currency'], 'amount' => Money::format( (int) $quote['total_minor'], $quote['currency'], $locale ) ) );
+	}
+
 	/* ------------------------------------------------------------------ create */
 
 	/**

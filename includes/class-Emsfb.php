@@ -486,6 +486,12 @@ class Emsfb {
             \Emsfb\Repeater::register();
         }
 
+        // F10: layout and special fields (review page, sections, rich text, visibility by role, typed signature).
+        // Optional: every caller checks class_exists('\Emsfb\Layout').
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-layout.php') && method_exists('\Emsfb\Layout', 'register')) {
+            \Emsfb\Layout::register();
+        }
+
         // F14: entries management (list on the server, status, notes and history, edit, resend, export,
         // statistics). Loaded on every request: its cron jobs, the view / submit counts and the entries API
         // run outside wp-admin. Optional: every caller checks class_exists('\Emsfb\Entries').

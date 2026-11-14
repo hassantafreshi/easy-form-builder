@@ -356,6 +356,10 @@ class Create {
 		// F09: the repeater group (EFBRepeaterCore, the twin of Repeater; the page runtime for the preview) and its builder controls.
 		wp_enqueue_script('efb-repeater-js', EMSFB_PLUGIN_URL . 'public/assets/js/repeater-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/repeater-efb.js'), true);
 		wp_enqueue_script('efb-repeater-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/repeater-builder-efb.js', array('efb-val-js', 'efb-repeater-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/repeater-builder-efb.js'), true);
+		// F10: the review page, sections, rich text, visibility by role and the typed signature (rules twin of Layout, builder controls, the preview).
+		wp_enqueue_script('efb-layout-js', EMSFB_PLUGIN_URL . 'public/assets/js/layout-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/layout-efb.js'), true);
+		wp_enqueue_script('efb-layout-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/layout-builder-efb.js', array('efb-val-js', 'efb-layout-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/layout-builder-efb.js'), true);
+		wp_enqueue_style('efb-layout-css', EMSFB_PLUGIN_URL . 'public/assets/css/layout-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/layout-efb.css'));
 		wp_enqueue_style('efb-repeater-css', EMSFB_PLUGIN_URL . 'public/assets/css/repeater-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/repeater-efb.css'));
 		// F06: the calendar engines, the picker (canvas and preview) and the advanced date field's panel.
 		if (class_exists('\\Emsfb\\Calendar')) \Emsfb\Calendar::enqueue_admin(true);

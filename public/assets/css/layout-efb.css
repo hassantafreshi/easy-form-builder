@@ -1,0 +1,41 @@
+/* F10: layout and special fields on the public page (layout-efb.js). Logical properties, so RTL needs no extra rule. */
+
+/* ---- A: the review page before sending ---- */
+.efb.efb-review { border: 0; padding-block: .25rem; }
+.efb.efb-review .efb-review-title { unicode-bidi: plaintext; text-align: start; margin-block-end: .25rem; }
+.efb.efb-review .efb-review-title:focus { outline: 2px solid currentColor; outline-offset: 2px; }
+.efb.efb-review .efb-review-help { unicode-bidi: plaintext; text-align: start; }
+.efb.efb-review .efb-review-step { margin-block: .5rem; padding-block: .5rem; border-block-start: 1px solid rgba(0, 0, 0, .1); }
+.efb.efb-review .efb-review-step-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+.efb.efb-review .efb-review-step-name { margin: 0; unicode-bidi: plaintext; text-align: start; }
+.efb.efb-review .efb-review-list { margin: .25rem 0 0; }
+.efb.efb-review .efb-review-row { display: grid; grid-template-columns: minmax(8rem, 35%) 1fr; gap: .25rem 1rem; padding-block: .35rem; border-block-end: 1px dashed rgba(0, 0, 0, .08); }
+.efb.efb-review .efb-review-label { font-weight: 600; margin: 0; unicode-bidi: plaintext; overflow-wrap: anywhere; }
+.efb.efb-review .efb-review-label.txt-left { text-align: left; }
+.efb.efb-review .efb-review-label.txt-right { text-align: right; }
+.efb.efb-review .efb-review-label.txt-center { text-align: center; }
+.efb.efb-review .efb-review-value { margin: 0; display: flex; align-items: flex-start; justify-content: space-between; gap: .5rem; flex-wrap: wrap; unicode-bidi: plaintext; overflow-wrap: anywhere; min-width: 0; }
+.efb.efb-review .efb-review-answer { flex: 1 1 10rem; min-width: 0; white-space: normal; }
+.efb.efb-review .efb-review-answer bdi { unicode-bidi: isolate; }
+.efb.efb-review .efb-review-file { display: block; }
+.efb.efb-review .efb-review-sig { display: block; max-width: 220px; max-height: 90px; background: #fff; }
+.efb.efb-review .efb-review-sigtext { display: block; font-size: .85em; opacity: .8; }
+.efb.efb-review .efb-review-edit,
+.efb.efb-review .efb-review-edit-field { min-height: 44px; min-width: 44px; padding-inline: .5rem; text-decoration: underline; }
+.efb.efb-review .efb-review-rpt-n { unicode-bidi: plaintext; text-align: start; }
+.efb.efb-review.efb-review-rtl .efb-review-title,
+.efb.efb-review.efb-review-rtl .efb-review-help,
+.efb.efb-review.efb-review-rtl .efb-review-step-name,
+.efb.efb-review.efb-review-rtl .efb-review-rpt-n,
+.efb.efb-review.efb-review-rtl .efb-review-amount { text-align: right; }
+.efb.efb-review.efb-review-rtl .efb-review-amount { justify-content: flex-start; }
+.efb.efb-review .efb-review-rpt { flex: 1 1 100%; margin-block: .25rem; padding-inline-start: .5rem; border-inline-start: 3px solid rgba(0, 0, 0, .12); }
+.efb.efb-review .efb-review-sub .efb-review-row { grid-template-columns: minmax(6rem, 35%) 1fr; }
+.efb.efb-review .efb-review-amount { unicode-bidi: plaintext; font-size: 1.05em; }
+.efb.efb-review .efb-review-actions { gap: .5rem; margin-block-start: .75rem; }
+.efb.efb-review .efb-review-btn { min-height: 44px; }
+@media (max-width: 576px) {
+  .efb.efb-review .efb-review-row,
+  .efb.efb-review .efb-review-sub .efb-review-row { grid-template-columns: 1fr; }
+  .efb.efb-review .efb-review-actions .efb-review-btn { flex: 1 1 100%; }
+}

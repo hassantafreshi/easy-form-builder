@@ -2343,6 +2343,7 @@ function show_setting_window_efb(idset, opts) {
           ${globalMobileHideLabelEls}
           ${showSprosiEls}
           ${showformLoggedEls}
+          ${typeof efbLayoutFormEls === 'function' ? efbLayoutFormEls() : '<!-- F10 layout-builder-efb.js not loaded -->'}
           ${cardEls}
           ${offLineEls}
           ${adminFormEmailEls}

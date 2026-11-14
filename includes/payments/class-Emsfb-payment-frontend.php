@@ -445,6 +445,12 @@ class Routes {
 			'callback'            => array( $public, 'payment_create_api_efb' ),
 			'permission_callback' => array( $public, 'check_nonce_permission_efb' ),
 		) );
+		// F10-A: the amount for the review page (the same checks as create, nothing stored or charged).
+		register_rest_route( 'Emsfb/v1', 'payments/quote', array(
+			'methods'             => 'POST',
+			'callback'            => array( $public, 'payment_quote_api_efb' ),
+			'permission_callback' => array( $public, 'check_nonce_permission_efb' ),
+		) );
 		register_rest_route( 'Emsfb/v1', 'payments/webhook/' . $slug, array(
 			'methods'             => 'POST',
 			'callback'            => array( Service::class, 'handle_webhook' ),

@@ -2054,6 +2054,10 @@ require('./scenario-f09.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewFo
  * tests/e2e-wp/scenario-f14.js. */
 require('./scenario-f14.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
 
+/* F10 layout and special fields: the review page before sending (builder, page, fa_IR / ar at 375 px, a payment
+ * form's server amount), sections, rich text, visibility by role, the typed signature: tests/e2e-wp/scenario-f10.js. */
+require('./scenario-f10.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */

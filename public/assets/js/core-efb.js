@@ -1351,6 +1351,29 @@ async function actionSendData_emsFormBuilder(form_id=0) {
     }
     post_api_forms_efb(data,form_id);
 }
+/**
+ * F10: the amount of a payment-framework form for the review page, from the server (payments/quote): the same
+ * checks as payments/create on the same request, but nothing is stored, charged or claimed. {ok, amount (the
+ * server's text), total_minor, currency} or {ok:false}. The page never computes the amount it shows there.
+ */
+async function efb_review_quote_efb(form_id, field_id) {
+  try {
+    const vj = fun_sid_efb(form_id);
+    let rows = sendBack_emsFormBuilder_pub.filter((x) => x && Number(x.form_id) === Number(form_id) && x.id_ !== 'captcha_v2');
+    rows = efb_repeater_wire_rows_efb(rows, form_id);
+    const data = { value: JSON.stringify(rows), name: vj.formName, id: form_id, valid: '', type: vj.type, url: location.href.split('?')[0], query: efb_page_query_efb(), sid: vj.sid, page_id: ajax_object_efm.page_id, pay: { field_id: String(field_id || '') } };
+    efb_rules_add_confirms_efb(data, form_id);
+    if (window.EFBVerify && typeof window.EFBVerify.addToRequest === 'function') window.EFBVerify.addToRequest(data, form_id);
+    if (window.EFBRuntime && typeof window.EFBRuntime.decorate === 'function') { try { await window.EFBRuntime.decorate(data, Number(form_id) || 0, 'quote'); } catch (e) { /* the page's own session */ } }
+    const rest = (typeof efb_var !== 'undefined' && efb_var.rest_url) ? efb_var.rest_url : ((typeof ajax_object_efm !== 'undefined' && ajax_object_efm.rest_url) ? ajax_object_efm.rest_url : '/wp-json/');
+    const resp = await efb_fetch_public_request_efb(rest + 'Emsfb/v1/payments/quote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }, 'payment', vj.sid, form_id);
+    const j = await resp.json();
+    const d = j && j.data ? j.data : {};
+    return d && d.success && d.quote ? { ok: true, amount: String(d.quote.amount || ''), total_minor: d.quote.total_minor, currency: d.quote.currency } : { ok: false, m: d && d.m };
+  } catch (e) {
+    return { ok: false };
+  }
+}
 /* Persian (۰-۹) and Arabic-Indic (٠-٩) digits to 0-9: phone keyboards in
  * Iran and the Arab world type these, and the phone filter dropped them. */
 /* A date typed into the Jalali or Hijri field as YYYY-MM-DD with ASCII
@@ -3767,6 +3790,12 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
           dom: efb_steps_dom_debug_efb(form_id, parent_body)
         });
 
+        /* F10: Next on a step opened from the review page goes back to the review page once the step
+           is valid; a Conditional Logic jump during the checks ends that and the normal flow goes on. */
+        if (window.EFBLayout) {
+          if (_jumpedDuringValidation) window.EFBLayout.reviewCancelReturn(form_id);
+          else if (window.EFBLayout.reviewReturn(form_id, no_step)) return false;
+        }
         if (_jumpedDuringValidation) {
           /* A conditional-logic jump_to_step action ran as a side effect of
            * the validation/evaluate() call above (e.g. a rule on the field
@@ -3838,6 +3867,8 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
        fun_progessbar(no_step,max_step);
 
        if(no_step>max_step){
+         /* F10: the review page comes first when the form asks for one (the visitor confirms there). */
+         if (window.EFBLayout && window.EFBLayout.reviewIntercept(form_id, Number(current_fieldset.dataset.step.replace(/\D+/g, '')) || max_step)) return false;
          if(el) el.classList.add('d-none');
          if(prev_btn) prev_btn.classList.add('d-none');
          efb_steps_debug_efb('next:overshoot-submit', {
@@ -3916,6 +3947,8 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     await fun_handle_header_efb(no_step,'backward');
     updateStepButtonState_efb(form_id);
   }else if (btn_state=='btn_send_efb'){
+    /* F10: the review page first, when the form asks for one (Confirm comes back here). */
+    if (window.EFBLayout && window.EFBLayout.reviewIntercept(form_id, no_step)) return false;
     efb_steps_debug_efb('send:start', {
       form_id: form_id,
       current_step_before: no_step,

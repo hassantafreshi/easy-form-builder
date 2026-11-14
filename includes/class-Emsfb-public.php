@@ -35,6 +35,8 @@ class _Public {
 	private $mask_ids_efb = array();
 	/* PAY00: set by payment_create_api_efb() for the one request it serves (payments/create). */
 	private $pay_create_efb = null;
+	/** F10-A: payments/quote (the review page's amount): the submit's checks, then the quote, nothing stored. */
+	private $pay_quote_efb = null;
 	/* F11: the form gate of the submission this request serves (Form_Gate). */
 	private $gate_s0 = null;
 	private $gate_fid = 0;
@@ -1386,7 +1388,9 @@ public function check_nonce_permission_efb($request) {
 			'numStepM_','numDecM_','numNanM_','numRange','calcErr','rngLo','rngHi','rngOrder',
 			/* F09 repeater group: rows, buttons, announcements and messages (repeater-efb.js). */
 			'repeater','rowN','addRow','removeRow','removeRowConfirm','rptRemoveBtn','rptKeepBtn','rowAdded','rowRemoved','expandRow','collapseRow',
-			'rptMaxReached','rptMinRowsMsg','rptMaxRowsMsg','rptCountMismatch','rptRowRequired','rptChildLabel'];
+			'rptMaxReached','rptMinRowsMsg','rptMaxRowsMsg','rptCountMismatch','rptRowRequired','rptChildLabel',
+			/* F10: the review page before sending (layout-efb.js). */
+			'rvwTtl','rvwEdit','rvwEditStep','rvwEditField','rvwBackToReview','rvwConfirm','rvwNoAnswer','rvwAmount','rvwAmountLoading','rvwAmountLater','rvwSigned','rvwFilesN','rvwHelp'];
 
 			/* Only now is a form or response box really printed. A form in a widget,
 			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
@@ -2542,6 +2546,13 @@ public function check_nonce_permission_efb($request) {
 			wp_enqueue_style('efb-repeater-css', EMSFB_PLUGIN_URL . 'public/assets/css/repeater-efb.css', array(), $asset_version('public/assets/css/repeater-efb.css'));
 			$core_deps[] = 'efb-repeater-js';
 		}
+		// F10: the review page, sections, rich text and the typed signature (only on a form that uses one of them).
+		if (class_exists('\\Emsfb\\Layout') && \Emsfb\Layout::json_needs_runtime($form_structure_json)) {
+			wp_register_script('efb-layout-js', EMSFB_PLUGIN_URL . 'public/assets/js/layout-efb.js', array(), $asset_version('public/assets/js/layout-efb.js'), true);
+			wp_enqueue_script('efb-layout-js');
+			wp_enqueue_style('efb-layout-css', EMSFB_PLUGIN_URL . 'public/assets/css/layout-efb.css', array(), $asset_version('public/assets/css/layout-efb.css'));
+			$core_deps[] = 'efb-layout-js';
+		}
 		// F06: the advanced date field's engines and picker, only on pages with one (and only the calendars it can show).
 		if (class_exists('\\Emsfb\\Calendar') && \Emsfb\Calendar::enqueue_public($form_structure_json)) {
 			$core_deps[] = 'efb-cal-ui';
@@ -3415,6 +3426,11 @@ public function check_nonce_permission_efb($request) {
 				// F09: the stored form (its options' ids); the rows carry ri, so a choice taken in three rows takes three places.
 				$this->stock_form_efb = !empty($rpt_virtual_efb) ? $rpt_original_fields_efb : $form_fields_array;
 				$this->stock_fid_efb = intval($request_data['id']);
+				// F10-A: payments/quote stops here: every answer was checked, nothing is stored, no captcha is spent.
+				if ($this->pay_quote_efb !== null) {
+					$this->payment_quote_answer_efb($form_fields_array, $validated_items, $request_data);
+					exit;
+				}
 			}elseif($form_type=='register' || $form_type=='login'){
 
 				if($submission_type=='logout'){
@@ -11666,6 +11682,46 @@ public function check_nonce_permission_efb($request) {
 			'client_data'    => isset($pay['client_data']) && is_array($pay['client_data']) ? \Emsfb\Payments\Service::client_data($pay['client_data']) : array(),
 		);
 		return $this->get_form_public_efb($request);
+	}
+
+	/**
+	 * POST Emsfb/v1/payments/quote (F10-A): the amount the review page shows for a payment-framework form. The
+	 * request is the one payments/create gets (the answers, the session); every answer goes through the submit's
+	 * own checks (get_form_public_efb), then Service::quote() answers {success, quote: {total_minor, currency,
+	 * amount}}. Nothing is stored, no captcha or one-time code is spent, no provider is called.
+	 */
+	public function payment_quote_api_efb($request) {
+		$data = $request->get_json_params();
+		if (!is_array($data) || !class_exists('\\Emsfb\\Payments\\Service')) {
+			wp_send_json_error(array('code' => 'efb_invalid_payload', 'm' => __('Invalid form request.', 'easy-form-builder')), 400);
+		}
+		if (!\Emsfb\Payments\Service::rate_ok('pq', (int) apply_filters('efb_payment_quote_per_minute', 30))) {
+			wp_send_json_error(array('code' => 'efb_rate_limited', 'm' => __('Too many payment attempts. Please wait a minute and try again.', 'easy-form-builder')), 429);
+		}
+		// Only a payment form has an amount; the stored form's type is checked against this one on the way.
+		if (!isset($data['type']) || $data['type'] !== 'payment') {
+			wp_send_json_success(array('success' => false, 'code' => 'pay_unavailable', 'm' => __('Online payment for this form is not available right now. Please try again later or contact the site.', 'easy-form-builder')), 200);
+		}
+		$pay = isset($data['pay']) && is_array($data['pay']) ? $data['pay'] : array();
+		$this->pay_quote_efb = array(
+			'field_id' => isset($pay['field_id']) && is_scalar($pay['field_id']) ? sanitize_text_field((string) $pay['field_id']) : '',
+			'locale'   => isset($pay['locale']) && is_scalar($pay['locale']) ? sanitize_text_field((string) $pay['locale']) : '',
+		);
+		return $this->get_form_public_efb($request);
+	}
+
+	/** The quote answer of payments/quote, once the answers passed the submit's checks (the payment is not started). */
+	private function payment_quote_answer_efb($form_fields_array, $validated_items, $request_data) {
+		$ctx = is_array($this->pay_quote_efb) ? $this->pay_quote_efb : array();
+		$res = \Emsfb\Payments\Service::quote(array(
+			'form_id'  => isset($request_data['id']) ? intval($request_data['id']) : 0,
+			'form'     => is_array($form_fields_array) ? $form_fields_array : array(),
+			'rows'     => is_array($validated_items) ? array_values(array_filter($validated_items, function ($r) { return is_array($r) && ($r['type'] ?? '') !== 'w_link'; })) : array(),
+			'field_id' => isset($ctx['field_id']) ? $ctx['field_id'] : '',
+			'locale'   => isset($ctx['locale']) ? $ctx['locale'] : '',
+		));
+		if (!headers_sent()) nocache_headers();
+		wp_send_json_success($res, 200);
 	}
 
 	private function pay_form_rate_ok_efb($bucket, $limit) {

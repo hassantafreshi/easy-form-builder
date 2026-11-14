@@ -5555,6 +5555,40 @@ class efbFunction {
 			"rptRowsCount" => $state && isset($ac->text->rptRowsCount) ? $ac->text->rptRowsCount : esc_html__('%s rows','easy-form-builder'),
 			/* translators: F09 e-mail: after the first rows of a long group; %s = rows not shown */
 			"rptMoreRows" => $state && isset($ac->text->rptMoreRows) ? $ac->text->rptMoreRows : esc_html__('%s more rows. See the whole answer in the dashboard.','easy-form-builder'),
+			/* translators: F10: form setting (switch) */
+			"rvwBfrSbmt" => $state && isset($ac->text->rvwBfrSbmt) ? $ac->text->rvwBfrSbmt : esc_html__('Review answers before submitting','easy-form-builder'),
+			/* translators: F10: form setting (switch) */
+			"rvwHdEmpty" => $state && isset($ac->text->rvwHdEmpty) ? $ac->text->rvwHdEmpty : esc_html__('Hide empty answers in the review','easy-form-builder'),
+			/* translators: F10: form setting label */
+			"rvwTtlLbl" => $state && isset($ac->text->rvwTtlLbl) ? $ac->text->rvwTtlLbl : esc_html__('Review page title','easy-form-builder'),
+			/* translators: F10: title of the review page shown before the form is sent */
+			"rvwTtl" => $state && isset($ac->text->rvwTtl) ? $ac->text->rvwTtl : esc_html__('Review your answers','easy-form-builder'),
+			/* translators: F10: button on the review page */
+			"rvwEdit" => $state && isset($ac->text->rvwEdit) ? $ac->text->rvwEdit : esc_html__('Edit','easy-form-builder'),
+			/* translators: F10: accessible name of a button; %s = the step name */
+			"rvwEditStep" => $state && isset($ac->text->rvwEditStep) ? $ac->text->rvwEditStep : esc_html__('Edit step %s','easy-form-builder'),
+			/* translators: F10: accessible name of a button; %s = the field label */
+			"rvwEditField" => $state && isset($ac->text->rvwEditField) ? $ac->text->rvwEditField : esc_html__('Edit %s','easy-form-builder'),
+			/* translators: F10: button that returns to the review page */
+			"rvwBackToReview" => $state && isset($ac->text->rvwBackToReview) ? $ac->text->rvwBackToReview : esc_html__('Back to review','easy-form-builder'),
+			/* translators: F10: button on the review page */
+			"rvwConfirm" => $state && isset($ac->text->rvwConfirm) ? $ac->text->rvwConfirm : esc_html__('Confirm and submit','easy-form-builder'),
+			/* translators: F10: review page: an optional field left empty */
+			"rvwNoAnswer" => $state && isset($ac->text->rvwNoAnswer) ? $ac->text->rvwNoAnswer : esc_html__('No answer','easy-form-builder'),
+			/* translators: F10: builder note */
+			"rvwNotPayment" => $state && isset($ac->text->rvwNotPayment) ? $ac->text->rvwNotPayment : esc_html__('Review is not available on forms that take a payment inside the form (Stripe, PayPal, PersiaPay).','easy-form-builder'),
+			/* translators: F10: review page: the payment amount row */
+			"rvwAmount" => $state && isset($ac->text->rvwAmount) ? $ac->text->rvwAmount : esc_html__('Amount to pay','easy-form-builder'),
+			/* translators: F10: review page: while the site computes the amount */
+			"rvwAmountLoading" => $state && isset($ac->text->rvwAmountLoading) ? $ac->text->rvwAmountLoading : esc_html__('Checking the amount…','easy-form-builder'),
+			/* translators: F10: review page: when the amount could not be checked */
+			"rvwAmountLater" => $state && isset($ac->text->rvwAmountLater) ? $ac->text->rvwAmountLater : esc_html__('The amount is confirmed when you pay.','easy-form-builder'),
+			/* translators: F10: review page: alternative text of the signature image */
+			"rvwSigned" => $state && isset($ac->text->rvwSigned) ? $ac->text->rvwSigned : esc_html__('Signature','easy-form-builder'),
+			/* translators: F10: review page; %s = number of files */
+			"rvwFilesN" => $state && isset($ac->text->rvwFilesN) ? $ac->text->rvwFilesN : esc_html__('%s files','easy-form-builder'),
+			/* translators: F10: review page: text under the title */
+			"rvwHelp" => $state && isset($ac->text->rvwHelp) ? $ac->text->rvwHelp : esc_html__('Check your answers. Use Edit to change one, then send the form.','easy-form-builder'),
 			/* translators: F14: %s = number */
 			"entExported" => $state && isset($ac->text->entExported) ? $ac->text->entExported : esc_html__('%s entries exported.','easy-form-builder'),
 			/* translators: F14: export column */
@@ -6492,6 +6526,16 @@ class efbFunction {
 						if (!class_exists('\\Emsfb\\Repeater') && is_readable(__DIR__ . '/class-Emsfb-repeater.php')) require_once __DIR__ . '/class-Emsfb-repeater.php';
 						$valp[$key][$k] = class_exists('\\Emsfb\\Repeater') ? \Emsfb\Repeater::sanitize_key($k, $v) : '';
 						if ($valp[$key][$k] === '' && !in_array($k, array('row_label', 'btn_add_text'), true)) unset($valp[$key][$k]);
+					break;
+					// F10 layout keys: one rule set, Layout::sanitize_key() (= EFBLayoutCore.sanitizeKey() in layout-efb.js).
+					// vis_view is the page's own mark (a cached page's public view), never saved.
+					case 'review_before_submit':
+					case 'review_hide_empty':
+					case 'review_title':
+					case 'vis_view':
+						if (!class_exists('\\Emsfb\\Layout') && is_readable(__DIR__ . '/class-Emsfb-layout.php')) require_once __DIR__ . '/class-Emsfb-layout.php';
+						$valp[$key][$k] = class_exists('\\Emsfb\\Layout') ? \Emsfb\Layout::sanitize_key($k, $v, $type) : '';
+						if ($valp[$key][$k] === '' && $k !== 'review_title') unset($valp[$key][$k]);
 					break;
 					// The server's own marks on rows: never taken from a save (dyn = a choice built from the site, inv_mode = booking).
 					case 'dyn':
