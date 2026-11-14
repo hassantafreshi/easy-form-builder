@@ -631,6 +631,13 @@ class Upload_Guard {
             return 0;
         }
 
+        // F09: a file field in a repeater group takes one file per row: as many slots as the group's maximum rows.
+        $rpt_rows = array();
+        if (class_exists('\\Emsfb\\Repeater') && Repeater::has_groups($structure)) {
+            $groups = array();
+            foreach ($structure as $i => $field) if ($i > 0 && Repeater::is_group($field)) { $g = is_object($field) ? $field->id_ : $field['id_']; $groups[(string) $g] = Repeater::limits($field)['max']; }
+            foreach (Repeater::child_groups($structure) as $cid => $g) $rpt_rows[$cid] = isset($groups[$g]) ? $groups[$g] : 1;
+        }
         $count = 0;
         foreach ($structure as $field) {
             $type = '';
@@ -640,7 +647,8 @@ class Upload_Guard {
                 $type = (string) $field['type'];
             }
             if (in_array($type, $types, true)) {
-                $count += self::field_slots($field);
+                $fid = is_object($field) ? (isset($field->id_) ? (string) $field->id_ : '') : (isset($field['id_']) ? (string) $field['id_'] : '');
+                $count += isset($rpt_rows[$fid]) ? $rpt_rows[$fid] : self::field_slots($field);
             }
         }
 

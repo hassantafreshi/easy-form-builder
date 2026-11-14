@@ -1247,6 +1247,17 @@ function efb_fetch_fresh_nonce_efb() {
     return Promise.resolve('');
   }
 }
+/* F09: the id an upload is sent for: a file field in a repeater row is the copy {child}_r{n} in the page, but the
+ * server knows the field by its own id (options.field_id, or the copy's rpt_base in the form's structure). */
+function efb_upload_field_id_efb(id, fid, options) {
+  if (options && typeof options.field_id === 'string' && options.field_id !== '') return options.field_id;
+  try {
+    const st = fid && typeof get_structure_by_form_id_efb === 'function' ? get_structure_by_form_id_efb(fid) : null;
+    const row = Array.isArray(st) ? st.find((x) => x && x.id_ === id) : null;
+    if (row && typeof row.rpt_base === 'string' && row.rpt_base !== '') return row.rpt_base;
+  } catch (e) { /* the builder preview: no form structure */ }
+  return id;
+}
 function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid,options) {
   options = options || {};
   let ticketRetried=false;
@@ -1261,7 +1272,7 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid,options) {
     const send = (activeNonce, isRetry) => {
     const formData = new FormData();
     formData.append('async-upload', file);
-    formData.append('id', id);
+    formData.append('id', efb_upload_field_id_efb(id, fid, options));
     formData.append('pl', pl);
     formData.append('nonce_msg', activeNonce);
     formData.append('sid', sid);

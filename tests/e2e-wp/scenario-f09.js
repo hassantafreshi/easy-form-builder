@@ -17,6 +17,9 @@
  *        row opens), then the entry is stored with each child's own id, rg and ri (no virtual id), the group's
  *        row says 2; the request as sent has no virtual id; a request tampered after the page's check (row 2's
  *        Name removed) is refused by the server at "Name in row 2", and the page marks row 2's copy.
+ *  f09k  Files in rows: a file field inside a group takes one file per row; a guest uploads a passport in row 1 and
+ *        row 2 (each row its own file, sent for the field's own id), sends, and the entry holds two file rows with
+ *        ri 0 / 1 and their own addresses; the form's upload budget counts one slot per row.
  *  f09pay A paid form whose amount comes from rows (test gateway; Pro opened by the plugin's filters): tickets in
  *        rows (a choice with calculation values × a quantity = a line per row), the total sum({tickets.line}) is the
  *        amount; a forged lower total is refused (quote_changed with the server's amount); the provider is asked for
@@ -391,5 +394,39 @@ module.exports = function (S) {
       R.check('f09pay: paid: the entry holds both rows (ri 0 / 1) and the server\'s total 190.00', c.filter((r) => r.id_ === P.radio).map((r) => r.ri).join(',') === '0,1' && (c.find((r) => r.id_ === P.total) || {}).value === '190.00' && c.filter((r) => r.id_ === P.line).map((r) => r.value).join(',') === '100.00,90.00', c);
       await B.p.screenshot({ path: SHOT('f09pay-paid'), fullPage: true });
     } finally { ctl('set-option', 'efb_e2e_f09_plan', 'del'); }
+  });
+
+  /* ------------------------------------------------------------------ f09k */
+  scenario('f09k', 'F09 files in rows: one file per row, sent for the field\'s own id, stored with ri', async ({ context }) => {
+    pro(true);
+    ctl('locale', '');
+    const pdf = (n) => Buffer.from('%PDF-1.4\n% ' + 'x'.repeat(n) + '\n%%EOF\n');
+    const F = form('F09 e2e files', [
+      { key: 'g', type: 'repeater', name: 'Travellers', min_rows: '1', max_rows: '3', default_rows: '1', rmv_confirm: '0' },
+      { key: 'nm', type: 'text', name: 'Name', group: '@@g@@', required: 1 },
+      { key: 'doc', type: 'file', name: 'Passport', group: '@@g@@', required: 1, file: 'document', value: 'document', max_files: '4' },
+    ]);
+    const ids = F.ids;
+    const g = await open(context, pageOf(F.form_id), 'f09k');
+    const done = (n) => g.waitForFunction(([d, k]) => sendBack_emsFormBuilder_pub.filter((r) => r && r.value === '@file@' && r.url && String(r.id_).indexOf(d + '_r') === 0).length >= k, [ids.doc, n], { timeout: 30000 });
+    const single = await g.evaluate((d) => { const i = document.getElementById(d + '_r0_'); return i ? { multiple: i.multiple, max: (get_structure_by_form_id_efb(i.dataset.formid).find((r) => r.id_ === d + '_r0') || {}).max_files } : null; }, ids.doc);
+    R.check('f09k: a file field in a row takes one file (max_files 1 in the copy, no "multiple")', single && single.multiple === false && String(single.max) === '1', single);
+    await g.fill(`[id="${ids.nm}_r0_"]`, 'Sara');
+    await g.press(`[id="${ids.nm}_r0_"]`, 'Tab');
+    await g.setInputFiles(`[id="${ids.doc}_r0_"]`, [{ name: 'sara.pdf', mimeType: 'application/pdf', buffer: pdf(20) }]);
+    await done(1);
+    await g.click(`[id="${ids.g}_add"]`);
+    await sleep(500);
+    await g.fill(`[id="${ids.nm}_r1_"]`, 'Reza');
+    await g.press(`[id="${ids.nm}_r1_"]`, 'Tab');
+    await g.setInputFiles(`[id="${ids.doc}_r1_"]`, [{ name: 'reza.pdf', mimeType: 'application/pdf', buffer: pdf(30) }]);
+    await done(2);
+    const up = await g.evaluate(([d]) => { const fid = document.querySelector('[id^="body_efb_"]').dataset.formid; return [efb_upload_field_id_efb(d + '_r0', fid), efb_upload_field_id_efb(d + '_r1', fid)]; }, [ids.doc]);
+    R.check('f09k: each upload is sent for the field\'s own id (not the copy\'s); the server took both (it knows no copy id)', up.every((x) => x === ids.doc), up);
+    const out = await send(g);
+    R.check('f09k: the answer with two files is accepted', out.res && out.res.success === true, out.res);
+    const c = ((lastEntry(F.form_id) || {}).content) || [];
+    const files = c.filter((r) => r && r.id_ === ids.doc);
+    R.check('f09k: stored: two file rows under the field\'s own id with ri 0 / 1 and their own addresses', files.length === 2 && files.map((r) => r.ri).join(',') === '0,1' && files.every((r) => /^https?:/.test(r.url || '')) && files[0].url !== files[1].url, files);
   });
 };

@@ -6392,13 +6392,14 @@ public function check_nonce_permission_efb($request) {
 			$seen[$basename] = true;
 			$owned = false;
 			if ($ut !== '') {
-				$owned = \Emsfb\Upload_Guard::verify_upload_token($ut, $basename, (int) $ctx['form_id'], $fid_s, $ctx['buckets']);
+				// F09: a file of a repeater row was uploaded for the field's own id (the copy {child}_r{n} is the page's).
+				$owned = \Emsfb\Upload_Guard::verify_upload_token($ut, $basename, (int) $ctx['form_id'], isset($f['rpt_base']) ? (string) $f['rpt_base'] : $fid_s, $ctx['buckets']);
 				if (!$owned) return $fail($not_owned, 'not_owned');
 			} elseif (!\Emsfb\Upload_Guard::require_token()) {
 				$entry = \Emsfb\Upload_Guard::pending_entry($basename);
 				$owned = $entry !== null
 					&& ($entry[1] === 0 || $entry[1] === (int) $ctx['form_id'])
-					&& ($entry[2] === '' || $entry[2] === $fid_s);
+					&& ($entry[2] === '' || $entry[2] === $fid_s || (isset($f['rpt_base']) && $entry[2] === (string) $f['rpt_base']));
 			}
 			if (!$owned) return $fail($not_owned, 'not_owned');
 			if (\Emsfb\Upload_Guard::upload_is_referenced($basename, $ctx['exclude_track'])) return $fail($not_owned, 'not_owned');
@@ -6413,7 +6414,7 @@ public function check_nonce_permission_efb($request) {
 			if ($clean !== '') $item['fnm'] = $clean; else unset($item['fnm']);
 			$sizes[] = $size;
 			$out['items'][] = $item;
-			$out['files'][] = array('path' => $path, 'url' => $item['url'], 'field_id' => $fid_s, 'store' => $store, 'fnm' => $clean, 'size' => $size);
+			$out['files'][] = array('path' => $path, 'url' => $item['url'], 'field_id' => isset($f['rpt_base']) ? (string) $f['rpt_base'] : $fid_s, 'store' => $store, 'fnm' => $clean, 'size' => $size);
 		}
 		if ($is_upload_class && in_array($f['type'], \Emsfb\Uploads::MULTI_TYPES, true)) {
 			$agg = \Emsfb\Uploads::check_field($f, $sizes, (array) $this->lanText);

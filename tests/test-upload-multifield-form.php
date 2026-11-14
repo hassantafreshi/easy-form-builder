@@ -257,6 +257,17 @@ test('4 upload fields still counted from the raw markers',
 test('so the budget is still 12, not 3',
     Upload_Guard::quota_limit(array('source' => 'form', 'fields' => Upload_Guard::count_upload_fields($broken))), 12);
 
+echo "\n--- 11. F09: a file field in a repeater group takes one file per row ---\n";
+require_once __DIR__ . '/../includes/class-Emsfb-repeater.php';
+$rpt = array(array('type' => 'form'), array('id_' => '1', 'type' => 'step'),
+    array('id_' => 'g', 'type' => 'repeater', 'max_rows' => '5'),
+    array('id_' => 'pass', 'type' => 'file', 'group' => 'g', 'max_files' => '4'),
+    array('id_' => 'cv', 'type' => 'file'));
+test('a group of at most 5 rows with one file child: 5 slots (+1 outside)', Upload_Guard::count_upload_fields($rpt), 6);
+test('…so the form budget is 15 for the rows (5 × 3) and 18 in all', Upload_Guard::quota_limit(array('source' => 'form', 'fields' => Upload_Guard::count_upload_fields($rpt))), 18);
+$rpt[3]['group'] = 'nope';
+test('an orphan file field (no such group) counts as an ordinary field (field_slots)', Upload_Guard::count_upload_fields($rpt), Upload_Guard::field_slots($rpt[3]) + 1);
+
 echo "\n========================================\n";
 echo "RESULTS: $pass passed, $fail failed\n";
 echo "========================================\n";
