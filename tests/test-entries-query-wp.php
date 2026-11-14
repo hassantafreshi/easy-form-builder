@@ -6,7 +6,9 @@
  *  2. 20,000 entries (tests/seed-entries-bulk.php): page 50 of 20 answers in time (the server reads one page of
  *     content, never all of them), the totals of every tab, the dates of a page in order;
  *  3. a field condition over the big form stops at 5000 rows and says "more than";
- *  4. no nonce → efb_forbidden; a Subscriber with a valid nonce → efb_forbidden; a form id 0 → efb_invalid.
+ *  4. no nonce → efb_forbidden; a Subscriber with a valid nonce → efb_forbidden; a form id 0 → efb_invalid;
+ *  5. the assistants' REST routes (SitePilot entries.read): refused while ai_entries_access is off, rows with
+ *     personal answers redacted when "rows", the statistics, nothing without the REST nonce.
  *
  * Run (under the e2e lock): source the e2e env; php tests/test-entries-query-wp.php
  */
@@ -63,6 +65,24 @@ $c = $ajax($H, array('action' => 'efb_entries_query_Emsfb', 'nonce' => $nonce, '
 t('a field condition over the big form stops at 5000 rows: "more than", 20 rows', array($c['total_is_estimate'], count($c['rows'])), array(true, 20));
 $sq = $ajax($H, array('action' => 'efb_entries_query_Emsfb', 'nonce' => $nonce, 'form_id' => $fid, 'q' => 'BLK1234'));
 t('the exact tracking code finds one entry', array($sq['total'], $sq['rows'][0]['track'] ?? ''), array(1, 'BLK1234'));
+
+/* the assistants' read-only API over REST (SitePilot entries.read): off by default, then rows, redacted */
+$rest = function ($path, $nonce_h) use ($H) {
+	$r = $H->http('GET', '/wp-json/Emsfb/v1/admin/' . $path, null, $nonce_h === null ? array() : array('X-WP-Nonce' => $nonce_h), false);
+	return array($r['status'] ?? ($r['code'] ?? 0), json_decode($r['body'], true));
+};
+$H->ctl('f14-setting', 'ai_entries_access', 'off');
+list($st, $b) = $rest("forms/{$fid}/entries?per_page=20", $nonce);
+t('REST entries with ai_entries_access off: 403 efb_api_forbidden', array($st, $b['code'] ?? null), array(403, 'efb_api_forbidden'));
+$H->ctl('f14-setting', 'ai_entries_access', 'rows');
+list($st, $b) = $rest("forms/{$fid}/entries?per_page=20&q=BLK1234", $nonce);
+$names = array_column($b['rows'][0]['fields'] ?? array(), 'value');
+t('REST entries with "rows": the entry, status as a string, personal answers "[redacted]", no IP', array($st, $b['total'] ?? null, $b['rows'][0]['status'] ?? null, in_array('[redacted]', $names, true), strpos(json_encode($b), '"ip"') === false), array(200, 1, 'active', true, true));
+list($st, $b) = $rest("forms/{$fid}/stats?days=7", $nonce);
+t('REST stats: 7 days from emsfb_stats_', array($st, count($b['series'] ?? array())), array(200, 7));
+list($st, $b) = $rest("forms/{$fid}/entries", null);
+t('REST without the X-WP-Nonce (cookie auth needs it): refused', in_array($st, array(401, 403), true), true);
+$H->ctl('f14-setting', 'ai_entries_access', 'off');
 
 t('no nonce → efb_forbidden', $ajax($H, array('action' => 'efb_entries_query_Emsfb', 'form_id' => $fid))['code'] ?? '', 'efb_forbidden');
 t('form id 0 → efb_invalid', $ajax($H, array('action' => 'efb_entries_query_Emsfb', 'nonce' => $nonce, 'form_id' => 0))['code'] ?? '', 'efb_invalid');

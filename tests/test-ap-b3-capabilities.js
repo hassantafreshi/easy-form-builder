@@ -138,5 +138,12 @@ c.check('EMSFB_API_VERSION = 1 in emsfb.php', /define\("EMSFB_API_VERSION", 1\);
   c.check('JS: a key the registry does not know keeps the caller fallback (old cached page)', r.fallback === 'FB');
   c.check('no page errors', h.errors.length === 0 && h.bootErrors.length === 0, h.errors);
   await h.browser.close();
+  // F14: the registry the browser tests use (tests/f18-harness.js) applies Entries::capabilities.
+  const { capabilities: harnessCaps } = require('./f18-harness.js');
+  const hFree = harnessCaps(2, {}); const hPlus = harnessCaps(3, {});
+  c.check('F14 in the harness registry: setting:entries_* by plan, capabilities.entries with the read-only API',
+    hFree.features['setting:entries_edit'].available_now === false && hPlus.features['setting:entries_edit'].available_now === true
+    && hFree.features['setting:entries_ai'].available_now === true && hPlus.entries && hPlus.entries.api.read_only === true
+    && hPlus.entries.api.functions.includes('efb_api_entries_query'), { free: hFree.features['setting:entries_edit'], entries: hPlus.entries && hPlus.entries.api });
   c.done();
 })();

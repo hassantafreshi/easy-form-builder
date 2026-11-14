@@ -921,6 +921,25 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( array( 'ok' => true ) );
 		break;
 
+	case 'f14-setting':
+		// One F14 site setting (trash_days, ai_entries_access) in the newest emsfb_setting row: <key> <value>.
+		$k = isset( $efb_e2e_rest[0] ) ? (string) $efb_e2e_rest[0] : '';
+		if ( ! \Emsfb\Entries::is_setting_key( $k ) ) efb_e2e_out( array( 'error' => 'unknown key' ) );
+		$row = $wpdb->get_row( "SELECT id, setting FROM {$wpdb->prefix}emsfb_setting ORDER BY id DESC LIMIT 1", ARRAY_A ); // phpcs:ignore
+		$escaped = $row && strpos( (string) $row['setting'], '\\"' ) !== false;
+		$settings = $row ? efb_e2e_decode_json( $row['setting'] ) : null;
+		if ( is_array( $settings ) ) {
+			$settings[ $k ] = \Emsfb\Entries::sanitize_setting( $k, isset( $efb_e2e_rest[1] ) ? $efb_e2e_rest[1] : '' );
+			$json = wp_json_encode( $settings, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
+			$wpdb->update( $wpdb->prefix . 'emsfb_setting', array( 'setting' => $escaped ? str_replace( '"', '\\"', $json ) : $json ), array( 'id' => (int) $row['id'] ) );
+			delete_transient( 'emsfb_settings_transient' );
+			delete_option( 'emsfb_settings' );
+		}
+		if ( function_exists( 'wp_cache_flush' ) ) wp_cache_flush();
+		get_setting_Emsfb( '_clear_cache' );
+		efb_e2e_out( array( $k => \Emsfb\Entries::setting( $k ) ) );
+		break;
+
 	case 'f14-upload':
 		// A file in uploads/YYYY/MM with the plugin's name pattern (as a visitor's upload): prints url and path.
 		$name = 'efb-PLG-' . gmdate( 'ymd' ) . '-' . strtoupper( wp_generate_password( 8, false, false ) ) . '.pdf';

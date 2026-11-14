@@ -1112,7 +1112,7 @@
       case 'read': return sub(h.new === '1' ? T('entHistRead', '%1$s marked the entry as read') : T('entHistUnread', '%1$s marked the entry as unread'), [who]);
       case 'resend': return sub(T('entHistResend', '%1$s resent the notification to %2$s recipients'), [who, `<bdi>${num((String(h.meta).match(/\d+/) || [0])[0])}</bdi>`]);
       case 'note_del': return sub(T('entHistNoteDel', '%1$s deleted a note'), [who]);
-      case 'api_read': return sub(T('entHistApi', '%1$s read the entries through %2$s'), [who, `<bdi>${esc(h.meta)}</bdi>`]);
+      case 'api_read': return sub(T('entHistApi', '%1$s read the entries through %2$s'), [who, `<bdi>${esc(String(h.meta || '').split(':')[0])}</bdi>`]);
       default: return `${who} <bdi>${esc(h.action)}</bdi>`;
     }
   }

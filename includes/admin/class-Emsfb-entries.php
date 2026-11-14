@@ -68,6 +68,8 @@ class Entries {
 		add_action('wp_ajax_efb_entry_update_Emsfb', array(__CLASS__, 'ajax_update'));
 		add_action('wp_ajax_efb_entry_upload_Emsfb', array(__CLASS__, 'ajax_upload'));
 		add_action('wp_ajax_efb_entry_resend_Emsfb', array(__CLASS__, 'ajax_resend'));
+		add_action('rest_api_init', array(__CLASS__, 'rest_routes'));
+		add_action('emsfb_daily_maintenance', array(__CLASS__, 'purge_api_log'), 36);
 		// Notes and history go with the entry (every permanent delete path of F13).
 		add_action('efb_entries_purged', array(__CLASS__, 'on_entries_purged'), 15, 4);
 		// The trash is emptied after trash_days by the daily job, after F13's retention (30).
@@ -670,7 +672,7 @@ class Entries {
 			'ops'      => self::OPS,
 			'conds'    => array('max' => 3, 'ops' => self::COND_OPS),
 			'plan'     => array_map(array(__CLASS__, 'plan_need'), array_combine(array_keys(self::PLAN), array_keys(self::PLAN))),
-			'api'      => array('functions' => array('efb_api_entries_query', 'efb_api_entry_get', 'efb_api_entries_stats'), 'setting' => 'ai_entries_access', 'modes' => array('off', 'stats', 'rows'), 'read_only' => true),
+			'api'      => array('functions' => array('efb_api_entries_query', 'efb_api_entry_get', 'efb_api_entries_stats'), 'rest' => array('GET Emsfb/v1/admin/forms/{id}/entries', 'GET Emsfb/v1/admin/entries/{msg_id}', 'GET Emsfb/v1/admin/forms/{id}/stats'), 'setting' => 'ai_entries_access', 'modes' => array('off', 'stats', 'rows'), 'read_only' => true, 'per_minute' => 60, 'redacted' => '[redacted]'),
 			'hooks'    => array('efb_entry_updated', 'efb_entry_status_changed', 'efb_entries_purged', 'efb_message_deleted', 'efb_api_entries_read'),
 		);
 		return $out;
@@ -1968,6 +1970,212 @@ class Entries {
 		wp_send_json_success(array('success' => $sent > 0, 'results' => $r, 'count' => $count, 'm' => $m, 'code' => $sent > 0 ? '' : (in_array('limit', $v, true) ? 'efb_resend_limit' : 'efb_resend_failed')), 200);
 	}
 
+	/* ------------------------------------------------------------ assistants: read-only API (SitePilot entries.read) */
+
+	/** The stored status and read state as the API names them (contract §5.5). */
+	const API_STATUS = array(0 => 'active', 1 => 'spam', 2 => 'trash');
+	const API_READ = array(0 => 'new', 1 => 'read', 2 => 'pending_payment', 3 => 'new_reply', 4 => 'closed');
+	/** Answer types never given to an assistant, whatever the setting (their value is a secret). */
+	const API_SECRET_TYPES = array('password', 'pswRegister', 'pswLogin');
+	/** Answer types whose value is a file: the file name and size only, nothing for a private file. */
+	const API_FILE_TYPES = array('file', 'dadfile', 'esign', 'imgfile');
+	const API_REDACTED = '[redacted]';
+
+	/** The site setting that opens entries to assistants: off (default) | stats | rows. */
+	public static function api_mode() {
+		$m = (string) self::setting('ai_entries_access');
+		return in_array($m, array('off', 'stats', 'rows'), true) ? $m : 'off';
+	}
+
+	private static function api_error($code, $message, $status, array $data = array()) {
+		return class_exists('\\WP_Error') ? new \WP_Error($code, $message, array_merge(array('status' => $status), $data)) : array('code' => $code, 'message' => $message, 'data' => array_merge(array('status' => $status), $data));
+	}
+
+	/**
+	 * Who may read, and how much: a logged-in user with the plugin's entries capability (manage_options or
+	 * Emsfb), the site setting at least $need (stats | rows), and at most efb_api_entries_per_minute calls a
+	 * minute (60). True or a WP_Error (efb_api_forbidden 403, efb_api_rate_limited 429 with retry_after).
+	 */
+	public static function api_access($need) {
+		if (!self::can() || (function_exists('get_current_user_id') && get_current_user_id() <= 0)) return self::api_error('efb_api_forbidden', 'Sorry, you are not allowed to read entries.', 403, array('capability' => 'Emsfb'));
+		$mode = self::api_mode();
+		if ($mode === 'off' || ($need === 'rows' && $mode !== 'rows')) return self::api_error('efb_api_forbidden', 'Entries are not open to assistants on this site (setting ai_entries_access).', 403, array('setting' => 'ai_entries_access', 'mode' => $mode));
+		$limit = (int) (function_exists('apply_filters') ? apply_filters('efb_api_entries_per_minute', 60) : 60);
+		$uid = (string) get_current_user_id();
+		$ok = true;
+		if ($limit > 0) {
+			if (class_exists('\\Emsfb\\Rate_Limit') && Rate_Limit::ready()) {
+				$ok = Rate_Limit::hit('apient', $uid, 60, $limit);
+			} elseif (function_exists('get_transient')) {
+				$k = 'efb_apient_' . $uid . '_' . (int) floor(time() / 60);
+				$n = (int) get_transient($k);
+				$ok = $n < $limit;
+				if ($ok) set_transient($k, $n + 1, 120);
+			}
+		}
+		if (!$ok) return self::api_error('efb_api_rate_limited', 'Too many requests. Try again in a minute.', 429, array('retry_after' => 60 - (time() % 60)));
+		return true;
+	}
+
+	/** The app name of a call (for the audit row): a short key, "api" when none is given. */
+	private static function api_app($args) {
+		$app = is_array($args) && isset($args['app']) && is_scalar($args['app']) ? strtolower(preg_replace('/[^A-Za-z0-9_\-]/', '', (string) $args['app'])) : '';
+		return $app !== '' ? substr($app, 0, 40) : 'api';
+	}
+
+	/** The audit of a read: one history row (api_read: app and count, no value) and the action efb_api_entries_read. */
+	private static function api_audit($form_id, $msg_id, $count, $context, $app) {
+		self::log((int) $msg_id, 'api_read', $msg_id ? '' : 'form:' . (int) $form_id, null, null, $app . ':' . (int) $count);
+		if (function_exists('do_action')) do_action('efb_api_entries_read', (int) get_current_user_id(), (int) $form_id, (int) $count, array('app' => $app, 'context' => $context, 'msg_id' => (int) $msg_id));
+	}
+
+	/**
+	 * One entry as an assistant sees it (contract §5.5): msg_id, form_id, track, date_iso, status, read_state,
+	 * starred and fields [{id_, name, type, value, ov?, rg?, ri?}]. Never the IP, the user agent, a uid,
+	 * passwords, one-time codes, upload tokens, payment ids or raw file URLs (a file gives fnm and fsz; a
+	 * private one nothing). Personal answers (F13 prv_pii, else by type) are "[redacted]" unless $with_pii.
+	 * Filter efb_api_entry_row.
+	 */
+	public static function api_row(array $e, $form, $with_pii) {
+		$pii = class_exists('\\Emsfb\\Privacy') ? Privacy::form_pii_map((int) $e['form_id']) : array();
+		$tag_secret = array();
+		foreach (is_array($form) ? $form : array() as $i => $f) {
+			if ($i > 0 && is_array($f) && ($f['type'] ?? '') === 'hiddenField' && isset($f['id_']) && is_string($f['value'] ?? null) && preg_match('/\{\s*(ip|uid|cookie)\b/i', $f['value'])) $tag_secret[(string) $f['id_']] = true;
+		}
+		$fields = array();
+		foreach ((array) (class_exists('\\Emsfb\\Privacy') ? Privacy::decode_content((string) $e['content']) : array()) as $r) {
+			if (!is_array($r) || !isset($r['id_'])) continue;
+			$type = isset($r['type']) ? (string) $r['type'] : '';
+			if ($type === 'w_link' || $type === 'payment' || in_array($type, self::API_SECRET_TYPES, true)) continue;
+			$o = array('id_' => (string) $r['id_'], 'name' => isset($r['name']) && is_scalar($r['name']) ? self::decode_text((string) $r['name']) : '', 'type' => $type);
+			$value = isset($r['value']) && is_scalar($r['value']) ? self::decode_text((string) $r['value']) : '';
+			$personal = class_exists('\\Emsfb\\Privacy') ? Privacy::row_is_personal($r, $pii) : true;
+			if (in_array($type, self::API_FILE_TYPES, true) || $value === '@file@') {
+				$url = isset($r['url']) && is_string($r['url']) ? $r['url'] : '';
+				$private = $url !== '' && class_exists('\\Emsfb\\Uploads') && Uploads::is_private_url($url);
+				$value = '';
+				if (!$private && $url !== '' && ($with_pii || !$personal)) {
+					$o['fnm'] = isset($r['fnm']) && is_scalar($r['fnm']) ? (string) $r['fnm'] : basename((string) parse_url($url, PHP_URL_PATH));
+					if (isset($r['fsz']) && is_numeric($r['fsz'])) $o['fsz'] = (int) $r['fsz'];
+				} elseif ($url !== '' && $personal && !$with_pii) {
+					$value = self::API_REDACTED;
+				}
+			} elseif (isset($tag_secret[$o['id_']]) || ($personal && !$with_pii)) {
+				$value = $value === '' ? '' : self::API_REDACTED;
+			}
+			$o['value'] = $value;
+			if (isset($r['ov']) && is_scalar($r['ov']) && ($with_pii || !$personal)) $o['ov'] = (string) $r['ov'];
+			if (isset($r['rg']) && is_scalar($r['rg'])) $o['rg'] = (string) $r['rg'];
+			if (isset($r['ri']) && is_scalar($r['ri'])) $o['ri'] = (int) $r['ri'];
+			$fields[] = $o;
+		}
+		$out = array(
+			'msg_id'     => (int) $e['msg_id'],
+			'form_id'    => (int) $e['form_id'],
+			'track'      => (string) $e['track'],
+			'date_iso'   => (string) (isset($e['date_iso']) ? $e['date_iso'] : $e['date']),
+			'status'     => isset(self::API_STATUS[(int) $e['entry_status']]) ? self::API_STATUS[(int) $e['entry_status']] : 'active',
+			'read_state' => isset(self::API_READ[(int) $e['read_']]) ? self::API_READ[(int) $e['read_']] : 'read',
+			'starred'    => (bool) (int) $e['starred'],
+			'edited'     => !empty($e['edited_at']),
+			'fields'     => $fields,
+		);
+		return function_exists('apply_filters') ? apply_filters('efb_api_entry_row', $out, $e, $with_pii) : $out;
+	}
+
+	/** Whether personal answers may be given: include_pii asked and the caller is an administrator. */
+	private static function api_with_pii($args) {
+		return is_array($args) && !empty($args['include_pii']) && in_array($args['include_pii'], array(true, 1, '1', 'true'), true) && function_exists('current_user_can') && current_user_can('manage_options');
+	}
+
+	/**
+	 * efb_api_entries_query($form_id, $q): a page of a form's entries with the list's own query (spec §8.1:
+	 * page, per_page ≤ 100, tab, from, to, q, conds, sort). Setting ai_entries_access = rows. A form that stores
+	 * no entries (F13 prv_nostore) answers stored: false. Field conditions need Free Plus, as in the list.
+	 */
+	public static function api_query($form_id, $q = array()) {
+		$ok = self::api_access('rows');
+		if ($ok !== true) return $ok;
+		$form_id = (int) $form_id;
+		$form = self::form_rows($form_id);
+		if (!is_array($form)) return self::api_error('efb_api_not_found', 'No form with this id.', 404);
+		$q = is_array($q) ? $q : array();
+		$app = self::api_app($q);
+		if (class_exists('\\Emsfb\\Privacy') && Privacy::nostore($form_id, $form)) {
+			self::api_audit($form_id, 0, 0, 'query', $app);
+			return array('stored' => false, 'rows' => array(), 'total' => 0, 'total_is_estimate' => false, 'page' => 1, 'per_page' => 20);
+		}
+		$in = array('form_id' => $form_id);
+		foreach (array('page', 'per_page', 'tab', 'from', 'to', 'q', 'conds', 'sort') as $k) if (isset($q[$k])) $in[$k] = $q[$k];
+		$a = self::args($in);
+		if (!empty($a['conds']) && !self::plan_ok('filter')) return self::api_error('efb_api_plan_required', 'Filtering by answers needs Free Plus or Pro.', 402, array('feature_id' => self::FEATURES['filter'], 'required_plan' => self::plan_need('filter')));
+		$r = self::query($a);
+		$with_pii = self::api_with_pii($q);
+		$rows = array();
+		foreach ($r['rows'] as $e) $rows[] = self::api_row($e, $form, $with_pii);
+		self::api_audit($form_id, 0, count($rows), 'query', $app);
+		return array('stored' => true, 'rows' => $rows, 'total' => (int) $r['total'], 'total_is_estimate' => (bool) $r['total_is_estimate'], 'page' => (int) $r['page'], 'per_page' => (int) $r['per_page'], 'redacted' => !$with_pii);
+	}
+
+	/** efb_api_entry_get($msg_id, $args): one entry (setting rows), personal answers as in api_row(). No notes. */
+	public static function api_get($msg_id, $args = array()) {
+		$ok = self::api_access('rows');
+		if ($ok !== true) return $ok;
+		$e = self::entry((int) $msg_id);
+		$form = $e ? self::form_rows($e['form_id']) : null;
+		if (!$e) return self::api_error('efb_api_not_found', 'No entry with this id.', 404);
+		$with_pii = self::api_with_pii($args);
+		$row = self::api_row($e, $form, $with_pii);
+		self::api_audit($e['form_id'], $e['msg_id'], 1, 'get', self::api_app($args));
+		return array('entry' => $row, 'redacted' => !$with_pii);
+	}
+
+	/**
+	 * efb_api_entries_stats($form_id, $args): views, submissions and spam per day from emsfb_stats_ only
+	 * (days 7 | 30 | 90), totals and conversion. Setting stats or rows.
+	 */
+	public static function api_stats($form_id, $args = array()) {
+		$ok = self::api_access('stats');
+		if ($ok !== true) return $ok;
+		$form_id = (int) $form_id;
+		if (!is_array(self::form_rows($form_id))) return self::api_error('efb_api_not_found', 'No form with this id.', 404);
+		$s = self::stats($form_id, is_array($args) && isset($args['days']) ? (int) $args['days'] : 30);
+		self::api_audit($form_id, 0, 0, 'stats', self::api_app($args));
+		return array_merge(array('form_id' => $form_id), $s);
+	}
+
+	/** REST (contract §5.6): GET Emsfb/v1/admin/forms/{id}/entries, admin/entries/{msg_id}, admin/forms/{id}/stats. */
+	public static function rest_routes() {
+		if (!function_exists('register_rest_route')) return;
+		$perm = function () { return self::can() && get_current_user_id() > 0; };
+		$answer = function ($r) {
+			if (is_wp_error($r)) return $r;
+			return function_exists('rest_ensure_response') ? rest_ensure_response($r) : $r;
+		};
+		$q = function ($req) {
+			$out = array();
+			foreach (array('page', 'per_page', 'tab', 'from', 'to', 'q', 'conds', 'sort', 'include_pii', 'app', 'days') as $k) { $v = $req->get_param($k); if ($v !== null) $out[$k] = $v; }
+			return $out;
+		};
+		register_rest_route('Emsfb/v1', '/admin/forms/(?P<id>\d+)/entries', array('methods' => 'GET', 'permission_callback' => $perm,
+			'callback' => function ($req) use ($answer, $q) { return $answer(self::api_query((int) $req['id'], $q($req))); }));
+		register_rest_route('Emsfb/v1', '/admin/entries/(?P<msg_id>\d+)', array('methods' => 'GET', 'permission_callback' => $perm,
+			'callback' => function ($req) use ($answer, $q) { return $answer(self::api_get((int) $req['msg_id'], $q($req))); }));
+		register_rest_route('Emsfb/v1', '/admin/forms/(?P<id>\d+)/stats', array('methods' => 'GET', 'permission_callback' => $perm,
+			'callback' => function ($req) use ($answer, $q) { return $answer(self::api_stats((int) $req['id'], $q($req))); }));
+	}
+
+	/** api_read rows of list / stats reads (msg_id 0) are kept efb_api_read_log_days (90) days. */
+	public static function purge_api_log() {
+		global $wpdb;
+		if (!self::ready()) return 0;
+		$days = max(1, (int) (function_exists('apply_filters') ? apply_filters('efb_api_read_log_days', 90) : 90));
+		$cut = gmdate('Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS);
+		$t = $wpdb->prefix . self::LOG;
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		return (int) $wpdb->query($wpdb->prepare("DELETE FROM `{$t}` WHERE msg_id = 0 AND action = %s AND `date` < %s", 'api_read', $cut));
+	}
+
 	/* ------------------------------------------------------------ statistics (J) and their backfill (A) */
 
 	private static function today() {
@@ -2112,3 +2320,4 @@ class Entries {
 		return $st;
 	}
 }
+

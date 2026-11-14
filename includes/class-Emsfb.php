@@ -491,6 +491,7 @@ class Emsfb {
         // run outside wp-admin. Optional: every caller checks class_exists('\Emsfb\Entries').
         if ($this->require_plugin_file_efb('includes/admin/class-Emsfb-entries.php') && method_exists('\Emsfb\Entries', 'register')) {
             \Emsfb\Entries::register();
+            $this->require_plugin_file_efb('includes/admin/entries-api-functions.php');
         }
 
         // Builder API for integrations such as AutoPilot (docs/autopilot-integration.md).
