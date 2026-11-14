@@ -1227,6 +1227,12 @@ function efb_error_prev_button_efb(valj_efb, onclick) {
     }
   }
 }
+/* F09: the answers of a form as they are sent: the rows of repeater copies ({child}_r{n}) under the field's own
+ * id with rg (group) and ri (row from 0). The page and localStorage keep the copies' ids (the DOM uses them). */
+function efb_repeater_wire_rows_efb(rows, form_id) {
+  if (!window.EFBRepeater || typeof window.EFBRepeater.wire !== 'function') return rows;
+  try { return window.EFBRepeater.wire(rows, form_id); } catch (e) { return rows; }
+}
 async function actionSendData_emsFormBuilder(form_id=0) {
   let sendback = [];
   if(form_type_emsFormBuilder =='recovery'){
@@ -1261,6 +1267,8 @@ async function actionSendData_emsFormBuilder(form_id=0) {
     return;
   }
   form_type_emsFormBuilder = valj_efb.length >2 ? valj_efb[0].type : form_type_emsFormBuilder
+  // F09: rows of repeater groups as they are sent (fields' own ids with rg / ri); nothing changes without a group.
+  sendback = efb_repeater_wire_rows_efb(sendback, form_id);
   let  data = {
       action: "get_form_Emsfb",
       value: JSON.stringify(sendback),
@@ -2289,6 +2297,10 @@ async function response_fill_form_efb(res ,form_id=0) {
      with a plain object before submitting — restore array form so the helpers below
      (and any later array operations) keep working. */
   if (!Array.isArray(sendBack_emsFormBuilder_pub)) sendBack_emsFormBuilder_pub = [];
+  // F09: the server names a field of a repeater row by its own id and the row (row_index): the copy in the page.
+  if (res.data && res.data.field_id && res.data.row_index !== undefined && res.data.row_index !== null && window.EFBRepeater) {
+    try { const rptVid = window.EFBRepeater.fieldAt(form_id, res.data.field_id, res.data.row_index); if (rptVid) res.data.field_id = rptVid; } catch (e) {}
+  }
   if (res.data.success == true) {
     efb_hide_submit_ajax_badge_efb(form_id);
     /* Final submit succeeded — now it is safe to drop this form's stored values.

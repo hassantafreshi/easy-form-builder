@@ -359,6 +359,244 @@ final class Repeater {
 		return array_keys($rows) === range(0, count($rows) - 1) ? $out : $rows;
 	}
 
+	/* ------------------------------------------------------------------ the submission (spec §9.2) */
+
+	/** Keys of a child that do not apply in a row: one-time codes (F02) are not offered inside rows. */
+	const ROW_DROP_KEYS = array('otp_enabled', 'otp_channel', 'otp_required_when', 'email_confirm_mode', 'email_otp_required_when');
+
+	private static function msg($key, $lanText, $name, $n = null) {
+		$t = self::t($key, $lanText);
+		$esc = function ($v) { return function_exists('esc_html') ? esc_html($v) : htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); };
+		$nm = '<b><bdi>' . $esc((string) $name) . '</bdi></b>';
+		$num = '<b><bdi>' . $esc(self::digits((string) $n)) . '</bdi></b>';
+		return strtr($t, array('%1$s' => $nm, '%2$s' => $num, '%s' => $nm));
+	}
+
+	/** The number a rows_from source asks for: a number / slider value, a choice's numeric stored value or its leading digits. */
+	private static function count_from($fields, $rows, $src) {
+		$f = null; $opts = array();
+		foreach ($fields as $i => $r) {
+			if ($i < 1 || !is_array($r)) continue;
+			if (isset($r['id_']) && (string) $r['id_'] === $src) $f = $r;
+			if (($r['type'] ?? '') === 'option' && isset($r['parent']) && (string) $r['parent'] === $src) $opts[] = $r;
+		}
+		if (!$f) return null;
+		foreach ($rows as $row) {
+			if (!is_array($row) || !isset($row['id_']) || (string) $row['id_'] !== $src || isset($row['ri'])) continue;
+			$v = isset($row['value']) && is_scalar($row['value']) ? (string) $row['value'] : '';
+			$ob = isset($row['id_ob']) && is_scalar($row['id_ob']) ? (string) $row['id_ob'] : '';
+			if (in_array($f['type'] ?? '', array('select', 'radio'), true)) {
+				foreach ($opts as $o) {
+					if ((isset($o['id_']) && (string) $o['id_'] === $ob) || (isset($o['value']) && (string) $o['value'] === $v)) {
+						$ov = isset($o['opt_value']) && is_scalar($o['opt_value']) ? trim(self::ascii_digits((string) $o['opt_value'])) : '';
+						if (preg_match('/^\d{1,6}$/D', $ov)) return (int) $ov;
+						$v = (string) ($o['value'] ?? $v);
+						break;
+					}
+				}
+			}
+			return preg_match('/^\s*(\d{1,6})/', self::ascii_digits($v), $m) ? (int) $m[1] : 0;
+		}
+		return 0;
+	}
+
+	/**
+	 * The answers of a form with repeater groups, made ready for the field loop (spec §9.2):
+	 *  - each group's own row gives its number of rows, checked against [min, max] (the plan: one row without
+	 *    repeating rows) and, with rows_from, against the source field's answer;
+	 *  - a row of a child must carry ri (0 ≤ ri < rows); rg is the server's (the form says which group a field
+	 *    belongs to); a row of a field that is not a child loses ri / rg and only its first row is kept; a row of a
+	 *    child without ri, out of range, or of a group hidden by Conditional Logic is dropped;
+	 *  - every child becomes, for each row, a copy {child}_r{ri} (options {option}_r{ri}) in the fields and in the
+	 *    answers, so the field loop checks each row with the field's own rules.
+	 * $opts: ignored (field ids hidden by Conditional Logic), ignored_rows ({child: [ri…]}), repeat_ok, group_ok, lanText.
+	 * Returns ['ok', 'fields', 'rows', 'virtual' => {vid: [base, group, ri]}, 'ignored' => [vid…], 'counts' => {g: n},
+	 * 'error' => ['m', 'field_id', 'row_index', 'code'] when not ok].
+	 */
+	public static function expand(array $fields, array $rows, array $opts = array()) {
+		$ignored = isset($opts['ignored']) && is_array($opts['ignored']) ? $opts['ignored'] : array();
+		$ignored_rows = isset($opts['ignored_rows']) && is_array($opts['ignored_rows']) ? $opts['ignored_rows'] : array();
+		$repeat_ok = !isset($opts['repeat_ok']) || $opts['repeat_ok'];
+		$group_ok = !isset($opts['group_ok']) || $opts['group_ok'];
+		$lanText = isset($opts['lanText']) && is_array($opts['lanText']) ? $opts['lanText'] : array();
+		$out = array('ok' => true, 'fields' => $fields, 'rows' => $rows, 'virtual' => array(), 'ignored' => array(), 'counts' => array(), 'error' => null);
+		$map = self::children_map($fields);
+		$child_of = array(); $opt_of = array(); $groups = array();
+		foreach ($map as $g => $idx) foreach ($idx as $i) $child_of[(string) $fields[$i]['id_']] = $g;
+		foreach ($fields as $i => $r) {
+			if ($i < 1 || !is_array($r)) continue;
+			if (self::is_group($r)) $groups[(string) $r['id_']] = $r;
+			if (($r['type'] ?? '') === 'option' && isset($r['parent']) && isset($child_of[(string) $r['parent']])) $opt_of[(string) $r['parent']][] = $r;
+		}
+		// Rows of fields that are not children: no ri / rg, first row only.
+		$kept = array(); $seen = array(); $child_rows = array(); $summary = array();
+		foreach ($rows as $row) {
+			if (!is_array($row)) { $kept[] = $row; continue; }
+			$id = isset($row['id_']) && is_scalar($row['id_']) ? (string) $row['id_'] : '';
+			if ($id !== '' && isset($groups[$id])) { if (!isset($summary[$id])) $summary[$id] = $row; continue; }
+			if ($id !== '' && isset($child_of[$id])) { $child_rows[] = $row; continue; }
+			if (array_key_exists('ri', $row) || array_key_exists('rg', $row)) {
+				$k = $id . '|' . (isset($row['id_ob']) && is_scalar($row['id_ob']) ? (string) $row['id_ob'] : '');
+				if (isset($seen[$k])) continue;
+				$seen[$k] = true;
+				unset($row['ri'], $row['rg']);
+			}
+			$kept[] = $row;
+		}
+		if (!$groups) { $out['rows'] = $kept; return $out; }
+		$counts = array();
+		foreach ($groups as $g => $gr) {
+			if (!$group_ok || isset($ignored[$g])) { $counts[$g] = 0; continue; }
+			$l = self::limits($gr, $repeat_ok);
+			$max_ri = -1;
+			foreach ($child_rows as $row) if (($child_of[(string) $row['id_']] ?? '') === $g && isset($row['ri']) && is_scalar($row['ri']) && preg_match('/^\d{1,4}$/D', (string) $row['ri'])) $max_ri = max($max_ri, (int) $row['ri']);
+			if (isset($summary[$g])) {
+				$v = isset($summary[$g]['value']) && is_scalar($summary[$g]['value']) ? trim((string) $summary[$g]['value']) : '';
+				if (!preg_match('/^\d{1,4}$/D', $v)) { $out['ok'] = false; $out['error'] = array('m' => self::msg('rptMinRowsMsg', $lanText, $gr['name'] ?? '', $l['min']), 'field_id' => $g, 'row_index' => null, 'code' => self::CODES['min']); return $out; }
+				$n = (int) $v;
+			} else {
+				$n = $max_ri + 1; // an API client that sent rows without the group's own row
+			}
+			if ($n < $l['min']) { $out['ok'] = false; $out['error'] = array('m' => self::msg('rptMinRowsMsg', $lanText, $gr['name'] ?? '', $l['min']), 'field_id' => $g, 'row_index' => null, 'code' => self::CODES['min']); return $out; }
+			if ($n > $l['max']) { $out['ok'] = false; $out['error'] = array('m' => self::msg('rptMaxRowsMsg', $lanText, $gr['name'] ?? '', $l['max']), 'field_id' => $g, 'row_index' => null, 'code' => self::CODES['max']); return $out; }
+			$from = $repeat_ok && isset($gr['rows_from']) && is_scalar($gr['rows_from']) ? (string) $gr['rows_from'] : '';
+			if ($from !== '' && !isset($ignored[$from])) {
+				$want = self::count_from($fields, $kept, $from);
+				if ($want !== null) {
+					$want = max($l['min'], min($l['max'], $want));
+					if ($want !== $n) { $out['ok'] = false; $out['error'] = array('m' => self::msg('rptCountMismatch', $lanText, $gr['name'] ?? ''), 'field_id' => $g, 'row_index' => null, 'code' => self::CODES['count']); return $out; }
+				}
+			}
+			$counts[$g] = $n;
+		}
+		// The rows of the children, under the copies' ids.
+		$rewritten = array();
+		foreach ($child_rows as $row) {
+			$base = (string) $row['id_'];
+			$g = $child_of[$base];
+			if (!isset($row['ri']) || !is_scalar($row['ri']) || !preg_match('/^\d{1,4}$/D', (string) $row['ri'])) continue;
+			$ri = (int) $row['ri'];
+			if ($ri >= $counts[$g]) continue;
+			$sfx = '_r' . $ri;
+			$row['id_'] = $base . $sfx;
+			if (isset($row['id_ob']) && is_scalar($row['id_ob'])) {
+				$ob = (string) $row['id_ob'];
+				$hit = false;
+				foreach (isset($opt_of[$base]) ? $opt_of[$base] : array() as $o) if ((string) $o['id_'] === $ob) { $row['id_ob'] = $ob . $sfx; $hit = true; break; }
+				if (!$hit && strpos($ob, $base) === 0) $row['id_ob'] = $base . $sfx . substr($ob, strlen($base));
+			}
+			if (isset($row['ids']) && is_string($row['ids']) && $row['ids'] !== '') {
+				$row['ids'] = implode(',', array_map(function ($x) use ($sfx) { return $x === '' ? '' : $x . $sfx; }, explode(',', $row['ids'])));
+			}
+			unset($row['ri'], $row['rg']);
+			$rewritten[] = $row;
+		}
+		// The fields, with the copies in place of the children.
+		$new = array();
+		$skip = array();
+		foreach ($child_of as $cid => $g) $skip[$cid] = true;
+		foreach ($fields as $i => $r) {
+			if ($i > 0 && is_array($r)) {
+				$id = isset($r['id_']) && is_scalar($r['id_']) ? (string) $r['id_'] : '';
+				if (isset($skip[$id])) continue;
+				if (($r['type'] ?? '') === 'option' && isset($r['parent']) && isset($skip[(string) $r['parent']])) continue;
+			}
+			$new[] = $r;
+			if ($i < 1 || !self::is_group($r)) continue;
+			$g = (string) $r['id_'];
+			$kids = array();
+			foreach ($map[$g] as $ci) $kids[] = (string) $fields[$ci]['id_'];
+			for ($ri = 0; $ri < $counts[$g]; $ri++) {
+				$sfx = '_r' . $ri;
+				foreach ($map[$g] as $ci) {
+					$c = $fields[$ci];
+					$base = (string) $c['id_'];
+					$c['id_'] = $base . $sfx;
+					$c['dataId'] = $c['id_'] . '-id';
+					$c['rpt_base'] = $base; $c['rpt_ri'] = $ri; $c['rpt_group'] = $g;
+					unset($c['group']);
+					foreach (self::ROW_DROP_KEYS as $dk) unset($c[$dk]);
+					if (($c['type'] ?? '') === 'file') $c['max_files'] = '1';
+					if (isset($c['formula']) && is_string($c['formula'])) $c['formula'] = self::rewrite_formula($c['formula'], $kids, $sfx);
+					$hidden_row = isset($ignored[$base]) || (isset($ignored_rows[$base]) && is_array($ignored_rows[$base]) && in_array($ri, array_map('intval', $ignored_rows[$base]), true));
+					if ($hidden_row) { $c['required'] = false; $out['ignored'][] = $c['id_']; }
+					$new[] = $c;
+					$out['virtual'][$c['id_']] = array($base, $g, $ri);
+					foreach (isset($opt_of[$base]) ? $opt_of[$base] : array() as $o) {
+						$oc = $o;
+						$oc['id_'] = (string) $o['id_'] . $sfx;
+						if (isset($oc['id_op'])) $oc['id_op'] = $oc['id_'];
+						$oc['dataId'] = $oc['id_'] . '-id';
+						$oc['parent'] = $c['id_'];
+						$oc['rpt_base'] = (string) $o['id_']; $oc['rpt_ri'] = $ri; $oc['rpt_group'] = $g;
+						$new[] = $oc;
+						$out['virtual'][$oc['id_']] = array((string) $o['id_'], $g, $ri);
+					}
+				}
+			}
+		}
+		// The groups' own rows, with the server's count.
+		foreach ($groups as $g => $gr) {
+			if (!$group_ok || isset($ignored[$g])) continue;
+			$row = isset($summary[$g]) ? $summary[$g] : array('id_' => $g, 'name' => $gr['name'] ?? '', 'id_ob' => $g . '-f', 'type' => 'repeater');
+			$row['value'] = (string) $counts[$g];
+			unset($row['ri'], $row['rg']);
+			$kept[] = $row;
+		}
+		// A row that names a copy itself ({child}_r{n} as id_ or id_ob) did not come through ri: it cannot smuggle an answer in.
+		$kept = array_values(array_filter($kept, function ($row) use ($out) {
+			if (!is_array($row)) return true;
+			foreach (array('id_', 'id_ob') as $k) if (isset($row[$k]) && is_scalar($row[$k]) && isset($out['virtual'][(string) $row[$k]])) return false;
+			return true;
+		}));
+		$out['fields'] = $new;
+		$out['rows'] = array_merge($kept, $rewritten);
+		$out['counts'] = $counts;
+		return $out;
+	}
+
+	/** Base id and row of a copy's id (an error's field), or null. */
+	public static function locate($vid, array $virtual) {
+		$vid = (string) $vid;
+		if (isset($virtual[$vid])) return array('field_id' => $virtual[$vid][0], 'row_index' => $virtual[$vid][2], 'group' => $virtual[$vid][1]);
+		return null;
+	}
+
+	/** The checked answers back under the fields' own ids, with rg (group) and ri (row), in row order. Twin: EFBRepeaterCore.fold(). */
+	public static function fold(array $items, array $virtual) {
+		if (!$virtual) return $items;
+		$prefix = function ($s) use ($virtual) {
+			$s = (string) $s;
+			if (isset($virtual[$s])) return $virtual[$s][0];
+			if (preg_match('/^(.+?_r\d{1,4})(.*)$/D', $s, $m) && isset($virtual[$m[1]])) return $virtual[$m[1]][0] . $m[2];
+			return $s;
+		};
+		foreach ($items as $k => $it) {
+			if (!is_array($it) || !isset($it['id_']) || !is_scalar($it['id_']) || !isset($virtual[(string) $it['id_']])) continue;
+			$v = $virtual[(string) $it['id_']];
+			$it['id_'] = $v[0];
+			if (isset($it['id_ob']) && is_scalar($it['id_ob'])) $it['id_ob'] = $prefix($it['id_ob']);
+			if (isset($it['ids']) && is_string($it['ids']) && $it['ids'] !== '') $it['ids'] = implode(',', array_map($prefix, explode(',', $it['ids'])));
+			$it['rg'] = $v[1];
+			$it['ri'] = (string) $v[2];
+			$items[$k] = $it;
+		}
+		return $items;
+	}
+
+	/** {group: {ri: {child: value}}} of stored rows (webhooks, assistants: Repeater::nest_rows). */
+	public static function nest_rows(array $rows) {
+		$out = array();
+		foreach ($rows as $r) {
+			if (!is_array($r) || !isset($r['rg'], $r['ri'], $r['id_'])) continue;
+			$g = (string) $r['rg']; $ri = (int) $r['ri']; $c = (string) $r['id_'];
+			$v = isset($r['value']) && is_scalar($r['value']) ? (string) $r['value'] : '';
+			if (isset($out[$g][$ri][$c]) && $out[$g][$ri][$c] !== '') $out[$g][$ri][$c] .= '@efb!' . $v; else $out[$g][$ri][$c] = $v;
+		}
+		foreach ($out as $g => $rows_g) { ksort($rows_g); $out[$g] = array_values($rows_g); }
+		return $out;
+	}
+
 	/* ------------------------------------------------------------------ texts */
 
 	public static function t($key, $lanText = array()) {

@@ -75,9 +75,9 @@ $a = strpos($src, '\\Emsfb\\Calc::submit_rows($form_fields_array, $validated_ite
 $b = strpos($src, '$validated_items = $this->smart_hidden_final_efb(');
 $c = strpos($src, '\\Emsfb\\Choices::add_ov($validated_items');
 t('submit_rows runs after Choices::add_ov and before the smart tags', $a !== false && $b !== false && $c !== false && $c < $a && $a < $b, true);
-t('calc is a structural type for the presence check', (bool) preg_match("/structural_types = \\[[^\\]]*'calc'\\]/", $src), true);
+t('calc is a structural type for the presence check', (bool) preg_match("/structural_types = \\[[^\\]]*'calc'[^\\]]*\\]/", $src), true);
 t('calc in the allow-list; range keeps lo / hi', strpos($src, "'calc' => true,") !== false && strpos($src, "'range' => ['lo' => true, 'hi' => true]") !== false, true);
-t('calc in the plan-locked types and the pro elements list', strpos($src, "'stripe', 'ranking', 'calc');") !== false && strpos($src, "\$list_pro_elements = ['calc',") !== false, true);
+t('calc in the plan-locked types and the pro elements list', strpos($src, "'stripe', 'ranking', 'calc'") !== false && strpos($src, "\$list_pro_elements = ['calc',") !== false, true);
 echo "\nRESULTS: $pass passed, $fail failed\n";
 exit($fail ? 1 : 0);
 }

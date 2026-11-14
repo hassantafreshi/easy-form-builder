@@ -416,6 +416,9 @@ class Field_Rules {
 		// unique: the last rule, server only (§4.1); the claim itself is taken when the entry is stored.
 		if (in_array('unique', $rules, true) && empty($ctx['no_db']) && class_exists('\\Emsfb\\Unique_Values')) {
 			$fid = isset($ctx['form_id']) ? (int) $ctx['form_id'] : 0;
+			// F09: a field in a repeater row is unique across entries under the field's own id (every row of every
+			// entry); two rows of one entry with the same value are refused when the claims are taken.
+			if (isset($f['rpt_base']) && is_scalar($f['rpt_base']) && $f['rpt_base'] !== '') $f['id_'] = (string) $f['rpt_base'];
 			$h = Unique_Values::vhash($fid, $f['id_'], Unique_Values::key($f, $item['value']));
 			$m = self::msg($f, 'unique', 'tvUnique_', $lanText);
 			if (Unique_Values::taken($fid, $f, $item, $h)) {

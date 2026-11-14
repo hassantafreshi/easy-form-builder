@@ -166,10 +166,45 @@
     return out;
   }
 
+  /**
+   * The answers as they are sent (spec §5.6): a row of a copy gets its field's own id_ (id_ob and ids mapped back
+   * through the copies, never by parsing), rg = the group and ri = the row's place from 0 (order[g][n]); a row of a
+   * copy whose row is gone is left out; every other row is the same object. Twin: Repeater::fold().
+   */
+  function wire(rows, structure, order) {
+    var virt = {}, has = false;
+    (structure || []).forEach(function (r) {
+      if (r && r.rpt_base !== undefined && r.rpt_group !== undefined) { virt[str(r.id_)] = r; has = true; }
+    });
+    if (!has || !(rows instanceof Array)) return rows;
+    var mapId = function (x) {
+      x = str(x);
+      if (virt[x]) return str(virt[x].rpt_base);
+      var m = /^(.+?_r\d{1,6})(.*)$/.exec(x);
+      return m && virt[m[1]] ? str(virt[m[1]].rpt_base) + m[2] : x;
+    };
+    var out = [];
+    rows.forEach(function (row) {
+      if (!row || typeof row !== 'object' || !virt[str(row.id_)]) { out.push(row); return; }
+      var c = virt[str(row.id_)];
+      var o = order && order[c.rpt_group];
+      if (!o || o[String(c.rpt_n)] === undefined) return;
+      var w = {};
+      for (var k in row) if (Object.prototype.hasOwnProperty.call(row, k)) w[k] = row[k];
+      w.id_ = str(c.rpt_base);
+      if (w.id_ob !== undefined) w.id_ob = mapId(w.id_ob);
+      if (typeof w.ids === 'string' && w.ids !== '') w.ids = w.ids.split(',').map(mapId).join(',');
+      w.rg = c.rpt_group;
+      w.ri = String(o[String(c.rpt_n)]);
+      out.push(w);
+    });
+    return out;
+  }
+
   var core = {
     CHILD_TYPES: CHILD_TYPES, COUNT_SOURCE_TYPES: COUNT_SOURCE_TYPES, KEYS: KEYS, RUNTIME_KEYS: RUNTIME_KEYS, DEFAULTS: DEFAULTS, CAPS: CAPS,
     asciiDigits: asciiDigits, caps: caps, childTypes: childTypes, isGroup: isGroup, childrenMap: childrenMap, childGroups: childGroups,
-    limits: limits, sanitizeKey: sanitizeKey, digits: digits, rewriteFormula: rewriteFormula, copyRows: copyRows
+    limits: limits, sanitizeKey: sanitizeKey, digits: digits, rewriteFormula: rewriteFormula, copyRows: copyRows, wire: wire
   };
 
   /* ================================================================== page runtime (EFBRepeater) */
@@ -563,7 +598,18 @@
       return r ? base + '_r' + r.n : null;
     }
 
-    return { init: init, ready: ready, addRow: addRow, check: check, reveal: reveal, fieldAt: fieldAt, removeRow: removeRow, ensureRows: ensureRows, rowsOf: rowsOf, onAnswer: onAnswer, renumber: renumber,
+    /** The answers of a form as they are sent (core-efb.js efb_repeater_wire_rows_efb). */
+    function wireRows(rows, fid) {
+      var order = {};
+      for (var k in S) {
+        if (S[k].fid !== Number(fid)) continue;
+        order[S[k].g] = {};
+        rowsOf(fid, S[k].g).forEach(function (r) { order[S[k].g][String(r.n)] = r.ri; });
+      }
+      return wire(rows, structure(fid), order);
+    }
+
+    return { init: init, ready: ready, addRow: addRow, check: check, reveal: reveal, fieldAt: fieldAt, wire: wireRows, removeRow: removeRow, ensureRows: ensureRows, rowsOf: rowsOf, onAnswer: onAnswer, renumber: renumber,
       state: stateOf, groups: function () { return Object.keys(S).map(function (k) { return { form_id: S[k].fid, group: S[k].g }; }); }, structure: structure };
   })();
 

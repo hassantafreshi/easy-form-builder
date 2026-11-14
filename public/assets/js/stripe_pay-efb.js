@@ -385,7 +385,7 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
                     } else {
                       data = {
                         action: "pay_stripe_sub_efb",
-                        value: JSON.stringify(sendBack_emsFormBuilder_pub),
+                        value: JSON.stringify(typeof efb_repeater_wire_rows_efb === 'function' ? efb_repeater_wire_rows_efb(sendBack_emsFormBuilder_pub, form_id) : sendBack_emsFormBuilder_pub),
                         name: formNameEfb,
                         id: form_id,
                         nonce: efb_var.nonce,
@@ -398,7 +398,7 @@ async function confirm_stripe_payment_efb(paymentIntentId, trackid, formId) {
                 }else{
                   data = {
                     action: "pay_stripe_sub_efb",
-                    value: JSON.stringify(sendBack_emsFormBuilder_pub),
+                    value: JSON.stringify(typeof efb_repeater_wire_rows_efb === 'function' ? efb_repeater_wire_rows_efb(sendBack_emsFormBuilder_pub, form_id) : sendBack_emsFormBuilder_pub),
                     name: formNameEfb,
                     id: form_id,
                     nonce: efb_var.nonce,

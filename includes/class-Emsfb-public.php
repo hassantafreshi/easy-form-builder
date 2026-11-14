@@ -2953,6 +2953,10 @@ public function check_nonce_permission_efb($request) {
 		// upload field answer "Please enter valid value for the ... field." and
 		// hid the fact that the whole form had been left blank.
 		$submitted_values = $this->strip_untouched_upload_rows_efb($submitted_values);
+		// F09: a submission holds at most efb_submission_rows_cap rows (1500; repeater rows included).
+		if (class_exists('\\Emsfb\\Repeater') && count($submitted_values) > \Emsfb\Repeater::caps()['submission_rows']) {
+			wp_send_json_error(array('code' => 'efb_invalid_payload', 'm' => __('Invalid form request.', 'easy-form-builder')), 400);
+		}
 
 		if ( empty($submitted_values)) {
 
@@ -3066,6 +3070,31 @@ public function check_nonce_permission_efb($request) {
 				}
 			}
 
+			// F09: the rows of repeater groups (count, rows_from, ri / rg, hidden groups, the plan), then every child as a
+			// copy per row ({child}_r{ri}) in the fields and the answers: the field loop checks each row with its rules.
+			$rpt_virtual_efb = array();
+			$rpt_original_fields_efb = $form_fields_array;
+			if (class_exists('\\Emsfb\\Repeater') && is_array($form_fields_array) && is_array($submitted_values)) {
+				$rpt_x_efb = \Emsfb\Repeater::expand($form_fields_array, $submitted_values, array(
+					'ignored' => isset($_ignored_set) && is_array($_ignored_set) ? $_ignored_set : array(),
+					'ignored_rows' => isset($efb_logic_result['ignored_rows']) && is_array($efb_logic_result['ignored_rows']) ? $efb_logic_result['ignored_rows'] : array(),
+					'repeat_ok' => \Emsfb\Repeater::plan_ok('repeat'),
+					'group_ok' => \Emsfb\Repeater::plan_ok('group'),
+					'lanText' => $this->lanText,
+				));
+				if (!$rpt_x_efb['ok']) {
+					$rpt_e_efb = $rpt_x_efb['error'];
+					wp_send_json_success(array('success' => false, 'm' => $rpt_e_efb['m'], 'field_id' => $rpt_e_efb['field_id'], 'code' => $rpt_e_efb['code']), 200);
+				}
+				$form_fields_array = $rpt_x_efb['fields'];
+				$submitted_values = $rpt_x_efb['rows'];
+				$rpt_virtual_efb = $rpt_x_efb['virtual'];
+				if ($rpt_x_efb['ignored']) {
+					if (!isset($_ignored_set) || !is_array($_ignored_set)) $_ignored_set = array();
+					foreach ($rpt_x_efb['ignored'] as $rpt_ig_efb) $_ignored_set[$rpt_ig_efb] = true;
+				}
+			}
+
 			$has_multiple_emails = isset($form_fields_array[0]["email_send_type"]) ? $form_fields_array[0]["email_send_type"] : false;
 
 			$form_type = $form_fields_array[0]['type'] ?? 'form';
@@ -3114,6 +3143,14 @@ public function check_nonce_permission_efb($request) {
 						}
 					}
 					$response = [ 'success' => false, 'm' => $_req_msg, 'field_id' => $_req_check['missing_field'] ?? '' ];
+					// F09: a field of a repeater row: its own id and the row (row_index from 0), "%1$s in row %2$s is required."
+					$rpt_at_efb = !empty($rpt_virtual_efb) ? \Emsfb\Repeater::locate($response['field_id'], $rpt_virtual_efb) : null;
+					if ($rpt_at_efb) {
+						$response['field_id'] = $rpt_at_efb['field_id'];
+						$response['row_index'] = $rpt_at_efb['row_index'];
+						$response['code'] = \Emsfb\Repeater::CODES['required'];
+						if ( empty( $_custom_req ) ) $response['m'] = str_replace(array('%1$s', '%2$s'), array('<b><bdi>' . esc_html($_missing_name) . '</bdi></b>', '<b><bdi>' . esc_html(\Emsfb\Repeater::digits((string) ($rpt_at_efb['row_index'] + 1))) . '</bdi></b>'), \Emsfb\Repeater::t('rptRowRequired', $this->lanText));
+					}
 					wp_send_json_success( $response, 200 );
 				}
 
@@ -3243,6 +3280,14 @@ public function check_nonce_permission_efb($request) {
 								return;
 							}
 							switch ($f['type']) {
+								case 'repeater':
+									// F09: the group's own row: its number of rows, already checked and set by Repeater::expand().
+									$item = $this->filter_attributes_by_type_efb($item, 'repeater');
+									$item['value'] = (string) absint(is_scalar($item['value'] ?? '') ? $item['value'] : 0);
+									$validated_item = $item;
+									$is_valid = 1;
+									$still_processing = false;
+									break;
 								case 'email':
 									$is_valid = 0;
 									if (isset($item['value'])) {
@@ -4070,6 +4115,9 @@ public function check_nonce_permission_efb($request) {
 				$skip_captcha = $submission_type != "payment" ? $form_fields_array[0]['captcha'] : "";
 				if ($is_valid == 0) {
 					$response = ['success' => false, 'm' => $error_message, 'field_id' => $error_field_id];
+					// F09: an error on a field of a repeater row names the field's own id and the row (row_index from 0).
+					$rpt_at_efb = !empty($rpt_virtual_efb) && $error_field_id !== '' ? \Emsfb\Repeater::locate($error_field_id, $rpt_virtual_efb) : null;
+					if ($rpt_at_efb) { $response['field_id'] = $rpt_at_efb['field_id']; $response['row_index'] = $rpt_at_efb['row_index']; $error_field_id = $rpt_at_efb['field_id']; }
 					// F03: the stable code of the field rule that refused it (SitePilot contract).
 					if ($this->field_rules_code_efb !== '') $response['code'] = 'efb_field_' . $this->field_rules_code_efb;
 					// F06: the stable code of a date rule (calendar-engine-contract §4.3), for assistants.
@@ -4111,13 +4159,23 @@ public function check_nonce_permission_efb($request) {
 					unset($vi_efb);
 				}
 				// End verification gate.
+				// F09: the answers of repeater rows back under their fields' own ids, with rg (group) and ri (row);
+				// the unique claims under the field's id (two rows of one entry with one value are refused there).
+				if (!empty($rpt_virtual_efb)) {
+					$validated_items = \Emsfb\Repeater::fold($validated_items, $rpt_virtual_efb);
+					foreach ($this->unique_pending_efb as $rpt_uk_efb => $rpt_up_efb) {
+						$rpt_at_efb = \Emsfb\Repeater::locate($rpt_up_efb['f'], $rpt_virtual_efb);
+						if ($rpt_at_efb) $this->unique_pending_efb[$rpt_uk_efb]['f'] = $rpt_at_efb['field_id'];
+					}
+				}
 				$this->value = $this->efb_encode_rows_for_storage_efb($validated_items);
 				$this->gate_items = $validated_items; // F11: the normalized e-mail for lim_email
 				// F05: the capacities of the chosen choices are taken in insert_message_db() (\Emsfb\Stock, atomic).
 				// The form itself is never written on submit any more (it stored Conditional Logic's required /
 				// disabled changes for good, before the captcha, with no lock: spec §2).
 				$this->stock_rows_efb = $validated_items;
-				$this->stock_form_efb = $form_fields_array;
+				// F09: the stored form (its options' ids); the rows carry ri, so a choice taken in three rows takes three places.
+				$this->stock_form_efb = !empty($rpt_virtual_efb) ? $rpt_original_fields_efb : $form_fields_array;
 				$this->stock_fid_efb = intval($request_data['id']);
 			}elseif($form_type=='register' || $form_type=='login'){
 
@@ -10281,7 +10339,8 @@ public function check_nonce_permission_efb($request) {
 
 	private function validate_required_fields_present_efb($form_fields_array, $submitted_values, $is_pro = true) {
 		// F04: calc is computed by the server after the field loop (Calc::submit_rows() checks a required one).
-		static $structural_types = ['form', 'step', 'option', 'submit', 'r_matrix', 'buttonnav', 'payment', 'stripe', 'paypal', 'persiapay', 'prcfld', 'calc'];
+		// F09: a repeater group's rows are checked by Repeater::expand() (its children arrive here as copies per row).
+		static $structural_types = ['form', 'step', 'option', 'submit', 'r_matrix', 'buttonnav', 'payment', 'stripe', 'paypal', 'persiapay', 'prcfld', 'calc', 'repeater'];
 		/* A Pro field on a site that moved to Free shows the plan notice
 		 * instead of the input, so "required" can never be met and every
 		 * submission was refused. Not shown means not required. */
@@ -10664,6 +10723,8 @@ public function check_nonce_permission_efb($request) {
 			'ranking' => ['ids' => true],
 			/* F04: a calc row is the server's own (Calc::submit_rows()); a two-handle slider sends lo and hi beside "lo..hi". */
 			'calc' => true,
+			/* F09: the group's own row (its number of rows); rg / ri are written by the server (Repeater::fold()). */
+			'repeater' => true,
 		];
 
 			// PAY00: a registered gateway field (its row carries the donation amount in value).
@@ -11778,7 +11839,9 @@ public function check_nonce_permission_efb($request) {
             continue;
         }
 
-        $key = $id . '|' . $ob;
+        // F09: rows of a repeater group differ by ri (no ri = '': the key of every other row is as before).
+        $ri  = isset($row['ri']) && is_scalar($row['ri']) ? (string)$row['ri'] : '';
+        $key = $id . '|' . $ob . ($ri !== '' ? '|' . $ri : '');
 
         if (!isset($seen[$key])) {
             $seen[$key] = true;

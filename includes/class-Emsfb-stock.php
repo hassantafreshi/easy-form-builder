@@ -163,7 +163,8 @@ class Stock {
 			foreach ($picked as $o) {
 				$cap = self::cap($f, $o);
 				if ($cap === null) continue;
-				$key = $pid . "\x00" . (string) $o['id_'];
+				// F09: the same choice in several repeater rows takes one place per row (ri in the key).
+				$key = $pid . "\x00" . (string) $o['id_'] . (isset($it['ri']) && is_scalar($it['ri']) ? "\x00" . (string) $it['ri'] : '');
 				$out[$key] = array('f' => $pid, 'o' => (string) $o['id_'], 'cap' => $cap, 'seed' => self::seed($o), 'label' => (string) ($o['value'] ?? ''));
 			}
 		}

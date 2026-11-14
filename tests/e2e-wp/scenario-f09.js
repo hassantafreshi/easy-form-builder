@@ -13,6 +13,10 @@
  *  f09c  fa_IR and ar at 375 px: right to left, row numbers in Persian / Arabic-Indic digits (titles, Remove
  *        labels, announcements), the group title aligned like the other labels (txt-right), mixed-script
  *        sentences kept in order (unicode-bidi plaintext, numbers isolated), 44 px buttons, no horizontal scroll.
+ *  f09d  A guest sends two rows through the page: Next / Send stops at row 2's empty required Name (the folded
+ *        row opens), then the entry is stored with each child's own id, rg and ri (no virtual id), the group's
+ *        row says 2; the request as sent has no virtual id; a request tampered after the page's check (row 2's
+ *        Name removed) is refused by the server at "Name in row 2", and the page marks row 2's copy.
  */
 'use strict';
 
@@ -34,6 +38,16 @@ module.exports = function (S) {
 
   const form = (name, fields, row0) => ctl('f03-form', name, JSON.stringify(fields), row0 || '', '1');
   const pageOf = (fid) => ctl('page', String(fid)).url;
+  const lastEntry = (fid) => { const e = ctl('entries', String(fid)) || []; e.sort((a, b) => Number(b.msg_id) - Number(a.msg_id)); return e[0] || null; };
+  async function send(page) {
+    const resp = page.waitForResponse((x) => /forms\/message\/add|forms%2Fmessage%2Fadd/.test(x.url()), { timeout: 30000 }).catch(() => null);
+    await page.click('#btn_send_efb');
+    const r = await resp;
+    let j = null, body = null;
+    try { j = r ? await r.json() : null; body = r ? JSON.parse(r.request().postData() || '{}') : null; } catch (e) { j = null; }
+    await sleep(1200);
+    return { res: j && (j.data || j), body };
+  }
   async function open(context, url, label, opts) {
     const g = await (await context(opts || {}, label)).newPage();
     await g.goto(url, { waitUntil: 'load' });
@@ -261,5 +275,60 @@ module.exports = function (S) {
         await p.screenshot({ path: SHOT(`f09c-${loc}-375`), fullPage: true });
       }
     } finally { ctl('locale', ''); }
+  });
+
+  /* ------------------------------------------------------------------ f09d */
+  scenario('f09d', 'F09 guest sends rows: the page stops at row 2, the entry has rg / ri, a tampered request is refused at its row', async ({ context }) => {
+    pro(true);
+    ctl('locale', '');
+    const F = travellers({ g: { collapsible: '1' } });
+    const ids = F.ids;
+    const g = await open(context, pageOf(F.form_id), 'f09d');
+    await g.fill(`[id="${ids.nm}_r0_"]`, 'Sara');
+    await g.press(`[id="${ids.nm}_r0_"]`, 'Tab');
+    await g.selectOption(`[id="${ids.meal}_r0_options"]`, { label: 'Halal' }).catch(async () => { await g.evaluate((id) => { const s = document.querySelector(`[id="${id}_r0_options"]`); s.value = Array.from(s.options).find((o) => o.textContent.trim() === 'Halal').value; s.dispatchEvent(new Event('change', { bubbles: true })); }, ids.meal); });
+    await g.click(`[id="${ids.g}_add"]`);
+    await sleep(500);
+    await g.check(`[id="${ids.e1}_r1"]`);
+    await g.fill(`[id="${ids.after}_"]`, 'guest@example.test');
+    await g.press(`[id="${ids.after}_"]`, 'Tab');
+    // Row 2's Name is empty: fold row 2 and press Send.
+    await g.evaluate((gid) => { const r = document.querySelectorAll(`[id="${gid}_rows"] > .efb-rpt-row`)[1]; r.querySelector('.efb-rpt-toggle').click(); }, ids.g);
+    await sleep(300);
+    await g.click('#btn_send_efb');
+    await sleep(900);
+    let m = await g.evaluate(([gid, nm]) => { const r = document.querySelectorAll(`[id="${gid}_rows"] > .efb-rpt-row`)[1]; const msg = document.getElementById(nm + '_r1_-message'); return { open: !r.classList.contains('efb-rpt-collapsed'), msg: msg && msg.style.display !== 'none' ? msg.textContent.trim() : '', step: document.querySelector('[id^="body_efb_"]').dataset.currentstep }; }, [ids.g, ids.nm]);
+    R.check('f09d: Send stops at row 2\'s empty required Name; the folded row opens and says why', m.open && m.msg !== '', m);
+    await g.fill(`[id="${ids.nm}_r1_"]`, 'Reza');
+    await g.press(`[id="${ids.nm}_r1_"]`, 'Tab');
+    await sleep(300);
+    const out = await send(g);
+    const sent = out.body ? JSON.parse(out.body.value || '[]') : [];
+    R.check('f09d: the request carries no virtual id; Name rows with ri 0 / 1 and the group\'s row 2', !/_r\d/.test(JSON.stringify(sent)) && sent.filter((r) => r.id_ === ids.nm).map((r) => r.ri).join(',') === '0,1' && (sent.find((r) => r.id_ === ids.g) || {}).value === '2', sent);
+    R.check('f09d: the server accepts it', out.res && out.res.success === true, out.res);
+    const e = lastEntry(F.form_id);
+    const c = (e && e.content) || [];
+    const nm = c.filter((r) => r && r.id_ === ids.nm);
+    R.check('f09d: stored: Name twice under its own id with rg and ri; the meal of row 1; the extra of row 2; the group\'s row 2', nm.length === 2 && nm[0].value === 'Sara' && nm[1].value === 'Reza' && nm.every((r) => r.rg === ids.g) && nm[1].ri === '1'
+      && c.some((r) => r.id_ === ids.meal && r.value === 'Halal' && r.ri === '0') && c.some((r) => r.id_ === ids.ext && r.id_ob === ids.e1 && r.ri === '1') && (c.find((r) => r.id_ === ids.g) || {}).value === '2', c);
+
+    // A request tampered after the page's check: row 2's Name removed.
+    const h = await open(context, pageOf(F.form_id), 'f09d-tamper');
+    await h.fill(`[id="${ids.nm}_r0_"]`, 'One');
+    await h.press(`[id="${ids.nm}_r0_"]`, 'Tab');
+    await h.click(`[id="${ids.g}_add"]`);
+    await sleep(400);
+    await h.fill(`[id="${ids.nm}_r1_"]`, 'Two');
+    await h.press(`[id="${ids.nm}_r1_"]`, 'Tab');
+    await h.fill(`[id="${ids.after}_"]`, 'guest@example.test');
+    await h.press(`[id="${ids.after}_"]`, 'Tab');
+    await h.route('**/wp-json/Emsfb/v1/forms/message/add', async (route) => {
+      const b = JSON.parse(route.request().postData());
+      b.value = JSON.stringify(JSON.parse(b.value).filter((r) => !(r.id_ === ids.nm && r.ri === '1')));
+      return route.continue({ postData: JSON.stringify(b) });
+    });
+    const t = await send(h);
+    R.check('f09d: tampered: refused at Name, row_index 1, "Name in row 2 is required."', t.res && t.res.success === false && t.res.row_index === 1 && /Name.*in row.*2.*is required/.test(String(t.res.m).replace(/<[^>]+>/g, '')), t.res);
+    await h.screenshot({ path: SHOT('f09d-server-row-error-en'), fullPage: true });
   });
 };
