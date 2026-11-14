@@ -1434,7 +1434,8 @@ class Admin {
             wp_send_json_success($response, 200);
             die("secure!");
         }
-        if (empty($_POST['id']) && $this->isHTML(json_encode($_POST['value'] ?? ''),JSON_UNESCAPED_UNICODE)) {
+        // F14 §18: refuse a missing id OR a value with HTML (the flag belonged to json_encode, and && let both through).
+        if (empty($_POST['id']) || $this->isHTML(json_encode(wp_unslash($_POST['value'] ?? ''), JSON_UNESCAPED_UNICODE))) {
             $m =   $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" => esc_html__("Something went wrong, please refresh the page." ,'easy-form-builder')];
             wp_send_json_success($response, 200);
@@ -1553,6 +1554,7 @@ class Admin {
             $m =   $lang['somethingWentWrongPleaseRefresh'];
             $response = ['success' => false, "m" => $m];
             wp_send_json_success($response, 200);
+            die(); // F14 §18
         }
         $id = sanitize_text_field(wp_unslash( $_POST['id']));
         $code = 'efb'. $id;
@@ -1563,14 +1565,15 @@ class Admin {
             $this->db = $wpdb;
         }
         $table_name = $this->db->prefix . "emsfb_msg_";
-        $value      = $this->db->get_results("SELECT * FROM `$table_name` WHERE form_id = '$id' ORDER BY `$table_name`.date DESC");
+        // F14: kept for add-ons and cached bundles (same answer format), prepared, and without spam / trash
+        // (the new list is efb_entries_query_Emsfb). Before the DB 1.10 upgrade every entry is active.
+        $active = class_exists('\\Emsfb\\Entries') ? \Emsfb\Entries::active_sql() : '';
+        $value      = $this->db->get_results($this->db->prepare("SELECT * FROM `$table_name` WHERE form_id = %d{$active} ORDER BY `date` DESC, msg_id DESC", $id));
         $date_format = get_option( 'date_format' ) . ' ' . get_option( 'time_format' );
         foreach ( $value as $row ) {
             if ( ! empty( $row->date ) ) {
-                $timestamp = strtotime( $row->date );
-                if ( $timestamp !== false ) {
-                    $row->date = wp_date( $date_format, $timestamp );
-                }
+                // F14: the stored date is site time (wp_date() at insert); read it in the site's zone, not as UTC.
+                $row->date = class_exists('\\Emsfb\\Entries') ? \Emsfb\Entries::display_date( $row->date ) : $row->date;
             }
         }
         $response   = ['success' => true, 'ajax_value' => $value, 'id' => $id,'nonce_msg'=> $code];
@@ -2109,7 +2112,8 @@ class Admin {
             $response = ['success' => true, "ajax_value" => $value,'nonce_msg'=> $code , 'id'=>$value[0]->msg_id];
         }
         else {
-            $search_term = "%$id%";
+            // F14 §18: the visitor's % and _ are literal (esc_like).
+            $search_term = '%' . $this->db->esc_like($id) . '%';
 
             $sql_msg = $this->db->prepare(
                 "SELECT DISTINCT m.* FROM {$table_name} m
@@ -3572,7 +3576,9 @@ class Admin {
         $sql = "SHOW TABLES LIKE %s";
         $exists = $this->db->get_var($this->db->prepare($sql, $table_name));
         if ($exists){
-            $value      = $this->db->get_results("SELECT msg_id,form_id FROM `$table_name` WHERE read_=0");
+            // F14: spam and trash are not counted as new.
+            $active = class_exists('\\Emsfb\\Entries') ? \Emsfb\Entries::active_sql() : '';
+            $value      = $this->db->get_results("SELECT msg_id,form_id FROM `$table_name` WHERE read_=0{$active}");
             $rtrn       = 'null';
             return $value;
         }

@@ -446,7 +446,9 @@ class Panel_edit  {
 			$this->db = $wpdb;
 		}
 		$table_name = $this->db->prefix . "emsfb_msg_";
-		$value = $this->db->get_results( "SELECT msg_id,form_id FROM `$table_name` WHERE read_=0 OR read_=3" );
+		// F14: spam and trash are not "new" (Entries::active_sql() is '' before the DB 1.10 upgrade).
+		$active = class_exists('\\Emsfb\\Entries') ? \Emsfb\Entries::active_sql() : '';
+		$value = $this->db->get_results( "SELECT msg_id,form_id FROM `$table_name` WHERE (read_=0 OR read_=3){$active}" );
 		return $value;
 	}
 	/* Same rule as the Create page: the score of the check the owner ran,
@@ -499,7 +501,7 @@ class Panel_edit  {
 		$value = $this->db->get_results( "SELECT t.msg_id, t.form_id
 		FROM `$table_name_msg` AS t
 		 INNER JOIN `$table_name_rsp` AS tr
-		 ON t.msg_id = tr.msg_id AND tr.read_ = 0" );
+		 ON t.msg_id = tr.msg_id AND tr.read_ = 0" . (class_exists('\\Emsfb\\Entries') ? ' WHERE 1=1' . \Emsfb\Entries::active_sql('t') : '') );
 		return $value;
 	}
 	public function check_temp_is_bootstrap (){

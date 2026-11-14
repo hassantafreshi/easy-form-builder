@@ -52,6 +52,10 @@
  *                             settings), f02-rows <form_id> [reset] (challenges; reset clears the F02 counters and every
  *                             challenge of earlier scenarios, i.e. the resend waits)
  *
+ *   F14 (scenarios f14*): f14-schema (columns, keys, tables, DB version), f14-seed-bulk <form_id> <n> (many entries),
+ *                             f14-entries <form_id> (with entry_status, starred, trashed_at, edited_at), f14-set <msg_id>
+ *                             <k=v&k=v>, f14-notes / f14-log <msg_id>, f14-stats <form_id>, f14-run <trash|backfill>
+ *
  * Local test site only. Nothing here is meant for a production site.
  */
 
@@ -817,6 +821,84 @@ switch ( $efb_e2e_cmd ) {
 
 	case 'reconcile':
 		efb_e2e_out( \Emsfb\Payments\Service::reconcile() );
+		break;
+
+	/* ---- F14 entries management (scenarios f14*, tests/test-entries-*-wp.php) ---- */
+	case 'f14-schema':
+		$cols = $wpdb->get_col( "SHOW COLUMNS FROM {$wpdb->prefix}emsfb_msg_" ); // phpcs:ignore
+		$keys = array();
+		foreach ( (array) $wpdb->get_results( "SHOW INDEX FROM {$wpdb->prefix}emsfb_msg_", ARRAY_A ) as $r ) $keys[ $r['Key_name'] ] = true; // phpcs:ignore
+		$tables = array();
+		foreach ( array( 'emsfb_msg_notes_', 'emsfb_msg_log_', 'emsfb_stats_' ) as $t ) $tables[ $t ] = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . $t ) ) === $wpdb->prefix . $t;
+		efb_e2e_out( array( 'columns' => $cols, 'keys' => array_keys( $keys ), 'tables' => $tables, 'db_version' => get_option( 'Emsfb_db_version' ), 'backfill' => get_option( 'emsfb_stats_bf', null ), 'ready' => class_exists( '\Emsfb\Entries' ) && \Emsfb\Entries::ready() ) );
+		break;
+
+	case 'f14-seed-bulk':
+		require_once dirname( __DIR__ ) . '/seed-entries-bulk.php';
+		$t0 = microtime( true );
+		$n  = efb_seed_entries_bulk( (int) $efb_e2e_rest[0], isset( $efb_e2e_rest[1] ) ? (int) $efb_e2e_rest[1] : 1000 );
+		efb_e2e_out( array( 'inserted' => $n, 'seconds' => round( microtime( true ) - $t0, 2 ) ) );
+		break;
+
+	case 'f14-seed':
+		// One entry as the plugin stores it: <form_id> <json rows> [k=v&k=v of date, read_, entry_status, starred, track].
+		$fid = (int) $efb_e2e_rest[0];
+		$rows = json_decode( (string) $efb_e2e_rest[1], true );
+		array_walk_recursive( $rows, function ( &$v ) { if ( is_string( $v ) ) $v = str_replace( '"', '@efb@dq#', $v ); } );
+		$rows[] = array( 'type' => 'w_link', 'value' => home_url( '/' ), 'amount' => -1 );
+		$row = array( 'form_id' => $fid, 'track' => 'E2E' . strtoupper( wp_generate_password( 7, false, false ) ), 'ip' => '203.0.113.20', 'form_title_x' => 'e2e', 'content' => str_replace( '"', '\\"', wp_json_encode( $rows, JSON_UNESCAPED_UNICODE ) ), 'date' => wp_date( 'Y-m-d H:i:s' ), 'read_date' => wp_date( 'Y-m-d H:i:s' ), 'read_' => 0, 'read_by' => '' );
+		foreach ( explode( '&', isset( $efb_e2e_rest[2] ) ? (string) $efb_e2e_rest[2] : '' ) as $kv ) {
+			list( $k, $v ) = array_pad( explode( '=', $kv, 2 ), 2, '' );
+			if ( in_array( $k, array( 'date', 'read_', 'entry_status', 'starred', 'track' ), true ) ) $row[ $k ] = urldecode( $v );
+		}
+		$wpdb->insert( $wpdb->prefix . 'emsfb_msg_', $row );
+		efb_e2e_out( array( 'msg_id' => (int) $wpdb->insert_id, 'track' => $row['track'] ) );
+		break;
+
+	case 'f14-entries':
+		$id = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT msg_id, form_id, track, content, read_, ip, date, entry_status, starred, trashed_at, edited_at FROM {$wpdb->prefix}emsfb_msg_ WHERE form_id = %d ORDER BY msg_id", $id ), ARRAY_A ); // phpcs:ignore
+		foreach ( (array) $rows as $i => $r ) {
+			$rows[ $i ]['raw']     = $r['content'];
+			$rows[ $i ]['content'] = efb_e2e_decode_json( $r['content'] );
+		}
+		efb_e2e_out( $rows ? $rows : array() );
+		break;
+
+	case 'f14-set':
+		// Columns of one entry: <msg_id> <k=v&k=v> (entry_status, starred, read_, trashed_at, date, edited_at).
+		$id = (int) $efb_e2e_rest[0];
+		$data = array();
+		foreach ( explode( '&', (string) $efb_e2e_rest[1] ) as $kv ) {
+			list( $k, $v ) = array_pad( explode( '=', $kv, 2 ), 2, '' );
+			if ( in_array( $k, array( 'entry_status', 'starred', 'read_', 'trashed_at', 'date', 'edited_at' ), true ) ) $data[ $k ] = urldecode( $v );
+		}
+		efb_e2e_out( array( 'updated' => $wpdb->update( $wpdb->prefix . 'emsfb_msg_', $data, array( 'msg_id' => $id ) ) ) );
+		break;
+
+	case 'f14-clear':
+		// Every entry of a form, at once (the bulk seed's clean-up; no hooks).
+		efb_e2e_out( array( 'deleted' => $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}emsfb_msg_ WHERE form_id = %d", (int) $efb_e2e_rest[0] ) ) ) ); // phpcs:ignore
+		break;
+
+	case 'f14-notes':
+		efb_e2e_out( $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}emsfb_msg_notes_ WHERE msg_id = %d ORDER BY note_id", (int) $efb_e2e_rest[0] ), ARRAY_A ) ); // phpcs:ignore
+		break;
+
+	case 'f14-log':
+		efb_e2e_out( $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}emsfb_msg_log_ WHERE msg_id = %d ORDER BY log_id", (int) $efb_e2e_rest[0] ), ARRAY_A ) ); // phpcs:ignore
+		break;
+
+	case 'f14-stats':
+		efb_e2e_out( $wpdb->get_results( $wpdb->prepare( "SELECT form_id, day, views, submits, spam FROM {$wpdb->prefix}emsfb_stats_ WHERE form_id = %d ORDER BY day", (int) $efb_e2e_rest[0] ), ARRAY_A ) ); // phpcs:ignore
+		break;
+
+	case 'f14-run':
+		// Runs a job now: trash (empty the trash past trash_days), backfill.
+		$job = isset( $efb_e2e_rest[0] ) ? $efb_e2e_rest[0] : '';
+		if ( 'trash' === $job ) efb_e2e_out( \Emsfb\Entries::purge_trash() );
+		if ( 'backfill' === $job ) efb_e2e_out( \Emsfb\Entries::run_backfill() );
+		efb_e2e_out( array( 'error' => 'unknown job' ) );
 		break;
 
 	default:

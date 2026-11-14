@@ -2049,6 +2049,11 @@ require('./scenario-f04.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewFo
  * from rows: tests/e2e-wp/scenario-f09.js. */
 require('./scenario-f09.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
 
+/* F14 entries management: the schema and the list on the server, the list screen (tabs, filters, columns, star,
+ * spam, trash, bulk), notes and history, editing, resending, export, print, statistics, fa_IR / ar at 375 px:
+ * tests/e2e-wp/scenario-f14.js. */
+require('./scenario-f14.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */

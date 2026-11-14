@@ -5343,7 +5343,8 @@ public function check_nonce_permission_efb($request) {
 			$table_name = $this->db->prefix . "emsfb_msg_";
 			$value = $this->db->get_results(
 				$this->db->prepare(
-					"SELECT content, msg_id, track, date, form_id FROM `$table_name` WHERE track = %s",
+					// F14: an entry in the spam or the trash is "not found" (nothing says it exists).
+					"SELECT content, msg_id, track, date, form_id FROM `$table_name` WHERE track = %s" . (class_exists('\\Emsfb\\Entries') ? \Emsfb\Entries::active_sql() : ''),
 					$id
 				)
 			);
@@ -12102,7 +12103,8 @@ public function check_nonce_permission_efb($request) {
 
 		$table_name = $wpdb->prefix . 'emsfb_msg_';
 		$query = $wpdb->prepare(
-			"SELECT content FROM $table_name WHERE form_id = %d",
+			// F14: spam and trash do not count in the results.
+			"SELECT content FROM $table_name WHERE form_id = %d" . (class_exists('\\Emsfb\\Entries') ? \Emsfb\Entries::active_sql() : ''),
 			$form_id
 		);
 
