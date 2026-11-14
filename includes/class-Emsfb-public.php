@@ -2983,6 +2983,10 @@ public function check_nonce_permission_efb($request) {
 				wp_send_json_success(['success' => false, 'm' => isset($this->lanText['PleaseFillForm']) ? $this->lanText['PleaseFillForm'] : 'Please complete the form.'], 200);
 			}
 
+			// F04: Conditional Logic reads calc fields as the server computes them from the answers (not the
+			// browser's rows); the stored results are computed again after the field loop (Calc::submit_rows).
+			if (class_exists('\\Emsfb\\Calc') && is_array($form_fields_array) && is_array($submitted_values)) $submitted_values = \Emsfb\Calc::logic_rows($form_fields_array, $submitted_values);
+
 			// Conditional forms have an independent normalization/required-validation
 			// phase. The default result keeps ordinary forms on the legacy path.
 			$_efb_logic_prepared = apply_filters(

@@ -1053,6 +1053,29 @@ final class Calc {
 		return $e ? array('ok' => false, 'code' => $e['code'] === 'calcSelf' ? 'calcCycle' : $e['code'], 'pos' => $e['pos'], 'near' => $e['near'], 'refs' => self::ref_ids($p)) : array('ok' => true, 'code' => '', 'pos' => -1, 'near' => '', 'refs' => self::ref_ids($p));
 	}
 
+	/**
+	 * The submitted rows with every calc row replaced by the server's result (for Conditional Logic, which reads
+	 * the answers before the field loop; number comparisons on a calc field then use the server's value).
+	 * Nothing changes for a form without calc fields.
+	 */
+	public static function logic_rows($form, array $rows) {
+		$calc = array();
+		foreach ((array) $form as $i => $r) {
+			$r = self::f($r);
+			if ($i > 0 && isset($r['type'], $r['id_']) && $r['type'] === 'calc') $calc[(string) $r['id_']] = $r;
+		}
+		if (!$calc) return $rows;
+		$keep = array();
+		foreach ($rows as $r) if (!(is_array($r) && ((isset($r['type']) && $r['type'] === 'calc') || (isset($r['id_']) && is_scalar($r['id_']) && isset($calc[(string) $r['id_']]))))) $keep[] = $r;
+		if (!self::plan_ok('calc')) return $keep;
+		$res = self::evaluate_form($form, $keep, array('locale' => self::locale(), 'currency' => self::currency(isset($form[0]) ? $form[0] : null)));
+		foreach ($calc as $id => $f) {
+			if (!isset($res[$id]) || !$res[$id]['ok'] || $res[$id]['value'] === '') continue;
+			$keep[] = array('id_' => $id, 'name' => isset($f['name']) && is_scalar($f['name']) ? (string) $f['name'] : '', 'id_ob' => $id, 'amount' => isset($f['amount']) && is_scalar($f['amount']) ? (string) $f['amount'] : '', 'type' => 'calc', 'value' => $res[$id]['value']);
+		}
+		return $keep;
+	}
+
 	/** The calc fields of a form used as an amount to pay (calc_as_price = "1"). */
 	public static function price_fields($form) {
 		$out = array();
