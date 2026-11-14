@@ -3934,7 +3934,9 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
   // 100 of before; a form with more columns was cut at 100.
   const parsedAllEfb = value.map((v) => efbParseJson(replaceContentMessageEfb(v.content, true)));
   const colNamesEfb = new Set();
-  parsedAllEfb.forEach((pc) => { const rr = efb_csv_repeater_rows_efb(pc); (Array.isArray(rr) ? rr : []).forEach((r) => { if (r && r.name !== undefined) colNamesEfb.add(String(r.name)); }); });
+  // F09: rows of a repeater group become their own columns (the helper is absent only where this function is used alone).
+  const rptRowsEfb = typeof efb_csv_repeater_rows_efb === 'function' ? efb_csv_repeater_rows_efb : (c) => c;
+  parsedAllEfb.forEach((pc) => { const rr = rptRowsEfb(pc); (Array.isArray(rr) ? rr : []).forEach((r) => { if (r && r.name !== undefined) colNamesEfb.add(String(r.name)); }); });
   const colsEfb = Math.max(100, 2 + colNamesEfb.size * 2 + 2);
   let rows = Array.from(Array(value.length + 1), () => Array(colsEfb).fill('null@EFB'));
 
@@ -3963,7 +3965,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
 
     // F05: choices as labels or stored values, "Other: text", a ranking "A > B > C".
     const csvModeEfb = window.efb_csv_opt_val_now || (typeof efb_csv_opt_val_efb === 'function' ? efb_csv_opt_val_efb() : 'label');
-    const parsedEfb = efb_csv_repeater_rows_efb(parsedAllEfb[vIdxEfb]);
+    const parsedEfb = rptRowsEfb(parsedAllEfb[vIdxEfb]);
     const content = Array.isArray(parsedEfb) && typeof efb_csv_choice_row_efb === 'function' ? parsedEfb.map((r) => efb_csv_choice_row_efb(r, csvModeEfb)) : parsedEfb;
     count += 1;
     i_count += i_count == -1 ? 2 : 1;

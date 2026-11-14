@@ -1272,7 +1272,7 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid,options) {
     const send = (activeNonce, isRetry) => {
     const formData = new FormData();
     formData.append('async-upload', file);
-    formData.append('id', efb_upload_field_id_efb(id, fid, options));
+    formData.append('id', typeof efb_upload_field_id_efb === 'function' ? efb_upload_field_id_efb(id, fid, options) : id);
     formData.append('pl', pl);
     formData.append('nonce_msg', activeNonce);
     formData.append('sid', sid);

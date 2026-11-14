@@ -294,7 +294,7 @@ const prvIdFieldEls = () => {
   </div>`;
 };
 /* F13: answer types anonymization keeps (the server's Privacy::NON_PII_TYPES); everything else is cleared. */
-const EFB_PRV_NON_PII_TYPES = ['radio', 'checkbox', 'option', 'select', 'multiselect', 'switch', 'yesNo', 'color', 'rating', 'pointr5', 'pointr10', 'r_matrix', 'range', 'number', 'date', 'pdate', 'ardate', 'conturyList', 'stateProvince', 'cityList', 'imgRadio', 'chlCheckBox', 'chlRadio', 'trmCheckbox', 'prcfld', 'payment'];
+const EFB_PRV_NON_PII_TYPES = ['radio', 'checkbox', 'option', 'select', 'multiselect', 'switch', 'yesNo', 'color', 'rating', 'pointr5', 'pointr10', 'r_matrix', 'range', 'number', 'date', 'pdate', 'ardate', 'conturyList', 'stateProvince', 'cityList', 'imgRadio', 'chlCheckBox', 'chlRadio', 'trmCheckbox', 'prcfld', 'payment', 'repeater'];
 const efb_prv_pii_default_efb = (type) => !(EFB_PRV_NON_PII_TYPES.includes(type) || String(type).indexOf('pay') === 0);
 const prvPiiEls = (indx) => {
   const row = valj_efb[indx];
