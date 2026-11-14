@@ -449,6 +449,15 @@ For more information, visit the official website:
 
 == Upgrade Notice ==
 
+* New: Spam protection without a CAPTCHA (Free): a hidden trap field visitors never see or reach, a minimum time to fill (measured from when the visitor starts the form, so it works on cached pages), and an optional JavaScript check. New sites have the trap field and 3 seconds on; sites updated from an earlier version keep their behaviour until you turn them on in Settings › Captchas.
+* New: Spam answers are kept in the Spam tab of the entries screen with the reason ("Hidden field filled", "Sent too fast", "Akismet", …) instead of being lost: no e-mail, SMS, Telegram, webhook or Google Sheets row is sent for them, they do not use up a form limit, a choice capacity or a booking, and "Not spam" brings one back. Or refuse spam outright. Payment, registration and login forms always refuse it. Spam is deleted after 30 days (you choose).
+* New: CAPTCHA services: Google reCAPTCHA v3 (with a minimum score: low scores saved as spam or refused), hCaptcha and Cloudflare Turnstile, next to reCAPTCHA v2; one service for the site and another per form if you like. Widgets have a label and announce their errors, use the page's language and fit a phone screen.
+* New: Akismet (when installed) and WordPress' own disallowed words (Settings › Discussion) check the answers; Akismet only gets the visitor's IP address as your privacy setting allows.
+* New: The tracking-code box uses the site's CAPTCHA service; add-ons can use the same check outside a form (efb_captcha_verify, efb_captcha_widget).
+* Fixed: A form with captcha that had ever used conditional logic was shown without the captcha and could not be sent.
+* Fixed: Pages with a captcha form asked Google for a response while the page was built (slow, and the captcha did not load when the server could not reach Google).
+* Fixed: In the tracking-code box, a message after a search re-created the box: a solved captcha stopped working and the typed code was cleared.
+* Developers: form keys captcha_provider, rc3_threshold, spam_off, spam_akismet; filters efb_core_spam_checks, efb_spam_verdict, efb_captcha_verify_result, efb_captcha_check_hostname, efb_akismet_data, efb_spam_retention_days, efb_entries_rows; action efb_captcha_failed; functions efb_captcha_api, efb_captcha_verify, efb_captcha_widget (contract v1, docs/spam/captcha-contract.en.md); window.EFBCaptcha; submit codes efb_spam_rejected, pay_spam, efb_captcha_*; capabilities.spam and forms/{id}/schema "spam"; no database change (spam uses the entries' status from 1.10); see docs/spam/README.en.md.
 = 4.3.1 =
 
 Recommended update. Turns form emails on if they were off (you now receive each submission by email), verifies Stripe payments on the server and keeps form pages out of page caches. Purge your page cache and CDN after updating. Requires WordPress 5.7+ and PHP 7.4+.

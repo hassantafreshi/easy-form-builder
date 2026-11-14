@@ -1436,6 +1436,44 @@ them (those stay in the EFB screens, contract v1).
 - **Test.** `php tests/test-entries-api.php`, `php tests/test-entries-query-wp.php` (REST on the e2e site),
   `node tests/test-ap-b3-capabilities.js`.
 
+### F12. Core anti-spam: CAPTCHA service per form, spam settings, the CAPTCHA check outside a form (P20)
+
+Spec: `docs/feature-gaps/F12-spam-core.fa.md`; guide `docs/spam/README.en.md`; CAPTCHA contract
+`docs/spam/captcha-contract.en.md`. Server: `Emsfb\Spam` (`includes/class-Emsfb-spam.php`), `Emsfb\Captcha`
+(`includes/class-Emsfb-captcha.php`); builder twin `EFBSpamCore` (`includes/admin/assets/js/spam-builder-efb.js`).
+
+- **Form keys (row 0), all Free.** `captcha` (as before), `captcha_provider` ('' = the site's | `recaptcha_v2` |
+  `recaptcha_v3` | `hcaptcha` | `turnstile`), `rc3_threshold` ('' or 0.0 … 1.0; Persian / Arabic-Indic digits and
+  the Arabic decimal separator accepted), `spam_off` ('1' = no soft check; the CAPTCHA still applies), `spam_akismet`
+  ('0' = Akismet off for this form). One save rule: `Spam::sanitize_form_key()` = `EFBSpamCore.sanitizeKey()`, explicit
+  cases in `sanitize_obj_msg_efb()` (on a field row they are dropped).
+- **API.** `efbBuilderApi.setFormSettings({captcha_provider: 'turnstile', rc3_threshold: '0.7', spam_off: false})` and
+  `setForm()` write the normalized values. Refused (nothing changes): `spam_invalid` (an unknown service, a score
+  that is not a number), `spam_secret` (`secretKey`, `rc3SecretKey`, `hcSecretKey`, `tsSecretKey`: never in a form),
+  `spam_site_only` (site settings such as `spam_min_time`, `spam_honeypot`, `rc3Threshold`, the site keys). Every
+  error has `code`, `errors[{code, path, key}]`. AutoPilot never sets a site setting or a secret; Settings ›
+  Captchas is the owner's (administrator) screen.
+- **Builder.** Form settings: "CAPTCHA service" (a service without both keys is disabled, "Keys are not set for this
+  service."), "Minimum score" for reCAPTCHA v3, "Turn off spam checks for this form", "Check this form with Akismet".
+  The CAPTCHA switch follows the form's service (`efb_var.captcha_ready`, `efbSpamCaptchaReady()`); the preview
+  shows a placeholder with the service's name (v2 as before).
+- **Registry.** `setting:captcha_provider` (`form_keys` captcha, captcha_provider, rc3_threshold; `values`; `ready`
+  per service; `not_on` payment forms) and `setting:spam_off` (`risk: high`), both `package: free`;
+  `capabilities.spam` (`form_keys`, `providers`, `reasons`, `order` of the checks, `outcomes`, `site_only`,
+  `hooks`, `api` with the P20 functions and version). `tests/f18-harness.js` applies `Spam::capabilities` (priority 30).
+- **Schema.** `forms/{id}/schema` → `spam`: `{v, honeypot, min_time, require_js, captcha: {on, provider, ready, widget:
+  visible|none}, akismet, disallowed_keys, action, visitor_only}`. Never a secret, never the hidden field's name: an
+  assistant does not fill it, does not solve a CAPTCHA and does not submit for the visitor.
+- **Save warnings.** `spam_security_change` (`risk: high`, `changes[{key, from, to}]`) when the CAPTCHA or the spam
+  checks were switched off; the save is never refused.
+- **Submit codes** (in-band `success: false`): `efb_spam_rejected` (a `reject` verdict; "errorMRobot"), `pay_spam` on
+  payments/create / payments/quote / legacy gateway routes, `efb_captcha_failed` | `_expired` | `_missing` |
+  `_network` | `_invalid_response` | `_hostname` | `_action` | `_low_score`. A spam answer stored as spam answers
+  exactly like a normal one. Entries API rows of spam entries carry `spam_reasons`.
+- **P20.** `efb_captcha_api()`, `efb_captcha_widget($context)`, `efb_captcha_verify($token, $context)`
+  (`\Emsfb\Spam::verify_captcha()`), `window.EFBCaptcha.token(ctx)` / `reset(-1)`, event `efb:captcha`.
+- **Tests.** `node tests/test-ap-spam.js`, `php tests/test-spam-soft-checks.php`, `php tests/test-captcha-verify.php`.
+
 ### PAY01. Mollie gateway field (`mollie`, add-on `AdnMOL`)
 
 Add-on `vendores-efb/mollie` on the PAY00 contract; nothing new in core. For agents:

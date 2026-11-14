@@ -1136,6 +1136,18 @@ waits for the public schema itself; `security_changes` reporting waits for the A
 **F12 spam.** Create: `captcha_provider`, `rc3_threshold`, `spam_off` (security change),
 `spam_akismet`. Fill: the schema never exposes the honeypot; the visitor solves captcha. Must add:
 API-created forms get the honeypot/min-time defaults; entries API status mapping (C1).
+*Shipped (2026-11-14):* the four row-0 keys with one save rule (`Spam::sanitize_form_key()` =
+`EFBSpamCore.sanitizeKey`; a score may be typed in Persian / Arabic-Indic digits), through `efbBuilderApi.setFormSettings()`
+/ `setForm()` (refused: `spam_invalid`; a secret key `spam_secret`; a site setting such as `spam_min_time` or a site key
+`spam_site_only`) and `sanitize_obj_msg_efb()` (explicit cases; secret keys dropped from any row); registry entries
+`setting:captcha_provider` and `setting:spam_off` (Free, `risk: high`) and `capabilities.spam` (keys, providers, reasons,
+the order of the checks, hooks, the P20 functions); `forms/{id}/schema` → `spam` (honeypot, min_time, require_js, captcha
+{on, provider, ready, widget}, akismet, disallowed_keys, action; no secret, never the honeypot's name); the save
+answers `spam_security_change` (`risk: high`) when the CAPTCHA or the spam checks are switched off. The site settings
+(including every secret) are not settable by an assistant. C1 is closed: F14's `entry_status` TINYINT is the one
+storage; the entries API row of a spam entry also carries `spam_reasons`. *Not yet:* the API's create (and with it the
+"new form" honeypot / min-time defaults of `efb_form_defaults_efb()`); the site settings are the defaults for now.
+Details: `docs/autopilot-integration.md` (F12), `docs/spam/README.en.md`.
 
 **F13 privacy and retention.** Create: `prv_nostore`, `prv_ip`, `prv_days`, `prv_id_field`, field
 `prv_pii`. Must add: `emsfb_prv_forms` map updated from `efb_form_saved`/`efb_form_created` (not only
@@ -1205,7 +1217,7 @@ submit-side effect.
 
 | # | Where | Problem | Proposed resolution |
 |---|---|---|---|
-| C1 | F12 vs F14 vs F11 | `emsfb_msg_.entry_status` is `varchar(10)` with `''`/`'spam'` in F12, `TINYINT` 0 active / 1 spam / 2 trash in F14, and F11 seeds counts with `NOT IN ('spam','trash')` | Pick one storage before either ships (F14's TINYINT plus F12 using `1`, and F11 `entry_status = 0`). The API always exposes `active|spam|trash` |
+| C1 (closed 2026-11-14) | F12 vs F14 vs F11 | `emsfb_msg_.entry_status` is `varchar(10)` with `''`/`'spam'` in F12, `TINYINT` 0 active / 1 spam / 2 trash in F14, and F11 seeds counts with `NOT IN ('spam','trash')` | Pick one storage before either ships (F14's TINYINT plus F12 using `1`, and F11 `entry_status = 0`). The API always exposes `active|spam|trash` |
 | C2 | F05 vs F09 | Key `group`: optgroup label on option rows (F05 phase 2) and repeater membership on field rows (F09) | Rename F05's to `optgroup` before release |
 | C3 | F05, F07, F09, F11, F17 (and others) | "Pro" gates written as `is_efb_pro(1)`, which is also true on Free Plus | Add `efb_plan_efb()`/`efb_plan_at_least_efb()` and use it in every server gate; manifest reports the real tier. **Helpers shipped (§12); gates still to migrate per task** |
 | C4 | F02 vs F03/F06/F07/F09/F10 | After downgrade: F02 refuses submissions; F03 ignores rules; F06 ignores keys on render; F07 clamps; F09 locks the group; F10 always enforces | Keep each spec's choice but report it as `downgrade` per feature in the manifest so the assistant can warn |

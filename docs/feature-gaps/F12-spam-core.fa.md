@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P1 · تلاش: M · وابستگی: — (ستون `entry_status` را همین تسک می‌سازد و F14 گسترشش می‌دهد؛ اگر F11 پیش‌تر آمده باشد، از `Rate_Limit` آن استفاده می‌کند)
+وضعیت: **پیاده‌سازی شد (۲۰۲۶-۱۱-۱۴، زیرتسک‌های A تا F و P20 از F20؛ قرارداد AutoPilot/SitePilot؛ ترجمه: فقط فهرست عبارت‌ها، به دستور مالک)** · اولویت: P1 · تلاش: M · وابستگی: F14 (ستون `entry_status` و جدول تاریخچه را F14 پیش‌تر ساخت؛ F12 همان را به کار می‌برد، بی ستون تازه)
 
 # F12 — ضداسپم در هسته: هانی‌پات، زمان پر کردن، توکن JS، hCaptcha، Turnstile، reCAPTCHA v3، Akismet و کلمات ممنوع
 
@@ -287,11 +287,12 @@ ALTER TABLE `{prefix}emsfb_msg_` ADD KEY form_status (form_id, entry_status, `da
 - تست: `php tests/test-spam-entry-status.php` (WordPress واقعی، `[SKIP]` بدون wp-load، حذف fixtureها)، `php tests/test-schema-upgrade-f12.php`، گسترش `tests/test-response-viewer-escaping.js` با `spam_reason` خصمانه.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- آشتی با F14: F14 پیش از این تسک ستون `entry_status` (TINYINT: ۰ فعال، ۱ اسپم، ۲ زباله‌دان)، زبانه‌ها، عملیات گروهی، شمارش اسپم روزانه (`emsfb_stats_.spam`) و تاریخچه (`emsfb_msg_log_`) را ساخته بود. F12 ستون دوم نمی‌سازد: پاسخ اسپم `entry_status = 1` است و علت‌ها یک ردیف تاریخچه با `action = 'spam'` و `meta = 'honeypot,too_fast'` (بی `spam_reason`). DB همان 1.10 ماند (رشته؛ با `version_compare`). تعارض C1 بخش SitePilot همین‌جا بسته شد.
+- فایل‌های تغییرکرده: جدید `includes/class-Emsfb-spam.php` (`Emsfb\Spam`: تنظیمات، `cfg`، پرچم درخواست، `allow_side_effect` با اولویت ۱، `record`/`reasons_of`، `purge`، فیلترهای فهرست و نمایشگر و API)؛ `class-Emsfb-public.php` (`insert_message_db`: `entry_status = 1` فقط وقتی ستون هست، بی رزرو F11/F03/F05/F06، شمارش `submits` و `spam`؛ وضعیت نشست `spam`؛ پاسخ اسپم بی ایمیل، SMS و یکپارچگی؛ `spam_reject_efb`؛ مسیر «ذخیره نکن» F13)، `class-Emsfb-entries.php` (فیلتر `efb_entries_rows`)، `entries-efb.js` و `entries-efb.css` (نشان «اسپم: …» در فهرست، نمایشگر و تاریخچهٔ «ذخیره به‌عنوان اسپم»)، `class-Emsfb-dashboard-widget.php` و `class-Emsfb-email-monitor.php` (`spam` در `NOT IN`)، `class-Emsfb-upload-guard.php` (`drop_pending_uploads`). commit ‏`a83a2066`.
+- تست‌ها: `php tests/test-spam-entry-status.php` (۱۶، وردپرس واقعی: فیلتر `efb_spam_verdict`، ایمیل و وب‌هوک شمارش‌شده با `pre_wp_mail`/`pre_http_request`، زبانه‌ها، «اسپم نیست»، reject، پاک‌سازی ۳۰ روزه، سقف F11)، `php tests/test-schema-upgrade-f12.php` (۸)، `node tests/test-entries-list-render.js` (۴ مورد F12 با علت خصمانه)؛ e2e ‏`f12a` (۱۰، fa_IR و ar در ۳۷۵px).
+- وضعیت ترجمه: عبارت‌ها انگلیسی در فهرست؛ ترجمه نشد (دستور مالک).
+- مورد باز: —
+- اقدام بعدی: B.
 
 ### B — هانی‌پات، زمان و توکن JS
 - فایل‌ها: `class-Emsfb-form-runtime.php` (`t0` در `token()` و `verify()`)، `prepare_form_session_api` (247)، رندر هانی‌پات (1891) و CSS، `core-efb.js` (`efb_hp` در بدنه و شاخه‌های پرداخت)، `Spam::soft_checks`، نقطهٔ ۱ و ۳ ترتیب سرور، تنظیمات سراسری و صفحهٔ تنظیمات.
@@ -299,11 +300,12 @@ ALTER TABLE `{prefix}emsfb_msg_` ADD KEY form_status (form_id, entry_status, `da
 - تست: `php tests/test-spam-soft-checks.php` (مستقل با stub)، `php tests/test-spam-runtime-http.php` (WordPress واقعی؛ prepare، صبر و message/add)، `node tests/test-spam-client.js` (vm: وجود `efb_hp` در بدنه، نبود آن در `sendBack` و `localStorage`)، Playwright `tests/spam-honeypot-autofill-browser.js` (Chromium با autofill پروفایل: هانی‌پات خالی بماند؛ صفحهٔ کش‌شده).
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- `t0` را F11 پیش‌تر در `Form_Runtime::token()` گذاشته بود و `prepare_form_session_api()` آن را نگه می‌دارد؛ F12 همان را می‌خواند (`Spam::soft_checks`). صفحهٔ کش‌شده: زمان از prepare پس از بارگذاری است، نه HTML.
+- فایل‌های تغییرکرده: `Spam::honeypot_html` پس از `<form id="efbform">` (aria-hidden، `inert`، `tabindex=-1`، `autocomplete=off`، نشانه‌های مدیر رمز، بیرون از دید با `inset-inline-start`، استایل درون‌خطی هم)، `style-efb.css`، `core-efb.js` (`efb_spam_add_to_request_efb`: `data.efb_hp` در همهٔ شاخه‌ها، `payments/create` و `payments/quote` مرور؛ نه در `sendBack` و نه در `localStorage`)، `verify-efb.js` و `Verification::rest_send` (هانی‌پات در ارسال کد F02)، نقطهٔ ۱ ترتیب سرور در `get_form_public_efb` و `gate_prepare_for_endpoint_efb` (مسیرهای قدیمی درگاه)، `class-Emsfb-install.php` (پیش‌فرض نصب تازه)، `class-Emsfb-admin.php` (ذخیرهٔ تنظیمات با allow-list، فقط `manage_options`)، جدید `spam-settings-efb.js` (تنظیمات › کپچاها) و `list_form-efb.js`. commit‌های `a83a2066`، `acf6bdbf`.
+- تست‌ها: `php tests/test-spam-soft-checks.php` (۴۹، مستقل)، `php tests/test-spam-runtime-http.php` (۲۵: ۱ و ۵ ثانیه، refresh توکن، بی توکن، `spam_require_js`، توکن جعلی ۴۰۹، replay یک بار، `spam_off`، reject با حذف فایل آپلودشده، `pay_spam` در create/quote، F02)، `node tests/test-spam-client.js` (۲۴)؛ e2e ‏`f12b` (۱۲: Tab هرگز به آن نمی‌رسد، ربات اسپم، نسخهٔ کش‌شده، تنظیمات با ارقام فارسی، fa_IR و ar در ۳۷۵px).
+- وضعیت ترجمه: فقط فهرست.
+- مورد باز: autofill واقعی Chrome در Chromium بی‌سر قابل شبیه‌سازی نیست؛ ویژگی‌ها و دسترس‌ناپذیری با Tab بررسی شد.
+- اقدام بعدی: C.
 
 ### C — hCaptcha و Turnstile
 - فایل‌ها: `includes/class-Emsfb-captcha.php` (`provider_for`، `enqueue`، `verify`)، `class-Emsfb-formbuilder.php` (`fun_captcha_widget_efb`)، `class-Emsfb-public.php` (1733-1746 و 3573-3606)، `class-Emsfb.php` (`pub` و پیش‌فرض‌ها)، `class-Emsfb-admin.php:1747`، `list_form-efb.js`، `val-efb.js` و `admin-efb.js` (select ارائه‌دهنده)، `core-efb.js` (`efb_captcha_boot_efb` و `efb_captcha_reset_efb`)، `Cache_Compat::exclude_handles`.
@@ -311,11 +313,11 @@ ALTER TABLE `{prefix}emsfb_msg_` ADD KEY form_status (form_id, entry_status, `da
 - تست: `php tests/test-captcha-verify.php` (WordPress واقعی؛ `pre_http_request` برای حالت‌های timeout، JSON خراب، `action` و hostname اشتباه، و یک اجرای اختیاری واقعی با کلید آزمایشی وقتی شبکه هست)، گسترش `tests/test-captcha-url-encoding.php`، Playwright `tests/captcha-providers-browser.js` (هر دو ارائه‌دهنده، fa RTL، 375px).
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: جدید `includes/class-Emsfb-captcha.php` (`provider_for`، `site_key`/`secret`، `ready_map`، `enqueue` با `strategy: defer` و بی `wp_remote_head`، `widget_html` با برچسب و `aria-live`، `verify` با POST هشت‌ثانیه‌ای، fail-closed، hostname/action، `idempotency_key` ترنستایل = `request_id`)، جدید `public/assets/js/captcha-efb.js` (`window.EFBCaptcha`: رندر صریح، زبان صفحه، compact/flexible در موبایل، reset پس از هر پاسخ ناموفق، رویداد `efb:captcha`)، `class-Emsfb-formbuilder.php` (`fun_captcha_widget_efb`)، `class-Emsfb-public.php` (رندر و نقطهٔ ۳ سرور)، `class-Emsfb.php` (`pub`: `captchaProvider` و سه site key؛ هرگز secret)، `Cache_Compat::exclude_handles`، جدید `spam-builder-efb.js` و `val-efb.js`/`admin-efb.js` (select سرویس، کلید سوییچ کپچا از روی سرویس، جای‌نگه‌دار پیش‌نمایش). commit ‏`a83a2066`.
+- تست‌ها: `php tests/test-captcha-verify.php` (۴۰ مستقل + ۲۴ روی سایت با پاسخ mock: timeout، JSON خراب، `timeout-or-duplicate`، hostname و action اشتباه، کلیدهای آزمایشی رسمی)، `php tests/test-captcha-url-encoding.php` (۱۲ مورد تازه)، `node tests/test-ap-spam.js` (۱۷)؛ e2e ‏`f12c` (۱۵، fa_IR و ar در ۳۷۵px). اجرای واقعی با کلید آزمایشی انجام نشد (بی شبکه؛ دستور: هیچ فراخوانی واقعی).
+- وضعیت ترجمه: فقط فهرست.
+- مورد باز: شناسهٔ `#gRecaptcha` برای v2 عمداً ماند (CSS و اسکریپت‌های 4.3.1 به آن وابسته‌اند)؛ جست‌وجوها در محدودهٔ فرم انجام می‌شوند.
+- اقدام بعدی: D.
 
 ### D — reCAPTCHA v3 با آستانه
 - فایل‌ها: همان C، به‌علاوهٔ `efb_rc3_token_efb()` در `core-efb.js`، `rc3Threshold` و `rc3_low_action` در تنظیمات، `rc3ThresholdEl` در سازنده، و متن `rc3Notice`.
@@ -323,11 +325,12 @@ ALTER TABLE `{prefix}emsfb_msg_` ADD KEY form_status (form_id, entry_status, `da
 - تست: `php tests/test-captcha-verify.php` (حالت‌های v3 با پاسخ mock)، `node tests/test-rc3-client.js` (vm با `grecaptcha` جعلی: ترتیب execute پیش از decorate و timeout).
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- بررسی با مستندات Google: `api.js?render=<siteKey v3>` اسکریپت را برای `grecaptcha.execute` آماده می‌کند و `grecaptcha.render(el,{sitekey})` روی همان اسکریپت ویجت v2 می‌سازد؛ پس یک handle (`efb-recaptcha`) کافی است و `Captcha::enqueue` src آن را به‌روز می‌کند.
+- فایل‌های تغییرکرده: `Captcha` (امتیاز، `threshold`، `low_action`، `notice_html` و پنهان کردن نشان با `:has()` فقط وقتی متن Google هست)، `captcha-efb.js` (`beforeSend` با `grecaptcha.ready` و مهلت ۱۰ ثانیه)، `core-efb.js` (`post_api_forms_efb`: توکن پیش از `EFBRuntime.decorate`؛ بررسی «تیک بزنید» برای v3 رد می‌شود)، تنظیمات و سازنده (`rc3Threshold`، `rc3_low_action`، `rc3ThresholdEl`). commit ‏`a83a2066`.
+- تست‌ها: `node tests/test-rc3-client.js` (۱۳: ترتیب، تازه بودن توکن، مهلت، fingerprint بی `valid`)، v3 در `test-captcha-verify.php`؛ e2e ‏`f12d` (۷: یک اسکریپت Google برای v3 و v2 در یک صفحه، امتیاز ۰٫۳ → اسپم `low_score`).
+- وضعیت ترجمه: فقط فهرست.
+- مورد باز: —
+- اقدام بعدی: E.
 
 ### E — Akismet و کلمات ممنوع
 - فایل‌ها: `Spam::content_checks`، نگاشت فیلدها (`Spam::akismet_payload`)، تنظیمات و سازنده، `set_entry_status_Emsfb` (`submit-ham` و `submit-spam`).
@@ -335,11 +338,11 @@ ALTER TABLE `{prefix}emsfb_msg_` ADD KEY form_status (form_id, entry_status, `da
 - تست: `php tests/test-spam-akismet.php` (WordPress واقعی؛ `Akismet` جعلی وقتی افزونه نصب نیست و `[SKIP]` برای اجرای واقعی بدون کلید)، `php tests/test-spam-disallowed-keys.php`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `Spam::payload` (نام از firstName/lastName یا اولین متن با برچسب «نام»، ایمیل `email_to`، اولین url، متن text و textarea)، `content_checks` (کلمات ممنوع سپس Akismet؛ fail-open)، `akismet_data` (IP فقط به اندازهٔ حالت IP فرم در F13: store کامل، anon ناشناس، none بی IP و بی user agent)، `on_status_changed` روی `efb_entry_status_changed` (`submit-ham`/`submit-spam`، حداکثر ۲۰ در یک عملیات گروهی). commit ‏`a83a2066`.
+- تست‌ها: `php tests/test-spam-akismet.php` (۱۷، کلاس واقعی Akismet از افزونهٔ غیرفعال و نسخهٔ جایگزین؛ پاسخ از mu-plugin، بی شبکه)، `php tests/test-spam-disallowed-keys.php` (۸)؛ e2e ‏`f12e` (۵). commit ‏`b0f118ad`.
+- وضعیت ترجمه: فقط فهرست.
+- مورد باز: فیلدِ پنهان‌شده با منطق شرطی در `validated_items` نیست، پس به Akismet نمی‌رسد (تست مستقیم نیازمند افزونهٔ AdnSMF روی سایت تست است).
+- اقدام بعدی: F.
 
 ### F — هم‌زیستی، بارگذاری اسکریپت و پاک‌سازی
 - فایل‌ها: `functions.php:7438` (حذف `wp_remote_head` و متغیرهای تعریف‌نشده؛ `check_and_enqueue_google_captcha_efb` به wrapper `Captcha::enqueue('recaptcha_v2')` تبدیل می‌شود)، فیلترهای `efb_core_spam_checks` و `efb_spam_verdict`، مستندسازی در `docs/EFB-CORE-KNOWLEDGE-BASE.en.md` (هوک‌ها) و فهرست پیگیری برای مخزن Human Shield (خاموش کردن چک تکراری، نگاشت quarantine به `spam`)، متن تفکیک «Shield Security» و «Human Shield» در تنظیمات.
@@ -347,11 +350,11 @@ ALTER TABLE `{prefix}emsfb_msg_` ADD KEY form_status (form_id, entry_status, `da
 - تست: `php tests/test-spam-coexistence.php`، اجرای دوبارهٔ `tests/test-cache-compat.php` و `tests/test-tracker-captcha-server.php`.
 
 **Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `functions.php` (`check_and_enqueue_google_captcha_efb` حالا wrapper ‏`Captcha::enqueue`؛ `wp_remote_head` و متغیرهای تعریف‌نشده حذف شد)، فیلترهای `efb_core_spam_checks` و `efb_spam_verdict`، P20: `Spam::verify_captcha()`، `Spam::captcha_widget()` و تابع‌های `efb_captcha_verify()`، `efb_captcha_widget()`، `efb_captcha_api()` (`includes/captcha-functions-efb.php`، نسخهٔ ۱)، جعبهٔ پیگیری با سرویس سایت (`verify_tracker_captcha_efb` و `EMS_Form_Builder_track`)، `response-viewer-efb.js` (v3 پیش از جست‌وجو)، `core-efb.js` (`noti_message_efb_v4` با `insertAdjacentHTML`؛ یافته‌ها)، اسناد `docs/spam/captcha-contract.en.md` و `docs/spam/README.en.md`. افزونهٔ Human Shield تغییری لازم نداشت: دروازهٔ عوارض آن روی `false` زودتر برمی‌گردد و سهمیه مصرف نمی‌شود؛ پیشنهادهای مخزن آن در `docs/spam/README.en.md` (خاموش کردن چک تکراری با `efb_core_spam_checks`، نگاشت quarantine به `spam` با `efb_spam_verdict`).
+- تست‌ها: `php tests/test-spam-coexistence.php` (۶ مستقل + ۱۱ روی سایت: silentCAPTCHA با کپچای موفق هم رد می‌کند، فیلتر هانی‌پات را حذف می‌کند، اسکریپت‌ها defer و بی درخواست به Google هنگام رندر)، `tests/test-cache-compat.php` و `tests/test-tracker-captcha-server.php` (۲۰) بدون تغییر؛ `tests/test-human-shield-*` بی تغییر؛ e2e ‏`f12f` (۵، P20 با Turnstile، fa_IR در ۳۷۵px). commit‌های `b0f118ad`، `acf6bdbf`.
+- وضعیت ترجمه: فقط فهرست (۵۶ عبارت تازه).
+- مورد باز: جعبهٔ پاسخ (reply) کپچای جدا ندارد؛ پیش از آن جست‌وجوی کد رهگیری با کپچا و توکن دسترسی پاسخ لازم است.
+- اقدام بعدی: —
 
 ترتیب: A ← B ← (C ← D) و E موازی ← F.
 
@@ -376,6 +379,28 @@ ALTER TABLE `{prefix}emsfb_msg_` ADD KEY form_status (form_id, entry_status, `da
 5. آیا `remoteip` باید به siteverify ارسال شود؟ فقط پس از اصلاح منبع IP.
 6. نام ستون `entry_status` برای F14 قابل قبول است، یا F14 ترجیح می‌دهد `status_` یا یک جدول meta داشته باشد؟
 
+### تصمیم‌ها (پیاده‌سازی، ۲۰۲۶-۱۱-۱۴)
+
+1. **پیش‌فرض نصب تازه:** «ذخیره به‌عنوان اسپم» (پیشنهاد سند): هانی‌پات و ۳ ثانیه، نگهداری اسپم ۳۰ روز، در ردیف تنظیمات نخستِ نصب (`Install::install`). سایتِ به‌روزشده از 4.3.1 هیچ کلیدی ندارد و رفتارش تغییر نمی‌کند (حتی پاک‌سازی: نبود کلید یعنی ۰ = نگه‌داشتن). یک notice پیشنهادی (`spamSuggestNotice`) فقط عبارتش اضافه شد؛ نمایش آن به مالک سپرده شد.
+2. **جعبهٔ کد رهگیری:** همان سرویس سراسری سایت (P20، `Spam::verify_captcha($token, 'tracker')`). سایتی که `captcha_provider` ندارد همان v2 است و `tests/test-tracker-captcha-*` بی تغییر سبز ماندند.
+3. **کد رهگیری پاسخ اسپم در جعبهٔ پاسخ:** نه (رفتار F14 ماند: فقط `entry_status = 0`). دلیل: پاسخ دادن روی یک پاسخ اسپم اعلان مدیر می‌سازد و رباتی که جعبهٔ پاسخ را می‌خواند نادر است؛ «اسپم نیست» آن را باز می‌کند.
+4. **شرط `logic` در رندر کپچا:** حذف شد. افزونهٔ AdnSMF (vendores-efb/logic) هیچ کپچایی رندر نمی‌کند و فرمی که فقط کلید `logic` (حتی خالی) داشت ویجت نداشت ولی سرور کپچا می‌خواست.
+5. **`remoteip`:** فرستاده نمی‌شود (برای هیچ سرویس). Akismet نشانی را فقط به اندازهٔ حالت IP فرم (F13) می‌گیرد.
+6. **نام ستون:** موضوعیت ندارد: ستون F14 (`entry_status` TINYINT) به کار رفت؛ علت‌ها در تاریخچه.
+- **پلن (§سطح نسخه):** همه رایگان (پیشنهاد سند؛ رقبا این‌ها را رایگان دارند). در رجیستری `setting:captcha_provider` و `setting:spam_off` با `package: free`؛ هیچ گیت `efb_plan_at_least_efb`/`is_efb_pro` اضافه نشد.
+- **ترتیب و پیامد هر چک (سرور):** ۱ هانی‌پات → ۲ زمان → ۳ JS (نرم، ارزان، بی درخواست بیرونی) → بررسی فیلدها → ۴ کپچا (سخت: رد با `errorCaptcha`/`captchaExpired`، کد `efb_captcha_*`) → امتیاز v3 (نرم `low_score` یا رد با `block`) → silentCAPTCHA ‏Shield Security (سخت) → ۵ کلمات ممنوع → Akismet (نرم، fail-open) → ۶ حکم و فیلتر `efb_spam_verdict`: `spam` (ذخیره با وضعیت اسپم، پاسخ معمولی) یا `reject` (هیچ ذخیره، `errorMRobot`، کد `efb_spam_rejected`؛ در پرداخت `pay_spam`). فرم پرداخت، ثبت‌نام و ورود همیشه reject؛ فرم پرداخت پیش از `payments/create`/`payments/quote` و مسیرهای قدیمی درگاه بررسی می‌شود و پاسخ پرداخت‌شده هرگز بعداً اسپم خودکار نمی‌شود. پیش‌نویس و پاسخ ناقص F11 ارسال نیستند و بررسی نمی‌شوند.
+- **مسیرهای ارسال:** `forms/message/add`، `payments/create`، `payments/quote`، مسیرهای قدیمی Stripe/PersiaPay (`gate_prepare_for_endpoint_efb`)، بازیابی آفلاین (از همان message/add)، `verify/send` ‏F02 (هانی‌پات)، جعبهٔ پیگیری (کپچا). AutoPilot ارسالی از طرف بازدیدکننده ندارد.
+- **F07:** پاسخ رد شده فایل‌های آپلودشده‌اش را بی‌درنگ پاک می‌کند (فقط فایل‌های در انتظارِ همان فرم که هیچ پاسخی به آن‌ها اشاره نمی‌کند)؛ پاسخ اسپم ذخیره‌شده فایل‌هایش را نگه می‌دارد و با پاک‌سازی اسپم (F13 `purge_entries`) حذف می‌شوند.
+- **F10:** `t0` با تمدید توکن می‌ماند، پس مرحلهٔ مرور و فرم چندمرحله‌ای زمان را از نو شروع نمی‌کنند؛ هانی‌پات در سطح فرم است و درون ردیف تکرارشونده یا مرحله تکثیر نمی‌شود (چیزی برای راه‌اندازی دوباره نیست).
+- **آمار:** پاسخ اسپم یک «ارسال» و یک «اسپم» روز است (همان تعریف «علامت اسپم» F14)؛ نشست آن `spam` است و در آمار «ارسال» داشبورد و گزارش هفتگی شمرده نمی‌شود.
+- **کلیدهای secret:** فقط در `emsfb_setting`؛ در صفحهٔ عمومی، `pub`، JSON فرم، schema و لاگ نیستند (لاگ‌ها فقط کد خطا). در صفحهٔ تنظیمات secretها مثل `secretKey` امروز فقط برای مدیر در پنل است؛ کادرهای جدید مقدار ذخیره‌شده را نشان نمی‌دهند («ذخیره شد؛ برای جایگزینی تایپ کنید»).
+
+### یافته‌های جانبی (باگ)
+- `class-Emsfb-public.php` (رندر کپچا): شرط `isset($valj_efb[0]->logic)==false` ویجت را در هر فرمی که کلید `logic` داشت (حتی `false` → `''`) حذف می‌کرد، ولی سرور کپچا می‌خواست: آن فرم ارسال‌پذیر نبود. اصلاح شد.
+- `functions.php` `check_and_enqueue_google_captcha_efb()`: در هر رندر یک `wp_remote_head` هم‌زمان به google.com می‌زد (بی شبکه = کپچا بارگذاری نمی‌شد) و متغیرهای تعریف‌نشده داشت. اصلاح شد.
+- `core-efb.js` `noti_message_efb_v4()`: با `innerHTML +=` کل کارت جعبهٔ پیگیری را از HTML بازمی‌ساخت؛ ویجت کپچای حل‌شده رویدادهایش را از دست می‌داد و کد تایپ‌شده پاک می‌شد. اصلاح شد (`insertAdjacentHTML`).
+- `class-Emsfb-public.php`: کپچای فرم ثبت‌نام و ورود در سرور هرگز اعمال نمی‌شد (`$skip_captcha` فقط در شاخهٔ فرم معمولی مقدار می‌گیرد). اصلاح نشد (رفتار امروز حفظ شد)؛ در BUGS-FOUND ثبت شد.
+
 ---
 
 ## سازگاری با SitePilot AI
@@ -384,5 +409,6 @@ ALTER TABLE `{prefix}emsfb_msg_` ADD KEY form_status (form_id, entry_status, `da
 
 - کلیدهای فرم `captcha_provider`، `rc3_threshold`، `spam_off` و `spam_akismet` با همین نام‌ها در قرارداد هستند. secretها (`rc3SecretKey`، `hcSecretKey`، `tsSecretKey`) در فهرست کلیدهای ممنوع JSON فرم‌اند و API به تنظیمات سراسری دسترسی ندارد.
 - فرمی که API می‌سازد پیش‌فرض‌های «فرم تازه» (هانی‌پات و زمان پر کردن) را از `efb_form_defaults_efb()` می‌گیرد. خاموش کردن `captcha` یا روشن کردن `spam_off` در `security_changes` گزارش و با ریسک «high» نشان داده می‌شود.
-- **تعارض C1:** این سند `entry_status` را `varchar` با `''`/`'spam'` تعریف کرده، F14 آن را `TINYINT` ۰/۱/۲ و F11 با `'spam','trash'` می‌خواند. پیش از ادغام یکی انتخاب شود. API در هر حال `status` را به‌صورت `active|spam|trash` نشان می‌دهد.
+- **تعارض C1 (بسته شد):** ستون F14 (`entry_status` TINYINT ۰/۱/۲) ماند و F12 ستونی نساخت؛ API همان `status` ‏`active|spam|trash` را نشان می‌دهد و ردیف اسپم `spam_reasons` هم دارد.
+- **ساخته‌شده:** `efbBuilderApi.setFormSettings()` و `setForm()` چهار کلید را با قاعدهٔ ذخیره می‌پذیرند (`EFBSpamCore.sanitizeKey` = `Spam::sanitize_form_key`؛ ارقام فارسی برای امتیاز)؛ secretها (`spam_secret`) و تنظیمات سایت (`spam_site_only`) رد می‌شوند؛ `capabilities.spam` و `forms/{id}/schema` (کلید `spam`: هانی‌پات، حداقل زمان، کپچا و آمادگی آن، Akismet، اقدام؛ بی secret و بی نام هانی‌پات)؛ هشدار `spam_security_change` با `risk: high` هنگام ذخیره.
 - schema عمومی هرگز نام هانی‌پات را نشان نمی‌دهد و دستیار بازدیدکننده آن را پر نمی‌کند. کپچا را خود بازدیدکننده حل می‌کند. ارسال سرور به سرور از طرف بازدیدکننده در قرارداد وجود ندارد، پس توکن JS و حداقل زمان دور زده نمی‌شوند.

@@ -403,3 +403,16 @@
 | کم | `tests/test-repeater-wire.js` و `tests/test-privacy-admin-js.js` به شکل متن کد وابسته بودند و با افزودن تابع بعد از `actionSendData` (F10-A) و کنترل نمایش (F10-D) می‌شکستند. | تست | **رفع شد (F10-E)**: مرز تابع و بلوک مشترک تنظیمات پیشرفته خوانده می‌شود |
 | کم | `tests/test-response-viewer-hostile-rows-browser.js` در این محیط Chromium را پیدا نمی‌کرد (پیش از F10 شکست می‌خورد). | تست | **رفع شد (F10-C)**: fallback به `chromium_headless_shell` مثل بقیهٔ تست‌های مرورگری |
 | کم | `tests/test-blank-form-and-upload-defaults.php` جدیدترین فرم سایت را برمی‌داشت؛ فرم‌های e2e (سقف، زمان‌بندی، آپلود اجباری) نتیجه را عوض می‌کردند. | تست | **رفع شد (F10)**: فرم خودش را می‌سازد و پاک می‌کند |
+
+## F12: ضداسپم در هسته (۲۰۲۶-۱۱-۱۴)
+
+| شدت | مشکل | محل | وضعیت |
+|---|---|---|---|
+| بالا | فرم دارای کپچا که کلید `logic` داشت (حتی `false` که پس از ذخیره `''` می‌شود) ویجت کپچا را نشان نمی‌داد، ولی سرور کپچا می‌خواست: فرم ارسال‌پذیر نبود. افزونهٔ منطق شرطی کپچایی رندر نمی‌کند. | `includes/class-Emsfb-public.php` (`EFB_Form_Builder`، رندر کپچا) | **رفع شد (F12)** |
+| متوسط | `check_and_enqueue_google_captcha_efb()` در هر رندر صفحه یک `wp_remote_head` هم‌زمان به google.com می‌فرستاد (کندی؛ بی دسترسی سرور به Google کپچا اصلاً بارگذاری نمی‌شد) و متغیرهای تعریف‌نشده داشت. | `includes/functions.php` | **رفع شد (F12)**: `Captcha::enqueue` با `defer` و بی درخواست |
+| متوسط | `noti_message_efb_v4()` با `innerHTML +=` کل جعبهٔ پیگیری را بازمی‌ساخت: ویجت کپچای حل‌شده رویدادهایش را از دست می‌داد و کد تایپ‌شده پاک می‌شد. | `public/assets/js/core-efb.js` | **رفع شد (F12)**: `insertAdjacentHTML`؛ e2e ‏`f12f` |
+| متوسط | کپچای فرم ثبت‌نام و ورود در سرور اعمال نمی‌شود: `$skip_captcha` فقط در شاخهٔ فرم معمولی مقدار می‌گیرد، پس توکن بررسی نمی‌شود (مرورگر آن را می‌خواهد). | `includes/class-Emsfb-public.php` (`get_form_public_efb`) | **باز** (رفتار امروز حفظ شد؛ تصمیم با مالک: اعمال در سرور ممکن است ورود کاربران کش‌شده را بشکند) |
+| کم | توکن کپچا پیش از جدا شدن از ردیف‌ها در `localStorage` (`sendback`) ذخیره می‌شد. | `core-efb.js` (`efb_sendback_for_storage_efb`) | **رفع شد (F12)** |
+| کم | سند F12 ستون `entry_status` (varchar) و `spam_reason` را پیشنهاد کرده بود ولی F14 پیش‌تر `entry_status` TINYINT ساخته بود (تعارض C1). | سند | **بسته شد**: ستون F14 ماند؛ علت در تاریخچه |
+| کم | `reference/current-capabilities.en.md` §3 کلید `shield_silent_captcha` را «Human Shield AdnHSH» نامیده بود؛ این یکپارچگی با افزونهٔ جداگانهٔ Shield Security است. | سند | **رفع شد (F12)** |
+

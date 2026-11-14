@@ -102,7 +102,8 @@ Types with renderer and validator support but **no palette entry**: `paySelect`,
 | `formName`, `type` (`form`/`payment`/`survey`/`login`/`register`) | name and kind | `formNameEl` 2547, `formTypeEl` 2860 |
 | `trackingCode` | show the confirmation code | 2550 |
 | `captcha` | Google reCAPTCHA v2 (not on payment forms) | 2569; server 3580 |
-| `shield_silent_captcha` | Human Shield silent check (add-on `AdnHSH`), per form, overrides global | 2591 |
+| `shield_silent_captcha` | Shield Security silentCAPTCHA (the separate plugin Shield Security, `includes/integrations/class-Emsfb-shield-silentcaptcha.php`; not the add-on Human Shield `AdnHSH`), per form, overrides global | 2591 |
+| `captcha_provider`, `rc3_threshold`, `spam_off`, `spam_akismet` | F12 (2026-11-14): the form's CAPTCHA service ('' = the site's: reCAPTCHA v2 / v3, hCaptcha, Turnstile), v3 minimum score, no soft spam checks, Akismet off for the form; see `docs/spam/README.en.md` | — |
 | `show_icon`, `steps_style` (`classic`/`circles`/`pills`/`chevrons`) | hide step icons / step row style | 2598, `val-efb.js:95-117` |
 | `show_pro_bar`, `progress_style` (`classic`/`bar`/`segments`/`ring`), `prg_bar_color` | progress bar | 2603 |
 | `global_mobile_hflabel` | hide all labels on mobile (real Pro) | 2321 |
