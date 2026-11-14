@@ -584,9 +584,24 @@ async function createStepsOfPublic() {
  state_efb = "run";
  efb_var = ajax_object_efm;
  setting_emsFormBuilder = typeof ajax_object_efm.form_setting == "string" ? efbParseJson(ajax_object_efm.form_setting) : ajax_object_efm.form_setting;
-  for (let el of document.querySelectorAll(`.emsFormBuilder_v`)) {
+  efb_init_fields_in_efb(document);
+  // F05: shuffled order (kept for the session), Other, Select all, the maximum lock, capacities, ranking (choices-efb.js).
+  if (window.EfbChoices) { try { window.EfbChoices.initAll(); efb_choices_stock_efb(); } catch (e) { /* the form works without it; the server checks again */ } }
+
+}
+/**
+ * F09-D: the set-up of the fields under one root (the page at load, or a repeater row added later): change
+ * listeners, masks, counters, number boxes, date pickers, phone inputs, uploads, e-signatures, switches and
+ * multiselects. A field is set up once (data-efb-init), so calling it again on the same root adds nothing.
+ * The fields inside a repeater row <template> are inert text, so the page's first call never sees them.
+ */
+function efb_init_fields_in_efb(root) {
+  root = root || document;
+  for (let el of root.querySelectorAll(`.emsFormBuilder_v`)) {
     let form_id = el.dataset.formid  || 0;
     if (el.tagName == "OPTION" || el.tagName=='P' || el.tagName=='A' || ( el.tagName=='INPUT' && el.type=='hidden')) continue;
+    if (el.dataset.efbInit === '1') continue;
+    el.dataset.efbInit = '1';
     let price = '';
     let el_type =''
     const valj_efb_ =get_structure_by_form_id_efb(form_id);
@@ -805,7 +820,9 @@ async function createStepsOfPublic() {
 
   }
 
-  for (let switchEl of document.querySelectorAll('.btn-toggle[onclick*="fun_switch_efb"]')) {
+  for (let switchEl of root.querySelectorAll('.btn-toggle[onclick*="fun_switch_efb"]')) {
+    if (switchEl.dataset.efbInit === '1') continue;
+    switchEl.dataset.efbInit = '1';
     const sw_form_id = switchEl.dataset.formid || 0;
     const sw_vid = switchEl.dataset.vid;
     if (!sw_vid) continue;
@@ -819,7 +836,9 @@ async function createStepsOfPublic() {
     } catch(e) {  }
   }
 
-  for (let msEl of document.querySelectorAll('.efb.efblist.inplist[data-vid][data-select]')) {
+  for (let msEl of root.querySelectorAll('.efb.efblist.inplist[data-vid][data-select]')) {
+    if (msEl.dataset.efbInit === '1') continue;
+    msEl.dataset.efbInit = '1';
     try {
       const ms_vid = msEl.dataset.vid;
       const ms_select = msEl.dataset.select;
@@ -836,9 +855,6 @@ async function createStepsOfPublic() {
       fun_sendBack_emsFormBuilder(ms_push);
     } catch(e) {  }
   }
-  // F05: shuffled order (kept for the session), Other, Select all, the maximum lock, capacities, ranking (choices-efb.js).
-  if (window.EfbChoices) { try { window.EfbChoices.initAll(); efb_choices_stock_efb(); } catch (e) { /* the form works without it; the server checks again */ } }
-
 }
 /* F05: a form with capacities asks forms/session/prepare for the places left now (a cached page has older numbers). */
 function efb_choices_stock_efb() {
