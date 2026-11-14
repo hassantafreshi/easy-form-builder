@@ -1,0 +1,63 @@
+/* Easy Form Builder - F15 builder productivity: palette search, shortcuts dialog, undo / redo,
+   versions, export / import (includes/admin/assets/js/productivity-efb.js).
+   Logical properties only, so the same rules serve right-to-left admin pages. */
+
+/* ---------------------------------------------------------------- palette search */
+.efb-palette-search { position: relative; margin: .5rem .25rem .25rem; }
+.efb-palette-search .efb-palette-search-icon { position: absolute; inset-inline-start: .75rem; top: .6rem; color: #6c757d; pointer-events: none; font-size: .9rem; }
+.efb-palette-search input.efb-palette-search-input { padding-inline-start: 2.1rem; min-height: 38px; border-radius: 10px; font-size: .9rem; }
+.efb-palette-search input.efb-palette-search-input:focus { box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .25); }
+.efb-palette-live { min-height: 1.1em; font-size: .78rem; color: #495057; padding-inline: .35rem; margin-top: .2rem; unicode-bidi: plaintext; text-align: start; }
+.efb-palette-live.efb-pd-miss { color: #b02a37; }
+.efb.tag.efb-search-miss { display: none !important; }
+
+/* ---------------------------------------------------------------- sentences with inserted values */
+.efb-pd-sent { unicode-bidi: plaintext; }
+.efb-pd-sent bdi { unicode-bidi: isolate; font-weight: 600; }
+
+/* ---------------------------------------------------------------- toolbar */
+.efb-pd-tools { display: flex; align-items: center; gap: .15rem; flex-wrap: wrap; }
+.efb-pd-nav.btn { display: inline-flex; align-items: center; gap: .3rem; min-height: 38px; min-width: 38px; justify-content: center; }
+.efb-pd-nav.btn[disabled], .efb-pd-nav.btn[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
+.efb-pd-nav .efb-pd-nav-label { font-size: .85rem; }
+@media (max-width: 1199px) { .efb-pd-nav .efb-pd-nav-label { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
+
+/* ---------------------------------------------------------------- dialogs */
+.efb-pd-back { position: fixed; inset: 0; background: rgba(15, 23, 42, .45); z-index: 100050; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.efb-pd-dlg { background: #fff; color: #212529; border-radius: 14px; box-shadow: 0 20px 50px rgba(0, 0, 0, .25); width: 100%; max-width: 640px; max-height: calc(100vh - 32px); display: flex; flex-direction: column; outline: none; text-align: start; }
+.efb-pd-dlg.efb-pd-wide { max-width: 900px; }
+.efb-pd-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .85rem 1rem; border-bottom: 1px solid #e9ecef; }
+.efb-pd-title { font-size: 1.1rem; margin: 0; font-weight: 600; unicode-bidi: plaintext; }
+.efb-pd-x { border: 0; background: transparent; min-width: 44px; min-height: 44px; border-radius: 8px; font-size: 1rem; color: #495057; }
+.efb-pd-x:hover, .efb-pd-x:focus { background: #f1f3f5; }
+.efb-pd-body { padding: .85rem 1rem; overflow: auto; }
+.efb-pd-foot { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: flex-end; padding: .75rem 1rem; border-top: 1px solid #e9ecef; }
+.efb-pd-btn.btn { min-height: 44px; min-width: 44px; border-radius: 10px; }
+.efb-pd-note { font-size: .85rem; color: #495057; unicode-bidi: plaintext; }
+.efb-pd-status { min-height: 1.2em; font-size: .85rem; color: #198754; margin-top: .4rem; unicode-bidi: plaintext; }
+.efb-pd-status.efb-pd-err { color: #b02a37; }
+.efb-pd-check { margin-top: .75rem; display: flex; align-items: center; gap: .5rem; padding-inline-start: 0; }
+.efb-pd-check label, .efb-pd-dlg label, .efb-pd-dlg p, .efb-pd-dlg td, .efb-pd-dlg th, .efb-pd-dlg li { unicode-bidi: plaintext; }
+.efb-pd-check .form-check-input { margin: 0; float: none; width: 1.25rem; height: 1.25rem; flex: 0 0 auto; }
+.efb-pd-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.efb-pd-table th, .efb-pd-table td { padding: .45rem .5rem; border-bottom: 1px solid #f1f3f5; text-align: start; vertical-align: middle; }
+.efb-pd-table thead th { font-size: .78rem; text-transform: uppercase; color: #6c757d; letter-spacing: .02em; }
+.efb-pd-table tbody th { font-weight: 500; unicode-bidi: plaintext; }
+.efb-pd-keys { display: inline-flex; align-items: center; gap: .15rem; unicode-bidi: isolate; }
+/* Key names read left to right in every language (admin-rtl-efb.css turns every .efb element rtl with !important). */
+.efb-pd-keys, .efb.efb-pd-keys, .efb-pd-keys kbd { direction: ltr !important; }
+.efb-pd-keys kbd { background: #f8f9fa; color: #212529; border: 1px solid #ced4da; border-bottom-width: 2px; border-radius: 6px; padding: .1rem .4rem; font-size: .8rem; font-family: inherit; }
+.efb-pd-or { color: #6c757d; }
+.efb-pd-toast { position: fixed; inset-block-end: 20px; inset-inline-start: 50%; transform: translateX(-50%); background: #212529; color: #fff; padding: .55rem 1rem; border-radius: 10px; z-index: 100060; font-size: .9rem; max-width: calc(100vw - 32px); unicode-bidi: plaintext; box-shadow: 0 8px 24px rgba(0, 0, 0, .25); }
+[dir="rtl"] .efb-pd-toast, .rtl .efb-pd-toast { transform: translateX(50%); }
+
+@media (max-width: 576px) {
+  .efb-pd-back { padding: 8px; align-items: flex-end; }
+  .efb-pd-dlg { max-height: calc(100vh - 16px); border-radius: 14px 14px 10px 10px; }
+  .efb-pd-head, .efb-pd-body, .efb-pd-foot { padding-inline: .75rem; }
+  .efb-pd-foot .btn { flex: 1 1 auto; }
+  .efb-pd-table thead { display: none; }
+  .efb-pd-table, .efb-pd-table tbody, .efb-pd-table tr, .efb-pd-table th, .efb-pd-table td { display: block; width: 100%; }
+  .efb-pd-table tr { border-bottom: 1px solid #e9ecef; padding: .35rem 0; }
+  .efb-pd-table th, .efb-pd-table td { border: 0; padding: .15rem .25rem; }
+}

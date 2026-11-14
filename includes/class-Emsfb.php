@@ -508,6 +508,12 @@ class Emsfb {
             $this->require_plugin_file_efb('includes/captcha-functions-efb.php');
         }
 
+        // F15: builder productivity (builder preferences, the undo / shortcuts registry entries). Optional:
+        // every caller checks class_exists('\Emsfb\Builder_Tools').
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-builder-tools.php') && method_exists('\Emsfb\Builder_Tools', 'register')) {
+            \Emsfb\Builder_Tools::register();
+        }
+
         // Builder API for integrations such as AutoPilot (docs/autopilot-integration.md).
         // Optional: callers check class_exists('\Emsfb\Builder_Api').
         $this->require_plugin_file_efb('includes/class-Emsfb-builder-api.php');

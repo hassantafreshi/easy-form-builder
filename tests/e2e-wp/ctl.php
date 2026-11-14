@@ -1117,6 +1117,15 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( array( 'ok' => true ) );
 		break;
 
+	case 'f15-usermeta':
+		// F15: a builder preference of the admin (user 1): <meta key> [value | del].
+		$k = (string) $efb_e2e_rest[0];
+		if ( isset( $efb_e2e_rest[1] ) ) {
+			if ( 'del' === $efb_e2e_rest[1] ) delete_user_meta( 1, $k ); else update_user_meta( 1, $k, (string) $efb_e2e_rest[1] );
+		}
+		efb_e2e_out( array( 'value' => get_user_meta( 1, $k, true ), 'exists' => metadata_exists( 'user', 1, $k ) ) );
+		break;
+
 	default:
 		efb_e2e_out( array( 'error' => 'unknown command ' . $efb_e2e_cmd ) );
 }

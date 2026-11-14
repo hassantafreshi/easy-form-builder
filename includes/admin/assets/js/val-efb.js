@@ -2755,7 +2755,12 @@ function creator_form_builder_Efb() {
       <div id="overlay_efb" class="efb d-none">${efbLoadingCard('bg-white',4)}</div>
       <!--end  over page -->
           <div class="efb  col-md-4" id="listElEfb">
-
+            <div class="efb efb-palette-search" role="search">
+              <label for="efbPaletteSearch" class="efb visually-hidden">${efb_var.text.searchFields || 'Search fields'}</label>
+              <i class="efb bi-search efb-palette-search-icon" aria-hidden="true"></i>
+              <input type="search" id="efbPaletteSearch" class="efb form-control efb-palette-search-input" role="searchbox" aria-controls="efbPaletteTilesEfb" aria-describedby="efbPaletteSearchLive" autocomplete="off" spellcheck="false" placeholder="${efb_var.text.searchFields || 'Search fields'}">
+              <div id="efbPaletteSearchLive" class="efb efb-palette-live" aria-live="polite"></div>
+            </div>
             <ul class="efb my-2 row" id="listCatEfb">
                 <li class="efb efb-col-3 px-1">
                   <a class="efb nav-link cat fs-7 efb active all" aria-current="page" onclick="funUpdateLisetElEfb('all')" role="button">${efb_var.text.all}</a>
@@ -2822,6 +2827,8 @@ function creator_form_builder_Efb() {
      is not present. */
   if (typeof efbWatchWorkspaceFitEfb === 'function') efbWatchWorkspaceFitEfb();
   if (typeof efbScheduleWorkspaceFitEfb === 'function') efbScheduleWorkspaceFitEfb();
+  // F15: the palette search, the shortcuts, the toolbar's history / versions buttons; a new undo history.
+  if (typeof efbPdBuilderBuiltEfb === 'function') efbPdBuilderBuiltEfb();
 }
 
 /* padding-bottom: 0 on #wpbody-content, by the one route nothing else in the page can

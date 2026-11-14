@@ -5783,6 +5783,150 @@ class efbFunction {
 			"captchaSecretSaved" => $state && isset($ac->text->captchaSecretSaved) ? $ac->text->captchaSecretSaved : esc_html__('Saved. Type a new key to replace it.','easy-form-builder'),
 			/* translators: F12: Settings: link to the CAPTCHA service's key page */
 			"captchaGetKeys" => $state && isset($ac->text->captchaGetKeys) ? $ac->text->captchaGetKeys : esc_html__('Get the keys','easy-form-builder'),
+			/* translators: F15: builder palette: search box label and placeholder */
+			"searchFields" => $state && isset($ac->text->searchFields) ? $ac->text->searchFields : esc_html__('Search fields','easy-form-builder'),
+			/* translators: F15: builder palette search: no result; %s is what the admin typed */
+			"noFieldFound" => $state && isset($ac->text->noFieldFound) ? $ac->text->noFieldFound : esc_html__('No field matches "%s"','easy-form-builder'),
+			/* translators: F15: builder palette search: number of tiles shown; %s is a number */
+			"nFieldsFound" => $state && isset($ac->text->nFieldsFound) ? $ac->text->nFieldsFound : esc_html__('%s fields found','easy-form-builder'),
+			/* translators: F15: builder: title of the shortcuts dialog and its toolbar button */
+			"shortcuts" => $state && isset($ac->text->shortcuts) ? $ac->text->shortcuts : esc_html__('Keyboard shortcuts','easy-form-builder'),
+			/* translators: F15: builder shortcuts dialog: switch for the one-key shortcuts (accessibility) */
+			"scSingleKeys" => $state && isset($ac->text->scSingleKeys) ? $ac->text->scSingleKeys : esc_html__('Allow single-key shortcuts (/ and ?)','easy-form-builder'),
+			/* translators: F15: builder shortcuts dialog: help text */
+			"scNote" => $state && isset($ac->text->scNote) ? $ac->text->scNote : esc_html__('Shortcuts work while the builder is open and no text box has the focus (Save and Esc work everywhere).','easy-form-builder'),
+			/* translators: F15: builder shortcuts dialog: column header */
+			"scAction" => $state && isset($ac->text->scAction) ? $ac->text->scAction : esc_html__('Action','easy-form-builder'),
+			/* translators: F15: builder shortcuts dialog: column header */
+			"scKeys" => $state && isset($ac->text->scKeys) ? $ac->text->scKeys : esc_html__('Keys','easy-form-builder'),
+			/* translators: F15: builder shortcut: save the form */
+			"scSave" => $state && isset($ac->text->scSave) ? $ac->text->scSave : esc_html__('Save','easy-form-builder'),
+			/* translators: F15: builder shortcut */
+			"scUndo" => $state && isset($ac->text->scUndo) ? $ac->text->scUndo : esc_html__('Undo','easy-form-builder'),
+			/* translators: F15: builder shortcut */
+			"scRedo" => $state && isset($ac->text->scRedo) ? $ac->text->scRedo : esc_html__('Redo','easy-form-builder'),
+			/* translators: F15: builder shortcut: focus the palette search */
+			"scSearch" => $state && isset($ac->text->scSearch) ? $ac->text->scSearch : esc_html__('Search fields','easy-form-builder'),
+			/* translators: F15: builder shortcut */
+			"scDelete" => $state && isset($ac->text->scDelete) ? $ac->text->scDelete : esc_html__('Delete selected field','easy-form-builder'),
+			/* translators: F15: builder shortcut */
+			"scDuplicate" => $state && isset($ac->text->scDuplicate) ? $ac->text->scDuplicate : esc_html__('Duplicate selected field','easy-form-builder'),
+			/* translators: F15: builder shortcut: Alt+Up / Alt+Down */
+			"scMove" => $state && isset($ac->text->scMove) ? $ac->text->scMove : esc_html__('Move selected field','easy-form-builder'),
+			/* translators: F15: builder shortcut: Esc */
+			"scClose" => $state && isset($ac->text->scClose) ? $ac->text->scClose : esc_html__('Close panel','easy-form-builder'),
+			/* translators: F15: builder shortcut: Alt+P */
+			"scPreview" => $state && isset($ac->text->scPreview) ? $ac->text->scPreview : esc_html__('Preview','easy-form-builder'),
+			/* translators: F15: builder shortcut: Shift+/ */
+			"scHelp" => $state && isset($ac->text->scHelp) ? $ac->text->scHelp : esc_html__('Show shortcuts','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the text field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_text" => $state && isset($ac->text->palette_syn_text) ? $ac->text->palette_syn_text : esc_html__('text, single line, short answer, input','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the name field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_name" => $state && isset($ac->text->palette_syn_name) ? $ac->text->palette_syn_name : esc_html__('name, full name, first name, last name','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the password field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_password" => $state && isset($ac->text->palette_syn_password) ? $ac->text->palette_syn_password : esc_html__('password, secret, pin','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the email field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_email" => $state && isset($ac->text->palette_syn_email) ? $ac->text->palette_syn_email : esc_html__('email, e-mail, mail','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the number field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_number" => $state && isset($ac->text->palette_syn_number) ? $ac->text->palette_syn_number : esc_html__('number, numeric, digits, quantity','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the textarea field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_textarea" => $state && isset($ac->text->palette_syn_textarea) ? $ac->text->palette_syn_textarea : esc_html__('long text, paragraph, comment, message','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the steps field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_steps" => $state && isset($ac->text->palette_syn_steps) ? $ac->text->palette_syn_steps : esc_html__('step, page, page break','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the checkbox field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_checkbox" => $state && isset($ac->text->palette_syn_checkbox) ? $ac->text->palette_syn_checkbox : esc_html__('checkbox, multiple choice, tick','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the radio field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_radio" => $state && isset($ac->text->palette_syn_radio) ? $ac->text->palette_syn_radio : esc_html__('radio, single choice, option','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the select field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_select" => $state && isset($ac->text->palette_syn_select) ? $ac->text->palette_syn_select : esc_html__('dropdown, select, list','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the multiselect field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_multiselect" => $state && isset($ac->text->palette_syn_multiselect) ? $ac->text->palette_syn_multiselect : esc_html__('multi select, dropdown, tags','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the tel field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_tel" => $state && isset($ac->text->palette_syn_tel) ? $ac->text->palette_syn_tel : esc_html__('phone, telephone','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the mobile field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_mobile" => $state && isset($ac->text->palette_syn_mobile) ? $ac->text->palette_syn_mobile : esc_html__('phone, cell, cellphone, mobile number, sms','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the range field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_range" => $state && isset($ac->text->palette_syn_range) ? $ac->text->palette_syn_range : esc_html__('slider, scale','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the date field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_date" => $state && isset($ac->text->palette_syn_date) ? $ac->text->palette_syn_date : esc_html__('date, day, calendar, birthday','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the advdate field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_advdate" => $state && isset($ac->text->palette_syn_advdate) ? $ac->text->palette_syn_advdate : esc_html__('date range, time, calendar, booking','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the file field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_file" => $state && isset($ac->text->palette_syn_file) ? $ac->text->palette_syn_file : esc_html__('upload, attachment, document','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the dadfile field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_dadfile" => $state && isset($ac->text->palette_syn_dadfile) ? $ac->text->palette_syn_dadfile : esc_html__('drag and drop, upload, attachment','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the audio_recorder field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_audio_recorder" => $state && isset($ac->text->palette_syn_audio_recorder) ? $ac->text->palette_syn_audio_recorder : esc_html__('audio, voice, microphone','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the video_recorder field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_video_recorder" => $state && isset($ac->text->palette_syn_video_recorder) ? $ac->text->palette_syn_video_recorder : esc_html__('video, camera, webcam','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the screen_recorder field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_screen_recorder" => $state && isset($ac->text->palette_syn_screen_recorder) ? $ac->text->palette_syn_screen_recorder : esc_html__('screen, screencast, capture','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the address field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_address" => $state && isset($ac->text->palette_syn_address) ? $ac->text->palette_syn_address : esc_html__('address, street, city, postal code','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the payCheckbox field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_payCheckbox" => $state && isset($ac->text->palette_syn_payCheckbox) ? $ac->text->palette_syn_payCheckbox : esc_html__('products, price, payment','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the payRadio field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_payRadio" => $state && isset($ac->text->palette_syn_payRadio) ? $ac->text->palette_syn_payRadio : esc_html__('product, price, payment','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the prcfld field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_prcfld" => $state && isset($ac->text->palette_syn_prcfld) ? $ac->text->palette_syn_prcfld : esc_html__('price, amount','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the ttlprc field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_ttlprc" => $state && isset($ac->text->palette_syn_ttlprc) ? $ac->text->palette_syn_ttlprc : esc_html__('total, sum, cart','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the maps field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_maps" => $state && isset($ac->text->palette_syn_maps) ? $ac->text->palette_syn_maps : esc_html__('map, location, place','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the stripe field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_stripe" => $state && isset($ac->text->palette_syn_stripe) ? $ac->text->palette_syn_stripe : esc_html__('card, credit card, payment','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the paypal field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_paypal" => $state && isset($ac->text->palette_syn_paypal) ? $ac->text->palette_syn_paypal : esc_html__('payment','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the url field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_url" => $state && isset($ac->text->palette_syn_url) ? $ac->text->palette_syn_url : esc_html__('link, website','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the conturyList field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_conturyList" => $state && isset($ac->text->palette_syn_conturyList) ? $ac->text->palette_syn_conturyList : esc_html__('country, nation','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the stateProvince field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_stateProvince" => $state && isset($ac->text->palette_syn_stateProvince) ? $ac->text->palette_syn_stateProvince : esc_html__('state, province, region','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the cityList field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_cityList" => $state && isset($ac->text->palette_syn_cityList) ? $ac->text->palette_syn_cityList : esc_html__('city, town','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the esign field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_esign" => $state && isset($ac->text->palette_syn_esign) ? $ac->text->palette_syn_esign : esc_html__('signature, sign','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the switch field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_switch" => $state && isset($ac->text->palette_syn_switch) ? $ac->text->palette_syn_switch : esc_html__('toggle, on off','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the chlCheckBox field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_chlCheckBox" => $state && isset($ac->text->palette_syn_chlCheckBox) ? $ac->text->palette_syn_chlCheckBox : esc_html__('checklist, quantity','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the heading field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_heading" => $state && isset($ac->text->palette_syn_heading) ? $ac->text->palette_syn_heading : esc_html__('title, header','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the section field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_section" => $state && isset($ac->text->palette_syn_section) ? $ac->text->palette_syn_section : esc_html__('group, divider','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the color field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_color" => $state && isset($ac->text->palette_syn_color) ? $ac->text->palette_syn_color : esc_html__('colour, picker','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the rating field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_rating" => $state && isset($ac->text->palette_syn_rating) ? $ac->text->palette_syn_rating : esc_html__('stars, review, score','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the yesNo field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_yesNo" => $state && isset($ac->text->palette_syn_yesNo) ? $ac->text->palette_syn_yesNo : esc_html__('yes, no, confirm','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the link field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_link" => $state && isset($ac->text->palette_syn_link) ? $ac->text->palette_syn_link : esc_html__('button, url','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the html field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_html" => $state && isset($ac->text->palette_syn_html) ? $ac->text->palette_syn_html : esc_html__('code, custom content','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the pointr5 field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_pointr5" => $state && isset($ac->text->palette_syn_pointr5) ? $ac->text->palette_syn_pointr5 : esc_html__('score, points','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the pointr10 field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_pointr10" => $state && isset($ac->text->palette_syn_pointr10) ? $ac->text->palette_syn_pointr10 : esc_html__('score, nps, points','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the imgRadio field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_imgRadio" => $state && isset($ac->text->palette_syn_imgRadio) ? $ac->text->palette_syn_imgRadio : esc_html__('image choice, picture','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the pdate field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_pdate" => $state && isset($ac->text->palette_syn_pdate) ? $ac->text->palette_syn_pdate : esc_html__('jalali, shamsi, calendar','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the ardate field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_ardate" => $state && isset($ac->text->palette_syn_ardate) ? $ac->text->palette_syn_ardate : esc_html__('hijri, calendar','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the trmCheckbox field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_trmCheckbox" => $state && isset($ac->text->palette_syn_trmCheckbox) ? $ac->text->palette_syn_trmCheckbox : esc_html__('terms, consent, agree, privacy','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the ranking field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_ranking" => $state && isset($ac->text->palette_syn_ranking) ? $ac->text->palette_syn_ranking : esc_html__('order, sort, priority','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the calc field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_calc" => $state && isset($ac->text->palette_syn_calc) ? $ac->text->palette_syn_calc : esc_html__('calculation, formula, total','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the repeater field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_repeater" => $state && isset($ac->text->palette_syn_repeater) ? $ac->text->palette_syn_repeater : esc_html__('repeat, rows, add more','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the hiddenField field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_hiddenField" => $state && isset($ac->text->palette_syn_hiddenField) ? $ac->text->palette_syn_hiddenField : esc_html__('hidden, utm, tracking','easy-form-builder'),
+			/* translators: F15: builder palette search: other words for the table_matrix field, comma separated; write the words people use in your language (not a translation of each English word) */
+			"palette_syn_table_matrix" => $state && isset($ac->text->palette_syn_table_matrix) ? $ac->text->palette_syn_table_matrix : esc_html__('matrix, grid, likert','easy-form-builder'),
 			/* translators: F12: Settings > Captchas: a Turnstile key in the wrong format (it starts with 0x) */
 			"captchaKeyBad" => $state && isset($ac->text->captchaKeyBad) ? $ac->text->captchaKeyBad : esc_html__('This key does not look like a Cloudflare Turnstile key.','easy-form-builder'),
 			/* translators: F14: %s = number */

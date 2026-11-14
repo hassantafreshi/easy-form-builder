@@ -380,6 +380,9 @@ class Create {
 		wp_enqueue_script('efb-bootstrap-select-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/bootstrap-select.min-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
 		// window.efbBuilderApi for integrations (docs/autopilot-integration.md, B1/B2/B4).
 		wp_enqueue_script('efb-builder-api-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/builder-api-efb.js', array('Emsfb-admin-js', 'efb-val-js', 'efb-pro-els', 'efb-main-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/builder-api-efb.js'), true);
+		// F15: the palette search and the keyboard shortcuts (undo / redo, versions and export / import follow).
+		wp_enqueue_script('efb-productivity-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/productivity-efb.js', array('Emsfb-admin-js', 'efb-val-js', 'efb-main-js', 'efb-builder-api-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/productivity-efb.js'), true);
+		wp_enqueue_style('efb-productivity-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/productivity-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/css/productivity-efb.css'));
 
 		if ( isset( $addons['AdnSMF'] ) && (int) $addons['AdnSMF'] >= 1 ) {
 			wp_enqueue_style('efb-conditional-logic-css', EMSFB_PLUGIN_URL . 'vendor/logic/logic/assets/admin/css/conditional-logic-efb.css', array(), EMSFB_PLUGIN_VERSION);
