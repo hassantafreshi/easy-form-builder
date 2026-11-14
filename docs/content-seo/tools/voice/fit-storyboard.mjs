@@ -11,7 +11,9 @@
  *   "pay-click-0.5"): it is placed where that chapter falls in the fitted scene (offset in output seconds), so zooms
  *   and callouts stay on the real click whatever playback speed the narration forces.
  * - the voice-over starts `lead` seconds into the video (the intro); the SRT is written on that same clock.
- * - `captions.srt` of the fitted storyboard points at the SRT so Remotion can burn captions in.
+ * - the SRT is always written (it becomes the YouTube caption track). Captions are burned into the picture only when
+ *   the storyboard sets `captions.burn: true` (default off: subtitles-spec.md, captions are separate tracks; a burned
+ *   English line would collide with the DE/AR/FA tracks YouTube draws in the same bottom zone).
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -70,7 +72,7 @@ for (const s of sb.scenes) {
 }
 const total = sb.scenes.reduce((t, s) => t + (s.dur ?? 0), 0);
 fs.writeFileSync(a.srt, toSrt(timing.sentences, { offset: lead }));
-sb.captions = { srt: path.resolve(a.srt), style: sb.captions?.style || 'bar' };
+sb.captions = sb.captions?.burn === true ? { srt: path.resolve(a.srt), style: sb.captions.style || 'bar' } : null;
 sb.meta.fitted = { lead, audio_seconds: timing.duration, scenes_total_seconds: +total.toFixed(2) };
 fs.writeFileSync(a.out, JSON.stringify(sb, null, 2));
 console.log(report.join('\n'));

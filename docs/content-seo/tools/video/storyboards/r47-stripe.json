@@ -31,7 +31,8 @@
   },
   "captions": {
     "srt": null,
-    "style": "bar"
+    "style": "bar",
+    "burn": false
   },
   "scenes": [
     {

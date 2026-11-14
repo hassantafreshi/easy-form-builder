@@ -1,0 +1,65 @@
+1
+00:00:00,000 --> 00:00:02,720
+Stripe-Zahlungen mit einem
+WordPress-Formular.
+
+2
+00:00:02,800 --> 00:00:06,980
+Das Stripe-Add-on läuft im Plan
+Free Plus, ohne Pro-Lizenz.
+
+3
+00:00:07,060 --> 00:00:08,320
+Ganz ohne Lizenz.
+
+4
+00:00:08,400 --> 00:00:11,840
+Öffne „Add-ons“ und installiere
+„Stripe Payment Add-on“.
+
+5
+00:00:11,920 --> 00:00:16,847
+Geh zu Panel › Settings › Payments
+und füge Public Key und
+
+6
+00:00:16,927 --> 00:00:20,360
+Secret Key ein.
+Klicke auf „Save“.
+
+7
+00:00:20,440 --> 00:00:23,000
+Unter „Create“: „Payment Form“.
+
+8
+00:00:23,080 --> 00:00:28,980
+Füge Name, Email und ein Feld
+„Payment Single Choose“ mit Preisen hinzu.
+
+9
+00:00:30,380 --> 00:00:34,880
+Dann das Feld „Stripe“ hinzufügen
+und mit „Save“ den Shortcode holen.
+
+10
+00:00:34,960 --> 00:00:37,120
+Shortcode auf eine Seite setzen.
+
+11
+00:00:37,200 --> 00:00:42,540
+Besucher wählen eine Option, geben
+die Karte ein und klicken „Pay Now“.
+
+12
+00:00:43,940 --> 00:00:48,053
+Jede Zahlung wird auf deinem Server
+mit Stripe geprüft und erscheint
+
+13
+00:00:48,133 --> 00:00:49,700
+unter „Stripe Payments“.
+
+14
+00:00:49,780 --> 00:00:54,700
+Easy Form Builder gibt es kostenlos
+auf WordPress.org.

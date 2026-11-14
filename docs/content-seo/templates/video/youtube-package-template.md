@@ -40,6 +40,8 @@ files:
 
 *Formulas (playbook section 2): Task, Fix, Integration, Comparison, Alternative, Migration, Release. No year, no emoji, no brand unless it is a brand query.*
 
+**Owner rule (2026-11-14): plan visibility.** When the feature works on **Free** or **Free Plus**, the words `Free` / `Free Plus` go in the title (e.g. `Free Stripe Payment Form in WordPress in 60 Seconds (Free Plus)`), in the thumbnail chip (`FREE PLUS`) and in description line 1, so viewers see at once that it costs nothing. Add the explainer line right after the link: `Free Plus is free of charge: it only adds a small "Powered by Easy Form Builder" credit on the page with the form.` (source: `readme.txt`), plus any third-party fee note (Stripe/PayPal fees). Never write `Free` for a Pro-only feature.
+
 ## 2. Description (English, 150 to 300 words)
 
 *Paste exactly the text between the lines. The first 150 characters must contain the primary keyword, the outcome and the article link.*
@@ -240,6 +242,8 @@ Decision rules are in the playbook, sections 14 and 17.
 ## 14. Pre-upload checklist
 
 - [ ] Title <= 70 characters, keyword in the first 40, no unverified claim ("free", "no add-on", "without Zapier" checked for 4.3.1).
+- [ ] Free / Free Plus feature: `Free` or `Free Plus` in title, thumbnail chip and description line 1, with the Free Plus explainer line (owner rule).
+- [ ] Video has **no burned-in captions** (storyboard `captions.burn` absent or false); captions are the uploaded SRT tracks.
 - [ ] First 150 characters of the description carry keyword + outcome + UTM article link.
 - [ ] Chapters: >= 3, first 0:00, each >= 10 s, last start < duration.
 - [ ] 3 hashtags; 5 to 8 tags; `Ref:` last line.

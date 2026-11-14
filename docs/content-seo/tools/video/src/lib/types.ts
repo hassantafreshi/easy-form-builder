@@ -41,7 +41,7 @@ export type Scene = IntroScene | OutroScene | ScreenScene;
 export type Storyboard = {
   meta: { title: string; fps?: number; brand?: Partial<Brand>; portraitZoom?: number };
   assets: Record<string, AssetRef>;
-  captions?: { srt: string; style?: 'bar' | 'plain' } | null;
+  captions?: { srt: string | null; style?: 'bar' | 'plain'; burn?: boolean } | null; // burn defaults to false (separate caption tracks)
   scenes: Scene[];
 };
 
