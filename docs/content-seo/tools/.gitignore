@@ -9,6 +9,7 @@ pipeline/output/
 secrets/*
 !secrets/secrets.env.enc
 !secrets/load-secrets.sh
+!secrets/update-secret.sh
 *.env
 !*.env.example
 *.webm
