@@ -592,6 +592,17 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 * New: A second webhook address (/?efb_pay_webhook=…) for hosts that block the WordPress REST API for visitors.
 * Fixed: A payment refunded at the gateway before the site saw it paid stayed "pending" forever; a gateway answer about another payment made the gateway resend its webhook for a day; the payment method of a pending payment was not saved.
 * Changed: The payment framework ships no gateway: the Payments menu and the payment field appear once a gateway add-on is active.
+* New (entries): The entries of a form load page by page from the server (20, 50 or 100), with tabs and counts (All, Unread, Starred, Payment pending, Closed, Spam, Trash), search (tracking code, answers, replies and notes) and a date range. Free Plus adds up to three conditions on answers and your own columns.
+* New (entries): Star an entry, mark it as spam, move it to the trash with Undo, restore it or delete it permanently; select one page or every result. The trash empties itself after 30 days (Settings → Privacy; 0 = never).
+* New (entries): Internal notes on an entry (only administrators see them) and a history of every change: who starred, moved, edited, resent or exported, and when.
+* New (entries, Free Plus): Edit an entry. The same checks as the form run on the server; calculations are computed again; a paid entry keeps the amount charged; a choice the form no longer has is kept; replace or remove files; a reason goes into the history; a change made meanwhile by someone else is never overwritten.
+* New (entries, Free Plus): Resend an entry's notification as it was sent, to the administrator only, to the visitor only, or (administrators) to other addresses; up to five times an hour per entry.
+* New (entries): Export to CSV from the server with the columns, dates, status and filters you choose, in batches, with no column limit; Excel (XLSX) on Free Plus. Cells that start with =, +, - or @ are made safe.
+* New (entries): Print one entry or up to 50, one per page, with or without the notes.
+* New (entries, Free Plus): Statistics per form: views, submissions, spam and conversion for 7, 30 or 90 days; the dashboard widget lists your most viewed forms.
+* New (entries): AI assistants (SitePilot AI) can read entries or only statistics when you allow it in Settings → Privacy (off by default); personal answers are hidden from them unless an administrator asks.
+* Fixed: Deleting an entry from the list removed an unrelated form from the forms list instead; the entries list showed times shifted by the site's time zone; two fields with the same label shared one CSV column.
+* Developers: database version 1.10 (entry_status, starred, trashed_at, edited_at; tables emsfb_msg_notes_, emsfb_msg_log_, emsfb_stats_); hooks efb_entry_updated, efb_entry_status_changed, efb_entries_purged, efb_api_entries_read; filters efb_entries_plan, efb_trash_days, efb_export_sync_max, efb_api_entries_per_minute, efb_api_entry_row; read-only functions efb_api_entries_query, efb_api_entry_get, efb_api_entries_stats and REST GET Emsfb/v1/admin/forms/{id}/entries; see docs/feature-gaps/F14-entries-management.fa.md.
 
 = 4.3.1 =
 

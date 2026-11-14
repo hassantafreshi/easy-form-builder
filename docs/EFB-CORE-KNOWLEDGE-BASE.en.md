@@ -127,6 +127,7 @@ A message's `content` column is a JSON object of submitted values, generally str
 - Gutenberg block editor has its own tiny surface: `efb/v1/forms` (list forms for the inserter), `efb/v1/preview/{id}` (live preview), both gated by `check_edit_permission`.
 
 ### AJAX actions worth knowing (admin-only, `admin-ajax.php`)
+Plugin (F14, entries; see §10.2): `efb_entries_query_Emsfb`, `efb_entries_bulk_Emsfb`, `efb_entry_get_Emsfb`, `efb_entry_notes_Emsfb`, `efb_entry_update_Emsfb`, `efb_entry_resend_Emsfb`, `efb_form_stats_Emsfb`, download `admin-post.php?action=efb_export_entries`.
 Plugin (F02, administrators only): `efb_verify_settings_Emsfb` (Settings → Verification, op get/save), `efb_verify_test_send_Emsfb` (a test code, counted in the daily budget).
 Plugin: `add_form_Emsfb`, `update_form_Emsfb`, `get_form_id_Emsfb`, `remove_id_Emsfb`, `remove_message_id_Emsfb`, `get_messages_id_Emsfb`, `get_all_response_id_Emsfb`, `update_message_state_Emsfb`, `set_replyMessage_id_Emsfb`, `set_settings_Emsfb`, `get_track_id_Emsfb`, `clear_garbeg_Emsfb`, `check_email_server_efb`, `add_addons_Emsfb`, `remove_addons_Emsfb`, `update_file_Emsfb`, `send_sms_pnl_efb`, `dup_efb`, `remove_messages_Emsfb`, `read_list_Emsfb`, `heartbeat_Emsfb`, `report_problem_Emsfb`, `efb_save_plan_selection`, `emsfb_recover_addons`, `efb_dashboard_stats`, `efb_dashboard_email_errors`, `efb_toggle_development_mode`.
 Addon-owned: Telegram (`test_telegram_connection_efb`, `send_telegram_test_efb`, `save_telegram_settings_efb`, `load_telegram_activity_efb`, `clear_telegram_activity_efb`, `send_telegram_admin_efb`, `verify_telegram_bot_efb`, `telegram_activate_efb`, `send_business_telegram_efb`, `telegram_check_status_efb`), Autofill (`handle_dataset_autofilled_efb`, `efb_save_api_connection`, `efb_test_api_connection`, `efb_delete_api_connection`, `efb_get_api_connections`, `efb_toggle_api_connection`, `efb_get_forms_with_fields`, `efb_get_autofill_list`), Human Shield (`efb_human_shield_save_settings`, `efb_human_shield_load_logs`, `efb_human_shield_clear_logs`, `efb_human_shield_export_logs`), Google Sheet (15 `efb_gs_*` actions covering global settings, connections, sheets/tabs, bindings, templates, logs), Stripe (`efb_stripe_get_payments`, `_get_payment_detail`, `_refund_payment`, `_cancel_subscription`), PayPal (`efb_paypal_get_payments`, `_get_payment_detail`, `_refund_payment`, `_cancel_subscription`, `_suspend_subscription`, `_reactivate_subscription`, `_get_subscription_detail`).
@@ -285,6 +286,33 @@ static, loaded and `register()`ed from `Emsfb::includes()` on every request). De
 
 Tests: `tests/test-privacy-*.php`, `tests/test-privacy-admin-js.js`, `tests/test-upload-path-from-url.php`, and
 scenario 8 of `tests/e2e-wp/run.js` (real WordPress).
+
+### 10.2 Entries management (F14, DB version 1.10)
+
+Spec: `docs/feature-gaps/F14-entries-management.fa.md`. Code: `includes/admin/class-Emsfb-entries.php`
+(`\Emsfb\Entries`, static, loaded and `register()`ed from `Emsfb::includes()` on every request: its cron jobs,
+the view / submit counts and the API run outside wp-admin), `includes/admin/class-Emsfb-xlsx-writer.php`,
+`includes/admin/entries-api-functions.php`, `includes/admin/assets/js/entries-efb.js` (+ `css/entries-efb.css`).
+`EMSFB_DB_VERSION` is the **string** `'1.10'` (a float 1.10 is 1.1 and compares before 1.9).
+
+| Piece | Where / name |
+|---|---|
+| Columns | `emsfb_msg_.entry_status` (TINYINT 0 active / 1 spam / 2 trash), `starred`, `trashed_at`, `edited_at`; keys `form_status_date`, `read_`. `read_` 0–4 is unchanged (never overloaded) |
+| Tables | `emsfb_msg_notes_` (internal notes, plain text ≤ 5000), `emsfb_msg_log_` (history: edit, status, star, read, resend, export, note_del, api_read; no addresses), `emsfb_stats_` (form_id, day, views, submits, spam) |
+| Settings (`emsfb_setting`) | `trash_days` (default 30, 0 = never), `ai_entries_access` off / stats / rows (default off); administrators only |
+| AJAX (nonce `wp_rest` + `manage_options` or `Emsfb`) | `efb_entries_query_Emsfb`, `efb_entries_bulk_Emsfb`, `efb_entries_cols_Emsfb`, `efb_entry_get_Emsfb`, `efb_entry_notes_Emsfb`, `efb_entries_export_check_Emsfb`, `efb_entries_print_Emsfb`, `efb_form_stats_Emsfb`, `efb_entry_update_Emsfb`, `efb_entry_upload_Emsfb`, `efb_entry_resend_Emsfb`; download `admin-post.php?action=efb_export_entries` (`check_admin_referer('efb_export')`) |
+| Edit | `Entries::update()` → `_Public::validate_rows_efb($form, $rows, ['admin_edit'=>true])` (the submit's own field loop, extracted unchanged), F03 claims, F05 places, F04 recompute; content hash = optimistic lock (`efb_entry_conflict`); paid entries: price inputs and calcs read-only |
+| Resend | `_Public::resend_entry_notification_efb($msg_id, $target, $emails)` (stored rows → `email_status_efb()` → `send_email_Emsfb_()`, rules re-evaluated, F08 context from the entry); 5 / hour / entry (transient `efb_rs_{id}`) |
+| Read-only API | `efb_api_entries_query`, `efb_api_entry_get`, `efb_api_entries_stats`; REST `GET Emsfb/v1/admin/forms/{id}/entries`, `admin/entries/{msg_id}`, `admin/forms/{id}/stats`; personal answers `[redacted]` unless `include_pii` + `manage_options` |
+| Hooks fired | `efb_entry_updated($msg_id, $old_rows, $new_rows)`, `efb_entry_status_changed`, `efb_api_entries_read($user_id, $form_id, $count, $context)`; uses `efb_entries_purged` (prio 15: notes and history go with the entry) and `emsfb_daily_maintenance` (35 trash job, 36 api_read log) |
+| Filters | `efb_entries_plan`, `efb_trash_days`, `efb_export_sync_max` (20000), `efb_xlsx_force_store`, `efb_entry_get_answer`, `efb_api_entries_per_minute` (60), `efb_api_entry_row`, `efb_api_read_log_days` (90) |
+| Registry | `setting:entries_filter/_columns/_stats/_xlsx/_resend/_edit` (Free Plus), `setting:entries_print_nobrand` (Pro), `setting:entries_ai` (free); `capabilities.entries` (efb_capabilities priority 28) |
+
+Readers of `emsfb_msg_` that count only active entries: unread counts, admin menu count, survey results, public
+tracking (spam / trash → "not found"). F11 totals, payments, esign and the file sweeper keep every entry.
+Tests: `tests/test-entries-*.php`, `tests/test-entry-edit.php`, `tests/test-entry-resend.php`,
+`tests/test-xlsx-writer.php`, `tests/test-export-csv-parity.php`, `tests/test-validate-rows-parity.php`,
+`tests/test-entries-list-render.js`, e2e scenarios `f14a`–`f14j` (`tests/e2e-wp/scenario-f14.js`).
 
 ---
 

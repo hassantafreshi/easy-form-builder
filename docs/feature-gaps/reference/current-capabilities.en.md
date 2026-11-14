@@ -174,21 +174,29 @@ location picker, dev mode.
 | Steps / progress options | yes | step styles, progress styles, colours, icons |
 | Tracking-code styles | yes | 7 styles (§3) |
 | Email templates | yes | global template + builder; per-form `email_temp` key exists but is empty in all defaults |
-| Entry statuses | yes, fixed | `read_` 0 new, 1 read, 2 pending payment, 3 new reply, 4 closed (playbook §6) |
-| CSV export | yes, free | per form (`list_form-efb.js:3607-3816`, ~100 column cap) and per entry (`generateCSV_EFB`) |
-| PDF export | yes, Free Plus/Pro | `generatePDF_EFB` (`response-viewer-efb.js:1226`), printed from the entry card |
+| Entry statuses | yes, fixed | `read_` 0 new, 1 read, 2 pending payment, 3 new reply, 4 closed (playbook §6); F14 adds `entry_status` 0 active / 1 spam / 2 trash and `starred` (DB 1.10) |
+| CSV export | yes, free | F14: from the server (`admin-post.php?action=efb_export_entries`, `Entries::admin_post_export`), batches of 500, chosen columns, filters, no column limit; per entry `generateCSV_EFB` |
+| XLSX export | yes, Free Plus | F14: `includes/admin/class-Emsfb-xlsx-writer.php` (no library) |
+| PDF / print | yes, every plan | `generatePDF_EFB` (`response-viewer-efb.js`) from the entry card; F14 prints up to 50 entries, one per page. The "made with" line is removed on Pro only (the button itself was never gated) |
 | Response box / replies | yes | `emsfb_rsp_`; admin and visitor replies, attachments, close/reopen (`closed_resp_emsFormBuilder`, `pro_els-efb.js:609`) |
 | Dashboard stats | yes | WP dashboard widget (`class-Emsfb-dashboard-widget.php`, AJAX `efb_dashboard_stats`, `efb_dashboard_email_errors`) plus the weekly email report |
 
 ## 5. Entry management: what exists and what does not
 
-Exists: list per form (all rows, newest first, content preview), open/read, bulk read, delete and bulk delete,
-tracking-code search, threaded replies with attachments, close/reopen ticket, CSV (form and entry), PDF,
-survey charts (`convert_to_dataset_emsFormBuilder`, `list_form-efb.js:3816`), payment details in the entry.
+Exists: list per form, open/read, bulk read, delete and bulk delete, tracking-code search, threaded replies with
+attachments, close/reopen ticket, CSV (form and entry), PDF, survey charts (`convert_to_dataset_emsFormBuilder`),
+payment details in the entry.
 
-Does not exist (grep for `resend`, `starred`, `note` found nothing relevant): entry notes, star/flag,
-edit entry, resend notification, export filters (date range, field), server-side pagination, custom statuses
-or tags, entry assignment.
+F14 (`includes/admin/class-Emsfb-entries.php`, `includes/admin/assets/js/entries-efb.js`, DB 1.10) adds:
+server-side pages (20 / 50 / 100) with status tabs and counts, search, date range and up to three field
+conditions, columns per person, star, spam, trash with Undo and a daily trash job, bulk actions on a page or on
+all results, internal notes and a history of changes, edit through the submit's own checks (history, conflict,
+calculations recomputed, paid amounts locked), resend notification, server CSV / XLSX export, print of up to 50
+entries, per-form statistics (views, submissions, conversion) and a read-only entries API for assistants
+(`efb_api_entries_query`, off by default: setting `ai_entries_access`).
+
+Does not exist: custom statuses or tags, entry assignment, approval workflow, sequential entry numbers
+(F14 §15, phase 2).
 
 ## 6. Integrations and hooks already available
 

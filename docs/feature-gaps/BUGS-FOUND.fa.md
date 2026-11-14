@@ -19,7 +19,7 @@
 | متوسط | IP خام در فایل trace و `debug.log` نوشته می‌شود. پنهان‌سازی فقط روی ایمیل‌ها انجام می‌شود. | `includes/class-Emsfb-public.php:3618` | F13 — **رفع شد (F13-B)**: trace با `Privacy::log_ip()` و `Email_Trace::redact_pii()` هر کلید `ip` را ناشناس می‌کند. تست `tests/test-privacy-ip-mode.php` |
 | متوسط | ردیف‌های خروجی همهٔ فرم‌ها برای همیشه در `localStorage.rows_ws_p` مرورگر مدیر باقی می‌مانند. | `includes/admin/assets/js/list_form-efb.js:3746` | F13، F14 — **رفع شد (F13-E)**: ردیف‌ها در حافظهٔ همان صفحه می‌مانند و نسخهٔ قدیمی `rows_ws_p` پاک می‌شود. تست `tests/test-privacy-admin-js.js` |
 | متوسط | رمز عبورِ فیلد password در فرم عادی به‌صورت متن ساده در `emsfb_msg_.content` ذخیره می‌شود. | مسیر ذخیرهٔ پاسخ | F03 (پرسش باز ۱) |
-| کم | عبارت جست‌وجوی سراسری بدون escape در `LIKE` قرار می‌گیرد و `%` و `_` مثل wildcard عمل می‌کنند. | `includes/admin/class-Emsfb-admin.php:1953` | F14 |
+| کم | عبارت جست‌وجوی سراسری بدون escape در `LIKE` قرار می‌گیرد و `%` و `_` مثل wildcard عمل می‌کنند. | `includes/admin/class-Emsfb-admin.php:1953` | F14 — **رفع شد (F14-B)**: `esc_like` |
 | کم | نام فایل‌های آپلودی با `str_shuffle` ساخته می‌شود که تصادفی امن نیست. | `includes/class-Emsfb-public.php:4858`، `5462`؛ `includes/admin/class-Emsfb-admin.php:3558` | F07 — **رفع شد (F07-B)**: `wp_generate_password(12, false, false)` در هر سه نقطه |
 | کم | عبارت جست‌وجوی Nominatim URL-encode نمی‌شود. reverse geocoding برای هر نشانگر بدون کش و محدودیت ارسال می‌شود و قوانین استفادهٔ OSM را نقض می‌کند. | `includes/admin/assets/js/pro_els-efb.js:1401`، `1445`، `1515`، `1572` | F17 |
 | کم | مقدار ارسالی فیلدهای کشور، استان و شهر در سرور با گزینه‌های ذخیره‌شده مقایسه نمی‌شود. | `includes/class-Emsfb-public.php:3138-3152` | F17 |
@@ -373,3 +373,19 @@
 | کم | افزونهٔ Google Sheets هر ردیف یک فیلد را روی سلول قبلی می‌نوشت (برای فیلد تکرارشونده فقط ردیف آخر می‌ماند). | `vendores-efb/googlesheet/class-Emsfb-googlesheet.php` | **رفع شد (F09-L)**: ردیف‌ها با ` \| ` در یک سلول. تست `tests/test-addon-googlesheet-repeater.php` |
 | کم | تست‌های مرورگری که `new-efb.js` را بی `efb_var.language` بار می‌کنند گاهی خطای `slice` در تایمر `efb_var_waitng` می‌گیرند (وابسته به زمان). | `includes/admin/assets/js/new-efb.js:57` | **یادداشت**: harness تست‌های F09 `language` را می‌دهد |
 | کم | پیش‌نویس F11 فقط شناسه‌های فرم را نگه می‌دارد؛ شناسهٔ مجازی ردیف (`{child}_r{n}`) دور ریخته می‌شد. | `includes/class-Emsfb-drafts.php` | **پیشگیری شد (F09-M)**: پیش‌نویس به شکل ارسال (`rg`/`ri`) ذخیره می‌شود. تست `tests/test-repeater-restore-browser.js`، e2e `f09m` |
+
+## F14: مدیریت پاسخ‌ها (۲۰۲۶-۱۱-۱۴)
+
+| شدت | مشکل | محل | وضعیت |
+|---|---|---|---|
+| متوسط | حذف یک پاسخ در فهرست، فرمی را که `form_id` آن برابر شناسهٔ پاسخ بود از فهرست محلی فرم‌ها برمی‌داشت و پاسخ در جدول می‌ماند. | `list_form-efb.js` (`fun_confirm_remove_message_emsFormBuilder`) | **رفع شد (F14-C)** |
+| متوسط | `get_messages_id_Emsfb` کوئری را بی `prepare` می‌ساخت و تاریخ ذخیره‌شده به وقت سایت را UTC می‌خواند (جابه‌جایی ساعت در فهرست). | `class-Emsfb-admin.php` | **رفع شد (F14-B)**: prepare، die پس از خطا، تاریخ در منطقهٔ سایت، اسپم و سطل بیرون |
+| کم | `update_message_state_Emsfb` پرچم JSON را به `isHTML()` می‌داد و با `&&` فقط وقتی رد می‌کرد که id خالی **و** HTML بود. | `class-Emsfb-admin.php` | **رفع شد (F14-B)** |
+| کم | CSV فرم ستون‌ها را با برچسب می‌ساخت؛ دو فیلد هم‌نام یک ستون می‌شدند و یکی بازنویسی می‌شد. | `list_form-efb.js` | **رفع شد (F14-H)**: خروجی سمت سرور با ستون بر اساس `id_` |
+| کم | `EMSFB_DB_VERSION` عددی است؛ `1.10` همان `1.1` خوانده می‌شد و version_compare آن را پیش از `1.9` می‌گذاشت (ارتقا هرگز اجرا نمی‌شد). | `emsfb.php` | **پیشگیری شد (F14-A)**: رشتهٔ `'1.10'` |
+| کم | `tests/test-response-viewer-hostile-rows-browser.js` پیش از F14 شکست می‌خورد (`efbOrderOf` بار نمی‌شد؛ تصویر F07 دو نشانی دارد). | تست | **رفع شد (F14-D)** |
+| کم | نتایج نظرسنجی، صفحهٔ پیگیری عمومی و شمارهٔ خوانده‌نشده‌ها پاسخ‌های اسپم و سطل را هم می‌شمردند (پس از F14). | `class-Emsfb-public.php`، `class-Emsfb-panel.php` | **پیشگیری شد (F14-B)**: فقط پاسخ‌های فعال؛ پیگیری پاسخ اسپم یا سطل «پیدا نشد» |
+| کم | نتایج جست‌وجوی سراسری (UNION) تاریخ خام برمی‌گردانند، ولی فهرست تاریخ نمایشی دارد. | `class-Emsfb-admin.php` (جست‌وجوی سراسری) | باز |
+| کم | ویجت داشبورد فقط برای `manage_options` است و نقش `Emsfb` آن را نمی‌بیند. | `class-Emsfb-dashboard-widget.php` | باز (تصمیم مالک) |
+| کم | CSS پیشخوان هر `label input[type=radio].efb` را پنهان می‌کند؛ رادیوی داخل برچسب در پنجره‌های تازه دیده نمی‌شد. | `admin-efb.css` | دور زده شد (F14): رادیو بیرون از برچسب |
+

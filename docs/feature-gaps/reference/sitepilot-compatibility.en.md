@@ -1065,9 +1065,9 @@ Registry: `setting:upload_multi`, `upload_capture`, `upload_resize`, `upload_med
 `save_warnings`, `require_token`). `forms/{id}/schema` gives an upload field `assistant: 'visitor_only'`,
 `fill: {api: 'visitor_only'}` and `upload: {accept, max_files, min_files, max_mb, max_total_mb}` (never the
 storage mode or a path). Submit refusals: `efb_file_max_files`, `efb_file_min_files`, `efb_file_max_total`,
-`efb_file_not_owned`, `efb_file_invalid` with `field_id`. An `entries.read` route does not exist in core yet;
-when it is built it must give `fnm` and `fsz` only and never a private file's address (the stored rows
-already carry `fnm` and the server's `fsz`; `ut` is never stored).
+`efb_file_not_owned`, `efb_file_invalid` with `field_id`. `entries.read` (F14) gives a file's `fnm` and `fsz`
+only (and only when the answer is not personal or `include_pii` is allowed), never a URL, and nothing for a
+private file (`ut` is never stored).
 
 **F08 hidden fields and smart tags.** Create: `hiddenField` with template `value`,
 `hdn_visitor_mail`, `prefill_key`, `prefill_lock`; tags in labels/placeholders. Fill: hidden is
@@ -1140,6 +1140,13 @@ those APIs.
 **F14 entries management.** Provides `entries.read`: `efb_entries_query` logic reused by
 `efb_api_entries_query`; `emsfb_stats_` for `ai_entries_access: stats`; `emsfb_msg_log_` audit row
 for API reads. Conflict C1 on `entry_status`. No API write to entries in v1.
+*Shipped (2026-11-14, DB 1.10):* `efb_api_entries_query`, `efb_api_entry_get`, `efb_api_entries_stats` and REST
+`GET admin/forms/{id}/entries`, `admin/entries/{msg_id}`, `admin/forms/{id}/stats` as §5.5 says (off by default,
+`[redacted]` by `prv_pii` unless `include_pii` + `manage_options`, `stored: false`, `api_read` audit row and
+`efb_api_entries_read`, 60 / min, `efb_api_rate_limited` 429). `entry_status` is F14's TINYINT (0 / 1 / 2); the
+API gives `active|spam|trash`. Registry: `capabilities.entries.api`, `setting:entries_ai`. Not in core yet:
+`efb_api_manifest` (the `entries_api` block above waits for it) and `efb_api_permission()` (the routes check
+the entries capability themselves).
 
 **F15 builder productivity.** Provides the backbone: `insert_form_structure_efb()`,
 `normalize_import_rows_efb()`, `remap_import_ids_efb()`, the export envelope (the create body is one
@@ -1217,7 +1224,7 @@ submit-side effect.
 4. Draft status in render/submit (with F11's gate).
 5. `efb_api_form_update` (patch ops, `base_hash`) once F15 revisions exist.
 6. Public schema extensions and `window.EFBForm` (after F06 sub-task F).
-7. `entries.read` after F14 (and C1 resolved).
+7. `entries.read` after F14 (and C1 resolved). **Done** (F14, 2026-11-14; F14 side of C1: TINYINT).
 
 Tests to add with each step: builder-save vs API byte equality; unknown-key round trip through a
 patch; plan gating per tier (1/2/3/0/-1); secret-key refusal; idempotent replay; `base_hash`

@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 · تلاش: L · وابستگی: — (ایندکس‌ها، ستون `uid` و تابع حذف مشترک از F13 گرفته می‌شوند. اگر F13 هنوز ادغام نشده باشد، زیرتسک A همان گام‌های F13 §۵.۴ را اجرا می‌کند.)
+وضعیت: پیاده‌سازی شد (۱۴۰۵/۰۸/۲۳، شاخهٔ dev4، DB 1.10؛ زیرتسک‌های A تا J، API فقط‌خواندنی دستیار، فهرست عبارت‌ها؛ ترجمه به دستور مالک انجام نشد) · اولویت: P0 · تلاش: L · وابستگی: — (ایندکس‌ها، ستون `uid` و تابع حذف مشترک از F13 گرفته می‌شوند. اگر F13 هنوز ادغام نشده باشد، زیرتسک A همان گام‌های F13 §۵.۴ را اجرا می‌کند.)
 
 # F14 — مدیریت پاسخ‌ها
 
@@ -367,152 +367,152 @@ CREATE TABLE {p}emsfb_stats_ (
 - پذیرش: ستون‌ها و سه جدول در نصب تازه و ارتقا ساخته می‌شوند و اجرای دوباره بی‌اثر است. پرکردن اولیهٔ `emsfb_stats_` در یک رویداد تکی اجرا می‌شود.
 - تست: `php tests/test-entries-schema.php` (الگوی `tests/test-telegram-schema.php`).
 
-> **Checkpoint**
-> فایل‌های تغییرکرده:
-> تست‌ها:
-> وضعیت ترجمه:
-> مورد باز:
-> اقدام بعدی:
+> **Checkpoint** (انجام شد، 528d80e4)
+> فایل‌های تغییرکرده: `includes/admin/class-Emsfb-entries.php` (ddl، upgrade_msg_table، backfill)، `includes/class-Emsfb-install.php`، `emsfb.php` (`EMSFB_DB_VERSION` = رشتهٔ `'1.10'`؛ عدد 1.10 همان 1.1 است و version_compare آن را پیش از 1.9 می‌گذارد)، `docs/migrations/f14-entries-2026-11-14.md`.
+> تست‌ها: `tests/test-entries-schema.php` (۳۸). همهٔ ستون‌ها و کلیدها در یک ALTER (جدول بزرگ حداکثر یک بار بازسازی می‌شود)؛ پرکردن آمار در یک رویداد cron جدا، دسته‌های ۵۰۰۰تایی.
+> وضعیت ترجمه: عبارتی ندارد.
+> مورد باز: —
+> اقدام بعدی: B
 
 ### B. کوئری فهرست، صفحه‌بندی و فیلترها (سرور)
 - فایل‌ها: `includes/admin/class-Emsfb-entries.php` (`query`، `build_where`، `post_filter`، `counts`)، ثبت در `class-Emsfb-admin.php:39-70`، و `get_messages_id_Emsfb` (فیلتر `entry_status=0`، `prepare`، و `die` پس از خطای 1418).
 - پذیرش: صفحه‌بندی درست (بدون تکرار و جاافتادگی هنگام تغییر داده بین صفحه‌ها، با مرتب‌سازی `date, msg_id`). مرز تاریخ در منطقهٔ زمانی سایت درست است. `q` با `%` و `_` لفظی جست‌وجو می‌کند. `eq` روی چک‌باکس چندگزینه‌ای درست است. پیمایش با ۵۰۰۰ ردیف متوقف می‌شود و `total_is_estimate` می‌دهد. تزریق در `conds` بی‌اثر است.
 - تست: `php tests/test-entries-query.php` (stub ‏`$wpdb` که SQL آماده را ضبط می‌کند، به‌علاوهٔ fixture محتوای escaped واقعی برای پس‌فیلتر)، و `php tests/test-entries-query-wp.php` (WP، `[SKIP]`؛ seed ‏`tests/seed-entries-bulk.php` با ۲۰ هزار ردیف و زمان‌سنجی).
 
-> **Checkpoint**
-> فایل‌های تغییرکرده:
-> تست‌ها:
-> وضعیت ترجمه:
-> مورد باز:
-> اقدام بعدی:
+> **Checkpoint** (انجام شد، dfc88df3)
+> فایل‌های تغییرکرده: `Entries::query/args/build_where/post_match/counts`، `class-Emsfb-admin.php` (§۱۸: `get_messages_id_Emsfb` با prepare و die، esc_like جست‌وجوی سراسری، isHTML)، `class-Emsfb-panel.php` و `class-Emsfb-public.php` (شمارش‌ها، پیگیری عمومی و نتایج نظرسنجی فقط پاسخ‌های فعال).
+> تست‌ها: `tests/test-entries-query.php` (۶۱)، `tests/test-entries-query-wp.php` (۱۸ روی سایت e2e با ۲۰٬۰۰۰ پاسخ؛ صفحهٔ ۵۰ حدود ۵۰ میلی‌ثانیه)، e2e ‏f14a (۹).
+> وضعیت ترجمه: فهرست عبارت‌ها در K.
+> مورد باز: —
+> اقدام بعدی: C
 
 ### C. فهرست در پیشخوان: زبانه‌ها، فیلتر، صفحه‌بندی، ستون‌ها، ستاره، سطل و اسپم
 - فایل‌ها: `list_form-efb.js` (872، 533-652، 441-448، 5023-5075)، `response-viewer-efb.js` (ستاره و نشان)، CSS پیشخوان و `admin-rtl-efb.css`، `Entries::bulk`، AJAX ستون‌ها (`efb_entries_cols_Emsfb`، user meta)، و اتصال حذف همیشگی و پاک‌سازی خودکار سطل به `Privacy::purge_entries` و cron ‏F13.
 - پذیرش: همهٔ رفتارهای §۴.۱. «واگرد» کار می‌کند. شمارنده‌های پنل (`class-Emsfb-panel.php:410`، 455-466) سطل و اسپم را نمی‌شمارند. حذف تکی دیگر فهرست فرم‌ها را خراب نمی‌کند. صفحه در fa (RTL) و en و در عرض 375px درست است.
 - تست: `node tests/test-entries-list-render.js` (بیرون کشیدن رندرکننده با regex و `new Function`، الگوی `tests/test-response-viewer-escaping.js`؛ ستون‌ها، escape، `data-label`)، و Playwright ‏`tests/test-entries-list-browser.js` (فیلتر، صفحه، ستاره، سطل، بازگردانی، اسکرین‌شات fa/en در `tests/screenshots/`). `node tests/test-response-viewer-escaping.js` دوباره اجرا شود.
 
-> **Checkpoint**
-> فایل‌های تغییرکرده:
-> تست‌ها:
-> وضعیت ترجمه:
-> مورد باز:
-> اقدام بعدی:
+> **Checkpoint** (انجام شد، 10344c44)
+> فایل‌های تغییرکرده: `includes/admin/assets/js/entries-efb.js` و `css/entries-efb.css` (تازه)، `list_form-efb.js` (ورود به فهرست تازه، §۱۸ حذف تکی، تنظیمات سطل و دسترسی دستیار در Settings › Privacy)، `Entries::apply_op/ajax_bulk/ajax_cols/purge_trash`.
+> تست‌ها: `tests/test-entries-list-render.js` (۳۲)، `tests/test-entries-bulk.php` (۳۶)، e2e ‏f14b (۲۰) و f14c (۱۳؛ fa_IR و ar در ۳۷۵ و ۱۲۸۰ پیکسل).
+> وضعیت ترجمه: کلیدهای F14 در `text_efb()` فقط انگلیسی.
+> مورد باز: —
+> اقدام بعدی: D
 
 ### D. یادداشت و سابقه
 - فایل‌ها: `Entries::notes_*`، `Entries::log`، زبانه‌های نمایشگر، و جست‌وجوی یادداشت در §۸.۱.
 - پذیرش: یادداشت در جعبهٔ پاسخ عمومی و در پاسخ `get_track_public_api` دیده نمی‌شود. حذف فقط برای نویسنده یا مدیر کل. HTML رد می‌شود. حذف همیشگی پاسخ، یادداشت‌ها و سابقه را پاک می‌کند.
 - تست: `php tests/test-entries-notes.php` و افزودن یادداشت خصمانه (`<img onerror>`) به `tests/test-response-viewer-hostile-rows-browser.js`.
 
-> **Checkpoint**
-> فایل‌های تغییرکرده:
-> تست‌ها:
-> وضعیت ترجمه:
-> مورد باز:
-> اقدام بعدی:
+> **Checkpoint** (انجام شد، b1be8930)
+> فایل‌های تغییرکرده: `Entries::note_add/note_delete/notes_of/log_of/entry_extras`، `response-viewer-efb.js` (قلاب‌های سرآیند و زیر پاسخ‌ها).
+> تست‌ها: `tests/test-entries-notes.php` (۳۰ با چاپ)، `tests/test-response-viewer-hostile-rows-browser.js` (یادداشت و سابقهٔ مخرب)، e2e ‏f14d (۸).
+> وضعیت ترجمه: فهرست عبارت‌ها در K.
+> مورد باز: —
+> اقدام بعدی: H
 
 ### E. استخراج اعتبارسنج (پیش‌نیاز ویرایش)
 - فایل‌ها: `class-Emsfb-public.php` (حلقهٔ 2747-3429 به `validate_rows_efb`؛ `efb_encode_rows_for_storage_efb` قابل‌صدا از admin).
 - پذیرش: **رفتار submit بایت‌به‌بایت یکسان است**: همان پیام‌ها، `field_id` و ردیف‌های ذخیره‌شده.
 - تست: همهٔ تست‌های submit موجود (`grep -l get_form_public_efb tests/*.php`؛ از جمله `test-submit-payload-robustness.php`، `test-submission-row-hardening-e2e.php`، `test-submit-special-chars-e2e.php`، `test-esign-stored-xss.php`، `test-maps-stored-xss.php`، `test-payment-validation-input-types.php`) پیش و پس از تغییر، و `php tests/test-validate-rows-parity.php` که fixtureهای هر نوع را از هر دو مسیر می‌گذراند.
 
-> **Checkpoint**
-> فایل‌های تغییرکرده:
-> تست‌ها:
-> وضعیت ترجمه:
-> مورد باز:
-> اقدام بعدی:
+> **Checkpoint** (انجام شد، b04f9ade)
+> فایل‌های تغییرکرده: `class-Emsfb-public.php`: حلقهٔ بررسی فیلدها بی‌تغییر به `validate_rows_efb($form, $rows, $ctx)` منتقل شد؛ `prepare_validation_efb()`، `submit_translation_keys_efb()`، `encode_rows_efb()`، `required_check_efb()`.
+> تست‌ها: `tests/test-validate-rows-parity.php` (۱۱، روی سایت e2e: ۱۴ نوع فیلد از submit و از متد تازه یکسان ذخیره می‌شوند)؛ همهٔ تست‌های submit پیش و پس از تغییر همان نتیجه را دارند.
+> وضعیت ترجمه: عبارتی ندارد.
+> مورد باز: —
+> اقدام بعدی: F
 
 ### F. ویرایش پاسخ
 - فایل‌ها: `Entries::update`، `efb_entry_upload_Emsfb`، `response-viewer-efb.js` (`efb_entry_edit_mode_efb`)، و log.
 - پذیرش: همهٔ رفتارهای §۴.۳ و §۸.۴. ایمیل نامعتبر با `field_id` رد می‌شود. گزینهٔ حذف‌شده حفظ می‌شود. تعارض هم‌زمانی تشخیص داده می‌شود. فایل جایگزین در دفتر pending نمی‌ماند. فایل قدیمی حذف می‌شود. ردیف‌های پرداخت و `w_link` تغییر نمی‌کنند. `@efb@dq#` درست ذخیره و نمایش داده می‌شود.
 - تست: `php tests/test-entry-edit.php` و Playwright ‏`tests/test-entry-edit-browser.js`.
 
-> **Checkpoint**
-> فایل‌های تغییرکرده:
-> تست‌ها:
-> وضعیت ترجمه:
-> مورد باز:
-> اقدام بعدی:
+> **Checkpoint** (انجام شد، 9a78aae4)
+> فایل‌های تغییرکرده: `Entries::update/edit_fields/ajax_update/ajax_upload`، فرم ویرایش در `entries-efb.js`.
+> تست‌ها: `tests/test-entry-edit.php` (۲۹ روی سایت e2e: پیام‌های خود submit، تعارض، F04 محاسبه، F09 ردیف، F03 یکتا، F05 ظرفیت، فایل، پاسخ پرداختی)، e2e ‏f14f (۹، fa_IR در ۳۷۵).
+> وضعیت ترجمه: فهرست عبارت‌ها در K.
+> مورد باز: منطق شرطی هنگام ویرایش مدیر اعمال نمی‌شود (یادداشت در فرم ویرایش)؛ اعلان خودکار پس از ویرایش فرستاده نمی‌شود.
+> اقدام بعدی: G
 
 ### G. ارسال دوبارهٔ اعلان
 - فایل‌ها: `class-Emsfb-public.php` (`self::$instance`، `resend_entry_notification_efb`)، `Entries::resend`، و مودال نمایشگر و فهرست.
 - پذیرش: `original` همان گیرندگان ارسال اصلی را می‌گیرد (با قواعد شرطی). `custom` چند نشانی و جداکنندهٔ `،` را می‌پذیرد. نشانی نامعتبر رد می‌شود. ششمین ارسال در یک ساعت رد می‌شود. لاگ نشانی ندارد.
 - تست: `php tests/test-entry-resend.php` (stub ‏`wp_mail` که گیرندگان و عنوان را ضبط می‌کند، الگوی `tests/test-sms-failure-email-continuation.php`).
 
-> **Checkpoint**
-> فایل‌های تغییرکرده:
-> تست‌ها:
-> وضعیت ترجمه:
-> مورد باز:
-> اقدام بعدی:
+> **Checkpoint** (انجام شد، 2d6cace8)
+> فایل‌های تغییرکرده: `_Public::resend_entry_notification_efb()`، `Entries::resend/resend_preview/resend_emails/ajax_resend`، دیالوگ در `entries-efb.js`.
+> تست‌ها: `tests/test-entry-resend.php` (۲۴ روی سایت e2e، ایمیل‌ها با mu-plugin ثبت می‌شوند)، e2e ‏f14g (۶، fa_IR در ۳۷۵).
+> وضعیت ترجمه: پنج عبارت تازه (`entResendMax`، `entResendMany`، `entMailOff`، `entResendRules`، `entResendBulk`) فقط انگلیسی.
+> مورد باز: فایل‌های پیوست F07 در ارسال دوباره دوباره پیوست نمی‌شوند (پیوندها در متن هست). نشانی دیگر پیوند پاسخ مدیر (`sc`) را نمی‌گیرد.
+> اقدام بعدی: API دستیار و K
 
 ### H. خروجی CSV و XLSX سمت سرور
 - فایل‌ها: `includes/admin/class-Emsfb-xlsx-writer.php`، `Entries::export` (`admin_post_efb_export_entries`)، مودال خروجی در `list_form-efb.js`، و حذف `rows_ws_p` از مسیر CSV.
 - پذیرش: فرمی با ۱۵۰ ستون کامل خروجی می‌گیرد. دو فیلد هم‌نام در دو ستون جدا می‌آیند. CSV در PHP و JS برای fixture مشترک برابر است. XLSX در Excel، LibreOffice و Google Sheets بدون پیام تعمیر باز می‌شود، RTL است و سرآیند ثابت دارد. مسیر بدون `ZipArchive` (شبیه‌سازی با فیلتر `efb_xlsx_force_store`) فایل معتبر می‌سازد. نویسهٔ کنترلی و متن ۴۰ هزار نویسه‌ای فایل را خراب نمی‌کنند. ۲۰ هزار ردیف با حافظهٔ کمتر از ۶۴ مگابایت.
 - تست: `php tests/test-xlsx-writer.php` (باز کردن zip ساخته‌شده با `ZipArchive` در تست یا `unzip -t`، اعتبارسنجی XML با `DOMDocument::loadXML`، و بررسی `crc32`)، `php tests/test-export-csv-parity.php` (همراه `node` برای مسیر JS)، و Playwright دانلود.
 
-> **Checkpoint**
-> فایل‌های تغییرکرده:
-> تست‌ها:
-> وضعیت ترجمه:
-> مورد باز:
-> اقدام بعدی:
+> **Checkpoint** (انجام شد، 8dae3587)
+> فایل‌های تغییرکرده: `Entries::admin_post_export/export_*`، `includes/admin/class-Emsfb-xlsx-writer.php` (تازه)، دیالوگ خروجی.
+> تست‌ها: `tests/test-xlsx-writer.php` (۴۷)، `tests/test-export-csv-parity.php` (۶)، `tests/test-entries-export.php` (۲۸)، e2e ‏f14h (۱۰).
+> وضعیت ترجمه: فهرست عبارت‌ها در K.
+> مورد باز: بیش از ۲۰٬۰۰۰ پاسخ (`efb_export_sync_max`) پیام «بازهٔ کوتاه‌تر» می‌گیرد؛ خروجی پس‌زمینه برای فاز ۲.
+> اقدام بعدی: I
 
 ### I. چاپ
 - فایل‌ها: `response-viewer-efb.js` (منوی 1542-1544، `efb_print_entries_efb`)، و عملیات گروهی.
 - پذیرش: چاپ تکی و گروهی (۵۰ پاسخ) در Chrome و Firefox. شکست صفحه بین پاسخ‌ها. RTL درست. یادداشت فقط با تیک. در iOS همان رفتار فعلی (1462-1470).
 - تست: Playwright ‏`tests/test-entries-print-browser.js` با `page.emulateMedia({media:'print'})` و اسکرین‌شات.
 
-> **Checkpoint**
-> فایل‌های تغییرکرده:
-> تست‌ها:
-> وضعیت ترجمه:
-> مورد باز:
-> اقدام بعدی:
+> **Checkpoint** (انجام شد، bf31b101)
+> فایل‌های تغییرکرده: `generatePDF_EFB(id, opts)` با بخش‌ها و شکست صفحه، `Entries::ajax_print`.
+> تست‌ها: `tests/test-entries-notes.php` (چهار بررسی چاپ)، e2e ‏f14i (۷).
+> وضعیت ترجمه: فهرست عبارت‌ها در K.
+> مورد باز: —
+> اقدام بعدی: J
 
 ### J. آمار هر فرم
 - فایل‌ها: `Entries::bump` و فراخوانی‌ها (`class-Emsfb-public.php:244`، 1120، `insert_message_db`)، `efb_form_stats_Emsfb`، زبانهٔ آمار، و بخش «پربازدیدترین فرم‌ها» در `class-Emsfb-dashboard-widget.php` و `dashboard-widget-efb.js`.
 - پذیرش: بازدید برای هر نشست تازه یک بار شمرده می‌شود. ارسال برابر ردیف‌های درج‌شده است (به‌علاوهٔ حالت بدون ذخیره). شمارش هم‌زمان (۵۰ درخواست موازی) دقیق است. نرخ تبدیل با بازدید صفر «—» نشان می‌دهد. داده‌های فعلی ویجت تغییر نمی‌کنند.
 - تست: `php tests/test-entries-stats.php` (stub با `ON DUPLICATE KEY`)، و Playwright ویجت.
 
-> **Checkpoint**
-> فایل‌های تغییرکرده:
-> تست‌ها:
-> وضعیت ترجمه:
-> مورد باز:
-> اقدام بعدی:
+> **Checkpoint** (انجام شد، 62c85c41)
+> فایل‌های تغییرکرده: `Entries::bump/stats/top_forms/ajax_stats`، شمارش بازدید هنگام رندر و `forms/session/prepare` (`page_sid`)، ویجت داشبورد («فرم‌های پربازدید»).
+> تست‌ها: `tests/test-entries-stats.php` (۱۶، با ۵۰ فرایند هم‌زمان)، e2e ‏f14j (۹).
+> وضعیت ترجمه: فهرست عبارت‌ها در K.
+> مورد باز: —
+> اقدام بعدی: E
 
 ### K. ترجمه و مستندات
 - چرخهٔ کامل §۱۴، به‌روزرسانی `docs/EFB-CORE-KNOWLEDGE-BASE.en.md` (جدول‌ها، actionها، hookهای `efb_entry_updated` و `efb_entries_purged`)، و ردیف F14 در `README.fa.md`. موارد فاز ۲ (§۱۵) هر کدام زیرتسک جدا (L1 تا L3) با همین قالب Checkpoint.
 
-> **Checkpoint**
-> فایل‌های تغییرکرده:
-> تست‌ها:
-> وضعیت ترجمه:
-> مورد باز:
-> اقدام بعدی:
+> **Checkpoint** (انجام شد)
+> فایل‌های تغییرکرده: `docs/core-i18n/catalog.json` و `.pot` (۱۳۶ عبارت تازه با `tests/core-i18n/extract.php`)، این سند، `BUGS-FOUND.fa.md`، `readme.txt`، `README.fa.md`، `docs/EFB-CORE-KNOWLEDGE-BASE.en.md`، `docs/autopilot-integration.md`، `reference/sitepilot-compatibility.en.md`، `reference/current-capabilities.en.md`. API فقط‌خواندنی دستیار: `includes/admin/entries-api-functions.php` و `Entries::api_*` (163075a9).
+> تست‌ها: `tests/test-entries-api.php` (۳۶)، `tests/test-ap-b3-capabilities.js` (رجیستری در `tests/f18-harness.js`).
+> وضعیت ترجمه: به دستور مالک ترجمه نشد؛ فقط فهرست عبارت‌ها به‌روز شد.
+> مورد باز: §۱۵ (L1 تا L3) برای فاز ۲.
+> اقدام بعدی: ترجمه با مهارت efb-core-i18n-translate وقتی مالک بخواهد.
 
 ترتیب: A ← B ← C ← D ← H ← I ← J ← E ← F ← G ← K. نسخهٔ قابل انتشار اول پس از C.
 
-## ۱۷. پرسش‌های باز
+## ۱۷. پرسش‌های باز (پاسخ داده شد)
 
-1. پاسخ اسپم شمارندهٔ `submits` آمار را کم کند یا جدا بماند؟ (پیشنهاد: جدا، با ستون `spam`.)
-2. بازدید «هر نشست» است. آیا یک بازدید برای هر بارگذاری صفحه (حتی کش‌شده، با beacon) لازم است؟
-3. ارسال دوبارهٔ اعلان عنوان را با پیشوند «[ارسال دوباره]» بفرستد؟
-4. ویرایش مدیر برای پاسخ‌های پرداختی کاملاً ممنوع باشد یا فقط ردیف‌های پرداخت قفل شوند؟
-5. ناشناس‌سازی F13 یادداشت‌های مدیر را هم پاک کند؟ (یادداشت ممکن است دادهٔ شخصی تایپ‌شده توسط مدیر داشته باشد.)
-6. نقش `Emsfb` حق حذف همیشگی و ارسال به نشانی دیگر داشته باشد یا فقط `manage_options`؟
-7. نمودار آمار با `poll-chart-efb.js` موجود ساخته شود یا SVG ساده؟
+1. پاسخ اسپم شمارندهٔ `submits` آمار را کم کند یا جدا بماند؟ **جدا**: ستون `spam` در `emsfb_stats_`؛ «اسپم» و «اسپم نیست» شمارهٔ اسپم روز همان پاسخ را جابه‌جا می‌کنند و `submits` دست نمی‌خورد.
+2. بازدید «هر نشست» است یا هر بارگذاری؟ **هر نشست تازهٔ صفحهٔ فرم** (نشست رندر صفحه یا نخستین نشست `forms/session/prepare` در صفحهٔ کش‌شده)؛ بدون beacon. صفحهٔ کش‌شده‌ای که بین چند بازدیدکننده مشترک است کمی کمتر می‌شمارد.
+3. ارسال دوباره پیشوند «[ارسال دوباره]» بگیرد؟ **نه**: همان عنوان ارسال اصلی (رشتهٔ ایمیل گیرنده یکی می‌ماند)؛ سابقه ردیف `resend` را نگه می‌دارد.
+4. ویرایش پاسخ پرداختی؟ **فقط مبلغ قفل است**: فیلدهای قیمت، محاسبه‌ها و هر فیلدی که یک محاسبه می‌خواند فقط‌خواندنی‌اند و ردیف‌های پرداخت دست نمی‌خورند؛ بقیهٔ پاسخ ویرایش می‌شود.
+5. ناشناس‌سازی F13 یادداشت‌ها را پاک کند؟ **بله**: یادداشت‌ها حذف و مقدارهای سابقه خالی می‌شوند (یادداشت ممکن است دادهٔ شخصی داشته باشد).
+6. نقش `Emsfb`؟ حذف همیشگی مثل حذف قدیمی برای نقش `Emsfb` هم باز است (و دروازهٔ `setting:delete_response` می‌ماند)؛ **ارسال به نشانی دیگر، حذف یادداشت دیگران، `include_pii` در API و تنظیمات سطل و دستیار فقط `manage_options`**.
+7. نمودار؟ **SVG ساده** بدون کتابخانهٔ تازه، با جدول همان اعداد برای صفحه‌خوان.
 
 ## ۱۸. اشکال‌هایی که در مسیر دیده شد (خارج از دامنه یا در زیرتسک‌ها رفع می‌شوند)
 
-- `fun_confirm_remove_message_emsFormBuilder` (`list_form-efb.js:441-448`) پس از حذف یک پاسخ، در `valueJson_ws_form` دنبال فرمی با `form_id` برابر شناسهٔ پاسخ می‌گردد، آن را از فهرست محلی حذف می‌کند و نمای فهرست فرم‌ها را رندر می‌کند. پاسخ از جدول نمایش‌داده‌شده حذف نمی‌شود و ممکن است فرمی بی‌ربط از فهرست محلی ناپدید شود. (رفع در C.)
-- `get_messages_id_Emsfb` (`class-Emsfb-admin.php:1415-1419`) پس از پاسخ خطای «id خالی» `die` نمی‌کند. `wp_send_json_success` خودش die می‌کند، پس اثر عملی ندارد، ولی کوئری 1429 هنوز بدون `prepare` است. (رفع در B.)
-- CSV فرم ستون‌ها را بر اساس برچسب می‌سازد (`list_form-efb.js:3652`، 3687، 3719). دو فیلد هم‌نام (مثلاً دو «توضیحات») در یک ستون ادغام می‌شوند و مقدار یکی بازنویسی می‌شود. (رفع در H.)
-- جست‌وجوی سراسری (`class-Emsfb-admin.php:1953`) `%`/`_` کاربر را بدون `esc_like` به LIKE می‌دهد. نتایج UNION تاریخ خام برمی‌گردانند، در حالی که فهرست تاریخ نمایشی دارد (1430-1438)، پس نمایش تاریخ بین دو نما ناهمسان است.
-- `update_message_state_Emsfb` (`class-Emsfb-admin.php:1300`) آرگومان `JSON_UNESCAPED_UNICODE` را به `isHTML()` می‌دهد، نه به `json_encode`. شرط هم با `&&` نوشته شده و فقط وقتی id خالی **و** HTML دارد رد می‌کند.
-- ویجت داشبورد «بازدیدها» را کمتر نشان می‌دهد، چون ردیف `visit` هنگام submit به `send` تبدیل می‌شود (`functions.php:6970-6983`). بازدید واقعی برابر `visit + submissions` است. مجوز ویجت (`class-Emsfb-dashboard-widget.php:149`) فقط `manage_options` است و نقش `Emsfb` را نمی‌پذیرد.
-- `current-capabilities.en.md` می‌گوید PDF مخصوص Free Plus/Pro است، ولی در پیشخوان دکمه همیشه هست و فقط نشان «ساخته‌شده با» برای غیر Pro واقعی اضافه می‌شود (`response-viewer-efb.js:899`، 1436).
+- `fun_confirm_remove_message_emsFormBuilder`: پس از حذف یک پاسخ فرمی بی‌ربط از فهرست محلی حذف می‌شد. **رفع در C.**
+- `get_messages_id_Emsfb`: کوئری بدون `prepare`، تاریخ ذخیره‌شده با منطقهٔ زمانی نادرست. **رفع در B** (prepare، die پس از خطا، اسپم و سطل بیرون، تاریخ در منطقهٔ سایت).
+- CSV ستون‌ها را بر اساس برچسب می‌ساخت و دو فیلد هم‌نام ادغام می‌شدند. **رفع در H** (ستون بر اساس `id_`، خروجی سمت سرور).
+- جست‌وجوی سراسری `%`/`_` را بی `esc_like` می‌داد. **رفع در B.** ناهمسانی قالب تاریخ نتایج UNION با فهرست هنوز باز است (BUGS-FOUND).
+- `update_message_state_Emsfb`: آرگومان `JSON_UNESCAPED_UNICODE` به `isHTML()` و شرط `&&`. **رفع در B** (id خالی **یا** HTML رد می‌شود).
+- ویجت داشبورد: عددهای قبلی بی‌تغییر ماند و «فرم‌های پربازدید» از `emsfb_stats_` آمد (J). مجوز ویجت هنوز فقط `manage_options` است (تصمیم مالک؛ BUGS-FOUND).
+- `current-capabilities.en.md` دربارهٔ PDF: **اصلاح شد** (دکمه برای همه هست، فقط خط «ساخته‌شده با» در Pro برداشته می‌شود).
 
 ---
 
@@ -524,3 +524,4 @@ CREATE TABLE {p}emsfb_stats_ (
 - وضعیت در API رشتهٔ `active|spam|trash` است و `read_state` = `new|read|pending_payment|new_reply|closed` از `read_` ۰ تا ۴. **تعارض C1** با F12 و F11 دربارهٔ نوع ستون `entry_status` پیش از ادغام حل شود.
 - هر خواندن از API یک ردیف `emsfb_msg_log_` با `action: "api_read"` (بدون مقدار، فقط نام برنامه و تعداد) و `do_action('efb_api_entries_read', ...)` می‌نویسد.
 - ویرایش، حذف، ارسال دوباره و خروجی در نسخهٔ ۱ قرارداد برای دستیار باز نیستند و فقط در پیشخوان EFB انجام می‌شوند. `efb_entry_updated` و `efb_message_deleted` برای همگام‌سازی SitePilot کافی‌اند.
+- **پیاده‌سازی شد** (163075a9): `efb_api_entries_query`، `efb_api_entry_get`، `efb_api_entries_stats` و مسیرهای REST ‏`GET Emsfb/v1/admin/forms/{id}/entries`، `admin/entries/{msg_id}`، `admin/forms/{id}/stats`؛ پاسخ‌های شخصی `"[redacted]"` مگر `include_pii` با `manage_options`؛ هرگز IP، uid، گذرواژه، شناسهٔ پرداخت یا نشانی خام فایل؛ ۶۰ درخواست در دقیقه. ذخیره‌سازی `entry_status` همان TINYINT این سند است (۰/۱/۲) و API همیشه `active|spam|trash` می‌دهد (C1 از سمت F14).

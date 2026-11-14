@@ -647,9 +647,9 @@ SitePilot contract §5.5, §6.2, §9):
 - **Submit answer.** The `ip` key is no longer in the answer of `forms/message/add` (nothing read it).
 - **Test.** `php tests/test-privacy-registry.php`, `php tests/test-privacy-ip-mode.php`,
   `php tests/test-privacy-nostore-submit.php`, scenario 8 of `tests/e2e-wp/run.js`.
-- **Not yet** (they need the entries API and the public schema of the SitePilot contract, which do not
-  exist yet): `entries.read` redaction by `prv_pii`, `stored: false` in the schema, `security_changes`
-  when `prv_nostore` is turned off.
+- **Entries API** (F14, below): `entries.read` redacts answers by `prv_pii` and answers `stored: false` for a
+  `prv_nostore` form. **Not yet**: `stored: false` in the public schema, `security_changes` when `prv_nostore`
+  is turned off.
 
 ### PAY00. Payment framework (gateway fields, new form keys, registry entries)
 
@@ -1338,6 +1338,43 @@ on a page only when a form has a group); builder: `includes/admin/assets/js/repe
   `test-addon-googlesheet-repeater.php`, `test-repeater-restore-browser.js`, `test-repeater-plan-gating.js`,
   `test-ap-repeater.js` and the e2e scenarios `f09a` … `f09d`, `f09k`, `f09l`, `f09m`, `f09pay`.
 
+### F14. Entries management (read-only entries API, registry entries, hooks)
+
+Spec: `docs/feature-gaps/F14-entries-management.fa.md`; SitePilot contract §5.5 `entries.read`. Server:
+`Emsfb\Entries` (`includes/admin/class-Emsfb-entries.php`), global functions in
+`includes/admin/entries-api-functions.php`. AutoPilot reads entries; it never edits, deletes, resends or exports
+them (those stay in the EFB screens, contract v1).
+
+- **Switch.** Site setting `ai_entries_access`: `off` (default) · `stats` (daily counts from `emsfb_stats_` only)
+  · `rows` (entries). Only an administrator changes it (Settings → Privacy, "AI assistants: access to entries");
+  AutoPilot never writes it. Registry entry `setting:entries_ai` (free, `settings_keys`).
+- **Functions** (run as the current user; `WP_Error` on refusal):
+  `efb_api_entries_query($form_id, $q)` with the list's parameters (`page`, `per_page` 20 / 50 / 100, `tab`
+  all / unread / starred / pending / closed / spam / trash, `from`, `to` (Y-m-d), `q`, `conds` (≤ 3 of
+  `{id, op: eq|has|empty|filled, v}`, Free Plus), `sort` date_desc / date_asc, `include_pii`, `app`);
+  `efb_api_entry_get($msg_id, $args)`; `efb_api_entries_stats($form_id, ['days' => 7|30|90])`.
+- **REST.** `GET /wp-json/Emsfb/v1/admin/forms/{id}/entries`, `GET …/admin/entries/{msg_id}`,
+  `GET …/admin/forms/{id}/stats` (cookie auth with `X-WP-Nonce` or an application password; never user 0).
+- **Row.** `msg_id, form_id, track, date_iso, status (active|spam|trash), read_state
+  (new|read|pending_payment|new_reply|closed), starred, edited, fields[{id_, name, type, value, ov?, rg?, ri?,
+  fnm?, fsz?}]`. Never the IP, uid, passwords, payment rows or ids, the page link, raw file URLs (a file gives
+  `fnm` / `fsz`; a private F07 file nothing) or a hidden field filled from `{ip}`, `{uid}` or `{cookie}`.
+  Personal answers (F13 `prv_pii`, else by type) are `"[redacted]"` unless `include_pii` and the caller has
+  `manage_options`. A `prv_nostore` form answers `stored: false`. Filter `efb_api_entry_row`.
+- **Errors.** `efb_api_forbidden` 403 (no capability / setting off; `data.setting`), `efb_api_not_found` 404,
+  `efb_api_plan_required` 402 (field conditions on Free; `feature_id`, `required_plan`),
+  `efb_api_rate_limited` 429 (`retry_after`; 60 a minute, filter `efb_api_entries_per_minute`).
+- **Audit.** Every read writes an `emsfb_msg_log_` row `api_read` (meta `app:count`, no value) and fires
+  `do_action('efb_api_entries_read', $user_id, $form_id, $count, $context)`.
+- **Registry.** `setting:entries_filter`, `_columns`, `_stats`, `_xlsx`, `_resend`, `_edit` (Free Plus),
+  `setting:entries_print_nobrand` (Pro), `setting:entries_ai` (free), all `scope: site`; `capabilities.entries`
+  (status codes, tabs, page sizes, ops, condition ops, plan per part, `api` with the functions, REST routes and
+  modes, `hooks`). `tests/f18-harness.js` applies `Entries::capabilities` (priority 28).
+- **Hooks for sync.** `efb_entry_updated($msg_id, $old_rows, $new_rows)` after an administrator's edit,
+  `efb_entry_status_changed`, `efb_entries_purged`, `efb_message_deleted`.
+- **Test.** `php tests/test-entries-api.php`, `php tests/test-entries-query-wp.php` (REST on the e2e site),
+  `node tests/test-ap-b3-capabilities.js`.
+
 ### PAY01. Mollie gateway field (`mollie`, add-on `AdnMOL`)
 
 Add-on `vendores-efb/mollie` on the PAY00 contract; nothing new in core. For agents:
@@ -1467,7 +1504,7 @@ All new tests, with the results of the final run (2026-11-11, PHP 8.3, Node 22, 
 | `node tests/test-ap-a7-settings-notfound.js` | 13 passed |
 | `node tests/test-ap-b1-builder-api.js` | 22 passed |
 | `node tests/test-ap-b2-field-templates.js` | 30 passed |
-| `node tests/test-ap-b3-capabilities.js` | 49 passed |
+| `node tests/test-ap-b3-capabilities.js` | 50 passed |
 | `node tests/test-ap-b4-login-register.js` | 11 passed |
 | `php tests/test-ap-b4-auth-save.php` | 8 passed |
 | `node tests/test-ap-b5-sms-filler.js` | 6 passed |
