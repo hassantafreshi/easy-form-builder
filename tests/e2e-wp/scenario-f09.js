@@ -5,6 +5,14 @@
  *        moved in with "Move into group"; a password refused; the group's limits / title / collapsible in the
  *        panel (max 0 refused); Save through the real sanitizer (group keys, `group` on the children, children
  *        right after the group); reopen from the panel: the fields are inside the group; delete the group.
+ *  f09b  A guest (en_US, 1280 px): the rows of a group (Add up to the maximum, Remove down to the minimum, the
+ *        question before removing a row with answers, Keep / Remove), numbering and accessible names, focus
+ *        moves to the new row / the previous row, the polite announcement, collapsible rows with their summary,
+ *        keyboard only, virtual ids never reused, the copies in the form's structure, the group's own answer
+ *        row; rows_from (a number field sets the rows, the answers of a hidden row come back).
+ *  f09c  fa_IR and ar at 375 px: right to left, row numbers in Persian / Arabic-Indic digits (titles, Remove
+ *        labels, announcements), the group title aligned like the other labels (txt-right), mixed-script
+ *        sentences kept in order (unicode-bidi plaintext, numbers isolated), 44 px buttons, no horizontal scroll.
  */
 'use strict';
 
@@ -24,6 +32,31 @@ module.exports = function (S) {
     await builderReady(admin);
   }
 
+  const form = (name, fields, row0) => ctl('f03-form', name, JSON.stringify(fields), row0 || '', '1');
+  const pageOf = (fid) => ctl('page', String(fid)).url;
+  async function open(context, url, label, opts) {
+    const g = await (await context(opts || {}, label)).newPage();
+    await g.goto(url, { waitUntil: 'load' });
+    await g.waitForSelector('[id^="body_efb_"]', { state: 'attached', timeout: 20000 });
+    await g.waitForFunction(() => typeof sendBack_emsFormBuilder_pub !== 'undefined' && window.EFBRepeater && document.querySelector('fieldset[data-rpt][data-rows]'), null, { timeout: 20000 });
+    await sleep(700);
+    return g;
+  }
+  /** The travellers form of the page scenarios: a count field, a group (name, age, meal, extras), a field after it. */
+  const travellers = (extra, row0) => form('F09 e2e travellers', [
+    { key: 'cnt', type: 'number', name: 'Number of travellers' },
+    Object.assign({ key: 'g', type: 'repeater', name: 'Travellers', min_rows: '1', max_rows: '3', default_rows: '1', row_label: 'Traveller {n}', collapsible: '1', collapse_prev: '1', rmv_confirm: '1' }, (extra && extra.g) || {}),
+    { key: 'nm', type: 'text', name: 'Name', group: '@@g@@', required: 1 },
+    { key: 'age', type: 'number', name: 'Age', group: '@@g@@' },
+    { key: 'meal', type: 'select', name: 'Meal', group: '@@g@@' },
+    { key: 'm1', type: 'option', parent_key: 'meal', value: 'Vegan' },
+    { key: 'm2', type: 'option', parent_key: 'meal', value: 'Halal' },
+    { key: 'ext', type: 'checkbox', name: 'Extras', group: '@@g@@' },
+    { key: 'e1', type: 'option', parent_key: 'ext', value: 'Bag' },
+    { key: 'e2', type: 'option', parent_key: 'ext', value: 'Seat' },
+    { key: 'after', type: 'email', name: 'E-mail' },
+  ].concat((extra && extra.more) || []), row0);
+
   /* ------------------------------------------------------------------ f09a */
   scenario('f09a', 'F09 builder: a repeater group with its fields, settings, Save, reopen, delete', async ({ adminPage }) => {
     pro(true);
@@ -35,7 +68,7 @@ module.exports = function (S) {
     await sleep(400);
     let c = await admin.evaluate((id) => ({
       kids: valj_efb.filter((r) => r.group === id).map((r) => r.type),
-      inBody: Array.from(document.querySelectorAll(`#${id}_rptbody > section`)).map((s) => s.id),
+      inBody: Array.from(document.querySelectorAll(`[id="${id}_rptbody"] > section`)).map((s) => s.id),
       keys: ['min_rows', 'max_rows', 'default_rows', 'rpt_layout'].map((k) => (valj_efb.find((r) => r.id_ === id) || {})[k]),
     }), g.id_);
     R.check('f09a: the Repeater tile adds a group with one text field inside its container', g.type === 'repeater' && c.kids.length === 1 && c.kids[0] === 'text' && c.inBody.length === 1 && JSON.stringify(c.keys) === '["1","10","1","blocks"]', c);
@@ -45,7 +78,7 @@ module.exports = function (S) {
     const inBtn = `section[id="${em.id_}"] .efb-rpt-in`;
     if (await admin.isVisible(inBtn)) await admin.click(inBtn); else await admin.evaluate((id) => efbRptMoveIntoAsk(id), em.id_);
     await sleep(500);
-    c = await admin.evaluate(([gid, eid]) => ({ group: (valj_efb.find((r) => r.id_ === eid) || {}).group, inBody: !!document.querySelector(`#${gid}_rptbody > section[id="${eid}"]`) }), [g.id_, em.id_]);
+    c = await admin.evaluate(([gid, eid]) => ({ group: (valj_efb.find((r) => r.id_ === eid) || {}).group, inBody: !!document.querySelector(`[id="${gid}_rptbody"] > section[id="${eid}"]`) }), [g.id_, em.id_]);
     R.check('f09a: "Move into group" puts an e-mail field into the group', c.group === g.id_ && c.inBody, c);
     await closePanel(admin);
     const pw = await addTile(admin, 'password');
@@ -84,7 +117,7 @@ module.exports = function (S) {
     // Reopen from the panel.
     await reopen(admin, fid);
     await canvasDrawn(admin);
-    c = await admin.evaluate((id) => Array.from(document.querySelectorAll(`#${id}_rptbody > section`)).map((s) => s.id), g.id_);
+    c = await admin.evaluate((id) => Array.from(document.querySelectorAll(`[id="${id}_rptbody"] > section`)).map((s) => s.id), g.id_);
     R.check('f09a: reopened, both fields are inside the group\'s container', c.length === 2 && c.includes(em.id_), c);
     await admin.screenshot({ path: SHOT('f09a-builder-reopened-en') });
     // Delete the group (its own delete button, confirm).
@@ -95,5 +128,138 @@ module.exports = function (S) {
     await sleep(800);
     c = await admin.evaluate((gid) => ({ left: valj_efb.filter((r) => r.id_ === gid || r.group === gid).length, dom: !!document.getElementById(gid) }), g.id_);
     R.check('f09a: deleting the group asks about its 2 fields and removes them with it', /2 fields/.test(q) && c.left === 0 && !c.dom, { q: q.slice(0, 200), c });
+  });
+
+  /* ------------------------------------------------------------------ f09b */
+  scenario('f09b', 'F09 guest: add and remove rows, min / max, confirm, numbering, focus, announcements, collapsible, keyboard, rows_from', async ({ context }) => {
+    pro(true);
+    ctl('locale', '');
+    const F = travellers();
+    const ids = F.ids;
+    const g = await open(context, pageOf(F.form_id), 'f09b');
+    const st = () => g.evaluate(([gid, nm]) => ({
+      rows: Array.from(document.querySelectorAll(`[id="${gid}_rows"] > .efb-rpt-row`)).map((r) => ({ n: r.dataset.rptN, title: r.querySelector('.efb-rpt-title').textContent, collapsed: r.classList.contains('efb-rpt-collapsed'), rm: r.querySelector('.efb-rpt-remove').getAttribute('aria-label'), rmDis: r.querySelector('.efb-rpt-remove').disabled, label: (r.querySelector('input[type=text]') || {}).getAttribute ? r.querySelector('input[type=text]').getAttribute('aria-label') : null })),
+      add: document.getElementById(`${gid}_add`).disabled, max: !document.getElementById(`${gid}_maxmsg`).hidden, live: document.getElementById(`${gid}_live`).textContent,
+      copies: get_structure_by_form_id_efb(document.querySelector('fieldset[data-rpt]').dataset.formid).filter((r) => r.rpt_base === nm).map((r) => r.id_),
+      summary: (sendBack_emsFormBuilder_pub.find((r) => r.id_ === gid) || {}).value, active: document.activeElement ? document.activeElement.id : '',
+    }), [ids.g, ids.nm]);
+    let s = await st();
+    R.check('f09b: one row at start, its copy in the form structure (nm_r0), the group\'s answer row says 1', s.rows.length === 1 && s.rows[0].title === 'Traveller 1' && JSON.stringify(s.copies) === JSON.stringify([ids.nm + '_r0']) && s.summary === '1', s);
+    R.check('f09b: the only row cannot be removed (min 1); the field is named "Name, row 1"', s.rows[0].rmDis === true && s.rows[0].label === 'Name, row 1', s.rows[0]);
+    await g.fill(`[id="${ids.nm}_r0_"]`, 'Sara');
+    await g.press(`[id="${ids.nm}_r0_"]`, 'Tab');
+    await g.click(`[id="${ids.g}_add"]`);
+    await sleep(500);
+    s = await st();
+    R.check('f09b: Add → row 2 with the copy _r1, focus in its first field, "Row 2 added" announced', s.rows.length === 2 && s.rows[1].title === 'Traveller 2' && s.copies.includes(ids.nm + '_r1') && s.active === ids.nm + '_r1_' && /Row\s*⁨?2⁩?\s*added|Row 2 added/.test(s.live.replace(/[⁨⁩]/g, '')), s);
+    R.check('f09b: the earlier row is folded, with "Sara" as its summary; its toggle says aria-expanded false', s.rows[0].collapsed === true && (await g.evaluate((gid) => { const r = document.querySelector(`[id="${gid}_rows"] > .efb-rpt-row`); return r.querySelector('.efb-rpt-summary').textContent === 'Sara' && r.querySelector('.efb-rpt-toggle').getAttribute('aria-expanded') === 'false'; }, ids.g)), s.rows[0]);
+    await g.keyboard.type('Reza');
+    await g.keyboard.press('Tab');
+    await sleep(300);
+    // Keyboard only: to the Add button and Enter.
+    await g.focus(`[id="${ids.g}_add"]`);
+    await g.keyboard.press('Enter');
+    await sleep(500);
+    s = await st();
+    R.check('f09b: keyboard (Enter on Add) → row 3; at the maximum the Add button is disabled and says so', s.rows.length === 3 && s.add === true && s.max === true, s);
+    await g.screenshot({ path: SHOT('f09b-rows-en-1280'), fullPage: true });
+    // Remove row 2 (it holds "Reza"): the question first.
+    await g.click(`[id="${ids.g}_rows"] > .efb-rpt-row:nth-child(2) .efb-rpt-toggle`).catch(() => {});
+    await g.click(`[id="${ids.g}_rows"] > .efb-rpt-row:nth-child(2) .efb-rpt-remove`);
+    await sleep(300);
+    let q = await g.evaluate((gid) => { const c = document.querySelector(`[id="${gid}_rows"] > .efb-rpt-row:nth-child(2) .efb-rpt-confirm`); return { open: c && !c.hidden, text: c && c.textContent, focus: document.activeElement && document.activeElement.className }; }, ids.g);
+    R.check('f09b: removing a row with answers asks first ("Remove this row?"), focus on Remove', q.open && /Remove this row\?/.test(q.text) && /efb-rpt-yes/.test(q.focus), q);
+    await g.keyboard.press('Escape');
+    await sleep(200);
+    R.check('f09b: Escape keeps the row', (await st()).rows.length === 3);
+    await g.click(`[id="${ids.g}_rows"] > .efb-rpt-row:nth-child(2) .efb-rpt-remove`);
+    await sleep(200);
+    await g.click(`[id="${ids.g}_rows"] > .efb-rpt-row:nth-child(2) .efb-rpt-yes`);
+    await sleep(500);
+    s = await st();
+    R.check('f09b: Remove → 2 rows renumbered (Traveller 1, Traveller 2), the last row keeps n=2 (ids never reused), "Row removed"', s.rows.length === 2 && s.rows.map((r) => r.title).join('|') === 'Traveller 1|Traveller 2' && s.rows[1].n === '2' && s.live === 'Row removed' && s.rows[1].rm === 'Remove row 2', s);
+    R.check('f09b: the removed row\'s copy and answers are gone; Add is enabled again', !s.copies.includes(ids.nm + '_r1') && !(await g.evaluate((id) => sendBack_emsFormBuilder_pub.some((r) => r.id_ === id), ids.nm + '_r1')) && s.add === false && s.summary === '2', s);
+    R.check('f09b: focus went to the previous row', /efb-rpt-remove|_r0_/.test(s.active) || s.active === '' ? true : false, s.active);
+    // Remove down to the minimum.
+    await g.click(`[id="${ids.g}_rows"] > .efb-rpt-row:nth-child(2) .efb-rpt-remove`);
+    await sleep(400);
+    s = await st();
+    R.check('f09b: an empty row is removed without a question; at the minimum Remove is disabled', s.rows.length === 1 && s.rows[0].rmDis === true, s);
+
+    // rows_from: a number field gives the rows; answers of rows taken away come back.
+    const F2 = travellers({ g: { rows_from: '@@cnt@@', min_rows: '1', max_rows: '4', collapsible: '0' } });
+    const h = await open(context, pageOf(F2.form_id), 'f09b-from');
+    const rows = () => h.evaluate((gid) => document.querySelectorAll(`[id="${gid}_rows"] > .efb-rpt-row`).length, F2.ids.g);
+    R.check('f09b rows_from: no Add / Remove buttons are shown', await h.evaluate((gid) => getComputedStyle(document.getElementById(gid + '_add')).display === 'none', F2.ids.g));
+    await h.fill(`[id="${F2.ids.cnt}_"]`, '3');
+    await h.press(`[id="${F2.ids.cnt}_"]`, 'Tab');
+    await sleep(600);
+    R.check('f09b rows_from: 3 travellers → 3 rows', await rows() === 3);
+    await h.fill(`[id="${F2.ids.g}_rows"] > .efb-rpt-row:nth-child(3) input[type=text]`, 'Third');
+    await h.press(`[id="${F2.ids.g}_rows"] > .efb-rpt-row:nth-child(3) input[type=text]`, 'Tab');
+    await sleep(300);
+    await h.fill(`[id="${F2.ids.cnt}_"]`, '1');
+    await h.press(`[id="${F2.ids.cnt}_"]`, 'Tab');
+    await sleep(600);
+    const hidden = await h.evaluate(() => sendBack_emsFormBuilder_pub.filter((r) => r.value === 'Third').length);
+    R.check('f09b rows_from: 1 → 1 row; the third row\'s answer is not sent', await rows() === 1 && hidden === 0, hidden);
+    await h.fill(`[id="${F2.ids.cnt}_"]`, '3');
+    await h.press(`[id="${F2.ids.cnt}_"]`, 'Tab');
+    await sleep(600);
+    const back = await h.evaluate((gid) => ({ n: document.querySelectorAll(`[id="${gid}_rows"] > .efb-rpt-row`).length, v: document.querySelector(`[id="${gid}_rows"] > .efb-rpt-row:nth-child(3) input[type=text]`).value, sent: sendBack_emsFormBuilder_pub.some((r) => r.value === 'Third') }), F2.ids.g);
+    R.check('f09b rows_from: back to 3 → the third row comes back with "Third" (and it is sent again)', back.n === 3 && back.v === 'Third' && back.sent, back);
+    await h.fill(`[id="${F2.ids.cnt}_"]`, '9');
+    await h.press(`[id="${F2.ids.cnt}_"]`, 'Tab');
+    await sleep(600);
+    R.check('f09b rows_from: 9 → capped at the maximum 4', await rows() === 4);
+  });
+
+  /* ------------------------------------------------------------------ f09c */
+  scenario('f09c', 'F09 fa_IR and ar at 375 px: local digits in row numbers, right to left, aligned labels, mixed-script order, 44 px targets', async ({ context }) => {
+    pro(true);
+    try {
+      for (const loc of ['fa_IR', 'ar']) {
+        ctl('locale', loc);
+        const fa = loc === 'fa_IR';
+        const L = form('F09 e2e ' + loc, [
+          { key: 'before', type: 'text', name: fa ? 'نام سفارش‌دهنده' : 'اسم الطالب', label_align: 'txt-right' },
+          { key: 'g', type: 'repeater', name: fa ? 'مسافران' : 'المسافرون', min_rows: '1', max_rows: '2', default_rows: '1', row_label: fa ? 'مسافر {n}' : 'المسافر {n}', collapsible: '1', label_align: 'txt-right', message: fa ? 'برای هر مسافر یک ردیف (حداکثر 2 ردیف، Email لازم)' : 'صف لكل مسافر (حتى 2 صفوف، Email)' },
+          { key: 'nm', type: 'text', name: fa ? 'نام' : 'الاسم', group: '@@g@@', label_align: 'txt-right' },
+          { key: 'em', type: 'email', name: fa ? 'ایمیل' : 'البريد', group: '@@g@@', label_align: 'txt-right' },
+          { key: 'after', type: 'text', name: fa ? 'یادداشت' : 'ملاحظة', label_align: 'txt-right' },
+        ]);
+        const p = await open(context, pageOf(L.form_id), 'f09c-' + loc, { viewport: { width: 375, height: 800 }, locale: fa ? 'fa-IR' : 'ar' });
+        await p.fill(`[id="${L.ids.nm}_r0_"]`, fa ? 'سارا Smith' : 'سارة Smith');
+        await p.press(`[id="${L.ids.nm}_r0_"]`, 'Tab');
+        await p.click(`[id="${L.ids.g}_add"]`);
+        await sleep(600);
+        const m = await p.evaluate((ids) => {
+          const align = (x) => { const l = document.getElementById(x); return l ? getComputedStyle(l).textAlign : null; };
+          const rows = Array.from(document.querySelectorAll(`[id="${ids.g}_rows"] > .efb-rpt-row`));
+          const btns = Array.from(document.querySelectorAll(`[id="${ids.g}-f"] .efb-rpt-remove, [id="${ids.g}-f"] .efb-rpt-toggle, [id="${ids.g}_add"]`));
+          const t = rows[1].querySelector('.efb-rpt-title');
+          return {
+            dir: getComputedStyle(document.querySelector('[id^="body_efb_"]')).direction,
+            titles: rows.map((r) => r.querySelector('.efb-rpt-title').textContent),
+            rm: rows[1].querySelector('.efb-rpt-remove').getAttribute('aria-label'),
+            live: document.getElementById(ids.g + '_live').textContent,
+            label: document.getElementById(ids.nm + '_r1_').getAttribute('aria-label'),
+            aligns: [align(ids.before + '_labG'), align(ids.g + '_labG'), align(ids.nm + '_r1_labG'), align(ids.after + '_labG')],
+            titleBidi: getComputedStyle(t).unicodeBidi, summaryBidi: getComputedStyle(rows[0].querySelector('.efb-rpt-summary')).unicodeBidi, summary: rows[0].querySelector('.efb-rpt-summary').textContent,
+            maxBidi: getComputedStyle(document.getElementById(ids.g + '_maxmsg')).unicodeBidi, maxMsg: document.getElementById(ids.g + '_maxmsg').textContent, maxShown: !document.getElementById(ids.g + '_maxmsg').hidden,
+            minBtn: Math.min.apply(null, btns.filter((b) => b.offsetParent).map((b) => Math.round(Math.min(b.getBoundingClientRect().width, b.getBoundingClientRect().height)))),
+            toolsLeft: (() => { const r = rows[1].querySelector('.efb-rpt-tools').getBoundingClientRect(), h = rows[1].querySelector('.efb-rpt-title').getBoundingClientRect(); return r.right <= h.left + 1; })(),
+            scroll: document.documentElement.scrollWidth <= window.innerWidth + 1,
+          };
+        }, L.ids);
+        const D1 = fa ? '۱' : '١', D2 = fa ? '۲' : '٢';
+        const strip = (x) => String(x).replace(/[⁨⁩]/g, '');
+        R.check(`f09c ${loc}: right to left; row titles and Remove labels with ${fa ? 'Persian' : 'Arabic-Indic'} digits; the field is named with its row`, m.dir === 'rtl' && m.titles.join('|') === (fa ? `مسافر ${D1}|مسافر ${D2}` : `المسافر ${D1}|المسافر ${D2}`) && m.rm.indexOf(D2) !== -1 && m.label.indexOf(D2) !== -1 && strip(m.live).indexOf(D2) !== -1, m);
+        R.check(`f09c ${loc}: the group title and the row fields' labels align like the other labels (txt-right); buttons sit at the end of the row header (left in RTL)`, new Set(m.aligns).size === 1 && m.aligns[0] === 'right' && m.toolsLeft, m);
+        R.check(`f09c ${loc}: mixed-script text keeps its order (unicode-bidi plaintext on titles, summary, the maximum sentence; the number isolated)`, m.titleBidi === 'plaintext' && m.summaryBidi === 'plaintext' && m.maxBidi === 'plaintext' && /Smith/.test(m.summary) && m.maxShown && m.maxMsg.indexOf(D2) !== -1, m);
+        R.check(`f09c ${loc}: 44 px targets at 375 px, no horizontal scroll`, m.minBtn >= 44 && m.scroll, m);
+        await p.screenshot({ path: SHOT(`f09c-${loc}-375`), fullPage: true });
+      }
+    } finally { ctl('locale', ''); }
   });
 };

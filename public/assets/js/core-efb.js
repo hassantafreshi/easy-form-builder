@@ -584,9 +584,12 @@ async function createStepsOfPublic() {
  state_efb = "run";
  efb_var = ajax_object_efm;
  setting_emsFormBuilder = typeof ajax_object_efm.form_setting == "string" ? efbParseJson(ajax_object_efm.form_setting) : ajax_object_efm.form_setting;
+  // F09: the copies of the repeater rows the server drew go into the form's structure before the fields are set up.
+  if (window.EFBRepeater) { try { window.EFBRepeater.init(); } catch (e) { /* the rest of the form still works */ } }
   efb_init_fields_in_efb(document);
   // F05: shuffled order (kept for the session), Other, Select all, the maximum lock, capacities, ranking (choices-efb.js).
   if (window.EfbChoices) { try { window.EfbChoices.initAll(); efb_choices_stock_efb(); } catch (e) { /* the form works without it; the server checks again */ } }
+  if (window.EFBRepeater) { try { window.EFBRepeater.ready(); } catch (e) { /* idem */ } }
 
 }
 /**
@@ -937,6 +940,8 @@ async function fun_sendBack_emsFormBuilder(ob) {
   if (window.EFBSmart && ob.type !== 'hiddenField') { try { window.EFBSmart.refresh(Number(form_id), ob.id_); } catch (e) {} }
   // F04: the form's calc fields again (debounced; a calc result itself does not start another round).
   if (window.EFBCalc && window.EFBCalc.page && ob.type !== 'calc') { try { window.EFBCalc.page.schedule(Number(form_id)); } catch (e) {} }
+  // F09: a field that gives a repeater group its number of rows.
+  if (window.EFBRepeater && ob.type !== 'repeater') { try { window.EFBRepeater.onAnswer(Number(form_id), ob); } catch (e) {} }
 }
 
 function yesNoGetEFB(v, id, idl, form_id=0) {

@@ -198,7 +198,7 @@ const STEP = { id_: '1', type: 'step', dataId: '1', classes: '', id: '1', name: 
     setTimeout(() => {
       const g = valj_efb.find((x) => x.type === 'repeater' && !before.includes(x.id_));
       const kids = g ? valj_efb.filter((x) => x.group === g.id_) : [];
-      res({ g: g && g.id_, kids: kids.map((k) => [k.type, k.name]), inBody: g ? document.querySelectorAll(`#${g.id_}_rptbody > section`).length : -1, keys: g ? ['min_rows', 'max_rows', 'default_rows', 'rpt_layout', 'collapse_prev', 'rmv_confirm'].map((k) => g[k]) : [] });
+      res({ g: g && g.id_, kids: kids.map((k) => [k.type, k.name]), inBody: g ? document.querySelectorAll(`[id="${g.id_}_rptbody"] > section`).length : -1, keys: g ? ['min_rows', 'max_rows', 'default_rows', 'rpt_layout', 'collapse_prev', 'rmv_confirm'].map((k) => g[k]) : [] });
     }, 300);
   }));
   check('a new group has the default keys', JSON.stringify(fresh.keys) === JSON.stringify(['1', '10', '1', 'blocks', '1', '1']), fresh.keys);
