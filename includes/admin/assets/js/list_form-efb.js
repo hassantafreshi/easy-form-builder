@@ -578,7 +578,8 @@ function fun_ws_show_list_messages(value) {
     iconNotRead = ' <path  d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.5a1 1 0 0 0-.8.4l-1.9 2.533a1 1 0 0 1-1.6 0L5.3 12.4a1 1 0 0 0-.8-.4H2a2 2 0 0 1-2-2V2zm3.5 1a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1h-9zm0 2.5a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5z"/>';
   } else if (form_type_emsFormBuilder == 'form' || form_type_emsFormBuilder == 'payment') {
 
-    head = `<div class="efb d-flex mb-3"> <button  class="efb  btn efb btn-primary text-white mt-2 mx-1 ec-efb" data-eventform="generateCSV" data-formtype="payment"   title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb  bi-download mx-2"></i><span class="efb d-none d-sm-inline">${efb_var.text.downloadCSVFile}</span></button >
+    head = `<div class="efb d-flex flex-wrap mb-3"> <button  class="efb  btn efb btn-primary text-white mt-2 mx-1 ec-efb" data-eventform="generateCSV" data-formtype="payment"   title="${efb_var.text.downloadCSVFileSub}" >   <i class="efb  bi-download mx-2"></i><span class="efb d-none d-sm-inline">${efb_var.text.downloadCSVFile}</span></button >
+    ${efb_csv_opt_val_el_efb()}
     `;
   }
   // F11-F: the abandoned (partial) answers of the form, kept only with the visitor's consent.
@@ -667,8 +668,35 @@ function fun_ws_show_list_messages(value) {
     </div>
      ${typeof efb_powered_by === 'function' ? efb_powered_by() : ''}
     `;
-  if (form_type_emsFormBuilder != 'login') fun_export_rows_for_Subscribe_emsFormBuilder(value);
+  if (form_type_emsFormBuilder != 'login') { window.efb_export_src_efb = value; fun_export_rows_for_Subscribe_emsFormBuilder(value); }
 
+}
+
+/* F05: "Export choices as" labels or stored values (a per-browser preference of the owner), and the cell of a
+ * choice row: "Other: text", a ranking as "A > B > C", a choice's stored value (ov) in value mode. */
+function efb_csv_opt_val_efb() {
+  try { return localStorage.getItem('efb_csv_opt_val') === 'value' ? 'value' : 'label'; } catch (e) { return 'label'; }
+}
+function efb_csv_opt_val_set_efb(v) {
+  try { localStorage.setItem('efb_csv_opt_val', v === 'value' ? 'value' : 'label'); } catch (e) { /* storage blocked: this export only */ }
+  window.efb_csv_opt_val_now = v === 'value' ? 'value' : 'label';
+  if (Array.isArray(window.efb_export_src_efb)) fun_export_rows_for_Subscribe_emsFormBuilder(window.efb_export_src_efb);
+}
+function efb_csv_opt_val_el_efb() {
+  const v = window.efb_csv_opt_val_now || efb_csv_opt_val_efb();
+  const t = (k, fb) => (efb_var.text && efb_var.text[k]) || fb;
+  return `<label class="efb fs-7 mt-2 mx-1 align-self-center" for="efbCsvOptVal">${t('csvOptVal', 'Export choices as')}</label><select id="efbCsvOptVal" class="efb form-select form-select-sm w-auto mt-2 mx-1" onchange="efb_csv_opt_val_set_efb(this.value)"><option value="label" ${v === 'label' ? 'selected' : ''}>${t('csvOptLabel', 'Labels')}</option><option value="value" ${v === 'value' ? 'selected' : ''}>${t('csvOptValue', 'Stored values')}</option></select>`;
+}
+function efb_csv_choice_row_efb(r, mode) {
+  if (!r || typeof r !== 'object' || typeof r.value !== 'string') return r;
+  const t = (k, fb) => (efb_var.text && efb_var.text[k]) || fb;
+  if (r.type === 'ranking') {
+    const src = mode === 'value' && typeof r.ov === 'string' && r.ov !== '' ? r.ov : r.value;
+    return Object.assign({}, r, { value: src.split('@efb!').filter((x) => x !== '').join(' > ') });
+  }
+  if (r.other == '1') return Object.assign({}, r, { value: mode === 'value' ? r.value : t('otherOpt', 'Other') + ': ' + r.value });
+  if (mode === 'value' && typeof r.ov === 'string' && r.ov !== '') return Object.assign({}, r, { value: r.ov });
+  return r;
 }
 
 function fun_delete_form_with_id_by_server(id) {
@@ -3912,7 +3940,10 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
   }
   for (let v of value) {
 
-    const content = efbParseJson(replaceContentMessageEfb(v.content, true))
+    // F05: choices as labels or stored values, "Other: text", a ranking "A > B > C".
+    const csvModeEfb = window.efb_csv_opt_val_now || (typeof efb_csv_opt_val_efb === 'function' ? efb_csv_opt_val_efb() : 'label');
+    const parsedEfb = efbParseJson(replaceContentMessageEfb(v.content, true));
+    const content = Array.isArray(parsedEfb) && typeof efb_csv_choice_row_efb === 'function' ? parsedEfb.map((r) => efb_csv_choice_row_efb(r, csvModeEfb)) : parsedEfb;
     count += 1;
     i_count += i_count == -1 ? 2 : 1;
     rows[i_count][1] = v.date;

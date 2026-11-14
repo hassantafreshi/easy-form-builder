@@ -5208,6 +5208,212 @@ class efbFunction {
 			"hdnVisitorMail" => $state && isset($ac->text->hdnVisitorMail) ? $ac->text->hdnVisitorMail : esc_html__('Include in the visitor\'s email copy','easy-form-builder'),
 			/* translators: F08: badge of a hidden value in the response viewer */
 			"hdnBadge" => $state && isset($ac->text->hdnBadge) ? $ac->text->hdnBadge : esc_html__('Hidden','easy-form-builder'),
+			/* translators: F05 builder: button that opens the bulk dialog */
+			"bulkAdd" => $state && isset($ac->text->bulkAdd) ? $ac->text->bulkAdd : esc_html__('Add in bulk','easy-form-builder'),
+			/* translators: F05 builder: help of the bulk dialog */
+			"bulkHelp" => $state && isset($ac->text->bulkHelp) ? $ac->text->bulkHelp : esc_html__('One choice per line. Use “Label|value” to store a different value.','easy-form-builder'),
+			/* translators: F05 builder */
+			"bulkReplace" => $state && isset($ac->text->bulkReplace) ? $ac->text->bulkReplace : esc_html__('Replace current choices','easy-form-builder'),
+			/* translators: F05 builder */
+			"bulkAppend" => $state && isset($ac->text->bulkAppend) ? $ac->text->bulkAppend : esc_html__('Add to the end','easy-form-builder'),
+			/* translators: F05 builder: the dialog's button */
+			"bulkApply" => $state && isset($ac->text->bulkApply) ? $ac->text->bulkApply : esc_html__('Add choices','easy-form-builder'),
+			/* translators: F05 builder: preview; %1$s = number of choices, %2$s = number of repeated labels */
+			"bulkCount" => $state && isset($ac->text->bulkCount) ? $ac->text->bulkCount : esc_html__('%1$s choices, %2$s repeated labels','easy-form-builder'),
+			/* translators: F05 builder: %s = line numbers */
+			"bulkStripped" => $state && isset($ac->text->bulkStripped) ? $ac->text->bulkStripped : esc_html__('The characters " < and > were removed from lines %s.','easy-form-builder'),
+			/* translators: F05 builder */
+			"bulkTooMany" => $state && isset($ac->text->bulkTooMany) ? $ac->text->bulkTooMany : esc_html__('Only the first 500 lines are added.','easy-form-builder'),
+			/* translators: F05 builder: %s = the repeated stored values */
+			"bulkDupValue" => $state && isset($ac->text->bulkDupValue) ? $ac->text->bulkDupValue : esc_html__('These stored values are used twice: %s','easy-form-builder'),
+			/* translators: F05 builder */
+			"bulkGroupsLater" => $state && isset($ac->text->bulkGroupsLater) ? $ac->text->bulkGroupsLater : esc_html__('Lines that start with “## ” (choice groups) are not used yet.','easy-form-builder'),
+			/* translators: F05 builder */
+			"presetLists" => $state && isset($ac->text->presetLists) ? $ac->text->presetLists : esc_html__('Ready-made lists','easy-form-builder'),
+			/* translators: F05 builder */
+			"presetNone" => $state && isset($ac->text->presetNone) ? $ac->text->presetNone : esc_html__('Type or paste your own','easy-form-builder'),
+			/* translators: F05 builder: label of the stored value of a choice */
+			"optValue" => $state && isset($ac->text->optValue) ? $ac->text->optValue : esc_html__('Stored value','easy-form-builder'),
+			/* translators: F05 builder */
+			"optValDup" => $state && isset($ac->text->optValDup) ? $ac->text->optValDup : esc_html__('Two choices cannot have the same stored value.','easy-form-builder'),
+			/* translators: F05 builder */
+			"optValPublic" => $state && isset($ac->text->optValPublic) ? $ac->text->optValPublic : esc_html__('Visitors can see this value in the page source.','easy-form-builder'),
+			/* translators: F05 builder */
+			"opRandom" => $state && isset($ac->text->opRandom) ? $ac->text->opRandom : esc_html__('Shuffle choices','easy-form-builder'),
+			/* translators: F05 builder: a choice that keeps its place when the choices are shuffled */
+			"opLock" => $state && isset($ac->text->opLock) ? $ac->text->opLock : esc_html__('Keep in place','easy-form-builder'),
+			/* translators: F05 builder: badge on the canvas */
+			"opRandomBadge" => $state && isset($ac->text->opRandomBadge) ? $ac->text->opRandomBadge : esc_html__('Shuffled for each visitor','easy-form-builder'),
+			/* translators: F05: the text of the “Other” choice */
+			"otherOpt" => $state && isset($ac->text->otherOpt) ? $ac->text->otherOpt : esc_html__('Other','easy-form-builder'),
+			/* translators: F05 builder */
+			"otherAllow" => $state && isset($ac->text->otherAllow) ? $ac->text->otherAllow : esc_html__('Add an “Other” choice','easy-form-builder'),
+			/* translators: F05 builder */
+			"otherLabel" => $state && isset($ac->text->otherLabel) ? $ac->text->otherLabel : esc_html__('Text of the “Other” choice','easy-form-builder'),
+			/* translators: F05 builder */
+			"otherMax" => $state && isset($ac->text->otherMax) ? $ac->text->otherMax : esc_html__('Longest “Other” answer (characters)','easy-form-builder'),
+			/* translators: F05 visitor: %s = the field label */
+			"otherReq" => $state && isset($ac->text->otherReq) ? $ac->text->otherReq : esc_html__('Please describe your “Other” answer for %s.','easy-form-builder'),
+			/* translators: F05 */
+			"selectAll" => $state && isset($ac->text->selectAll) ? $ac->text->selectAll : esc_html__('Select all','easy-form-builder'),
+			/* translators: F05 builder */
+			"selAllMax" => $state && isset($ac->text->selAllMax) ? $ac->text->selAllMax : esc_html__('“Select all” is hidden because the maximum is lower than the number of choices.','easy-form-builder'),
+			/* translators: F05 visitor: %1$s = the field label, %2$s = a number */
+			"minSelM_" => $state && isset($ac->text->minSelM_) ? $ac->text->minSelM_ : esc_html__('Choose at least %2$s options in %1$s.','easy-form-builder'),
+			/* translators: F05 visitor: %1$s = the field label, %2$s = a number */
+			"maxSelM_" => $state && isset($ac->text->maxSelM_) ? $ac->text->maxSelM_ : esc_html__('Choose at most %2$s options in %1$s.','easy-form-builder'),
+			/* translators: F05 builder */
+			"minMaxNoLimit" => $state && isset($ac->text->minMaxNoLimit) ? $ac->text->minMaxNoLimit : esc_html__('0 or empty = no limit','easy-form-builder'),
+			/* translators: F05 builder */
+			"invTrack" => $state && isset($ac->text->invTrack) ? $ac->text->invTrack : esc_html__('Limit how many times each choice can be picked','easy-form-builder'),
+			/* translators: F05 builder: capacity of one choice */
+			"invCap" => $state && isset($ac->text->invCap) ? $ac->text->invCap : esc_html__('Available','easy-form-builder'),
+			/* translators: F05 builder: help of a choice's capacity */
+			"invCapNone" => $state && isset($ac->text->invCapNone) ? $ac->text->invCapNone : esc_html__('Empty = no limit','easy-form-builder'),
+			/* translators: F05 builder */
+			"invShowMode" => $state && isset($ac->text->invShowMode) ? $ac->text->invShowMode : esc_html__('When a choice is used up','easy-form-builder'),
+			/* translators: F05 builder: inv_show = disable */
+			"invShowDisable" => $state && isset($ac->text->invShowDisable) ? $ac->text->invShowDisable : esc_html__('Show it turned off','easy-form-builder'),
+			/* translators: F05 builder: inv_show = hide */
+			"invShowHide" => $state && isset($ac->text->invShowHide) ? $ac->text->invShowHide : esc_html__('Hide it','easy-form-builder'),
+			/* translators: F05 builder: inv_show = label */
+			"invShowLabel" => $state && isset($ac->text->invShowLabel) ? $ac->text->invShowLabel : esc_html__('Show “Fully booked” next to it','easy-form-builder'),
+			/* translators: F05 builder */
+			"invShowLeft" => $state && isset($ac->text->invShowLeft) ? $ac->text->invShowLeft : esc_html__('Show how many are left','easy-form-builder'),
+			/* translators: F05 visitor: %s = a number */
+			"invLeftN" => $state && isset($ac->text->invLeftN) ? $ac->text->invLeftN : esc_html__('%s left','easy-form-builder'),
+			/* translators: F05 visitor: a choice that has no place left */
+			"soldOut" => $state && isset($ac->text->soldOut) ? $ac->text->soldOut : esc_html__('Fully booked','easy-form-builder'),
+			/* translators: F05 builder */
+			"invRelease" => $state && isset($ac->text->invRelease) ? $ac->text->invRelease : esc_html__('Free the place when an entry is deleted','easy-form-builder'),
+			/* translators: F05 builder: %s = a number */
+			"invUsed" => $state && isset($ac->text->invUsed) ? $ac->text->invUsed : esc_html__('Taken: %s','easy-form-builder'),
+			/* translators: F05 builder */
+			"dynSource" => $state && isset($ac->text->dynSource) ? $ac->text->dynSource : esc_html__('Choices come from','easy-form-builder'),
+			/* translators: F05 builder */
+			"dynManual" => $state && isset($ac->text->dynManual) ? $ac->text->dynManual : esc_html__('Typed here','easy-form-builder'),
+			/* translators: F05 builder */
+			"dynPosts" => $state && isset($ac->text->dynPosts) ? $ac->text->dynPosts : esc_html__('Posts or pages','easy-form-builder'),
+			/* translators: F05 builder */
+			"dynTerms" => $state && isset($ac->text->dynTerms) ? $ac->text->dynTerms : esc_html__('Categories or tags','easy-form-builder'),
+			/* translators: F05 builder */
+			"dynUsers" => $state && isset($ac->text->dynUsers) ? $ac->text->dynUsers : esc_html__('Users','easy-form-builder'),
+			/* translators: F05 builder */
+			"dynCsv" => $state && isset($ac->text->dynCsv) ? $ac->text->dynCsv : esc_html__('CSV file','easy-form-builder'),
+			/* translators: F05 builder */
+			"dynUsersPublic" => $state && isset($ac->text->dynUsersPublic) ? $ac->text->dynUsersPublic : esc_html__('User display names will be visible to everyone who opens the form.','easy-form-builder'),
+			/* translators: F05 builder */
+			"dynPostType" => $state && isset($ac->text->dynPostType) ? $ac->text->dynPostType : esc_html__('Content type','easy-form-builder'),
+			/* translators: F05 builder */
+			"dynTax" => $state && isset($ac->text->dynTax) ? $ac->text->dynTax : esc_html__('Taxonomy','easy-form-builder'),
+			/* translators: F05 builder */
+			"dynTerm" => $state && isset($ac->text->dynTerm) ? $ac->text->dynTerm : esc_html__('Only these categories (ids or slugs, comma separated)','easy-form-builder'),
+			/* translators: F05 builder */
+			"dynRole" => $state && isset($ac->text->dynRole) ? $ac->text->dynRole : esc_html__('Only these roles','easy-form-builder'),
+			/* translators: F05 builder */
+			"dynOrderBy" => $state && isset($ac->text->dynOrderBy) ? $ac->text->dynOrderBy : esc_html__('Order by','easy-form-builder'),
+			/* translators: F05 builder */
+			"dynLimit" => $state && isset($ac->text->dynLimit) ? $ac->text->dynLimit : esc_html__('How many choices','easy-form-builder'),
+			/* translators: F05 builder */
+			"dynCsvPick" => $state && isset($ac->text->dynCsvPick) ? $ac->text->dynCsvPick : esc_html__('Choose a CSV file','easy-form-builder'),
+			/* translators: F05 builder: %s = number of choices */
+			"dynPreviewN" => $state && isset($ac->text->dynPreviewN) ? $ac->text->dynPreviewN : esc_html__('Preview (first %s)','easy-form-builder'),
+			/* translators: F05 builder */
+			"dynManualKept" => $state && isset($ac->text->dynManualKept) ? $ac->text->dynManualKept : esc_html__('Your typed choices are kept and come back when you switch to “Typed here”.','easy-form-builder'),
+			/* translators: F05 builder */
+			"dynEmpty" => $state && isset($ac->text->dynEmpty) ? $ac->text->dynEmpty : esc_html__('Nothing found for this source.','easy-form-builder'),
+			/* translators: F05: name of the field type */
+			"ranking" => $state && isset($ac->text->ranking) ? $ac->text->ranking : esc_html__('Ranking','easy-form-builder'),
+			/* translators: F05 visitor: %s = an item */
+			"rnkUp" => $state && isset($ac->text->rnkUp) ? $ac->text->rnkUp : esc_html__('Move %s up','easy-form-builder'),
+			/* translators: F05 visitor: %s = an item */
+			"rnkDown" => $state && isset($ac->text->rnkDown) ? $ac->text->rnkDown : esc_html__('Move %s down','easy-form-builder'),
+			/* translators: F05 visitor (screen reader): %1$s = the item, %2$s = its position, %3$s = the number of items */
+			"rnkMoved" => $state && isset($ac->text->rnkMoved) ? $ac->text->rnkMoved : esc_html__('%1$s, position %2$s of %3$s','easy-form-builder'),
+			/* translators: F05 visitor */
+			"rnkConfirm" => $state && isset($ac->text->rnkConfirm) ? $ac->text->rnkConfirm : esc_html__('Keep this order','easy-form-builder'),
+			/* translators: F05 visitor: %s = the field label */
+			"rnkReq" => $state && isset($ac->text->rnkReq) ? $ac->text->rnkReq : esc_html__('Please put the items in %s in order.','easy-form-builder'),
+			/* translators: F05 visitor */
+			"rnkHelp" => $state && isset($ac->text->rnkHelp) ? $ac->text->rnkHelp : esc_html__('Drag an item, use its arrows, or press Alt and the up or down arrow.','easy-form-builder'),
+			/* translators: F05 builder */
+			"rankTop" => $state && isset($ac->text->rankTop) ? $ac->text->rankTop : esc_html__('Rank only the first (0 = all)','easy-form-builder'),
+			/* translators: F05 builder */
+			"rankTouch" => $state && isset($ac->text->rankTouch) ? $ac->text->rankTouch : esc_html__('The visitor must move an item or confirm the order','easy-form-builder'),
+			/* translators: F05 Settings > export */
+			"csvOptVal" => $state && isset($ac->text->csvOptVal) ? $ac->text->csvOptVal : esc_html__('Export choices as','easy-form-builder'),
+			/* translators: F05 Settings > export */
+			"csvOptLabel" => $state && isset($ac->text->csvOptLabel) ? $ac->text->csvOptLabel : esc_html__('Labels','easy-form-builder'),
+			/* translators: F05 Settings > export */
+			"csvOptValue" => $state && isset($ac->text->csvOptValue) ? $ac->text->csvOptValue : esc_html__('Stored values','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plIrProv" => $state && isset($ac->text->plIrProv) ? $ac->text->plIrProv : esc_html__('Provinces of Iran','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plAfProv" => $state && isset($ac->text->plAfProv) ? $ac->text->plAfProv : esc_html__('Provinces of Afghanistan','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plJalaliMonths" => $state && isset($ac->text->plJalaliMonths) ? $ac->text->plJalaliMonths : esc_html__('Solar Hijri months','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plFaWeekdays" => $state && isset($ac->text->plFaWeekdays) ? $ac->text->plFaWeekdays : esc_html__('Days of the week (from Saturday)','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plFaEducation" => $state && isset($ac->text->plFaEducation) ? $ac->text->plFaEducation : esc_html__('Education level (Iran)','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plFaMarital" => $state && isset($ac->text->plFaMarital) ? $ac->text->plFaMarital : esc_html__('Marital status','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plFaMilitary" => $state && isset($ac->text->plFaMilitary) ? $ac->text->plFaMilitary : esc_html__('Military service status','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plFaSatisf" => $state && isset($ac->text->plFaSatisf) ? $ac->text->plFaSatisf : esc_html__('Satisfaction scale (Persian)','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plFaLikert" => $state && isset($ac->text->plFaLikert) ? $ac->text->plFaLikert : esc_html__('Agreement scale (Persian)','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plFaAge" => $state && isset($ac->text->plFaAge) ? $ac->text->plFaAge : esc_html__('Age range (Persian)','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plArabStates" => $state && isset($ac->text->plArabStates) ? $ac->text->plArabStates : esc_html__('Arab League countries','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plSaRegions" => $state && isset($ac->text->plSaRegions) ? $ac->text->plSaRegions : esc_html__('Regions of Saudi Arabia','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plAeEmirates" => $state && isset($ac->text->plAeEmirates) ? $ac->text->plAeEmirates : esc_html__('Emirates of the UAE','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plEgGov" => $state && isset($ac->text->plEgGov) ? $ac->text->plEgGov : esc_html__('Governorates of Egypt','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plGcc" => $state && isset($ac->text->plGcc) ? $ac->text->plGcc : esc_html__('GCC countries','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plHijriMonths" => $state && isset($ac->text->plHijriMonths) ? $ac->text->plHijriMonths : esc_html__('Hijri months','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plArMonths" => $state && isset($ac->text->plArMonths) ? $ac->text->plArMonths : esc_html__('Gregorian months (Arabic names)','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plArWeekdays" => $state && isset($ac->text->plArWeekdays) ? $ac->text->plArWeekdays : esc_html__('Days of the week (from Sunday, Arabic)','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plArEducation" => $state && isset($ac->text->plArEducation) ? $ac->text->plArEducation : esc_html__('Education level (Arabic)','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plArSatisf" => $state && isset($ac->text->plArSatisf) ? $ac->text->plArSatisf : esc_html__('Satisfaction scale (Arabic)','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plUsStates" => $state && isset($ac->text->plUsStates) ? $ac->text->plUsStates : esc_html__('U.S. states','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plCaProv" => $state && isset($ac->text->plCaProv) ? $ac->text->plCaProv : esc_html__('Canadian provinces and territories','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plUkNations" => $state && isset($ac->text->plUkNations) ? $ac->text->plUkNations : esc_html__('UK nations','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plAuStates" => $state && isset($ac->text->plAuStates) ? $ac->text->plAuStates : esc_html__('Australian states and territories','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plMonths" => $state && isset($ac->text->plMonths) ? $ac->text->plMonths : esc_html__('Months','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plWeekdays" => $state && isset($ac->text->plWeekdays) ? $ac->text->plWeekdays : esc_html__('Days of the week','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plAge" => $state && isset($ac->text->plAge) ? $ac->text->plAge : esc_html__('Age range','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plSatisf" => $state && isset($ac->text->plSatisf) ? $ac->text->plSatisf : esc_html__('Satisfaction scale','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plLikert" => $state && isset($ac->text->plLikert) ? $ac->text->plLikert : esc_html__('Agreement scale','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plImportance" => $state && isset($ac->text->plImportance) ? $ac->text->plImportance : esc_html__('Importance scale','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plLikelihood" => $state && isset($ac->text->plLikelihood) ? $ac->text->plLikelihood : esc_html__('Likelihood scale','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plYesNo" => $state && isset($ac->text->plYesNo) ? $ac->text->plYesNo : esc_html__('Yes / no / not sure','easy-form-builder'),
+			/* translators: F05 ready-made list */
+			"plEducation" => $state && isset($ac->text->plEducation) ? $ac->text->plEducation : esc_html__('Education level','easy-form-builder'),
+			/* translators: F05 builder: link shown instead of a country list */
+			"plCountryHint" => $state && isset($ac->text->plCountryHint) ? $ac->text->plCountryHint : esc_html__('For countries, use the Country field.','easy-form-builder'),
 			"stInsert" => $state && isset($ac->text->stInsert) ? $ac->text->stInsert : esc_html__('Insert a smart tag','easy-form-builder'),
 			/* translators: F08 builder: %s = the tag as typed */
 			"stUnknown" => $state && isset($ac->text->stUnknown) ? $ac->text->stUnknown : esc_html__('Unknown smart tag: %s','easy-form-builder'),
@@ -5503,7 +5709,8 @@ class efbFunction {
 								foreach ($vl as $kii => $vll) {
 									if($kii!="value") continue;
 									if(gettype($vll)!="array" && gettype($vll)!="object" ){
-										if($vll==$valp[$key]['id_'])$vll=$valp[$key][$k];
+										// F05 §19: the field's default follows the renamed choice (this wrote a local copy before).
+										if($vll==$valp[$key]['id_'])$valp[$ki][$kii]=$valp[$key][$k];
 									}else{
 										foreach ($vll as $ke => $vn) {
 											if($vn==$valp[$key]['id_']) {
@@ -5681,6 +5888,41 @@ class efbFunction {
 						if (!class_exists('\\Emsfb\\Field_Rules') && is_readable(__DIR__ . '/class-Emsfb-field-rules.php')) require_once __DIR__ . '/class-Emsfb-field-rules.php';
 						$valp[$key][$k] = class_exists('\\Emsfb\\Field_Rules') ? \Emsfb\Field_Rules::sanitize_key($k, $v) : '';
 					break;
+					// F05 choices: the stored value of a choice, flags, numbers, enums and the dynamic-source
+					// keys (explicit cases: one rule set, Choices::sanitize_key() = EfbChoices.rules.sanitizeKey()).
+					case 'opt_value':
+					case 'op_lock':
+					case 'inv_cap':
+					case 'op_random':
+					case 'op_other':
+					case 'op_other_label':
+					case 'op_other_max':
+					case 'op_select_all':
+					case 'minSelect':
+					case 'maxSelect':
+					case 'inv_on':
+					case 'inv_show':
+					case 'inv_left':
+					case 'inv_release':
+					case 'dyn_src':
+					case 'dyn_post_type':
+					case 'dyn_tax':
+					case 'dyn_term':
+					case 'dyn_role':
+					case 'dyn_orderby':
+					case 'dyn_order':
+					case 'dyn_limit':
+					case 'dyn_csv':
+					case 'rank_top':
+					case 'rank_touch':
+						if (!class_exists('\\Emsfb\\Choices') && is_readable(__DIR__ . '/class-Emsfb-choices.php')) require_once __DIR__ . '/class-Emsfb-choices.php';
+						$valp[$key][$k] = class_exists('\\Emsfb\\Choices') ? \Emsfb\Choices::sanitize_key($k, $v) : (is_scalar($v) ? sanitize_text_field($v) : '');
+					break;
+					// The server's own marks on rows: never taken from a save (dyn = a choice built from the site, inv_mode = booking).
+					case 'dyn':
+					case 'inv_mode':
+						unset($valp[$key][$k]);
+					break;
 					// F02 one-time codes (mobile and e-mail fields): enums, an ISO list, short plain texts and the
 					// e-mail text (newlines kept as @n#). One rule set, Verification::sanitize_key() (= EFBVerify.sanitizeKey()).
 					case 'otp_enabled':
@@ -5777,6 +6019,9 @@ class efbFunction {
 		if (is_array($valp)) {
 			if (!class_exists('\\Emsfb\\Smart_Tags') && is_readable(__DIR__ . '/class-Emsfb-smart-tags.php')) require_once __DIR__ . '/class-Emsfb-smart-tags.php';
 			if (class_exists('\\Emsfb\\Smart_Tags')) $valp = \Emsfb\Smart_Tags::normalize_rows($valp);
+			// F05: a stored value used twice inside one field is kept on its first choice only.
+			if (!class_exists('\\Emsfb\\Choices') && is_readable(__DIR__ . '/class-Emsfb-choices.php')) require_once __DIR__ . '/class-Emsfb-choices.php';
+			if (class_exists('\\Emsfb\\Choices')) $valp = \Emsfb\Choices::normalize_rows($valp);
 		}
 		return $valp;
 	}

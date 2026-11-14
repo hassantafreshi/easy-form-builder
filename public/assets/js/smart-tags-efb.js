@@ -231,6 +231,9 @@
     if (!Object.prototype.hasOwnProperty.call(vals, arg)) return null;
     var v = vals[arg];
     var list = (Array.isArray(v) ? v : [v]).map(function (x) { return isScalar(x) ? String(x) : ''; }).filter(function (x) { return x !== ''; });
+    // F05: the stored values of the answer itself (ovals: by choice id in the page, ov from the server), exact
+    // even when two choices share a label; an "Other" answer is its own text.
+    if (sub === 'value' && ctx.ovals && Array.isArray(ctx.ovals[arg]) && ctx.ovals[arg].length) return ctx.ovals[arg].map(str).join(', ');
     if (sub === 'value' && ctx.fields && ctx.fields[arg] && Array.isArray(ctx.fields[arg].options)) {
       var opts = ctx.fields[arg].options;
       list = list.map(function (label) {
@@ -431,6 +434,24 @@
     });
     return vals;
   }
+  /* F05: field id => the stored values of the chosen choices in the page (option id → opt_value, else its label; an
+     "Other" answer its text; a ranking in its order). Only fields whose choices have a stored value. */
+  function ovalsOf(fid, rows) {
+    var out = {};
+    var opts = {}, has = {};
+    (rows || []).forEach(function (r) { if (r && r.type === 'option' && r.id_ !== undefined) { opts[String(r.id_)] = r; if (str(r.opt_value) !== '') has[String(r.parent)] = true; } });
+    (rowsG() || []).forEach(function (r) {
+      if (!r || typeof r !== 'object' || r.id_ === undefined || Number(r.form_id) !== Number(fid)) return;
+      var id = String(r.id_);
+      if (!has[id]) return;
+      var ob = str(r.id_ob);
+      if (ob === id + '_oth') { (out[id] = out[id] || []).push(str(r.value)); return; }
+      if (typeof r.ids === 'string' && r.ids !== '') { out[id] = r.ids.split(',').map(function (x) { var o = opts[x]; return o ? (str(o.opt_value) !== '' ? str(o.opt_value) : str(o.value)) : ''; }).filter(Boolean); return; }
+      var o = opts[ob];
+      if (o && String(o.parent) === id) (out[id] = out[id] || []).push(str(o.opt_value) !== '' ? str(o.opt_value) : str(o.value));
+    });
+    return out;
+  }
   function context(fid) {
     var rows = structure(fid);
     var sb = smartBlock();
@@ -452,6 +473,7 @@
       site: sb.site && typeof sb.site === 'object' ? sb.site : {},
       fields: fields,
       values: valuesOf(fid, fields),
+      ovals: ovalsOf(fid, rows),
       entry: { track: '' }
     };
   }

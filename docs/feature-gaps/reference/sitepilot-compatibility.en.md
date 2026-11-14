@@ -999,6 +999,18 @@ Fill: schema options carry `value` = `opt_value`; `setValue` accepts the option 
 `opt_value`. Must add: stock left in schema only with `inv_left`; `efb_form_saved` purges
 `efb_dyn_*` transients (not only the AJAX save). Conflict C2: option-row key `group` (phase-2
 optgroup) collides with F09's field-row `group`; rename to `optgroup`.
+*Status 2026-11-14 (F05 A–G shipped on `dev4`):* every key above except the phase-2 `group` and `icon` is
+saved by explicit cases of `sanitize_obj_msg_efb` → `Choices::sanitize_key()` = `EfbChoices.rules.sanitizeKey()`
+(parity test); `Choices::normalize_rows` empties a repeated `opt_value` per field. `efbBuilderApi.insertItems`
+/ `setForm` refuse `choice_invalid`, `choice_value_dup`, `choice_dyn_users` (`allow.dyn_users`);
+`setOptions()` / `setChoices()` added. The answer keys `ov`, `other`, `ids` are written by the server only.
+Schema options carry `{id, label, value}` (`value` = `opt_value`), `left` only with `inv_left`, and a
+`choices` block. `efb_form_saved` / `efb_form_created` / `efb_form_deleted` purge the `efb_dyn_*` cache, and
+content changes (posts, terms, users, attachments) purge every list. Stock lives in `emsfb_stock_` (DB 1.9);
+`registered_count` is read only by the one-time migration. Registry: `setting:choice_*`, `field:ranking`,
+`capabilities.choices`; plans as §14 of the spec (Pro gates through `efb_plan_at_least_efb`, conflict C3
+handled for F05). Visitor codes `efb_choice_*`, `efb_stock_unavailable` (docs/autopilot-integration.md "F05").
+C2 is still open: `group` was not built, so renaming it to `optgroup` costs nothing now.
 
 **F06 advanced calendar.** Covered by `calendar-engine-contract.en.md` (stable). Must add for this
 contract: array/object keys (`cal_allowed`, `date_min/max`, `disabled_*`, `holidays_custom`,

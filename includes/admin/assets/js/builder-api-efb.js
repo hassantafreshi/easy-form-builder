@@ -251,6 +251,8 @@
     if (upErrs.length) throw failUpload(upErrs);
     var stErrs = smartCheck(next, 0, next);
     if (stErrs.length) throw failSmart(stErrs);
+    var chErrs = choicesCheck(next.slice(1), 1, next.slice(1), opts);
+    if (chErrs.length) throw failChoices(chErrs);
     if (typeof efbNormalizeOrderEfb === 'function') efbNormalizeOrderEfb(next);
     valj_efb = next;
     if (typeof form_type_emsFormBuilder !== 'undefined') form_type_emsFormBuilder = next[0].type;
@@ -277,6 +279,8 @@
     if (upErrs.length) throw failUpload(upErrs);
     var stErrs = smartCheck(add, 0, list.concat(add), true);
     if (stErrs.length) throw failSmart(stErrs);
+    var chErrs = choicesCheck(add, 0, list.slice(1).concat(add), opts);
+    if (chErrs.length) throw failChoices(chErrs);
     if (items && items.formPatch && typeof items.formPatch === 'object') {
       var fpErrs = uploadCheck([items.formPatch], 0);
       if (fpErrs.length) throw failUpload(fpErrs);
@@ -1014,8 +1018,130 @@
     });
   }
 
+  /* ---------------- F05 choices ---------------- */
+
+  /**
+   * F05: the choice keys of items with the save rules (EfbChoices.rules.sanitizeKey = Choices::sanitize_key): a value the
+   * rules cannot keep throws choice_invalid (e.path); a stored value (opt_value) used twice in one field choice_value_dup;
+   * dyn_src "users" publishes display names, so it needs opts.allow.dyn_users (choice_dyn_users). Rows are rewritten with
+   * the stored values; ov / other / dyn / inv_mode are the server's and are dropped.
+   */
+  function choicesCheck(items, offset, all, opts) {
+    var C = window.EfbChoices;
+    var out = [];
+    if (!C || !C.rules) return out;
+    var R = C.rules;
+    var keys = R.OPTION_KEYS.concat(R.PARENT_KEYS);
+    (items || []).forEach(function (r, i) {
+      if (!r || typeof r !== 'object') return;
+      var path = 'rows[' + (i + (offset || 0)) + '].';
+      ['ov', 'other', 'dyn', 'inv_mode'].forEach(function (k) { delete r[k]; });
+      keys.forEach(function (k) {
+        if (r[k] === undefined || r[k] === null || r[k] === '') return;
+        var raw = r[k];
+        var v = R.sanitizeKey(k, raw);
+        var falsy = raw === false || raw === 0 || raw === '0';
+        if (v === '' && !falsy) { out.push({ code: 'choice_invalid', path: path + k, key: k, field: r.id_ }); return; }
+        if (v === '' && k !== 'rank_touch') delete r[k]; else r[k] = v;
+      });
+      if (r.dyn_src === 'users' && !(opts && opts.allow && opts.allow.dyn_users)) out.push({ code: 'choice_dyn_users', path: path + 'dyn_src', key: 'dyn_src', field: r.id_ });
+    });
+    var seen = {};
+    (all || []).forEach(function (r) {
+      if (!r || r.type !== 'option' || typeof r.opt_value !== 'string' || r.opt_value === '') return;
+      var k = String(r.parent) + '\u0000' + r.opt_value;
+      if (seen[k] && seen[k] !== r.id_) {
+        var i = (items || []).indexOf(r);
+        out.push({ code: 'choice_value_dup', path: 'rows[' + (i === -1 ? '?' : i + (offset || 0)) + '].opt_value', key: 'opt_value', field: r.parent, value: r.opt_value });
+      } else seen[k] = r.id_;
+    });
+    return out;
+  }
+  function failChoices(errs) {
+    var e0 = errs[0];
+    var e = fail(e0.code, e0.code === 'choice_value_dup' ? 'Two choices of ' + e0.field + ' have the stored value ' + e0.value + ' (' + e0.path + ')' : (e0.code === 'choice_dyn_users' ? 'Choices from users publish display names; pass {allow: {dyn_users: true}} (' + e0.path + ')' : 'This value cannot be used for ' + e0.key + ' (' + e0.path + ')'));
+    e.path = e0.path; e.errors = errs;
+    return e;
+  }
+  function choiceField(id) {
+    var list = rows();
+    var idx = fieldIndex(list, String(id));
+    var C = window.EfbChoices;
+    if (!C) throw fail('builder_not_ready', 'The choice rules (choices-efb.js) are not loaded.');
+    var T = C.rules.TYPES;
+    var ok = idx > 0 && Object.keys(T).some(function (p) { return T[p].indexOf(list[idx].type) !== -1; });
+    if (!ok) throw fail('unknown_field', 'No choice field with id ' + id + '.');
+    return { list: list, idx: idx, row: list[idx], C: C };
+  }
+  /**
+   * F05: the choices of one field from lines ("Label", "Label|value", "\|" = "|") or [{label, value}], in one call:
+   * setOptions('size', 'Small|s\nLarge|l', {mode: 'append'|'replace' (default)}). Throws choice_value_dup (a stored value
+   * twice), choice_too_many (over 500), invalid_items (nothing to add). Returns {added, ids, stripped, dupLabels}.
+   */
+  function setOptions(id, lines, opts) {
+    opts = opts || {};
+    var f = choiceField(id);
+    var text = Array.isArray(lines) ? lines.map(function (l) { return typeof l === 'string' ? l : (l && l.label !== undefined ? String(l.label).replace(/\|/g, '\\|') + (l.value !== undefined && l.value !== '' ? '|' + String(l.value).replace(/\|/g, '\\|') : '') : ''); }).join('\n') : String(lines == null ? '' : lines);
+    var mode = opts.mode === 'append' ? 'append' : 'replace';
+    var existing = mode === 'append' ? f.list.filter(function (r) { return r && r.type === 'option' && r.parent === f.row.id_; }).map(function (o) { return { label: o.value, value: o.opt_value || '' }; }) : [];
+    var res = f.C.parseBulk(text, { existing: existing, calc: !!(window.efb_var && window.efb_var.choices && window.efb_var.choices.calc) });
+    if (res.tooMany) throw fail('choice_too_many', 'At most ' + f.C.rules.MAX_BULK + ' choices are added at once.');
+    if (res.dupValues.length) { var e = fail('choice_value_dup', 'These stored values are used twice: ' + res.dupValues.join(', ')); e.values = res.dupValues; throw e; }
+    if (!res.items.length) throw fail('invalid_items', 'No choice in the lines.');
+    var list = f.list;
+    if (mode === 'replace') {
+      for (var i = list.length - 1; i > 0; i--) if (list[i] && list[i].type === 'option' && list[i].parent === f.row.id_) list.splice(i, 1);
+    }
+    var at = fieldEnd(list, fieldIndex(list, f.row.id_)) + 1;
+    var pay = /pay/.test(f.row.type);
+    var ids = [];
+    var add = res.items.map(function (it) {
+      var oid = randomId();
+      ids.push(oid);
+      var o = { id_: oid, dataId: oid + '-id', parent: f.row.id_, type: 'option', value: it.label, id_op: oid, step: f.row.step, amount: f.row.amount };
+      if (pay) o.price = 0;
+      if (it.value !== undefined) o.opt_value = it.value;
+      if (it.calc !== undefined) o.calc = it.calc;
+      return o;
+    });
+    Array.prototype.splice.apply(list, [at, 0].concat(add));
+    renumber(list);
+    persist();
+    apiChanged('setOptions', [f.row.id_]);
+    if (opts.refresh !== false) { try { refreshSettingsPanel(); } catch (x) {} }
+    return { added: add.length, ids: ids, stripped: res.stripped, dupLabels: res.dupLabels };
+  }
+  /**
+   * F05: the choice keys of one field: setChoices('size', {op_random: true, op_other: true, maxSelect: 2, inv_on: true,
+   * dyn_src: 'posts', rank_top: 3}). A key that is not an F05 field key throws invalid_setting; the codes of choicesCheck.
+   * Returns {changed, values, plan} (plan = keys stored but off on this plan: inventory and dynamic sources are Pro).
+   */
+  function setChoices(id, patch, opts) {
+    var f = choiceField(id);
+    if (!patch || typeof patch !== 'object' || Array.isArray(patch)) throw fail('invalid_setting', 'setChoices() needs an object of choice keys.');
+    var R = f.C.rules;
+    Object.keys(patch).forEach(function (k) { if (R.PARENT_KEYS.indexOf(k) === -1) throw fail('invalid_setting', 'key ' + k + ' is not a choice-field key.'); });
+    var next = clone(f.row);
+    Object.keys(patch).forEach(function (k) { next[k] = patch[k] === true ? '1' : (patch[k] === false ? (k === 'rank_touch' ? '0' : '') : patch[k]); if (next[k] === '') delete next[k]; });
+    var errs = choicesCheck([next], f.idx, null, opts);
+    if (errs.length) throw failChoices(errs);
+    f.list[f.idx] = next;
+    persist();
+    apiChanged('setChoices', [next.id_]);
+    if (!opts || opts.refresh !== false) { try { refreshSettingsPanel(); } catch (x) {} }
+    var values = {};
+    Object.keys(patch).forEach(function (k) { values[k] = next[k] === undefined ? '' : next[k]; });
+    var cap = (window.efb_var && window.efb_var.capabilities && window.efb_var.capabilities.features) || {};
+    var gated = [];
+    if (next.inv_on === '1' && cap['setting:choice_inventory'] && cap['setting:choice_inventory'].available_now === false) gated.push('inv_on');
+    if (next.dyn_src && cap['setting:choice_dynamic'] && cap['setting:choice_dynamic'].available_now === false) gated.push('dyn_src');
+    return { changed: Object.keys(values), values: values, plan: gated };
+  }
+
   var api = {
     version: API_VERSION,
+    setOptions: setOptions,
+    setChoices: setChoices,
     paymentReadiness: paymentReadiness,
     setFormSettings: setFormSettings,
     setFieldRules: setFieldRules,

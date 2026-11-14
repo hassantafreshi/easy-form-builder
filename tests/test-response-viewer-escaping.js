@@ -123,6 +123,29 @@ console.log('\n=== F11-F partial answers tab ===');
   t('the partial viewer goes through fun_emsFormBuilder_show_messages', /fun_emsFormBuilder_show_messages\(content, '#first'/.test(listSrc));
 }
 
+console.log('\n=== F05: stored values (ov), "Other" and rankings in the viewer and the CSV ===');
+{
+  // efbChoiceTextEfb() gets rows of the escaped tree; a hostile ov / Other text / ranking label stays text.
+  const fn = new Function('efb_var', grab('efbChoiceTextEfb') + 'return efbChoiceTextEfb;')({ text: { otherOpt: 'Other' } });
+  const rows = escResponseTreeEfb([
+    { type: 'radio', value: 'Fine', ov: '<img src=x onerror=alert(1)>' },
+    { type: 'checkbox', value: '<b>x</b>', other: '1' },
+    { type: 'radio', value: 'Same', ov: 'Same' },
+    { type: 'multiselect', value: 'A@efb!B@efb!', ov: 'a@efb!b@efb!' },
+  ]);
+  const a = fn(rows[0]), b = fn(rows[1]), c = fn(rows[2]), d = fn(rows[3]);
+  t('a hostile stored value is shown as text beside the label', a.indexOf('<img') === -1 && a.indexOf('&lt;img src=x onerror=alert(1)&gt;') !== -1 && a.indexOf('efb-msg-ov') !== -1, a);
+  t('an "Other" answer: "Other: <text>", the text escaped and isolated', b === 'Other: <bdi>&lt;b&gt;x&lt;/b&gt;</bdi>', b);
+  t('a stored value equal to the label is not repeated', c === 'Same', c);
+  t('a multiselect lists its stored values with ", "', /\(a, b\)<\/small>$/.test(d), d);
+  t('the ranking branch builds an <ol> from the escaped labels', /efb-msg-ranking/.test(src) && /String\(c\.value \|\| ''\)\.split\('@efb!'\)/.test(src));
+  const lsrc = listSrc.slice(listSrc.indexOf('function efb_csv_choice_row_efb'), listSrc.indexOf('function efb_csv_choice_row_efb') + 1200);
+  const conv2 = new Function('efb_var', lsrc.slice(0, lsrc.indexOf('\n}\n') + 3) + 'return efb_csv_choice_row_efb;')({ text: { otherOpt: 'Other' } });
+  t('CSV: a ranking as "A > B > C" (labels), its stored values in value mode', [conv2({ type: 'ranking', value: 'A@efb!B@efb!', ov: 'a@efb!b@efb!' }, 'label').value, conv2({ type: 'ranking', value: 'A@efb!B@efb!', ov: 'a@efb!b@efb!' }, 'value').value].join('|') === 'A > B|a > b');
+  t('CSV: "Other: text" with labels, the text alone with values; a choice\'s ov only in value mode', [conv2({ type: 'radio', value: 'Teal', other: '1' }, 'label').value, conv2({ type: 'radio', value: 'Teal', other: '1' }, 'value').value, conv2({ type: 'radio', value: 'Tehran', ov: 'IR-23' }, 'label').value, conv2({ type: 'radio', value: 'Tehran', ov: 'IR-23' }, 'value').value].join('|') === 'Other: Teal|Teal|Tehran|IR-23');
+  t('CSV: a stored value that is a formula is still neutralised by the exporter', csvEscape_EFB(conv2({ type: 'radio', value: 'x', ov: '=HYPERLINK("e")' }, 'value').value).indexOf("'=") !== -1);
+}
+
 console.log('\n========================================');
 console.log(`RESULTS: ${pass} passed, ${fail} failed`);
 console.log('========================================');

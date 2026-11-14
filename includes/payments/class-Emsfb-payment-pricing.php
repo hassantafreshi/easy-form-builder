@@ -59,6 +59,8 @@ class Pricing {
 			$ftype = isset( $field['type'] ) ? (string) $field['type'] : '';
 			if ( ! in_array( $ftype, self::PAY_TYPES, true ) ) continue;
 			$ob = isset( $row['id_ob'] ) && is_scalar( $row['id_ob'] ) ? (string) $row['id_ob'] : '';
+			// F05: the "Other" answer of a priced choice field has no price, whatever the row says (spec §4.4).
+			if ( $ob === $id . '_oth' ) continue;
 			$key = $id . '|' . ( $ftype === 'payCheckbox' ? $ob : '' );
 			if ( isset( $seen[ $key ] ) ) continue;
 			$seen[ $key ] = true;

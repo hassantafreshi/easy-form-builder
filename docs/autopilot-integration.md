@@ -1145,6 +1145,70 @@ kept equal by 168 shared vectors (`docs/feature-gaps/reference/smart-tag-vectors
   scenarios `f08a` … `f08e`, `f08pay` (AutoPilot: `f08a` `setHiddenField`, the `smart_invalid` refusal,
   capabilities, schema; `setPrefill` and the prefill refusals in `test-smart-tags-builder.js`).
 
+### F05. Choices: bulk add, stored values, shuffle, Other, Select all, limits, stock, choices from the site, ranking (`ranking`, `efbBuilderApi.setOptions` / `setChoices`, `window.EfbChoices`, codes)
+
+Spec: `docs/feature-gaps/F05-choices.fa.md`. Server: `Emsfb\Choices` (`includes/class-Emsfb-choices.php`) and
+`Emsfb\Stock` (`includes/class-Emsfb-stock.php`, table `emsfb_stock_`, DB 1.9,
+`docs/migrations/f05-stock-table-2026-11-14.md`); page: `window.EfbChoices` (`public/assets/js/choices-efb.js`),
+builder: `includes/admin/assets/js/choices-builder-efb.js`. The save rules have one twin in each language
+(`Choices::sanitize_key` = `EfbChoices.rules.sanitizeKey`, `tests/test-choices-parity.js`). A choice field without
+the new keys stores as before and renders as before except for the options box of radio / checkbox fields,
+which now has `role="radiogroup"` / `"group"`, `aria-labelledby` and `data-formid`.
+
+| Keys | Where | Plan (F05 §14, `Choices::PLAN`, filter `efb_choices_plan`) |
+|---|---|---|
+| `opt_value` (stored value, at most 200, unique per field), `op_lock` (`'1'`: keeps its place when shuffled) | option row | Free |
+| `op_random`, `op_other`, `op_other_label` (≤ 80), `op_other_max` (1–1000, default 200), `op_select_all` (checkbox), `minSelect` / `maxSelect` (checkbox, multiselect; 0–500) | field | Free |
+| `inv_on`, `inv_show` (`disable` \| `hide` \| `label`), `inv_left`, `inv_release`; option `inv_cap` (0–1000000; empty = no limit) | field / option | **Pro** |
+| `dyn_src` (`posts` \| `terms` \| `users` \| `csv`), `dyn_post_type`, `dyn_tax`, `dyn_term`, `dyn_role`, `dyn_orderby` (`title` \| `date` \| `menu_order` \| `name`), `dyn_order`, `dyn_limit` (1–500), `dyn_csv` (attachment id) | field (radio, checkbox, select, multiselect) | **Pro** |
+| type `ranking`: option rows as for radio; `rank_top` (0 = all), `rank_touch`, `op_random` | field | **Free Plus** |
+
+- **Answer rows.** `ov` (the stored value of the chosen option), `other` (`'1'` on the `{field}_oth` row) and
+  `ids` (ranking: the option ids in order, joined with `,`) are written by the server; a browser's `ov` /
+  `other` is dropped. The label stays in `value`. "Other" is plain text cut at `op_other_max` and never
+  priced. A ranking stores `value` = labels joined with `@efb!`, `ov` = stored values, `ids`. Every submit
+  path (normal, payment, F13 "do not store") checks: the option belongs to the field, min / max, Other,
+  the ranking is a permutation (or the first `rank_top`), a choice from the site is still in the list
+  (the list is rebuilt fresh on submit), and the stock (atomic, all or nothing, after F11 places and F03
+  claims, before F06 / F02 commits; given back on any later failure, a failed / cancelled / expired payment
+  and, with `inv_release`, a deleted entry).
+- **Codes** (answer `code`, with `field_id`): `efb_choice_other`, `efb_choice_min`, `efb_choice_max`,
+  `efb_choice_invalid`, `efb_choice_full`, `efb_choice_expired`, `efb_choice_ranking`,
+  `efb_stock_unavailable` (HTTP 503: the stock table is missing; a form with stock refuses rather than oversells).
+- **Builder.** `efbBuilderApi.insertItems` / `setForm` run the save rules on choice keys and refuse
+  `choice_invalid` (`path`, `key`), `choice_value_dup` (one stored value twice in a field) and
+  `choice_dyn_users` (`dyn_src: 'users'` publishes display names: pass `{allow: {dyn_users: true}}`).
+  `setOptions(id, lines, {mode: 'replace' | 'append'})` adds choices from lines (`Label`, `Label|value`,
+  `\|` = a literal `|`) or `[{label, value}]`, at most 500, and returns `{added, ids, stripped, dupLabels}`;
+  it throws `choice_value_dup` (`values`), `choice_too_many`, `invalid_items`. `setChoices(id, patch)` sets the
+  field keys above (`invalid_setting` for any other key) and returns `{changed, values, plan}` where `plan`
+  lists keys saved but not active on the current plan (`inv_on`, `dyn_src`). Both throw `builder_not_ready`
+  and `unknown_field`. Saving stays the owner's Save. Ready lists for bulk add: `capabilities.choices.presets`
+  (AJAX `efb_choice_presets_Emsfb`, nonce and `manage_options`).
+- **Registry.** `setting:choice_bulk`, `setting:choice_value`, `setting:choice_random`, `setting:choice_other`,
+  `setting:choice_select_all`, `setting:choice_limits` (free), `setting:choice_inventory`,
+  `setting:choice_dynamic` (Pro), `field:ranking` (Free Plus), each with `form_keys`; top level `choices` =
+  `{option_keys, field_keys, types, limits, enums, presets, answer, codes, builder, rest, risk_flags:
+  {pii_capture, public_values}, assistant: {dyn_users}, spec}`.
+- **Schema.** `forms/{id}/schema` gives every choice field `options: [{id, label, value}]` (`value` =
+  `opt_value`, else the label; a list from the site is expanded), `left` / `available` only when `inv_left`
+  is on, and `choices: {random, other: {id, max, price: false}, min, max, inventory: {show_left, when_full},
+  dynamic: {source}, ranking: {top}}`; no capacity, CSV path or query arguments. `forms/session/prepare`
+  answers `stock: {option id: left}` for a form with stock, so a cached page shows fresh numbers.
+- **Validation for SitePilot.** The same save rules run in `sanitize_obj_msg_efb` (explicit cases) and
+  `filter_attributes_by_type_efb` (`ranking` → `ids`); `Choices::normalize_rows` empties a repeated
+  `opt_value` of a field on save.
+- **Visitor page.** `window.EfbChoices` (`initForm`, `initAll`, `applyStock`, `check`, `problem`,
+  `serverError`, `sessionOrder`, `parseBulk`, `rules`). The shuffled order is kept per field in
+  `sessionStorage` for the visitor's session; the HTML is never shuffled (cache safe).
+- **Tests.** `test-bulk-options-parse.js`, `test-choice-presets.php`, `test-choices-save-roundtrip.php`,
+  `test-choices-parity.js`, `test-option-value-submit.php`, `test-choices-limits-submit.php`,
+  `test-choices-runtime.js`, `test-stock-schema.php`, `test-stock-reserve.php`, `test-stock-concurrency-wp.php`,
+  `test-dynamic-choices.php`, `test-choices-submit-http.php`, `test-addon-googlesheet-choices.php`,
+  `test-response-viewer-escaping.js`, `test-cf7-importer.php` and the e2e scenarios `f05a` … `f05g`,
+  `f05pay` (AutoPilot: `f05a` `setOptions`, `setChoices`, the `choice_value_dup` refusal of `insertItems`,
+  capabilities and the real save).
+
 ### PAY01. Mollie gateway field (`mollie`, add-on `AdnMOL`)
 
 Add-on `vendores-efb/mollie` on the PAY00 contract; nothing new in core. For agents:

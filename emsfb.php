@@ -38,7 +38,9 @@ if (!defined("EMSFB_DB_VERSION")) {
     // emsfb_draft_ (saved and partial answers), KEY form_id on emsfb_msg_ when no index starts with it.
     // 1.7 (F03 field rules): emsfb_uniq_ (unique-value claims).
     // 1.8 (F02 one-time codes): emsfb_vrfy_ (verification challenges; the counters are F11's emsfb_vrfy_rl_).
-    define("EMSFB_DB_VERSION", 1.8);
+    // 1.9 (F05 choices): emsfb_stock_ (per-choice capacity), and the counts older booking forms kept in
+    // their JSON (registered_count) copied into it.
+    define("EMSFB_DB_VERSION", 1.9);
 }
 if (!defined("EMSFB_API_VERSION")) {
     // Version of the integration API (efbBuilderApi, efb_var.capabilities, field templates,

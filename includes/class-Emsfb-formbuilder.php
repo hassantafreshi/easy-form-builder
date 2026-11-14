@@ -22,6 +22,8 @@ if ( ! defined( 'ABSPATH' ) ) {
      * form id / name, site, host post, and the form's fields (for {field:…} pieces). Never a user value.
      */
     public $st_ctx = array();
+    /* F05: option id => places left of the choices with a capacity (Stock::left(); a cached page is refreshed by prepare). */
+    public $stock_left = array();
 
 	/** F08: a label, description, option text or heading with its smart tags (unchanged text without a brace). */
 	private function st_markup_efb($text, $where, $raw_static = false) {
@@ -1049,8 +1051,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 		});
 
 		$s = isset($vj->value) && gettype($vj->value)!='string' && count($vj->value) > 0 ? true : false;
+		// F05: kept places and used-up choices of a multiselect (the list itself is shuffled in choices-efb.js).
+		$ch_parts_efb = class_exists('\\Emsfb\\Choices') && class_exists('\\Emsfb\\Stock')
+			? \Emsfb\Choices::render_parts(json_decode(wp_json_encode($vj), true), json_decode(wp_json_encode(array_values($optns_obj)), true), $formId, $this->stock_left)
+			: array('opt' => array());
 
 		foreach ($optns_obj as $i) {
+			$ch_opt_efb = isset($ch_parts_efb['opt'][(string) $i->id_]) ? $ch_parts_efb['opt'][(string) $i->id_] : array('attr' => '', 'disabled' => false, 'hidden' => false, 'suffix' => '');
 			$c = "efb bi-square efb";
 			if ($s && in_array($i->id_, $vj->value)) {
 				$c = "bi-check-square text-info efb";
@@ -1059,21 +1066,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 			}
 
 			$optn .= sprintf(
-				'<tr class="efb efblist %s %s" data-id="%s" data-name="%s" data-row="%s" data-formid="%s" data-state="0" data-visible="1">
+				'<tr class="efb efblist %s %s%s" data-id="%s" data-name="%s" data-row="%s" data-formid="%s" data-state="0" data-visible="1"%s>
 					<th scope="row" class="%s" data-formid="%s"></th>
 					<td class="efb ms col-12" data-formid="%s">%s</td>
 					%s
 				</tr>',
 				$vj->el_text_color,
 				$pay,
+				$ch_opt_efb['disabled'] ? ' efb-soldout' . ($ch_opt_efb['hidden'] ? ' d-none' : '') : '',
 				$rndm,
-				$i->value,
-				$i->id_,
+				esc_attr($i->value),
+				esc_attr($i->id_),
 				$formId,
+				$ch_opt_efb['attr'] . ($ch_opt_efb['disabled'] ? ' aria-disabled="true"' : ''),
 				$c,
 				$formId,
 				$formId,
-				$i->value,
+				esc_html($i->value) . $ch_opt_efb['suffix'],
 				strlen($pay) > 2 ? sprintf(
 					'<td class="efb ms fw-bold text-center"><span id="%s-price" class="efb efb-crrncy">%s</span></td>',
 					$i->id_,
@@ -2434,9 +2443,14 @@ if ( ! defined( 'ABSPATH' ) ) {
             return isset($obj->parent) && $obj->parent === $rndm;
         });
 		$is_selected = false;
+		// F05: kept places, used-up choices ("N left" in the option text), shuffled order (choices-efb.js).
+		$ch_parts_efb = class_exists('\\Emsfb\\Choices') && class_exists('\\Emsfb\\Stock')
+			? \Emsfb\Choices::render_parts(\Emsfb\Stock::mark_rows(array(json_decode(wp_json_encode($this->valj_efb[0]), true), json_decode(wp_json_encode($vj), true)))[1], json_decode(wp_json_encode(array_values($optns_obj)), true), $formId, $this->stock_left)
+			: array('wrap' => '', 'opt' => array());
 
         foreach ($optns_obj as $i) {
             $selected = ($vj->value == $i->id_ || (property_exists($i, 'id_old') && $vj->value == $i->id_old)) ? 'selected' : '';
+            $ch_opt_efb = isset($ch_parts_efb['opt'][(string) $i->id_]) ? $ch_parts_efb['opt'][(string) $i->id_] : array('attr' => '', 'disabled' => false, 'hidden' => false, 'suffix' => '');
 			if ($selected == 'selected') {
 				$is_selected = true;
 			}
@@ -2448,14 +2462,19 @@ if ( ! defined( 'ABSPATH' ) ) {
                 foreach (\Emsfb\Smart_Tags::tags($i->value) as $opt_t_efb) if ($opt_t_efb['ns'] === 'field') $opt_pipes_efb = true;
                 if (!$opt_pipes_efb || !isset($this->st_ctx['piping']) || $this->st_ctx['piping']) $selected .= ' data-st-text="' . esc_attr($i->value) . '"';
             }
+            $ch_note_efb = $ch_opt_efb['suffix'] !== '' ? ' (' . strip_tags($ch_opt_efb['suffix']) . ')' : '';
             $options .= sprintf(
-                '<option class="efb %s emsFormBuilder_v efb" data-id="%s" data-op="%s" value="%s" %s>%s</option>',
+                '<option class="efb %s emsFormBuilder_v efb" data-id="%s" data-op="%s" value="%s" %s%s%s%s>%s</option>',
                 $vj->el_text_color,
-                $i->id_,
-                $i->id_,
-                $i->value,
+                esc_attr($i->id_),
+                esc_attr($i->id_),
+                esc_attr($i->value),
                 $selected,
-                $opt_text_efb
+                $ch_opt_efb['attr'],
+                $ch_opt_efb['disabled'] && $selected === '' ? ' disabled' . ($ch_opt_efb['hidden'] ? ' hidden' : '') : '',
+                // F05: the label without the "N left" note, for choices-efb.js (only when a note is added).
+                $ch_note_efb !== '' ? ' data-label="' . esc_attr(strip_tags((string) $opt_text_efb)) . '"' : '',
+                (isset($opt_text_efb) && $opt_text_efb !== $i->value ? $opt_text_efb : esc_html($i->value)) . esc_html($ch_note_efb)
             );
         }
 
@@ -2472,7 +2491,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             '%s
             <div class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
                 %s
-                <select data-formid="%s" class="efb form-select efb emsFormBuilder_v w-100 %s %s %s %s %s w-100" data-vid="%s" id="%s_options" aria-required="%s" aria-label="%s" %s %s %s>
+                <select data-formid="%s" class="efb form-select efb emsFormBuilder_v w-100 %s %s %s %s %s w-100" data-vid="%s" id="%s_options" aria-required="%s" aria-label="%s" %s %s %s' . (class_exists('\\Emsfb\\Choices') && \Emsfb\Choices::on(json_decode(wp_json_encode($vj), true), 'op_random') ? ' data-random="1"' : '') . '>
                     <option disabled %s id="efbNotingSelected">%s</option>
                     %s
                 </select>
@@ -2901,6 +2920,49 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$corner= isset($vj->corner) ? $vj->corner : 'rounded-3';
 			switch ($vj->type) {
 
+				case 'ranking':
+					// F05-G: an ordered list of the field's choices (drag, buttons, keyboard; choices-efb.js). Free Plus.
+					if (!class_exists('\\Emsfb\\Choices') || !\Emsfb\Choices::plan_ok('ranking')) {
+						$ui = $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
+						$dataTag = 'ranking';
+						break;
+					}
+					$rk_f_efb = json_decode(wp_json_encode($vj), true);
+					$rk_opts_efb = array();
+					foreach ($this->valj_efb as $rk_o_efb) {
+						if (isset($rk_o_efb->parent, $rk_o_efb->type) && $rk_o_efb->type === 'option' && (string) $rk_o_efb->parent === (string) $element_Id) $rk_opts_efb[] = $rk_o_efb;
+					}
+					$rk_id_efb = esc_attr($element_Id);
+					$rk_items_efb = '';
+					$rk_n_efb = 0;
+					foreach ($rk_opts_efb as $rk_o_efb) {
+						$rk_n_efb++;
+						$rk_label_efb = isset($rk_o_efb->value) && is_scalar($rk_o_efb->value) ? (string) $rk_o_efb->value : '';
+						$rk_items_efb .= '<li class="efb efb-rank-item" tabindex="0" data-op="' . esc_attr($rk_o_efb->id_) . '" data-label="' . esc_attr($rk_label_efb) . '" id="' . esc_attr($rk_o_efb->id_) . '-v">'
+							. '<span class="efb efb-rank-grip bi-grip-vertical" aria-hidden="true"></span>'
+							. '<span class="efb efb-rank-n" aria-hidden="true">' . esc_html(\Emsfb\Choices::digits((string) $rk_n_efb)) . '</span>'
+							. '<span class="efb efb-rank-label ' . esc_attr(isset($vj->el_text_color) ? $vj->el_text_color : '') . '" dir="auto">' . esc_html($rk_label_efb) . '</span>'
+							. '<span class="efb efb-rank-btns">'
+							. '<button type="button" class="efb efb-rank-up" aria-label="' . esc_attr(str_replace('%s', $rk_label_efb, \Emsfb\Choices::t('rnkUp', $texts))) . '"' . ($disabled ? ' disabled' : '') . '><i class="efb bi-arrow-up" aria-hidden="true"></i></button>'
+							. '<button type="button" class="efb efb-rank-down" aria-label="' . esc_attr(str_replace('%s', $rk_label_efb, \Emsfb\Choices::t('rnkDown', $texts))) . '"' . ($disabled ? ' disabled' : '') . '><i class="efb bi-arrow-down" aria-hidden="true"></i></button>'
+							. '</span></li>';
+					}
+					$rk_touch_efb = !isset($rk_f_efb['rank_touch']) || $rk_f_efb['rank_touch'] !== '0';
+					$ui = $label
+						. '<div class="efb ' . $pos[3] . ' ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" data-id="' . $rk_id_efb . '-el" id="' . $rk_id_efb . '-f">'
+						. $ttip
+						. '<div class="efb efb-rank ' . (($vj->required == 1 || $vj->required == true) ? 'required' : '') . '" id="' . $rk_id_efb . '_options" data-efb-rank="1" data-formid="' . esc_attr($form_id) . '" data-vid="' . $rk_id_efb . '"'
+						. ' data-top="' . (int) \Emsfb\Choices::int($rk_f_efb, 'rank_top') . '" data-touch="' . ($rk_touch_efb ? '1' : '0') . '" data-random="' . (\Emsfb\Choices::on($rk_f_efb, 'op_random') ? '1' : '0') . '"'
+						. ($disabled ? ' data-disabled="1"' : '') . ' role="group" aria-labelledby="' . $rk_id_efb . '_labG" aria-describedby="' . $rk_id_efb . '_rnkhelp">'
+						. '<p class="efb efb-rank-help fs-7 text-muted" id="' . $rk_id_efb . '_rnkhelp" dir="auto">' . esc_html(\Emsfb\Choices::t('rnkHelp', $texts)) . '</p>'
+						. '<ol class="efb efb-rank-list" role="list">' . $rk_items_efb . '</ol>'
+						. ($rk_touch_efb ? '<button type="button" class="efb efb-rank-confirm fs-7" aria-pressed="false"' . ($disabled ? ' disabled' : '') . '>' . esc_html(\Emsfb\Choices::t('rnkConfirm', $texts)) . '</button>' : '')
+						. '<div class="efb efb-rank-live" aria-live="polite" role="status"></div>'
+						. '</div>'
+						. '<div class="efb mb-3">' . $desc . '</div>';
+					$dataTag = 'ranking';
+					break;
+
 				case 'hiddenField':
 					// F08: a hidden field. Nothing shows; the value is a smart-tag template the browser resolves for
 					// Conditional Logic (smart-tags-efb.js) and the server rebuilds on submit. A fixed text is the
@@ -3200,8 +3262,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 						});
 						$currency = isset($this->valj_efb[0]->currency) ? $this->valj_efb[0]->currency : 'USD';
 						$optn = '';
+						// F05: Other, Select all, kept places, used-up choices and the group role of the options box.
+						$ch_parts_efb = class_exists('\\Emsfb\\Choices') && class_exists('\\Emsfb\\Stock')
+							? \Emsfb\Choices::render_parts(\Emsfb\Stock::mark_rows(array(json_decode(wp_json_encode($this->valj_efb[0]), true), json_decode(wp_json_encode($vj), true)))[1], json_decode(wp_json_encode(array_values($optns_obj)), true), $form_id, $this->stock_left)
+							: array('wrap' => '', 'before' => '', 'after' => '', 'opt' => array());
 						foreach ($optns_obj as $i) {
 							$checked = "";
+							$ch_opt_efb = isset($ch_parts_efb['opt'][(string) $i->id_]) ? $ch_parts_efb['opt'][(string) $i->id_] : array('attr' => '', 'class' => '', 'disabled' => false, 'hidden' => false, 'suffix' => '');
 							if ((strpos($tp, "radio") !== false || (strpos($tp, "select") !== false && strpos($tp, "multi") === false)) && ($parent->value == $i->id_ || (isset($i->id_old) && $parent->value == $i->id_old))) {
 								$checked = "checked";
 							} elseif ((strpos($tp, "multi") !== false || strpos($tp, "checkbox") !== false) && is_array($parent->value) && array_search($i->id_, $parent->value) !== false) {
@@ -3212,7 +3279,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							$prc = isset($i->price) ? (float) $i->price : 0; // intval() showed 19.99 as 19.00
 							if($pay!='') $prc = self::formatPrice_efb($prc, $currency );
 							$optn .= sprintf(
-								'<div class="efb form-check %s %s %s efb1 %s mt-1" data-css="%s" data-parent="%s" data-id="%s" data-formid="%s" id="%s-v">
+								'<div class="efb form-check %s %s %s efb1 %s mt-1%s" data-css="%s" data-parent="%s" data-id="%s" data-formid="%s" id="%s-v"%s>
 									<input class="efb form-check-input emsFormBuilder_v %s %s" data-tag="%s" data-type="%s" data-vid="%s" type="%s" name="%s" value="%s" id="%s" data-id="%s-id" data-formid="%s" data-op="%s" %s %s %s>
 									%s
 									%s
@@ -3222,27 +3289,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 								$elementId,
 								$temp,
 								str_replace(',', ' ', $vj->classes),
+								$ch_opt_efb['class'] . ($ch_opt_efb['hidden'] ? ' d-none' : ''),
 								$element_Id,
-								$i->parent,
-								$i->id_,
+								esc_attr($i->parent),
+								esc_attr($i->id_),
 								$form_id,
-								$i->id_,
+								esc_attr($i->id_),
+								$ch_opt_efb['attr'],
 								$pay,
 								$vj->el_text_size,
 								$dataTag,
 								$vtype,
 								$element_Id,
 								$vtype,
-								$i->parent,
-								$i->value,
-								$i->id_,
-								$i->id_,
+								esc_attr($i->parent),
+								esc_attr($i->value),
+								esc_attr($i->id_),
+								esc_attr($i->id_),
 								$form_id,
-								$i->id_,
-								'',
-								$disabled,
+								esc_attr($i->id_),
+								$ch_opt_efb['disabled'] && $checked === '' ? 'data-soldout="1" aria-disabled="true"' : '',
+								$ch_opt_efb['disabled'] && $checked === '' ? 'disabled' : $disabled,
 								$checked,
-								$elementId != 'imgRadio' ? sprintf('<label class="efb %s %s %s %s hStyleOpEfb" id="%s_lab" for="%s">%s</label>', isset($vj->pholder_chl_value) ? 'col-8' : '', $vj->el_text_color, $vj->el_height, $vj->label_text_size, $i->id_, $i->id_, is_string($i->value) && strpos($i->value, '{') !== false ? $this->st_markup_efb($i->value, 'label') : $this->fun_get_links_from_string_Efb($i->value, true)) : $imageRadio,
+								($elementId != 'imgRadio' ? sprintf('<label class="efb %s %s %s %s hStyleOpEfb" id="%s_lab" for="%s">%s</label>', isset($vj->pholder_chl_value) ? 'col-8' : '', $vj->el_text_color, $vj->el_height, $vj->label_text_size, esc_attr($i->id_), esc_attr($i->id_), is_string($i->value) && strpos($i->value, '{') !== false ? $this->st_markup_efb($i->value, 'label') : $this->fun_get_links_from_string_Efb($i->value, true)) : $imageRadio) . $ch_opt_efb['suffix'],
 								strpos($elementId, 'chl') !== false ? sprintf('<input type="text" class="efb %s %s checklist col-2 hStyleOpEfb emsFormBuilder_v border-d" data-id="%s" data-type="%s"data-formid="%s" data-vid="%s" id="%s_chl"  placeholder="%s" disabled>', $vj->el_text_color, $vj->el_height, $i->id_, $dataTag, $form_id, $i->id_, $i->id_, $vj->pholder_chl_value) : '',
 								strlen($pay) > 2 ? sprintf('<span class="efb col fw-bold text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="%s-price" class="efb efb-crrncy">%s</span></span>', $i->id_, $prc):''
 							);
@@ -3254,7 +3323,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							%s
 							<div class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 py-0 my-0 ttEfb show" data-id="%s-el" id="%s-f">
 								%s
-								<div class="efb %s %s %s efb1 %s" data-css="%s" %s id="%s_options">
+								<div class="efb %s %s %s efb1 %s" data-css="%s" %s id="%s_options"' . ($ch_parts_efb['wrap'] !== '' ? ' data-formid="' . (int) $form_id . '"' : '') . $ch_parts_efb['wrap'] . '>
 									%s
 								</div>
 								<div class="efb mb-3">%s</div>
@@ -3271,7 +3340,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							$element_Id,
 							$aire_describedby,
 							$element_Id,
-							$optn,
+							$ch_parts_efb['before'] . $optn . $ch_parts_efb['after'],
 							$desc
 						);
 				break;

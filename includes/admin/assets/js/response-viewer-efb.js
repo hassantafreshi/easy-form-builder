@@ -870,6 +870,16 @@ function efb_apply_resp_colors() {
   }
 }
 
+/* F05: the text of a choice answer in the viewer: "Other: <text>", or the label with its stored value (ov) beside it
+ * when they differ. c comes from the escaped tree; label = the html already built for it (default: c.value). */
+function efbChoiceTextEfb(c, label) {
+  let out = label !== undefined ? label : String(c.value == null ? '' : c.value);
+  if (c.other == '1') return `${(efb_var.text && efb_var.text.otherOpt) || 'Other'}: <bdi>${out}</bdi>`;
+  if (c.ov !== undefined && c.ov !== null && String(c.ov) !== '' && String(c.ov).replace(/@efb!$/, '') !== String(c.value).replace(/@efb!$/, '')) {
+    out += ` <small class="efb efb-msg-ov text-muted" dir="auto">(${String(c.ov).replaceAll('@efb!', ', ').replace(/,\s*$/, '')})</small>`;
+  }
+  return out;
+}
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   /* Single choke point for stored-response XSS: every caller (dashboard list,
    * admin modal, public response box, reply thread) reaches innerHTML through
@@ -1079,10 +1089,19 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       checboxs.push(c.id_);
       for(let op of content){
         if(op.type=="checkbox" && op.id_ == c.id_){
-          vc=='null' ? vc =`<span class="efb-msg-checkbox-item"><i class="bi bi-check2-square"></i> ${op.value}</span>` :vc +=`<span class="efb-msg-checkbox-item"><i class="bi bi-check2-square"></i> ${op.value}</span>`
+          // F05: "Other: <text>" and the stored value next to the label when it differs (the tree is escaped already).
+          const opv = efbChoiceTextEfb(op);
+          vc=='null' ? vc =`<span class="efb-msg-checkbox-item"><i class="bi bi-check2-square"></i> ${opv}</span>` :vc +=`<span class="efb-msg-checkbox-item"><i class="bi bi-check2-square"></i> ${opv}</span>`
         }
       }
       m += `<div class="efb efb-msg-field-row efb-msg-field-block"><span class="efb-msg-field-label">${c.name}:</span><div class="efb-msg-checkbox-list">${vc}</div></div>`;
+    } else if (c.type == "ranking") {
+      // F05-G: the order as a numbered list (labels escaped with the tree), the stored values beside them when they differ.
+      s = true;
+      const rkL = String(c.value || '').split('@efb!').filter((x) => x !== '');
+      const rkV = String(c.ov || '').split('@efb!').filter((x) => x !== '');
+      const rkItems = rkL.map((l, i) => `<li><bdi>${l}</bdi>${rkV[i] !== undefined && rkV[i] !== l ? ` <small class="efb efb-msg-ov text-muted" dir="auto">(${rkV[i]})</small>` : ''}</li>`).join('');
+      m += `<div class="efb efb-msg-field-row efb-msg-field-block"><span class="efb-msg-field-label">${c.name}:</span><ol class="efb efb-msg-ranking mb-0">${rkItems}</ol></div>`;
     }else if (c.type=="r_matrix"){
       s = true;
       vc =`${c.hasOwnProperty('label') && last_type!='r_matrix' ? `<div class="efb-msg-field-label efb-msg-matrix-header">${c.label}</div>` : '' }<div class="efb efb-msg-field-row efb-msg-matrix-item"><span class="efb-msg-field-label">${c.name}:</span><span class="efb-msg-field-value">${c.value}</span></div>`
@@ -1096,6 +1115,8 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
         if(title=="file") title ="atcfle"
         title = efb_var.text[title] || c.name ;
         let q =value !== '<b>@file@</b>' ? value : '';;
+        // F05: an "Other" answer says so; a choice with its own stored value shows it beside the label.
+        if (c.other == '1' || (c.ov !== undefined && c.ov !== c.value && typeof c.value === 'string')) q = efbChoiceTextEfb(c, q);
         if(c.type.includes('pay')  || c.type == 'prcfld') {
           const price = c.price ?? c.value ;
           q+=`<span class="efb efb-msg-price-tag">${Number(price).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: currency })}</span>`

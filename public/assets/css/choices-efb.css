@@ -1,0 +1,94 @@
+/* F05: choice fields in the page (choices-efb.js): "Other", "Select all", used-up choices, "N left",
+   and the ranking widget. Logical properties only, so everything follows the page direction (RTL)
+   with no second sheet; a sentence with inserted values keeps its order (unicode-bidi: plaintext). */
+.efb.efb-other { flex-wrap: wrap; }
+.efb.efb-other .efb-other-t {
+  display: block;
+  width: 100%;
+  max-width: 28rem;
+  min-height: 44px;
+  margin-inline-start: 0;
+  unicode-bidi: plaintext;
+}
+.efb.efb-other .efb-other-t:disabled { opacity: .6; }
+.efb.efb-selall { font-weight: 600; }
+.efb.efb-soldout,
+.efb.efb-soldout label { opacity: .6; }
+.efb.efb-soldout label { text-decoration: line-through; text-decoration-thickness: 1px; }
+.efb.efb-ch-left { display: inline-block; unicode-bidi: plaintext; text-decoration: none; }
+tr.efblist.efb-soldout { opacity: .5; cursor: not-allowed; }
+[id$="_-message"][data-efb-ch-msg] { unicode-bidi: plaintext; text-align: start; }
+
+/* Ranking */
+.efb.efb-rank { width: 100%; }
+.efb.efb-rank-list {
+  list-style: none;
+  margin: .25rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+.efb.efb-rank-item {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  min-height: 44px;
+  padding: .25rem .5rem;
+  border: 1px solid rgba(0, 0, 0, .15);
+  border-radius: .5rem;
+  background: #fff;
+  touch-action: pan-y;
+  user-select: none;
+}
+.efb.efb-rank-item:focus { outline: 2px solid #4636f1; outline-offset: 2px; }
+.efb.efb-rank-item.efb-rank-drag { box-shadow: 0 4px 14px rgba(0, 0, 0, .18); border-color: #4636f1; }
+.efb.efb-rank-item.efb-rank-out { opacity: .55; }
+.efb.efb-rank-grip {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  min-height: 40px;
+  cursor: grab;
+  color: #6c757d;
+  touch-action: none;
+}
+.efb.efb-rank-n {
+  flex: 0 0 auto;
+  min-width: 1.6rem;
+  text-align: center;
+  font-weight: 700;
+}
+.efb.efb-rank-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+.efb.efb-rank-btns { flex: 0 0 auto; display: inline-flex; gap: .25rem; }
+.efb.efb-rank-btns button,
+.efb.efb-rank-confirm {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid rgba(0, 0, 0, .2);
+  border-radius: .4rem;
+  background: #f8f9fa;
+  color: inherit;
+}
+.efb.efb-rank-btns button:disabled { opacity: .35; }
+.efb.efb-rank-confirm { margin-top: .5rem; padding: 0 .9rem; }
+.efb.efb-rank-confirm[aria-pressed="true"] { background: #e7f5ee; border-color: #198754; }
+.efb.efb-rank-help { margin: .25rem 0 0; unicode-bidi: plaintext; text-align: start; }
+.efb.efb-rank-live {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+@media (max-width: 480px) {
+  .efb.efb-rank-item { padding: .25rem .35rem; gap: .35rem; }
+}

@@ -342,6 +342,11 @@ class Smart_Tags {
 		$v = $vals[$arg];
 		$list = is_array($v) ? array_values($v) : array($v);
 		$list = array_values(array_filter(array_map(function ($x) { return is_scalar($x) ? (string) $x : ''; }, $list), function ($x) { return $x !== ''; }));
+		// F05: the stored values the server wrote on the answer (ov), in the answer's order: exact even when two
+		// choices share a label; an "Other" answer is its own text.
+		if ($sub === 'value' && isset($ctx['ovals'][$arg]) && is_array($ctx['ovals'][$arg]) && $ctx['ovals'][$arg]) {
+			return implode(', ', array_map('strval', $ctx['ovals'][$arg]));
+		}
 		if ($sub === 'value' && isset($ctx['fields'][$arg]['options']) && is_array($ctx['fields'][$arg]['options'])) {
 			$opts = $ctx['fields'][$arg]['options'];
 			$list = array_map(function ($label) use ($opts) {
@@ -776,6 +781,22 @@ class Smart_Tags {
 			$fields[(string) $r['parent']]['options'][] = array('id' => (string) ($r['id_'] ?? ''), 'label' => $label, 'value' => isset($r['opt_value']) && is_scalar($r['opt_value']) ? (string) $r['opt_value'] : '');
 		}
 		return $fields;
+	}
+
+	/**
+	 * F05: id => the stored values of the chosen choices of a submission (rows the server checked: ov set by
+	 * Choices::add_ov() / ranking_row(); an "Other" answer adds its text). Only fields with such rows.
+	 */
+	public static function ovals_of(array $rows) {
+		$out = array();
+		foreach ($rows as $r) {
+			if (!is_array($r) || !isset($r['id_']) || !is_scalar($r['id_'])) continue;
+			$id = (string) $r['id_'];
+			if (!empty($r['other']) && isset($r['value']) && is_scalar($r['value'])) { $out[$id][] = (string) $r['value']; continue; }
+			if (!isset($r['ov']) || !is_scalar($r['ov']) || (string) $r['ov'] === '') continue;
+			foreach (array_filter(explode('@efb!', (string) $r['ov']), 'strlen') as $v) $out[$id][] = $v;
+		}
+		return $out;
 	}
 
 	/**

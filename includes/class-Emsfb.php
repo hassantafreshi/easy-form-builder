@@ -466,6 +466,14 @@ class Emsfb {
             \Emsfb\Smart_Tags::register();
         }
 
+        // F05: choice fields (bulk lists, stored values, Other, limits, dynamic choices, ranking) and the
+        // atomic per-choice capacity (emsfb_stock_). Optional: every caller checks class_exists().
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-choices.php')
+            && $this->require_plugin_file_efb('includes/class-Emsfb-stock.php')) {
+            \Emsfb\Choices::register();
+            \Emsfb\Stock::register();
+        }
+
         // Builder API for integrations such as AutoPilot (docs/autopilot-integration.md).
         // Optional: callers check class_exists('\Emsfb\Builder_Api').
         $this->require_plugin_file_efb('includes/class-Emsfb-builder-api.php');

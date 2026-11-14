@@ -87,6 +87,8 @@ document.addEventListener("click", (evnt) => {
         }
     } else if (evnt.target.tagName == "TD" || evnt.target.tagName == "TH") {
         const e = evnt.target.parentNode;
+        // F05: a used-up choice (no place left) cannot be picked.
+        if (e.classList.contains('efb-soldout')) return 0;
         if (e.classList.contains('efblist')) {
             default_val_efb = efb_var.text.selectOption;
             let l = document.querySelector(`[data-id="${idOfMenu_efb}"]`);

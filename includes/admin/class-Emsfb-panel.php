@@ -320,6 +320,10 @@ class Panel_edit  {
 			// F07: the upload rules (twin of Uploads::sanitize_key) and the file / dadfile controls (several files, camera, resizing, storage).
 			wp_enqueue_script('efb-upload-js', EMSFB_PLUGIN_URL . 'public/assets/js/upload-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/upload-efb.js'));
 			wp_enqueue_script('efb-upload-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/upload-builder-efb.js', array('efb-val-js', 'efb-upload-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/upload-builder-efb.js'));
+			// F05: the choice rules and runtime (twin of Choices::sanitize_key), "Add in bulk", the choice-field controls and the ranking.
+			wp_enqueue_script('efb-choices-js', EMSFB_PLUGIN_URL . 'public/assets/js/choices-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/choices-efb.js'));
+			wp_enqueue_script('efb-choices-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/choices-builder-efb.js', array('efb-val-js', 'efb-choices-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/choices-builder-efb.js'));
+			wp_enqueue_style('efb-choices-css', EMSFB_PLUGIN_URL . 'public/assets/css/choices-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/choices-efb.css'));
 			// F08: smart tags (the resolver twin), the hidden field's panel, prefill controls and the insert list.
 			wp_enqueue_script('efb-smart-tags-js', EMSFB_PLUGIN_URL . 'public/assets/js/smart-tags-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/smart-tags-efb.js'));
 			wp_enqueue_script('efb-smart-tags-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/smart-tags-builder-efb.js', array('efb-val-js', 'efb-smart-tags-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/smart-tags-builder-efb.js'));

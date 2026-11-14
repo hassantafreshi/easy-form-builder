@@ -157,6 +157,10 @@ class Install {
 						foreach ( self::f02_ddl( $wpdb->prefix, $charset_collate ) as $sql ) {
 							self::create_table_if_absent( $sql );
 						}
+						// F05 (DB 1.9): the per-choice capacity counts.
+						foreach ( self::f05_ddl( $wpdb->prefix, $charset_collate ) as $sql ) {
+							self::create_table_if_absent( $sql );
+						}
 
 				$user_id = get_current_user_id();
 				$usr =get_user_by('id',$user_id);
@@ -316,6 +320,9 @@ class Install {
 		$applied = array_merge( $applied, self::upgrade_f03_schema() );
 		// F02 (one-time codes), DB version 1.8: the challenge table. Idempotent, before the early return.
 		$applied = array_merge( $applied, self::upgrade_f02_schema() );
+		// F05 (choices), DB version 1.9: the per-choice capacity table and the counts of older booking
+		// forms copied into it. Idempotent, before the early return.
+		$applied = array_merge( $applied, self::upgrade_f05_schema() );
 
 		$table   = $wpdb->prefix . 'emsfb_stts_';
 
@@ -464,6 +471,49 @@ class Install {
 		}
 		if ( class_exists( '\\Emsfb\\Verification' ) ) {
 			\Emsfb\Verification::reset_ready();
+		}
+		return $applied;
+	}
+
+	/** F05: CREATE TABLE statement of emsfb_stock_ (dbDelta format). */
+	public static function f05_ddl( $prefix, $charset_collate = '' ) {
+		foreach ( array( 'Choices' => 'class-Emsfb-choices.php', 'Stock' => 'class-Emsfb-stock.php' ) as $class => $file ) {
+			if ( ! class_exists( '\\Emsfb\\' . $class ) && is_readable( __DIR__ . '/' . $file ) ) {
+				require_once __DIR__ . '/' . $file;
+			}
+		}
+		return class_exists( '\\Emsfb\\Stock' ) ? array( 'emsfb_stock_' => \Emsfb\Stock::ddl( $prefix, $charset_collate ) ) : array();
+	}
+
+	/**
+	 * F05, DB version 1.9: emsfb_stock_ when missing, then the registered_count of older booking forms
+	 * copied into it (INSERT IGNORE: a second run, or a count a submit already moved, is not touched).
+	 */
+	public static function upgrade_f05_schema() {
+		global $wpdb;
+		$applied = array();
+		if ( ! function_exists( 'dbDelta' ) && defined( 'ABSPATH' ) && is_readable( ABSPATH . 'wp-admin/includes/upgrade.php' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		}
+		if ( ! function_exists( 'dbDelta' ) ) {
+			return $applied;
+		}
+		$collate = method_exists( $wpdb, 'get_charset_collate' ) ? $wpdb->get_charset_collate() : '';
+		foreach ( self::f05_ddl( $wpdb->prefix, $collate ) as $short => $sql ) {
+			$table = $wpdb->prefix . $short;
+			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) {
+				continue;
+			}
+			self::create_table_if_absent( $sql );
+			$applied[] = "{$short}: CREATE TABLE";
+		}
+		if ( class_exists( '\\Emsfb\\Stock' ) ) {
+			\Emsfb\Stock::reset_ready();
+			if ( ! get_option( \Emsfb\Stock::MIGRATED_OPTION ) && \Emsfb\Stock::ready() ) {
+				$n = \Emsfb\Stock::migrate_booking_counts();
+				update_option( \Emsfb\Stock::MIGRATED_OPTION, 1, false );
+				$applied[] = "emsfb_stock_: booking counts ({$n})";
+			}
 		}
 		return $applied;
 	}

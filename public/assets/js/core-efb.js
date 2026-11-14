@@ -834,7 +834,20 @@ async function createStepsOfPublic() {
       fun_sendBack_emsFormBuilder(ms_push);
     } catch(e) {  }
   }
+  // F05: shuffled order (kept for the session), Other, Select all, the maximum lock, capacities, ranking (choices-efb.js).
+  if (window.EfbChoices) { try { window.EfbChoices.initAll(); efb_choices_stock_efb(); } catch (e) { /* the form works without it; the server checks again */ } }
 
+}
+/* F05: a form with capacities asks forms/session/prepare for the places left now (a cached page has older numbers). */
+function efb_choices_stock_efb() {
+  if (!window.EfbChoices || !window.EFBRuntime || typeof valj_efb_new === 'undefined' || !Array.isArray(valj_efb_new)) return;
+  valj_efb_new.forEach((f) => {
+    const rows = f && f.form_structer;
+    if (!Array.isArray(rows) || !rows[0]) return;
+    const booking = rows[0].booking == 1 || rows[0].booking === true;
+    if (!booking && !rows.some((r) => r && (r.inv_on === '1' || r.inv_on === 1))) return;
+    window.EFBRuntime.prepare(Number(f.id)).then((v) => { if (v && v.stock) window.EfbChoices.applyStock(String(f.id), v.stock); }).catch(() => {});
+  });
 }
 async function fun_sendBack_emsFormBuilder(ob) {
   if(typeof ob=='string' || ob.hasOwnProperty('value')==false ){
@@ -2120,6 +2133,8 @@ async function efb_apply_saved_rows_efb(fid, rows) {
   const skipped = [];
   for (const row of (Array.isArray(rows) ? rows : [])) {
       if (!row || typeof row !== 'object' || Number(row.form_id) !== fid || !row.id_ob) continue;
+      // F05: an "Other" text and a ranking go back through their own controls.
+      if (window.EfbChoices && window.EfbChoices.restoreRow(row, fid)) continue;
       // Only fields whose visible state is the control itself. Yes/No, switch,
       // image choices, ratings, phone (intl-tel-input) and the like draw their
       // own UI: checking their hidden input put an answer in the entry that
@@ -2220,6 +2235,11 @@ async function response_fill_form_efb(res ,form_id=0) {
     if (typeof res.data.code === 'string' && res.data.code.indexOf('efb_field_') === 0) efb_rules_server_error_efb(form_id, res.data.field_id, res.data.m);
     // F02: the field's code block goes back to "Send code" with the server's sentence.
     if (typeof res.data.code === 'string' && res.data.code.indexOf('efb_verify_') === 0 && window.EFBVerify) window.EFBVerify.serverError(form_id, res.data.field_id, res.data.code, res.data.m);
+    // F05: a choice the server refused (Other without text, too few / many, a choice full meanwhile, a ranking):
+    // the field's choices are cleared (their rows were dropped above), a full choice is marked, the field says why.
+    if (typeof res.data.code === 'string' && res.data.code.indexOf('efb_choice_') === 0 && window.EfbChoices && typeof window.EfbChoices.serverError === 'function') {
+      try { window.EfbChoices.serverError(form_id, res.data.field_id, res.data.code, res.data.m, res.data.option_id); } catch (e) { /* the sentence is on the final step too */ }
+    }
     // F06: a date the server refused (a rule, or the place was taken meanwhile): the picker is emptied
     // (its row was dropped above) and shows the server's sentence, so Previous leads to a field to fix.
     if (typeof res.data.code === 'string' && res.data.code.indexOf('efb_date_') === 0 && window.EFBCalendar && typeof EFBCalendar.get === 'function') {
@@ -2521,36 +2541,38 @@ window.addEventListener("popstate",e=>{
  /* F08-D: the old iefb / sefb / defb / hefb / vefb parameters are gone (they never ran on a rendered form,
     indexed the wrong row and could enable a disabled field). URL prefill is now EFBSmart.applyPrefill(): only
     fields whose owner gave them a prefill_key (smart-tags-efb.js). */
+ /* F05: a booking choice the visitor picks: closed by its date (ISO, the visitor's today) or with no place left (the
+    numbers forms/session/prepare gave, else the form's). The sentences are the phrases bkXpM_ / bkFlM_. Only a choice is
+    checked: a text field of a booking form is not a choice (it used to answer "Row not Found!" and drop the answer). */
  fun_booking_avilable =(el)=>{
- let r =[true,''];
- let id = el.id;
- if(el.type=='select' || el.type=='select-one'){
-  id=el.options[el.selectedIndex].dataset.id;
- }
-  const row = valj_efb.find(x=>x.id_==id)
-  const lan = wp_lan.replaceAll(`_`, "-")
-  const ndate = new Date().toLocaleDateString(lan, {year:"numeric", month: "2-digit", day:"2-digit"});
-  uncheck =()=>{
-    if(el.type=="radio" || el.type=="checkbox"){
-      el.checked=false
-    }
+  let r =[true,''];
+  let id = el.id;
+  if(el.type=='select' || el.type=='select-one'){
+    const o = el.options[el.selectedIndex];
+    id = o && o.dataset ? o.dataset.id : '';
   }
-    if(typeof row!="object"){
-      r=[false,'Row not Found! contact to admin'];
-      uncheck();
-      return r;
-    }
-    if( row.hasOwnProperty('dateExp') && row.dateExp<ndate){
-      r=[false,'Sorry, the selected option is no longer available as its expiration date has passed. Please choose another option.'];
-      uncheck();
-      return  r;
-    }
-    if( row.hasOwnProperty('mlen') && Number(row.mlen)<= Number(row.registered_count)){
-      r=[false,'Unfortunately, the option you selected is no longer available. Please choose from the other available options.'];
-      uncheck();
-      return  r;
-    }
-  return  r;
+  const form_id = el.dataset && el.dataset.formid ? el.dataset.formid : 0;
+  let rows = valj_efb;
+  try { if (form_id && typeof get_structure_by_form_id_efb === 'function') rows = get_structure_by_form_id_efb(form_id) || valj_efb; } catch (e) {}
+  const row = rows.find(x=>x && x.id_==id);
+  if(!row || row.type !== 'option') return r;
+  const uncheck =()=>{ if(el.type=="radio" || el.type=="checkbox") el.checked=false; };
+  const t = (k, fb) => (efb_var && efb_var.text && efb_var.text[k] ? efb_var.text[k] : fb);
+  const label = String(row.value || '');
+  const d = new Date();
+  const today = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  if (row.hasOwnProperty('dateExp') && /^\d{4}-\d{2}-\d{2}$/.test(String(row.dateExp)) && String(row.dateExp) < today) {
+    uncheck();
+    return [false, t('bkXpM_', 'We are sorry, the booking time for the %s option has expired. Please choose from the other available options.').replace('%s', '\u2068' + label + '\u2069')];
+  }
+  const stock = window.EfbChoices && window.EfbChoices._state.stock[String(form_id)];
+  const left = stock && Object.prototype.hasOwnProperty.call(stock, row.id_) ? Number(stock[row.id_])
+    : (row.hasOwnProperty('mlen') && /^\d+$/.test(String(row.mlen)) ? Number(row.mlen) - Number(row.registered_count || 0) : Infinity);
+  if (left <= 0) {
+    uncheck();
+    return [false, t('bkFlM_', 'We are sorry, the %s option is currently at full capacity. Please choose from the other available options.').replace('%s', '\u2068' + label + '\u2069')];
+  }
+  return r;
  }
 efb_refresh_nonce=async(sid, fid)=>{
   try {
@@ -4915,6 +4937,11 @@ async function fun_validation_efb_v4(form_id) {
         continue;
       }
     }
+    // F05: an "Other" choice without its text, fewer / more choices than allowed, a required ranking not ordered yet.
+    if (row > 1 && current_s_efb == valj_efb[row].step && window.EfbChoices && !window.EfbChoices.check(valj_efb[row], form_id)) {
+      if (state == true) { state = false; idi = valj_efb[row].id_; name_field = valj_efb[row].name; }
+      continue;
+    }
     // F06: an advanced date typed but refused keeps its own message at the field.
     if (row > 1 && current_s_efb == valj_efb[row].step && efb_advdate_typed_invalid_efb(valj_efb[row], form_id)) {
       if (state == true) { state = false; idi = valj_efb[row].id_; name_field = valj_efb[row].name; }
@@ -5379,7 +5406,7 @@ function efb_draft_rows_efb(fid) {
   return sendBack_emsFormBuilder_pub.filter((r) => r && typeof r === 'object' && Number(r.form_id) === Number(fid)
     && !EFB_DRAFT_NOT_SAVED.includes(String(r.type || '')) && !gw.includes(String(r.type || ''))
     && !(r.id_ob && document.getElementById(r.id_ob) && document.getElementById(r.id_ob).closest('[data-efb-logic-hidden="1"], .efb-logic-hidden')))
-    .map((r) => { const o = {}; ['id_', 'id_ob', 'name', 'type', 'value', 'amount', 'form_id', 'qty'].forEach((k) => { if (r[k] !== undefined) o[k] = r[k]; }); return o; });
+    .map((r) => { const o = {}; ['id_', 'id_ob', 'name', 'type', 'value', 'amount', 'form_id', 'qty', 'ids'].forEach((k) => { if (r[k] !== undefined) o[k] = r[k]; }); return o; });
 }
 function efb_f11_step_efb(fid) {
   const b = document.getElementById('body_efb_' + fid);

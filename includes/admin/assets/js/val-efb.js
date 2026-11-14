@@ -194,6 +194,8 @@ const fields_efb = [
   { name: efb_var.text.ardate, icon: 'bi-calendar-date', id: 'ardate', pro: true, tag:'advance all' },
 
   { name: efb_var.text.terms, icon: 'bi-shield-check', id: 'trmCheckbox', pro: false, tag:'advance all' },
+  // F05: put the choices in order (drag, buttons, keyboard). Free Plus (field:ranking in the capability registry).
+  { name: efb_var.text.ranking || 'Ranking', icon: 'bi-sort-numeric-down', id: 'ranking', pro: true, tag:'advance all' },
   // F08: a hidden value (UTM, referrer, page, user, IP, date, unique id, cookie or a fixed text). Free.
   { name: efb_var.text.hiddenField || 'Hidden field', icon: 'bi-eye-slash', id: 'hiddenField', pro: false, tag:'basic all' },
 
@@ -1799,6 +1801,7 @@ function show_setting_window_efb(idset, opts) {
       case "payMultiselect":
       case "imgRadio":
       case "trmCheckbox":
+      case "ranking":
         const objOptions = valj_efb.filter(obj => {
           return obj.parent === el.id
         })
@@ -1829,6 +1832,7 @@ function show_setting_window_efb(idset, opts) {
                 <button type="button" id="addOption" onclick="add_option_edit_pro_efb('${el.id.trim()}','${el.dataset.tag.trim()}' ,${valj_efb.length})" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndm}"   class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" >
                 <i class="efb  bi-plus-circle  text-success"></i>
                   </button>
+                ${typeof efbBulkBtnEl === 'function' ? efbBulkBtnEl(el.id.trim(), el.dataset.tag.trim()) : ''}
                 </div>
                 <div class="efb col-md-6 text-darkb align-self-center text-decoration-underline fs-7 show" id="showAtrEls" onclick="funShowAttrElsEfb(this)">${efb_var.text.shwattr}</div>
                 </div>
@@ -1843,6 +1847,7 @@ function show_setting_window_efb(idset, opts) {
                  ${opetions}
                 </div>
                 ${qtyPlcEls}
+                ${typeof efbChoicesPanelEls === 'function' ? efbChoicesPanelEls(indx, idset, el.dataset.tag) : ''}
                 <!--notAdvanced-->
 
                 <!--advanced-->
@@ -2881,7 +2886,7 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
   let id_v = `  <div class="efb mx-0 px-0 col-sm-12 elIds ${s_show_id==true ? '' :'d-none'}">
     <label  for="ElIdOptions" class="efb form-label mx-1 my-0 py-0 fs-6 col-sm-2 " >${efb_var.text.id}</label>
     <input type="text" placeholder="${efb_var.text.id}" id="ElIdOptions"  value="${id_value}" data-parent="${parentsID}" data-id="${idin}" data-tag="${tag}" class="efb  text-muted mb-1 fs-7 border-d rounded-4 elEdit col-sm-9">
-
+    ${typeof efbChoicesOptionEls === 'function' ? efbChoicesOptionEls(parentsID, id_value, tag) : ''}
     </div>`
     row_col_size ='col-sm-11'
     const selected_options =() =>{

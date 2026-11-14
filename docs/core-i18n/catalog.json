@@ -2,10 +2,10 @@
     "domain": "easy-form-builder",
     "about": "Every phrase looked up in the easy-form-builder text domain: the core plus add-ons that still use that domain. Maintained by tests/core-i18n/extract.php (agent efb-core-i18n); do not edit by hand.",
     "plugin_version": "4.3.1",
-    "updated": "2026-11-13",
+    "updated": "2026-11-14",
     "counts": {
-        "active": 3565,
-        "obsolete": 377
+        "active": 3664,
+        "obsolete": 379
     },
     "entries": [
         {
@@ -237,6 +237,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s choices, %2$s repeated labels",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder: preview; %1$s = number of choices, %2$s = number of repeated labels",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -489,6 +504,21 @@
             "context": null,
             "plural": null,
             "translators": "F06 range summary: %1$s first date, %2$s last date, %3$s length",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s, position %2$s of %3$s",
+            "context": null,
+            "plural": null,
+            "translators": "F05 visitor (screen reader): %1$s = the item, %2$s = its position, %3$s = the number of items",
             "files": [
                 "includes/functions.php"
             ],
@@ -1079,7 +1109,7 @@
             "msgid": "%s left",
             "context": null,
             "plural": null,
-            "translators": "F06 booking, %s = places left",
+            "translators": "F06 booking, %s = places left translators: F05 visitor: %s = a number",
             "files": [
                 "includes/functions.php"
             ],
@@ -1524,6 +1554,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "0 or empty = no limit",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -2973,6 +3018,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Add an “Other” choice",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Add choices",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder: the dialog's button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Add color",
             "context": null,
             "plural": null,
@@ -3063,6 +3138,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Add in bulk",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder: button that opens the bulk dialog",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Add the SPF and DKIM records to your domain settings.",
             "context": null,
             "plural": null,
@@ -3134,6 +3224,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Add to the end",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -3608,6 +3713,66 @@
             "context": null,
             "plural": null,
             "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Age range",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Age range (Persian)",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Agreement scale",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Agreement scale (Persian)",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
             "files": [
                 "includes/functions.php"
             ],
@@ -4552,6 +4717,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Arab League countries",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Arabic Date Picker",
             "context": null,
             "plural": null,
@@ -5107,6 +5287,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Australian states and territories",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Authenticated successfully, but listing Google Drive files failed: ",
             "context": null,
             "plural": null,
@@ -5360,6 +5555,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Available",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder: capacity of one choice",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -6900,6 +7110,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "CSV file",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "CV Application",
             "context": null,
             "plural": null,
@@ -7088,6 +7313,21 @@
             "translators": "input format preset shown in the form builder's \"Format / mask\" list",
             "files": [
                 "includes/data/masks-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Canadian provinces and territories",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -7485,6 +7725,21 @@
             "translators": "",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Categories or tags",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -7975,6 +8230,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Choices come from",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Choose Email notification content",
             "context": null,
             "plural": null,
@@ -7986,6 +8256,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Choose a CSV file",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -8066,12 +8351,42 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Choose at least %2$s options in %1$s.",
+            "context": null,
+            "plural": null,
+            "translators": "F05 visitor: %1$s = the field label, %2$s = a number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Choose at least one form.",
             "context": null,
             "plural": null,
             "translators": "",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Choose at most %2$s options in %1$s.",
+            "context": null,
+            "plural": null,
+            "translators": "F05 visitor: %1$s = the field label, %2$s = a number",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -9711,6 +10026,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Content type",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -11425,6 +11755,51 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Days of the week",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Days of the week (from Saturday)",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Days of the week (from Sunday, Arabic)",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Decimal places",
             "context": null,
             "plural": null,
@@ -12860,6 +13235,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Drag an item, use its arrows, or press Alt and the up or down arrow.",
+            "context": null,
+            "plural": null,
+            "translators": "F05 visitor",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Drag and drop files here",
             "context": null,
             "plural": null,
@@ -13715,6 +14105,51 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Education level",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Education level (Arabic)",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Education level (Iran)",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -14742,6 +15177,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Emirates of the UAE",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Employee Suggestion",
             "context": null,
             "plural": null,
@@ -14768,6 +15218,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Empty = no limit",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder: help of a choice's capacity",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -15915,6 +16380,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Export choices as",
+            "context": null,
+            "plural": null,
+            "translators": "F05 Settings > export",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Export personal data",
             "context": null,
             "plural": null,
@@ -16815,6 +17295,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "For countries, use the Country field.",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder: link shown instead of a country list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -17854,6 +18349,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Free the place when an entry is deleted",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Free-plan limits are set by each service and change over time; check the plan before you rely on it.",
             "context": null,
             "plural": null,
@@ -18056,6 +18566,36 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Fully booked",
+            "context": null,
+            "plural": null,
+            "translators": "F05 visitor: a choice that has no place left",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "GCC countries",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -18653,6 +19193,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Governorates of Egypt",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Grace period",
             "context": null,
             "plural": null,
@@ -18747,6 +19302,21 @@
             "context": null,
             "plural": null,
             "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Gregorian months (Arabic names)",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
             "files": [
                 "includes/functions.php"
             ],
@@ -19346,6 +19916,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Hide it",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder: inv_show = hide",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Hide label on mobile",
             "context": null,
             "plural": null,
@@ -19487,6 +20072,21 @@
             "translators": "input format preset shown in the form builder's \"Format / mask\" list",
             "files": [
                 "includes/data/masks-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Hijri months",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -19680,6 +20280,21 @@
             "context": null,
             "plural": null,
             "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "How many choices",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -20763,6 +21378,21 @@
             "translators": "",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Importance scale",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -22365,6 +22995,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Keep in place",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder: a choice that keeps its place when the choices are shuffled",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Keep off for privacy unless debugging a rollout.",
             "context": null,
             "plural": null,
@@ -22429,6 +23074,21 @@
             "context": null,
             "plural": null,
             "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Keep this order",
+            "context": null,
+            "plural": null,
+            "translators": "F05 visitor",
             "files": [
                 "includes/functions.php"
             ],
@@ -22699,7 +23359,7 @@
             "msgid": "Labels",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F05 Settings > export",
             "files": [
                 "includes/functions.php"
             ],
@@ -23314,6 +23974,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Likelihood scale",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Limit how many times each choice can be picked",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Limits",
             "context": null,
             "plural": null,
@@ -23393,6 +24083,21 @@
             "context": null,
             "plural": null,
             "translators": "F19: gradient type",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Lines that start with “## ” (choice groups) are not used yet.",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -23930,6 +24635,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Longest “Other” answer (characters)",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Longitude",
             "context": null,
             "plural": null,
@@ -24256,6 +24976,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Marital status",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -25088,6 +25823,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Military service status",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Milliseconds before the browser falls back to the normal request.",
             "context": null,
             "plural": null,
@@ -25598,6 +26348,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Months",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Moroccan CIN (national ID card)",
             "context": null,
             "plural": null,
@@ -25707,6 +26472,36 @@
             "context": null,
             "plural": null,
             "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Move %s down",
+            "context": null,
+            "plural": null,
+            "translators": "F05 visitor: %s = an item",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Move %s up",
+            "context": null,
+            "plural": null,
+            "translators": "F05 visitor: %s = an item",
             "files": [
                 "includes/functions.php"
             ],
@@ -27649,6 +28444,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Nothing found for this source.",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Nothing is broken: the plugin keeps working, and every translation that was already installed stays in place.",
             "context": null,
             "plural": null,
@@ -28204,6 +29014,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "One choice per line. Use “Label|value” to store a different value.",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder: help of the bulk dialog",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "One column",
             "context": null,
             "plural": null,
@@ -28594,6 +29419,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Only the first 500 lines are added.",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Only these categories (ids or slugs, comma separated)",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Only these dates",
             "context": null,
             "plural": null,
@@ -28613,6 +29468,21 @@
             "context": null,
             "plural": null,
             "translators": "F03 builder option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Only these roles",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -29134,6 +30004,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Order by",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Order follow-up",
             "context": null,
             "plural": null,
@@ -29183,7 +30068,7 @@
             "msgid": "Other",
             "context": null,
             "plural": null,
-            "translators": "Label of the auto-added \"Other\" choice on a radio field with \"Add Other option\" enabled",
+            "translators": "Label of the auto-added \"Other\" choice on a radio field with \"Add Other option\" enabled translators: F05: the text of the “Other” choice",
             "files": [
                 "includes/functions.php"
             ],
@@ -31674,6 +32559,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please describe your “Other” answer for %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F05 visitor: %s = the field label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please ensure that all fields are filled correctly.",
             "context": null,
             "plural": null,
@@ -32253,6 +33153,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please put the items in %s in order.",
+            "context": null,
+            "plural": null,
+            "translators": "F05 visitor: %s = the field label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please refresh the form and try again.",
             "context": null,
             "plural": null,
@@ -32707,6 +33622,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Posts or pages",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Powered by",
             "context": null,
             "plural": null,
@@ -32928,6 +33858,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Preview (first %s)",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder: %s = number of choices",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -33548,6 +34493,36 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Provinces of Afghanistan",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Provinces of Iran",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Public Key",
             "context": null,
             "plural": null,
@@ -33938,6 +34913,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Rank only the first (0 = all)",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Ranking",
+            "context": null,
+            "plural": null,
+            "translators": "F05: name of the field type",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Rate Limiting and Abuse Protection",
             "context": null,
             "plural": null,
@@ -34234,6 +35239,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Ready-made lists",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -34719,6 +35739,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Regions of Saudi Arabia",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Register",
             "context": null,
             "plural": null,
@@ -35074,6 +36109,21 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-public.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Replace current choices",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -36453,6 +37503,51 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Satisfaction scale",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Satisfaction scale (Arabic)",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Satisfaction scale (Persian)",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Saudi Arabia",
             "context": null,
             "plural": null,
@@ -37558,6 +38653,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Select all",
+            "context": null,
+            "plural": null,
+            "translators": "F05",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -38741,6 +39851,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Show how many are left",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Show it turned off",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder: inv_show = disable",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Show password",
             "context": null,
             "plural": null,
@@ -38891,6 +40031,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Show “Fully booked” next to it",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder: inv_show = label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Show-password button",
             "context": null,
             "plural": null,
@@ -38942,6 +40097,36 @@
             "translators": "%s: list of page titles",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Shuffle choices",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Shuffled for each visitor",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder: badge on the canvas",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -39325,6 +40510,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Solar Hijri months",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Solid color",
@@ -40399,7 +41599,22 @@
             "msgid": "Stored value",
             "context": null,
             "plural": null,
-            "translators": "F06 builder, advanced date field panel",
+            "translators": "F06 builder, advanced date field panel translators: F05 builder: label of the stored value of a choice",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Stored values",
+            "context": null,
+            "plural": null,
+            "translators": "F05 Settings > export",
             "files": [
                 "includes/functions.php"
             ],
@@ -41599,6 +42814,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Taken: %s",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder: %s = a number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Takes about a minute",
             "context": null,
             "plural": null,
@@ -41716,6 +42946,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Taxonomy",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -42324,6 +43569,21 @@
             "context": null,
             "plural": null,
             "translators": "F19: contrast warning. %s: the ratio, e.g. 2.1",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Text of the “Other” choice",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -43463,6 +44723,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The characters \" < and > were removed from lines %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder: %s = line numbers",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The choices of “%1$s” came from a list (%2$s) that is not available here. Add the choices in the builder.",
             "context": null,
             "plural": null,
@@ -43489,8 +44764,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The code expires in %s minutes.",
@@ -44632,6 +45907,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The last choice of “%s” had a text box: it is now the field’s “Other” choice with its own text box.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: field label",
+            "files": [
+                "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -45973,8 +47263,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The total also counts the priced choices and price fields of the form. The server computes the amount; the browser only shows it.",
@@ -46193,6 +47483,21 @@
             "translators": "%s: label of the email field",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The visitor must move an item or confirm the order",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -46592,6 +47897,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "These stored values are used twice: %s",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder: %s = the repeated stored values",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Thickness (px)",
             "context": null,
             "plural": null,
@@ -46678,6 +47998,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This choice cannot be booked right now. Please try again later.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-public.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -49285,6 +50620,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Two choices cannot have the same stored value.",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Two date fields limit each other in a circle.",
             "context": null,
             "plural": null,
@@ -49345,6 +50695,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Type or paste your own",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Type your message here&hellip;",
             "context": null,
             "plural": null,
@@ -49379,6 +50744,21 @@
             "context": null,
             "plural": null,
             "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Typed here",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -49426,6 +50806,21 @@
             "translators": "country group in the form builder's \"Format / mask\" list",
             "files": [
                 "includes/data/masks-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "U.S. states",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -49531,6 +50926,21 @@
             "translators": "input format preset shown in the form builder's \"Format / mask\" list",
             "files": [
                 "includes/data/masks-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "UK nations",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -50849,6 +52259,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "User display names will be visible to everyone who opens the form.",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "User email",
             "context": null,
             "plural": null,
@@ -50891,6 +52316,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Users",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -51544,6 +52984,21 @@
             "context": null,
             "plural": null,
             "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Visitors can see this value in the page source.",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -52897,6 +54352,21 @@
             "context": null,
             "plural": null,
             "translators": "F13: setting: what happens to a person's entries when WordPress' Erase Personal Data tool runs",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "When a choice is used up",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -54442,6 +55912,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Yes / no / not sure",
+            "context": null,
+            "plural": null,
+            "translators": "F05 ready-made list",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -56848,6 +58333,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your typed choices are kept and come back when you switch to “Typed here”.",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -59348,6 +60848,21 @@
             "translators": "%s: field label",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "“Select all” is hidden because the maximum is lower than the number of choices.",
+            "context": null,
+            "plural": null,
+            "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"

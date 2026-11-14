@@ -101,6 +101,9 @@ async function openBuilder(opts) {
   for (const f of files) await page.addScriptTag({ path: JS + f });
   if (fs.existsSync(JS + 'plan-gate-efb.js')) await page.addScriptTag({ path: JS + 'plan-gate-efb.js' });
   if (fs.existsSync(JS + 'builder-api-efb.js')) await page.addScriptTag({ path: JS + 'builder-api-efb.js' });
+  // F05: the choice rules / runtime and the choice-field controls (the builder loads them on every screen).
+  if (fs.existsSync(path.join(ROOT, 'public/assets/js/choices-efb.js'))) await page.addScriptTag({ path: path.join(ROOT, 'public/assets/js/choices-efb.js') });
+  if (fs.existsSync(JS + 'choices-builder-efb.js')) await page.addScriptTag({ path: JS + 'choices-builder-efb.js' });
   for (const s of (opts.scripts || [])) await page.addScriptTag({ path: path.join(ROOT, s) });
   await page.evaluate(() => { _efb_nonce_ = 'n0nce'; setting_emsFormBuilder = efb_var.setting; });
   const bootErrors = errors.splice(0);

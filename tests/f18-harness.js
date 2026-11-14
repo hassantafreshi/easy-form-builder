@@ -41,11 +41,12 @@ function capabilities(pkg, settings) {
   const { execFileSync } = require('child_process');
   const API = path.join(ROOT, 'includes/class-Emsfb-builder-api.php').replace(/\\/g, '/');
   const FUNCS = path.join(ROOT, 'includes/functions.php').replace(/\\/g, '/');
-  const ST = path.join(ROOT, 'includes/class-Emsfb-smart-tags.php').replace(/\\/g, '/');
+  const INC = path.join(ROOT, 'includes').replace(/\\/g, '/');
   const out = execFileSync('php', ['-r', `
     define('ABSPATH','/'); define('EMSFB_PLUGIN_VERSION','4.3.1'); define('EMSFB_API_VERSION',1);
     function get_option($k, $d = false) { return $d; }
-    function add_filter() {} function apply_filters($h, $v) { return $v; }
+    function add_filter() {} function add_action() {} function apply_filters($h, $v) { return $v; }
+    function rest_url($p = '') { return '/wp-json/' . $p; }
     function get_setting_Emsfb($m = 'decoded') { return json_decode($GLOBALS['settings']); }
     $GLOBALS['settings'] = stream_get_contents(STDIN);
     $src = file_get_contents('${FUNCS}');
@@ -56,9 +57,12 @@ function capabilities(pkg, settings) {
     function get_efbFunction() { return new F(); }
     require '${API}';
     $caps = \\Emsfb\\Builder_Api::capabilities(array('package' => ${Number(pkg)}));
-    // F08 adds its entries through the efb_capabilities filter (Smart_Tags::capabilities).
-    require '${ST}';
-    echo json_encode(\\Emsfb\\Smart_Tags::capabilities($caps, array()));
+    // Every module adds its entries through the efb_capabilities filter, in the plugin's priority order:
+    // F11 (20) Form_Gate, F03 (21) Field_Rules, F02 / F06 (22) Verification / Calendar_Rest, F07 (23) Uploads,
+    // F08 (24) Smart_Tags, F05 (25) Choices.
+    foreach (array('class-Emsfb-rate-limit.php', 'class-Emsfb-client-ip.php', 'class-Emsfb-form-css.php', 'class-Emsfb-form-gate.php', 'class-Emsfb-masks.php', 'class-Emsfb-field-rules.php', 'verification/interface-provider.php', 'class-Emsfb-verification.php', 'class-Emsfb-calendar.php', 'class-Emsfb-calendar-rest.php', 'class-Emsfb-upload-guard.php', 'class-Emsfb-uploads.php', 'class-Emsfb-smart-tags.php', 'class-Emsfb-choices.php', 'class-Emsfb-stock.php') as $f) require_once '${INC}/' . $f;
+    foreach (array('Form_Gate', 'Field_Rules', 'Verification', 'Calendar_Rest', 'Uploads', 'Smart_Tags', 'Choices') as $c) { $c = '\\\\Emsfb\\\\' . $c; $caps = $c::capabilities($caps, array('package' => ${Number(pkg)})); }
+    echo json_encode($caps);
   `], { input: JSON.stringify(settings || {}) }).toString();
   return JSON.parse(out);
 }

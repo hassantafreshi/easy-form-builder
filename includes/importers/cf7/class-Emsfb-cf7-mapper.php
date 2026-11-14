@@ -988,6 +988,16 @@ class Mapper {
 		if ( 'radio' === $type ) {
 			$defaults = array_slice( $defaults, 0, 1 );
 		}
+		// F05: free_text = the last choice had a text box: it becomes the field's "Other" choice (its text, a text box).
+		$free_text = Parser::has_option( $tag, 'free_text' ) && ! empty( $values );
+		if ( $free_text ) {
+			$last = $this->clean_text( end( $values ) );
+			$field['op_other'] = '1';
+			if ( '' !== $last ) {
+				$field['op_other_label'] = $this->short( $last );
+			}
+			$values = array_slice( $values, 0, -1 );
+		}
 		$this->push_with_options( $field, $tag, $values, $defaults, 'checkbox' === $type );
 
 		if ( $exclusive ) {
@@ -1000,15 +1010,11 @@ class Mapper {
 			);
 		}
 
-		// free_text: the last choice had a text box; it becomes its own field.
-		if ( Parser::has_option( $tag, 'free_text' ) && ! empty( $values ) ) {
-			$last  = $this->clean_text( end( $values ) );
-			$extra = $this->field( 'text', '' !== $last ? $last : $label, $tag );
-			$this->push_field( $extra, null );
+		if ( $free_text ) {
 			$this->note(
 				sprintf(
 					/* translators: %s: field label */
-					__( 'The text box of the last choice of “%s” is now a separate text field right after it.', 'easy-form-builder' ),
+					__( 'The last choice of “%s” had a text box: it is now the field’s “Other” choice with its own text box.', 'easy-form-builder' ),
 					$this->short( $label )
 				)
 			);
@@ -1219,6 +1225,23 @@ class Mapper {
 	}
 
 	/**
+	 * F05: the value CF7 sent for a choice (the text after "|" of its pipe), cleaned like a stored value; '' when none.
+	 *
+	 * @param array  $tag   Tag.
+	 * @param string $label The choice as listed in values.
+	 * @return string
+	 */
+	private function pipe_value( array $tag, $label ) {
+		foreach ( isset( $tag['pipes'] ) && is_array( $tag['pipes'] ) ? $tag['pipes'] : array() as $pipe ) {
+			if ( is_array( $pipe ) && isset( $pipe[0], $pipe[1] ) && (string) $pipe[0] === (string) $label && (string) $pipe[1] !== (string) $pipe[0] ) {
+				$v = trim( str_replace( array( '"', '<', '>' ), '', $this->clean_text( (string) $pipe[1] ) ) );
+				return function_exists( 'mb_substr' ) ? mb_substr( $v, 0, 200 ) : substr( $v, 0, 200 );
+			}
+		}
+		return '';
+	}
+
+	/**
 	 * Notes shared by every choice field.
 	 *
 	 * @param array  $tag     Tag.
@@ -1227,15 +1250,7 @@ class Mapper {
 	 * @return void
 	 */
 	private function choice_notes( array $tag, $label, array $choices ) {
-		if ( $choices['piped'] ) {
-			$this->note(
-				sprintf(
-					/* translators: %s: field label */
-					__( 'The choices of “%s” sent a different value in the email (the text after “|”). Easy Form Builder saves the text the visitor sees.', 'easy-form-builder' ),
-					$this->short( $label )
-				)
-			);
-		}
+		// F05: "Label|value" pipes are each choice's stored value (opt_value) now: nothing is lost, no note.
 		if ( ! empty( $choices['missing'] ) ) {
 			$this->note(
 				sprintf(
@@ -1276,6 +1291,7 @@ class Mapper {
 		$options  = array();
 		$selected = array();
 		$seen     = array();
+		$stored   = array();
 		foreach ( array_values( $values ) as $i => $value ) {
 			$text = 'trmCheckbox' === $field['type'] ? $value : $this->clean_text( $value );
 			// A double quote would end the option's value="" attribute early.
@@ -1284,7 +1300,7 @@ class Mapper {
 				continue;
 			}
 			$id        = $this->new_id();
-			$options[] = array(
+			$option    = array(
 				'id_'    => $id,
 				'dataId' => $id . '-id',
 				'parent' => $field['id_'],
@@ -1294,6 +1310,13 @@ class Mapper {
 				'step'   => 1,
 				'amount' => $field['amount'],
 			);
+			// F05: CF7's pipe "Label|value": the text after "|" is the choice's stored value (first one wins on a repeat).
+			$piped = $this->pipe_value( $tag, $value );
+			if ( '' !== $piped && $piped !== $text && ! isset( $stored[ $piped ] ) ) {
+				$option['opt_value'] = $piped;
+				$stored[ $piped ]    = true;
+			}
+			$options[] = $option;
 			if ( in_array( $i, $defaults, true ) && ! isset( $seen[ $i ] ) ) {
 				$selected[] = $id;
 				$seen[ $i ] = true;

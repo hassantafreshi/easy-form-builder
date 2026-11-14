@@ -45,6 +45,12 @@ class _Public {
 	private $gate_reserved = false;
 	/* F03: unique-value claims of this submission (Field_Rules), taken in insert_message_db(). */
 	private $unique_pending_efb = array();
+	/* F05: the stable code of a choice refusal, and what insert_message_db() reserves (\Emsfb\Stock). */
+	private $choices_code_efb = '';
+	private $stock_rows_efb = null;
+	private $stock_form_efb = null;
+	private $stock_fid_efb = 0;
+	private $stock_taken_efb = array();
 	private $unique_claimed_efb = array();
 	/* F03: code of the field rule that refused the submission (answered with field_id). */
 	private $field_rules_code_efb = '';
@@ -303,6 +309,12 @@ public function check_nonce_permission_efb($request) {
 		if (!$sid) return new \WP_Error('efb_session_storage_failed',__('The form session could not be saved.', 'easy-form-builder'),array('status'=>503));
 		$answer = array('nonce'=>$nonce->get_data()['nonce'],'sid'=>$sid,'runtime_token'=>\Emsfb\Form_Runtime::token($fid,$sid,$proof ? $proof['owner'] : '',$proof && isset($proof['t0']) ? (int) $proof['t0'] : null),'refresh_after'=>240);
 		if ($gate_block !== null) $answer['gate'] = $gate_block;
+		/* F05: places left of each choice with a capacity ({option id: left}), only numbers: a cached page shows
+		 * older ones until this fresh (no-store) answer arrives. The submit takes the place atomically anyway. */
+		if ($fid > 0 && isset($structure) && is_array($structure) && class_exists('\\Emsfb\\Stock')) {
+			$stock_efb = \Emsfb\Stock::left($fid, $structure);
+			if ($stock_efb) $answer['stock'] = $stock_efb;
+		}
 		/* F08: the user tags of this form ({user:display_name}, …) reach the browser only here: an answer that is
 		 * no-store and same-origin (efb_issue_rest_nonce_efb), never the cached page. The e-mail only when the
 		 * form itself uses {user:email}; nothing for a guest or a form without user tags. */
@@ -1353,7 +1365,9 @@ public function check_nonce_permission_efb($request) {
 			'cal_choose_date','cal_choose_range','cal_today','cal_clear','cal_ok','cal_prev_month','cal_next_month','cal_prev_year','cal_next_year','cal_month_year_view','cal_from','cal_to','cal_nights_n','cal_days_n','cal_time','cal_selected_dates','cal_remove_date','cal_format_hint','cal_closed','cal_holiday','cal_full','cal_remaining_n','cal_tz_note','cal_approx_note','cal_switch_label','cal_add_date','cal_year','cal_selected','cal_range_sum','cal_dialog','cal_back','cal_err_invalid_format','cal_err_invalid_date','cal_err_calendar_not_allowed','cal_err_before_min','cal_err_after_max','cal_err_weekday_disabled','cal_err_date_disabled','cal_err_not_enabled','cal_err_holiday','cal_err_unavailable','cal_err_full','cal_err_range_order','cal_err_range_too_short','cal_err_range_too_long','cal_err_range_contains_disabled','cal_err_too_many_dates','cal_err_time_required','cal_err_time_out_of_range','cal_err_time_step','cal_err_time_closed_weekday','cal_err_age_too_young','cal_err_age_too_old','cal_err_depends_on_empty','cal_err_required',
 			/* F07 upload fields: the file list, its states and counts, and the messages (upload-efb.js). */
 			'dragAndDropMany','releaseToUpload','filesCountOf','fileSizeMB','fileSizeKB','fileQueued','fileUploading','fileUploaded','fileFailed','retryUpload','removeFileNamed','maxFilesReached',
-			'maxFilesMsg','minFilesMsg','maxTotalMsg','fileNotOwned','fileTooBigMB','fileTypeRefused','fileTotalOver','fileWaitUploads','filesAddMore','fileRemovedA11y','fileResizing'];
+			'maxFilesMsg','minFilesMsg','maxTotalMsg','fileNotOwned','fileTooBigMB','fileTypeRefused','fileTotalOver','fileWaitUploads','filesAddMore','fileRemovedA11y','fileResizing',
+			/* F05 choices: Other, Select all, limits, capacity, ranking, the booking messages of the page. */
+			'otherOpt','otherReq','selectAll','minSelM_','maxSelM_','soldOut','invLeftN','rnkUp','rnkDown','rnkMoved','rnkConfirm','rnkReq','rnkHelp','bkXpM_','bkFlM_'];
 
 			/* Only now is a form or response box really printed. A form in a widget,
 			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
@@ -1436,6 +1450,8 @@ public function check_nonce_permission_efb($request) {
 				$pattern = '/bi-[a-zA-Z0-9-]+/';
 
 				preg_match_all($pattern, $value, $icons_ );
+				// F05: the icons of the ranking field's buttons and handle (they are in the markup, not in the form JSON).
+				if (strpos((string) $value, 'ranking') !== false) { $icons_[0][] = 'bi-arrow-up'; $icons_[0][] = 'bi-arrow-down'; $icons_[0][] = 'bi-grip-vertical'; }
 
 				$iconsd = array_merge($icons_[0] , $icons[0]);
 
@@ -1568,6 +1584,19 @@ public function check_nonce_permission_efb($request) {
 						$val_ = json_encode($valj_efb,JSON_UNESCAPED_UNICODE);
 						$value = str_replace('"', '\\"', $val_);
 					}
+					/* F05: choices built from the site are expanded here (the page) and again on submit, with the same
+					 * ids; the page's copy of the form carries them (the browser checks and Conditional Logic read it). */
+					if (class_exists('\\Emsfb\\Choices') && is_string($fs) && strpos($fs, '"dyn_src":"') !== false && is_array($formObj)) {
+						$dyn_rows_efb = \Emsfb\Choices::expand_dynamic($formObj, (int) $this->id);
+						if (count($dyn_rows_efb) !== count($formObj)) {
+							if (isset($valj_efb[0]->thank_you) && $valj_efb[0]->thank_you == "rdrct") $dyn_rows_efb[0]['rePage'] = '';
+							$formObj = $dyn_rows_efb;
+							$val_ = json_encode($dyn_rows_efb, JSON_UNESCAPED_UNICODE);
+							$valj_efb = json_decode($val_, false);
+							$value = str_replace('"', '\\"', $val_);
+							$fs = $val_;
+						}
+					}
 
 				$k="";
 				if(($value_form_data->form_type=="login" || $value_form_data->form_type=="register"))$value= $value_form_data->form_structer;
@@ -1599,6 +1628,8 @@ public function check_nonce_permission_efb($request) {
 
 			   require_once(EMSFB_PLUGIN_DIRECTORY . '/includes/class-Emsfb-formbuilder.php');
 			   $efbFormBuilder = new Formbuilder($valj_efb , $this->pro_efb);
+			   // F05: places left of each choice with a capacity (a cached page gets fresh numbers from forms/session/prepare).
+			   if (class_exists('\\Emsfb\\Stock') && isset($formObj) && is_array($formObj)) $efbFormBuilder->stock_left = \Emsfb\Stock::left((int) $this->id, $formObj);
 			   // F08: what the HTML may carry for smart tags: the same for every visitor of this page (no user value).
 			   if (class_exists('\\Emsfb\\Smart_Tags')) {
 				   $st_rows_efb = json_decode(wp_json_encode($valj_efb), true);
@@ -2468,6 +2499,13 @@ public function check_nonce_permission_efb($request) {
 			wp_enqueue_script('efb-smart-tags-js');
 			$core_deps[] = 'efb-smart-tags-js';
 		}
+		// F05: shuffled order, Other, Select all, the maximum lock, capacities and the ranking widget (only on a form that uses one).
+		if (is_string($form_structure_json) && preg_match('/\\\\?"(?:op_random|op_other|op_select_all|maxSelect|minSelect|inv_on|booking|dyn_src)\\\\?"\s*:\s*(?:\\\\?")?[1-9a-z]|type\\\\?"\s*:\s*\\\\?"ranking\\\\?"/', $form_structure_json)) {
+			wp_register_script('efb-choices-js', EMSFB_PLUGIN_URL . 'public/assets/js/choices-efb.js', array(), $asset_version('public/assets/js/choices-efb.js'), true);
+			wp_enqueue_script('efb-choices-js');
+			wp_enqueue_style('efb-choices-css', EMSFB_PLUGIN_URL . 'public/assets/css/choices-efb.css', array(), $asset_version('public/assets/css/choices-efb.css'));
+			$core_deps[] = 'efb-choices-js';
+		}
 		// F06: the advanced date field's engines and picker, only on pages with one (and only the calendars it can show).
 		if (class_exists('\\Emsfb\\Calendar') && \Emsfb\Calendar::enqueue_public($form_structure_json)) {
 			$core_deps[] = 'efb-cal-ui';
@@ -2660,6 +2698,12 @@ public function check_nonce_permission_efb($request) {
 		}
 		$this->operation_key = '';
 		$this->operation_data = is_array($request_data) ? $request_data : array();
+		// F05: nothing of an earlier request in this process (choice refusal code, capacities to take).
+		$this->choices_code_efb = '';
+		$this->stock_rows_efb = null;
+		$this->stock_form_efb = null;
+		$this->stock_fid_efb = 0;
+		$this->stock_taken_efb = array();
 
 		$translation_keys = [
 			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'PleaseFillForm', 'bkXpM_', 'bkFlM_', 'mnvvXXX_', 'ptrnMmm_', 'ptrnMmx_', 'payment', 'error403', 'errorSiteKeyM',
@@ -2677,6 +2721,8 @@ public function check_nonce_permission_efb($request) {
 			/* F06 advanced date field (Calendar::message()). */
 			/* F07 upload fields (Uploads::check_field() and the ownership check). */
 			'maxFilesMsg', 'minFilesMsg', 'maxTotalMsg', 'fileNotOwned',
+			/* F05 choices (Choices::message(), Stock): Other, minimum / maximum, capacity, ranking. */
+			'otherOpt', 'otherReq', 'minSelM_', 'maxSelM_', 'soldOut', 'rnkReq',
 			'cal_err_invalid_format', 'cal_err_invalid_date', 'cal_err_calendar_not_allowed', 'cal_err_before_min', 'cal_err_after_max', 'cal_err_weekday_disabled', 'cal_err_date_disabled', 'cal_err_not_enabled', 'cal_err_holiday', 'cal_err_unavailable', 'cal_err_full', 'cal_err_range_order', 'cal_err_range_too_short', 'cal_err_range_too_long', 'cal_err_range_contains_disabled', 'cal_err_too_many_dates', 'cal_err_time_required', 'cal_err_time_out_of_range', 'cal_err_time_step', 'cal_err_time_closed_weekday', 'cal_err_age_too_young', 'cal_err_age_too_old', 'cal_err_depends_on_empty', 'cal_err_required', 'cal_nights_n', 'cal_days_n'
 		];
 		$efbFunction = get_efbFunction();
@@ -2908,6 +2954,10 @@ public function check_nonce_permission_efb($request) {
 		if ($form_structure_json != '') {
 			$form_fields_array = json_decode($form_structure_json, true);
 			$form_structure_json = null;
+			// F05: choices built from the site (posts, terms, users, CSV), expanded again with the same ids, so a
+			// choice that is gone (deleted, made private) is not accepted and every check below sees the real list.
+			// The submit reads the source itself (not the page's cached list): a post trashed meanwhile is gone.
+			if (is_array($form_fields_array) && class_exists('\\Emsfb\\Choices')) $form_fields_array = \Emsfb\Choices::expand_dynamic($form_fields_array, (int) $this->id, true);
 
 			// F08: hidden fields get the server's value before anything reads the answers (Conditional Logic,
 			// the field loop, notifications, webhooks): server tags rebuilt, the browser's copy ignored for them.
@@ -3270,6 +3320,15 @@ public function check_nonce_permission_efb($request) {
 								case 'chlRadio':
 								case 'imgRadio':
 									$is_valid = 0;
+									// F05: the "Other" choice ({field}_oth): plain text, length-limited, never priced; refused when the field has none.
+									if (class_exists('\\Emsfb\\Choices') && \Emsfb\Choices::is_other_row($f, $item)) {
+										$oth_efb = \Emsfb\Choices::other_row($f, $item, $this->lanText);
+										$is_valid = $oth_efb['ok'] ? 1 : 0;
+										$validated_item = $oth_efb['row'];
+										if (!$oth_efb['ok']) { $error_message = $oth_efb['m']; $error_field_id = (string) $f['id_']; $this->choices_code_efb = $oth_efb['code']; }
+										$still_processing = false;
+										break;
+									}
 									if (isset($item['value'])) {
 										/* The saved field decides the row's kind. The price and
 										 * image lookups below key on it, and so does the attribute
@@ -3278,8 +3337,10 @@ public function check_nonce_permission_efb($request) {
 										$item['type'] = $f['type'];
 										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 										$item['value'] = sanitize_text_field($item['value']);
-										array_filter($form_fields_array, function ($fr, $ki) use (&$item, &$validated_item, &$is_valid, &$form_fields_array, $form_condition, &$error_message) {
-											if (isset($fr['id_']) && isset($item['id_ob']) && $fr['id_'] == $item['id_ob']) {
+										$radio_parent_efb = (string) $f['id_'];
+										array_filter($form_fields_array, function ($fr, $ki) use (&$item, &$validated_item, &$is_valid, &$form_fields_array, $form_condition, &$error_message, $radio_parent_efb) {
+											// F05: the chosen option must be one of this field's own options (an option id of another field was accepted).
+											if (isset($fr['id_']) && isset($item['id_ob']) && $fr['id_'] == $item['id_ob'] && (string) ($fr['parent'] ?? '') === $radio_parent_efb) {
 												$item['value'] = $fr['value'];
 												$is_valid = 1;
 												/* strpos() finds "pay" at offset 0 of "payRadio", and
@@ -3302,15 +3363,7 @@ public function check_nonce_permission_efb($request) {
 															$error_message = str_replace('%s', $fr['value'], $error_message);
 														}
 													}
-													if (isset($fr['mlen']) == true) {
-														if ($fr['mlen'] <= $fr['registered_count']) {
-															$is_valid = 0;
-															$error_message = $this->lanText['bkFlM_'];
-															$error_message = str_replace('%s', $fr['value'], $error_message);
-														} else {
-															$form_fields_array[$ki]['registered_count'] = (int) $form_fields_array[$ki]['registered_count'] + 1;
-														}
-													}
+													// F05: the capacity (mlen) is taken atomically in insert_message_db() (\Emsfb\Stock), not counted here.
 												}
 												$validated_item = $item;
 												return;
@@ -3362,8 +3415,11 @@ public function check_nonce_permission_efb($request) {
 											if (stripos($option_parent_type, 'pay') === false) unset($item['price']);
 											if (stripos($option_parent_type, 'chl') === false) unset($item['qty']);
 										}
-										if ((isset($f['id_']) && isset($item['id_ob']) && $f['id_'] == $item['id_ob'])
-											|| (isset($f['id_']) && isset($item['id_']) && $f['type'] == "chlCheckBox"  && $f['id_'] == $item['id_ob'])
+										/* F05: the option must belong to the field the row names
+										 * (an option id of another field was stored under this one). */
+										if (((isset($f['id_']) && isset($item['id_ob']) && $f['id_'] == $item['id_ob'])
+											|| (isset($f['id_']) && isset($item['id_']) && $f['type'] == "chlCheckBox"  && $f['id_'] == $item['id_ob']))
+											&& (!isset($f['parent']) || (string) $f['parent'] === (string) ($item['id_'] ?? ''))
 										) {
 											/* The saved option's own text, as for radio: the browser's
 											 * label is only a claim, and any text sent with a real
@@ -3383,15 +3439,7 @@ public function check_nonce_permission_efb($request) {
 														$error_message = str_replace('%s', $f['value'], $error_message);
 													}
 												}
-												if (isset($f['mlen']) == true) {
-													if ($f['mlen'] <= $f['registered_count']) {
-														$is_valid = 0;
-														$error_message = $this->lanText['bkFlM_'];
-														$error_message = str_replace('%s', $f['value'], $error_message);
-													} else {
-														$form_fields_array[$key]['registered_count'] = (int) $form_fields_array[$key]['registered_count'] + 1;
-													}
-												}
+												// F05: the capacity (mlen) is taken atomically in insert_message_db() (\Emsfb\Stock).
 											}
 										}
 									}
@@ -3476,6 +3524,11 @@ public function check_nonce_permission_efb($request) {
 										if ($validated_item != null) $is_valid = 1;
 										$item['value'] = $validated_item;
 										$validated_item = $item;
+										// F05: minSelect / maxSelect on the server too (only the minimum was checked, in the page).
+										if ($is_valid == 1 && class_exists('\\Emsfb\\Choices')) {
+											$ms_lim_efb = \Emsfb\Choices::limit_check($f, count(array_filter(explode('@efb!', (string) $item['value']), 'strlen')), $this->lanText);
+											if ($ms_lim_efb) { $is_valid = 0; $error_message = $ms_lim_efb['m']; $error_field_id = $ms_lim_efb['field_id']; $this->choices_code_efb = $ms_lim_efb['code']; $validated_item = null; }
+										}
 									}
 									$still_processing = false;
 									break;
@@ -3499,19 +3552,23 @@ public function check_nonce_permission_efb($request) {
 															$error_message = str_replace('%s', $fr['value'], $error_message);
 														}
 													}
-													if (isset($fr['mlen']) == true) {
-														if ($fr['mlen'] <= $fr['registered_count']) {
-															$is_valid = 0;
-															$error_message = $this->lanText['bkFlM_'];
-															$error_message = str_replace('%s', $fr['value'], $error_message);
-														} else {
-															$form_fields_array[$ki]['registered_count'] = (int) $form_fields_array[$ki]['registered_count'] + 1;
-														}
-													}
+													// F05: the capacity (mlen) is taken atomically in insert_message_db() (\Emsfb\Stock).
 												}
 												return;
 											}
 										}, ARRAY_FILTER_USE_BOTH);
+									}
+									$still_processing = false;
+									break;
+								case 'ranking':
+									// F05-G: an order of the saved choices (all, or the first rank_top), no repeats; value and ov rebuilt here.
+									$is_valid = 0;
+									if (class_exists('\\Emsfb\\Choices')) {
+										$item = $this->filter_attributes_by_type_efb($item, 'ranking');
+										$rk_efb = is_array($item) ? \Emsfb\Choices::ranking_row($f, $item, $form_fields_array, $this->lanText) : array('ok' => false, 'row' => null, 'm' => '', 'code' => 'efb_choice_ranking');
+										$is_valid = $rk_efb['ok'] ? 1 : 0;
+										$validated_item = $rk_efb['row'];
+										if (!$rk_efb['ok']) { $error_message = $rk_efb['m']; $error_field_id = (string) $f['id_']; $this->choices_code_efb = $rk_efb['code']; }
 									}
 									$still_processing = false;
 									break;
@@ -3779,6 +3836,14 @@ public function check_nonce_permission_efb($request) {
 									$t	= strtolower($item['type']);
 									$t = strpos(strtolower($f['type']), 'checkbox');
 									$b = strpos(strtolower($f['type']), 'chlcheckbox');
+									// F05: the "Other" row of a checkbox field (the option rows are checked in case 'option').
+									if (gettype($t) == "integer" && class_exists('\\Emsfb\\Choices') && \Emsfb\Choices::is_other_row($f, $item)) {
+										$oth_efb = \Emsfb\Choices::other_row($f, $item, $this->lanText);
+										$is_valid = $oth_efb['ok'] ? 1 : 0;
+										$validated_item = $oth_efb['row'];
+										if (!$oth_efb['ok']) { $error_message = $oth_efb['m']; $error_field_id = (string) $f['id_']; $this->choices_code_efb = $oth_efb['code']; $still_processing = false; }
+										break;
+									}
 									if (gettype($t) == "integer" || (isset($f['type']) && $f['type'] == 'table_matrix')) {
 										$is_valid = 1;
 										break;
@@ -3894,6 +3959,20 @@ public function check_nonce_permission_efb($request) {
 					} ) );
 				}
 
+				// F05: the minimum / maximum of checkbox fields (after the loop: one row per choice), then the stored
+				// value of each chosen choice (ov) from the saved form; a field hidden by Conditional Logic is not counted.
+				if ($is_valid == 1 && class_exists('\\Emsfb\\Choices')) {
+					$ch_err_efb = \Emsfb\Choices::count_check($form_fields_array, $validated_items, isset($_ignored_set) && is_array($_ignored_set) ? $_ignored_set : array(), $this->lanText);
+					if ($ch_err_efb) {
+						$is_valid = 0;
+						$error_message = $ch_err_efb['m'];
+						$error_field_id = $ch_err_efb['field_id'];
+						$this->choices_code_efb = $ch_err_efb['code'];
+					} else {
+						$validated_items = \Emsfb\Choices::add_ov($validated_items, $form_fields_array);
+					}
+				}
+
 				// F08: {field:…} in hidden values from the checked answers; the answers for e-mails, messages and redirects.
 				if ($is_valid == 1) $validated_items = $this->smart_hidden_final_efb($validated_items, $form_fields_array);
 
@@ -3923,6 +4002,8 @@ public function check_nonce_permission_efb($request) {
 					if ($this->advdate_code_efb !== '' && $error_field_id !== '') $response['code'] = 'efb_date_' . $this->advdate_code_efb;
 					// F07: the stable code of an upload refusal (efb_file_max_files, _min_files, _max_total, _not_owned, _invalid).
 					if ($this->upload_code_efb !== '' && $error_field_id !== '') $response['code'] = 'efb_file_' . $this->upload_code_efb;
+					// F05: the stable code of a choice refusal (efb_choice_other, _min, _max, _ranking, _invalid).
+					if ($this->choices_code_efb !== '' && $error_field_id !== '') $response['code'] = $this->choices_code_efb;
 					wp_send_json_success($response, 200);
 				}
 				// Verification gate: every field that requires a one-time code must carry a valid token
@@ -3956,12 +4037,12 @@ public function check_nonce_permission_efb($request) {
 				// End verification gate.
 				$this->value = $this->efb_encode_rows_for_storage_efb($validated_items);
 				$this->gate_items = $validated_items; // F11: the normalized e-mail for lim_email
-				if ($form_condition == 'booking') {
-					$table_name = $this->db->prefix . "emsfb_form";
-					$id = sanitize_text_field($request_data['id']);
-					$value = json_encode($form_fields_array, JSON_UNESCAPED_UNICODE);
-					$r = $this->db->update($table_name, ['form_structer' => $value], ['form_id' => $id]);
-				}
+				// F05: the capacities of the chosen choices are taken in insert_message_db() (\Emsfb\Stock, atomic).
+				// The form itself is never written on submit any more (it stored Conditional Logic's required /
+				// disabled changes for good, before the captcha, with no lock: spec §2).
+				$this->stock_rows_efb = $validated_items;
+				$this->stock_form_efb = $form_fields_array;
+				$this->stock_fid_efb = intval($request_data['id']);
 			}elseif($form_type=='register' || $form_type=='login'){
 
 				if($submission_type=='logout'){
@@ -5240,6 +5321,9 @@ public function check_nonce_permission_efb($request) {
 		// F03: a form that stores no entries still accepts each value once (the claim has no entry: msg_id 0,
 		// forgotten after the form's retention period by the daily job).
 		$this->unique_claim_efb(0);
+		// F05: the capacities count for a form that stores no entries too.
+		$this->stock_reserve_efb();
+		$this->stock_taken_efb = array();
 		// F02: the codes are used once here too (no entry: msg_id 0).
 		$this->verification_consume_efb();
 		$this->verification_after_insert_efb(0);
@@ -5308,11 +5392,17 @@ public function check_nonce_permission_efb($request) {
 	private function gate_prepare_for_endpoint_efb($fid) {
 		$this->gate_s0 = null;
 		$this->gate_reserved = false;
+		$this->stock_rows_efb = null;
+		$this->stock_form_efb = null;
+		$this->stock_taken_efb = array();
 		if ($fid <= 0 || !class_exists('\\Emsfb\\Form_Gate')) return;
 		$form = $this->get_form_data_efb($fid, array('form_structer', 'form_type'));
 		if (!$form) return;
 		$rows = \emsfb_json_decode_efb(\emsfb_json_normalize_efb($form->form_structer), true);
 		if (!is_array($rows) || !isset($rows[0]) || !is_array($rows[0])) return;
+		// F05: the legacy gateway routes store the entry themselves: its rows (read in insert_message_db()) take the capacities too.
+		$this->stock_form_efb = $rows;
+		$this->stock_fid_efb = (int) $fid;
 		$this->gate_fid = (int) $fid;
 		$this->gate_ctx = \Emsfb\Form_Gate::context($this->gate_fid);
 		$err = \Emsfb\Form_Gate::check($rows[0], $this->gate_ctx);
@@ -5351,6 +5441,7 @@ public function check_nonce_permission_efb($request) {
 		$this->verification_claims = array();
 		\Emsfb\Form_Runtime::abort($this->operation_key);
 		$this->advdate_commit_failed_efb(); // F06
+		$this->stock_release_efb(); // F05
 		if (!empty($this->unique_claimed_efb) && class_exists('\\Emsfb\\Unique_Values')) { \Emsfb\Unique_Values::drop_claims(0, $this->unique_claimed_efb); $this->unique_claimed_efb = array(); }
 		if (!empty($this->gate_reserved) && class_exists('\\Emsfb\\Form_Gate')) { \Emsfb\Form_Gate::release($this->gate_claims); $this->gate_reserved = false; $this->gate_claims = array(); }
 		$this->efb_trace('submit.blocked', array('form_id' => intval($this->id), 'gate' => 'verification_consume'));
@@ -5451,6 +5542,7 @@ public function check_nonce_permission_efb($request) {
 		if ($ok === true || !is_wp_error($ok)) { $this->advdate_committed_efb = true; return; }
 		do_action('efb_date_commit_failed', $this->advdate_rows_efb, (int) $this->advdate_ctx_efb['form_id'], $ctx);
 		\Emsfb\Form_Runtime::abort($this->operation_key);
+		$this->stock_release_efb(); // F05
 		if (!empty($this->unique_claimed_efb) && class_exists('\\Emsfb\\Unique_Values')) { \Emsfb\Unique_Values::drop_claims(0, $this->unique_claimed_efb); $this->unique_claimed_efb = array(); }
 		if (!empty($this->gate_reserved) && class_exists('\\Emsfb\\Form_Gate')) { \Emsfb\Form_Gate::release($this->gate_claims); $this->gate_reserved = false; $this->gate_claims = array(); }
 		$d = $ok->get_error_data();
@@ -5476,10 +5568,59 @@ public function check_nonce_permission_efb($request) {
 		$this->advdate_committed_efb = false;
 	}
 
+	/**
+	 * F05: takes one place of every chosen choice that has a capacity (\Emsfb\Stock::reserve, all or nothing)
+	 * after the F11 places and the F03 claims. A full choice: everything this request took is given back and
+	 * the visitor reads which choice (the other answers stay in the form). No table: refused, never unlocked.
+	 */
+	private function stock_reserve_efb() {
+		$this->stock_taken_efb = array();
+		if (!isset($this->stock_form_efb) || !is_array($this->stock_form_efb) || !class_exists('\\Emsfb\\Stock')) return;
+		$rows = isset($this->stock_rows_efb) ? $this->stock_rows_efb : null;
+		if (!is_array($rows)) {
+			$rows = class_exists('\\Emsfb\\Privacy') ? \Emsfb\Privacy::decode_content($this->value) : json_decode(str_replace('\\"', '"', (string) $this->value), true);
+			if (!is_array($rows)) return;
+		}
+		$claims = \Emsfb\Stock::claims($this->stock_form_efb, $rows);
+		if (!$claims) return;
+		$fid = isset($this->stock_fid_efb) ? (int) $this->stock_fid_efb : 0;
+		$r = \Emsfb\Stock::reserve($fid, $claims);
+		if ($r['ok']) { $this->stock_taken_efb = $r['taken']; return; }
+		\Emsfb\Form_Runtime::abort($this->operation_key);
+		if (!empty($this->unique_claimed_efb) && class_exists('\\Emsfb\\Unique_Values')) { \Emsfb\Unique_Values::drop_claims(0, $this->unique_claimed_efb); $this->unique_claimed_efb = array(); }
+		if (!empty($this->gate_reserved) && class_exists('\\Emsfb\\Form_Gate')) { \Emsfb\Form_Gate::release($this->gate_claims); $this->gate_reserved = false; $this->gate_claims = array(); }
+		$c = isset($r['claim']) ? $r['claim'] : array('f' => '', 'label' => '');
+		if (!empty($r['error'])) {
+			$this->efb_trace('submit.blocked', array('form_id' => $fid, 'gate' => 'stock', 'reason' => 'unavailable'));
+			if (function_exists('error_log')) error_log('[EFB stock] form ' . $fid . ': the capacity table emsfb_stock_ is missing or cannot be written; a choice with a capacity was refused.');
+			wp_send_json_error(array('code' => 'efb_stock_unavailable', 'm' => __('This choice cannot be booked right now. Please try again later.', 'easy-form-builder'), 'field_id' => (string) $c['f']), 503);
+		}
+		$this->efb_trace('submit.blocked', array('form_id' => $fid, 'gate' => 'stock', 'field' => $c['f']));
+		$m = isset($this->lanText['bkFlM_']) ? $this->lanText['bkFlM_'] : 'We are sorry, the %s option is currently at full capacity. Please choose from the other available options.';
+		wp_send_json_success(array('success' => false, 'm' => str_replace('%s', '<b><bdi>' . esc_html($c['label']) . '</bdi></b>', $m), 'field_id' => (string) $c['f'], 'code' => 'efb_choice_full', 'option_id' => isset($c['o']) ? (string) $c['o'] : ''), 200);
+	}
+
+	/** F05: the places this request took are given back (a later step refused the submission). */
+	private function stock_release_efb() {
+		if (empty($this->stock_taken_efb) || !class_exists('\\Emsfb\\Stock')) return;
+		\Emsfb\Stock::release((int) $this->stock_fid_efb, $this->stock_taken_efb);
+		$this->stock_taken_efb = array();
+	}
+
+	/** F05: a pending payment keeps the places as a hold (given back if the payment fails, see Stock). */
+	private function stock_after_insert_efb($msg_id) {
+		if (!empty($this->stock_taken_efb) && (int) $msg_id > 0 && class_exists('\\Emsfb\\Stock')) {
+			// payments/create (PAY00): the entry is "pending payment" (same rule as F11's places and F03's values).
+			if (!empty($this->pay_create_efb)) \Emsfb\Stock::hold_save((int) $msg_id, (int) $this->stock_fid_efb, $this->stock_taken_efb);
+		}
+		$this->stock_taken_efb = array();
+	}
+
 	public function insert_message_db($read,$uniqid,$style_trackingCode = 'date_en_mix'){
 		$this->begin_operation_efb();
 		$this->gate_reserve_efb();
 		$this->unique_claim_efb(); // F03, after the F11 places
+		$this->stock_reserve_efb(); // F05, the capacities of the chosen choices (atomic), after the F03 claims
 		$this->advdate_commit_efb(); // F06, the Booking add-on's atomic reservation (efb_date_before_commit)
 		$this->verification_consume_efb(); // F02, last: a refusal above keeps the codes usable
 		if(isset($read)==false) $read=0;
@@ -5522,6 +5663,8 @@ public function check_nonce_permission_efb($request) {
 			// F11: the places this submission took are given back.
 			// F06: the reservations of the date fields are released.
 			$this->advdate_commit_failed_efb();
+			// F05: the places of the chosen choices are given back.
+			$this->stock_release_efb();
 			if (!empty($this->gate_reserved) && class_exists('\\Emsfb\\Form_Gate')) { \Emsfb\Form_Gate::release($this->gate_claims); $this->gate_reserved = false; $this->gate_claims = array(); }
 			if (class_exists('\\Emsfb\\Request_Health')) \Emsfb\Request_Health::record('form',500,'server','storage_failed');
 			wp_send_json_error(array('code'=>'efb_storage_failed','m'=>__('The form could not be saved. Your input has been kept.', 'easy-form-builder')),500);
@@ -5530,6 +5673,7 @@ public function check_nonce_permission_efb($request) {
 		if (!empty($this->unique_claimed_efb) && class_exists('\\Emsfb\\Unique_Values')) { \Emsfb\Unique_Values::attach($this->unique_claimed_efb, isset($this->db->insert_id) ? (int) $this->db->insert_id : 0); $this->unique_claimed_efb = array(); }
 		$this->verification_after_insert_efb(isset($this->db->insert_id) ? (int) $this->db->insert_id : 0);
 		$this->gate_after_insert_efb(isset($this->db->insert_id) ? (int) $this->db->insert_id : 0);
+		$this->stock_after_insert_efb(isset($this->db->insert_id) ? (int) $this->db->insert_id : 0);
 		$this->advdate_after_commit_efb($uniqid);
 		\Emsfb\Request_Health::mark_saved();
 		$this->finish_operation_efb($uniqid);
@@ -6985,6 +7129,11 @@ public function check_nonce_permission_efb($request) {
 				$values[$field_id] = is_array($raw) ? array_values(array_filter($raw)) : array_values(array_filter(array_map('trim', explode('@efb!', (string)$raw))));
 				continue;
 			}
+			// F05: a ranking is its choice ids in order (a rule "is first" reads the list's first id).
+			if ($type === 'ranking') {
+				$values[$field_id] = isset($row['ids']) && is_string($row['ids']) ? array_values(array_filter(array_map('trim', explode(',', $row['ids'])), 'strlen')) : array();
+				continue;
+			}
 			$values[$field_id] = $row['value'] ?? '';
 		}
 		return $values;
@@ -7341,6 +7490,7 @@ public function check_nonce_permission_efb($request) {
 		}
 		// Field tags read the answers as sent here; smart_hidden_final_efb() reads them again once checked.
 		$ctx['values'] = \Emsfb\Smart_Tags::values_of($rows, $ctx['fields']);
+		$ctx['ovals'] = \Emsfb\Smart_Tags::ovals_of($rows); // F05
 		$query = is_array($this->efb_request_query_efb) ? $this->efb_request_query_efb : array();
 		foreach ($this->smart_hidden_efb as $id => $f) {
 			$value = \Emsfb\Smart_Tags::hidden_value($f, $ctx, isset($posted[$id]) ? $posted[$id] : null);
@@ -7365,6 +7515,7 @@ public function check_nonce_permission_efb($request) {
 		}
 		if ($this->smart_ctx_efb === null) return $validated_items;
 		$this->smart_ctx_efb['values'] = \Emsfb\Smart_Tags::values_of($validated_items, $this->smart_ctx_efb['fields']);
+		$this->smart_ctx_efb['ovals'] = \Emsfb\Smart_Tags::ovals_of($validated_items); // F05
 		$changed = false;
 		foreach ($this->smart_hidden_efb as $id => $f) {
 			$uses_field = false;
@@ -7383,6 +7534,7 @@ public function check_nonce_permission_efb($request) {
 		if ($changed) {
 			$validated_items = array_values($validated_items);
 			$this->smart_ctx_efb['values'] = \Emsfb\Smart_Tags::values_of($validated_items, $this->smart_ctx_efb['fields']);
+			$this->smart_ctx_efb['ovals'] = \Emsfb\Smart_Tags::ovals_of($validated_items); // F05
 		}
 		return $validated_items;
 	}
@@ -7393,6 +7545,7 @@ public function check_nonce_permission_efb($request) {
 		if ($this->smart_ctx_efb === null) $this->smart_context_efb($form_fields_array, $this->smart_req_efb);
 		if ($this->smart_ctx_efb === null) return null;
 		if (empty($this->smart_ctx_efb['values']) && is_array($validated_items)) $this->smart_ctx_efb['values'] = \Emsfb\Smart_Tags::values_of($validated_items, $this->smart_ctx_efb['fields']);
+		if (empty($this->smart_ctx_efb['ovals']) && is_array($validated_items)) $this->smart_ctx_efb['ovals'] = \Emsfb\Smart_Tags::ovals_of($validated_items); // F05
 		$this->smart_ctx_efb['entry'] = array('track' => (string) $track);
 		return $this->smart_ctx_efb;
 	}
@@ -8961,7 +9114,7 @@ public function check_nonce_permission_efb($request) {
 	public function email_get_content_efb($content, $track){
 		$m  = '<table border="0" cellpadding="0" cellspacing="0" width="100%" class="container containerEmailEfb" >';
 
-			$text_     = ['msgemlmp','paymentCreated','videoDownloadLink','downloadViedo','payment','id','payAmount','ddate','updated','methodPayment','interval'];
+			$text_     = ['msgemlmp','paymentCreated','videoDownloadLink','downloadViedo','payment','id','payAmount','ddate','updated','methodPayment','interval','otherOpt'];
 			$list      = [];
 			$checboxs  = [];
 			$total_amount = 0;
@@ -9114,6 +9267,30 @@ public function check_nonce_permission_efb($request) {
 					continue;
 				}
 
+				// F05: a ranking as "1. … 2. …", an "Other" answer as "Other: text" (never priced), and the stored value of
+				// a choice beside its label when they differ. Every piece escaped; mixed scripts keep their order.
+				if (isset($c['type']) && $c['type'] === 'ranking') {
+					$rk_l_efb = array_values(array_filter(explode('@efb!', isset($c['value']) && is_string($c['value']) ? $c['value'] : ''), 'strlen'));
+					$rk_v_efb = array_values(array_filter(explode('@efb!', isset($c['ov']) && is_string($c['ov']) ? $c['ov'] : ''), 'strlen'));
+					$rk_out_efb = array();
+					foreach ($rk_l_efb as $rk_i_efb => $rk_x_efb) {
+						$rk_line_efb = ($rk_i_efb + 1) . '. <bdi>' . $this->email_escape_leaf_efb($rk_x_efb) . '</bdi>';
+						if (isset($rk_v_efb[$rk_i_efb]) && $rk_v_efb[$rk_i_efb] !== $rk_x_efb) $rk_line_efb .= ' <small>(' . $this->email_escape_leaf_efb($rk_v_efb[$rk_i_efb]) . ')</small>';
+						$rk_out_efb[] = $rk_line_efb;
+					}
+					$addPair($title, '<b style="unicode-bidi:plaintext">' . implode('<br>', $rk_out_efb) . '</b>');
+					continue;
+				}
+				if (!empty($c['other']) && isset($c['value']) && is_string($c['value'])) {
+					$oth_t_efb = isset($lanText['otherOpt']) ? $lanText['otherOpt'] : (class_exists('\\Emsfb\\Choices') ? \Emsfb\Choices::t('otherOpt') : 'Other');
+					$addPair($title, '<b style="unicode-bidi:plaintext">' . esc_html($oth_t_efb) . ': <bdi>' . $this->email_escape_leaf_efb($c['value']) . '</bdi></b>');
+					if (isset($c['type']) && stripos($c['type'], 'checkbox') !== false) $checboxs[] = $c['id_'] ?? '';
+					continue;
+				}
+				if (isset($c['ov']) && is_scalar($c['ov']) && (string) $c['ov'] !== '' && isset($c['value']) && is_string($c['value']) && str_replace('@efb!', '', (string) $c['ov']) !== str_replace('@efb!', '', $c['value'])) {
+					$q .= ' <small>(' . $this->email_escape_leaf_efb(rtrim(str_replace('@efb!', ', ', (string) $c['ov']), ', ')) . ')</small>';
+				}
+
 				// F06: an advanced date as Settings > "Date display for admins" says (the site calendar and the
 				// ISO date by default); the ISO part keeps its order in right-to-left mail clients.
 				if (isset($c['type']) && $c['type']==='advdate' && class_exists('\\Emsfb\\Calendar')){
@@ -9237,7 +9414,8 @@ public function check_nonce_permission_efb($request) {
 						$addPair($title, $q);
 					}
 				}else if (isset($c['type']) && $c['type']==='checkbox' && isset($c['value']) && $c['value']!=='@file@') {
-					$addPair($title, '<b>'.$this->email_escape_leaf_efb($c['value']).'</b>');
+					// F05: $q carries the stored value beside the label when they differ.
+					$addPair($title, $q !== '' ? $q : '<b>'.$this->email_escape_leaf_efb($c['value']).'</b>');
 				}
 			}
 
@@ -10015,7 +10193,7 @@ public function check_nonce_permission_efb($request) {
 	private static function plan_locked_field_types_efb() {
 		return array('pdate', 'ardate', 'mobile', 'dadfile', 'audio_recorder', 'video_recorder', 'screen_recorder',
 			'esign', 'maps', 'stateprovince', 'statepro', 'city', 'citylist', 'html', 'link', 'yesno',
-			'pointr5', 'pointr10', 'smartcr', 'table_matrix', 'prcfld', 'ttlprc', 'stripe');
+			'pointr5', 'pointr10', 'smartcr', 'table_matrix', 'prcfld', 'ttlprc', 'stripe', 'ranking');
 	}
 
 	private function validate_required_fields_present_efb($form_fields_array, $submitted_values, $is_pro = true) {
@@ -10396,7 +10574,10 @@ public function check_nonce_permission_efb($request) {
 			'pointr10' => true, 'zarinPal' => true, 'stripe' => ['amount' => true],
 			'yesNo' => true, 'payMultiselect' => true, 'rating' => true, 'text'=>true, 'password'=>true,
 			/* F08: the server rebuilds the value (Smart_Tags::hidden_value) before this filter sees the row. */
-			'hiddenField' => true
+			'hiddenField' => true,
+			/* F05: a ranking sends the choice ids in order; value and ov are rebuilt by Choices::ranking_row(). ov and
+			 * other are never taken from a browser on any type (the server writes them: Choices::add_ov(), other_row()). */
+			'ranking' => ['ids' => true],
 		];
 
 			// PAY00: a registered gateway field (its row carries the donation amount in value).

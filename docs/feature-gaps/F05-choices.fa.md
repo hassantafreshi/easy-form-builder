@@ -1,6 +1,6 @@
 # F05 — گزینه‌ها و انتخاب‌ها (Choices: bulk add, value vs label, randomize, Other, select all, limits, inventory, dynamic choices, ranking)
 
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P1 · تلاش: M (با موجودی اتمیک و گزینهٔ پویا نزدیک L) · وابستگی: — (F04 کلید `calc` گزینه را روی ستون «ویژگی‌ها»ی همین تسک می‌گذارد؛ F08 برای `{field:id.value}` از `opt_value` استفاده می‌کند)
+وضعیت: پیاده‌سازی شد (A تا G، ۲۰۲۶-۱۱-۱۴؛ H فقط فهرست عبارت‌ها، ترجمه‌ها طبق دستور مالک انجام نشده‌اند؛ `EMSFB_DB_VERSION = 1.9`) · اولویت: P1 · تلاش: M (با موجودی اتمیک و گزینهٔ پویا نزدیک L) · وابستگی: — (F04 کلید `calc` گزینه را روی ستون «ویژگی‌ها»ی همین تسک می‌گذارد؛ F08 برای `{field:id.value}` از `opt_value` استفاده می‌کند)
 
 > شاخهٔ مبنا `dev4`، نسخهٔ 4.3.1، `EMSFB_DB_VERSION = 1.3`، بررسی ۲۰ آبان ۱۴۰۵ (2026-11-11). شماره‌خط‌ها جابه‌جا می‌شوند؛ پیش از ویرایش دوباره grep کن.
 > مرجع‌ها: [راهنمای پیاده‌سازی](IMPLEMENTATION-PLAYBOOK.en.md) (§۱.۲ ردیف گزینه، §۱.۳ معنای `mlen` در رزرو، §۱.۶ sanitizer، §۲ Recipe A، §۳ Recipe B، §۵ endpoint، §۷ Recipe F، §۱۰ دام‌های ۱، ۲، ۸، ۱۲)، [امکانات فعلی](reference/current-capabilities.en.md) §۲ و §۴، [ماتریس رقبا](reference/competitor-matrix.en.md) §۲ (موجودی) و §۳.
@@ -332,6 +332,8 @@ CREATE TABLE {$wpdb->prefix}emsfb_stock_ (
 | گزینهٔ پویا (نوشته، دسته، CSV) | Pro؛ کاربران هم Pro |
 | فاز ۲: optgroup رایگان؛ آیکون Free Plus؛ زنجیره‌ای و Lookup Pro | |
 
+**تصمیم اجرا (۲۰۲۶-۱۱-۱۴، برای تأیید مالک):** همین جدول اعمال شد، در `Choices::PLAN` و قابل تغییر با فیلتر `efb_choices_plan($need, $part)`، با `efb_plan_at_least_efb()` (نه `is_efb_pro(1)`، تعارض C3). زیر سطح لازم، کلیدها ذخیره می‌مانند ولی اعمال نمی‌شوند: موجودی شمرده نمی‌شود، گزینهٔ پویا به گزینه‌های ثابت فیلد برمی‌گردد، فیلد ranking مثل دیگر فیلدهای قفل (`plan_locked_field_types_efb`) رندر و پذیرفته نمی‌شود. رزرو قدیمی (`booking` با `mlen`) در همهٔ سطح‌ها مثل امروز شمرده می‌شود، ولی حالا اتمیک. سازنده الماس طرح را کنار کنترل‌ها نشان می‌دهد و `capabilities.features['setting:choice_*']` و `field:ranking` سطح را گزارش می‌کنند.
+
 ---
 
 ## ۱۵. رشته‌های ترجمه
@@ -382,94 +384,94 @@ CREATE TABLE {$wpdb->prefix}emsfb_stock_ (
 - پذیرش: ۳۱ استان با کد ISO در یک کلیک ساخته شوند. `\|` درست تجزیه شود. ۵۰۰ خط در کمتر از ۲ ثانیه بدون قفل شدن سازنده افزوده شود. نویسه‌های `"<>` حذف و گزارش شوند. ذخیره و بازخوانی همه را حفظ کند. AJAX بدون nonce یا مجوز 403 بدهد.
 - آزمون: `node tests/test-bulk-options-parse.js` (تابع تجزیه با regex بیرون کشیده شود)، `php tests/test-choice-presets.php` (هر فهرست: تعداد، یکتایی `opt_value`، نبود `"<>`)، `php tests/test-choices-save-roundtrip.php` (stub آرایه‌وفادار، الگوی `tests/test-conditional-logic-save-roundtrip.php`).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۴، انجام شد)
+- فایل‌های تغییرکرده: `includes/class-Emsfb-choices.php` (تازه، `Emsfb\Choices`: `presets`، `preset_lines`، AJAX `efb_choice_presets_Emsfb` با nonce و مجوز، `sanitize_key`، `normalize_rows`)، `includes/data/choice-presets.php` (تازه، ۳۳ فهرست: ۳۱ استان ایران با ISO، ۳۴ ولایت افغانستان، ماه‌ها و روزها، تحصیلات، تأهل، نظام وظیفه، طیف‌ها؛ عربی: ۲۲ کشور اتحادیهٔ عرب، مناطق عربستان، امارات، مصر، GCC، ماه‌های هجری؛ انگلیسی: ایالت‌های آمریکا، کانادا، بریتانیا، استرالیا و طیف‌ها)، `includes/admin/assets/js/choices-builder-efb.js` (تازه: دکمهٔ «Add in bulk»، modal با فهرست آماده، textarea با `unicode-bidi: plaintext`، پیش‌نمایش، append/replace، افزودن در دسته‌های ۱۰۰تایی با `requestAnimationFrame`)، `public/assets/js/choices-efb.js` (`parseBulk` و قواعد همزاد)، `val-efb.js`، `class-Emsfb-create.php`، `class-Emsfb-panel.php`، `functions.php` (عبارت‌ها).
+- تست‌ها: `node tests/test-bulk-options-parse.js` (۱۶)، `php tests/test-choice-presets.php` (۲۵۱)، `php tests/test-choices-save-roundtrip.php` (۵۴)، e2e `f05a` (۱۱: ۳۱ استان در یک کلیک زیر ۲ ثانیه، `\|`، گزارش `" < >`، 403 بدون nonce).
+- وضعیت ترجمه: عبارت‌ها فقط انگلیسی (دستور مالک)؛ فهرست با `extract.php` تازه شد.
+- مورد باز: خط `## گروه` (فاز ۲، §۱۷.۱) فعلاً نادیده گرفته می‌شود و در پیش‌نمایش گزارش می‌شود. محتوای فهرست‌ها (به‌ویژه نام‌گذاری الدول العربیة، پرسش باز ۶) را مالک تأیید کند.
+- اقدام بعدی: B.
 
 ### B. جدایی مقدار از برچسب
 - فایل‌ها: `val-efb.js` (2608)، `admin-efb.js` (handler)، `functions.php` (case `opt_value`)، `class-Emsfb-public.php` (شاخه‌ها و allow-list)، نمایشگر، ایمیل، CSV، و CF7 mapper (pipes).
 - پذیرش: ردیف ذخیره‌شده `value` برابر برچسب و `ov` برابر مقدار داشته باشد. `ov` جعلی مرورگر دور ریخته شود. CSV با `csvOptVal=value` مقدار را بدهد. CF7 `[select s "Tehran|THR"]` به `opt_value:"THR"` تبدیل شود. پاسخ‌های قدیمی بدون تغییر نمایش داده شوند.
 - آزمون: `php tests/test-option-value-submit.php` (بلوک استخراج‌شده از سورس)، `php tests/test-cf7-importer.php` (تمدید)، `node tests/test-response-viewer-escaping.js` (تمدید با `ov` خصمانه).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۴، انجام شد)
+- فایل‌های تغییرکرده: `choices-builder-efb.js` (کنترل «Stored value» هر گزینه با رد مقدار تکراری)، `functions.php` (case صریح `opt_value`/`op_lock`/`inv_cap` → `Choices::sanitize_key`، `normalize_rows` پس از `Smart_Tags`، رفع پیش‌فرض والد پس از تغییر شناسهٔ گزینه)، `class-Emsfb-public.php` (`Choices::add_ov` پس از حلقه: `ov` را سرور می‌نویسد و `ov`/`other` مرورگر دور ریخته می‌شود؛ allow-list؛ گزینهٔ فیلد دیگر رد می‌شود؛ ایمیل با مقدار کنار برچسب)، `class-Emsfb-formbuilder.php` (escape برچسب و مقدار)، `response-viewer-efb.js` (`efbChoiceTextEfb`: مقدار کوچک کنار برچسب، متن ساده)، `list_form-efb.js` (CSV با انتخاب «Labels / Stored values»، `efbCsvOptVal` در `localStorage`)، `smart-tags-efb.js` و `class-Emsfb-smart-tags.php` (`{field:id.value}` از `ovals`)، `payments/class-Emsfb-payment-pricing.php` (ردیف `_oth` هرگز قیمت ندارد)، CF7 mapper (`"Label|value"` → `opt_value`، `free_text` → `op_other`)، افزونهٔ Google Sheets (ستون «(value)»).
+- تست‌ها: `php tests/test-option-value-submit.php` (۲۱)، `php tests/test-cf7-importer.php` روی وردپرس e2e (۱۸۲)، `node tests/test-response-viewer-escaping.js` (۵۹، `ov` خصمانه)، `php tests/test-addon-googlesheet-choices.php` (۶)، بردارهای مشترک `smart-tag-vectors.json` (۴ بردار تازه)، `php tests/test-choices-submit-http.php` (۱۵، روی وردپرس واقعی)، e2e `f05b` (۸).
+- وضعیت ترجمه: انگلیسی (دستور مالک).
+- مورد باز: پاسخ‌های قدیمی `ov` ندارند و مثل قبل نمایش داده می‌شوند؛ CSV در حالت «Stored values» برای آن‌ها برچسب را می‌دهد. پیامک و تلگرام فقط قالب ثابت می‌فرستند، پس تغییری نگرفتند.
+- اقدام بعدی: C.
 
 ### C. ترتیب تصادفی، «سایر»، «انتخاب همه»، حداقل و حداکثر
 - فایل‌ها: `val-efb.js`، `admin-efb.js` (کنترل‌ها و `addNewElement`)، `class-Emsfb-formbuilder.php` (2717-2800، 2068)، `core-efb.js` (`efb_choices_init_efb`، شاخهٔ 4116، `fun_validation_efb_v4` 4343)، `class-Emsfb-public.php` (2888، 2958، 3081، بررسی پس از حلقه)، و CF7 (`free_text` به `op_other`).
 - پذیرش: ترتیب در هر بارگذاری عوض شود ولی در همان نشست ثابت بماند، و گزینهٔ قفل جای خود را نگه دارد. «سایر» با متن ذخیره شود و بدون `op_other` رد شود. حداکثر ۳ در چک‌باکس جلوی چهارمی را بگیرد و سرور ۴ ردیف جعلی را رد کند. multiselect با حداقل ۲ و یک انتخاب در سرور رد شود. «انتخاب همه» ارسال نشود و `indeterminate` درست باشد. RTL و صفحه‌خوان بررسی شوند.
 - آزمون: `node tests/test-choices-runtime.js` (vm و DOM ساختگی، الگوی `tests/test-core-multiform-validation-scope.js`)، `php tests/test-choices-limits-submit.php`، Playwright `tests/test-choices-browser.js` (fa و en، 375px)، و رگرسیون `php tests/test-submission-row-hardening-e2e.php`.
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۴، انجام شد)
+- فایل‌های تغییرکرده: `Choices` (`render_parts`: wrapper با `role=radiogroup|group` و `aria-labelledby`، «Other» با برچسب و جعبهٔ ۴۴px، «Select all»؛ `other_row`، `count_check`، `limit_check`)، `class-Emsfb-formbuilder.php` (radio و checkbox از `render_parts`، select/multiselect با `data-random` و `data-lock`)، `choices-efb.js` (ترتیب تصادفی Fisher–Yates با ترتیب ذخیره‌شده در `sessionStorage` برای هر فیلد، قفل جای گزینه، «Other» با متن لازم، «Select all» با `indeterminate` و ارسال‌نشدن، خاموش کردن گزینهٔ بیش از حداکثر، پیام کنار فیلد با `unicode-bidi: plaintext` و نام در `<bdi>`، `serverError` که پاسخ سرور را کنار فیلد می‌گذارد)، `public/assets/css/choices-efb.css` (تازه)، `core-efb.js` (هوک اعتبارسنجی و بازیابی پیش‌نویس)، `class-Emsfb-public.php` (شاخهٔ «Other» در radio و checkbox، حد multiselect و checkbox پس از حلقه، کدهای `efb_choice_*` در پاسخ)، `choices-builder-efb.js` و `admin-efb.js` (کنترل‌ها و پیش‌نمایش روی بوم)، `bootstrap-select.min-efb.js`.
+- تست‌ها: `node tests/test-choices-runtime.js` (۲۵، Chromium: ثبات ترتیب در نشست، قفل، Select all، حداکثر، Other)، `php tests/test-choices-limits-submit.php` (۲۲)، `node tests/test-choices-parity.js` (۶)، `test-choices-submit-http.php` (بخش‌های ۳ و ۴)، e2e `f05c` (۲۱، شامل fa_IR و ar در ۳۷۵px). سناریوی Playwright جداگانهٔ `test-choices-browser.js` ساخته نشد؛ همان رفتارها در `test-choices-runtime.js` و e2e روی وردپرس واقعی پوشش داده شده‌اند.
+- وضعیت ترجمه: انگلیسی (دستور مالک).
+- مورد باز: متن «Other» در مرورگر هم `" < >` را به نویسهٔ تمام‌عرض تبدیل می‌کند (انتقال سازنده و ذخیره)؛ سرور متن ساده را با `op_other_max` (پیش‌فرض ۲۰۰) کوتاه می‌کند.
+- اقدام بعدی: D.
 
 ### D. جدول موجودی و رزرو اتمیک (شامل مهاجرت رزرو قدیمی)
 - فایل‌ها: `class-Emsfb-install.php`، `emsfb.php` (`EMSFB_DB_VERSION`)، `includes/class-Emsfb-stock.php`، `class-Emsfb-public.php` (حذف 3472-3477 و افزایش‌ها؛ جمع ادعا؛ reserve و release در 4667؛ prepare 220-248)، `class-Emsfb-admin.php` (release در حذف)، `core-efb.js` (`fun_booking_avilable` 2179)، و `docs/migrations/<date>-stock-table.md`.
 - پذیرش: ۲۰ درخواست هم‌زمان روی ظرفیت ۵ دقیقاً ۵ پاسخ ثبت‌شده بدهد. ارسالی که در کپچا رد شود ظرفیت مصرف نکند. `form_structer` پس از ارسال بایت‌به‌بایت تغییر نکند، یعنی `required` تغییریافته توسط منطق شرطی دیگر ذخیره نمی‌شود. فرم رزرو قدیمی با `registered_count=3` و `mlen=4` فقط یک ارسال دیگر بپذیرد. replay دوباره رزرو نکند. اجرای دوبارهٔ ارتقا بی‌اثر باشد و جدول پیش از `return` زودهنگام ساخته شود.
 - آزمون: `php tests/test-stock-schema.php` (stub `$wpdb` که SQL را ضبط می‌کند، الگوی F02 زیرتسک B)، `php tests/test-stock-reserve.php` (stub با شبیه‌سازی `affected_rows`)، `php tests/test-stock-concurrency-wp.php` (WP، `curl_multi` با ۲۰ درخواست، `[SKIP]` بدون وردپرس)، و `node tests/test-booking-client-date.js`.
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۴، انجام شد)
+- فایل‌های تغییرکرده: `includes/class-Emsfb-stock.php` (تازه، `Emsfb\Stock`: `ddl`، `claims` مرتب، `reserve` همه‌یا‌هیچ با `INSERT IGNORE` + `UPDATE … SET used = used + 1 WHERE … AND used < cap`، `release`، `force` برای پرداخت دیرهنگام، نگه‌داشت پرداخت `efb_stkh_<msg>`، `on_payment_status` روی `efb_payment_status_changed`، `retry_gate` با اولویت ۹، `on_message_deleted`، `forget_form`، `migrate_booking_counts`)، `class-Emsfb-install.php` (`f05_ddl`، `upgrade_f05_schema` پس از F02 و پیش از `return` زودهنگام)، `emsfb.php` (`EMSFB_DB_VERSION = 1.9`)، `class-Emsfb-public.php` (حذف نوشتن `form_structer` و افزایش `registered_count`؛ `stock_reserve_efb` در `insert_message_db` به ترتیب F11 → F03 → F05 → F06 → F02 و آزادسازی در هر شکست بعدی، در مسیر «ذخیره نکن» F13 و در مسیرهای پرداخت؛ `prepare` عدد باقی‌مانده را می‌دهد)، `core-efb.js` (`fun_booking_avilable` بازنویسی: فقط ردیف گزینه، تاریخ ISO، `bkXpM_`/`bkFlM_` با FSI/PDI)، `docs/migrations/f05-stock-table-2026-11-14.md`.
+- تست‌ها: `php tests/test-stock-schema.php` (۹)، `php tests/test-stock-reserve.php` (۲۷، شامل دورهای oversell با `pcntl_fork`)، `php tests/test-stock-concurrency-wp.php` (۱۰، روی وردپرس واقعی: ۲۰ درخواست هم‌زمان روی ظرفیت ۵ = دقیقاً ۵ پاسخ)، `test-privacy-schema.php` و `test-privacy-nostore-submit.php` (متدهای تازه به فهرست استخراج اضافه شدند)، e2e `f05d` (۹: رزرو قدیمی ۳ از ۴، md5 فرم پیش و پس از ارسال، ارسال موازی، کپچای ردشده) و `f05pay` (۷: پرداخت ناموفق جا را پس می‌دهد، بازدیدکنندهٔ بعدی آن را می‌گیرد). `test-booking-client-date.js` جداگانه ساخته نشد؛ پیام‌ها و تاریخ در `f05d` دیده می‌شوند.
+- وضعیت ترجمه: انگلیسی (دستور مالک).
+- مورد باز: پرسش‌های باز ۱ و ۳ (پاسخ‌ها در §۱۸).
+- اقدام بعدی: E.
 
 ### E. موجودی عمومی برای غیررزرو (UI و نمایش)
 - فایل‌ها: `val-efb.js` (`invOnEl` …)، `admin-efb.js`، `class-Emsfb-formbuilder.php` (`efb-soldout`، `data-cap-left`)، و `core-efb.js` (اعمال `stock` از prepare).
 - پذیرش: گزینهٔ پر طبق `inv_show` غیرفعال، پنهان یا برچسب‌دار شود. «۳ باقی‌مانده» با ارقام زبان نمایش داده شود. صفحهٔ کش‌شده پس از prepare عدد تازه نشان دهد. گیت Pro در سازنده و در سرور (`is_efb_pro(1)`) اعمال شود.
 - آزمون: Playwright `tests/test-stock-browser.js` (صفحه با کش، از الگوی `tests/test-cache-guest-browser.js`)، و `node tests/test-stock-plan-gating.js`.
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۴، انجام شد)
+- فایل‌های تغییرکرده: `choices-builder-efb.js` (کلیدهای `inv_on`، `inv_show`، `inv_left`، `inv_release` و ظرفیت هر گزینه `inv_cap` با راهنمای «خالی = بدون حد»، الماس Pro)، `class-Emsfb-formbuilder.php` و `Choices::render_parts` (`efb-soldout`، غیرفعال، پنهان یا برچسب «Fully booked»، «N left» با ارقام زبان صفحه از `Form_Gate::locale_digits`)، `choices-efb.js` (`applyStock` از پاسخ `forms/session/prepare`، پس صفحهٔ کش‌شده عدد تازه دارد)، `class-Emsfb-public.php` (`stock` در prepare، گیت سطح با `Choices::plan_ok`)، `Choices::schema_field` (`left` فقط با `inv_left`).
+- تست‌ها: e2e `f05e` (ارقام فارسی، گزینهٔ پر خاموش و پنهان، صفحهٔ کش‌شده، گیت Pro؛ تصویر `f05e-fa_IR-375.png`)، `test-stock-reserve.php`. `test-stock-browser.js` و `test-stock-plan-gating.js` جداگانه ساخته نشدند؛ همین موارد در `f05e` روی وردپرس واقعی بررسی می‌شوند.
+- وضعیت ترجمه: انگلیسی (دستور مالک).
+- مورد باز: موجودی سراسری بین فرم‌ها ساخته نشد (پرسش باز ۲).
+- اقدام بعدی: F.
 
 ### F. گزینهٔ پویا
 - فایل‌ها: `includes/class-Emsfb-choices.php`، `class-Emsfb-public.php` (1393، 2600)، `class-Emsfb-admin.php` (AJAX پیش‌نمایش، پاک کردن transient در 299)، `val-efb.js` و `admin-efb.js` (کنترل‌ها، `wp.media`).
 - پذیرش: نوشتهٔ پیش‌نویس، خصوصی یا رمزدار هرگز نمایش داده نشود. نوع نوشتهٔ غیرعمومی پذیرفته نشود. کاربران فقط با `display_name` نمایش داده شوند. CSV با BOM و ارقام فارسی درست خوانده شود. شناسه‌ها در دو رندر یکسان باشند. انتخاب نوشته‌ای که پس از بارگذاری صفحه حذف شده رد شود. ۵۰۰ مورد در کمتر از ۲۰۰ میلی‌ثانیه از cache داده شوند.
 - آزمون: `php tests/test-dynamic-choices.php` (stub `get_posts`/`get_terms`/`get_users`/`get_attached_file`)، `php tests/test-dynamic-choices-wp.php` (WP)، و `php tests/test-dynamic-choices-submit.php`.
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۴، انجام شد)
+- فایل‌های تغییرکرده: `Choices` (`expand_dynamic` در رندر و دوباره با `fresh` در ارسال، `dynamic_build`: نوشته‌های منتشرشده بدون رمز از نوع عمومی، دسته‌های taxonomy عمومی، کاربران فقط `display_name`، CSV از پیوست رسانه با BOM و ارقام فارسی؛ شناسهٔ قطعی هر گزینه؛ کش transient `efb_dyn_*` با پاک‌سازی روی `efb_form_saved`/`efb_form_created`/`efb_form_deleted` و تغییر نوشته، دسته، کاربر و پیوست؛ AJAX پیش‌نمایش `efb_dyn_preview_Emsfb`)، `class-Emsfb-public.php` (گسترش پس از decode در رندر و ارسال، `$fs` و `$valj_efb` همان فهرست)، `choices-builder-efb.js` (کنترل‌ها، `wp.media` برای CSV، پیش‌نمایش)، `builder-api-efb.js` (`choice_dyn_users` بدون `allow.dyn_users`).
+- تست‌ها: `php tests/test-dynamic-choices.php` (۲۴)، `test-choices-submit-http.php` (بخش ۶: پیش‌نویس رد، منتشرشده با شناسه به‌عنوان مقدار ذخیره)، e2e `f05f` (پیش‌نویس، خصوصی و رمزدار دیده نمی‌شوند؛ شناسه‌ها یکسان؛ نوشتهٔ حذف‌شده پس از بارگذاری رد؛ شناسهٔ جعلی رد؛ CSV با BOM). `test-dynamic-choices-wp.php` و `test-dynamic-choices-submit.php` در همان دو آزمون HTTP و e2e ادغام شدند.
+- وضعیت ترجمه: انگلیسی (دستور مالک).
+- مورد باز: ترتیب «تصادفی» روی فهرست پویا هم اعمال می‌شود؛ `dyn_limit` حداکثر ۵۰۰.
+- اقدام بعدی: G.
 
 ### G. نوع `ranking`
 - فایل‌ها: Recipe B کامل (playbook §۳، ۲۱ ردیف): `val-efb.js`، `admin-efb.js`، `class-Emsfb-formbuilder.php` (case و `$single_close_efb` در صورت نیاز، 3179)، `core-efb.js`، `class-Emsfb-public.php` (case، allow-list، `$list_pro_elements` 1494، `plan_locked_field_types_efb` 8735)، نمایشگر، ایمیل، CSV، و نتایج نظرسنجی (اختیاری).
 - پذیرش: کشیدن، دکمه‌ها و صفحه‌کلید کار کنند و `aria-live` اعلام کند. ترتیب جعلی، تکراری یا شناسهٔ ناموجود در سرور رد شود. `rank_top=3` فقط سه مورد ذخیره کند. RTL و موبایل بررسی شوند. ردیف واقعاً در `emsfb_msg_.content` ذخیره شود. فیلد بعدی داخل فرم بماند (شمارش تگ‌ها).
 - آزمون: `node tests/test-ranking-widget.js`، `php tests/test-ranking-submit.php`، `php tests/test-ranking-render.php`، و Playwright `tests/test-ranking-browser.js` (لمس شبیه‌سازی‌شده، صفحه‌کلید، fa و en).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۴، انجام شد)
+- فایل‌های تغییرکرده: `val-efb.js` (کاشی «Ranking» با الماس Free Plus، پنل گزینه‌ها)، `admin-efb.js` (`addNewElement` با سه گزینهٔ پیش‌فرض، پیش‌نمایش)، `class-Emsfb-formbuilder.php` (case `ranking`: `<ol>` با دکمه‌های بالا و پایین ۴۴px، دستگیره، `aria-live`)، `choices-efb.js` (صفحه‌کلید Alt+↑/↓، Home، End؛ دکمه‌ها؛ کشیدن با pointer پس از ۸px؛ اعلام «%1$s, position %2$s of %3$s»؛ بازیابی)، `class-Emsfb-public.php` (case `ranking`: جایگشت معتبر یا `rank_top` اول، `value`/`ov`/`ids` از نو ساخته می‌شوند؛ allow-list `ids`؛ `plan_locked_field_types_efb`؛ ایمیل و نقشهٔ منطق شرطی)، `response-viewer-efb.js` (`<ol class="efb-msg-ranking">`)، `list_form-efb.js` (CSV با ` > `)، افزونهٔ Conditional Logic (`ids` در `build_values_map` و JS).
+- تست‌ها: `test-choices-submit-http.php` (بخش ۵: تکرار، شناسهٔ ناموجود، مورد جاافتاده رد؛ ترتیب درست با `ids` ذخیره)، `node tests/test-choices-runtime.js` (صفحه‌کلید)، e2e `f05g` (صفحه‌کلید با aria-live، دکمه‌ها، کشیدن، `rank_top` 2، ترتیب جعلی رد، ذخیره در `emsfb_msg_`، فیلد بعدی داخل فرم، fa_IR در ۳۷۵px؛ تصویر `f05g-fa_IR-375.png`). آزمون‌های جداگانهٔ `test-ranking-*` در همین‌ها ادغام شدند.
+- وضعیت ترجمه: انگلیسی (دستور مالک).
+- مورد باز: نتایج نظرسنجی (اختیاری) برای ranking ساخته نشد.
+- اقدام بعدی: H (فقط فهرست عبارت‌ها).
 
 ### H. ترجمه و انتشار
 - همهٔ کلیدهای §۱۵ در همهٔ زبان‌ها، یادداشت migration، و یادداشت انتشار (اجرای حد multiselect در سرور، تغییر CF7 `free_text`).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint** (۲۰۲۶-۱۱-۱۴، بخشی)
+- فایل‌های تغییرکرده: `docs/core-i18n/catalog.json` و `docs/core-i18n/easy-form-builder.pot` با `php tests/core-i18n/extract.php` (۱۰۱ عبارت تازه، ۲ عبارت قدیمی CF7 کنار رفته)، `readme.txt` (Unreleased: حد multiselect در سرور، تغییر CF7 `free_text` و pipes، DB 1.9)، `docs/migrations/f05-stock-table-2026-11-14.md`، `docs/autopilot-integration.md` (F05)، `reference/sitepilot-compatibility.en.md`، `BUGS-FOUND.fa.md`، `tests/e2e-wp/README.md`.
+- تست‌ها: —
+- وضعیت ترجمه: **انجام نشد** (دستور مالک: هیچ ترجمه‌ای انجام نشود). اقدام بعدی برای مالک: مهارت `efb-core-i18n-translate` (فقط delta) و `build.php`.
+- مورد باز: —
+- اقدام بعدی: —
 
 ---
 
@@ -509,6 +511,14 @@ Checkpoint
 5. ترتیب نمایش‌داده‌شدهٔ گزینه‌ها برای پژوهش ذخیره شود؟ این کار ویژگی ردیف تازه و حجم بیشتر می‌خواهد.
 6. فهرست «الدول العربية» با ۲۲ عضو اتحادیهٔ عرب کافی است یا فلسطین و سوریه هم برچسب جدا بگیرند؟ منبع و نام‌گذاری رسمی با مالک تأیید شود.
 
+**پاسخ‌های اجرا (۲۰۲۶-۱۱-۱۴؛ مالک می‌تواند تغییر دهد):**
+1. اختیاری با پیش‌فرض خاموش: کلید `inv_release` روی فیلد؛ پاسخی که هنوز منتظر پرداخت است با حذف جا را پس نمی‌دهد (نگه‌داشت پرداخت خودش این کار را می‌کند).
+2. ساخته نشد؛ جدول با کلید `(form_id, field_id, option_id)` برای `form_id = 0` آماده است.
+3. رد می‌شود: فرم دارای موجودی بدون جدول با `efb_stock_unavailable` (HTTP 503) پاسخی نمی‌پذیرد؛ فرم‌های بدون موجودی اثری نمی‌گیرند.
+4. `|` (با `\|` برای خود نویسه) و مقدار سوم برای `calc` F04 وقتی فعال باشد.
+5. ذخیره نمی‌شود (فقط در `sessionStorage` همان نشست برای ثبات ترتیب).
+6. فهرست `arab_states` همان ۲۲ عضو است و فلسطین (`PS`) و سوریه (`SY`) هر کدام یک گزینه با نام کوتاه رایج عربی‌اند (`سوريا`، `فلسطين`)؛ نام‌گذاری را مالک تأیید کند.
+
 ---
 
 ## ۱۹. باگ‌های دیده‌شده در مسیر
@@ -518,6 +528,8 @@ Checkpoint
 - `core-efb.js:2199` و `2204`: پیام‌های رزرو انگلیسی hard-coded هستند، با اینکه `bkXpM_`/`bkFlM_` وجود دارند.
 - `class-Emsfb-public.php:3081-3101`: حدهای `minSelect`/`maxSelect` multiselect در سرور اجرا نمی‌شوند.
 - `class-Emsfb-formbuilder.php:2088-2094` و `2753`: برچسب و مقدار گزینه بدون `esc_attr`/`esc_html` چاپ می‌شوند. پاک‌سازی ذخیره آن را محدود می‌کند، ولی `&` و `'` می‌توانند HTML را بشکنند.
+
+**وضعیت (۲۰۲۶-۱۱-۱۴):** هر پنج مورد بالا رفع شد (جزئیات در `BUGS-FOUND.fa.md`، بخش F05). یافته‌های تازهٔ اجرا: ردیف radio یا checkbox با شناسهٔ گزینهٔ فیلد دیگر پذیرفته می‌شد (رفع شد)؛ فیلد متنی فرم رزرو «Row not Found!» می‌گرفت (رفع شد)؛ افزونهٔ Google Sheets برای checkbox فقط آخرین گزینه را می‌نوشت (رفع شد).
 
 ---
 

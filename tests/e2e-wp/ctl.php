@@ -258,6 +258,35 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( array( 'copied' => $ok, 'changed' => ! $same, 'path' => $dst ) );
 		break;
 
+	case 'f05-mu':
+		// Copy tests/e2e-wp/mu-plugins/efb-e2e-f05.php into the site's mu-plugins (F05 tests).
+		$dst = WPMU_PLUGIN_DIR . '/efb-e2e-f05.php';
+		if ( ! is_dir( WPMU_PLUGIN_DIR ) ) wp_mkdir_p( WPMU_PLUGIN_DIR );
+		$src = dirname( __FILE__ ) . '/mu-plugins/efb-e2e-f05.php';
+		$same = is_readable( $dst ) && md5_file( $dst ) === md5_file( $src );
+		$ok = $same || copy( $src, $dst );
+		if ( ! $same ) sleep( 3 );
+		efb_e2e_out( array( 'copied' => $ok, 'changed' => ! $same, 'path' => $dst ) );
+		break;
+
+	case 'f05-stock':
+		// F05: the capacity counts of a form (emsfb_stock_ rows); "reset" removes them first. Args: <form_id> [reset]
+		$fid = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
+		if ( isset( $efb_e2e_rest[1] ) && 'reset' === $efb_e2e_rest[1] ) $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}emsfb_stock_ WHERE form_id = %d", $fid ) ); // phpcs:ignore
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT field_id, option_id, used FROM {$wpdb->prefix}emsfb_stock_ WHERE form_id = %d ORDER BY option_id", $fid ), ARRAY_A ); // phpcs:ignore
+		$raw = $wpdb->get_var( $wpdb->prepare( "SELECT form_structer FROM {$wpdb->prefix}emsfb_form WHERE form_id = %d", $fid ) ); // phpcs:ignore
+		efb_e2e_out( array( 'rows' => $rows ? $rows : array(), 'form_md5' => md5( (string) $raw ), 'left' => class_exists( '\Emsfb\Stock' ) ? \Emsfb\Stock::left( $fid, efb_e2e_decode_json( $raw ) ) : null ) );
+		break;
+
+	case 'f05-raw-form':
+		// F05: replace a form's stored JSON as an older version stored it (no sanitizer). Args: <form_id> <json>
+		$fid = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
+		$json = isset( $efb_e2e_rest[1] ) ? (string) $efb_e2e_rest[1] : '';
+		$wpdb->update( $wpdb->prefix . 'emsfb_form', array( 'form_structer' => str_replace( '"', '\\"', $json ) ), array( 'form_id' => $fid ) );
+		wp_cache_flush();
+		efb_e2e_out( array( 'form_id' => $fid ) );
+		break;
+
 	case 'f07-mu':
 		// Copy tests/e2e-wp/mu-plugins/efb-e2e-f07.php into the site's mu-plugins (F07 tests).
 		$dst = WPMU_PLUGIN_DIR . '/efb-e2e-f07.php';

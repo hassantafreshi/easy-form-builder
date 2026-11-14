@@ -2591,7 +2591,7 @@ let change_el_edit_Efb = (el) => {
         const aId = {
           email: "_", text: "_", password: "_", tel: "_", url: "_", date: "_", advdate: "_", color: "_", range: "_", number: "_", file: "_",
           textarea: "_", dadfile: "_", maps: "-map", checkbox: "_options", radio: "_options", select: "_options",
-          multiselect: "_options", esign: "-sig-data", rating: "-stared", yesNo: "_yn",
+          multiselect: "_options", esign: "-sig-data", rating: "-stared", yesNo: "_yn", ranking: "_options",
           audio_recorder: "_file", video_recorder: "_file", screen_recorder: "_file"
         }
         postId = aId[valj_efb[indx].type]
@@ -4869,6 +4869,10 @@ let sampleElpush_efb = (rndm, elementId) => {
         maxSelect: 2,
         minSelect: 0
       })
+    } else if (elementId == "ranking") {
+      // F05-G: shuffled at first for each visitor; required answers need a move or "Keep this order".
+      const indx =(valj_efb.length) - 1;
+      Object.assign(valj_efb[indx], { op_random: '1', rank_touch: '1', placeholder: '' });
     }else if (elementId == "chlCheckBox" || elementId == "chlRadio") {
       const indx =(valj_efb.length) - 1;
       Object.assign(valj_efb[indx], {
@@ -5130,7 +5134,10 @@ const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
      document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select(l.id_, l.value, l.id_, 'radio', l.parent);
    });
    document.getElementById(`${parentsID}_options`).innerHTML += add_new_option_view_select("random" + parentsID, efb_var.text.otherTxt, "random" + parentsID, 'radio', parentsID);
- } else if (tag == "table_matrix") {
+ } else if (tag == "ranking") {
+   // F05-G: the ranking draws its own list.
+   if (typeof efb_choices_redraw_efb === 'function') efb_choices_redraw_efb(parentsID);
+} else if (tag == "table_matrix") {
    document.getElementById(`${parentsID}_options`).innerHTML += add_r_matrix_view_select(idin, value, id_ob, tag, parentsID);
  } else if(tag !== "multiselect" && tag !== "payMultiselect" &&  tag !== "imgRadio" || ( tag=="radio" &&  valj_efb[indx].hasOwnProperty('addother') == false )){
 
@@ -7653,17 +7660,34 @@ function addNewElement(elementId, rndm, editState, previewSate) {
 
       }
       temp = elementId=="imgRadio" ?  "row  justify-content-center" :"";
+      // F05: "Select all", the "Other" choice and the shuffle badge on the canvas and in the preview.
+      const chParts = typeof efbChoicesCanvasParts === 'function' ? efbChoicesCanvasParts(valj_efb[iVJ]) : { before: '', after: '', badge: '' };
       ui = `
       <!-- checkbox -->
       ${label}
       <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 py-0 my-0 ttEfb show"   data-id="${rndm}-el" id='${rndm}-f'>
       ${ttip}
-      <div class="efb  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${col!=''? 'row col-md-12' :''} ${temp} efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" ${aire_describedby} id="${rndm}_options">
-        ${optn}
+      ${chParts.badge}
+      <div class="efb  ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''} ${col!=''? 'row col-md-12' :''} ${temp} efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" ${aire_describedby} id="${rndm}_options" role="${/radio/i.test(elementId) ? 'radiogroup' : 'group'}" aria-labelledby="${rndm}_labG">
+        ${chParts.before}${optn}${chParts.after}
         </div>
         <div class="efb  mb-3">${desc}</div>
         <!-- end checkbox -->
         `
+      break;
+    case 'ranking':
+      // F05-G: an ordered list of the field's choices (choices-builder-efb.js draws it like the page does).
+      dataTag = elementId;
+      if (editState == false) {
+        for (let k = 1; k <= 3; k++) { const op = Math.random().toString(36).substr(2, 9); optionElpush_efb(rndm, `${efb_var.text.newOption} ${k}`, op, op, dataTag); }
+      }
+      ui = `
+      ${label}
+      <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show" data-id="${rndm}-el" id='${rndm}-f'>
+      ${ttip}
+      ${typeof efbRankingEl === 'function' ? efbRankingEl(valj_efb[iVJ], { preview: previewSate == true, formId: 0 }) : `<ol class="efb efb-rank-list" id="${rndm}_options">${valj_efb.filter(o => o.parent === rndm).map(o => `<li>${String(o.value).replace(/[<>&"]/g, '')}</li>`).join('')}</ol>`}
+      <div class="efb  mb-3">${desc}</div>
+      `;
       break;
     case 'switch':
       valj_efb[iVJ].on =  valj_efb[iVJ].hasOwnProperty('on') ? valj_efb[iVJ].on :efb_var.text.on

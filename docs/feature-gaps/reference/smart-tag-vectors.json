@@ -7,7 +7,7 @@
    "evil": "\"><img src=x onerror=alert(1)>",
    "js": "javascript:alert(1)",
    "crlf": "a\r\nBcc: x@evil.test",
-   "fa": "سلام ۱۲۳",
+   "fa": "\u0633\u0644\u0627\u0645 \u06f1\u06f2\u06f3",
    "list": [
     "a",
     "b"
@@ -15,7 +15,7 @@
    "empty": "",
    "next": "https://evil.test/",
    "long": "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
-   "bidi": "a‮b⁦c d",
+   "bidi": "a\u202eb\u2066c\u2028d",
    "pct": "%0d%0a"
   },
   "cookies": {
@@ -43,9 +43,9 @@
    "id": "7",
    "login": "ana",
    "email": "ana@example.test",
-   "display_name": "Ana Díaz",
+   "display_name": "Ana D\u00edaz",
    "first_name": "Ana",
-   "last_name": "Díaz",
+   "last_name": "D\u00edaz",
    "role": "subscriber"
   },
   "now": 1767225600,
@@ -116,8 +116,35 @@
    },
    "fa1": {
     "type": "text",
-    "name": "نام",
+    "name": "\u0646\u0627\u0645",
     "options": []
+   },
+   "dup": {
+    "type": "radio",
+    "name": "Dup",
+    "options": [
+     {
+      "id": "d1",
+      "label": "Same",
+      "value": "a"
+     },
+     {
+      "id": "d2",
+      "label": "Same",
+      "value": "b"
+     }
+    ]
+   },
+   "oth": {
+    "type": "radio",
+    "name": "Oth",
+    "options": [
+     {
+      "id": "t1",
+      "label": "X",
+      "value": "x"
+     }
+    ]
    }
   },
   "values": {
@@ -129,10 +156,20 @@
    ],
    "plan": "Pro & Co",
    "empty1": "",
-   "fa1": "علی ۲"
+   "fa1": "\u0639\u0644\u06cc \u06f2",
+   "dup": "Same",
+   "oth": "Typed <i>"
   },
   "entry": {
    "track": "ABC123"
+  },
+  "ovals": {
+   "dup": [
+    "b"
+   ],
+   "oth": [
+    "Typed <i>"
+   ]
   }
  },
  "parse": [
@@ -211,11 +248,11 @@
    ]
   },
   {
-   "in": "{مهم}",
+   "in": "{\u0645\u0647\u0645}",
    "out": [
     {
      "t": "text",
-     "v": "{مهم}"
+     "v": "{\u0645\u0647\u0645}"
     }
    ]
   },
@@ -417,7 +454,7 @@
    "in": "{get:fa}",
    "mode": "text",
    "where": null,
-   "out": "سلام ۱۲۳"
+   "out": "\u0633\u0644\u0627\u0645 \u06f1\u06f2\u06f3"
   },
   {
    "in": "{get:evil}",
@@ -549,7 +586,7 @@
    "in": "{user:display_name}",
    "mode": "html",
    "where": null,
-   "out": "Ana Díaz"
+   "out": "Ana D\u00edaz"
   },
   {
    "in": "{user:role}",
@@ -693,7 +730,7 @@
    "in": "{field:fa1}",
    "mode": "text",
    "where": null,
-   "out": "علی ۲"
+   "out": "\u0639\u0644\u06cc \u06f2"
   },
   {
    "in": "{name1}",
@@ -777,7 +814,7 @@
    "in": "{user:display_name} {user:email|no} {get:q} {cookie:campaign|c}",
    "mode": "text",
    "where": "placeholder",
-   "out": "Ana Díaz no a&b #c=d c"
+   "out": "Ana D\u00edaz no a&b #c=d c"
   },
   {
    "in": "{cookie:campaign} {user:email} {date:Y} {field:color|f}",
@@ -838,6 +875,30 @@
    "mode": "text",
    "where": null,
    "out": "2026{bogus:1}"
+  },
+  {
+   "in": "{field:dup.value}",
+   "mode": "text",
+   "where": null,
+   "out": "b"
+  },
+  {
+   "in": "{field:dup}",
+   "mode": "text",
+   "where": null,
+   "out": "Same"
+  },
+  {
+   "in": "{field:oth.value}",
+   "mode": "text",
+   "where": null,
+   "out": "Typed <i>"
+  },
+  {
+   "in": "{field:color.value}",
+   "mode": "text",
+   "where": null,
+   "out": "r"
   }
  ],
  "legacy_drop": [
@@ -932,8 +993,8 @@
    "out": "{1x:y}"
   },
   {
-   "in": "keep {legacy} and {مهم}",
-   "out": "keep {legacy} and {مهم}"
+   "in": "keep {legacy} and {\u0645\u0647\u0645}",
+   "out": "keep {legacy} and {\u0645\u0647\u0645}"
   },
   {
    "in": "{user:email|fallback}",

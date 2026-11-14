@@ -2035,6 +2035,10 @@ require('./scenario-f07.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewFo
  * 375 px, messages and redirects, the cache, a paid form: tests/e2e-wp/scenario-f08.js. */
 require('./scenario-f08.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel });
 
+/* F05 choices: Add in bulk and presets, stored values, shuffle, Other, Select all, limits, per-choice capacity
+ * (atomic, the older booking forms), dynamic choices, ranking, fa_IR / ar at 375 px, a paid form: tests/e2e-wp/scenario-f05.js. */
+require('./scenario-f05.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */

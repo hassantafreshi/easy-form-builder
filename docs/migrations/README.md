@@ -12,3 +12,4 @@
 - [Unique field values, DB 1.7 (2026-11-13)](f03-unique-values-2026-11-13.md)
 - [One-time codes (verification), DB 1.8 (2026-11-13)](f02-verification-2026-11-13.md)
 - [Advanced date field, no schema change (2026-11-13)](f06-advdate-2026-11-13.md)
+- [Choice stock, DB 1.9 (2026-11-14)](f05-stock-table-2026-11-14.md)
