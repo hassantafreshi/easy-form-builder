@@ -11,7 +11,10 @@
  *              (efb_e2e_f12_calls: URL and the body's keys, never a secret's value); (3) efb_e2e_f12_akismet =
  *              real: Akismet's own class is loaded (the plugin stays inactive) with a placeholder key, fake: a
  *              stand-in class with the same three methods; (4) efb_e2e_f12_hs_off = 1: efb_core_spam_checks
- *              switches the core honeypot off (what Human Shield may do). Copied by ctl.php f12-mu.
+ *              switches the core honeypot off (what Human Shield may do); (5) efb_e2e_f12_http_log = 1: requests to
+ *              *.example.test (a test form's webhook) recorded and answered here; (6) efb_e2e_f12_akismet_down = 1:
+ *              Akismet unreachable; (7) efb_e2e_f12_shield = bot | human: Shield Security's shield_test_ip_is_bot().
+ *              Copied by ctl.php f12-mu.
  */
 
 if ( get_option( 'efb_e2e_f12_verdict' ) ) {
@@ -70,6 +73,25 @@ if ( get_option( 'efb_e2e_f12_http_log' ) ) {
 			return array( 'headers' => array(), 'body' => '{"ok":true}', 'response' => array( 'code' => 200, 'message' => 'OK' ), 'cookies' => array(), 'filename' => null );
 		},
 		1,
+		3
+	);
+}
+
+/* (7) efb_e2e_f12_shield = bot | human: a stand-in for Shield Security's public function (silentCAPTCHA). */
+if ( get_option( 'efb_e2e_f12_shield' ) && ! function_exists( 'shield_test_ip_is_bot' ) ) {
+	function shield_test_ip_is_bot( $ip ) {
+		return get_option( 'efb_e2e_f12_shield' ) === 'bot';
+	}
+}
+
+/* (6) efb_e2e_f12_akismet_down = 1: Akismet does not answer (a network error), never the real service. */
+if ( get_option( 'efb_e2e_f12_akismet_down' ) ) {
+	add_filter(
+		'pre_http_request',
+		static function ( $pre, $args, $url ) {
+			return false !== strpos( (string) $url, 'rest.akismet.com' ) ? new WP_Error( 'http_request_failed', 'cURL error 7: Failed to connect' ) : $pre;
+		},
+		2,
 		3
 	);
 }

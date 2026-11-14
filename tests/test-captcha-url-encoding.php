@@ -84,6 +84,25 @@ $np = parse_params(new_url($base, $secret, $spacey));
 test('spacey value round-trips exactly', $np['response'], $spacey);
 test('spacey value keeps two params', count($np), 2);
 
+echo "\n--- F12: every CAPTCHA service is asked with a POST body (Emsfb\\Captcha::verify), never a built URL ---\n";
+if (!defined('ABSPATH')) define('ABSPATH', __DIR__ . '/');
+$GLOBALS['efb_cap_posts'] = array();
+if (!function_exists('wp_remote_post')) { function wp_remote_post($url, $args) { $GLOBALS['efb_cap_posts'][] = array($url, $args); return array('body' => '{"success":true,"hostname":"","action":"efb_submit","score":0.9}'); } }
+if (!function_exists('wp_remote_retrieve_body')) { function wp_remote_retrieve_body($r) { return $r['body']; } }
+if (!function_exists('is_wp_error')) { function is_wp_error($v) { return false; } }
+if (!function_exists('apply_filters')) { function apply_filters($h, $v) { return $v; } }
+if (!function_exists('home_url')) { function home_url() { return 'https://site.test'; } }
+require_once __DIR__ . '/../includes/class-Emsfb-captcha.php';
+$keys = array('siteKey' => 'v2-site-placeholder', 'secretKey' => $secret, 'rc3SiteKey' => 'v3-site-placeholder', 'rc3SecretKey' => $secret, 'hcSiteKey' => 'hc-site-placeholder', 'hcSecretKey' => $secret, 'tsSiteKey' => '0x4AAA-site', 'tsSecretKey' => '0x4AAA-' . $secret);
+foreach (array('recaptcha_v2', 'recaptcha_v3', 'hcaptcha', 'turnstile') as $prov) {
+    $GLOBALS['efb_cap_posts'] = array();
+    \Emsfb\Captcha::verify($prov, $evil . str_repeat('x', 20), array('settings' => $keys));
+    $call = $GLOBALS['efb_cap_posts'][0];
+    test("F12 $prov: the URL carries no query (nothing to inject into)", strpos($call[0], '?'), false);
+    test("F12 $prov: the token is one body value, verbatim (an injected &secret= stays inside it)", $call[1]['body']['response'], $evil . str_repeat('x', 20));
+    test("F12 $prov: the secret is the stored one", $call[1]['body']['secret'], $prov === 'turnstile' ? '0x4AAA-' . $secret : $secret);
+}
+
 echo "\n========================================\n";
 echo "RESULTS: $pass passed, $fail failed\n";
 echo "========================================\n";
