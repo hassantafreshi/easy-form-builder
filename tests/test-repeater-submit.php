@@ -14,7 +14,8 @@ if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
  *  - two rows of one entry are two answers (dedupe keeps them; an exact duplicate is one);
  *  - a group of a plan without the group: its rows dropped, its required children not required;
  *  - an old form's answers are stored exactly as before (no rg / ri, same rows);
- *  - the worst case (30 fields × 50 rows) is checked in under a second.
+ *  - the worst case (30 fields × 50 rows) is checked in under a second;
+ *  - forms/{id}/schema shows the group (its fields, limits, the page API) and, per field of the group, its row input.
  *
  * Needs the e2e site: EFB_WP_LOAD=/path/wp-load.php, or EFB_E2E_SITE_DIR (tests/e2e-wp/README.md);
  * [SKIP] otherwise. Run: php tests/test-repeater-submit.php
@@ -196,6 +197,15 @@ try {
 	$folded = \Emsfb\Repeater::fold($x['rows'], $x['virtual']);
 	$ms = (microtime(true) - $t0) * 1000;
 	$check($x['ok'] && count($x['rows']) === 1251 && $ms < 200, sprintf('H: 25 children × 50 rows expanded and folded in %.1f ms (< 200)', $ms));
+	// forms/{id}/schema (F06 Form_Schema + Repeater::schema): the group, its fields, limits and how to reach a row.
+	$sr = wp_remote_get(rest_url('Emsfb/v1/forms/' . $F . '/schema'), array('timeout' => 30));
+	$sc = is_wp_error($sr) ? array() : json_decode(wp_remote_retrieve_body($sr), true);
+	$by = array();
+	foreach ((array) ($sc['fields'] ?? array()) as $x) if (is_array($x) && isset($x['id'])) $by[$x['id']] = $x;
+	$g1 = $by['g1']['repeater'] ?? array();
+	$check(($g1['children'] ?? null) === array('nm', 'em', 'ml', 'ex') && ($g1['min_rows'] ?? 0) === 1 && ($g1['max_rows'] ?? 0) === 3 && ($by['g1']['fill']['api'] ?? '') === 'EFBRepeater', 'schema: the group lists its fields, its limits and the page API that adds rows', $by['g1'] ?? $sc);
+	$check(($by['nm']['group'] ?? '') === 'g1' && ($by['nm']['fill']['input'] ?? '') === 'nm_r{n}_' && !empty($by['ex']['fill']['options']) && !isset($by['after']['group']), 'schema: a field of the group names its group and its input in row n; a field outside has none', array($by['nm'] ?? null, $by['after'] ?? null));
+	$check(isset($sc['repeater']['page_api']) && strpos(wp_json_encode($sc), 'formula') === false && strpos(wp_json_encode($sc), 'sendEmail') === false, 'schema: the page API and wire shape are described; no form settings', $sc['repeater'] ?? null);
 } finally {
 	foreach ($forms as $fid) {
 		$wpdb->delete($wpdb->prefix . 'emsfb_form', array('form_id' => $fid));

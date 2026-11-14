@@ -255,6 +255,9 @@
     if (chErrs.length) throw failChoices(chErrs);
     var caErrs = calcCheck(next.slice(1), 1, next.slice(1), opts);
     if (caErrs.length) throw failCalc(caErrs);
+    var rpErrs = rptCheck(next.slice(1), 1, next.slice(1));
+    if (rpErrs.length) throw failRpt(rpErrs);
+    rptPlace(next);
     if (typeof efbNormalizeOrderEfb === 'function') efbNormalizeOrderEfb(next);
     valj_efb = next;
     if (typeof form_type_emsFormBuilder !== 'undefined') form_type_emsFormBuilder = next[0].type;
@@ -285,6 +288,8 @@
     if (chErrs.length) throw failChoices(chErrs);
     var caErrs = calcCheck(add, 0, list.slice(1).concat(add), opts);
     if (caErrs.length) throw failCalc(caErrs);
+    var rpErrs = rptCheck(add, 0, list.slice(1).concat(add));
+    if (rpErrs.length) throw failRpt(rpErrs);
     if (items && items.formPatch && typeof items.formPatch === 'object') {
       var fpErrs = uploadCheck([items.formPatch], 0);
       if (fpErrs.length) throw failUpload(fpErrs);
@@ -333,6 +338,7 @@
       Object.keys(items.formPatch).forEach(function (k) { list[0][k] = clone(items.formPatch[k]); });
       if (items.formPatch.type && typeof form_type_emsFormBuilder !== 'undefined') form_type_emsFormBuilder = items.formPatch.type;
     }
+    if (add.some(function (r) { return r && (r.type === 'repeater' || (r.group !== undefined && r.group !== '')); })) rptPlace(list);
     renumber(list);
     var ids = add.map(function (r) { return r.id_; });
     apiChanged('insertItems', ids);
@@ -348,6 +354,8 @@
       if (i < 0) throw fail('unknown_field', 'No field with id ' + id + '.');
       if (list[i].type === 'step') throw fail('unsupported_type', 'steps are removed in the builder.');
       drop[list[i].id_] = true;
+      // F09: a repeater group goes with its fields (their options follow them through parent).
+      if (list[i].type === 'repeater') list.forEach(function (k) { if (k && k.group === list[i].id_ && k.type !== 'option') drop[k.id_] = true; });
     });
     valj_efb = list.filter(function (r, i) { return i === 0 || !(r && (drop[r.id_] || drop[r.parent])); });
     renumber(valj_efb);
@@ -1236,8 +1244,236 @@
     return { changed: Object.keys(values), values: values, plan: gated };
   }
 
+  /* ------------------------------------------------------------ F09 repeater groups */
+
+  function rptCore() { return window.EFBRepeaterCore || null; }
+  function rptCfg() { return (window.efb_var && efb_var.repeater) || {}; }
+  function rptCap(k, d) { var c = rptCfg().caps || {}; return Number(c[k]) > 0 ? Number(c[k]) : d; }
+  function rptChildTypes() {
+    var C = rptCore();
+    var t = (typeof EFB_REPEATER_CHILD_TYPES !== 'undefined' && Array.isArray(EFB_REPEATER_CHILD_TYPES)) ? EFB_REPEATER_CHILD_TYPES : (rptCfg().child_types || (C ? C.CHILD_TYPES : []));
+    return t.filter(function (x) { return x !== 'repeater'; });
+  }
+  /**
+   * The rules of a form's groups (twin of what Save keeps, Repeater::normalize_rows() / sanitize_key()): every
+   * group key valid; `group` names a repeater group of the form; a child's type may go into a row; no group in a
+   * group; at most 10 groups and 25 fields a group. Errors {code, path, key, field}.
+   */
+  function rptCheck(items, offset, all) {
+    var C = rptCore(), out = [];
+    if (!C) return out;
+    var groups = {};
+    (all || []).forEach(function (r) { if (r && r.type === 'repeater' && r.id_ !== undefined) groups[String(r.id_)] = r; });
+    var allowed = rptChildTypes();
+    (items || []).forEach(function (r, i) {
+      if (!r || typeof r !== 'object') return;
+      var path = 'rows[' + (i + (offset || 0)) + '].';
+      C.RUNTIME_KEYS.forEach(function (k) { if (r[k] !== undefined) out.push({ code: 'repeater_invalid', path: path + k, key: k, field: r.id_ }); });
+      if (r.type === 'repeater') {
+        C.KEYS.forEach(function (k) {
+          if (r[k] === undefined || r[k] === null || r[k] === '') return;
+          var v = C.sanitizeKey(k, r[k], { rows: rptCap('rows', 50) });
+          if (v === '' || ((k === 'min_rows' || k === 'max_rows' || k === 'default_rows') && String(C.asciiDigits(String(r[k]))).trim() !== v)) out.push({ code: 'repeater_invalid', path: path + k, key: k, field: r.id_ });
+          else r[k] = v;
+        });
+        if (r.max_rows !== undefined && r.max_rows !== '' && Number(r.max_rows) < 1) out.push({ code: 'repeater_invalid', path: path + 'max_rows', key: 'max_rows', field: r.id_ });
+        var mx = Number(r.max_rows || 10), mn = Number(r.min_rows === undefined || r.min_rows === '' ? 1 : r.min_rows), df = Number(r.default_rows === undefined || r.default_rows === '' ? 1 : r.default_rows);
+        if (mn > mx) out.push({ code: 'repeater_invalid', path: path + 'min_rows', key: 'min_rows', field: r.id_ });
+        else if (df < mn || df > mx) out.push({ code: 'repeater_invalid', path: path + 'default_rows', key: 'default_rows', field: r.id_ });
+        if (r.group !== undefined && r.group !== '') out.push({ code: 'repeater_nested', path: path + 'group', key: 'group', field: r.id_ });
+        return;
+      }
+      if (r.group === undefined || r.group === '' || r.type === 'option' || r.type === 'r_matrix') return;
+      if (r.type === 'step') { out.push({ code: 'repeater_child_type', path: path + 'group', key: 'group', field: r.id_ }); return; }
+      if (!groups[String(r.group)]) { out.push({ code: 'repeater_group', path: path + 'group', key: 'group', field: r.id_ }); return; }
+      if (allowed.indexOf(r.type) === -1) out.push({ code: 'repeater_child_type', path: path + 'group', key: 'group', field: r.id_ });
+    });
+    var nG = Object.keys(groups).length;
+    if (nG > rptCap('groups', 10)) out.push({ code: 'repeater_cap', path: 'rows', key: 'groups', field: '' });
+    Object.keys(groups).forEach(function (g) {
+      var n = (all || []).filter(function (r) { return r && r.group === g && r.type !== 'option' && r.type !== 'r_matrix'; }).length;
+      if (n > rptCap('children', 25)) out.push({ code: 'repeater_cap', path: 'rows', key: 'children', field: g });
+    });
+    return out;
+  }
+  function failRpt(errs) {
+    var e0 = errs[0];
+    var msg = {
+      repeater_invalid: 'This value cannot be used for ' + e0.key,
+      repeater_nested: 'A repeater group cannot go inside another group',
+      repeater_group: 'group must be the id of a repeater group of this form',
+      repeater_child_type: 'This field type cannot go into a repeater row',
+      repeater_cap: e0.key === 'groups' ? 'A form holds at most ' + rptCap('groups', 10) + ' repeater groups' : 'A repeater group holds at most ' + rptCap('children', 25) + ' fields',
+    }[e0.code] || e0.code;
+    var e = fail(e0.code, msg + ' (' + e0.path + ')');
+    e.path = e0.path; e.errors = errs;
+    return e;
+  }
+  /** Children (and their options) right after their group, in their order, with the group's step (as Save does). */
+  function rptPlace(list) {
+    var groups = {};
+    list.forEach(function (r, i) { if (i > 0 && r && r.type === 'repeater') groups[String(r.id_)] = r; });
+    if (!Object.keys(groups).length) return list;
+    var isKid = function (r) { return r && r.type !== 'option' && r.type !== 'r_matrix' && r.group !== undefined && groups[String(r.group)]; };
+    var optsOf = {};
+    list.forEach(function (r) { if (r && (r.type === 'option' || r.type === 'r_matrix') && r.parent !== undefined) (optsOf[String(r.parent)] = optsOf[String(r.parent)] || []).push(r); });
+    var kidsOf = {}, taken = {};
+    list.forEach(function (r) {
+      if (!isKid(r)) return;
+      r.step = groups[String(r.group)].step;
+      (kidsOf[String(r.group)] = kidsOf[String(r.group)] || []).push(r);
+      taken[String(r.id_)] = true;
+      (optsOf[String(r.id_)] || []).forEach(function (o) { taken['o:' + String(o.id_)] = true; });
+    });
+    var out = [];
+    list.forEach(function (r, i) {
+      if (i > 0 && r && (taken[String(r.id_)] && isKid(r) || ((r.type === 'option' || r.type === 'r_matrix') && taken['o:' + String(r.id_)]))) return;
+      out.push(r);
+      if (i > 0 && r && r.type === 'repeater') {
+        (kidsOf[String(r.id_)] || []).forEach(function (k) { out.push(k); (optsOf[String(k.id_)] || []).forEach(function (o) { out.push(o); }); });
+      }
+    });
+    list.length = 0;
+    Array.prototype.push.apply(list, out);
+    return list;
+  }
+
+  /**
+   * A new repeater group: settings (name, min_rows, max_rows, default_rows, rows_from, row_label, collapsible,
+   * collapse_prev, rpt_layout, btn_add_text, rmv_confirm), placed like insertItems (opts.after / before / step);
+   * opts.fields: ids of fields to move into it, in that order. Returns {id, ids}.
+   */
+  function addGroup(settings, opts) {
+    opts = opts || {};
+    settings = settings || {};
+    var C = rptCore();
+    if (!C) throw fail('builder_not_ready', 'The repeater runtime (repeater-efb.js) is not loaded.');
+    var list = rows();
+    var id = settings.id_ ? String(settings.id_) : randomId();
+    var row = { id_: id, dataId: id + '-id', type: 'repeater', elementId: 'repeater', name: settings.name ? String(settings.name) : 'Repeater group', step: 1, required: 0,
+      message: '', classes: '', size: 100, label_text_size: 'fs-6', label_position: 'up', el_text_size: 'fs-6', label_text_color: 'text-labelEfb', el_border_color: 'border-d',
+      el_text_color: 'text-labelEfb', message_text_color: 'text-muted', el_height: 'h-d-efb', label_align: (window.efb_var && efb_var.rtl == 1) ? 'txt-right' : 'txt-left',
+      message_align: 'justify-content-start', el_align: 'justify-content-start' };
+    Object.keys(C.DEFAULTS).forEach(function (k) { row[k] = C.DEFAULTS[k]; });
+    Object.keys(settings).forEach(function (k) { if (k !== 'id_' && k !== 'fields' && k !== 'type') row[k] = settings[k]; });
+    if (opts.step !== undefined) row.step = Number(opts.step);
+    var errs = rptCheck([row], 0, list.concat([row]));
+    if (errs.length) throw failRpt(errs);
+    // The fields to move in are checked first: nothing changes when one of them cannot go into a row.
+    if (Array.isArray(opts.fields) && opts.fields.length) {
+      var trial = opts.fields.map(function (fid, n) {
+        var f = list.filter(function (x, i) { return i > 0 && x && x.id_ === String(fid) && x.type !== 'option' && x.type !== 'r_matrix'; })[0];
+        if (!f) throw fail('unknown_target', 'No field with id ' + fid + '.');
+        var t = clone(f); t.group = id; return t;
+      });
+      var fErrs = rptCheck(trial, 0, list.concat([row]));
+      if (fErrs.length) throw failRpt(fErrs.map(function (e) { e.path = e.path.replace(/^rows\[(\d+)\]/, function (m, n) { return 'fields[' + n + ']'; }); return e; }));
+    }
+    var res = insertItems([row], { after: opts.after, before: opts.before, step: opts.step });
+    // The group's step is the step it was put in (the row before it is a step or a field of that step).
+    var L2 = rows(), gi = fieldIndex(L2, id);
+    if (gi > 1 && opts.step === undefined && L2[gi - 1] && L2[gi - 1].step !== undefined) L2[gi].step = L2[gi - 1].step;
+    var moved = [];
+    if (Array.isArray(opts.fields) && opts.fields.length) moved = moveIntoGroup(opts.fields, id, { render: false }).ids;
+    apiChanged('addGroup', [id].concat(moved));
+    if (opts.render === true) return render(opts).then(function () { return { id: id, ids: moved, inserted: res.ids }; });
+    return { id: id, ids: moved };
+  }
+
+  /** Fields into a group (after its other fields, in the order given); their options follow them. Returns {ids}. */
+  function moveIntoGroup(ids, gid, opts) {
+    opts = opts || {};
+    var list = rows();
+    var g = list.filter(function (r, i) { return i > 0 && r && r.id_ === gid && r.type === 'repeater'; })[0];
+    if (!g) throw fail('unknown_target', 'No repeater group with id ' + gid + '.');
+    var want = (Array.isArray(ids) ? ids : [ids]).map(String);
+    var rowsTo = want.map(function (id) {
+      var r = list.filter(function (x, i) { return i > 0 && x && x.id_ === id && x.type !== 'option' && x.type !== 'r_matrix'; })[0];
+      if (!r) throw fail('unknown_target', 'No field with id ' + id + '.');
+      return r;
+    });
+    var trial = rowsTo.map(function (r) { var c = clone(r); c.group = gid; return c; });
+    var errs = rptCheck(trial, 0, list.map(function (r) { var t = trial.filter(function (x) { return r && x.id_ === r.id_; })[0]; return t || r; }));
+    if (errs.length) throw failRpt(errs.map(function (e) { e.path = e.path.replace(/^rows\[(\d+)\]/, function (m, n) { return 'ids[' + n + ']'; }); return e; }));
+    // Moved to the end of the group's fields, in the order given.
+    rowsTo.forEach(function (r) { r.group = gid; r.step = g.step; });
+    var at = list.indexOf(g);
+    var block = [];
+    rowsTo.forEach(function (r) {
+      block.push(r);
+      list.forEach(function (o) { if (o && (o.type === 'option' || o.type === 'r_matrix') && o.parent === r.id_) block.push(o); });
+    });
+    var rest = list.filter(function (r) { return block.indexOf(r) === -1; });
+    var gi = rest.indexOf(g), end = gi + 1;
+    while (end < rest.length && rest[end] && ((rest[end].group === gid && rest[end].type !== 'option') || ((rest[end].type === 'option' || rest[end].type === 'r_matrix') && rest.some(function (k) { return k && k.group === gid && k.id_ === rest[end].parent; })))) end += 1;
+    Array.prototype.splice.apply(rest, [end, 0].concat(block));
+    list.length = 0;
+    Array.prototype.push.apply(list, rest);
+    rptPlace(list);
+    renumber(list);
+    apiChanged('moveIntoGroup', want);
+    if (opts.render === true) return render(opts).then(function () { return { ids: want }; });
+    return { ids: want, at: at };
+  }
+
+  /** Fields out of their group: they become ordinary fields right after the group's block. Returns {ids}. */
+  function moveOutOfGroup(ids, opts) {
+    opts = opts || {};
+    var list = rows();
+    var want = (Array.isArray(ids) ? ids : [ids]).map(String);
+    want.forEach(function (id) {
+      var r = list.filter(function (x, i) { return i > 0 && x && x.id_ === id && x.type !== 'option'; })[0];
+      if (!r) throw fail('unknown_target', 'No field with id ' + id + '.');
+      if (r.group === undefined || r.group === '') throw fail('not_in_group', 'The field ' + id + ' is not in a repeater group.');
+    });
+    want.forEach(function (id) {
+      var r = list.filter(function (x, i) { return i > 0 && x && x.id_ === id && x.type !== 'option'; })[0];
+      var gid = r.group;
+      delete r.group;
+      var block = [r].concat(list.filter(function (o) { return o && (o.type === 'option' || o.type === 'r_matrix') && o.parent === r.id_; }));
+      var rest = list.filter(function (x) { return block.indexOf(x) === -1; });
+      var gi = -1;
+      rest.forEach(function (x, i) { if (x && x.id_ === gid && x.type === 'repeater') gi = i; });
+      var end = gi + 1;
+      while (gi > 0 && end < rest.length && rest[end] && (rest[end].group === gid || ((rest[end].type === 'option' || rest[end].type === 'r_matrix') && rest.some(function (k) { return k && k.group === gid && k.id_ === rest[end].parent; })))) end += 1;
+      Array.prototype.splice.apply(rest, [gi > 0 ? end : rest.length, 0].concat(block));
+      list.length = 0;
+      Array.prototype.push.apply(list, rest);
+    });
+    renumber(list);
+    apiChanged('moveOutOfGroup', want);
+    if (opts.render === true) return render(opts).then(function () { return { ids: want }; });
+    return { ids: want };
+  }
+
+  /** A group's settings (the keys of addGroup, and name). Returns {changed, values, plan}. */
+  function setGroup(gid, patch) {
+    var list = rows();
+    var idx = fieldIndex(list, String(gid));
+    if (idx < 1 || list[idx].type !== 'repeater') throw fail('unknown_target', 'No repeater group with id ' + gid + '.');
+    if (!patch || typeof patch !== 'object') throw fail('invalid_setting', 'setGroup() needs an object of settings.');
+    var C = rptCore();
+    Object.keys(patch).forEach(function (k) { if (k !== 'name' && (!C || C.KEYS.indexOf(k) === -1)) throw fail('invalid_setting', 'key ' + k + ' is not a repeater group setting.'); });
+    var row = clone(list[idx]);
+    Object.keys(patch).forEach(function (k) { row[k] = patch[k]; });
+    var errs = rptCheck([row], idx, list.map(function (r, i) { return i === idx ? row : r; }));
+    if (errs.length) throw failRpt(errs);
+    var values = {};
+    Object.keys(patch).forEach(function (k) { values[k] = row[k]; });
+    list[idx] = row;
+    apiChanged('setGroup', [row.id_]);
+    var gated = [];
+    var plan = rptCfg().plan || {};
+    if (plan.repeat === false && ['max_rows', 'default_rows', 'rows_from', 'collapsible', 'rpt_layout'].some(function (k) { return patch[k] !== undefined; })) gated.push('repeat');
+    return { changed: Object.keys(values), values: values, plan: gated };
+  }
+
   var api = {
     version: API_VERSION,
+    addGroup: addGroup,
+    moveIntoGroup: moveIntoGroup,
+    moveOutOfGroup: moveOutOfGroup,
+    setGroup: setGroup,
     setOptions: setOptions,
     setChoices: setChoices,
     setCalc: setCalc,

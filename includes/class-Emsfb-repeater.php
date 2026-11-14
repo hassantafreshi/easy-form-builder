@@ -68,6 +68,57 @@ final class Repeater {
 		if (!function_exists('add_filter')) return;
 		add_filter('efb_admin_localize_vars', array(__CLASS__, 'localize_vars'), 28, 2);
 		add_filter('efb_capabilities', array(__CLASS__, 'capabilities'), 27, 2);
+		add_filter('efb_form_schema', array(__CLASS__, 'schema'), 14, 3);
+	}
+
+	/**
+	 * forms/{id}/schema (F06 Form_Schema) for an assistant in the page: a group's entry gets `repeater` (its
+	 * fields, the limits this site's plan allows, rows_from, the row title, how to add / reach a row); a field of
+	 * a group gets `group` and how to reach its input in row k. Nothing a visitor does not see (no formulas,
+	 * no settings of the form). $rows: the form's rows when the caller has them (tests).
+	 */
+	public static function schema($out, $form_id = 0, $context = array(), $rows = null) {
+		if (!is_array($out) || empty($out['fields'])) return $out;
+		if ($rows === null) {
+			if (!class_exists('\\Emsfb\\Calendar_Rest')) return $out;
+			$rows = Calendar_Rest::form_rows((int) $form_id);
+		}
+		if (!is_array($rows) || !self::has_groups($rows)) return $out;
+		$map = self::children_map($rows);
+		$repeat = self::plan_ok('repeat');
+		$kids = array();
+		foreach ($map as $g => $idx) foreach ($idx as $ci) $kids[(string) $rows[$ci]['id_']] = $g;
+		$by_id = array();
+		foreach ($rows as $i => $r) if ($i > 0 && is_array($r) && isset($r['id_']) && is_scalar($r['id_'])) $by_id[(string) $r['id_']] = $r;
+		foreach ($out['fields'] as $k => $e) {
+			if (!is_array($e) || !isset($e['id'])) continue;
+			$id = (string) $e['id'];
+			if (isset($map[$id]) && isset($by_id[$id])) {
+				$r = $by_id[$id];
+				$l = self::limits($r, $repeat);
+				$children = array();
+				foreach ($map[$id] as $ci) $children[] = (string) $rows[$ci]['id_'];
+				$from = $repeat && isset($r['rows_from']) && is_scalar($r['rows_from']) ? (string) $r['rows_from'] : '';
+				$out['fields'][$k]['repeater'] = array(
+					'children' => $children, 'min_rows' => $l['min'], 'max_rows' => $l['max'], 'default_rows' => $l['default'],
+					'rows_from' => $from !== '' ? $from : null, 'repeat' => $repeat,
+					'row_label' => isset($r['row_label']) && is_scalar($r['row_label']) ? (string) $r['row_label'] : '',
+					'answer' => 'the number of rows (the server counts them)',
+				);
+				$out['fields'][$k]['fill'] = array('api' => 'EFBRepeater', 'add' => 'EFBRepeater.addRow(form_id, "' . $id . '")', 'remove' => 'EFBRepeater.removeRow(form_id, "' . $id . '", row_element)',
+					'rows' => 'EFBRepeater.rowsOf(form_id, "' . $id . '") gives {n, ri} per row', 'note' => $from !== '' ? 'the number of rows follows the field ' . $from : 'add rows up to max_rows, then fill each row\'s fields');
+				$out['fields'][$k]['assistant'] = 'rows';
+				continue;
+			}
+			if (isset($kids[$id])) {
+				$out['fields'][$k]['group'] = $kids[$id];
+				$fill = array('api' => 'dom', 'per_row' => true, 'input' => $id . '_r{n}_', 'resolve' => 'EFBRepeater.fieldAt(form_id, "' . $id . '", row_index) gives the copy id {id}_r{n}; its input is that id + "_"');
+				if (!empty($e['options'])) $fill['options'] = 'option id + "_r{n}"';
+				$out['fields'][$k]['fill'] = $fill;
+			}
+		}
+		$out['repeater'] = array('page_api' => 'window.EFBRepeater', 'wire' => 'answers are sent under the field\'s own id with rg (group) and ri (row from 0)', 'caps' => self::caps());
+		return $out;
 	}
 
 	/** efb_admin_localize_vars: efb_var.repeater = {plan, caps, child_types}. */
@@ -110,14 +161,16 @@ final class Repeater {
 			'answer'      => array('summary' => '{id_: group, type: "repeater", value: "<rows>"}', 'row' => 'the child id_ with rg (group, set by the server) and ri (row from 0)'),
 			'rules'       => array('children right after the group, in its step', 'no group inside a group', 'a child type outside child_types is an ordinary field', 'rows_from: a number or choice field before the group, outside it'),
 			'codes'       => array_values(self::CODES),
-			'builder'     => array('efbBuilderApi.insertItems', 'efbBuilderApi.setForm', 'efbBuilderApi.addGroup', 'efbBuilderApi.moveIntoGroup'),
+			'builder'     => array('efbBuilderApi.insertItems', 'efbBuilderApi.setForm', 'efbBuilderApi.addGroup', 'efbBuilderApi.moveIntoGroup', 'efbBuilderApi.moveOutOfGroup', 'efbBuilderApi.setGroup', 'efbBuilderApi.removeItems'),
+			'builder_codes' => array('repeater_invalid', 'repeater_group', 'repeater_child_type', 'repeater_nested', 'repeater_cap', 'not_in_group'),
+			'page_api'    => 'window.EFBRepeater (addRow, removeRow, rowsOf, fieldAt)',
+			'schema'      => 'forms/{id}/schema: fields[].repeater on a group, fields[].group and fill.input "{id}_r{n}_" on its fields',
 			'plan'        => array('group' => self::PLAN['group'], 'repeat' => self::PLAN['repeat']),
 			'spec'        => 'F09',
 		);
 		return $out;
 	}
 
-	/* ------------------------------------------------------------------ the model */
 	/* ------------------------------------------------------------------ the model */
 
 	public static function child_types() {
