@@ -4,7 +4,7 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-14",
     "counts": {
-        "active": 4003,
+        "active": 4119,
         "obsolete": 376
     },
     "entries": [
@@ -740,6 +740,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%1$s versions kept (up to %2$s earlier ones with this plan and setting).",
+            "context": null,
+            "plural": null,
+            "translators": "F15: versions dialog; %1$s and %2$s are numbers",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%1$s, position %2$s of %3$s",
             "context": null,
             "plural": null,
@@ -1362,6 +1377,21 @@
             "context": null,
             "plural": null,
             "translators": "F13: preview of automatic deletion. %s: number of entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s fields found",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: number of tiles shown; %s is a number",
             "files": [
                 "includes/functions.php"
             ],
@@ -2147,6 +2177,21 @@
             "context": null,
             "plural": null,
             "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "0 turns versions off. Your plan keeps up to %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F15: Settings, General: help; %s is a number",
             "files": [
                 "includes/functions.php"
             ],
@@ -3029,6 +3074,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "API",
+            "context": null,
+            "plural": null,
+            "translators": "F15: how a version was saved",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "API Auto-Populate Integration is Active",
             "context": null,
             "plural": null,
@@ -3390,6 +3450,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Action",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder shortcuts dialog: column header",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Action needed: Easy Form Builder Pro is paused on %s",
             "context": null,
             "plural": null,
@@ -3630,6 +3705,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Add %s",
+            "context": null,
+            "plural": null,
+            "translators": "F15: undo history entry; %s is a field type name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -3889,6 +3979,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Add fields",
+            "context": null,
+            "plural": null,
+            "translators": "F15: undo history entry of the AI assistant",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Add files",
             "context": null,
             "plural": null,
@@ -3953,6 +4058,36 @@
             "context": null,
             "plural": null,
             "translators": "F14: button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Add option",
+            "context": null,
+            "plural": null,
+            "translators": "F15: undo history entry",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Add step",
+            "context": null,
+            "plural": null,
+            "translators": "F15: undo history entry",
             "files": [
                 "includes/functions.php"
             ],
@@ -5005,6 +5140,21 @@
             "context": null,
             "plural": null,
             "translators": "F01 builder, number format",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Allow single-key shortcuts (/ and ?)",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder shortcuts dialog: switch for the one-key shortcuts (accessibility)",
             "files": [
                 "includes/functions.php"
             ],
@@ -6549,6 +6699,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "AutoPilot",
+            "context": null,
+            "plural": null,
+            "translators": "F15: how a version was saved: by the AI assistant",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "AutoPilot: %s",
+            "context": null,
+            "plural": null,
+            "translators": "F15: undo history entry of a change made by the AI assistant; %s names it",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Automatic",
             "context": null,
             "plural": null,
@@ -6781,6 +6961,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Back to the list",
+            "context": null,
+            "plural": null,
+            "translators": "F15: versions dialog link",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -7023,6 +7218,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Before versions were kept",
+            "context": null,
+            "plural": null,
+            "translators": "F15: how a version was saved: the form as it was before the first save with versions",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -7825,6 +8035,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Builder",
+            "context": null,
+            "plural": null,
+            "translators": "F15: how a version was saved",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -9028,7 +9253,7 @@
             "msgid": "Change",
             "context": null,
             "plural": null,
-            "translators": "F02 visitor: link to change the number or address",
+            "translators": "F02 visitor: link to change the number or address translators: F15: undo history entry without a name",
             "files": [
                 "includes/functions.php",
                 "includes/page-builders/gutenberg/editor.js"
@@ -9037,6 +9262,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Change %s",
+            "context": null,
+            "plural": null,
+            "translators": "F15: undo history entry; %s is the name of a setting or a field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -9082,6 +9322,51 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Change the form settings",
+            "context": null,
+            "plural": null,
+            "translators": "F15: undo history entry of the AI assistant",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Change the form type",
+            "context": null,
+            "plural": null,
+            "translators": "F15: undo history entry of the AI assistant",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Changed",
+            "context": null,
+            "plural": null,
+            "translators": "F15: versions dialog comparison heading",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -10414,6 +10699,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Close panel",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder shortcut: Esc",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Closed",
             "context": null,
             "plural": null,
@@ -10898,6 +11198,21 @@
             "context": null,
             "plural": null,
             "translators": "Link text to the services comparison article",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Compare with current",
+            "context": null,
+            "plural": null,
+            "translators": "F15: versions dialog button",
             "files": [
                 "includes/functions.php"
             ],
@@ -11883,6 +12198,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Copy of a form",
+            "context": null,
+            "plural": null,
+            "translators": "F15: how a version was saved",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Copy shortcode",
             "context": null,
             "plural": null,
@@ -12502,6 +12832,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Current",
+            "context": null,
+            "plural": null,
+            "translators": "F15: versions dialog badge of the newest version",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Current Plan",
             "context": null,
             "plural": null,
@@ -13061,7 +13406,7 @@
             "msgid": "Date",
             "context": null,
             "plural": null,
-            "translators": "F06 builder, advanced date field panel translators: Date = column header",
+            "translators": "F06 builder, advanced date field panel translators: F15: versions dialog column translators: Date = column header",
             "files": [
                 "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-admin.php",
@@ -13573,6 +13918,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Delete %s",
+            "context": null,
+            "plural": null,
+            "translators": "F15: undo history entry; %s is a field label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Delete completely",
             "context": null,
             "plural": null,
@@ -13618,6 +13978,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Delete option",
+            "context": null,
+            "plural": null,
+            "translators": "F15: undo history entry",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Delete permanently",
             "context": null,
             "plural": null,
@@ -13648,10 +14023,40 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Delete selected field",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder shortcut",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Delete spam after (days)",
             "context": null,
             "plural": null,
             "translators": "F12: Settings: spam answers are deleted after this many days",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Delete step",
+            "context": null,
+            "plural": null,
+            "translators": "F15: undo history entry",
             "files": [
                 "includes/functions.php"
             ],
@@ -15082,6 +15487,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Duplicate %s",
+            "context": null,
+            "plural": null,
+            "translators": "F15: undo history entry; %s is a field label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Duplicate selected field",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder shortcut",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Dutch BSN",
             "context": null,
             "plural": null,
@@ -15540,6 +15975,21 @@
             "translators": "F13: name of the plugin in WordPress' personal data export and erase tools",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Easy Form Builder form versions",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-revisions.php"
             ],
             "scope": [
                 "core"
@@ -18712,7 +19162,7 @@
             "msgid": "Fields",
             "context": null,
             "plural": null,
-            "translators": "Fields = tab listing the form's fields",
+            "translators": "Fields = tab listing the form's fields translators: F15: versions dialog column",
             "files": [
                 "includes/functions.php"
             ],
@@ -19650,6 +20100,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Form created",
+            "context": null,
+            "plural": null,
+            "translators": "F15: how a version was saved",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Form data",
             "context": null,
             "plural": null,
@@ -19830,6 +20295,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Form settings changed: %s",
+            "context": null,
+            "plural": null,
+            "translators": "F15: versions dialog comparison; %s lists setting keys",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -23566,8 +24046,9 @@
             "msgid": "Import",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F15: how a version was saved",
             "files": [
+                "includes/functions.php",
                 "includes/importers/cf7/class-Emsfb-cf7-importer.php"
             ],
             "scope": [
@@ -25396,6 +25877,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Keyboard shortcuts",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder: title of the shortcuts dialog and its toolbar button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Keys",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder shortcuts dialog: column header",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Keys are not set for this service.",
             "context": null,
             "plural": null,
@@ -26682,6 +27193,36 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Load list",
+            "context": null,
+            "plural": null,
+            "translators": "F15: undo history entry: the list of states or cities was loaded",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Load the version from %s into the builder? Nothing is saved until you click Save, and you can undo it.",
+            "context": null,
+            "plural": null,
+            "translators": "F15: versions dialog question; %s is a date",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -29111,6 +29652,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Move %s",
+            "context": null,
+            "plural": null,
+            "translators": "F15: undo history entry; %s is a field label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Move %s down",
             "context": null,
             "plural": null,
@@ -29206,6 +29762,21 @@
             "context": null,
             "plural": null,
             "translators": "F09 builder: field toolbar button that moves the field out of its repeater group",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Move selected field",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder shortcut: Alt+Up / Alt+Down",
             "files": [
                 "includes/functions.php"
             ],
@@ -30261,6 +30832,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "No earlier versions yet. A version is kept each time you save.",
+            "context": null,
+            "plural": null,
+            "translators": "F15: versions dialog",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "No email arrived",
             "context": null,
             "plural": null,
@@ -30347,6 +30933,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "No field matches \"%s\"",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: no result; %s is what the admin typed",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -31239,6 +31840,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Note",
+            "context": null,
+            "plural": null,
+            "translators": "F15: versions dialog column",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Note added.",
             "context": null,
             "plural": null,
@@ -31588,6 +32204,21 @@
             "context": null,
             "plural": null,
             "translators": "F04 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Number of earlier versions to keep per form",
+            "context": null,
+            "plural": null,
+            "translators": "F15: Settings, General",
             "files": [
                 "includes/functions.php"
             ],
@@ -32384,6 +33015,36 @@
             "context": null,
             "plural": null,
             "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Only in the current form",
+            "context": null,
+            "plural": null,
+            "translators": "F15: versions dialog comparison heading",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Only in this version",
+            "context": null,
+            "plural": null,
+            "translators": "F15: versions dialog comparison heading",
             "files": [
                 "includes/functions.php"
             ],
@@ -37037,7 +37698,7 @@
             "msgid": "Preview",
             "context": null,
             "plural": null,
-            "translators": "F01 builder: label of the live preview of a custom mask translators: F04 builder: the visible preview of the result in the builder",
+            "translators": "F01 builder: label of the live preview of a custom mask translators: F15: builder shortcut: Alt+P translators: F04 builder: the visible preview of the result in the builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -38825,7 +39486,7 @@
             "msgid": "Redo",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F15: builder shortcut translators: F15: builder toolbar button and shortcut",
             "files": [
                 "includes/functions.php"
             ],
@@ -38833,6 +39494,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Redone: %s",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder message after redo; %s names the change",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -39184,6 +39860,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Remove fields",
+            "context": null,
+            "plural": null,
+            "translators": "F15: undo history entry of the AI assistant",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Remove file",
             "context": null,
             "plural": null,
@@ -39507,6 +40198,21 @@
             "translators": "",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Replace the form",
+            "context": null,
+            "plural": null,
+            "translators": "F15: undo history entry of the AI assistant",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -40106,7 +40812,7 @@
             "msgid": "Restore",
             "context": null,
             "plural": null,
-            "translators": "F14: action in the trash",
+            "translators": "F15: versions dialog button translators: F14: action in the trash",
             "files": [
                 "includes/functions.php"
             ],
@@ -40129,6 +40835,51 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Restore version from %s",
+            "context": null,
+            "plural": null,
+            "translators": "F15: undo history entry; %s is a date",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Restored from the version of %s",
+            "context": null,
+            "plural": null,
+            "translators": "F15: note kept with a version saved after a restore; %s is a date",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Restored version",
+            "context": null,
+            "plural": null,
+            "translators": "F15: how a version was saved",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -41324,7 +42075,7 @@
             "msgid": "Save",
             "context": null,
             "plural": null,
-            "translators": "Save = generic save button",
+            "translators": "F15: builder shortcut: save the form translators: Save = generic save button",
             "files": [
                 "includes/admin/class-Emsfb-create.php",
                 "includes/admin/class-Emsfb-panel.php",
@@ -41460,6 +42211,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Save the form first: versions are kept from the first save.",
+            "context": null,
+            "plural": null,
+            "translators": "F15: versions dialog",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Save the value",
             "context": null,
             "plural": null,
@@ -41509,6 +42275,21 @@
             "context": null,
             "plural": null,
             "translators": "F12: entries history: the answer was saved with the Spam status when it was sent",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Saved by",
+            "context": null,
+            "plural": null,
+            "translators": "F15: versions dialog column: user and how (builder, AutoPilot, ...)",
             "files": [
                 "includes/functions.php"
             ],
@@ -41796,6 +42577,21 @@
             "context": null,
             "plural": null,
             "translators": "F14: search placeholder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Search fields",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette: search box label and placeholder translators: F15: builder shortcut: focus the palette search",
             "files": [
                 "includes/functions.php"
             ],
@@ -43606,6 +44402,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Shortcuts work while the builder is open and no text box has the focus (Save and Esc work everywhere).",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder shortcuts dialog: help text",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Show",
             "context": null,
             "plural": null,
@@ -43824,6 +44635,21 @@
             "context": null,
             "plural": null,
             "translators": "F09: label of the button that opens a folded row; %s = the row number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Show shortcuts",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder shortcut: Shift+",
             "files": [
                 "includes/functions.php"
             ],
@@ -45446,6 +46272,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Step %s",
+            "context": null,
+            "plural": null,
+            "translators": "F15: versions dialog outline; %s is a number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Step %s of 5",
             "context": null,
             "plural": null,
@@ -45547,6 +46388,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Steps",
+            "context": null,
+            "plural": null,
+            "translators": "F15: versions dialog column",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -54025,6 +54881,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This version is the same as the current form.",
+            "context": null,
+            "plural": null,
+            "translators": "F15: versions dialog comparison",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This website is not accepting forms from visitors right now. Please contact the site owner.",
             "context": null,
             "plural": null,
@@ -55929,7 +56800,7 @@
             "msgid": "Undo",
             "context": null,
             "plural": null,
-            "translators": "Toolbar & sidebar labels for email builder translators: F14: button in the message after moving to the trash",
+            "translators": "Toolbar & sidebar labels for email builder translators: F15: builder shortcut translators: F15: builder toolbar button and shortcut translators: F14: button in the message after moving to the trash",
             "files": [
                 "includes/functions.php",
                 "includes/importers/cf7/class-Emsfb-cf7-importer.php"
@@ -55938,6 +56809,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Undone: %s",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder message after undo; %s names the change",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -57536,6 +58422,51 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Version from %s loaded. Save to keep it.",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder message; %s is a date",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Versions",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder toolbar button and dialog title: saved versions of the form",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Versions are turned off (Settings › General).",
+            "context": null,
+            "plural": null,
+            "translators": "F15: versions dialog",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Video Download",
             "context": null,
             "plural": null,
@@ -57614,8 +58545,9 @@
             "msgid": "View",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F15: versions dialog button: show the fields of a version",
             "files": [
+                "includes/functions.php",
                 "includes/importers/cf7/class-Emsfb-cf7-importer.php"
             ],
             "scope": [
@@ -63615,6 +64547,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "address, street, city, postal code",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the address field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "after",
             "context": null,
             "plural": null,
@@ -63762,6 +64709,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "audio, voice, microphone",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the audio_recorder field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -64006,10 +64968,85 @@
             "obsolete_since": null
         },
         {
+            "msgid": "button, url",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the link field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "calculation, formula, total",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the calc field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "card, credit card, payment",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the stripe field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "check the dates before use",
             "context": null,
             "plural": null,
             "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "checkbox, multiple choice, tick",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the checkbox field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "checklist, quantity",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the chlCheckBox field, comma separated; write the words people use in your language (not a translation of each English word)",
             "files": [
                 "includes/functions.php"
             ],
@@ -64032,6 +65069,51 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "city, town",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the cityList field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "code, custom content",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the html field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "colour, picker",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the color field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -64141,6 +65223,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "country, nation",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the conturyList field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "date & time",
             "context": null,
             "plural": null,
@@ -64152,6 +65249,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "date range, time, calendar, booking",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the advdate field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "date, day, calendar, birthday",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the date field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -64197,6 +65324,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "drag and drop, upload, attachment",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the dadfile field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "dropdown, select, list",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the select field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -64287,6 +65444,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "email, e-mail, mail",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the email field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -64565,10 +65737,55 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "group, divider",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the section field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "hCaptcha",
             "context": null,
             "plural": null,
             "translators": "F12: CAPTCHA service name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "hidden, utm, tracking",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the hiddenField field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "hijri, calendar",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the ardate field, comma separated; write the words people use in your language (not a translation of each English word)",
             "files": [
                 "includes/functions.php"
             ],
@@ -64621,6 +65838,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "image choice, picture",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the imgRadio field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -64760,6 +65992,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "jalali, shamsi, calendar",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the pdate field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "job application forms",
             "context": null,
             "plural": null,
@@ -64805,6 +66052,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "link, website",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the url field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "location picker form",
             "context": null,
             "plural": null,
@@ -64816,6 +66078,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "long text, paragraph, comment, message",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the textarea field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -64865,6 +66142,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "map, location, place",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the maps field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "matrix, grid, likert",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the table_matrix field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "missing",
             "context": null,
             "plural": null,
@@ -64880,6 +66187,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "multi select, dropdown, tags",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the multiselect field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "multi-step form plugin",
             "context": null,
             "plural": null,
@@ -64891,6 +66213,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "name, full name, first name, last name",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the name field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -64983,6 +66320,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "number, numeric, digits, quantity",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the number field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "of",
@@ -65090,6 +66442,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "order, sort, priority",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the ranking field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "out of 100",
             "context": null,
             "plural": null,
@@ -65101,6 +66468,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "password, secret, pin",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the password field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "payment",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the paypal field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -65133,6 +66530,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "phone, cell, cellphone, mobile number, sms",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the mobile field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "phone, telephone",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the tel field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -65182,6 +66609,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "price, amount",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the prcfld field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "product",
             "context": null,
             "plural": null,
@@ -65193,6 +66635,51 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "product, price, payment",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the payRadio field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "products, price, payment",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the payCheckbox field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "radio, single choice, option",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the radio field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -65272,6 +66759,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "repeat, rows, add more",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the repeater field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "reset",
             "context": null,
             "plural": null,
@@ -65323,6 +66825,51 @@
             "translators": "",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "score, nps, points",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the pointr10 field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "score, points",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the pointr5 field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "screen, screencast, capture",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the screen_recorder field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -65407,6 +66954,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "signature, sign",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the esign field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "silentCAPTCHA Spam Protection",
             "context": null,
             "plural": null,
@@ -65418,6 +66980,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "slider, scale",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the range field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -65437,6 +67014,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "stars, review, score",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the rating field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "starts with",
             "context": null,
             "plural": null,
@@ -65450,6 +67042,36 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "state, province, region",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the stateProvince field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "step, page, page break",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the steps field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "subscription payment forms",
@@ -65493,6 +67115,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "terms, consent, agree, privacy",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the trmCheckbox field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "text, single line, short answer, input",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the text field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -65617,10 +67269,55 @@
             "obsolete_since": null
         },
         {
+            "msgid": "title, header",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the heading field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "toggle, on off",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the switch field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "too many unlimited repeats",
             "context": null,
             "plural": null,
             "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "total, sum, cart",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the ttlprc field, comma separated; write the words people use in your language (not a translation of each English word)",
             "files": [
                 "includes/functions.php"
             ],
@@ -65662,6 +67359,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "upload, attachment, document",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the file field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "value",
             "context": null,
             "plural": null,
@@ -65688,6 +67400,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "video, camera, webcam",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the video_recorder field, comma separated; write the words people use in your language (not a translation of each English word)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -65726,6 +67453,21 @@
             "context": null,
             "plural": null,
             "translators": "F03 builder, why an owner's regular expression cannot be used (shown after \"This pattern cannot be used:\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "yes, no, confirm",
+            "context": null,
+            "plural": null,
+            "translators": "F15: builder palette search: other words for the yesNo field, comma separated; write the words people use in your language (not a translation of each English word)",
             "files": [
                 "includes/functions.php"
             ],
