@@ -26,7 +26,7 @@ files:
   video: video.mp4                   # 1920x1080
   short: video-vertical.mp4          # optional 1080x1920
   thumbnail: thumbnail.png           # 1280x720
-  subtitles: [{slug}.en.srt, {slug}.de.srt, {slug}.ar.srt, {slug}.fa.srt]
+  # subtitles: none (decision 13)
 ```
 
 ## 1. Title (English)
@@ -68,8 +68,6 @@ Related: {RELATED_VIDEO_1_TITLE} {RELATED_VIDEO_1_URL}
 Related: {RELATED_VIDEO_2_TITLE} {RELATED_VIDEO_2_URL}
 
 About Easy Form Builder: {two sentences: free WordPress form builder plugin by {PUBLISHER}; what it does; where to get it. Identical on every video.}
-
-Subtitles: English, Deutsch, العربية, فارسی (turn on CC).
 
 #WordPress #FormBuilder #{TopicTag}
 Ref: {EFB-N-A1}
@@ -137,7 +135,11 @@ Full step-by-step guide, screenshots and troubleshooting: {ARTICLE_URL_EN}?utm_s
 
 Pin it within the first minute after the video goes public.
 
-## 8. Subtitles (separate SRT tracks, never burned in)
+## 8. Subtitles — NOT produced (owner decision 13, 2026-11-14)
+
+> Since 2026-11-14 the pipeline makes **no subtitle files** (and never burns captions into the picture). Keep the localised title and description (section 9). The steps below are kept only in case the decision is reversed.
+
+### (archived) Subtitles (separate SRT tracks, never burned in)
 
 1. Video details > **Language: English** (needed for the source track and automatic captions).
 2. Studio > Subtitles > the video > **Add language** > Subtitles > **Add** > **Upload file** > **With timing** > Save. Repeat per language.
@@ -249,7 +251,7 @@ Decision rules are in the playbook, sections 14 and 17.
 - [ ] Chapters: >= 3, first 0:00, each >= 10 s, last start < duration.
 - [ ] 3 hashtags; 5 to 8 tags; `Ref:` last line.
 - [ ] Thumbnail readable at 168 x 94.
-- [ ] Four SRT files validated; German, Arabic and Persian localisations written.
+- [ ] German, Arabic and Persian title/description localisations written (no SRT files: decision 13).
 - [ ] No secrets visible in the video (keys, tokens, emails, license).
 - [ ] Article draft exists and embeds the video's final URL after upload.
 

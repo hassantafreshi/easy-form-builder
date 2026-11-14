@@ -30,8 +30,8 @@
 | 3 Verify | Fact-check against code and the local plugin (screenshots of every step) | `qa-report.md` §A | QA-GATES A |
 | 4 Translate | AR and DE per `TRANSLATION-WORKFLOW.md` | `article.{ar,de}.html`, `meta.{ar,de}.json` | QA-GATES C |
 | 5 Images | `tools/capture` → `tools/annotate` per `IMAGE-STYLE-GUIDE.md` (EN; de_DE and ar when feasible) | `images/*.webp` | QA-GATES D1 |
-| 6 Video | `tools/pipeline/make_video.sh` (site → capture → voice → fit → Remotion 16:9 → mux/verify) → SRT EN → SRT DE/AR/FA (`validate_srt.py`) → `youtube.md` (`templates/video/youtube-package-template.md`). Render the two videos one after the other (≈ 6.5 GB RAM each). Never call ElevenLabs twice for one script (cache by script hash); on a TTS error report and stop | `video/*`, `youtube.md` | QA-GATES D2–D5 |
-| 7 Publish | Per `PUBLISHING-WORDPRESS.md`: EN → AR → DE; status from `PUBLISH_MODE`; media, SEO meta, JSON-LD, redirects. **After every write read the meta back and compare** (`efb_jsonld`, `efb_youtube_id`, SEO title/description): the mu-plugin stores an empty string, silently, for invalid input and that can erase the previous value (`MU-PLUGIN-TEST.md` rows 5–6). `JSON.parse` the JSON-LD before sending; redirect targets are same-site paths only | post ids in CSV | — |
+| 6 Video | `tools/pipeline/make_video.sh` (site → capture → voice → fit → Remotion 16:9 → mux/verify) → `youtube.md` (no subtitles: decision 13; thumbnail + SEO title/description + localised title/description only) (`templates/video/youtube-package-template.md`). Render the two videos one after the other (≈ 6.5 GB RAM each). Never call ElevenLabs twice for one script (cache by script hash); on a TTS error report and stop | `video/*`, `thumbnail.jpg`, `youtube.md` | QA-GATES D2, D3, D5 |
+| 7 Publish | Per `PUBLISHING-WORDPRESS.md`: EN → AR → DE; status from `PUBLISH_MODE` in `pipeline/site-config.json` (`publish` since 2026-11-14, decision 14; the file wins over the environment); media, SEO meta, JSON-LD, redirects. **After every write read the meta back and compare** (`efb_jsonld`, `efb_youtube_id`, SEO title/description): the mu-plugin stores an empty string, silently, for invalid input and that can erase the previous value (`MU-PLUGIN-TEST.md` rows 5–6). `JSON.parse` the JSON-LD before sending; redirect targets are same-site paths only | post ids in CSV | — |
 | 8 Verify live | QA-GATES E on every URL | `qa-report.md` §E | QA-GATES E |
 | 9 Package | Write `youtube.md`; update CSV `status`/ids/dates | — | — |
 | 10 Video link-up (when a video appears) | Insert embed + transcript + `VideoObject` + `efb_youtube_id` into the 3 posts; bump `dateModified` | updated posts | QA-GATES E |
@@ -40,11 +40,11 @@ If a stage fails twice, mark the row `blocked:<stage>:<reason>`, keep what is sa
 
 ## 3. Daily report (Persian, ≤ 25 lines, plain language)
 
-Sections: (1) what was done (rewrite row + new row; links to the 6 posts, draft or live); (2) videos ready for YouTube (paths + `youtube.md` titles) and SRT files; (3) items needing the owner (blocked rows, decisions, uploads waiting); (4) QA highlights (failures fixed, any claim that could not be verified); (5) tomorrow's two rows; (6) credits used (ElevenLabs characters/credits) if known.
+Sections: (1) what was done (rewrite row + new row; links to the 6 posts, draft or live); (2) videos ready for YouTube (paths + `youtube.md` titles + thumbnails); (3) items needing the owner (blocked rows, decisions, uploads waiting); (4) QA highlights (failures fixed, any claim that could not be verified); (5) tomorrow's two rows; (6) credits used (ElevenLabs characters/credits) if known.
 
 ## 4. Weekly (Friday) extras
 
-- Reviewer sub-agent scores 5 random articles (QA-GATES F). Report average; if < 8/10 or ≥ 2 factual errors → set `PUBLISH_MODE=draft` and tell the owner.
+- Reviewer sub-agent scores 5 random articles (QA-GATES F). Report average; if < 8/10 or ≥ 2 factual errors → set `PUBLISH_MODE` to `draft` in `pipeline/site-config.json` (commit) and tell the owner.
 - GSC/YouTube Studio exports (if the owner provided them) → refresh priorities in the CSV.
 - Re-run `rnd/video-keywords` method for next week's rows.
 - Every plugin release: re-verify the 10 most-visited articles (QA-GATES A).
