@@ -305,7 +305,7 @@
         changed('setting', [r.id_]);
         return true;
       }
-
+      case 'sectionAccordionEl':
         L[0].section_accordion = sanitize('section_accordion', el.checked ? '1' : '0');
         changed('setting', []);
         return true;
