@@ -307,6 +307,14 @@ public function check_nonce_permission_efb($request) {
 				return new \WP_Error('rest_too_many_requests', __('Too many requests. Please try again shortly.', 'easy-form-builder'), array('status' => 429));
 			}
 			$sid = $this->efbFunction->efb_code_validate_create($fid,0,'visit',0);
+			// F14: one view per new session of a form page. Not a new view: a page that already had a session of
+			// its own here (a runtime token: it ended with a submission or expired), or the live session the page
+			// was rendered with (page_sid; the render counted it). A cached page's first session is counted here.
+			if ($sid && $fid > 0 && !$proof && class_exists('\\Emsfb\\Entries')) {
+				$page_sid_efb = $request->get_param('page_sid');
+				$page_live_efb = is_string($page_sid_efb) && preg_match('/^[A-Za-z0-9_\-]{6,40}$/', $page_sid_efb) && $this->efbFunction->efb_code_validate_check($page_sid_efb, $fid);
+				if (!$page_live_efb) \Emsfb\Entries::bump($fid, 'views');
+			}
 		} else $this->efbFunction->efb_code_touch_session($sid,$fid);
 		if (!$sid) return new \WP_Error('efb_session_storage_failed',__('The form session could not be saved.', 'easy-form-builder'),array('status'=>503));
 		$answer = array('nonce'=>$nonce->get_data()['nonce'],'sid'=>$sid,'runtime_token'=>\Emsfb\Form_Runtime::token($fid,$sid,$proof ? $proof['owner'] : '',$proof && isset($proof['t0']) ? (int) $proof['t0'] : null),'refresh_after'=>240);
@@ -1266,6 +1274,8 @@ public function check_nonce_permission_efb($request) {
 			$this->id = self::form_id_from_atts_efb($id);
 			$this->id = intval($this->id);
 			$sid = $this->efbFunction->efb_code_validate_create( $this->id , 0, 'visit' , 0);
+			// F14: one view per new session of a form page (the page's own session).
+			if ($sid && $this->id > 0 && class_exists('\\Emsfb\\Entries')) \Emsfb\Entries::bump($this->id, 'views');
 			$value_form_data = $this->get_form_data_efb($this->id, array('form_structer', 'form_type'));
 			if($value_form_data != null){
 				$typeOfForm = $value_form_data->form_type;
@@ -5475,6 +5485,8 @@ public function check_nonce_permission_efb($request) {
 		$this->verification_consume_efb();
 		$this->verification_after_insert_efb(0);
 		$track = $this->generate_track_code_efb($style_trackingCode);
+		// F14: a form that stores no entries still counts its submissions.
+		if (class_exists('\\Emsfb\\Entries')) \Emsfb\Entries::bump((int) $this->id, 'submits');
 		$this->gate_after_insert_efb(0);
 		if (class_exists('\\Emsfb\\Request_Health')) \Emsfb\Request_Health::mark_saved();
 		\Emsfb\Privacy::ledger_nostore_files($this->value);
@@ -5821,6 +5833,8 @@ public function check_nonce_permission_efb($request) {
 		$this->verification_after_insert_efb(isset($this->db->insert_id) ? (int) $this->db->insert_id : 0);
 		$this->gate_after_insert_efb(isset($this->db->insert_id) ? (int) $this->db->insert_id : 0);
 		$this->stock_after_insert_efb(isset($this->db->insert_id) ? (int) $this->db->insert_id : 0);
+		// F14: one submission of the form today (every endpoint that stores an entry comes through here).
+		if (class_exists('\\Emsfb\\Entries')) \Emsfb\Entries::bump((int) $this->id, 'submits');
 		$this->advdate_after_commit_efb($uniqid);
 		\Emsfb\Request_Health::mark_saved();
 		$this->finish_operation_efb($uniqid);

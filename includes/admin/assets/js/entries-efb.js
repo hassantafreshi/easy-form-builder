@@ -722,6 +722,51 @@
     });
   }
 
+  /* ------------------------------------------------------------------ statistics (J) */
+  /** A small line chart in SVG (views and submissions per day), with the numbers in a table for screen readers. */
+  function statsChart(series) {
+    const W0 = 640, H0 = 180, pad = 28;
+    const max = Math.max(1, ...series.map((d) => Math.max(d.views, d.submits)));
+    const x = (i) => pad + (series.length < 2 ? 0 : (i * (W0 - 2 * pad)) / (series.length - 1));
+    const y = (v) => H0 - pad - (v * (H0 - 2 * pad)) / max;
+    const line = (k) => series.map((d, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(d[k]).toFixed(1)}`).join(' ');
+    const ticks = [0, Math.ceil(max / 2), max];
+    const rtl = isRtl();
+    return `<svg class="efb efb-ent-chart" viewBox="0 0 ${W0} ${H0}" role="img" aria-labelledby="efbEntChartT" preserveAspectRatio="none" ${rtl ? 'style="transform:scaleX(-1)"' : ''}>
+      <title id="efbEntChartT">${esc(T('entViews', 'Views'))} / ${esc(T('entSubmits', 'Submissions'))}</title>
+      ${ticks.map((v) => `<line x1="${pad}" x2="${W0 - pad}" y1="${y(v)}" y2="${y(v)}" class="efb-ent-chart-grid"/>`).join('')}
+      <path d="${line('views')}" class="efb-ent-chart-views" fill="none"/>
+      <path d="${line('submits')}" class="efb-ent-chart-submits" fill="none"/>
+    </svg>
+    <div class="efb efb-ent-chart-legend"><span class="efb-ent-lg efb-ent-lg-views"></span> ${esc(T('entViews', 'Views'))} <span class="efb-ent-lg efb-ent-lg-submits"></span> ${esc(T('entSubmits', 'Submissions'))} · <bdi>${num(0)}</bdi>–<bdi>${num(max)}</bdi></div>
+    <table class="efb visually-hidden"><caption>${esc(T('entStats', 'Statistics'))}</caption><thead><tr><th scope="col">${esc(T('ddate', 'Date'))}</th><th scope="col">${esc(T('entViews', 'Views'))}</th><th scope="col">${esc(T('entSubmits', 'Submissions'))}</th></tr></thead>
+    <tbody>${series.map((d) => `<tr><th scope="row">${esc(digits(d.day))}</th><td>${num(d.views)}</td><td>${num(d.submits)}</td></tr>`).join('')}</tbody></table>`;
+  }
+  function statsHtml(st) {
+    const tile = (k, fb, v, cls) => `<div class="efb efb-ent-tile ${cls || ''}"><div class="efb efb-ent-tile-v"><bdi>${v}</bdi></div><div class="efb efb-ent-tile-l">${esc(T(k, fb))}</div></div>`;
+    const conv = st.conversion === null || st.conversion === undefined ? '—' : `${num(st.conversion)}%`;
+    return `<div class="efb efb-ent-stats-head"><h3 class="efb fs-6 m-0" id="efbEntStatsT">${esc(T('entStats', 'Statistics'))}</h3>
+      <div class="efb btn-group" role="group" aria-label="${esc(T('entStats', 'Statistics'))}">${[7, 30, 90].map((d) => `<button type="button" class="efb btn btn-sm ${d === st.days ? 'btn-primary' : 'btn-outline-secondary'}" data-ent="stats-days" data-days="${d}" aria-pressed="${d === st.days}">${fill(T('entDays', 'Last %s days'), [num(d)])}</button>`).join('')}</div></div>
+      <div class="efb efb-ent-tiles">${tile('entViews', 'Views', st.has_views ? num(st.totals.views) : esc(T('entNoStatsYet', 'No data yet')))}${tile('entSubmits', 'Submissions', num(st.totals.submits))}${tile('entConv', 'Conversion rate', conv)}${tile('entUnread', 'Unread', num(st.unread))}${tile('entSpam', 'Spam', num(st.spam_now))}</div>
+      ${statsChart(st.series)}
+      <p class="efb small text-muted mb-0">${esc(T('entStatsHelp', 'Views count each new visit session of the form page.'))}</p>`;
+  }
+  function statsToggle(btn, days) {
+    if (!gate('stats', btn)) return;
+    let box = D.getElementById('efbEntStats');
+    if (box && !days) { box.remove(); S.statsOpen = false; btn.setAttribute('aria-expanded', 'false'); return; }
+    S.statsOpen = true;
+    post({ action: 'efb_form_stats_Emsfb', form_id: S.fid, days: days || S.statsDays || 30 }).then((res) => {
+      if (!res || res.success !== true) { if (res && res.code === 'efb_plan_required') gate('stats', btn); return; }
+      S.statsDays = res.days;
+      if (!box) { box = D.createElement('section'); box.id = 'efbEntStats'; box.className = 'efb efb-ent-stats'; box.setAttribute('aria-labelledby', 'efbEntStatsT'); const tabs = D.querySelector('#efbEnt .efb-ent-tabs'); if (tabs) tabs.parentNode.insertBefore(box, tabs); }
+      box.innerHTML = statsHtml(res);
+      const hb = D.querySelector('#efbEnt [data-ent="stats"]');
+      if (hb) hb.setAttribute('aria-expanded', 'true');
+      if (days) { const b = box.querySelector(`[data-days="${days}"]`); if (b) b.focus(); }
+    });
+  }
+
   /* ------------------------------------------------------------------ print (I) */
   /**
    * Prints entries (at most 50): each through the response viewer's own renderer, one per page, with its notes
@@ -1066,7 +1111,7 @@
     S.fid = Number(fid);
     S.formType = formType || getGlobal('form_type_emsFormBuilder') || 'form';
     S.page = 1; S.tab = 'all'; S.from = ''; S.to = ''; S.q = ''; S.conds = []; S.sort = 'date_desc';
-    S.fields = null; S.cols = []; S.selected = new Set(); S.allMatching = false; S.rows = []; S.counts = {};
+    S.fields = null; S.cols = []; S.selected = new Set(); S.allMatching = false; S.rows = []; S.counts = {}; S.statsOpen = false;
     S.per_page = [20, 50, 100].includes(Number(cfg().per_page)) ? Number(cfg().per_page) : 20;
     setGlobal('form_ID_emsFormBuilder', S.fid);
     restoreState();
@@ -1074,7 +1119,7 @@
   }
 
   W.EfbEntries = Object.assign(W.EfbEntries || {}, {
-    state: S, openForm, load, paint, op, open, star, dialog, closeDialog, post, toast, announce, gate, planOk, viewerRepaint, viewerSay, historyLine, ago, cur, refreshExtras, printEntries,
+    state: S, openForm, load, paint, op, open, star, dialog, closeDialog, post, toast, announce, gate, planOk, viewerRepaint, viewerSay, historyLine, ago, cur, refreshExtras, printEntries, statsHtml,
     rowsOf, valueOf, digits, latin, num, fill, esc, T, isRtl,
     renderHead, renderRow, renderAll, renderPager, renderTabs, renderFilters,
     headButtons: (W.EfbEntries && W.EfbEntries.headButtons) || [],
@@ -1104,6 +1149,15 @@
     W.EfbEntries.actions['print-sel'] = (el) => printDialog(null, el);
   }
   W.efb_print_entries_efb = (ids, withNotes) => printEntries(ids, !!withNotes);
+
+  /* J: the form's statistics (Free Plus) above the tabs. */
+  if (!W.EfbEntries.actions.stats) {
+    const sb = () => `<button type="button" class="efb btn btn-sm btn-outline-secondary" data-ent="stats" aria-expanded="${S.statsOpen ? 'true' : 'false'}" aria-controls="efbEntStats">${icon('bi-graph-up')} <span>${esc(T('entStats', 'Statistics'))}</span>${planOk('stats') ? '' : ' ' + icon('bi-gem')}</button>`;
+    W.EfbEntries.headButtons.push(sb);
+    W.EfbEntries.actions.stats = (el) => statsToggle(el, 0);
+    W.EfbEntries.actions['stats-days'] = (el) => statsToggle(el, Number(el.dataset.days));
+    W.EfbEntries.afterPaint.push(() => { if (S.statsOpen && !D.getElementById('efbEntStats')) { const b = D.querySelector('#efbEnt [data-ent="stats"]'); if (b) statsToggle(b, S.statsDays || 30); } });
+  }
 
   /* The renderers by the names of the spec (§6). */
   W.efb_entries_render_head_efb = renderHead;

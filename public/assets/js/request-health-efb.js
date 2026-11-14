@@ -110,7 +110,8 @@
         response=await fetch(efb_request_health.rest_url+'forms/session/prepare', {
           method:'POST', credentials:'same-origin', cache:'no-store',
           headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({form_id:fid,runtime_token:context.value ? context.value.runtime_token : ''}),
+          // F14: page_sid = the session the page was drawn with, so the server counts one view per page, not two.
+          body:JSON.stringify({form_id:fid,runtime_token:context.value ? context.value.runtime_token : '',page_sid:context.value ? '' : legacy(fid,{}).sid}),
           signal:timeout(12000)
         });
         value=await response.json();

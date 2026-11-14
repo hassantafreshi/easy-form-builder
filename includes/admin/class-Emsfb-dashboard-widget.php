@@ -62,6 +62,7 @@ class Dashboard_Widget {
             'close', 'subject', 'loading', 'ddate', 'total',
             'dwVisits', 'dwSubmissions', 'dwEmailsSent', 'dwEmailsFailed',
             'dwEmailErrors', 'dwRecipient', 'dwErrorDetail', 'dwNoData',
+            'entTopForms', 'entViews', 'entSubmits', 'entConv', 'form',
         ];
         $lang = $efbFunction->text_efb($text_keys);
 
@@ -128,6 +129,13 @@ class Dashboard_Widget {
             </div>
             <div class="efb-dw-chart-wrap">
                 <canvas id="efb-dw-chart" height="200"></canvas>
+            </div>
+            <div class="efb-dw-top" id="efb-dw-top" hidden>
+                <h3 class="efb-dw-top-title" id="efb-dw-top-title"></h3>
+                <table class="efb-dw-top-table" aria-labelledby="efb-dw-top-title">
+                    <thead><tr><th scope="col" id="efb-dw-top-h-form"></th><th scope="col" id="efb-dw-top-h-views"></th><th scope="col" id="efb-dw-top-h-sub"></th><th scope="col" id="efb-dw-top-h-conv"></th></tr></thead>
+                    <tbody id="efb-dw-top-list"></tbody>
+                </table>
             </div>
             <div id="efb-dw-email-errors-panel" class="efb-dw-errors-panel" style="display:none;">
                 <div class="efb-dw-errors-header">
@@ -235,7 +243,11 @@ class Dashboard_Widget {
         require_once EMSFB_PLUGIN_DIRECTORY . 'includes/class-email-handler.php';
         $email_stats = \EmsfbEmailHandler::get_email_stats($period);
 
+        // F14: the forms with the most views of the period, from the per-form daily counts (emsfb_stats_).
+        $top_forms = class_exists('\Emsfb\Entries') ? \Emsfb\Entries::top_forms(substr($since, 0, 10), 5) : [];
+
         wp_send_json_success([
+            'top_forms'   => $top_forms,
             'visits'      => $visits,
             'submissions' => $submissions,
             'email_ok'    => $email_stats['success'],

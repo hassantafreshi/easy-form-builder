@@ -20,6 +20,9 @@
  *        selection bar, and Free: XLSX opens the plan dialog.
  *  f14i  Print (I): three selected entries in one document, one per page (break after each section, print media),
  *        notes only with "Include notes"; one entry from the viewer; fa_IR right to left; more than 50 refused.
+ *  f14j  Statistics (J): two guests open the form page (two views), one sends it (one submission); the Statistics
+ *        panel (tiles, conversion 50 %, 7 / 30 / 90 days, the chart and its table); Free opens the plan dialog;
+ *        the dashboard widget's "Top forms"; fa_IR at 375 px.
  */
 'use strict';
 
@@ -431,6 +434,74 @@ module.exports = function (S) {
       await pw.screenshot({ path: SHOT('f14i-print-fa_IR'), fullPage: true });
       R.check('f14i: fa_IR: the print document is right to left', d.dir === 'rtl' && d.body === 'rtl', d);
       await pw.close();
+    } finally { ctl('locale', ''); }
+  });
+
+  /* ------------------------------------------------------------------ f14j */
+  scenario('f14j', 'F14 statistics: views per new session, a submission, the panel (tiles, conversion, periods, chart), Free gate, dashboard top forms, fa_IR 375 px', async ({ adminPage, context }) => {
+    plan(3);
+    ctl('locale', '');
+    const F = form('F14 e2e stats', [{ key: 'nm', type: 'text', name: 'Name' }]);
+    const url = ctl('page', String(F.form_id)).url;
+    const today = (ctl('f06-today') || {}).today || new Date().toISOString().slice(0, 10);
+    const day = () => (ctl('f14-stats', String(F.form_id)) || []).find((r) => String(r.day).slice(0, 10) === today) || { views: 0, submits: 0 };
+    const visit = async (label) => {
+      const g = await (await context({}, label)).newPage();
+      await g.goto(url, { waitUntil: 'load' });
+      await g.waitForSelector('[id^="body_efb_"]', { state: 'attached', timeout: 20000 });
+      await g.waitForFunction(() => typeof sendBack_emsFormBuilder_pub !== 'undefined', null, { timeout: 20000 });
+      await sleep(1200);
+      return g;
+    };
+    const g1 = await visit('f14j-g1');
+    let d = day();
+    R.check('f14j: one guest opens the page → 1 view today (the page session and its prepare count once)', Number(d.views) === 1 && Number(d.submits) === 0, d);
+    await visit('f14j-g2');
+    d = day();
+    R.check('f14j: a second guest → 2 views', Number(d.views) === 2, d);
+    await g1.fill(`[id="${F.ids.nm}_"]`, 'Stat Person');
+    await g1.press(`[id="${F.ids.nm}_"]`, 'Tab');
+    const resp = g1.waitForResponse((x) => /forms\/message\/add|forms%2Fmessage%2Fadd/.test(x.url()), { timeout: 30000 }).catch(() => null);
+    await g1.click('#btn_send_efb');
+    await resp;
+    await sleep(1200);
+    d = day();
+    R.check('f14j: the first guest sends → 1 submission, still 2 views', Number(d.submits) === 1 && Number(d.views) === 2, d);
+    const admin = await adminPage();
+    await openList(admin, F.form_id);
+    await admin.click('#efbEnt [data-ent="stats"]');
+    await admin.waitForSelector('#efbEntStats .efb-ent-tile', { timeout: 15000 });
+    let v = await admin.evaluate(() => ({ tiles: Array.from(document.querySelectorAll('#efbEntStats .efb-ent-tile')).map((x) => x.querySelector('.efb-ent-tile-v').textContent.trim() + '|' + x.querySelector('.efb-ent-tile-l').textContent.trim()), exp: document.querySelector('#efbEnt [data-ent="stats"]').getAttribute('aria-expanded'), svg: !!document.querySelector('#efbEntStats svg[role="img"] path.efb-ent-chart-submits'), rows: document.querySelectorAll('#efbEntStats table tbody tr').length, pressed: (document.querySelector('#efbEntStats [aria-pressed="true"]') || {}).textContent }));
+    R.check('f14j: the panel: Views 2, Submissions 1, Conversion rate 50%, Unread 1, Spam 0; aria-expanded; a 30-day chart with its table', v.tiles.join(',') === '2|Views,1|Submissions,50%|Conversion rate,1|Unread,0|Spam' && v.exp === 'true' && v.svg && v.rows === 30 && /30/.test(v.pressed), v);
+    await admin.click('#efbEntStats [data-days="7"]');
+    await admin.waitForFunction(() => document.querySelectorAll('#efbEntStats table tbody tr').length === 7, null, { timeout: 10000 });
+    R.check('f14j: "Last 7 days" → 7 days in the chart', true, true);
+    await admin.screenshot({ path: SHOT('f14j-stats-en-1280') });
+    // The dashboard widget's top forms.
+    await admin.goto(CFG.base + '/wp-admin/index.php', { waitUntil: 'load' });
+    await admin.waitForSelector('#efb-dw-top:not([hidden])', { timeout: 20000 }).catch(() => null);
+    v = await admin.evaluate(() => { const box = document.getElementById('efb-dw-top'); return box ? { shown: !box.hidden, rows: Array.from(box.querySelectorAll('tbody tr')).map((r) => r.querySelectorAll('td').length), title: box.querySelector('h3').textContent } : null; });
+    R.check('f14j: the dashboard widget shows "Top forms" (at most 5, form / views / submissions / rate)', !!v && v.shown && v.rows.length >= 1 && v.rows.length <= 5 && v.rows.every((n) => n === 4) && /Top forms/.test(v.title), v);
+    await (await admin.$('#efb_stats_dashboard_widget')).screenshot({ path: SHOT('f14j-dashboard-top-forms') }).catch(() => {});
+    // Free: the plan dialog.
+    plan(2);
+    try {
+      const free = await adminPage({}, 'admin-free-stats');
+      await openList(free, F.form_id);
+      await free.click('#efbEnt [data-ent="stats"]');
+      await sleep(800);
+      v = await free.evaluate(() => ({ dlg: !!document.querySelector('#settingModalEfb.show .efb-upg'), panel: !!document.getElementById('efbEntStats') }));
+      R.check('f14j: on Free, Statistics opens the plan dialog (Free Plus), no panel', v.dlg && !v.panel, v);
+    } finally { plan(3); }
+    ctl('locale', 'fa_IR');
+    try {
+      const fa = await adminPage({ viewport: { width: 375, height: 800 } }, 'admin-fa-stats');
+      await openList(fa, F.form_id);
+      await fa.click('#efbEnt [data-ent="stats"]');
+      await fa.waitForSelector('#efbEntStats .efb-ent-tile', { timeout: 15000 });
+      v = await fa.evaluate(() => ({ dir: getComputedStyle(document.getElementById('efbEntStats')).direction, conv: document.querySelectorAll('#efbEntStats .efb-ent-tile-v')[2].textContent.trim(), scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth }));
+      await (await fa.$('#efbEntStats')).screenshot({ path: SHOT('f14j-stats-fa_IR-375') });
+      R.check('f14j: fa_IR at 375 px: right to left, the rate in Persian digits (۵۰%), no horizontal scroll', v.dir === 'rtl' && /۵۰/.test(v.conv) && v.scroll <= 1, v);
     } finally { ctl('locale', ''); }
   });
 

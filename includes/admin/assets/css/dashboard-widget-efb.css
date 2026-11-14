@@ -52,3 +52,12 @@
 
 /* RTL */
 [dir="rtl"] .efb-dw-errors-header .dashicons{margin-inline-start:4px;margin-inline-end:0}
+
+/* F14: top forms of the period. */
+.efb-dw-top { margin-top: 12px; }
+.efb-dw-top[hidden] { display: none; }
+.efb-dw-top-title { font-size: 13px; margin: 0 0 6px; }
+.efb-dw-top-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.efb-dw-top-table th, .efb-dw-top-table td { padding: 4px 6px; border-bottom: 1px solid #f0f0f1; text-align: start; }
+.efb-dw-top-table td:not(:first-child), .efb-dw-top-table th:not(:first-child) { text-align: end; white-space: nowrap; }
+.efb-dw-top-table bdi { unicode-bidi: isolate; }

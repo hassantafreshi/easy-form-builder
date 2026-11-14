@@ -94,10 +94,31 @@
       animateNumber('#efb-dw-email-fail', d.email_fail);
       chartData = d.chart;
       drawChart();
+      renderTopForms(d.top_forms || []);
     }).fail(function () {
       if (requestId !== statsRequestId) return;
       showLoading(false);
     });
+  }
+
+  /* F14: "Top forms" of the period (views, submissions, conversion rate; "—" without views). */
+  function renderTopForms(list) {
+    var box = document.getElementById('efb-dw-top');
+    if (!box) return;
+    if (!list.length) { box.hidden = true; return; }
+    var loc = String(document.documentElement.lang || 'en').replace('_', '-');
+    var n = function (v) { try { return Number(v).toLocaleString(loc); } catch (e) { return String(v); } };
+    $('#efb-dw-top-title').text(t.entTopForms || 'Top forms');
+    $('#efb-dw-top-h-form').text(t.form || 'Form');
+    $('#efb-dw-top-h-views').text(t.entViews || 'Views');
+    $('#efb-dw-top-h-sub').text(t.entSubmits || 'Submissions');
+    $('#efb-dw-top-h-conv').text(t.entConv || 'Conversion rate');
+    var html = '';
+    list.forEach(function (f) {
+      html += '<tr><td><bdi>' + escHtml(f.name) + '</bdi></td><td>' + n(f.views) + '</td><td>' + n(f.submits) + '</td><td>' + (f.conversion === null ? '—' : n(f.conversion) + '%') + '</td></tr>';
+    });
+    $('#efb-dw-top-list').html(html);
+    box.hidden = false;
   }
 
   function loadEmailErrors(period) {

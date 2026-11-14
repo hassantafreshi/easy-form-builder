@@ -121,3 +121,20 @@
 .efb-ent-dlg .form-check-label { margin: 0; }
 .efb-ent-xcols .efb-ent-colitem { justify-content: flex-start; }
 .efb-ent-dlg .efb-ent-sublabel { font-size: .85rem; color: #64748b; margin: 6px 0 2px; }
+
+/* Statistics (J). */
+.efb-ent-stats { border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-bottom: 10px; background: #fff; }
+.efb-ent-stats-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+.efb-ent-stats-head .btn { min-height: 36px; }
+.efb-ent-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; margin-bottom: 8px; }
+.efb-ent-tile { background: #f8fafc; border-radius: 10px; padding: 8px 10px; }
+.efb-ent-tile-v { font-size: 1.25rem; font-weight: 700; unicode-bidi: plaintext; }
+.efb-ent-tile-l { font-size: .8rem; color: #64748b; }
+.efb-ent-chart { width: 100%; height: 180px; display: block; }
+.efb-ent-chart-grid { stroke: #e2e8f0; stroke-width: 1; }
+.efb-ent-chart-views { stroke: #94a3b8; stroke-width: 2; }
+.efb-ent-chart-submits { stroke: #4636f1; stroke-width: 2.5; }
+.efb-ent-chart-legend { font-size: .8rem; color: #64748b; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; unicode-bidi: plaintext; }
+.efb-ent-lg { display: inline-block; width: 14px; height: 3px; border-radius: 2px; }
+.efb-ent-lg-views { background: #94a3b8; }
+.efb-ent-lg-submits { background: #4636f1; }

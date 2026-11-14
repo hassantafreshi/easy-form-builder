@@ -64,6 +64,7 @@ class Entries {
 		add_action('wp_ajax_efb_entries_export_check_Emsfb', array(__CLASS__, 'ajax_export_check'));
 		add_action('admin_post_efb_export_entries', array(__CLASS__, 'admin_post_export'));
 		add_action('wp_ajax_efb_entries_print_Emsfb', array(__CLASS__, 'ajax_print'));
+		add_action('wp_ajax_efb_form_stats_Emsfb', array(__CLASS__, 'ajax_stats'));
 		// Notes and history go with the entry (every permanent delete path of F13).
 		add_action('efb_entries_purged', array(__CLASS__, 'on_entries_purged'), 15, 4);
 		// The trash is emptied after trash_days by the daily job, after F13's retention (30).
@@ -1518,6 +1519,64 @@ class Entries {
 		}
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, column from the allow-list above
 		return (bool) $wpdb->query($wpdb->prepare("UPDATE `{$t}` SET `{$col}` = CASE WHEN `{$col}` > %d THEN `{$col}` - %d ELSE 0 END WHERE form_id = %d AND day = %s", -$n, -$n, $form_id, $day));
+	}
+
+	/**
+	 * A form's statistics for the last $days days (7, 30 or 90), site days: a row per day (views, submits, spam,
+	 * missing days as 0), the totals, the conversion rate (submits ÷ views; null when there are no views), and
+	 * whether any view was counted at all (before the first counted session the screen says "No data yet").
+	 */
+	public static function stats($form_id, $days = 30) {
+		global $wpdb;
+		$days = in_array((int) $days, array(7, 30, 90), true) ? (int) $days : 30;
+		$t = $wpdb->prefix . self::STATS;
+		// Site days (the counts are kept per site day): from today back, by calendar date.
+		$day = function ($n) { $d = \DateTime::createFromFormat('!Y-m-d', self::today(), new \DateTimeZone('UTC')); $d->modify('-' . (int) $n . ' days'); return $d->format('Y-m-d'); };
+		$from = $day($days - 1);
+		$by = array();
+		if (self::ready()) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+			foreach ((array) $wpdb->get_results($wpdb->prepare("SELECT day, views, submits, spam FROM `{$t}` WHERE form_id = %d AND day >= %s ORDER BY day ASC", (int) $form_id, $from), ARRAY_A) as $r) {
+				$by[substr((string) $r['day'], 0, 10)] = array((int) $r['views'], (int) $r['submits'], (int) $r['spam']);
+			}
+		}
+		$series = array();
+		$tot = array('views' => 0, 'submits' => 0, 'spam' => 0);
+		for ($i = $days - 1; $i >= 0; $i--) {
+			$d = $day($i);
+			$v = isset($by[$d]) ? $by[$d] : array(0, 0, 0);
+			$series[] = array('day' => $d, 'views' => $v[0], 'submits' => $v[1], 'spam' => $v[2]);
+			$tot['views'] += $v[0]; $tot['submits'] += $v[1]; $tot['spam'] += $v[2];
+		}
+		return array('days' => $days, 'series' => $series, 'totals' => $tot,
+			'conversion' => $tot['views'] > 0 ? round(100 * $tot['submits'] / $tot['views'], 1) : null, 'has_views' => $tot['views'] > 0);
+	}
+
+	/** The forms with the most views since $from (Y-m-d), with their submissions and conversion rate. */
+	public static function top_forms($from, $limit = 5) {
+		global $wpdb;
+		if (!self::ready()) return array();
+		$t = $wpdb->prefix . self::STATS;
+		$f = $wpdb->prefix . 'emsfb_form';
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- tables from $wpdb->prefix
+		$rows = $wpdb->get_results($wpdb->prepare("SELECT s.form_id, f.form_name, SUM(s.views) AS views, SUM(s.submits) AS submits FROM `{$t}` s LEFT JOIN `{$f}` f ON f.form_id = s.form_id WHERE s.day >= %s GROUP BY s.form_id, f.form_name ORDER BY views DESC, submits DESC LIMIT %d", (string) $from, max(1, (int) $limit)), ARRAY_A);
+		$out = array();
+		foreach ((array) $rows as $r) {
+			if ($r['form_name'] === null) continue; // a form that was deleted
+			$v = (int) $r['views']; $s = (int) $r['submits'];
+			$out[] = array('form_id' => (int) $r['form_id'], 'name' => (string) $r['form_name'], 'views' => $v, 'submits' => $s, 'conversion' => $v > 0 ? round(100 * $s / $v, 1) : null);
+		}
+		return $out;
+	}
+
+	/** AJAX efb_form_stats_Emsfb: one form's statistics (Free Plus), with its unread and spam counts. */
+	public static function ajax_stats() {
+		self::guard();
+		if (!self::plan_ok('stats')) wp_send_json_success(self::plan_error('stats'), 200);
+		$fid = absint(self::post('form_id'));
+		if ($fid <= 0) wp_send_json_success(array('success' => false, 'code' => 'efb_invalid'), 200);
+		$c = self::counts($fid);
+		wp_send_json_success(array_merge(array('success' => true, 'unread' => $c['unread'], 'spam_now' => $c['spam']), self::stats($fid, (int) self::post('days'))), 200);
 	}
 
 	/**
