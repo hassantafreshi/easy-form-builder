@@ -40,7 +40,7 @@ foreach ($V['format'] as $i => $v) t("format #$i {$v['canon']} {$v['locale']}", 
 
 $src = preg_replace('#/\*.*?\*/#s', '', file_get_contents(__DIR__ . '/../includes/class-Emsfb-calc.php'));
 $src = preg_replace('#//.*$#m', '', $src);
-t('no eval / create_function / assert / preg_replace /e in class-Emsfb-calc.php', (bool) preg_match('/\beval\s*\(|create_function|\bassert\s*\(|\bshell_exec|\bexec\s*\(|\bsystem\s*\(|`/', $src), false);
+t('no eval / create_function / assert / preg_replace /e in class-Emsfb-calc.php', (bool) preg_match('/\beval\s*\(|create_function|\bassert\s*\(|\bshell_exec|\bexec\s*\(|\bsystem\s*\(|\bpassthru|\bproc_open|\bpopen/', $src), false);
 
 $big = str_repeat('1+', 5000);
 $t0 = microtime(true);

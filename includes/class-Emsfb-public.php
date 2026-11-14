@@ -3786,6 +3786,8 @@ public function check_nonce_permission_efb($request) {
 											$num_efb['row']['value'] = sanitize_text_field((string) $num_efb['row']['value']);
 											$validated_item = $this->filter_attributes_by_type_efb($num_efb['row'], $f['type']);
 											$is_valid = is_array($validated_item) ? 1 : 0;
+											// The display of an F04 number (e-mail, viewer): the server's own, never the browser's.
+											if (is_array($validated_item)) $validated_item = \Emsfb\Calc::with_display($validated_item, $f, isset($form_fields_array[0]) ? $form_fields_array[0] : null);
 										} else {
 											$error_message = $num_efb['m'];
 											$error_field_id = isset($f['id_']) ? $f['id_'] : '';
@@ -9324,6 +9326,13 @@ public function check_nonce_permission_efb($request) {
 					$q .= ' <small>(' . $this->email_escape_leaf_efb(rtrim(str_replace('@efb!', ', ', (string) $c['ov']), ', ')) . ')</small>';
 				}
 
+				// F04: a number, slider or calc result with its display (disp, written by the server from the field's
+				// format: separators, local digits, affixes, currency); the number is isolated so a currency or a
+				// suffix next to it never flips in a right-to-left mail client.
+				if (isset($c['type']) && in_array($c['type'], array('number', 'range', 'calc'), true) && isset($c['disp']) && is_string($c['disp']) && $c['disp'] !== '') {
+					$addPair($title, '<b style="unicode-bidi:plaintext"><span dir="auto" style="unicode-bidi:isolate">' . $this->email_escape_leaf_efb($c['disp']) . '</span></b>');
+					continue;
+				}
 				// F06: an advanced date as Settings > "Date display for admins" says (the site calendar and the
 				// ISO date by default); the ISO part keeps its order in right-to-left mail clients.
 				if (isset($c['type']) && $c['type']==='advdate' && class_exists('\\Emsfb\\Calendar')){

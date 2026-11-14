@@ -1054,6 +1054,14 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       if (advIso && advText.indexOf('(' + advIso + ')') !== -1) advHtml = advText.replace('(' + advIso + ')', `<bdi dir="ltr">(${advIso})</bdi>`);
       value = `<bdi class="efb efb-msg-date" data-type="advdate" title="${advTip.replace(/"/g, '&quot;')}">${advHtml}</bdi>`;
       m += `<div class="efb efb-msg-field-row"><span class="efb-msg-field-label"><i class="bi bi-calendar-date"></i> ${title}:</span> <span class="efb-msg-field-value">${value}</span></div>`;
+    } else if ((c.type == "number" || c.type == "calc" || c.type == "range") && typeof c.disp === 'string' && c.disp !== '') {
+      /* F04: the number as the field shows it (disp, the server's own text: separators, local digits, affixes,
+         currency), isolated so an affix never flips on a right-to-left page; the stored number in the tooltip.
+         The row is escaped already. */
+      s = true;
+      const numTitle = c.hasOwnProperty('name') ? c.name : '';
+      value = `<bdi class="efb efb-msg-num" dir="auto" data-csv="${String(c.value).replace(/"/g, '&quot;')}" title="${String(c.value).replace(/"/g, '&quot;')}">${c.disp}</bdi>`;
+      m += `<div class="efb efb-msg-field-row" data-type="${c.type}"><span class="efb-msg-field-label">${numTitle}:</span> <span class="efb-msg-field-value">${value}</span></div>`;
     } else if (c.type == "color") {
       let title = c.hasOwnProperty('name') ? c.name.toLowerCase() :'';
       title = efb_var.text[title] || c.name ;

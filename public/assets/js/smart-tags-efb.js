@@ -428,6 +428,8 @@
       v = String(v);
       if (v === '@file@') v = str(r.fnm);
       v = v.replace(/@efb@dq#/g, '"').replace(/@n#/g, ' ');
+      // F04: a formatted number or a calc result reads as the field shows it (disp; the server writes its own).
+      if (typeof r.disp === 'string' && r.disp !== '' && inArr(['number', 'calc', 'range'], type)) v = r.disp;
       if (v.indexOf('@efb!') !== -1) { vals[id] = v.split('@efb!').map(function (x) { return x.trim(); }).filter(Boolean); return; }
       if (/checkbox/i.test(type) || Array.isArray(vals[id])) { if (!Array.isArray(vals[id])) vals[id] = vals[id] ? [vals[id]] : []; if (v !== '') vals[id].push(v); return; }
       vals[id] = v;

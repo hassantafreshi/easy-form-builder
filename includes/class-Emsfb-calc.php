@@ -752,6 +752,7 @@ final class Calc {
 		$form0 = self::f($form0);
 		$code = isset($form0['currency']) && is_string($form0['currency']) ? trim($form0['currency']) : '';
 		if ($code === '') $code = 'USD';
+		if (!class_exists('\\Emsfb\\Formbuilder') && is_readable(__DIR__ . '/class-Emsfb-formbuilder.php')) require_once __DIR__ . '/class-Emsfb-formbuilder.php';
 		if (class_exists('\\Emsfb\\Formbuilder') && method_exists('\\Emsfb\\Formbuilder', 'get_currency_details_efb')) {
 			$d = \Emsfb\Formbuilder::get_currency_details_efb($code);
 			if (is_array($d) && isset($d['s'])) return array('s' => (string) $d['s'], 'd' => isset($d['d']) ? (int) $d['d'] : 2);
@@ -825,6 +826,25 @@ final class Calc {
 		}
 		$item['value'] = $canon;
 		return array('ok' => true, 'row' => $item, 'm' => '', 'code' => '');
+	}
+
+	/** The display text of a stored value of a field ('' when it is shown as stored). "lo – hi" for a two-handle slider. */
+	public static function display($f, $value, $form0 = null) {
+		$f = self::f($f);
+		if (!self::is_f4($f) && !(isset($f['type']) && $f['type'] === 'calc') && !(isset($f['range_mode']) && $f['range_mode'] === 'dual')) return '';
+		$cfg = self::field_config($f, $form0);
+		$v = is_scalar($value) ? (string) $value : '';
+		$r = self::split_range($v);
+		$out = $r ? self::format($r['lo'], $cfg) . ' – ' . self::format($r['hi'], $cfg) : self::format($v, $cfg);
+		return $out === $v ? '' : $out;
+	}
+
+	/** A validated row with disp (the server's display text) when the field formats its numbers; never a browser's disp. */
+	public static function with_display(array $row, $f, $form0 = null) {
+		unset($row['disp']);
+		$d = self::display($f, isset($row['value']) ? $row['value'] : '', $form0);
+		if ($d !== '') $row['disp'] = $d;
+		return $row;
 	}
 
 	/**

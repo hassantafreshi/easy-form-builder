@@ -4503,6 +4503,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
   // F01: a masked field is checked by the mask engine instead of the length / phone rules, and the
   // value kept for the entry is the stored form (canonical, or as displayed when the field says so).
   const mask_fd_efb = (el.type === 'text' || el.type === 'tel') ? efb_mask_fd_efb(el) : null;
+  let num_disp_efb = '';
   if (mask_fd_efb) {
     if (EfbMasks.normalize(el.value, {}) === '') { el_empty_value(id_); return; }
     const mr = EfbMasks.fieldCheck(mask_fd_efb, el.value);
@@ -4530,6 +4531,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       return;
     }
     value = nr.canon;
+    num_disp_efb = window.EFBCalc.format(nr.canon, window.EFBCalc.cfgOf(el) || {});
     state = true;
     el.className = colorBorderChangerEfb(el.className, "border-success");
     hide_msg_efb(document.getElementById(`${el.id}-message`));
@@ -4750,6 +4752,8 @@ async function handle_change_event_efb_v4(el ,form_id=0){
     const type = ob.type;
     const id_ob = ob.type != "paySelect" ? el.id : selected_option_id_efb(el);
     let o = [{ id_: id_, name: ob.name, id_ob: id_ob, amount: ob.amount, type: type, value: value, session: sessionPub_emsFormBuilder,form_id:  form_id }];
+    // F04: the display of a formatted number, for answer piping in the page (the server writes its own).
+    if (num_disp_efb !== '' && num_disp_efb !== value) o[0].disp = num_disp_efb;
      sendback_state_handler_efb_v4(id_,true,0,form_id);
     if (el.classList.contains('payefb')) {
       let q = valueJson_ws.find(x => x.id_ === el.id);

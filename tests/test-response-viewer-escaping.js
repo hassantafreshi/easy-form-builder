@@ -146,6 +146,17 @@ console.log('\n=== F05: stored values (ov), "Other" and rankings in the viewer a
   t('CSV: a stored value that is a formula is still neutralised by the exporter', csvEscape_EFB(conv2({ type: 'radio', value: 'x', ov: '=HYPERLINK("e")' }, 'value').value).indexOf("'=") !== -1);
 }
 
+console.log('\n=== F04: a formatted number (disp) in the viewer and the CSV ===');
+{
+  // The number branch prints c.disp of the escaped tree inside <bdi dir="auto">, the canonical value in data-csv.
+  const tree4 = escResponseTreeEfb([{ type: 'number', name: 'Amount', value: '1250000', disp: '<img src=x onerror=alert(1)>$1,250,000' }, { type: 'calc', name: 'Total', value: '-12', disp: '-۱۲ تومان' }]);
+  t('F04: a hostile prefix in disp stays text', tree4[0].disp.indexOf('<img') === -1 && tree4[0].disp.indexOf('&lt;img') !== -1);
+  const branch = src.match(/else if \(\(c\.type == "number" \|\| c\.type == "calc" \|\| c\.type == "range"\) && typeof c\.disp === 'string'[\s\S]*?m \+= `[^`]*`;/);
+  t('F04: the viewer branch for number / calc / range exists', !!branch);
+  t('F04: the display is isolated (bdi dir=auto) and the CSV gets the canonical number (data-csv)', !!branch && /<bdi class="efb efb-msg-num" dir="auto" data-csv="\$\{String\(c\.value\)/.test(branch[0]));
+  t('F04: a negative canonical number is not prefixed in the CSV', csvEscape_EFB('-12') === '-12' && csvEscape_EFB('1250000.5') === '1250000.5');
+}
+
 console.log('\n========================================');
 console.log(`RESULTS: ${pass} passed, ${fail} failed`);
 console.log('========================================');

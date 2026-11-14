@@ -793,6 +793,8 @@ class Smart_Tags {
 			if (!is_array($r) || !isset($r['id_']) || !is_scalar($r['id_'])) continue;
 			$id = (string) $r['id_'];
 			if (!empty($r['other']) && isset($r['value']) && is_scalar($r['value'])) { $out[$id][] = (string) $r['value']; continue; }
+			// F04: {field:id.value} of a formatted number or a calc result is the plain number (the label form is disp).
+			if (isset($r['disp']) && is_string($r['disp']) && $r['disp'] !== '' && isset($r['value']) && is_scalar($r['value']) && in_array($r['type'] ?? '', array('number', 'calc', 'range'), true)) { $out[$id] = array((string) $r['value']); continue; }
 			if (!isset($r['ov']) || !is_scalar($r['ov']) || (string) $r['ov'] === '') continue;
 			foreach (array_filter(explode('@efb!', (string) $r['ov']), 'strlen') as $v) $out[$id][] = $v;
 		}
@@ -814,6 +816,8 @@ class Smart_Tags {
 			$v = isset($r['value']) ? $r['value'] : '';
 			if (!is_scalar($v)) continue;
 			$v = (string) $v;
+			// F04: a formatted number or a calc result reads as the field shows it (separators, digits, affixes, currency).
+			if (isset($r['disp']) && is_string($r['disp']) && $r['disp'] !== '' && in_array($type, array('number', 'calc', 'range'), true)) $v = $r['disp'];
 			if ($v === '@file@') { $v = isset($r['fnm']) && is_scalar($r['fnm']) ? (string) $r['fnm'] : ''; }
 			$v = str_replace(array('@efb@dq#', '@n#'), array('"', ' '), $v);
 			if (strpos($v, '@efb!') !== false) {

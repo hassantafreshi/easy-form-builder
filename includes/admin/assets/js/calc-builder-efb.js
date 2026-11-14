@@ -60,6 +60,35 @@
     let html = `<div class="efb mt-2 efb-calc-panel" id="efbNumPanel" data-id="${esc(r.id_)}">`;
     if (tag !== 'calc') html += inp('numStepEl', 'num_step', r, T('numStep', 'Step'), tag === 'range' ? '1' : '0.5', T('numStepHelp', 'Empty = any value.'), true);
     html += sel('numDecimalsEl', 'num_decimals', r, tag === 'calc' ? dec.slice(1) : dec, T('numDecimals', 'Decimal places'), '');
+    html += efbNumFormatEls(r, tag);
+    return html + '</div>';
+  }
+
+  function toggle(id, key, r, label, help) {
+    const on = r[key] === '1' || r[key] === 'form' || r[key] === 1 || r[key] === true;
+    return `<div class="efb mx-1 my-2 d-flex align-items-center">
+      <button type="button" id="${id}" data-id="${esc(r.dataId || r.id_ + '-id')}" data-key="${key}" class="efb mx-0 btn h-s-efb btn-toggle efb-calc-ctl ${on ? 'active' : ''}" data-toggle="button" aria-pressed="${on ? 'true' : 'false'}" onclick="fun_switch_form_efb(this)"${help ? ` aria-describedby="${id}Help"` : ''}><div class="efb handle"></div></button>
+      <label class="efb form-check-label pt-1 mx-2" for="${id}">${esc(label)}</label></div>
+      ${help ? `<small class="efb form-text text-muted fs-8 d-block" id="${id}Help">${esc(help)}</small>` : ''}`;
+  }
+
+  /** The display format: thousands separator, separators, digits shown, prefix / suffix, form currency. */
+  function efbNumFormatEls(r, tag) {
+    let html = `<div class="efb mt-2 efb-calc-format"><span class="efb form-label fw-bold d-block mt-2">${esc(T('numFormat', 'Number format'))}</span>`;
+    html += sel('numFormatEl', 'num_format', r, [['', T('numFmtNone', 'Plain')], ['group', T('numGrouped', 'Thousands separator')]], T('numFormat', 'Number format'), '');
+    html += sel('numDecSepEl', 'num_dec_sep', r, [['', T('numSepAuto', 'Language default')], ['.', '. (12.5)'], [',', ', (12,5)'], ['momayez', '٫ (۱۲٫۵)']], T('numDecSep', 'Decimal separator'), '');
+    html += sel('numGrpSepEl', 'num_grp_sep', r, [['', T('numSepAuto', 'Language default')], [',', ', (1,234)'], ['.', '. (1.234)'], ['space', T('numSepSpace', 'Space')], ['apos', "' (1'234)"], ['arabic', '٬ (۱٬۲۳۴)'], ['none', T('numSepNone', 'None')]], T('numGrouped', 'Thousands separator'), '');
+    html += sel('numScriptEl', 'num_digits', r, [['', T('numDigitsLatin', '0-9')], ['auto', T('numDigitsAuto', 'Site language')], ['native', T('numDigitsNative', 'Language digits')]], T('numDigits', 'Digits shown'), '');
+    if (tag !== 'number') {
+      // A number field has the F03 Prefix / Suffix (its input group); a calc or a slider has these.
+      html += inp('numPfxEl', 'num_prefix', r, T('numPrefix', 'Prefix'), '$', '', false);
+      html += inp('numSfxEl', 'num_suffix', r, T('numSuffix', 'Suffix'), 'kg', '', false);
+    }
+    html += toggle('numCurrencyEl', 'num_currency', r, T('numUseCurrency', 'Show as form currency'), '');
+    if (tag !== 'calc') html += toggle('numMaxZeroEl', 'num_max_zero', r, T('numMaxZero', 'Maximum 0 is a real maximum'), '');
+    const c = cfgOf(r);
+    const sample = E() ? E().format(tag === 'calc' ? '1234567.5' : '1234.5', c) : '';
+    html += `<div class="efb fs-7 text-muted mt-1">${esc(T('calcPreview', 'Preview'))}: <bdi dir="auto" id="numFmtPreviewEl">${esc(sample)}</bdi></div>`;
     return html + '</div>';
   }
 
@@ -70,8 +99,18 @@
     const r = list()[indx];
     const key = el && el.dataset ? el.dataset.key : '';
     if (!r || !key || !E()) return false;
-    let v = el.classList.contains('btn-toggle') ? (el.classList.contains('active') ? '1' : '') : el.value;
+    let v = el.classList.contains('btn-toggle') ? (el.classList.contains('active') ? (key === 'num_currency' ? 'form' : '1') : '') : el.value;
     const clean = E().sanitizeKey(key, v, key === 'calc' ? 'option' : r.type);
+    if ((key === 'num_dec_sep' || key === 'num_grp_sep') && clean !== '') {
+      const D = { '.': '.', ',': ',', momayez: '\u066B' }, G = { ',': ',', '.': '.', space: ' ', apos: "'", arabic: '\u066C', none: '' };
+      const d = key === 'num_dec_sep' ? D[clean] : (r.num_dec_sep ? D[r.num_dec_sep] : null);
+      const g = key === 'num_grp_sep' ? G[clean] : (r.num_grp_sep ? G[r.num_grp_sep] : null);
+      if (d !== null && g !== null && d === g) {
+        if (typeof alert_message_efb === 'function') alert_message_efb('', T('numSepSame', 'The decimal and thousands separators must differ.'), 6, 'warning');
+        el.value = r[key] || '';
+        return true;
+      }
+    }
     if (key === 'num_step' && String(v).trim() !== '' && clean === '') {
       el.classList.add('border-danger');
       if (typeof alert_message_efb === 'function') alert_message_efb('', T('numStepBad', 'The step must be a positive number, such as 0.5 or 5.'), 6, 'warning');
@@ -89,6 +128,8 @@
   /** The canvas copy of a field again (attributes of a number box, the calc output, the slider). */
   function redraw(r) {
     try {
+      const pv = document.getElementById('numFmtPreviewEl');
+      if (pv && E()) pv.textContent = E().format(r.type === 'calc' ? '1234567.5' : '1234.5', cfgOf(r));
       const input = document.getElementById(`${r.id_}_`);
       if (r.type === 'number' && input) {
         const a = efbNumInputAttrs(r);
