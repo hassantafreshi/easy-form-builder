@@ -1,7 +1,7 @@
 /* F04: numbers and calculations (calc-efb.js). Logical properties only, so RTL pages need nothing more. */
 .efb.efb-vh { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
 /* A number box keeps its digits left to right; its affixes follow the page direction. */
-.efb input[data-num="1"] { direction: ltr; text-align: start; unicode-bidi: plaintext; }
+.efb input[data-num="1"] { direction: ltr !important; text-align: start; unicode-bidi: plaintext; }
 /* The result of a calc field: read-only, in the page's text colour; the number keeps its own direction. */
 .efb .efb-calc-out { display: block; min-height: 1.5em; padding-block: .375rem; font-weight: 600; unicode-bidi: isolate; }
 .efb .efb-calc-out:empty::before { content: "\2014"; opacity: .45; font-weight: 400; }
@@ -21,3 +21,7 @@
 .efb .efb-range2 input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px rgba(78,91,242,.35); }
 .efb .efb-range2[dir="rtl"] input[type="range"] { direction: rtl; }
 .efb .efb-range2-out { display: block; margin-top: .25rem; unicode-bidi: isolate; }
+/* Messages of number and calc fields keep a mixed-script sentence in order (values are isolated in the text). */
+.efb [data-efb-calc-msg] { unicode-bidi: plaintext; }
+/* On a right-to-left page a number box keeps its digits left to right but sits at the start (right) like the other answers. */
+html[dir="rtl"] .efb input[data-num="1"], .efb[dir="rtl"] input[data-num="1"] { text-align: right; }

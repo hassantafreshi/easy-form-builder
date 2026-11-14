@@ -2039,6 +2039,11 @@ require('./scenario-f08.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewFo
  * (atomic, the older booking forms), dynamic choices, ranking, fa_IR / ar at 375 px, a paid form: tests/e2e-wp/scenario-f05.js. */
 require('./scenario-f05.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle });
 
+/* F04 numbers and calculations: builder (number settings, a calc formula), a guest (local digits, step, live
+ * grouping, a live calc, a forged calc, e-mail, viewer, CSV), fa_IR / ar at 375 px, the two-handle slider,
+ * plans and old forms, a paid form whose amount is a calc: tests/e2e-wp/scenario-f04.js. */
+require('./scenario-f04.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */

@@ -258,6 +258,17 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( array( 'copied' => $ok, 'changed' => ! $same, 'path' => $dst ) );
 		break;
 
+	case 'f04-mu':
+		// Copy tests/e2e-wp/mu-plugins/efb-e2e-f04.php into the site's mu-plugins (F04 tests).
+		$dst = WPMU_PLUGIN_DIR . '/efb-e2e-f04.php';
+		if ( ! is_dir( WPMU_PLUGIN_DIR ) ) wp_mkdir_p( WPMU_PLUGIN_DIR );
+		$src = dirname( __FILE__ ) . '/mu-plugins/efb-e2e-f04.php';
+		$same = is_readable( $dst ) && md5_file( $dst ) === md5_file( $src );
+		$ok = $same || copy( $src, $dst );
+		if ( ! $same ) sleep( 3 );
+		efb_e2e_out( array( 'copied' => $ok, 'changed' => ! $same, 'path' => $dst ) );
+		break;
+
 	case 'f05-mu':
 		// Copy tests/e2e-wp/mu-plugins/efb-e2e-f05.php into the site's mu-plugins (F05 tests).
 		$dst = WPMU_PLUGIN_DIR . '/efb-e2e-f05.php';
@@ -475,6 +486,13 @@ switch ( $efb_e2e_cmd ) {
 			$rows[] = array_merge( $base, array( 'id_' => $tot, 'dataId' => $tot . '-id', 'type' => 'prcfld', 'elementId' => 'prcfld', 'name' => 'Total', 'amount' => 4, 'milen' => '0' ) );
 			$rows[0]['logic'] = '1';
 			$rows[0]['logic_rules'] = array( array( 'id' => 'calc', 'enabled' => true, 'priority' => 1, 'conditions' => array( 'type' => 'group', 'operator' => 'AND', 'items' => array( array( 'type' => 'condition', 'source' => 'field', 'field_id' => $num, 'compare' => 'is_not_empty', 'value' => '' ) ) ), 'actions' => array( array( 'type' => 'calculate', 'target' => $tot, 'value' => '{' . $num . '} * 5', 'decimals' => 2 ) ) ) );
+		} elseif ( 'calc' === $kind ) {
+			// F04-G: the amount is a calc result ({room} × {guests}; a room's calculation value 40 / 65.5), Pro.
+			$rows[] = array_merge( $base, array( 'id_' => $num, 'dataId' => $num . '-id', 'type' => 'number', 'elementId' => 'number', 'name' => 'Guests', 'amount' => 3, 'required' => 1, 'num_step' => '1', 'milen' => '1', 'mlen' => '9' ) );
+			$rows[] = array_merge( $base, array( 'id_' => $rad, 'dataId' => $rad . '-id', 'type' => 'radio', 'elementId' => 'radio', 'name' => 'Room', 'amount' => 3, 'required' => 1 ) );
+			$rows[] = array( 'id_' => $o1, 'dataId' => $o1 . '-id', 'parent' => $rad, 'type' => 'option', 'value' => 'Single', 'id_op' => $o1, 'step' => 1, 'amount' => 3, 'calc' => '40' );
+			$rows[] = array( 'id_' => $o2, 'dataId' => $o2 . '-id', 'parent' => $rad, 'type' => 'option', 'value' => 'Double', 'id_op' => $o2, 'step' => 1, 'amount' => 3, 'calc' => '65.5' );
+			$rows[] = array_merge( $base, array( 'id_' => $tot, 'dataId' => $tot . '-id', 'type' => 'calc', 'elementId' => 'calc', 'name' => 'Stay', 'amount' => 4, 'formula' => '{' . $rad . '}*{' . $num . '}', 'num_decimals' => '2', 'num_currency' => 'form', 'calc_show' => 'visible', 'calc_empty' => 'zero', 'calc_as_price' => '1' ) );
 		}
 		if ( isset( $efb_e2e_rest[2] ) ) {
 			foreach ( explode( '&', $efb_e2e_rest[2] ) as $kv ) {

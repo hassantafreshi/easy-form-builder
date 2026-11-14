@@ -37,7 +37,7 @@ function el(value, field, locale) {
 }
 const ctx = {
   window: {}, efb_var: { text: { numNanM_: 'Please enter a number in %s.', numStepM_: '%1$s must be a multiple of %2$s.', numDecM_: '%1$s allows at most %2$s decimal places.', mcplen: 'At least NN.', mxcplen: 'At most NN' } },
-  document: { getElementById: (id) => (msgs[id] = msgs[id] || { textContent: '', id }) },
+  document: { getElementById: (id) => (msgs[id] = msgs[id] || { textContent: '', id, style: {} }) },
   colorBorderChangerEfb: (c, x) => c + ' ' + x, show_msg_efb: (m) => { m.shown = true; },
   get_structure_by_form_id_efb: () => [{}, {}, { id_: 'q1', name: 'Quantity', type: 'number' }],
 };
@@ -51,9 +51,9 @@ let r = ctx.check(e, null);
 t('۱۲٫۵ with step 0.5 on a Persian site → 12.5 sent and shown (Latin digits: the field default)', [r.ok, r.canon, e.value], [true, '12.5', '12.5']);
 e = el('12.3', { type: 'number', num_step: '0.5' });
 r = ctx.check(e, null);
-t('12.3 with step 0.5 refused with the step message at the field', [r.ok, r.code, msgs['q1_-message'].textContent, /border-danger/.test(e.className)], [false, 'step', 'Quantity must be a multiple of 0.5.', true]);
+t('12.3 with step 0.5 refused with the step message at the field', [r.ok, r.code, msgs['q1_-message'].textContent, /border-danger/.test(e.className)], [false, 'step', '\u2068Quantity\u2069 must be a multiple of \u20680.5\u2069.', true]);
 t('min -10 / max 9.5: -10 ok, -10.5 min, 9.5 ok, 9.51 max', ['-10', '-10.5', '9.5', '9.51'].map((v) => { const x = ctx.check(el(v, { type: 'number', num_decimals: '2', milen: '-10', mlen: '9.5' }), null); return x.ok ? 'ok' : x.code; }), ['ok', 'min', 'ok', 'max']);
-t('the max message names the formatted limit', (ctx.check(el('2000', { type: 'number', num_format: 'group', mlen: '1000.5' }), null), msgs['q1_-message'].textContent), 'At most 1,000.5');
+t('the max message names the formatted limit (isolated: FSI … PDI)', (ctx.check(el('2000', { type: 'number', num_format: 'group', mlen: '1000.5' }), null), msgs['q1_-message'].textContent), 'At most \u20681,000.5\u2069');
 t('1.234 with 2 decimals refused (dec), "abc" refused (nan), "" empty', ['1.234', 'abc', ''].map((v) => { const x = ctx.check(el(v, { type: 'number', num_decimals: '2' }), null); return x.empty ? 'empty' : (x.ok ? 'ok' : x.code); }), ['dec', 'nan', 'empty']);
 e = el('١٬٢٥٠٫٥', { type: 'number', num_format: 'group', num_digits: 'native' }, 'ar');
 r = ctx.check(e, null);

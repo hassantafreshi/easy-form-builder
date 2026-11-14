@@ -1364,7 +1364,7 @@ function efb_num_check_efb(el, ob) {
   if (r.empty) return r;
   if (!r.ok) {
     el.className = colorBorderChangerEfb(el.className, "border-danger");
-    if (vd) { vd.textContent = r.msg; show_msg_efb(vd); }
+    if (vd) { vd.textContent = r.msg; vd.style.unicodeBidi = 'plaintext'; show_msg_efb(vd); }
     return r;
   }
   const shown = window.EFBCalc.formatBare(r.canon, cfg);

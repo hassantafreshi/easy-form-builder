@@ -915,9 +915,11 @@
     t = t || {};
     var p = parseInput(raw, cfg);
     if (!p.ok && p.err === 'empty') return { empty: true };
+    // Inserted values are isolated (FSI … PDI) so a label or a number keeps its order in a right-to-left sentence.
+    var iso = function (x) { return x === '' ? '' : '\u2068' + x + '\u2069'; };
     var fill = function (k, en, a, b) {
       var s = (t[k] || en);
-      return s.replace('%1$s', a).replace('%2$s', b).replace('%s', a).replace('NN', a);
+      return s.replace('%1$s', iso(a)).replace('%2$s', iso(b)).replace('%s', iso(a)).replace('NN', iso(a));
     };
     if (!p.ok) return { ok: false, code: 'nan', msg: fill('numNanM_', 'Please enter a number in %s.', name || '', '') };
     var c = check(p.canon, cfg);
