@@ -482,6 +482,13 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = Unreleased =
 
+* New: Undo and Redo in the form builder (toolbar buttons, Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z): every change — a field added, moved, duplicated or deleted, a setting, an option, a step, the form settings, a change made by the AI assistant — can be taken back; the message names what was undone.
+* New: Form versions: every save keeps a version of the form (who saved it and how). The Versions dialog in the builder shows them, lists the fields of a version, compares it with the form now and restores it (it opens unsaved, so you can look before saving, and Undo takes it back). Settings › General sets how many are kept (Free 3, Free Plus 10, Pro 50).
+* New: Search the field list of the builder by name or by other words (for example "phone" finds Mobile and Phone, in any language), together with the categories; Enter adds the first field found.
+* New: Keyboard shortcuts in the builder (Save, Undo, Redo, search, delete / duplicate / move the selected field, close the panel, preview) that also work with Persian and Arabic keyboards, with a "Keyboard shortcuts" dialog; the one-key shortcuts / and ? can be switched off.
+* Developers: a stable form package API (export, validate, import a form; add-on settings travel with it through efb_form_export_extras / efb_form_import_extras; references follow new ids through efb_form_package_remap_ids): efb_form_package_api(), see docs/form-package-contract.en.md. Database version 1.11 (table emsfb_form_rev_); efbBuilderApi.history and efbBuilderApi.revisions.
+* Fixed: The "an auto-saved version exists" question could appear over the builder a few seconds after it opened.
+
 * New: Payment framework for new gateway add-ons (Mollie, Payplug, Tap, Omise, PayTabs, Paymob, Xendit, coming as separate add-ons). The amount is always computed on the server (option prices, price fields, computed prices, a fixed amount and donations with suggested amounts); a payment is recorded only after the gateway confirms it, once, whether the confirmation comes from the gateway's webhook, the visitor's return or the background check.
 * New: A customizable payment field: button colour, text and icon, the order of its parts, the summary, payment methods, texts per language, phone layout (Pro). A banner tells every visitor when a gateway is in test mode.
 * New: Easy Form Builder → Payments: every payment with filters and totals, its event history, re-check, refund (when the gateway supports it), and the gateway settings. Keys are stored encrypted and never shown again.

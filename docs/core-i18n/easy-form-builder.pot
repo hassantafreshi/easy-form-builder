@@ -378,6 +378,11 @@ msgstr ""
 msgid "%s (deleted)"
 msgstr ""
 
+#: includes/class-Emsfb-form-package.php:500
+#, php-format
+msgid "%s (imported)"
+msgstr ""
+
 #. translators: %s = context prefix (e.g. Mobile/Desktop). Buttons Align =
 #. alignment of the form navigation/submit buttons
 #: includes/functions.php:1828
@@ -719,7 +724,7 @@ msgstr ""
 msgid "%s not found"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4159
+#: includes/admin/class-Emsfb-admin.php:4168
 #, php-format
 msgid "%s notification"
 msgstr ""
@@ -2960,11 +2965,11 @@ msgstr ""
 msgid "Cannot be chosen"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3662 includes/functions.php:8932
+#: includes/admin/class-Emsfb-admin.php:3664 includes/functions.php:8932
 msgid "Cannot install add-ons because this server has disabled the PHP filesystem functions needed to prepare the download. Please ask your hosting provider to enable mkdir and rename, or configure the WordPress filesystem."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:910 includes/functions.php:8648
+#: includes/admin/class-Emsfb-admin.php:912 includes/functions.php:8648
 #: includes/functions.php:8703
 #, php-format
 msgid "Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the %s server"
@@ -2974,15 +2979,15 @@ msgstr ""
 msgid "Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3645 includes/functions.php:8915
+#: includes/admin/class-Emsfb-admin.php:3647 includes/functions.php:8915
 msgid "Cannot install add-ons of Easy Form Builder because the plugin is not able to download files"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3676 includes/functions.php:8948
+#: includes/admin/class-Emsfb-admin.php:3678 includes/functions.php:8948
 msgid "Cannot install add-ons of Easy Form Builder because the plugin is not able to move the downloaded file"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3688 includes/functions.php:8962
+#: includes/admin/class-Emsfb-admin.php:3690 includes/functions.php:8962
 #: includes/functions.php:9992
 msgid "Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files"
 msgstr ""
@@ -3440,7 +3445,7 @@ msgstr ""
 msgid "Clear this answer when anonymizing"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4129
+#: includes/admin/class-Emsfb-admin.php:4138
 msgid "Click \"Check Email Server\" and wait for the test to finish"
 msgstr ""
 
@@ -3449,7 +3454,7 @@ msgstr ""
 msgid "Click \"Check Email Server\" to test delivery, turn this switch on, then press Save."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4127
+#: includes/admin/class-Emsfb-admin.php:4136
 msgid "Click Settings from the top menu"
 msgstr ""
 
@@ -3462,7 +3467,7 @@ msgstr ""
 msgid "Click here"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4241 includes/functions.php:2535
+#: includes/admin/class-Emsfb-admin.php:4250 includes/functions.php:2535
 msgid "Click here for more details"
 msgstr ""
 
@@ -3500,7 +3505,7 @@ msgid "Clock"
 msgstr ""
 
 #. translators: F11: close button of the popup
-#: includes/admin/class-Emsfb-admin.php:4116
+#: includes/admin/class-Emsfb-admin.php:4125
 #: includes/admin/class-Emsfb-create.php:170
 #: includes/admin/class-Emsfb-panel.php:163
 #: includes/class-Emsfb-deactivation-feedback.php:1041
@@ -4002,7 +4007,7 @@ msgstr ""
 msgid "Could not be carried over"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2460
+#: includes/admin/class-Emsfb-admin.php:2462
 msgid "Could not start email test."
 msgstr ""
 
@@ -4692,7 +4697,7 @@ msgstr ""
 msgid "Disabled Field"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4164
+#: includes/admin/class-Emsfb-admin.php:4173
 #, php-format
 msgid "Disabling this feature may affect the proper functionality of Easy Form Builder. If you plan to use the %s feature, please ensure it is enabled."
 msgstr ""
@@ -5037,10 +5042,10 @@ msgid "Earliest date"
 msgstr ""
 
 #: emsfb.php includes/admin/class-Emsfb-admin.php:225
-#: includes/admin/class-Emsfb-admin.php:3879
-#: includes/admin/class-Emsfb-admin.php:4117
-#: includes/admin/class-Emsfb-admin.php:4120
-#: includes/admin/class-Emsfb-admin.php:4260
+#: includes/admin/class-Emsfb-admin.php:3888
+#: includes/admin/class-Emsfb-admin.php:4126
+#: includes/admin/class-Emsfb-admin.php:4129
+#: includes/admin/class-Emsfb-admin.php:4269
 #: includes/admin/class-Emsfb-create.php:208
 #: includes/admin/class-Emsfb-dashboard-widget.php:85
 msgid "Easy Form Builder"
@@ -5050,7 +5055,7 @@ msgstr ""
 msgid "Easy Form Builder Documentation"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4262
+#: includes/admin/class-Emsfb-admin.php:4271
 msgid "Easy Form Builder Email Warning:"
 msgstr ""
 
@@ -5079,7 +5084,7 @@ msgstr ""
 msgid "Easy Form Builder could not confirm your Pro licence for %1$s days in a row, so the Pro features on %2$s are paused for now."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4215
+#: includes/admin/class-Emsfb-admin.php:4224
 msgid "Easy Form Builder could not connect to the email tester service."
 msgstr ""
 
@@ -5087,7 +5092,7 @@ msgstr ""
 msgid "Easy Form Builder could not reinstall its add-on files automatically. Forms that rely on those add-ons are showing a temporary message to visitors until this is resolved."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4203
+#: includes/admin/class-Emsfb-admin.php:4212
 msgid "Easy Form Builder could not start the email delivery test. Please try again later."
 msgstr ""
 
@@ -5101,7 +5106,7 @@ msgstr ""
 msgid "Easy Form Builder entries"
 msgstr ""
 
-#: includes/class-Emsfb-revisions.php:252
+#: includes/class-Emsfb-revisions.php:272
 msgid "Easy Form Builder form versions"
 msgstr ""
 
@@ -5297,7 +5302,7 @@ msgstr ""
 
 #. translators: Email = input field for email address translators: F01 builder,
 #. mobile keyboard option: keyboard with @ and .
-#: includes/admin/class-Emsfb-admin.php:4160 includes/functions.php:1621
+#: includes/admin/class-Emsfb-admin.php:4169 includes/functions.php:1621
 #: includes/functions.php:4395
 msgid "Email"
 msgstr ""
@@ -5327,7 +5332,7 @@ msgstr ""
 msgid "Email Error Logging"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4242
+#: includes/admin/class-Emsfb-admin.php:4251
 msgid "Email Issue"
 msgstr ""
 
@@ -5357,7 +5362,7 @@ msgstr ""
 msgid "Email address for the discount code"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3108
+#: includes/admin/class-Emsfb-admin.php:3110
 msgid "Email capability verified"
 msgstr ""
 
@@ -5371,7 +5376,7 @@ msgstr ""
 msgid "Email confirmation"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3135
+#: includes/admin/class-Emsfb-admin.php:3137
 #, php-format
 msgid "Email delivery failed: %s"
 msgstr ""
@@ -5396,11 +5401,11 @@ msgstr ""
 msgid "Email delivery log"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4226
+#: includes/admin/class-Emsfb-admin.php:4235
 msgid "Email delivery test failed."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4234
+#: includes/admin/class-Emsfb-admin.php:4243
 msgid "Email delivery test is pending."
 msgstr ""
 
@@ -5455,11 +5460,11 @@ msgstr ""
 msgid "Email received"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3429
+#: includes/admin/class-Emsfb-admin.php:3431
 msgid "Email sending confirmed by the site owner"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4178
+#: includes/admin/class-Emsfb-admin.php:4187
 msgid "Email sending is blocked by server settings."
 msgstr ""
 
@@ -5483,11 +5488,11 @@ msgstr ""
 msgid "Email subject: %s"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4174
+#: includes/admin/class-Emsfb-admin.php:4183
 msgid "Email system is not available."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4170
+#: includes/admin/class-Emsfb-admin.php:4179
 msgid "Email system is working properly."
 msgstr ""
 
@@ -5497,25 +5502,25 @@ msgstr ""
 msgid "Email template blocks"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3076
+#: includes/admin/class-Emsfb-admin.php:3078
 msgid "Email test failed"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2646
-#: includes/admin/class-Emsfb-admin.php:3121
+#: includes/admin/class-Emsfb-admin.php:2648
+#: includes/admin/class-Emsfb-admin.php:3123
 msgid "Email test is waiting for delivery confirmation"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4214
+#: includes/admin/class-Emsfb-admin.php:4223
 msgid "Email tester connection error."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2459
+#: includes/admin/class-Emsfb-admin.php:2461
 msgid "Email tester service error"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4202
-#: includes/admin/class-Emsfb-admin.php:4222
+#: includes/admin/class-Emsfb-admin.php:4211
+#: includes/admin/class-Emsfb-admin.php:4231
 msgid "Email tester service error."
 msgstr ""
 
@@ -5672,7 +5677,7 @@ msgstr ""
 msgid "Enable silentCAPTCHA (Shield Security) to protect against spam and bots."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4122
+#: includes/admin/class-Emsfb-admin.php:4131
 msgid "Enable the Email Notification Feature"
 msgstr ""
 
@@ -5886,13 +5891,13 @@ msgstr ""
 msgid "Error: Please ensure there is only one form per page."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:855
-#: includes/admin/class-Emsfb-admin.php:956
-#: includes/admin/class-Emsfb-admin.php:1002
-#: includes/admin/class-Emsfb-admin.php:1031
-#: includes/admin/class-Emsfb-admin.php:1117
-#: includes/admin/class-Emsfb-admin.php:1153
-#: includes/admin/class-Emsfb-admin.php:1295
+#: includes/admin/class-Emsfb-admin.php:857
+#: includes/admin/class-Emsfb-admin.php:958
+#: includes/admin/class-Emsfb-admin.php:1004
+#: includes/admin/class-Emsfb-admin.php:1033
+#: includes/admin/class-Emsfb-admin.php:1119
+#: includes/admin/class-Emsfb-admin.php:1155
+#: includes/admin/class-Emsfb-admin.php:1297
 #, php-format
 msgid "Error: server (%s) responded with an invalid request. responded code : %s "
 msgstr ""
@@ -6131,7 +6136,7 @@ msgstr ""
 msgid "File Upload Forms"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:784 includes/functions.php:8615
+#: includes/admin/class-Emsfb-admin.php:786 includes/functions.php:8615
 msgid "File access status not checked yet. Please wait."
 msgstr ""
 
@@ -6573,11 +6578,11 @@ msgstr ""
 msgid "Free Plus is on. %s is ready."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4422
+#: includes/admin/class-Emsfb-admin.php:4431
 msgid "Free Plus plan activated with enhanced features."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4344
+#: includes/admin/class-Emsfb-admin.php:4353
 msgid "Free Plus shows a credit link on your pages. Please activate it from the button that explains this."
 msgstr ""
 
@@ -6597,7 +6602,7 @@ msgstr ""
 msgid "Free allows up to %d steps per form"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4416
+#: includes/admin/class-Emsfb-admin.php:4425
 msgid "Free plan activated - no additional features."
 msgstr ""
 
@@ -6799,7 +6804,7 @@ msgstr ""
 msgid "Gluten-free"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4126
+#: includes/admin/class-Emsfb-admin.php:4135
 #, php-format
 msgid "Go to the <a href=\"%s\" style=\"font-weight:600;\">Easy Form Builder Panel</a>"
 msgstr ""
@@ -7431,7 +7436,7 @@ msgstr ""
 msgid "If the message turns up later, the report goes to %s."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4130
+#: includes/admin/class-Emsfb-admin.php:4139
 msgid "If the score is above 70 — enable the \"This site can send emails\" switch and save"
 msgstr ""
 
@@ -7736,20 +7741,20 @@ msgstr ""
 msgid "Invalid country code"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2392
+#: includes/admin/class-Emsfb-admin.php:2394
 msgid "Invalid email address"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4194
+#: includes/admin/class-Emsfb-admin.php:4203
 msgid "Invalid email address."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4210
+#: includes/admin/class-Emsfb-admin.php:4219
 msgid "Invalid email test."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4206
-#: includes/admin/class-Emsfb-admin.php:4218
+#: includes/admin/class-Emsfb-admin.php:4215
+#: includes/admin/class-Emsfb-admin.php:4227
 msgid "Invalid email tester response."
 msgstr ""
 
@@ -7777,11 +7782,11 @@ msgstr ""
 msgid "Invalid payment selection. Please review your choices and try again. If the problem persists, contact the site administrator."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4319
+#: includes/admin/class-Emsfb-admin.php:4328
 msgid "Invalid plan data format."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4328
+#: includes/admin/class-Emsfb-admin.php:4337
 msgid "Invalid plan type."
 msgstr ""
 
@@ -7802,11 +7807,11 @@ msgstr ""
 msgid "Invalid security token."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2430
+#: includes/admin/class-Emsfb-admin.php:2432
 msgid "Invalid sender email"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4198
+#: includes/admin/class-Emsfb-admin.php:4207
 msgid "Invalid sender email."
 msgstr ""
 
@@ -7818,12 +7823,12 @@ msgstr ""
 msgid "Invalid service account."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2489
-#: includes/admin/class-Emsfb-admin.php:2961
+#: includes/admin/class-Emsfb-admin.php:2491
+#: includes/admin/class-Emsfb-admin.php:2963
 msgid "Invalid service response"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2875
+#: includes/admin/class-Emsfb-admin.php:2877
 msgid "Invalid test hash"
 msgstr ""
 
@@ -7945,7 +7950,7 @@ msgstr ""
 msgid "It seems that you are the admin of this form. Please log in and try again."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4191
+#: includes/admin/class-Emsfb-admin.php:4200
 msgid "It seems that your WordPress site could not send a test email. To manually test your email system, go to Easy Form Builder > Settings > Email Settings tab and click the \"Check Email Server\" button."
 msgstr ""
 
@@ -9092,7 +9097,7 @@ msgstr ""
 msgid "Missing challenge."
 msgstr ""
 
-#: includes/class-Emsfb.php:859
+#: includes/class-Emsfb.php:865
 msgid "Missing files:"
 msgstr ""
 
@@ -9532,7 +9537,7 @@ msgstr ""
 msgid "No comment"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2922
+#: includes/admin/class-Emsfb-admin.php:2924
 msgid "No connection could be opened from your site to our mail testing service. This is usually outbound traffic blocked by your server or its network - some hosts block connections to other countries - rather than a problem with the service. Your hosting provider can confirm it."
 msgstr ""
 
@@ -9580,7 +9585,7 @@ msgstr ""
 msgid "No email arrived during the test window."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4186
+#: includes/admin/class-Emsfb-admin.php:4195
 msgid "No email handler configured."
 msgstr ""
 
@@ -9612,7 +9617,7 @@ msgstr ""
 msgid "No field matches %s."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3744
+#: includes/admin/class-Emsfb-admin.php:3746
 #: includes/class-Emsfb-public.php:5390 includes/class-Emsfb-public.php:6060
 msgid "No file was received. Please choose a file and try again."
 msgstr ""
@@ -10473,7 +10478,7 @@ msgstr ""
 msgid "Other amount"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4131
+#: includes/admin/class-Emsfb-admin.php:4140
 msgid "Otherwise, follow the instructions shown in the test results"
 msgstr ""
 
@@ -11006,7 +11011,7 @@ msgstr ""
 msgid "Plain"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4519
+#: includes/admin/class-Emsfb-admin.php:4528
 #, php-format
 msgid "Plan \"%s\" has been successfully processed."
 msgstr ""
@@ -11022,7 +11027,7 @@ msgstr ""
 msgid "Plan change"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4309
+#: includes/admin/class-Emsfb-admin.php:4318
 msgid "Plan data is missing."
 msgstr ""
 
@@ -11043,7 +11048,7 @@ msgstr ""
 msgid "Please Enter a maximum of NN Characters For this field"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3880
+#: includes/admin/class-Emsfb-admin.php:3889
 #: includes/class-Emsfb-public.php:11264 includes/functions.php:1588
 msgid "Please Wait"
 msgstr ""
@@ -11167,7 +11172,7 @@ msgstr ""
 msgid "Please complete the form."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4406
+#: includes/admin/class-Emsfb-admin.php:4415
 msgid "Please confirm this plan downgrade before continuing."
 msgstr ""
 
@@ -11220,11 +11225,11 @@ msgstr ""
 msgid "Please enter a valid URL. Protocol is required (http://, https://)"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4195
+#: includes/admin/class-Emsfb-admin.php:4204
 msgid "Please enter a valid admin email address before testing email delivery."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2292
+#: includes/admin/class-Emsfb-admin.php:2294
 msgid "Please enter a valid admin email address."
 msgstr ""
 
@@ -11241,8 +11246,8 @@ msgstr ""
 msgid "Please enter a valid e-mail address in \"%s\"."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2393
-#: includes/admin/class-Emsfb-admin.php:2409
+#: includes/admin/class-Emsfb-admin.php:2395
+#: includes/admin/class-Emsfb-admin.php:2411
 #: includes/class-Emsfb-review-request.php:1243
 msgid "Please enter a valid email address."
 msgstr ""
@@ -11738,7 +11743,7 @@ msgstr ""
 msgid "Pro includes every feature and add-on, shows no credit on your pages, and includes support."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4432
+#: includes/admin/class-Emsfb-admin.php:4441
 msgid "Pro plan activated with existing activation code."
 msgstr ""
 
@@ -12048,7 +12053,7 @@ msgstr ""
 msgid "Redirect page"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4443
+#: includes/admin/class-Emsfb-admin.php:4452
 msgid "Redirecting to Pro plan purchase page."
 msgstr ""
 
@@ -12241,7 +12246,7 @@ msgstr ""
 msgid "Renew Pro"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:1148 includes/functions.php:11363
+#: includes/admin/class-Emsfb-admin.php:1150 includes/functions.php:11363
 msgid "Renew Subscription"
 msgstr ""
 
@@ -12666,7 +12671,7 @@ msgstr ""
 msgid "SMS"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3818
+#: includes/admin/class-Emsfb-admin.php:3820
 msgid "SMS Add-on Not Installed"
 msgstr ""
 
@@ -13009,7 +13014,7 @@ msgstr ""
 msgid "Security & Spam Protection"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3811
+#: includes/admin/class-Emsfb-admin.php:3813
 msgid "Security Error"
 msgstr ""
 
@@ -13167,7 +13172,7 @@ msgstr ""
 msgid "Select every entry on this page"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4128
+#: includes/admin/class-Emsfb-admin.php:4137
 msgid "Select the Email Settings tab"
 msgstr ""
 
@@ -13340,7 +13345,7 @@ msgstr ""
 msgid "Separate with commas: example.com, *.edu, name@example.com"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3109
+#: includes/admin/class-Emsfb-admin.php:3111
 msgid "Server confirmed ability to send emails."
 msgstr ""
 
@@ -13362,7 +13367,7 @@ msgstr ""
 msgid "Service account saved, but the connection test failed: %s"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2996
+#: includes/admin/class-Emsfb-admin.php:2998
 msgid "Service error"
 msgstr ""
 
@@ -13821,7 +13826,7 @@ msgstr ""
 msgid "Some keys were not saved because they do not look like keys of this gateway."
 msgstr ""
 
-#: includes/class-Emsfb.php:858
+#: includes/class-Emsfb.php:864
 msgid "Some plugin files are missing, so the plugin stopped loading to keep your site running. Please reinstall Easy Form Builder from the Plugins page — your forms, messages, and settings are kept."
 msgstr ""
 
@@ -13833,7 +13838,7 @@ msgstr ""
 msgid "Something unexpected happened. Please try again by refreshing the page."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:1453
+#: includes/admin/class-Emsfb-admin.php:1455
 msgid "Something went wrong, please refresh the page."
 msgstr ""
 
@@ -14579,7 +14584,7 @@ msgstr ""
 msgid "Test connection (Test)"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4190
+#: includes/admin/class-Emsfb-admin.php:4199
 msgid "Test email could not be sent."
 msgstr ""
 
@@ -14847,7 +14852,7 @@ msgstr ""
 msgid "The PHP OpenSSL extension is required for Google Sheet sync but is not available on this server."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4175
+#: includes/admin/class-Emsfb-admin.php:4184
 msgid "The PHP mail() function is missing. Your server cannot send emails."
 msgstr ""
 
@@ -15158,8 +15163,8 @@ msgstr ""
 msgid "The email has just been sent. If it is not in your inbox, check the spam folder."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3077
-#: includes/admin/class-Emsfb-admin.php:4227
+#: includes/admin/class-Emsfb-admin.php:3079
+#: includes/admin/class-Emsfb-admin.php:4236
 msgid "The email server test could not verify email capability."
 msgstr ""
 
@@ -15171,42 +15176,42 @@ msgstr ""
 msgid "The email subject was not copied: Easy Form Builder uses one subject for your notification and for the visitor’s confirmation, so its standard subjects are kept."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2876
-#: includes/admin/class-Emsfb-admin.php:2892
+#: includes/admin/class-Emsfb-admin.php:2878
+#: includes/admin/class-Emsfb-admin.php:2894
 msgid "The email test hash is not valid."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4211
+#: includes/admin/class-Emsfb-admin.php:4220
 msgid "The email test identifier is invalid. Please start a new test."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2997
-#: includes/admin/class-Emsfb-admin.php:3009
-#: includes/admin/class-Emsfb-admin.php:4223
+#: includes/admin/class-Emsfb-admin.php:2999
+#: includes/admin/class-Emsfb-admin.php:3011
+#: includes/admin/class-Emsfb-admin.php:4232
 msgid "The email tester service could not return the result."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2851
+#: includes/admin/class-Emsfb-admin.php:2853
 msgid "The email tester service could not start the test."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2800
-#: includes/admin/class-Emsfb-admin.php:2962
-#: includes/admin/class-Emsfb-admin.php:2974
-#: includes/admin/class-Emsfb-admin.php:3379
-#: includes/admin/class-Emsfb-admin.php:4219
+#: includes/admin/class-Emsfb-admin.php:2802
+#: includes/admin/class-Emsfb-admin.php:2964
+#: includes/admin/class-Emsfb-admin.php:2976
+#: includes/admin/class-Emsfb-admin.php:3381
+#: includes/admin/class-Emsfb-admin.php:4228
 msgid "The email tester service returned an invalid JSON response."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2490
-#: includes/admin/class-Emsfb-admin.php:2507
-#: includes/admin/class-Emsfb-admin.php:4207
+#: includes/admin/class-Emsfb-admin.php:2492
+#: includes/admin/class-Emsfb-admin.php:2509
+#: includes/admin/class-Emsfb-admin.php:4216
 #: includes/class-Emsfb-email-monitor.php:958
 #: includes/class-Emsfb-email-monitor.php:1071
 msgid "The email tester service returned an invalid response."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3073
+#: includes/admin/class-Emsfb-admin.php:3075
 msgid "The email was sent, but it never arrived"
 msgstr ""
 
@@ -15223,7 +15228,7 @@ msgstr ""
 msgid "The entry could not be saved"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3775
+#: includes/admin/class-Emsfb-admin.php:3777
 #: includes/class-Emsfb-upload-guard.php:1035
 #: includes/class-Emsfb-upload-guard.php:1039
 msgid "The file could not be read. Please try attaching it again."
@@ -15479,7 +15484,7 @@ msgstr ""
 msgid "The link was sent."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4179
+#: includes/admin/class-Emsfb-admin.php:4188
 msgid "The mail() function is disabled in your server PHP configuration (php.ini)."
 msgstr ""
 
@@ -15502,11 +15507,11 @@ msgstr ""
 msgid "The message card surface"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3071
+#: includes/admin/class-Emsfb-admin.php:3073
 msgid "The message never left your website. WordPress reported an error while sending, so nothing could be delivered."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2602
+#: includes/admin/class-Emsfb-admin.php:2604
 msgid "The message never left your website: WordPress reported an error while trying to send it. This is the one case where the fix really is on the WordPress or hosting side - usually an SMTP plugin, or PHP mail disabled by the host."
 msgstr ""
 
@@ -15707,7 +15712,7 @@ msgstr ""
 msgid "The response attachment could not be secured. Please try again."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:1796
+#: includes/admin/class-Emsfb-admin.php:1798
 #: includes/class-Emsfb-public.php:6441
 msgid "The response attachment could not be verified. Please attach the file again."
 msgstr ""
@@ -15780,12 +15785,12 @@ msgstr ""
 msgid "The sender address %s was not carried over: Easy Form Builder sends from one address for all forms, set in its email settings."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2431
-#: includes/admin/class-Emsfb-admin.php:2448
+#: includes/admin/class-Emsfb-admin.php:2433
+#: includes/admin/class-Emsfb-admin.php:2450
 msgid "The sender email address is not valid."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4199
+#: includes/admin/class-Emsfb-admin.php:4208
 msgid "The sender email address is not valid. Please check your email settings."
 msgstr ""
 
@@ -15825,7 +15830,7 @@ msgstr ""
 msgid "The site leaves this field out of the page and out of the sent answers for anyone else, and it is never required for them. Administrators follow the rule too."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3430
+#: includes/admin/class-Emsfb-admin.php:3432
 msgid "The site owner confirmed that this host can send email. No delivery check was run."
 msgstr ""
 
@@ -15880,7 +15885,7 @@ msgstr ""
 msgid "The test email was delivered, but its deliverability score is only %1$s out of 100 (below %2$s), so the emails your forms send are very likely to be rejected or filtered as spam."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4231
+#: includes/admin/class-Emsfb-admin.php:4240
 msgid "The test message was delivered, but its deliverability score is too low to rely on. Sending through SMTP and adding SPF and DKIM records for your domain is what fixes this."
 msgstr ""
 
@@ -16015,7 +16020,7 @@ msgstr ""
 msgid "The whole value must match. You do not need ^ or $."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4183
+#: includes/admin/class-Emsfb-admin.php:4192
 msgid "The wp_mail() function is missing or not available. WordPress email features may be broken."
 msgstr ""
 
@@ -16204,7 +16209,7 @@ msgstr ""
 msgid "This email domain is not accepted."
 msgstr ""
 
-#: includes/class-email-handler.php:1329 includes/class-Emsfb.php:2186
+#: includes/class-email-handler.php:1329 includes/class-Emsfb.php:2192
 #: includes/functions.php:3878
 msgid "This email was sent automatically. Please do not reply directly."
 msgstr ""
@@ -16790,7 +16795,7 @@ msgstr ""
 msgid "To preview the form, you need to save the built form and try again."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4124
+#: includes/admin/class-Emsfb-admin.php:4133
 msgid "To receive email notifications from your forms, verify your email server by following these steps:"
 msgstr ""
 
@@ -18501,7 +18506,7 @@ msgstr ""
 msgid "WordPress accepted and sent the message. Waiting for it to arrive…"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2664
+#: includes/admin/class-Emsfb-admin.php:2666
 msgid "WordPress accepted and sent the test email. Waiting for it to arrive."
 msgstr ""
 
@@ -18533,12 +18538,12 @@ msgstr ""
 
 #. translators: Title shown when wp_mail() itself failed and nothing left the
 #. site
-#: includes/admin/class-Emsfb-admin.php:2601
-#: includes/admin/class-Emsfb-admin.php:3070 includes/functions.php:4004
+#: includes/admin/class-Emsfb-admin.php:2603
+#: includes/admin/class-Emsfb-admin.php:3072 includes/functions.php:4004
 msgid "WordPress could not send the email"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2621
+#: includes/admin/class-Emsfb-admin.php:2623
 msgid "WordPress could not send the test email. The message never left your website, so nothing was delivered."
 msgstr ""
 
@@ -18600,7 +18605,7 @@ msgstr ""
 msgid "WordPress login form"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4182
+#: includes/admin/class-Emsfb-admin.php:4191
 msgid "WordPress mail function not found."
 msgstr ""
 
@@ -18646,12 +18651,12 @@ msgstr ""
 msgid "WordPress sent the last test message successfully, so your site and this plugin did their part - it was lost, delayed or rejected after leaving WordPress. Usually the receiving mailbox treated it as spam, or your host never delivered it from the outbound queue. Sending through an SMTP service, with SPF and DKIM records for your domain, is what fixes this."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3074
+#: includes/admin/class-Emsfb-admin.php:3076
 msgid "WordPress sent the message successfully, so your site and this plugin did their part. It was lost, delayed or rejected after leaving WordPress - usually the receiving side treated it as spam, or your host never delivered it from the outbound queue."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3122
-#: includes/admin/class-Emsfb-admin.php:4235
+#: includes/admin/class-Emsfb-admin.php:3124
+#: includes/admin/class-Emsfb-admin.php:4244
 msgid "WordPress sent the test email, but delivery has not been confirmed yet."
 msgstr ""
 
@@ -18660,7 +18665,7 @@ msgstr ""
 msgid "WordPress sent the test email, but our server has not received it yet. This may be a temporary delay. Check the diagnostics below to troubleshoot."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2647
+#: includes/admin/class-Emsfb-admin.php:2649
 msgid "WordPress sent the test email. Easy Form Builder is waiting for the delivery result before marking email as ready."
 msgstr ""
 
@@ -18902,8 +18907,8 @@ msgstr ""
 msgid "You do not have permission to change Development Mode."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2309
-#: includes/admin/class-Emsfb-admin.php:2330
+#: includes/admin/class-Emsfb-admin.php:2311
+#: includes/admin/class-Emsfb-admin.php:2332
 msgid "You do not have permission to complete setup."
 msgstr ""
 
@@ -18915,8 +18920,8 @@ msgstr ""
 msgid "You do not have permission to download this file."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2287
-#: includes/admin/class-Emsfb-admin.php:2365
+#: includes/admin/class-Emsfb-admin.php:2289
+#: includes/admin/class-Emsfb-admin.php:2367
 msgid "You do not have permission to update these settings."
 msgstr ""
 
@@ -19023,7 +19028,7 @@ msgstr ""
 msgid "Your Easy Form Builder Pro subscription has expired, so the Pro add-ons could not be downloaded. The plugin keeps working without them. Renew your subscription to restore all Pro features:"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:1147
+#: includes/admin/class-Emsfb-admin.php:1149
 msgid "Your Easy Form Builder Pro subscription has expired, so this add-on cannot be downloaded."
 msgstr ""
 
@@ -19186,11 +19191,11 @@ msgstr ""
 msgid "Your email server is working. A detailed HTML report has been sent to %s."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4230
+#: includes/admin/class-Emsfb-admin.php:4239
 msgid "Your emails are arriving in the spam folder."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3114
+#: includes/admin/class-Emsfb-admin.php:3116
 msgid "Your emails are being delivered to spam"
 msgstr ""
 
@@ -19412,7 +19417,7 @@ msgstr ""
 msgid "Your server had an error (HTTP %d)"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4187
+#: includes/admin/class-Emsfb-admin.php:4196
 msgid "Your server has no SMTP host or sendmail path set. Emails may not be delivered."
 msgstr ""
 
@@ -19420,7 +19425,7 @@ msgstr ""
 msgid "Your server has successfully sent this test email. The email delivery system is properly configured and functioning."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4171
+#: includes/admin/class-Emsfb-admin.php:4180
 msgid "Your server is able to send emails using the default PHP mail system."
 msgstr ""
 
@@ -19447,7 +19452,7 @@ msgstr ""
 msgid "Your session has expired. Save your work and reload the page."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2921
+#: includes/admin/class-Emsfb-admin.php:2923
 #: includes/class-Emsfb-review-request.php:1211
 msgid "Your site could not connect"
 msgstr ""

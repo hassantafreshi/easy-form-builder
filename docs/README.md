@@ -10,6 +10,12 @@ This path is the single reference index for Easy Form Builder's internal and dev
 
 - Fixed, permanent guidelines for writing any article/user guide: article structure and frontmatter, terminology rules (ban on the word "core" and its equivalents), the sourcing order for terms from `languages/*.json` and the WordPress glossary, and language-specific rules for German (informal "du" tone), Arabic (مُنشئ النماذج السهل), and Persian (فرم ساز آسان)
 
+### Form package (export / import contract)
+
+[Form package contract](form-package-contract.en.md)
+
+- The stable PHP API (version 1) that carries one form between sites or tools (`efb_form_package_api()`, `Emsfb\Form_Package::export / validate / import`), the envelope, id remapping (`efb_form_package_remap_ids`) and the add-on extras filters (`efb_form_export_extras` / `efb_form_import_extras`, P23). No screen in core: the plugin Easy Form Builder Data Tools uses it
+
 ### Conditional Logic
 
 [Conditional Logic index](conditional-logic/README.md)

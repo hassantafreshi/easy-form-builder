@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P1 · تلاش: M · وابستگی: — (با طرح redesign در `_workspace/easy-form-builder-form-builder/docs` هماهنگ است، نه وابسته)
+وضعیت: **پیاده‌سازی شد (۲۰۲۶-۱۱-۱۵): A، B و C کامل؛ D به تصمیم مالک فقط قرارداد PHP بستهٔ فرم در هسته (`Emsfb\Form_Package`، نسخهٔ ۱) و P23، بی هیچ صفحه‌ای — دکمه‌ها، پیش‌نمایش، خروجی گروهی و درون‌ریزهای دیگر در افزونهٔ جدای «Easy Form Builder Data Tools»؛ DB 1.11؛ قرارداد AutoPilot/SitePilot؛ ترجمه: فقط فهرست عبارت‌ها، به دستور مالک)** · اولویت: P1 · تلاش: M · وابستگی: — (با طرح redesign در `_workspace/easy-form-builder-form-builder/docs` هماهنگ است، نه وابسته)
 
 # F15 — بهره‌وری سازندهٔ فرم: undo و redo، نسخه‌های فرم، خروجی و ورودی JSON، میان‌بر صفحه‌کلید، جست‌وجوی فیلد
 
@@ -374,49 +374,57 @@ h.on('change', fn);         // toolbar state
 - پذیرش: «موب»، «جوال» و «phone» فیلد موبایل را نشان دهند؛ دستهٔ «پرداخت» + جست‌وجوی «ایمیل» هیچ نتیجه‌ای ندهد؛ Ctrl+S در چیدمان فارسی ذخیره کند؛ `/` در کادر برچسب تایپ شود نه فوکوس؛ Esc پنل را ببندد؛ کلیدهای تک‌حرفی قابل خاموش‌کردن.
 - تست‌ها: `node tests/test-palette-search.js` (استخراج تابع نرمال‌سازی با regex و `new Function`، الگوی `tests/test-response-viewer-escaping.js:26-35`)؛ Playwright `tests/builder-shortcuts-browser.js` با `event.code` در چیدمان شبیه‌سازی‌شدهٔ فارسی.
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint**
+- فایل‌های تغییرکرده: جدید `includes/admin/assets/js/productivity-efb.js` (UMD؛ بخش خالص: `normalize`، `paletteMatch`، `shortcutAction`، `isTextTarget`، `shortcutRows`، `diffForms`؛ بخش صفحه: جست‌وجو، میان‌برها، پنجرهٔ دسترس‌پذیر خودش، نوار ابزار)، جدید `includes/admin/assets/css/productivity-efb.css` (فقط ویژگی‌های منطقی)، جدید `includes/class-Emsfb-builder-tools.php` (`Emsfb\Builder_Tools`: AJAX ‏`efb_set_builder_pref`، `efb_var.builder_prefs` و `efb_var.f15`، ثبت در رجیستری)، `val-efb.js` (کادر جست‌وجو بالای `#listCatEfb` و فراخوانی `efbPdBuilderBuiltEfb()` در پایان `creator_form_builder_Efb`)، `class-Emsfb-create.php` و `class-Emsfb-panel.php` (enqueue)، `class-Emsfb.php` (ثبت)، `functions.php` (عبارت‌ها). کد به‌جای `admin-efb.js`/`val-efb.js` در فایل تازه رفت تا فایل‌های بزرگ کم دست بخورند؛ نام‌های سراسری سند (`efb_palette_search_efb`، `efb_builder_shortcuts_init_efb`، `window._efbBuilderKeyHandler`) همان‌اند. commit ‏`3d76056d`.
+- نکته‌ها: `efb_var` در `admin-efb.js` deep-freeze می‌شود، پس ترجیح تغییرکرده در صفحه در متغیر خود ماژول نگه داشته می‌شود. فهرست انگلیسی ثابت مترادف‌ها (`PALETTE_EN`، ترجمه نمی‌شود) کنار عبارت‌های ترجمه‌پذیر `palette_syn_<id>` است تا مدیر فارسی با «phone» هم موبایل را بیابد. Esc پنل را می‌بندد و فوکوس را از کادرهای پنل بیرون می‌برد (وگرنه کلیدهای بعدی در کادر پنهان تایپ می‌شدند). Ctrl+S در کادر متنی، اول `change` همان کادر را می‌فرستد و پس از تایمر سازنده ذخیره می‌کند. Alt+↑/↓ ترتیب بوم را عوض و `sort_obj_el_efb_()` خود سازنده را اجرا می‌کند (هرگز بالای مرحله نمی‌رود).
+- تست‌ها: `node tests/test-palette-search.js` (۶۶)، `node tests/test-builder-shortcuts-browser.js` (۳۱، Chromium با چیدمان فارسی شبیه‌سازی‌شده: `key` «س»/«ظ» با `code` درست)؛ e2e ‏`f15a` (۱۸: en ۱۲۸۰، fa_IR و ar در ۳۷۵px). اسکرین‌شات‌ها: `f15a-shortcuts-en-1280`، `f15a-search-{fa_IR,ar}-375`، `f15a-shortcuts-{fa_IR,ar}-375`.
+- وضعیت ترجمه: عبارت‌ها انگلیسی در فهرست (`extract.php`)؛ ترجمه نشد (دستور مالک). مترادف‌های بومی (مثلاً «جوال») با ترجمهٔ `palette_syn_mobile` می‌آیند؛ تست فارسی آن را با متن تزریقی بررسی می‌کند.
+- مورد باز: —
+- اقدام بعدی: B.
 
 ### B — Undo/Redo
 - فایل‌ها: جدید `includes/admin/assets/js/history-efb.js`؛ `class-Emsfb-create.php` (enqueue)؛ `admin-efb.js` (نقطه‌های ورود §۲.۱، `efb_history_apply_efb`، دکمه‌ها)؛ `pro_els-efb.js` (استان/شهر)؛ `val-efb.js` (`navs`).
 - پذیرش: برای هر نقطهٔ ورود جدول §۲.۱ یک سناریو: انجام → undo → state برابر قبل (`JSON.stringify` یکسان) → redo → برابر بعد. تایپ ۲۰ حرف در برچسب یک ورودی بسازد. undo پس از تغییر ناهمگام (فرم ۱۵۰ ردیفی) snapshot کامل را بگیرد. undo پس از ذخیره و reload در دسترس نیست و دکمه‌ها `disabled`اند. نمای موبایل پس از undo حفظ شود.
 - تست‌ها: `node tests/test-builder-history.js` (هستهٔ `history-efb.js` در Node: ادغام، سقف، no-op، ترتیب undo/redo، و شبیه‌سازی `setTimeout` با تأخیر)؛ Playwright `tests/builder-undo-browser.js` (نیازمند WordPress).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint**
+- فایل‌های تغییرکرده: جدید `includes/admin/assets/js/history-efb.js` (`EfbHistory`، UMD، بی DOM)، `productivity-efb.js` (سیم‌کشی: `efb_history_apply_efb`، `efbHistHintEfb`/`efbHistEditEfb`/`efbHistLateEfb`/`efbUndoEfb`/`efbRedoEfb`، دکمه‌ها، toast)، `admin-efb.js` (نام‌گذاری نقطه‌های ورود: `change_el_edit_Efb`، `fun_efb_add_el`، تأیید حذف فیلد و مرحله، `fun_confirm_dup_emsFormBuilder`، `handleDrop`، `add_new_option_efb`، `delete_option_efb`)، `val-efb.js` (توقف sortable)، `pro_els-efb.js` (فهرست استان/شهر: `late`)، `builder-api-efb.js` (`efbBuilderApi.history`)، enqueue. commit ‏`e10b32e4`.
+- طرح (تفاوت با §۶.۱): به‌جای `begin` در ابتدای هر نقطه و `commit` در پایان setTimeout، «حرکت» شخص از `pointerdown`/`keydown` (capture) شروع و پس از آرام‌گرفتن تایمرهای سازنده با `change`/`click`/`drop`/`keyup` ثبت می‌شود؛ نقطه‌های ورود فقط نام و کلید ادغام می‌دهند. پس هیچ مسیر تغییری (حتی افزونهٔ منطق شرطی) جا نمی‌ماند و رویداد `efb:builder-mutate` لازم نشد. تغییری که دیرتر برسد (تکثیر پس از `len*p` میلی‌ثانیه، فهرست شبکه) تا ۵ ثانیه به همان ورودی می‌پیوندد؛ رسم دوباره (اعداد `amount`/`step`) ورودی نمی‌سازد چون snapshot پس از `efbNormalizeOrderEfb` گرفته می‌شود. هر فراخوانی تغییردهندهٔ `efbBuilderApi` یک ورودی «AutoPilot: …»، و `history.batch(label, fn)` چند فراخوانی را یکی می‌کند.
+- یافتهٔ جانبی (رفع شد): پیشنهاد «نسخهٔ خودذخیره هست» سه ثانیه پس از بارگذاری صفحه روی سازندهٔ باز هم ظاهر می‌شد (BUGS-FOUND).
+- تست‌ها: `node tests/test-builder-history.js` (۳۷)، `node tests/test-builder-undo-browser.js` (۵۲: هر نقطهٔ ورود §۲.۱ — undo برابر قبل، redo برابر بعد، بایت‌به‌بایت —؛ ۲۰ حرف = یک ورودی؛ فرم ۱۵۰ ردیفی؛ نمای موبایل؛ فرم دیگر = تاریخچهٔ خالی)؛ e2e ‏`f15b` (۱۸).
+- کارایی (فرم ۲۰۰ فیلدی، سایت e2e، `f15b-perf.json`): ۲۰۲ ردیف و ۱۰۸٬۴۶۷ نویسه؛ هر snapshot حدود ۰٫۱ میلی‌ثانیه؛ ورودی ۲٫۱ ثانیه پس از ویرایش ثبت می‌شود (۱٫۲ ثانیه‌اش تایمر خود سازنده است)؛ undo ‏۲٫۹ ثانیه در برابر رسم سادهٔ بوم ۲٫۹ ثانیه (هزینهٔ undo همان رسم دوبارهٔ سازنده است). افت محسوسی دیده نشد.
+- وضعیت ترجمه: فقط فهرست.
+- مورد باز: —
+- اقدام بعدی: C.
 
 ### C — نسخه‌های فرم
 - فایل‌ها: `class-Emsfb-install.php` (CREATE + `upgrade_schema`)، `emsfb.php:34` (1.4)، `class-Emsfb-admin.php` (درج و هرس در `update_form_id_Emsfb`، `clear_form_cache_efb`، `efb_list_revisions`، `efb_get_revision`، حذف در `delete_form_id_public`، `form_rev_keep` در `set_settings_Emsfb`)، `admin-efb.js`، `val-efb.js`، `list_form-efb.js` (تنظیم سراسری)، `docs/migrations/`.
 - پذیرش: سه ذخیرهٔ متفاوت سه نسخه؛ ذخیرهٔ بدون تغییر نسخه نسازد؛ با `N=2` فقط دو نسخهٔ آخر بماند؛ بازگردانی و ذخیره، نسخهٔ قبلی را بایگانی کند؛ کاربر بدون قابلیت 403 بگیرد؛ سایتی که از 1.3 ارتقا می‌یابد و `emsfb_stts_` ندارد جدول را بگیرد؛ حذف فرم نسخه‌ها را حذف کند.
 - تست‌ها: `php tests/test-form-revisions.php` (WordPress واقعی با `[SKIP]`، الگوی `tests/test-form-update-not-saved.php`)؛ `php tests/test-upgrade-schema-revisions.php` (stub `$wpdb` با ثبت کوئری‌ها، بررسی ترتیب نسبت به return زودهنگام).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint**
+- فایل‌های تغییرکرده: جدید `includes/class-Emsfb-revisions.php` (`Emsfb\Revisions`)، `class-Emsfb-install.php` (`f15_ddl`، `upgrade_f15_schema` پیش از return زودهنگام، CREATE در `install()`)، `emsfb.php` (`EMSFB_DB_VERSION` = `'1.11'`، رشته)، `class-Emsfb-admin.php` (`rev_source`/`rev_note`/`old_rows` در زمینهٔ `efb_form_saved`؛ `form_rev_keep` در `set_settings_Emsfb`)، `class-Emsfb-create.php`، `admin-efb.js` (ارسال `rev_source`/`rev_note`، رویداد `efb:form-saved`)، `list_form-efb.js` (تنظیمات › عمومی)، `productivity-efb.js` (پنجرهٔ نسخه‌ها)، `builder-api-efb.js` (`efbBuilderApi.revisions`)، سند مهاجرت. commit ‏`d6f0f117`.
+- تصمیم‌ها (تفاوت با §۴.۲): هر ذخیرهٔ موفق **حالت ذخیره‌شده** را نسخه می‌کند (مثل بازنگری‌های وردپرس) و تازه‌ترین «فعلی» است؛ نخستین ذخیرهٔ فرمی که هنوز نسخه ندارد اول حالت پیشین را با منبع `initial` نگه می‌دارد. پس برچسب «چه کسی، با چه (سازنده، AutoPilot، بازگردانی، ساخت، درون‌ریزی، API)» و یادداشت به همان نسخه تعلق دارد و پرسش باز ۲ بی‌موضوع شد. نوشتن از هوک‌های `efb_form_saved`/`efb_form_created` است، پس هر مسیر ذخیره (سازنده، AutoPilot از راه سازنده، CF7، API آینده) نسخه می‌سازد. ستون تازهٔ `source` و `step_count` به جدول §۵.۴ افزوده شد. «پیش‌نمایش» به‌جای رسم در پیش‌نمایش رایانه یک فهرست مرحله‌ها و فیلدها در همان پنجره است (رسم پیش‌نمایش `valj_efb` سراسری را می‌خواند) و «مقایسه با فعلی» فیلدهای فقط‌در‌نسخه، فقط‌در‌فعلی، تغییرکرده (با کلیدها) و کلیدهای تنظیمات فرم را نشان می‌دهد. بازگردانی متن‌ها، شماره‌ها و توکن SMS/تلگرام فعلی را نگه می‌دارد (آن‌ها در جدول افزونه‌اند، نه در نسخه). هرس در PHP (بی زیرپرس‌وجوی LIMIT؛ MySQL و SQLite).
+- سطح (§۱۴، پرسش ۴): رایگان ۳، Free Plus ‏۱۰، Pro ‏۵۰ نسخهٔ پیشین (سقف هنگام خواندن با `Builder_Api::plan_at_least`؛ پیش‌فرض ۱۰؛ `0` خاموش؛ فیلتر `efb_form_revisions_keep`؛ فرم بالای ۲MB حداکثر ۵).
+- حریم خصوصی و حذف: حذف فرم (`efb_form_deleted`) نسخه‌ها را حذف می‌کند؛ حذف کاربر و پاک‌کن دادهٔ شخصی وردپرس («Easy Form Builder form versions») `user_id` ویرایشگر را صفر می‌کند؛ نسخه هیچ پاسخی ندارد. حذف افزونه جدول را مثل بقیهٔ جدول‌ها نگه می‌دارد (روال uninstall در هسته نیست؛ ctl ‏`wipe` آن را حذف می‌کند).
+- تست‌ها: `php tests/test-form-revisions.php` (۲۳)، `php tests/test-upgrade-schema-revisions.php` (۱۱: سایت بی `emsfb_stts_` هم جدول را می‌گیرد)، `php tests/test-form-revisions-http.php` (۱۷: AJAX واقعی ذخیره، ۴۰۳ بی nonce و برای کاربر بی قابلیت، بی nopriv، حذف فرم)، e2e ‏`f15c` (۱۷). اسکرین‌شات‌ها: `f15c-versions-en-1280`، `f15c-versions-{fa_IR,ar}-375`. آزمون‌های F12/F14 که «DB دقیقاً 1.10» را می‌خواستند اکنون «1.10 یا بالاتر» می‌خواهند.
+- وضعیت ترجمه: فقط فهرست.
+- مورد باز: یادداشت دستی هنگام ذخیره (کادر «یادداشت این نسخه») ساخته نشد؛ ستون `note` برای بازگردانی و AutoPilot (`rev_note`) به کار می‌رود.
+- اقدام بعدی: D.
 
 ### D — خروجی و ورودی JSON
 - فایل‌ها: `class-Emsfb-admin.php` (`efb_export_forms`، `efb_import_forms`، `insert_form_structure_efb`، `normalize_import_rows_efb`، `remap_import_ids_efb`)؛ `includes/importers/cf7/class-Emsfb-cf7-importer.php` (استفاده از درج مشترک)؛ `list_form-efb.js` (دکمه‌ها، مودال، دانلود، FileReader)؛ `admin-efb.js` (خروجی از سازنده).
 - پذیرش: خروجی و ورودی دوباره فرمی بدهد که ردیف‌هایش (جز `form_id` و کلیدهای حذف‌شدهٔ §۵.۵) با فرم اصلی برابر است؛ `telegram_bot_token` در هیچ پاکتی نباشد حتی اگر در حافظهٔ `valj_efb` بوده؛ فایل با ردیف بدون `type` یا `c_c:"x"` بدون PHP warning رد یا پاک شود؛ `efb_export:2` پیام `impNewer`؛ شناسهٔ تکراری بازنگاشت و `email_to` و `parent` به‌روز شود؛ فرم پرداخت `form_type='payment'` بگیرد؛ CF7 importer همچنان آزمون‌هایش را پاس کند.
 - تست‌ها: `php tests/test-form-export-import.php` (stub‌های آرایه‌وفادار مثل `tests/test-conditional-logic-save-roundtrip.php` با مسیر `__DIR__.'/..'`، برای پاکت، پیش‌پاک‌ساز و بازنگاشت)؛ `php tests/test-form-import-ajax.php` (WordPress واقعی، nonce و نقش)؛ اجرای دوبارهٔ `php tests/test-cf7-importer.php`.
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
-
+**Checkpoint**
+- تصمیم مالک (۲۰۲۶-۱۱-۱۴، از راه هماهنگ‌کننده): هسته فقط قرارداد کوچک بستهٔ فرم را نگه می‌دارد، بی UI. دکمه‌ها، پنجره‌ها، پیش‌نمایش، خروجی/ورودی گروهی و درون‌ریزهای فرم‌سازهای دیگر (و بعداً درون‌ریز CF7 که فعلاً در هسته می‌ماند) به افزونهٔ رایگان «Easy Form Builder Data Tools» می‌روند (کار عامل دیگر در مخزن خودش). پس §۴.۳، §۶.۳ و AJAXهای `efb_export_forms`/`efb_import_forms` در هسته ساخته نشدند؛ نقشهٔ راه `AdnIEM` (`vendores-efb/import-export`) با همین تصمیم جایگزین می‌شود.
+- فایل‌های تغییرکرده: جدید `includes/class-Emsfb-form-package.php` (`Emsfb\Form_Package`: `api`، `export`، `validate`، `import`، `export_extras`، `import_extras`، `duplicate_extras`، `assign_ids`، `remap_structural`، `remap_tags`، `prepare_rows`، `import_warnings`، پیام‌های هسته برای SMS و تلگرام)، جدید `includes/form-package-functions-efb.php` (`efb_form_package_api()`)، `class-Emsfb.php` (ثبت)، `class-Emsfb-revisions.php` (ستون `extras`، `apply_extras`، `rev_extras`)، `class-Emsfb-install.php` (یک ALTER برای `extras` روی جدولی که بیلد زودتر 1.11 ساخته بود)، `class-Emsfb-admin.php` (ذخیرهٔ نسخهٔ بازگردانده پیش از `efb_form_saved` بلوک‌ها را برمی‌گرداند؛ تکثیر بلوک‌ها را کپی و `efb_form_created` با منبع `duplicate` می‌فرستد)، `productivity-efb.js` (`rev_extras`)، `class-Emsfb-builder-tools.php`، سند `docs/form-package-contract.en.md`. افزونه: `vendores-efb/googlesheet` بلوک `googlesheet` (نگاشت ستون‌ها، بی اتصال و شناسهٔ صفحه هنگام خروج از سایت؛ درون‌ریزی خاموش با پیام اتصال؛ شناسه‌ها با `id_map`).
+- تصمیم‌ها: پاکت نسخهٔ ۱ `{schema, generator, plugin_version, exported_at, form, extras}` (یک فرم؛ ابزار بیرونی چند پاکت را خودش کنار هم می‌گذارد). بازنگاشت شناسه فقط برای شناسهٔ نامعتبر (سراسری، از راه فیلتر `efb_form_package_remap_ids`؛ کنترل‌گرهای خود هسته — کلیدهای ساختاری و ارجاع‌های `{…}` برچسب‌های هوشمند و محاسبه — روی همین فیلترند تا وقتی محاسبه و امضای تایپی به افزونه رفتند، کنترل‌گرشان را خودشان بیاورند) و برای استفادهٔ دوم یک شناسه (فقط همان ردیف و گزینه‌هایش). فرمی که بی ردیف مرحله ذخیره شده بود (باگ قدیمی `insertItems` روی فرم خالی) مرحلهٔ ۱ می‌گیرد. محدودیت‌ها: ۸MB، عمق ۶۴، ۵۰۰۰ ردیف. رشتهٔ شیء PHP و نوع ناشناخته حذف و گزارش می‌شوند. مسیر ذخیره همان مسیر ساخت فرم سازنده/AutoPilot است و تست HTTP برابری بایت‌به‌بایت آن دو را بررسی می‌کند. رازها: الگوی نام کلید (`secret`، `token`، `api_key`، `chat_id`، `admin_phone`، `admin_numbers` …) در ردیف ۰ و همهٔ بلوک‌ها، جز تکثیر روی همان سایت. فرم پرداخت پس از ورود با `Payments\Readiness` سنجیده می‌شود.
+- تست‌ها: `php tests/test-form-package.php` (۴۱، بی وردپرس)، `php tests/test-form-revisions.php` (۲۶ با بلوک‌های نسخه)، `php tests/test-upgrade-schema-revisions.php` (۱۳ با ALTER ستون)، `php tests/test-addon-googlesheet-package.php` (۸)، `php tests/test-form-package-http.php` (۱۹ روی سایت واقعی: هر ۱۳۹ فرم سایت — فرم‌های F02 تا F14، پرداخت، منطق — رفت‌وبرگشت شد، هیچ‌کدام رد نشد و ۱۲۵ فرم بی حذف/بازنگاشت بایت‌به‌بایت برابر ذخیره شدند؛ ورودی بدخواه؛ رازها؛ بلوک SMS با ورود و تکثیر؛ بلوک افزونهٔ غیرفعال)؛ e2e ‏`f15d` (۵: رفت‌وبرگشت، فرم در سازنده، ارسال مهمان با محاسبهٔ دنبال‌کنندهٔ شناسهٔ تازه).
+- وضعیت ترجمه: پیام‌های API انگلیسی‌اند (کد پایدار + متن)؛ متن‌ها را افزونهٔ Data Tools نشان می‌دهد. فقط «%s (imported)» در فهرست.
+- مورد باز: رفع خود `isScript` و `sanitize_obj_msg_efb` (§۱۹) انجام نشد؛ بسته پیش از پاک‌ساز ورودی را امن می‌کند. انتقال درون‌ریز CF7 با تسک بعدی مالک.
+- اقدام بعدی: —
 ---
 
 ## ۱۷. گسترش‌های فاز ۲ مرتبط (اختیاری)
@@ -450,6 +458,14 @@ Checkpoint
 4. سهمیهٔ نسخه برای رایگان (پیشنهاد ۳) یا هیچ؟
 5. آیا خروجی گروهی همهٔ فرم‌ها در قالب ZIP (یک فایل JSON برای هر فرم) لازم است؟ نسخهٔ ۱ یک فایل JSON با آرایهٔ `forms` است.
 6. نگهداری history پس از reload در `IndexedDB`؟ پیشنهاد: خیر در نسخهٔ ۱.
+
+### پاسخ‌ها (۲۰۲۶-۱۱-۱۴، استانداردترین و امن‌ترین گزینه)
+1. خیر: نسخه فقط با ذخیرهٔ سرور ساخته می‌شود؛ خودذخیرهٔ `localStorage` نه.
+2. هر نسخه حالت **ذخیره‌شده** است و یادداشت و منبع به همان تعلق دارند (C)؛ ستون یادداشت در `emsfb_form` لازم نشد.
+3. خیر: `import()` همیشه فرم تازه می‌سازد (D).
+4. رایگان ۳ نسخه، Free Plus ‏۱۰، Pro ‏۵۰.
+5. خیر در هسته: پاکت یک فرم است؛ فایل گروهی و ZIP کار افزونهٔ Data Tools است (تصمیم مالک).
+6. خیر: history پس از reload نگه داشته نمی‌شود (فقط حافظهٔ صفحه).
 
 ## ۱۹. یافته‌های جانبی هنگام بررسی (باگ)
 

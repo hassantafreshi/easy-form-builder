@@ -4,7 +4,7 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-14",
     "counts": {
-        "active": 4119,
+        "active": 4120,
         "obsolete": 376
     },
     "entries": [
@@ -854,6 +854,21 @@
             "translators": "F14: export column of a removed field; %s = its label",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s (imported)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-form-package.php"
             ],
             "scope": [
                 "core"

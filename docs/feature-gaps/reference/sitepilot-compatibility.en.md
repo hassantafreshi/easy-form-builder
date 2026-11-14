@@ -1177,6 +1177,17 @@ writing moves from `update_form_id_Emsfb()` to the shared pipeline (§7.1) so AP
 revisioned; the history module wraps `window.efbBuilderApi` (shipped, §12): one history entry per
 API call, and `applyPatch()` is added there, not as a second `EFBBuilder` object.
 
+*Built (2026-11-14):* the history wraps `window.efbBuilderApi` (`efbBuilderApi.history`, one entry per call,
+`history.batch()`); versions are written from the `efb_form_saved` / `efb_form_created` hooks, so every save path that
+fires them (builder, AutoPilot, CF7, import, a future API) is versioned — the "move revision writing to the shared
+pipeline" item is done that way; `struct_hash` = md5 of the stored JSON (usable as `base_hash`); `rev_source` /
+`rev_note` of the save request carry who saved (`autopilot`), the note can carry the SitePilot actor. The export /
+import part became the PHP contract `Emsfb\Form_Package` (schema 1, `efb_form_package_api()`,
+`docs/form-package-contract.en.md`): `validate()` = the pre-sanitiser + id remapping (`efb_form_package_remap_ids`, the
+map is returned) + the builder's save path, `import()` = a new form; the `form.create` body of §7 is one package's
+`form` plus `extras`. `insert_form_structure_efb()` / `remap_import_ids_efb()` are `Form_Package::import()` /
+`Form_Package::assign_ids()` + the remap hook. No UI in core (the Data Tools plugin).
+
 **F16 accessibility and inline validation.** Create: row-0 `val_timing`, `err_summary`,
 `warn_unsaved`; field `autocomplete`. Must add: new-form defaults also applied by
 `efb_form_defaults_efb()` for API-created forms; schema exposes the effective `autocomplete` token

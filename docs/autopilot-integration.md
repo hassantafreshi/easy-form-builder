@@ -1516,6 +1516,38 @@ Add-on `vendores-efb/payplug` on the PAY00 contract; nothing new in core. For ag
   (23), `…-refund.php` (17), `…-secrets.php` (18), `node tests/test-addon-payplug-adapter.js` (19);
   e2e scenario `payplug` (25).
 
+### F15. Builder productivity: undo / redo, form versions, the form package (`efbBuilderApi.history`, `efbBuilderApi.revisions`, `efb_form_package_api()`)
+
+Spec: [F15](feature-gaps/F15-builder-productivity.fa.md). No new form key. Free on every plan, except how many
+versions are kept (Free 3, Free Plus 10, Pro 50 earlier versions).
+
+- **Undo / redo.** Every `efbBuilderApi` call that changes the form (`setForm`, `insertItems`, `removeItems`,
+  `setFormType`, `setFormSettings`, `setOptions`, `setCalc`, …) is **one** undo entry named
+  `AutoPilot: <change>`; the owner's Ctrl+Z / the toolbar's Undo takes it back like any edit. Several calls as one
+  entry: `efbBuilderApi.history.batch('Build the contact form', () => { …calls…; return efbBuilderApi.render(); })`
+  (a Promise is waited for). Also `history.undo()`, `history.redo()`, `history.state()` →
+  `{canUndo, canRedo, undoLabel, redoLabel, size, applying}`, `history.canUndo()`, `history.canRedo()`; event
+  `efb:history-change` on `document`. An undo / redo dispatches `efb:form-changed` with `source: 'history'`. The
+  history is the page's memory only: another form, a template, a restored draft or a reload start an empty one; a
+  save keeps it. Registry: `capabilities.builder_history` (limits 50 entries / 20 M characters, the shortcuts).
+- **Shortcuts.** Matched on `KeyboardEvent.code`, so a Persian / Arabic layout works. Inside a text box only
+  Ctrl/Cmd+S and Esc are taken. An assistant's own panel should stop propagation of keys it handles.
+- **Versions.** Each save keeps a version (`emsfb_form_rev_`, DB 1.11). The builder sends `rev_source`:
+  `autopilot` when only `efbBuilderApi` changed the form since the last save, `restore` after a restored version,
+  else `builder`; AutoPilot needs to do nothing. `efbBuilderApi.revisions.list()` → `{success, form_id, keep, cap,
+  revisions:[{rev_id, date, iso, user, source, note, fields, steps, current}]}`, `.get(rev_id)` →
+  `{success, revision:{…, rows}}`, `.restore(rev_id)` → loads it into the builder **unsaved**, as one undo entry
+  (`Restore version from …`); saving stays the owner's click. Admin AJAX `efb_list_revisions` / `efb_get_revision`
+  (nonce `wp_rest`, the plugin's capability). Registry: `capabilities.revisions`, `features['setting:revisions']`.
+- **Form package (export / import).** Core has no screen for it (the plugin *Easy Form Builder Data Tools* has);
+  the PHP API is the contract: `efb_form_package_api()`, `Emsfb\Form_Package::export($id)` / `::validate($pkg)` /
+  `::import($pkg)` — [docs/form-package-contract.en.md](form-package-contract.en.md). An import runs the same save
+  path as a builder / AutoPilot save (`sanitize_obj_msg_efb()` and the F03 … F13 normalizers), always creates a new
+  form, and answers the payment readiness. Registry: `capabilities.form_package`.
+- **Tests.** `node tests/test-builder-history.js`, `node tests/test-builder-undo-browser.js` (AutoPilot calls and
+  `history.batch`), `php tests/test-form-revisions.php`, `php tests/test-form-revisions-http.php`,
+  `php tests/test-form-package.php`, `php tests/test-form-package-http.php`; e2e `f15a` … `f15d`.
+
 ## Part C: the contract is kept
 
 Everything Part C of the brief lists still works as before (`node tests/test-ap-contract.js`, 16
