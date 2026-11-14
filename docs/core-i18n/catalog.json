@@ -4,8 +4,8 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-14",
     "counts": {
-        "active": 3664,
-        "obsolete": 379
+        "active": 3706,
+        "obsolete": 378
     },
     "entries": [
         {
@@ -196,6 +196,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%1$s allows at most %2$s decimal places.",
+            "context": null,
+            "plural": null,
+            "translators": "F04 visitor: %1$s = the field label, %2$s = a number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%1$s can have at most %2$s characters.",
             "context": null,
             "plural": null,
@@ -305,6 +320,21 @@
             "context": null,
             "plural": null,
             "translators": "F02 SMS text: %1$s = code, %2$s = site name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s must be a multiple of %2$s.",
+            "context": null,
+            "plural": null,
+            "translators": "F04 visitor: %1$s = the field label, %2$s = the step",
             "files": [
                 "includes/functions.php"
             ],
@@ -837,6 +867,21 @@
             "context": null,
             "plural": null,
             "translators": "F08 builder: %s = a smart tag",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s cannot be used in a calculation (password, file, signature, map or HTML).",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: %s = the reference",
             "files": [
                 "includes/functions.php"
             ],
@@ -1393,6 +1438,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%s: the lower value must not be above the upper value.",
+            "context": null,
+            "plural": null,
+            "translators": "F04 visitor: %s = the field label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "(Avoid adding JavaScript or jQuery codes to HTML for security reasons.)",
             "context": null,
             "plural": null,
@@ -1562,6 +1622,21 @@
             "context": null,
             "plural": null,
             "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "0-9",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: digits option (0-9)",
             "files": [
                 "includes/functions.php"
             ],
@@ -1819,6 +1894,21 @@
             "translators": "F01 builder: second help line under the custom mask box. Keep A, &, a and * as they are; they are mask tokens",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "A calculation used as the amount to pay needs the Pro plan.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-calc.php"
             ],
             "scope": [
                 "core"
@@ -4612,6 +4702,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Any",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: decimal places not limited",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Any domain",
             "context": null,
             "plural": null,
@@ -6057,6 +6162,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Between %1$s and %2$s",
+            "context": null,
+            "plural": null,
+            "translators": "F04 visitor: %1$s = lowest value, %2$s = highest value",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Black",
             "context": null,
             "plural": null,
@@ -7215,6 +7335,36 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Calculation",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: the default label of a new calculation field translators: F04 builder: palette tile of the calculation field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Calculation value",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: a choice’s number used in calculations",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Calendar",
@@ -11803,7 +11953,7 @@
             "msgid": "Decimal places",
             "context": null,
             "plural": null,
-            "translators": "F01 builder, number format: how many digits after the decimal separator",
+            "translators": "F01 builder, number format: how many digits after the decimal separator translators: F04 builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -11818,7 +11968,7 @@
             "msgid": "Decimal separator",
             "context": null,
             "plural": null,
-            "translators": "F01 builder, number format: the character before the decimals (12.5 or 12,5)",
+            "translators": "F01 builder, number format: the character before the decimals (12.5 or 12,5) translators: F04 builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -12574,6 +12724,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Digits shown",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -15218,6 +15383,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Empty = any value.",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: help under the step box",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -17977,7 +18157,7 @@
             "msgid": "Formula",
             "context": null,
             "plural": null,
-            "translators": "Formula = field label for the calculation expression input",
+            "translators": "Formula = field label for the calculation expression input translators: F04 builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -18579,6 +18759,21 @@
             "context": null,
             "plural": null,
             "translators": "F05 visitor: a choice that has no place left",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Functions",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -21690,7 +21885,7 @@
             "msgid": "Insert field",
             "context": null,
             "plural": null,
-            "translators": "Insert field = button that inserts a field token into the formula editor",
+            "translators": "F04 builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -21698,8 +21893,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.2.0"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Insert shortcode:",
@@ -23401,6 +23596,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Language default",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: separator chosen from the site language",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Language digits",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: digits option (the digits of the site language)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Language files installed. Reloading&hellip;",
             "context": null,
             "plural": null,
@@ -23723,6 +23948,21 @@
             "context": null,
             "plural": null,
             "translators": "F03 builder note. %s is written as is",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Leave the result empty",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: option: an empty answer leaves the result empty",
             "files": [
                 "includes/functions.php"
             ],
@@ -25238,9 +25478,25 @@
             "msgid": "Maximum",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F04 visitor: label of the upper handle of a range slider",
             "files": [
+                "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Maximum 0 is a real maximum",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: switch that makes a maximum of 0 a real maximum",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -25916,8 +26172,9 @@
             "msgid": "Minimum",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F04 visitor: label of the lower handle of a range slider",
             "files": [
+                "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
@@ -27601,6 +27858,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "No field matches %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: %s = the reference, e.g. {price}",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "No fields found.",
             "context": null,
             "plural": null,
@@ -28131,7 +28403,7 @@
             "msgid": "None",
             "context": null,
             "plural": null,
-            "translators": "F19: background mode: no background for this step translators: F01 builder: \"no input format\" option, and \"no check digit\" option",
+            "translators": "F19: background mode: no background for this step translators: F01 builder: \"no input format\" option, and \"no check digit\" option translators: F04 builder: separator option",
             "files": [
                 "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-frontend.php"
@@ -28699,6 +28971,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Number format",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Number or amount",
             "context": null,
             "plural": null,
@@ -29102,6 +29389,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "One handle",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: slider type option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "One moment before you deactivate",
@@ -31999,6 +32301,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Plain",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: format option without separators",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Plan \"%s\" has been successfully processed.",
             "context": null,
             "plural": null,
@@ -32604,6 +32921,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please enter a number in %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F04 visitor: %s = the field label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please enter a number that is greater than or equal to NN.",
             "context": null,
             "plural": null,
@@ -32630,6 +32962,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Please enter a number, such as -10 or 9.5.",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: warning for a minimum / maximum",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -33715,7 +34062,7 @@
             "msgid": "Prefix",
             "context": null,
             "plural": null,
-            "translators": "F03 builder: short text shown before the input box, e.g. +98 or $",
+            "translators": "F03 builder: short text shown before the input box, e.g. +98 or $ translators: F04 builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -33850,7 +34197,7 @@
             "msgid": "Preview",
             "context": null,
             "plural": null,
-            "translators": "F01 builder: label of the live preview of a custom mask",
+            "translators": "F01 builder: label of the live preview of a custom mask translators: F04 builder: the visible preview of the result in the builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -34894,6 +35241,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Range (two handles)",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: slider type option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -38327,6 +38689,7 @@
             "plural": null,
             "translators": "",
             "files": [
+                "includes/class-Emsfb-calc.php",
                 "includes/payments/class-Emsfb-payment-registry.php"
             ],
             "scope": [
@@ -39821,6 +40184,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Show as form currency",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Show attributes",
             "context": null,
             "plural": null,
@@ -39960,6 +40338,21 @@
             "context": null,
             "plural": null,
             "translators": "F11: builder switch",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Show the result to the visitor",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -40286,6 +40679,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Site language",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: digits option (Persian / Arabic digits on such sites, 0-9 elsewhere)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Site time now: %1$s (%2$s)",
             "context": null,
             "plural": null,
@@ -40387,6 +40795,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Slider type",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -40831,7 +41254,7 @@
             "msgid": "Space",
             "context": null,
             "plural": null,
-            "translators": "F01 builder, thousands separator option: a space character",
+            "translators": "F01 builder, thousands separator option: a space character translators: F04 builder: separator option",
             "files": [
                 "includes/functions.php"
             ],
@@ -41284,7 +41707,7 @@
             "msgid": "Step",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F04 builder: the step of a number field (e.g. 0.5)",
             "files": [
                 "includes/functions.php"
             ],
@@ -42247,7 +42670,7 @@
             "msgid": "Suffix",
             "context": null,
             "plural": null,
-            "translators": "F03 builder: short text shown after the input box, e.g. kg or .com",
+            "translators": "F03 builder: short text shown after the input box, e.g. kg or .com translators: F04 builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -44978,6 +45401,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The decimal and thousands separators must differ.",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The delivery result is not known yet. You can finish setup and check again later.",
             "context": null,
             "plural": null,
@@ -45727,6 +46165,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The formula has an error near “%s”.",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: %s = the text near the error",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The formula is too long or too deep.",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -46952,6 +47420,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The server computes the amount again from the answers; a negative result is refused.",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: help of that switch",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The server could not store the recording. Please try again or contact the site administrator.",
             "context": null,
             "plural": null,
@@ -47061,6 +47544,21 @@
             "context": null,
             "plural": null,
             "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The step must be a positive number, such as 0.5 or 5.",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: warning",
             "files": [
                 "includes/functions.php"
             ],
@@ -48715,6 +49213,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This formula uses its own result (directly or through another calculation).",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This gateway can only refund the full remaining amount (%s).",
             "context": null,
             "plural": null,
@@ -49455,6 +49968,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This value cannot be calculated from the answers given.",
+            "context": null,
+            "plural": null,
+            "translators": "F04 visitor: a calculation that cannot be made (division by zero, a text answer)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This value has already been used.",
             "context": null,
             "plural": null,
@@ -49518,7 +50046,7 @@
             "msgid": "Thousands separator",
             "context": null,
             "plural": null,
-            "translators": "F01 builder, number format: the character between groups of digits (1,234,567)",
+            "translators": "F01 builder, number format: the character between groups of digits (1,234,567) translators: F04 builder: format option",
             "files": [
                 "includes/functions.php"
             ],
@@ -50322,6 +50850,21 @@
             "context": null,
             "plural": null,
             "translators": "F03 builder switch: Persian and Arabic digits count as 0-9 for the pattern",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Treat empty answers as 0",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -51416,6 +51959,21 @@
             "obsolete_since": "4.3.1"
         },
         {
+            "msgid": "Unknown function “%s”.",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: %s = the function name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Unknown payment gateway.",
             "context": null,
             "plural": null,
@@ -52123,6 +52681,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Use the result as the amount to pay",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: switch on a calculation field (payment forms)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Use this background for every step? Steps with their own background will use it too.",
             "context": null,
             "plural": null,
@@ -52189,6 +52762,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Use {field} references, numbers, + - * / ( ) and the functions below.",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: help of the calculation field",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -52984,6 +53572,21 @@
             "context": null,
             "plural": null,
             "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Visitors can read the formula in the page source.",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder",
             "files": [
                 "includes/functions.php"
             ],
@@ -60833,6 +61436,21 @@
             "translators": "%s: field label",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-mapper.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "“%s” has the wrong number of values.",
+            "context": null,
+            "plural": null,
+            "translators": "F04 builder: %s = the function name",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
