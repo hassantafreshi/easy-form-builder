@@ -245,7 +245,15 @@
     const r = list()[indx];
     if (!r || !E()) return '<!-- F04: calc-efb.js not loaded -->';
     const did = esc(r.dataId || r.id_ + '-id');
-    const fields = list().filter((x, i) => i > 0 && READABLE(x) && x.id_ !== r.id_);
+    // F09: inside a repeater group a formula reads its own row's fields ({child}) and fields outside any group;
+    // outside, the "Rows" list offers {group.child} (a list, for sum / avg / min / max / count).
+    const cgEfb = root.EFBRepeaterCore ? root.EFBRepeaterCore.childGroups(list()) : {};
+    const inGroupEfb = cgEfb[r.id_] || '';
+    const fields = list().filter((x, i) => i > 0 && READABLE(x) && x.id_ !== r.id_ && x.type !== 'repeater' && (!cgEfb[x.id_] || cgEfb[x.id_] === inGroupEfb));
+    const rowRefsEfb = inGroupEfb ? [] : list().filter((x, i) => i > 0 && READABLE(x) && cgEfb[x.id_]).map((x) => {
+      const g = list().find((y) => y && y.id_ === cgEfb[x.id_]) || {};
+      return { v: `${cgEfb[x.id_]}.${x.id_}`, t: `${g.name || g.id_} › ${x.name || x.type} — {${cgEfb[x.id_]}.${x.id_}}` };
+    });
     const err = E().formErrors(list())[r.id_];
     const pay = list()[0] && list()[0].type === 'payment';
     let html = `<div class="efb mt-2 efb-calc-panel" id="efbCalcPanel" data-id="${esc(r.id_)}">
@@ -256,6 +264,7 @@
       <label for="calcInsertEl" class="efb form-label mt-2 mb-1">${esc(T('calcInsertField', 'Insert field'))}</label>
       <select id="calcInsertEl" class="efb form-select border-d rounded-4 mb-1" onchange="efb_calc_insert_efb(this.value ? '{' + this.value + '}' : ''); this.value='';">
         <option value="">—</option>${fields.map((x) => `<option value="${esc(x.id_)}">${esc((x.name || x.type) + ' — {' + x.id_ + '}')}</option>`).join('')}
+        ${rowRefsEfb.length ? `<optgroup label="${esc(T('calcRows', 'Rows'))}">${rowRefsEfb.map((o) => `<option value="${esc(o.v)}">${esc(o.t)}</option>`).join('')}</optgroup>` : ''}
       </select>
       <div class="efb mt-2" role="group" aria-label="${esc(T('calcFunctions', 'Functions'))}"><span class="efb fs-7 d-block mb-1">${esc(T('calcFunctions', 'Functions'))}</span>
         ${FN_BUTTONS.map((fn) => `<button type="button" class="efb btn btn-sm btn-outline-secondary m-1 efb-calc-fn" dir="ltr" onclick="efb_calc_insert_efb('${fn}(')">${fn}()</button>`).join('')}

@@ -838,6 +838,16 @@ final class Calc {
 			if ($i < 1 || ($r['type'] ?? '') !== 'calc' || !isset($r['id_'])) continue;
 			$deps[(string) $r['id_']] = isset($errs[(string) $r['id_']]) ? null : self::ref_ids(isset($r['formula']) ? (string) $r['formula'] : '');
 		}
+		// F09: a formula that reads a repeater group ({rep.child}, count({rep})) comes after the calc copies of its rows.
+		$rpt_calc = array();
+		foreach ($rows as $i => $r) {
+			$r = self::f($r);
+			if ($i > 0 && ($r['type'] ?? '') === 'calc' && isset($r['rpt_group'], $r['id_'])) $rpt_calc[(string) $r['rpt_group']][] = (string) $r['id_'];
+		}
+		if ($rpt_calc) foreach ($deps as $id => $ds) {
+			if (!is_array($ds)) continue;
+			foreach ($ds as $d) if (isset($rpt_calc[$d])) $deps[$id] = array_merge($deps[$id], $rpt_calc[$d]);
+		}
 		$order = array();
 		$done = array();
 		$visit = function ($id) use (&$visit, &$order, &$done, $deps) {
@@ -917,13 +927,35 @@ final class Calc {
 			}
 			return '';
 		};
-		$resolve = function ($ref) use (&$fields, &$hidden, &$out, $selected, $raw_value) {
+		$resolve = function ($ref) use (&$fields, &$hidden, &$out, $selected, $raw_value, &$resolve) {
 			$id = $ref['id'];
 			$part = $ref['part'];
 			if (!isset($fields[$id])) return array('error' => 'calcRef');
 			$f = $fields[$id];
 			$t = isset($f['type']) ? (string) $f['type'] : '';
 			if (in_array($t, Calc::FORBIDDEN_TYPES, true) || in_array($t, Calc::LAYOUT_TYPES, true)) return array('error' => 'calcForbidden');
+			// F09 (F04 §6.4): {rep} is a list of one per row (count({rep}) = rows); {rep.child} the list of the child's
+			// value in each row, in row order. A list is only read inside sum / avg / min / max / count.
+			if ($t === 'repeater') {
+				if (isset($hidden[$id])) return array();
+				$rows_of = array(); $child = array();
+				foreach ($fields as $cid => $cf) {
+					if (!isset($cf['rpt_group']) || (string) $cf['rpt_group'] !== (string) $id) continue;
+					$k = isset($cf['rpt_n']) ? (int) $cf['rpt_n'] : (int) ($cf['rpt_ri'] ?? 0);
+					$rows_of[$k] = true;
+					if ($part !== '' && (string) ($cf['rpt_base'] ?? '') === (string) $part) $child[$k] = (string) $cid;
+				}
+				ksort($rows_of); ksort($child);
+				if ($part === '' || $part === 'count') return array_fill(0, count($rows_of), 1.0);
+				$list = array();
+				foreach ($child as $cid) {
+					$v = $resolve(array('id' => $cid, 'part' => '', 'raw' => ''));
+					if (is_array($v) && isset($v['error'])) return $v;
+					if (is_array($v)) return array('error' => 'calcListCtx');
+					$list[] = $v;
+				}
+				return $list;
+			}
 			if (isset($hidden[$id])) return $part === 'count' || $part === 'price' ? 0.0 : null;
 			if ($t === 'calc') {
 				if ($part !== '' && $part !== 'value') return array('error' => 'calcRef');
@@ -1097,6 +1129,11 @@ final class Calc {
 		$fields = self::price_fields($form);
 		if (!$fields || !self::plan_ok('calc_price')) return array('ok' => true, 'items' => array());
 		$form0 = isset($form[0]) ? $form[0] : null;
+		// F09: answers with repeater rows (rg / ri) are read through the rows' copies, so a total over rows is the server's.
+		if (class_exists('\\Emsfb\\Repeater') && Repeater::has_groups($form)) {
+			$x = Repeater::expand($form, $rows, array('repeat_ok' => Repeater::plan_ok('repeat'), 'group_ok' => Repeater::plan_ok('group')));
+			if ($x['ok']) { $form = $x['fields']; $rows = $x['rows']; }
+		}
 		$res = self::evaluate_form($form, $rows, array('hidden' => $hidden, 'locale' => self::locale(), 'currency' => self::currency($form0)));
 		$items = array();
 		foreach ($fields as $f) {

@@ -13,6 +13,8 @@ function efb_plan_at_least_efb($need) { $r = array('free' => 0, 'free_plus' => 1
 function get_locale() { return $GLOBALS['efb_locale']; }
 function determine_locale() { return $GLOBALS['efb_locale']; }
 error_reporting(E_ERROR);
+// The plan, as Builder_Api answers it on a site of that plan (Calc::plan_ok() and others read it).
+eval('namespace Emsfb; class Builder_Api { public static function plan_at_least($need, $package = null) { $r = array("free" => 0, "free_plus" => 1, "pro" => 2); return $r[$GLOBALS["efb_plan"]] >= (isset($r[$need]) ? $r[$need] : 2); } }');
 require __DIR__ . '/field-rules-render-lib.php';
 require_once __DIR__ . '/../includes/class-Emsfb-calc.php';
 require_once __DIR__ . '/../includes/class-Emsfb-form-gate.php';

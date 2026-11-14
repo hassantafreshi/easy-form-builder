@@ -4173,6 +4173,8 @@ public function check_nonce_permission_efb($request) {
 				// the unique claims under the field's id (two rows of one entry with one value are refused there).
 				if (!empty($rpt_virtual_efb)) {
 					$validated_items = \Emsfb\Repeater::fold($validated_items, $rpt_virtual_efb);
+					// From here on (payment, capacities, e-mails, notification / webhook rules) the stored form and the stored rows.
+					$form_fields_array = $rpt_original_fields_efb;
 					foreach ($this->unique_pending_efb as $rpt_uk_efb => $rpt_up_efb) {
 						$rpt_at_efb = \Emsfb\Repeater::locate($rpt_up_efb['f'], $rpt_virtual_efb);
 						if ($rpt_at_efb) $this->unique_pending_efb[$rpt_uk_efb]['f'] = $rpt_at_efb['field_id'];

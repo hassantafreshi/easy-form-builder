@@ -3024,6 +3024,360 @@
      "code": ""
     }
    }
+  },
+  {
+   "name": "F09 repeater: a line total per row, the sum across rows, count of rows",
+   "structure": [
+    {
+     "type": "form"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "g",
+     "type": "repeater",
+     "name": "Items"
+    },
+    {
+     "id_": "pr_r0",
+     "rpt_base": "pr",
+     "rpt_n": 0,
+     "rpt_group": "g",
+     "type": "number"
+    },
+    {
+     "id_": "qty_r0",
+     "rpt_base": "qty",
+     "rpt_n": 0,
+     "rpt_group": "g",
+     "type": "number"
+    },
+    {
+     "id_": "tot_r0",
+     "rpt_base": "tot",
+     "rpt_n": 0,
+     "rpt_group": "g",
+     "type": "calc",
+     "formula": "{pr_r0}*{qty_r0}",
+     "num_decimals": "2"
+    },
+    {
+     "id_": "pr_r1",
+     "rpt_base": "pr",
+     "rpt_n": 1,
+     "rpt_group": "g",
+     "type": "number"
+    },
+    {
+     "id_": "qty_r1",
+     "rpt_base": "qty",
+     "rpt_n": 1,
+     "rpt_group": "g",
+     "type": "number"
+    },
+    {
+     "id_": "tot_r1",
+     "rpt_base": "tot",
+     "rpt_n": 1,
+     "rpt_group": "g",
+     "type": "calc",
+     "formula": "{pr_r1}*{qty_r1}",
+     "num_decimals": "2"
+    },
+    {
+     "id_": "sum",
+     "type": "calc",
+     "formula": "sum({g.tot})",
+     "num_decimals": "2"
+    },
+    {
+     "id_": "cnt",
+     "type": "calc",
+     "formula": "count({g})",
+     "num_decimals": "0"
+    },
+    {
+     "id_": "avgq",
+     "type": "calc",
+     "formula": "avg({g.qty})",
+     "num_decimals": "1"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "pr_r0",
+     "value": "10"
+    },
+    {
+     "id_": "qty_r0",
+     "value": "2"
+    },
+    {
+     "id_": "pr_r1",
+     "value": "5.5"
+    },
+    {
+     "id_": "qty_r1",
+     "value": "3"
+    }
+   ],
+   "expect": {
+    "tot_r0": {
+     "ok": true,
+     "value": "20.00",
+     "code": ""
+    },
+    "tot_r1": {
+     "ok": true,
+     "value": "16.50",
+     "code": ""
+    },
+    "sum": {
+     "ok": true,
+     "value": "36.50",
+     "code": ""
+    },
+    "cnt": {
+     "ok": true,
+     "value": "2",
+     "code": ""
+    },
+    "avgq": {
+     "ok": true,
+     "value": "2.5",
+     "code": ""
+    }
+   }
+  },
+  {
+   "name": "F09 repeater: rows 0 and 2 (row 1 removed): the sum and count follow the rows left",
+   "structure": [
+    {
+     "type": "form"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "g",
+     "type": "repeater",
+     "name": "Items"
+    },
+    {
+     "id_": "pr_r0",
+     "rpt_base": "pr",
+     "rpt_n": 0,
+     "rpt_group": "g",
+     "type": "number"
+    },
+    {
+     "id_": "qty_r0",
+     "rpt_base": "qty",
+     "rpt_n": 0,
+     "rpt_group": "g",
+     "type": "number"
+    },
+    {
+     "id_": "tot_r0",
+     "rpt_base": "tot",
+     "rpt_n": 0,
+     "rpt_group": "g",
+     "type": "calc",
+     "formula": "{pr_r0}*{qty_r0}",
+     "num_decimals": "2"
+    },
+    {
+     "id_": "pr_r2",
+     "rpt_base": "pr",
+     "rpt_n": 2,
+     "rpt_group": "g",
+     "type": "number"
+    },
+    {
+     "id_": "qty_r2",
+     "rpt_base": "qty",
+     "rpt_n": 2,
+     "rpt_group": "g",
+     "type": "number"
+    },
+    {
+     "id_": "tot_r2",
+     "rpt_base": "tot",
+     "rpt_n": 2,
+     "rpt_group": "g",
+     "type": "calc",
+     "formula": "{pr_r2}*{qty_r2}",
+     "num_decimals": "2"
+    },
+    {
+     "id_": "sum",
+     "type": "calc",
+     "formula": "sum({g.tot})",
+     "num_decimals": "2"
+    },
+    {
+     "id_": "cnt",
+     "type": "calc",
+     "formula": "count({g})",
+     "num_decimals": "0"
+    },
+    {
+     "id_": "avgq",
+     "type": "calc",
+     "formula": "avg({g.qty})",
+     "num_decimals": "1"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "pr_r0",
+     "value": "1"
+    },
+    {
+     "id_": "qty_r0",
+     "value": "1"
+    },
+    {
+     "id_": "pr_r2",
+     "value": "۲"
+    },
+    {
+     "id_": "qty_r2",
+     "value": "4"
+    },
+    {
+     "id_": "pr_r1",
+     "value": "100"
+    },
+    {
+     "id_": "qty_r1",
+     "value": "100"
+    }
+   ],
+   "expect": {
+    "tot_r0": {
+     "ok": true,
+     "value": "1.00",
+     "code": ""
+    },
+    "tot_r2": {
+     "ok": true,
+     "value": "8.00",
+     "code": ""
+    },
+    "sum": {
+     "ok": true,
+     "value": "9.00",
+     "code": ""
+    },
+    "cnt": {
+     "ok": true,
+     "value": "2",
+     "code": ""
+    },
+    "avgq": {
+     "ok": true,
+     "value": "2.5",
+     "code": ""
+    }
+   }
+  },
+  {
+   "name": "F09 repeater: no row: sum 0, count 0, avg of nothing calcArgs",
+   "structure": [
+    {
+     "type": "form"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "g",
+     "type": "repeater",
+     "name": "Items"
+    },
+    {
+     "id_": "sum",
+     "type": "calc",
+     "formula": "sum({g.tot})",
+     "num_decimals": "2"
+    },
+    {
+     "id_": "cnt",
+     "type": "calc",
+     "formula": "count({g})",
+     "num_decimals": "0"
+    },
+    {
+     "id_": "avgq",
+     "type": "calc",
+     "formula": "avg({g.qty})",
+     "num_decimals": "1"
+    }
+   ],
+   "rows": [],
+   "expect": {
+    "sum": {
+     "ok": true,
+     "value": "0.00",
+     "code": ""
+    },
+    "cnt": {
+     "ok": true,
+     "value": "0",
+     "code": ""
+    },
+    "avgq": {
+     "ok": false,
+     "value": "",
+     "code": "calcArgs"
+    }
+   }
+  },
+  {
+   "name": "F09 repeater: a list outside a list function is calcListCtx",
+   "structure": [
+    {
+     "type": "form"
+    },
+    {
+     "id_": "1",
+     "type": "step"
+    },
+    {
+     "id_": "g",
+     "type": "repeater"
+    },
+    {
+     "id_": "pr_r0",
+     "rpt_base": "pr",
+     "rpt_n": 0,
+     "rpt_group": "g",
+     "type": "number"
+    },
+    {
+     "id_": "bad",
+     "type": "calc",
+     "formula": "{g.pr}+1"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "pr_r0",
+     "value": "3"
+    }
+   ],
+   "expect": {
+    "bad": {
+     "ok": false,
+     "value": "",
+     "code": "calcListCtx"
+    }
+   }
   }
  ]
 }

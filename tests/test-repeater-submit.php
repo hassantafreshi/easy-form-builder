@@ -33,6 +33,12 @@ $forms = array();
 $efb = get_efbFunction();
 $plan_was = get_option('emsfb_pro');
 update_option('emsfb_pro', 3);
+// Repeating rows are Pro; this site falls back to Free Plus without a licence, so the submit route (another process)
+// opens them through the plugin's own filter (mu-plugin tests/e2e-wp/mu-plugins/efb-e2e-f09.php, option efb_e2e_f09_plan).
+$mu = WPMU_PLUGIN_DIR . '/efb-e2e-f09.php';
+if (!is_readable($mu)) { wp_mkdir_p(WPMU_PLUGIN_DIR); copy(__DIR__ . '/e2e-wp/mu-plugins/efb-e2e-f09.php', $mu); sleep(2); }
+$opt_was = get_option('efb_e2e_f09_plan', null);
+update_option('efb_e2e_f09_plan', 'open', false);
 $open = function ($n) { return 'free_plus'; };
 add_filter('efb_repeater_plan', $open);
 
@@ -159,12 +165,14 @@ try {
 	$locked = function ($n, $part) { return 'pro'; };
 	add_filter('efb_repeater_plan', $locked);
 	update_option('emsfb_pro', 2);
+	update_option('efb_e2e_f09_plan', 'del', false);
 	list($st, $d) = $submit($F, array($grp(2), $row('nm', 'text', 'x', 0), $row('after', 'text', 'Only')));
 	$c = $last($F);
 	$check(!empty($d['success']) && count($pick($c, 'nm')) === 0 && count($pick($c, 'g1')) === 0, 'H: a plan without groups: the group\'s rows are dropped and its required child is not asked for', array($d, $c));
 	remove_filter('efb_repeater_plan', $locked);
 	add_filter('efb_repeater_plan', $open);
 	update_option('emsfb_pro', 3);
+	update_option('efb_e2e_f09_plan', 'open', false);
 
 	// An old form: rows stored exactly as sent and checked as before.
 	list($F3) = $make_form('F09 old', array(
@@ -194,6 +202,7 @@ try {
 		$wpdb->delete($wpdb->prefix . 'emsfb_msg_', array('form_id' => $fid));
 	}
 	update_option('emsfb_pro', $plan_was);
+	if ($opt_was === null) delete_option('efb_e2e_f09_plan'); else update_option('efb_e2e_f09_plan', $opt_was, false);
 }
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

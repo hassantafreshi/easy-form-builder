@@ -504,6 +504,17 @@ switch ( $efb_e2e_cmd ) {
 			$rows[] = array( 'id_' => $o1, 'dataId' => $o1 . '-id', 'parent' => $rad, 'type' => 'option', 'value' => 'Single', 'id_op' => $o1, 'step' => 1, 'amount' => 3, 'calc' => '40' );
 			$rows[] = array( 'id_' => $o2, 'dataId' => $o2 . '-id', 'parent' => $rad, 'type' => 'option', 'value' => 'Double', 'id_op' => $o2, 'step' => 1, 'amount' => 3, 'calc' => '65.5' );
 			$rows[] = array_merge( $base, array( 'id_' => $tot, 'dataId' => $tot . '-id', 'type' => 'calc', 'elementId' => 'calc', 'name' => 'Stay', 'amount' => 4, 'formula' => '{' . $rad . '}*{' . $num . '}', 'num_decimals' => '2', 'num_currency' => 'form', 'calc_show' => 'visible', 'calc_empty' => 'zero', 'calc_as_price' => '1' ) );
+		} elseif ( 'repeater' === $kind ) {
+			// F09: the amount comes from rows: a group of tickets (a choice with calculation values 30 / 50, a quantity,
+			// a line = ticket × quantity) and the total sum({group.line}) as the amount to pay (Pro).
+			$rows[] = array_merge( $base, array( 'id_' => $num, 'dataId' => $num . '-id', 'type' => 'repeater', 'elementId' => 'repeater', 'name' => 'Tickets', 'amount' => 3, 'min_rows' => '1', 'max_rows' => '4', 'default_rows' => '1', 'row_label' => 'Ticket {n}', 'collapsible' => '0', 'rmv_confirm' => '0' ) );
+			$rows[] = array_merge( $base, array( 'id_' => $rad, 'dataId' => $rad . '-id', 'type' => 'radio', 'elementId' => 'radio', 'name' => 'Ticket', 'amount' => 4, 'required' => 1, 'group' => $num ) );
+			$rows[] = array( 'id_' => $o1, 'dataId' => $o1 . '-id', 'parent' => $rad, 'type' => 'option', 'value' => 'Standard', 'id_op' => $o1, 'step' => 1, 'amount' => 4, 'calc' => '30' );
+			$rows[] = array( 'id_' => $o2, 'dataId' => $o2 . '-id', 'parent' => $rad, 'type' => 'option', 'value' => 'VIP', 'id_op' => $o2, 'step' => 1, 'amount' => 4, 'calc' => '50' );
+			$rows[] = array_merge( $base, array( 'id_' => $fl, 'dataId' => $fl . '-id', 'type' => 'number', 'elementId' => 'number', 'name' => 'Quantity', 'amount' => 5, 'required' => 1, 'num_step' => '1', 'milen' => '1', 'mlen' => '9', 'group' => $num ) );
+			$line = $rid();
+			$rows[] = array_merge( $base, array( 'id_' => $line, 'dataId' => $line . '-id', 'type' => 'calc', 'elementId' => 'calc', 'name' => 'Line', 'amount' => 6, 'formula' => '{' . $rad . '}*{' . $fl . '}', 'num_decimals' => '2', 'calc_show' => 'visible', 'calc_empty' => 'zero', 'group' => $num ) );
+			$rows[] = array_merge( $base, array( 'id_' => $tot, 'dataId' => $tot . '-id', 'type' => 'calc', 'elementId' => 'calc', 'name' => 'Total', 'amount' => 7, 'formula' => 'sum({' . $num . '.' . $line . '})', 'num_decimals' => '2', 'num_currency' => 'form', 'calc_show' => 'visible', 'calc_empty' => 'zero', 'calc_as_price' => '1' ) );
 		}
 		if ( isset( $efb_e2e_rest[2] ) ) {
 			foreach ( explode( '&', $efb_e2e_rest[2] ) as $kv ) {
@@ -518,7 +529,7 @@ switch ( $efb_e2e_cmd ) {
 		$wpdb->insert( $wpdb->prefix . 'emsfb_form', array( 'form_name' => $name, 'form_structer' => $json, 'form_email' => '', 'form_type' => 'payment', 'form_created_by' => '1', 'form_access_by' => '', 'form_create_date' => current_time( 'mysql' ), 'status' => 1 ) );
 		$fid = (int) $wpdb->insert_id;
 		do_action( 'efb_form_created', $fid, $clean, array( 'form_id' => $fid, 'source' => 'e2e', 'user_id' => 1 ) );
-		efb_e2e_out( array( 'form_id' => $fid, 'email' => $em, 'pf' => $pf, 'radio' => $rad, 'o1' => $o1, 'o2' => $o2, 'guests' => $num, 'total' => $tot, 'file' => $fl ) );
+		efb_e2e_out( array( 'form_id' => $fid, 'email' => $em, 'pf' => $pf, 'radio' => $rad, 'o1' => $o1, 'o2' => $o2, 'guests' => $num, 'total' => $tot, 'file' => $fl, 'line' => isset( $line ) ? $line : '' ) );
 		break;
 
 	case 'f11-form':

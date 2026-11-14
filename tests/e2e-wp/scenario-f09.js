@@ -17,6 +17,10 @@
  *        row opens), then the entry is stored with each child's own id, rg and ri (no virtual id), the group's
  *        row says 2; the request as sent has no virtual id; a request tampered after the page's check (row 2's
  *        Name removed) is refused by the server at "Name in row 2", and the page marks row 2's copy.
+ *  f09pay A paid form whose amount comes from rows (test gateway; Pro opened by the plugin's filters): tickets in
+ *        rows (a choice with calculation values × a quantity = a line per row), the total sum({tickets.line}) is the
+ *        amount; a forged lower total is refused (quote_changed with the server's amount); the provider is asked for
+ *        the server's amount; paid: the entry holds the rows and the server's total.
  */
 'use strict';
 
@@ -330,5 +334,62 @@ module.exports = function (S) {
     const t = await send(h);
     R.check('f09d: tampered: refused at Name, row_index 1, "Name in row 2 is required."', t.res && t.res.success === false && t.res.row_index === 1 && /Name.*in row.*2.*is required/.test(String(t.res.m).replace(/<[^>]+>/g, '')), t.res);
     await h.screenshot({ path: SHOT('f09d-server-row-error-en'), fullPage: true });
+  });
+
+  /* ------------------------------------------------------------------ f09pay */
+  scenario('f09pay', 'F09 paid form: the amount is the sum of the rows\' lines (server), a forged total refused, the visitor pays', async ({ context }) => {
+    pro(true);
+    try {
+      ctl('locale', '');
+      ctl('pay-mock', '1');
+      ctl('pay-keys', 'test');
+      const P = ctl('pay-form', 'repeater', 'F09 e2e paid');
+      const purl = pageOf(P.form_id);
+      const start = async (label, tamperFn) => {
+        const p = await (await context({}, label)).newPage();
+        await p.goto(purl, { waitUntil: 'networkidle' });
+        await p.waitForSelector('.efb-pf [data-pf-pay]', { timeout: 20000 });
+        await p.fill(`[data-id="${P.email}-el"]`, label + '@example.test');
+        await p.check(`[id="${P.o2}_r0"]`);
+        await p.fill(`[id="${P.file}_r0_"]`, '2');
+        await p.press(`[id="${P.file}_r0_"]`, 'Tab');
+        await p.click(`[id="${P.guests}_add"]`);
+        await sleep(500);
+        await p.check(`[id="${P.o1}_r1"]`);
+        await p.fill(`[id="${P.file}_r1_"]`, '3');
+        await p.press(`[id="${P.file}_r1_"]`, 'Tab');
+        await sleep(900);
+        const shown = await p.evaluate(([t, l]) => ({ out: document.getElementById(t + '_out').textContent, lines: [0, 1].map((n) => (document.getElementById(l + '_r' + n + '_out') || {}).textContent), row: (sendBack_emsFormBuilder_pub.find((r) => r.id_ === t) || {}) }), [P.total, P.line]);
+        if (tamperFn) {
+          await p.route('**/wp-json/Emsfb/v1/payments/create', async (route) => {
+            const b = JSON.parse(route.request().postData());
+            b.value = JSON.stringify(tamperFn(JSON.parse(b.value)));
+            if (tamperFn.expected && b.pay) b.pay.expected_minor = tamperFn.expected;
+            return route.continue({ postData: JSON.stringify(b) });
+          });
+        }
+        const create = p.waitForResponse((x) => /payments\/create/.test(x.url()), { timeout: 20000 }).catch(() => null);
+        await p.click('.efb-pf [data-pf-pay]');
+        const cr = await create;
+        let cj = null; try { cj = cr ? await cr.json() : null; } catch (e) { cj = null; }
+        return { p, cj: cj && (cj.data || cj), shown };
+      };
+      const lower = (rows) => rows.map((r) => (r.type === 'calc' ? Object.assign(r, { value: '1.00', price: '1.00' }) : r));
+      lower.expected = 100;
+      const A = await start('f09pay-forged', lower);
+      R.check('f09pay: the page shows each line (VIP 50 × 2 = 100.00, Standard 30 × 3 = 90.00) and the total €190.00 carried as its price', A.shown.lines.join('|') === '100.00|90.00' && /190\.00/.test(A.shown.out) && A.shown.row.price === '190.00', A.shown);
+      R.check('f09pay: a forged total (1.00): refused before any payment (quote_changed with the server\'s 190.00)', A.cj && A.cj.success === false && A.cj.code === 'quote_changed' && Number(A.cj.total_minor) === 19000, A.cj);
+      await A.p.close();
+      const B = await start('f09pay-ok');
+      await B.p.waitForURL(/payments\/mock\/checkout/, { timeout: 20000 });
+      const pays = ctl('payments', String(P.form_id)) || [];
+      R.check('f09pay: the provider is asked for the server\'s amount (19000 minor units, EUR)', pays.length >= 1 && Number(pays[0].amount_minor) === 19000 && String(pays[0].currency).toUpperCase() === 'EUR', pays[0]);
+      await Promise.all([B.p.waitForURL((u) => u.toString().indexOf('payments/mock/checkout') === -1, { timeout: 20000 }), B.p.click('#pay')]);
+      await sleep(2000);
+      const e = lastEntry(P.form_id);
+      const c = (e && e.content) || [];
+      R.check('f09pay: paid: the entry holds both rows (ri 0 / 1) and the server\'s total 190.00', c.filter((r) => r.id_ === P.radio).map((r) => r.ri).join(',') === '0,1' && (c.find((r) => r.id_ === P.total) || {}).value === '190.00' && c.filter((r) => r.id_ === P.line).map((r) => r.value).join(',') === '100.00,90.00', c);
+      await B.p.screenshot({ path: SHOT('f09pay-paid'), fullPage: true });
+    } finally { ctl('set-option', 'efb_e2e_f09_plan', 'del'); }
   });
 };

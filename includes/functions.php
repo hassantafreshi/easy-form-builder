@@ -5451,6 +5451,8 @@ class efbFunction {
 			"calc" => $state && isset($ac->text->calc) ? $ac->text->calc : esc_html__('Calculation','easy-form-builder'),
 			/* translators: F04 builder: palette tile of the calculation field */
 			"calcField" => $state && isset($ac->text->calcField) ? $ac->text->calcField : esc_html__('Calculation','easy-form-builder'),
+			/* translators: F09 builder: heading of the repeater fields in the formula's "Insert field" list (each gives a list of values, one per row) */
+			"calcRows" => $state && isset($ac->text->calcRows) ? $ac->text->calcRows : esc_html__('Rows','easy-form-builder'),
 			/* translators: F09 builder: palette tile and type name of the repeater group (a set of fields the visitor can repeat) */
 			"repeater" => $state && isset($ac->text->repeater) ? $ac->text->repeater : esc_html__('Repeater group','easy-form-builder'),
 			/* translators: F09 builder: the fewest rows a repeater group needs */

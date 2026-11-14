@@ -728,6 +728,13 @@
       if (!Object.prototype.hasOwnProperty.call(deps, id)) ids.push(id);
       deps[id] = errs[id] ? null : refIds(r.formula === undefined || r.formula === null ? '' : String(r.formula));
     });
+    // F09: a formula that reads a repeater group ({rep.child}, count({rep})) comes after the calc copies of its rows.
+    var rptCalc = {};
+    (rows || []).forEach(function (r, i) { if (i > 0 && r && r.type === 'calc' && r.rpt_group !== undefined && r.id_ !== undefined) (rptCalc[String(r.rpt_group)] = rptCalc[String(r.rpt_group)] || []).push(String(r.id_)); });
+    Object.keys(deps).forEach(function (id) {
+      if (!deps[id]) return;
+      deps[id].slice().forEach(function (d) { if (rptCalc[d]) deps[id] = deps[id].concat(rptCalc[d]); });
+    });
     var order = [], done = {};
     function visit(id) {
       if (done[id]) return;
@@ -808,6 +815,29 @@
       if (!f) return { error: 'calcRef' };
       var t = String(f.type);
       if (FORBIDDEN_TYPES.indexOf(t) !== -1 || LAYOUT_TYPES.indexOf(t) !== -1) return { error: 'calcForbidden' };
+      // F09 (§6.4): {rep} is a list of one per row (count({rep}) = rows); {rep.child} the child's value in each row, in row order.
+      if (t === 'repeater') {
+        if (hidden[id]) return [];
+        var rowsOf = {}, child = {};
+        Object.keys(fields).forEach(function (cid) {
+          var cf = fields[cid];
+          if (cf.rpt_group === undefined || String(cf.rpt_group) !== String(id)) return;
+          var k = cf.rpt_n !== undefined ? Number(cf.rpt_n) : Number(cf.rpt_ri || 0);
+          rowsOf[k] = true;
+          if (part !== '' && String(cf.rpt_base) === String(part)) child[k] = cid;
+        });
+        var keys = Object.keys(rowsOf).map(Number).sort(function (a, b) { return a - b; });
+        if (part === '' || part === 'count') return keys.map(function () { return 1; });
+        var list = [];
+        var ck = Object.keys(child).map(Number).sort(function (a, b) { return a - b; });
+        for (var q = 0; q < ck.length; q++) {
+          var cv = resolve({ id: child[ck[q]], part: '', raw: '' });
+          if (cv && typeof cv === 'object' && !(cv instanceof Array) && cv.error) return cv;
+          if (cv instanceof Array) return { error: 'calcListCtx' };
+          list.push(cv);
+        }
+        return list;
+      }
       if (hidden[id]) return part === 'count' || part === 'price' ? 0 : null;
       if (t === 'calc') {
         if (part !== '' && part !== 'value') return { error: 'calcRef' };
