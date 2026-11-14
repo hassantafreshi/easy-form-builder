@@ -597,6 +597,89 @@ final class Repeater {
 		return $out;
 	}
 
+	/* ------------------------------------------------------------------ Conditional Logic (spec §10) */
+
+	const LOGIC_CHECK_TYPES = array('checkbox', 'paycheckbox', 'chlcheckbox', 'option');
+	const LOGIC_RADIO_TYPES = array('radio', 'payradio', 'chlradio', 'imgradio', 'yesno');
+
+	/** Whether a field is a repeater child (its value in a condition is the list of every row's value). */
+	public static function is_list_field($structure, $field_id) {
+		$cg = self::child_groups($structure);
+		return isset($cg[(string) $field_id]);
+	}
+
+	/**
+	 * The values a condition reads (spec §10.1), on top of a values map built from the answers: a group is its
+	 * number of rows ("2"); a child read from outside its group is the list of every row's value (a condition is
+	 * true when it holds for at least one row: "any"). Answers without rg / ri leave the map as it is.
+	 */
+	public static function logic_values($structure, $rows, $values) {
+		if (!is_array($values) || !is_array($rows) || !self::has_groups($structure)) return $values;
+		$cg = self::child_groups($structure);
+		$types = array();
+		foreach ((array) $structure as $i => $r) if ($i > 0 && is_array($r) && isset($r['id_'])) $types[(string) $r['id_']] = strtolower((string) ($r['type'] ?? ''));
+		$lists = array();
+		foreach ($rows as $row) {
+			if (!is_array($row) || !isset($row['id_']) || !is_scalar($row['id_'])) continue;
+			$id = (string) $row['id_'];
+			if (isset($types[$id]) && $types[$id] === 'repeater') { $values[$id] = (string) (int) ($row['value'] ?? 0); continue; }
+			if (!isset($cg[$id])) continue;
+			$ri = isset($row['ri']) && is_scalar($row['ri']) ? (int) $row['ri'] : 0;
+			$t = $types[$id] ?? strtolower((string) ($row['type'] ?? ''));
+			$v = isset($row['value']) && is_scalar($row['value']) ? (string) $row['value'] : '';
+			$ob = isset($row['id_ob']) && is_scalar($row['id_ob']) ? (string) $row['id_ob'] : '';
+			if (in_array($t, self::LOGIC_CHECK_TYPES, true) || in_array($t, self::LOGIC_RADIO_TYPES, true)) $add = array($ob !== '' && $ob !== $id . '_' ? $ob : $v);
+			elseif (strpos($t, 'multiselect') !== false) $add = array_values(array_filter(array_map('trim', explode('@efb!', $v)), 'strlen'));
+			else $add = array($v);
+			foreach ($add as $a) if ($a !== '') $lists[$id][$ri][] = $a;
+		}
+		foreach ($cg as $c => $g) {
+			if (!isset($lists[$c])) { if (array_key_exists($c, $values) && !is_array($values[$c]) && self::rows_have_ri($rows)) $values[$c] = array(); continue; }
+			ksort($lists[$c]);
+			$flat = array();
+			foreach ($lists[$c] as $vs) foreach ($vs as $v) $flat[] = $v;
+			$values[$c] = $flat;
+		}
+		return $values;
+	}
+
+	private static function rows_have_ri($rows) {
+		foreach ((array) $rows as $r) if (is_array($r) && isset($r['ri'])) return true;
+		return false;
+	}
+
+	/**
+	 * Children that a rule changes from a condition on another child of the same group ("in the same row").
+	 * Until the Conditional Logic add-on says it evaluates rules per row (filter efb_logic_supports_repeater_rows),
+	 * the server does not enforce "required" on these children (fail open, spec §10.3); their format is still checked.
+	 */
+	public static function row_scoped_targets($structure) {
+		$out = array();
+		if (!is_array($structure) || !isset($structure[0]['logic_rules']) || !is_array($structure[0]['logic_rules'])) return $out;
+		$cg = self::child_groups($structure);
+		if (!$cg) return $out;
+		$conds = function ($group) use (&$conds) {
+			$ids = array();
+			foreach (isset($group['items']) && is_array($group['items']) ? $group['items'] : array() as $it) {
+				if (!is_array($it)) continue;
+				if (isset($it['items'])) $ids = array_merge($ids, $conds($it));
+				elseif (isset($it['field_id']) && is_scalar($it['field_id'])) $ids[] = (string) $it['field_id'];
+			}
+			return $ids;
+		};
+		foreach ($structure[0]['logic_rules'] as $rule) {
+			if (!is_array($rule) || empty($rule['enabled'])) continue;
+			$cgroups = array();
+			foreach ($conds(isset($rule['conditions']) && is_array($rule['conditions']) ? $rule['conditions'] : array()) as $fid) if (isset($cg[$fid])) $cgroups[$cg[$fid]] = true;
+			if (!$cgroups) continue;
+			foreach (isset($rule['actions']) && is_array($rule['actions']) ? $rule['actions'] : array() as $a) {
+				$tg = is_array($a) && isset($a['target']) && is_scalar($a['target']) ? (string) $a['target'] : '';
+				if ($tg !== '' && isset($cg[$tg]) && isset($cgroups[$cg[$tg]])) $out[$tg] = true;
+			}
+		}
+		return array_keys($out);
+	}
+
 	/* ------------------------------------------------------------------ texts */
 
 	public static function t($key, $lanText = array()) {

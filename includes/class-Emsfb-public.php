@@ -3074,6 +3074,16 @@ public function check_nonce_permission_efb($request) {
 			// copy per row ({child}_r{ri}) in the fields and the answers: the field loop checks each row with its rules.
 			$rpt_virtual_efb = array();
 			$rpt_original_fields_efb = $form_fields_array;
+			if (class_exists('\\Emsfb\\Repeater') && is_array($form_fields_array) && \Emsfb\Repeater::has_groups($form_fields_array)
+				&& !apply_filters('efb_logic_supports_repeater_rows', false)) {
+				// F09 §10.3: a rule "in the same row" (a child shown / required from another child of its group) runs in the
+				// page only until the Conditional Logic add-on evaluates rules per row: the server does not refuse such a
+				// child as missing (fail open); its format is still checked.
+				$rpt_scoped_efb = array_flip(\Emsfb\Repeater::row_scoped_targets($form_fields_array));
+				if ($rpt_scoped_efb) foreach ($form_fields_array as $rpt_i_efb => $rpt_f_efb) {
+					if (is_array($rpt_f_efb) && isset($rpt_f_efb['id_']) && isset($rpt_scoped_efb[(string) $rpt_f_efb['id_']])) $form_fields_array[$rpt_i_efb]['required'] = false;
+				}
+			}
 			if (class_exists('\\Emsfb\\Repeater') && is_array($form_fields_array) && is_array($submitted_values)) {
 				$rpt_x_efb = \Emsfb\Repeater::expand($form_fields_array, $submitted_values, array(
 					'ignored' => isset($_ignored_set) && is_array($_ignored_set) ? $_ignored_set : array(),
@@ -7218,7 +7228,9 @@ public function check_nonce_permission_efb($request) {
 			$validator = new \Emsfb\Emsfb_Logic_Validator();
 			if (is_callable(array($validator, 'build_values_map'))) {
 				try {
-					return $validator->build_values_map($form_fields_array, $submitted_values);
+					$rpt_vals_efb = $validator->build_values_map($form_fields_array, $submitted_values);
+					// F09: a group is its number of rows, a child the list of its rows' values (an add-on that does it already is left as it is).
+					return class_exists('\\Emsfb\\Repeater') ? \Emsfb\Repeater::logic_values($form_fields_array, $submitted_values, $rpt_vals_efb) : $rpt_vals_efb;
 				} catch (\Throwable $error) {
 					// Fall through to the built-in values map.
 				}
@@ -7270,7 +7282,8 @@ public function check_nonce_permission_efb($request) {
 			}
 			$values[$field_id] = $row['value'] ?? '';
 		}
-		return $values;
+		// F09: a group is its number of rows, a child the list of its rows' values.
+		return class_exists('\\Emsfb\\Repeater') ? \Emsfb\Repeater::logic_values($form_fields_array, $submitted_values, $values) : $values;
 	}
 
 	/**
@@ -7412,6 +7425,13 @@ public function check_nonce_permission_efb($request) {
 			if ($compare === 'is_not') return !$present;
 			if ($compare === 'is_empty') return count($value) === 0;
 			if ($compare === 'is_not_empty') return count($value) > 0;
+			// F09: a repeater child read from outside its group: true when at least one row holds the condition.
+			if (class_exists('\\Emsfb\\Repeater') && is_array($this->efb_conditional_form) && \Emsfb\Repeater::is_list_field($this->efb_conditional_form, $field_id)) {
+				foreach ($value as $entry) {
+					if (!is_array($entry) && $this->efb_evaluate_conditional_condition($condition, array($field_id => (string) $entry))) return true;
+				}
+				return false;
+			}
 			$value = implode(' ', array_map('strval', $value));
 		}
 
