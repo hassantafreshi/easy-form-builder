@@ -1087,6 +1087,25 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( array( 'first' => $a1, 'second' => $a2, 'db_version' => get_option( 'Emsfb_db_version' ), 'const' => EMSFB_DB_VERSION, 'has_status' => \Emsfb\Entries::has_status_column() ) );
 		break;
 
+	case 'f12-log-add':
+		// One history row of an entry (a seeded spam entry's reasons): <msg_id> <action> <meta>.
+		efb_e2e_out( array( 'ok' => \Emsfb\Entries::log( (int) $efb_e2e_rest[0], (string) $efb_e2e_rest[1], '', null, null, isset( $efb_e2e_rest[2] ) ? (string) $efb_e2e_rest[2] : '' ) ) );
+		break;
+
+	case 'f12-page-multi':
+		// One page with two forms (shortcodes one after the other): <form_id> <form_id>.
+		$content = '';
+		foreach ( $efb_e2e_rest as $fid ) $content .= '<!-- wp:shortcode -->[EMS_Form_Builder id=' . (int) $fid . ']<!-- /wp:shortcode -->';
+		$post_id = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'EFB e2e two forms ' . implode( ' ', array_map( 'intval', $efb_e2e_rest ) ), 'post_content' => $content, 'meta_input' => array( '_efb_e2e' => 1 ) ) );
+		efb_e2e_out( array( 'id' => $post_id, 'url' => get_permalink( $post_id ) ) );
+		break;
+
+	case 'f12-page-tracker':
+		// A page with the confirmation-code finder (the tracking box).
+		$post_id = wp_insert_post( array( 'post_type' => 'page', 'post_status' => 'publish', 'post_title' => 'EFB e2e tracker', 'post_content' => '<!-- wp:shortcode -->[Easy_Form_Builder_confirmation_code_finder]<!-- /wp:shortcode -->', 'meta_input' => array( '_efb_e2e' => 1 ) ) );
+		efb_e2e_out( array( 'id' => $post_id, 'url' => get_permalink( $post_id ) ) );
+		break;
+
 	case 'f12-purge':
 		// Runs the daily spam purge now: [form_id] (only that form's spam; the suite's other forms keep theirs).
 		efb_e2e_out( \Emsfb\Spam::purge( 2000, 20, isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0 ) );

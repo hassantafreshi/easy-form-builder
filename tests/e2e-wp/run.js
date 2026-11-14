@@ -220,6 +220,12 @@ scenario('1', 'Fresh install: plan picker, choose Free, skip the email step', as
   const badge = await page.evaluate(() => { const b = document.querySelector('.efb-plan-badge, [data-efb-plan-badge], #efbPlanBadge'); return b ? b.textContent.trim() : (typeof getCurrentPlanBadge_efb === 'function' ? String(getCurrentPlanBadge_efb()) : null); });
   SHARED.badgeFree = badge;
   R.check('1: the page knows the plan: efb_var package_type 2, pro "0"', await page.evaluate(() => Number(efb_var.setting.package_type) === 2 && String(efb_var.pro) === '0'));
+  // F12: a new site starts with the hidden trap field and a 3-second minimum (save as spam), spam kept 30 days.
+  const f12 = ctl('f12-setting', '');
+  R.check('1: F12 fresh-install defaults: honeypot on, 3 s minimum, save as spam, 30 days', f12.spam_honeypot === '1' && f12.spam_min_time === '3' && f12.spam_action === 'spam' && f12.spam_retention_days === '30', f12);
+  // The scenarios after this one fill and send forms faster than a person would: the minimum time is switched off
+  // for them (the hidden field stays on). The F12 scenarios set what they test themselves.
+  ctl('f12-setting', 'spam_min_time=0');
 });
 
 /* =============================================================================================
@@ -2057,6 +2063,11 @@ require('./scenario-f14.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewFo
 /* F10 layout and special fields: the review page before sending (builder, page, fa_IR / ar at 375 px, a payment
  * form's server amount), sections, rich text, visibility by role, the typed signature: tests/e2e-wp/scenario-f10.js. */
 require('./scenario-f10.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
+
+/* F12 core anti-spam: spam status in the entries screen, the hidden field and the minimum time (a stale cached copy too),
+ * Settings › Captchas, hCaptcha / Turnstile / reCAPTCHA v3 with stand-in scripts and mocked verification, Akismet and
+ * disallowed words, the tracking box's CAPTCHA (P20); fa_IR / ar at 375 px: tests/e2e-wp/scenario-f12.js. */
+require('./scenario-f12.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
 
 /* ---------------------------------------------------------------------------------------------
  * main

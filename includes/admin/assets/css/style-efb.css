@@ -2047,3 +2047,12 @@ body:has(.efb-rc3-notice) .grecaptcha-badge { visibility: hidden; }
 .efb.efb-spam-settings .efb-spam-row { margin-block: .6rem; }
 .efb.efb-spam-settings fieldset { border: 0; padding: 0; margin-block: .75rem; }
 .efb.efb-spam-settings legend { float: none; inline-size: auto; }
+.efb.efb-spam-settings { text-align: start; }
+.efb.efb-spam-settings .card-body, .efb.efb-spam-settings .form-label, .efb.efb-spam-settings .efb-spam-help { text-align: start; }
+.efb.efb-spam-settings .efb-spam-row { display: block; }
+.efb.efb-spam-settings .efb-spam-line { display: flex; align-items: center; gap: .5rem; min-height: 44px; }
+.efb.efb-spam-settings .efb-spam-check { flex: 0 0 auto; margin: 0; float: none; position: static; }
+.efb.efb-spam-settings .efb-spam-lbl { flex: 1 1 auto; margin: 0; unicode-bidi: plaintext; text-align: start; }
+.efb.efb-spam-settings .efb-spam-help { display: block; max-width: 40rem; }
+/* On a right-to-left site every line is aligned right like the other labels; each keeps its own order (plaintext). */
+.efb.efb-spam-settings[dir="rtl"] .efb-spam-lbl, .efb.efb-spam-settings[dir="rtl"] .efb-spam-help, .efb.efb-spam-settings[dir="rtl"] .form-label, .efb.efb-spam-form[dir="rtl"] .form-text { text-align: right; }

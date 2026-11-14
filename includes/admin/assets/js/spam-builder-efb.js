@@ -15,7 +15,9 @@
  */
 (function (root) {
   'use strict';
-  const T = (k, fb) => { try { if (root.efb_var && root.efb_var.text && root.efb_var.text[k]) return root.efb_var.text[k]; } catch (e) { /* no phrases */ } return fb; };
+  // Phrases arrive escaped for HTML (esc_html__): decoded here, escaped once where they are written.
+  const dec = (v) => { const s = String(v == null ? '' : v); if (s.indexOf('&') === -1) return s; try { const d = document.createElement('textarea'); d.innerHTML = s; return d.value; } catch (e) { return s; } };
+  const T = (k, fb) => { try { if (root.efb_var && root.efb_var.text && root.efb_var.text[k]) return dec(root.efb_var.text[k]); } catch (e) { /* no phrases */ } return fb; };
   const esc = (v) => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
   const list = () => (typeof valj_efb !== 'undefined' ? valj_efb : []);
   const on = (v) => v === true || v === 1 || v === '1' || v === 'true';
@@ -85,7 +87,8 @@
         <label class="efb form-check-label" for="${id}">${esc(label)}</label>
         <small class="efb form-text text-muted d-block fs-8" id="${id}-help">${esc(help)}</small></div>`;
     const ak = root.efb_var && root.efb_var.spam && root.efb_var.spam.akismet;
-    return `<div class="efb efb-spam-form mt-1" id="efbSpamForm">${captchaPart}
+    const rtl = root.efb_var && Number(root.efb_var.rtl) === 1;
+    return `<div class="efb efb-spam-form mt-1" id="efbSpamForm"${rtl ? ' dir="rtl"' : ''}>${captchaPart}
       ${sw('spamOffEl', 'spam_off', on(r0.spam_off), T('spamOff', 'Turn off spam checks for this form'), T('spamOffHelp', 'For an internal form only: the hidden field, the minimum time and the content checks are skipped. The CAPTCHA still applies.'))}
       ${ak ? sw('spamAkismetEl', 'spam_akismet', String(r0.spam_akismet) !== '0', T('spamFormAkismet', 'Check this form with Akismet'), T('spamAkismetPrivacy', 'Akismet sends the answers to Automattic to check them.')) : ''}
     </div>`;

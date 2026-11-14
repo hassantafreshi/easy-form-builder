@@ -12,7 +12,9 @@
 (function () {
   'use strict';
   var W = typeof window !== 'undefined' ? window : globalThis;
-  function T(k, fb) { try { var t = W.efb_var && W.efb_var.text; return t && t[k] ? t[k] : fb; } catch (e) { return fb; } }
+  /* Phrases arrive escaped for HTML (esc_html__): decoded here, escaped once where they are written. */
+  function dec(v) { var s = String(v == null ? '' : v); if (s.indexOf('&') === -1) return s; try { var d = document.createElement('textarea'); d.innerHTML = s; return d.value; } catch (e) { return s; } }
+  function T(k, fb) { try { var t = W.efb_var && W.efb_var.text; return t && t[k] ? dec(t[k]) : fb; } catch (e) { return fb; } }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function on(v) { return v === true || v === 1 || v === '1' || v === 'true'; }
   function latin(s) { return String(s == null ? '' : s).replace(/[۰-۹]/g, function (d) { return String(d.charCodeAt(0) - 1776); }).replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 1632); }).replace(/٫/g, '.'); }
@@ -23,10 +25,13 @@
   function val(s, k, d) { return s && Object.prototype.hasOwnProperty.call(s, k) && s[k] !== null && s[k] !== undefined && s[k] !== 'NotFoundEl' ? s[k] : d; }
 
   function toggle(id, label, checked, extra, help) {
-    return '<div class="efb form-check form-switch efb-spam-row">'
-      + '<input class="efb form-check-input" type="checkbox" role="switch" id="' + id + '"' + (checked ? ' checked' : '') + (extra || '') + (help ? ' aria-describedby="' + id + '-help"' : '') + '>'
-      + '<label class="efb form-check-label" for="' + id + '">' + esc(label) + '</label>'
+    return '<div class="efb efb-spam-row">'
+      + '<div class="efb efb-spam-line"><input class="efb form-check-input efb-spam-check" type="checkbox" role="switch" id="' + id + '"' + (checked ? ' checked' : '') + (extra || '') + (help ? ' aria-describedby="' + id + '-help"' : '') + '>'
+      + '<label class="efb efb-spam-lbl" for="' + id + '">' + esc(label) + '</label></div>'
       + (help ? '<div class="efb form-text efb-spam-help" id="' + id + '-help">' + help + '</div>' : '') + '</div>';
+  }
+  function radio(name, id, value, checked, label) {
+    return '<div class="efb efb-spam-line"><input class="efb form-check-input efb-spam-check" type="radio" name="' + name + '" id="' + id + '" value="' + value + '"' + (checked ? ' checked' : '') + '><label class="efb efb-spam-lbl" for="' + id + '">' + esc(label) + '</label></div>';
   }
   function keyPair(prov, s, siteKey, secretKey) {
     var hasSecret = s && s[secretKey] && String(s[secretKey]).length > 5 && s[secretKey] !== 'NotFoundEl';
@@ -67,8 +72,8 @@
       + '<input type="text" inputmode="decimal" dir="ltr" class="efb form-control efb-spam-input efb-spam-num" id="rc3Threshold_efb" value="' + esc(thr) + '" aria-describedby="rc3Threshold_efb-help">'
       + '<div class="efb form-text efb-spam-help" id="rc3Threshold_efb-help">' + esc(T('rc3ThresholdHelp', 'Scores run from 0.0 (likely a bot) to 1.0 (likely a person). 0.5 suits most sites.')) + '</div>'
       + '<div class="efb mt-2" role="radiogroup" aria-labelledby="rc3Low_efb-lbl"><span class="efb form-label d-block" id="rc3Low_efb-lbl">' + esc(T('rc3LowAction', 'Low score')) + '</span>'
-      + '<div class="efb form-check"><input class="efb form-check-input" type="radio" name="rc3Low_efb" id="rc3Low_spam_efb" value="spam"' + (low !== 'block' ? ' checked' : '') + '><label class="efb form-check-label" for="rc3Low_spam_efb">' + esc(T('markAsSpam', 'Save as spam')) + '</label></div>'
-      + '<div class="efb form-check"><input class="efb form-check-input" type="radio" name="rc3Low_efb" id="rc3Low_block_efb" value="block"' + (low === 'block' ? ' checked' : '') + '><label class="efb form-check-label" for="rc3Low_block_efb">' + esc(T('blockSubmission', 'Block the submission')) + '</label></div></div>'
+      + radio('rc3Low_efb', 'rc3Low_spam_efb', 'spam', low !== 'block', T('markAsSpam', 'Save as spam'))
+      + radio('rc3Low_efb', 'rc3Low_block_efb', 'block', low === 'block', T('blockSubmission', 'Block the submission')) + '</div>'
       + '</fieldset>'
       + '<fieldset class="efb efb-spam-prov" data-for="hcaptcha"' + (prov === 'hcaptcha' ? '' : ' hidden') + '><legend class="efb fs-6 fw-bold">' + esc(T('hCaptcha', 'hCaptcha')) + '</legend>' + keyPair('hcaptcha', s, 'hcSiteKey', 'hcSecretKey') + '</fieldset>'
       + '<fieldset class="efb efb-spam-prov" data-for="turnstile"' + (prov === 'turnstile' ? '' : ' hidden') + '><legend class="efb fs-6 fw-bold">' + esc(T('turnstile', 'Cloudflare Turnstile')) + '</legend>' + keyPair('turnstile', s, 'tsSiteKey', 'tsSecretKey') + '</fieldset>'
@@ -82,8 +87,8 @@
       + '<div class="efb form-text efb-spam-help" id="spamMinTime_efb-help">' + esc(T('spamMinTimeHelp', 'An answer sent sooner after the visitor starts the form is treated as spam. 0 turns this off.')) + '</div>'
       + toggle('spamRequireJs_efb', T('spamRequireJs', 'Require JavaScript'), on(val(s, 'spam_require_js', '')), '', '<span class="efb text-warning-emphasis">' + esc(T('spamRequireJsWarn', 'Only after checking Request Health: visitors whose firewall blocks the plugin\'s REST route, and pages cached before this version, would be treated as spam.')) + '</span>')
       + '<div class="efb mt-2" role="radiogroup" aria-labelledby="spamAction_efb-lbl" aria-describedby="spamAction_efb-help"><span class="efb form-label d-block" id="spamAction_efb-lbl">' + esc(T('spamAction', 'What to do with spam')) + '</span>'
-      + '<div class="efb form-check"><input class="efb form-check-input" type="radio" name="spamAction_efb" id="spamAction_spam_efb" value="spam"' + (act !== 'reject' ? ' checked' : '') + '><label class="efb form-check-label" for="spamAction_spam_efb">' + esc(T('markAsSpam', 'Save as spam')) + '</label></div>'
-      + '<div class="efb form-check"><input class="efb form-check-input" type="radio" name="spamAction_efb" id="spamAction_reject_efb" value="reject"' + (act === 'reject' ? ' checked' : '') + '><label class="efb form-check-label" for="spamAction_reject_efb">' + esc(T('spamReject', 'Refuse it (nothing is saved)')) + '</label></div>'
+      + radio('spamAction_efb', 'spamAction_spam_efb', 'spam', act !== 'reject', T('markAsSpam', 'Save as spam'))
+      + radio('spamAction_efb', 'spamAction_reject_efb', 'reject', act === 'reject', T('spamReject', 'Refuse it (nothing is saved)'))
       + '<div class="efb form-text efb-spam-help" id="spamAction_efb-help">' + esc(T('spamActionHelp', 'Payment, registration and login forms always refuse spam.')) + '</div></div>'
       + toggle('spamAkismet_efb', T('spamAkismet', 'Check answers with Akismet'), akOk && on(val(s, 'spam_akismet', '')), akOk ? '' : ' disabled aria-disabled="true"', esc(akOk ? T('spamAkismetPrivacy', 'Akismet sends the answers to Automattic to check them.') : T('spamAkismetMissing', 'Akismet is not installed or active.')))
       + toggle('spamDisallowed_efb', T('spamDisallowed', 'Check WordPress\' disallowed words'), on(val(s, 'spam_disallowed_keys', '')), '', sp.discussion_url ? '<a href="' + esc(sp.discussion_url) + '#disallowed_keys">' + esc(T('spamDisallowedHelp', 'Uses the list in Settings › Discussion › Disallowed Comment Keys.')) + '</a>' : esc(T('spamDisallowedHelp', 'Uses the list in Settings › Discussion › Disallowed Comment Keys.')))

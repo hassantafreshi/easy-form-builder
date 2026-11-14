@@ -5371,9 +5371,11 @@ function noti_message_efb_v4(message, alert ,id,form_id=0){
   if(d.querySelector('#noti_content_efb')){
     d.querySelector('#noti_content_efb').remove()
   }
-    d.innerHTML += ` <div id="noti_content_efb" class="efb w-75 mt-0 my-1 alert-dismissible alert ${alert}  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" role="alert">
+    // F12: appended, not "innerHTML +=": rewriting the card re-created the CAPTCHA widget from its HTML (its
+    // handlers and iframe state lost: a solved widget no longer answered) and emptied what the visitor typed.
+    d.insertAdjacentHTML('beforeend', ` <div id="noti_content_efb" class="efb w-75 mt-0 my-1 alert-dismissible alert ${alert}  ${efb_var.rtl == 1 ? 'rtl-text' : ''}" role="alert">
     <p class="efb my-0">${message}</p>
-  </div>`
+  </div>`);
 }
 
 function call_fun_jalali_datepicker_efb_v4(){
