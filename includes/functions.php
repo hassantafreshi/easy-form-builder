@@ -5633,6 +5633,22 @@ class efbFunction {
 			"rteLinkBad" => $state && isset($ac->text->rteLinkBad) ? $ac->text->rteLinkBad : esc_html__('Only web (http, https) and e-mail links are allowed.','easy-form-builder'),
 			/* translators: F10: section settings help */
 			"sectionHelp" => $state && isset($ac->text->sectionHelp) ? $ac->text->sectionHelp : esc_html__('The section holds the fields after it in this step, up to the next section.','easy-form-builder'),
+			/* translators: F10: builder, a field's setting: who sees the field */
+			"visFor" => $state && isset($ac->text->visFor) ? $ac->text->visFor : esc_html__('Show this field to','easy-form-builder'),
+			/* translators: F10: builder, Show this field to: every visitor */
+			"visAll" => $state && isset($ac->text->visAll) ? $ac->text->visAll : esc_html__('Everyone','easy-form-builder'),
+			/* translators: F10: builder, Show this field to: users who are logged in */
+			"visIn" => $state && isset($ac->text->visIn) ? $ac->text->visIn : esc_html__('Signed-in visitors','easy-form-builder'),
+			/* translators: F10: builder, Show this field to: visitors who are not logged in */
+			"visOut" => $state && isset($ac->text->visOut) ? $ac->text->visOut : esc_html__('Guests (not signed in)','easy-form-builder'),
+			/* translators: F10: builder, Show this field to: users with one of the WordPress roles ticked below */
+			"visRoles" => $state && isset($ac->text->visRoles) ? $ac->text->visRoles : esc_html__('Chosen user roles','easy-form-builder'),
+			/* translators: F10: builder canvas mark before the people who see the field, e.g. 'Only for: Editor' */
+			"visBadge" => $state && isset($ac->text->visBadge) ? $ac->text->visBadge : esc_html__('Only for','easy-form-builder'),
+			/* translators: F10: builder canvas mark when no role is ticked */
+			"visNoRole" => $state && isset($ac->text->visNoRole) ? $ac->text->visNoRole : esc_html__('No role chosen: nobody sees this field','easy-form-builder'),
+			/* translators: F10: builder help under Show this field to */
+			"visHelp" => $state && isset($ac->text->visHelp) ? $ac->text->visHelp : esc_html__('The site leaves this field out of the page and out of the sent answers for anyone else, and it is never required for them. Administrators follow the rule too.','easy-form-builder'),
 			/* translators: F14: %s = number */
 			"entExported" => $state && isset($ac->text->entExported) ? $ac->text->entExported : esc_html__('%s entries exported.','easy-form-builder'),
 			/* translators: F14: export column */
@@ -6572,7 +6588,8 @@ class efbFunction {
 						if ($valp[$key][$k] === '' && !in_array($k, array('row_label', 'btn_add_text'), true)) unset($valp[$key][$k]);
 					break;
 					// F10 layout keys: one rule set, Layout::sanitize_key() (= EFBLayoutCore.sanitizeKey() in layout-efb.js).
-					// vis_view is the page's own mark (a cached page's public view), never saved.
+					// vis_view / vis_empty are the page's own marks (a cached page's public view, a step with no field for
+					// this viewer), never saved.
 					case 'review_before_submit':
 					case 'review_hide_empty':
 					case 'review_title':
@@ -6580,7 +6597,10 @@ class efbFunction {
 					case 'collapsed':
 					case 'rich_text':
 					case 'rich_toolbar':
+					case 'vis_mode':
+					case 'vis_roles':
 					case 'vis_view':
+					case 'vis_empty':
 						if (!class_exists('\\Emsfb\\Layout') && is_readable(__DIR__ . '/class-Emsfb-layout.php')) require_once __DIR__ . '/class-Emsfb-layout.php';
 						$valp[$key][$k] = class_exists('\\Emsfb\\Layout') ? \Emsfb\Layout::sanitize_key($k, $v, $type) : '';
 						if ($valp[$key][$k] === '' && $k !== 'review_title') unset($valp[$key][$k]);

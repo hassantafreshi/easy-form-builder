@@ -2046,9 +2046,19 @@ class Entries {
 		foreach (is_array($form) ? $form : array() as $i => $f) {
 			if ($i > 0 && is_array($f) && ($f['type'] ?? '') === 'hiddenField' && isset($f['id_']) && is_string($f['value'] ?? null) && preg_match('/\{\s*(ip|uid|cookie)\b/i', $f['value'])) $tag_secret[(string) $f['id_']] = true;
 		}
+		/* F10-D: answers of a field kept for some roles (vis_mode "roles") are left out for a caller without one of
+		 * them (with its options and the fields of such a group). "Signed-in" / "guests only" rules decide who fills
+		 * the field, not who reads the answers: those answers stay. */
+		$vis_hide = array();
+		if (class_exists('\\Emsfb\\Layout') && is_array($form) && Layout::has_vis($form)) {
+			$roles_only = array();
+			foreach ($form as $i => $f) { if ($i > 0 && is_array($f) && Layout::vis_mode($f) === 'roles') $roles_only[] = $f; else $roles_only[] = is_array($f) && $i > 0 ? array_merge($f, array('vis_mode' => 'all')) : $f; }
+			$vis_hide = array_flip(Layout::filter_rows_ex($roles_only)[1]);
+		}
 		$fields = array();
 		foreach ((array) (class_exists('\\Emsfb\\Privacy') ? Privacy::decode_content((string) $e['content']) : array()) as $r) {
 			if (!is_array($r) || !isset($r['id_'])) continue;
+			if ($vis_hide && (isset($vis_hide[(string) $r['id_']]) || (isset($r['id_ob']) && is_scalar($r['id_ob']) && isset($vis_hide[(string) $r['id_ob']])) || (isset($r['rg']) && is_scalar($r['rg']) && isset($vis_hide[(string) $r['rg']])))) continue;
 			$type = isset($r['type']) ? (string) $r['type'] : '';
 			if ($type === 'w_link' || $type === 'payment' || in_array($type, self::API_SECRET_TYPES, true)) continue;
 			$o = array('id_' => (string) $r['id_'], 'name' => isset($r['name']) && is_scalar($r['name']) ? self::decode_text((string) $r['name']) : '', 'type' => $type);

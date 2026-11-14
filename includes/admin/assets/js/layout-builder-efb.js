@@ -9,6 +9,10 @@
  *    where the section starts, in the preview it opens and closes like the page.
  *  - C: "Rich text editor" and its toolbar (basic / full) on a textarea (Free Plus: the switch is locked with the
  *    plan gem below Free Plus; the server draws a plain textarea then).
+ *  - D: "Show this field to" (vis_mode all / in / out / roles, vis_roles from efb_var.roles) in every field's
+ *    advanced settings (Pro: below Pro the control is locked, a saved rule can still be set back to everyone; the
+ *    server applies a saved rule on every plan). The canvas and the preview show every field, a lock mark on the
+ *    ones with a rule.
  *
  * Every key goes through the save rule EFBLayoutCore.sanitizeKey (layout-efb.js, twin of \Emsfb\Layout::sanitize_key()).
  */
@@ -179,12 +183,73 @@
     } else if (!attrs && badge) badge.remove();
   }
 
+  /* ------------------------------------------------------------------ D: who sees a field */
+
+  const NO_VIS_TYPES = ['form', 'step', 'option', 'r_matrix', 'buttonNav', 'steps'];
+  const VIS_FIXED_IDS = ['emaillogin', 'passwordlogin', 'usernameRegisterEFB', 'passwordRegisterEFB', 'repasswordRegisterEFB', 'emailRegisterEFB'];
+  const siteRoles = () => { try { return Array.isArray(root.efb_var && root.efb_var.roles) ? root.efb_var.roles : []; } catch (e) { return []; } };
+  const visApplies = (r) => !!r && NO_VIS_TYPES.indexOf(r.type) === -1 && VIS_FIXED_IDS.indexOf(String(r.id_)) === -1
+    && ['login', 'register'].indexOf((list()[0] || {}).type) === -1;
+  const visMode = (r) => (C() ? C().VIS_MODES : ['all', 'in', 'out', 'roles']).indexOf(r && r.vis_mode) !== -1 ? r.vis_mode : 'all';
+  /** "Signed-in visitors", "Editor, Author" … the words of a rule (the canvas mark, the preview). */
+  function visText(r) {
+    const m = visMode(r);
+    if (m === 'in') return T('visIn', 'Signed-in visitors');
+    if (m === 'out') return T('visOut', 'Guests (not signed in)');
+    if (m !== 'roles') return '';
+    const names = String(r.vis_roles || '').split(',').filter(Boolean).map((slug) => { const f = siteRoles().find((x) => x.slug === slug); return f ? f.name : slug; });
+    return names.length ? names.join(', ') : T('visNoRole', 'No role chosen: nobody sees this field');
+  }
+  /** The canvas / preview mark of a field with a rule ('' for everyone). */
+  function efbLayoutVisMark(r) {
+    if (!visApplies(r) || visMode(r) === 'all') return `<span id="${attr(r && r.id_)}-vis" class="efb d-none"></span>`;
+    const t = `${T('visBadge', 'Only for')}: ${visText(r)}`;
+    return `<span id="${attr(r.id_)}-vis" class="efb efb-vis-mark badge bg-light text-dark border fs-8 mx-2" title="${attr(t)}"><i class="efb bi-person-lock" aria-hidden="true"></i> ${esc(t)}</span>`;
+  }
+  function visMarkRedraw(r) {
+    const old = document.getElementById(`${r.id_}-vis`);
+    if (!old) return;
+    const t = document.createElement('div');
+    t.innerHTML = efbLayoutVisMark(r);
+    old.replaceWith(t.firstElementChild);
+  }
+  /** "Show this field to" (show_setting_window_efb, Nadvanced and the section / heading panels). */
+  function efbLayoutVisEls(indx, idset) {
+    const r = list()[indx];
+    if (!visApplies(r)) return '';
+    const ok = planOk('setting:vis_mode', !!(root.efb_var && (efb_var.pro == 1 || efb_var.pro === true)));
+    const m = visMode(r);
+    const opt = (v, label) => `<option value="${v}" ${m === v ? 'selected' : ''}${!ok && v !== 'all' && v !== m ? ' disabled' : ''}>${esc(label)}</option>`;
+    const chosen = String(r.vis_roles || '').split(',').filter(Boolean);
+    const roles = siteRoles().map((x, i) => `<div class="efb form-check mx-1">
+        <input type="checkbox" class="efb elEdit form-check-input" id="visRoleEl_${i}" data-id="${esc(idset)}" data-key="vis_roles" data-role="${attr(x.slug)}" ${chosen.indexOf(x.slug) !== -1 ? 'checked' : ''}${ok ? '' : ' disabled'}>
+        <label class="efb form-check-label" for="visRoleEl_${i}">${esc(x.name)}</label></div>`).join('');
+    return `<div class="efb efb-layout-vis mt-3" id="efbLayoutVis">
+      <label for="visModeEl" class="efb form-label mb-1 d-flex align-items-center gap-2"><i class="efb bi-person-lock fs-7" aria-hidden="true"></i>${esc(T('visFor', 'Show this field to'))}${ok ? '' : gemFor('setting:vis_mode', 'pro')}</label>
+      <select class="efb elEdit form-select border-d rounded-4 mb-1" id="visModeEl" data-id="${esc(idset)}" data-key="vis_mode" aria-describedby="visModeEl-help"${!ok && m === 'all' ? ' disabled aria-disabled="true"' : ''}>
+        ${opt('all', T('visAll', 'Everyone'))}${opt('in', T('visIn', 'Signed-in visitors'))}${opt('out', T('visOut', 'Guests (not signed in)'))}${opt('roles', T('visRoles', 'Chosen user roles'))}
+      </select>
+      <fieldset class="efb ${m === 'roles' ? '' : 'd-none'} border rounded-3 px-2 py-1 mb-1" id="efbLayoutVisRoles"><legend class="efb fs-7 float-none w-auto px-1 mb-0">${esc(T('visRoles', 'Chosen user roles'))}</legend>${roles}</fieldset>
+      <small class="efb form-text text-muted fs-8 d-block" id="visModeEl-help">${esc(T('visHelp', 'The site leaves this field out of the page and out of the sent answers for anyone else, and it is never required for them. Administrators follow the rule too.'))}</small>
+    </div>`;
+  }
+
   /* ------------------------------------------------------------------ change handler */
 
   /** change_el_edit_Efb for the F10 controls. Returns false when nothing was written. */
   function efbLayoutBuilderChange(el, indx) {
     if (!el) return false;
     const L = list();
+    if (/^visRoleEl_\d+$/.test(el.id)) {
+      const r = L[indx];
+      if (!visApplies(r) || !planOk('setting:vis_mode', false)) return false;
+      const box = document.getElementById('efbLayoutVisRoles');
+      const picked = box ? Array.from(box.querySelectorAll('input[data-role]')).filter((x) => x.checked).map((x) => x.dataset.role) : [];
+      r.vis_roles = sanitize('vis_roles', picked.join(','));
+      visMarkRedraw(r);
+      changed('setting', [r.id_]);
+      return true;
+    }
     switch (el.id) {
       case 'reviewBeforeSubmitEl': {
         if (legacyPay()) { el.checked = false; return false; }
@@ -226,7 +291,21 @@
         changed('setting', [r.id_]);
         return true;
       }
-      case 'sectionAccordionEl':
+      case 'visModeEl': {
+        const r = L[indx];
+        if (!visApplies(r)) return false;
+        if (!planOk('setting:vis_mode', false) && el.value !== 'all') { el.value = visMode(r); if (typeof efb_upgrade_prompt_efb === 'function') efb_upgrade_prompt_efb({ feature: 'setting:vis_mode', fallback: 'pro', origin: 'field_settings', opener: el }); return false; }
+        r.vis_mode = sanitize('vis_mode', el.value);
+        if (r.vis_mode === 'roles' && r.vis_roles === undefined) r.vis_roles = '';
+        if (r.vis_mode !== 'roles') delete r.vis_roles;
+        const box = document.getElementById('efbLayoutVisRoles');
+        if (box) box.classList.toggle('d-none', r.vis_mode !== 'roles');
+        if (!planOk('setting:vis_mode', false) && r.vis_mode === 'all') el.disabled = true;
+        visMarkRedraw(r);
+        changed('setting', [r.id_]);
+        return true;
+      }
+
         L[0].section_accordion = sanitize('section_accordion', el.checked ? '1' : '0');
         changed('setting', []);
         return true;
@@ -251,6 +330,6 @@
   }
 
   const api = { efbLayoutFormEls, efbLayoutBuilderChange, efbLayoutSectionMarkup, efbLayoutSectionRedraw, efbLayoutSectionPanelEls, efbLayoutAccordionEls, efbLayoutPreviewInit,
-    efbLayoutRichAttrs, efbLayoutRichEls };
+    efbLayoutRichAttrs, efbLayoutRichEls, efbLayoutVisEls, efbLayoutVisMark };
   Object.keys(api).forEach((k) => { root[k] = api[k]; });
 })(typeof window !== 'undefined' ? window : globalThis);

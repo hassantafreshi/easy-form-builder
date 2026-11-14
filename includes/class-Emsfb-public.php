@@ -1624,6 +1624,26 @@ public function check_nonce_permission_efb($request) {
 							$fs = $val_;
 						}
 					}
+					/* F10-D: fields this viewer may not see leave the page (the HTML and the copy of the form the browser
+					 * reads), with their options; the page is kept out of page caches. A site that keeps it cacheable
+					 * anyway (emsfb_cache_bypass false for 'vis') gets the view every visitor shares (only fields shown
+					 * to all, vis_view "public"), which the submit follows. The redirect address (rePage) leaves the
+					 * page copy too: the server answers the redirect after a submit (it was only cleared in $value). */
+					$vis_rows_efb = null;
+					if (is_string($fs) && $fs !== '' && is_array($formObj) && class_exists('\\Emsfb\\Layout') && \Emsfb\Layout::has_vis($formObj)) {
+						\Emsfb\Cache_Compat::render_bypass((int) $this->id, 'vis');
+						$vis_public_efb = !\Emsfb\Cache_Compat::is_dynamic();
+						$vis_rows_efb = \Emsfb\Layout::filter_rows($formObj, null, $vis_public_efb);
+						if ($vis_public_efb) $vis_rows_efb[0]['vis_view'] = 'public';
+					}
+					if (is_string($fs) && $fs !== '' && is_array($formObj) && ($vis_rows_efb !== null || (isset($formObj[0]['thank_you']) && $formObj[0]['thank_you'] === 'rdrct' && !empty($formObj[0]['rePage'])))) {
+						if ($vis_rows_efb !== null) $formObj = $vis_rows_efb;
+						if (isset($formObj[0]['thank_you']) && $formObj[0]['thank_you'] === 'rdrct') $formObj[0]['rePage'] = '';
+						$val_ = json_encode($formObj, JSON_UNESCAPED_UNICODE);
+						$valj_efb = json_decode($val_, false);
+						$value = str_replace('"', '\\"', $val_);
+						$fs = $val_;
+					}
 
 				$k="";
 				if(($value_form_data->form_type=="login" || $value_form_data->form_type=="register"))$value= $value_form_data->form_structer;
@@ -1815,6 +1835,8 @@ public function check_nonce_permission_efb($request) {
 						);
 
 					}
+					// F10-D: a step whose every field is hidden from this viewer is skipped like a step hidden by logic.
+					if (!empty($valj_efb[$i]->vis_empty)) $fieldset = substr($fieldset, 0, -1) . ' data-vis-empty="1">';
 					$content .= $fieldset;
 
 					/* Resolved here rather than at the head assembly below because the
@@ -3054,6 +3076,16 @@ public function check_nonce_permission_efb($request) {
 			// choice that is gone (deleted, made private) is not accepted and every check below sees the real list.
 			// The submit reads the source itself (not the page's cached list): a post trashed meanwhile is gone.
 			if (is_array($form_fields_array) && class_exists('\\Emsfb\\Choices')) $form_fields_array = \Emsfb\Choices::expand_dynamic($form_fields_array, (int) $this->id, true);
+			// F10-D: fields the sender may not see (login, role) are out of the form here, before anything reads it:
+			// never required or checked, and an answer sent for them (a forged request, a page cached before a login)
+			// is dropped. A page in a page cache holds the view every visitor shares and says so (vis_view "public",
+			// in the body or the X-EFB-Vis-View header): that only narrows what is accepted.
+			if (is_array($form_fields_array) && class_exists('\\Emsfb\\Layout') && \Emsfb\Layout::has_vis($form_fields_array)) {
+				$vis_public_efb = (isset($request_data['vis_view']) && $request_data['vis_view'] === 'public')
+					|| (is_object($data_POST_) && method_exists($data_POST_, 'get_header') && $data_POST_->get_header('x_efb_vis_view') === 'public');
+				list($form_fields_array, $submitted_values, $vis_dropped_efb) = \Emsfb\Layout::filter_submission($form_fields_array, is_array($submitted_values) ? $submitted_values : array(), null, $vis_public_efb);
+				if ($vis_dropped_efb > 0 && defined('WP_DEBUG') && WP_DEBUG) error_log('Easy Form Builder: ' . (int) $vis_dropped_efb . ' answer row(s) for fields hidden from this sender were dropped (form ' . (int) $this->id . ').'); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
 
 			// F08: hidden fields get the server's value before anything reads the answers (Conditional Logic,
 			// the field loop, notifications, webhooks): server tags rebuilt, the browser's copy ignored for them.

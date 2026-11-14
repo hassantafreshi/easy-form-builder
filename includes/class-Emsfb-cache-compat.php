@@ -113,6 +113,8 @@ class Cache_Compat {
      * 'session'  a form whose add-on scripts still read the page-embedded efb_var.sid
      *            (Stripe, PayPal, PersiaPay/Zarinpal, Autofill);
      * 'track', 'state'  visitor-specific views opened from a link;
+     * 'vis'      a form with a field shown only to signed-in visitors, guests or some roles (F10-D); when a
+     *            site keeps it cacheable anyway, the page holds only the fields every visitor sees;
      * 'recovery' the temporary add-on repair screen.
      * A form in a widget, footer, template part or popup leaves the page cacheable:
      * request-health-efb.js fetches a fresh nonce and session for it (EFBRuntime.prepare).
@@ -159,6 +161,9 @@ class Cache_Compat {
         self::invoke('do_action', array('litespeed_control_set_nocache', 'Easy Form Builder interactive form or response box'));
         if (function_exists('wpfc_exclude_current_page')) self::invoke('wpfc_exclude_current_page');
     }
+
+    /** Whether this request's page was taken out of page caches (bypass() ran). */
+    public static function is_dynamic() { return self::$dynamic; }
 
     public static function can_cache($allowed) { return self::$dynamic ? false : $allowed; }
     public static function skip_optimization($skip) { return self::$dynamic ? true : $skip; }

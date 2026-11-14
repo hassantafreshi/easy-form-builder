@@ -1079,7 +1079,8 @@ function show_setting_window_efb(idset, opts) {
     ${el.dataset.tag != 'ttlprc' ? requireEls : ''}
     ${el.dataset.tag != 'ttlprc' ? customRequiredMsgEls() : ''}
     ${desEls}
-    ${prvPiiEls(indx)}`
+    ${prvPiiEls(indx)}
+    ${typeof efbLayoutVisEls === 'function' ? efbLayoutVisEls(indx, idset) : ''}`
     const deskHideEfb = typeof currentViewEfb !== 'undefined' && currentViewEfb === 'mobile' ? 'd-none' : '';
     const mobHideEfb = typeof currentViewEfb === 'undefined' || currentViewEfb !== 'mobile' ? 'd-none' : '';
 
@@ -1840,6 +1841,7 @@ function show_setting_window_efb(idset, opts) {
                 ${fontSizeEls(idset,indx)}
                 ${widthEls}
                 ${mobileWidthEls}
+                ${typeof efbLayoutVisEls === 'function' ? efbLayoutVisEls(indx, idset) : ''}
                 ${classesEls}
                 <div class="efb  clearfix"></div>
                 `
@@ -1851,6 +1853,7 @@ function show_setting_window_efb(idset, opts) {
                 ${labelEls}
                 ${desEls}
                 ${typeof efbLayoutSectionPanelEls === 'function' ? efbLayoutSectionPanelEls(indx, idset) : '<!-- F10 layout-builder-efb.js not loaded -->'}
+                ${typeof efbLayoutVisEls === 'function' ? efbLayoutVisEls(indx, idset) : ''}
                 ${classesEls}
                 <div class="efb  clearfix"></div>
                 `

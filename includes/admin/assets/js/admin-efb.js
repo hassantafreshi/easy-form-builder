@@ -2411,6 +2411,8 @@ let change_el_edit_Efb = (el) => {
     }
       const isToggleButton = el.classList && el.classList.contains('btn-toggle');
       if (el.value==null && !isToggleButton) return  valNotFound_efb()
+    // F10-D: the role check boxes of "Show this field to" (visRoleEl_0, visRoleEl_1 …).
+    if (/^visRoleEl_\d+$/.test(el.id)) { if (typeof efbLayoutBuilderChange === 'function') efbLayoutBuilderChange(el, indx); return; }
 
     switch (el.id) {
       case "labelEl":
@@ -2530,6 +2532,7 @@ let change_el_edit_Efb = (el) => {
       case "sectionCollapsedEl":
       case "richTextEl":
       case "richToolbarEl":
+      case "visModeEl":
         // F10: the review page, sections, rich text, visibility by role, typed signature (layout-builder-efb.js).
         if (typeof efbLayoutBuilderChange === 'function') efbLayoutBuilderChange(el, indx);
         break;
@@ -8435,6 +8438,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     newElement += `
     ${previewSate == false  ? `<section class="efb my-1 px-0 mx-0 ttEfb ${previewSate != true ? disabled : ""} ${previewSate == false && valj_efb[iVJ].hidden==1 ? "hidden" : ""} ${previewSate == true && (pos[1] == "col-md-12" || pos[1] == "col-md-10") ? `mx-0 px-0` : 'position-relative'} ${previewSate == true ? `${pos[0]} ${pos[1]}` : `${ps}`} row ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >` : ''}
     ${previewSate == false && valj_efb[iVJ].hidden==1 ? hiddenMarkEl(valj_efb[iVJ].id_) : ''}
+    ${previewSate == false && typeof efbLayoutVisMark === 'function' ? efbLayoutVisMark(valj_efb[iVJ]) : ''}
     <div class="efb my-1 mx-0  ${elementId} ${tagT} ${hidden} ${previewSate == true ? disabled : ""}  ttEfb ${previewSate == true ? `${pos[0]} ${pos[1]} ${mobileColCls}` : ` row`} ${shwBtn} efbField ${dataTag == "step" ? 'step' : ''}" data-step="${step_el_efb}" data-amount="${amount_el_efb}" data-id="${rndm}-id" id="${rndm}" data-tag="${tagId}"  >
     ${(previewSate == true && elementId != 'option') || previewSate != true ? ui : ''}
     ${previewSate != true && pro_efb == false && pro_el==true ? proActiv : ''}

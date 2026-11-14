@@ -277,6 +277,8 @@ class Form_Schema {
 		if (is_wp_error($rows)) return $rows;
 		$a = Calendar_Rest::access($rows, $form_id);
 		if (is_wp_error($a)) return $a;
+		// F10-D: a field this caller may not see (login / role) is not in the schema, as it is not on their page.
+		if (class_exists('\\Emsfb\\Layout') && Layout::has_vis($rows)) $rows = Layout::filter_rows($rows);
 		$locale = function_exists('get_locale') ? get_locale() : 'en_US';
 		$s0 = $rows[0];
 		$out = array(

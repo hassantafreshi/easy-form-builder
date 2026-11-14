@@ -8,6 +8,8 @@
  *    its step move into the section's region once the page is drawn (without JavaScript they stay open where they
  *    were), the header button shows / hides the region (hidden attribute, so its required fields are still checked
  *    and a field with an error opens its section), accordion mode keeps one section of a step open.
+ *  - D (who sees a field): the server leaves the fields this viewer may not see out of the page; nothing to do here
+ *    but the save rule of vis_mode / vis_roles. A step left without a field has data-vis-empty (core-efb.js skips it).
  *
  * core-efb.js calls EFBLayout.reviewIntercept() where it would send the form, and EFBLayout.reviewReturn()
  * when Next is pressed on a step opened from the review page. Values are written with textContent only.
@@ -18,10 +20,11 @@
   /* ================================================================== core (no DOM) */
 
   var FORM_KEYS = ['review_before_submit', 'review_hide_empty', 'review_title', 'section_accordion'];
-  var FIELD_KEYS = ['collapsed', 'rich_text', 'rich_toolbar'];
-  var RUNTIME_KEYS = ['vis_view'];
+  var FIELD_KEYS = ['collapsed', 'rich_text', 'rich_toolbar', 'vis_mode', 'vis_roles'];
+  var RUNTIME_KEYS = ['vis_view', 'vis_empty'];
   var LIMITS = { review_title: 120, rich_raw_max: 65535, rich_raw_min: 4096 };
-  var DEFAULTS = { review_before_submit: '0', review_hide_empty: '1', review_title: '', section_accordion: '0', collapsible: '1', collapsed: '0', rich_text: '0', rich_toolbar: 'basic' };
+  var DEFAULTS = { review_before_submit: '0', review_hide_empty: '1', review_title: '', section_accordion: '0', collapsible: '1', collapsed: '0', rich_text: '0', rich_toolbar: 'basic', vis_mode: 'all', vis_roles: '' };
+  var VIS_MODES = ['all', 'in', 'out', 'roles'];
   var LEGACY_PAY_TYPES = ['stripe', 'paypal', 'persiaPay', 'persiapay', 'zarinPal'];
   /** Rows that are never an answer on the review page (structure, secrets, hidden values). */
   var SKIP_TYPES = ['form', 'step', 'option', 'r_matrix', 'html', 'heading', 'link', 'steps', 'buttonNav', 'ttlprc', 'section',
@@ -53,8 +56,25 @@
         return v === 'basic' || v === 'full' ? v : 'basic';
       case 'review_title':
         return cut(textField(v), LIMITS.review_title);
+      case 'vis_mode':
+        return VIS_MODES.indexOf(v) !== -1 ? v : 'all';
+      case 'vis_roles':
+        return visRoles(v, siteRoles()).join(',');
     }
     return '';
+  }
+  /** The site's role slugs (builder: efb_var.roles; null elsewhere, then any slug passes and the server decides). */
+  function siteRoles() {
+    try { var r = root.efb_var && root.efb_var.roles; return Array.isArray(r) ? r.map(function (x) { return str(x && x.slug); }) : null; } catch (e) { return null; }
+  }
+  /** vis_roles as stored: slugs (sanitize_key), only the site's roles, no duplicates. Twin of Layout::vis_roles_clean(). */
+  function visRoles(v, site) {
+    var out = [];
+    str(v).split(',').forEach(function (p) {
+      var k = p.trim().toLowerCase().replace(/[^a-z0-9_\-]/g, '');
+      if (k !== '' && (!site || site.indexOf(k) !== -1) && out.indexOf(k) === -1) out.push(k);
+    });
+    return out;
   }
 
   function legacyPayment(rows) {
@@ -153,8 +173,8 @@
   }
 
   var core = {
-    FORM_KEYS: FORM_KEYS, FIELD_KEYS: FIELD_KEYS, RUNTIME_KEYS: RUNTIME_KEYS, LIMITS: LIMITS, DEFAULTS: DEFAULTS, LEGACY_PAY_TYPES: LEGACY_PAY_TYPES, SKIP_TYPES: SKIP_TYPES,
-    on: on, sanitizeKey: sanitizeKey, legacyPayment: legacyPayment, reviewOn: reviewOn, answerText: answerText, plainOfHtml: plainOfHtml, untoken: untoken
+    FORM_KEYS: FORM_KEYS, FIELD_KEYS: FIELD_KEYS, RUNTIME_KEYS: RUNTIME_KEYS, LIMITS: LIMITS, DEFAULTS: DEFAULTS, LEGACY_PAY_TYPES: LEGACY_PAY_TYPES, SKIP_TYPES: SKIP_TYPES, VIS_MODES: VIS_MODES,
+    on: on, sanitizeKey: sanitizeKey, visRoles: visRoles, legacyPayment: legacyPayment, reviewOn: reviewOn, answerText: answerText, plainOfHtml: plainOfHtml, untoken: untoken
   };
 
   /* ================================================================== page */

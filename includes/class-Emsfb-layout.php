@@ -12,6 +12,11 @@
  *  C  the visitor's rich text on a textarea (rich_text, rich_toolbar; Free Plus): the answer is HTML cleaned with
  *     wp_kses and a strict allow-list (rich_allowed_html()), its length counted on the text (rich_check()), and
  *     shown as safe HTML or as plain text (rich_plain()) everywhere else.
+ *  D  who sees a field (vis_mode all | in | out | roles, vis_roles; the builder's control is Pro, the rule is always
+ *     enforced): filter_rows() takes the fields a viewer may not see out of the page (HTML and JSON) and the
+ *     forms/{id}/schema; filter_submission() drops their answers and their required check on every submit route.
+ *     A page holding such a form is kept out of page caches; when the site keeps it cacheable anyway, the page has
+ *     only the fields every visitor sees (vis_view "public") and the submit follows that view.
  *
  * The save rules of every F10 key are here (sanitize_key(), called from sanitize_obj_msg_efb()); the
  * browser's twin is EFBLayoutCore.sanitizeKey() in layout-efb.js (tests/test-layout-parity.js).
@@ -28,21 +33,24 @@ class Layout {
 	 * The plan of each part (spec §14). The owner may change it with the filter efb_layout_plan
 	 * ($need, $part). The review page and sections are free.
 	 */
-	const PLAN = array('review' => 'free', 'section' => 'free', 'rich_text' => 'free_plus');
+	const PLAN = array('review' => 'free', 'section' => 'free', 'rich_text' => 'free_plus', 'vis' => 'pro');
 
 	/** Row-0 keys of the review page. */
 	const FORM_KEYS = array('review_before_submit', 'review_hide_empty', 'review_title', 'section_accordion');
 
 	/** Field keys. collapsible is shared with F09's repeater group (Repeater::sanitize_key keeps '1' / '0'). */
-	const FIELD_KEYS = array('collapsed', 'rich_text', 'rich_toolbar');
+	const FIELD_KEYS = array('collapsed', 'rich_text', 'rich_toolbar', 'vis_mode', 'vis_roles');
 
 	/** Keys of the page only: never saved. */
-	const RUNTIME_KEYS = array('vis_view');
+	const RUNTIME_KEYS = array('vis_view', 'vis_empty');
 
 	const LIMITS = array('review_title' => 120, 'rich_raw_max' => 65535, 'rich_raw_min' => 4096);
 
 	/** The defaults when a key is missing (old forms). */
-	const DEFAULTS = array('review_before_submit' => '0', 'review_hide_empty' => '1', 'review_title' => '', 'section_accordion' => '0', 'collapsible' => '1', 'collapsed' => '0', 'rich_text' => '0', 'rich_toolbar' => 'basic');
+	const DEFAULTS = array('review_before_submit' => '0', 'review_hide_empty' => '1', 'review_title' => '', 'section_accordion' => '0', 'collapsible' => '1', 'collapsed' => '0', 'rich_text' => '0', 'rich_toolbar' => 'basic', 'vis_mode' => 'all', 'vis_roles' => '');
+	const VIS_MODES = array('all', 'in', 'out', 'roles');
+	/** Login / register rows the visibility rule never touches (fixed ids the handlers read). */
+	const VIS_FIXED_IDS = array('emaillogin', 'passwordlogin', 'usernameRegisterEFB', 'passwordRegisterEFB', 'repasswordRegisterEFB', 'emailRegisterEFB');
 
 	/** The tags a visitor's rich text may hold (no attribute but a link's href). */
 	const RICH_TAGS = array('p', 'br', 'strong', 'b', 'em', 'i', 'u', 'ul', 'ol', 'li', 'blockquote', 'h3', 'h4', 'a');
@@ -55,6 +63,7 @@ class Layout {
 	public static function register() {
 		if (!function_exists('add_filter')) return;
 		add_filter('efb_capabilities', array(__CLASS__, 'capabilities'), 29, 2);
+		add_filter('efb_admin_localize_vars', array(__CLASS__, 'localize_vars'), 29, 2);
 	}
 
 	/* ------------------------------------------------------------------ plan */
@@ -119,6 +128,10 @@ class Layout {
 				return self::on($v) ? '1' : '0';
 			case 'rich_toolbar':
 				return in_array($v, self::RICH_TOOLBARS, true) ? $v : 'basic';
+			case 'vis_mode':
+				return in_array($v, self::VIS_MODES, true) ? $v : 'all';
+			case 'vis_roles':
+				return implode(',', self::vis_roles_clean($v));
 			case 'review_title':
 				return self::text($v, self::LIMITS['review_title']);
 		}
@@ -292,6 +305,136 @@ class Layout {
 		return array($rows, $ignored + $add);
 	}
 
+	/* ------------------------------------------------------------------ D: visibility by login / role */
+
+	/** The site's role slugs (wp_roles()); empty outside WordPress. */
+	public static function site_roles() {
+		if (!function_exists('wp_roles')) return array();
+		$r = wp_roles();
+		return is_object($r) && method_exists($r, 'get_names') ? array_map('strval', array_keys((array) $r->get_names())) : array();
+	}
+
+	/** vis_roles as stored: slugs (sanitize_key), only roles of this site, no duplicates, in the order given. */
+	public static function vis_roles_clean($v) {
+		$site = self::site_roles();
+		$out = array();
+		foreach (explode(',', is_scalar($v) ? (string) $v : '') as $p) {
+			$k = function_exists('sanitize_key') ? sanitize_key(trim($p)) : preg_replace('/[^a-z0-9_\-]/', '', strtolower(trim($p)));
+			if ($k !== '' && in_array($k, $site, true) && !in_array($k, $out, true)) $out[] = $k;
+		}
+		return $out;
+	}
+
+	public static function vis_mode($row) {
+		$m = self::s($row, 'vis_mode', 'all');
+		return in_array($m, self::VIS_MODES, true) ? $m : 'all';
+	}
+
+	/** Whether a form (rows) has a field with a visibility rule. */
+	public static function has_vis($rows) {
+		foreach ((array) $rows as $i => $r) {
+			if ($i > 0 && self::vis_mode($r) !== 'all' && self::s($r, 'type') !== 'step') return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Whether a viewer sees a field. $user: a WP_User (default: the current user); $public_view: a cached page's
+	 * view (only fields every visitor sees). A rule with no role left ("roles" and an empty list) shows the field
+	 * to nobody. The site administrator follows the rule too (spec open question 3).
+	 */
+	public static function row_visible($row, $user = null, $public_view = false) {
+		$mode = self::vis_mode($row);
+		if ($mode === 'all' || self::s($row, 'type') === 'step' || in_array(self::s($row, 'id_'), self::VIS_FIXED_IDS, true)) return true;
+		if ($public_view) return false;
+		if ($user === null && function_exists('wp_get_current_user')) $user = wp_get_current_user();
+		$in = is_object($user) && !empty($user->ID);
+		if ($mode === 'in') return $in;
+		if ($mode === 'out') return !$in;
+		if (!$in) return false;
+		$roles = isset($user->roles) ? array_map('strval', (array) $user->roles) : array();
+		$want = array_filter(array_map('trim', explode(',', self::s($row, 'vis_roles'))), 'strlen');
+		return (bool) array_intersect($want, $roles);
+	}
+
+	/**
+	 * The rows a viewer gets: fields they may not see are removed with their options / matrix rows and, for a
+	 * repeater group or a section, the fields it holds. Row 0 and steps stay; a step left without a field gets vis_empty "1" (the page
+	 * skips it as a step hidden by logic). Works on associative and stdClass rows; returns [rows, hidden ids].
+	 */
+	public static function filter_rows_ex($rows, $user = null, $public_view = false) {
+		$rows = array_values((array) $rows);
+		$hidden = array();
+		foreach ($rows as $i => $r) {
+			if ($i === 0) continue;
+			$t = self::s($r, 'type');
+			if ($t === 'option' || $t === 'r_matrix' || $t === 'step') continue;
+			if (!self::row_visible($r, $user, $public_view)) $hidden[self::s($r, 'id_')] = true;
+		}
+		if (!$hidden) return array($rows, array());
+		foreach (self::section_members($rows) as $sid => $ids) { // a hidden section hides the fields it holds
+			if (isset($hidden[$sid])) foreach ($ids as $id) $hidden[$id] = true;
+		}
+		foreach ($rows as $i => $r) { // a hidden group hides its fields
+			if ($i > 0 && self::s($r, 'group') !== '' && isset($hidden[self::s($r, 'group')])) $hidden[self::s($r, 'id_')] = true;
+		}
+		$out = array();
+		foreach ($rows as $i => $r) {
+			if ($i > 0) {
+				$id = self::s($r, 'id_');
+				if (isset($hidden[$id])) continue;
+				$p = self::s($r, 'parent');
+				if ($p !== '' && isset($hidden[$p])) { $hidden[$id] = true; continue; }
+			}
+			$out[] = $r;
+		}
+		// Steps left without a field.
+		$fields_of = array();
+		foreach ($out as $i => $r) {
+			$t = self::s($r, 'type');
+			if ($i > 0 && $t !== 'step' && $t !== 'option' && $t !== 'r_matrix') $fields_of[self::s($r, 'step', '1')] = true;
+		}
+		foreach ($out as $i => $r) {
+			if ($i === 0 || self::s($r, 'type') !== 'step' || isset($fields_of[self::s($r, 'step', '1')])) continue;
+			if (is_array($r)) $out[$i]['vis_empty'] = '1'; elseif (is_object($r)) { $c = clone $r; $c->vis_empty = '1'; $out[$i] = $c; }
+		}
+		return array($out, array_keys($hidden));
+	}
+
+	public static function filter_rows($rows, $user = null, $public_view = false) {
+		return self::filter_rows_ex($rows, $user, $public_view)[0];
+	}
+
+	/**
+	 * The submit: the fields the sender may not see are out of the form (not required, never checked) and their
+	 * answers are dropped (a row whose id_, id_ob or rg is such a field or one of its options). Login / register
+	 * and payment rows have no field id and pass. [fields, rows, number of rows dropped].
+	 */
+	public static function filter_submission(array $fields, array $rows, $user = null, $public_view = false) {
+		list($kept, $hidden) = self::filter_rows_ex($fields, $user, $public_view);
+		if (!$hidden) return array($fields, $rows, 0);
+		$h = array_flip($hidden);
+		$out = array();
+		$dropped = 0;
+		foreach ($rows as $r) {
+			if (is_array($r) && ((isset($r['id_']) && is_scalar($r['id_']) && isset($h[(string) $r['id_']])) || (isset($r['id_ob']) && is_scalar($r['id_ob']) && isset($h[(string) $r['id_ob']])) || (isset($r['rg']) && is_scalar($r['rg']) && isset($h[(string) $r['rg']])))) { $dropped++; continue; }
+			$out[] = $r;
+		}
+		foreach ($kept as $i => $r) if (is_array($r) && isset($r['vis_empty'])) unset($kept[$i]['vis_empty']);
+		return array($kept, $out, $dropped);
+	}
+
+	/** efb_admin_localize_vars: efb_var.roles = [{slug, name}] (translated names) for the builder's visibility control. */
+	public static function localize_vars($vars, $context = '') {
+		if (!is_array($vars)) return $vars;
+		$roles = array();
+		if (function_exists('wp_roles')) {
+			foreach ((array) wp_roles()->get_names() as $slug => $name) $roles[] = array('slug' => (string) $slug, 'name' => function_exists('translate_user_role') ? translate_user_role($name) : (string) $name);
+		}
+		$vars['roles'] = $roles;
+		return $vars;
+	}
+
 	/* ------------------------------------------------------------------ capabilities */
 
 	/** efb_capabilities: setting:review_before_submit and capabilities.layout (SitePilot manifest features.layout). */
@@ -307,6 +450,7 @@ class Layout {
 				'form_keys' => $keys, 'label_key' => $label), $extra);
 		};
 		$out['features']['setting:review_before_submit'] = $entry('review', 'setting', array('review_before_submit', 'review_hide_empty', 'review_title'), 'rvwBfrSbmt', array('not_on' => 'legacy payment forms (stripe, paypal, persiaPay fields)'));
+		$out['features']['setting:vis_mode'] = $entry('vis', 'setting', array('vis_mode', 'vis_roles'), 'visFor', array('scope' => 'field', 'enforced' => 'always (the server applies a saved rule on every plan)'));
 		$out['features']['setting:rich_text'] = $entry('rich_text', 'setting', array('rich_text', 'rich_toolbar'), 'richText', array('types' => array('textarea')));
 		$out['features']['field:section'] = array_merge(isset($out['features']['field:section']) && is_array($out['features']['field:section']) ? $out['features']['field:section'] : array(),
 			$entry('section', 'field', array('name', 'message', 'collapsible', 'collapsed', 'icon', 'el_text_color', 'el_text_size', 'section_accordion'), 'section'), array('pii_default' => null));
@@ -320,6 +464,8 @@ class Layout {
 				'amount' => 'payment-framework forms: the server\'s amount (POST payments/quote), never the page\'s', 'assistant' => 'an assistant never presses Confirm for the visitor'),
 			'rich_text' => array('keys' => array('rich_text', 'rich_toolbar'), 'toolbars' => self::RICH_TOOLBARS, 'tags' => self::RICH_TAGS, 'link_protocols' => array('http', 'https', 'mailto'),
 				'answer' => 'value = cleaned HTML, fmt = "html" (written by the server); length limits count the text', 'assistant' => 'type plain text; the server keeps only the allowed tags'),
+			'visibility' => array('keys' => array('vis_mode', 'vis_roles'), 'modes' => self::VIS_MODES, 'roles' => self::site_roles(), 'enforced' => 'render, forms/{id}/schema, every submit route (a hidden field is never required, its answer dropped)',
+				'cache' => 'a page with such a form is not page-cached; a page the site caches anyway shows only the fields every visitor sees', 'administrators' => 'follow the rule like any role'),
 			'section'   => array('type' => 'section', 'keys' => array('collapsible', 'collapsed'), 'form_key' => 'section_accordion', 'members' => 'the fields after it in its step, up to the next section or step (never stored)',
 				'answer' => 'none (no row is sent)', 'not_in' => 'a repeater group (a group may sit inside a section)', 'assistant' => 'none'),
 			'plan'      => array_map(array(__CLASS__, 'need'), array_combine(array_keys(self::PLAN), array_keys(self::PLAN))),

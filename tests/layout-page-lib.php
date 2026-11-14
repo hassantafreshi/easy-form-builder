@@ -4,7 +4,8 @@
  * the way EFB_Form_Builder() draws it: one fieldset per step (Formbuilder::addNewElement_efb for each field), the
  * final step, the title / description and the buttons zone (add_buttons_zone_efb), inside body_efb_{id}.
  * Input: {"forms": [{"id": 31, "rows": [row 0, step rows and fields in order]}], "plan": "pro", "rtl": false,
- * "locale": "en_US", "texts": {...}}. Used by the F10 browser tests (tests/test-review-step.js, …). WordPress is stubbed.
+ * "locale": "en_US", "texts": {...}, "vis_user": {"ID": 0, "roles": []} (F10-D: the rows that viewer gets, also returned as
+ * "<id>:rows")}. Used by the F10 browser tests (tests/test-review-step.js, …). WordPress is stubbed.
  */
 $in = json_decode(stream_get_contents(STDIN), true);
 $GLOBALS['efb_plan'] = isset($in['plan']) ? $in['plan'] : 'pro';
@@ -37,6 +38,8 @@ foreach ($in['forms'] as $f) {
 	$fid = (int) $f['id'];
 	$all = array();
 	foreach ($f['rows'] as $r) $all[] = json_decode(json_encode($r));
+	// F10-D: the rows a viewer gets ("vis_user": {ID, roles}; "vis_public": the cached page's view), returned as "<id>:rows".
+	if (isset($in['vis_user'])) { $all = \Emsfb\Layout::filter_rows($all, (object) $in['vis_user'], !empty($in['vis_public'])); $out[$fid . ':rows'] = $all; }
 	$fb = new \Emsfb\Formbuilder($all, true);
 	$kids = \Emsfb\Repeater::child_groups($all);
 	$content = '';

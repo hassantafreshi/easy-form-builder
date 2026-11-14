@@ -592,6 +592,8 @@ async function createStepsOfPublic() {
   if (window.EFBRepeater) { try { window.EFBRepeater.ready(); } catch (e) { /* idem */ } }
   // F10-B: the fields after each section heading go into its region (collapsible; without JS they stay open).
   if (window.EFBLayout) { try { window.EFBLayout.mountSections(document); } catch (e) { /* the fields stay where they are */ } }
+  // F10-D: a first step left without a field for this viewer.
+  if (document.querySelector('fieldset[data-vis-empty="1"]')) setTimeout(efb_vis_skip_start_efb, 0);
 
 }
 /**
@@ -2865,9 +2867,18 @@ async function efb_request_error_efb(response) {
   error.efb_visitor_text = true;
   return error;
 }
+/* F10-D: "public" when this page holds the view of the form every visitor shares (a page the site keeps in a page
+ * cache: only the fields shown to all); the server then checks the submit against that view. '' otherwise. */
+function efb_vis_view_efb(form_id) {
+  try {
+    const v = typeof get_structure_by_form_id_efb === 'function' ? get_structure_by_form_id_efb(form_id) : null;
+    return v && v[0] && v[0].vis_view === 'public' ? 'public' : '';
+  } catch (e) { return ''; }
+}
 async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
   try {
     options=Object.assign({},options,{cache:'no-store',credentials:'same-origin',signal:typeof AbortSignal!=='undefined' && AbortSignal.timeout ? AbortSignal.timeout(45000) : undefined});
+    if (efb_vis_view_efb(fid)) { const vh = new Headers(options.headers); vh.set('X-EFB-Vis-View', 'public'); options = Object.assign({}, options, { headers: vh }); }
     if (window.EFBRuntime) {
       const runtime=await window.EFBRuntime.prepare(Number(fid)||0);
       const headers=new Headers(options.headers); headers.set('X-WP-Nonce',runtime.nonce); headers.set('sid',runtime.sid);
@@ -2901,6 +2912,7 @@ async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
 }
  post_api_forms_efb=async(data,form_id)=>{
     let runtime;
+    if (efb_vis_view_efb(form_id)) data.vis_view = 'public'; // F10-D
     // F11-E: the saved answers this submission completes (emptied on the server once it is stored).
     try { const dt = sessionStorage.getItem('efb_draft_' + Number(form_id)); if (dt && /^[a-f0-9]{64}$/.test(dt)) data.draft_token = dt; } catch (e) {}
     try {
@@ -3464,6 +3476,31 @@ function efb_pay_block_send_efb(root) {
   });
 }
 document.addEventListener('DOMContentLoaded', function () { efb_pay_block_send_efb(document); });
+/* F10-D: the first step with a field this viewer sees (the server marks a step whose every field is hidden from
+ * them with data-vis-empty; it is skipped like a step hidden by Conditional Logic). 1 on every other form. */
+function efb_first_shown_step_efb(body) {
+  let n = 1;
+  for (;;) {
+    const f = body ? body.querySelector('[data-step="step-' + n + '-efb"]') : null;
+    if (!f || !f.dataset || f.dataset.visEmpty !== '1') return n;
+    n++;
+  }
+}
+/* F10-D: a form whose first step has no field for this viewer opens on the first step that has one (Next as the
+ * visitor would press it, so the progress bar, the step titles and Back follow). */
+async function efb_vis_skip_start_efb() {
+  const list = document.querySelectorAll('fieldset[data-step="step-1-efb"][data-vis-empty="1"]');
+  for (const fs of list) {
+    const body = fs.closest('[id^="body_efb_"]');
+    if (!body || Number(body.dataset.currentstep || 1) !== 1) continue;
+    const fid = body.id.slice(9);
+    if (efb_first_shown_step_efb(body) > Number(body.dataset.steps)) continue; // nothing to show: the Send button stays
+    const next = body.querySelector('#next_efb');
+    const rows = typeof get_structure_by_form_id_efb === 'function' ? get_structure_by_form_id_efb(fid) : null;
+    if (!next || !rows || !rows[0]) continue;
+    try { await btn_navigate_handle_efb(fid, rows[0].type, 'next_efb', next); } catch (e) { /* the visitor presses Next */ }
+  }
+}
 async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
 
   const id_body = 'body_efb_'+form_id;
@@ -3844,9 +3881,10 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
               fieldset_found: !!_cs,
               logic_hidden: _cs && _cs.dataset ? _cs.dataset.logicHidden : null
             });
-            if (!_cs || _cs.dataset.logicHidden !== '1') break;
+            if (!_cs || (_cs.dataset.logicHidden !== '1' && _cs.dataset.visEmpty !== '1')) break; // F10-D: or every field hidden from this viewer
             no_step++;
           }
+          { const _vf = efb_first_shown_step_efb(parent_body); if (_vf > 1 && prev_btn) prev_btn.classList.toggle('d-none', no_step <= _vf); } // F10-D
 
           await fun_handle_header_efb(no_step,'forward');
           current_fieldset.classList.add('d-none');
@@ -3930,9 +3968,13 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
         fieldset_found: !!_cs,
         logic_hidden: _cs && _cs.dataset ? _cs.dataset.logicHidden : null
       });
-      if (!_cs || _cs.dataset.logicHidden !== '1') break;
+      if (!_cs || (_cs.dataset.logicHidden !== '1' && _cs.dataset.visEmpty !== '1')) break; // F10-D: or every field hidden from this viewer
       no_step--;
     }
+    /* F10-D: no step before this one has a field for this viewer: Back stays on the first step they see. */
+    const _vf = efb_first_shown_step_efb(parent_body);
+    if (_vf > 1 && no_step < _vf) no_step = _vf;
+    if (_vf > 1 && no_step <= _vf) { const _pb = parent_body.querySelector('#prev_efb'); if (_pb) _pb.classList.add('d-none'); }
 
     if (no_step <= 1) {
       no_step = 1;
@@ -4237,9 +4279,10 @@ fun_prev_send =(form_id =0) =>{
   let _prevTarget = Number(current_s_efb) - 1;
   while (_prevTarget > 1) {
     const _pc = body_efb.querySelector('[data-step="step-' + _prevTarget + '-efb"]');
-    if (!_pc || _pc.dataset.logicHidden !== '1') break;
+    if (!_pc || (_pc.dataset.logicHidden !== '1' && _pc.dataset.visEmpty !== '1')) break;
     _prevTarget--;
   }
+  { const _vf = efb_first_shown_step_efb(body_efb); if (_prevTarget < _vf) _prevTarget = _vf; } // F10-D
   id = `step-${_prevTarget}-efb`;
   const prev_s_efb = body_efb.querySelector(`[data-step="${id}"]`);
 
@@ -5738,6 +5781,7 @@ async function efb_draft_resume_efb() {
     // To the saved step: Next as the visitor would press it (every step is checked).
     for (let i = 1; i < Number(res.step || 1); i++) {
       const body = document.getElementById('body_efb_' + fid);
+      if (efb_f11_step_efb(fid) >= Number(res.step || 1)) break; // F10-D: the page may already start past an empty step
       const next = body ? body.querySelector('#next_efb') : null;
       if (!next || next.closest('.d-none')) break;
       const before = efb_f11_step_efb(fid);

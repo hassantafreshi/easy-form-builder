@@ -20,6 +20,11 @@
  *        holds the cleaned HTML (fmt html, rel="nofollow ugc noopener" written by the server); the entries screen's
  *        viewer shows the formatting and no element from the data; its preview and the export are text; the
  *        editor in fa_IR and ar at 375 px (toolbar right to left, 44 px buttons, Persian typed right to left).
+ *  f10e  Who sees a field (D): the builder's "Show this field to" (real clicks: Chosen user roles, Editor) with the
+ *        canvas mark, Save through the real sanitizer; a guest's page has no editor field (HTML and the page's copy
+ *        of the form) and opens on step 2 because step 1 holds only that field, the entry is stored without it; an
+ *        editor gets step 1, the field is required there, the entry holds it; fa_IR and ar at 375 px (the guest's
+ *        page right to left, no horizontal scroll) and the builder control in fa_IR.
  *  f10pay A payment-framework form (test gateway) with the review page: the amount row is the server's own text
  *        (payments/quote: €27.00 for Adult 25 + fee 2), nothing stored before Confirm, then the provider is asked
  *        for 2700 and the entry is paid.
@@ -404,6 +409,110 @@ module.exports = function (S) {
         await g.close();
       }
     } finally { ctl('locale', ''); }
+  });
+
+  /* ------------------------------------------------------------------ f10e */
+  scenario('f10e', 'F10-D who sees a field: builder control and Save, a guest\'s page without the editor field (first step skipped), an editor\'s page with it (required); fa_IR / ar at 375 px', async ({ context, adminPage }) => {
+    plan(3);
+    ctl('locale', '');
+    ctl('f10-mu');
+    ctl('set-option', 'efb_e2e_f10_plan', 'open');
+    try {
+      const admin = await adminPage();
+      await openNewForm(admin);
+      const tx = await addTile(admin, 'text');
+      await closePanel(admin);
+      await admin.click(`#dropZoneEFB [data-id="${tx.dataId}"]`, { position: { x: 20, y: 10 } });
+      await admin.waitForSelector('#visModeEl', { timeout: 8000 });
+      await admin.selectOption('#visModeEl', 'roles');
+      await sleep(400);
+      const edBox = await admin.evaluate(() => { const i = Array.from(document.querySelectorAll('#efbLayoutVisRoles input[data-role]')).find((x) => x.dataset.role === 'editor'); return i ? i.id : null; });
+      await admin.check('#' + edBox);
+      await sleep(500);
+      const r = await admin.evaluate((id) => { const x = valj_efb.find((q) => q.id_ === id); const m = document.getElementById(id + '-vis'); return { mode: x.vis_mode, roles: x.vis_roles, mark: m && !m.classList.contains('d-none') ? m.textContent.trim() : '' }; }, tx.id_);
+      R.check('f10e: "Show this field to" writes vis_mode roles and vis_roles editor; the canvas marks the field', r.mode === 'roles' && r.roles === 'editor' && /Editor/.test(r.mark), r);
+      await admin.screenshot({ path: SHOT('f10e-builder-vis-en') });
+      await closePanel(admin);
+      const saved = admin.waitForResponse((x) => /admin-ajax\.php/.test(x.url()) && /add_form_Emsfb|update_form_Emsfb/.test(x.request().postData() || ''), { timeout: 20000 }).catch(() => null);
+      await admin.evaluate(() => saveFormEfb(1));
+      const sres = await saved;
+      const sj = sres ? await sres.json() : {};
+      await sleep(800);
+      const sfid = Number(String((sj.data && (sj.data.value || sj.data.id)) || '').replace(/\D+/g, '')) || await admin.evaluate(() => Number(form_ID_emsFormBuilder));
+      const st = (ctl('form', String(sfid)).form_structer || []).find((x) => x.id_ === tx.id_) || {};
+      R.check('f10e: Save stores vis_mode "roles" and vis_roles "editor"', st.vis_mode === 'roles' && st.vis_roles === 'editor', { mode: st.vis_mode, roles: st.vis_roles });
+
+      // A form whose step 1 holds only an editor field.
+      const F = form('F10 e2e visibility', [
+        { key: 'ed', type: 'text', name: 'Staff code', required: 1, vis_mode: 'roles', vis_roles: 'editor' },
+        { key: 'nm', type: 'text', name: 'Your name', required: 1, step: 2 },
+      ], '', 2);
+      const ids = F.ids;
+      const url = pageOf(F.form_id);
+      const g = await open(context, url, 'f10e-guest');
+      const html = await g.content();
+      const gs = await g.evaluate((id) => { const b = document.getElementById('body_efb_' + id); return { current: Number(b.dataset.currentstep), shown: Array.from(b.querySelectorAll('fieldset[data-step^="step-"]')).filter((x) => !x.classList.contains('d-none')).map((x) => x.id), prevHidden: b.querySelector('#prev_efb').classList.contains('d-none') }; }, F.form_id);
+      R.check('f10e: the guest\'s page has no editor field (HTML, the page\'s copy of the form)', html.indexOf(ids.ed) === -1 && html.indexOf('Staff code') === -1, null);
+      R.check('f10e: the guest\'s page opens on step 2 (step 1 has no field for them), Back hidden', gs.current === 2 && gs.shown.join() === 'step-2-efb' && gs.prevHidden, gs);
+      await type(g, ids.nm, 'Guest Sara');
+      await g.click('#btn_send_efb').catch(async () => { await next(g); });
+      await sleep(2500);
+      let e = lastEntry(F.form_id);
+      R.check('f10e: the guest\'s entry is stored without the editor field', !!e && e.content.some((x) => x.id_ === ids.nm) && !e.content.some((x) => x.id_ === ids.ed), e && e.content.map((x) => x.id_));
+      await g.screenshot({ path: SHOT('f10e-guest-en') });
+
+      const edU = ctl('user', 'efb_e2e_f10_ed', 'editor');
+      const ep = await adminPage({}, 'f10e-editor', edU.login, edU.password);
+      await ep.goto(url, { waitUntil: 'load' });
+      await ep.waitForFunction(() => typeof btn_navigate_handle_efb === 'function', null, { timeout: 20000 });
+      await sleep(800);
+      const es = await ep.evaluate((p) => ({ current: Number(document.getElementById('body_efb_' + p.f).dataset.currentstep), field: !!document.getElementById(p.ed + '_') }), { f: F.form_id, ed: ids.ed });
+      R.check('f10e: the editor\'s page starts on step 1 with the field', es.current === 1 && es.field, es);
+      await next(ep);
+      const stuck = await ep.evaluate((id) => Number(document.getElementById('body_efb_' + id).dataset.currentstep), F.form_id);
+      R.check('f10e: for the editor the field is required (Next stays on step 1)', stuck === 1, stuck);
+      await type(ep, ids.ed, 'E-77');
+      await next(ep);
+      await type(ep, ids.nm, 'Editor Ali');
+      await ep.click('#btn_send_efb').catch(async () => { await next(ep); });
+      await sleep(2500);
+      e = lastEntry(F.form_id);
+      R.check('f10e: the editor\'s entry holds the field', !!e && e.content.some((x) => x.id_ === ids.ed && x.value === 'E-77'), e && e.content.map((x) => [x.id_, x.value]));
+
+      // fa_IR and ar at 375 px: the guest's page.
+      for (const loc of ['fa_IR', 'ar']) {
+        ctl('locale', loc);
+        const fa = loc === 'fa_IR';
+        const L = form('F10 e2e vis ' + loc, [
+          { key: 'ed', type: 'text', name: fa ? 'کد کارمند' : 'رمز الموظف', vis_mode: 'roles', vis_roles: 'editor', label_align: 'txt-right' },
+          { key: 'nm', type: 'text', name: fa ? 'نام (Name)' : 'الاسم (Name)', label_align: 'txt-right', step: 2 },
+          { key: 'mb', type: 'text', name: fa ? 'شماره عضویت' : 'رقم العضوية', vis_mode: 'in', label_align: 'txt-right', step: 2 },
+        ], '', 2);
+        const p = await open(context, pageOf(L.form_id), 'f10e-' + loc, { viewport: { width: 375, height: 760 }, isMobile: true, hasTouch: true });
+        const facts = await p.evaluate((ids) => {
+          const b = document.querySelector('[id^="body_efb_"]');
+          const lab = document.getElementById(ids.nm + '_labG') || document.querySelector('[id="' + ids.nm + '_lab"]');
+          return { current: Number(b.dataset.currentstep), dir: getComputedStyle(b).direction, hidden: !document.getElementById(ids.ed + '_') && !document.getElementById(ids.mb + '_'), align: lab ? getComputedStyle(lab).textAlign : '', scroll: document.documentElement.scrollWidth <= window.innerWidth + 1 };
+        }, L.ids);
+        R.check(`f10e ${loc} 375: right to left, opens on step 2, the editor / signed-in fields not there, labels aligned right, no horizontal scroll`, facts.current === 2 && facts.dir === 'rtl' && facts.hidden && /right|start/.test(facts.align) && facts.scroll, facts);
+        await p.screenshot({ path: SHOT(`f10e-guest-${loc}-375`) });
+        await p.close();
+      }
+      // The builder control in fa_IR.
+      ctl('locale', 'fa_IR');
+      const ad = await adminPage({}, 'f10e-admin-fa');
+      await openNewForm(ad);
+      const t2 = await addTile(ad, 'text');
+      await closePanel(ad);
+      await ad.click(`#dropZoneEFB [data-id="${t2.dataId}"]`, { position: { x: 20, y: 10 } });
+      await ad.waitForSelector('#visModeEl', { timeout: 8000 });
+      await ad.selectOption('#visModeEl', 'roles');
+      await sleep(500);
+      const bf = await ad.evaluate(() => { const v = document.getElementById('efbLayoutVis'); const box = document.getElementById('efbLayoutVisRoles'); return { dir: getComputedStyle(v).direction, roles: box ? box.querySelectorAll('input[data-role]').length : 0, label: document.querySelector('label[for="visModeEl"]').textContent.trim() }; });
+      R.check('f10e fa_IR: the builder control is right to left and lists the site\'s roles', bf.dir === 'rtl' && bf.roles >= 4 && bf.label.length > 0, bf);
+      await ad.locator('#efbLayoutVis').scrollIntoViewIfNeeded().catch(() => null);
+      await ad.screenshot({ path: SHOT('f10e-builder-vis-fa_IR') });
+    } finally { ctl('locale', ''); ctl('set-option', 'efb_e2e_f10_plan', 'del'); }
   });
 
   /* ------------------------------------------------------------------ f10pay */

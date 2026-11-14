@@ -57,3 +57,9 @@
 /* The builder canvas: the header is not a control there; a dashed line marks where the section starts. */
 .efb.efb-section.efb-section-canvas { border-block-start: 2px dashed rgba(54, 68, 210, .35); padding-block-start: .25rem; }
 .efb.efb-section.efb-section-canvas .efb-section-btn { cursor: default; }
+
+/* F10-D: "Show this field to" in the builder (the role list) and the canvas mark. */
+.efb-layout-vis .form-check { display: flex; align-items: center; gap: .5rem; padding: 0; min-height: 1.75rem; }
+.efb-layout-vis .form-check-input { float: none; margin: 0; flex: 0 0 auto; }
+.efb-layout-vis fieldset legend { font-size: .85rem; }
+.efb-vis-mark { white-space: normal; text-align: start; }
