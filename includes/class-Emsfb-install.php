@@ -98,8 +98,14 @@ class Install {
 							`read_by` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
 							`uid` BIGINT UNSIGNED NOT NULL DEFAULT 0,
 							`prv_state` TINYINT NOT NULL DEFAULT 0,
+							`entry_status` TINYINT NOT NULL DEFAULT 0,
+							`starred` TINYINT NOT NULL DEFAULT 0,
+							`trashed_at` datetime NULL DEFAULT NULL,
+							`edited_at` datetime NULL DEFAULT NULL,
 							PRIMARY KEY  (msg_id),
 							KEY form_date (form_id,`date`),
+							KEY form_status_date (form_id,entry_status,`date`),
+							KEY read_ (read_),
 							KEY track (track),
 							KEY date (`date`)
 						) {$charset_collate};";
@@ -159,6 +165,10 @@ class Install {
 						}
 						// F05 (DB 1.9): the per-choice capacity counts.
 						foreach ( self::f05_ddl( $wpdb->prefix, $charset_collate ) as $sql ) {
+							self::create_table_if_absent( $sql );
+						}
+						// F14 (DB 1.10): entry notes, the history of changes and the per-form daily counts.
+						foreach ( self::f14_ddl( $wpdb->prefix, $charset_collate ) as $sql ) {
 							self::create_table_if_absent( $sql );
 						}
 
@@ -323,6 +333,10 @@ class Install {
 		// F05 (choices), DB version 1.9: the per-choice capacity table and the counts of older booking
 		// forms copied into it. Idempotent, before the early return.
 		$applied = array_merge( $applied, self::upgrade_f05_schema() );
+		// F14 (entries management), DB version 1.10: entry_status / starred / trashed_at / edited_at and the keys
+		// form_status_date / read_ on emsfb_msg_ (one ALTER), the notes, history and statistics tables, and the
+		// one-off backfill of the statistics (a cron event, never inside the upgrade). Before the early return.
+		$applied = array_merge( $applied, self::upgrade_f14_schema() );
 
 		$table   = $wpdb->prefix . 'emsfb_stts_';
 
@@ -514,6 +528,53 @@ class Install {
 				update_option( \Emsfb\Stock::MIGRATED_OPTION, 1, false );
 				$applied[] = "emsfb_stock_: booking counts ({$n})";
 			}
+		}
+		return $applied;
+	}
+
+	/** F14: CREATE TABLE statements of emsfb_msg_notes_, emsfb_msg_log_ and emsfb_stats_ (dbDelta format). */
+	public static function f14_ddl( $prefix, $charset_collate = '' ) {
+		if ( ! class_exists( '\\Emsfb\\Entries' ) && is_readable( __DIR__ . '/admin/class-Emsfb-entries.php' ) ) {
+			require_once __DIR__ . '/admin/class-Emsfb-entries.php';
+		}
+		return class_exists( '\\Emsfb\\Entries' ) ? \Emsfb\Entries::ddl( $prefix, $charset_collate ) : array();
+	}
+
+	/**
+	 * F14, DB version 1.10. Each step looks first, so a second run changes nothing:
+	 *  - emsfb_msg_: the missing columns and keys in one ALTER TABLE (Entries::upgrade_msg_table());
+	 *  - the three tables when missing;
+	 *  - the statistics backfill scheduled once (option emsfb_stats_bf).
+	 *
+	 * @return array<int, string> Applied steps.
+	 */
+	public static function upgrade_f14_schema() {
+		global $wpdb;
+		$applied = array();
+		if ( ! function_exists( 'dbDelta' ) && defined( 'ABSPATH' ) && is_readable( ABSPATH . 'wp-admin/includes/upgrade.php' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		}
+		$collate = method_exists( $wpdb, 'get_charset_collate' ) ? $wpdb->get_charset_collate() : '';
+		$ddl = self::f14_ddl( $wpdb->prefix, $collate );
+		if ( ! $ddl ) {
+			return $applied;
+		}
+		$applied = array_merge( $applied, \Emsfb\Entries::upgrade_msg_table() );
+		if ( function_exists( 'dbDelta' ) ) {
+			foreach ( $ddl as $short => $sql ) {
+				$table = $wpdb->prefix . $short;
+				if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) {
+					continue;
+				}
+				self::create_table_if_absent( $sql );
+				if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) {
+					$applied[] = "{$short}: CREATE TABLE";
+				}
+			}
+		}
+		\Emsfb\Entries::reset_ready();
+		if ( \Emsfb\Entries::ready() && \Emsfb\Entries::schedule_backfill() ) {
+			$applied[] = 'emsfb_stats_: backfill scheduled';
 		}
 		return $applied;
 	}

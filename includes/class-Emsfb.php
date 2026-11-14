@@ -486,6 +486,13 @@ class Emsfb {
             \Emsfb\Repeater::register();
         }
 
+        // F14: entries management (list on the server, status, notes and history, edit, resend, export,
+        // statistics). Loaded on every request: its cron jobs, the view / submit counts and the entries API
+        // run outside wp-admin. Optional: every caller checks class_exists('\Emsfb\Entries').
+        if ($this->require_plugin_file_efb('includes/admin/class-Emsfb-entries.php') && method_exists('\Emsfb\Entries', 'register')) {
+            \Emsfb\Entries::register();
+        }
+
         // Builder API for integrations such as AutoPilot (docs/autopilot-integration.md).
         // Optional: callers check class_exists('\Emsfb\Builder_Api').
         $this->require_plugin_file_efb('includes/class-Emsfb-builder-api.php');

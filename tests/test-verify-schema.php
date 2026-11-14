@@ -16,7 +16,7 @@ use Emsfb\Verification as V;
 function dbDelta($sql) { $GLOBALS['wpdb']->exec_mysql_ddl($sql); $GLOBALS['dbdelta'][] = $sql; return array(); }
 if (!function_exists('get_role')) { function get_role($r) { return null; } }
 $main = file_get_contents(__DIR__ . '/../emsfb.php');
-vt('EMSFB_DB_VERSION is 1.8 or later', (bool) preg_match('/define\("EMSFB_DB_VERSION",\s*(1\.([8-9]|\d\d)|[2-9]\.\d+)\)/', $main), true);
+vt('EMSFB_DB_VERSION is 1.8 or later', (bool) preg_match('/define\("EMSFB_DB_VERSION",\s*\'?(1\.([8-9]|\d\d)|[2-9]\.\d+)\'?\)/', $main), true);
 define('EMSFB_DB_VERSION', 1.8);
 foreach (array('payments/class-Emsfb-payment-store.php', 'class-Emsfb-masks.php', 'class-Emsfb-field-rules.php', 'class-Emsfb-unique.php', 'class-Emsfb-install.php') as $f) require_once __DIR__ . '/../includes/' . $f;
 

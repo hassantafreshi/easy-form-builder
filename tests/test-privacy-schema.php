@@ -69,8 +69,11 @@ class FakeSchemaDb {
 	}
 	public function query($q) {
 		$this->log[] = $q;
-		if (preg_match('/ALTER TABLE `([^`]+)` ADD COLUMN `(\w+)`/', $q, $m)) { $this->tables[$m[1]]['cols'][] = $m[2]; return true; }
-		if (preg_match('/ALTER TABLE `([^`]+)` ADD KEY `?(\w+)`?/', $q, $m)) { $this->tables[$m[1]]['keys'][] = $m[2]; return true; }
+		// One ALTER may carry several clauses (F14 adds its columns and keys in one statement).
+		if (preg_match('/^ALTER TABLE `([^`]+)`/', $q, $t)) {
+			if (preg_match_all('/ADD COLUMN `(\w+)`/', $q, $m)) foreach ($m[1] as $c) $this->tables[$t[1]]['cols'][] = $c;
+			if (preg_match_all('/ADD KEY `?(\w+)`?/', $q, $m)) foreach ($m[1] as $k) $this->tables[$t[1]]['keys'][] = $k;
+		}
 		return true;
 	}
 	public function alters() { return array_values(array_filter($this->log, function ($q) { return stripos($q, 'ALTER TABLE') === 0; })); }
@@ -89,7 +92,7 @@ function old_schema($with_stts = true) {
 // ------------------------------------------------------------------ the constant
 $main = file_get_contents(__DIR__ . '/../emsfb.php');
 // 1.4 is F13's version; later steps (1.5 = PAY00 payments) may only move it forward.
-t('EMSFB_DB_VERSION is 1.4 or later', (bool) preg_match('/define\("EMSFB_DB_VERSION",\s*1\.([4-9]|\d\d)\)/', $main), true);
+t('EMSFB_DB_VERSION is 1.4 or later', (bool) preg_match('/define\("EMSFB_DB_VERSION",\s*\'?1\.([4-9]|\d\d)\'?\)/', $main), true);
 define('EMSFB_DB_VERSION', 1.4);
 
 require_once __DIR__ . '/../includes/class-Emsfb-install.php';
@@ -105,7 +108,8 @@ t('msg has uid after upgrade', in_array('uid', $msg['cols'], true), true);
 t('msg has prv_state after upgrade', in_array('prv_state', $msg['cols'], true), true);
 foreach (array('form_date', 'track', 'date') as $k) t("msg has KEY {$k}", in_array($k, $msg['keys'], true), true);
 t('rsp has KEY msg_id', in_array('msg_id', $rsp['keys'], true), true);
-t('six privacy steps reported as applied', count(array_filter($applied, function ($a) { return strpos($a, 'emsfb_msg_') === 0 || strpos($a, 'emsfb_rsp_') === 0; })), 6);
+// F13's own steps (F14's DB 1.10 step adds entry_status / starred / ... on the same table).
+t('six privacy steps reported as applied', count(array_filter($applied, function ($a) { return (bool) preg_match('/^emsfb_(msg|rsp)_: ADD (COLUMN (uid|prv_state)|KEY (form_date|track|date|msg_id))$/', $a); })), 6);
 $alter_sql = implode("\n", $wpdb->alters());
 t('uid is BIGINT UNSIGNED NOT NULL DEFAULT 0', (bool) preg_match('/ADD COLUMN `uid` BIGINT UNSIGNED NOT NULL DEFAULT 0/', $alter_sql), true);
 t('prv_state is TINYINT NOT NULL DEFAULT 0', (bool) preg_match('/ADD COLUMN `prv_state` TINYINT NOT NULL DEFAULT 0/', $alter_sql), true);

@@ -53,7 +53,7 @@ class EfbF11SchemaDb extends EfbF11TestDb {
 }
 
 $main = file_get_contents(__DIR__ . '/../emsfb.php');
-t('EMSFB_DB_VERSION is 1.6 or later', (bool) preg_match('/define\("EMSFB_DB_VERSION",\s*(1\.([6-9]|\d\d)|[2-9]\.\d+)\)/', $main), true);
+t('EMSFB_DB_VERSION is 1.6 or later', (bool) preg_match('/define\("EMSFB_DB_VERSION",\s*\'?(1\.([6-9]|\d\d)|[2-9]\.\d+)\'?\)/', $main), true);
 define('EMSFB_DB_VERSION', 1.6);
 $GLOBALS['opts'] = array();
 if (!function_exists('get_role')) { function get_role($r) { return null; } }

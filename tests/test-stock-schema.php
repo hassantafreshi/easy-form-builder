@@ -37,7 +37,7 @@ class EfbStockSchemaDb extends EfbF11TestDb {
 	public function get_charset_collate() { return ''; }
 }
 $main = file_get_contents(__DIR__ . '/../emsfb.php');
-t('EMSFB_DB_VERSION is 1.9 or later', (bool) preg_match('/define\("EMSFB_DB_VERSION",\s*(1\.(9|\d\d)|[2-9]\.\d+)\)/', $main), true);
+t('EMSFB_DB_VERSION is 1.9 or later', (bool) preg_match('/define\("EMSFB_DB_VERSION",\s*\'?(1\.(9|\d\d)|[2-9]\.\d+)\'?\)/', $main), true);
 define('EMSFB_DB_VERSION', 1.9);
 $GLOBALS['opts'] = array();
 foreach (array('class-Emsfb-rate-limit.php', 'class-Emsfb-drafts.php', 'payments/class-Emsfb-payment-store.php', 'class-Emsfb-masks.php', 'class-Emsfb-field-rules.php', 'class-Emsfb-unique.php', 'class-Emsfb-choices.php', 'class-Emsfb-stock.php', 'class-Emsfb-install.php') as $f) require_once __DIR__ . '/../includes/' . $f;
