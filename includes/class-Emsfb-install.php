@@ -171,6 +171,10 @@ class Install {
 						foreach ( self::f14_ddl( $wpdb->prefix, $charset_collate ) as $sql ) {
 							self::create_table_if_absent( $sql );
 						}
+						// F15 (DB 1.11): the versions of each form.
+						foreach ( self::f15_ddl( $wpdb->prefix, $charset_collate ) as $sql ) {
+							self::create_table_if_absent( $sql );
+						}
 
 				$user_id = get_current_user_id();
 				$usr =get_user_by('id',$user_id);
@@ -343,6 +347,8 @@ class Install {
 		// form_status_date / read_ on emsfb_msg_ (one ALTER), the notes, history and statistics tables, and the
 		// one-off backfill of the statistics (a cron event, never inside the upgrade). Before the early return.
 		$applied = array_merge( $applied, self::upgrade_f14_schema() );
+		// F15 (builder productivity), DB version 1.11: the form versions table. Idempotent, before the early return.
+		$applied = array_merge( $applied, self::upgrade_f15_schema() );
 
 		$table   = $wpdb->prefix . 'emsfb_stts_';
 
@@ -582,6 +588,41 @@ class Install {
 		if ( \Emsfb\Entries::ready() && \Emsfb\Entries::schedule_backfill() ) {
 			$applied[] = 'emsfb_stats_: backfill scheduled';
 		}
+		return $applied;
+	}
+
+	/** F15: CREATE TABLE statement of emsfb_form_rev_ (dbDelta format). */
+	public static function f15_ddl( $prefix, $charset_collate = '' ) {
+		if ( ! class_exists( '\\Emsfb\\Revisions' ) && is_readable( __DIR__ . '/class-Emsfb-revisions.php' ) ) {
+			require_once __DIR__ . '/class-Emsfb-revisions.php';
+		}
+		return class_exists( '\\Emsfb\\Revisions' ) ? \Emsfb\Revisions::ddl( $prefix, $charset_collate ) : array();
+	}
+
+	/**
+	 * F15, DB version 1.11: emsfb_form_rev_ when it is missing (a second run changes nothing). Placed before the
+	 * emsfb_stts_ early return of upgrade_schema(): a site without the session table gets it too.
+	 *
+	 * @return array<int, string> Applied steps.
+	 */
+	public static function upgrade_f15_schema() {
+		global $wpdb;
+		$applied = array();
+		if ( ! function_exists( 'dbDelta' ) && defined( 'ABSPATH' ) && is_readable( ABSPATH . 'wp-admin/includes/upgrade.php' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		}
+		$collate = method_exists( $wpdb, 'get_charset_collate' ) ? $wpdb->get_charset_collate() : '';
+		foreach ( self::f15_ddl( $wpdb->prefix, $collate ) as $short => $sql ) {
+			$table = $wpdb->prefix . $short;
+			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) {
+				continue;
+			}
+			self::create_table_if_absent( $sql );
+			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) {
+				$applied[] = "{$short}: CREATE TABLE";
+			}
+		}
+		if ( class_exists( '\\Emsfb\\Revisions' ) ) \Emsfb\Revisions::reset_ready();
 		return $applied;
 	}
 

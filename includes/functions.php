@@ -5969,6 +5969,76 @@ class efbFunction {
 			"hApiSettings" => $state && isset($ac->text->hApiSettings) ? $ac->text->hApiSettings : esc_html__('Change the form settings','easy-form-builder'),
 			/* translators: F15: builder palette search: other words for the table_matrix field, comma separated; write the words people use in your language (not a translation of each English word) */
 			"palette_syn_table_matrix" => $state && isset($ac->text->palette_syn_table_matrix) ? $ac->text->palette_syn_table_matrix : esc_html__('matrix, grid, likert','easy-form-builder'),
+			/* translators: F15: builder toolbar button and dialog title: saved versions of the form */
+			"revisions" => $state && isset($ac->text->revisions) ? $ac->text->revisions : esc_html__('Versions','easy-form-builder'),
+			/* translators: F15: versions dialog */
+			"revNone" => $state && isset($ac->text->revNone) ? $ac->text->revNone : esc_html__('No earlier versions yet. A version is kept each time you save.','easy-form-builder'),
+			/* translators: F15: versions dialog button */
+			"revRestore" => $state && isset($ac->text->revRestore) ? $ac->text->revRestore : esc_html__('Restore','easy-form-builder'),
+			/* translators: F15: versions dialog button: show the fields of a version */
+			"revPreview" => $state && isset($ac->text->revPreview) ? $ac->text->revPreview : esc_html__('View','easy-form-builder'),
+			/* translators: F15: versions dialog button */
+			"revCompare" => $state && isset($ac->text->revCompare) ? $ac->text->revCompare : esc_html__('Compare with current','easy-form-builder'),
+			/* translators: F15: builder message; %s is a date */
+			"revRestored" => $state && isset($ac->text->revRestored) ? $ac->text->revRestored : esc_html__('Version from %s loaded. Save to keep it.','easy-form-builder'),
+			/* translators: F15: note kept with a version saved after a restore; %s is a date */
+			"revRestoredNote" => $state && isset($ac->text->revRestoredNote) ? $ac->text->revRestoredNote : esc_html__('Restored from the version of %s','easy-form-builder'),
+			/* translators: F15: versions dialog question; %s is a date */
+			"revRestoreQ" => $state && isset($ac->text->revRestoreQ) ? $ac->text->revRestoreQ : esc_html__('Load the version from %s into the builder? Nothing is saved until you click Save, and you can undo it.','easy-form-builder'),
+			/* translators: F15: undo history entry; %s is a date */
+			"hRestoreRev" => $state && isset($ac->text->hRestoreRev) ? $ac->text->hRestoreRev : esc_html__('Restore version from %s','easy-form-builder'),
+			/* translators: F15: versions dialog column */
+			"revDate" => $state && isset($ac->text->revDate) ? $ac->text->revDate : esc_html__('Date','easy-form-builder'),
+			/* translators: F15: versions dialog column: user and how (builder, AutoPilot, ...) */
+			"revSource" => $state && isset($ac->text->revSource) ? $ac->text->revSource : esc_html__('Saved by','easy-form-builder'),
+			/* translators: F15: versions dialog column */
+			"revFields" => $state && isset($ac->text->revFields) ? $ac->text->revFields : esc_html__('Fields','easy-form-builder'),
+			/* translators: F15: versions dialog column */
+			"revSteps" => $state && isset($ac->text->revSteps) ? $ac->text->revSteps : esc_html__('Steps','easy-form-builder'),
+			/* translators: F15: versions dialog column */
+			"revNote" => $state && isset($ac->text->revNote) ? $ac->text->revNote : esc_html__('Note','easy-form-builder'),
+			/* translators: F15: versions dialog badge of the newest version */
+			"revCurrent" => $state && isset($ac->text->revCurrent) ? $ac->text->revCurrent : esc_html__('Current','easy-form-builder'),
+			/* translators: F15: versions dialog; %1$s and %2$s are numbers */
+			"revCount" => $state && isset($ac->text->revCount) ? $ac->text->revCount : esc_html__('%1$s versions kept (up to %2$s earlier ones with this plan and setting).','easy-form-builder'),
+			/* translators: F15: versions dialog link */
+			"revBack" => $state && isset($ac->text->revBack) ? $ac->text->revBack : esc_html__('Back to the list','easy-form-builder'),
+			/* translators: F15: versions dialog outline; %s is a number */
+			"revStepN" => $state && isset($ac->text->revStepN) ? $ac->text->revStepN : esc_html__('Step %s','easy-form-builder'),
+			/* translators: F15: versions dialog comparison heading */
+			"revOnlyOld" => $state && isset($ac->text->revOnlyOld) ? $ac->text->revOnlyOld : esc_html__('Only in this version','easy-form-builder'),
+			/* translators: F15: versions dialog comparison heading */
+			"revOnlyNow" => $state && isset($ac->text->revOnlyNow) ? $ac->text->revOnlyNow : esc_html__('Only in the current form','easy-form-builder'),
+			/* translators: F15: versions dialog comparison heading */
+			"revDiffer" => $state && isset($ac->text->revDiffer) ? $ac->text->revDiffer : esc_html__('Changed','easy-form-builder'),
+			/* translators: F15: versions dialog comparison; %s lists setting keys */
+			"revSettingsChanged" => $state && isset($ac->text->revSettingsChanged) ? $ac->text->revSettingsChanged : esc_html__('Form settings changed: %s','easy-form-builder'),
+			/* translators: F15: versions dialog comparison */
+			"revSame" => $state && isset($ac->text->revSame) ? $ac->text->revSame : esc_html__('This version is the same as the current form.','easy-form-builder'),
+			/* translators: F15: versions dialog */
+			"revSaveFirst" => $state && isset($ac->text->revSaveFirst) ? $ac->text->revSaveFirst : esc_html__('Save the form first: versions are kept from the first save.','easy-form-builder'),
+			/* translators: F15: versions dialog */
+			"revOff" => $state && isset($ac->text->revOff) ? $ac->text->revOff : esc_html__('Versions are turned off (Settings › General).','easy-form-builder'),
+			/* translators: F15: Settings, General */
+			"revKeep" => $state && isset($ac->text->revKeep) ? $ac->text->revKeep : esc_html__('Number of earlier versions to keep per form','easy-form-builder'),
+			/* translators: F15: Settings, General: help; %s is a number */
+			"revKeepHelp" => $state && isset($ac->text->revKeepHelp) ? $ac->text->revKeepHelp : esc_html__('0 turns versions off. Your plan keeps up to %s.','easy-form-builder'),
+			/* translators: F15: how a version was saved */
+			"revSrcBuilder" => $state && isset($ac->text->revSrcBuilder) ? $ac->text->revSrcBuilder : esc_html__('Builder','easy-form-builder'),
+			/* translators: F15: how a version was saved: by the AI assistant */
+			"revSrcAutoPilot" => $state && isset($ac->text->revSrcAutoPilot) ? $ac->text->revSrcAutoPilot : esc_html__('AutoPilot','easy-form-builder'),
+			/* translators: F15: how a version was saved */
+			"revSrcRestore" => $state && isset($ac->text->revSrcRestore) ? $ac->text->revSrcRestore : esc_html__('Restored version','easy-form-builder'),
+			/* translators: F15: how a version was saved */
+			"revSrcCreated" => $state && isset($ac->text->revSrcCreated) ? $ac->text->revSrcCreated : esc_html__('Form created','easy-form-builder'),
+			/* translators: F15: how a version was saved: the form as it was before the first save with versions */
+			"revSrcInitial" => $state && isset($ac->text->revSrcInitial) ? $ac->text->revSrcInitial : esc_html__('Before versions were kept','easy-form-builder'),
+			/* translators: F15: how a version was saved */
+			"revSrcApi" => $state && isset($ac->text->revSrcApi) ? $ac->text->revSrcApi : esc_html__('API','easy-form-builder'),
+			/* translators: F15: how a version was saved */
+			"revSrcImport" => $state && isset($ac->text->revSrcImport) ? $ac->text->revSrcImport : esc_html__('Import','easy-form-builder'),
+			/* translators: F15: how a version was saved */
+			"revSrcDuplicate" => $state && isset($ac->text->revSrcDuplicate) ? $ac->text->revSrcDuplicate : esc_html__('Copy of a form','easy-form-builder'),
 			/* translators: F12: Settings > Captchas: a Turnstile key in the wrong format (it starts with 0x) */
 			"captchaKeyBad" => $state && isset($ac->text->captchaKeyBad) ? $ac->text->captchaKeyBad : esc_html__('This key does not look like a Cloudflare Turnstile key.','easy-form-builder'),
 			/* translators: F14: %s = number */

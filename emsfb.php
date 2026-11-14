@@ -43,7 +43,8 @@ if (!defined("EMSFB_DB_VERSION")) {
     // 1.10 (F14 entries management): emsfb_msg_.entry_status / starred / trashed_at / edited_at and the keys
     // form_status_date, read_ (one ALTER); emsfb_msg_notes_, emsfb_msg_log_, emsfb_stats_. A string: as a
     // number 1.10 would be 1.1, below 1.9 (version_compare() reads "1.10" as after "1.9").
-    define("EMSFB_DB_VERSION", '1.10');
+    // 1.11 (F15 builder productivity): emsfb_form_rev_ (the versions of each form).
+    define("EMSFB_DB_VERSION", '1.11');
 }
 if (!defined("EMSFB_API_VERSION")) {
     // Version of the integration API (efbBuilderApi, efb_var.capabilities, field templates,

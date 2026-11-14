@@ -11,7 +11,7 @@
  *  - "Not spam" (F14's list operation) brings it back to the list; e-mails are not sent again;
  *  - verdict "reject": nothing stored, errorMRobot, code efb_spam_rejected;
  *  - the daily purge deletes spam older than spam_retention_days only (0 = kept: a site without the setting);
- *  - DB stays 1.10 (no schema change for F12) and a second upgrade is a no-op.
+ *  - DB is 1.10 or later (no schema change for F12) and a second upgrade is a no-op.
  *
  * Run (under the e2e lock): source the e2e env; php tests/test-spam-entry-status.php
  */
@@ -123,7 +123,7 @@ $H->ctl('f12-setting', 'spam_retention_days=del');
 
 /* schema */
 $sc = $H->ctl('f14-schema');
-t('schema: DB 1.10 (F12 adds no column or table)', isset($sc['db_version']) ? (string) $sc['db_version'] : '', '1.10');
+t('schema: DB 1.10 or later (F12 adds no column or table; F15 is 1.11)', version_compare(isset($sc['db_version']) ? (string) $sc['db_version'] : '0', '1.10', '>='), true);
 
 /* clean-up */
 $H->ctl('f12-delete-form', (string) $fid);

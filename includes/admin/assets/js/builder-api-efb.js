@@ -1660,9 +1660,17 @@
     },
   };
 
+  /* ---------------- F15-C: the versions of the open form (read; a restore is one undo step, never a save) ---------------- */
+  var revisions = {
+    list: function () { if (typeof efbRevListEfb !== 'function') return Promise.reject(fail('revisions_unavailable', 'Versions are not loaded.')); return efbRevListEfb(); },
+    get: function (revId) { if (typeof efbRevGetEfb !== 'function') return Promise.reject(fail('revisions_unavailable', 'Versions are not loaded.')); return efbRevGetEfb(Number(revId)); },
+    restore: function (revId) { if (typeof efbRevRestoreEfb !== 'function') return Promise.reject(fail('revisions_unavailable', 'Versions are not loaded.')); return efbRevRestoreEfb(Number(revId)); },
+  };
+
   var api = {
     version: API_VERSION,
     history: history,
+    revisions: revisions,
     addGroup: addGroup,
     moveIntoGroup: moveIntoGroup,
     moveOutOfGroup: moveOutOfGroup,

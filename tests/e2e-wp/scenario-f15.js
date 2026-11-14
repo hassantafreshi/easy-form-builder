@@ -13,6 +13,12 @@
  *        entry, "AutoPilot: …"), Ctrl+Z / Ctrl+Shift+Z; a save keeps the history, a reload empties it; a
  *        200-field form measured (snapshot, an entry, an undo) and recorded; fa_IR and ar at 375 px: the toast
  *        right to left with the change isolated, the buttons labelled, no horizontal scroll.
+ *  f15c  Form versions (C), en_US at 1280 px: saves through the builder keep versions ("Before versions were kept",
+ *        Builder); the Versions dialog (role, the current one marked, View, Compare, no Restore on the current one);
+ *        Restore asks first, loads the version unsaved as one undo step (Ctrl+Z goes back), Save keeps a "Restored
+ *        version" with its note, the entries are untouched; Settings › General: "Number of earlier versions" typed in
+ *        Persian digits is stored and capped by the plan; fa_IR and ar at 375 px: the dialog right to left, dates and
+ *        names isolated, cards instead of the table, 44 px buttons, no horizontal scroll.
  */
 'use strict';
 
@@ -300,5 +306,126 @@ module.exports = function (S) {
         } finally { ctl('locale', ''); }
       }
     } finally { cleanup(); }
+  });
+
+  /* ------------------------------------------------------------------ f15c */
+  scenario('f15c', 'F15-C versions (en 1280): kept on save, the dialog (View, Compare), Restore (asked, one undo step, saved as "Restored"), entries untouched, the setting; fa_IR / ar at 375 px', async ({ adminPage }) => {
+    try {
+      plan(3);
+      ctl('locale', '');
+      ctl('f15-setting', 'del');
+      const F = form('F15 e2e versions', [{ key: 'nm', type: 'text', name: 'Name' }, { key: 'em', type: 'email', name: 'E-mail' }]);
+      made.push(F.form_id);
+      ctl('f15-revs', String(F.form_id), 'clear');
+      ctl('f14-seed', String(F.form_id), JSON.stringify([{ id_: F.ids.nm, name: 'Name', type: 'text', value: 'An answer' }]), '');
+      const entries0 = JSON.stringify(ctl('entries', String(F.form_id)));
+      const admin = await adminPage();
+      await reopen(admin, F.form_id);
+      R.check('f15c: the Versions button is in the toolbar of a saved form', await admin.evaluate(() => { const b = document.getElementById('efbRevBtn'); return !!b && !b.hidden && b.getAttribute('aria-label') === 'Versions'; }));
+      const saveNow = async () => {
+        const w = admin.waitForResponse((r) => /action=update_form_Emsfb/.test(r.request().postData() || ''), { timeout: 20000 }).catch(() => null);
+        await admin.evaluate(() => saveFormEfb(1));
+        const r = await w;
+        const b = r ? await r.json().catch(() => null) : null;
+        await sleep(900);
+        await admin.evaluate(() => { if (typeof state_modal_show_efb === 'function') state_modal_show_efb(0); });
+        await sleep(500);
+        return { b, post: r ? r.request().postData() : '' };
+      };
+      const nm = await admin.evaluate((id) => JSON.parse(JSON.stringify(valj_efb.find((r) => r.id_ === id))), F.ids.nm);
+      for (const label of ['Your name', 'Full name']) {
+        await openField(admin, nm);
+        await admin.fill('#labelEl', label);
+        await admin.press('#labelEl', 'Tab');
+        await sleep(700);
+        await admin.evaluate(() => { sideMenuEfb(0); document.activeElement && document.activeElement.blur(); });
+        await sleep(400);
+        const sv = await saveNow();
+        if (label === 'Your name') R.check('f15c: the builder\'s save sends rev_source=builder', /rev_source=builder/.test(sv.post) && sv.b && sv.b.data && sv.b.data.success === true, sv.b && sv.b.data);
+      }
+      let v = ctl('f15-revs', String(F.form_id));
+      R.check('f15c: two saves → three versions: the state before ("initial"), then two "builder"', v.n === 3 && v.revs[2].source === 'initial' && v.revs[0].source === 'builder' && v.revs[1].source === 'builder', v.revs.map((r) => r.source));
+
+      await admin.click('#efbRevBtn');
+      await admin.waitForSelector('#efbRevDlg .efb-pd-revtable tbody tr', { timeout: 10000 });
+      const d = await admin.evaluate(() => {
+        const x = document.getElementById('efbRevDlg');
+        const trs = Array.from(x.querySelectorAll('tbody tr'));
+        return { role: x.getAttribute('role'), modal: x.getAttribute('aria-modal'), title: document.getElementById(x.getAttribute('aria-labelledby')).textContent, rows: trs.length, current: !!trs[0].querySelector('.badge'), restoreOnCurrent: !!trs[0].querySelector('[data-op="restore"]'), restoreOnOld: !!trs[2].querySelector('[data-op="restore"]'), src: trs[2].textContent, time: !!trs[0].querySelector('time[datetime]') };
+      });
+      R.check('f15c: the Versions dialog: role=dialog, aria-modal, 3 rows, the newest marked Current (no Restore on it), dates as <time>, "Before versions were kept"', d.role === 'dialog' && d.modal === 'true' && d.title === 'Versions' && d.rows === 3 && d.current && !d.restoreOnCurrent && d.restoreOnOld && d.time && /Before versions were kept/.test(d.src), d);
+      await admin.screenshot({ path: SHOT('f15c-versions-en-1280') });
+      const oldest = v.revs[2].rev_id;
+      await admin.click(`#efbRevDlg button[data-op="view"][data-rev="${oldest}"]`);
+      await admin.waitForSelector('#efbRevDlg .efb-pd-outline', { timeout: 8000 });
+      const view = await admin.evaluate(() => document.querySelector('#efbRevDlg .efb-pd-outline').textContent);
+      R.check('f15c: View shows the fields of that version (its label "Name")', /Name/.test(view) && !/Full name/.test(view), view.slice(0, 200));
+      await admin.click('#efbRevDlg .btn-link');
+      await admin.waitForSelector(`#efbRevDlg button[data-op="compare"][data-rev="${oldest}"]`, { timeout: 8000 });
+      await admin.click(`#efbRevDlg button[data-op="compare"][data-rev="${oldest}"]`);
+      await admin.waitForSelector('#efbRevDlg .efb-pd-diff', { timeout: 8000 });
+      const cmp = await admin.evaluate(() => document.querySelector('#efbRevDlg .efb-pd-diff').textContent);
+      R.check('f15c: Compare lists the field that differs ("Full name": name) ', /Changed/.test(cmp) && /Full name/.test(cmp) && /name/.test(cmp), cmp.slice(0, 200));
+      await admin.click('#efbRevDlg .btn-link');
+      await admin.waitForSelector(`#efbRevDlg button[data-op="restore"][data-rev="${oldest}"]`, { timeout: 8000 });
+      const before = await admin.evaluate(() => JSON.stringify(valj_efb));
+      await admin.click(`#efbRevDlg button[data-op="restore"][data-rev="${oldest}"]`);
+      await admin.waitForSelector('#efbRevYes', { timeout: 8000 });
+      const q = await admin.evaluate(() => ({ t: document.querySelector('#efbRevDlg .efb-pd-note').textContent, focus: document.activeElement && document.activeElement.id }));
+      R.check('f15c: Restore asks first (the date in the question, the Restore button has the focus)', /Load the version from/.test(q.t) && q.focus === 'efbRevYes', q);
+      await admin.click('#efbRevYes');
+      await sleep(1800);
+      const after = await admin.evaluate((id) => ({ name: valj_efb.find((r) => r.id_ === id).name, dlg: !!document.getElementById('efbRevDlg'), toast: (document.getElementById('efbPdToast') || {}).textContent || '', undo: efbHistStateEfb().undoLabel }), F.ids.nm);
+      R.check('f15c: the version is in the builder (label "Name"), unsaved, one undo step "Restore version from …", a message "Save to keep it"', after.name === 'Name' && !after.dlg && /Save to keep it/.test(after.toast) && /^Restore version from /.test(after.undo), after);
+      R.check('f15c: nothing is saved by the restore itself (the stored form still says "Full name")', ctl('form', String(F.form_id)).form_structer.find((r) => r.id_ === F.ids.nm).name === 'Full name');
+      await admin.evaluate(() => document.activeElement && document.activeElement.blur());
+      await key(admin, 'KeyZ', 'z', { ctrlKey: true });
+      await sleep(1500);
+      R.check('f15c: Ctrl+Z undoes the restore (the form as before it, byte for byte)', (await admin.evaluate(() => JSON.stringify(valj_efb))) === before);
+      await key(admin, 'KeyZ', 'z', { ctrlKey: true, shiftKey: true });
+      await sleep(1500);
+      const sv = await saveNow();
+      v = ctl('f15-revs', String(F.form_id));
+      R.check('f15c: Save keeps it as "restore" with the note "Restored from the version of …"; the stored form is that version', /rev_source=restore/.test(sv.post) && v.revs[0].source === 'restore' && /^Restored from the version of /.test(v.revs[0].note) && ctl('form', String(F.form_id)).form_structer.find((r) => r.id_ === F.ids.nm).name === 'Name', v.revs[0]);
+      R.check('f15c: the entries of the form are untouched', JSON.stringify(ctl('entries', String(F.form_id))) === entries0);
+
+      // Settings › General.
+      await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb&state=setting', { waitUntil: 'load' });
+      await admin.waitForSelector('#formRevKeep_efb', { state: 'attached', timeout: 30000 });
+      const lab = await admin.evaluate(() => ({ label: !!document.querySelector('label[for="formRevKeep_efb"]'), help: document.getElementById('formRevKeepHelp_efb').textContent, v: document.getElementById('formRevKeep_efb').value }));
+      R.check('f15c: Settings › General: "Number of earlier versions to keep per form" (labelled, 10, the plan\'s cap in the help)', lab.label && lab.v === '10' && /up to 10/.test(lab.help), lab);
+      await admin.fill('#formRevKeep_efb', '۲۰');
+      let body = null;
+      const handler = async (route) => { const req = route.request(); if (req.method() !== 'POST' || !(req.postData() || '').includes('action=set_settings_Emsfb')) return route.continue(); const res = await route.fetch(); try { body = JSON.parse(await res.text()); } catch (e) { body = null; } return route.fulfill({ response: res }); };
+      await admin.route('**/admin-ajax.php', handler);
+      await admin.click('#save-stng-efb');
+      for (let i = 0; i < 100 && body === null; i++) await sleep(200);
+      await admin.unroute('**/admin-ajax.php', handler);
+      await sleep(800);
+      v = ctl('f15-revs', String(F.form_id));
+      R.check('f15c: "۲۰" is stored as 20 and Free Plus caps it at 10 earlier versions', body && body.data && body.data.success === true && v.keep === 10, { ok: body && body.data && body.data.success, keep: v.keep });
+      ctl('f15-setting', 'del');
+
+      // fa_IR and ar at 375 px.
+      for (const loc of ['fa_IR', 'ar']) {
+        ctl('locale', loc);
+        try {
+          const m = await adminPage({ viewport: { width: 375, height: 800 } }, 'admin-f15c-' + loc);
+          await reopen(m, F.form_id);
+          await m.evaluate(() => efbOpenRevisionsEfb());
+          await m.waitForSelector('#efbRevDlg .efb-pd-revtable tbody tr', { timeout: 10000 });
+          await sleep(300);
+          const f = await m.evaluate(() => {
+            const x = document.getElementById('efbRevDlg');
+            const r = x.getBoundingClientRect();
+            const td = x.querySelector('tbody td');
+            const btn = x.querySelector('[data-op="restore"]');
+            return { dir: getComputedStyle(x).direction, left: Math.round(r.left), right: Math.round(r.right), vw: window.innerWidth, cards: getComputedStyle(td).display === 'block', bdi: x.querySelectorAll('tbody bdi').length, time: getComputedStyle(x.querySelector('time')).unicodeBidi, h: btn ? Math.round(btn.getBoundingClientRect().height) : 0, plain: getComputedStyle(x.querySelector('.efb-pd-sent')).unicodeBidi, scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth };
+          });
+          R.check(`f15c (${loc}): the Versions dialog at 375 px: right to left, inside the screen, rows as cards, names and dates isolated, sentences plaintext, 44 px buttons, no horizontal scroll`, f.dir === 'rtl' && f.left >= 0 && f.right <= f.vw && f.cards && f.bdi >= 3 && f.time === 'isolate' && f.plain === 'plaintext' && f.h >= 44 && f.scroll <= 1, f);
+          await m.screenshot({ path: SHOT(`f15c-versions-${loc}-375`) });
+        } finally { ctl('locale', ''); }
+      }
+    } finally { ctl('f15-setting', 'del'); cleanup(); }
   });
 };

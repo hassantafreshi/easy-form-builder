@@ -575,7 +575,11 @@ class Admin {
             do_action('create_temporary_links_table_Emsfb');
         }
         // Side effects of a save (F13 emsfb_prv_forms map; SitePilot contract §5.8).
-        do_action('efb_form_saved', $id, $valp, array('form_id' => $id, 'source' => 'builder', 'user_id' => get_current_user_id()));
+        // F15: rev_source / rev_note of the builder (a restored version, AutoPilot) and the state this save replaced
+        // (kept as the "initial" version when the form has none yet) for Revisions::on_saved().
+        $rev_ctx_efb = class_exists('\Emsfb\Revisions') ? \Emsfb\Revisions::request_meta() : array();
+        if (isset($old_rows_efb) && is_array($old_rows_efb)) $rev_ctx_efb['old_rows'] = $old_rows_efb;
+        do_action('efb_form_saved', $id, $valp, array('form_id' => $id, 'source' => 'builder', 'user_id' => get_current_user_id()) + $rev_ctx_efb);
         $m = $lang['updated'];
         $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_Form_Builder id=$id]"];
         if (!empty($save_warnings_efb)) $response['warnings'] = $save_warnings_efb;
@@ -2042,6 +2046,11 @@ class Admin {
                 $m[$key] = current_user_can('manage_options')
                     ? \Emsfb\Privacy::sanitize_setting($key, $value)
                     : \Emsfb\Privacy::setting($key, $ac);
+            }else if(class_exists('\Emsfb\Revisions') && \Emsfb\Revisions::is_setting_key($key)){
+                // F15: how many earlier versions of each form are kept (0 … 50; the plan's cap applies when read).
+                $m[$key] = current_user_can('manage_options')
+                    ? \Emsfb\Revisions::sanitize_setting($key, $value)
+                    : (is_object($ac) && isset($ac->$key) ? \Emsfb\Revisions::sanitize_setting($key, $ac->$key) : (string) \Emsfb\Revisions::DEFAULT_KEEP);
             }else if(class_exists('\Emsfb\Entries') && \Emsfb\Entries::is_setting_key($key)){
                 // F14: trash_days and ai_entries_access (assistants reading entries) are an administrator's choice.
                 $m[$key] = current_user_can('manage_options')

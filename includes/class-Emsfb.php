@@ -513,6 +513,10 @@ class Emsfb {
         if ($this->require_plugin_file_efb('includes/class-Emsfb-builder-tools.php') && method_exists('\Emsfb\Builder_Tools', 'register')) {
             \Emsfb\Builder_Tools::register();
         }
+        // F15-C: form versions (kept on every save through efb_form_saved / efb_form_created). Optional.
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-revisions.php') && method_exists('\Emsfb\Revisions', 'register')) {
+            \Emsfb\Revisions::register();
+        }
 
         // Builder API for integrations such as AutoPilot (docs/autopilot-integration.md).
         // Optional: callers check class_exists('\Emsfb\Builder_Api').

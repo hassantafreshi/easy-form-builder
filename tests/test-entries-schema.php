@@ -3,7 +3,7 @@
  * F14-A: the DB 1.10 schema (Install::upgrade_f14_schema(), Entries::upgrade_msg_table(), the statistics backfill)
  * on the SQLite stand-in.
  *
- *  - EMSFB_DB_VERSION is '1.10' (a string: version_compare() puts it after 1.9; the number 1.10 would be 1.1);
+ *  - EMSFB_DB_VERSION is '1.10' or later (a string: version_compare() puts it after 1.9; the number 1.10 would be 1.1);
  *  - the step sits after F05's and before the emsfb_stts_ early return; install() creates the tables and the
  *    fresh emsfb_msg_ already has the columns and keys;
  *  - a 1.9 site: entry_status / starred / trashed_at / edited_at and the keys form_status_date / read_ in ONE
@@ -31,7 +31,7 @@ function emsfb_json_normalize_efb($s) { return str_replace('\\"', '"', (string) 
 function emsfb_json_decode_efb($s, $a = true) { return json_decode($s, $a); }
 
 $main = file_get_contents(__DIR__ . '/../emsfb.php');
-t("EMSFB_DB_VERSION is the string '1.10'", (bool) preg_match('/define\("EMSFB_DB_VERSION",\s*\'1\.10\'\)/', $main), true);
+t("EMSFB_DB_VERSION is a string, '1.10' or later (F15: '1.11')", (bool) preg_match('/define\("EMSFB_DB_VERSION",\s*\'(1\.\d\d)\'\)/', $main, $vm) && version_compare($vm[1], '1.10', '>='), true);
 t('version_compare puts 1.10 after 1.9 (the upgrade runs on a 1.9 site)', version_compare('1.9', '1.10', '<'), true);
 t('and a site already on 1.10 is not upgraded again', version_compare('1.10', '1.10', '>='), true);
 define('EMSFB_DB_VERSION', '1.10');

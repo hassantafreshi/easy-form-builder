@@ -149,6 +149,28 @@
     isTextTarget: isTextTarget, shortcutAction: shortcutAction, shortcutRows: shortcutRows,
   };
 
+  /* Row-0 keys the add-ons keep outside the form (texts, numbers, tokens): never compared, never put in a version. */
+  var SENSITIVE_ROW0 = ['sms_msg_new_noti', 'sms_msg_responsed_noti', 'sms_msg_recived_usr', 'sms_msg_recived_user', 'sms_admins_phone_no', 'telegram_msg_new_noti', 'telegram_msg_responsed_noti', 'telegram_msg_recived_usr', 'telegram_msg_recived_user', 'telegram_bot_token', 'telegram_admin_chat_ids'];
+  function diffFormsImpl(oldRows, nowRows) {
+    var isField = function (r, i) { return i > 0 && r && r.type !== 'option' && r.type !== 'r_matrix'; };
+    var byId = function (list) { var m = {}; (list || []).forEach(function (r, i) { if (isField(r, i)) m[String(r.id_)] = r; }); return m; };
+    var opts = function (list, id) { return JSON.stringify((list || []).filter(function (r) { return r && (r.type === 'option' || r.type === 'r_matrix') && String(r.parent) === id; }).map(function (r) { return [r.id_, r.value, r.price, r.id_op]; })); };
+    var a = byId(oldRows), b = byId(nowRows);
+    var out = { onlyOld: [], onlyNow: [], changed: [], settings: [] };
+    Object.keys(a).forEach(function (id) {
+      if (!b[id]) { out.onlyOld.push({ id: id, name: a[id].name || a[id].type, type: a[id].type }); return; }
+      var keys = {};
+      Object.keys(a[id]).concat(Object.keys(b[id])).forEach(function (k) { if (k !== 'amount' && JSON.stringify(a[id][k]) !== JSON.stringify(b[id][k])) keys[k] = 1; });
+      if (opts(oldRows, id) !== opts(nowRows, id)) keys.options = 1;
+      if (Object.keys(keys).length) out.changed.push({ id: id, name: b[id].name || b[id].type, type: b[id].type, keys: Object.keys(keys) });
+    });
+    Object.keys(b).forEach(function (id) { if (!a[id]) out.onlyNow.push({ id: id, name: b[id].name || b[id].type, type: b[id].type }); });
+    var r0a = (oldRows && oldRows[0]) || {}, r0b = (nowRows && nowRows[0]) || {};
+    Object.keys(r0a).concat(Object.keys(r0b)).forEach(function (k) { if (SENSITIVE_ROW0.indexOf(k) === -1 && out.settings.indexOf(k) === -1 && JSON.stringify(r0a[k]) !== JSON.stringify(r0b[k])) out.settings.push(k); });
+    return out;
+  }  /** What restoring a version would change (pure; also used by the Versions dialog). */
+  pure.diffForms = function (oldRows, nowRows) { return diffFormsImpl(oldRows, nowRows); };
+
   if (typeof window === 'undefined' || typeof document === 'undefined') return pure;
 
   /* ================================================================== page helpers */
@@ -619,6 +641,194 @@
     h.record(String(T('hAutoPilot', 'AutoPilot: %s')).replace('%s', l), 'api|' + (d.action || ''));
   });
 
+  /* ================================================================== C: form versions */
+
+  var saveMeta = { restore: null, api: false, user: false };
+  document.addEventListener('efb:form-changed', function (e) {
+    var d = e.detail || {};
+    if (d.source === 'api') saveMeta.api = true;
+    else if (d.source === 'user') saveMeta.user = true;
+  });
+  /** rev_source / rev_note sent with a save (actionSendData_emsFormBuilder): a restored version, AutoPilot, the builder. */
+  W.efbSaveMetaEfb = function () {
+    if (saveMeta.restore) return { rev_source: 'restore', rev_note: saveMeta.restore };
+    return { rev_source: saveMeta.api && !saveMeta.user ? 'autopilot' : 'builder', rev_note: '' };
+  };
+  /** After a successful save (actionSendData_emsFormBuilder dispatches efb:form-saved). */
+  document.addEventListener('efb:form-saved', function () {
+    saveMeta = { restore: null, api: false, user: false };
+    updateRevBtn();
+  });
+
+  function formId() { try { return Number(form_ID_emsFormBuilder) || 0; } catch (e) { return 0; } } // eslint-disable-line no-undef
+  function isSaved() { try { return formId() > 0 && Number(state_check_ws_p) !== 1; } catch (e) { return formId() > 0; } } // eslint-disable-line no-undef
+  function revCfg() { return (W.efb_var && W.efb_var.f15 && W.efb_var.f15.revisions) || { on: true }; }
+  function updateRevBtn() {
+    var b = document.getElementById('efbRevBtn');
+    if (b) b.hidden = !isSaved();
+  }
+
+  var SRC = { builder: ['revSrcBuilder', 'Builder'], autopilot: ['revSrcAutoPilot', 'AutoPilot'], restore: ['revSrcRestore', 'Restored version'], created: ['revSrcCreated', 'Form created'], initial: ['revSrcInitial', 'Before versions were kept'], api: ['revSrcApi', 'API'], 'import': ['revSrcImport', 'Import'], duplicate: ['revSrcDuplicate', 'Copy of a form'] };
+
+  function revList(fid) { return ajax({ action: 'efb_list_revisions', form_id: fid || formId() }); }
+  function revGet(id) { return ajax({ action: 'efb_get_revision', rev_id: id }); }
+
+  /** What restoring the version would change: fields only in it, only in the form now, different; form settings. */
+  function diffForms(oldRows, nowRows) { return diffFormsImpl(oldRows, nowRows); }
+
+
+  /** The version as the builder's state: row 0's SMS / Telegram texts and numbers of the form now are kept
+   *  (they live in the add-ons' tables, never in a version). */
+  function revisionState(revRows) {
+    var cur = rows();
+    var next = JSON.parse(JSON.stringify(revRows));
+    if (cur && cur[0] && next[0]) SENSITIVE_ROW0.forEach(function (k) { if (cur[0][k] !== undefined && next[0][k] === undefined) next[0][k] = cur[0][k]; });
+    return next;
+  }
+
+  /** Puts a version into the builder: unsaved, one undo step; the next Save keeps it (source "restore"). */
+  function restoreRevision(rev) {
+    if (!rev || Number(rev.form_id) !== formId()) return Promise.reject(new Error('revision_other_form'));
+    var h = ensureHist();
+    var next = revisionState(rev.rows);
+    var when = rev.date || rev.created || '';
+    if (h) h.flush();
+    var p = applyState(JSON.stringify(next), { dir: 'restore' });
+    if (h) h.record(String(T('hRestoreRev', 'Restore version from %s')).replace('%s', when), 'restore|' + rev.rev_id);
+    saveMeta.restore = String(T('revRestoredNote', 'Restored from the version of %s')).replace('%s', when).slice(0, 190);
+    showToast(sentence(T('revRestored', 'Version from %s loaded. Save to keep it.'), [when]));
+    updateHistUi();
+    return p;
+  }
+
+  function srcLabel(k) { var x = SRC[k]; return x ? T(x[0], x[1]) : String(k || ''); }
+
+  function outline(rows) {
+    var box = el('div', { class: 'efb efb-pd-outline' });
+    var ul = null;
+    (rows || []).forEach(function (r, i) {
+      if (i === 0 || !r) return;
+      if (r.type === 'step') { box.appendChild(el('h3', { class: 'efb efb-pd-h3', text: String(T('revStepN', 'Step %s')).replace('%s', num(r.step || 1)) + (r.name ? ': ' + r.name : '') })); ul = el('ul', { class: 'efb efb-pd-ul' }); box.appendChild(ul); return; }
+      if (r.type === 'option' || r.type === 'r_matrix') return;
+      if (!ul) { ul = el('ul', { class: 'efb efb-pd-ul' }); box.appendChild(ul); }
+      var nOpts = rows.filter(function (o) { return o && (o.type === 'option' || o.type === 'r_matrix') && o.parent === r.id_; }).length;
+      var li = el('li', null, [el('bdi', { text: String(r.name || r.type) }), el('span', { class: 'efb efb-pd-muted', text: ' · ' + r.type + (nOpts ? ' · ' + num(nOpts) : '') + (Number(r.required) === 1 || r.required === true || r.required === '1' ? ' · ' + T('required', 'Required') : '') })]);
+      ul.appendChild(li);
+    });
+    return box;
+  }
+
+  function diffView(d) {
+    var box = el('div', { class: 'efb efb-pd-diff' });
+    if (!d.onlyOld.length && !d.onlyNow.length && !d.changed.length && !d.settings.length) { box.appendChild(el('p', { class: 'efb efb-pd-note', text: T('revSame', 'This version is the same as the current form.') })); return box; }
+    var part = function (title, list, fmt) {
+      if (!list.length) return;
+      box.appendChild(el('h3', { class: 'efb efb-pd-h3', text: title + ' (' + num(list.length) + ')' }));
+      var ul = el('ul', { class: 'efb efb-pd-ul' });
+      list.slice(0, 50).forEach(function (x) { ul.appendChild(el('li', null, fmt(x))); });
+      box.appendChild(ul);
+    };
+    part(T('revOnlyOld', 'Only in this version'), d.onlyOld, function (x) { return [el('bdi', { text: String(x.name) }), el('span', { class: 'efb efb-pd-muted', text: ' · ' + x.type })]; });
+    part(T('revOnlyNow', 'Only in the current form'), d.onlyNow, function (x) { return [el('bdi', { text: String(x.name) }), el('span', { class: 'efb efb-pd-muted', text: ' · ' + x.type })]; });
+    part(T('revDiffer', 'Changed'), d.changed, function (x) { return [el('bdi', { text: String(x.name) }), el('span', { class: 'efb efb-pd-muted', dir: 'ltr', text: ' · ' + x.keys.slice(0, 6).join(', ') })]; });
+    if (d.settings.length) box.appendChild(el('p', { class: 'efb efb-pd-note' }, [sentence(T('revSettingsChanged', 'Form settings changed: %s'), [d.settings.slice(0, 12).join(', ')])]));
+    return box;
+  }
+
+  /** The "Versions" dialog of the open form. */
+  function openRevisions() {
+    var body = el('div', { class: 'efb efb-pd-revs' });
+    var status = el('div', { class: 'efb efb-pd-status', role: 'status', 'aria-live': 'polite', id: 'efbRevStatus' });
+    var dlg = dialog({ id: 'efbRevDlg', title: T('revisions', 'Versions'), body: el('div', null, [body, status]), wide: true, foot: [el('button', { type: 'button', class: 'efb btn btn-outline-secondary efb-pd-btn', 'data-pd': 'close', text: T('close', 'Close') })] });
+    if (!isSaved()) { body.appendChild(el('p', { class: 'efb efb-pd-note', text: T('revSaveFirst', 'Save the form first: versions are kept from the first save.') })); return dlg; }
+    status.textContent = T('loading', 'Loading') + '…';
+    var showList = function (data) {
+      body.textContent = '';
+      status.textContent = '';
+      var revs = (data && data.revisions) || [];
+      if (!revCfg().on || (data && Number(data.keep) === 0)) body.appendChild(el('p', { class: 'efb efb-pd-note', text: T('revOff', 'Versions are turned off (Settings › General).') }));
+      if (!revs.length) { body.appendChild(el('p', { class: 'efb efb-pd-note', text: T('revNone', 'No earlier versions yet. A version is kept each time you save.') })); return; }
+      body.appendChild(el('p', { class: 'efb efb-pd-note' }, [sentence(T('revCount', '%1$s versions kept (up to %2$s earlier ones with this plan and setting).'), [num(revs.length), num(data.keep)])]));
+      var tb = el('tbody');
+      revs.forEach(function (r) {
+        var acts = el('td', { class: 'efb efb-pd-acts' });
+        acts.appendChild(el('button', { type: 'button', class: 'efb btn btn-sm btn-outline-secondary efb-pd-btn', 'data-rev': r.rev_id, 'data-op': 'view', text: T('revPreview', 'View') }));
+        if (!r.current) {
+          acts.appendChild(el('button', { type: 'button', class: 'efb btn btn-sm btn-outline-secondary efb-pd-btn', 'data-rev': r.rev_id, 'data-op': 'compare', text: T('revCompare', 'Compare with current') }));
+          acts.appendChild(el('button', { type: 'button', class: 'efb btn btn-sm btn-primary efb-pd-btn', 'data-rev': r.rev_id, 'data-op': 'restore', text: T('revRestore', 'Restore') }));
+        }
+        tb.appendChild(el('tr', { 'data-rev': r.rev_id }, [
+          el('td', { class: 'efb', 'data-label': T('revDate', 'Date') }, [el('time', { datetime: r.iso, text: r.date }), r.current ? el('span', { class: 'efb badge bg-success efb-pd-badge', text: T('revCurrent', 'Current') }) : null]),
+          el('td', { class: 'efb', 'data-label': T('revSource', 'Saved by') }, [el('bdi', { text: r.user || '—' }), el('span', { class: 'efb efb-pd-muted', text: ' · ' + srcLabel(r.source) })]),
+          el('td', { class: 'efb', 'data-label': T('revFields', 'Fields') }, [document.createTextNode(num(r.fields) + ' / ' + num(r.steps))]),
+          el('td', { class: 'efb', 'data-label': T('revNote', 'Note'), 'data-empty': r.note ? null : '1' }, [el('bdi', { text: r.note || '' })]),
+          acts,
+        ]));
+      });
+      body.appendChild(el('table', { class: 'efb efb-pd-table efb-pd-revtable' }, [
+        el('thead', null, [el('tr', null, [T('revDate', 'Date'), T('revSource', 'Saved by'), T('revFields', 'Fields') + ' / ' + T('revSteps', 'Steps'), T('revNote', 'Note'), T('scAction', 'Action')].map(function (x) { return el('th', { scope: 'col', class: 'efb', text: x }); }))]),
+        tb,
+      ]));
+      body.querySelectorAll('button[data-op]').forEach(function (b) {
+        b.addEventListener('click', function () { act(b.getAttribute('data-op'), Number(b.getAttribute('data-rev')), revs.find(function (x) { return x.rev_id === Number(b.getAttribute('data-rev')); })); });
+      });
+    };
+    var back = function () { return el('button', { type: 'button', class: 'efb btn btn-sm btn-link efb-pd-btn', text: T('revBack', 'Back to the list'), onclick: function () { load(); } }); };
+    var act = function (op, id, meta) {
+      status.textContent = T('loading', 'Loading') + '…';
+      revGet(id).then(function (d) {
+        status.textContent = '';
+        if (!d || !d.success || !d.revision) { status.textContent = (d && d.m) || T('error', 'Error'); status.classList.add('efb-pd-err'); return; }
+        var rev = d.revision;
+        rev.date = meta ? meta.date : rev.created;
+        if (Number(rev.form_id) !== formId()) { status.textContent = T('error', 'Error'); return; }
+        if (op === 'view' || op === 'compare') {
+          body.textContent = '';
+          body.appendChild(el('p', { class: 'efb efb-pd-note' }, [el('time', { datetime: meta ? meta.iso : '', text: rev.date }), el('span', { class: 'efb efb-pd-muted', text: ' · ' + srcLabel(rev.source) })]));
+          body.appendChild(op === 'view' ? outline(rev.rows) : diffView(diffForms(rev.rows, rows() || [])));
+          body.appendChild(back());
+          var b = body.querySelector('button');
+          if (b) b.focus();
+          return;
+        }
+        if (op === 'restore') {
+          body.textContent = '';
+          var yes = el('button', { type: 'button', class: 'efb btn btn-primary efb-pd-btn', id: 'efbRevYes', 'data-pd-focus': '1', text: T('revRestore', 'Restore') });
+          body.appendChild(el('p', { class: 'efb efb-pd-note' }, [sentence(T('revRestoreQ', 'Load the version from %s into the builder? Nothing is saved until you click Save, and you can undo it.'), [rev.date])]));
+          body.appendChild(diffView(diffForms(rev.rows, rows() || [])));
+          body.appendChild(el('div', { class: 'efb efb-pd-row' }, [yes, back()]));
+          yes.addEventListener('click', function () { dlg.close(); restoreRevision(rev); });
+          yes.focus();
+        }
+      }, function () { status.textContent = T('error', 'Error'); status.classList.add('efb-pd-err'); });
+    };
+    var load = function () { revList().then(function (d) { if (!d || !d.success) { status.textContent = (d && d.m) || T('error', 'Error'); status.classList.add('efb-pd-err'); return; } showList(d); }, function () { status.textContent = T('error', 'Error'); status.classList.add('efb-pd-err'); }); };
+    load();
+    return dlg;
+  }
+
+  W.efbOpenRevisionsEfb = openRevisions;
+  W.efbRevListEfb = function (fid) { return revList(fid); };
+  W.efbRevGetEfb = function (id) { return revGet(id); };
+  W.efbRevRestoreEfb = function (id) { return revGet(id).then(function (d) { if (!d || !d.success) throw new Error((d && d.code) || 'no_revision'); return restoreRevision(d.revision).then(function () { return { rev_id: id, restored: true, saved: false }; }); }); };
+
+  /* Settings › General: how many earlier versions each form keeps (list_form-efb.js draws it). */
+  W.efb_revisions_settings_html_efb = function (settings, cls) {
+    var cfg = revCfg();
+    var v = settings && settings.form_rev_keep !== undefined && settings.form_rev_keep !== 'NotFoundEl' ? String(settings.form_rev_keep) : '10';
+    var esc = function (x) { return String(x).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+    return '<div class="efb card-body ' + esc(cls || '') + ' py-1 mt-3" data-f15="revisions">'
+      + '<label class="efb form-label fw-bold fs-6 mb-1" for="formRevKeep_efb">' + esc(T('revKeep', 'Number of earlier versions to keep per form')) + '</label>'
+      + '<input type="text" inputmode="numeric" maxlength="2" autocomplete="off" class="efb form-control w-25 h-d-efb border-d efb-rounded" id="formRevKeep_efb" value="' + esc(v) + '" aria-describedby="formRevKeepHelp_efb">'
+      + '<small class="efb text-muted d-block mt-1 efb-pd-sentx" id="formRevKeepHelp_efb">' + esc(String(T('revKeepHelp', '0 turns versions off. Your plan keeps up to %s.')).replace('%s', String(cfg.cap || 10))) + '</small></div>';
+  };
+  W.efb_revisions_settings_patch_efb = function () {
+    var i = document.getElementById('formRevKeep_efb');
+    if (!i) return {};
+    var d = normalize(i.value).replace(/[^0-9]/g, '');
+    return { form_rev_keep: String(Math.min(50, Number(d || 0))) };
+  };
+
   /* ================================================================== toolbar */
 
   /** Extra toolbar buttons of the builder (after the builder's own items). */
@@ -631,6 +841,8 @@
       [el('i', { class: 'efb bi-arrow-counterclockwise', 'aria-hidden': 'true' }), el('span', { class: 'efb efb-pd-nav-label', text: T('undo', 'Undo') })]));
     li.appendChild(el('button', { type: 'button', class: 'efb btn nav-link efb-pd-nav', id: 'efbRedoBtn', disabled: true, 'aria-disabled': 'true', 'aria-label': T('redo', 'Redo') + ' (' + mod + '+Shift+Z)', title: T('redo', 'Redo') + ' (' + mod + '+Shift+Z)', onclick: function () { W.efbRedoEfb(); } },
       [el('i', { class: 'efb bi-arrow-clockwise', 'aria-hidden': 'true' }), el('span', { class: 'efb efb-pd-nav-label', text: T('redo', 'Redo') })]));
+    li.appendChild(el('button', { type: 'button', class: 'efb btn nav-link efb-pd-nav', id: 'efbRevBtn', hidden: !isSaved(), 'aria-label': T('revisions', 'Versions'), title: T('revisions', 'Versions'), onclick: function () { openRevisions(); } },
+      [el('i', { class: 'efb bi-clock-history', 'aria-hidden': 'true' }), el('span', { class: 'efb efb-pd-nav-label', text: T('revisions', 'Versions') })]));
     li.appendChild(el('button', { type: 'button', class: 'efb btn nav-link efb-pd-nav', id: 'efbScBtn', 'aria-label': T('shortcuts', 'Keyboard shortcuts') + ' (?)', title: T('shortcuts', 'Keyboard shortcuts') + ' (?)', onclick: function () { openShortcutsHelp(); } },
       [el('i', { class: 'efb bi-keyboard', 'aria-hidden': 'true' })]));
     ul.appendChild(li);
@@ -654,7 +866,8 @@
   var api = Object.assign({}, pure, {
     dialog: dialog, sentence: sentence, el: el, T: T, num: num, ajax: ajax, toast: toast, rtl: rtl,
     paletteSearch: paletteSearch, paletteAddFirst: paletteAddFirst, openShortcutsHelp: openShortcutsHelp,
-    runAction: runAction, keyHandler: keyHandler, builderOn: builderOn, history: function () { return ensureHist(); }, applyState: applyState, openDialogs: function () { return openDialogs.slice(); },
+    runAction: runAction, keyHandler: keyHandler, builderOn: builderOn, history: function () { return ensureHist(); }, applyState: applyState,
+    openRevisions: openRevisions, restoreRevision: restoreRevision, revisionState: revisionState, openDialogs: function () { return openDialogs.slice(); },
     pref: pref, setPref: function (name, v) { prefs[name] = String(v); },
   });
   return api;

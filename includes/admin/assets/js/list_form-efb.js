@@ -1518,6 +1518,7 @@ function fun_show_setting__emsFormBuilder() {
                                 </div>
                               </div>
                                 <div class="efb clearfix"></div>
+                              ${typeof efb_revisions_settings_html_efb === 'function' ? efb_revisions_settings_html_efb(valueJson_ws_setting, mxCSize4) : ''}
 
                             <!--End General-->
                             </div>
@@ -3687,7 +3688,9 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
           // F13: undefined (not on this screen, or not an administrator) keeps the stored value.
           ...efb_privacy_patch_efb(),
           // F12: the CAPTCHA services and spam protection without a CAPTCHA ({} without the section: stored values stay).
-          ...(typeof efb_spam_settings_patch_efb === 'function' ? efb_spam_settings_patch_efb() : {})
+          ...(typeof efb_spam_settings_patch_efb === 'function' ? efb_spam_settings_patch_efb() : {}),
+          // F15: earlier versions kept per form ({} without the field: the stored value stays).
+          ...(typeof efb_revisions_settings_patch_efb === 'function' ? efb_revisions_settings_patch_efb() : {})
         };
 
         setting = efb_merge_setting_patch_efb(setting, patch);

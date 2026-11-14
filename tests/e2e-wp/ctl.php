@@ -94,7 +94,7 @@ global $wpdb;
 switch ( $efb_e2e_cmd ) {
 	case 'wipe':
 		$dropped = array();
-		foreach ( array( 'emsfb_form', 'emsfb_msg_', 'emsfb_rsp_', 'emsfb_setting', 'emsfb_stts_', 'emsfb_pmt_', 'emsfb_pmt_evt_', 'emsfb_pmt_rfd_', 'emsfb_coupon_', 'emsfb_vrfy_rl_', 'emsfb_draft_', 'emsfb_uniq_', 'emsfb_msg_notes_', 'emsfb_msg_log_', 'emsfb_stats_' ) as $t ) {
+		foreach ( array( 'emsfb_form', 'emsfb_msg_', 'emsfb_rsp_', 'emsfb_setting', 'emsfb_stts_', 'emsfb_pmt_', 'emsfb_pmt_evt_', 'emsfb_pmt_rfd_', 'emsfb_coupon_', 'emsfb_vrfy_rl_', 'emsfb_draft_', 'emsfb_uniq_', 'emsfb_msg_notes_', 'emsfb_msg_log_', 'emsfb_stats_', 'emsfb_form_rev_' ) as $t ) {
 			$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}{$t}" ); // phpcs:ignore
 			$dropped[] = $wpdb->prefix . $t;
 		}
@@ -1115,6 +1115,40 @@ switch ( $efb_e2e_cmd ) {
 		// Moves an entry's date back: <msg_id> <days_ago> (the spam purge test).
 		$wpdb->update( $wpdb->prefix . 'emsfb_msg_', array( 'date' => gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS * (int) $efb_e2e_rest[1] ) ), array( 'msg_id' => (int) $efb_e2e_rest[0] ) );
 		efb_e2e_out( array( 'ok' => true ) );
+		break;
+
+	case 'f15-revs':
+		// F15: the versions of a form, newest first: <form_id> (rows without the form JSON; count of the table).
+		$fid = (int) $efb_e2e_rest[0];
+		// "clear": the form as one made before versions existed (none kept).
+		if ( isset( $efb_e2e_rest[1] ) && 'clear' === $efb_e2e_rest[1] && class_exists( '\Emsfb\Revisions' ) ) \Emsfb\Revisions::delete_for_form( $fid );
+		$rows = class_exists( '\Emsfb\Revisions' ) ? \Emsfb\Revisions::list_for_form( $fid ) : array();
+		efb_e2e_out( array( 'n' => count( $rows ), 'revs' => $rows, 'keep' => class_exists( '\Emsfb\Revisions' ) ? \Emsfb\Revisions::keep() : null ) );
+		break;
+
+	case 'f15-setting':
+		// F15: form_rev_keep in the newest emsfb_setting row: <value | del>.
+		$row = $wpdb->get_row( "SELECT id, setting FROM {$wpdb->prefix}emsfb_setting ORDER BY id DESC LIMIT 1", ARRAY_A ); // phpcs:ignore
+		$escaped = $row && strpos( (string) $row['setting'], '\\"' ) !== false;
+		$settings = $row ? efb_e2e_decode_json( $row['setting'] ) : null;
+		if ( is_array( $settings ) ) {
+			if ( 'del' === $efb_e2e_rest[0] ) unset( $settings['form_rev_keep'] ); else $settings['form_rev_keep'] = (string) $efb_e2e_rest[0];
+			$json = wp_json_encode( $settings, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
+			$wpdb->update( $wpdb->prefix . 'emsfb_setting', array( 'setting' => $escaped ? str_replace( '"', '\\"', $json ) : $json ), array( 'id' => (int) $row['id'] ) );
+			delete_transient( 'emsfb_settings_transient' );
+			delete_option( 'emsfb_settings' );
+		}
+		if ( function_exists( 'wp_cache_flush' ) ) wp_cache_flush();
+		get_setting_Emsfb( '_clear_cache' );
+		efb_e2e_out( array( 'keep' => class_exists( '\\Emsfb\\Revisions' ) ? \Emsfb\Revisions::keep() : null ) );
+		break;
+
+	case 'f15-schema':
+		// F15: DB version, the table, a second upgrade applies nothing; with "drop" the table is dropped first.
+		if ( isset( $efb_e2e_rest[0] ) && 'drop' === $efb_e2e_rest[0] ) $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}emsfb_form_rev_" );
+		$a1 = \Emsfb\Install::upgrade_schema();
+		$a2 = \Emsfb\Install::upgrade_schema();
+		efb_e2e_out( array( 'first' => $a1, 'second' => $a2, 'db_version' => get_option( 'Emsfb_db_version' ), 'const' => EMSFB_DB_VERSION, 'table' => $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . 'emsfb_form_rev_' ) ) ) );
 		break;
 
 	case 'f15-usermeta':

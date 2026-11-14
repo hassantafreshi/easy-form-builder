@@ -4,7 +4,7 @@
  * first with entry_status (TINYINT 0 active, 1 spam, 2 trash) and the history table, so F12 reuses them: a spam answer
  * is entry_status 1 and its reasons are a history row (action "spam", meta "honeypot,too_fast").
  *
- *  - standalone: EMSFB_DB_VERSION stays '1.10' (a string, compared with version_compare); class-Emsfb-install.php
+ *  - standalone: EMSFB_DB_VERSION is '1.10' or later (a string, compared with version_compare; F15 made it '1.11'); class-Emsfb-install.php
  *    and class-Emsfb-entries.php name no spam_reason column; the insert writes entry_status only when the column is
  *    there (Entries::has_status_column(), before the DB 1.10 upgrade an entry is stored as before);
  *  - on the e2e site (when EFB_E2E_SITE_DIR is set): the stored version is 1.10, two upgrades in a row apply
@@ -17,7 +17,7 @@ $failed = 0;
 function t($name, $ok) { global $passed, $failed; if ($ok) { echo "[PASS] {$name}\n"; $passed++; } else { echo "[FAIL] {$name}\n"; $failed++; } }
 $root = dirname(__DIR__);
 $main = file_get_contents($root . '/emsfb.php');
-t('EMSFB_DB_VERSION is still the string \'1.10\'', (bool) preg_match('/define\("EMSFB_DB_VERSION",\s*\'1\.10\'\)/', $main));
+t('EMSFB_DB_VERSION is a string, 1.10 or later', (bool) preg_match('/define\("EMSFB_DB_VERSION",\s*\'(1\.\d\d)\'\)/', $main, $vm) && version_compare($vm[1], '1.10', '>='));
 t('version_compare: 1.10 is newer than 1.9 (a string, never a float)', version_compare('1.10', '1.9', '>'));
 $install = file_get_contents($root . '/includes/class-Emsfb-install.php') . file_get_contents($root . '/includes/admin/class-Emsfb-entries.php');
 t('no spam_reason column anywhere in the schema', strpos($install, 'spam_reason') === false);
@@ -32,7 +32,7 @@ if ($why = $H->unavailable()) {
 	echo "[SKIP] site checks: {$why}\n";
 } else {
 	$u = $H->ctl('f12-upgrade');
-	t('site: the stored DB version is 1.10', is_array($u) && (string) $u['db_version'] === '1.10' && (string) $u['const'] === '1.10');
+	t('site: the stored DB version is the code\'s (1.10 or later)', is_array($u) && (string) $u['db_version'] === (string) $u['const'] && version_compare((string) $u['const'], '1.10', '>='));
 	t('site: a second upgrade applies nothing (idempotent)', is_array($u) && $u['second'] === array());
 	t('site: emsfb_msg_ has entry_status (F14, DB 1.10)', is_array($u) && $u['has_status'] === true);
 }

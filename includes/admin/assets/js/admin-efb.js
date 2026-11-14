@@ -1065,6 +1065,8 @@ async function  actionSendData_emsFormBuilder(saveMode) {
         id: form_ID_emsFormBuilder
       };
     }
+    // F15: how this save was made (a restored version, AutoPilot, the builder) for the form's versions.
+    if (typeof efbSaveMetaEfb === 'function') Object.assign(data, efbSaveMetaEfb());
 
     $.post(ajaxurl, data, function (res) {
       // PAY00 readiness of the saved form (payment_ready / payment_issues) for the "Saved" dialog.
@@ -1080,6 +1082,7 @@ async function  actionSendData_emsFormBuilder(saveMode) {
           if (!_efb_autosave_in_progress) efb_builder_maybe_warn_email_delivery_after_save();
           if (saveMode === 1) clear_auto_save_efb();
           fun_pr(1);
+          try { document.dispatchEvent(new CustomEvent('efb:form-saved', { detail: { id: form_ID_emsFormBuilder, created: true } })); } catch (e) { /* old browsers */ }
         } else {
           alert(res, "error")
           show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`)
@@ -1093,6 +1096,7 @@ async function  actionSendData_emsFormBuilder(saveMode) {
 
         sessionStorage.setItem('formId_efb', res.data.value);
         fun_pr(1);
+        try { document.dispatchEvent(new CustomEvent('efb:form-saved', { detail: { id: form_ID_emsFormBuilder, created: false } })); } catch (e) { /* old browsers */ }
       } else {
 
         if (res.data.m == null || res.data.m.length > 1) {

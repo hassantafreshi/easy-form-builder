@@ -61,3 +61,21 @@
   .efb-pd-table tr { border-bottom: 1px solid #e9ecef; padding: .35rem 0; }
   .efb-pd-table th, .efb-pd-table td { border: 0; padding: .15rem .25rem; }
 }
+
+/* ---------------------------------------------------------------- versions */
+.efb-pd-revtable td { font-size: .85rem; }
+.efb-pd-acts { white-space: nowrap; }
+.efb-pd-acts .btn { margin-inline-end: .25rem; margin-block: .15rem; }
+.efb-pd-badge { margin-inline-start: .4rem; font-weight: 500; }
+.efb-pd-muted { color: #6c757d; }
+.efb-pd-h3 { font-size: .95rem; font-weight: 600; margin: .75rem 0 .35rem; unicode-bidi: plaintext; }
+.efb-pd-ul { padding-inline-start: 1.2rem; margin: 0 0 .5rem; }
+.efb-pd-ul li { margin: .15rem 0; }
+.efb-pd-row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .75rem; }
+.efb-pd-revtable time { unicode-bidi: isolate; }
+@media (max-width: 576px) {
+  .efb-pd-revtable td[data-empty] { display: none; }
+  .efb-pd-revtable td[data-label]::before { content: attr(data-label) ": "; color: #6c757d; font-size: .78rem; }
+  .efb-pd-acts { white-space: normal; }
+  .efb-pd-acts .btn { min-height: 44px; }
+}
