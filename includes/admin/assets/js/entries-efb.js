@@ -168,8 +168,24 @@
     return `<span class="efb efb-ent-val" title="${esc(full)}"><bdi>${esc(short)}</bdi></span>`;
   }
 
+  /* F12: why an entry is spam (reason codes of its history, the server's own [a-z_] words), in the site's language,
+     each one isolated and joined with the language's comma. */
+  const SPAM_R = { honeypot: 'Hidden field filled', too_fast: 'Sent too fast', no_js: 'Sent without JavaScript', low_score: 'Low reCAPTCHA score', akismet: 'Akismet', akismet_discard: 'Akismet', disallowed_keys: 'Disallowed words', filter: 'Another plugin' };
+  function spamReasons(list) {
+    if (!Array.isArray(list) || !list.length) return '';
+    const seen = {};
+    const words = list.map((r) => String(r)).filter((r) => /^[a-z_]{1,24}$/.test(r)).map((r) => (r === 'akismet_discard' ? 'akismet' : r))
+      .filter((r) => (seen[r] ? false : (seen[r] = true))).map((r) => `<bdi>${esc(T('spamR_' + r, SPAM_R[r] || r))}</bdi>`);
+    const comma = /^(fa|ar|ur|ps|ckb)/.test(String(locale())) ? '، ' : ', ';
+    return words.join(comma);
+  }
+  function spamWhy(list) {
+    const r = spamReasons(list);
+    return r ? `<span class="efb efb-ent-spam-why" dir="auto">${esc(T('spamWhy', 'Spam: %s')).split('%s').join(r)}</span>` : '';
+  }
+
   function statusBadge(row) {
-    if (Number(row.entry_status) === 1) return `<span class="efb badge efb-ent-badge efb-ent-badge-spam">${esc(T('entSpam', 'Spam'))}</span>`;
+    if (Number(row.entry_status) === 1) return `<span class="efb badge efb-ent-badge efb-ent-badge-spam">${esc(T('entSpam', 'Spam'))}</span>${spamWhy(row.spam_reasons)}`;
     if (Number(row.entry_status) === 2) return `<span class="efb badge efb-ent-badge efb-ent-badge-trash">${esc(T('entTrash', 'Trash'))}</span>`;
     if (Number(row.read_) === 2) return `<span class="efb badge efb-ent-badge efb-ent-badge-pending">${esc(T('entPending', 'Payment pending'))}</span>`;
     return '';
@@ -1088,7 +1104,7 @@
     const btns = ((W.EfbEntries && W.EfbEntries.viewerButtons) || []).map((f) => f(e)).join('');
     return `<div class="efb efb-ent-view-head" id="efbEntView" data-msgid="${Number(e.msg_id)}">
       <button type="button" class="efb efb-ent-star${starred ? ' is-on' : ''}" data-ent="vstar" data-msgid="${Number(e.msg_id)}" aria-pressed="${starred ? 'true' : 'false'}" aria-label="${esc(starred ? T('entUnstar', 'Remove star') : T('entStar', 'Star'))}">${icon(starred ? 'bi-star-fill' : 'bi-star')}</button>
-      ${st ? `<span class="efb badge efb-ent-badge efb-ent-badge-${st === 1 ? 'spam' : 'trash'}">${esc(T(STATUS[st][0], STATUS[st][1]))}</span>` : ''}
+      ${st ? `<span class="efb badge efb-ent-badge efb-ent-badge-${st === 1 ? 'spam' : 'trash'}">${esc(T(STATUS[st][0], STATUS[st][1]))}</span>` : ''}${st === 1 ? spamWhy(e.spam_reasons || c.spam_reasons) : ''}
       ${e.edited_at ? `<button type="button" class="efb btn btn-link btn-sm efb-ent-edited-link" data-ent="vhist" data-msgid="${Number(e.msg_id)}">${fill(T('entEdited', 'Edited %s'), [esc(digits(e.edited_at_display || e.edited_at))])}</button>` : ''}
       <span class="efb efb-ent-view-btns">${btns}</span>
     </div>`;
@@ -1122,6 +1138,8 @@
       case 'resend': return sub(T('entHistResend', '%1$s resent the notification to %2$s recipients'), [who, `<bdi>${num((String(h.meta).match(/\d+/) || [0])[0])}</bdi>`]);
       case 'note_del': return sub(T('entHistNoteDel', '%1$s deleted a note'), [who]);
       case 'api_read': return sub(T('entHistApi', '%1$s read the entries through %2$s'), [who, `<bdi>${esc(String(h.meta || '').split(':')[0])}</bdi>`]);
+      // F12: saved as spam when it was sent (no person did it), and why.
+      case 'spam': { const r = spamReasons(String(h.meta || '').split(',')); return esc(T('spamAuto', 'Saved as spam')) + (r ? ` <span class="efb text-muted">(${r})</span>` : ''); }
       default: return `${who} <bdi>${esc(h.action)}</bdi>`;
     }
   }

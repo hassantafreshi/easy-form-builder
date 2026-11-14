@@ -2029,3 +2029,21 @@ div#gRecaptcha {
    so the front end can inline only the ones a form actually uses, and a form
    left on the classic styles - which are the rules above - downloads none of
    it. wp-admin enqueues that file whole. */
+
+/* F12: the hidden trap field (also styled inline), the CAPTCHA box and its live region, Google's notice under a
+   reCAPTCHA v3 form (its badge is hidden then, as Google allows with the notice), the builder's placeholder. */
+.efb.efb-hp { position: absolute !important; inset-inline-start: -10000px !important; inline-size: 1px !important; block-size: 1px !important; overflow: hidden !important; }
+.efb.efb-sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
+.efb.efb-captcha-box { margin-inline: 0; max-width: 100%; }
+.efb.efb-captcha-box .efb-captcha { max-width: 100%; }
+.efb.efb-captcha-box .efb-captcha-msg { display: block; unicode-bidi: plaintext; text-align: start; }
+.efb.efb-captcha-box .efb-captcha-msg:empty { display: none; }
+.efb.efb-rc3-notice { unicode-bidi: plaintext; text-align: start; margin-inline: 0; }
+body:has(.efb-rc3-notice) .grecaptcha-badge { visibility: hidden; }
+.efb.efb-captcha-ph { border: 1px dashed #9aa5b1; border-radius: 6px; padding: .75rem 1rem; color: #4b5563; display: flex; align-items: center; gap: .25rem; text-align: start; }
+.efb.efb-spam-settings .efb-spam-input { max-width: 32rem; }
+.efb.efb-spam-settings .efb-spam-num { max-width: 8rem; }
+.efb.efb-spam-settings .efb-spam-help, .efb.efb-spam-form .form-text { unicode-bidi: plaintext; text-align: start; }
+.efb.efb-spam-settings .efb-spam-row { margin-block: .6rem; }
+.efb.efb-spam-settings fieldset { border: 0; padding: 0; margin-block: .75rem; }
+.efb.efb-spam-settings legend { float: none; inline-size: auto; }

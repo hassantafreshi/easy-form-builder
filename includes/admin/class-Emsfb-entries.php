@@ -606,7 +606,8 @@ class Entries {
 		if ($uid > 0 && self::post('per_page') !== '') update_user_meta($uid, 'efb_pp', (string) $a['per_page']);
 		wp_send_json_success(array(
 			'success'           => true,
-			'rows'              => $r['rows'],
+			// F12: the spam rows carry their reasons (efb_entries_rows; Spam::list_reasons()).
+			'rows'              => function_exists('apply_filters') ? apply_filters('efb_entries_rows', $r['rows'], $a) : $r['rows'],
 			'total'             => $r['total'],
 			'total_is_estimate' => $r['total_is_estimate'],
 			'page'              => $r['page'],

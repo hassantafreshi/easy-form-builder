@@ -65,6 +65,8 @@ class _Public {
 	private $field_rules_ctx_cache_efb = null;
 	/* F11-E/F: the runtime owner of the tab that submits (its partial entry is completed). */
 	private $runtime_owner_efb = '';
+	/* F12: the anti-spam rules of the submission this request serves (Spam::cfg()), null when none apply. */
+	private $spam_cfg_efb = null;
 	/* F02: verified destinations of this submission (Verification::validate_submission()), consumed in insert_message_db(). */
 	private $verification_claims = array();
 	/* F02: one-time code assets on this page (verify-efb.js). */
@@ -1392,7 +1394,9 @@ public function check_nonce_permission_efb($request) {
 			/* F10: the review page before sending (layout-efb.js). */
 			'rvwTtl','rvwEdit','rvwEditStep','rvwEditField','rvwBackToReview','rvwConfirm','rvwNoAnswer','rvwAmount','rvwAmountLoading','rvwAmountLater','rvwSigned','rvwFilesN','rvwHelp',
 			/* F10: the rich text editor (rich-text-efb.js). */
-			'rteToolbar','rteBold','rteItalic','rteUnderline','rteBullets','rteNumbers','rteLink','rteQuote','rteHeading','rteClear','rteLinkPrompt','rteLinkBad','sigDraw','sigType','sigTypeLbl','sigTyped'];
+			'rteToolbar','rteBold','rteItalic','rteUnderline','rteBullets','rteNumbers','rteLink','rteQuote','rteHeading','rteClear','rteLinkPrompt','rteLinkBad','sigDraw','sigType','sigTypeLbl','sigTyped',
+			/* F12: the CAPTCHA widgets (captcha-efb.js) and Google's notice under a reCAPTCHA v3 form. */
+			'captchaLabel','captchaExpired','captchaFailed','captchaLoading','rc3Notice'];
 
 			/* Only now is a form or response box really printed. A form in a widget,
 			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
@@ -2010,19 +2014,30 @@ public function check_nonce_permission_efb($request) {
 					$this->pub_stting = (is_array($pub) && isset($pub[1]) && is_array($pub[1])) ? $pub[1] : [];
 				}
 			}
-			if($valj_efb[0]->captcha==true && isset($valj_efb[0]->logic)==false ){
-				$error_msg = "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".esc_html__('The form is not shown because Google reCAPTCHA has not been added to the Easy Form Builder plugin settings.','easy-form-builder')."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
+			/* F12: the CAPTCHA of the form's service (its captcha_provider, else the site's, else reCAPTCHA v2), at
+			 * the end of the last step. Shown with Conditional Logic too: the server always asked for it, but the
+			 * widget was left out when the form had a "logic" key (even false), so such a form could not be sent
+			 * (BUGS-FOUND F12; the Conditional Logic add-on draws no CAPTCHA of its own). */
+			if($valj_efb[0]->captcha==true){
+				$captcha_provider_efb = class_exists('\\Emsfb\\Captcha') ? \Emsfb\Captcha::provider_for($valj_efb[0]) : 'recaptcha_v2';
+				$error_msg = "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".($captcha_provider_efb === 'recaptcha_v2' ? esc_html__('The form is not shown because Google reCAPTCHA has not been added to the Easy Form Builder plugin settings.','easy-form-builder') : esc_html__('The form is not shown because the keys of its CAPTCHA service are not in the Easy Form Builder settings.','easy-form-builder'))."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
 
 				$siteKey = '';
-				if (is_array($this->pub_stting) && isset($this->pub_stting['siteKey'])) {
+				if (class_exists('\\Emsfb\\Captcha')) {
+					$siteKey = \Emsfb\Captcha::site_key($captcha_provider_efb);
+				} elseif (is_array($this->pub_stting) && isset($this->pub_stting['siteKey'])) {
 					$siteKey = (string) $this->pub_stting['siteKey'];
 				}
 				if(strlen($siteKey) <= 5){
 					return $error_msg;
 				}
-				$rgister_captcha_url = $this->efbFunction->check_and_enqueue_google_captcha_efb($lang);
-
-				$captcha_content =$efbFormBuilder->fun_captcha_load_efb($siteKey, $form_id,$step_no - 1);
+				if ($captcha_provider_efb === 'recaptcha_v2') {
+					$rgister_captcha_url = $this->efbFunction->check_and_enqueue_google_captcha_efb($lang);
+					$captcha_content =$efbFormBuilder->fun_captcha_load_efb($siteKey, $form_id,$step_no - 1);
+				} else {
+					$rgister_captcha_url = \Emsfb\Captcha::enqueue($captcha_provider_efb);
+					$captcha_content = $efbFormBuilder->fun_captcha_widget_efb($captcha_provider_efb, $siteKey, $form_id, $step_no - 1);
+				}
 			}
 
 			if (strlen((string) $content) > 10) {
@@ -2182,7 +2197,7 @@ public function check_nonce_permission_efb($request) {
 
 				'.($gate_render_efb ? $gate_render_efb['html'] : '').'
 				<div id="body_efb_'.$form_id.'" class="efb row pb-3 efb px-2 pre-efb body_efb efb-waiting-'.$this->id.' '.$dShow.(($gate_render_efb && $gate_render_efb['hide_form']) ? ' d-none' : '').'" data-currentstep="1" data-steps="'.$valj_efb[0]->steps.'" data-formid="'.$this->id.'"'.$direction_attr.'>
-					<form id="efbform" class="mx-0 px-0 efb" data-formid="'.$this->id.'"'.$direction_attr.'>
+					<form id="efbform" class="mx-0 px-0 efb" data-formid="'.$this->id.'"'.$direction_attr.'>'.(class_exists('\\Emsfb\\Spam') ? \Emsfb\Spam::honeypot_html($this->id, $valj_efb[0]) : '').'
 						<div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2 view-efb" id="view-efb" data-formid="'.$this->id.'">
 						' . (intval($valj_efb[0]->show_icon) != 1
 							? '<h4 id="title_efb" class="efb fs-3 ' . $valj_efb[1]->label_text_color . ' text-center mt-3 mb-0 title_efb" data-formid="'.$this->id.'">' . $valj_efb[1]->name . '</h4>
@@ -2372,7 +2387,12 @@ public function check_nonce_permission_efb($request) {
 			/* Only with a site key: without one the widget cannot render, the
 			 * page's own "tick the box" check then blocked every lookup, and
 			 * the server (verify_tracker_captcha_efb) does not enforce it. */
-			if (!empty($valstng->siteKey) && is_string($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true ){
+			// F12 / P20: another CAPTCHA service of the site draws its own widget (Spam::captcha_widget(), context "tracker").
+			$tracker_provider_efb = class_exists('\\Emsfb\\Captcha') ? \Emsfb\Captcha::site_provider() : 'recaptcha_v2';
+			if ($tracker_provider_efb !== 'recaptcha_v2' && isset($valstng->scaptcha) && $valstng->scaptcha==true && class_exists('\\Emsfb\\Spam')) {
+				$tracker_widget_efb = \Emsfb\Spam::captcha_widget('tracker');
+				if ($tracker_widget_efb !== '') $script_call_captcha = '<div class="efb efb-tracker-captcha">' . $tracker_widget_efb . '</div>';
+			} elseif (!empty($valstng->siteKey) && is_string($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true ){
 				$script_call_captcha =sprintf(
 						'<div class="efb efb-tracker-captcha">
 									<div id="gRecaptcha" class="efb g-recaptcha" data-sitekey="%1$s" data-formid="-1" ></div>
@@ -2759,7 +2779,7 @@ public function check_nonce_permission_efb($request) {
 	public static function submit_translation_keys_efb() {
 		$translation_keys = [
 			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'PleaseFillForm', 'bkXpM_', 'bkFlM_', 'mnvvXXX_', 'ptrnMmm_', 'ptrnMmx_', 'payment', 'error403', 'errorSiteKeyM',
-			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'uraatn', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound', 'errorMRobot',
+			'errorCaptcha', 'captchaExpired', 'pleaseEnterVaildValue', 'createAcountDoneM', 'uraatn', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound', 'errorMRobot',
 			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN',
 			'surveyResults', 'responses', 'submitBlocked', 'enterValidDate',
 			/* F01 input masks: server messages for masked fields. */
@@ -2830,6 +2850,9 @@ public function check_nonce_permission_efb($request) {
 		}
 		$this->operation_key = '';
 		$this->operation_data = is_array($request_data) ? $request_data : array();
+		// F12: no verdict of an earlier request in this process.
+		$this->spam_cfg_efb = null;
+		if (class_exists('\\Emsfb\\Spam')) \Emsfb\Spam::reset();
 		// F05: nothing of an earlier request in this process (choice refusal code, capacities to take).
 		$this->choices_code_efb = '';
 		$this->num_code_efb = '';
@@ -2984,6 +3007,23 @@ public function check_nonce_permission_efb($request) {
 			$this->gate_s0 = $access_structure[0];
 		}
 		$this->runtime_owner_efb = isset($runtime_proof) && is_array($runtime_proof) && isset($runtime_proof['owner']) ? (string) $runtime_proof['owner'] : '';
+		/* F12 (1): the cheap checks (hidden field, minimum time, JavaScript), from the request and the runtime proof
+		 * (its t0 is the live session's start, so a cached page is measured too). Nothing remote. A form that refuses
+		 * spam (payment, register, login, or the site's "reject") stops here: payments/create and payments/quote store
+		 * and start nothing. The others are decided after every check (content checks, verdict). The legacy gateway
+		 * follow-up completes an entry that was already checked and paid: never checked again. */
+		$spam_soft_efb = array('spam' => false, 'reasons' => array());
+		if (class_exists('\\Emsfb\\Spam') && is_array($access_structure) && isset($access_structure[0]) && is_array($access_structure[0])
+			&& !$gate_followup_efb && $submission_type !== 'logout') {
+			$spam_pay_efb = $submission_type === 'payment' || $this->pay_create_efb !== null || $this->pay_quote_efb !== null
+				|| (class_exists('\\Emsfb\\Payments\\Readiness') && \Emsfb\Payments\Readiness::has_payment($access_structure));
+			$this->spam_cfg_efb = \Emsfb\Spam::cfg($access_structure[0], $plugin_settings, array('form_type' => (string) ($form_db_data->form_type ?? ''), 'payment' => $spam_pay_efb));
+			$spam_soft_efb = \Emsfb\Spam::soft_checks($request_data, $access_structure[0], $plugin_settings, isset($runtime_proof) && is_array($runtime_proof) ? $runtime_proof : null, array('cfg' => $this->spam_cfg_efb));
+			if ($spam_soft_efb['spam'] && $this->spam_cfg_efb['action'] === 'reject') {
+				$spam_v_efb = \Emsfb\Spam::verdict(array($spam_soft_efb), array('form_id' => (int) $this->id, 'action' => 'reject', 'stage' => 'soft', 'type' => $submission_type));
+				if ($spam_v_efb['spam']) $this->spam_reject_efb($spam_v_efb, $request_data);
+			}
+		}
 		$should_send_email=false;
 		$email_recipients = [];
 		// The form client always posts `value` as a JSON string, but nothing
@@ -3575,15 +3615,51 @@ public function check_nonce_permission_efb($request) {
 					]);
 
 				$recaptcha_secret_key = isset($plugin_settings['secretKey']) && strlen($plugin_settings['secretKey']) > 5 ? $plugin_settings['secretKey'] : null;
-				$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
-				$server_name = str_replace("www.", "", $d);
-				$response = isset($request_data['valid']) ? sanitize_text_field($request_data['valid']) : null;
-
-				$args = ['secret' => $recaptcha_secret_key, 'response' => $response];
-
-				if (is_array($form_fields_array) && isset($form_fields_array[0]['type'], $form_fields_array[0]['captcha'])  && intval($form_fields_array[0]['captcha']) == 1 && $form_fields_array[0]['type'] != 'payment' && strlen($response) > 5) {
-
-					if ($recaptcha_secret_key) {
+				$response = isset($request_data['valid']) && is_scalar($request_data['valid']) ? sanitize_text_field($request_data['valid']) : null;
+				/* F12 (3): the form's CAPTCHA, a hard gate (the visitor tries again). The provider is the form's own
+				 * captcha_provider, else the site's, else reCAPTCHA v2 (forms and sites before 4.3.2): decided from
+				 * the stored form and the settings, never from the request. Captcha::verify() asks the provider (a
+				 * POST, 8 s, no remote IP; a network error or a reply that is not JSON fails closed, as 4.3.1 did).
+				 * No secret for the provider: refused before anything is stored (errorSiteKeyM). A reCAPTCHA v3 score
+				 * under the threshold is the soft reason low_score (rc3_low_action "spam") or refused ("block"). */
+				$captcha_on_efb = is_array($form_fields_array) && isset($form_fields_array[0]['type'], $form_fields_array[0]['captcha']) && intval($form_fields_array[0]['captcha']) == 1 && $form_fields_array[0]['type'] != 'payment';
+				// Where 4.3.1 enforced it ($skip_captcha: forms, surveys, subscriptions; register / login forms never
+				// were, BUGS-FOUND F12), unchanged.
+				if ($captcha_on_efb && $skip_captcha && !in_array($submission_type, array('logout', 'recovery'), true)) {
+					$captcha_provider_efb = class_exists('\\Emsfb\\Captcha') ? \Emsfb\Captcha::provider_for($form_fields_array[0], $plugin_settings) : 'recaptcha_v2';
+					$captcha_secret_ok_efb = class_exists('\\Emsfb\\Captcha') ? \Emsfb\Captcha::secret($captcha_provider_efb, $plugin_settings) !== '' : (bool) $recaptcha_secret_key;
+					if (!$captcha_secret_ok_efb) {
+						$this->efb_trace('submit.blocked', [
+							'form_id' => intval($this->id),
+							'gate'    => $captcha_provider_efb === 'recaptcha_v2' ? 'recaptcha_secret_key_missing' : 'captcha_' . $captcha_provider_efb . '_secret_missing',
+							'reason'  => 'The form has captcha on but the secret key of its CAPTCHA service is empty; the submission is rejected before anything is saved or sent.',
+						]);
+						$response = ['success' => false, 'm' => $this->lanText['errorSiteKeyM']];
+						wp_send_json_success($response, 200);
+						return;
+					}
+					if (class_exists('\\Emsfb\\Spam')) {
+						$captcha_check_efb = \Emsfb\Spam::verify_captcha((string) $response, 'form', array(
+							'form'            => $form_fields_array[0],
+							'settings'        => $plugin_settings,
+							'idempotency_key' => isset($request_data['request_id']) && is_string($request_data['request_id']) ? $request_data['request_id'] : '',
+							'low_score'       => \Emsfb\Captcha::low_action($plugin_settings) === 'block' ? 'block' : 'soft',
+						));
+						if (!empty($captcha_check_efb['ok'])) {
+							$captcha_verification_result = (object) array('success' => true);
+							if (!empty($captcha_check_efb['spam'])) $spam_soft_efb = array('spam' => true, 'reasons' => array_merge($spam_soft_efb['reasons'], array('low_score')));
+						} else {
+							$this->efb_trace('submit.blocked', [
+								'form_id' => intval($this->id),
+								'gate'    => 'captcha_' . $captcha_provider_efb,
+								'codes'   => $captcha_check_efb['code'],
+								'reason'  => 'The CAPTCHA service did not confirm the token; the submission stops here, so no email is ever attempted.',
+							]);
+							$captcha_msg_efb = $captcha_check_efb['code'] === 'expired' && !empty($this->lanText['captchaExpired']) ? $this->lanText['captchaExpired'] : $this->lanText['errorCaptcha'];
+							wp_send_json_success(['success' => false, 'm' => $captcha_msg_efb, 'code' => 'efb_captcha_' . ($captcha_check_efb['code'] !== '' ? $captcha_check_efb['code'] : 'failed')], 200);
+							die();
+						}
+					} elseif (strlen((string) $response) > 5) {
 						// Build the query with add_query_arg so both values are URL-encoded;
 						// prevents a crafted "response" value from injecting extra query
 						// parameters into the siteverify request.
@@ -3597,15 +3673,6 @@ public function check_nonce_permission_efb($request) {
 						 * it is a failed captcha check with the usual captcha message. */
 						$captcha_decoded = is_wp_error($verify) ? null : json_decode(wp_remote_retrieve_body($verify));
 						$captcha_verification_result = is_object($captcha_decoded) ? $captcha_decoded : "null";
-					} else {
-						$this->efb_trace('submit.blocked', [
-							'form_id' => intval($this->id),
-							'gate'    => 'recaptcha_secret_key_missing',
-							'reason'  => 'The form has captcha on but settings->secretKey is empty; the submission is rejected before anything is saved or sent.',
-						]);
-						$response = ['success' => false, 'm' => $this->lanText['errorSiteKeyM']];
-						wp_send_json_success($response, 200);
-						return;
 					}
 				}
 				$shield_should_block = apply_filters('efb_submit_bot_decision', false, [
@@ -3700,13 +3767,33 @@ public function check_nonce_permission_efb($request) {
 							$style_trackingCode = $this->setting->trackCodeStyle;
 					}
 
+					/* F12 (5, 6): WordPress' disallowed words and Akismet on the stored answers (a field hidden by
+					 * Conditional Logic is not in them), only now that every other check passed; then the verdict
+					 * (filter efb_spam_verdict). "reject" stores nothing (errorMRobot); "spam" stores the answer in
+					 * F14's spam status, sends nothing and reserves nothing, and answers the sender as usual. */
+					if (class_exists('\\Emsfb\\Spam') && $this->spam_cfg_efb !== null && in_array($submission_type, array('form', 'payment'), true) && !$gate_followup_efb) {
+						$spam_content_efb = \Emsfb\Spam::content_checks(is_array($validated_items) ? $validated_items : array(), is_array($form_fields_array) ? $form_fields_array : array(), array(
+							'cfg' => $this->spam_cfg_efb, 'form_id' => intval($this->id), 'ip' => $this->get_ip_address(), 'url' => $url,
+							'hp' => isset($request_data['efb_hp']) && is_scalar($request_data['efb_hp']) ? (string) $request_data['efb_hp'] : '',
+						));
+						$spam_v_efb = \Emsfb\Spam::verdict(array($spam_soft_efb, $spam_content_efb), array('form_id' => intval($this->id), 'action' => $this->spam_cfg_efb['action'], 'stage' => 'final', 'type' => $submission_type, 'form' => is_array($form_fields_array) && isset($form_fields_array[0]) ? $form_fields_array[0] : array()));
+						if ($spam_v_efb['spam']) {
+							if ($spam_v_efb['action'] === 'reject' || $submission_type !== 'form') $this->spam_reject_efb($spam_v_efb, $request_data);
+							\Emsfb\Spam::mark($spam_v_efb['reasons']);
+							$this->efb_trace('submit.spam', array('form_id' => intval($this->id), 'reasons' => \Emsfb\Spam::reasons()));
+						}
+					}
+					$is_spam_efb = class_exists('\\Emsfb\\Spam') && \Emsfb\Spam::is_spam();
+
 					switch ($submission_type) {
 						case "form":
 							$track_code = $this->store_entry_efb($form_fields_array, $style_trackingCode);
 							// F13: without a stored entry there is no response page to link to.
 							$entry_link_efb = (class_exists('\\Emsfb\\Privacy') && \Emsfb\Privacy::nostore($this->id, $form_fields_array)) ? '' : $url;
 							$nonce_token = wp_create_nonce($track_code);
-							$this->efbFunction->efb_code_validate_update($session_id, 'send', $track_code);
+							// F12: a spam answer's visit is "spam", not "send" (not counted as sent in the statistics).
+							if ($is_spam_efb) $this->efbFunction->efb_code_validate_update($session_id, 'spam', $track_code);
+							else $this->efbFunction->efb_code_validate_update($session_id, 'send', $track_code);
 							// F08: the answers, the request and the confirmation code for messages, e-mails and the redirect.
 							$this->smart_finish_ctx_efb($form_fields_array, $validated_items, $track_code);
 							$response = ['success' => true, 'ID' => $request_data['id'], 'track' => $track_code, 'nonce' => $nonce_token];
@@ -3730,6 +3817,8 @@ public function check_nonce_permission_efb($request) {
 							}
 
 							$this->efb_send_json_and_continue($response, 200);
+							// F12: a spam answer is stored and answered like any other; no e-mail, SMS, Telegram, webhook or Sheets.
+							if ($is_spam_efb) exit;
 							/* The rows that were stored, not the raw request: webhooks,
 							 * Telegram and Sheets received script tags and rows for fields
 							 * the form does not have, while the saved entry was clean. */
@@ -4552,6 +4641,15 @@ public function check_nonce_permission_efb($request) {
 		};
 		$site_key = $get('siteKey');
 		$enabled  = $get('scaptcha');
+		/* F12 / P20: the site's CAPTCHA service is hCaptcha, Turnstile or reCAPTCHA v3: the public check
+		 * (Spam::verify_captcha(), context "tracker"). Without its site key no widget is shown: not enforced, as v2. */
+		$provider = $get('captcha_provider');
+		if (is_string($provider) && $provider !== '' && $provider !== 'recaptcha_v2' && class_exists('\\Emsfb\\Spam')) {
+			if ($enabled != true || \Emsfb\Captcha::site_key($provider, $setting) === '') return true;
+			if (\Emsfb\Captcha::secret($provider, $setting) === '') return 'config';
+			$check = \Emsfb\Spam::verify_captcha($token, 'tracker', array('provider' => $provider, 'settings' => $setting));
+			return !empty($check['ok']) ? true : 'failed';
+		}
 		if (!is_string($site_key) || $site_key === '' || $enabled != true) return true;
 
 		$secret = $get('secretKey');
@@ -4754,6 +4852,15 @@ public function check_nonce_permission_efb($request) {
 			return $this->insert_message_db(0, false, $style_trackingCode);
 		}
 		$this->begin_operation_efb();
+		// F12: a spam answer on a form that stores no entries: nothing is kept or reserved; the visitor gets a code.
+		if (class_exists('\\Emsfb\\Spam') && \Emsfb\Spam::is_spam()) {
+			$track = $this->generate_track_code_efb($style_trackingCode);
+			if (class_exists('\\Emsfb\\Entries')) { \Emsfb\Entries::bump((int) $this->id, 'submits'); \Emsfb\Entries::bump((int) $this->id, 'spam'); }
+			if (class_exists('\\Emsfb\\Request_Health')) \Emsfb\Request_Health::mark_saved();
+			\Emsfb\Spam::drop_uploads((string) $this->value, (int) $this->id);
+			$this->finish_operation_efb($track);
+			return $track;
+		}
 		$this->gate_reserve_efb();
 		// F03: a form that stores no entries still accepts each value once (the claim has no entry: msg_id 0,
 		// forgotten after the form's retention period by the daily job).
@@ -4773,6 +4880,21 @@ public function check_nonce_permission_efb($request) {
 		$this->finish_operation_efb($track);
 		return $track;
 		// End privacy store gate.
+	}
+
+	/**
+	 * F12: a submission refused as spam ("reject": the site's choice, or a payment / register / login form). Nothing
+	 * is stored, reserved or started; the files it uploaded are deleted now (F07); the visitor reads errorMRobot.
+	 * payments/create and payments/quote answer the payment code pay_spam (docs/payments/payment-error-matrix.en.md).
+	 */
+	private function spam_reject_efb($verdict, $request_data) {
+		$this->efb_trace('submit.blocked', array('form_id' => intval($this->id), 'gate' => 'spam', 'reasons' => isset($verdict['reasons']) ? $verdict['reasons'] : array()));
+		if (class_exists('\\Emsfb\\Spam')) \Emsfb\Spam::drop_uploads(isset($request_data['value']) && is_string($request_data['value']) ? $request_data['value'] : (isset($request_data['value']) ? (string) wp_json_encode($request_data['value']) : ''), (int) ($request_data['id'] ?? 0));
+		if (class_exists('\\Emsfb\\Request_Health')) \Emsfb\Request_Health::mark_saved(); // a decision, not a failure of the site
+		$pay = $this->pay_create_efb !== null || $this->pay_quote_efb !== null;
+		$m = isset($this->lanText['errorMRobot']) ? $this->lanText['errorMRobot'] : __('Please try again.', 'easy-form-builder');
+		wp_send_json_success(array('success' => false, 'm' => $m, 'code' => $pay ? 'pay_spam' : 'efb_spam_rejected'), 200);
+		exit;
 	}
 
 	/**
@@ -4828,7 +4950,7 @@ public function check_nonce_permission_efb($request) {
 	 * F11: the gate of an endpoint that stores an entry without the submit handler (the legacy
 	 * Stripe add-on route). Refuses at once; the places are taken in insert_message_db().
 	 */
-	private function gate_prepare_for_endpoint_efb($fid) {
+	private function gate_prepare_for_endpoint_efb($fid, $req = null) {
 		$this->gate_s0 = null;
 		$this->gate_reserved = false;
 		$this->stock_rows_efb = null;
@@ -4839,6 +4961,20 @@ public function check_nonce_permission_efb($request) {
 		if (!$form) return;
 		$rows = \emsfb_json_decode_efb(\emsfb_json_normalize_efb($form->form_structer), true);
 		if (!is_array($rows) || !isset($rows[0]) || !is_array($rows[0])) return;
+		/* F12: the legacy gateway routes start a payment: the hidden field and the minimum time refuse (payment forms
+		 * always reject spam) before a provider is called or anything is stored. */
+		if (is_array($req) && class_exists('\\Emsfb\\Spam')) {
+			$proof = !empty($req['runtime_token']) && class_exists('\\Emsfb\\Form_Runtime') ? \Emsfb\Form_Runtime::verify((string) $req['runtime_token'], (int) $fid) : null;
+			$soft = \Emsfb\Spam::soft_checks($req, $rows[0], null, is_array($proof) ? $proof : null, array('payment' => true));
+			if ($soft['spam']) {
+				$v = \Emsfb\Spam::verdict(array($soft), array('form_id' => (int) $fid, 'action' => 'reject', 'stage' => 'legacy_payment'));
+				if ($v['spam']) {
+					$this->efb_trace('submit.blocked', array('form_id' => (int) $fid, 'gate' => 'spam', 'reasons' => $v['reasons']));
+					$t = get_efbFunction()->text_efb(array('errorMRobot'));
+					wp_send_json_success(array('success' => false, 'code' => 'pay_spam', 'm' => is_array($t) && !empty($t['errorMRobot']) ? $t['errorMRobot'] : __('Please try again.', 'easy-form-builder')), 200);
+				}
+			}
+		}
 		// F05: the legacy gateway routes store the entry themselves: its rows (read in insert_message_db()) take the capacities too.
 		$this->stock_form_efb = $rows;
 		$this->stock_fid_efb = (int) $fid;
@@ -5057,10 +5193,17 @@ public function check_nonce_permission_efb($request) {
 
 	public function insert_message_db($read,$uniqid,$style_trackingCode = 'date_en_mix'){
 		$this->begin_operation_efb();
-		$this->gate_reserve_efb();
-		$this->unique_claim_efb(); // F03, after the F11 places
-		$this->stock_reserve_efb(); // F05, the capacities of the chosen choices (atomic), after the F03 claims
-		$this->advdate_commit_efb(); // F06, the Booking add-on's atomic reservation (efb_date_before_commit)
+		// F12: a spam answer takes no place: no F11 limit, F03 unique value, F05 capacity or F06 booking.
+		$spam_efb = class_exists('\\Emsfb\\Spam') && \Emsfb\Spam::is_spam();
+		if (!$spam_efb) {
+			$this->gate_reserve_efb();
+			$this->unique_claim_efb(); // F03, after the F11 places
+			$this->stock_reserve_efb(); // F05, the capacities of the chosen choices (atomic), after the F03 claims
+			$this->advdate_commit_efb(); // F06, the Booking add-on's atomic reservation (efb_date_before_commit)
+		} else {
+			$this->unique_pending_efb = array();
+			$this->stock_rows_efb = null;
+		}
 		$this->verification_consume_efb(); // F02, last: a refusal above keeps the codes usable
 		if(isset($read)==false) $read=0;
 
@@ -5085,6 +5228,8 @@ public function check_nonce_permission_efb($request) {
 			// export and erase tools find a member's entries without an email field.
 			'uid' => (int) get_current_user_id(),
 		);
+		// F12: F14's spam status (entry_status 1), only once the DB 1.10 column is there.
+		if ($spam_efb && class_exists('\\Emsfb\\Entries') && \Emsfb\Entries::has_status_column()) $row_efb['entry_status'] = 1;
 		$inserted = $this->db->insert($table_name, $row_efb);
 		if ($inserted === false && stripos((string) $this->db->last_error, 'uid') !== false) {
 			// The 1.4 schema step has not reached this site yet (another request holds
@@ -5108,6 +5253,7 @@ public function check_nonce_permission_efb($request) {
 			if (class_exists('\\Emsfb\\Request_Health')) \Emsfb\Request_Health::record('form',500,'server','storage_failed');
 			wp_send_json_error(array('code'=>'efb_storage_failed','m'=>__('The form could not be saved. Your input has been kept.', 'easy-form-builder')),500);
 		}
+		$new_msg_id_efb = isset($this->db->insert_id) ? (int) $this->db->insert_id : 0; // F12 (read before any other insert)
 		// F03: the claims belong to this entry now (deleting it frees the values).
 		if (!empty($this->unique_claimed_efb) && class_exists('\\Emsfb\\Unique_Values')) { \Emsfb\Unique_Values::attach($this->unique_claimed_efb, isset($this->db->insert_id) ? (int) $this->db->insert_id : 0); $this->unique_claimed_efb = array(); }
 		$this->verification_after_insert_efb(isset($this->db->insert_id) ? (int) $this->db->insert_id : 0);
@@ -5115,6 +5261,11 @@ public function check_nonce_permission_efb($request) {
 		$this->stock_after_insert_efb(isset($this->db->insert_id) ? (int) $this->db->insert_id : 0);
 		// F14: one submission of the form today (every endpoint that stores an entry comes through here).
 		if (class_exists('\\Emsfb\\Entries')) \Emsfb\Entries::bump((int) $this->id, 'submits');
+		// F12: a spam answer is one of today's spam too (as F14's "Mark as spam" counts it), and says why in its history.
+		if ($spam_efb) {
+			if (class_exists('\\Emsfb\\Entries')) \Emsfb\Entries::bump((int) $this->id, 'spam');
+			\Emsfb\Spam::record($new_msg_id_efb, \Emsfb\Spam::reasons());
+		}
 		$this->advdate_after_commit_efb($uniqid);
 		\Emsfb\Request_Health::mark_saved();
 		$this->finish_operation_efb($uniqid);
@@ -7570,7 +7721,7 @@ public function check_nonce_permission_efb($request) {
 		$this->id =sanitize_text_field($data_POST['id'] ?? '');
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 		// F11: the legacy Stripe endpoint stores the pending entry itself: same gate, same places.
-		$this->gate_prepare_for_endpoint_efb((int) $this->id);
+		$this->gate_prepare_for_endpoint_efb((int) $this->id, $data_POST);
 
 		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
 		if(gettype($r)=="string"){
@@ -8412,7 +8563,7 @@ public function check_nonce_permission_efb($request) {
 		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
 		// F11: the legacy PersiaPay route stores the pending entry itself (insert_message_db): same gate, same places.
 		$gate_req_efb = is_object( $data_POST_ ) && method_exists( $data_POST_, 'get_json_params' ) ? $data_POST_->get_json_params() : array();
-		$this->gate_prepare_for_endpoint_efb( is_array( $gate_req_efb ) && isset( $gate_req_efb['id'] ) && is_scalar( $gate_req_efb['id'] ) ? (int) $gate_req_efb['id'] : 0 );
+		$this->gate_prepare_for_endpoint_efb( is_array( $gate_req_efb ) && isset( $gate_req_efb['id'] ) && is_scalar( $gate_req_efb['id'] ) ? (int) $gate_req_efb['id'] : 0, $gate_req_efb );
 		$persiapay = new zarinPalEFB() ;
 		if(gettype($persiapay)=="object"){
 			$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
@@ -12297,7 +12448,7 @@ public function check_nonce_permission_efb($request) {
 		$handler = new PaypalHandler( $paypal_setting );
 		// F11: the legacy PayPal route stores the pending entry itself (insert_message_db): same gate, same places.
 		$gate_req_efb = is_object( $data_POST_ ) && method_exists( $data_POST_, 'get_json_params' ) ? $data_POST_->get_json_params() : array();
-		$this->gate_prepare_for_endpoint_efb( is_array( $gate_req_efb ) && isset( $gate_req_efb['id'] ) && is_scalar( $gate_req_efb['id'] ) ? (int) $gate_req_efb['id'] : 0 );
+		$this->gate_prepare_for_endpoint_efb( is_array( $gate_req_efb ) && isset( $gate_req_efb['id'] ) && is_scalar( $gate_req_efb['id'] ) ? (int) $gate_req_efb['id'] : 0, $gate_req_efb );
 		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_sub_Emsfb_api: handler loaded, delegating create payment.');
 		$handler->handle_create_payment( $data_POST_, $this );
 	}

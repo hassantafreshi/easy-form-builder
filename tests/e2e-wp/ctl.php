@@ -52,6 +52,10 @@
  *                             settings), f02-rows <form_id> [reset] (challenges; reset clears the F02 counters and every
  *                             challenge of earlier scenarios, i.e. the resend waits)
  *
+ *   F12 (scenarios f12*, tests/test-spam-*.php, tests/test-captcha-*.php): f12-mu (copy the mu-plugin), f12-setting <k=v&…>
+ *                             (site settings of F12; v "del" removes a key), f12-calls [clear] (the mocked CAPTCHA / Akismet
+ *                             requests), f12-purge (the daily spam purge), f12-date <msg_id> <days_ago>
+ *
  *   F14 (scenarios f14*): f14-schema (columns, keys, tables, DB version), f14-seed-bulk <form_id> <n> (many entries),
  *                             f14-entries <form_id> (with entry_status, starred, trashed_at, edited_at), f14-set <msg_id>
  *                             <k=v&k=v>, f14-notes / f14-log <msg_id>, f14-stats <form_id>, f14-run <trash|backfill>
@@ -997,6 +1001,101 @@ switch ( $efb_e2e_cmd ) {
 		if ( 'trash' === $job ) efb_e2e_out( \Emsfb\Entries::purge_trash() );
 		if ( 'backfill' === $job ) efb_e2e_out( \Emsfb\Entries::run_backfill() );
 		efb_e2e_out( array( 'error' => 'unknown job' ) );
+		break;
+
+	case 'f12-mu':
+		// Copy tests/e2e-wp/mu-plugins/efb-e2e-f12.php into the site's mu-plugins (F12 tests).
+		$dst = WPMU_PLUGIN_DIR . '/efb-e2e-f12.php';
+		if ( ! is_dir( WPMU_PLUGIN_DIR ) ) wp_mkdir_p( WPMU_PLUGIN_DIR );
+		$src = dirname( __FILE__ ) . '/mu-plugins/efb-e2e-f12.php';
+		$same = is_readable( $dst ) && md5_file( $dst ) === md5_file( $src );
+		$ok = $same || copy( $src, $dst );
+		if ( ! $same ) sleep( 3 );
+		efb_e2e_out( array( 'copied' => $ok, 'changed' => ! $same, 'path' => $dst ) );
+		break;
+
+	case 'f12-setting':
+		// F12 site settings in the newest emsfb_setting row: <k=v&k=v> (v "del" removes the key: a site from before
+		// F12). Values as typed in the settings screen (Spam::sanitize_setting()). Prints the F12 keys after.
+		$row = $wpdb->get_row( "SELECT id, setting FROM {$wpdb->prefix}emsfb_setting ORDER BY id DESC LIMIT 1", ARRAY_A ); // phpcs:ignore
+		$escaped = $row && strpos( (string) $row['setting'], '\\"' ) !== false;
+		$settings = $row ? efb_e2e_decode_json( $row['setting'] ) : null;
+		if ( is_array( $settings ) ) {
+			foreach ( explode( '&', isset( $efb_e2e_rest[0] ) ? $efb_e2e_rest[0] : '' ) as $kv ) {
+				if ( '' === $kv ) continue;
+				list( $k, $v ) = array_pad( explode( '=', $kv, 2 ), 2, '' );
+				$v = urldecode( $v );
+				if ( 'del' === $v ) { unset( $settings[ $k ] ); continue; }
+				$clean = \Emsfb\Spam::is_setting_key( $k ) ? \Emsfb\Spam::sanitize_setting( $k, $v ) : sanitize_text_field( $v );
+				if ( null !== $clean ) $settings[ $k ] = $clean;
+			}
+			$json = wp_json_encode( $settings, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
+			$wpdb->update( $wpdb->prefix . 'emsfb_setting', array( 'setting' => $escaped ? str_replace( '"', '\\"', $json ) : $json ), array( 'id' => (int) $row['id'] ) );
+			delete_transient( 'emsfb_settings_transient' );
+			delete_option( 'emsfb_settings' );
+		}
+		if ( function_exists( 'wp_cache_flush' ) ) wp_cache_flush();
+		get_setting_Emsfb( '_clear_cache' );
+		$out = array();
+		$s2 = \Emsfb\Captcha::settings();
+		foreach ( array_keys( \Emsfb\Spam::SETTING_DEFAULTS ) as $k ) $out[ $k ] = in_array( $k, \Emsfb\Spam::SECRET_SETTINGS, true ) ? ( isset( $s2[ $k ] ) && '' !== $s2[ $k ] ? 'set' : '' ) : ( array_key_exists( $k, $s2 ) ? $s2[ $k ] : null );
+		$out['siteKey'] = isset( $s2['siteKey'] ) ? $s2['siteKey'] : null;
+		$out['secretKey'] = isset( $s2['secretKey'] ) && '' !== $s2['secretKey'] ? 'set' : '';
+		efb_e2e_out( $out );
+		break;
+
+	case 'f12-calls':
+		// The CAPTCHA / Akismet requests the mu-plugin answered (f12-calls clear empties the list).
+		if ( isset( $efb_e2e_rest[0] ) && 'clear' === $efb_e2e_rest[0] ) { update_option( 'efb_e2e_f12_calls', array(), false ); efb_e2e_out( array() ); }
+		efb_e2e_out( get_option( 'efb_e2e_f12_calls', array() ) );
+		break;
+
+	case 'f12-query':
+		// F14's list as the entries screen gets it (after efb_entries_rows): <form_id> <tab>.
+		wp_set_current_user( 1 );
+		$a = array( 'form_id' => (int) $efb_e2e_rest[0], 'tab' => isset( $efb_e2e_rest[1] ) ? $efb_e2e_rest[1] : 'all', 'page' => 1, 'per_page' => 50 );
+		$r = \Emsfb\Entries::query( $a );
+		$r['rows'] = apply_filters( 'efb_entries_rows', $r['rows'], $a );
+		foreach ( $r['rows'] as $i => $row ) unset( $r['rows'][ $i ]['content'] );
+		efb_e2e_out( $r );
+		break;
+
+	case 'f12-op':
+		// F14's list operation (spam, unspam, trash, …) as an administrator: <form_id> <op> <msg_id,msg_id>.
+		wp_set_current_user( 1 );
+		efb_e2e_out( \Emsfb\Entries::apply_op( (int) $efb_e2e_rest[0], (string) $efb_e2e_rest[1], array_map( 'intval', explode( ',', (string) $efb_e2e_rest[2] ) ) ) );
+		break;
+
+	case 'f12-delete-form':
+		// A test form, its entries (with their history, notes and files) and its pages.
+		$fid = (int) $efb_e2e_rest[0];
+		if ( class_exists( '\Emsfb\Privacy' ) ) \Emsfb\Privacy::delete_form_entries( $fid );
+		$wpdb->delete( $wpdb->prefix . 'emsfb_form', array( 'form_id' => $fid ) );
+		$wpdb->delete( $wpdb->prefix . 'emsfb_stts_', array( 'fid' => $fid ) );
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . 'emsfb_stats_' ) ) ) $wpdb->delete( $wpdb->prefix . 'emsfb_stats_', array( 'form_id' => $fid ) );
+		foreach ( get_posts( array( 'post_type' => 'page', 'post_status' => 'any', 'numberposts' => 50, 's' => 'EMS_Form_Builder id=' . $fid ) ) as $pg ) {
+			if ( preg_match( '/\bid=' . $fid . '\b/', (string) $pg->post_content ) ) wp_delete_post( $pg->ID, true );
+		}
+		wp_cache_flush();
+		efb_e2e_out( array( 'deleted' => $fid ) );
+		break;
+
+	case 'f12-upgrade':
+		// Runs the schema upgrade now (twice: the second must apply nothing) and prints what each run applied.
+		$a1 = \Emsfb\Install::upgrade_schema();
+		$a2 = \Emsfb\Install::upgrade_schema();
+		efb_e2e_out( array( 'first' => $a1, 'second' => $a2, 'db_version' => get_option( 'Emsfb_db_version' ), 'const' => EMSFB_DB_VERSION, 'has_status' => \Emsfb\Entries::has_status_column() ) );
+		break;
+
+	case 'f12-purge':
+		// Runs the daily spam purge now: [form_id] (only that form's spam; the suite's other forms keep theirs).
+		efb_e2e_out( \Emsfb\Spam::purge( 2000, 20, isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0 ) );
+		break;
+
+	case 'f12-date':
+		// Moves an entry's date back: <msg_id> <days_ago> (the spam purge test).
+		$wpdb->update( $wpdb->prefix . 'emsfb_msg_', array( 'date' => gmdate( 'Y-m-d H:i:s', time() - DAY_IN_SECONDS * (int) $efb_e2e_rest[1] ) ), array( 'msg_id' => (int) $efb_e2e_rest[0] ) );
+		efb_e2e_out( array( 'ok' => true ) );
 		break;
 
 	default:

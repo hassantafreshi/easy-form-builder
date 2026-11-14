@@ -500,6 +500,14 @@ class Emsfb {
             $this->require_plugin_file_efb('includes/admin/entries-api-functions.php');
         }
 
+        // F12: anti-spam of the core (honeypot, minimum time, JS token, CAPTCHA services, Akismet, disallowed
+        // words; spam answers in F14's spam status) and the public CAPTCHA check outside a form (P20).
+        // Optional: every caller checks class_exists('\Emsfb\Spam') / ('\Emsfb\Captcha').
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-captcha.php') && $this->require_plugin_file_efb('includes/class-Emsfb-spam.php') && method_exists('\Emsfb\Spam', 'register')) {
+            \Emsfb\Spam::register();
+            $this->require_plugin_file_efb('includes/captcha-functions-efb.php');
+        }
+
         // Builder API for integrations such as AutoPilot (docs/autopilot-integration.md).
         // Optional: callers check class_exists('\Emsfb\Builder_Api').
         $this->require_plugin_file_efb('includes/class-Emsfb-builder-api.php');
@@ -1394,6 +1402,11 @@ class Emsfb {
                     'pro' => $pro,
                     'trackingCode' => $decoded->trackingCode ?? '',
                     'siteKey' => $decoded->siteKey ?? '',
+                    // F12: the CAPTCHA service and its site keys (public by design); never a secret key.
+                    'captchaProvider' => (isset($decoded->captcha_provider) && in_array($decoded->captcha_provider, array('recaptcha_v2', 'recaptcha_v3', 'hcaptcha', 'turnstile'), true)) ? $decoded->captcha_provider : 'recaptcha_v2',
+                    'rc3SiteKey' => $decoded->rc3SiteKey ?? '',
+                    'hcSiteKey' => $decoded->hcSiteKey ?? '',
+                    'tsSiteKey' => $decoded->tsSiteKey ?? '',
                     'mapKey' => $decoded->apiKeyMap ?? '',
                     'paymentKey' => $decoded->stripePKey ?? '',
                     'version' => $decoded->efb_version ?? '1.0.0',
@@ -2304,6 +2317,18 @@ class Emsfb {
         $defaults->act_local_efb     = '';
         $defaults->scaptcha          = '';
         $defaults->shield_silent_captcha = '';
+        // F12: a fresh install has the hidden trap field and a 3-second minimum (both "save as spam"); a site
+        // updated from 4.3.1 has none of these keys and keeps its behaviour until the owner turns them on.
+        $defaults->spam_honeypot       = '1';
+        $defaults->spam_min_time       = '3';
+        $defaults->spam_require_js     = '';
+        $defaults->spam_action         = 'spam';
+        $defaults->spam_akismet        = '';
+        $defaults->spam_disallowed_keys = '';
+        $defaults->spam_retention_days = '30';
+        $defaults->captcha_provider    = 'recaptcha_v2';
+        $defaults->rc3Threshold        = '0.5';
+        $defaults->rc3_low_action      = 'spam';
         $defaults->activeDlBtn       = true;
         $defaults->dsupfile          = true;
         $defaults->sms_config        = 'null';

@@ -48,6 +48,7 @@
 .efb-ent-val { display: inline-block; max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
 .efb-ent-badge { font-size: .7rem; font-weight: 500; margin-inline-start: 4px; }
 .efb-ent-badge-spam { background: #fde68a; color: #78350f; }
+.efb-ent-spam-why { display: inline-block; margin-inline-start: .35rem; font-size: .8rem; color: #6b4a12; unicode-bidi: plaintext; text-align: start; }
 .efb-ent-badge-trash { background: #fecaca; color: #7f1d1d; }
 .efb-ent-badge-pending { background: #e0e7ff; color: #3730a3; }
 .efb-ent-badge-edited { background: #e2e8f0; color: #334155; }

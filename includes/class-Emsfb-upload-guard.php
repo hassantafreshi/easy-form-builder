@@ -1316,6 +1316,41 @@ class Upload_Guard {
     }
 
     /**
+     * F12: a refused (spam) submission keeps none of its uploads. Deletes the files of $names that are still in
+     * the pending ledger (no entry claimed them) and bound to $form_id (or to no form, before F07), and that no
+     * entry or reply points at. Returns the number of files deleted.
+     *
+     * @param string[] $names   File names (or URLs) the submission sent.
+     * @param int      $form_id The form of the submission.
+     * @return int
+     */
+    public static function drop_pending_uploads($names, $form_id) {
+        global $wpdb;
+        $pending = get_option(self::PENDING_OPTION, array());
+        if (!is_array($pending) || empty($pending)) return 0;
+        $deleted = 0;
+        $changed = false;
+        foreach ((array) $names as $name) {
+            $base = wp_basename((string) $name);
+            if ($base === '' || !isset($pending[$base]) || !self::is_plugin_upload_name($base)) continue;
+            $parts = explode('|', (string) $pending[$base]);
+            $bound = isset($parts[1]) ? (int) $parts[1] : 0;
+            if ($bound > 0 && $bound !== (int) $form_id) continue;
+            $like = '%' . $wpdb->esc_like($base) . '%';
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            if ((int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(1) FROM `{$wpdb->prefix}emsfb_msg_` WHERE content LIKE %s", $like)) > 0) continue;
+            unset($pending[$base]);
+            $changed = true;
+            $real = self::locate_upload($base);
+            if ($real === '') continue;
+            self::delete_stored_file($real);
+            if (!file_exists($real)) $deleted++;
+        }
+        if ($changed) update_option(self::PENDING_OPTION, $pending, false);
+        return $deleted;
+    }
+
+    /**
      * The ledger row of one pending upload: [time, form_id, field_id], or null.
      * A row written before F07 has no binding (form 0, field '').
      *

@@ -2081,7 +2081,8 @@ function fun_vaid_tracker_check_emsFormBuilder() {
         if(captcha.length>0){
             recaptcha_emsFormBuilder=captcha.length>0 ? captcha[0].value : '';
         }else{
-          let captacha_exists = document.querySelector('#gRecaptcha[data-formid="-1"]');
+          // F12: any CAPTCHA widget of the tracking box (hCaptcha, Turnstile: .efb-captcha), not only reCAPTCHA v2.
+          let captacha_exists = document.querySelector('#gRecaptcha[data-formid="-1"], .efb-captcha[data-formid="-1"]:not([data-provider="recaptcha_v3"])');
           if (captacha_exists) {
             document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
             document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
@@ -2099,6 +2100,11 @@ function fun_vaid_tracker_check_emsFormBuilder() {
           sid:efb_var.sid,
           id: 0,
         };
+        // F12 (P20): a reCAPTCHA v3 tracking box asks Google for its token right before the lookup.
+        if (window.EFBCaptcha && document.querySelector('.efb-captcha[data-provider="recaptcha_v3"][data-formid="-1"]')) {
+          window.EFBCaptcha.token('tracker').then((tk) => { data.valid = tk || ''; post_api_tracker_check_efb(data, innrBtn); });
+          return;
+        }
         post_api_tracker_check_efb(data,innrBtn);
     }
   }

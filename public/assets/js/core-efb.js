@@ -1241,6 +1241,18 @@ function efb_repeater_wire_rows_efb(rows, form_id) {
   if (!window.EFBRepeater || typeof window.EFBRepeater.wire !== 'function') return rows;
   try { return window.EFBRepeater.wire(rows, form_id); } catch (e) { return rows; }
 }
+/**
+ * F12: the hidden trap field (Spam::honeypot_html(), #efb-hp-{form id}) travels as data.efb_hp, beside the answers:
+ * never a row of sendBack, never in localStorage. No field on the page (an old page, the field off): no key, which
+ * the server reads as neutral.
+ */
+function efb_spam_add_to_request_efb(data, form_id) {
+  try {
+    const hp = document.getElementById('efb-hp-' + Number(form_id));
+    if (hp && data && typeof data === 'object') data.efb_hp = String(hp.value || '');
+  } catch (e) {}
+  return data;
+}
 async function actionSendData_emsFormBuilder(form_id=0) {
   let sendback = [];
   if(form_type_emsFormBuilder =='recovery'){
@@ -1346,6 +1358,8 @@ async function actionSendData_emsFormBuilder(form_id=0) {
     efb_rules_add_confirms_efb(data, form_id);
     // F02: the tokens of verified numbers / addresses and the second e-mail copies travel beside the answers.
     if (window.EFBVerify && typeof window.EFBVerify.addToRequest === 'function') window.EFBVerify.addToRequest(data, form_id);
+    // F12: the hidden trap field's value beside the answers (every branch: form, payment, payments/create).
+    efb_spam_add_to_request_efb(data, form_id);
     /* PAY00: the field of a gateway add-on (payment framework) sends the form to
        payments/create: the server validates it, stores it as "pending payment" and starts the payment. */
     if (vj.type == "payment" && window.EFBPay && typeof window.EFBPay.isGateway === 'function') {
@@ -1372,6 +1386,7 @@ async function efb_review_quote_efb(form_id, field_id) {
     const data = { value: JSON.stringify(rows), name: vj.formName, id: form_id, valid: '', type: vj.type, url: location.href.split('?')[0], query: efb_page_query_efb(), sid: vj.sid, page_id: ajax_object_efm.page_id, pay: { field_id: String(field_id || '') } };
     efb_rules_add_confirms_efb(data, form_id);
     if (window.EFBVerify && typeof window.EFBVerify.addToRequest === 'function') window.EFBVerify.addToRequest(data, form_id);
+    efb_spam_add_to_request_efb(data, form_id); // F12
     if (window.EFBRuntime && typeof window.EFBRuntime.decorate === 'function') { try { await window.EFBRuntime.decorate(data, Number(form_id) || 0, 'quote'); } catch (e) { /* the page's own session */ } }
     const rest = (typeof efb_var !== 'undefined' && efb_var.rest_url) ? efb_var.rest_url : ((typeof ajax_object_efm !== 'undefined' && ajax_object_efm.rest_url) ? ajax_object_efm.rest_url : '/wp-json/');
     const resp = await efb_fetch_public_request_efb(rest + 'Emsfb/v1/payments/quote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }, 'payment', vj.sid, form_id);
@@ -2164,7 +2179,8 @@ function efb_sendback_for_storage_efb(rows) {
   // answers left behind expire (efb_expire_stored_answers_efb).
   try { localStorage.setItem('sendback_t', String(Date.now())); } catch (e) {}
   if (!Array.isArray(rows)) return JSON.stringify(rows);
-  return JSON.stringify(rows.filter(r => !(r && typeof r === 'object' && String(r.type || '').toLowerCase() === 'password') && !(typeof efb_mask_row_sensitive_efb === 'function' && efb_mask_row_sensitive_efb(r))));
+  // F12: never the CAPTCHA token (row captcha_v2) either: it is spent once and belongs to this send only.
+  return JSON.stringify(rows.filter(r => !(r && typeof r === 'object' && String(r.type || '').toLowerCase() === 'password') && !(r && typeof r === 'object' && (r.id_ === 'captcha_v2' || r.type === 'captcha_v2')) && !(typeof efb_mask_row_sensitive_efb === 'function' && efb_mask_row_sensitive_efb(r))));
 }
 function efb_scrub_stored_passwords_efb() {
   try {
@@ -2334,6 +2350,8 @@ async function response_fill_form_efb(res ,form_id=0) {
      with a plain object before submitting — restore array form so the helpers below
      (and any later array operations) keep working. */
   if (!Array.isArray(sendBack_emsFormBuilder_pub)) sendBack_emsFormBuilder_pub = [];
+  // F12: a refused answer spent the CAPTCHA token: the widget asks again (every service, reCAPTCHA v2 included).
+  if (!(res && res.data && res.data.success == true) && window.EFBCaptcha && typeof window.EFBCaptcha.reset === 'function') { try { window.EFBCaptcha.reset(form_id); } catch (e) {} }
   // F09: the server names a field of a repeater row by its own id and the row (row_index): the copy in the page.
   if (res.data && res.data.field_id && res.data.row_index !== undefined && res.data.row_index !== null && window.EFBRepeater) {
     try { const rptVid = window.EFBRepeater.fieldAt(form_id, res.data.field_id, res.data.row_index); if (rptVid) res.data.field_id = rptVid; } catch (e) {}
@@ -2572,6 +2590,7 @@ async function response_fill_form_efb(res ,form_id=0) {
   } else {
     document.querySelectorAll('.g-recaptcha').forEach(el => {
       if (el.dataset.grecaptchaWidgetId) return;
+      if (el.dataset.provider && el.dataset.provider !== 'recaptcha_v2') return; // F12: another service's widget (EFBCaptcha)
       const formId = el.dataset.formid ?? -1;
       const widgetId = grecaptcha.render(el, {
         sitekey: sitekye_emsFormBuilder,
@@ -2917,6 +2936,16 @@ async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
     if (efb_vis_view_efb(form_id)) data.vis_view = 'public'; // F10-D
     // F11-E: the saved answers this submission completes (emptied on the server once it is stored).
     try { const dt = sessionStorage.getItem('efb_draft_' + Number(form_id)); if (dt && /^[a-f0-9]{64}$/.test(dt)) data.draft_token = dt; } catch (e) {}
+    // F12: a reCAPTCHA v3 form asks Google for a fresh token right before sending (it lives two minutes); none in 10 s:
+    // not sent, the visitor reads the CAPTCHA message. "valid" is out of the request's fingerprint, so a retry is no 409.
+    if (window.EFBCaptcha && typeof window.EFBCaptcha.beforeSend === 'function') {
+      let capOk = true;
+      try { capOk = await window.EFBCaptcha.beforeSend(data, Number(form_id) || 0); } catch (e) { capOk = false; }
+      if (!capOk) {
+        await response_fill_form_efb({ success: false, data: { success: false, m: (typeof efb_var !== 'undefined' && efb_var && efb_var.text && efb_var.text.errorCaptcha) || 'Please complete the security check.' } }, form_id);
+        return;
+      }
+    }
     try {
       if (window.EFBRuntime) runtime=await window.EFBRuntime.decorate(data,Number(form_id)||0,'form');
     } catch (error) {
@@ -5291,7 +5320,8 @@ async function fun_validation_efb_v4(form_id) {
 
   if (state === true && valj_efb[0]) {
     var max_step_v = Number(valj_efb[0].steps) || 1;
-    if (Number(current_s_efb) === max_step_v && Number(valj_efb[0].captcha) === 1) {
+    // F12: a reCAPTCHA v3 form has no widget and no row (its token is asked for while sending).
+    if (Number(current_s_efb) === max_step_v && Number(valj_efb[0].captcha) === 1 && !(window.EFBCaptcha && window.EFBCaptcha.isInvisible(form_id))) {
       var hasCaptcha = sendBack_emsFormBuilder_pub.findIndex(function(x) {
         return x != null && x.id_ === 'captcha_v2' && Number(x.form_id) === Number(form_id);
       }) !== -1;

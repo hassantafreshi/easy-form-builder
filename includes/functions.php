@@ -5677,6 +5677,112 @@ class efbFunction {
 			"layoutSecChange" => $state && isset($ac->text->layoutSecChange) ? $ac->text->layoutSecChange : esc_html__('Who sees a field, or a rich text editor, has changed on this form.','easy-form-builder'),
 			/* translators: F10: builder help under How visitors sign */
 			"sigTypeHelp" => $state && isset($ac->text->sigTypeHelp) ? $ac->text->sigTypeHelp : esc_html__('A typed name is drawn as a signature image and kept with the answer, so visitors without a mouse or a touch screen can sign too.','easy-form-builder'),
+			/* translators: F12: builder form settings and Settings > Captchas: which CAPTCHA a form shows */
+			"captchaProvider" => $state && isset($ac->text->captchaProvider) ? $ac->text->captchaProvider : esc_html__('CAPTCHA service','easy-form-builder'),
+			/* translators: F12: builder: the CAPTCHA service of the site's settings */
+			"siteDefault" => $state && isset($ac->text->siteDefault) ? $ac->text->siteDefault : esc_html__('Site default','easy-form-builder'),
+			/* translators: F12: CAPTCHA service name */
+			"reCAPTCHAv3" => $state && isset($ac->text->reCAPTCHAv3) ? $ac->text->reCAPTCHAv3 : esc_html__('Google reCAPTCHA v3','easy-form-builder'),
+			/* translators: F12: CAPTCHA service name */
+			"hCaptcha" => $state && isset($ac->text->hCaptcha) ? $ac->text->hCaptcha : esc_html__('hCaptcha','easy-form-builder'),
+			/* translators: F12: CAPTCHA service name */
+			"turnstile" => $state && isset($ac->text->turnstile) ? $ac->text->turnstile : esc_html__('Cloudflare Turnstile','easy-form-builder'),
+			/* translators: F12: reCAPTCHA v3: the score an answer needs */
+			"rc3Threshold" => $state && isset($ac->text->rc3Threshold) ? $ac->text->rc3Threshold : esc_html__('Minimum score','easy-form-builder'),
+			/* translators: F12: help under Minimum score */
+			"rc3ThresholdHelp" => $state && isset($ac->text->rc3ThresholdHelp) ? $ac->text->rc3ThresholdHelp : esc_html__('Scores run from 0.0 (likely a bot) to 1.0 (likely a person). 0.5 suits most sites.','easy-form-builder'),
+			/* translators: F12: reCAPTCHA v3: what a score under the minimum does */
+			"rc3LowAction" => $state && isset($ac->text->rc3LowAction) ? $ac->text->rc3LowAction : esc_html__('Low score','easy-form-builder'),
+			/* translators: F12: an answer that looks like spam is kept with the Spam status */
+			"markAsSpam" => $state && isset($ac->text->markAsSpam) ? $ac->text->markAsSpam : esc_html__('Save as spam','easy-form-builder'),
+			/* translators: F12: an answer that looks like spam is refused */
+			"blockSubmission" => $state && isset($ac->text->blockSubmission) ? $ac->text->blockSubmission : esc_html__('Block the submission','easy-form-builder'),
+			/* translators: F12: under a form with reCAPTCHA v3 (Google's required wording; keep the names Privacy Policy and Terms of Service as Google's page titles) */
+			"rc3Notice" => $state && isset($ac->text->rc3Notice) ? $ac->text->rc3Notice : esc_html__('This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.','easy-form-builder'),
+			/* translators: F12: builder: a CAPTCHA service without its keys in Settings */
+			"captchaKeyMissing" => $state && isset($ac->text->captchaKeyMissing) ? $ac->text->captchaKeyMissing : esc_html__('Keys are not set for this service.','easy-form-builder'),
+			/* translators: F12: visitor: the CAPTCHA token timed out */
+			"captchaExpired" => $state && isset($ac->text->captchaExpired) ? $ac->text->captchaExpired : esc_html__('The check expired. Please complete it again.','easy-form-builder'),
+			/* translators: F12: visitor: label of the CAPTCHA widget (read by screen readers) */
+			"captchaLabel" => $state && isset($ac->text->captchaLabel) ? $ac->text->captchaLabel : esc_html__('Security check','easy-form-builder'),
+			/* translators: F12: visitor: the CAPTCHA widget could not load or answer */
+			"captchaFailed" => $state && isset($ac->text->captchaFailed) ? $ac->text->captchaFailed : esc_html__('The security check could not be completed. Please try again.','easy-form-builder'),
+			/* translators: F12: visitor: while the CAPTCHA widget loads */
+			"captchaLoading" => $state && isset($ac->text->captchaLoading) ? $ac->text->captchaLoading : esc_html__('Loading the security check…','easy-form-builder'),
+			/* translators: F12: builder preview: placeholder of the CAPTCHA (%s = the service name) */
+			"captchaPreview" => $state && isset($ac->text->captchaPreview) ? $ac->text->captchaPreview : esc_html__('%s will show here on the page.','easy-form-builder'),
+			/* translators: F12: builder select: the site's CAPTCHA service (%s = its name) */
+			"captchaSiteDefaultNow" => $state && isset($ac->text->captchaSiteDefaultNow) ? $ac->text->captchaSiteDefaultNow : esc_html__('Site default (now %s)','easy-form-builder'),
+			/* translators: F12: Settings > Captchas: section title */
+			"antiSpamNoCaptcha" => $state && isset($ac->text->antiSpamNoCaptcha) ? $ac->text->antiSpamNoCaptcha : esc_html__('Spam protection without CAPTCHA','easy-form-builder'),
+			/* translators: F12: Settings: a field people never see; bots that fill it are caught */
+			"spamHoneypot" => $state && isset($ac->text->spamHoneypot) ? $ac->text->spamHoneypot : esc_html__('Hidden trap field (honeypot)','easy-form-builder'),
+			/* translators: F12: help under the honeypot switch */
+			"spamHoneypotHelp" => $state && isset($ac->text->spamHoneypotHelp) ? $ac->text->spamHoneypotHelp : esc_html__('A field visitors never see or reach. Bots that fill every field are caught; people are not asked anything.','easy-form-builder'),
+			/* translators: F12: Settings: answers sent faster than this look like spam */
+			"spamMinTime" => $state && isset($ac->text->spamMinTime) ? $ac->text->spamMinTime : esc_html__('Minimum time to fill (seconds)','easy-form-builder'),
+			/* translators: F12: help under Minimum time */
+			"spamMinTimeHelp" => $state && isset($ac->text->spamMinTimeHelp) ? $ac->text->spamMinTimeHelp : esc_html__('An answer sent sooner after the visitor starts the form is treated as spam. 0 turns this off.','easy-form-builder'),
+			/* translators: F12: Settings: an answer sent without the page's script is treated as spam */
+			"spamRequireJs" => $state && isset($ac->text->spamRequireJs) ? $ac->text->spamRequireJs : esc_html__('Require JavaScript','easy-form-builder'),
+			/* translators: F12: warning under Require JavaScript */
+			"spamRequireJsWarn" => $state && isset($ac->text->spamRequireJsWarn) ? $ac->text->spamRequireJsWarn : esc_html__('Only after checking Request Health: visitors whose firewall blocks the plugin\'s REST route, and pages cached before this version, would be treated as spam.','easy-form-builder'),
+			/* translators: F12: Settings: save as spam or refuse */
+			"spamAction" => $state && isset($ac->text->spamAction) ? $ac->text->spamAction : esc_html__('What to do with spam','easy-form-builder'),
+			/* translators: F12: Settings: spam is refused with an error message */
+			"spamReject" => $state && isset($ac->text->spamReject) ? $ac->text->spamReject : esc_html__('Refuse it (nothing is saved)','easy-form-builder'),
+			/* translators: F12: help under What to do with spam */
+			"spamActionHelp" => $state && isset($ac->text->spamActionHelp) ? $ac->text->spamActionHelp : esc_html__('Payment, registration and login forms always refuse spam.','easy-form-builder'),
+			/* translators: F12: Settings: send answers to Akismet */
+			"spamAkismet" => $state && isset($ac->text->spamAkismet) ? $ac->text->spamAkismet : esc_html__('Check answers with Akismet','easy-form-builder'),
+			/* translators: F12: Settings: why the Akismet switch is off */
+			"spamAkismetMissing" => $state && isset($ac->text->spamAkismetMissing) ? $ac->text->spamAkismetMissing : esc_html__('Akismet is not installed or active.','easy-form-builder'),
+			/* translators: F12: privacy note under the Akismet switch */
+			"spamAkismetPrivacy" => $state && isset($ac->text->spamAkismetPrivacy) ? $ac->text->spamAkismetPrivacy : esc_html__('Akismet sends the answers to Automattic to check them.','easy-form-builder'),
+			/* translators: F12: Settings: Settings > Discussion > Disallowed Comment Keys */
+			"spamDisallowed" => $state && isset($ac->text->spamDisallowed) ? $ac->text->spamDisallowed : esc_html__('Check WordPress\' disallowed words','easy-form-builder'),
+			/* translators: F12: help under the disallowed words switch */
+			"spamDisallowedHelp" => $state && isset($ac->text->spamDisallowedHelp) ? $ac->text->spamDisallowedHelp : esc_html__('Uses the list in Settings › Discussion › Disallowed Comment Keys.','easy-form-builder'),
+			/* translators: F12: Settings: spam answers are deleted after this many days */
+			"spamRetention" => $state && isset($ac->text->spamRetention) ? $ac->text->spamRetention : esc_html__('Delete spam after (days)','easy-form-builder'),
+			/* translators: F12: help under Delete spam after */
+			"spamRetentionHelp" => $state && isset($ac->text->spamRetentionHelp) ? $ac->text->spamRetentionHelp : esc_html__('0 keeps spam until you delete it.','easy-form-builder'),
+			/* translators: F12: builder form settings (advanced) */
+			"spamOff" => $state && isset($ac->text->spamOff) ? $ac->text->spamOff : esc_html__('Turn off spam checks for this form','easy-form-builder'),
+			/* translators: F12: help under Turn off spam checks */
+			"spamOffHelp" => $state && isset($ac->text->spamOffHelp) ? $ac->text->spamOffHelp : esc_html__('For an internal form only: the hidden field, the minimum time and the content checks are skipped. The CAPTCHA still applies.','easy-form-builder'),
+			/* translators: F12: builder form settings: Akismet for this form */
+			"spamFormAkismet" => $state && isset($ac->text->spamFormAkismet) ? $ac->text->spamFormAkismet : esc_html__('Check this form with Akismet','easy-form-builder'),
+			/* translators: F12: dismissible admin notice on sites updated from an older version */
+			"spamSuggestNotice" => $state && isset($ac->text->spamSuggestNotice) ? $ac->text->spamSuggestNotice : esc_html__('Easy Form Builder can now catch spam without a CAPTCHA: a hidden trap field and a minimum time to fill. Turn them on in Settings › Captchas.','easy-form-builder'),
+			/* translators: F12: Settings: note after changing CAPTCHA keys */
+			"purgeCacheAfterKeys" => $state && isset($ac->text->purgeCacheAfterKeys) ? $ac->text->purgeCacheAfterKeys : esc_html__('Clear the page cache of pages that show a form in a widget after you change CAPTCHA keys.','easy-form-builder'),
+			/* translators: F12: Settings > Captchas: tells the two products apart */
+			"shieldVsHuman" => $state && isset($ac->text->shieldVsHuman) ? $ac->text->shieldVsHuman : esc_html__('Shield Security is a separate plugin; Human Shield is the security add-on of Easy Form Builder.','easy-form-builder'),
+			/* translators: F12: save notice (and the AI preview): CAPTCHA off or spam checks off */
+			"spamSecChange" => $state && isset($ac->text->spamSecChange) ? $ac->text->spamSecChange : esc_html__('Spam protection of this form was turned off.','easy-form-builder'),
+			/* translators: F12: entries: why an answer is spam (%s = reasons, comma separated) */
+			"spamWhy" => $state && isset($ac->text->spamWhy) ? $ac->text->spamWhy : esc_html__('Spam: %s','easy-form-builder'),
+			/* translators: F12: entries history: the answer was saved with the Spam status when it was sent */
+			"spamAuto" => $state && isset($ac->text->spamAuto) ? $ac->text->spamAuto : esc_html__('Saved as spam','easy-form-builder'),
+			/* translators: F12: spam reason */
+			"spamR_honeypot" => $state && isset($ac->text->spamR_honeypot) ? $ac->text->spamR_honeypot : esc_html__('Hidden field filled','easy-form-builder'),
+			/* translators: F12: spam reason */
+			"spamR_too_fast" => $state && isset($ac->text->spamR_too_fast) ? $ac->text->spamR_too_fast : esc_html__('Sent too fast','easy-form-builder'),
+			/* translators: F12: spam reason */
+			"spamR_no_js" => $state && isset($ac->text->spamR_no_js) ? $ac->text->spamR_no_js : esc_html__('Sent without JavaScript','easy-form-builder'),
+			/* translators: F12: spam reason */
+			"spamR_low_score" => $state && isset($ac->text->spamR_low_score) ? $ac->text->spamR_low_score : esc_html__('Low reCAPTCHA score','easy-form-builder'),
+			/* translators: F12: spam reason */
+			"spamR_akismet" => $state && isset($ac->text->spamR_akismet) ? $ac->text->spamR_akismet : esc_html__('Akismet','easy-form-builder'),
+			/* translators: F12: spam reason */
+			"spamR_disallowed_keys" => $state && isset($ac->text->spamR_disallowed_keys) ? $ac->text->spamR_disallowed_keys : esc_html__('Disallowed words','easy-form-builder'),
+			/* translators: F12: spam reason: a plugin decided through the efb_spam_verdict filter */
+			"spamR_filter" => $state && isset($ac->text->spamR_filter) ? $ac->text->spamR_filter : esc_html__('Another plugin','easy-form-builder'),
+			/* translators: F12: Settings: placeholder of a stored secret key */
+			"captchaSecretSaved" => $state && isset($ac->text->captchaSecretSaved) ? $ac->text->captchaSecretSaved : esc_html__('Saved. Type a new key to replace it.','easy-form-builder'),
+			/* translators: F12: Settings: link to the CAPTCHA service's key page */
+			"captchaGetKeys" => $state && isset($ac->text->captchaGetKeys) ? $ac->text->captchaGetKeys : esc_html__('Get the keys','easy-form-builder'),
 			/* translators: F14: %s = number */
 			"entExported" => $state && isset($ac->text->entExported) ? $ac->text->entExported : esc_html__('%s entries exported.','easy-form-builder'),
 			/* translators: F14: export column */
@@ -6634,6 +6740,23 @@ class efbFunction {
 						if (!class_exists('\\Emsfb\\Layout') && is_readable(__DIR__ . '/class-Emsfb-layout.php')) require_once __DIR__ . '/class-Emsfb-layout.php';
 						$valp[$key][$k] = class_exists('\\Emsfb\\Layout') ? \Emsfb\Layout::sanitize_key($k, $v, $type) : '';
 						if ($valp[$key][$k] === '' && $k !== 'review_title') unset($valp[$key][$k]);
+					break;
+					// F12 anti-spam keys of row 0: the CAPTCHA service (an allow-list), the v3 score (0.0 … 1.0, local digits
+					// accepted), spam_off and spam_akismet flags. One rule set, Spam::sanitize_key() (= EFBSpamCore in
+					// builder-api-efb.js); on a field row they mean nothing and are dropped. Secrets never reach a form.
+					case 'captcha_provider':
+					case 'rc3_threshold':
+					case 'spam_off':
+					case 'spam_akismet':
+						if (!class_exists('\\Emsfb\\Spam') && is_readable(__DIR__ . '/class-Emsfb-spam.php')) { if (!class_exists('\\Emsfb\\Captcha')) require_once __DIR__ . '/class-Emsfb-captcha.php'; require_once __DIR__ . '/class-Emsfb-spam.php'; }
+						$valp[$key][$k] = ((string) $key === '0' && class_exists('\\Emsfb\\Spam')) ? \Emsfb\Spam::sanitize_form_key($k, $v) : '';
+						if ($valp[$key][$k] === '') unset($valp[$key][$k]);
+					break;
+					case 'rc3SecretKey':
+					case 'hcSecretKey':
+					case 'tsSecretKey':
+					case 'secretKey':
+						unset($valp[$key][$k]);
 					break;
 					// The server's own marks on rows: never taken from a save (dyn = a choice built from the site, inv_mode = booking).
 					case 'dyn':
@@ -10173,17 +10296,15 @@ public function addon_add_efb($value) {
 	}
 
 	public function check_and_enqueue_google_captcha_efb($lang) {
-        $url = 'https://www.google.com/recaptcha/api.js?hl='.$lang.'&render=explicit#asyncload';
-        $response = wp_remote_head($url);
-        if (!is_wp_error($response) && 200 == wp_remote_retrieve_response_code($response)) {
-            wp_register_script('recaptcha', $url, array() , '2.0', true);
-            wp_enqueue_script('recaptcha');
-		$details['success'] = true;
-		return $return_details ? $details : true;
-        } else {
-			return false;
-        }
-    }
+		/* F12: no request to Google while a page is built (4.3.1 sent a wp_remote_head() on every render, and used
+		 * undefined variables); the script is enqueued (deferred) and the browser loads it. One Google script per
+		 * page for reCAPTCHA v2 and v3 (Captcha::enqueue()). */
+		if (class_exists('\\Emsfb\\Captcha')) return \Emsfb\Captcha::enqueue('recaptcha_v2', is_string($lang) ? $lang : '');
+		$url = 'https://www.google.com/recaptcha/api.js?hl=' . rawurlencode((string) $lang) . '&render=explicit';
+		wp_register_script('efb-recaptcha', $url, array(), null, true);
+		wp_enqueue_script('efb-recaptcha');
+		return true;
+	}
 
 	public function report_problem_efb($state ,$value){
 		if ( ! function_exists( 'get_plugins' ) ) {

@@ -2693,7 +2693,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$captchaHTML = "";
 
 			if (strlen($siteKey) > 1) {
-				$captchaHTML = sprintf(
+				// F12: the same markup as 4.3.1 (#gRecaptcha, recaptcha-message-{fid}) with a label and a live region.
+				$captchaHTML = class_exists('\\Emsfb\\Captcha') ? \Emsfb\Captcha::widget_html('recaptcha_v2', (int) $formId, 'form', $stepNo, array('siteKey' => $siteKey)) : '';
+				if ($captchaHTML === '') $captchaHTML = sprintf(
 					'<div class="efb row mx-0" data-step="%1$s" data-formid="%3$s">
 						<div id="gRecaptcha" class="efb g-recaptcha my-2 mx-0 px-0" data-sitekey="%2$s" style="transform:scale(0.88);-webkit-transform:scale(0.88);transform-origin:0 0;-webkit-transform-origin:0 0;" data-formid="%3$s">
 
@@ -2714,6 +2716,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 			);
 
 			return $ui;
+	}
+
+	/**
+	 * F12: the widget of reCAPTCHA v3 (a marker and Google's notice), hCaptcha or Cloudflare Turnstile at the end of
+	 * the last step (reCAPTCHA v2: fun_captcha_load_efb()). The JS renderer of the builder shows a placeholder only.
+	 */
+	public function fun_captcha_widget_efb($provider, $siteKey, $formId, $stepNo) {
+		if ($provider === 'recaptcha_v2' || !class_exists('\\Emsfb\\Captcha')) return $this->fun_captcha_load_efb($siteKey, $formId, $stepNo);
+		$html = \Emsfb\Captcha::widget_html($provider, (int) $formId, 'form', $stepNo, array(\Emsfb\Captcha::SITE_KEYS[$provider] => $siteKey));
+		return sprintf('%1$s
+				<div id="step-1-efb-msg" data-formid="%2$s"></div>', $html, (int) $formId);
 	}
 
 	public function loading_message_efb($pro ,$texts,$state=0) {

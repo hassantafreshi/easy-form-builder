@@ -60,6 +60,11 @@ const trash = W.efb_entries_render_row_efb(Object.assign({}, row, { entry_status
 t('trash row: Restore and Delete permanently, a Trash badge, no Move to trash', /data-op="restore"/.test(trash) && /data-op="delete"/.test(trash) && !/data-op="trash"/.test(trash) && /efb-ent-badge-trash/.test(trash), true);
 const spam = W.efb_entries_render_row_efb(Object.assign({}, row, { entry_status: 1 }), []);
 t('spam row: the Spam badge', /efb-ent-badge-spam/.test(spam), true);
+// F12: why an entry is spam, from its history's reason codes; anything that is not a reason code is dropped.
+const spam2 = W.efb_entries_render_row_efb(Object.assign({}, row, { entry_status: 1, spam_reasons: ['honeypot', 'too_fast', '<img src=x onerror=alert(1)>', 'akismet_discard', 'akismet'] }), []);
+t('F12 spam row: "Spam: Hidden field filled, Sent too fast, Akismet" (each isolated, Akismet once)', /efb-ent-spam-why[^>]*>Spam: <bdi>Hidden field filled<\/bdi>, <bdi>Sent too fast<\/bdi>, <bdi>Akismet<\/bdi><\/span>/.test(spam2), true);
+t('F12 spam row: a hostile reason is never shown (not even escaped)', spam2.indexOf('<img') === -1 && spam2.indexOf('&lt;img') === -1 && spam2.indexOf('onerror') === -1, true);
+t('F12 spam row without reasons (marked by hand): the badge only', /efb-ent-spam-why/.test(spam), false);
 t('a row of a read entry is not "new"', /efb-ent-unread/.test(W.efb_entries_render_row_efb(Object.assign({}, row, { read_: 1 }), [])), false);
 
 E.state.counts = { all: 1234, unread: 3, starred: 0, pending: 2, closed: 0, spam: 1, trash: 5 };
@@ -77,6 +82,10 @@ E.state.estimate = true; E.state.total = 5000;
 t('pager: an estimate says "More than 5,000"', E.renderPager().indexOf('More than <bdi>5,000</bdi>') !== -1, true);
 
 const F = load('fa_IR');
+{
+  const fa = F.efb_entries_render_row_efb(Object.assign({}, row, { entry_status: 1, spam_reasons: ['honeypot', 'too_fast'] }), []);
+  t('F12 fa_IR: the reasons joined with the Arabic comma, each isolated', /<bdi>Hidden field filled<\/bdi>، <bdi>Sent too fast<\/bdi>/.test(fa), true);
+}
 F.EfbEntries.state.counts = { all: 1234, unread: 3, starred: 0, pending: 0, closed: 0, spam: 0, trash: 0 };
 tabs = F.EfbEntries.renderTabs();
 t('fa_IR: counts in Persian digits (۱٬۲۳۴)', /<bdi>۱٬۲۳۴<\/bdi>/.test(tabs), true);

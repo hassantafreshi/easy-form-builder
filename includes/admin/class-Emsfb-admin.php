@@ -481,6 +481,10 @@ class Admin {
         	list($valp, $layout_warn_efb) = \Emsfb\Layout::normalize_rows($valp, isset($old_rows_efb) ? $old_rows_efb : null);
         	$save_warnings_efb = array_merge(isset($save_warnings_efb) ? $save_warnings_efb : array(), $layout_warn_efb);
         }
+        // F12: the CAPTCHA switched off or the spam checks switched off on this form (security_changes, risk high); never refuses.
+        if (is_array($valp) && class_exists('\\Emsfb\\Spam') && isset($old_rows_efb) && is_array($old_rows_efb)) {
+        	$save_warnings_efb = array_merge(isset($save_warnings_efb) ? $save_warnings_efb : array(), \Emsfb\Spam::save_warnings($valp, $old_rows_efb));
+        }
         // F08: a tag in the redirect host, an answer from a later step, a hidden value that stores personal data; never refuses.
         if (is_array($valp) && class_exists('\\Emsfb\\Smart_Tags')) {
         	$save_warnings_efb = array_merge(isset($save_warnings_efb) ? $save_warnings_efb : array(), \Emsfb\Smart_Tags::form_warnings_text($valp, isset($lang) && is_array($lang) ? $lang : array()));
@@ -2043,6 +2047,15 @@ class Admin {
                 $m[$key] = current_user_can('manage_options')
                     ? \Emsfb\Entries::sanitize_setting($key, $value)
                     : \Emsfb\Entries::setting($key, $ac);
+            }else if(class_exists('\Emsfb\Spam') && \Emsfb\Spam::is_setting_key($key)){
+                // F12: anti-spam and CAPTCHA services, allow-listed values; a key of the wrong shape (a Turnstile
+                // secret that is not 0x…) keeps what is stored. An administrator's choice (manage_options).
+                $spam_val_efb = current_user_can('manage_options') ? \Emsfb\Spam::sanitize_setting($key, $value) : null;
+                if ($spam_val_efb === null) {
+                    if (is_object($ac) && isset($ac->$key)) $m[$key] = $ac->$key; else unset($m[$key]);
+                } else {
+                    $m[$key] = $spam_val_efb;
+                }
             }else if($key == 'text' && is_array($value)){
                 // Localization tab: phrase key => custom text. sanitize_text_field()
                 // on the whole array stored "", so no custom text was ever kept.
@@ -2069,6 +2082,13 @@ class Admin {
                 if (!array_key_exists($prv_key_efb, $m) && isset($ac->$prv_key_efb)) {
                     $m[$prv_key_efb] = \Emsfb\Privacy::setting($prv_key_efb, $ac);
                 }
+            }
+        }
+
+        // F12: a settings page that does not send these keys keeps what is stored.
+        if (class_exists('\Emsfb\Spam') && is_object($ac)) {
+            foreach (array_keys(\Emsfb\Spam::SETTING_DEFAULTS) as $spam_key_efb) {
+                if (!array_key_exists($spam_key_efb, $m) && isset($ac->$spam_key_efb)) $m[$spam_key_efb] = $ac->$spam_key_efb;
             }
         }
 

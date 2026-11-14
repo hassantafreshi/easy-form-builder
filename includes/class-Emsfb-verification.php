@@ -989,6 +989,19 @@ class Verification {
 	public static function rest_send($r) {
 		$st = self::start($r);
 		if (is_wp_error($st)) return $st;
+		/* F12: the form's hidden trap field filled → no code is sent (nothing spent on an SMS or an e-mail for a bot).
+		 * The runtime token (JavaScript) is already required by start(); the minimum time is not asked here (a person
+		 * may type a number and ask for the code within seconds). */
+		if (class_exists('\\Emsfb\\Spam') && isset($st['j'][Spam::HP_KEY])) {
+			$soft = Spam::soft_checks(array(Spam::HP_KEY => $st['j'][Spam::HP_KEY]), $st['rows'][0], null, null, array('payment' => true));
+			if (in_array('honeypot', $soft['reasons'], true)) {
+				$v = Spam::verdict(array(array('reasons' => array('honeypot'))), array('form_id' => $st['fid'], 'action' => 'reject', 'stage' => 'verify_send'));
+				if ($v['spam']) {
+					self::trace('verify.spam', array('form_id' => $st['fid']));
+					return self::err('efb_spam_rejected', self::t('vrfFailed'), 422);
+				}
+			}
+		}
 		$ch = $st['spec']['channel'];
 		$s = self::settings();
 		$cs = $s[$ch];

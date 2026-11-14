@@ -187,7 +187,7 @@ class Dashboard_Widget {
 
         // Total form submissions (send, poll, regis, login, logou, recov, pay etc — exclude visit, inact, admin)
         $submissions = (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM `{$table}` WHERE `status` NOT IN ('visit','inact','admin') AND `date` >= %s",
+            "SELECT COUNT(*) FROM `{$table}` WHERE `status` NOT IN ('visit','inact','admin','spam') AND `date` >= %s",
             $since
         ));
 
@@ -204,7 +204,7 @@ class Dashboard_Widget {
         $send_chart = $wpdb->get_results($wpdb->prepare(
             "SELECT DATE_FORMAT(`date`, %s) AS label, COUNT(*) AS cnt
              FROM `{$table}`
-             WHERE `status` NOT IN ('visit','inact','admin') AND `date` >= %s
+             WHERE `status` NOT IN ('visit','inact','admin','spam') AND `date` >= %s
              GROUP BY label ORDER BY MIN(`date`) ASC",
             $date_format, $since
         ), ARRAY_A);

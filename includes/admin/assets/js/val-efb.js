@@ -2355,6 +2355,7 @@ function show_setting_window_efb(idset, opts) {
            <input type="text"  data-id="${idset}" class="efb elEdit text-muted form-control efb  h-d-efb  mb-1"  placeholder="${efb_var.text.formName}" id="formNameEl" required value="${valj_efb[0].formName}">
           ${trackingCodeEls}
           ${valj_efb[0].type=="payment" ? '<!--efb-->' : captchaEls}
+          ${typeof efbSpamFormEls === 'function' ? efbSpamFormEls() : '<!-- F12 spam-builder-efb.js not loaded -->'}
           ${shieldSilentCaptchaEls}
           ${showSIconsEls}
           ${globalMobileHideLabelEls}

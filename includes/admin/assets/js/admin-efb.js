@@ -2972,7 +2972,9 @@ let change_el_edit_Efb = (el) => {
            state ?   document.getElementById('dropZoneEFB').classList.add('captcha') : document.getElementById('dropZoneEFB').classList.remove('captcha')
 
           }
-        if (efb_var.captcha == "true" && valj_efb[0].type != "payment") {
+        // F12: the form's CAPTCHA service must have its keys (efbSpamCaptchaReady: its own service, else the site's).
+        const efbCaptchaReady = typeof efbSpamCaptchaReady === 'function' ? efbSpamCaptchaReady(valj_efb[0]) : efb_var.captcha == "true";
+        if (efbCaptchaReady && valj_efb[0].type != "payment") {
           valj_efb[0].captcha = el.classList.contains('active')==true ? true : false
           fun_add_Class_captcha(valj_efb[0].captcha);
           if(document.getElementById('recaptcha_efb')) el.classList.contains('active') == true ? document.getElementById('recaptcha_efb').classList.remove('d-none') : document.getElementById('recaptcha_efb').classList.add('d-none')
@@ -2983,9 +2985,16 @@ let change_el_edit_Efb = (el) => {
           alert_message_efb(efb_var.text.reCAPTCHA, efb_var.text.paymentNcaptcha, 20, "danger");
           return;
         }
-        if (efb_var.captcha !=true && efb_var.captcha !="true" ){
+        if (!efbCaptchaReady){
           el.classList.remove('active');
        }
+        break;
+      case "captchaProviderEl":
+      case "rc3ThresholdEl":
+      case "spamOffEl":
+      case "spamAkismetEl":
+        // F12: the form's CAPTCHA service, v3 score and spam settings (spam-builder-efb.js).
+        if (typeof efbSpamBuilderChange === 'function') efbSpamBuilderChange(el);
         break;
       case "shieldSilentCaptchaEl":
         const shieldAvailable = efb_var.shield_available === true || efb_var.shield_available === 1 || efb_var.shield_available === '1' || efb_var.shield_available === 'true';
@@ -9627,6 +9636,10 @@ function get_position_col_mobile_el(dataId, state) {
 
 fun_captcha_load_efb = ()=>{
   if(valj_efb[0].captcha == true && document.getElementById('dropZoneEFB')) document.getElementById('dropZoneEFB').classList.add('captcha');
+  // F12: another CAPTCHA service is a placeholder with its name in the preview (no key is spent there).
+  const efbSpamPh = typeof efbSpamCaptchaPlaceholder === 'function' ? efbSpamCaptchaPlaceholder() : '';
+  if (efbSpamPh) return `${valj_efb[0].captcha == true ? efbSpamPh : ''}
+            <div id="step-1-efb-msg"></div>`;
   return ` ${sitekye_emsFormBuilder.length > 1 ? `<div class="efb row mx-0"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-0 px-0" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha" style="transform:scale(0.88);-webkit-transform:scale(0.88);transform-origin:0 0;-webkit-transform-origin:0 0;"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
             <!-- fieldset1 -->
             ${state_efb == "view" && valj_efb[0].captcha == true ? `<div class="efb col-12 mb-2 mx-0 mt-3 efb" id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>` : ''}

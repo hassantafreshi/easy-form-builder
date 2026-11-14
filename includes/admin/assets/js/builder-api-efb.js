@@ -259,6 +259,8 @@
     if (rpErrs.length) throw failRpt(rpErrs);
     var lyErrs = layoutCheck(next.slice(1), 1, next.slice(1), next[0]);
     if (lyErrs.length) throw failLayout(lyErrs);
+    var spErrs = spamCheck(next[0], 'rows[0].');
+    if (spErrs.length) throw failSpam(spErrs);
     rptPlace(next);
     if (typeof efbNormalizeOrderEfb === 'function') efbNormalizeOrderEfb(next);
     valj_efb = next;
@@ -637,11 +639,16 @@
       var lyErrs0 = layoutCheck([], 0, r.slice(1), lay0);
       if (lyErrs0.length) throw failLayout(lyErrs0);
     }
+    // F12: the anti-spam keys with the save rules; secrets and the site's own settings are refused.
+    var spam0 = {};
+    keys.forEach(function (k) { spam0[k] = patch[k]; });
+    var spErrs0 = spamCheck(spam0, '');
+    if (spErrs0.length) throw failSpam(spErrs0);
     var values = {};
     keys.forEach(function (k) {
       var v = patch[k];
       var f11 = typeof efb_limits_value_efb === 'function' ? efb_limits_value_efb(k, v) : null;
-      values[k] = lay0 && lay0[k] !== undefined ? lay0[k] : (f11 !== null ? f11 : (v === true ? '1' : v === false ? '' : String(v == null ? '' : v)));
+      values[k] = lay0 && lay0[k] !== undefined ? lay0[k] : (SPAM_FORM_KEYS.indexOf(k) !== -1 ? spam0[k] : (f11 !== null ? f11 : (v === true ? '1' : v === false ? '' : String(v == null ? '' : v))));
     });
     keys.forEach(function (k) { r[0][k] = values[k]; });
     try { sessionStorage.setItem('valj_efb', JSON.stringify(r)); } catch (e) {}
@@ -1557,6 +1564,48 @@
     });
     return out;
   }
+  /* ------------------------------------------------------------ F12 anti-spam keys of row 0 */
+
+  var SPAM_FORM_KEYS = ['captcha_provider', 'rc3_threshold', 'spam_off', 'spam_akismet'];
+  var SPAM_SECRETS = ['secretKey', 'rc3SecretKey', 'hcSecretKey', 'tsSecretKey'];
+  var SPAM_SITE_ONLY = ['siteKey', 'rc3SiteKey', 'hcSiteKey', 'tsSiteKey', 'rc3Threshold', 'rc3_low_action', 'spam_honeypot', 'spam_min_time', 'spam_require_js', 'spam_action', 'spam_disallowed_keys', 'spam_retention_days'];
+  /**
+   * The F12 keys of row 0 with the save rules (EFBSpamCore.sanitizeKey = Spam::sanitize_form_key()): captcha_provider
+   * one of the four services ('' = the site's), rc3_threshold a score 0.0 … 1.0 (Persian / Arabic-Indic digits
+   * accepted), spam_off and spam_akismet flags. A secret key (spam_secret) or a site setting (spam_site_only) is never
+   * a form key: an assistant cannot set them. Values are written normalized ('' = not set). Errors {code, path, key}.
+   */
+  function spamCheck(r0, path) {
+    var out = [];
+    if (!r0 || typeof r0 !== 'object') return out;
+    var err = function (code, k) { out.push({ code: code, path: (path || '') + k, key: k }); };
+    SPAM_SECRETS.forEach(function (k) { if (r0[k] !== undefined) err('spam_secret', k); });
+    SPAM_SITE_ONLY.forEach(function (k) { if (r0[k] !== undefined) err('spam_site_only', k); });
+    var C = window.EFBSpamCore;
+    SPAM_FORM_KEYS.forEach(function (k) {
+      if (r0[k] === undefined) return;
+      var raw = r0[k];
+      if (raw !== null && typeof raw === 'object') { err('spam_invalid', k); return; }
+      var s0 = raw === true ? '1' : raw === false ? '' : String(raw == null ? '' : raw).trim();
+      var v = C ? C.sanitizeKey(k, raw) : s0;
+      var neutral = s0 === '' || (k === 'spam_off' && (s0 === '0' || s0 === 'false' || raw === false)) || (k === 'spam_akismet' && (s0 === '1' || s0 === 'true' || s0 === 'on' || raw === true));
+      if (v === '' && !neutral) { err('spam_invalid', k); return; }
+      r0[k] = v;
+    });
+    return out;
+  }
+  function failSpam(errs) {
+    var e0 = errs[0];
+    var msg = {
+      spam_secret: e0.key + ' is a site secret: it is set in Settings, never in a form',
+      spam_site_only: e0.key + ' is a site setting (Settings › Captchas), not a form key',
+      spam_invalid: 'This value cannot be used for ' + e0.key,
+    }[e0.code] || e0.code;
+    var e = fail(e0.code, msg);
+    e.errors = errs;
+    return e;
+  }
+
   function failLayout(errs) {
     var e0 = errs[0];
     var msg = {

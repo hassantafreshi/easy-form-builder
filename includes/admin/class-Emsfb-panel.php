@@ -339,6 +339,8 @@ class Panel_edit  {
 			wp_enqueue_script('efb-layout-js', EMSFB_PLUGIN_URL . 'public/assets/js/layout-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/layout-efb.js'));
 			wp_enqueue_script('efb-layout-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/layout-builder-efb.js', array('efb-val-js', 'efb-layout-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/layout-builder-efb.js'));
 			wp_enqueue_style('efb-layout-css', EMSFB_PLUGIN_URL . 'public/assets/css/layout-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/layout-efb.css'));
+			// F12: the form's CAPTCHA service and spam settings in the builder; Settings › Captchas (spam-settings-efb.js below).
+			wp_enqueue_script('efb-spam-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/spam-builder-efb.js', array('efb-val-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/spam-builder-efb.js'));
 			// F10-C: the rich text editor (the preview, the entry editor) and its allow-list (the viewer shows rich answers with it).
 			wp_enqueue_script('efb-rich-text-js', EMSFB_PLUGIN_URL . 'public/assets/js/rich-text-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/rich-text-efb.js'));
 			wp_enqueue_style('efb-rich-text-css', EMSFB_PLUGIN_URL . 'public/assets/css/rich-text-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/rich-text-efb.css'));
@@ -411,6 +413,8 @@ class Panel_edit  {
 			}
 			// F06: the calendar engines for advanced date answers in the response viewer and CSV.
 			if (class_exists('\\Emsfb\\Calendar')) \Emsfb\Calendar::enqueue_admin(false);
+			// F12: Settings › Captchas (the CAPTCHA services and spam protection without a CAPTCHA), before list_form-efb.js draws the tab.
+			wp_enqueue_script('efb-spam-settings-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/spam-settings-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/spam-settings-efb.js'), true);
 			wp_register_script('Emsfb-list_form-efb-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/list_form-efb.js', array('efb-main-js', 'efb-email-test-ui'),EMSFB_PLUGIN_VERSION, true);
 			wp_enqueue_script('Emsfb-list_form-efb-js');
 

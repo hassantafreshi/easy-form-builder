@@ -1682,6 +1682,8 @@ function fun_show_setting__emsFormBuilder() {
                                 <span id="secretkey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
 
+                            ${typeof efb_spam_settings_html_efb === 'function' ? efb_spam_settings_html_efb(valueJson_ws_setting, mxCSize4) : '<!-- F12 spam-settings-efb.js not loaded -->'}
+
                             <h5 class="efb  card-title mt-3 mobile-title">
                                 <i class="efb bi-shield-check m-3"></i>${efb_var.text.shieldSilentCaptcha}
                             </h5>
@@ -3307,6 +3309,12 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
     });
     return;
   }
+  // F12: a Cloudflare Turnstile key that does not look like one is said before saving (the server would keep the old one).
+  if (state_auto == 0 && typeof efb_spam_settings_check_efb === 'function' && !efb_spam_settings_check_efb()) {
+    const capTab = document.getElementById('nav-captchas-tab'); if (capTab) capTab.click();
+    const capErr = document.getElementById('efbSpamErr'); if (capErr) capErr.scrollIntoView({ block: 'center' });
+    return;
+  }
   if(state_auto==0){
   let btn = document.getElementById('save-stng-efb');
   btn.classList.add('disabled');
@@ -3677,7 +3685,9 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
           package_type:package_type,
           devMode: devMode_efb,
           // F13: undefined (not on this screen, or not an administrator) keeps the stored value.
-          ...efb_privacy_patch_efb()
+          ...efb_privacy_patch_efb(),
+          // F12: the CAPTCHA services and spam protection without a CAPTCHA ({} without the section: stored values stay).
+          ...(typeof efb_spam_settings_patch_efb === 'function' ? efb_spam_settings_patch_efb() : {})
         };
 
         setting = efb_merge_setting_patch_efb(setting, patch);

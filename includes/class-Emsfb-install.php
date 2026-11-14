@@ -210,6 +210,12 @@ class Install {
 					'activeDlBtn' => true,
 					'dsupfile' => true,
 					'adminSN'=> true,
+					// F12: a new site starts with the hidden trap field and a 3-second minimum, both "save as
+					// spam", and spam kept 30 days. A site updated from 4.3.1 has none of these keys: unchanged.
+					'spam_honeypot' => '1',
+					'spam_min_time' => '3',
+					'spam_action' => 'spam',
+					'spam_retention_days' => '30',
 				);
 				$setting = wp_json_encode($settings, JSON_UNESCAPED_UNICODE);
 

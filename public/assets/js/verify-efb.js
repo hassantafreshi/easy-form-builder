@@ -266,7 +266,8 @@
       r = await fetch(restUrl() + route, {
         method: 'POST', credentials: 'same-origin', cache: 'no-store',
         headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': rt.nonce, 'sid': rt.sid, 'form-id': String(fid) },
-        body: JSON.stringify(Object.assign({ form_id: fid, field_id: c.vid, runtime_token: rt.runtime_token }, body)),
+        // F12: the form's hidden trap field travels with a code request too (a bot filling every field is refused).
+        body: JSON.stringify(Object.assign({ form_id: fid, field_id: c.vid, runtime_token: rt.runtime_token }, (() => { try { const hp = root.document && root.document.getElementById('efb-hp-' + fid); return hp ? { efb_hp: String(hp.value || '') } : {}; } catch (e) { return {}; } })(), body)),
       });
     } catch (e) {
       if (root.EFBRequestHealth) root.EFBRequestHealth.report('verify', 0);

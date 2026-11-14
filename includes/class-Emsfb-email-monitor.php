@@ -1198,7 +1198,7 @@ class Email_Monitor {
         $forms_total = $forms_exists ? (int) $wpdb->get_var("SELECT COUNT(*) FROM `{$forms_table}`") : 0;
         $forms_active = $forms_exists ? (int) $wpdb->get_var("SELECT COUNT(*) FROM `{$forms_table}` WHERE `status` = 1") : 0;
         $submissions = $stats_exists ? (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM `{$stats_table}` WHERE `status` NOT IN ('visit','inact','admin') AND `date` >= %s",
+            "SELECT COUNT(*) FROM `{$stats_table}` WHERE `status` NOT IN ('visit','inact','admin','spam') AND `date` >= %s",
             $since
         )) : 0;
         $visits = $stats_exists ? (int) $wpdb->get_var($wpdb->prepare(
