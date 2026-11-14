@@ -88,6 +88,7 @@ multiselect, tel, range, date, file, url, conturyList, heading, rating, trmCheck
 | `pdate` / `ardate` | same | Jalali / Hijri pickers (add-ons `AdnPDP`/`AdnADP`) | `normalize_typed_date_efb()` 3348 |
 | `trmCheckbox` | `trmCheckbox` + option | terms checkbox, `value_text` (`pro_els-efb.js:860`) | option rows |
 | `table_matrix` | `table_matrix` + `r_matrix` rows | one row per statement; answer scale 1-5 (fixed) | `^[1-5]$` 3020 |
+| `repeater` (F09) | `repeater` + field rows with `group` | `min_rows`, `max_rows` (≤ 50), `default_rows`, `rows_from`, `row_label` (`{n}`, `{field:child}`), `collapsible`, `collapse_prev`, `rpt_layout`, `btn_add_text`, `rmv_confirm`; one row Free Plus, repeating rows Pro (`Emsfb\Repeater`, `repeater-builder-efb.js`, `window.EFBRepeater`) | rows within [min, max] and `rows_from` (`efb_rpt_*`); every row checked with the field's own rules (`Repeater::expand` / `fold`); answers keep the field's `id_` with `rg` / `ri` |
 
 Types with renderer and validator support but **no palette entry**: `paySelect`, `payMultiselect`, `chlRadio`,
 `persiaPay`/`zarinPal` (add-on `AdnPPF`), `smartcr` (legacy), `booking` (empty settings case, `val-efb.js:1962`).

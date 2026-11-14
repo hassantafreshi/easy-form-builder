@@ -346,7 +346,7 @@
 | متوسط | فیلد متنی در فرم رزرو هنگام ارسال «Row not Found!» می‌گرفت (شمارش رزرو روی هر فیلد اجرا می‌شد). | `includes/class-Emsfb-public.php` (شمارش `registered_count`) | **رفع شد (F05-D)**: شمارش فقط برای ردیف گزینه و در `Emsfb\Stock`. e2e `f05d` |
 | متوسط | افزونهٔ Google Sheets برای checkbox فقط آخرین گزینهٔ تیک‌خورده را در سلول می‌گذاشت (هر ردیف سلول قبلی را بازنویسی می‌کرد). | `vendores-efb/googlesheet/class-Emsfb-googlesheet.php` | **رفع شد (F05-B)**: گزینه‌ها با `, ` در یک سلول، ستون جدای «(value)» برای مقدار ذخیره، «سایر» با برچسب، رتبه‌بندی با ` > `. تست `tests/test-addon-googlesheet-choices.php` |
 | کم | انتقال ذخیرهٔ سازنده با `"` در مقدار می‌شکند (سازنده آن را ممنوع می‌کند)؛ `opt_value` و متن «سایر» هم `" < >` را نمی‌پذیرند. | `includes/admin/assets/js/*` | **پیشگیری شد**: قواعد ذخیرهٔ همزاد PHP و JS این نویسه‌ها را حذف و در افزودن گروهی گزارش می‌کنند |
-| کم | خروجی CSV ردیف‌ها را با `Array(100)` می‌سازد؛ فرمی با بیش از ۱۰۰ ستون (فیلد) ستون‌های بعدی را از دست می‌دهد. F05 ستون تازه‌ای نمی‌سازد (گزینه‌های هر فیلد در یک سلول، «برچسب یا مقدار» با `efbCsvOptVal`). | `includes/admin/assets/js/list_form-efb.js:3918` | **باز** (F14) |
+| کم | خروجی CSV ردیف‌ها را با `Array(100)` می‌سازد؛ فرمی با بیش از ۱۰۰ ستون (فیلد) ستون‌های بعدی را از دست می‌دهد. F05 ستون تازه‌ای نمی‌سازد (گزینه‌های هر فیلد در یک سلول، «برچسب یا مقدار» با `efbCsvOptVal`). | `includes/admin/assets/js/list_form-efb.js:3918` | **رفع شد (F09-L)**: پهنای ردیف به تعداد ستون‌ها است؛ تست `tests/test-csv-repeater.js` (۱۲۰ ستون) |
 | کم | پیامک و تلگرام فقط قالب ثابت می‌فرستند و مقدار فیلدها را ندارند، پس `ov` به آن‌ها نمی‌رسد. | افزونه‌های SMS و Telegram | **بدون تغییر** (اگر قالب با مقدار فیلد ساخته شود، باید `ov` را هم بخواند) |
 
 ## F04: عدد، قالب‌بندی و محاسبه (۲۰۲۶-۱۱-۱۴)
@@ -360,3 +360,16 @@
 | کم | کلیدهای `num_digits`، `num_prefix` و `num_suffix` در قرارداد F04 (SitePilot §۶.۲) با کلیدهای ماسک عددی F01 روی فیلد متنی هم‌نام بودند و قاعدهٔ ذخیرهٔ F01 مقدار `native` را به `0` تبدیل می‌کرد. | `includes/functions.php` (`sanitize_obj_msg_efb`) | **رفع شد (F04)**: قاعدهٔ ذخیره بر اساس نوع ردیف (عدد، اسلایدر، قیمت، calc ← F04؛ بقیه ← F01). تست `test-calc-save-roundtrip.php` |
 | کم | در مسیرهای قدیمی پرداخت (`fun_validation_pay_elements_efb`) ناهم‌خوانی قیمت ارسالی و قیمت سرور فقط ایمیل هشدار می‌فرستد و مبلغ سرور را می‌گیرد؛ پرداخت رد نمی‌شود. | `class-Emsfb-public.php` | **یادداشت**: برای مبلغ calc ناهم‌خوانی رد می‌شود («Invalid payment selection»)؛ رفتار بقیهٔ قیمت‌ها تغییر نکرد |
 | کم | `ctl.php plan 1` روی سایت e2e بی‌لایسنس پلن Pro را «در انتظار» (Free) می‌بیند؛ بخش Pro در e2e با فیلتر خود افزونه (`efb_calc_plan`، mu-plugin `efb-e2e-f04.php`) باز می‌شود، مثل F05. | `tests/e2e-wp` | **یادداشت** |
+
+## F09: فیلد تکرارشونده و گروه فیلد (۲۰۲۶-۱۱-۱۴)
+
+| شدت | مشکل | محل | وضعیت |
+|---|---|---|---|
+| متوسط | پیش‌نمایش موبایل سازنده صفحه را با `encodeURI` در نشانی `data:` می‌گذاشت؛ نخستین `#` در فرم (رنگ، پیوند) بقیهٔ صفحه را fragment می‌کرد و پیش‌نمایش بریده می‌شد. | `includes/admin/assets/js/admin-efb.js` (`ReadyElForViewEfb`) | **رفع شد (F09-M)**: `encodeURIComponent`. e2e `f09m` |
+| کم | پیش‌نمایش موبایل سازنده (iframe) هیچ CSS و اسکریپت فرمی ندارد و بدون سبک دیده می‌شود. | `admin-efb.js` (`ReadyElForViewEfb`) | **باز**: F09 فقط runtime و CSS ردیف‌ها را به آن داد تا افزودن و حذف کار کند |
+| کم | `addNewElement()` سازنده markup را در متغیر سراسری ضمنی `newElement` می‌سازد؛ فراخوانی تودرتو (مثلاً کشیدن فرزندان یک فیلد درون فیلد دیگر) خروجی فراخوانی بیرونی را خراب می‌کند. | `admin-efb.js` (`addNewElement`) | **دور زده شد (F09-M)**: `efbRptPreviewEls` مقدار آن را نگه می‌دارد و برمی‌گرداند؛ خود متغیر هنوز سراسری است |
+| کم | `<template>` در خروجی شورت‌کد را `wpautop` داخل `<p>` می‌برد (و `<small>` راهنما را هم می‌شکست). | `class-Emsfb-formbuilder.php` | **پیشگیری شد (F09-C)**: template ردیف `<script type="text/html">` است؛ تست `tests/test-repeater-render-http.php` با `wpautop` واقعی |
+| کم | ناشناس‌سازی (F13) شمار ردیف گروه (`type: repeater`) را هم «داده شخصی» می‌دانست و پاک می‌کرد. | `includes/class-Emsfb-privacy.php` (`NON_PII_TYPES`) | **رفع شد (F09-L)**؛ هر ردیف فرزند شخصی جدا پاک می‌شود. تست `tests/test-privacy-repeater-rows.php` |
+| کم | افزونهٔ Google Sheets هر ردیف یک فیلد را روی سلول قبلی می‌نوشت (برای فیلد تکرارشونده فقط ردیف آخر می‌ماند). | `vendores-efb/googlesheet/class-Emsfb-googlesheet.php` | **رفع شد (F09-L)**: ردیف‌ها با ` \| ` در یک سلول. تست `tests/test-addon-googlesheet-repeater.php` |
+| کم | تست‌های مرورگری که `new-efb.js` را بی `efb_var.language` بار می‌کنند گاهی خطای `slice` در تایمر `efb_var_waitng` می‌گیرند (وابسته به زمان). | `includes/admin/assets/js/new-efb.js:57` | **یادداشت**: harness تست‌های F09 `language` را می‌دهد |
+| کم | پیش‌نویس F11 فقط شناسه‌های فرم را نگه می‌دارد؛ شناسهٔ مجازی ردیف (`{child}_r{n}`) دور ریخته می‌شد. | `includes/class-Emsfb-drafts.php` | **پیشگیری شد (F09-M)**: پیش‌نویس به شکل ارسال (`rg`/`ri`) ذخیره می‌شود. تست `tests/test-repeater-restore-browser.js`، e2e `f09m` |

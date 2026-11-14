@@ -161,7 +161,7 @@ REST: `GET /wp-json/Emsfb/v1/admin/manifest`. Cheap, cached per request. Filter 
     "advdate":      { "v": 1, "plan": "free", "gated_keys": { "cal_switch": "free_plus", "date_mode=range": "pro" }, "spec": "F06" },
     "multi_file":   { "v": 1, "plan": "free_plus", "spec": "F07" },
     "hidden_smart_tags": { "v": 1, "plan": "free", "spec": "F08" },
-    "repeater":     { "v": 1, "plan": "pro", "spec": "F09" },
+    "repeater":     { "v": 1, "plan": "free_plus", "gated_keys": { "max_rows>1": "pro", "rows_from": "pro", "collapsible": "pro", "rpt_layout": "pro" }, "spec": "F09" },
     "layout":       { "v": 1, "plan": "free", "gated_keys": { "rich_text": "free_plus", "vis_mode": "pro" }, "spec": "F10" },
     "limits":       { "v": 1, "plan": "free", "gated_keys": { "lim_user": "free_plus", "draft_on": "pro", "partial_on": "pro" }, "spec": "F11" },
     "spam_core":    { "v": 1, "plan": "free", "spec": "F12" },
@@ -1093,6 +1093,18 @@ returns `smart_unknown_tag`, `smart_prefill`, `smart_prefill_dup` and the `pii_c
 children with `group`. Fill: `addRow`, virtual ids `{id}_r{n}`. Read entries: rows carry `rg`, `ri`.
 Must add: patch ops treat a repeater as a block (remove/move with children); validate the child
 type allow-list `Emsfb\Repeater::child_types()`; gate uses Pro, not `is_efb_pro(1)` (C3).
+
+*Shipped 2026-11-14:* the keys and save rules (`Repeater::sanitize_key()` / `normalize_rows()` in
+`sanitize_obj_msg_efb`, `repeater` in `filter_attributes_by_type_efb`). Plan: a group with one row is Free Plus,
+repeating rows (`max_rows` > 1, `rows_from`, `collapsible`, `rpt_layout`) are Pro, gated with
+`Repeater::plan_ok()` → `efb_plan_at_least_efb` / `Builder_Api::plan_at_least` (filter `efb_repeater_plan`). The
+builder API treats a group as a block: `efbBuilderApi.addGroup()`, `moveIntoGroup()`, `moveOutOfGroup()`,
+`setGroup()`; `insertItems` / `setForm` validate `group` against the child types, no nesting and the caps
+(`repeater_*` codes), and `removeItems()` takes the fields with their group. `forms/{id}/schema` gives a group
+`repeater: {children, min_rows, max_rows, default_rows, rows_from, repeat, row_label}` and each field of a group
+`group` and `fill.input: "{id}_r{n}_"`. There is no `EFBForm` handle yet: rows are added with
+`window.EFBRepeater.addRow(formId, groupId)` and a row's copy id comes from `EFBRepeater.fieldAt(formId, fieldId,
+ri)`. Entries carry `rg` / `ri`. Details: `docs/autopilot-integration.md` (F09).
 
 **F10 layout and special fields.** Create: row-0 `review_*`, `section_accordion`; `section` type;
 `rich_text`, `rich_toolbar`; `vis_mode`, `vis_roles`; `esign_mode`, `esign_font`. Must add: schema

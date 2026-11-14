@@ -1,6 +1,6 @@
 # F09 — فیلد تکرارشونده و گروه فیلد (Repeater / Field group)
 
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 · تلاش: L (سخت‌ترین تسک صف؛ ۱۴ زیرتسک) · وابستگی: F04 (فرمول و جمع بین ردیف‌ها)، F08 (برچسب هوشمند در عنوان ردیف)؛ هماهنگ با F07 (فایل داخل ردیف)، F11 (ذخیره‌وادامه)، F14 (خروجی)
+وضعیت: **پیاده‌سازی شد (۲۰۲۶-۱۱-۱۴، زیرتسک‌های A تا M؛ N بدون ترجمه: فقط فهرست عبارت‌ها، به دستور مالک)** · اولویت: P0 · تلاش: L (سخت‌ترین تسک صف؛ ۱۴ زیرتسک) · وابستگی: F04 (فرمول و جمع بین ردیف‌ها)، F08 (برچسب هوشمند در عنوان ردیف)؛ هماهنگ با F07 (فایل داخل ردیف)، F11 (ذخیره‌وادامه)، F14 (خروجی)
 
 > شاخهٔ مبنا `dev4`، نسخهٔ 4.3.1، بررسی‌شده در 2026-11-11. همهٔ `file:line`ها با خواندن کد تأیید شده‌اند. پیش از ویرایش، نام تابع را دوباره grep کن.
 > مرجع‌ها: [راهنمای پیاده‌سازی](IMPLEMENTATION-PLAYBOOK.en.md) (به‌ویژه §1.2، §1.6، §2.3، §2.5، §2.6، §2.7، Recipe B §3، §10)، [امکانات فعلی](reference/current-capabilities.en.md)، [ماتریس رقبا](reference/competitor-matrix.en.md) §5، و اسناد بازطراحی `_workspace/easy-form-builder-form-builder/docs/STATE_SCHEMA.md` و `REDESIGN_HANDOFF.md`.
@@ -419,11 +419,11 @@ CF7 هسته تکرارشونده ندارد. اگر importer به تگ ناشن
 - تست: `php tests/test-repeater-model.php` (stub آرایه‌وفادار، الگوی `test-conditional-logic-save-roundtrip.php` با `__DIR__`).
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `includes/class-Emsfb-repeater.php` (`Emsfb\Repeater`: نوع‌های مجاز فرزند، سقف‌ها با filter، `children_map`، `limits`، `sanitize_key`، `normalize_rows`)، `functions.php` (caseهای صریح در `sanitize_obj_msg_efb`)، `public/assets/js/repeater-efb.js` (`EFBRepeaterCore`، همزاد JS)، `val-efb.js` (`EFB_REPEATER_CHILD_TYPES`)، `class-Emsfb.php`. commit ‏`002470b1`.
+- تست‌ها: `php tests/test-repeater-model.php` (۴۵).
+- وضعیت ترجمه: عبارت ندارد.
+- مورد باز: —
+- اقدام بعدی: B.
 
 ### B — سازنده: پالت، ظرف بوم، عضویت، تنظیمات
 - فایل‌ها: `val-efb.js` (پالت، `case 'repeater'`)، `admin-efb.js` (§۶ ردیف‌های ۲ تا ۱۲)، CSS ادمین و RTL.
@@ -431,11 +431,11 @@ Checkpoint
 - تست: `node tests/test-repeater-builder-sort.js` (vm با DOM ساختگی برای `sort_obj_el_efb_` و `obj_delete_row`)، و Playwright ‏`tests/test-repeater-builder-browser.js` (ساخت، ذخیره، بارگذاری، حذف).
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `repeater-builder-efb.js` (جدید: ظرف بوم، «انتقال به گروه / بیرون از گروه»، پنل تنظیمات، حذف و تکثیر، بررسی ذخیره)، `admin-efb.js` (قلاب‌ها)، `val-efb.js` (کاشی پالت)، `class-Emsfb-create.php` و `class-Emsfb-panel.php` (enqueue)، رجیستری قابلیت‌ها (`field:repeater`، `setting:repeater_rows`، `capabilities.repeater`). commit ‏`c195b07d`.
+- تست‌ها: `node tests/test-repeater-builder-browser.js` (۴۲ در B، اکنون ۵۱ با پیش‌نمایش M)؛ e2e ‏`f09a` روی سایت واقعی (۱۱).
+- وضعیت ترجمه: عبارت‌ها (انگلیسی، دامنهٔ `easy-form-builder`) افزوده شدند و ترجمه نشدند (دستور مالک).
+- مورد باز: —
+- اقدام بعدی: C.
 
 ### C — رندر PHP و template
 - فایل‌ها: `class-Emsfb-formbuilder.php` (`generate_repeater_efb`، `case 'repeater'`، `$single_close_efb`، CSS با `data-rpt-base`)، `class-Emsfb-public.php` (رد فرزندان در 1595-1617، `$list_pro_elements`).
@@ -443,11 +443,11 @@ Checkpoint
 - تست: `php tests/test-repeater-render.php` (الگوی `test-password-placeholder-render.php` با Reflection؛ snapshot فرم بدون گروه پیش و پس از تغییر).
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-formbuilder.php` (`generate_repeater_efb`: fieldset، legend، ردیف‌های آغازین، template بی‌اثر `<script type="text/html">`، دکمهٔ افزودن، ناحیهٔ اعلان)، `class-Emsfb-public.php` (رد کردن فرزندان در حلقه، enqueue شرطی)، `public/assets/css/repeater-efb.css`. commit ‏`137f3d84`.
+- تست‌ها: `php tests/test-repeater-render.php` (۲۴)، `php tests/test-repeater-render-http.php` (۱۰، وردپرس واقعی با `wpautop`؛ فرم بدون گروه بایت‌به‌بایت با fixture رندرکنندهٔ ‏98274f93).
+- وضعیت ترجمه: عبارت ندارد.
+- مورد باز: `<template>` در `wpautop` داخل `<p>` می‌رفت؛ به `<script type="text/html">` تغییر کرد (§۷.۱ بند ۵).
+- اقدام بعدی: D.
 
 ### D — جداسازی راه‌اندازی کلاینت (`efb_init_fields_in_efb`)
 - فایل‌ها: `core-efb.js` (584-826).
@@ -455,11 +455,11 @@ Checkpoint
 - تست: `node tests/test-init-fields-scope.js` (vm، الگوی `test-core-multiform-validation-scope.js`).
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `core-efb.js` (بدنهٔ حلقه‌های `createStepsOfPublic` به `efb_init_fields_in_efb(root)` با نگهبان `data-efb-init`). commit ‏`2d33f22f`.
+- تست‌ها: `node tests/test-init-fields-scope.js` (۱۳) و رگرسیون‌های پایهٔ §۱۸.
+- وضعیت ترجمه: عبارت ندارد.
+- مورد باز: —
+- اقدام بعدی: E.
 
 ### E — زمان اجرای `EFBRepeater`: افزودن، حذف، min/max، تاشو، `rows_from`
 - فایل‌ها: `pro_els-efb.js` (`window.EFBRepeater`)، CSS عمومی و `-rtl`.
@@ -467,11 +467,11 @@ Checkpoint
 - تست: `node tests/test-repeater-runtime.js` (vm)، و Playwright ‏`tests/test-repeater-browser.js` (fa و en، دسکتاپ و موبایل، صفحه‌کلید، اسکرین‌شات).
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `repeater-efb.js` (`window.EFBRepeater`: افزودن، حذف با تأیید درون‌خطی، min/max، تاشو، `rows_from`، عنوان ردیف با ارقام محلی، نام دسترس‌پذیر، اعلان، فوکوس)، `repeater-efb.css` (RTL منطقی، هدف ۴۴px، `unicode-bidi: plaintext`). commit ‏`b233319e`.
+- تست‌ها: `node tests/test-repeater-runtime.js` (۲۴)؛ e2e ‏`f09b` (۱۷) و `f09c` (۹، fa_IR و ar در ۳۷۵px؛ تصویرها `f09c-fa_IR-375.png`، `f09c-ar-375.png`).
+- وضعیت ترجمه: عبارت‌ها (انگلیسی، دامنهٔ `easy-form-builder`) افزوده شدند و ترجمه نشدند (دستور مالک).
+- مورد باز: —
+- اقدام بعدی: F.
 
 ### F — اعتبارسنجی مرورگر و گاردهای حلقه
 - فایل‌ها: `core-efb.js`: `fun_validation_efb_v4` (4343)، `validation_before_send_efb` (1489-1521؛ گارد `getElementById(...)` تهی)، `efb_restore_offline_answers_efb` (1755)، و هر حلقهٔ دیگری روی ساختار که DOM را می‌خواند. فهرست کامل این حلقه‌ها با `grep -n "for (const v of valj_efb\|valj_efb.forEach\|for (let v of valj_efb" core-efb.js new-efb.js` در ابتدای همین زیرتسک ساخته و در Checkpoint ثبت شود. نسخهٔ پیش‌نمایش (`admin-efb.js:7925`، `new-efb.js:1546`) هم بررسی شود.
@@ -479,11 +479,11 @@ Checkpoint
 - تست: `node tests/test-repeater-validation.js`، و رگرسیون `node tests/test-conditional-logic-validate-step.js` (اگر بدون vendor اجرا شود).
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `core-efb.js` (`efb_rpt_rows_for_checks_efb` در بررسی گام، پیش از ارسال و پرداخت؛ `efb_rpt_hidden_efb`؛ باز شدن ردیف تاشده در `smoothy_scroll_postion_efb`). commit ‏`dcac267a`.
+- تست‌ها: `node tests/test-repeater-validation.js` (۱۰).
+- وضعیت ترجمه: عبارت‌ها (انگلیسی، دامنهٔ `easy-form-builder`) افزوده شدند و ترجمه نشدند (دستور مالک).
+- مورد باز: —
+- اقدام بعدی: G.
 
 ### G — شکل ارسال (wire) و dedupe
 - فایل‌ها: `core-efb.js` (`efb_repeater_wire_rows_efb` پیش از 1201، و ردیف خلاصه در `fun_sendBack_emsFormBuilder`)، `class-Emsfb-public.php` (`dedupe_by_id_and_ob_efb` 9940، و `rg`/`ri` و `repeater` در `filter_attributes_by_type_efb` 9085).
@@ -491,11 +491,11 @@ Checkpoint
 - تست: `node tests/test-repeater-wire.js`، و `php tests/test-repeater-dedupe.php`.
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `core-efb.js` (`efb_repeater_wire_rows_efb` در `actionSendData` و مسیر قدیمی Stripe)، `repeater-efb.js` (`wire`)، `class-Emsfb-public.php` (کلید dedupe ‏`id|ob|ri`، `repeater` در فهرست مجاز). commit ‏`771b9181`.
+- تست‌ها: `node tests/test-repeater-wire.js` (۱۲، wire در JS = fold در PHP)، `php tests/test-repeater-dedupe.php` (۵).
+- وضعیت ترجمه: عبارت ندارد.
+- مورد باز: —
+- اقدام بعدی: H.
 
 ### H — اعتبارسنجی سرور
 - فایل‌ها: `class-Emsfb-repeater.php` (`validate($form, &$rows, $logic)`)، `class-Emsfb-public.php` (فراخوانی پیش از 2747، سقف ردیف پس از decode، `validate_required_fields_present_efb` 8741، `case 'repeater'`، `row_index` در پاسخ خطا 3467، و `$translation_keys`).
@@ -503,11 +503,11 @@ Checkpoint
 - تست: `php tests/test-repeater-validate.php` (مستقل، روی `Emsfb\Repeater` با fixture)، `php tests/test-repeater-submit.php` (WP واقعی با `[SKIP]`)، و رگرسیون `test-submission-row-hardening-e2e.php` و `test-conditional-logic-submission.php`.
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-repeater.php` (`expand`، `fold`، `locate`، `count_from`)، `class-Emsfb-public.php` (گسترش پس از منطق شرطی و پیش از بررسی حضور، خطای `row_index`، بازگرداندن به شکل ذخیره)، `class-Emsfb-stock.php` (کلید رزرو با `ri`)، `class-Emsfb-field-rules.php` (یکتایی با شناسهٔ خود فیلد). commit ‏`771b9181`.
+- تست‌ها: `php tests/test-repeater-validate.php` (۳۱)، `php tests/test-repeater-submit.php` (۲۵، وردپرس واقعی، با schema)؛ e2e ‏`f09d` (۶؛ تصویر `f09d-server-row-error-en.png`).
+- وضعیت ترجمه: عبارت‌ها (انگلیسی، دامنهٔ `easy-form-builder`) افزوده شدند و ترجمه نشدند (دستور مالک).
+- مورد باز: یکتایی (F03) داخل ردیف: میان پاسخ‌ها یکتا و دو ردیف یک پاسخ با یک مقدار رد می‌شوند. ظرفیت (F05) هر ردیف را می‌شمارد.
+- اقدام بعدی: I.
 
 ### I — منطق شرطی (هسته) و قرارداد افزونه
 - فایل‌ها: `class-Emsfb-public.php` (`efb_conditional_values_map` 5965، `efb_evaluate_conditional_condition` 6100، فیلتر `efb_logic_supports_repeater_rows`)، و سند قرارداد کوتاه `docs/feature-gaps/reference/repeater-logic-contract.en.md` برای مالک `AdnSMF` (§۱۰.۳، شکل `ignored_rows`، رویدادهای DOM).
@@ -515,11 +515,11 @@ Checkpoint
 - تست: `php tests/test-repeater-conditional-fallback.php`.
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-repeater.php` (`logic_values`، `is_list_field`، `row_scoped_targets`)، `class-Emsfb-public.php` (ارزیاب هسته با معنای «هر ردیف»، fail-open)، `docs/feature-gaps/reference/repeater-logic-contract.en.md`؛ افزونهٔ `logic` در `vendores-efb` (commit ‏`c29602b`، `logic.zip`). commit ‏`98ce2f04`.
+- تست‌ها: `php tests/test-repeater-conditional-fallback.php` (۱۰ با وردپرس؛ ۱۲ بدون آن، همراه اعتبارسنج افزونه).
+- وضعیت ترجمه: عبارت‌ها (انگلیسی، دامنهٔ `easy-form-builder`) افزوده شدند و ترجمه نشدند (دستور مالک).
+- مورد باز: قاعدهٔ داخل یک ردیف (row-scoped) تا اعلام پشتیبانی افزونه (`efb_logic_supports_repeater_rows`) fail-open است (پرسش ۴).
+- اقدام بعدی: J.
 
 ### J — محاسبات داخل ردیف و جمع بین ردیف (پس از F04)
 - فایل‌ها: ماژول فرمول F04 (resolver با زمینهٔ ردیف)، `EFBRepeater` (رویدادها)، `Emsfb\Repeater::row_context/aggregate`، و فهرست «ردیف‌ها» در `calcInsertEl` ‏F04.
@@ -527,11 +527,11 @@ Checkpoint
 - تست: موارد ردیفی در `reference/calc-test-vectors.json`، که `node tests/test-calc-engine.js` و `php tests/test-calc-engine.php` اجرا می‌کنند، به‌علاوهٔ `node tests/test-repeater-calc.js` (resolver روی DOM ساختگی).
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `class-Emsfb-calc.php` و `calc-efb.js` (`{group.child}` فهرست، `count({group})`، ترتیب توپولوژیک)، `calc-builder-efb.js` (گروه «Rows» در درج فیلد)، `Calc::price_items` (مبلغ از ردیف‌ها، فقط سرور)، `calc-test-vectors.json` (+۴ فرم). commit ‏`13212998`.
+- تست‌ها: `node tests/test-repeater-calc.js` (۹)، `test-calc-engine.js` / `.php` (۳۰۹)، `test-calc-parity.js` (۳۴۴۸)؛ e2e ‏`f09pay` (۵؛ تصویر `f09pay-paid.png`).
+- وضعیت ترجمه: عبارت ندارد.
+- مورد باز: `{group.n}` اضافه نشد (پرسش ۸).
+- اقدام بعدی: K.
 
 ### K — فایل داخل ردیف
 - فایل‌ها: `new-efb.js` (`options.field_id` در `fun_upload_file_api_emsFormBuilder` و `fetch_uploadFile`)، `class-Emsfb-upload-guard.php` (ضریب `max_rows`)، و نمایشگر (فایل در خانهٔ جدول).
@@ -539,11 +539,11 @@ Checkpoint
 - تست: بخش repeater در `php tests/test-upload-multifield-form.php`، و سناریوی فایل در `tests/test-repeater-browser.js`.
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `new-efb.js` (`efb_upload_field_id_efb`)، `class-Emsfb-upload-guard.php` (هر ردیف یک سهم)، `class-Emsfb-public.php` (مالکیت آپلود با `rpt_base`)؛ فایل در ردیف تک‌فایلی است. commit ‏`09f0f755`.
+- تست‌ها: `php tests/test-upload-multifield-form.php` (۵۳)؛ e2e ‏`f09k` (۵).
+- وضعیت ترجمه: عبارت ندارد.
+- مورد باز: —
+- اقدام بعدی: L.
 
 ### L — نمایش: نمایشگر، PDF، CSV، ایمیل
 - فایل‌ها: `response-viewer-efb.js` (853، استخراج `efb_render_value_cell_efb`، 1650)، `list_form-efb.js` (3607-3667، پهنای پویا به‌جای `Array(100)`، `Repeater.flatten`)، `class-Emsfb-public.php` (`email_get_content_efb` 7735)، CSS چاپ.
@@ -551,11 +551,11 @@ Checkpoint
 - تست: گسترش `node tests/test-response-viewer-escaping.js` و `tests/test-response-viewer-hostile-rows-browser.js`، `node tests/test-csv-repeater.js`، و `php tests/test-email-repeater.php` (stub ‏`wp_mail`).
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `response-viewer-efb.js` و `.css` (بلوک گروه و کارت هر ردیف، کلید CSV)، `list_form-efb.js` (CSV با ستون‌های پایدار `{group} › {field} #k` و `{group} (count)`، بدون بریدن در ۱۰۰ ستون)، `class-Emsfb-public.php` (ایمیل، سقف ۲۰ ردیف)، `class-Emsfb-privacy.php` (ناشناس‌سازی هر ردیف، نام ردیف در خروجی داده‌های شخصی)، `class-Emsfb-smart-tags.php` و `smart-tags-efb.js` (`{field:child}` = فهرست ردیف‌ها)؛ Google Sheets (commit ‏`199d758` در `vendores-efb`). commitها ‏`bde26f21`، `eda7bc4f`.
+- تست‌ها: `node tests/test-csv-repeater.js` (۸)، `php tests/test-email-repeater.php` (۹)، `php tests/test-privacy-repeater-rows.php` (۵)، `php tests/test-addon-googlesheet-repeater.php` (۵)، `node tests/test-response-viewer-escaping.js` (۶۸)، `test-smart-tags.php` (۲۲۸) و `.js` (۱۸۶)؛ e2e ‏`f09l` (۷؛ تصویرها `f09l-viewer-en.png`، `f09l-viewer-fa_IR-375.png`).
+- وضعیت ترجمه: عبارت‌ها (انگلیسی، دامنهٔ `easy-form-builder`) افزوده شدند و ترجمه نشدند (دستور مالک).
+- مورد باز: PDF همان چاپ نمایشگر است (CSS چاپ ردیف را نمی‌شکند). تلگرام و پیامک فقط کد رهگیری و پیوند می‌فرستند و تغییری نخواستند.
+- اقدام بعدی: M.
 
 ### M — بازیابی پیش‌نویس و پیش‌نمایش ادمین
 - فایل‌ها: `core-efb.js` (`efb_restore_offline_answers_efb` 1755)، `admin-efb.js` (`previewFormEfb` 9017، 9071).
@@ -563,22 +563,22 @@ Checkpoint
 - تست: Playwright ‏`tests/test-repeater-restore-browser.js`، و سناریوی پیش‌نمایش در `tests/test-repeater-builder-browser.js`.
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `repeater-efb.js` (`restore`، `isolate`)، `core-efb.js` (`efb_apply_saved_rows_efb` و پیش‌نویس F11 به شکل ارسال)، `class-Emsfb-drafts.php` (نگه داشتن `rg`/`ri` فقط برای فرزند واقعی گروه)، `repeater-builder-efb.js` (`efbRptPreviewEls`، `efbRptPreviewInit`)، `admin-efb.js` (پیش‌نمایش PC و موبایل). commit ‏`e8215535`.
+- تست‌ها: `node tests/test-repeater-restore-browser.js` (۱۱)، `node tests/test-repeater-builder-browser.js` (۵۱، با برابری پیش‌نمایش و رندرکنندهٔ PHP)؛ e2e ‏`f09m` (۸؛ تصویرها `f09m-draft-restored-en.png`، `f09m-preview-pc.png`، `f09m-preview-mobile.png`).
+- وضعیت ترجمه: عبارت ندارد.
+- مورد باز: پیش‌نمایش موبایل (iframe) از پیش بدون CSS فرم بود؛ فقط runtime ردیف‌ها و CSS آن اضافه شد. نشانی data: آن با `encodeURIComponent` ساخته می‌شود تا `#` صفحه را نبرد (BUGS-FOUND).
+- اقدام بعدی: N.
 
 ### N — ترجمه، گِیت پلن و مستندات
 - همهٔ کلیدهای §۱۷ در همهٔ زبان‌ها؛ گِیت UI و سرور (§۱۶)؛ به‌روزرسانی `reference/current-capabilities.en.md` (ردیف `repeater`)، playbook §1.2 (کلید `group`) و یادداشت بازطراحی §۵.۳ به‌صورت پیگیری؛ و راهنمای کاربر `docs/repeater/README.md` (fa و en).
 - تست: `php tests/core-i18n/check-locale.php --locale=<each> --quiet`، و `node tests/test-repeater-plan-gating.js` (الگوی `tests/test-conditional-logic-plan-gating.js`).
 
 Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+- فایل‌های تغییرکرده: `builder-api-efb.js` (`addGroup`، `moveIntoGroup`، `moveOutOfGroup`، `setGroup`، قواعد گروه در `insertItems`/`setForm`/`removeItems`)، `Repeater::schema` (`forms/{id}/schema`)، `docs/core-i18n/catalog.json` و `.pot` (۵۲ عبارت تازه)، مستندات (`docs/repeater/`، `autopilot-integration.md`، `sitepilot-compatibility.en.md`، `current-capabilities.en.md`، playbook §1.2، `readme.txt`). commitها ‏`fd4fd0a6`، `33b7d1bb` و commit مستندات.
+- تست‌ها: `node tests/test-ap-repeater.js` (۱۵)، `node tests/test-repeater-plan-gating.js` (۱۱).
+- وضعیت ترجمه: فهرست عبارت‌ها با `tests/core-i18n/extract.php` به‌روز شد؛ به دستور مالک هیچ زبانی ترجمه نشد.
+- مورد باز: ترجمهٔ ۵۲ عبارت؛ پشتیبانی قاعدهٔ داخل ردیف در افزونهٔ منطق.
+- اقدام بعدی: —
 
 ترتیب پیشنهادی: **A → D → C → B → E → G → F → H → L → M → I → K → J → N**. D زود می‌آید، چون یک بازآرایی بی‌خطر با رگرسیون کامل است و C و E به آن تکیه دارند. J فقط پس از تحویل F04 شروع می‌شود. نقطهٔ قابل انتشار اول: A تا M، بدون I، J و K، و با هشدار fail-open منطق.
 
@@ -609,6 +609,18 @@ Checkpoint
 6. **`rows_from` از گزینهٔ select:** مقدار عددی از متن گزینه گرفته شود یا با F05 (جدایی مقدار از برچسب) از `value` گزینه؟ پیشنهاد: پس از F05 از `value` و تا آن زمان `parseInt` روی متن.
 7. **تودرتو:** آیا نیاز واقعی به گروه داخل گروه (مثلاً «خانواده › فرزندان») وجود دارد؟ مدل `group` آن را منع نمی‌کند (`group` می‌تواند به یک گروه فرزند اشاره کند)، ولی شناسهٔ مجازی دوسطحی (`_r1_r2`) و سرور باید دوباره طراحی شوند.
 8. **شمارهٔ ردیف در فرمول:** F04 متغیر `{rep.n}` را بپذیرد (§۱۱.۱)؟
+
+
+### تصمیم‌ها (پیاده‌سازی، ۲۰۲۶-۱۱-۱۴)
+
+1. **پلن: پیشنهاد سند.** گروه سادهٔ بی‌تکرار (یک ردیف) Free Plus و ردیف‌های تکرارشونده (حداکثر بیش از ۱، `rows_from`، تاشو، چیدمان کنار هم) Pro. گیت با `Repeater::plan_ok()` ← `efb_plan_at_least_efb` / `Builder_Api::plan_at_least` است، نه `is_efb_pro`. filter ‏`efb_repeater_plan` سطح هر بخش را جابه‌جا می‌کند. بدون پلن، گروه پیام پلن را نشان می‌دهد و سرور ردیف‌ها را دور می‌ریزد.
+2. **سقف‌ها همان پیشنهاد:** ۵۰ ردیف، ۲۵ فرزند، ۱۰ گروه، ۱۵۰۰ ردیف در هر ارسال و ۲۰ ردیف در ایمیل، هرکدام با filter ‏(`efb_repeater_*_cap`، `efb_submission_rows_cap`، `efb_email_repeater_rows`).
+3. **قیمت از ردیف‌ها فقط با F04:** نوع‌های پرداخت (`pay*`، `prcfld`، `ttlprc`) داخل ردیف مجاز نیستند. مبلغ از ردیف‌ها با یک `calc` بیرون گروه به‌عنوان مبلغ (`sum({group.line})`) ساخته می‌شود و سرور آن را از پاسخ‌ها دوباره حساب می‌کند. مبلغ جعلی با `quote_changed` رد می‌شود (e2e ‏`f09pay`).
+4. **fail-open (پیشنهاد سند).** تا وقتی افزونهٔ منطق با `efb_logic_supports_repeater_rows` پشتیبانی قاعدهٔ داخل ردیف را اعلام نکند، سرور الزامی بودن فرزندِ هدف چنین قاعده‌ای را رد نمی‌کند (قالبش بررسی می‌شود). سازنده ساخت قاعده را منع نمی‌کند. افزونهٔ منطق اکنون گروه را می‌خواند (تعداد ردیف و «هر ردیف»)، ولی قاعدهٔ row-scoped هنوز نه (قرارداد: `reference/repeater-logic-contract.en.md`).
+5. **CSV با ستون‌های `#k`.** ستون‌ها `{group} (count)` و `{group} › {field} #k` هستند و k از ۱ شروع می‌شود. ترتیب ستون‌ها پایدار است، و پاسخ با ردیف کمتر ستون‌های بعدی را خالی می‌گذارد.
+6. **`rows_from` از گزینه:** مقدار ذخیرهٔ عددی گزینه (F05) خوانده می‌شود، و اگر نبود، رقم‌های ابتدای متن. هر دو به [min, max] محدود می‌شوند.
+7. **گروه تودرتو پشتیبانی نمی‌شود.** هم سازنده و هم `efbBuilderApi` (`repeater_nested`) آن را رد می‌کنند، و `children_map` فرزند گروه تودرتو را فیلد عادی حساب می‌کند.
+8. **`{group.n}` اضافه نشد.** فرمول ردیف فقط هم‌ردیف‌ها را می‌خواند، و بیرون گروه فقط فهرست‌ها داخل `sum/avg/min/max/count` خوانده می‌شوند.
 
 ---
 

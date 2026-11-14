@@ -1278,6 +1278,66 @@ is a text box (`inputmode="decimal"`, `dir="ltr"`, `data-num="1"`, `data-numcfg`
   `test-calc-logic.php`, `test-ap-calc.js`, `test-addon-googlesheet-calc.php`, `test-cf7-importer.php`,
   `test-response-viewer-escaping.js` and the e2e scenarios `f04a` … `f04e`, `f04pay`.
 
+### F09. Repeater group (type `repeater`, field key `group`, `efbBuilderApi.addGroup` / `moveIntoGroup` / `moveOutOfGroup` / `setGroup`, `window.EFBRepeater`, codes)
+
+Spec: `docs/feature-gaps/F09-repeater.fa.md`. Server: `Emsfb\Repeater` (`includes/class-Emsfb-repeater.php`); page
+runtime and shared rules: `public/assets/js/repeater-efb.js` (`window.EFBRepeater`, `window.EFBRepeaterCore`, loaded
+on a page only when a form has a group); builder: `includes/admin/assets/js/repeater-builder-efb.js`. User guide:
+`docs/repeater/README.md`.
+
+| Keys | Where | Plan (F09 §16, `Repeater::PLAN`, filter `efb_repeater_plan`) |
+|---|---|---|
+| type `repeater`: `min_rows`, `max_rows` (1–50), `default_rows` (whole numbers, Persian / Arabic digits read; `min ≤ default ≤ max`), `row_label` (plain text ≤ 200, `{n}` = row number, `{field:child}` = that row's answer), `btn_add_text` (≤ 100), `rmv_confirm` (`'0'` \| `'1'`) | group row | **Free Plus** (one row) |
+| `max_rows` > 1, `rows_from` (id of a number / range / select / radio / calc field before the group, outside any group), `collapsible`, `collapse_prev` (`'0'` \| `'1'`), `rpt_layout` (`blocks` \| `inline`) | group row | **Pro** (`setting:repeater_rows`) |
+| `group` (the group's `id_`) | a field of the group | with the group |
+
+- **Model.** A field is in a group when its `group` names a `repeater` row of the form. Its type must be in
+  `capabilities.repeater.child_types` (no password, payment fields, recorders, signatures, maps, country lists,
+  matrices, nested groups). The children follow their group, in its step, and their options follow them; Save puts
+  them there (`Repeater::normalize_rows()`). Orphans become ordinary fields. Caps: 50 rows, 25 fields per group, 10
+  groups (filters `efb_repeater_rows_cap`, `efb_repeater_children_cap`, `efb_repeater_groups_cap`). `rpt_base`,
+  `rpt_n`, `rpt_group` and `rpt_ri` exist only in a page and are never saved or accepted.
+- **Answer rows.** The group sends `{id_: group, type: "repeater", value: "<rows>"}`. Every answer of a row is sent
+  under the field's own `id_` with `rg` (the group) and `ri` (the row from 0); option ids are the field's own. The
+  server checks the number of rows (`efb_rpt_min`, `efb_rpt_max`, `efb_rpt_count` against `rows_from`), writes
+  `rg` itself, drops rows without a valid `ri`, then checks each row with the field's own rules. A required child
+  that is empty in row 2 gives `efb_rpt_required` with `field_id` and `row_index: 1` ("Name in row 2 is
+  required."). More than 1500 answer rows in one request: `efb_invalid_payload` (filter `efb_submission_rows_cap`).
+  Stored entries keep `rg` / `ri`; entries.read returns them.
+- **Calculations (F04 §6.4).** Inside a row `{sibling}` reads the same row. Outside, `{group.child}` is the list
+  of every row's value and `{group}` one item per row, read only inside `sum / avg / min / max / count`. A calc
+  outside the group can be the amount to pay; the server computes it from the rows.
+- **Conditional Logic.** A group is its number of rows; a child read from outside its group is "any row".
+  Rules inside one row need the add-on to declare `efb_logic_supports_repeater_rows`; until then the server does
+  not refuse such a child as missing (fail open). Contract: `docs/feature-gaps/reference/repeater-logic-contract.en.md`.
+- **Builder.** `efbBuilderApi.addGroup(settings, {after | before | step, fields: [ids], render})` → `{id, ids}`
+  (the fields are checked before anything changes); `moveIntoGroup(ids, groupId)`, `moveOutOfGroup(ids)` →
+  `{ids}`; `setGroup(groupId, patch)` → `{changed, values, plan}` (`plan: ['repeat']` when a Pro setting is
+  written on a lower plan). `insertItems` / `setForm` accept `group` on a field and place it after its group;
+  `removeItems([groupId])` removes its fields and their options. Codes (with `path`): `repeater_invalid`,
+  `repeater_group`, `repeater_child_type`, `repeater_nested`, `repeater_cap`, `not_in_group`, `unknown_target`,
+  `invalid_setting`.
+- **Registry.** `field:repeater` (Free Plus), `setting:repeater_rows` (Pro), each with `form_keys`; top level
+  `repeater` = `{type, keys, child_key, child_types, count_from, enums, defaults, caps, runtime, answer, rules,
+  codes, builder, builder_codes, page_api, schema, plan}`.
+- **Schema.** `forms/{id}/schema`: a group's entry has `repeater: {children, min_rows, max_rows, default_rows,
+  rows_from, repeat, row_label}` (the limits this site's plan allows) and `fill.api: "EFBRepeater"` with how to add
+  and list rows. A field of a group has `group` and `fill.input: "{id}_r{n}_"` (options `{option}_r{n}`); the
+  top-level `repeater` describes the page API and the answer shape. No formula or form setting is shown.
+- **Visitor page.** `window.EFBRepeater`: `addRow(formId, group, {silent, focus})`, `removeRow(formId, group,
+  rowElement, {confirmed})`, `rowsOf(formId, group)` → `[{n, el, ri}]`, `fieldAt(formId, fieldId, ri)` → the
+  copy's id (its input is that id + `_`), `ensureRows(formId, group, count)`, `restore(formId, savedRows)`; events
+  `efb:repeater:rowadded` / `rowremoved` on `document`. Ids in a page: `{child}_r{n}`, with `n` never reused.
+- **Validation for SitePilot.** The same rules run in `sanitize_obj_msg_efb` (explicit cases →
+  `Repeater::sanitize_key`, then `Repeater::normalize_rows`) and `filter_attributes_by_type_efb` (`repeater`).
+- **Tests.** `test-repeater-model.php`, `test-repeater-builder-browser.js`, `test-repeater-render.php`,
+  `test-repeater-render-http.php`, `test-init-fields-scope.js`, `test-repeater-runtime.js`,
+  `test-repeater-validation.js`, `test-repeater-wire.js`, `test-repeater-dedupe.php`, `test-repeater-validate.php`,
+  `test-repeater-submit.php`, `test-repeater-conditional-fallback.php`, `test-repeater-calc.js`,
+  `test-csv-repeater.js`, `test-email-repeater.php`, `test-privacy-repeater-rows.php`,
+  `test-addon-googlesheet-repeater.php`, `test-repeater-restore-browser.js`, `test-repeater-plan-gating.js`,
+  `test-ap-repeater.js` and the e2e scenarios `f09a` … `f09d`, `f09k`, `f09l`, `f09m`, `f09pay`.
+
 ### PAY01. Mollie gateway field (`mollie`, add-on `AdnMOL`)
 
 Add-on `vendores-efb/mollie` on the PAY00 contract; nothing new in core. For agents:

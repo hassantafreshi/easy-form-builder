@@ -78,6 +78,13 @@ a feature.** The live code is under `includes/` and `public/`.
   (`r_matrix_push_efb()`, `admin-efb.js:5386`).
 - On save, an option that carries a non-empty `id` key gets its `id_` rewritten to that value and the old
   one is kept in `id_old` (`functions.php:4047-4080`). That is why readers compare `id_` **or** `id_old`.
+- **Repeater groups (F09)**: a field row with `group: <id_ of a type:'repeater' row>` is a child of that group.
+  Children (and their options) come right after their group, in its step; `Repeater::normalize_rows()` puts them
+  there on save and drops a `group` that names no group (an orphan is an ordinary field). `group` on a field row
+  means membership only (F05's grouping of options is `optgroup`). In a page the rows are copies with ids
+  `{child}_r{n}` and runtime keys `rpt_base` / `rpt_n` / `rpt_group` / `rpt_ri`, never saved; answers go out under
+  the field's own `id_` with `rg` / `ri`. A loop over the structure that reads the DOM must skip the base children
+  (`efb_rpt_rows_for_checks_efb()`), because only their copies are drawn.
 
 ### 1.3 Legacy meaning of `milen` / `mlen`
 
