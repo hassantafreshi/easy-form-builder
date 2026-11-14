@@ -138,3 +138,13 @@
 .efb-ent-lg { display: inline-block; width: 14px; height: 3px; border-radius: 2px; }
 .efb-ent-lg-views { background: #94a3b8; }
 .efb-ent-lg-submits { background: #4636f1; }
+
+/* Edit (F). */
+.efb-ent-edit { padding: 8px 4px; }
+.efb-ent-edit-row { margin-bottom: 12px; unicode-bidi: plaintext; }
+.efb-ent-edit-ro { background: #f8fafc; border-radius: 8px; padding: 6px 10px; }
+.efb-ent-edit-group, .efb-ent-edit-rowset { border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 12px; margin-bottom: 12px; }
+.efb-ent-edit [aria-invalid="true"] { border-color: #dc2626 !important; box-shadow: 0 0 0 2px rgba(220, 38, 38, .15); }
+.efb-ent-edit-err:empty { display: none; }
+.efb-ent-edit .form-check { display: flex; align-items: center; gap: 8px; padding-inline-start: 0; }
+.efb-ent-edit .form-check-input { margin: 0 !important; float: none !important; }

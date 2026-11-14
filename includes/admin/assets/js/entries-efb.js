@@ -722,6 +722,194 @@
     });
   }
 
+  /* ------------------------------------------------------------------ edit (F) */
+  /** The text of a stored row for a person (tokens decoded). */
+  const rowText = (r) => String(r && r.value != null ? r.value : '').replace(/@efb@dq#/g, '"').replace(/@n#/g, '\n').replace(/@efb!/g, ', ').replace(/,\s*$/, '');
+  function editControl(f, rows, ri) {
+    const key = `${f.id}-${ri === null ? 'x' : ri}`;
+    const cid = `efbEd-${key}`;
+    const errId = `${cid}-err`;
+    const label = `<label class="efb form-label fw-bold mb-1" for="${cid}"><bdi>${esc(f.name)}</bdi>${f.required ? ' <span class="efb text-danger" aria-hidden="true">*</span>' : ''}</label>`;
+    const attrs = `id="${cid}" data-fid="${esc(f.id)}" data-ri="${ri === null ? '' : ri}" aria-describedby="${errId}"${f.required ? ' aria-required="true"' : ''}`;
+    const err = `<div class="efb efb-ent-edit-err text-danger small" id="${errId}" role="alert"></div>`;
+    if (f.mode === 'readonly') {
+      const v = rows.map(rowText).filter(Boolean).join(' | ');
+      return `<div class="efb efb-ent-edit-row efb-ent-edit-ro"><div class="efb fw-bold"><bdi>${esc(f.name)}</bdi></div><div><bdi>${esc(v || '—')}</bdi></div><small class="efb text-muted">${esc(f.why === 'paid' ? T('entPaidLocked', 'The payment of this entry cannot change: price fields stay as paid.') : T('entReadOnly', 'This answer cannot be edited.'))}</small></div>`;
+    }
+    if (f.mode === 'file') {
+      const files = rows.filter((r) => r && r.value === '@file@' && r.url);
+      return `<div class="efb efb-ent-edit-row" data-file="${esc(f.id)}" data-ri="${ri === null ? '' : ri}"><div class="efb fw-bold mb-1"><bdi>${esc(f.name)}</bdi></div>
+        ${files.map((r, i) => `<div class="efb form-check"><input type="checkbox" class="efb form-check-input efb-ent-rmfile" id="${cid}-rm${i}" value="${esc(r.url)}"><label class="efb form-check-label" for="${cid}-rm${i}">${esc(T('entRemoveFile', 'Remove file'))}: <bdi dir="ltr">${esc(String(r.url).split('/').pop())}</bdi></label></div>`).join('')}
+        <label class="efb form-label small mt-1" for="${cid}-up">${esc(T('entReplaceFile', 'Replace file'))}</label>
+        <input type="file" class="efb form-control form-control-sm efb-ent-upfile" id="${cid}-up" data-fid="${esc(f.id)}" data-ri="${ri === null ? '' : ri}" aria-describedby="${errId}">${err}</div>`;
+    }
+    const opts = Array.isArray(f.options) ? f.options : [];
+    const stored = rows.map((r) => String(r.value == null ? '' : r.value).replace(/@efb@dq#/g, '"'));
+    let input = '';
+    let init = '';
+    if (f.single) {
+      const hit = opts.find((o) => rows.some((r) => String(r.id_ob) === o.id) || stored.includes(o.value));
+      const old = !hit && stored[0] ? stored[0] : '';
+      init = hit ? hit.id : (old ? '__old__' : '');
+      input = `<select class="efb form-select" ${attrs} data-init="${esc(init)}"><option value=""></option>${old ? `<option value="__old__" selected>${esc(T('entOldValue', '(old value) %s').replace('%s', old))}</option>` : ''}${opts.map((o) => `<option value="${esc(o.id)}" ${hit && hit.id === o.id ? 'selected' : ''}>${esc(o.value)}</option>`).join('')}</select>`;
+    } else if (f.multi) {
+      const parts = stored.join('@efb!').split('@efb!').filter(Boolean);
+      const on = opts.filter((o) => rows.some((r) => String(r.id_ob) === o.id) || parts.includes(o.value)).map((o) => o.id);
+      const olds = parts.filter((p) => !opts.some((o) => o.value === p));
+      init = on.slice().sort().join(',') + (olds.length ? '|old' : '');
+      input = `<div class="efb efb-ent-edit-multi" role="group" aria-labelledby="${cid}-lb" ${attrs} data-init="${esc(init)}">${opts.map((o, i) => `<div class="efb form-check"><input type="checkbox" class="efb form-check-input" id="${cid}-o${i}" value="${esc(o.id)}" ${on.includes(o.id) ? 'checked' : ''}><label class="efb form-check-label" for="${cid}-o${i}">${esc(o.value)}</label></div>`).join('')}
+        ${olds.map((o) => `<div class="efb small text-muted">${esc(T('entOldValue', '(old value) %s').replace('%s', o))}</div>`).join('')}</div>`;
+      return `<div class="efb efb-ent-edit-row"><div class="efb form-label fw-bold mb-1" id="${cid}-lb"><bdi>${esc(f.name)}</bdi>${f.required ? ' <span class="efb text-danger" aria-hidden="true">*</span>' : ''}</div>${input}${err}</div>`;
+    } else if (f.type === 'switch') {
+      init = stored[0] !== undefined && stored[0] === f.on ? '1' : '0';
+      input = `<div class="efb form-check form-switch"><input type="checkbox" role="switch" class="efb form-check-input" ${attrs} data-init="${init}" ${init === '1' ? 'checked' : ''}><label class="efb form-check-label" for="${cid}">${esc(f.on || 'On')}</label></div>`;
+      return `<div class="efb efb-ent-edit-row"><div class="efb fw-bold mb-1"><bdi>${esc(f.name)}</bdi></div>${input}${err}</div>`;
+    } else {
+      init = stored.length ? rowText(rows[0]) : '';
+      const typ = { email: 'email', url: 'url', color: 'color', date: /^\d{4}-\d{2}-\d{2}$/.test(init) || !init ? 'date' : 'text' }[f.type] || 'text';
+      const num = ['number', 'range', 'rating', 'pointr5', 'pointr10', 'prcfld'].includes(f.type) ? ' inputmode="decimal"' : (['tel', 'mobile'].includes(f.type) ? ' inputmode="tel"' : '');
+      input = f.type === 'textarea'
+        ? `<textarea class="efb form-control" rows="3" dir="auto" ${attrs} data-init="${esc(init)}">${esc(init)}</textarea>`
+        : `<input type="${typ}" class="efb form-control" dir="auto"${num} ${attrs} data-init="${esc(init)}" value="${esc(init)}">`;
+    }
+    const missing = !rows.length && f.mode === 'edit';
+    if (missing) return `<div class="efb efb-ent-edit-row efb-ent-edit-missing"><div class="efb fw-bold mb-1"><bdi>${esc(f.name)}</bdi></div><button type="button" class="efb btn btn-sm btn-outline-secondary" data-ent="ed-add" data-target="${cid}-wrap">${icon('bi-plus-lg')} ${esc(T('entAddValue', 'Add value'))}</button><div id="${cid}-wrap" hidden>${label}${input}</div>${err}</div>`;
+    return `<div class="efb efb-ent-edit-row">${label}${input}${err}</div>`;
+  }
+
+  /** The edit form in place of the answers (spec §4.3). */
+  function editOpen() {
+    const c = S.current;
+    if (!c || !c.entry || !gate('edit')) return;
+    const rows = rowsOf(c.entry.content);
+    const fields = c.fields || [];
+    const byId = (id, ri) => rows.filter((r) => r && String(r.id_) === String(id) && (ri === null ? (r.ri === undefined || r.ri === null || r.ri === '') : String(r.ri) === String(ri)));
+    let html = '';
+    for (const f of fields) {
+      if (f.group) continue;
+      if (f.type === 'repeater') {
+        const kids = fields.filter((x) => x.group === f.id);
+        const ris = Array.from(new Set(rows.filter((r) => r && r.rg === f.id && r.ri !== undefined).map((r) => String(r.ri)))).sort((a, b) => Number(a) - Number(b));
+        html += `<fieldset class="efb efb-ent-edit-group"><legend class="efb fs-6"><bdi>${esc(f.name)}</bdi></legend>${ris.map((ri) => `<fieldset class="efb efb-ent-edit-rowset"><legend class="efb small">${fill(T('rowN', 'Row %s'), [num(Number(ri) + 1)])}</legend>${kids.map((k) => editControl(k, byId(k.id, ri), ri)).join('')}</fieldset>`).join('')}</fieldset>`;
+        continue;
+      }
+      html += editControl(f, byId(f.id, null), null);
+    }
+    const paid = fields.some((f) => f.why === 'paid');
+    const form = `<form class="efb efb-ent-edit" id="efbEntEdit" novalidate aria-labelledby="efbEntEditT">
+      <h3 class="efb fs-6" id="efbEntEditT">${esc(T('entEdit', 'Edit entry'))}</h3>
+      <p class="efb small text-muted" role="note">${icon('bi-info-circle')} ${esc(T('entLogicNote', 'Field visibility rules are not applied when an administrator edits an entry.'))}</p>
+      ${paid ? `<p class="efb small text-warning-emphasis" role="note">${icon('bi-credit-card')} ${esc(T('entPaidLocked', 'The payment of this entry cannot change: price fields stay as paid.'))}</p>` : ''}
+      ${html}
+      <label class="efb form-label mt-2" for="efbEntEditReason">${esc(T('entReason', 'Reason (optional)'))}</label>
+      <input type="text" class="efb form-control" id="efbEntEditReason" maxlength="255" dir="auto">
+      <p class="efb text-danger mt-2 mb-0" id="efbEntEditMsg" role="alert"></p>
+      <div class="efb d-flex gap-2 mt-2"><button type="submit" class="efb btn btn-primary btn-sm" id="efbEntEditSave">${icon('bi-check2')} ${esc(T('save', 'Save'))}</button><button type="button" class="efb btn btn-outline-secondary btn-sm" data-ent="ed-cancel">${esc(T('entCancel', 'Cancel'))}</button></div>
+    </form>`;
+    const box = D.getElementById('resp_efb');
+    if (!box) return;
+    S.editing = { added: {}, uploading: 0 };
+    box.innerHTML = form;
+    box.style.maxHeight = 'none';
+    const first = box.querySelector('input:not([type=hidden]), select, textarea');
+    if (first) first.focus();
+  }
+  function editClose(rerender) {
+    S.editing = null;
+    const box = D.getElementById('resp_efb');
+    if (!box || !S.current) return;
+    const e = S.current.entry;
+    if (typeof W.fun_emsFormBuilder_show_messages === 'function') box.innerHTML = W.fun_emsFormBuilder_show_messages(rowsOf(e.content), '#first', e.ip || '', e.track, e.date);
+    box.style.maxHeight = '';
+    const b = D.querySelector('#efbEntView [data-ent="edit"]');
+    if (b && !rerender) b.focus();
+  }
+  function editChanges() {
+    const out = [];
+    const form = D.getElementById('efbEntEdit');
+    form.querySelectorAll('[data-fid][data-init]').forEach((el) => {
+      const wrap = el.closest('[hidden]');
+      if (wrap) return; // "Add value" not opened
+      const id = el.dataset.fid;
+      const ri = el.dataset.ri === '' ? undefined : el.dataset.ri;
+      let v; let now;
+      if (el.classList.contains('efb-ent-edit-multi')) {
+        v = Array.from(el.querySelectorAll('input:checked')).map((x) => x.value);
+        now = v.slice().sort().join(',') + (el.dataset.init.indexOf('|old') !== -1 && v.length === 0 ? '' : '');
+        if (v.slice().sort().join(',') === el.dataset.init.replace('|old', '')) return;
+      } else if (el.type === 'checkbox') {
+        v = el.checked ? '1' : '0'; now = v;
+        if (now === el.dataset.init) return;
+      } else {
+        v = el.value; now = v;
+        if (now === el.dataset.init || v === '__old__') return;
+      }
+      out.push(Object.assign({ id_: id, value: v, op: 'set' }, ri !== undefined ? { ri } : {}));
+    });
+    form.querySelectorAll('.efb-ent-rmfile:checked').forEach((cb) => { const w = cb.closest('[data-file]'); out.push(Object.assign({ id_: w.dataset.file, op: 'remove_file', url: cb.value }, w.dataset.ri !== '' ? { ri: w.dataset.ri } : {})); });
+    Object.keys(S.editing.added).forEach((k) => { const a = S.editing.added[k]; out.push(Object.assign({ id_: a.id, op: 'add_file', url: a.url }, a.ri !== '' ? { ri: a.ri } : {})); });
+    return out;
+  }
+  function editSave(e) {
+    if (e) e.preventDefault();
+    const form = D.getElementById('efbEntEdit');
+    if (!form || !S.current || S.editing.uploading) return;
+    form.querySelectorAll('.efb-ent-edit-err').forEach((x) => { x.textContent = ''; });
+    form.querySelectorAll('[aria-invalid="true"]').forEach((x) => x.removeAttribute('aria-invalid'));
+    const msg = D.getElementById('efbEntEditMsg');
+    msg.textContent = '';
+    const changes = editChanges();
+    if (!changes.length) { msg.textContent = T('entNoChange', 'Nothing was changed.'); return; }
+    const btn = D.getElementById('efbEntEditSave');
+    btn.disabled = true;
+    post({ action: 'efb_entry_update_Emsfb', msg_id: S.current.entry.msg_id, hash: S.current.entry.hash, changes: JSON.stringify(changes), reason: D.getElementById('efbEntEditReason').value }).then((res) => {
+      btn.disabled = false;
+      if (!res || res.success !== true) {
+        const text = plain(String((res && res.m) || T('error', 'Error')));
+        if (res && res.code === 'efb_plan_required') { gate('edit', btn); return; }
+        const sel = res && res.field_id ? `#efbEd-${CSS.escape ? CSS.escape(res.field_id) : res.field_id}-${res.ri === null || res.ri === undefined ? 'x' : res.ri}` : '';
+        const el = sel ? D.querySelector(sel) || D.querySelector(`[data-fid="${res.field_id}"]`) : null;
+        if (el) {
+          el.setAttribute('aria-invalid', 'true');
+          const er = D.getElementById(el.getAttribute('aria-describedby') || '') || (el.closest('.efb-ent-edit-row') || {}).querySelector && el.closest('.efb-ent-edit-row').querySelector('.efb-ent-edit-err');
+          if (er) er.textContent = text;
+          el.focus();
+        } else msg.textContent = text;
+        return;
+      }
+      S.current = res;
+      const row = S.rows.find((r) => Number(r.msg_id) === Number(res.entry.msg_id));
+      if (row) { row.content = res.entry.content; row.edited_at = res.entry.edited_at; }
+      const list = getGlobal('valueJson_ws_messages') || [];
+      const i = list.findIndex((x) => String(x.msg_id) === String(res.entry.msg_id));
+      if (i !== -1) list[i].content = res.entry.content;
+      editClose(true);
+      viewerRepaint('#efbEntView [data-ent="edit"]');
+      if (D.getElementById('efbEnt')) paint();
+      viewerSay(T('entSaved', 'Changes saved.'));
+      if (typeof W.alert_message_efb === 'function') W.alert_message_efb('', T('entSaved', 'Changes saved.'), 4, 'success');
+    });
+  }
+  function editUpload(input) {
+    const f = input.files && input.files[0];
+    if (!f || !S.current) return;
+    const fd = new FormData();
+    fd.append('action', 'efb_entry_upload_Emsfb');
+    fd.append('nonce', (typeof W._efb_core_nonce_ !== 'undefined' && W._efb_core_nonce_) || (W.efb_var && W.efb_var.nonce) || '');
+    fd.append('msg_id', S.current.entry.msg_id);
+    fd.append('field_id', input.dataset.fid);
+    fd.append('file', f);
+    S.editing.uploading++;
+    const er = D.getElementById(input.getAttribute('aria-describedby'));
+    if (er) er.textContent = '';
+    fetch((W.ajax_object_efm && W.ajax_object_efm.ajax_url) || W.ajaxurl, { method: 'POST', credentials: 'same-origin', body: fd }).then((r) => r.json()).then((j) => {
+      S.editing.uploading--;
+      const res = j && j.data !== undefined ? j.data : j;
+      if (!res || res.success !== true) { if (er) er.textContent = plain(String((res && res.m) || T('error', 'Error'))); return; }
+      S.editing.added[input.id] = { id: input.dataset.fid, ri: input.dataset.ri, url: res.url };
+    }).catch(() => { S.editing.uploading--; });
+  }
+
   /* ------------------------------------------------------------------ statistics (J) */
   /** A small line chart in SVG (views and submissions per day), with the numbers in a table for screen readers. */
   function statsChart(series) {
@@ -972,7 +1160,7 @@
       const menuOpen = D.getElementById('efbEntMenu');
       if (menuOpen && !e.target.closest('#efbEntMenu') && !e.target.closest('[data-ent="menu"]')) closeMenu();
       const el = e.target.closest('[data-ent]');
-      if (!el || !(el.closest('#efbEnt') || el.closest('#efbEntMenu') || el.closest('#efbEntDlg') || el.closest('#efbEntView') || el.closest('#efbEntViewExtra') || el.closest('.efb-ent-scope'))) return;
+      if (!el || !(el.closest('#efbEnt') || el.closest('#efbEntMenu') || el.closest('#efbEntDlg') || el.closest('#efbEntView') || el.closest('#efbEntViewExtra') || el.closest('#efbEntEdit') || el.closest('.efb-ent-scope'))) return;
       const id = Number(el.dataset.msgid || 0);
       switch (el.dataset.ent) {
         case 'tab': if (S.tab !== el.dataset.tab) { S.tab = el.dataset.tab; S.page = 1; S.selected.clear(); S.allMatching = false; load({ focus: `#efbEntTab-${S.tab}` }); } break;
@@ -1119,7 +1307,7 @@
   }
 
   W.EfbEntries = Object.assign(W.EfbEntries || {}, {
-    state: S, openForm, load, paint, op, open, star, dialog, closeDialog, post, toast, announce, gate, planOk, viewerRepaint, viewerSay, historyLine, ago, cur, refreshExtras, printEntries, statsHtml,
+    state: S, openForm, load, paint, op, open, star, dialog, closeDialog, post, toast, announce, gate, planOk, viewerRepaint, viewerSay, historyLine, ago, cur, refreshExtras, printEntries, statsHtml, editOpen, editChanges,
     rowsOf, valueOf, digits, latin, num, fill, esc, T, isRtl,
     renderHead, renderRow, renderAll, renderPager, renderTabs, renderFilters,
     headButtons: (W.EfbEntries && W.EfbEntries.headButtons) || [],
@@ -1157,6 +1345,19 @@
     W.EfbEntries.actions.stats = (el) => statsToggle(el, 0);
     W.EfbEntries.actions['stats-days'] = (el) => statsToggle(el, Number(el.dataset.days));
     W.EfbEntries.afterPaint.push(() => { if (S.statsOpen && !D.getElementById('efbEntStats')) { const b = D.querySelector('#efbEnt [data-ent="stats"]'); if (b) statsToggle(b, S.statsDays || 30); } });
+  }
+
+  /* F: Edit in the response viewer (Free Plus). */
+  if (!W.EfbEntries.actions.edit) {
+    W.EfbEntries.viewerButtons.unshift((e) => `<button type="button" class="efb btn btn-sm btn-outline-primary" data-ent="edit" data-msgid="${Number(e.msg_id)}">${icon('bi-pencil')} ${esc(T('entEdit', 'Edit entry'))}${planOk('edit') ? '' : ' ' + icon('bi-gem')}</button>`);
+    W.EfbEntries.actions.edit = (el) => { if (gate('edit', el)) editOpen(); };
+    W.EfbEntries.actions['ed-cancel'] = () => editClose(false);
+    W.EfbEntries.actions['ed-add'] = (el) => { const w = D.getElementById(el.dataset.target); if (w) { w.hidden = false; el.remove(); const i = w.querySelector('input, select, textarea'); if (i) i.focus(); } };
+  }
+  if (D && !W.EfbEntries.editWired) {
+    W.EfbEntries.editWired = true;
+    D.addEventListener('submit', (e) => { if (e.target && e.target.id === 'efbEntEdit') editSave(e); });
+    D.addEventListener('change', (e) => { if (e.target && e.target.classList && e.target.classList.contains('efb-ent-upfile')) editUpload(e.target); });
   }
 
   /* The renderers by the names of the spec (§6). */

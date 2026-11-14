@@ -910,6 +910,18 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( array( 'ok' => true ) );
 		break;
 
+	case 'f14-upload':
+		// A file in uploads/YYYY/MM with the plugin's name pattern (as a visitor's upload): prints url and path.
+		$name = 'efb-PLG-' . gmdate( 'ymd' ) . '-' . strtoupper( wp_generate_password( 8, false, false ) ) . '.pdf';
+		$up   = wp_upload_bits( $name, null, '%PDF-1.4 e2e f14' );
+		efb_e2e_out( array( 'url' => $up['url'], 'file' => $up['file'] ) );
+		break;
+
+	case 'f14-pending':
+		// The pending-upload ledger (names of uploads no entry has claimed yet).
+		efb_e2e_out( array_keys( (array) get_option( 'emsfb_pending_uploads', array() ) ) );
+		break;
+
 	case 'f14-notes':
 		efb_e2e_out( $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}emsfb_msg_notes_ WHERE msg_id = %d ORDER BY note_id", (int) $efb_e2e_rest[0] ), ARRAY_A ) ); // phpcs:ignore
 		break;

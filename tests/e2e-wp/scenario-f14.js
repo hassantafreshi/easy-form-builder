@@ -23,6 +23,11 @@
  *  f14j  Statistics (J): two guests open the form page (two views), one sends it (one submission); the Statistics
  *        panel (tiles, conversion 50 %, 7 / 30 / 90 days, the chart and its table); Free opens the plan dialog;
  *        the dashboard widget's "Top forms"; fa_IR at 375 px.
+ *  f14f  Edit (F): the Edit button in the viewer, the form built from the current form (a choice the form no longer
+ *        has shown as "(old value) …" and kept), an invalid e-mail refused at its field (aria-invalid, focus), a
+ *        repeater row, a file removed (deleted from disk) and another uploaded (out of the pending ledger), the
+ *        reason in the history, the viewer and the list updated, a conflict when someone saved meanwhile; fa_IR
+ *        at 375 px.
  */
 'use strict';
 
@@ -503,6 +508,90 @@ module.exports = function (S) {
       await (await fa.$('#efbEntStats')).screenshot({ path: SHOT('f14j-stats-fa_IR-375') });
       R.check('f14j: fa_IR at 375 px: right to left, the rate in Persian digits (۵۰%), no horizontal scroll', v.dir === 'rtl' && /۵۰/.test(v.conv) && v.scroll <= 1, v);
     } finally { ctl('locale', ''); }
+  });
+
+  /* ------------------------------------------------------------------ f14f */
+  scenario('f14f', 'F14 edit: old choice kept, invalid e-mail at its field, repeater row, file removed and replaced, history with reason, conflict, fa_IR 375 px', async ({ adminPage }) => {
+    plan(3);
+    ctl('locale', '');
+    ctl('f09-mu'); ctl('set-option', 'efb_e2e_f09_plan', 'open');
+    try {
+      const F = form('F14 e2e edit', [
+        { key: 'nm', type: 'text', name: 'Name', required: 1 }, { key: 'em', type: 'email', name: 'Email' },
+        { key: 'sz', type: 'radio', name: 'Size' }, { key: 's1', type: 'option', parent_key: 'sz', value: 'Small' }, { key: 's2', type: 'option', parent_key: 'sz', value: 'Large' },
+        { key: 'doc', type: 'file', name: 'Document', file: 'allformat' },
+        { key: 'g', type: 'repeater', name: 'Guests', min_rows: '1', max_rows: '3', default_rows: '1' }, { key: 'gn', type: 'text', name: 'Guest', group: '@@g@@' },
+      ]);
+      const ids = F.ids;
+      const up = ctl('f14-upload');
+      const id = seed(F.form_id, [
+        { id_: ids.nm, name: 'Name', type: 'text', value: 'Ali' }, { id_: ids.em, name: 'Email', type: 'email', value: 'ali@example.test' },
+        { id_: ids.sz, name: 'Size', type: 'radio', value: 'Small' },
+        { id_: ids.doc, name: 'Document', type: 'file', value: '@file@', url: up.url },
+        { id_: ids.g, name: 'Guests', type: 'repeater', value: '2' },
+        { id_: ids.gn, name: 'Guest', type: 'text', value: 'Sara', rg: ids.g, ri: '0' }, { id_: ids.gn, name: 'Guest', type: 'text', value: 'Reza', rg: ids.g, ri: '1' },
+      ], 'date=2026-11-10 10:00:00').msg_id;
+      ctl('f14-raw-option', String(F.form_id), ids.s1, 'Small v2'); // the stored "Small" is not a choice of the form any more
+      const admin = await adminPage();
+      await openList(admin, F.form_id);
+      await admin.click(`#btn-m-${id}`);
+      await admin.waitForSelector('#efbEntView [data-ent="edit"]', { timeout: 20000 });
+      await admin.click('#efbEntView [data-ent="edit"]');
+      await admin.waitForSelector('#efbEntEdit', { timeout: 10000 });
+      let v = await admin.evaluate((i) => {
+        const sel = document.getElementById(`efbEd-${i.sz}-x`);
+        return { old: sel ? sel.options[sel.selectedIndex].textContent : '', note: /visibility rules are not applied/.test(document.getElementById('efbEntEdit').textContent), rows: document.querySelectorAll('#efbEntEdit .efb-ent-edit-rowset').length, focus: document.activeElement && document.activeElement.id };
+      }, ids);
+      R.check('f14f: Edit turns the answers into a form: "(old value) Small" selected, the logic note, two guest rows, focus in the first field', v.old === '(old value) Small' && v.note && v.rows === 2 && /^efbEd-/.test(v.focus), v);
+      await admin.screenshot({ path: SHOT('f14f-edit-en-1280') });
+      await admin.fill(`#efbEd-${ids.em}-x`, 'not-an-email');
+      await admin.click('#efbEntEditSave');
+      await admin.waitForFunction((cid) => document.getElementById(cid).getAttribute('aria-invalid') === 'true', `efbEd-${ids.em}-x`, { timeout: 10000 });
+      v = await admin.evaluate((cid) => ({ err: document.getElementById(cid + '-err').textContent, focus: document.activeElement.id }), `efbEd-${ids.em}-x`);
+      R.check('f14f: an invalid e-mail: the server\'s message next to the field (aria-invalid, focus there), nothing stored', /Email/.test(v.err) && v.focus === `efbEd-${ids.em}-x` && /ali@example\.test/.test(JSON.stringify(entries(F.form_id)[0].content)), v);
+      await admin.fill(`#efbEd-${ids.em}-x`, 'ali.rezaei@example.test');
+      await admin.fill(`#efbEd-${ids.nm}-x`, 'Ali Rezaei');
+      await admin.fill(`#efbEd-${ids.gn}-1`, 'Reza Karimi');
+      await admin.check(`#efbEntEdit [data-file="${ids.doc}"] .efb-ent-rmfile`);
+      await admin.setInputFiles(`#efbEd-${ids.doc}-x-up`, { name: 'passport.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF') });
+      await admin.waitForFunction(() => EfbEntries.state.editing && EfbEntries.state.editing.uploading === 0 && Object.keys(EfbEntries.state.editing.added).length === 1, null, { timeout: 15000 }).catch(() => {});
+      const added = await admin.evaluate(() => Object.values(EfbEntries.state.editing.added).map((a) => a.url));
+      await admin.fill('#efbEntEditReason', 'phone call');
+      await admin.click('#efbEntEditSave');
+      await admin.waitForSelector('#efbEntEdit', { state: 'detached', timeout: 15000 });
+      const e = entries(F.form_id)[0];
+      const rowsOf = (id_, ri) => e.content.filter((r) => r && r.id_ === id_ && (ri === undefined || String(r.ri) === String(ri)));
+      R.check('f14f: saved: name, e-mail, row 2\'s guest (row 1 kept), the old choice "Small" kept, edited_at', rowsOf(ids.nm)[0].value === 'Ali Rezaei' && rowsOf(ids.em)[0].value === 'ali.rezaei@example.test' && rowsOf(ids.gn, 1)[0].value === 'Reza Karimi' && rowsOf(ids.gn, 0)[0].value === 'Sara' && rowsOf(ids.sz)[0].value === 'Small' && !!e.edited_at, e.content);
+      const files = rowsOf(ids.doc).map((r) => r.url);
+      R.check('f14f: the file: the old one gone from the entry and from disk, the uploaded one in the entry and out of the pending ledger', added.length === 1 && files.length === 1 && files[0] === added[0] && ctl('file-exists', up.file) === false && !ctl('f14-pending').includes(added[0].split('/').pop()), { added, files, gone: ctl('file-exists', up.file), pending: ctl('f14-pending').slice(-3) });
+      v = await admin.evaluate(() => ({ viewer: document.getElementById('resp_efb').textContent, edited: !!document.querySelector('#efbEntView .efb-ent-edited-link'), live: document.getElementById('efbEntViewLive') ? document.getElementById('efbEntViewLive').textContent : '' }));
+      R.check('f14f: the viewer shows the new answers and "Edited …"; "Changes saved." announced', /Ali Rezaei/.test(v.viewer) && v.edited && /Changes saved/.test(v.live), v);
+      await admin.click('#efbEntVtHist');
+      await sleep(300);
+      const hist = await admin.evaluate(() => document.getElementById('efbEntVpHist').textContent.replace(/\s+/g, ' '));
+      R.check('f14f: History: "admin changed “Name” from “Ali” to “Ali Rezaei” (phone call)" and the guest of row 2', /admin changed “Name” from “Ali” to “Ali Rezaei” \(phone call\)/.test(hist) && /Reza Karimi/.test(hist), hist.slice(0, 300));
+      await admin.screenshot({ path: SHOT('f14f-history-en-1280') });
+      // Conflict: someone saves meanwhile.
+      await admin.click('#efbEntView [data-ent="edit"]');
+      await admin.waitForSelector('#efbEntEdit', { timeout: 10000 });
+      await admin.evaluate(async (a) => { const g = await EfbEntries.post({ action: 'efb_entry_get_Emsfb', msg_id: a.id }); await EfbEntries.post({ action: 'efb_entry_update_Emsfb', msg_id: a.id, hash: g.entry.hash, changes: JSON.stringify([{ id_: a.nm, value: 'Someone Else' }]) }); }, { id, nm: ids.nm });
+      await admin.fill(`#efbEd-${ids.nm}-x`, 'My Version');
+      await admin.click('#efbEntEditSave');
+      await admin.waitForFunction(() => /changed in the meantime/.test((document.getElementById('efbEntEditMsg') || {}).textContent || ''), null, { timeout: 10000 });
+      R.check('f14f: a conflict: "This entry was changed in the meantime. Refresh and try again." and nothing overwritten', entries(F.form_id)[0].content.find((r) => r.id_ === ids.nm).value === 'Someone Else', true);
+      ctl('locale', 'fa_IR');
+      try {
+        const fa = await adminPage({ viewport: { width: 375, height: 800 } }, 'admin-fa-edit');
+        await openList(fa, F.form_id);
+        await fa.click(`#btn-m-${id}`);
+        await fa.waitForSelector('#efbEntView [data-ent="edit"]', { timeout: 20000 });
+        await fa.click('#efbEntView [data-ent="edit"]');
+        await fa.waitForSelector('#efbEntEdit', { timeout: 10000 });
+        v = await fa.evaluate(() => ({ dir: getComputedStyle(document.getElementById('efbEntEdit')).direction, scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth, w: Math.round(document.getElementById('efbEntEdit').getBoundingClientRect().width) }));
+        await fa.screenshot({ path: SHOT('f14f-edit-fa_IR-375') });
+        R.check('f14f: fa_IR at 375 px: the edit form right to left, inside the screen', v.dir === 'rtl' && v.scroll <= 1 && v.w <= 375, v);
+      } finally { ctl('locale', ''); }
+    } finally { ctl('set-option', 'efb_e2e_f09_plan', 'del'); }
   });
 
   /* ------------------------------------------------------------------ f14a */

@@ -65,6 +65,8 @@ class Entries {
 		add_action('admin_post_efb_export_entries', array(__CLASS__, 'admin_post_export'));
 		add_action('wp_ajax_efb_entries_print_Emsfb', array(__CLASS__, 'ajax_print'));
 		add_action('wp_ajax_efb_form_stats_Emsfb', array(__CLASS__, 'ajax_stats'));
+		add_action('wp_ajax_efb_entry_update_Emsfb', array(__CLASS__, 'ajax_update'));
+		add_action('wp_ajax_efb_entry_upload_Emsfb', array(__CLASS__, 'ajax_upload'));
 		// Notes and history go with the entry (every permanent delete path of F13).
 		add_action('efb_entries_purged', array(__CLASS__, 'on_entries_purged'), 15, 4);
 		// The trash is emptied after trash_days by the daily job, after F13's retention (30).
@@ -1053,6 +1055,9 @@ class Entries {
 		if (is_array($out) && is_array($e)) {
 			$out['notes'] = self::notes_of($e['msg_id']);
 			$out['log'] = self::log_of($e['msg_id'], $e['form_id']);
+			$rows = Privacy::decode_content($e['content']);
+			$out['fields'] = self::edit_fields($e['form_id'], is_array($rows) ? $rows : array(), $e['read_']);
+			$out['can_edit'] = self::plan_ok('edit');
 		}
 		return $out;
 	}
@@ -1463,6 +1468,350 @@ class Entries {
 		readfile($tmp);
 		@unlink($tmp);
 		exit;
+	}
+
+	/* ------------------------------------------------------------ edit (F) */
+
+	/** Types an administrator may change (spec §4.3). File types: remove or replace a file. */
+	const EDIT_TYPES = array('text', 'textarea', 'email', 'tel', 'url', 'number', 'range', 'prcfld', 'date', 'pdate', 'ardate', 'color', 'select', 'radio',
+		'checkbox', 'multiselect', 'switch', 'yesNo', 'rating', 'pointr5', 'pointr10', 'conturyList', 'stateProvince', 'cityList', 'address_line',
+		'postalcode', 'imgRadio', 'trmCheckbox', 'chlCheckBox', 'mobile', 'firstName', 'lastName', 'payRadio', 'payCheckbox', 'paySelect', 'payMultiselect', 'chlRadio');
+	const FILE_TYPES = array('file', 'dadfile', 'audio_recorder', 'video_recorder', 'screen_recorder');
+	/** One choice from the form's options (option id). */
+	const SINGLE_CHOICE = array('radio', 'select', 'imgRadio', 'payRadio', 'paySelect', 'chlRadio');
+	/** Several choices, one answer row per option (option ids). */
+	const OPTION_ROWS = array('checkbox', 'payCheckbox', 'chlCheckBox', 'trmCheckbox');
+
+	/** Whether the entry is a payment record (a payment row, a pending payment, or a payment form). */
+	public static function is_paid_entry(array $rows, $read, $form) {
+		if (Privacy::is_payment_entry($rows, $read)) return true;
+		return is_array($form) && isset($form[0]['type']) && $form[0]['type'] === 'payment';
+	}
+
+	/**
+	 * What the edit form may change, per field of the current form (spec §4.3): editable or why not. On a paid
+	 * entry the price fields, the calculations and every field a calculation reads are locked: the amount
+	 * charged never changes (spec §17-4: the rest of a paid entry stays editable).
+	 */
+	public static function edit_fields($form_id, array $entry_rows, $read = 0) {
+		$form = self::form_rows($form_id);
+		if (!is_array($form)) return array();
+		$paid = self::is_paid_entry($entry_rows, $read, $form);
+		$calc_refs = array();
+		if ($paid && class_exists('\\Emsfb\\Calc')) {
+			foreach ($form as $i => $r) if ($i > 0 && is_array($r) && ($r['type'] ?? '') === 'calc') foreach (Calc::ref_ids(isset($r['formula']) && is_scalar($r['formula']) ? (string) $r['formula'] : '') as $ref) $calc_refs[(string) $ref] = true;
+		}
+		$out = array();
+		foreach (self::form_fields($form_id) as $f) {
+			$def = self::field_def($form, $f['id']);
+			$type = $f['type'];
+			$why = '';
+			if (in_array($type, self::FILE_TYPES, true)) $mode = 'file';
+			elseif (!in_array($type, self::EDIT_TYPES, true)) { $mode = 'readonly'; $why = 'type'; }
+			else $mode = 'edit';
+			if ($mode !== 'readonly' && $paid && (strpos($type, 'pay') === 0 || $type === 'prcfld' || isset($calc_refs[$f['id']]))) { $mode = 'readonly'; $why = 'paid'; }
+			if ($mode !== 'readonly' && class_exists('\\Emsfb\\Payments\\Registry') && Payments\Registry::is_field_type($type)) { $mode = 'readonly'; $why = 'type'; }
+			$out[] = array_merge($f, array('mode' => $mode, 'why' => $why, 'required' => isset($def['required']) && in_array($def['required'], array(1, '1', true), true),
+				'multi' => in_array($type, array_merge(self::OPTION_ROWS, array('multiselect', 'payMultiselect')), true), 'single' => in_array($type, self::SINGLE_CHOICE, true),
+				'on' => isset($def['on']) && is_scalar($def['on']) ? (string) $def['on'] : '', 'off' => isset($def['off']) && is_scalar($def['off']) ? (string) $def['off'] : ''));
+		}
+		return $out;
+	}
+
+	private static function field_def(array $form, $id) {
+		foreach ($form as $i => $r) if ($i > 0 && is_array($r) && isset($r['id_']) && (string) $r['id_'] === (string) $id && ($r['type'] ?? '') !== 'option') return $r;
+		return null;
+	}
+
+	private static function options_of(array $form, $id) {
+		$out = array();
+		foreach ($form as $i => $r) if ($i > 0 && is_array($r) && ($r['type'] ?? '') === 'option' && isset($r['parent'], $r['id_']) && (string) $r['parent'] === (string) $id) $out[(string) $r['id_']] = $r;
+		return $out;
+	}
+
+	/** The answer rows of a changed field as the browser sends them on a submit (the validator's input). */
+	private static function wire_rows(array $f, array $opts, $value) {
+		$base = array('id_' => (string) $f['id_'], 'name' => isset($f['name']) ? (string) $f['name'] : '', 'type' => (string) $f['type'], 'amount' => isset($f['amount']) ? (string) $f['amount'] : '0', 'session' => 'admin', 'form_id' => '');
+		$type = (string) $f['type'];
+		$list = is_array($value) ? array_values(array_filter(array_map('strval', $value), 'strlen')) : (is_scalar($value) && $value !== '' ? array((string) $value) : array());
+		if (in_array($type, self::SINGLE_CHOICE, true)) {
+			$id = $list ? $list[0] : '';
+			return $id !== '' && isset($opts[$id]) ? array(array_merge($base, array('id_ob' => $id, 'value' => (string) $opts[$id]['value']))) : array();
+		}
+		if (in_array($type, self::OPTION_ROWS, true)) {
+			$rows = array();
+			foreach ($list as $id) if (isset($opts[$id])) $rows[] = array_merge($base, array('id_ob' => $id, 'value' => (string) $opts[$id]['value']));
+			return $rows;
+		}
+		if (in_array($type, array('multiselect', 'payMultiselect'), true)) {
+			$t = array();
+			foreach ($list as $id) if (isset($opts[$id])) $t[] = (string) $opts[$id]['value'];
+			return $t ? array(array_merge($base, array('value' => implode('@efb!', $t) . '@efb!'))) : array();
+		}
+		if ($type === 'switch') return array(array_merge($base, array('value' => in_array($list ? $list[0] : '', array('1', 'on', 'true'), true) ? '1' : '0')));
+		if (!$list) return array();
+		$v = $list[0];
+		if ($type === 'textarea') $v = str_replace(array("\r\n", "\n", "\r"), '@n#', $v);
+		elseif (in_array($type, array('number', 'range', 'rating', 'pointr5', 'pointr10', 'prcfld', 'mobile', 'tel', 'date', 'postalcode'), true)) $v = self::latin_digits($v);
+		return array(array_merge($base, array('value' => $v)));
+	}
+
+	/** The text of one field's rows (one repeater row when $ri is given), for the history. */
+	private static function field_text(array $rows, $id, $ri = null) {
+		$parts = array();
+		$a = array('opt_val' => 'label', 'sep_multi' => ' | ');
+		foreach ($rows as $r) {
+			if (!is_array($r) || !isset($r['id_']) || (string) $r['id_'] !== (string) $id) continue;
+			if ($ri !== null && (!isset($r['ri']) || (string) $r['ri'] !== (string) $ri)) continue;
+			$t = self::export_row_text($r, 0, $a);
+			if ($t !== '') $parts[] = self::decode_text($t);
+		}
+		return implode(' | ', $parts);
+	}
+
+	/** A file URL an administrator may put in an entry: an upload of this plugin on this site that exists. */
+	private static function admin_file_ok($url) {
+		if (!is_string($url) || !preg_match('#^https?://#i', $url) || !class_exists('\\Emsfb\\Upload_Guard')) return false;
+		if (function_exists('home_url') && wp_parse_url($url, PHP_URL_HOST) !== wp_parse_url(home_url('/'), PHP_URL_HOST)) return false;
+		if (!Upload_Guard::is_plugin_upload_name(wp_basename((string) strtok($url, '?#')))) return false;
+		$path = Upload_Guard::path_from_url($url);
+		return is_string($path) && $path !== '' && file_exists($path);
+	}
+
+	/**
+	 * An administrator's edit of an entry (spec §8.4). $changes: [{id_, value, op: set | remove_file | add_file,
+	 * ri, url}]. The changed answers go through the submit's own checks (_Public::validate_rows_efb, admin_edit:
+	 * no capacity count, no map markers, a disabled field may be filled, Conditional Logic not applied), the
+	 * F03 field rules, F05 limits and stored values; calculations are computed again (F04, through the F09 rows);
+	 * a unique value is claimed (F03) and a choice with a capacity takes a place (F05) before anything is stored;
+	 * a place / value no longer chosen is given back by F05's / F03's own rule. Payment rows and the page link
+	 * stay as stored. Concurrency: the UPDATE carries the content read (a change in between = efb_entry_conflict).
+	 * Returns ['ok' => true, 'rows', 'changed'] or ['ok' => false, 'code', 'm', 'field_id', 'ri'].
+	 */
+	public static function update($msg_id, $hash, array $changes, $reason = '') {
+		global $wpdb;
+		$msg = $wpdb->prefix . 'emsfb_msg_';
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		$e = $wpdb->get_row($wpdb->prepare("SELECT msg_id, form_id, content, read_ FROM `{$msg}` WHERE msg_id = %d", (int) $msg_id), ARRAY_A);
+		if (!$e) return array('ok' => false, 'code' => 'efb_not_found', 'm' => self::t('notFound', 'Not found'));
+		if (!is_string($hash) || !hash_equals(md5((string) $e['content']), $hash)) return array('ok' => false, 'code' => 'efb_entry_conflict', 'm' => self::t('entConflict', 'This entry was changed in the meantime. Refresh and try again.'));
+		$fid = (int) $e['form_id'];
+		$form = self::form_rows($fid);
+		$old = Privacy::decode_content($e['content']);
+		if (!is_array($form) || !is_array($old)) return array('ok' => false, 'code' => 'efb_invalid', 'm' => self::t('somethingWentWrongPleaseRefresh', 'Something went wrong. Please refresh the page.'));
+		if (!class_exists('\\Emsfb\\_Public') || !_Public::$instance_efb) return array('ok' => false, 'code' => 'efb_unavailable', 'm' => self::t('somethingWentWrongPleaseRefresh', 'Something went wrong. Please refresh the page.'));
+		$pub = _Public::$instance_efb->prepare_validation_efb($fid);
+		$modes = array();
+		foreach (self::edit_fields($fid, $old, (int) $e['read_']) as $ef) $modes[$ef['id']] = $ef;
+		$fail = function ($code, $m, $field = '', $ri = null) { return array('ok' => false, 'code' => $code, 'm' => $m, 'field_id' => (string) $field, 'ri' => $ri); };
+		$new_rows = array(); // key "id|ri" => validated rows
+		$remove_files = array(); // key => [urls]
+		$add_files = array();
+		$touched = array();
+		foreach (array_slice($changes, 0, 500) as $c) {
+			if (!is_array($c) || !isset($c['id_']) || !is_scalar($c['id_']) || !preg_match('/^[A-Za-z0-9_\-]{1,40}$/', (string) $c['id_'])) return $fail('efb_invalid', self::t('somethingWentWrongPleaseRefresh', 'Something went wrong.'));
+			$id = (string) $c['id_'];
+			$ri = isset($c['ri']) && is_scalar($c['ri']) && preg_match('/^\d{1,4}$/', (string) $c['ri']) ? (string) $c['ri'] : null;
+			$op = isset($c['op']) && in_array($c['op'], array('set', 'remove_file', 'add_file'), true) ? $c['op'] : 'set';
+			if (!isset($modes[$id])) return $fail('efb_entry_readonly', self::t('entReadOnly', 'This answer cannot be edited.'), $id, $ri);
+			$mode = $modes[$id];
+			if ($mode['mode'] === 'readonly') return $fail('efb_entry_readonly', $mode['why'] === 'paid' ? self::t('entPaidLocked', 'The payment of this entry cannot change: price fields stay as paid.') : self::t('entReadOnly', 'This answer cannot be edited.'), $id, $ri);
+			$def = self::field_def($form, $id);
+			$key = $id . '|' . ($ri === null ? '' : $ri);
+			$touched[$key] = array($id, $ri, $def);
+			if ($mode['mode'] === 'file') {
+				$url = isset($c['url']) && is_string($c['url']) ? $c['url'] : '';
+				if ($op === 'remove_file') { $remove_files[$key][] = $url; continue; }
+				if ($op === 'add_file') {
+					if (!self::admin_file_ok($url)) return $fail('efb_file_invalid', self::t('pleaseEnterVaildValue', 'Please enter a valid value.'), $id, $ri);
+					$add_files[$key][] = array('id_' => $id, 'name' => isset($def['name']) ? (string) $def['name'] : '', 'type' => (string) $def['type'], 'value' => '@file@', 'url' => $url, 'amount' => isset($def['amount']) ? (string) $def['amount'] : '0');
+					continue;
+				}
+				return $fail('efb_entry_readonly', self::t('entReadOnly', 'This answer cannot be edited.'), $id, $ri);
+			}
+			$wire = self::wire_rows($def, self::options_of($form, $id), isset($c['value']) ? $c['value'] : '');
+			if (!$wire) {
+				if (!empty($mode['required'])) return $fail('efb_entry_required', str_replace('%s', '<b>' . esc_html($mode['name']) . '</b>', self::t('mnvvXXX_', 'Please enter a valid value for %s.')), $id, $ri);
+				$new_rows[$key] = array();
+				continue;
+			}
+			$v = $pub->validate_rows_efb($form, $wire, array('admin_edit' => true, 'form_condition' => ''));
+			if (!$v['ok']) return $fail('efb_entry_invalid', wp_strip_all_tags((string) $v['m']) !== '' ? (string) $v['m'] : self::t('pleaseEnterVaildValue', 'Please enter a valid value.'), $v['field_id'] !== '' ? $v['field_id'] : $id, $ri);
+			$rows = $v['rows'];
+			if (class_exists('\\Emsfb\\Choices')) $rows = Choices::add_ov($rows, $form);
+			foreach ($rows as $k => $r) {
+				if ($ri !== null && isset($def['group'])) { $rows[$k]['rg'] = (string) $def['group']; $rows[$k]['ri'] = $ri; }
+				unset($rows[$k]['session'], $rows[$k]['form_id']);
+			}
+			$new_rows[$key] = $rows;
+		}
+		if (!$touched) return array('ok' => false, 'code' => 'efb_no_change', 'm' => self::t('entNoChange', 'Nothing was changed.'));
+		// Merge: the changed fields' rows take the place of their old rows (payment rows and the page link stay).
+		$merged = array();
+		$placed = array();
+		foreach ($old as $r) {
+			if (!is_array($r) || !isset($r['id_'])) { $merged[] = $r; continue; }
+			$rk = (string) $r['id_'] . '|' . (isset($r['ri']) && is_scalar($r['ri']) && isset($touched[(string) $r['id_'] . '|' . (string) $r['ri']]) ? (string) $r['ri'] : '');
+			if (!isset($touched[$rk])) { $merged[] = $r; continue; }
+			if (isset($new_rows[$rk])) { if (!isset($placed[$rk])) { foreach ($new_rows[$rk] as $nr) $merged[] = $nr; $placed[$rk] = true; } continue; }
+			// a file field: keep the files not removed
+			if (isset($remove_files[$rk]) && isset($r['url']) && in_array($r['url'], $remove_files[$rk], true)) continue;
+			$merged[] = $r;
+		}
+		foreach ($touched as $rk => $t) {
+			if (isset($new_rows[$rk]) && !isset($placed[$rk])) foreach ($new_rows[$rk] as $nr) array_splice($merged, max(0, count($merged) - 1), 0, array($nr));
+			if (isset($add_files[$rk])) foreach ($add_files[$rk] as $nr) array_splice($merged, max(0, count($merged) - 1), 0, array($nr));
+		}
+		$merged = array_values($merged);
+		// F05: the minimum / maximum of a checkbox field over the whole entry.
+		if (class_exists('\\Emsfb\\Choices')) {
+			$cc = Choices::count_check($form, $merged, array(), $pub->lanText);
+			if ($cc) return $fail('efb_entry_invalid', $cc['m'], $cc['field_id']);
+		}
+		// F04: every calculation again from the edited answers (F09 rows expanded as on a submit); a paid entry keeps
+		// the calculations it was charged with.
+		$paid = self::is_paid_entry($old, (int) $e['read_'], $form);
+		if (!$paid && class_exists('\\Emsfb\\Calc')) {
+			$fields = $form; $items = $merged; $virtual = array();
+			if (class_exists('\\Emsfb\\Repeater') && Repeater::has_groups($form)) {
+				$x = Repeater::expand($form, $merged, array('repeat_ok' => true, 'group_ok' => true, 'lanText' => $pub->lanText));
+				if ($x['ok']) { $fields = $x['fields']; $items = $x['rows']; $virtual = $x['virtual']; }
+			}
+			$keep = array_values(array_filter($items, function ($r) { return is_array($r) && in_array($r['type'] ?? '', array('w_link', 'payment'), true); }));
+			$items = array_values(array_filter($items, function ($r) { return !(is_array($r) && in_array($r['type'] ?? '', array('w_link', 'payment'), true)); }));
+			$cr = Calc::submit_rows($fields, $items, array(), $pub->lanText);
+			if (!$cr['ok']) return $fail($cr['code'], $cr['m'], $cr['field_id']);
+			$items = $cr['rows'];
+			if ($virtual) $items = Repeater::fold($items, $virtual);
+			foreach ($items as $k => $r) if (is_array($r)) unset($items[$k]['session'], $items[$k]['form_id']);
+			$merged = array_merge(array_values($items), $keep);
+		}
+		// F03: unique values (claims of this entry: kept, added, dropped), all or nothing.
+		$uq_add = array(); $uq_drop = array();
+		if (class_exists('\\Emsfb\\Unique_Values') && Unique_Values::ready()) {
+			$ufields = array();
+			foreach (Unique_Values::unique_fields($form) as $uf) $ufields[(string) $uf['id_']] = $uf;
+			$have = array();
+			foreach (Unique_Values::claims_of((int) $msg_id) as $cl) $have[(string) $cl['field_id'] . '|' . (string) $cl['vhash']] = array('fid' => $fid, 'f' => (string) $cl['field_id'], 'h' => (string) $cl['vhash']);
+			$want = array();
+			foreach ($merged as $r) {
+				if (!is_array($r) || !isset($r['id_'], $r['value']) || !isset($ufields[(string) $r['id_']]) || !is_scalar($r['value']) || (string) $r['value'] === '') continue;
+				$h = Unique_Values::vhash($fid, (string) $r['id_'], Unique_Values::key($ufields[(string) $r['id_']], (string) $r['value']));
+				$want[(string) $r['id_'] . '|' . $h] = array('f' => (string) $r['id_'], 'h' => $h);
+			}
+			foreach ($want as $k => $w) if (!isset($have[$k])) $uq_add[] = $w;
+			$touched_ids = array();
+			foreach ($touched as $t) $touched_ids[$t[0]] = true;
+			$uq_drop = array();
+			foreach ($have as $k => $claim) { $f0 = explode('|', $k)[0]; if (!isset($want[$k]) && isset($touched_ids[$f0])) $uq_drop[] = $claim; }
+			if ($uq_add) {
+				$cl = Unique_Values::claim($fid, $uq_add, (int) $msg_id);
+				if (!$cl['ok']) {
+					$uf = isset($ufields[$cl['field_id']]) ? $ufields[$cl['field_id']] : array('name' => '');
+					$m = class_exists('\\Emsfb\\Field_Rules') ? Field_Rules::msg($uf, 'unique', 'tvUnique_', $pub->lanText) : self::t('tvUnique_', 'This value was already used.');
+					return $fail('efb_field_unique', $m, $cl['field_id']);
+				}
+				$uq_add = $cl['ids'];
+			}
+		}
+		// F05: places of choices with a capacity (taken now, all or nothing; given back by the field's rule).
+		$st_take = array(); $st_give = array();
+		if (class_exists('\\Emsfb\\Stock')) {
+			$key = function ($c) { return $c['f'] . "\x00" . $c['o']; };
+			$before = array(); $after = array();
+			foreach (Stock::claims($form, $old) as $c) $before[$key($c)][] = $c;
+			foreach (Stock::claims($form, $merged) as $c) $after[$key($c)][] = $c;
+			foreach ($after as $k => $list) { $n = count($list) - (isset($before[$k]) ? count($before[$k]) : 0); for ($q = 0; $q < $n; $q++) $st_take[] = $list[0]; }
+			foreach ($before as $k => $list) { $n = count($list) - (isset($after[$k]) ? count($after[$k]) : 0); for ($q = 0; $q < $n; $q++) $st_give[] = $list[0]; }
+			if (($st_take || $st_give) && Stock::hold_get((int) $msg_id)) {
+				if ($uq_add) Unique_Values::drop_claims($fid, $uq_add);
+				return $fail('efb_entry_readonly', self::t('entPaidLocked', 'The payment of this entry cannot change: price fields stay as paid.'), $st_take ? $st_take[0]['f'] : $st_give[0]['f']);
+			}
+			if ($st_take) {
+				$res = Stock::reserve($fid, $st_take);
+				if (!$res['ok']) {
+					if ($uq_add) Unique_Values::drop_claims($fid, $uq_add);
+					$label = isset($res['claim']['label']) ? (string) $res['claim']['label'] : '';
+					return $fail('efb_choice_full', str_replace('%s', '<b><bdi>' . esc_html($label) . '</bdi></b>', Choices::t('bkFlM_')), isset($res['claim']['f']) ? $res['claim']['f'] : '');
+				}
+			}
+		}
+		// Store (the UPDATE carries the content read: nothing changes when someone else saved meanwhile).
+		$content = $pub->encode_rows_efb($merged);
+		$now = self::now();
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		$n = $wpdb->query($wpdb->prepare("UPDATE `{$msg}` SET content = %s, edited_at = %s WHERE msg_id = %d AND content = %s", $content, $now, (int) $msg_id, (string) $e['content']));
+		if ((int) $n !== 1) {
+			if ($uq_add) Unique_Values::drop_claims($fid, $uq_add);
+			if ($st_take) Stock::release($fid, $st_take);
+			return array('ok' => false, 'code' => 'efb_entry_conflict', 'm' => self::t('entConflict', 'This entry was changed in the meantime. Refresh and try again.'));
+		}
+		if ($uq_drop) Unique_Values::drop_claims($fid, $uq_drop);
+		if ($st_give) {
+			$fields = array();
+			foreach ($form as $i => $r) if ($i > 0 && is_array($r) && isset($r['id_'])) $fields[(string) $r['id_']] = $r;
+			$give = array_values(array_filter($st_give, function ($c) use ($fields) { return isset($fields[$c['f']]) && class_exists('\\Emsfb\\Choices') && Choices::on($fields[$c['f']], 'inv_release'); }));
+			if ($give) Stock::release($fid, $give);
+		}
+		// Files: an added file leaves the pending ledger; a removed one is deleted when nothing else names it.
+		if ($add_files && class_exists('\\Emsfb\\Upload_Guard')) { foreach ($add_files as $list) foreach ($list as $r) Upload_Guard::release_pending_uploads(array($r['url'])); }
+		if ($remove_files && class_exists('\\Emsfb\\Upload_Guard')) {
+			$left = Privacy::files_in_content($content, $merged);
+			foreach (Privacy::files_in_content('', $old) as $name => $url) if (!isset($left[$name])) Upload_Guard::delete_unreferenced_upload($name, (string) $url);
+		}
+		// History: one row per changed field (and row), old → new as text; the reason in meta.
+		$changed = 0;
+		foreach ($touched as $t) {
+			list($id, $ri) = $t;
+			$o = self::field_text($old, $id, $ri);
+			$nw = self::field_text($merged, $id, $ri);
+			if ($o === $nw) continue;
+			self::log((int) $msg_id, 'edit', $id, $o, $nw, function_exists('mb_substr') ? mb_substr((string) $reason, 0, 255, 'UTF-8') : substr((string) $reason, 0, 255));
+			$changed++;
+		}
+		if (function_exists('do_action')) do_action('efb_entry_updated', (int) $msg_id, $old, $merged);
+		return array('ok' => true, 'rows' => $merged, 'changed' => $changed);
+	}
+
+	/** AJAX efb_entry_update_Emsfb: msg_id, hash, changes (JSON), reason. Free Plus. */
+	public static function ajax_update() {
+		self::guard();
+		if (!self::plan_ok('edit')) wp_send_json_success(self::plan_error('edit'), 200);
+		$changes = self::post_json('changes');
+		$reason = function_exists('sanitize_text_field') ? sanitize_text_field(self::post('reason')) : self::post('reason');
+		$r = self::update(absint(self::post('msg_id')), self::post('hash'), is_array($changes) ? $changes : array(), $reason);
+		if (!$r['ok']) wp_send_json_success(array_merge(array('success' => false), $r), 200);
+		$e = self::entry(absint(self::post('msg_id')));
+		wp_send_json_success(self::entry_extras(array('success' => true, 'entry' => $e, 'changed' => $r['changed']), $e), 200);
+	}
+
+	/**
+	 * AJAX efb_entry_upload_Emsfb: a file an administrator puts in an entry (spec §8.4-6): the upload policy of the
+	 * form's field (Upload_Guard::validate_file, source admin, the field's extensions), a pending-ledger row until
+	 * the edit is saved (then released), never the old update_file_Emsfb endpoint.
+	 */
+	public static function ajax_upload() {
+		self::guard();
+		if (!self::plan_ok('edit')) wp_send_json_success(self::plan_error('edit'), 200);
+		$msg = absint(self::post('msg_id'));
+		$field = preg_replace('/[^A-Za-z0-9_\-]/', '', self::post('field_id'));
+		$e = self::entry($msg);
+		$form = $e ? self::form_rows($e['form_id']) : null;
+		$def = is_array($form) ? self::field_def($form, $field) : null;
+		if (!$def || !in_array($def['type'] ?? '', self::FILE_TYPES, true) || empty($_FILES['file']) || !class_exists('\\Emsfb\\Upload_Guard')) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guard() checked the nonce
+			wp_send_json_success(array('success' => false, 'code' => 'efb_invalid', 'm' => self::t('pleaseEnterVaildValue', 'Please enter a valid value.')), 200);
+		}
+		$ctx = array('source' => 'admin', 'form_id' => (int) $e['form_id'], 'field' => $def, 'field_id' => $field, 'extensions' => Upload_Guard::field_extensions($def, 'admin'));
+		$ok = Upload_Guard::validate_file($_FILES['file'], $ctx); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ($ok !== true) wp_send_json_success(array('success' => false, 'code' => 'efb_file_invalid', 'm' => is_string($ok) ? $ok : Upload_Guard::type_message()), 200);
+		$orig = isset($_FILES['file']['name']) ? sanitize_file_name(wp_unslash($_FILES['file']['name'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$name = 'efb-PLG-' . wp_date('ymd') . '-' . wp_generate_password(12, false, false) . '.' . strtolower(pathinfo($orig, PATHINFO_EXTENSION));
+		if (Upload_Guard::is_blocked_extension(Upload_Guard::extension_of($name))) wp_send_json_success(array('success' => false, 'code' => 'efb_file_invalid', 'm' => Upload_Guard::type_message()), 200);
+		$bytes = function_exists('emsfb_read_file_efb') ? emsfb_read_file_efb($_FILES['file']['tmp_name']) : file_get_contents($_FILES['file']['tmp_name']); // phpcs:ignore
+		$up = $bytes === false ? array('error' => 'read') : wp_upload_bits($name, null, $bytes);
+		if (!is_array($up) || !empty($up['error']) || empty($up['url'])) wp_send_json_success(array('success' => false, 'code' => 'efb_file_invalid', 'm' => Upload_Guard::type_message()), 200);
+		Upload_Guard::track_pending_upload($up['file'], (int) $e['form_id'], $field);
+		wp_send_json_success(array('success' => true, 'url' => is_ssl() ? str_replace('http://', 'https://', $up['url']) : $up['url'], 'name' => wp_basename($up['file'])), 200);
 	}
 
 	/* ------------------------------------------------------------ print (I) */
