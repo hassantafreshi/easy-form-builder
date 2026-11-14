@@ -34,7 +34,12 @@
 'use strict';
 
 module.exports = function (S) {
-  const { scenario, R, ctl, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput } = S;
+  const { R, ctl, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput } = S;
+  /* Each F09 scenario closes the Pro part it opened, so the scenarios after it see the site's own plan
+     (the F09 mu-plugin also opens efb_calc_plan; f04a checks that the calc price is Pro). */
+  const scenario = (id, title, fn) => S.scenario(id, title, async (a) => {
+    try { return await fn(a); } finally { try { ctl('set-option', 'efb_e2e_f09_plan', 'del'); } catch (e) { /* the site is down: the runner says so */ } }
+  });
   const plan = (n) => { if (String(ctl('state').emsfb_pro) !== String(n)) ctl('plan', n); };
   /* Pro (repeating rows): this site falls back to Free Plus without a licence, so the Pro part is opened with the
      plugin's own filter (mu-plugin efb-e2e-f09.php, option efb_e2e_f09_plan). */

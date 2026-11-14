@@ -2519,17 +2519,6 @@ let change_el_edit_Efb = (el) => {
 
         }
         break;
-      // F04: number settings, the calc field and the slider type (calc-builder-efb.js).
-      case "numStepEl":
-      case "numDecimalsEl":
-      case "numFormatEl":
-      case "numDecSepEl":
-      case "numGrpSepEl":
-      case "numScriptEl":
-      case "numPfxEl":
-      case "numSfxEl":
-      case "numCurrencyEl":
-      case "numMaxZeroEl":
       case "minRowsEl":
       case "maxRowsEl":
       case "defaultRowsEl":
@@ -2543,6 +2532,17 @@ let change_el_edit_Efb = (el) => {
         // F09: the repeater group's settings (repeater-builder-efb.js; refused values are put back).
         if (typeof efbRptBuilderChange === 'function') efbRptBuilderChange(el, indx);
         break;
+      // F04: number settings, the calc field and the slider type (calc-builder-efb.js).
+      case "numStepEl":
+      case "numDecimalsEl":
+      case "numFormatEl":
+      case "numDecSepEl":
+      case "numGrpSepEl":
+      case "numScriptEl":
+      case "numPfxEl":
+      case "numSfxEl":
+      case "numCurrencyEl":
+      case "numMaxZeroEl":
       case "calcFormulaEl":
       case "calcShowEl":
       case "calcEmptyEl":
