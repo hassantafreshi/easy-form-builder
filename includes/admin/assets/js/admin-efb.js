@@ -2377,6 +2377,8 @@ let change_el_edit_Efb = (el) => {
   }else if (el.id =="htmlCodeEl" && el.value){
     el.value = el.value.replaceAll(`"`, `'`);
   }
+  // F15: the undo history names this change ("Change Label"); the same control within a second is one entry.
+  if (typeof efbHistEditEfb === 'function') efbHistEditEfb(el);
 
   if (lenV > 20) {
     timeout = 5;
@@ -5206,6 +5208,7 @@ function create_dargAndDrop_el() {
 }
 
 const add_new_option_efb = (parentsID, idin, value, id_ob, tag) => {
+  if (typeof efbHistHintEfb === 'function') efbHistHintEfb(efb_var.text.hAddOption || 'Add option', 'addop|' + Math.random());
 
   let p = document.getElementById("optionListefb")
   let p_prime = p.cloneNode(true)
@@ -5381,6 +5384,7 @@ function show_delete_window_efb(idset,iVJ) {
       if (is_step == false) {
         confirmBtn.dataset.id =idset.slice(0,-3);
         confirmBtn.addEventListener("click", (e) => {
+          if (typeof efbHistHintEfb === 'function') { const dr = valj_efb.find(x => x && x.dataId == idset); efbHistHintEfb(String(efb_var.text.hDelField || 'Delete %s').replace('%s', dr ? (dr.name || dr.type) : ''), 'del|' + idset); }
           document.getElementById(confirmBtn.dataset.id).remove();
           obj_delete_row(idset, false, confirmBtn.dataset.id);
           activeEl_efb = 0;
@@ -5390,6 +5394,7 @@ function show_delete_window_efb(idset,iVJ) {
       } else {
         confirmBtn.dataset.id = idset;
         confirmBtn.addEventListener("click", () => {
+          if (typeof efbHistHintEfb === 'function') efbHistHintEfb(efb_var.text.hDelStep || 'Delete step', 'delstep|' + idset);
 
           activeEl_efb = 0;
           if (pro_efb == false) {
@@ -5535,6 +5540,7 @@ let handleDrag = (item) => {
 
 let handleDrop = (item) => {
   item.target.classList.remove('drag-sort-active-efb');
+  if (typeof efbHistHintEfb === 'function') { const mr = valj_efb.find(x => x && x.id_ == (item.target && item.target.id)); efbHistHintEfb(String(efb_var.text.hMoveField || 'Move %s').replace('%s', mr ? (mr.name || mr.type) : ''), 'move|' + Math.random()); }
   sort_obj_el_efb_()
   if (status_drag_start == true) {
     for (let i of valj_efb) {
@@ -5560,6 +5566,7 @@ const sort_obj_efb = () => {
 }
 
 const delete_option_efb = (id) => {
+  if (typeof efbHistHintEfb === 'function') efbHistHintEfb(efb_var.text.hDelOption || 'Delete option', 'delop|' + id);
   document.getElementById(`${id}-gs`).remove();
   if (document.getElementById(`${id}-v`)) document.getElementById(`${id}-v`).remove();
   const indx = valj_efb.findIndex(x => x.id_op == id)
@@ -5579,6 +5586,8 @@ const delete_option_efb = (id) => {
 
 fun_efb_add_el = (t, insertAfterEl) => {
 
+  // F15: one undo entry, "Add <field>".
+  if (typeof efbHistHintEfb === 'function') { const pf = (typeof fields_efb !== 'undefined' && fields_efb.find(x => x.id == t)) || null; efbHistHintEfb(t == 'steps' ? (efb_var.text.hAddStep || 'Add step') : String(efb_var.text.hAddField || 'Add %s').replace('%s', pf ? pf.name : t), 'add|' + Math.random()); }
   const rndm = Math.random().toString(36).substr(2, 9);
   const dropZoneEFB = document.getElementById('dropZoneEFB');
 
@@ -6485,6 +6494,8 @@ add_new_logic_efb = (newId , step_id) =>{
 }
 
 function  fun_confirm_dup_emsFormBuilder(id,type) {
+  // F15: one undo entry, "Duplicate <field>" (the canvas is redrawn later; the history waits for it).
+  if (type == "input" && typeof efbHistHintEfb === 'function') efbHistHintEfb(String(efb_var.text.hDupField || 'Duplicate %s').replace('%s', (valj_efb.find(x => x && x.id_ == id) || {}).name || ''), 'dup|' + Math.random());
 
   if(type=="form"){
     fun_dup_request_server_efb(parseInt(id),type);
@@ -7000,6 +7011,10 @@ function restore_auto_save_efb(){
 
   const auto_save = Number(localStorage.getItem('efb_auto_save')) === 1;
   if(auto_save==false) return;
+  /* F15 (found in passing): the offer is made 3 s after the page loads. When the builder is already open by
+     then, the draft is the work on screen (the builder writes it on its own edits, an undo, closing a panel):
+     offering to "restore" it over the canvas was wrong. The lists and the template chooser still offer it. */
+  if (document.getElementById('dropZoneEFB')) return;
 
   /* Asked for from two places - the panel bootstrap and every list re-render
      (paging, search, the back button) - and each of those used to schedule

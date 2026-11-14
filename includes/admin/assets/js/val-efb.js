@@ -2893,6 +2893,7 @@ items_dd_efb = () => {
             container.insertBefore(step1, container.firstElementChild);
           }
         }
+        if (typeof efbHistHintEfb === 'function') { const mr = valj_efb.find(x => x && ui.item[0] && x.id_ == ui.item[0].id); efbHistHintEfb(String(efb_var.text.hMoveField || 'Move %s').replace('%s', mr ? (mr.name || mr.type) : ''), 'move|' + Math.random()); }
         sort_obj_el_efb_();
       }
     });

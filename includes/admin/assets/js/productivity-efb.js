@@ -475,6 +475,150 @@
     return dialog({ id: 'efbScDlg', title: T('shortcuts', 'Keyboard shortcuts'), body: body, foot: [el('button', { type: 'button', class: 'efb btn btn-primary efb-pd-btn', 'data-pd': 'close', text: T('close', 'Close') })] });
   }
 
+  /* ================================================================== B: undo / redo */
+
+  var hist = null;
+  var histUiTimer = null;
+  var lastSel = 0;
+  var API_LABELS = { setForm: ['hApiSetForm', 'Replace the form'], insertItems: ['hApiInsert', 'Add fields'], removeItems: ['hApiRemove', 'Remove fields'], setFormType: ['hApiType', 'Change the form type'], setFormSettings: ['hApiSettings', 'Change the form settings'] };
+
+  /* amount / step are numbers in the builder (efbNormalizeOrderEfb, what editFormEfb() does before drawing):
+     made so before each snapshot, a redrawn state is the same text as the state that was recorded. */
+  function readState() {
+    var l = rows();
+    if (!l) return null;
+    try { if (typeof efbNormalizeOrderEfb === 'function') efbNormalizeOrderEfb(l); return JSON.stringify(l); } catch (e) { return null; } // eslint-disable-line no-undef
+  }
+  function settleMs() { var l = rows(); return Math.max(300, (l ? l.length : 0) * 6 + 150); }
+  function maxOrder(list) { var m = 0; list.forEach(function (r) { var a = Number(r && r.amount); if (a > m) m = a; }); return m; }
+
+  /**
+   * efb_history_apply_efb(json): puts a state of the form back into the builder (undo, redo, a restored
+   * version). editFormEfb() starts from sessionStorage.valj_efb, so that is written first; the
+   * builder's globals follow the state; the panel closes and the selected field is selected again
+   * when it is still there; the mobile view is kept by editFormEfb() itself.
+   */
+  function applyState(json, info) {
+    var list = JSON.parse(json);
+    if (!Array.isArray(list) || !list[0]) return Promise.resolve(false);
+    valj_efb = list; // eslint-disable-line no-undef
+    try { sessionStorage.setItem('valj_efb', json); } catch (e) { /* storage blocked */ }
+    try { form_type_emsFormBuilder = list[0].type; } catch (e) { /* not the builder */ } // eslint-disable-line no-undef
+    try { if (list[0].formName) formName_Efb = list[0].formName; } catch (e) { /* not the builder */ } // eslint-disable-line no-undef
+    try { step_el_efb = Number(list[0].steps) || 1; amount_el_efb = maxOrder(list); } catch (e) { /* not the builder */ } // eslint-disable-line no-undef
+    var sel = activeId();
+    if (panelOpen() && typeof sideMenuEfb === 'function') sideMenuEfb(0); // eslint-disable-line no-undef
+    try { activeEl_efb = 0; } catch (e) { /* not the builder */ } // eslint-disable-line no-undef
+    var drawn = typeof editFormEfb === 'function' ? editFormEfb() : null; // eslint-disable-line no-undef
+    return Promise.resolve(drawn).then(function () {
+      if (sel) {
+        var n = document.querySelector('#dropZoneEFB [data-id="' + String(sel).replace(/["\\]/g, '') + '"]');
+        if (n && typeof active_element_efb === 'function') { try { active_element_efb(n); } catch (e) { /* not selectable */ } } // eslint-disable-line no-undef
+      }
+      if (typeof store_form_efb === 'function') { try { store_form_efb(); } catch (e) { /* autosave off */ } } // eslint-disable-line no-undef
+      try { document.dispatchEvent(new CustomEvent('efb:form-changed', { detail: { source: 'history', action: info && info.dir ? info.dir : 'apply', ids: [] } })); } catch (e) { /* old browsers */ }
+      return true;
+    });
+  }
+
+  function ensureHist() {
+    if (hist) return hist;
+    var H = root.EfbHistory || W.EfbHistory;
+    if (!H) return null;
+    var cfg = (W.efb_var && W.efb_var.f15) || {};
+    hist = H.create({ read: readState, write: applyState, limit: cfg.undo_limit || 50, maxChars: cfg.undo_chars || 20e6, mergeMs: cfg.merge_ms || 1000, settle: settleMs });
+    hist.on('change', function () { if (histUiTimer) clearTimeout(histUiTimer); histUiTimer = setTimeout(updateHistUi, 0); });
+    return hist;
+  }
+
+  function showToast(node) {
+    var old = document.getElementById('efbPdToast');
+    if (old) old.remove();
+    var t = el('div', { id: 'efbPdToast', class: 'efb efb-pd-toast', role: 'status', 'aria-live': 'polite', dir: rtl() ? 'rtl' : 'ltr' }, [node]);
+    document.body.appendChild(t);
+    setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 3500);
+  }
+
+  function updateHistUi() {
+    histUiTimer = null;
+    var st = hist ? hist.state() : { canUndo: false, canRedo: false, undoLabel: '', redoLabel: '' };
+    var mod = isMac() ? '\u2318' : 'Ctrl';
+    [['efbUndoBtn', st.canUndo, T('undo', 'Undo'), st.undoLabel, mod + '+Z'], ['efbRedoBtn', st.canRedo, T('redo', 'Redo'), st.redoLabel, mod + '+Shift+Z']].forEach(function (b) {
+      var btn = document.getElementById(b[0]);
+      if (!btn) return;
+      btn.disabled = !b[1];
+      btn.setAttribute('aria-disabled', b[1] ? 'false' : 'true');
+      var what = b[1] && b[3] ? b[2] + ': ' + b[3] : b[2];
+      btn.title = what + ' (' + b[4] + ')';
+      btn.setAttribute('aria-label', what + ' (' + b[4] + ')');
+    });
+    try { document.dispatchEvent(new CustomEvent('efb:history-change', { detail: { canUndo: st.canUndo, canRedo: st.canRedo, undoLabel: st.undoLabel, redoLabel: st.redoLabel, size: st.size } })); } catch (e) { /* old browsers */ }
+  }
+
+  function undoRedo(dir) {
+    var h = ensureHist();
+    if (!h) return null;
+    var r = dir === 'undo' ? h.undo() : h.redo();
+    if (r) showToast(sentence(dir === 'undo' ? T('undoneX', 'Undone: %s') : T('redoneX', 'Redone: %s'), [r.label || T('hEdit', 'Change')]));
+    updateHistUi();
+    return r;
+  }
+
+  /** The name of a settings control (its label), else the field's name: "Change Label". */
+  function editLabel(ctl) {
+    var name = '';
+    try {
+      var lab = ctl && ctl.id ? document.querySelector('label[for="' + ctl.id.replace(/["\\]/g, '') + '"]') : null;
+      name = lab ? lab.textContent.replace(/\s+/g, ' ').trim() : '';
+      if (!name && ctl && ctl.dataset && ctl.dataset.id && rows()) {
+        var id = ctl.dataset.id;
+        var r = rows().find(function (x, i) { return i > 0 && x && (x.dataId === id || x.dataId === id + '-id'); });
+        name = r ? (r.name || r.type) : T('formSetting', 'Form settings');
+      }
+    } catch (e) { name = ''; }
+    return String(T('hEditSetting', 'Change %s')).replace('%s', name.slice(0, 60) || T('field', 'field'));
+  }
+
+  /* The builder's entry points name the change that follows (admin-efb.js, pro_els-efb.js). */
+  W.efbHistHintEfb = function (label, key) { var h = ensureHist(); if (!h) return; h.begin(label, key); h.commit(); };
+  W.efbHistEditEfb = function (ctl) { W.efbHistHintEfb(editLabel(ctl), (ctl && ctl.id ? ctl.id : '') + '|' + (ctl && ctl.dataset ? ctl.dataset.id || '' : '')); };
+  W.efbHistCommitEfb = function () { var h = ensureHist(); if (h) h.commit(); };
+  W.efbHistLateEfb = function (labelKey, fallback) { var h = ensureHist(); if (h) h.late(T(labelKey, fallback || labelKey)); };
+  W.efbHistResetEfb = function () { var h = ensureHist(); if (h) { h.reset(); updateHistUi(); } };
+  W.efbHistRecordEfb = function (label) { var h = ensureHist(); return h ? h.record(label) : null; };
+  W.efbHistBatchEfb = function (label, fn) { var h = ensureHist(); return h ? h.batch(label, fn) : fn(); };
+  W.efbHistStateEfb = function () { var h = ensureHist(); return h ? h.state() : null; };
+  W.efbUndoEfb = function () { return undoRedo('undo'); };
+  W.efbRedoEfb = function () { return undoRedo('redo'); };
+  W.efb_history_apply_efb = applyState;
+
+  /* A person's action starts on pointerdown / keydown (capture: before the builder's handlers) and
+     ends when the builder's timers settled after change / click / drop / keyup. */
+  function inOwnUi(t) { return !!(t && t.closest && t.closest('.efb-pd-back, #efbPaletteSearch, .efb-pd-tools')); }
+  ['pointerdown', 'keydown'].forEach(function (type) {
+    document.addEventListener(type, function (e) {
+      if (!builderOn() || inOwnUi(e.target)) return;
+      var h = ensureHist();
+      if (h && !h.isApplying()) h.gesture();
+    }, true);
+  });
+  ['change', 'click', 'drop', 'dragend', 'pointerup', 'keyup'].forEach(function (type) {
+    document.addEventListener(type, function (e) {
+      if (!builderOn() || inOwnUi(e.target)) return;
+      var h = ensureHist();
+      if (h && !h.isApplying()) h.commit();
+    }, true);
+  });
+  // Every efbBuilderApi call that changes the form (AutoPilot) is one entry.
+  document.addEventListener('efb:form-changed', function (e) {
+    var d = e.detail || {};
+    if (d.source !== 'api') return;
+    var h = ensureHist();
+    if (!h) return;
+    var l = API_LABELS[d.action] ? T(API_LABELS[d.action][0], API_LABELS[d.action][1]) : String(d.action || '');
+    h.record(String(T('hAutoPilot', 'AutoPilot: %s')).replace('%s', l), 'api|' + (d.action || ''));
+  });
+
   /* ================================================================== toolbar */
 
   /** Extra toolbar buttons of the builder (after the builder's own items). */
@@ -482,10 +626,16 @@
     var ul = document.querySelector('#navbarTogglerDemo01 ul.navbar-nav');
     if (!ul || ul.querySelector('#efbPdTools')) return;
     var li = el('li', { class: 'efb nav-item efb-pd-tools', id: 'efbPdTools' });
+    var mod = isMac() ? '\u2318' : 'Ctrl';
+    li.appendChild(el('button', { type: 'button', class: 'efb btn nav-link efb-pd-nav', id: 'efbUndoBtn', disabled: true, 'aria-disabled': 'true', 'aria-label': T('undo', 'Undo') + ' (' + mod + '+Z)', title: T('undo', 'Undo') + ' (' + mod + '+Z)', onclick: function () { W.efbUndoEfb(); } },
+      [el('i', { class: 'efb bi-arrow-counterclockwise', 'aria-hidden': 'true' }), el('span', { class: 'efb efb-pd-nav-label', text: T('undo', 'Undo') })]));
+    li.appendChild(el('button', { type: 'button', class: 'efb btn nav-link efb-pd-nav', id: 'efbRedoBtn', disabled: true, 'aria-disabled': 'true', 'aria-label': T('redo', 'Redo') + ' (' + mod + '+Shift+Z)', title: T('redo', 'Redo') + ' (' + mod + '+Shift+Z)', onclick: function () { W.efbRedoEfb(); } },
+      [el('i', { class: 'efb bi-arrow-clockwise', 'aria-hidden': 'true' }), el('span', { class: 'efb efb-pd-nav-label', text: T('redo', 'Redo') })]));
     li.appendChild(el('button', { type: 'button', class: 'efb btn nav-link efb-pd-nav', id: 'efbScBtn', 'aria-label': T('shortcuts', 'Keyboard shortcuts') + ' (?)', title: T('shortcuts', 'Keyboard shortcuts') + ' (?)', onclick: function () { openShortcutsHelp(); } },
       [el('i', { class: 'efb bi-keyboard', 'aria-hidden': 'true' })]));
     ul.appendChild(li);
     if (typeof W.efbPdToolbarExtEfb === 'function') W.efbPdToolbarExtEfb(li);
+    updateHistUi();
   }
 
   /** Called at the end of creator_form_builder_Efb(): the builder screen was (re)built. */
@@ -504,7 +654,7 @@
   var api = Object.assign({}, pure, {
     dialog: dialog, sentence: sentence, el: el, T: T, num: num, ajax: ajax, toast: toast, rtl: rtl,
     paletteSearch: paletteSearch, paletteAddFirst: paletteAddFirst, openShortcutsHelp: openShortcutsHelp,
-    runAction: runAction, keyHandler: keyHandler, builderOn: builderOn, openDialogs: function () { return openDialogs.slice(); },
+    runAction: runAction, keyHandler: keyHandler, builderOn: builderOn, history: function () { return ensureHist(); }, applyState: applyState, openDialogs: function () { return openDialogs.slice(); },
     pref: pref, setPref: function (name, v) { prefs[name] = String(v); },
   });
   return api;

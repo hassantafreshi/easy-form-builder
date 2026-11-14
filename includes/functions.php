@@ -5925,6 +5925,48 @@ class efbFunction {
 			"palette_syn_repeater" => $state && isset($ac->text->palette_syn_repeater) ? $ac->text->palette_syn_repeater : esc_html__('repeat, rows, add more','easy-form-builder'),
 			/* translators: F15: builder palette search: other words for the hiddenField field, comma separated; write the words people use in your language (not a translation of each English word) */
 			"palette_syn_hiddenField" => $state && isset($ac->text->palette_syn_hiddenField) ? $ac->text->palette_syn_hiddenField : esc_html__('hidden, utm, tracking','easy-form-builder'),
+			/* translators: F15: builder toolbar button and shortcut */
+			"undo" => $state && isset($ac->text->undo) ? $ac->text->undo : esc_html__('Undo','easy-form-builder'),
+			/* translators: F15: builder toolbar button and shortcut */
+			"redo" => $state && isset($ac->text->redo) ? $ac->text->redo : esc_html__('Redo','easy-form-builder'),
+			/* translators: F15: builder message after undo; %s names the change */
+			"undoneX" => $state && isset($ac->text->undoneX) ? $ac->text->undoneX : esc_html__('Undone: %s','easy-form-builder'),
+			/* translators: F15: builder message after redo; %s names the change */
+			"redoneX" => $state && isset($ac->text->redoneX) ? $ac->text->redoneX : esc_html__('Redone: %s','easy-form-builder'),
+			/* translators: F15: undo history entry; %s is a field type name */
+			"hAddField" => $state && isset($ac->text->hAddField) ? $ac->text->hAddField : esc_html__('Add %s','easy-form-builder'),
+			/* translators: F15: undo history entry; %s is a field label */
+			"hDelField" => $state && isset($ac->text->hDelField) ? $ac->text->hDelField : esc_html__('Delete %s','easy-form-builder'),
+			/* translators: F15: undo history entry; %s is a field label */
+			"hDupField" => $state && isset($ac->text->hDupField) ? $ac->text->hDupField : esc_html__('Duplicate %s','easy-form-builder'),
+			/* translators: F15: undo history entry; %s is a field label */
+			"hMoveField" => $state && isset($ac->text->hMoveField) ? $ac->text->hMoveField : esc_html__('Move %s','easy-form-builder'),
+			/* translators: F15: undo history entry; %s is the name of a setting or a field */
+			"hEditSetting" => $state && isset($ac->text->hEditSetting) ? $ac->text->hEditSetting : esc_html__('Change %s','easy-form-builder'),
+			/* translators: F15: undo history entry */
+			"hAddOption" => $state && isset($ac->text->hAddOption) ? $ac->text->hAddOption : esc_html__('Add option','easy-form-builder'),
+			/* translators: F15: undo history entry */
+			"hDelOption" => $state && isset($ac->text->hDelOption) ? $ac->text->hDelOption : esc_html__('Delete option','easy-form-builder'),
+			/* translators: F15: undo history entry */
+			"hAddStep" => $state && isset($ac->text->hAddStep) ? $ac->text->hAddStep : esc_html__('Add step','easy-form-builder'),
+			/* translators: F15: undo history entry */
+			"hDelStep" => $state && isset($ac->text->hDelStep) ? $ac->text->hDelStep : esc_html__('Delete step','easy-form-builder'),
+			/* translators: F15: undo history entry: the list of states or cities was loaded */
+			"hLoadStates" => $state && isset($ac->text->hLoadStates) ? $ac->text->hLoadStates : esc_html__('Load list','easy-form-builder'),
+			/* translators: F15: undo history entry without a name */
+			"hEdit" => $state && isset($ac->text->hEdit) ? $ac->text->hEdit : esc_html__('Change','easy-form-builder'),
+			/* translators: F15: undo history entry of a change made by the AI assistant; %s names it */
+			"hAutoPilot" => $state && isset($ac->text->hAutoPilot) ? $ac->text->hAutoPilot : esc_html__('AutoPilot: %s','easy-form-builder'),
+			/* translators: F15: undo history entry of the AI assistant */
+			"hApiSetForm" => $state && isset($ac->text->hApiSetForm) ? $ac->text->hApiSetForm : esc_html__('Replace the form','easy-form-builder'),
+			/* translators: F15: undo history entry of the AI assistant */
+			"hApiInsert" => $state && isset($ac->text->hApiInsert) ? $ac->text->hApiInsert : esc_html__('Add fields','easy-form-builder'),
+			/* translators: F15: undo history entry of the AI assistant */
+			"hApiRemove" => $state && isset($ac->text->hApiRemove) ? $ac->text->hApiRemove : esc_html__('Remove fields','easy-form-builder'),
+			/* translators: F15: undo history entry of the AI assistant */
+			"hApiType" => $state && isset($ac->text->hApiType) ? $ac->text->hApiType : esc_html__('Change the form type','easy-form-builder'),
+			/* translators: F15: undo history entry of the AI assistant */
+			"hApiSettings" => $state && isset($ac->text->hApiSettings) ? $ac->text->hApiSettings : esc_html__('Change the form settings','easy-form-builder'),
 			/* translators: F15: builder palette search: other words for the table_matrix field, comma separated; write the words people use in your language (not a translation of each English word) */
 			"palette_syn_table_matrix" => $state && isset($ac->text->palette_syn_table_matrix) ? $ac->text->palette_syn_table_matrix : esc_html__('matrix, grid, likert','easy-form-builder'),
 			/* translators: F12: Settings > Captchas: a Turnstile key in the wrong format (it starts with 0x) */

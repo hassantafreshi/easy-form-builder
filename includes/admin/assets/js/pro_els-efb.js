@@ -1167,6 +1167,8 @@ let state_el= document.getElementById(idField)
     }
     if(fieldType=="pubSelect"){
       Object.assign(valj_efb[indx_state],{'linked':true});
+      // F15 (builder only): the list loaded after the person's choice joins that choice's undo entry.
+      if (typeof efbHistLateEfb === 'function') setTimeout(() => efbHistLateEfb('hLoadStates', 'Load list'), 0);
       opt += statePrevion_el_pro_efb(valj_efb[indx_state].id_, '', '', '', true,autofilled);
     }
     if(state_el!=null){

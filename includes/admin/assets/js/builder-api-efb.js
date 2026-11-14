@@ -1643,8 +1643,26 @@
     return { changed: Object.keys(values), values: values };
   }
 
+  /* ---------------- F15: undo / redo (productivity-efb.js keeps the history) ---------------- */
+
+  // Every call above that changes the form is one undo entry ("AutoPilot: Add fields"); batch()
+  // makes several calls one entry. The builder's own buttons and Ctrl+Z undo them like any edit.
+  var history = {
+    state: function () { return typeof efbHistStateEfb === 'function' ? efbHistStateEfb() : null; },
+    canUndo: function () { var s = history.state(); return !!(s && s.canUndo); },
+    canRedo: function () { var s = history.state(); return !!(s && s.canRedo); },
+    undo: function () { if (typeof efbUndoEfb !== 'function') throw fail('history_unavailable', 'The undo history is not loaded.'); return efbUndoEfb(); },
+    redo: function () { if (typeof efbRedoEfb !== 'function') throw fail('history_unavailable', 'The undo history is not loaded.'); return efbRedoEfb(); },
+    batch: function (label, fn) {
+      if (typeof fn !== 'function') throw fail('invalid_items', 'batch(label, fn) needs a function.');
+      var l = String((typeof efb_var !== 'undefined' && efb_var.text && efb_var.text.hAutoPilot) || 'AutoPilot: %s').replace('%s', String(label || ''));
+      return typeof efbHistBatchEfb === 'function' ? efbHistBatchEfb(l, fn) : fn();
+    },
+  };
+
   var api = {
     version: API_VERSION,
+    history: history,
     addGroup: addGroup,
     moveIntoGroup: moveIntoGroup,
     moveOutOfGroup: moveOutOfGroup,

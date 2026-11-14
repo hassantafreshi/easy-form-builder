@@ -8,6 +8,11 @@
  *        "Keyboard shortcuts" dialog (role, focus, Esc) and its switch stored in the user's meta (and honoured
  *        after a reload); fa_IR and ar at 375 px: right to left, the counts / query isolated, plaintext, the
  *        dialog inside the screen, no horizontal scroll.
+ *  f15b  Undo / redo (B), en_US at 1280 px: the toolbar buttons (disabled when empty, the change named in the title),
+ *        undo / redo of a palette tile, a label, a delete (asked first), a duplicate and an efbBuilderApi call (one
+ *        entry, "AutoPilot: …"), Ctrl+Z / Ctrl+Shift+Z; a save keeps the history, a reload empties it; a
+ *        200-field form measured (snapshot, an entry, an undo) and recorded; fa_IR and ar at 375 px: the toast
+ *        right to left with the change isolated, the buttons labelled, no horizontal scroll.
  */
 'use strict';
 
@@ -138,6 +143,160 @@ module.exports = function (S) {
           const d = await m.evaluate(() => { const x = document.getElementById('efbScDlg'); const r = x.getBoundingClientRect(); return { dir: getComputedStyle(x).direction, left: Math.round(r.left), right: Math.round(r.right), vw: window.innerWidth, scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth, keysLtr: getComputedStyle(x.querySelector('.efb-pd-keys')).direction, x: Math.round(x.querySelector('.efb-pd-x').getBoundingClientRect().height) }; });
           R.check(`f15a (${loc}): the shortcuts dialog at 375 px: right to left, inside the screen, keys left to right, a 44 px close button, no horizontal scroll`, d.dir === 'rtl' && d.left >= 0 && d.right <= d.vw && d.keysLtr === 'ltr' && d.x >= 44 && d.scroll <= 1, d);
           await m.screenshot({ path: SHOT(`f15a-shortcuts-${loc}-375`) });
+        } finally { ctl('locale', ''); }
+      }
+    } finally { cleanup(); }
+  });
+
+  /* ------------------------------------------------------------------ f15b */
+  scenario('f15b', 'F15-B undo / redo (en 1280): toolbar, tile, label, delete, duplicate, AutoPilot call, keys; save keeps it, reload empties it; 200 fields measured; fa_IR / ar at 375 px', async ({ adminPage }) => {
+    try {
+      plan(3);
+      ctl('locale', '');
+      const F = form('F15 e2e undo', [{ key: 'nm', type: 'text', name: 'Name' }, { key: 'em', type: 'email', name: 'E-mail' }]);
+      made.push(F.form_id);
+      const admin = await adminPage();
+      await reopen(admin, F.form_id);
+      const snap = () => admin.evaluate(() => JSON.stringify(valj_efb));
+      const wait = async () => { const n = await admin.evaluate(() => valj_efb.length); await sleep(Math.max(300, n * 6 + 150) + 400); };
+      const btn = () => admin.evaluate(() => ({ u: document.getElementById('efbUndoBtn').disabled, r: document.getElementById('efbRedoBtn').disabled, t: document.getElementById('efbUndoBtn').title, l: document.getElementById('efbUndoBtn').getAttribute('aria-label') }));
+      let b = await btn();
+      R.check('f15b: Undo / Redo in the toolbar, disabled after opening a form (nothing to undo yet)', b.u === true && b.r === true && /Undo/.test(b.l), b);
+
+      // A palette tile.
+      const s0 = await snap();
+      await admin.click('#email_b');
+      await wait();
+      const s1 = await snap();
+      b = await btn();
+      R.check('f15b: a tile added → Undo enabled, its title "Undo: Add E-mail (Ctrl+Z)"', s1 !== s0 && b.u === false && /^Undo: Add .*\(Ctrl\+Z\)$/.test(b.t), b);
+      await admin.click('#efbUndoBtn');
+      await sleep(1500);
+      R.check('f15b: Undo (button) gives back the form before the tile, byte for byte', (await snap()) === s0);
+      await admin.evaluate(() => document.activeElement && document.activeElement.blur());
+      await key(admin, 'KeyZ', 'ظ', { ctrlKey: true, shiftKey: true });
+      await sleep(1500);
+      const s1r = await snap();
+      R.check('f15b: Ctrl+Shift+Z on a Persian layout redoes it', s1r === s1, s1r === s1 ? '' : [s1r.length, s1.length, s1r.slice(-300), s1.slice(-300)]);
+
+      // A label.
+      await sleep(800);
+      const nm = await admin.evaluate((id) => JSON.parse(JSON.stringify(valj_efb.find((r) => r.id_ === id))), F.ids.nm);
+      await openField(admin, nm);
+      const l0 = await snap();
+      await admin.fill('#labelEl', 'Full name');
+      await admin.press('#labelEl', 'Tab');
+      await wait();
+      R.check('f15b: the label changed in the form', await admin.evaluate((id) => valj_efb.find((r) => r.id_ === id).name === 'Full name', F.ids.nm));
+      await admin.evaluate(() => document.activeElement && document.activeElement.blur());
+      await key(admin, 'KeyZ', 'z', { ctrlKey: true });
+      await sleep(1500);
+      const afterU = await admin.evaluate((id) => ({ name: valj_efb.find((r) => r.id_ === id).name, panel: document.getElementById('sideBoxEfb').classList.contains('show'), canvas: (document.querySelector(`[id="${id}_lab"]`) || {}).textContent || '' }), F.ids.nm);
+      R.check('f15b: Ctrl+Z restores the label in the form and on the canvas, the settings panel closes', (await snap()) === l0 && afterU.name === 'Name' && !afterU.panel && /Name/.test(afterU.canvas), afterU);
+
+      // Delete (asked first) and duplicate (asked first) from the field's own buttons.
+      const em = await admin.evaluate((id) => JSON.parse(JSON.stringify(valj_efb.find((r) => r.id_ === id))), F.ids.em);
+      const d0 = await snap();
+      await admin.click(`#dropZoneEFB [data-id="${em.dataId}"]`, { position: { x: 30, y: 10 } });
+      await sleep(400);
+      await admin.click(`#dropZoneEFB [data-id="${em.dataId}"] #deleteElEFb`);
+      await admin.waitForSelector('#modalConfirmBtnEfb', { state: 'visible', timeout: 8000 });
+      await admin.click('#modalConfirmBtnEfb');
+      await wait();
+      R.check('f15b: the field is deleted after the question', await admin.evaluate((id) => !valj_efb.some((r) => r.id_ === id), em.id_));
+      await sleep(600);
+      await admin.click('#efbUndoBtn');
+      await sleep(1500);
+      R.check('f15b: Undo brings the deleted field back (form byte for byte)', (await snap()) === d0 && await admin.evaluate((id) => !!document.querySelector(`#dropZoneEFB [data-id="${id}-id"]`), em.id_));
+      const p0 = await snap();
+      const nEmail = await admin.evaluate(() => valj_efb.filter((r) => r.type === 'email').length);
+      await admin.click(`#dropZoneEFB [data-id="${em.dataId}"]`, { position: { x: 30, y: 10 } });
+      await sleep(400);
+      await admin.click(`#dupElEFb-${em.id_}`);
+      await admin.waitForSelector('#modalConfirmBtnEfb', { state: 'visible', timeout: 8000 });
+      await admin.click('#modalConfirmBtnEfb');
+      await sleep(1800);
+      const dupSt = await admin.evaluate(() => ({ n: valj_efb.filter((r) => r.type === 'email').length, title: (document.getElementById('settingModalEfb-title') || {}).textContent, show: document.getElementById('settingModalEfb').classList.contains('show'), types: valj_efb.map((r) => r.type).join(',') }));
+      R.check('f15b: duplicate (asked first) adds a copy', dupSt.n === nEmail + 1, dupSt);
+      await admin.evaluate(() => efbUndoEfb());
+      await sleep(1500);
+      R.check('f15b: Undo removes the copy (form byte for byte)', (await snap()) === p0);
+
+      // An efbBuilderApi call is one entry.
+      const a0 = await snap();
+      await admin.evaluate(() => { efbBuilderApi.insertItems(efbBuilderApi.newItems('url')); return efbBuilderApi.render(); });
+      await sleep(800);
+      const st = await admin.evaluate(() => efbBuilderApi.history.state());
+      R.check('f15b: efbBuilderApi.insertItems() is one undo entry named "AutoPilot: Add fields"', st.undoLabel === 'AutoPilot: Add fields', st);
+      await admin.evaluate(() => efbBuilderApi.history.undo());
+      await sleep(1500);
+      R.check('f15b: efbBuilderApi.history.undo() removes it', (await snap()) === a0);
+
+      // Save keeps the history; a reload empties it.
+      await admin.evaluate(() => fun_efb_add_el('tel'));
+      await wait();
+      const saved = admin.waitForResponse((r) => /action=update_form_Emsfb/.test(r.request().postData() || ''), { timeout: 20000 }).catch(() => null);
+      await admin.evaluate(() => saveFormEfb(1));
+      const sr = await saved;
+      const sb = sr ? await sr.json().catch(() => null) : null;
+      await sleep(1000);
+      await admin.evaluate(() => { if (typeof state_modal_show_efb === 'function') state_modal_show_efb(0); });
+      await sleep(600);
+      R.check('f15b: after Save the history is kept (Undo still enabled)', sb && sb.data && sb.data.success === true && (await btn()).u === false, sb && sb.data);
+      await reopen(admin, F.form_id);
+      b = await btn();
+      R.check('f15b: after a reload of the builder nothing is left to undo (both buttons disabled)', b.u === true && b.r === true, b);
+
+      // 200 fields: measured.
+      const big = form('F15 e2e 200 fields', Array.from({ length: 200 }, (_, i) => ({ key: 'f' + i, type: i % 5 === 0 ? 'email' : 'text', name: 'Field ' + (i + 1) })));
+      made.push(big.form_id);
+      await reopen(admin, big.form_id);
+      const perf = await admin.evaluate(async () => {
+        const t0 = performance.now();
+        let len = 0;
+        for (let i = 0; i < 20; i++) len = JSON.stringify(valj_efb).length;
+        const stringify = (performance.now() - t0) / 20;
+        return { rows: valj_efb.length, chars: len, stringify: Math.round(stringify * 100) / 100 };
+      });
+      const row = await admin.evaluate((id) => JSON.parse(JSON.stringify(valj_efb.find((r) => r.id_ === id))), big.ids.f150);
+      await openField(admin, row);
+      const tEdit = Date.now();
+      await admin.fill('#labelEl', 'Field changed');
+      await admin.press('#labelEl', 'Tab');
+      await admin.waitForFunction(() => efbHistStateEfb() && efbHistStateEfb().size === 1, null, { timeout: 15000 });
+      perf.editToEntry = Date.now() - tEdit;
+      await admin.evaluate(() => { sideMenuEfb(0); document.activeElement && document.activeElement.blur(); });
+      const tU = Date.now();
+      await admin.evaluate(() => efbUndoEfb());
+      await admin.waitForFunction((id) => valj_efb.find((r) => r.id_ === id).name === 'Field 151' && !efbHistStateEfb().applying, big.ids.f150, { timeout: 30000 });
+      perf.undo = Date.now() - tU;
+      const tR = Date.now();
+      await admin.evaluate(() => editFormEfb());
+      await admin.waitForFunction(() => document.querySelectorAll('#dropZoneEFB > .efbField').length > 150, null, { timeout: 30000 });
+      perf.redrawOnly = Date.now() - tR;
+      perf.maxEntries = await admin.evaluate(() => (efb_var.f15 || {}).undo_limit);
+      require('fs').writeFileSync(require('path').join(CFG.out, 'f15b-perf.json'), JSON.stringify(perf, null, 2));
+      console.log('f15b perf ' + JSON.stringify(perf));
+      R.check(`f15b: 200 fields (${perf.rows} rows, ${perf.chars} characters): a snapshot takes ${perf.stringify} ms (< 25), an edit is an entry ${perf.editToEntry} ms after it (the builder's own ${perf.rows * 6} ms timer + the settle), undo ${perf.undo} ms vs a plain redraw ${perf.redrawOnly} ms`, perf.stringify < 25 && perf.editToEntry < 8000 && perf.undo < perf.redrawOnly + 3000, perf);
+
+      // fa_IR and ar at 375 px.
+      for (const loc of ['fa_IR', 'ar']) {
+        ctl('locale', loc);
+        try {
+          const m = await adminPage({ viewport: { width: 375, height: 800 } }, 'admin-f15b-' + loc);
+          await reopen(m, F.form_id);
+          await m.evaluate(() => fun_efb_add_el('tel'));
+          await sleep(1200);
+          await m.evaluate(() => efbUndoEfb());
+          await sleep(400);
+          const t = await m.evaluate(() => {
+            const x = document.getElementById('efbPdToast');
+            const r = x ? x.getBoundingClientRect() : null;
+            const u = document.getElementById('efbUndoBtn');
+            return x ? { dir: getComputedStyle(x).direction, bidi: getComputedStyle(x.querySelector('.efb-pd-sent')).unicodeBidi, bdi: x.querySelectorAll('bdi').length, role: x.getAttribute('role'), left: Math.round(r.left), right: Math.round(r.right), vw: window.innerWidth, label: u.getAttribute('aria-label'), scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth } : null;
+          });
+          R.check(`f15b (${loc}): at 375 px the undo toast is right to left, plaintext, the change in <bdi>, inside the screen; the buttons labelled; no horizontal scroll`, t && t.dir === 'rtl' && t.bidi === 'plaintext' && t.bdi === 1 && t.role === 'status' && t.left >= 0 && t.right <= t.vw && !!t.label && t.scroll <= 1, t);
+          await m.screenshot({ path: SHOT(`f15b-undo-${loc}-375`) });
         } finally { ctl('locale', ''); }
       }
     } finally { cleanup(); }
