@@ -18,7 +18,7 @@ import crypto from 'node:crypto';
 import { parseArgs, EFB_WORK } from '../lib/common.mjs';
 import { sentencesOfStoryboard } from './lib-sentences.mjs';
 
-const a = parseArgs(process.argv.slice(2), { model: 'eleven_v4', voice: 'hpp4J3VqNfWAUOO0d1Us' }); // Bella (premade), see README
+const a = parseArgs(process.argv.slice(2), { model: 'eleven_v4', voice: process.env.ELEVENLABS_VOICE_ID || 'hpp4J3VqNfWAUOO0d1Us' }); // ELEVENLABS_VOICE_ID or Bella (premade), see README
 const sb = JSON.parse(fs.readFileSync(a.storyboard, 'utf8'));
 const sents = sentencesOfStoryboard(sb);
 const text = sb.scenes.filter((s) => s.narration).map((s) => s.narration).join('\n\n');
