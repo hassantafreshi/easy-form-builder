@@ -20,7 +20,7 @@ import fill_template as FT  # noqa: E402
 SHOTS = os.environ.get("EFB_SHOTS_DIR", "/tmp/efb-shots")  # per-language screenshots: <SHOTS>/<lang>/<nn-name>.webp
 SITE = {"en": "https://whitestudio.team", "ar": "https://ar.whitestudio.team", "de": "https://de.whitestudio.team"}
 POST = {"en": 1455, "ar": 1331, "de": 1432}
-AUTHOR = {"en": 1, "ar": 7, "de": 1}            # decision 8c: user 1 (admin / DE hassan) shown as "Hassan Tafreshi"; AR stays 7 until admin's display name is fixed there
+AUTHOR = {"en": 1, "ar": 1, "de": 1}            # decision 8c (owner): EN admin, AR admin, DE hassan
 CATS = {"en": [3, 5], "ar": [3], "de": [2]}      # primary section = document on all three (hreflang needs the same path)
 TAGS = {"en": [7, 9, 10, 11, 12], "ar": [7, 9, 10, 11, 12], "de": [17, 24, 38, 52]}
 # step -> screenshot names (first = step image, rest = extra images)
