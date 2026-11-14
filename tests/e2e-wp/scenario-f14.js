@@ -11,6 +11,9 @@
  *  f14c  fa_IR and ar at 375 px (C): right to left, counts and pages in Persian / Arabic-Indic digits, the
  *        "Showing" sentence keeps its order (plaintext, values isolated), the filters fold behind one button,
  *        cards instead of the table, 44 px targets, no horizontal scroll, the selection bar.
+ *  f14d  Notes and history (D): the viewer's Notes tab (pale, "only administrators"), a note added with Ctrl+Enter,
+ *        a note with HTML refused with its message, the star from the viewer and its History line, the note never
+ *        in the visitor's tracking answer, a trashed entry "not found" there; deleting permanently removes both.
  */
 'use strict';
 
@@ -233,6 +236,64 @@ module.exports = function (S) {
         R.check(`f14c: ${loc} 1280 px: the mixed-script answer is shown as typed`, !!mix && /علی Ahmadi ۱۲/.test(mix.text), mix);
       } finally { ctl('locale', ''); }
     }
+  });
+
+  /** The public tracking lookup as the visitor's page does it (session prepare, then forms/response/get). */
+  async function publicTrack(page, fid, track) {
+    return page.evaluate(async ([f, tr]) => {
+      const prep = await (await fetch('/wp-json/Emsfb/v1/forms/session/prepare', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ form_id: f }) })).json();
+      const r = await fetch('/wp-json/Emsfb/v1/forms/response/get', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': prep.nonce || '', sid: prep.sid || '', 'form-id': String(f) }, body: JSON.stringify({ value: tr, valid: '', name: 'x' }) });
+      return r.text();
+    }, [fid, track]);
+  }
+
+  /* ------------------------------------------------------------------ f14d */
+  scenario('f14d', 'F14 notes and history in the response viewer: add (Ctrl+Enter), HTML refused, star → history, never public, delete with the entry', async ({ adminPage, context }) => {
+    plan(3);
+    ctl('locale', '');
+    const F = listForm('F14 e2e notes', 2);
+    const id = F.msgs[1];
+    const track = (entries(F.form_id).find((e) => Number(e.msg_id) === id) || {}).track;
+    const admin = await adminPage();
+    await openList(admin, F.form_id);
+    await admin.click(`#btn-m-${id}`);
+    await admin.waitForSelector('#efbEntViewExtra #efbEntNoteTxt', { timeout: 20000 });
+    let v = await admin.evaluate(() => ({ priv: document.querySelector('.efb-ent-note-private').textContent.trim(), bg: getComputedStyle(document.querySelector('.efb-ent-notes-panel')).backgroundColor, tab: document.querySelector('#efbEntVtNotes').getAttribute('aria-selected'), apart: !document.getElementById('resp_efb').contains(document.getElementById('efbEntViewExtra')) }));
+    R.check('f14d: the viewer has a Notes tab (selected), pale yellow, "Only administrators can see notes.", apart from the conversation', v.tab === 'true' && /Only administrators/.test(v.priv) && v.bg === 'rgb(255, 251, 235)' && v.apart, v);
+    await admin.fill('#efbEntNoteTxt', 'Called back on Monday.\nAsked for the invoice.');
+    await admin.press('#efbEntNoteTxt', 'Control+Enter');
+    await admin.waitForFunction(() => document.querySelectorAll('.efb-ent-note').length === 1, null, { timeout: 10000 });
+    const notes = ctl('f14-notes', String(id));
+    v = await admin.evaluate(() => ({ text: document.querySelector('.efb-ent-note-text').textContent, author: document.querySelector('.efb-ent-note-meta bdi').textContent, count: document.querySelector('#efbEntVtNotes .efb-ent-count').textContent.trim(), live: document.getElementById('efbEntViewLive').textContent }));
+    R.check('f14d: Ctrl+Enter adds the note: stored with its two lines, shown with the author and the count 1', notes.length === 1 && notes[0].note === 'Called back on Monday.\nAsked for the invoice.' && v.text === notes[0].note && v.author === 'admin' && v.count === '1', { notes, v });
+    await admin.fill('#efbEntNoteTxt', 'see <img src=x onerror=alert(1)>');
+    await admin.click('#efbEntViewExtra [data-ent="note-add"]');
+    await admin.waitForFunction(() => /HTML is not allowed/.test(document.getElementById('efbEntNoteErr').textContent), null, { timeout: 10000 });
+    R.check('f14d: a note with HTML is refused with "HTML is not allowed in notes." and nothing stored', ctl('f14-notes', String(id)).length === 1, true);
+    await admin.click('#efbEntView [data-ent="vstar"]');
+    await admin.waitForFunction(() => document.querySelector('#efbEntView [data-ent="vstar"]').getAttribute('aria-pressed') === 'true', null, { timeout: 10000 });
+    await admin.click('#efbEntVtHist');
+    await sleep(300);
+    v = await admin.evaluate(() => ({ sel: document.querySelector('#efbEntVtHist').getAttribute('aria-selected'), text: document.getElementById('efbEntVpHist').textContent.replace(/\s+/g, ' ') }));
+    R.check('f14d: the star from the viewer is stored and its History line reads "admin starred the entry"', String(entries(F.form_id).find((e) => Number(e.msg_id) === id).starred) === '1' && v.sel === 'true' && /admin starred the entry/.test(v.text), v);
+    await admin.screenshot({ path: SHOT('f14d-viewer-notes-history-en') });
+    // The visitor's tracking answer never has the note; a trashed entry is "not found".
+    const guest = await (await context({}, 'guest-f14d')).newPage();
+    await guest.goto(CFG.base + '/', { waitUntil: 'load' });
+    const pub = await publicTrack(guest, F.form_id, track);
+    R.check('f14d: the visitor\'s tracking answer has the entry but not the note', pub.indexOf('Person 2') !== -1 && pub.indexOf('Called back') === -1 && pub.indexOf('invoice') === -1, pub.slice(0, 200));
+    ctl('f14-set', String(id), 'entry_status=2');
+    const pub2 = await publicTrack(guest, F.form_id, track);
+    R.check('f14d: an entry in the trash is "not found" on the tracking page (nothing says it exists)', pub2.indexOf('Person 2') === -1 && /"success":false/.test(pub2), pub2.slice(0, 200));
+    // Delete permanently: the notes and the history go with it.
+    await openList(admin, F.form_id);
+    await admin.click('#efbEntTab-trash');
+    await waitIdle(admin);
+    await admin.click(`#efbEnt [data-ent="op"][data-op="delete"][data-msgid="${id}"]`);
+    await admin.waitForSelector('#efbEntDelYes', { timeout: 5000 });
+    await admin.click('#efbEntDelYes');
+    await waitIdle(admin);
+    R.check('f14d: deleting it permanently removes its notes and its history', ctl('f14-notes', String(id)).length === 0 && ctl('f14-log', String(id)).length === 0 && !entries(F.form_id).some((e) => Number(e.msg_id) === id), true);
   });
 
   /* ------------------------------------------------------------------ f14a */

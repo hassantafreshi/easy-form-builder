@@ -32,7 +32,7 @@ const check = (label, ok, detail) => { console.log((ok ? '[PASS] ' : '[FAIL] ') 
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   const go = async (q) => {
     await p.goto('http://site.test/track' + q);
-    await p.addScriptTag({ content: `var efb_var={rtl:0,text:new Proxy({}, {get:(t,k)=>typeof k==='string'?k:undefined}),images:{head:'http://site.test/head.png'}};var lan_name_emsFormBuilder='en';var pro_efb=true;var poster_emsFormBuilder='';var ajax_object_efm={rtl:0,text:new Proxy({}, {get:(t,k)=>typeof k==='string'?k:undefined})};var setting_emsFormBuilder={scaptcha:false};function change_url_back_persia_pay_efb(){}` + grab('replaceContentMessageEfb') + grab('text_nr_efb') + sanitizeSrc + imgRadio });
+    await p.addScriptTag({ content: `var efb_var={rtl:0,text:new Proxy({}, {get:(t,k)=>typeof k==='string'?k:undefined}),images:{head:'http://site.test/head.png'}};var lan_name_emsFormBuilder='en';var pro_efb=true;var poster_emsFormBuilder='';var ajax_object_efm={rtl:0,text:new Proxy({}, {get:(t,k)=>typeof k==='string'?k:undefined})};var setting_emsFormBuilder={scaptcha:false};function change_url_back_persia_pay_efb(){}` + grab('replaceContentMessageEfb') + grab('text_nr_efb') + grab('efbOrderOf') + sanitizeSrc + imgRadio });
     await p.addScriptTag({ path: R + 'response-viewer-efb.js' });
   };
   // 1) tracker page
@@ -84,7 +84,7 @@ const check = (label, ok, detail) => { console.log((ok ? '[PASS] ' : '[FAIL] ') 
       'bad currency + price': r.err === null,
       'imgRadio without src': r.err === null,
       'legacy plaintext password': !r.pwd,
-      'LEGIT file/image/doc/audio/video': r.links === 5 && r.jsLinks === 0,
+      'LEGIT file/image/doc/audio/video': r.links === 6 && r.jsLinks === 0, // F07: an image is a link to itself around its thumbnail (href + src)
       'LEGIT color/rating/text/payment/esign': r.swatch && r.stars === 4 && r.esign && r.bold && r.br && r.price && !r.rawB,
     }[label];
     check(label, r.err === null && expect, r);
@@ -109,6 +109,21 @@ const check = (label, ok, detail) => { console.log((ok ? '[PASS] ' : '[FAIL] ') 
   check('RTL viewer: IBAN left to right', bidi.iban && bidi.iban.dir === 'ltr' && bidi.iban.css === 'ltr', bidi.iban);
   check('RTL viewer: Persian text isolated with its own direction (no forced ltr)', bidi.fa && bidi.fa.dir === null && bidi.fa.css === 'rtl', bidi.fa);
   check('RTL viewer: hostile value still escaped and not forced ltr', !bidi.hostileImg && bidi.hostile && bidi.hostile.dir === null, bidi);
+  // F14: a hostile internal note, a hostile author name and a hostile edit in the history are text.
+  await p.addScriptTag({ path: R + 'entries-efb.js' });
+  const notes = await p.evaluate(() => {
+    document.documentElement.dir = 'ltr';
+    efb_var.text = {}; // the English fallbacks of entries-efb.js (with their %1$s … placeholders)
+    EfbEntries.state.current = { entry: { msg_id: 5, form_id: 1, starred: 0, entry_status: 0, edited_at: '' },
+      notes: [{ note_id: 1, author: '<img src=x onerror=alert(2)>', note: '<img src=x onerror=alert(1)> call "back" & go', date_iso: '2026-11-14 10:00:00', date: 'x', can_delete: true }],
+      log: [{ action: 'edit', user: '<svg onload=alert(3)>', field: '<b>Name</b>', old: '<script>alert(4)</script>', new: '</bdi><img src=y onerror=alert(5)>', meta: '<i>r</i>', date_iso: '2026-11-14 10:00:00', date: 'x' }] };
+    const box = document.getElementById('resp_efb');
+    box.innerHTML = efb_entries_viewer_extra_efb(5);
+    const hist = box.querySelector('#efbEntVpHist');
+    hist.hidden = false;
+    return { imgs: box.querySelectorAll('img,svg,script,b,i:not(.bi)').length, note: (box.querySelector('.efb-ent-note-text') || {}).textContent, author: (box.querySelector('.efb-ent-note-meta bdi') || {}).textContent, hist: hist.textContent.replace(/\s+/g, ' ') };
+  });
+  check('F14 viewer: a hostile note, author and history are shown as text (no element from data)', notes.imgs === 0 && notes.note === '<img src=x onerror=alert(1)> call "back" & go' && notes.author === '<img src=x onerror=alert(2)>' && /<script>alert\(4\)<\/script>/.test(notes.hist), notes);
   check('no script ran', dialogs === 0, dialogs);
   check('no request left the site', external.every(u => u.startsWith('https://site.test/')), external);
   check('no page errors', errs.length === 0, errs);

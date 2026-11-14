@@ -286,9 +286,15 @@ const EfbResponseViewer = (function () {
       replySection = buildRichEditor(msg_id, savedValue) + buildReplyActions(msg_id, true, track);
     }
 
+    /* F14 (admin only; entries-efb.js): the entry's star, status and actions above, its notes and history
+       below the answers, apart from the conversation the visitor sees. */
+    const entHead = typeof window.efb_entries_viewer_head_efb === 'function' ? window.efb_entries_viewer_head_efb(msg_id) : '';
+    const entExtra = typeof window.efb_entries_viewer_extra_efb === 'function' ? window.efb_entries_viewer_extra_efb(msg_id) : '';
     const body = `
       <div class="efb-resp-viewer ${isRtl() ? 'rtl-text' : ''}">
+        ${entHead}
         <div class="efb-resp-messages ${isRtl() ? 'rtl-text' : ''}" id="resp_efb">${m}</div>
+        ${entExtra}
         ${replySection}
       </div>`;
 
@@ -331,6 +337,7 @@ const EfbResponseViewer = (function () {
   }
 
   function initAfterRender(msgId, isPanel) {
+    if (isPanel && typeof window.efb_entries_viewer_init_efb === 'function') window.efb_entries_viewer_init_efb(msgId);
     initFileUpload(msgId);
 
     initRichEditor(msgId);

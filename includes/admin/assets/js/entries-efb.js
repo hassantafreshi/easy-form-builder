@@ -651,6 +651,163 @@
     load();
   }
 
+  /* ------------------------------------------------------------------ the entry in the response viewer (D) */
+  const STATUS = { 0: ['entStActive', 'Active'], 1: ['entSpam', 'Spam'], 2: ['entTrash', 'Trash'] };
+  function cur(msgId) { return S.current && S.current.entry && Number(S.current.entry.msg_id) === Number(msgId) ? S.current : null; }
+
+  /** "2 hours ago" in the site's language and digits (Intl), from a stored site-time date. */
+  function ago(iso) {
+    const t = Date.parse(String(iso).replace(' ', 'T'));
+    if (!isFinite(t)) return '';
+    const diff = (t - Date.now()) / 1000;
+    const units = [['year', 31536000], ['month', 2592000], ['day', 86400], ['hour', 3600], ['minute', 60], ['second', 1]];
+    for (const [u, sec] of units) {
+      if (Math.abs(diff) >= sec || u === 'second') {
+        try { return digits(new Intl.RelativeTimeFormat(locale().replace('_', '-'), { numeric: 'auto' }).format(Math.round(diff / sec), u)); } catch (e) { return ''; }
+      }
+    }
+    return '';
+  }
+
+  /** The bar above the answers: star, status, "Edited" and the actions other parts add (edit, resend, print). */
+  function viewerHead(msgId) {
+    const c = cur(msgId);
+    if (!c) return '';
+    const e = c.entry;
+    const starred = Number(e.starred) === 1;
+    const st = Number(e.entry_status);
+    const btns = ((W.EfbEntries && W.EfbEntries.viewerButtons) || []).map((f) => f(e)).join('');
+    return `<div class="efb efb-ent-view-head" id="efbEntView" data-msgid="${Number(e.msg_id)}">
+      <button type="button" class="efb efb-ent-star${starred ? ' is-on' : ''}" data-ent="vstar" data-msgid="${Number(e.msg_id)}" aria-pressed="${starred ? 'true' : 'false'}" aria-label="${esc(starred ? T('entUnstar', 'Remove star') : T('entStar', 'Star'))}">${icon(starred ? 'bi-star-fill' : 'bi-star')}</button>
+      ${st ? `<span class="efb badge efb-ent-badge efb-ent-badge-${st === 1 ? 'spam' : 'trash'}">${esc(T(STATUS[st][0], STATUS[st][1]))}</span>` : ''}
+      ${e.edited_at ? `<button type="button" class="efb btn btn-link btn-sm efb-ent-edited-link" data-ent="vhist" data-msgid="${Number(e.msg_id)}">${fill(T('entEdited', 'Edited %s'), [esc(digits(e.edited_at_display || e.edited_at))])}</button>` : ''}
+      <span class="efb efb-ent-view-btns">${btns}</span>
+    </div>`;
+  }
+
+  function notesHtml(c) {
+    const max = Number(cfg().note_max) || 5000;
+    const list = (c.notes || []).map((n) => `<li class="efb efb-ent-note" data-note="${Number(n.note_id)}">
+        <div class="efb efb-ent-note-meta"><bdi class="efb fw-bold">${esc(n.author || '—')}</bdi> · <time datetime="${esc(n.date_iso)}" title="${esc(digits(n.date))}">${esc(ago(n.date_iso))}</time>
+        ${n.can_delete ? `<button type="button" class="efb btn btn-sm btn-link efb-ent-note-del" data-ent="note-del" data-note="${Number(n.note_id)}" aria-label="${esc(T('delete', 'Delete'))}">${icon('bi-trash3')}</button>` : ''}</div>
+        <div class="efb efb-ent-note-text" dir="auto">${esc(n.note)}</div></li>`).join('');
+    return `<p class="efb efb-ent-note-private">${icon('bi-lock')} ${esc(T('entNotePrivate', 'Only administrators can see notes.'))}</p>
+      <ul class="efb list-unstyled efb-ent-notes">${list || `<li class="efb text-muted">${esc(T('entNoNotes', 'No notes yet.'))}</li>`}</ul>
+      <label class="efb visually-hidden" for="efbEntNoteTxt">${esc(T('entNoteAdd', 'Add note'))}</label>
+      <textarea class="efb form-control efb-ent-note-input" id="efbEntNoteTxt" rows="3" maxlength="${max}" dir="auto" placeholder="${esc(T('entNoteAdd', 'Add note'))}"></textarea>
+      <div class="efb d-flex justify-content-between align-items-center mt-1"><small class="efb text-muted" id="efbEntNoteErr" role="alert"></small>
+      <button type="button" class="efb btn btn-sm btn-primary" data-ent="note-add">${icon('bi-plus-lg')} ${esc(T('entNoteAdd', 'Add note'))}</button></div>`;
+  }
+
+  /** One history line in words ("Ali changed “Name” from “a” to “b”"), every inserted value isolated. */
+  function historyLine(h) {
+    const who = `<bdi>${esc(h.user || '—')}</bdi>`;
+    const v = (x) => `<bdi>${esc(x === null || x === undefined ? '' : String(x).length > 300 ? String(x).slice(0, 300) + '…' : x)}</bdi>`;
+    const st = (x) => { const k = { active: STATUS[0], spam: STATUS[1], trash: STATUS[2] }[x]; return `<bdi>${esc(k ? T(k[0], k[1]) : x || '')}</bdi>`; };
+    const sub = (tpl, vals) => { let o = esc(tpl); vals.forEach((x, i) => { o = o.split(`%${i + 1}$s`).join(x); }); return o; };
+    switch (h.action) {
+      case 'edit': return sub(T('entHistEdit', '%1$s changed “%2$s” from “%3$s” to “%4$s”'), [who, `<bdi>${esc(h.field)}</bdi>`, v(h.old), v(h.new)]) + (h.meta ? ` <span class="efb text-muted">(<bdi>${esc(h.meta)}</bdi>)</span>` : '');
+      case 'status': return sub(T('entHistStatus', '%1$s moved the entry from %2$s to %3$s'), [who, st(h.old), st(h.new)]);
+      case 'star': return sub(h.new === '1' ? T('entHistStar', '%1$s starred the entry') : T('entHistUnstar', '%1$s removed the star'), [who]);
+      case 'read': return sub(h.new === '1' ? T('entHistRead', '%1$s marked the entry as read') : T('entHistUnread', '%1$s marked the entry as unread'), [who]);
+      case 'resend': return sub(T('entHistResend', '%1$s resent the notification to %2$s recipients'), [who, `<bdi>${num((String(h.meta).match(/\d+/) || [0])[0])}</bdi>`]);
+      case 'note_del': return sub(T('entHistNoteDel', '%1$s deleted a note'), [who]);
+      case 'api_read': return sub(T('entHistApi', '%1$s read the entries through %2$s'), [who, `<bdi>${esc(h.meta)}</bdi>`]);
+      default: return `${who} <bdi>${esc(h.action)}</bdi>`;
+    }
+  }
+  function historyHtml(c) {
+    const items = (c.log || []).map((h) => `<li class="efb efb-ent-hist"><time datetime="${esc(h.date_iso)}" title="${esc(digits(h.date))}">${esc(ago(h.date_iso))}</time> — <span class="efb efb-ent-hist-txt">${historyLine(h)}</span></li>`).join('');
+    return `<ol class="efb list-unstyled efb-ent-history">${items || `<li class="efb text-muted">${esc(T('entNoHistory', 'No changes yet.'))}</li>`}</ol>`;
+  }
+
+  /** Notes and History, two tabs under the answers. */
+  function viewerExtra(msgId) {
+    const c = cur(msgId);
+    if (!c) return '';
+    const tab = S.viewTab === 'hist' ? 'hist' : 'notes';
+    return `<div class="efb efb-ent-view-extra" id="efbEntViewExtra" data-msgid="${Number(c.entry.msg_id)}">
+      <div class="efb efb-ent-tabs" role="tablist" aria-label="${esc(T('entNotes', 'Notes'))} / ${esc(T('entHistory', 'History'))}">
+        <button type="button" role="tab" class="efb efb-ent-tab${tab === 'notes' ? ' active' : ''}" id="efbEntVtNotes" aria-selected="${tab === 'notes'}" aria-controls="efbEntVpNotes" tabindex="${tab === 'notes' ? 0 : -1}" data-ent="vtab" data-vtab="notes">${esc(T('entNotes', 'Notes'))} <span class="efb efb-ent-count"><bdi>${num((c.notes || []).length)}</bdi></span></button>
+        <button type="button" role="tab" class="efb efb-ent-tab${tab === 'hist' ? ' active' : ''}" id="efbEntVtHist" aria-selected="${tab === 'hist'}" aria-controls="efbEntVpHist" tabindex="${tab === 'hist' ? 0 : -1}" data-ent="vtab" data-vtab="hist">${esc(T('entHistory', 'History'))}</button>
+      </div>
+      <div class="efb efb-ent-vpanel efb-ent-notes-panel" id="efbEntVpNotes" role="tabpanel" aria-labelledby="efbEntVtNotes" ${tab === 'notes' ? '' : 'hidden'}>${notesHtml(c)}</div>
+      <div class="efb efb-ent-vpanel" id="efbEntVpHist" role="tabpanel" aria-labelledby="efbEntVtHist" ${tab === 'hist' ? '' : 'hidden'}>${historyHtml(c)}</div>
+      <div class="efb visually-hidden" id="efbEntViewLive" role="status" aria-live="polite"></div>
+    </div>`;
+  }
+  function viewerRepaint(focusSel) {
+    const box = D.getElementById('efbEntViewExtra');
+    if (box && S.current) box.outerHTML = viewerExtra(S.current.entry.msg_id);
+    const head = D.getElementById('efbEntView');
+    if (head && S.current) head.outerHTML = viewerHead(S.current.entry.msg_id);
+    if (focusSel) { const el = D.querySelector(focusSel); if (el) el.focus(); }
+  }
+  function viewerSay(text) { const l = D.getElementById('efbEntViewLive'); if (l) { l.textContent = ''; setTimeout(() => { l.textContent = text; }, 30); } }
+  function noteAdd() {
+    const ta = D.getElementById('efbEntNoteTxt');
+    if (!ta || !S.current) return;
+    const v = ta.value;
+    if (!v.trim()) return;
+    post({ action: 'efb_entry_notes_Emsfb', op: 'add', msg_id: S.current.entry.msg_id, note: v }).then((res) => {
+      const err = D.getElementById('efbEntNoteErr');
+      if (!res || res.success !== true) { if (err) err.textContent = (res && res.m) || T('error', 'Error'); return; }
+      S.current.notes = res.notes; S.current.log = res.log;
+      const row = S.rows.find((r) => Number(r.msg_id) === Number(S.current.entry.msg_id));
+      if (row) row.notes_count = res.notes.length;
+      viewerRepaint('#efbEntNoteTxt');
+      viewerSay(T('entNoteSaved', 'Note added.'));
+    });
+  }
+  function noteDel(id) {
+    if (!S.current) return;
+    post({ action: 'efb_entry_notes_Emsfb', op: 'delete', note_id: id }).then((res) => {
+      if (!res || res.success !== true) return;
+      S.current.notes = res.notes; S.current.log = res.log;
+      const row = S.rows.find((r) => Number(r.msg_id) === Number(S.current.entry.msg_id));
+      if (row) row.notes_count = res.notes.length;
+      viewerRepaint('#efbEntNoteTxt');
+      viewerSay(T('entNoteDeleted', 'Note deleted.'));
+    });
+  }
+  function viewerStar(btn) {
+    if (!S.current) return;
+    const e = S.current.entry;
+    const on = Number(e.starred) !== 1;
+    post({ action: 'efb_entries_bulk_Emsfb', form_id: e.form_id, op: on ? 'star' : 'unstar', ids: JSON.stringify([Number(e.msg_id)]) }).then((res) => {
+      if (!res || res.success !== true) return;
+      e.starred = on ? 1 : 0;
+      const row = S.rows.find((r) => Number(r.msg_id) === Number(e.msg_id));
+      if (row) row.starred = e.starred;
+      if (res.counts) S.counts = res.counts;
+      viewerRepaint('#efbEntView [data-ent="vstar"]');
+      if (D.getElementById('efbEnt')) paint();
+      refreshExtras();
+    });
+  }
+  /** Notes and history again from the server (after an action that wrote a history row). */
+  function refreshExtras() {
+    if (!S.current) return Promise.resolve();
+    const id = S.current.entry.msg_id;
+    return post({ action: 'efb_entry_notes_Emsfb', op: 'list', msg_id: id }).then((r) => {
+      if (!r || r.success !== true || !S.current || Number(S.current.entry.msg_id) !== Number(id)) return;
+      S.current.notes = r.notes; S.current.log = r.log;
+      const a = D.activeElement && D.activeElement.id ? '#' + D.activeElement.id : null;
+      viewerRepaint(a);
+    });
+  }
+  function viewerInit(msgId) {
+    S.viewTab = S.viewTab || 'notes';
+    // The response viewer may have been drawn before the entry arrived (an old caller): draw the parts now.
+    if (cur(msgId) && !D.getElementById('efbEntViewExtra')) {
+      const msgs = D.getElementById('resp_efb');
+      if (msgs) { msgs.insertAdjacentHTML('beforebegin', viewerHead(msgId)); msgs.insertAdjacentHTML('afterend', viewerExtra(msgId)); }
+    }
+  }
+  W.efb_entries_viewer_head_efb = viewerHead;
+  W.efb_entries_viewer_extra_efb = viewerExtra;
+  W.efb_entries_viewer_init_efb = viewerInit;
+
   /* ------------------------------------------------------------------ events */
   let wired = false;
   function wire() {
@@ -661,7 +818,7 @@
       const menuOpen = D.getElementById('efbEntMenu');
       if (menuOpen && !e.target.closest('#efbEntMenu') && !e.target.closest('[data-ent="menu"]')) closeMenu();
       const el = e.target.closest('[data-ent]');
-      if (!el || !(el.closest('#efbEnt') || el.closest('#efbEntMenu') || el.closest('#efbEntDlg'))) return;
+      if (!el || !(el.closest('#efbEnt') || el.closest('#efbEntMenu') || el.closest('#efbEntDlg') || el.closest('#efbEntView') || el.closest('#efbEntViewExtra') || el.closest('.efb-ent-scope'))) return;
       const id = Number(el.dataset.msgid || 0);
       switch (el.dataset.ent) {
         case 'tab': if (S.tab !== el.dataset.tab) { S.tab = el.dataset.tab; S.page = 1; S.selected.clear(); S.allMatching = false; load({ focus: `#efbEntTab-${S.tab}` }); } break;
@@ -684,6 +841,11 @@
         case 'clear': S.q = ''; S.from = ''; S.to = ''; S.conds = []; S.page = 1; load({ focus: '#efbEntQ' }); break;
         case 'cols': colsDialog(el); break;
         case 'chart': surveyChart(); break;
+        case 'vstar': viewerStar(el); break;
+        case 'vtab': S.viewTab = el.dataset.vtab === 'hist' ? 'hist' : 'notes'; viewerRepaint(S.viewTab === 'hist' ? '#efbEntVtHist' : '#efbEntVtNotes'); break;
+        case 'vhist': S.viewTab = 'hist'; viewerRepaint('#efbEntVtHist'); { const p = D.getElementById('efbEntViewExtra'); if (p && p.scrollIntoView) p.scrollIntoView({ block: 'nearest' }); } break;
+        case 'note-add': noteAdd(); break;
+        case 'note-del': noteDel(Number(el.dataset.note)); break;
         default:
           if (W.EfbEntries && W.EfbEntries.actions && typeof W.EfbEntries.actions[el.dataset.ent] === 'function') W.EfbEntries.actions[el.dataset.ent](el, id);
       }
@@ -739,8 +901,8 @@
         return;
       }
       const tab = e.target.closest && e.target.closest('[role="tab"]');
-      if (tab && tab.closest('#efbEnt') && (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End')) {
-        const tabs = Array.from(D.querySelectorAll('#efbEnt [role="tab"]'));
+      if (tab && (tab.closest('#efbEnt') || tab.closest('#efbEntViewExtra')) && (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End')) {
+        const tabs = Array.from(tab.closest('[role="tablist"]').querySelectorAll('[role="tab"]'));
         let i = tabs.indexOf(tab);
         const fwd = (e.key === 'ArrowRight') !== isRtl();
         i = e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : (fwd ? (i + 1) % tabs.length : (i - 1 + tabs.length) % tabs.length);
@@ -748,6 +910,7 @@
         tabs[i].click();
         return;
       }
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && e.target.id === 'efbEntNoteTxt') { e.preventDefault(); noteAdd(); return; }
       if (e.key === 'Enter' && e.target.id === 'efbEntQ') { e.preventDefault(); clearTimeout(qTimer); S.q = e.target.value.slice(0, 100); S.page = 1; load({ focus: '#efbEntQ' }); return; }
       shortcuts(e);
     });
@@ -802,7 +965,7 @@
   }
 
   W.EfbEntries = Object.assign(W.EfbEntries || {}, {
-    state: S, openForm, load, paint, op, open, star, dialog, closeDialog, post, toast, announce, gate, planOk,
+    state: S, openForm, load, paint, op, open, star, dialog, closeDialog, post, toast, announce, gate, planOk, viewerRepaint, viewerSay, historyLine, ago, cur, refreshExtras,
     rowsOf, valueOf, digits, latin, num, fill, esc, T, isRtl,
     renderHead, renderRow, renderAll, renderPager, renderTabs, renderFilters,
     headButtons: (W.EfbEntries && W.EfbEntries.headButtons) || [],
@@ -810,6 +973,7 @@
     extraMenu: (W.EfbEntries && W.EfbEntries.extraMenu) || [],
     afterPaint: (W.EfbEntries && W.EfbEntries.afterPaint) || [],
     actions: (W.EfbEntries && W.EfbEntries.actions) || {},
+    viewerButtons: (W.EfbEntries && W.EfbEntries.viewerButtons) || [],
   });
   /* The renderers by the names of the spec (§6). */
   W.efb_entries_render_head_efb = renderHead;

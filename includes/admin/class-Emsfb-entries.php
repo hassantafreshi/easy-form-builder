@@ -59,6 +59,8 @@ class Entries {
 		add_action('wp_ajax_efb_entries_bulk_Emsfb', array(__CLASS__, 'ajax_bulk'));
 		add_action('wp_ajax_efb_entries_cols_Emsfb', array(__CLASS__, 'ajax_cols'));
 		add_action('wp_ajax_efb_entry_get_Emsfb', array(__CLASS__, 'ajax_get'));
+		add_action('wp_ajax_efb_entry_notes_Emsfb', array(__CLASS__, 'ajax_notes'));
+		add_filter('efb_entry_get_answer', array(__CLASS__, 'entry_extras'), 10, 2);
 		// Notes and history go with the entry (every permanent delete path of F13).
 		add_action('efb_entries_purged', array(__CLASS__, 'on_entries_purged'), 15, 4);
 		// The trash is emptied after trash_days by the daily job, after F13's retention (30).
@@ -985,6 +987,122 @@ class Entries {
 				$wpdb->query($wpdb->prepare("DELETE FROM `{$log}` WHERE msg_id IN ({$in})", $chunk));
 			}
 		}
+	}
+
+	/* ------------------------------------------------------------ notes and history (D) */
+
+	const NOTE_MAX = 5000;
+
+	private static $names = array();
+
+	/** A user's display name (cached), or "" for a user that no longer exists. */
+	public static function user_name($uid) {
+		$uid = (int) $uid;
+		if ($uid <= 0) return '';
+		if (!isset(self::$names[$uid])) {
+			$u = function_exists('get_userdata') ? get_userdata($uid) : null;
+			self::$names[$uid] = $u && isset($u->display_name) ? (string) $u->display_name : '';
+		}
+		return self::$names[$uid];
+	}
+
+	/** The notes of an entry, oldest first, each with its author and whether this user may delete it. */
+	public static function notes_of($msg_id) {
+		global $wpdb;
+		$t = $wpdb->prefix . self::NOTES;
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		$rows = $wpdb->get_results($wpdb->prepare("SELECT note_id, msg_id, user_id, note, `date` FROM `{$t}` WHERE msg_id = %d ORDER BY note_id ASC", (int) $msg_id), ARRAY_A);
+		$me = function_exists('get_current_user_id') ? (int) get_current_user_id() : 0;
+		$admin = function_exists('current_user_can') && current_user_can('manage_options');
+		$out = array();
+		foreach ((array) $rows as $r) {
+			$out[] = array('note_id' => (int) $r['note_id'], 'user_id' => (int) $r['user_id'], 'author' => self::user_name($r['user_id']), 'note' => (string) $r['note'],
+				'date_iso' => (string) $r['date'], 'date' => self::display_date((string) $r['date']), 'can_delete' => $admin || ((int) $r['user_id'] === $me && $me > 0));
+		}
+		return $out;
+	}
+
+	/** The history of an entry, newest first; field ids carry the field's current label. */
+	public static function log_of($msg_id, $form_id = 0) {
+		global $wpdb;
+		$t = $wpdb->prefix . self::LOG;
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		$rows = $wpdb->get_results($wpdb->prepare("SELECT log_id, user_id, action, field_id, old_value, new_value, meta, `date` FROM `{$t}` WHERE msg_id = %d ORDER BY log_id DESC LIMIT 500", (int) $msg_id), ARRAY_A);
+		$names = array();
+		foreach (self::form_fields($form_id) as $f) $names[$f['id']] = $f['name'];
+		$out = array();
+		foreach ((array) $rows as $r) {
+			$out[] = array('log_id' => (int) $r['log_id'], 'user' => self::user_name($r['user_id']), 'action' => (string) $r['action'], 'field_id' => (string) $r['field_id'],
+				'field' => isset($names[(string) $r['field_id']]) ? $names[(string) $r['field_id']] : (string) $r['field_id'], 'old' => $r['old_value'], 'new' => $r['new_value'],
+				'meta' => (string) $r['meta'], 'date_iso' => (string) $r['date'], 'date' => self::display_date((string) $r['date']));
+		}
+		return $out;
+	}
+
+	/** efb_entry_get_answer: the viewer's entry comes with its notes and history. */
+	public static function entry_extras($out, $e) {
+		if (is_array($out) && is_array($e)) {
+			$out['notes'] = self::notes_of($e['msg_id']);
+			$out['log'] = self::log_of($e['msg_id'], $e['form_id']);
+		}
+		return $out;
+	}
+
+	/**
+	 * Adds a note (plain text, at most 5000 characters, HTML refused rather than stripped so nothing typed is lost
+	 * without the person knowing). Returns the note id, or a WP_Error-like array ['code', 'm'].
+	 */
+	public static function note_add($msg_id, $text) {
+		global $wpdb;
+		$raw = (string) $text;
+		if (preg_match('/<\s*\/?\s*[a-z!][^>]*>/i', $raw)) return array('code' => 'efb_note_html', 'm' => self::t('entNoteHtml', 'HTML is not allowed in notes.'));
+		$note = function_exists('sanitize_textarea_field') ? sanitize_textarea_field($raw) : trim(strip_tags($raw));
+		$len = function_exists('mb_strlen') ? mb_strlen($note, 'UTF-8') : strlen($note);
+		if ($len === 0) return array('code' => 'efb_invalid', 'm' => self::t('pleaseEnterVaildValue', 'Please enter a valid value.'));
+		if ($len > self::NOTE_MAX) return array('code' => 'efb_note_long', 'm' => str_replace('%s', (string) self::NOTE_MAX, self::t('entNoteTooLong', 'A note can have at most %s characters.')));
+		if (!self::entry_exists($msg_id)) return array('code' => 'efb_not_found', 'm' => self::t('notFound', 'Not found'));
+		$ok = $wpdb->insert($wpdb->prefix . self::NOTES, array('msg_id' => (int) $msg_id, 'user_id' => function_exists('get_current_user_id') ? (int) get_current_user_id() : 0, 'note' => $note, 'date' => self::now()));
+		return $ok === false ? array('code' => 'efb_failed', 'm' => self::t('somethingWentWrongPleaseRefresh', 'Something went wrong. Please refresh the page.')) : (int) $wpdb->insert_id;
+	}
+
+	/** Deletes a note: its author, or an administrator (manage_options). The history keeps that it happened, not the text. */
+	public static function note_delete($note_id) {
+		global $wpdb;
+		$t = $wpdb->prefix . self::NOTES;
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		$n = $wpdb->get_row($wpdb->prepare("SELECT note_id, msg_id, user_id FROM `{$t}` WHERE note_id = %d", (int) $note_id), ARRAY_A);
+		if (!$n) return array('code' => 'efb_not_found', 'm' => self::t('notFound', 'Not found'));
+		$me = function_exists('get_current_user_id') ? (int) get_current_user_id() : 0;
+		if (!(function_exists('current_user_can') && current_user_can('manage_options')) && ((int) $n['user_id'] !== $me || $me <= 0)) {
+			return array('code' => 'efb_forbidden', 'm' => self::t('error403', 'You do not have permission to do this.'));
+		}
+		$wpdb->delete($t, array('note_id' => (int) $note_id));
+		self::log((int) $n['msg_id'], 'note_del');
+		return (int) $n['msg_id'];
+	}
+
+	private static function entry_exists($msg_id) {
+		global $wpdb;
+		return (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM `{$wpdb->prefix}emsfb_msg_` WHERE msg_id = %d", (int) $msg_id)) > 0;
+	}
+
+	/** AJAX efb_entry_notes_Emsfb: op list | add | delete. */
+	public static function ajax_notes() {
+		self::guard();
+		$op = self::post('op');
+		$msg = absint(self::post('msg_id'));
+		if ($op === 'add') {
+			$r = self::note_add($msg, self::post('note'));
+			if (is_array($r)) wp_send_json_success(array_merge(array('success' => false), $r), 200);
+		} elseif ($op === 'delete') {
+			$r = self::note_delete(absint(self::post('note_id')));
+			if (is_array($r)) wp_send_json_success(array_merge(array('success' => false), $r), 200);
+			$msg = $r;
+		} elseif ($op !== 'list') {
+			wp_send_json_success(array('success' => false, 'code' => 'efb_invalid'), 200);
+		}
+		$form = (int) $GLOBALS['wpdb']->get_var($GLOBALS['wpdb']->prepare("SELECT form_id FROM `{$GLOBALS['wpdb']->prefix}emsfb_msg_` WHERE msg_id = %d", $msg));
+		wp_send_json_success(array('success' => true, 'msg_id' => $msg, 'notes' => self::notes_of($msg), 'log' => self::log_of($msg, $form)), 200);
 	}
 
 	/* ------------------------------------------------------------ statistics (J) and their backfill (A) */

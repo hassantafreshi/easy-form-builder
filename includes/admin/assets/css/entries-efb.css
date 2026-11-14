@@ -101,3 +101,18 @@
   .efb-ent-tab, .efb-act-btn, .efb-ent-star { min-height: 44px; min-width: 44px; }
   .efb-ent-headbtns .btn span { display: none; }
 }
+
+/* The entry in the response viewer: star, status, actions above; notes (pale yellow, administrators only) and
+   history below, apart from the conversation the visitor sees. */
+.efb-ent-view-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 8px; unicode-bidi: plaintext; }
+.efb-ent-view-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-inline-start: auto; }
+.efb-ent-view-btns .btn { min-height: 36px; }
+.efb-ent-view-extra { margin: 12px 0; border: 1px solid #e2e8f0; border-radius: 12px; padding: 8px 12px; background: #fff; }
+.efb-ent-notes-panel { background: #fffbeb; border-radius: 8px; padding: 8px 10px; }
+.efb-ent-note-private { font-size: .8rem; color: #92400e; margin: 0 0 6px; }
+.efb-ent-note { border-bottom: 1px dashed #fde68a; padding: 6px 0; }
+.efb-ent-note-meta { font-size: .8rem; color: #64748b; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; unicode-bidi: plaintext; }
+.efb-ent-note-text { white-space: pre-wrap; word-break: break-word; unicode-bidi: plaintext; }
+.efb-ent-history { margin: 0; font-size: .85rem; }
+.efb-ent-hist { padding: 4px 0; border-bottom: 1px solid #f1f5f9; unicode-bidi: plaintext; }
+.efb-ent-hist time { color: #64748b; }
