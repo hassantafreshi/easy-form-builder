@@ -534,7 +534,36 @@
       }
     }
 
-    return { init: init, ready: ready, addRow: addRow, removeRow: removeRow, ensureRows: ensureRows, rowsOf: rowsOf, onAnswer: onAnswer, renumber: renumber,
+    /** null, or {code, message} when the number of rows is outside [min, max] (the step check, spec §9.1). */
+    function check(fid, g) {
+      var st = stateOf(fid, g);
+      if (!st) return null;
+      var n = rowEls(st).length;
+      var name = labelOf(fid, g);
+      if (n < st.min) return { code: 'min', message: fill(T('rptMinRowsMsg', '%1$s needs at least %2$s rows.'), name, num(st.min)) };
+      if (n > st.max) return { code: 'max', message: fill(T('rptMaxRowsMsg', '%1$s allows at most %2$s rows.'), name, num(st.max)) };
+      return null;
+    }
+    /** Unfold the row that holds an element (an id inside a row, or a field id {child}_r{n}). */
+    function reveal(id, fid) {
+      var d = doc();
+      if (!d || !id) return false;
+      var el = d.getElementById(id) || d.getElementById(id + '_');
+      var row = el && el.closest ? el.closest('.efb-rpt-row') : null;
+      if (!row || !row.classList.contains('efb-rpt-collapsed')) return false;
+      for (var k in S) if (S[k].rows && S[k].rows.contains(row)) { setCollapsed(S[k], row, false); row.classList.add('efb-rpt-err'); return true; }
+      return false;
+    }
+    /** The element of a field the server names by its base id and row (row_index), or null. */
+    function fieldAt(fid, base, ri) {
+      var gs = structure(fid).filter(function (r) { return r && r.id_ === base; })[0];
+      var g = gs ? str(gs.group) : '';
+      var rows = g ? rowsOf(fid, g) : [];
+      var r = rows[Number(ri)];
+      return r ? base + '_r' + r.n : null;
+    }
+
+    return { init: init, ready: ready, addRow: addRow, check: check, reveal: reveal, fieldAt: fieldAt, removeRow: removeRow, ensureRows: ensureRows, rowsOf: rowsOf, onAnswer: onAnswer, renumber: renumber,
       state: stateOf, groups: function () { return Object.keys(S).map(function (k) { return { form_id: S[k].fid, group: S[k].g }; }); }, structure: structure };
   })();
 

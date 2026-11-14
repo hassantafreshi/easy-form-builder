@@ -1877,10 +1877,23 @@ function fun_show_alert_setting_emsFormBuilder() {
     window.alert(`${ajax_object_efm.text.error} ${ajax_object_efm.text.formIsNotShown}`)
   }
 }
+/* F09: the base rows of a repeater group's fields are never drawn (their copies {child}_r{n} are), so the step
+ * check and the pre-send check skip them; a form without a group gets its array back as it is. */
+function efb_rpt_rows_for_checks_efb(rows) {
+  if (!window.EFBRepeaterCore || !Array.isArray(rows) || !rows.some((r) => r && r.type === 'repeater')) return rows;
+  const kids = window.EFBRepeaterCore.childGroups(rows);
+  return rows.filter((r) => !(r && r.id_ !== undefined && Object.prototype.hasOwnProperty.call(kids, String(r.id_)) && r.rpt_base === undefined));
+}
+/* F09: a copy inside a group that Conditional Logic hid is skipped like any hidden field. */
+function efb_rpt_hidden_efb(form_id, row) {
+  if (!row || !row.rpt_group) return false;
+  const w = efb_get_by_id_in_form_efb(form_id, row.rpt_group);
+  return !!(w && (w.classList.contains('d-none') || w.classList.contains('efb-anim-hide')));
+}
 async function validation_before_send_efb(form_id) {
   let valj_efb
   if (form_id){
-    valj_efb = get_structure_by_form_id_efb(form_id);
+    valj_efb = efb_rpt_rows_for_checks_efb(get_structure_by_form_id_efb(form_id));
   }else{
     valj_efb = valj_efb;
   }
@@ -1897,6 +1910,7 @@ async function validation_before_send_efb(form_id) {
   const fileLikeTypes_efb = ["file", "audio_recorder", "video_recorder", "screen_recorder"];
   const recorderTypes_efb_v4 = ["audio_recorder", "video_recorder", "screen_recorder"];
   for (const v of valj_efb) {
+    if (efb_rpt_hidden_efb(form_id, v)) continue;
     require += v.required == true && fileLikeTypes_efb.indexOf(v.type) === -1 ? 1 : 0;
     if (fileLikeTypes_efb.indexOf(v.type) !== -1) {
       const fileInputId_efb = recorderTypes_efb_v4.indexOf(v.type) !== -1 ? `${v.id_}_file` : `${v.id_}_`;
@@ -1974,7 +1988,10 @@ async function validation_before_send_efb(form_id) {
     smoothy_scroll_postion_efb(id_body)
     for (const v of valj_efb) {
       if (v.type != 'file' && v.type != 'dadfile' && v.type != 'checkbox' && v.type != 'radiobutton' && v.type != 'option' && v.type != 'multiselect' && v.type != 'select' && v.type != 'payMultiselect' && v.type != 'paySelect' && v.type != 'payRadio' && v.type != 'payCheckbox' && v.type != 'chlCheckBox') {
-        (v.id_ && document.getElementById(v.id_).value.length < 5) ? document.getElementById(`${v.id_}-message`).innerHTML = ajax_object_efm.text.enterTheValueThisField : 0
+        // A row whose element is not in the page (a step row, a repeater's base field) has no box to mark.
+        const vEl_efb = v.id_ ? document.getElementById(v.id_) : null;
+        const vMsg_efb = v.id_ ? document.getElementById(`${v.id_}-message`) : null;
+        (vEl_efb && vMsg_efb && typeof vEl_efb.value === 'string' && vEl_efb.value.length < 5) ? vMsg_efb.innerHTML = ajax_object_efm.text.enterTheValueThisField : 0
         return false;
       }
     }
@@ -3339,6 +3356,8 @@ function efb_row_belongs_to_form_efb(row, form_id) {
 }
 
 smoothy_scroll_postion_efb=(id, form_id=0)=>{
+  // F09: a field in a folded repeater row is unfolded first.
+  if (window.EFBRepeater && typeof window.EFBRepeater.reveal === 'function') { try { window.EFBRepeater.reveal(id, form_id); } catch (e) {} }
 
   const element = Number(form_id) > 0 && typeof efb_get_by_id_in_form_efb === 'function'
     ? efb_get_by_id_in_form_efb(form_id, id)
@@ -4962,7 +4981,7 @@ async function fun_validation_efb_v4(form_id) {
   let state = true;
   let idi = "null";
   let name_field = "";
-  let valj_efb = get_structure_by_form_id_efb(form_id);
+  let valj_efb = efb_rpt_rows_for_checks_efb(get_structure_by_form_id_efb(form_id));
   let id_noti_message = valj_efb.steps > 1 ?  `step-${current_s_efb}-efb-msg` : 'alert_efb';
   efb_steps_debug_efb('validation:structure', {
     form_id: form_id,
@@ -4993,6 +5012,17 @@ async function fun_validation_efb_v4(form_id) {
         });
       }
       continue;
+    }
+    // F09: a copy in a group hidden by Conditional Logic; the number of rows of a group (minimum / maximum).
+    if (efb_rpt_hidden_efb(form_id, valj_efb[row])) continue;
+    if (row > 1 && valj_efb[row].type === 'repeater' && current_s_efb == valj_efb[row].step && window.EFBRepeater) {
+      const rptChk = window.EFBRepeater.check(form_id, valj_efb[row].id_);
+      if (rptChk) {
+        const rptMsg = efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_-message`);
+        if (rptMsg) { rptMsg.textContent = rptChk.message; rptMsg.setAttribute('role', 'alert'); show_msg_efb(rptMsg); }
+        if (state == true) { state = false; idi = valj_efb[row].id_; name_field = valj_efb[row].name; }
+        continue;
+      }
     }
     /* An email field holding text that is not an address. valid_email_emsFormBuilder()
      * already dropped the value, so an optional field used to submit without it,
@@ -5261,7 +5291,7 @@ const speed_test_efb=()=>{
 const check_form_payment_filled_efb = (form_id=0) =>{
   const payment_method =['paypal','stripe','persiapay' ,'zarinpal'];
   let valj_efb;
-  try { valj_efb = get_structure_by_form_id_efb(form_id); }
+  try { valj_efb = efb_rpt_rows_for_checks_efb(get_structure_by_form_id_efb(form_id)); }
   catch (e) { valj_efb = window.valj_efb; }
   if(!Array.isArray(valj_efb) || !valj_efb[0]) return false;
   if(valj_efb[0].type != 'payment') return true;
