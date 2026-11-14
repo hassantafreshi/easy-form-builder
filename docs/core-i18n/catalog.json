@@ -4,7 +4,7 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-14",
     "counts": {
-        "active": 3896,
+        "active": 3946,
         "obsolete": 376
     },
     "entries": [
@@ -1376,7 +1376,7 @@
             "msgid": "%s files",
             "context": null,
             "plural": null,
-            "translators": "F07 response viewer: accessible name of a group of files; %s = number of files",
+            "translators": "F07 response viewer: accessible name of a group of files; %s = number of files translators: F10: review page; %s = number of files",
             "files": [
                 "includes/functions.php"
             ],
@@ -2905,6 +2905,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "A typed name is drawn as a signature image and kept with the answer, so visitors without a mouse or a touch screen can sign too.",
+            "context": null,
+            "plural": null,
+            "translators": "F10: builder help under How visitors sign",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -5108,6 +5123,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Amount to pay",
+            "context": null,
+            "plural": null,
+            "translators": "F10: review page: the payment amount row",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "An SMS code shows that the visitor receives messages on that number. It is not a strong login factor.",
             "context": null,
             "plural": null,
@@ -6610,6 +6640,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Back to review",
+            "context": null,
+            "plural": null,
+            "translators": "F10: button that returns to the review page",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Back to the default translation",
             "context": null,
             "plural": null,
@@ -6810,7 +6855,7 @@
             "msgid": "Basic",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F10: rich text toolbar choice",
             "files": [
                 "includes/functions.php"
             ],
@@ -7216,7 +7261,7 @@
             "msgid": "Bold",
             "context": null,
             "plural": null,
-            "translators": "Tooltip on the Bold button in the response-viewer rich-text editor toolbar",
+            "translators": "Tooltip on the Bold button in the response-viewer rich-text editor toolbar translators: F10: editor button",
             "files": [
                 "includes/functions.php"
             ],
@@ -7224,6 +7269,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Bold, italic, underline and lists; Full adds links, quotes and headings. The site keeps only these formats.",
+            "context": null,
+            "plural": null,
+            "translators": "F10: rich text setting help",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -7694,6 +7754,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Bulleted list",
+            "context": null,
+            "plural": null,
+            "translators": "F10: editor button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Business Card",
             "context": null,
             "plural": null,
@@ -7925,6 +8000,21 @@
             "context": null,
             "plural": null,
             "translators": "F13: option of the anonymization field setting. %s: Yes or No, the default for this field type",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "By the name's script",
+            "context": null,
+            "plural": null,
+            "translators": "F10: builder, Signature font: chosen from the first letter of the name",
             "files": [
                 "includes/functions.php"
             ],
@@ -9071,6 +9161,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Check your answers. Use Edit to change one, then send the form.",
+            "context": null,
+            "plural": null,
+            "translators": "F10: review page: text under the title",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Checked %s ago",
             "context": null,
             "plural": null,
@@ -9142,6 +9247,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Checking the amount…",
+            "context": null,
+            "plural": null,
+            "translators": "F10: review page: while the site computes the amount",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -9537,6 +9657,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Chosen user roles",
+            "context": null,
+            "plural": null,
+            "translators": "F10: builder, Show this field to: users with one of the WordPress roles ticked below",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Circles",
             "context": null,
             "plural": null,
@@ -9735,7 +9870,7 @@
             "msgid": "Clear formatting",
             "context": null,
             "plural": null,
-            "translators": "Tooltip on the \"Clear formatting\" button in the response-viewer rich-text editor toolbar",
+            "translators": "Tooltip on the \"Clear formatting\" button in the response-viewer rich-text editor toolbar translators: F10: editor button",
             "files": [
                 "includes/functions.php"
             ],
@@ -10234,6 +10369,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Collapsed when the form opens",
+            "context": null,
+            "plural": null,
+            "translators": "F10: section setting (switch)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Collect CV and resume details from applicants.",
             "context": null,
             "plural": null,
@@ -10667,6 +10817,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Confirm and submit",
+            "context": null,
+            "plural": null,
+            "translators": "F10: button on the review page",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Confirm email",
@@ -14497,6 +14662,51 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Draw",
+            "context": null,
+            "plural": null,
+            "translators": "F10: e-signature tab: sign by drawing with a mouse, a pen or a finger",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Draw only",
+            "context": null,
+            "plural": null,
+            "translators": "F10: builder, How visitors sign: drawing only (as before)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Draw or type",
+            "context": null,
+            "plural": null,
+            "translators": "F10: builder, How visitors sign: two tabs",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Drinks",
             "context": null,
             "plural": null,
@@ -15237,7 +15447,7 @@
             "msgid": "Edit",
             "context": null,
             "plural": null,
-            "translators": "Edit = generic edit button",
+            "translators": "F10: button on the review page translators: Edit = generic edit button",
             "files": [
                 "includes/functions.php",
                 "includes/phrases.php"
@@ -15246,6 +15456,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Edit %s",
+            "context": null,
+            "plural": null,
+            "translators": "F10: accessible name of a button; %s = the field label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -15316,6 +15541,21 @@
             "translators": "",
             "files": [
                 "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Edit step %s",
+            "context": null,
+            "plural": null,
+            "translators": "F10: accessible name of a button; %s = the step name",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -17671,6 +17911,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Everyone",
+            "context": null,
+            "plural": null,
+            "translators": "F10: builder, Show this field to: every visitor",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Everything in Free Plus",
             "context": null,
             "plural": null,
@@ -19445,6 +19700,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Formatting",
+            "context": null,
+            "plural": null,
+            "translators": "F10: accessible name of the editor's toolbar",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Forms",
             "context": null,
             "plural": null,
@@ -20005,6 +20275,21 @@
             "context": null,
             "plural": null,
             "translators": "F07 builder: camera option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Full",
+            "context": null,
+            "plural": null,
+            "translators": "F10: rich text toolbar choice",
             "files": [
                 "includes/functions.php"
             ],
@@ -20892,6 +21177,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Guests (not signed in)",
+            "context": null,
+            "plural": null,
+            "translators": "F10: builder, Show this field to: visitors who are not logged in",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Guide, video and AI prompt",
             "context": null,
             "plural": null,
@@ -21105,7 +21405,7 @@
             "msgid": "Heading",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F10: editor button",
             "files": [
                 "includes/functions.php"
             ],
@@ -21413,6 +21713,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Hide empty answers in the review",
+            "context": null,
+            "plural": null,
+            "translators": "F10: form setting (switch)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -22021,6 +22336,21 @@
             "context": null,
             "plural": null,
             "translators": "F11: builder label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "How visitors sign",
+            "context": null,
+            "plural": null,
+            "translators": "F10: builder, e-signature setting",
             "files": [
                 "includes/functions.php"
             ],
@@ -24304,7 +24634,7 @@
             "msgid": "Italic",
             "context": null,
             "plural": null,
-            "translators": "Tooltip on the Italic button in the response-viewer rich-text editor toolbar",
+            "translators": "Tooltip on the Italic button in the response-viewer rich-text editor toolbar translators: F10: editor button",
             "files": [
                 "includes/functions.php"
             ],
@@ -24614,6 +24944,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Keep only one section open at a time",
+            "context": null,
+            "plural": null,
+            "translators": "F10: form setting (switch)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Keep partial answers (abandoned forms)",
@@ -25294,6 +25639,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Latin script (Dancing Script)",
+            "context": null,
+            "plural": null,
+            "translators": "F10: builder, Signature font; Dancing Script is a font name, keep it",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Latitude",
             "context": null,
             "plural": null,
@@ -25808,7 +26168,7 @@
             "msgid": "Link",
             "context": null,
             "plural": null,
-            "translators": "F11: block option translators: Default name given to a newly added social link",
+            "translators": "F11: block option translators: Default name given to a newly added social link translators: F10: editor button",
             "files": [
                 "includes/functions.php",
                 "includes/page-builders/gutenberg/editor.js"
@@ -25832,6 +26192,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Link address (https://…)",
+            "context": null,
+            "plural": null,
+            "translators": "F10: prompt of the editor's link button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -29196,6 +29571,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "No answer",
+            "context": null,
+            "plural": null,
+            "translators": "F10: review page: an optional field left empty",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "No answer came back from the server. Refresh the page and try again.",
             "context": null,
             "plural": null,
@@ -29944,6 +30334,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "No role chosen: nobody sees this field",
+            "context": null,
+            "plural": null,
+            "translators": "F10: builder canvas mark when no role is ticked",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -30774,6 +31179,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Numbered list",
+            "context": null,
+            "plural": null,
+            "translators": "F10: editor button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Numbers",
             "context": null,
             "plural": null,
@@ -31364,6 +31784,7 @@
             "plural": null,
             "translators": "",
             "files": [
+                "includes/class-Emsfb-public.php",
                 "includes/payments/class-Emsfb-payment-registry.php"
             ],
             "scope": [
@@ -31468,6 +31889,21 @@
             "context": null,
             "plural": null,
             "translators": "F13: note shown to plugin users who are not site administrators",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Only for",
+            "context": null,
+            "plural": null,
+            "translators": "F10: builder canvas mark before the people who see the field, e.g. 'Only for: Editor'",
             "files": [
                 "includes/functions.php"
             ],
@@ -31633,6 +32069,21 @@
             "context": null,
             "plural": null,
             "translators": "F11: builder note",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Only web (http, https) and e-mail links are allowed.",
+            "context": null,
+            "plural": null,
+            "translators": "F10: editor message",
             "files": [
                 "includes/functions.php"
             ],
@@ -33921,6 +34372,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Persian / Arabic script (Aref Ruqaa)",
+            "context": null,
+            "plural": null,
+            "translators": "F10: builder, Signature font; Aref Ruqaa is a font name, keep it",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -37037,8 +37503,9 @@
             "msgid": "Quote",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F10: editor button",
             "files": [
+                "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
@@ -39156,6 +39623,51 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Review answers before submitting",
+            "context": null,
+            "plural": null,
+            "translators": "F10: form setting (switch)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Review is not available on forms that take a payment inside the form (Stripe, PayPal, PersiaPay).",
+            "context": null,
+            "plural": null,
+            "translators": "F10: builder note",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Review page title",
+            "context": null,
+            "plural": null,
+            "translators": "F10: form setting label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Review posted",
             "context": null,
             "plural": null,
@@ -39186,6 +39698,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Review your answers",
+            "context": null,
+            "plural": null,
+            "translators": "F10: title of the review page shown before the form is sent",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Reviews take a little while to appear on WordPress.org. As soon as yours is live, we will email the code automatically.",
             "context": null,
             "plural": null,
@@ -39212,6 +39739,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Rich text editor",
+            "context": null,
+            "plural": null,
+            "translators": "F10: textarea setting (switch): visitors can format their answer",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -40723,6 +41265,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Section",
+            "context": null,
+            "plural": null,
+            "translators": "F10: palette tile: a section heading that can collapse the fields after it",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -42693,6 +43250,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Show this field to",
+            "context": null,
+            "plural": null,
+            "translators": "F10: builder, a field's setting: who sees the field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Show watermark on the preview",
             "context": null,
             "plural": null,
@@ -42906,7 +43478,7 @@
             "msgid": "Signature",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F10: review page: alternative text of the signature image",
             "files": [
                 "includes/functions.php"
             ],
@@ -42914,6 +43486,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Signature font",
+            "context": null,
+            "plural": null,
+            "translators": "F10: builder, e-signature setting: the font of a typed signature",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Signed-in visitors",
+            "context": null,
+            "plural": null,
+            "translators": "F10: builder, Show this field to: users who are logged in",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -47309,6 +47911,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The amount is confirmed when you pay.",
+            "context": null,
+            "plural": null,
+            "translators": "F10: review page: when the amount could not be checked",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The amount must be at least %s.",
             "context": null,
             "plural": null,
@@ -49780,6 +50397,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The section holds the fields after it in this step, up to the next section.",
+            "context": null,
+            "plural": null,
+            "translators": "F10: section settings help",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The security check could not finish on your connection. Please press Send again; your answers are kept.",
             "context": null,
             "plural": null,
@@ -49994,6 +50626,21 @@
             "context": null,
             "plural": null,
             "translators": "F06 Settings: option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The site leaves this field out of the page and out of the sent answers for anyone else, and it is never required for them. Administrators follow the rule too.",
+            "context": null,
+            "plural": null,
+            "translators": "F10: builder help under Show this field to",
             "files": [
                 "includes/functions.php"
             ],
@@ -53220,6 +53867,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Toolbar",
+            "context": null,
+            "plural": null,
+            "translators": "F10: rich text setting label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Tooltip",
             "context": null,
             "plural": null,
@@ -53838,6 +54500,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Type",
+            "context": null,
+            "plural": null,
+            "translators": "F10: e-signature tab: sign by typing the name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Type it twice",
             "context": null,
             "plural": null,
@@ -53872,6 +54549,36 @@
             "context": null,
             "plural": null,
             "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Type the name only",
+            "context": null,
+            "plural": null,
+            "translators": "F10: builder, How visitors sign: typing only",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Type your full name",
+            "context": null,
+            "plural": null,
+            "translators": "F10: e-signature: the box where the visitor types the name that is drawn as the signature",
             "files": [
                 "includes/functions.php"
             ],
@@ -53933,6 +54640,22 @@
             "plural": null,
             "translators": "F05 builder",
             "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Typed signature",
+            "context": null,
+            "plural": null,
+            "translators": "F10: shown with a signature that was typed, followed by the name, e.g. 'Typed signature: Jane Doe'",
+            "files": [
+                "includes/class-Emsfb-public.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -54381,7 +55104,7 @@
             "msgid": "Underline",
             "context": null,
             "plural": null,
-            "translators": "Tooltip on the Underline button in the response-viewer rich-text editor toolbar",
+            "translators": "Tooltip on the Underline button in the response-viewer rich-text editor toolbar translators: F10: editor button",
             "files": [
                 "includes/functions.php"
             ],
@@ -56303,6 +57026,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Visitors can collapse this section",
+            "context": null,
+            "plural": null,
+            "translators": "F10: section setting (switch)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Visitors can read the formula in the page source.",
             "context": null,
             "plural": null,
@@ -58012,6 +58750,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Who sees a field, or a rich text editor, has changed on this form.",
+            "context": null,
+            "plural": null,
+            "translators": "F10: save notice (and the AI preview): a field visibility rule or a rich text editor changed",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
