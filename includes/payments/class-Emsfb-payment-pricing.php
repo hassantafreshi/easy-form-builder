@@ -8,7 +8,8 @@
  *  - price fields (prcfld): a typed amount within the field's Min/Max, or the B7 server result
  *    when a logic rule computes it (Builder_Api::apply_server_prices());
  *  - the payment field itself: a fixed amount (pf_fixed) and/or a donation (pf_amount = donation:
- *    a preset from pf_presets, or any amount in [pf_min, pf_max] when pf_other = 1).
+ *    a preset from pf_presets, or any amount in [pf_min, pf_max] when pf_other = 1);
+ *  - F04-G: calc fields with calc_as_price (Pro), computed by Calc::price_items() from the answers.
  * Coupons, tax and fees are part of the quote shape (0 in phase 1).
  *
  * The browser has a twin for display only (efbPayCoreEfb.quote() in payment-core-efb.js).
@@ -109,6 +110,18 @@ class Pricing {
 					if ( ( $min !== null && $minor < $min ) || ( $max !== null && $minor > $max ) ) return self::err( 'pwyw_out_of_range', $id );
 					if ( $minor > 0 ) $items[] = self::item( $id, $label, $minor, 'price' );
 					break;
+			}
+		}
+
+		// F04-G (Pro): a calc field used as the amount (calc_as_price): the server's own result from the answers;
+		// a calc row or price in the request is never read. A negative amount or a formula that fails is refused.
+		if ( class_exists( '\Emsfb\Calc' ) ) {
+			$cp = \Emsfb\Calc::price_items( $form, $rows );
+			if ( empty( $cp['ok'] ) ) return self::err( $cp['error'], isset( $cp['field_id'] ) ? $cp['field_id'] : '' );
+			foreach ( $cp['items'] as $ci ) {
+				$minor = Money::from_decimal( $ci['value'], $currency, $gateway );
+				if ( $minor === null || $minor < 0 ) return self::err( 'invalid_selection', $ci['id'] );
+				if ( $minor > 0 ) $items[] = self::item( $ci['id'], $ci['label'], $minor, 'calc' );
 			}
 		}
 

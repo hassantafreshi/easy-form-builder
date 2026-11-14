@@ -1031,10 +1031,13 @@
         drop(id, fid);
         var row = { id_: id, name: f.name, id_ob: id, amount: f.amount, type: 'calc', value: r.value, session: typeof sessionPub_emsFormBuilder !== 'undefined' ? sessionPub_emsFormBuilder : '', form_id: Number(fid) };
         if (text !== r.value) row.disp = text;
+        // G: a calc used as the amount to pay carries its price (the total on the page; the server computes it again).
+        if (f.calc_as_price === '1' || f.calc_as_price === 1 || f.calc_as_price === true) row.price = r.value;
         if (typeof fun_sendBack_emsFormBuilder === 'function' && Number(fid) > 0) fun_sendBack_emsFormBuilder(row); else rows().push(row);
         changed = true;
       });
       if (changed && Number(fid) > 0 && typeof updateStepButtonState_efb === 'function') { try { updateStepButtonState_efb(Number(fid)); } catch (e) { /* no step bar */ } }
+      if (changed && Number(fid) > 0 && st[0] && st[0].type === 'payment' && typeof fun_total_pay_efb === 'function') { try { fun_total_pay_efb(Number(fid)); } catch (e) { /* no total on this form */ } }
     }
     /** Every change of an answer recomputes the form's calc fields after 100 ms (one announcement, spec §4.5). */
     function schedule(fid) {

@@ -853,6 +853,24 @@
             if (minor > 0) items.push(item(id, label, minor, 'price'));
          }
       }
+      // F04-G: a calc field used as the amount (calc_as_price): computed from the answers (EFBCalc, twin of
+      // Calc::price_items(); the server computes it again and is the one that charges).
+      var EC = typeof EFBCalc !== 'undefined' ? EFBCalc : (typeof window !== 'undefined' ? window.EFBCalc : null);
+      if (EC && EC.evaluateForm) {
+         var calcRes = null;
+         for (var cf = 1; cf < form.length; cf++) {
+            var cr = form[cf];
+            if (!cr || cr.type !== 'calc' || ['1', 1, true].indexOf(cr.calc_as_price) === -1) continue;
+            if (calcRes === null) calcRes = EC.evaluateForm(form, rows, {});
+            var cv = calcRes[String(cr.id_)];
+            if (cv && !cv.ok) return err('price_not_computable', String(cr.id_));
+            if (!cv || cv.value === '') continue;
+            if (/^-/.test(cv.value) && /[1-9]/.test(cv.value)) return err('invalid_selection', String(cr.id_));
+            var cm = fromDecimal(cv.value, currency);
+            if (cm === null || cm < 0) return err('invalid_selection', String(cr.id_));
+            if (cm > 0) items.push(item(String(cr.id_), String(cr.name || ''), cm, 'calc'));
+         }
+      }
       var fid = ctx.field_id ? String(ctx.field_id) : '';
       var pf = fid !== '' && has(fields, fid) ? fields[fid] : null;
       if (pf) {

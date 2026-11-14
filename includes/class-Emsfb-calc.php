@@ -56,6 +56,7 @@ final class Calc {
 		add_filter('efb_choices_calc_column', array(__CLASS__, 'choices_calc_column'), 10, 1);
 		add_filter('efb_capabilities', array(__CLASS__, 'capabilities'), 26, 2);
 		add_filter('efb_form_schema_field', array(__CLASS__, 'schema_field'), 13, 3);
+		add_filter('efb_payment_readiness', array(__CLASS__, 'payment_readiness'), 10, 3);
 	}
 
 	/** Stable codes (SitePilot contract): submit refusals and formula problems. */
@@ -1013,6 +1014,53 @@ final class Calc {
 			$items[] = $row;
 		}
 		return array('ok' => true, 'rows' => $items);
+	}
+
+	/** The calc fields of a form used as an amount to pay (calc_as_price = "1"). */
+	public static function price_fields($form) {
+		$out = array();
+		foreach ((array) $form as $i => $r) {
+			$r = self::f($r);
+			if ($i > 0 && isset($r['type'], $r['id_']) && $r['type'] === 'calc' && isset($r['calc_as_price']) && in_array($r['calc_as_price'], array('1', 1, true), true)) $out[] = $r;
+		}
+		return $out;
+	}
+
+	/**
+	 * G (Pro): the amounts of the calc fields used as a price, computed here from the answers (any calc row or
+	 * price the browser sent is ignored). {ok, items: [{id, label, value}]} or {ok:false, error, field_id}:
+	 * price_not_computable (the formula fails: division by zero, a text answer), invalid_selection (a
+	 * negative amount). On a plan without the part, no amount comes from a calc field. Used by
+	 * Payments\Pricing::quote() (payments/create) and fun_validation_pay_elements_efb() (the older routes).
+	 */
+	public static function price_items($form, array $rows, array $hidden = array()) {
+		$fields = self::price_fields($form);
+		if (!$fields || !self::plan_ok('calc_price')) return array('ok' => true, 'items' => array());
+		$form0 = isset($form[0]) ? $form[0] : null;
+		$res = self::evaluate_form($form, $rows, array('hidden' => $hidden, 'locale' => self::locale(), 'currency' => self::currency($form0)));
+		$items = array();
+		foreach ($fields as $f) {
+			$id = (string) $f['id_'];
+			if (in_array($id, array_map('strval', $hidden), true)) continue;
+			$r = isset($res[$id]) ? $res[$id] : array('ok' => true, 'value' => '');
+			if (!$r['ok']) return array('ok' => false, 'error' => 'price_not_computable', 'field_id' => $id);
+			if ($r['value'] === '') continue;
+			if (substr($r['value'], 0, 1) === '-' && preg_match('/[1-9]/', $r['value'])) return array('ok' => false, 'error' => 'invalid_selection', 'field_id' => $id);
+			$items[] = array('id' => $id, 'label' => isset($f['name']) && is_scalar($f['name']) ? (string) $f['name'] : '', 'value' => $r['value']);
+		}
+		return array('ok' => true, 'items' => $items);
+	}
+
+	/** efb_payment_readiness: a payment form whose amount comes from a calc field needs the plan of that part. */
+	public static function payment_readiness($out, $form, $form_id = 0) {
+		if (!is_array($out) || empty($out['has_payment']) || !is_array($form) || self::plan_ok('calc_price')) return $out;
+		foreach (self::price_fields($form) as $f) {
+			$out['issues'][] = array('code' => 'pay_calc_plan', 'level' => 'error', 'field_id' => (string) $f['id_'], 'gateway' => '',
+				'm' => function_exists('__') ? __('A calculation used as the amount to pay needs the Pro plan.', 'easy-form-builder') : 'A calculation used as the amount to pay needs the Pro plan.',
+				'fix' => array('kind' => 'plan', 'url' => function_exists('admin_url') ? admin_url('admin.php?page=Emsfb_addon') : '', 'label' => function_exists('__') ? __('See the plans', 'easy-form-builder') : 'See the plans'));
+			$out['ready'] = false;
+		}
+		return $out;
 	}
 
 	/** The save: formula_err = "1" on every calc field with a problem of form_errors(), removed otherwise. */

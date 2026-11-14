@@ -11595,6 +11595,27 @@ public function check_nonce_permission_efb($request) {
 			}
 			$tampered_efb = $before_efb !== json_encode($val_) && \Emsfb\Builder_Api::server_price_differs(json_decode($before_efb, true), $val_);
 		}
+		/* F04-G (Pro): a calc field used as the amount is computed here from the submitted answers; the browser's
+		 * calc row must carry the same price (a lowered one is a tampered request), and the amount charged is
+		 * the server's. A negative result or a formula that fails cannot be paid. */
+		if (class_exists('\Emsfb\Calc')) {
+			$calc_pay_efb = \Emsfb\Calc::price_items($fs_, array_values(array_filter($val_, 'is_array')));
+			if (empty($calc_pay_efb['ok'])) {
+				$invalid();
+				return ['price_total' => 0, 'email' => '', 'valobj' => []];
+			}
+			foreach ($calc_pay_efb['items'] as $cpi_efb) {
+				$sent_efb = null;
+				foreach ($val_ as $vr_efb) {
+					if (is_array($vr_efb) && ($vr_efb['type'] ?? '') === 'calc' && (string) ($vr_efb['id_'] ?? '') === $cpi_efb['id'] && isset($vr_efb['price']) && is_scalar($vr_efb['price'])) { $sent_efb = (string) $vr_efb['price']; break; }
+				}
+				if ($sent_efb === null || !is_numeric($sent_efb) || abs((float) $sent_efb - (float) $cpi_efb['value']) > 0.000001) {
+					$invalid();
+					return ['price_total' => 0, 'email' => '', 'valobj' => []];
+				}
+				$price_f += (float) $cpi_efb['value'];
+			}
+		}
 		for ($i=0; $i <count($val_) ; $i++) {
 			$a=-1;
 			if(isset($val_[$i]) && is_array($val_[$i]) && isset($val_[$i]['price'])){

@@ -262,7 +262,12 @@
       </div>`;
     html += sel('calcShowEl', 'calc_show', r, [['visible', T('calcShowRes', 'Show the result to the visitor')], ['hidden', T('hide', 'Hide')]], T('calcShowRes', 'Show the result to the visitor'), '');
     html += sel('calcEmptyEl', 'calc_empty', r, [['zero', T('calcEmptyZero', 'Treat empty answers as 0')], ['blank', T('calcEmptyBlank', 'Leave the result empty')]], T('calcEmptyZero', 'Treat empty answers as 0'), '');
-    if (pay) html += toggle('calcAsPriceEl', 'calc_as_price', r, T('calcAsPrice', 'Use the result as the amount to pay'), T('calcAsPriceHelp', 'The server computes the amount again from the answers; a negative result is refused.'));
+    if (pay) {
+      // G (Pro): the plan dialog instead of the switch on a lower plan.
+      const ok = planOk('calc_price');
+      html += toggle('calcAsPriceEl', 'calc_as_price', r, T('calcAsPrice', 'Use the result as the amount to pay'), T('calcAsPriceHelp', 'The server computes the amount again from the answers; a negative result is refused.'));
+      if (!ok) html = html.replace('id="calcAsPriceEl"', 'id="calcAsPriceEl" disabled aria-disabled="true"') + `<a type="button" role="button" tabindex="0" class="efb pro-version-efb" onclick="if (typeof efb_upgrade_prompt_efb === 'function') efb_upgrade_prompt_efb({ feature: 'setting:calc_price', fallback: 'pro', origin: 'field_settings', opener: this }); else if (typeof pro_show_efb === 'function') pro_show_efb(1);" aria-label="${esc(T('proUnlockMsg', 'Pro'))}"><i class="efb bi-gem text-light" aria-hidden="true"></i></a>`;
+    }
     html += `<small class="efb form-text text-muted fs-8 d-block mt-2"><i class="efb bi-eye ${typeof iconMarginGlobal !== 'undefined' ? iconMarginGlobal : 'me-1'}" aria-hidden="true"></i>${esc(T('calcPublic', 'Visitors can read the formula in the page source.'))}</small>`;
     return html + '</div>';
   }
