@@ -14,6 +14,10 @@
  *  f14d  Notes and history (D): the viewer's Notes tab (pale, "only administrators"), a note added with Ctrl+Enter,
  *        a note with HTML refused with its message, the star from the viewer and its History line, the note never
  *        in the visitor's tracking answer, a trashed entry "not found" there; deleting permanently removes both.
+ *  f14h  Export (H): the Export dialog (scope, format, columns, choices), a CSV downloaded through admin-post
+ *        (BOM, two fields named alike in two columns, a formula written as text, the filter's entries only), an
+ *        XLSX opened by openpyxl (header frozen, RTL off in en, numbers as numbers), "selected entries" from the
+ *        selection bar, and Free: XLSX opens the plan dialog.
  */
 'use strict';
 
@@ -294,6 +298,80 @@ module.exports = function (S) {
     await admin.click('#efbEntDelYes');
     await waitIdle(admin);
     R.check('f14d: deleting it permanently removes its notes and its history', ctl('f14-notes', String(id)).length === 0 && ctl('f14-log', String(id)).length === 0 && !entries(F.form_id).some((e) => Number(e.msg_id) === id), true);
+  });
+
+  /** Reads an .xlsx with openpyxl (Python): rows of values, frozen pane, right to left. */
+  function readXlsx(file) {
+    const { execFileSync } = require('child_process');
+    try {
+      return JSON.parse(execFileSync('python3', ['-c', 'import openpyxl,sys,json\nwb=openpyxl.load_workbook(sys.argv[1]);ws=wb.active\nprint(json.dumps({"rows":[[c.value for c in r] for r in ws.iter_rows()],"freeze":ws.freeze_panes,"rtl":bool(ws.sheet_view.rightToLeft),"filter":ws.auto_filter.ref}))', file]).toString());
+    } catch (e) { return { error: String(e.message || e).slice(0, 200) }; }
+  }
+  async function exportVia(admin, setup) {
+    await admin.click('#efbEnt [data-ent="export"]');
+    await admin.waitForSelector('#efbEntDlg #efbXGo', { timeout: 8000 });
+    if (setup) await setup();
+    const dl = admin.waitForEvent('download', { timeout: 30000 });
+    await admin.click('#efbXGo');
+    const d = await dl;
+    const file = SHOT('f14h-' + d.suggestedFilename()).replace(/\.png$/, '');
+    await d.saveAs(file);
+    return { file, name: d.suggestedFilename() };
+  }
+
+  /* ------------------------------------------------------------------ f14h */
+  scenario('f14h', 'F14 export: the dialog, CSV and XLSX through admin-post (BOM, alike labels, formulas as text, filters, selection), the XLSX plan gate', async ({ adminPage }) => {
+    plan(3);
+    ctl('locale', '');
+    const fs = require('fs');
+    const F = form('F14 e2e export', [{ key: 'a', type: 'text', name: 'Notes' }, { key: 'b', type: 'textarea', name: 'Notes' }, { key: 'n', type: 'number', name: 'Count' }]);
+    const ids = F.ids;
+    const m1 = seed(F.form_id, [{ id_: ids.a, name: 'Notes', type: 'text', value: '=HYPERLINK("http://x.test")' }, { id_: ids.b, name: 'Notes', type: 'textarea', value: 'second, with "quotes"' }, { id_: ids.n, name: 'Count', type: 'number', value: '12' }], 'date=2026-11-01 10:00:00').msg_id;
+    const m2 = seed(F.form_id, [{ id_: ids.a, name: 'Notes', type: 'text', value: 'علی رضایی' }, { id_: ids.n, name: 'Count', type: 'number', value: '-3.5' }], 'date=2026-11-05 10:00:00').msg_id;
+    seed(F.form_id, [{ id_: ids.a, name: 'Notes', type: 'text', value: 'spam text' }], 'date=2026-11-06 10:00:00&entry_status=1');
+    const admin = await adminPage();
+    await openList(admin, F.form_id);
+    const csv = await exportVia(admin, async () => {
+      const dlg = await admin.evaluate(() => ({ modal: document.querySelector('#efbEntDlg [role="dialog"]').getAttribute('aria-modal'), scope: !!document.querySelector('input[name="efbXScope"][value="filter"]:checked'), cols: document.querySelectorAll('.efb-ent-xcol').length }));
+      R.check('f14h: the Export dialog (modal): the current filter\'s entries, CSV, every column listed', dlg.modal === 'true' && dlg.scope && dlg.cols >= 3 + 8, dlg);
+      await admin.screenshot({ path: SHOT('f14h-export-dialog-en') });
+    });
+    const raw = fs.readFileSync(csv.file);
+    const text = raw.toString('utf8');
+    const lines = text.replace(/^﻿/, '').split('\r\n');
+    R.check('f14h: CSV downloaded through admin-post: name "<form>-entries-<date>.csv", UTF-8 BOM, CRLF', /entries-\d{4}-\d{2}-\d{2}\.csv$/.test(csv.name) && raw[0] === 0xEF && raw[1] === 0xBB && raw[2] === 0xBF && lines.length === 3, { name: csv.name, lines: lines.length });
+    R.check('f14h: CSV: two fields both named "Notes" are two columns; the spam entry is left out', lines[0].split(',').filter((c) => c === 'Notes').length === 2 && !/spam text/.test(text), lines[0]);
+    R.check('f14h: CSV: a formula is written as text (\'=HYPERLINK…), quotes doubled, Persian kept', text.indexOf('"\'=HYPERLINK(""http://x.test"")"') !== -1 && text.indexOf('"second, with ""quotes"""') !== -1 && text.indexOf('علی رضایی') !== -1, lines.slice(1));
+    const logRows = ctl('f14-log', '0').filter((l) => l.action === 'export');
+    R.check('f14h: the export is in the history (msg 0, "csv 2 form N", no values)', logRows.some((l) => l.meta === `csv 2 form ${F.form_id}` && l.old_value === null), logRows.slice(-1));
+    const x = await exportVia(admin, async () => { await admin.check('#efbEntDlg input[name="efbXFmt"][value="xlsx"]'); });
+    const book = readXlsx(x.file);
+    R.check('f14h: XLSX: openpyxl opens it; header frozen (A2) with an AutoFilter; 2 entries; -3.5 and 12 are numbers', !book.error && book.freeze === 'A2' && !!book.filter && book.rows.length === 3 && book.rows.some((r) => r.includes(-3.5)) && book.rows.some((r) => r.includes(12)), book.error || { freeze: book.freeze, filter: book.filter, rows: book.rows.length });
+    R.check('f14h: XLSX: the formula is a text cell, not run', book.rows && book.rows.some((r) => r.includes('=HYPERLINK("http://x.test")')), book.rows && book.rows[1]);
+    // Selected entries from the selection bar.
+    await admin.check(`#efbEnt .efb-ent-one[value="${m2}"]`);
+    await sleep(300);
+    await admin.click('#efbEnt .efb-ent-bulkbar [data-ent="export-sel"]');
+    await admin.waitForSelector('#efbEntDlg #efbXGo', { timeout: 8000 });
+    const dl = admin.waitForEvent('download', { timeout: 30000 });
+    await admin.click('#efbXGo');
+    const d = await dl;
+    const selFile = SHOT('f14h-selected').replace(/\.png$/, '.csv');
+    await d.saveAs(selFile);
+    const sel = fs.readFileSync(selFile, 'utf8').replace(/^﻿/, '').split('\r\n');
+    R.check('f14h: "Export" on a selection exports that entry only', sel.length === 2 && /علی/.test(sel[1]), sel);
+    // Free: XLSX opens the plan dialog instead.
+    plan(2);
+    try {
+      const free = await adminPage({}, 'admin-free');
+      await openList(free, F.form_id);
+      await free.click('#efbEnt [data-ent="export"]');
+      await free.waitForSelector('#efbEntDlg', { timeout: 8000 });
+      await free.check('#efbEntDlg input[name="efbXFmt"][value="xlsx"]').catch(() => {});
+      await sleep(800);
+      const st = await free.evaluate(() => ({ csv: document.querySelector('input[name="efbXFmt"][value="csv"]').checked, dlg: !!document.querySelector('#settingModalEfb.show .efb-upg') }));
+      R.check('f14h: on Free, choosing XLSX opens the plan dialog (Free Plus) and keeps CSV', st.csv && st.dlg, st);
+    } finally { plan(3); }
   });
 
   /* ------------------------------------------------------------------ f14a */

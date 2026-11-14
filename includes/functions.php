@@ -5555,6 +5555,12 @@ class efbFunction {
 			"rptRowsCount" => $state && isset($ac->text->rptRowsCount) ? $ac->text->rptRowsCount : esc_html__('%s rows','easy-form-builder'),
 			/* translators: F09 e-mail: after the first rows of a long group; %s = rows not shown */
 			"rptMoreRows" => $state && isset($ac->text->rptMoreRows) ? $ac->text->rptMoreRows : esc_html__('%s more rows. See the whole answer in the dashboard.','easy-form-builder'),
+			/* translators: F14: %s = number */
+			"entExported" => $state && isset($ac->text->entExported) ? $ac->text->entExported : esc_html__('%s entries exported.','easy-form-builder'),
+			/* translators: F14: export column */
+			"entPayStatus" => $state && isset($ac->text->entPayStatus) ? $ac->text->entPayStatus : esc_html__('Payment status','easy-form-builder'),
+			/* translators: F14: export column */
+			"entTid" => $state && isset($ac->text->entTid) ? $ac->text->entTid : esc_html__('Transaction ID','easy-form-builder'),
 			/* translators: F14 entries tab */
 			"entAll" => $state && isset($ac->text->entAll) ? $ac->text->entAll : esc_html__('All','easy-form-builder'),
 			/* translators: F14 entries tab */

@@ -61,6 +61,8 @@ class Entries {
 		add_action('wp_ajax_efb_entry_get_Emsfb', array(__CLASS__, 'ajax_get'));
 		add_action('wp_ajax_efb_entry_notes_Emsfb', array(__CLASS__, 'ajax_notes'));
 		add_filter('efb_entry_get_answer', array(__CLASS__, 'entry_extras'), 10, 2);
+		add_action('wp_ajax_efb_entries_export_check_Emsfb', array(__CLASS__, 'ajax_export_check'));
+		add_action('admin_post_efb_export_entries', array(__CLASS__, 'admin_post_export'));
 		// Notes and history go with the entry (every permanent delete path of F13).
 		add_action('efb_entries_purged', array(__CLASS__, 'on_entries_purged'), 15, 4);
 		// The trash is emptied after trash_days by the daily job, after F13's retention (30).
@@ -200,6 +202,11 @@ class Entries {
 			$cache[$key] = is_array($m) && isset($m[$key]) && is_string($m[$key]) && $m[$key] !== '' ? $m[$key] : null;
 		}
 		return $cache[$key] !== null ? $cache[$key] : $fallback;
+	}
+
+	/** A phrase as plain text (files, e-mails): esc_html__()'s entities decoded. */
+	public static function tx($key, $fallback = '') {
+		return html_entity_decode(self::t($key, $fallback), ENT_QUOTES, 'UTF-8');
 	}
 
 	/**
@@ -1103,6 +1110,357 @@ class Entries {
 		}
 		$form = (int) $GLOBALS['wpdb']->get_var($GLOBALS['wpdb']->prepare("SELECT form_id FROM `{$GLOBALS['wpdb']->prefix}emsfb_msg_` WHERE msg_id = %d", $msg));
 		wp_send_json_success(array('success' => true, 'msg_id' => $msg, 'notes' => self::notes_of($msg), 'log' => self::log_of($msg, $form)), 200);
+	}
+
+	/* ------------------------------------------------------------ export, CSV and XLSX (H) */
+
+	/** Entry details a person may add to an export (spec §8.6; _seq comes with phase 2 §15.1). */
+	const EXPORT_META = array('_track', '_date', '_status', '_read', '_star', '_ip', '_notes', '_edited', '_pay', '_pay_status', '_tid');
+
+	/** Types whose numbers stay numbers in XLSX (spec §8.6). */
+	const NUMERIC_TYPES = array('number', 'range', 'prcfld', 'rating', 'pointr5', 'pointr10', 'calc');
+
+	/** Choice types that hold several answers (option rows or @efb!). */
+	const MULTI_TYPES = array('checkbox', 'multiselect', 'payCheckbox', 'payMultiselect', 'chlCheckBox');
+
+	/** A stored text as a person reads it: quote / quote-like / new line tokens decoded, an anonymized answer named. */
+	public static function decode_text($v) {
+		$v = is_scalar($v) ? (string) $v : '';
+		if ($v === Privacy::REDACTED) return self::tx('prvRedacted', 'Removed for privacy');
+		return str_replace(array('@efb@nq#', '@n#', '@efb@dq#', '@efb@sq#', '@efb@vq#'), array("\n", "\n", '"', "'", '`'), $v);
+	}
+
+	/**
+	 * One CSV cell, the rules of convertToCSV_emsFormBuilder() (list_form-efb.js; tests/test-export-csv-parity.php
+	 * checks both give the same bytes): tokens decoded, a cell that starts with = + - @ TAB or CR and is not a plain
+	 * number gets a leading apostrophe (no formula runs in a spreadsheet), quoted when it holds " , ; CR or LF.
+	 */
+	public static function csv_cell($v) {
+		$v = $v === null ? '' : (is_scalar($v) ? (string) $v : (string) wp_json_encode($v, JSON_UNESCAPED_UNICODE));
+		$v = self::decode_text($v);
+		if (preg_match('/^[=+\-@\t\r]/', $v) && !preg_match('/^[+-]?\d+([.,]\d+)?$/', $v)) $v = "'" . $v;
+		if (preg_match('/[",;\r\n]/', $v)) $v = '"' . str_replace('"', '""', $v) . '"';
+		return $v;
+	}
+
+	public static function csv_line(array $cells) {
+		return implode(',', array_map(array(__CLASS__, 'csv_cell'), $cells));
+	}
+
+	/** Export arguments: format, columns, multi-choice layout, labels or stored values, ids or the list's filter. */
+	public static function export_args(array $in) {
+		$a = self::args($in);
+		$a['format'] = isset($in['format']) && $in['format'] === 'xlsx' ? 'xlsx' : 'csv';
+		$cols = isset($in['cols']) ? $in['cols'] : null;
+		if (is_string($cols)) $cols = json_decode($cols, true, 4);
+		$a['cols'] = is_array($cols) && $cols ? self::clean_cols($cols) : null;
+		$sep = isset($in['sep_multi']) && is_scalar($in['sep_multi']) ? (string) $in['sep_multi'] : ' | ';
+		$a['sep_multi'] = in_array($sep, array(' | ', ', ', '; ', "\n"), true) ? $sep : ' | ';
+		$a['split_multi'] = !empty($in['split_multi']) && $in['split_multi'] !== '0';
+		$a['opt_val'] = isset($in['opt_val']) && $in['opt_val'] === 'value' ? 'value' : 'label';
+		$a['scope'] = !empty($a['ids']) ? 'ids' : 'filter';
+		return $a;
+	}
+
+	/** The entry ids of an export, in msg_id order; at most export_max() + 1 (one more says "too many"). */
+	public static function export_ids(array $a) {
+		global $wpdb;
+		$max = self::export_max();
+		if (!empty($a['ids'])) {
+			$in = implode(',', array_fill(0, count($a['ids']), '%d'));
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, placeholders built above
+			return array_map('intval', (array) $wpdb->get_col($wpdb->prepare("SELECT msg_id FROM `{$wpdb->prefix}emsfb_msg_` WHERE form_id = %d AND msg_id IN ({$in}) ORDER BY msg_id ASC", array_merge(array((int) $a['form_id']), $a['ids']))));
+		}
+		return self::ids_of_filter($a, $max + 1);
+	}
+
+	/** Entries of one batch of ids with what the export reads. */
+	private static function export_batch(array $ids) {
+		global $wpdb;
+		if (!$ids) return array();
+		$in = implode(',', array_fill(0, count($ids), '%d'));
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, placeholders built above
+		return (array) $wpdb->get_results($wpdb->prepare("SELECT msg_id, form_id, track, ip, content, `date`, read_, entry_status, starred, edited_at FROM `{$wpdb->prefix}emsfb_msg_` WHERE msg_id IN ({$in}) ORDER BY msg_id ASC", $ids), ARRAY_A);
+	}
+
+	/**
+	 * The columns of an export (spec §8.6): by field id_ (two fields with one label stay apart; the header is the
+	 * form's current label), a repeater group as "{group} (count)" then "{group} › {field} #k" for each row the
+	 * exported entries hold (F09), a field the form no longer has but old entries hold as "{label} (deleted)",
+	 * choices split into one column each on request, and the entry details asked for. No column limit.
+	 * Each column: [header, kind, key, extra].
+	 */
+	public static function export_columns($form_id, array $a, array $scan) {
+		$fields = self::form_fields($form_id);
+		$by_id = array();
+		$kids = array();
+		foreach ($fields as $f) {
+			$by_id[$f['id']] = $f;
+			if (isset($f['group'])) $kids[$f['group']][] = $f;
+		}
+		$rows0 = self::form_rows($form_id);
+		$ftype = is_array($rows0) && isset($rows0[0]['type']) ? (string) $rows0[0]['type'] : 'form';
+		$want = $a['cols'];
+		if ($want === null) {
+			$want = array('_track', '_date');
+			foreach ($fields as $f) if (!isset($f['group'])) $want[] = $f['id'];
+			if ($ftype === 'payment' || !empty($scan['payment'])) $want = array_merge($want, array('_pay', '_pay_status', '_tid'));
+			$want[] = '_deleted';
+		}
+		$meta_h = array('_track' => self::tx('trackNo', 'Confirmation Code'), '_date' => self::tx('ddate', 'Date'), '_status' => self::tx('entStatusCol', 'Status'),
+			'_read' => self::tx('read', 'Read'), '_star' => self::tx('entStarred', 'Starred'), '_ip' => self::tx('ip', 'IP'), '_notes' => self::tx('entNotes', 'Notes'),
+			'_edited' => self::tx('entEditedCol', 'Last edit'), '_pay' => self::tx('payAmount', 'Amount'), '_pay_status' => self::tx('entPayStatus', 'Payment status'), '_tid' => self::tx('entTid', 'Transaction ID'));
+		$cols = array();
+		foreach ($want as $k) {
+			if (isset($meta_h[$k])) { $cols[] = array($meta_h[$k], 'meta', $k, null); continue; }
+			if ($k === '_deleted') {
+				foreach ($scan['deleted'] as $id => $name) $cols[] = array(str_replace('%s', $name, self::tx('entDeletedField', '%s (deleted)')), 'field', $id, array('type' => '', 'ri' => null));
+				continue;
+			}
+			if (!isset($by_id[$k])) continue;
+			$f = $by_id[$k];
+			if ($f['type'] === 'repeater') {
+				$cols[] = array(str_replace('%s', $f['name'], self::tx('rptCount', '%s (count)')), 'field', $f['id'], array('type' => 'repeater', 'ri' => null));
+				$max = isset($scan['ri'][$f['id']]) ? $scan['ri'][$f['id']] : -1;
+				for ($ri = 0; $ri <= $max; $ri++) {
+					foreach (isset($kids[$f['id']]) ? $kids[$f['id']] : array() as $c) {
+						$cols[] = array($f['name'] . ' › ' . $c['name'] . ' #' . ($ri + 1), 'field', $c['id'], array('type' => $c['type'], 'ri' => (string) $ri));
+					}
+				}
+				continue;
+			}
+			if ($a['split_multi'] && in_array($f['type'], self::MULTI_TYPES, true)) {
+				$opts = array();
+				foreach (isset($f['options']) ? $f['options'] : array() as $o) $opts[$o['value']] = true;
+				foreach (isset($scan['values'][$f['id']]) ? array_keys($scan['values'][$f['id']]) : array() as $v) $opts[$v] = true;
+				foreach (array_keys($opts) as $o) $cols[] = array($f['name'] . ': ' . self::decode_text($o), 'option', $f['id'], array('type' => $f['type'], 'opt' => (string) $o, 'ri' => null));
+				continue;
+			}
+			$cols[] = array($f['name'], 'field', $f['id'], array('type' => $f['type'], 'ri' => null));
+		}
+		return $cols;
+	}
+
+	/** What the columns need from the exported entries: deleted fields, rows of each group, choices seen. */
+	public static function export_scan($form_id, array $ids) {
+		$known = array();
+		foreach (self::form_fields($form_id) as $f) $known[$f['id']] = $f;
+		$scan = array('deleted' => array(), 'ri' => array(), 'values' => array(), 'payment' => false);
+		foreach (array_chunk($ids, self::SCAN_BATCH) as $chunk) {
+			foreach (self::export_batch($chunk) as $e) {
+				foreach ((array) Privacy::decode_content($e['content']) as $r) {
+					if (!is_array($r) || !isset($r['id_']) || !is_scalar($r['id_'])) continue;
+					$id = (string) $r['id_'];
+					$type = isset($r['type']) ? (string) $r['type'] : '';
+					if ($type === 'payment' || $id === 'payment') { $scan['payment'] = true; continue; }
+					if ($type === 'w_link') continue;
+					if (!isset($known[$id])) {
+						if (!isset($scan['deleted'][$id]) && $id !== '' && $type !== 'closed' && $type !== 'opened') $scan['deleted'][$id] = isset($r['name']) && is_scalar($r['name']) && $r['name'] !== '' ? (string) $r['name'] : $id;
+						continue;
+					}
+					if (isset($r['rg'], $r['ri']) && is_scalar($r['ri']) && preg_match('/^\d{1,4}$/', (string) $r['ri'])) {
+						$g = (string) $r['rg'];
+						$scan['ri'][$g] = max(isset($scan['ri'][$g]) ? $scan['ri'][$g] : -1, (int) $r['ri']);
+					}
+					if (in_array($known[$id]['type'], self::MULTI_TYPES, true) && isset($r['value']) && is_scalar($r['value'])) {
+						foreach (array_filter(explode('@efb!', (string) $r['value']), 'strlen') as $v) $scan['values'][$id][$v] = true;
+					}
+				}
+			}
+		}
+		return $scan;
+	}
+
+	/** The text of one answer row in an export (files, signatures, maps, choices, numbers, dates). */
+	private static function export_row_text(array $r, $msg_id, array $a) {
+		$type = isset($r['type']) ? (string) $r['type'] : '';
+		$v = isset($r['value']) ? $r['value'] : '';
+		if ($v === Privacy::REDACTED) return self::decode_text($v);
+		if ($v === '@file@' || in_array($type, array('file', 'dadfile', 'image', 'media', 'document', 'allformat', 'zip'), true)) {
+			$url = isset($r['url']) && is_string($r['url']) ? $r['url'] : '';
+			if ($url !== '' && class_exists('\\Emsfb\\Uploads') && Uploads::is_private_url($url)) $url = Uploads::signed_url($url);
+			return preg_match('#^https?://#i', $url) ? $url : '';
+		}
+		if ($type === 'esign') {
+			$ok = is_string($v) && strpos($v, 'data:image/') === 0;
+			return $ok && function_exists('admin_url') ? add_query_arg(array('action' => 'efb_esign_image', 'msg' => (int) $msg_id, 'field' => isset($r['id_']) ? (string) $r['id_'] : ''), admin_url('admin-ajax.php')) : '';
+		}
+		if ($type === 'maps' && is_array($v)) {
+			$out = array();
+			foreach ($v as $m) if (is_array($m)) $out[] = (isset($m['lat']) ? $m['lat'] : '') . ',' . (isset($m['lng']) ? $m['lng'] : '') . (isset($m['address']) && is_scalar($m['address']) && $m['address'] !== '' ? ' (' . $m['address'] . ')' : '');
+			return implode(' | ', $out);
+		}
+		if (!is_scalar($v)) return '';
+		$v = (string) $v;
+		if ($type === 'ranking') {
+			$src = $a['opt_val'] === 'value' && isset($r['ov']) && is_scalar($r['ov']) && $r['ov'] !== '' ? (string) $r['ov'] : $v;
+			return implode(' > ', array_filter(explode('@efb!', $src), 'strlen'));
+		}
+		if (isset($r['other']) && (string) $r['other'] === '1') return $a['opt_val'] === 'value' ? $v : self::tx('otherOpt', 'Other') . ': ' . $v;
+		if ($a['opt_val'] === 'value' && isset($r['ov']) && is_scalar($r['ov']) && (string) $r['ov'] !== '') $v = (string) $r['ov'];
+		if ($type === 'chlCheckBox' && isset($r['qty']) && is_scalar($r['qty'])) $v .= ' : ' . $r['qty'];
+		if ($type === 'advdate' && isset($r['iso']) && is_scalar($r['iso']) && $r['iso'] !== '') $v = (string) $r['iso'];
+		return implode($a['sep_multi'], array_filter(explode('@efb!', $v), 'strlen'));
+	}
+
+	/** One cell of an export. */
+	public static function export_cell(array $col, array $rows, array $e, array $a, $notes = '') {
+		list(, $kind, $key, $x) = $col;
+		if ($kind === 'meta') {
+			switch ($key) {
+				case '_track': return (string) $e['track'];
+				case '_date': return (string) $e['date'];
+				case '_status': { $s = self::STATUS_NAMES[(int) $e['entry_status']] ?? 'active'; return self::tx(array('active' => 'entStActive', 'spam' => 'entSpam', 'trash' => 'entTrash')[$s], ucfirst($s)); }
+				case '_read': return (string) array(0 => 'new', 1 => 'read', 2 => 'pending_payment', 3 => 'new_reply', 4 => 'closed')[(int) $e['read_']] ?? (string) $e['read_'];
+				case '_star': return (int) $e['starred'] === 1 ? '1' : '';
+				case '_ip': return (string) $e['ip'];
+				case '_notes': return $notes;
+				case '_edited': return (string) $e['edited_at'];
+			}
+			foreach ($rows as $r) {
+				if (!is_array($r) || !((isset($r['type']) && $r['type'] === 'payment') || (isset($r['id_']) && $r['id_'] === 'payment'))) continue;
+				if ($key === '_tid') return isset($r['paymentIntent']) && is_scalar($r['paymentIntent']) ? (string) $r['paymentIntent'] : '';
+				if ($key === '_pay_status') return isset($r['status']) && is_scalar($r['status']) ? (string) $r['status'] : ((int) $e['read_'] === 2 ? 'pending' : 'paid');
+				$amt = isset($r['paymentAmount']) ? $r['paymentAmount'] : (isset($r['total']) ? $r['total'] : '');
+				$cur = isset($r['paymentcurrency']) ? $r['paymentcurrency'] : (isset($r['currency']) ? $r['currency'] : '');
+				return is_scalar($amt) ? trim((string) $amt . ' ' . (is_scalar($cur) ? strtoupper((string) $cur) : '')) : '';
+			}
+			return $key === '_pay_status' && (int) $e['read_'] === 2 ? 'pending' : '';
+		}
+		$parts = array();
+		foreach ($rows as $r) {
+			if (!is_array($r) || !isset($r['id_']) || (string) $r['id_'] !== (string) $key) continue;
+			if ($x['ri'] !== null && (!isset($r['ri']) || (string) $r['ri'] !== $x['ri'])) continue;
+			if ($kind === 'option') {
+				$vals = isset($r['value']) && is_scalar($r['value']) ? array_filter(explode('@efb!', (string) $r['value']), 'strlen') : array();
+				if (in_array($x['opt'], $vals, true)) return '1';
+				continue;
+			}
+			$t = self::export_row_text($r, (int) $e['msg_id'], $a);
+			if ($t !== '') $parts[] = $t;
+		}
+		return $kind === 'option' ? '' : implode($a['sep_multi'], $parts);
+	}
+
+	/** The notes of a batch, joined per entry (only when the column is asked for). */
+	private static function notes_text(array $ids) {
+		global $wpdb;
+		if (!$ids) return array();
+		$in = implode(',', array_fill(0, count($ids), '%d'));
+		$out = array();
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, placeholders built above
+		foreach ((array) $wpdb->get_results($wpdb->prepare("SELECT msg_id, note FROM `{$wpdb->prefix}" . self::NOTES . "` WHERE msg_id IN ({$in}) ORDER BY note_id", $ids), ARRAY_A) as $n) {
+			$out[(int) $n['msg_id']][] = (string) $n['note'];
+		}
+		return array_map(function ($l) { return implode(' | ', $l); }, $out);
+	}
+
+	/**
+	 * Writes an export: $emit receives the header row then each entry's row (arrays of cells), in batches of 500
+	 * entries by msg_id (only one batch's content in memory). Returns ['rows' => n, 'cols' => columns].
+	 */
+	public static function export_rows(array $a, array $ids, callable $emit) {
+		$scan = self::export_scan($a['form_id'], $ids);
+		$cols = self::export_columns($a['form_id'], $a, $scan);
+		$emit(array_map(function ($c) { return $c[0]; }, $cols), $cols);
+		$want_notes = in_array('_notes', array_map(function ($c) { return $c[2]; }, $cols), true);
+		$n = 0;
+		foreach (array_chunk($ids, self::SCAN_BATCH) as $chunk) {
+			$notes = $want_notes ? self::notes_text($chunk) : array();
+			foreach (self::export_batch($chunk) as $e) {
+				$rows = (array) Privacy::decode_content($e['content']);
+				$line = array();
+				foreach ($cols as $c) $line[] = self::export_cell($c, $rows, $e, $a, isset($notes[(int) $e['msg_id']]) ? $notes[(int) $e['msg_id']] : '');
+				$emit($line, $cols);
+				$n++;
+			}
+			if (function_exists('wp_cache_flush_runtime')) wp_cache_flush_runtime();
+		}
+		return array('rows' => $n, 'cols' => $cols);
+	}
+
+	/** The request of an export (POST from the export dialog, or AJAX check). */
+	private static function export_request() {
+		$in = array();
+		foreach (array('form_id', 'format', 'tab', 'from', 'to', 'q', 'sort', 'sep_multi', 'split_multi', 'opt_val') as $k) $in[$k] = self::post($k);
+		$in['conds'] = self::post_json('conds');
+		$in['cols'] = self::post_json('cols');
+		$in['ids'] = self::post_json('ids');
+		return self::export_args($in);
+	}
+
+	/** Whether an export may run: plan (XLSX and field conditions are Free Plus), size. ['ok'] or an error answer. */
+	public static function export_allowed(array $a, $count) {
+		if ($a['form_id'] <= 0) return array('success' => false, 'code' => 'efb_invalid', 'm' => self::t('somethingWentWrongPleaseRefresh', 'Something went wrong. Please refresh the page.'));
+		if ($a['format'] === 'xlsx' && !self::plan_ok('xlsx')) return self::plan_error('xlsx');
+		if (!empty($a['conds']) && !self::plan_ok('filter')) return self::plan_error('filter');
+		if ($count > self::export_max()) return array('success' => false, 'code' => 'efb_export_too_many', 'm' => self::t('entExportTooMany', 'Too many entries. Choose a shorter date range.'), 'max' => self::export_max());
+		return array('success' => true);
+	}
+
+	/** AJAX efb_entries_export_check_Emsfb: how many entries an export would have, and whether it may run. */
+	public static function ajax_export_check() {
+		self::guard();
+		$a = self::export_request();
+		$ids = $a['form_id'] > 0 ? self::export_ids($a) : array();
+		$ok = self::export_allowed($a, count($ids));
+		wp_send_json_success(array_merge($ok, array('count' => min(count($ids), self::export_max()))), 200);
+	}
+
+	/**
+	 * admin-post.php?action=efb_export_entries (spec §8.6): a file download, so admin-post and not admin-ajax;
+	 * check_admin_referer('efb_export') and the entries capability. CSV is streamed to the browser as it is
+	 * written (UTF-8 BOM, RFC 4180, "\r\n"); XLSX is written to a temporary file and sent.
+	 */
+	public static function admin_post_export() {
+		if (!function_exists('check_admin_referer') || !check_admin_referer('efb_export') || !self::can()) {
+			wp_die(esc_html(self::t('error403', 'You do not have permission to do this.')), '', array('response' => 403));
+		}
+		if (!self::ready()) wp_die(esc_html(self::t('entDbUpgrade', 'A database update is required. Please reload the page.')), '', array('response' => 503));
+		$a = self::export_request();
+		$ids = self::export_ids($a);
+		$ok = self::export_allowed($a, count($ids));
+		if (empty($ok['success'])) wp_die(esc_html($ok['m']), '', array('response' => $ok['code'] === 'efb_export_too_many' ? 413 : 403));
+		if (function_exists('set_time_limit')) @set_time_limit(0); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- not allowed on some hosts
+		$rows0 = self::form_rows($a['form_id']);
+		$name = is_array($rows0) && isset($rows0[0]['formName']) && is_scalar($rows0[0]['formName']) ? (string) $rows0[0]['formName'] : 'form';
+		$file = (function_exists('sanitize_file_name') ? sanitize_file_name($name) : preg_replace('/[^A-Za-z0-9_-]+/', '-', $name)) ?: 'form';
+		$file .= '-entries-' . (function_exists('wp_date') ? wp_date('Y-m-d') : gmdate('Y-m-d')) . '.' . $a['format'];
+		if (function_exists('nocache_headers')) nocache_headers();
+		header('X-Content-Type-Options: nosniff');
+		self::log(0, 'export', '', null, null, $a['format'] . ' ' . count($ids) . ' form ' . (int) $a['form_id']);
+		if ($a['format'] === 'csv') {
+			header('Content-Type: text/csv; charset=utf-8');
+			header('Content-Disposition: attachment; filename="' . $file . '"; filename*=UTF-8\'\'' . rawurlencode($file));
+			$out = fopen('php://output', 'wb');
+			fwrite($out, "\xEF\xBB\xBF");
+			$first = true;
+			self::export_rows($a, $ids, function ($cells) use ($out, &$first) {
+				fwrite($out, ($first ? '' : "\r\n") . self::csv_line($cells));
+				$first = false;
+			});
+			fclose($out);
+			exit;
+		}
+		require_once __DIR__ . '/class-Emsfb-xlsx-writer.php';
+		$xw = null;
+		$res = self::export_rows($a, $ids, function ($cells, $cols) use (&$xw) {
+			if ($xw === null) {
+				$num = array();
+				foreach ($cols as $i => $c) if ($c[1] === 'field' && isset($c[3]['type']) && in_array($c[3]['type'], self::NUMERIC_TYPES, true)) $num[] = $i;
+				$xw = new Xlsx_Writer(array('rtl' => function_exists('is_rtl') && is_rtl(), 'title' => self::t('entExport', 'Entries'), 'numeric' => $num));
+			}
+			// The stored tokens (@efb@dq#, @n#, @prv@ …) as text; an inline string never runs as a formula.
+			$xw->add_row(array_map(array(__CLASS__, 'decode_text'), $cells));
+		});
+		$tmp = function_exists('wp_tempnam') ? wp_tempnam('efb-export.xlsx') : tempnam(sys_get_temp_dir(), 'efbx');
+		$xw->finish($tmp);
+		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+		header('Content-Disposition: attachment; filename="' . $file . '"; filename*=UTF-8\'\'' . rawurlencode($file));
+		header('Content-Length: ' . filesize($tmp));
+		readfile($tmp);
+		@unlink($tmp);
+		exit;
 	}
 
 	/* ------------------------------------------------------------ statistics (J) and their backfill (A) */

@@ -651,6 +651,77 @@
     load();
   }
 
+  /* ------------------------------------------------------------------ export (H): CSV / XLSX from the server */
+  const EXPORT_META = [['_track', 'trackNo', 'Confirmation Code'], ['_date', 'ddate', 'Date'], ['_status', 'entStatusCol', 'Status'], ['_read', 'read', 'Read'], ['_star', 'entStarred', 'Starred'], ['_ip', 'ip', 'IP'], ['_notes', 'entNotes', 'Notes'], ['_edited', 'entEditedCol', 'Last edit']];
+  const PAY_META = [['_pay', 'payAmount', 'Amount'], ['_pay_status', 'entPayStatus', 'Payment status'], ['_tid', 'entTid', 'Transaction ID']];
+
+  /** The export dialog: which entries, which format, which columns, how choices are written. */
+  function exportDialog(opener, onlySelected) {
+    const sel = S.allMatching ? 0 : S.selected.size;
+    const useSel = onlySelected && sel > 0;
+    const fields = (S.fields || []).filter((f) => !f.group);
+    const meta = EXPORT_META.concat(S.formType === 'payment' ? PAY_META : []);
+    const defOn = (id) => ['_track', '_date', '_pay', '_pay_status', '_tid'].includes(id) || id.charAt(0) !== '_';
+    const cb = (id, label) => `<div class="efb form-check efb-ent-colitem"><input type="checkbox" class="efb form-check-input efb-ent-xcol" id="efbXc-${esc(id)}" value="${esc(id)}" ${defOn(id) ? 'checked' : ''}><label class="efb form-check-label" for="efbXc-${esc(id)}"><bdi>${esc(label)}</bdi></label></div>`;
+    const xlsxGem = planOk('xlsx') ? '' : ` ${icon('bi-gem')}`;
+    /* Radios outside their label (the admin stylesheet hides a radio inside a label). */
+    const rad = (name, value, label, on, extra) => `<div class="efb form-check"><input type="radio" class="efb form-check-input" name="${name}" id="${name}-${value}" value="${value}" ${on ? 'checked' : ''} ${extra || ''}><label class="efb form-check-label" for="${name}-${value}">${label}</label></div>`;
+    const body = `<fieldset class="efb mb-3"><legend class="efb fs-6 fw-bold">${esc(T('entExportRows', 'Entries'))}</legend>
+        ${rad('efbXScope', 'filter', fill(T('entExportFiltered', 'Entries matching the current filters (%s)'), [S.estimate ? T('entMoreThan', 'More than %s').replace('%s', num(S.total)) : num(S.total)]), !useSel)}
+        ${sel ? rad('efbXScope', 'ids', fill(T('entExportSelected', 'Selected entries (%s)'), [num(sel)]), useSel) : ''}
+      </fieldset>
+      <fieldset class="efb mb-3"><legend class="efb fs-6 fw-bold">${esc(T('entExportFmt', 'File format'))}</legend>
+        ${rad('efbXFmt', 'csv', 'CSV', true)}
+        ${rad('efbXFmt', 'xlsx', 'XLSX (Excel)' + xlsxGem, false, planOk('xlsx') ? '' : 'data-gem="1"')}
+      </fieldset>
+      <fieldset class="efb mb-3"><legend class="efb fs-6 fw-bold">${esc(T('entExportMulti', 'Several choices'))}</legend>
+        ${rad('efbXSplit', '0', esc(T('entExportJoin', 'In one cell')), true)}
+        ${rad('efbXSplit', '1', esc(T('entExportSplit', 'One column per choice')), false)}
+        <div class="efb efb-ent-sublabel">${esc(T('csvOptVal', 'Export choices as'))}</div>
+        ${rad('efbXOv', 'label', esc(T('csvOptLabel', 'Labels')), (W.efb_csv_opt_val_now || 'label') !== 'value')}
+        ${rad('efbXOv', 'value', esc(T('csvOptValue', 'Stored values')), W.efb_csv_opt_val_now === 'value')}
+      </fieldset>
+      <fieldset class="efb"><legend class="efb fs-6 fw-bold">${esc(T('entExportCols', 'Columns to export'))} <button type="button" class="efb btn btn-sm btn-link" id="efbXAll">${esc(T('entSelectAllCols', 'Select all'))}</button></legend>
+        <div class="efb efb-ent-xcols">${meta.map((m) => cb(m[0], T(m[1], m[2]))).join('')}${fields.map((f) => cb(f.id, f.name)).join('')}</div>
+      </fieldset>
+      <p class="efb text-danger mt-2 mb-0" id="efbXErr" role="alert"></p>`;
+    const d = dialog(T('entExport', 'Export'), body, `<button type="button" class="efb btn btn-sm btn-primary" id="efbXGo">${icon('bi-download')} ${esc(T('entExport', 'Export'))}</button>`);
+    d.addEventListener('change', (e) => {
+      if (e.target.name === 'efbXFmt' && e.target.dataset.gem && e.target.checked) { e.target.checked = false; d.querySelector('input[name="efbXFmt"][value="csv"]').checked = true; gate('xlsx', e.target); }
+    });
+    d.querySelector('#efbXAll').addEventListener('click', () => d.querySelectorAll('.efb-ent-xcol').forEach((x) => { x.checked = true; }));
+    d.querySelector('#efbXGo').addEventListener('click', () => {
+      const scope = (d.querySelector('input[name="efbXScope"]:checked') || {}).value || 'filter';
+      const cols = Array.from(d.querySelectorAll('.efb-ent-xcol:checked')).map((x) => x.value);
+      if (fields.length && cols.length === fields.length + meta.filter((m) => defOn(m[0])).length) cols.push('_deleted');
+      const data = Object.assign({ form_id: S.fid, format: d.querySelector('input[name="efbXFmt"]:checked').value, split_multi: d.querySelector('input[name="efbXSplit"]:checked').value,
+        opt_val: d.querySelector('input[name="efbXOv"]:checked').value, sep_multi: ' | ', cols: JSON.stringify(cols) },
+        scope === 'ids' ? { ids: JSON.stringify(Array.from(S.selected)) } : (() => { const f = filterArgs(); return { tab: f.tab, from: f.from, to: f.to, q: f.q, sort: f.sort, conds: JSON.stringify(f.conds) }; })());
+      const err = d.querySelector('#efbXErr');
+      err.textContent = '';
+      post(Object.assign({ action: 'efb_entries_export_check_Emsfb' }, data)).then((res) => {
+        if (!res || res.success !== true) {
+          if (res && res.code === 'efb_plan_required') { gate(res.feature === feature('xlsx') ? 'xlsx' : 'filter', opener); return; }
+          err.textContent = (res && res.m) || T('error', 'Error');
+          return;
+        }
+        const f = D.createElement('form');
+        f.method = 'POST';
+        f.action = cfg().export_url || 'admin-post.php';
+        f.style.display = 'none';
+        const add = (k, v) => { const i = D.createElement('input'); i.type = 'hidden'; i.name = k; i.value = v; f.appendChild(i); };
+        add('action', 'efb_export_entries');
+        add('_wpnonce', cfg().export_nonce || '');
+        Object.keys(data).forEach((k) => add(k, data[k]));
+        D.body.appendChild(f);
+        f.submit();
+        setTimeout(() => f.remove(), 1000);
+        closeDialog();
+        announce(plain(fill(T('entExported', '%s entries exported.'), [num(res.count)])));
+      });
+    });
+  }
+
   /* ------------------------------------------------------------------ the entry in the response viewer (D) */
   const STATUS = { 0: ['entStActive', 'Active'], 1: ['entSpam', 'Spam'], 2: ['entTrash', 'Trash'] };
   function cur(msgId) { return S.current && S.current.entry && Number(S.current.entry.msg_id) === Number(msgId) ? S.current : null; }
@@ -975,6 +1046,17 @@
     actions: (W.EfbEntries && W.EfbEntries.actions) || {},
     viewerButtons: (W.EfbEntries && W.EfbEntries.viewerButtons) || [],
   });
+  /* H: the Export button (the server's CSV / XLSX) replaces the old page CSV button; "Export" on a selection. */
+  if (!W.EfbEntries.headButtons.some((f) => f.efbExport)) {
+    const b = () => `<button type="button" class="efb btn btn-sm btn-primary text-white" data-ent="export" aria-haspopup="dialog">${icon('bi-download')} <span>${esc(T('entExport', 'Export'))}</span></button>`;
+    b.efbExport = true;
+    W.EfbEntries.headButtons.unshift(b);
+    const x = () => (S.tab === 'trash' ? '' : `<button type="button" class="efb btn btn-sm btn-outline-secondary" data-ent="export-sel">${icon('bi-download')} <span>${esc(T('entExport', 'Export'))}</span></button>`);
+    W.EfbEntries.extraBulk.push(x);
+    W.EfbEntries.actions.export = (el) => exportDialog(el, false);
+    W.EfbEntries.actions['export-sel'] = (el) => exportDialog(el, true);
+  }
+
   /* The renderers by the names of the spec (§6). */
   W.efb_entries_render_head_efb = renderHead;
   W.efb_entries_render_row_efb = renderRow;

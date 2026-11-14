@@ -116,3 +116,8 @@
 .efb-ent-history { margin: 0; font-size: .85rem; }
 .efb-ent-hist { padding: 4px 0; border-bottom: 1px solid #f1f5f9; unicode-bidi: plaintext; }
 .efb-ent-hist time { color: #64748b; }
+.efb-ent-dlg .form-check { display: flex; align-items: center; gap: 8px; min-height: 32px; padding-inline-start: 0; margin: 0; }
+.efb-ent-dlg .form-check-input { margin: 0 !important; float: none !important; flex: 0 0 auto; }
+.efb-ent-dlg .form-check-label { margin: 0; }
+.efb-ent-xcols .efb-ent-colitem { justify-content: flex-start; }
+.efb-ent-dlg .efb-ent-sublabel { font-size: .85rem; color: #64748b; margin: 6px 0 2px; }
