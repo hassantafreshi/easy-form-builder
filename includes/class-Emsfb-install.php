@@ -612,6 +612,9 @@ class Install {
 			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		}
 		$collate = method_exists( $wpdb, 'get_charset_collate' ) ? $wpdb->get_charset_collate() : '';
+		if ( ! function_exists( 'dbDelta' ) ) {
+			return $applied;
+		}
 		foreach ( self::f15_ddl( $wpdb->prefix, $collate ) as $short => $sql ) {
 			$table = $wpdb->prefix . $short;
 			if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table ) {
