@@ -253,6 +253,8 @@
     if (stErrs.length) throw failSmart(stErrs);
     var chErrs = choicesCheck(next.slice(1), 1, next.slice(1), opts);
     if (chErrs.length) throw failChoices(chErrs);
+    var caErrs = calcCheck(next.slice(1), 1, next.slice(1), opts);
+    if (caErrs.length) throw failCalc(caErrs);
     if (typeof efbNormalizeOrderEfb === 'function') efbNormalizeOrderEfb(next);
     valj_efb = next;
     if (typeof form_type_emsFormBuilder !== 'undefined') form_type_emsFormBuilder = next[0].type;
@@ -281,6 +283,8 @@
     if (stErrs.length) throw failSmart(stErrs);
     var chErrs = choicesCheck(add, 0, list.slice(1).concat(add), opts);
     if (chErrs.length) throw failChoices(chErrs);
+    var caErrs = calcCheck(add, 0, list.slice(1).concat(add), opts);
+    if (caErrs.length) throw failCalc(caErrs);
     if (items && items.formPatch && typeof items.formPatch === 'object') {
       var fpErrs = uploadCheck([items.formPatch], 0);
       if (fpErrs.length) throw failUpload(fpErrs);
@@ -348,7 +352,15 @@
     valj_efb = list.filter(function (r, i) { return i === 0 || !(r && (drop[r.id_] || drop[r.parent])); });
     renumber(valj_efb);
     apiChanged('removeItems', Object.keys(drop));
-    return { ids: Object.keys(drop) };
+    // F04: a field another calc field reads is gone: a warning per formula (the formula keeps its text; the save marks it).
+    var warnings = [];
+    if (window.EFBCalc) {
+      valj_efb.forEach(function (r) {
+        if (!r || r.type !== 'calc') return;
+        window.EFBCalc.refIds(String(r.formula || '')).forEach(function (rid) { if (drop[rid]) warnings.push({ code: 'dangling_reference', field: r.id_, ref: rid }); });
+      });
+    }
+    return warnings.length ? { ids: Object.keys(drop), warnings: warnings } : { ids: Object.keys(drop) };
   }
 
   /* ---------------- B2: field templates without the DOM ---------------- */
@@ -1138,10 +1150,98 @@
     return { changed: Object.keys(values), values: values, plan: gated };
   }
 
+  /* ---------------- F04 numbers and calculations ---------------- */
+
+  /**
+   * F04: the number / calc / slider keys of items with the save rules (EFBCalc.sanitizeKey = Calc::sanitize_key):
+   * a value the rules cannot keep throws calc_invalid (e.path); formula_err is the server's and dropped; every
+   * calc formula of the whole form must parse and read fields that exist (calc_formula with e.formula_code =
+   * calcSyntax / calcRef / calcForbidden / calcCycle / …, the same codes as the server); a calc used as the
+   * amount to pay needs opts.allow.payment (calc_payment). "step" is never a number setting (it is the form step).
+   */
+  function calcCheck(items, offset, all, opts) {
+    var E = window.EFBCalc;
+    var out = [];
+    if (!E) return out;
+    (items || []).forEach(function (r, i) {
+      if (!r || typeof r !== 'object') return;
+      var path = 'rows[' + (i + (offset || 0)) + '].';
+      delete r.formula_err;
+      Object.keys(r).forEach(function (k) {
+        if (!E.isKey(k, r.type) || r[k] === undefined || r[k] === null || r[k] === '') return;
+        var v = E.sanitizeKey(k, r[k], r.type);
+        if (v === '' && k === 'formula') { var pf = E.parse(String(r[k])); out.push({ code: 'calc_formula', path: path + k, key: k, field: r.id_, formula_code: pf.ok ? 'calcSyntax' : pf.code, near: pf.ok ? '' : pf.near }); return; }
+        if (v === '' && r[k] !== false && r[k] !== 0 && r[k] !== '0') { out.push({ code: 'calc_invalid', path: path + k, key: k, field: r.id_ }); return; }
+        if (v === '' && k !== 'formula') delete r[k]; else r[k] = v;
+      });
+      if (r.type === 'calc' && r.calc_as_price === '1' && !(opts && opts.allow && opts.allow.payment)) out.push({ code: 'calc_payment', path: path + 'calc_as_price', key: 'calc_as_price', field: r.id_ });
+    });
+    var full = [{ type: 'form' }].concat((all || []).filter(function (r) { return r && r.type !== 'form'; }));
+    var errs = E.formErrors(full);
+    (items || []).forEach(function (r, i) {
+      if (r && r.type === 'calc' && errs[r.id_] && !out.some(function (x) { return x.field === r.id_ && x.key === 'formula'; })) out.push({ code: 'calc_formula', path: 'rows[' + (i + (offset || 0)) + '].formula', key: 'formula', field: r.id_, formula_code: errs[r.id_].code === 'calcSelf' ? 'calcCycle' : errs[r.id_].code, near: errs[r.id_].near });
+    });
+    return out;
+  }
+  function failCalc(errs) {
+    var e0 = errs[0];
+    var e = fail(e0.code, e0.code === 'calc_formula' ? 'The formula of ' + e0.field + ' has a problem: ' + e0.formula_code + (e0.near ? ' near ' + e0.near : '') + ' (' + e0.path + ')'
+      : (e0.code === 'calc_payment' ? 'A calculation used as the amount to pay needs {allow: {payment: true}} (' + e0.path + ')' : 'This value cannot be used for ' + e0.key + ' (' + e0.path + ')'));
+    e.path = e0.path; e.errors = errs;
+    if (e0.formula_code) e.formula_code = e0.formula_code;
+    return e;
+  }
+  /**
+   * validateFormula('({price}+50)*{qty}', rows?) → {ok, code, pos, near, refs}: the same answer as the server's
+   * check on save (Calc::form_errors) and the AutoPilot validator, against the builder's form (or rows).
+   */
+  function validateFormula(formula, list) {
+    var E = window.EFBCalc;
+    if (!E) throw fail('builder_not_ready', 'The calc engine (calc-efb.js) is not loaded.');
+    var p = E.parse(String(formula == null ? '' : formula));
+    if (!p.ok) return { ok: false, code: p.code, pos: p.pos, near: p.near, refs: [] };
+    var base = clone(Array.isArray(list) ? list : rows());
+    if (!base.length || !base[0] || base[0].type === undefined || base[0].id_ !== undefined) base.unshift({ type: 'form' });
+    base.push({ id_: '__efb_formula_check__', type: 'calc', formula: String(formula) });
+    var e = E.formErrors(base)['__efb_formula_check__'];
+    return e ? { ok: false, code: e.code === 'calcSelf' ? 'calcCycle' : e.code, pos: e.pos, near: e.near, refs: E.refIds(p) } : { ok: true, code: '', pos: -1, near: '', refs: E.refIds(p) };
+  }
+  /** F04: the number / calc / slider keys of one field: setCalc('total', {formula: '{a}*2', num_decimals: '2'}). */
+  function setCalc(id, patch, opts) {
+    var list = rows();
+    var idx = fieldIndex(list, String(id));
+    if (idx < 1 || ['number', 'range', 'calc', 'option'].indexOf(list[idx].type) === -1) throw fail('unknown_field', 'No number, slider, calc field or choice with id ' + id + '.');
+    if (!patch || typeof patch !== 'object' || Array.isArray(patch)) throw fail('invalid_setting', 'setCalc() needs an object of number / calc keys.');
+    var E = window.EFBCalc;
+    if (!E) throw fail('builder_not_ready', 'The calc engine (calc-efb.js) is not loaded.');
+    Object.keys(patch).forEach(function (k) {
+      if (k === 'step') throw fail('invalid_setting', 'the step of a number is num_step; "step" is the form step.');
+      if (!E.isKey(k, list[idx].type) && k !== 'milen' && k !== 'mlen') throw fail('invalid_setting', 'key ' + k + ' is not a number / calc key of a ' + list[idx].type + '.');
+    });
+    var row = clone(list[idx]);
+    Object.keys(patch).forEach(function (k) { row[k] = patch[k]; });
+    if (patch.milen !== undefined || patch.mlen !== undefined) ['milen', 'mlen'].forEach(function (k) { if (patch[k] !== undefined && patch[k] !== '' && !/^-?\d{1,15}(\.\d{1,6})?$/.test(E.normalizeDigits(String(patch[k])).replace(/\u066B/g, '.'))) throw fail('calc_invalid', k + ' must be a number.'); if (patch[k] !== undefined) row[k] = E.normalizeDigits(String(patch[k])).replace(/\u066B/g, '.'); });
+    var all = list.slice(1).map(function (r, i) { return i + 1 === idx ? row : r; });
+    var errs = calcCheck([row], idx, all, opts);
+    if (errs.length) throw failCalc(errs);
+    var values = {};
+    Object.keys(patch).forEach(function (k) { values[k] = row[k] === undefined ? '' : row[k]; });
+    list[idx] = row;
+    apiChanged('setCalc', [row.id_]);
+    var cap = (window.efb_var && efb_var.capabilities && efb_var.capabilities.features) || {};
+    var gated = [];
+    if (row.type === 'calc' && cap['field:calc'] && cap['field:calc'].available_now === false) gated.push('calc');
+    if (row.calc !== undefined && row.type === 'option' && cap['setting:calc_option'] && cap['setting:calc_option'].available_now === false) gated.push('calc');
+    if (row.calc_as_price === '1' && cap['setting:calc_price'] && cap['setting:calc_price'].available_now === false) gated.push('calc_as_price');
+    return { changed: Object.keys(values), values: values, plan: gated };
+  }
+
   var api = {
     version: API_VERSION,
     setOptions: setOptions,
     setChoices: setChoices,
+    setCalc: setCalc,
+    validateFormula: validateFormula,
     paymentReadiness: paymentReadiness,
     setFormSettings: setFormSettings,
     setFieldRules: setFieldRules,

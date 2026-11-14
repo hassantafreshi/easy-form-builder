@@ -1016,6 +1016,43 @@ final class Calc {
 		return array('ok' => true, 'rows' => $items);
 	}
 
+	/**
+	 * SitePilot contract (efb_api_form_validate, §7.2): errors that refuse a definition (a formula that does not
+	 * parse or reads a field that is missing / forbidden / on a cycle: calc_formula with formula_code; an F04 key
+	 * the save rules cannot keep: calc_invalid) and risk flags (payment for a calc used as the amount).
+	 * The same codes as efbBuilderApi.validateFormula() and the save (form_errors()).
+	 */
+	public static function validate_rows(array $rows) {
+		$errors = array();
+		$flags = array();
+		foreach ($rows as $i => $r) {
+			if (!is_array($r) || $i < 1) continue;
+			$type = isset($r['type']) && is_scalar($r['type']) ? (string) $r['type'] : '';
+			foreach ($r as $k => $v) {
+				if (!is_string($k) || !self::is_key($k, $type) || $k === 'formula_err' || $v === '' || $v === null) continue;
+				if (self::sanitize_key($k, $v, $type) === '' && !in_array($v, array(false, 0, '0'), true)) $errors[] = array('code' => 'calc_invalid', 'path' => 'rows[' . $i . '].' . $k);
+			}
+			if ($type === 'calc' && isset($r['calc_as_price']) && in_array($r['calc_as_price'], array('1', 1, true), true)) $flags['payment'] = true;
+		}
+		$ids = array();
+		foreach ($rows as $i => $r) if (is_array($r) && isset($r['id_']) && is_scalar($r['id_'])) $ids[(string) $r['id_']] = $i;
+		foreach (self::form_errors($rows) as $id => $e) {
+			$errors[] = array('code' => 'calc_formula', 'path' => 'rows[' . (isset($ids[$id]) ? $ids[$id] : '?') . '].formula', 'field' => (string) $id, 'formula_code' => $e['code'] === 'calcSelf' ? 'calcCycle' : $e['code'], 'near' => $e['near']);
+		}
+		return array('errors' => $errors, 'flags' => array_keys($flags));
+	}
+
+	/** One formula against a form (the twin of efbBuilderApi.validateFormula()): {ok, code, pos, near, refs}. */
+	public static function validate_formula($formula, array $rows) {
+		$p = self::parse((string) $formula);
+		if (!$p['ok']) return array('ok' => false, 'code' => $p['code'], 'pos' => $p['pos'], 'near' => $p['near'], 'refs' => array());
+		if (!isset($rows[0]) || !is_array($rows[0]) || isset($rows[0]['id_'])) array_unshift($rows, array('type' => 'form'));
+		$rows[] = array('id_' => '__efb_formula_check__', 'type' => 'calc', 'formula' => (string) $formula);
+		$e = self::form_errors($rows);
+		$e = isset($e['__efb_formula_check__']) ? $e['__efb_formula_check__'] : null;
+		return $e ? array('ok' => false, 'code' => $e['code'] === 'calcSelf' ? 'calcCycle' : $e['code'], 'pos' => $e['pos'], 'near' => $e['near'], 'refs' => self::ref_ids($p)) : array('ok' => true, 'code' => '', 'pos' => -1, 'near' => '', 'refs' => self::ref_ids($p));
+	}
+
 	/** The calc fields of a form used as an amount to pay (calc_as_price = "1"). */
 	public static function price_fields($form) {
 		$out = array();
