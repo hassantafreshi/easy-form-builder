@@ -136,6 +136,8 @@ keyword-list H2s that land in the TOC and is content written for crawlers, not r
 
 ## Rules that are easy to get wrong
 
+* **Escape every shortcode shown as an example.** WordPress executes `[EMS_Form_Builder id=4]` even inside `<code>` and renders a live form in the article (happened on R47, 2026-11-14). Write `&#91;EMS_Form_Builder id=4&#93;`; the reader still sees the brackets. `verify_live.py` must find the shortcode as text and no form markup.
+
 * **Block comments are part of the format.** Without any `<!-- wp:... -->` comment WordPress runs `wpautop` over the HTML and the image
   block (id, srcset, theme lightbox) is not parsed. Stripping the comments to get "plain HTML" is allowed but loses all three.
 * **Never leave `Enlarge image` as visible text.** WordPress' own lightbox button carries it as screen-reader text followed by the `alt`
