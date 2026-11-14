@@ -57,7 +57,7 @@ const html = JSON.parse(execFileSync('php', [path.join(__dirname, 'repeater-rend
   }, FORM);
   const set = async (id, v) => { await page.fill(`[id="${id}_"]`, v); await page.dispatchEvent(`[id="${id}_"]`, 'change'); };
   const out = (id) => page.evaluate((i) => (document.getElementById(i + '_out') || {}).textContent || '', id);
-  const settle = () => page.waitForTimeout(350);
+  const settle = () => page.waitForTimeout(700); // EFBCalc recomputes 100 ms after a change; slack for a loaded machine
   await set('price_r0', '10'); await set('qty_r0', '2'); await set('price_r1', '5.5'); await set('qty_r1', '3');
   await settle();
   check('each row computes its own line (20.00, 16.50)', [await out('line_r0'), await out('line_r1')].join('|') === '20.00|16.50', [await out('line_r0'), await out('line_r1')]);
