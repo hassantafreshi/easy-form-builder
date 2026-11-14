@@ -2958,6 +2958,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$corner= isset($vj->corner) ? $vj->corner : 'rounded-3';
 			switch ($vj->type) {
 
+				case 'calc':
+					// F04: a calculation (Free Plus): a read-only result the page computes and the server computes again.
+					if (!class_exists('\\Emsfb\\Calc') || !\Emsfb\Calc::plan_ok('calc')) {
+						$ui = $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
+						$dataTag = 'calc';
+						break;
+					}
+					$ui = $label
+						. '<div class="efb ' . $pos[3] . ' ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" data-id="' . esc_attr($element_Id) . '-el" id="' . esc_attr($element_Id) . '-f">'
+						. $ttip
+						. \Emsfb\Calc::calc_markup($vj, $element_Id, $form_id, isset($this->valj_efb[0]) ? $this->valj_efb[0] : null)
+						. '<div class="efb mb-3">' . $desc . '</div>';
+					$dataTag = 'calc';
+					break;
+
 				case 'ranking':
 					// F05-G: an ordered list of the field's choices (drag, buttons, keyboard; choices-efb.js). Free Plus.
 					if (!class_exists('\\Emsfb\\Choices') || !\Emsfb\Choices::plan_ok('ranking')) {
@@ -3756,7 +3771,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		}
 
 		if ($vj->type != "form" && $dataTag != "step" && $vj->type != 'option') {
-			$hidden = (isset($vj->hidden) && $vj->hidden == 1) || $elementId === 'hiddenField' ? 'd-none' : '';
+			// F04: a calc field set to "do not show the result" is computed, sent and stored, but not shown.
+			$hidden = (isset($vj->hidden) && $vj->hidden == 1) || $elementId === 'hiddenField' || ($elementId === 'calc' && isset($vj->calc_show) && $vj->calc_show === 'hidden') ? 'd-none' : '';
 			$tagId = in_array($elementId, ["firstName", "lastName", "address", "address_line", "postalcode"]) ? 'text' : $elementId;
 			$tagT = in_array($elementId, ["esign", "yesNo", "rating"]) ? '' : 'def';
 			$stepNo = (int)$vj->step - 1;

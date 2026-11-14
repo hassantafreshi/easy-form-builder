@@ -108,6 +108,8 @@
     if (has(p.type, 'inventory') && on(p, 'inv_on')) {
       out += `<div class="efb col-sm-12">${inputEl(o, 'ElCapOptions-' + oid, 'inv_cap', T('invCap', 'Available'), { numeric: true, plan: 'inventory', help: T('invCapNone', 'Empty = no limit') })}</div>`;
     }
+    // F04: the choice's calculation value (calc-builder-efb.js), next to the stored value.
+    if (typeof root.efbCalcOptionEls === 'function') out += root.efbCalcOptionEls(o, p);
     return out + '</div>';
   }
 

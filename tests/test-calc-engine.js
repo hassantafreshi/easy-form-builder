@@ -29,6 +29,8 @@ V.parse_input.forEach((v, i) => {
 });
 V.check.forEach((v, i) => test('check #' + i + ' ' + v.canon + ' ' + JSON.stringify(v.field), C.check(v.canon, C.config(v.field, { locale: v.locale, currency: { s: '$', d: 0 } })), v.expect));
 V.format.forEach((v, i) => test('format #' + i + ' ' + v.canon + ' ' + v.locale, C.format(v.canon, C.config(v.field, { locale: v.locale, currency: v.currency })), v.expect));
+const sortObj = (o) => Object.keys(o).sort().reduce((a, k) => { a[k] = o[k]; return a; }, {});
+V.forms.forEach((f, i) => test('form #' + i + ' ' + f.name, sortObj(C.evaluateForm(f.structure, f.rows, { hidden: f.hidden || [] })), sortObj(f.expect)));
 test('about 120 or more calc vectors', V.calc.length >= 120, true);
 
 // No string is ever executed.

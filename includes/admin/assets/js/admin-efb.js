@@ -2613,7 +2613,7 @@ let change_el_edit_Efb = (el) => {
         const aId = {
           email: "_", text: "_", password: "_", tel: "_", url: "_", date: "_", advdate: "_", color: "_", range: "_", number: "_", file: "_",
           textarea: "_", dadfile: "_", maps: "-map", checkbox: "_options", radio: "_options", select: "_options",
-          multiselect: "_options", esign: "-sig-data", rating: "-stared", yesNo: "_yn", ranking: "_options",
+          multiselect: "_options", esign: "-sig-data", rating: "-stared", yesNo: "_yn", ranking: "_options", calc: "_out",
           audio_recorder: "_file", video_recorder: "_file", screen_recorder: "_file"
         }
         postId = aId[valj_efb[indx].type]
@@ -4891,6 +4891,10 @@ let sampleElpush_efb = (rndm, elementId) => {
         maxSelect: 2,
         minSelect: 0
       })
+    } else if (elementId == "calc") {
+      // F04: the result of a formula; 2 decimal places, empty answers count as 0, shown to the visitor.
+      const indx =(valj_efb.length) - 1;
+      Object.assign(valj_efb[indx], { formula: '', calc_show: 'visible', calc_empty: 'zero', num_decimals: '2', placeholder: '' });
     } else if (elementId == "ranking") {
       // F05-G: shuffled at first for each visitor; required answers need a move or "Keep this order".
       const indx =(valj_efb.length) - 1;
@@ -7700,6 +7704,18 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         <div class="efb  mb-3">${desc}</div>
         <!-- end checkbox -->
         `
+      break;
+    case 'calc':
+      // F04: the result (output + hidden value; calc-builder-efb.js draws it like Calc::calc_markup()). The preview computes it live.
+      dataTag = elementId;
+      ui = `
+      ${label}
+      <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show" data-id="${rndm}-el" id='${rndm}-f'>
+      ${ttip}
+      ${typeof efbCalcCanvas === 'function' ? efbCalcCanvas(valj_efb[iVJ], previewSate == true) : `<output id="${rndm}_out"></output>`}
+      <div class="efb  mb-3">${desc}</div>
+      `;
+      if (previewSate == true && valj_efb[iVJ].calc_show === 'hidden') hidden = 'd-none';
       break;
     case 'ranking':
       // F05-G: an ordered list of the field's choices (choices-builder-efb.js draws it like the page does).

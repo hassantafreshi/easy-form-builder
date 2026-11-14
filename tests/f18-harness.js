@@ -59,9 +59,9 @@ function capabilities(pkg, settings) {
     $caps = \\Emsfb\\Builder_Api::capabilities(array('package' => ${Number(pkg)}));
     // Every module adds its entries through the efb_capabilities filter, in the plugin's priority order:
     // F11 (20) Form_Gate, F03 (21) Field_Rules, F02 / F06 (22) Verification / Calendar_Rest, F07 (23) Uploads,
-    // F08 (24) Smart_Tags, F05 (25) Choices.
-    foreach (array('class-Emsfb-rate-limit.php', 'class-Emsfb-client-ip.php', 'class-Emsfb-form-css.php', 'class-Emsfb-form-gate.php', 'class-Emsfb-masks.php', 'class-Emsfb-field-rules.php', 'verification/interface-provider.php', 'class-Emsfb-verification.php', 'class-Emsfb-calendar.php', 'class-Emsfb-calendar-rest.php', 'class-Emsfb-upload-guard.php', 'class-Emsfb-uploads.php', 'class-Emsfb-smart-tags.php', 'class-Emsfb-choices.php', 'class-Emsfb-stock.php') as $f) require_once '${INC}/' . $f;
-    foreach (array('Form_Gate', 'Field_Rules', 'Verification', 'Calendar_Rest', 'Uploads', 'Smart_Tags', 'Choices') as $c) { $c = '\\\\Emsfb\\\\' . $c; $caps = $c::capabilities($caps, array('package' => ${Number(pkg)})); }
+    // F08 (24) Smart_Tags, F05 (25) Choices, F04 (26) Calc.
+    foreach (array('class-Emsfb-rate-limit.php', 'class-Emsfb-client-ip.php', 'class-Emsfb-form-css.php', 'class-Emsfb-form-gate.php', 'class-Emsfb-masks.php', 'class-Emsfb-field-rules.php', 'verification/interface-provider.php', 'class-Emsfb-verification.php', 'class-Emsfb-calendar.php', 'class-Emsfb-calendar-rest.php', 'class-Emsfb-upload-guard.php', 'class-Emsfb-uploads.php', 'class-Emsfb-smart-tags.php', 'class-Emsfb-choices.php', 'class-Emsfb-stock.php', 'class-Emsfb-calc.php') as $f) require_once '${INC}/' . $f;
+    foreach (array('Form_Gate', 'Field_Rules', 'Verification', 'Calendar_Rest', 'Uploads', 'Smart_Tags', 'Choices', 'Calc') as $c) { $c = '\\\\Emsfb\\\\' . $c; $caps = $c::capabilities($caps, array('package' => ${Number(pkg)})); }
     echo json_encode($caps);
   `], { input: JSON.stringify(settings || {}) }).toString();
   return JSON.parse(out);

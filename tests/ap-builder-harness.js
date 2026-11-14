@@ -104,6 +104,9 @@ async function openBuilder(opts) {
   // F05: the choice rules / runtime and the choice-field controls (the builder loads them on every screen).
   if (fs.existsSync(path.join(ROOT, 'public/assets/js/choices-efb.js'))) await page.addScriptTag({ path: path.join(ROOT, 'public/assets/js/choices-efb.js') });
   if (fs.existsSync(JS + 'choices-builder-efb.js')) await page.addScriptTag({ path: JS + 'choices-builder-efb.js' });
+  // F04: the formula / number engine and the number / calc / slider controls.
+  if (fs.existsSync(path.join(ROOT, 'public/assets/js/calc-efb.js'))) await page.addScriptTag({ path: path.join(ROOT, 'public/assets/js/calc-efb.js') });
+  if (fs.existsSync(JS + 'calc-builder-efb.js')) await page.addScriptTag({ path: JS + 'calc-builder-efb.js' });
   for (const s of (opts.scripts || [])) await page.addScriptTag({ path: path.join(ROOT, s) });
   await page.evaluate(() => { _efb_nonce_ = 'n0nce'; setting_emsFormBuilder = efb_var.setting; });
   const bootErrors = errors.splice(0);

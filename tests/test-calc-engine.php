@@ -38,6 +38,11 @@ foreach ($V['parse_input'] as $i => $v) {
 foreach ($V['check'] as $i => $v) t("check #$i {$v['canon']}", Calc::check($v['canon'], Calc::config($v['field'], array('locale' => $v['locale'], 'currency' => array('s' => '$', 'd' => 0)))), $v['expect']);
 foreach ($V['format'] as $i => $v) t("format #$i {$v['canon']} {$v['locale']}", Calc::format($v['canon'], Calc::config($v['field'], array('locale' => $v['locale'], 'currency' => isset($v['currency']) ? $v['currency'] : null))), $v['expect']);
 
+foreach ($V['forms'] as $i => $f) {
+	$r = Calc::evaluate_form($f['structure'], $f['rows'], array('hidden' => isset($f['hidden']) ? $f['hidden'] : array()));
+	ksort($r); $e = $f['expect']; ksort($e);
+	t("form #$i {$f['name']}", $r, $e);
+}
 $src = preg_replace('#/\*.*?\*/#s', '', file_get_contents(__DIR__ . '/../includes/class-Emsfb-calc.php'));
 $src = preg_replace('#//.*$#m', '', $src);
 t('no eval / create_function / assert / preg_replace /e in class-Emsfb-calc.php', (bool) preg_match('/\beval\s*\(|create_function|\bassert\s*\(|\bshell_exec|\bexec\s*\(|\bsystem\s*\(|\bpassthru|\bproc_open|\bpopen/', $src), false);

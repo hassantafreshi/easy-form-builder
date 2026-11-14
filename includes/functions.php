@@ -5447,6 +5447,8 @@ class efbFunction {
 			/* translators: F07 visitor: state of one photo being made smaller */
 			"fileResizing" => $state && isset($ac->text->fileResizing) ? $ac->text->fileResizing : esc_html__('Preparing','easy-form-builder'),
 			/* F07 phrases end */
+			/* translators: F04 builder: the default label of a new calculation field */
+			"calc" => $state && isset($ac->text->calc) ? $ac->text->calc : esc_html__('Calculation','easy-form-builder'),
 			/* translators: F04 builder: palette tile of the calculation field */
 			"calcField" => $state && isset($ac->text->calcField) ? $ac->text->calcField : esc_html__('Calculation','easy-form-builder'),
 			/* translators: F04 builder: the step of a number field (e.g. 0.5) */
@@ -5896,7 +5898,7 @@ class efbFunction {
 					break;
 					case 'num_digits':
 						// F04: on a number, slider, price or calc field num_digits is the digits shown (auto / latin / native).
-						if ($this->calc_key_efb($k, $type)) { $valp[$key][$k] = \Emsfb\Calc::sanitize_key($k, $v, $type); break; }
+						if ($this->calc_key_efb($k, $type)) { $valp[$key][$k] = \Emsfb\Calc::sanitize_key($k, $v, $type); if ($valp[$key][$k] === '') unset($valp[$key][$k]); break; }
 						$valp[$key][$k] = is_scalar($v) && preg_match('/^[0-6]$/', (string) $v) ? (string) $v : '0';
 					break;
 					case 'num_digits_fixed':
@@ -5910,7 +5912,7 @@ class efbFunction {
 					case 'num_prefix':
 					case 'num_suffix':
 						// F04: on a number, slider, price or calc field: plain text up to 20 characters.
-						if ($this->calc_key_efb($k, $type)) { $valp[$key][$k] = \Emsfb\Calc::sanitize_key($k, $v, $type); break; }
+						if ($this->calc_key_efb($k, $type)) { $valp[$key][$k] = \Emsfb\Calc::sanitize_key($k, $v, $type); if ($valp[$key][$k] === '') unset($valp[$key][$k]); break; }
 						$valp[$key][$k] = is_string($v) && preg_match('//u', $v) && preg_match_all('/./us', $v) <= 8 && !preg_match('/[0-9<>"%\x00-\x1F]/', $v) ? $v : '';
 					break;
 					case 'num_grouping':

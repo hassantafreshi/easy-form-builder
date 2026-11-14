@@ -919,6 +919,8 @@ async function fun_sendBack_emsFormBuilder(ob) {
   } catch (e) {}
   // F08: pieces of labels / options and hidden values that read this answer ({field:id}).
   if (window.EFBSmart && ob.type !== 'hiddenField') { try { window.EFBSmart.refresh(Number(form_id), ob.id_); } catch (e) {} }
+  // F04: the form's calc fields again (debounced; a calc result itself does not start another round).
+  if (window.EFBCalc && window.EFBCalc.page && ob.type !== 'calc') { try { window.EFBCalc.page.schedule(Number(form_id)); } catch (e) {} }
 }
 
 function yesNoGetEFB(v, id, idl, form_id=0) {

@@ -118,11 +118,29 @@
       return true;
     }
     el.classList.remove('border-danger');
+    if (key === 'formula' && String(v).trim() !== '' && clean === '') {
+      // Characters outside the grammar (< > " % …): kept out of the save; the box says where.
+      const p = E().parse(v);
+      showFormulaErr(p.ok ? { code: 'calcSyntax', near: (String(v).match(/[^A-Za-z0-9_{}().,:\s+\-*\/]/) || [''])[0] } : p);
+      return true;
+    }
     if (clean === '' && key !== 'formula') delete r[key]; else r[key] = clean;
+    if (key === 'formula') {
+      const e = E().formErrors(list())[r.id_];
+      if (e) r.formula_err = '1'; else delete r.formula_err;
+      showFormulaErr(e);
+    }
     if (el.tagName !== 'SELECT' && !el.classList.contains('btn-toggle') && el.value !== clean && key !== 'formula') el.value = clean;
     redraw(r);
     changed();
     return true;
+  }
+
+  function showFormulaErr(e) {
+    const box = document.getElementById('calcFormulaErrEl');
+    if (!box) return;
+    box.textContent = efbCalcErrText(e);
+    box.classList.toggle('d-none', !e);
   }
 
   /** The canvas copy of a field again (attributes of a number box, the calc output, the slider). */
@@ -130,6 +148,10 @@
     try {
       const pv = document.getElementById('numFmtPreviewEl');
       if (pv && E()) pv.textContent = E().format(r.type === 'calc' ? '1234567.5' : '1234.5', cfgOf(r));
+      const fml = document.getElementById(`${r.id_}_fml`);
+      if (fml) fml.textContent = '= ' + (r.formula || '');
+      const out = r.type === 'calc' ? document.getElementById(`${r.id_}_out`) : null;
+      if (out && E() && fml) { const c = cfgOf(r); out.textContent = E().format(c.cur ? '1234.5' : '0', c); }
       const input = document.getElementById(`${r.id_}_`);
       if (r.type === 'number' && input) {
         const a = efbNumInputAttrs(r);
@@ -188,7 +210,108 @@
     return true;
   }
 
-  const api = { efbCalcIsF4: isF4, efbNumPanelEls, efbCalcBuilderChange, efbNumInputAttrs, efbNumLimit, efb_calc_redraw_efb: redraw };
+
+  /* ------------------------------------------------------------------ the calc field */
+
+  const FN_BUTTONS = ['round', 'ceil', 'floor', 'min', 'max', 'sum', 'avg', 'abs', 'if', 'gt', 'lt', 'eq', 'and', 'or', 'not', 'mod', 'pow'];
+  const READABLE = (r) => r && r.type !== 'option' && r.type !== 'step' && r.type !== 'form' && E() && E().FORBIDDEN_TYPES.indexOf(r.type) === -1 && E().LAYOUT_TYPES.indexOf(r.type) === -1;
+
+  /** The text of a formula problem (Calc::form_errors() / EFBCalc.formErrors() code). */
+  function efbCalcErrText(e) {
+    if (!e) return '';
+    switch (e.code) {
+      case 'calcRef': return T('calcErrRef', 'No field matches %s.').replace('%s', e.near);
+      case 'calcForbidden': return T('calcErrForbidden', '%s cannot be used in a calculation (password, file, signature, map or HTML).').replace('%s', e.near);
+      case 'calcFn': return T('calcErrFn', 'Unknown function “%s”.').replace('%s', e.near);
+      case 'calcArgs': return T('calcErrArgs', '“%s” has the wrong number of values.').replace('%s', e.near);
+      case 'calcCycle': case 'calcSelf': return T('calcCycle', 'This formula uses its own result (directly or through another calculation).');
+      case 'calcLong': case 'calcDepth': case 'calcTokens': case 'calcRefs': return T('calcErrLong', 'The formula is too long or too deep.');
+      default: return T('calcErrAt', 'The formula has an error near “%s”.').replace('%s', e.near || '…');
+    }
+  }
+
+  /** The formula box, "Insert field", the function buttons, show / empty, and (payment forms) the amount switch. */
+  function efbCalcPanelEls(indx, idset) {
+    const r = list()[indx];
+    if (!r || !E()) return '<!-- F04: calc-efb.js not loaded -->';
+    const did = esc(r.dataId || r.id_ + '-id');
+    const fields = list().filter((x, i) => i > 0 && READABLE(x) && x.id_ !== r.id_);
+    const err = E().formErrors(list())[r.id_];
+    const pay = list()[0] && list()[0].type === 'payment';
+    let html = `<div class="efb mt-2 efb-calc-panel" id="efbCalcPanel" data-id="${esc(r.id_)}">
+      <label for="calcFormulaEl" class="efb form-label mt-2 mb-1">${esc(T('calcFormula', 'Formula'))}</label>
+      <textarea id="calcFormulaEl" rows="2" maxlength="2000" dir="ltr" spellcheck="false" data-id="${did}" data-key="formula" class="efb elEdit form-control efb-calc-ctl text-muted border-d rounded-4 mb-1 font-monospace" aria-describedby="calcFormulaErrEl calcFormulaHelp" placeholder="({price} + 50) * {qty}">${esc(r.formula || '')}</textarea>
+      <div id="calcFormulaErrEl" class="efb text-danger fs-7 ${err ? '' : 'd-none'}" role="alert" dir="auto">${esc(efbCalcErrText(err))}</div>
+      <small id="calcFormulaHelp" class="efb form-text text-muted fs-8 d-block">${esc(T('calcHelp', 'Use {field} references, numbers, + - * / ( ) and the functions below.'))}</small>
+      <label for="calcInsertEl" class="efb form-label mt-2 mb-1">${esc(T('calcInsertField', 'Insert field'))}</label>
+      <select id="calcInsertEl" class="efb form-select border-d rounded-4 mb-1" onchange="efb_calc_insert_efb(this.value ? '{' + this.value + '}' : ''); this.value='';">
+        <option value="">—</option>${fields.map((x) => `<option value="${esc(x.id_)}">${esc((x.name || x.type) + ' — {' + x.id_ + '}')}</option>`).join('')}
+      </select>
+      <div class="efb mt-2" role="group" aria-label="${esc(T('calcFunctions', 'Functions'))}"><span class="efb fs-7 d-block mb-1">${esc(T('calcFunctions', 'Functions'))}</span>
+        ${FN_BUTTONS.map((fn) => `<button type="button" class="efb btn btn-sm btn-outline-secondary m-1 efb-calc-fn" dir="ltr" onclick="efb_calc_insert_efb('${fn}(')">${fn}()</button>`).join('')}
+      </div>`;
+    html += sel('calcShowEl', 'calc_show', r, [['visible', T('calcShowRes', 'Show the result to the visitor')], ['hidden', T('hide', 'Hide')]], T('calcShowRes', 'Show the result to the visitor'), '');
+    html += sel('calcEmptyEl', 'calc_empty', r, [['zero', T('calcEmptyZero', 'Treat empty answers as 0')], ['blank', T('calcEmptyBlank', 'Leave the result empty')]], T('calcEmptyZero', 'Treat empty answers as 0'), '');
+    if (pay) html += toggle('calcAsPriceEl', 'calc_as_price', r, T('calcAsPrice', 'Use the result as the amount to pay'), T('calcAsPriceHelp', 'The server computes the amount again from the answers; a negative result is refused.'));
+    html += `<small class="efb form-text text-muted fs-8 d-block mt-2"><i class="efb bi-eye ${typeof iconMarginGlobal !== 'undefined' ? iconMarginGlobal : 'me-1'}" aria-hidden="true"></i>${esc(T('calcPublic', 'Visitors can read the formula in the page source.'))}</small>`;
+    return html + '</div>';
+  }
+
+  /** Inserts a piece at the caret of the formula box and saves it. */
+  function efb_calc_insert_efb(piece) {
+    const ta = document.getElementById('calcFormulaEl');
+    if (!ta || !piece) return;
+    const a = ta.selectionStart === undefined ? ta.value.length : ta.selectionStart, b = ta.selectionEnd === undefined ? a : ta.selectionEnd;
+    ta.value = ta.value.slice(0, a) + piece + ta.value.slice(b);
+    try { ta.focus(); ta.setSelectionRange(a + piece.length, a + piece.length); } catch (e) {}
+    if (typeof change_el_edit_Efb === 'function') change_el_edit_Efb(ta);
+  }
+
+  /** The canvas (builder) or preview copy of a calc field: the same markup as Calc::calc_markup(). */
+  function efbCalcCanvas(r, preview) {
+    if (!r || !E()) return '';
+    const c = cfgOf(r);
+    const json = JSON.stringify({ decimals: c.decimals, step: c.step, min: c.min, max: c.max, dec: c.dec, grp: c.grp, group: c.group, script: c.script, prefix: c.prefix, suffix: c.suffix, cur: c.cur, rtl: c.rtl });
+    const req = Number(r.required) === 1;
+    return `<div class="efb efb-calc" data-efb-calc="1" data-vid="${esc(r.id_)}" data-formid="0" data-numcfg="${esc(json)}">
+      <output class="efb efb-calc-out form-control-plaintext ${esc(r.el_text_color || '')}${req ? ' required' : ''}" id="${esc(r.id_)}_out" role="status" aria-live="polite" aria-atomic="true" aria-labelledby="${esc(r.id_)}_labG" dir="auto">${preview ? '' : esc(E().format(c.cur ? '1234.5' : '0', c))}</output>
+      <input type="hidden" class="efb emsFormBuilder_v" data-vid="${esc(r.id_)}" data-type="calc" data-formid="0" id="${esc(r.id_)}_" value="">
+      ${preview ? '' : `<small class="efb efb-calc-fml text-muted fs-8 d-block" dir="ltr" id="${esc(r.id_)}_fml">= ${esc(r.formula || '')}</small>`}
+    </div>`;
+  }
+
+  /* ------------------------------------------------------------------ a choice's calculation value */
+
+  function planOk(part) {
+    const p = root.efb_var && root.efb_var.calc && root.efb_var.calc.plan;
+    return p ? !!p[part] : true;
+  }
+
+  /** "Calculation value" in the "Show attributes" row of a choice (F05's row). */
+  function efbCalcOptionEls(o, p) {
+    if (!o || !p || E() === null || E().CHOICE_TYPES.indexOf(p.type) === -1) return '';
+    const oid = esc(o.id_);
+    const lock = planOk('option_calc') ? '' : ' disabled aria-disabled="true"';
+    return `<label for="ElCalcOptions-${oid}" class="efb form-label mx-1 my-0 py-0 fs-7 col-sm-3">${esc(T('calcOptValue', 'Calculation value'))}</label>
+      <input type="text" inputmode="decimal" dir="ltr" maxlength="24" placeholder="0" id="ElCalcOptions-${oid}" value="${esc(o.calc || '')}" data-id="${oid}" data-key="calc" class="efb efb-calc-opt text-muted mb-1 fs-7 border-d rounded-4 col-sm-8" onchange="efb_calc_opt_change_efb(this)"${lock}>`;
+  }
+  function efb_calc_opt_change_efb(el) {
+    const o = rowById(el.dataset.id);
+    if (!o || !E()) return;
+    const v = E().sanitizeKey('calc', el.value, 'option');
+    if (String(el.value).trim() !== '' && v === '') {
+      el.classList.add('border-danger');
+      if (typeof alert_message_efb === 'function') alert_message_efb('', T('numLimitBad', 'Please enter a number, such as -10 or 9.5.'), 6, 'warning');
+      el.value = o.calc || '';
+      return;
+    }
+    el.classList.remove('border-danger');
+    if (v === '') delete o.calc; else o.calc = v;
+    el.value = v;
+    changed();
+  }
+
+  const api = { efbCalcPanelEls, efbCalcErrText, efb_calc_insert_efb, efbCalcCanvas, efbCalcOptionEls, efb_calc_opt_change_efb, efbCalcIsF4: isF4, efbNumPanelEls, efbCalcBuilderChange, efbNumInputAttrs, efbNumLimit, efb_calc_redraw_efb: redraw };
   Object.keys(api).forEach((k) => { root[k] = api[k]; });
   if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

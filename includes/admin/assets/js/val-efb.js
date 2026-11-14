@@ -196,6 +196,8 @@ const fields_efb = [
   { name: efb_var.text.terms, icon: 'bi-shield-check', id: 'trmCheckbox', pro: false, tag:'advance all' },
   // F05: put the choices in order (drag, buttons, keyboard). Free Plus (field:ranking in the capability registry).
   { name: efb_var.text.ranking || 'Ranking', icon: 'bi-sort-numeric-down', id: 'ranking', pro: true, tag:'advance all' },
+  // F04: a calculation from the other answers (formula, choice calculation values). Free Plus (field:calc in the capability registry).
+  { name: efb_var.text.calcField || 'Calculation', icon: 'bi-calculator', id: 'calc', pro: true, tag:'advance all' },
   // F08: a hidden value (UTM, referrer, page, user, IP, date, unique id, cookie or a fixed text). Free.
   { name: efb_var.text.hiddenField || 'Hidden field', icon: 'bi-eye-slash', id: 'hiddenField', pro: false, tag:'basic all' },
 
@@ -1749,6 +1751,35 @@ function show_setting_window_efb(idset, opts) {
                         ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(indx) : '<!--efb-->'}
                         </div>
                     </div>
+                </div><div class="efb  clearfix"></div>
+                `
+        break;
+      case "calc":
+        // F04: the formula, show / empty, the number format of the result; layout settings like other fields.
+        body = `
+                <div class="efb  mb-3">
+                ${Nadvanced}
+                ${typeof efbCalcPanelEls === 'function' ? efbCalcPanelEls(indx, idset) : '<!-- F04 calc-builder-efb.js not loaded -->'}
+                ${typeof efbNumPanelEls === 'function' ? efbNumPanelEls(indx, idset, 'calc') : ''}
+                <div class="efb  d-grid gap-2">
+                  <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+                        <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+                    </button>
+                </div>
+                <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
+                  <div class="efb  mb-3 px-3 row">
+                  ${labelFontSizeEls}
+                  ${selectColorEls('label','text')}
+                  ${selectColorEls('description','text')}
+                  ${selectColorEls('el','text')}
+                  ${labelPostionEls}
+                  ${ElementAlignEls('label',indx,idset)}
+                  ${ElementAlignEls('description',indx,idset)}
+                  ${widthEls}
+                  ${mobileWidthEls}
+                  ${classesEls}
+                  ${hiddenEls}
+                  </div>
                 </div><div class="efb  clearfix"></div>
                 `
         break;

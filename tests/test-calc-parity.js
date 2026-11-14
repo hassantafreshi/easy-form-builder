@@ -72,15 +72,28 @@ const forms = [
   [{}, { id_: 'a', type: 'calc', formula: '{b}' }, { id_: 'b', type: 'calc', formula: '{c}' }, { id_: 'c', type: 'calc', formula: '{a}' }, { id_: 'z', type: 'calc', formula: '{a}+1' }, { id_: 'n', type: 'number' }],
 ];
 
+// Whole forms with generated answers (numbers, Persian digits, text, empty, choices by id / label).
+const evf = [];
+const ansVals = ['12', '۳', '0', '', 'abc', '-2.5', '1,000', '10..40'];
+V.forms.forEach((f) => {
+  evf.push(f);
+  for (let k = 0; k < 20; k++) {
+    const rows = f.structure.filter((r, i) => i > 0 && r.type !== 'option' && r.type !== 'calc' && rnd(3) > 0).map((r) => ({ id_: r.id_, value: ansVals[rnd(ansVals.length)], id_ob: rnd(2) ? r.id_ : '' }));
+    f.structure.filter((r) => r.type === 'option' && rnd(2)).forEach((o) => rows.push({ id_: o.parent, id_ob: o.id_, value: o.value }));
+    evf.push({ structure: f.structure, rows, hidden: rnd(4) === 0 ? [f.structure[1 + rnd(f.structure.length - 1)].id_] : [] });
+  }
+});
+
 const php = `define('ABSPATH', 'x'); require ${JSON.stringify(path.join(root, 'includes', 'class-Emsfb-calc.php'))};
 $in = json_decode(stream_get_contents(STDIN), true); $o = array('calc' => array(), 'num' => array());
 foreach ($in['cases'] as $c) { $r = \\Emsfb\\Calc::run($c['f'], $c['values'], $c['d'], $c['opts']); $p = \\Emsfb\\Calc::parse($c['f']); $o['calc'][] = array($r, $p['ok'] ? \\Emsfb\\Calc::ref_ids($p) : array($p['code'], $p['pos'], $p['near'])); }
 foreach ($in['nums'] as $n) { $cfg = \\Emsfb\\Calc::config($n['field'], array('locale' => $n['locale'], 'currency' => $n['currency'])); $pi = \\Emsfb\\Calc::parse_input($n['raw'], $cfg);
   $o['num'][] = array($cfg, $pi, $pi['ok'] ? \\Emsfb\\Calc::check($pi['canon'], $cfg) : '', \\Emsfb\\Calc::format($pi['ok'] ? $pi['canon'] : $n['raw'], $cfg)); }
+$o['evf'] = array(); foreach ($in['evf'] as $f) $o['evf'][] = (object) \\Emsfb\\Calc::evaluate_form($f['structure'], $f['rows'], array('hidden' => isset($f['hidden']) ? $f['hidden'] : array()));
 $o['keys'] = array(); foreach ($in['keys'] as $k) $o['keys'][] = \\Emsfb\\Calc::sanitize_key($k[0], $k[1], $k[2]);
 $o['forms'] = array(); foreach ($in['forms'] as $f) $o['forms'][] = array((object) \\Emsfb\\Calc::form_errors($f), \\Emsfb\\Calc::topo_order($f));
 echo json_encode($o, JSON_UNESCAPED_UNICODE);`;
-const r = spawnSync('php', ['-r', php], { input: JSON.stringify({ cases, nums, keys: keyCases, forms }), encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+const r = spawnSync('php', ['-r', php], { input: JSON.stringify({ cases, nums, keys: keyCases, forms, evf }), encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 if (r.status !== 0 || !r.stdout) { console.log('[FAIL] php did not run: ' + (r.stderr || r.error)); console.log('\nRESULTS: 0 passed, 1 failed'); process.exit(1); }
 const P = JSON.parse(r.stdout);
 const EFBsk = (k) => C.sanitizeKey(k[0], k[1], k[2]);
@@ -94,6 +107,7 @@ nums.forEach((n, i) => {
   const pi = C.parseInput(n.raw, cfg);
   test('number #' + i + ' ' + n.raw + ' ' + n.locale, [cfg, pi, pi.ok ? C.check(pi.canon, cfg) : '', C.format(pi.ok ? pi.canon : n.raw, cfg)], P.num[i]);
 });
+evf.forEach((f, i) => test('evaluate_form #' + i, C.evaluateForm(f.structure, f.rows, { hidden: f.hidden || [] }), P.evf[i]));
 keyCases.forEach((k, i) => test('sanitize_key ' + k[0] + ' ' + JSON.stringify(k[1]).slice(0, 40), EFBsk(k), P.keys[i]));
 forms.forEach((f, i) => test('form_errors / topo_order #' + i, [C.formErrors(f), C.topoOrder(f)], P.forms[i]));
 test('a cycle of three: all three marked, the field that reads it is not', Object.keys(C.formErrors(forms[4])), ['a', 'b', 'c']);

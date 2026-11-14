@@ -2239,5 +2239,791 @@
    "locale": "fa_IR",
    "expect": "۰٫۵"
   }
+ ],
+ "forms": [
+  {
+   "name": "order total",
+   "structure": [
+    {
+     "type": "form"
+    },
+    {
+     "id_": "price",
+     "type": "number"
+    },
+    {
+     "id_": "qty",
+     "type": "number"
+    },
+    {
+     "id_": "tot",
+     "type": "calc",
+     "formula": "({price}+50)*{qty}"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "price",
+     "value": "1200"
+    },
+    {
+     "id_": "qty",
+     "value": "3"
+    }
+   ],
+   "expect": {
+    "tot": {
+     "ok": true,
+     "value": "3750.00",
+     "code": ""
+    }
+   }
+  },
+  {
+   "name": "a forged calc row is ignored",
+   "structure": [
+    {
+     "type": "form"
+    },
+    {
+     "id_": "price",
+     "type": "number"
+    },
+    {
+     "id_": "qty",
+     "type": "number"
+    },
+    {
+     "id_": "tot",
+     "type": "calc",
+     "formula": "({price}+50)*{qty}"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "price",
+     "value": "1200"
+    },
+    {
+     "id_": "qty",
+     "value": "3"
+    },
+    {
+     "id_": "tot",
+     "type": "calc",
+     "value": "1"
+    }
+   ],
+   "expect": {
+    "tot": {
+     "ok": true,
+     "value": "3750.00",
+     "code": ""
+    }
+   }
+  },
+  {
+   "name": "empty answers count as 0",
+   "structure": [
+    {
+     "type": "form"
+    },
+    {
+     "id_": "price",
+     "type": "number"
+    },
+    {
+     "id_": "qty",
+     "type": "number"
+    },
+    {
+     "id_": "tot",
+     "type": "calc",
+     "formula": "({price}+50)*{qty}"
+    }
+   ],
+   "rows": [],
+   "expect": {
+    "tot": {
+     "ok": true,
+     "value": "0.00",
+     "code": ""
+    }
+   }
+  },
+  {
+   "name": "Persian digits in an answer",
+   "structure": [
+    {
+     "type": "form"
+    },
+    {
+     "id_": "price",
+     "type": "number"
+    },
+    {
+     "id_": "qty",
+     "type": "number"
+    },
+    {
+     "id_": "tot",
+     "type": "calc",
+     "formula": "({price}+50)*{qty}"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "price",
+     "value": "۱۰۰"
+    },
+    {
+     "id_": "qty",
+     "value": "۲"
+    }
+   ],
+   "expect": {
+    "tot": {
+     "ok": true,
+     "value": "300.00",
+     "code": ""
+    }
+   }
+  },
+  {
+   "name": "a field hidden by Conditional Logic is empty",
+   "structure": [
+    {
+     "type": "form"
+    },
+    {
+     "id_": "price",
+     "type": "number"
+    },
+    {
+     "id_": "qty",
+     "type": "number"
+    },
+    {
+     "id_": "tot",
+     "type": "calc",
+     "formula": "({price}+50)*{qty}"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "price",
+     "value": "100"
+    },
+    {
+     "id_": "qty",
+     "value": "2"
+    }
+   ],
+   "hidden": [
+    "qty"
+   ],
+   "expect": {
+    "tot": {
+     "ok": true,
+     "value": "0.00",
+     "code": ""
+    }
+   }
+  },
+  {
+   "name": "a hidden calc field has no result",
+   "structure": [
+    {
+     "type": "form"
+    },
+    {
+     "id_": "price",
+     "type": "number"
+    },
+    {
+     "id_": "qty",
+     "type": "number"
+    },
+    {
+     "id_": "tot",
+     "type": "calc",
+     "formula": "({price}+50)*{qty}"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "price",
+     "value": "100"
+    }
+   ],
+   "hidden": [
+    "tot"
+   ],
+   "expect": {}
+  },
+  {
+   "name": "choices: radio by id_ob, checkbox calc / numeric opt_value / 0, select and multiselect by label",
+   "structure": [
+    {
+     "type": "form"
+    },
+    {
+     "id_": "size",
+     "type": "radio"
+    },
+    {
+     "id_": "s1",
+     "type": "option",
+     "parent": "size",
+     "value": "Small",
+     "calc": "10"
+    },
+    {
+     "id_": "s2",
+     "type": "option",
+     "parent": "size",
+     "value": "Large",
+     "calc": "25.5"
+    },
+    {
+     "id_": "ext",
+     "type": "checkbox"
+    },
+    {
+     "id_": "e1",
+     "type": "option",
+     "parent": "ext",
+     "value": "Cheese",
+     "calc": "2"
+    },
+    {
+     "id_": "e2",
+     "type": "option",
+     "parent": "ext",
+     "value": "Olives",
+     "opt_value": "3"
+    },
+    {
+     "id_": "e3",
+     "type": "option",
+     "parent": "ext",
+     "value": "Napkin",
+     "opt_value": "N"
+    },
+    {
+     "id_": "sel",
+     "type": "select"
+    },
+    {
+     "id_": "o1",
+     "type": "option",
+     "parent": "sel",
+     "value": "One",
+     "calc": "1"
+    },
+    {
+     "id_": "o2",
+     "type": "option",
+     "parent": "sel",
+     "value": "Two",
+     "calc": "2"
+    },
+    {
+     "id_": "ms",
+     "type": "multiselect"
+    },
+    {
+     "id_": "m1",
+     "type": "option",
+     "parent": "ms",
+     "value": "A",
+     "calc": "100"
+    },
+    {
+     "id_": "m2",
+     "type": "option",
+     "parent": "ms",
+     "value": "B",
+     "calc": "200"
+    },
+    {
+     "id_": "pay",
+     "type": "payCheckbox"
+    },
+    {
+     "id_": "p1",
+     "type": "option",
+     "parent": "pay",
+     "value": "X",
+     "price": "7.5"
+    },
+    {
+     "id_": "p2",
+     "type": "option",
+     "parent": "pay",
+     "value": "Y",
+     "price": "2.5"
+    },
+    {
+     "id_": "t",
+     "type": "calc",
+     "formula": "{size}+{ext}+{sel}+{ms}",
+     "num_decimals": "1"
+    },
+    {
+     "id_": "c",
+     "type": "calc",
+     "formula": "{ext.count}*1000+{pay.price}+{pay.count}",
+     "num_decimals": "2"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "size",
+     "id_ob": "s2",
+     "value": "Large"
+    },
+    {
+     "id_": "ext",
+     "id_ob": "e1",
+     "value": "Cheese"
+    },
+    {
+     "id_": "ext",
+     "id_ob": "e2",
+     "value": "Olives"
+    },
+    {
+     "id_": "ext",
+     "id_ob": "e3",
+     "value": "Napkin"
+    },
+    {
+     "id_": "sel",
+     "id_ob": "sel_options",
+     "value": "Two"
+    },
+    {
+     "id_": "ms",
+     "value": "A@efb!B"
+    },
+    {
+     "id_": "pay",
+     "id_ob": "p1",
+     "value": "X"
+    },
+    {
+     "id_": "pay",
+     "id_ob": "p2",
+     "value": "Y"
+    }
+   ],
+   "expect": {
+    "t": {
+     "ok": true,
+     "value": "332.5",
+     "code": ""
+    },
+    "c": {
+     "ok": true,
+     "value": "3012.00",
+     "code": ""
+    }
+   }
+  },
+  {
+   "name": "nothing chosen: 0",
+   "structure": [
+    {
+     "type": "form"
+    },
+    {
+     "id_": "size",
+     "type": "radio"
+    },
+    {
+     "id_": "s1",
+     "type": "option",
+     "parent": "size",
+     "value": "Small",
+     "calc": "10"
+    },
+    {
+     "id_": "s2",
+     "type": "option",
+     "parent": "size",
+     "value": "Large",
+     "calc": "25.5"
+    },
+    {
+     "id_": "ext",
+     "type": "checkbox"
+    },
+    {
+     "id_": "e1",
+     "type": "option",
+     "parent": "ext",
+     "value": "Cheese",
+     "calc": "2"
+    },
+    {
+     "id_": "e2",
+     "type": "option",
+     "parent": "ext",
+     "value": "Olives",
+     "opt_value": "3"
+    },
+    {
+     "id_": "e3",
+     "type": "option",
+     "parent": "ext",
+     "value": "Napkin",
+     "opt_value": "N"
+    },
+    {
+     "id_": "sel",
+     "type": "select"
+    },
+    {
+     "id_": "o1",
+     "type": "option",
+     "parent": "sel",
+     "value": "One",
+     "calc": "1"
+    },
+    {
+     "id_": "o2",
+     "type": "option",
+     "parent": "sel",
+     "value": "Two",
+     "calc": "2"
+    },
+    {
+     "id_": "ms",
+     "type": "multiselect"
+    },
+    {
+     "id_": "m1",
+     "type": "option",
+     "parent": "ms",
+     "value": "A",
+     "calc": "100"
+    },
+    {
+     "id_": "m2",
+     "type": "option",
+     "parent": "ms",
+     "value": "B",
+     "calc": "200"
+    },
+    {
+     "id_": "pay",
+     "type": "payCheckbox"
+    },
+    {
+     "id_": "p1",
+     "type": "option",
+     "parent": "pay",
+     "value": "X",
+     "price": "7.5"
+    },
+    {
+     "id_": "p2",
+     "type": "option",
+     "parent": "pay",
+     "value": "Y",
+     "price": "2.5"
+    },
+    {
+     "id_": "t",
+     "type": "calc",
+     "formula": "{size}+{ext}+{sel}+{ms}",
+     "num_decimals": "1"
+    },
+    {
+     "id_": "c",
+     "type": "calc",
+     "formula": "{ext.count}*1000+{pay.price}+{pay.count}",
+     "num_decimals": "2"
+    }
+   ],
+   "rows": [],
+   "expect": {
+    "t": {
+     "ok": true,
+     "value": "0.0",
+     "code": ""
+    },
+    "c": {
+     "ok": true,
+     "value": "0.00",
+     "code": ""
+    }
+   }
+  },
+  {
+   "name": "chains in dependency order, blank mode, a cycle, a text answer, a two-handle range, a rating",
+   "structure": [
+    {
+     "type": "form"
+    },
+    {
+     "id_": "a",
+     "type": "number"
+    },
+    {
+     "id_": "d",
+     "type": "calc",
+     "formula": "{b}*2",
+     "num_decimals": "0"
+    },
+    {
+     "id_": "b",
+     "type": "calc",
+     "formula": "{a}+1",
+     "num_decimals": "0"
+    },
+    {
+     "id_": "e",
+     "type": "calc",
+     "formula": "{a}/{z}",
+     "calc_empty": "blank"
+    },
+    {
+     "id_": "z",
+     "type": "number"
+    },
+    {
+     "id_": "x",
+     "type": "calc",
+     "formula": "{x}+1"
+    },
+    {
+     "id_": "y",
+     "type": "calc",
+     "formula": "{x}+1"
+    },
+    {
+     "id_": "w",
+     "type": "calc",
+     "formula": "{name}*2"
+    },
+    {
+     "id_": "name",
+     "type": "text"
+    },
+    {
+     "id_": "rg",
+     "type": "range",
+     "range_mode": "dual"
+    },
+    {
+     "id_": "span",
+     "type": "calc",
+     "formula": "{rg}+{rg.lo}*0+{rg.hi}*0",
+     "num_decimals": "0"
+    },
+    {
+     "id_": "rt",
+     "type": "rating"
+    },
+    {
+     "id_": "rr",
+     "type": "calc",
+     "formula": "{rt}*2",
+     "num_decimals": "0"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "a",
+     "value": "4"
+    },
+    {
+     "id_": "name",
+     "value": "abc"
+    },
+    {
+     "id_": "rg",
+     "value": "10..50"
+    },
+    {
+     "id_": "rt",
+     "value": "4"
+    }
+   ],
+   "expect": {
+    "b": {
+     "ok": true,
+     "value": "5",
+     "code": ""
+    },
+    "d": {
+     "ok": true,
+     "value": "10",
+     "code": ""
+    },
+    "e": {
+     "ok": true,
+     "value": "",
+     "code": ""
+    },
+    "x": {
+     "ok": false,
+     "value": "",
+     "code": "calcSelf"
+    },
+    "y": {
+     "ok": false,
+     "value": "",
+     "code": "calcSelf"
+    },
+    "w": {
+     "ok": false,
+     "value": "",
+     "code": "calcNaN"
+    },
+    "span": {
+     "ok": true,
+     "value": "40",
+     "code": ""
+    },
+    "rr": {
+     "ok": true,
+     "value": "8",
+     "code": ""
+    }
+   }
+  },
+  {
+   "name": "division by zero",
+   "structure": [
+    {
+     "type": "form"
+    },
+    {
+     "id_": "a",
+     "type": "number"
+    },
+    {
+     "id_": "d",
+     "type": "calc",
+     "formula": "{b}*2",
+     "num_decimals": "0"
+    },
+    {
+     "id_": "b",
+     "type": "calc",
+     "formula": "{a}+1",
+     "num_decimals": "0"
+    },
+    {
+     "id_": "e",
+     "type": "calc",
+     "formula": "{a}/{z}",
+     "calc_empty": "blank"
+    },
+    {
+     "id_": "z",
+     "type": "number"
+    },
+    {
+     "id_": "x",
+     "type": "calc",
+     "formula": "{x}+1"
+    },
+    {
+     "id_": "y",
+     "type": "calc",
+     "formula": "{x}+1"
+    },
+    {
+     "id_": "w",
+     "type": "calc",
+     "formula": "{name}*2"
+    },
+    {
+     "id_": "name",
+     "type": "text"
+    },
+    {
+     "id_": "rg",
+     "type": "range",
+     "range_mode": "dual"
+    },
+    {
+     "id_": "span",
+     "type": "calc",
+     "formula": "{rg}+{rg.lo}*0+{rg.hi}*0",
+     "num_decimals": "0"
+    },
+    {
+     "id_": "rt",
+     "type": "rating"
+    },
+    {
+     "id_": "rr",
+     "type": "calc",
+     "formula": "{rt}*2",
+     "num_decimals": "0"
+    }
+   ],
+   "rows": [
+    {
+     "id_": "a",
+     "value": "4"
+    },
+    {
+     "id_": "z",
+     "value": "0"
+    },
+    {
+     "id_": "name",
+     "value": "3"
+    }
+   ],
+   "expect": {
+    "b": {
+     "ok": true,
+     "value": "5",
+     "code": ""
+    },
+    "d": {
+     "ok": true,
+     "value": "10",
+     "code": ""
+    },
+    "e": {
+     "ok": false,
+     "value": "",
+     "code": "calcDiv0"
+    },
+    "x": {
+     "ok": false,
+     "value": "",
+     "code": "calcSelf"
+    },
+    "y": {
+     "ok": false,
+     "value": "",
+     "code": "calcSelf"
+    },
+    "w": {
+     "ok": true,
+     "value": "6.00",
+     "code": ""
+    },
+    "span": {
+     "ok": true,
+     "value": "0",
+     "code": ""
+    },
+    "rr": {
+     "ok": true,
+     "value": "0",
+     "code": ""
+    }
+   }
+  }
  ]
 }

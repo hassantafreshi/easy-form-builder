@@ -633,6 +633,7 @@
     if (typeof v === 'boolean') v = v ? '1' : '';
     var raw = String(v);
     var s = phpTrim(normalizeDigits(raw));
+    if (k === 'num_step' || k === 'calc') s = s.replace(/\u066B/g, '.');
     switch (k) {
       case 'num_step': return /^\d{1,9}(\.\d{1,6})?$/.test(s) && Number(s) > 0 ? s.replace(/^0+(?=\d)/, '') : '';
       case 'num_decimals': return /^[0-6]$/.test(s) ? s : '';
@@ -738,6 +739,121 @@
     return order;
   }
 
+
+  /* ------------------------------------------------------------------ a form's results (twin of Calc::evaluate_form) */
+
+  var CHOICE_TYPES = ['radio', 'checkbox', 'select', 'multiselect', 'payRadio', 'payCheckbox', 'paySelect', 'payMultiselect', 'imgRadio', 'chlRadio', 'chlCheckBox'];
+  var NUMRE = /^-?\d{1,15}(\.\d{1,6})?$/;
+
+  /** The number of a choice in formulas: its calc value, else a numeric stored value (F05 opt_value), else 0. */
+  function optionNumber(o) {
+    var c = o && o.calc !== undefined && o.calc !== null ? normalizeDigits(String(o.calc)).trim() : '';
+    if (NUMRE.test(c)) return Number(c);
+    var v = o && o.opt_value !== undefined && o.opt_value !== null ? normalizeDigits(String(o.opt_value)).trim() : '';
+    if (NUMRE.test(v)) return Number(v);
+    return 0;
+  }
+
+  /**
+   * Every calc field's result from the answers (spec §6.2): {id: {ok, value: canonical text or '', code}}.
+   * rows = the answer rows ({id_, id_ob, value, ids}); calc rows in them are ignored (the result is computed
+   * here, never read). opts.hidden = ids of fields hidden by Conditional Logic (they read as empty; a hidden
+   * calc field has no result). Twin: Calc::evaluate_form().
+   */
+  function evaluateForm(structure, rows, opts) {
+    opts = opts || {};
+    var hidden = {};
+    (opts.hidden || []).forEach(function (h) { hidden[String(h)] = true; });
+    var fields = {}, options = {};
+    (structure || []).forEach(function (r, i) {
+      if (i < 1 || !r || r.id_ === undefined || typeof r.id_ === 'object') return;
+      if (r.type === 'option') { var p = String(r.parent); (options[p] = options[p] || []).push(r); return; }
+      if (r.type === 'step') return;
+      fields[String(r.id_)] = r;
+    });
+    var answers = {};
+    (rows || []).forEach(function (r) {
+      if (!r || typeof r !== 'object' || r.id_ === undefined || r.type === 'calc') return;
+      var id = String(r.id_);
+      if (!fields[id] || fields[id].type === 'calc') return;
+      (answers[id] = answers[id] || []).push(r);
+    });
+    var errs = formErrors(structure), out = {};
+    function selected(id) {
+      var opsList = options[id] || [], picked = [], seen = {};
+      var add = function (o) { if (o && !seen[o.id_]) { seen[o.id_] = 1; picked.push(o); } };
+      (answers[id] || []).forEach(function (r) {
+        var ob = r.id_ob === undefined || r.id_ob === null ? '' : String(r.id_ob);
+        var hit = null;
+        for (var i = 0; i < opsList.length; i++) if (String(opsList[i].id_) === ob) hit = opsList[i];
+        if (hit) { add(hit); return; }
+        if (typeof r.ids === 'string' && r.ids !== '') {
+          r.ids.split(',').forEach(function (x) { for (var j = 0; j < opsList.length; j++) if (String(opsList[j].id_) === x) add(opsList[j]); });
+          return;
+        }
+        str(r.value).split('@efb!').forEach(function (label) {
+          if (label === '') return;
+          for (var k = 0; k < opsList.length; k++) if (str(opsList[k].value) === label) { add(opsList[k]); break; }
+        });
+      });
+      return picked;
+    }
+    function rawValue(id) {
+      var a = answers[id] || [];
+      for (var i = 0; i < a.length; i++) if (a[i].value !== undefined && a[i].value !== null && typeof a[i].value !== 'object' && String(a[i].value) !== '') return String(a[i].value);
+      return '';
+    }
+    function resolve(ref) {
+      var id = ref.id, part = ref.part, f = fields[id];
+      if (!f) return { error: 'calcRef' };
+      var t = String(f.type);
+      if (FORBIDDEN_TYPES.indexOf(t) !== -1 || LAYOUT_TYPES.indexOf(t) !== -1) return { error: 'calcForbidden' };
+      if (hidden[id]) return part === 'count' || part === 'price' ? 0 : null;
+      if (t === 'calc') {
+        if (part !== '' && part !== 'value') return { error: 'calcRef' };
+        var res = out[id];
+        if (!res) return null;
+        if (!res.ok) return { error: res.code };
+        return res.value === '' ? null : Number(res.value);
+      }
+      var choice = CHOICE_TYPES.indexOf(t) !== -1;
+      if (part === 'count') return choice ? selected(id).length : (rawValue(id) === '' ? 0 : 1);
+      if (part === 'price') {
+        if (!choice) return 0;
+        var sp = 0;
+        selected(id).forEach(function (o) { var p = o.price === undefined || o.price === null ? '' : normalizeDigits(String(o.price)).trim(); if (NUMRE.test(p)) sp += Number(p); });
+        return sp;
+      }
+      if (part === 'lo' || part === 'hi') {
+        var rg = splitRange(rawValue(id));
+        if (!rg) return rawValue(id) === '' ? null : { error: 'calcRef' };
+        return Number(part === 'lo' ? rg.lo : rg.hi);
+      }
+      if (part !== '' && part !== 'value' && part !== 'calc') return { error: 'calcRef' };
+      if (choice) {
+        var picked = selected(id);
+        if (!picked.length) return null;
+        var sum = 0;
+        picked.forEach(function (o) { sum += optionNumber(o); });
+        return sum;
+      }
+      var raw = rawValue(id);
+      if (t === 'range') { var rr = splitRange(raw); if (rr) return Number(rr.hi) - Number(rr.lo); }
+      return valueOf(raw);
+    }
+    topoOrder(structure).forEach(function (id) {
+      var f = fields[id];
+      if (!f || hidden[id]) return;
+      if (errs[id]) { out[id] = { ok: false, value: '', code: errs[id].code }; return; }
+      var p = parse(f.formula === undefined || f.formula === null ? '' : String(f.formula));
+      if (!p.ok) { out[id] = { ok: false, value: '', code: p.code }; return; }
+      var c = config(f, { locale: opts.locale || 'en_US', currency: opts.currency || null });
+      var r = finish(evaluate(p.ast, resolve, { empty: f.calc_empty === 'blank' ? 'blank' : 'zero' }), c.decimals === null ? '' : c.decimals);
+      out[id] = r.ok ? { ok: true, value: r.value, code: '' } : { ok: false, value: '', code: r.code };
+    });
+    return out;
+  }
+
   /* ------------------------------------------------------------------ typing (page) */
 
   /** format() without the prefix, suffix or currency symbol (the input box; the affixes sit beside it). */
@@ -835,6 +951,126 @@
     try { return el && el.getAttribute('data-numcfg') ? JSON.parse(el.getAttribute('data-numcfg')) : null; } catch (e) { return null; }
   }
 
+
+  /* ------------------------------------------------------------------ the page: calc fields (spec §4.2, §10.1) */
+
+  /* global sendBack_emsFormBuilder_pub, sessionPub_emsFormBuilder, get_structure_by_form_id_efb, valj_efb, efb_var, fun_sendBack_emsFormBuilder, updateStepButtonState_efb */
+  var page = (function () {
+    var timers = {};
+    var DELAY = 100;
+    function doc() { return typeof document !== 'undefined' ? document : null; }
+    function rows() {
+      if (typeof sendBack_emsFormBuilder_pub !== 'undefined' && sendBack_emsFormBuilder_pub instanceof Array) return sendBack_emsFormBuilder_pub;
+      return root && root.sendBack_emsFormBuilder_pub instanceof Array ? root.sendBack_emsFormBuilder_pub : [];
+    }
+    function structureOf(fid) {
+      try { if (typeof get_structure_by_form_id_efb === 'function') { var st = get_structure_by_form_id_efb(fid); if (st && st.length) return st; } } catch (e) { /* the builder preview */ }
+      return typeof valj_efb !== 'undefined' ? valj_efb : [];
+    }
+    function texts() { return (typeof efb_var !== 'undefined' && efb_var && efb_var.text) || {}; }
+    function locale() { return (typeof efb_var !== 'undefined' && efb_var && (efb_var.wp_lan || efb_var.language)) || 'en_US'; }
+    function calcEls(fid) {
+      var d = doc();
+      if (!d) return [];
+      var all = d.querySelectorAll('[data-efb-calc="1"]'), out = [];
+      for (var i = 0; i < all.length; i++) if (fid === null || Number(all[i].getAttribute('data-formid') || 0) === Number(fid)) out.push(all[i]);
+      return out;
+    }
+    /** Fields hidden by Conditional Logic (or a hidden step container) read as empty, as on the server. */
+    function hiddenIds(st) {
+      var d = doc(), out = [];
+      if (!d || !root.getComputedStyle) return out;
+      st.forEach(function (r, i) {
+        if (i < 1 || !r || r.type === 'option' || r.type === 'step' || r.type === 'calc' || Number(r.hidden) === 1) return;
+        var w = d.getElementById(String(r.id_));
+        if (!w) return;
+        if ((w.classList && w.classList.contains('d-none')) || (w.style && w.style.display === 'none') || w.getAttribute('data-efb-logic-hidden') === '1') out.push(String(r.id_));
+      });
+      return out;
+    }
+    function rowIndex(id, fid) {
+      var R = rows();
+      for (var i = 0; i < R.length; i++) if (R[i] && R[i].id_ === id && Number(R[i].form_id) === Number(fid)) return i;
+      return -1;
+    }
+    function drop(id, fid) {
+      var i = rowIndex(id, fid);
+      if (i === -1) return false;
+      rows().splice(i, 1);
+      return true;
+    }
+    function recompute(fid) {
+      var els = calcEls(fid);
+      if (!els.length) return;
+      var st = structureOf(fid);
+      var answers = rows().filter(function (r) { return r && Number(r.form_id) === Number(fid) && r.type !== 'calc'; });
+      var cfg0 = cfgOf(els[0]) || {};
+      var res = evaluateForm(st, answers, { hidden: hiddenIds(st), locale: locale(), currency: cfg0.cur || null });
+      var changed = false;
+      els.forEach(function (box) {
+        var id = box.getAttribute('data-vid');
+        var cfg = cfgOf(box) || {};
+        var f = null;
+        for (var i = 0; i < st.length; i++) if (st[i] && st[i].id_ === id && st[i].type === 'calc') f = st[i];
+        if (!f) return;
+        var d = doc(), out = d.getElementById(id + '_out'), input = d.getElementById(id + '_'), msg = d.getElementById(id + '_-message');
+        var r = res[id];
+        var ok = r && r.ok && r.value !== '';
+        var text = ok ? format(r.value, cfg) : '';
+        if (out && out.textContent !== text) out.textContent = text;
+        if (input) input.value = ok ? r.value : '';
+        if (msg) {
+          if (r && !r.ok) { msg.textContent = texts().calcErr || 'This value cannot be calculated from the answers given.'; msg.style.display = 'block'; msg.classList.add('show'); }
+          else if (msg.getAttribute('data-efb-calc-msg') !== null || (msg.textContent && msg.textContent === (texts().calcErr || 'This value cannot be calculated from the answers given.'))) { msg.textContent = ''; msg.style.display = 'none'; }
+          if (r && !r.ok) msg.setAttribute('data-efb-calc-msg', '1'); else msg.removeAttribute('data-efb-calc-msg');
+        }
+        var i0 = rowIndex(id, fid);
+        var cur = i0 === -1 ? null : rows()[i0];
+        if (!ok) { if (drop(id, fid)) changed = true; return; }
+        if (cur && cur.value === r.value) return;
+        drop(id, fid);
+        var row = { id_: id, name: f.name, id_ob: id, amount: f.amount, type: 'calc', value: r.value, session: typeof sessionPub_emsFormBuilder !== 'undefined' ? sessionPub_emsFormBuilder : '', form_id: Number(fid) };
+        if (text !== r.value) row.disp = text;
+        if (typeof fun_sendBack_emsFormBuilder === 'function' && Number(fid) > 0) fun_sendBack_emsFormBuilder(row); else rows().push(row);
+        changed = true;
+      });
+      if (changed && Number(fid) > 0 && typeof updateStepButtonState_efb === 'function') { try { updateStepButtonState_efb(Number(fid)); } catch (e) { /* no step bar */ } }
+    }
+    /** Every change of an answer recomputes the form's calc fields after 100 ms (one announcement, spec §4.5). */
+    function schedule(fid) {
+      if (fid === undefined || fid === null || isNaN(Number(fid))) return;
+      var k = String(Number(fid));
+      if (timers[k]) clearTimeout(timers[k]);
+      timers[k] = setTimeout(function () { timers[k] = null; try { recompute(Number(fid)); } catch (e) { /* never break the form */ } }, DELAY);
+    }
+    function scheduleAll() {
+      var seen = {};
+      calcEls(null).forEach(function (b) { var f = Number(b.getAttribute('data-formid') || 0); if (!seen[f]) { seen[f] = 1; schedule(f); } });
+    }
+    function boot() {
+      var d = doc();
+      if (!d || page.booted) return;
+      page.booted = true;
+      var on = function (e) {
+        var t = e && e.target;
+        if (!t || !t.closest) return;
+        var form = t.closest('[id^="body_efb_"]');
+        var fid = form ? Number(String(form.id).replace(/\D+/g, '')) : null;
+        if (fid !== null && !isNaN(fid)) schedule(fid); else scheduleAll();
+      };
+      d.addEventListener('change', on, true);
+      d.addEventListener('input', on, true);
+      d.addEventListener('click', on, true);
+      d.addEventListener('efb:date-change', on, true);
+      scheduleAll();
+      setTimeout(scheduleAll, 1200);
+    }
+    if (typeof document !== 'undefined') {
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else setTimeout(boot, 0);
+    }
+    return { schedule: schedule, recompute: recompute, scheduleAll: scheduleAll, boot: boot, booted: false };
+  })();
+
   /** A low..high pair of a two-handle slider ("10..50"), or null. */
   function splitRange(v) {
     var m = /^\s*(-?\d+(?:\.\d+)?)\s*\.\.\s*(-?\d+(?:\.\d+)?)\s*$/.exec(normalizeDigits(str(v)));
@@ -848,8 +1084,9 @@
     evaluate: evaluate, finish: finish, run: run, valueOf: valueOf, roundHalfAway: roundHalfAway, toFixed: toFixed,
     config: config, parseInput: parseInput, check: check, cmpDec: cmpDec, onStep: onStep, format: format, toScript: toScript,
     scriptOf: scriptOf, isRtl: isRtl, splitRange: splitRange,
+    evaluateForm: evaluateForm, optionNumber: optionNumber, CHOICE_TYPES: CHOICE_TYPES,
     formErrors: formErrors, cycleIds: cycleIds, topoOrder: topoOrder, LAYOUT_TYPES: LAYOUT_TYPES,
     FIELD_KEYS: FIELD_KEYS, ENUMS: ENUMS, sanitizeKey: sanitizeKey, isKey: isKey,
-    formatBare: formatBare, live: live, checkInput: checkInput, bindNumber: bindNumber, cfgOf: cfgOf
+    page: page, formatBare: formatBare, live: live, checkInput: checkInput, bindNumber: bindNumber, cfgOf: cfgOf
   };
 });

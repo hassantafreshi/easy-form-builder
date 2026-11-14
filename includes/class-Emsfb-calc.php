@@ -54,6 +54,82 @@ final class Calc {
 		if (!function_exists('add_filter')) return;
 		add_filter('efb_admin_localize_vars', array(__CLASS__, 'localize_vars'), 27, 2);
 		add_filter('efb_choices_calc_column', array(__CLASS__, 'choices_calc_column'), 10, 1);
+		add_filter('efb_capabilities', array(__CLASS__, 'capabilities'), 26, 2);
+		add_filter('efb_form_schema_field', array(__CLASS__, 'schema_field'), 13, 3);
+	}
+
+	/** Stable codes (SitePilot contract): submit refusals and formula problems. */
+	const CODES = array('nan' => 'efb_num_nan', 'dec' => 'efb_num_dec', 'step' => 'efb_num_step', 'min' => 'efb_num_min', 'max' => 'efb_num_max', 'order' => 'efb_num_order',
+		'required' => 'efb_calc_required', 'error' => 'efb_calc_error');
+	const FORMULA_CODES = array('calcSyntax', 'calcEmpty', 'calcLong', 'calcTokens', 'calcDepth', 'calcRefs', 'calcFn', 'calcArgs', 'calcRef', 'calcForbidden', 'calcSelf', 'calcCycle');
+	const EVAL_CODES = array('calcDiv0', 'calcNaN', 'calcRange', 'calcListCtx', 'calcRef', 'calcArgs');
+
+	/** efb_capabilities: the F04 entries (plans of spec §15) and capabilities.calc. */
+	public static function capabilities($out, $args = array()) {
+		if (!is_array($out) || !isset($out['features']) || !is_array($out['features'])) return $out;
+		$package = isset($out['plan']['package_type']) ? (int) $out['plan']['package_type'] : null;
+		$num_keys = array('num_step', 'num_decimals', 'num_format', 'num_dec_sep', 'num_grp_sep', 'num_digits', 'num_prefix', 'num_suffix', 'num_currency', 'num_max_zero', 'milen', 'mlen');
+		$entries = array(
+			'setting:number_format' => array('number', 'setting', $num_keys, 'numFormat'),
+			'setting:range_dual'    => array('dual', 'setting', array('range_mode', 'num_step'), 'rangeDual'),
+			'setting:calc_option'   => array('option_calc', 'setting', array('option.calc'), 'calcOptValue'),
+			'setting:calc_price'    => array('calc_price', 'setting', array('calc_as_price'), 'calcAsPrice'),
+		);
+		foreach ($entries as $key => $e) {
+			$need = isset(self::PLAN[$e[0]]) ? self::PLAN[$e[0]] : 'pro';
+			if (function_exists('apply_filters')) $need = apply_filters('efb_calc_plan', $need, $e[0]);
+			$ok = $need === 'free' ? true : (class_exists('\\Emsfb\\Builder_Api') ? Builder_Api::plan_at_least($need, $package) : false);
+			$out['features'][$key] = array(
+				'kind' => $e[1], 'scope' => 'field', 'package' => $need, 'addon' => null, 'available_now' => $ok, 'reason' => $ok ? null : 'plan',
+				'prompt_state' => $need === 'free_plus' ? 3 : ($need === 'pro' ? 1 : 0),
+				'message_key' => $need === 'free_plus' ? 'thisFeatureAvailableFreePlusPro' : ($need === 'pro' ? 'proUnlockMsg' : null),
+				'form_keys' => $e[2], 'label_key' => $e[3],
+			);
+		}
+		$need = self::PLAN['calc'];
+		if (function_exists('apply_filters')) $need = apply_filters('efb_calc_plan', $need, 'calc');
+		$ok = class_exists('\\Emsfb\\Builder_Api') ? Builder_Api::plan_at_least($need, $package) : false;
+		$out['features']['field:calc'] = array_merge(isset($out['features']['field:calc']) && is_array($out['features']['field:calc']) ? $out['features']['field:calc'] : array(), array(
+			'kind' => 'field', 'package' => $need, 'addon' => null, 'available_now' => $ok, 'reason' => $ok ? null : 'plan',
+			'prompt_state' => $need === 'free_plus' ? 3 : 1, 'message_key' => $need === 'free_plus' ? 'thisFeatureAvailableFreePlusPro' : 'proUnlockMsg',
+			'label_key' => 'calcField', 'pii_default' => false, 'form_keys' => array('formula', 'calc_show', 'calc_empty', 'num_decimals', 'num_format', 'num_prefix', 'num_suffix', 'num_currency', 'num_digits', 'calc_as_price'),
+		));
+		$out['calc'] = array(
+			'types'        => array('number' => array('number', 'range', 'calc'), 'choices' => self::CHOICE_TYPES, 'forbidden' => self::FORBIDDEN_TYPES),
+			'field_keys'   => self::FIELD_KEYS,
+			'option_keys'  => array('calc'),
+			'enums'        => self::ENUMS,
+			'functions'    => array_keys(self::$FUNCS),
+			'parts'        => self::PARTS,
+			'grammar'      => 'expr := term ((+|-) term)*; term := unary ((*|/) unary)*; unary := (-|+) unary | primary; primary := NUMBER | {id} | {field:id} | {id.part} | fn(args) | (expr); no < > " % characters',
+			'limits'       => array('formula' => self::MAX_FORMULA, 'tokens' => self::MAX_TOKENS, 'depth' => self::MAX_DEPTH, 'refs' => self::MAX_REFS, 'abs' => self::MAX_ABS, 'decimals' => 6, 'prefix' => 20),
+			'codes'        => array('submit' => array_values(self::CODES), 'formula' => self::FORMULA_CODES, 'evaluate' => self::EVAL_CODES),
+			'answer'       => array('calc' => 'computed by the server on submit; a calc row in the request is ignored', 'number' => 'local digits and separators accepted, stored as a canonical ASCII number', 'range_dual' => 'value "lo..hi", lo and hi'),
+			'never'        => array('step' => 'the step of a number is num_step; the key step is the form step'),
+			'readonly'     => array('formula_err'),
+			'validate'     => 'efbBuilderApi.validateFormula(formula, rows) / efb_api_form_validate give the same codes as the server (Calc::form_errors)',
+			'plan'         => array('number' => 'free', 'range_dual' => 'free', 'calc' => self::PLAN['calc'], 'option_calc' => self::PLAN['option_calc'], 'calc_price' => self::PLAN['calc_price']),
+		);
+		return $out;
+	}
+
+	/** forms/{id}/schema: a calc field is the server's (assistant none) with the ids its formula reads (never the formula); number settings. */
+	public static function schema_field($e, $r, $form_id) {
+		if (!is_array($e) || !is_array($r) || !isset($r['type'])) return $e;
+		$type = (string) $r['type'];
+		if ($type === 'calc') {
+			$e['assistant'] = 'none';
+			$e['fill'] = array('api' => 'none', 'note' => 'the server computes this value on submit from the other answers');
+			$e['calc'] = array('refs' => self::ref_ids(isset($r['formula']) && is_scalar($r['formula']) ? (string) $r['formula'] : ''), 'decimals' => self::config($r)['decimals'], 'shown' => !isset($r['calc_show']) || $r['calc_show'] !== 'hidden', 'error' => isset($r['formula_err']) && $r['formula_err'] === '1');
+			return $e;
+		}
+		if (in_array($type, array('number', 'range'), true)) {
+			$c = self::config($r);
+			$n = array('step' => $c['step'] !== '' ? $c['step'] : null, 'decimals' => $c['decimals'], 'min' => $c['min'] !== '' ? $c['min'] : null, 'max' => $c['max'] !== '' ? $c['max'] : null, 'input' => 'local digits and separators accepted; stored as ASCII');
+			if ($type === 'range' && isset($r['range_mode']) && $r['range_mode'] === 'dual') $n['dual'] = array('value' => 'lo..hi', 'keys' => array('lo', 'hi'));
+			$e['number'] = $n;
+		}
+		return $e;
 	}
 
 	/** Whether this site's plan has a part (free / free_plus / pro). */
@@ -597,6 +673,7 @@ final class Calc {
 		if ($v === null || is_array($v) || is_object($v)) return '';
 		if (is_bool($v)) $v = $v ? '1' : '';
 		$s = trim(self::normalize_digits((string) $v));
+		if ($k === 'num_step' || $k === 'calc') $s = str_replace("\u{066B}", '.', $s);
 		switch ($k) {
 			case 'num_step':
 				return preg_match('/^\d{1,9}(\.\d{1,6})?$/D', $s) && (float) $s > 0 ? preg_replace('/^0+(?=\d)/', '', $s) : '';
@@ -721,6 +798,172 @@ final class Calc {
 		};
 		foreach (array_keys($deps) as $id) $visit($id);
 		return $order;
+	}
+
+	const CHOICE_TYPES = array('radio', 'checkbox', 'select', 'multiselect', 'payRadio', 'payCheckbox', 'paySelect', 'payMultiselect', 'imgRadio', 'chlRadio', 'chlCheckBox');
+
+	/** The number of a choice in formulas: its calc value, else a numeric stored value, else 0. Twin: optionNumber(). */
+	public static function option_number($o) {
+		$o = self::f($o);
+		$c = isset($o['calc']) && is_scalar($o['calc']) ? trim(self::normalize_digits((string) $o['calc'])) : '';
+		if (preg_match('/^-?\d{1,15}(\.\d{1,6})?$/D', $c)) return (float) $c;
+		$v = isset($o['opt_value']) && is_scalar($o['opt_value']) ? trim(self::normalize_digits((string) $o['opt_value'])) : '';
+		if (preg_match('/^-?\d{1,15}(\.\d{1,6})?$/D', $v)) return (float) $v;
+		return 0.0;
+	}
+
+	/**
+	 * Every calc field's result from the answers: id => {ok, value, code}. Calc rows among $rows are ignored
+	 * (computed here, never read). $opts: hidden (ids hidden by Conditional Logic), locale, currency. Twin:
+	 * EFBCalc.evaluateForm().
+	 */
+	public static function evaluate_form($structure, $rows, array $opts = array()) {
+		$hidden = array();
+		foreach (isset($opts['hidden']) ? (array) $opts['hidden'] : array() as $h) $hidden[(string) $h] = true;
+		$fields = array();
+		$options = array();
+		foreach ((array) $structure as $i => $r) {
+			$r = self::f($r);
+			if ($i < 1 || !isset($r['id_']) || !is_scalar($r['id_'])) continue;
+			$type = isset($r['type']) ? (string) $r['type'] : '';
+			if ($type === 'option') { $options[isset($r['parent']) ? (string) $r['parent'] : ''][] = $r; continue; }
+			if ($type === 'step') continue;
+			$fields[(string) $r['id_']] = $r;
+		}
+		$answers = array();
+		foreach ((array) $rows as $r) {
+			if (!is_array($r) || !isset($r['id_']) || !is_scalar($r['id_']) || (isset($r['type']) && $r['type'] === 'calc')) continue;
+			$id = (string) $r['id_'];
+			if (!isset($fields[$id]) || ($fields[$id]['type'] ?? '') === 'calc') continue;
+			$answers[$id][] = $r;
+		}
+		$errs = self::form_errors($structure);
+		$out = array();
+		$sv = function ($v) { return $v === null || is_array($v) || is_object($v) ? '' : (string) $v; };
+		$selected = function ($id) use (&$answers, &$options, $sv) {
+			$ops = isset($options[$id]) ? $options[$id] : array();
+			$picked = array();
+			$seen = array();
+			$add = function ($o) use (&$picked, &$seen) { if ($o && !isset($seen[(string) $o['id_']])) { $seen[(string) $o['id_']] = true; $picked[] = $o; } };
+			foreach (isset($answers[$id]) ? $answers[$id] : array() as $r) {
+				$ob = isset($r['id_ob']) && is_scalar($r['id_ob']) ? (string) $r['id_ob'] : '';
+				$hit = null;
+				foreach ($ops as $o) if ((string) $o['id_'] === $ob) $hit = $o;
+				if ($hit) { $add($hit); continue; }
+				if (isset($r['ids']) && is_string($r['ids']) && $r['ids'] !== '') {
+					foreach (explode(',', $r['ids']) as $x) foreach ($ops as $o) if ((string) $o['id_'] === $x) $add($o);
+					continue;
+				}
+				foreach (explode('@efb!', $sv(isset($r['value']) ? $r['value'] : '')) as $label) {
+					if ($label === '') continue;
+					foreach ($ops as $o) if ($sv(isset($o['value']) ? $o['value'] : '') === $label) { $add($o); break; }
+				}
+			}
+			return $picked;
+		};
+		$raw_value = function ($id) use (&$answers) {
+			foreach (isset($answers[$id]) ? $answers[$id] : array() as $r) {
+				if (isset($r['value']) && is_scalar($r['value']) && (string) $r['value'] !== '') return (string) $r['value'];
+			}
+			return '';
+		};
+		$resolve = function ($ref) use (&$fields, &$hidden, &$out, $selected, $raw_value) {
+			$id = $ref['id'];
+			$part = $ref['part'];
+			if (!isset($fields[$id])) return array('error' => 'calcRef');
+			$f = $fields[$id];
+			$t = isset($f['type']) ? (string) $f['type'] : '';
+			if (in_array($t, Calc::FORBIDDEN_TYPES, true) || in_array($t, Calc::LAYOUT_TYPES, true)) return array('error' => 'calcForbidden');
+			if (isset($hidden[$id])) return $part === 'count' || $part === 'price' ? 0.0 : null;
+			if ($t === 'calc') {
+				if ($part !== '' && $part !== 'value') return array('error' => 'calcRef');
+				if (!isset($out[$id])) return null;
+				if (!$out[$id]['ok']) return array('error' => $out[$id]['code']);
+				return $out[$id]['value'] === '' ? null : (float) $out[$id]['value'];
+			}
+			$choice = in_array($t, Calc::CHOICE_TYPES, true);
+			if ($part === 'count') return $choice ? (float) count($selected($id)) : ($raw_value($id) === '' ? 0.0 : 1.0);
+			if ($part === 'price') {
+				if (!$choice) return 0.0;
+				$sp = 0.0;
+				foreach ($selected($id) as $o) {
+					$p = isset($o['price']) && is_scalar($o['price']) ? trim(Calc::normalize_digits((string) $o['price'])) : '';
+					if (preg_match('/^-?\d{1,15}(\.\d{1,6})?$/D', $p)) $sp += (float) $p;
+				}
+				return $sp;
+			}
+			if ($part === 'lo' || $part === 'hi') {
+				$rg = Calc::split_range($raw_value($id));
+				if (!$rg) return $raw_value($id) === '' ? null : array('error' => 'calcRef');
+				return (float) ($part === 'lo' ? $rg['lo'] : $rg['hi']);
+			}
+			if ($part !== '' && $part !== 'value' && $part !== 'calc') return array('error' => 'calcRef');
+			if ($choice) {
+				$picked = $selected($id);
+				if (!$picked) return null;
+				$sum = 0.0;
+				foreach ($picked as $o) $sum += Calc::option_number($o);
+				return $sum;
+			}
+			$raw = $raw_value($id);
+			if ($t === 'range') { $rr = Calc::split_range($raw); if ($rr) return (float) $rr['hi'] - (float) $rr['lo']; }
+			return Calc::value_of($raw);
+		};
+		foreach (self::topo_order($structure) as $id) {
+			if (!isset($fields[$id]) || isset($hidden[$id])) continue;
+			$f = $fields[$id];
+			if (isset($errs[$id])) { $out[$id] = array('ok' => false, 'value' => '', 'code' => $errs[$id]['code']); continue; }
+			$p = self::parse(isset($f['formula']) && is_scalar($f['formula']) ? (string) $f['formula'] : '');
+			if (!$p['ok']) { $out[$id] = array('ok' => false, 'value' => '', 'code' => $p['code']); continue; }
+			$c = self::config($f, array('locale' => isset($opts['locale']) ? $opts['locale'] : 'en_US', 'currency' => isset($opts['currency']) ? $opts['currency'] : null));
+			$r = self::finish(self::evaluate($p['ast'], $resolve, array('empty' => isset($f['calc_empty']) && $f['calc_empty'] === 'blank' ? 'blank' : 'zero')), $c['decimals'] === null ? '' : $c['decimals']);
+			$out[$id] = $r['ok'] ? array('ok' => true, 'value' => $r['value'], 'code' => '') : array('ok' => false, 'value' => '', 'code' => $r['code']);
+		}
+		return $out;
+	}
+
+	/**
+	 * The submit (every endpoint: forms/message/add, payments/create, the offline restore, API clients):
+	 * the calc rows of the checked answers, computed here. Any calc row in $items (the browser's) is dropped.
+	 * $ignored = ids hidden by Conditional Logic. {ok, rows} or {ok:false, m, field_id, code}.
+	 */
+	public static function submit_rows($form, array $items, array $ignored = array(), $lanText = array()) {
+		$calc = array();
+		$ids = array();
+		foreach ((array) $form as $i => $r) {
+			$r = self::f($r);
+			if ($i > 0 && isset($r['type'], $r['id_']) && $r['type'] === 'calc') { $calc[] = $r; $ids[(string) $r['id_']] = true; }
+		}
+		$items = array_values(array_filter($items, function ($it) use ($ids) {
+			return !(is_array($it) && ((isset($it['type']) && $it['type'] === 'calc') || (isset($it['id_']) && is_scalar($it['id_']) && isset($ids[(string) $it['id_']]))));
+		}));
+		if (!$calc || !self::plan_ok('calc')) return array('ok' => true, 'rows' => $items);
+		$form0 = isset($form[0]) ? $form[0] : null;
+		$res = self::evaluate_form($form, $items, array('hidden' => $ignored, 'locale' => self::locale(), 'currency' => self::currency($form0)));
+		$session = '';
+		$fid = '';
+		foreach ($items as $it) {
+			if (is_array($it) && isset($it['session']) && is_scalar($it['session'])) { $session = (string) $it['session']; $fid = isset($it['form_id']) && is_scalar($it['form_id']) ? (string) $it['form_id'] : ''; break; }
+		}
+		$hid = array_flip(array_map('strval', $ignored));
+		foreach ($calc as $f) {
+			$id = (string) $f['id_'];
+			if (isset($hid[$id])) continue;
+			$r = isset($res[$id]) ? $res[$id] : array('ok' => true, 'value' => '', 'code' => '');
+			$name = isset($f['name']) && is_scalar($f['name']) ? (string) $f['name'] : '';
+			$req = isset($f['required']) && in_array($f['required'], array(1, '1', true), true);
+			if (!$r['ok'] || $r['value'] === '') {
+				if ($req) {
+					$bname = '<b>' . (function_exists('esc_html') ? esc_html($name) : htmlspecialchars($name, ENT_QUOTES, 'UTF-8')) . '</b>';
+					return array('ok' => false, 'm' => $r['ok'] ? self::t('mnvvXXX_', $lanText, array($bname)) : self::t('calcErr', $lanText), 'field_id' => $id, 'code' => $r['ok'] ? 'efb_calc_required' : 'efb_calc_error');
+				}
+				continue;
+			}
+			$row = array('id_' => $id, 'name' => $name, 'id_ob' => $id, 'amount' => isset($f['amount']) && is_scalar($f['amount']) ? (string) $f['amount'] : '', 'type' => 'calc', 'value' => $r['value'], 'session' => $session, 'form_id' => $fid);
+			$row = self::with_display($row, $f, $form0);
+			$items[] = $row;
+		}
+		return array('ok' => true, 'rows' => $items);
 	}
 
 	/** The save: formula_err = "1" on every calc field with a problem of form_errors(), removed otherwise. */
@@ -856,6 +1099,24 @@ final class Calc {
 		$json = function_exists('wp_json_encode') ? wp_json_encode(self::client_config($cfg), JSON_UNESCAPED_UNICODE) : json_encode(self::client_config($cfg), JSON_UNESCAPED_UNICODE);
 		$e = function ($v) { return function_exists('esc_attr') ? esc_attr($v) : htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); };
 		return 'inputmode="decimal" dir="ltr" data-num="1" data-numcfg="' . $e($json) . '"';
+	}
+
+	/**
+	 * The page markup of a calc field (inside its -f wrapper; the builder twin is efbCalcCanvas()): a read-only
+	 * <output> announced politely once the 100 ms debounce settles, and the hidden canonical value. The result
+	 * is computed by calc-efb.js in the page and again by the server on submit.
+	 */
+	public static function calc_markup($vj, $id, $form_id, $form0 = null) {
+		$f = self::f($vj);
+		$e = function ($v) { return function_exists('esc_attr') ? esc_attr($v) : htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); };
+		$cfg = self::field_config($f, $form0);
+		$json = function_exists('wp_json_encode') ? wp_json_encode(self::client_config($cfg), JSON_UNESCAPED_UNICODE) : json_encode(self::client_config($cfg), JSON_UNESCAPED_UNICODE);
+		$cls = isset($f['el_text_color']) && is_scalar($f['el_text_color']) ? (string) $f['el_text_color'] : '';
+		$req = isset($f['required']) && in_array($f['required'], array(1, '1', true), true);
+		return '<div class="efb efb-calc" data-efb-calc="1" data-vid="' . $e($id) . '" data-formid="' . $e($form_id) . '" data-numcfg="' . $e($json) . '">'
+			. '<output class="efb efb-calc-out form-control-plaintext ' . $e($cls) . ($req ? ' required' : '') . '" id="' . $e($id) . '_out" role="status" aria-live="polite" aria-atomic="true" aria-labelledby="' . $e($id) . '_labG" dir="auto"></output>'
+			. '<input type="hidden" class="efb emsFormBuilder_v" data-vid="' . $e($id) . '" data-type="calc" data-formid="' . $e($form_id) . '" id="' . $e($id) . '_" value="">'
+			. '</div>';
 	}
 
 	/** "Between min and max" for a screen reader ('' without both limits). */

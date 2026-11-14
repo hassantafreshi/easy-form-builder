@@ -1719,7 +1719,7 @@ public function check_nonce_permission_efb($request) {
 			$style .= ' .efb-waiting-' . $form_id_int . '::after { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 120px; height: 30px; background: url("data:image/svg+xml,' . $loading_svg_encoded . '") no-repeat center center; background-size: contain; z-index: 9999; }';
 
 			$is_file_element_exist = false;
-			$list_pro_elements = ['prcfld','dadfile','ttlprc','table_matrix','smartcr','pointr5','pointr10','booking','heading','zarinPal','persiaPay','stripe','paypal','link','yesNo','html','cityList','city','statePro','stateProvince','country','conturyList','paySelect','rating','esign','switch','trmCheckbox','imgRadio','chlRadio','chlCheckBox','payRadio','payCheckbox','mobile','maps','ardate','pdate'];
+			$list_pro_elements = ['calc','prcfld','dadfile','ttlprc','table_matrix','smartcr','pointr5','pointr10','booking','heading','zarinPal','persiaPay','stripe','paypal','link','yesNo','html','cityList','city','statePro','stateProvince','country','conturyList','paySelect','rating','esign','switch','trmCheckbox','imgRadio','chlRadio','chlCheckBox','payRadio','payCheckbox','mobile','maps','ardate','pdate'];
 			for( $i=0; $i<$count; $i++){
 				$randomId = wp_unique_id('efb_');
 
@@ -3815,6 +3815,13 @@ public function check_nonce_permission_efb($request) {
 									}
 									$still_processing = false;
 									break;
+								case 'calc':
+									// F04: what the browser says a calc field is never kept; the server computes every result
+									// after this loop (Calc::submit_rows()) from the checked answers.
+									$is_valid = 1;
+									$validated_item = null;
+									$still_processing = false;
+									break;
 								case 'hiddenField':
 									// F08: the value was rebuilt by smart_hidden_rows_efb() (server tags) or cleaned
 									// (visitor tags); field tags are resolved after this loop from the checked answers.
@@ -4003,6 +4010,21 @@ public function check_nonce_permission_efb($request) {
 						$this->choices_code_efb = $ch_err_efb['code'];
 					} else {
 						$validated_items = \Emsfb\Choices::add_ov($validated_items, $form_fields_array);
+					}
+				}
+
+				// F04: every calc field's result, computed by the server from the checked answers (a forged calc row was
+				// dropped in the loop); a field hidden by Conditional Logic reads as empty; a required calc with no
+				// result stops the submit at its field.
+				if ($is_valid == 1 && class_exists('\\Emsfb\\Calc')) {
+					$calc_res_efb = \Emsfb\Calc::submit_rows($form_fields_array, $validated_items, isset($_ignored_set) && is_array($_ignored_set) ? array_keys($_ignored_set) : array(), $this->lanText);
+					if (!$calc_res_efb['ok']) {
+						$is_valid = 0;
+						$error_message = $calc_res_efb['m'];
+						$error_field_id = $calc_res_efb['field_id'];
+						$this->num_code_efb = $calc_res_efb['code'];
+					} else {
+						$validated_items = $calc_res_efb['rows'];
 					}
 				}
 
@@ -10235,11 +10257,12 @@ public function check_nonce_permission_efb($request) {
 	private static function plan_locked_field_types_efb() {
 		return array('pdate', 'ardate', 'mobile', 'dadfile', 'audio_recorder', 'video_recorder', 'screen_recorder',
 			'esign', 'maps', 'stateprovince', 'statepro', 'city', 'citylist', 'html', 'link', 'yesno',
-			'pointr5', 'pointr10', 'smartcr', 'table_matrix', 'prcfld', 'ttlprc', 'stripe', 'ranking');
+			'pointr5', 'pointr10', 'smartcr', 'table_matrix', 'prcfld', 'ttlprc', 'stripe', 'ranking', 'calc');
 	}
 
 	private function validate_required_fields_present_efb($form_fields_array, $submitted_values, $is_pro = true) {
-		static $structural_types = ['form', 'step', 'option', 'submit', 'r_matrix', 'buttonnav', 'payment', 'stripe', 'paypal', 'persiapay', 'prcfld'];
+		// F04: calc is computed by the server after the field loop (Calc::submit_rows() checks a required one).
+		static $structural_types = ['form', 'step', 'option', 'submit', 'r_matrix', 'buttonnav', 'payment', 'stripe', 'paypal', 'persiapay', 'prcfld', 'calc'];
 		/* A Pro field on a site that moved to Free shows the plan notice
 		 * instead of the input, so "required" can never be met and every
 		 * submission was refused. Not shown means not required. */
@@ -10610,7 +10633,7 @@ public function check_nonce_permission_efb($request) {
 			'payment' => ['amount' => true], 'file' => ['url' => true, 'fsz' => true, 'fnm' => true], 'address_line'=>true,
 			'dadfile' => ['url' => true, 'fsz' => true, 'fnm' => true], 'esign' => true, 'maps' => true,
 			'audio_recorder' => ['url' => true, 'recording_duration' => true], 'video_recorder' => ['url' => true, 'recording_duration' => true], 'screen_recorder' => ['url' => true, 'recording_duration' => true],
-			'color' => true, 'range' => true, 'number' => true, 'prcfld' => true,
+			'color' => true, 'range' => ['lo' => true, 'hi' => true], 'number' => true, 'prcfld' => true,
 			'checkbox' => true, 'table_matrix' => true, 'trmCheckbox' => true,
 			'ttlprc' => true, 'smartcr' => true, 'pointr5' => true,'tel'=>true,
 			'pointr10' => true, 'zarinPal' => true, 'stripe' => ['amount' => true],
@@ -10620,6 +10643,8 @@ public function check_nonce_permission_efb($request) {
 			/* F05: a ranking sends the choice ids in order; value and ov are rebuilt by Choices::ranking_row(). ov and
 			 * other are never taken from a browser on any type (the server writes them: Choices::add_ov(), other_row()). */
 			'ranking' => ['ids' => true],
+			/* F04: a calc row is the server's own (Calc::submit_rows()); a two-handle slider sends lo and hi beside "lo..hi". */
+			'calc' => true,
 		];
 
 			// PAY00: a registered gateway field (its row carries the donation amount in value).
