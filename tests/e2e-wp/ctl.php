@@ -887,6 +887,29 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( array( 'note_id' => (int) $wpdb->insert_id ) );
 		break;
 
+	case 'f14-validate':
+		// F14-E: the submit's field checks on rows, directly: <form_id> <json rows> [admin_edit 0|1].
+		$fid = (int) $efb_e2e_rest[0];
+		$pub = \Emsfb\_Public::$instance_efb ? \Emsfb\_Public::$instance_efb : new \Emsfb\_Public();
+		$pub->prepare_validation_efb( $fid );
+		$row = $wpdb->get_var( $wpdb->prepare( "SELECT form_structer FROM {$wpdb->prefix}emsfb_form WHERE form_id = %d", $fid ) ); // phpcs:ignore
+		$form = json_decode( emsfb_json_normalize_efb( $row ), true );
+		$r = $pub->validate_rows_efb( $form, (array) json_decode( (string) $efb_e2e_rest[1], true ), array( 'admin_edit' => ! empty( $efb_e2e_rest[2] ) ) );
+		efb_e2e_out( array( 'ok' => $r['ok'], 'rows' => $r['rows'], 'm' => $r['m'], 'field_id' => $r['field_id'] ) );
+		break;
+
+	case 'f14-raw-option':
+		// The text of one option of a stored form, changed in place (as if the choice the entries hold was removed):
+		// <form_id> <option id> <new text>.
+		$fid = (int) $efb_e2e_rest[0];
+		$raw = $wpdb->get_var( $wpdb->prepare( "SELECT form_structer FROM {$wpdb->prefix}emsfb_form WHERE form_id = %d", $fid ) ); // phpcs:ignore
+		$rows = json_decode( str_replace( '\\"', '"', (string) $raw ), true );
+		foreach ( $rows as $k => $r ) if ( isset( $r['id_'] ) && $r['id_'] === $efb_e2e_rest[1] ) $rows[ $k ]['value'] = (string) $efb_e2e_rest[2];
+		$wpdb->update( $wpdb->prefix . 'emsfb_form', array( 'form_structer' => str_replace( '"', '\\"', wp_json_encode( $rows, JSON_UNESCAPED_UNICODE ) ) ), array( 'form_id' => $fid ) );
+		if ( function_exists( 'wp_cache_flush' ) ) wp_cache_flush();
+		efb_e2e_out( array( 'ok' => true ) );
+		break;
+
 	case 'f14-notes':
 		efb_e2e_out( $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->prefix}emsfb_msg_notes_ WHERE msg_id = %d ORDER BY note_id", (int) $efb_e2e_rest[0] ), ARRAY_A ) ); // phpcs:ignore
 		break;

@@ -54,7 +54,8 @@ t('old range: 40 as typed', Calc::check_row(array('id_' => 'r', 'type' => 'range
 
 // The branch in the submit handler.
 $src = file_get_contents(__DIR__ . '/../includes/class-Emsfb-public.php');
-$a = strpos($src, "case 'range':\n\t\t\t\t\t\t\t\tcase 'number':\n\t\t\t\t\t\t\t\tcase 'prcfld':");
+// F14-E moved the field loop into validate_rows_efb() (two tabs less): find the branch at any indentation.
+$a = preg_match("/case 'range':\s*case 'number':\s*case 'prcfld':/", $src, $mm, PREG_OFFSET_CAPTURE) ? $mm[0][1] : false;
 $b = $a === false ? false : strpos($src, "case 'hiddenField':", $a);
 $block = $a !== false && $b !== false ? substr($src, $a, $b - $a) : '';
 t('the range / number branch is found', $block !== '', true);

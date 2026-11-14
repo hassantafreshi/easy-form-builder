@@ -56,6 +56,8 @@ class _Public {
 	private $unique_claimed_efb = array();
 	/* F03: code of the field rule that refused the submission (answered with field_id). */
 	private $field_rules_code_efb = '';
+	/** F14-E: validate_rows_efb() runs for an administrator's edit of an entry (Entries::update), not a visitor's submit. */
+	public $validate_admin_edit_efb = false;
 	/* F03: field-rule assets on this page (field-rules-efb.js) and the context of one submit. */
 	private $field_rules_page_efb = false;
 	private $field_rules_ctx_cache_efb = null;
@@ -2708,6 +2710,57 @@ public function check_nonce_permission_efb($request) {
 		return $settings;
 	}
 
+	/** The phrases the submit handler answers with (also an administrator's edit of an entry, F14). */
+	public static function submit_translation_keys_efb() {
+		$translation_keys = [
+			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'PleaseFillForm', 'bkXpM_', 'bkFlM_', 'mnvvXXX_', 'ptrnMmm_', 'ptrnMmx_', 'payment', 'error403', 'errorSiteKeyM',
+			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'uraatn', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound', 'errorMRobot',
+			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN',
+			'surveyResults', 'responses', 'submitBlocked', 'enterValidDate',
+			/* F01 input masks: server messages for masked fields. */
+			'mskFormat_', 'mskChecksum_', 'mskRule_', 'mskIncomplete_', 'mskRange_',
+			/* F11 form gate (Form_Gate::message() reads them through text_efb() too). */
+			'limFullM', 'limReachedM', 'limReachedUntilM', 'schedPendingM', 'schedClosedM', 'roleDeniedM',
+			/* F03 field rules (Field_Rules::message_keys()). */
+			'tvUnique_', 'tvMinLen_', 'tvMaxLen_', 'tvMinWords_', 'tvMaxWords_', 'tvPattern_', 'tvDomAllow_', 'tvDomDeny_', 'tvPwMismatch_', 'tvPwWeak_',
+			/* F02 one-time codes (Verification::server_keys()). */
+			'vrfExpired', 'vrfRequired', 'vrfEmailMismatch', 'vrfUnavailable', 'vrfRefresh',
+			/* F06 advanced date field (Calendar::message()). */
+			/* F07 upload fields (Uploads::check_field() and the ownership check). */
+			'maxFilesMsg', 'minFilesMsg', 'maxTotalMsg', 'fileNotOwned',
+			/* F05 choices (Choices::message(), Stock): Other, minimum / maximum, capacity, ranking. */
+			'otherOpt', 'otherReq', 'minSelM_', 'maxSelM_', 'soldOut', 'rnkReq',
+			/* F04 numbers and calculations (Calc::check_row(), Calc::evaluate_form()). */
+			'numStepM_', 'numDecM_', 'numNanM_', 'calcErr', 'mcplen', 'mxcplen', 'rngOrder',
+			/* F09 repeater group (Repeater::validate()). */
+			'repeater', 'rowN', 'rptMinRowsMsg', 'rptMaxRowsMsg', 'rptCountMismatch', 'rptRowRequired',
+			'cal_err_invalid_format', 'cal_err_invalid_date', 'cal_err_calendar_not_allowed', 'cal_err_before_min', 'cal_err_after_max', 'cal_err_weekday_disabled', 'cal_err_date_disabled', 'cal_err_not_enabled', 'cal_err_holiday', 'cal_err_unavailable', 'cal_err_full', 'cal_err_range_order', 'cal_err_range_too_short', 'cal_err_range_too_long', 'cal_err_range_contains_disabled', 'cal_err_too_many_dates', 'cal_err_time_required', 'cal_err_time_out_of_range', 'cal_err_time_step', 'cal_err_time_closed_weekday', 'cal_err_age_too_young', 'cal_err_age_too_old', 'cal_err_depends_on_empty', 'cal_err_required', 'cal_nights_n', 'cal_days_n'
+		];
+		return $translation_keys;
+	}
+
+	/**
+	 * F14: this object ready to check answers outside a submit request (an administrator's edit of an entry): the
+	 * helpers, the phrases, the plan and the database, as get_form_public_efb() sets them.
+	 */
+	public function prepare_validation_efb($form_id) {
+		global $wpdb;
+		if (empty($this->db)) $this->db = $wpdb;
+		$this->efbFunction = get_efbFunction();
+		$this->lanText = $this->efbFunction->text_efb(self::submit_translation_keys_efb());
+		$p = intval(get_option('emsfb_pro'));
+		$this->pro_efb = $p == 1 || $p == 3;
+		$this->id = (int) $form_id;
+		$this->choices_code_efb = '';
+		$this->num_code_efb = '';
+		$this->field_rules_code_efb = '';
+		$this->advdate_code_efb = '';
+		$this->upload_code_efb = '';
+		$this->unique_pending_efb = array();
+		$this->upload_files_efb = array();
+		return $this;
+	}
+
 	  public function get_form_public_efb($data_POST_) {
 		$request_data = $data_POST_->get_json_params();
 		if (!is_array($request_data)) wp_send_json_error(array('code'=>'efb_invalid_payload','m'=>__('Invalid form request.', 'easy-form-builder')),400);
@@ -2740,30 +2793,7 @@ public function check_nonce_permission_efb($request) {
 		$this->stock_fid_efb = 0;
 		$this->stock_taken_efb = array();
 
-		$translation_keys = [
-			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'PleaseFillForm', 'bkXpM_', 'bkFlM_', 'mnvvXXX_', 'ptrnMmm_', 'ptrnMmx_', 'payment', 'error403', 'errorSiteKeyM',
-			'errorCaptcha', 'pleaseEnterVaildValue', 'createAcountDoneM', 'uraatn', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound', 'errorMRobot',
-			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN',
-			'surveyResults', 'responses', 'submitBlocked', 'enterValidDate',
-			/* F01 input masks: server messages for masked fields. */
-			'mskFormat_', 'mskChecksum_', 'mskRule_', 'mskIncomplete_', 'mskRange_',
-			/* F11 form gate (Form_Gate::message() reads them through text_efb() too). */
-			'limFullM', 'limReachedM', 'limReachedUntilM', 'schedPendingM', 'schedClosedM', 'roleDeniedM',
-			/* F03 field rules (Field_Rules::message_keys()). */
-			'tvUnique_', 'tvMinLen_', 'tvMaxLen_', 'tvMinWords_', 'tvMaxWords_', 'tvPattern_', 'tvDomAllow_', 'tvDomDeny_', 'tvPwMismatch_', 'tvPwWeak_',
-			/* F02 one-time codes (Verification::server_keys()). */
-			'vrfExpired', 'vrfRequired', 'vrfEmailMismatch', 'vrfUnavailable', 'vrfRefresh',
-			/* F06 advanced date field (Calendar::message()). */
-			/* F07 upload fields (Uploads::check_field() and the ownership check). */
-			'maxFilesMsg', 'minFilesMsg', 'maxTotalMsg', 'fileNotOwned',
-			/* F05 choices (Choices::message(), Stock): Other, minimum / maximum, capacity, ranking. */
-			'otherOpt', 'otherReq', 'minSelM_', 'maxSelM_', 'soldOut', 'rnkReq',
-			/* F04 numbers and calculations (Calc::check_row(), Calc::evaluate_form()). */
-			'numStepM_', 'numDecM_', 'numNanM_', 'calcErr', 'mcplen', 'mxcplen', 'rngOrder',
-			/* F09 repeater group (Repeater::validate()). */
-			'repeater', 'rowN', 'rptMinRowsMsg', 'rptMaxRowsMsg', 'rptCountMismatch', 'rptRowRequired',
-			'cal_err_invalid_format', 'cal_err_invalid_date', 'cal_err_calendar_not_allowed', 'cal_err_before_min', 'cal_err_after_max', 'cal_err_weekday_disabled', 'cal_err_date_disabled', 'cal_err_not_enabled', 'cal_err_holiday', 'cal_err_unavailable', 'cal_err_full', 'cal_err_range_order', 'cal_err_range_too_short', 'cal_err_range_too_long', 'cal_err_range_contains_disabled', 'cal_err_too_many_dates', 'cal_err_time_required', 'cal_err_time_out_of_range', 'cal_err_time_step', 'cal_err_time_closed_weekday', 'cal_err_age_too_young', 'cal_err_age_too_old', 'cal_err_depends_on_empty', 'cal_err_required', 'cal_nights_n', 'cal_days_n'
-		];
+		$translation_keys = self::submit_translation_keys_efb();
 		$efbFunction = get_efbFunction();
 
 		$session_id = sanitize_text_field($request_data['sid']);
@@ -3230,840 +3260,26 @@ public function check_nonce_permission_efb($request) {
 				$this->upload_files_efb = array();
 				$this->upload_code_efb = '';
 				$this->upload_form_row_efb = isset($form_fields_array[0]) && is_array($form_fields_array[0]) ? $form_fields_array[0] : array();
-				foreach ($form_fields_array as $key => $f) {
-					$validated_item = null;
-					$still_processing = true;
-					if ($key < 2 && !isset($f['id_'])){ continue;}
-					if ($is_valid == 0) {break;}
-					/* F07: an upload field answers with one row per file. Its rows are checked
-					 * together (ownership, count, minimum, total); a field Conditional Logic hid
-					 * is not checked (its rows are dropped below). */
-					if (isset($f['type']) && in_array($f['type'], array('file', 'dadfile', 'audio_recorder', 'video_recorder', 'screen_recorder'), true)) {
-						if (isset($_ignored_set) && isset($f['id_']) && isset($_ignored_set[$f['id_']])) continue;
-						$up_efb = $this->validate_upload_field_efb($f, $submitted_values, $upload_ctx_efb);
-						if (!$up_efb['ok']) {
-							$is_valid = 0;
-							$error_message = $up_efb['m'];
-							$error_field_id = $up_efb['field_id'];
-							$this->upload_code_efb = $up_efb['code'];
-							break;
-						}
-						foreach ($up_efb['items'] as $up_item_efb) {
-							$up_item_efb['type'] = $this->stored_row_type_efb($up_item_efb, $f, $form_fields_array);
-							$up_item_efb['name'] = $this->stored_row_name_efb($up_item_efb, $f, $form_fields_array);
-							array_push($validated_items, $up_item_efb);
-						}
-						$this->upload_files_efb = array_merge($this->upload_files_efb, $up_efb['files']);
-						$error_message = '';
-						$error_field_id = '';
-						continue;
-					}
-					$it = array_filter($submitted_values, function ($item) use ($f, $key, &$is_valid, &$email_recipients, &$validated_item, &$form_fields_array, &$still_processing, &$error_message, &$error_field_id, $form_condition, &$sms_notification_enabled, &$phone_numbers) {
-						if ($still_processing == false) {
-							return;
-						}
-						$item = $this->normalize_submitted_row_efb($item, isset($f['type']) ? $f['type'] : '');
-						$item_value_len = is_array($item['value'] ?? null) ? count($item['value']) : strlen((string) ($item['value'] ?? ''));
-						if (((isset($f['disabled']) == true &&  $f['disabled'] == 1  && isset($f['hidden']) == false)
-								|| (isset($f['disabled']) == true && $f['disabled'] == 1 && isset($f['hidden']) == true && $f['hidden'] == false))
-							&& ($item['id_'] == $f['id_'] || $f['id_'] == $item['id_'])
-							&& $item_value_len > 1
-						) {
-							$is_valid = 0;
-							$still_processing == false;
-							// Name the field, so the visitor is not shown an empty error.
-							if (isset($f['name']) && isset($this->lanText['mnvvXXX_'])) {
-								$error_message = str_replace('%s', "<b>" . esc_html($f['name']) . "</b>", $this->lanText['mnvvXXX_']);
-								$error_field_id = isset($f['id_']) ? $f['id_'] : '';
-							}
-							return;
-						}
-						$t = strpos(strtolower($item['type']), 'checkbox');
-						if (
-							isset($f['id_']) && isset($item['id_']) && ($f['id_'] == $item['id_']
-								||  gettype($t) == "integer" && isset($item['id_ob']) && $f['id_'] == $item['id_ob'])
-							|| (($f['type'] == "persiaPay" || $f['type'] == "persiapay" || $f['type'] == "payment") && $form_fields_array[0]['type'] == 'payment')
-							|| ($item['type'] == 'r_matrix' && isset($item['id_ob']) && $f['id_'] == $item['id_ob'])
-						) {
-							if (isset($f['name'])) {
-								$error_message = $this->lanText['mnvvXXX_'];
-								$error_message = str_replace('%s', "<b>" . $f['name'] . "</b>", $error_message);
-								$error_field_id = isset($f['id_']) ? $f['id_'] : '';
-							}
-							// PAY00: a framework gateway field. Its only row is the donation amount the
-							// visitor chose; the amount itself is checked by Pricing on payments/create.
-							if (isset($f['type']) && is_string($f['type']) && class_exists('\\Emsfb\\Payments\\Registry') && \Emsfb\Payments\Registry::is_field_type($f['type'])) {
-								$item = $this->filter_attributes_by_type_efb($item, $f['type']);
-								$validated_item = is_array($item) ? \Emsfb\Payments\Field::submitted_row($item, $f) : null;
-								$is_valid = ($validated_item !== null || !is_array($item) || !isset($item['value']) || (string) $item['value'] === '') ? 1 : 0;
-								$still_processing = false;
-								return;
-							}
-							switch ($f['type']) {
-								case 'repeater':
-									// F09: the group's own row: its number of rows, already checked and set by Repeater::expand().
-									$item = $this->filter_attributes_by_type_efb($item, 'repeater');
-									$item['value'] = (string) absint(is_scalar($item['value'] ?? '') ? $item['value'] : 0);
-									$validated_item = $item;
-									$is_valid = 1;
-									$still_processing = false;
-									break;
-								case 'email':
-									$is_valid = 0;
-									if (isset($item['value'])) {
-										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$item['value'] = sanitize_email(self::normalize_email_input_efb($item['value']));
-										$is_valid = 1;
-										$validated_item = $item;
-										$l = strlen($item['value']);
-										if (!filter_var($item['value'], FILTER_VALIDATE_EMAIL)) {
-											$error_message = str_replace('%s', $f['name'], $error_message);
-											$is_valid = 0;
-										}
-
-										$e_ar = isset($form_fields_array[0]['email_send_type']) ? $form_fields_array[0]['email_send_type'] : false;
-										// F03 §18.1: mlen "0" or "" (the builder's empty Max) means no limit, as the renderers read it.
-										if ((isset($f['milen']) && (int) $f['milen'] > $l) || (isset($f['mlen']) && (int) $f['mlen'] > 0 && (int) $f['mlen'] < $l)) {
-											$is_valid = 0;
-										}
-										if (isset($f['noti']) == true && intval($f['noti']) == 1)  $this->email_list_efb($email_recipients, 1, $item['value'], $e_ar);
-
-									}
-									$still_processing = false;
-									break;
-								case "date":
-									$is_valid = 0;
-									if (isset($item['value'])) {
-										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$item['value'] = sanitize_text_field($item['value']);
-										$v = explode("-", $item['value']);
-										if (count($v) == 3 && checkdate($v[1], $v[2], $v[0])) {
-											$is_valid = 1;
-											$validated_item = $item;
-											$current_date = date('Y-m-d');
-											if (isset($f['milen']) && $f['milen'] != '') {
-												$f['milen'] = intval($f['milen']) == 1 ? $current_date : $f['milen'];
-												if ($f['milen'] != '' && (strtotime($f['milen']) > strtotime($item['value']) || strtotime($f['milen']) > strtotime($item['value']))) {
-													$is_valid = 0;
-												}
-											}
-											if (isset($f['mlen']) && $f['mlen'] != '') {
-												$f['mlen'] = intval($f['mlen']) == 1 ? $current_date : $f['mlen'];
-												if ($f['mlen'] != '' && (strtotime($f['mlen']) < strtotime($item['value']) || strtotime($f['mlen']) < strtotime($item['value']))) {
-													$is_valid = 0;
-												}
-											}
-										} else {
-											$validated_item = "";
-											$is_valid = 0;
-										}
-									}
-									$still_processing = false;
-									break;
-								case 'url':
-									$is_valid = 0;
-									if (isset($item['value'])) {
-										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$raw_url = is_string($item['value']) ? trim($item['value']) : '';
-										$item['value'] = sanitize_url($raw_url);
-										$is_valid = 1;
-										/* The browser accepts only http(s) addresses with a dotted
-										 * host; sanitize_url() turns plain text into
-										 * "http://not%20a%20url", which used to be stored. */
-										if ($raw_url !== '') {
-											$url_host = wp_parse_url($item['value'], PHP_URL_HOST);
-											if (!preg_match('#^https?://#i', $raw_url) || !is_string($url_host) || strpos($url_host, '.') === false) {
-												$is_valid = 0;
-											}
-										}
-										$l = strlen($item['value']);
-										// F03 §18.1: mlen "0" or "" (the builder's empty Max) means no limit, as the renderers read it.
-										if ((isset($f['milen']) && (int) $f['milen'] > $l) || (isset($f['mlen']) && (int) $f['mlen'] > 0 && (int) $f['mlen'] < $l)) {
-											$is_valid = 0;
-										}
-									}
-
-									$validated_item = $item;
-									$still_processing = false;
-									break;
-								case 'mobile':
-									$is_valid = 0;
-									if (isset($item['value'])) {
-										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$item['value'] = sanitize_text_field($item['value']);
-										$is_valid = 0;
-										// Persian/Arabic digits and direction marks (pages cached before the
-										// browser started converting them) would reach the SMS gateway as is.
-										$item['value'] = preg_replace('/\s+/', '', self::normalize_phone_input_efb($item['value']));
-										if (isset($f['smsnoti']) && intval($f['smsnoti']) == 1) {
-											$sms_notification_enabled = 1;
-											array_push($phone_numbers[1], $item['value']);
-										}
-										$l = isset($f['c_n']) && count($f['c_n']) >= 1 ? $f['c_n'] : ['all'];
-										array_filter($l, function ($no) use ($item, &$is_valid) {
-											$pos = strrpos($item['value'], '+');
-											if ($pos !== false) {
-												$item['value'] = substr($item['value'], $pos);
-											}
-
-											$v = strpos($item['value'], '+' . $no);
-											if (strpos($item['value'], '+' . $no) === 0 || $no == 'all') $is_valid = 1;
-										});
-									}
-									$validated_item = $item;
-									$still_processing = false;
-									break;
-								case 'radio':
-								case 'payRadio':
-								case 'chlRadio':
-								case 'imgRadio':
-									$is_valid = 0;
-									// F05: the "Other" choice ({field}_oth): plain text, length-limited, never priced; refused when the field has none.
-									if (class_exists('\\Emsfb\\Choices') && \Emsfb\Choices::is_other_row($f, $item)) {
-										$oth_efb = \Emsfb\Choices::other_row($f, $item, $this->lanText);
-										$is_valid = $oth_efb['ok'] ? 1 : 0;
-										$validated_item = $oth_efb['row'];
-										if (!$oth_efb['ok']) { $error_message = $oth_efb['m']; $error_field_id = (string) $f['id_']; $this->choices_code_efb = $oth_efb['code']; }
-										$still_processing = false;
-										break;
-									}
-									if (isset($item['value'])) {
-										/* The saved field decides the row's kind. The price and
-										 * image lookups below key on it, and so does the attribute
-										 * allow-list, so a browser-supplied type must not steer
-										 * either. */
-										$item['type'] = $f['type'];
-										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$item['value'] = sanitize_text_field($item['value']);
-										$radio_parent_efb = (string) $f['id_'];
-										array_filter($form_fields_array, function ($fr, $ki) use (&$item, &$validated_item, &$is_valid, &$form_fields_array, $form_condition, &$error_message, $radio_parent_efb) {
-											// F05: the chosen option must be one of this field's own options (an option id of another field was accepted).
-											if (isset($fr['id_']) && isset($item['id_ob']) && $fr['id_'] == $item['id_ob'] && (string) ($fr['parent'] ?? '') === $radio_parent_efb) {
-												$item['value'] = $fr['value'];
-												$is_valid = 1;
-												/* strpos() finds "pay" at offset 0 of "payRadio", and
-												 * 0 != false is false - so the saved price was never
-												 * applied and the browser's price (admitted by the
-												 * payRadio allow-list) was stored instead. */
-												if (strpos($item['type'], 'pay') !== false) {
-													if (isset($fr['price'])) { $item['price'] = $fr['price']; } else { unset($item['price']); }
-												}
-												$t = strpos($item['type'], 'img');
-												if (isset($fr['src'])) {
-													$item['src'] = $fr['src'];
-													$item['sub_value'] = $fr['sub_value'];
-												}
-												if ($form_condition == 'booking') {
-													if (isset($fr['dateExp']) == true) {
-														if (strtotime($fr['dateExp']) < strtotime(wp_date('Y-m-d'))) {
-															$is_valid = 0;
-															$error_message = $this->lanText['bkXpM_'];
-															$error_message = str_replace('%s', $fr['value'], $error_message);
-														}
-													}
-													// F05: the capacity (mlen) is taken atomically in insert_message_db() (\Emsfb\Stock), not counted here.
-												}
-												$validated_item = $item;
-												return;
-											}
-										}, ARRAY_FILTER_USE_BOTH);
-									}
-									$still_processing = false;
-									break;
-								case 'switch':
-									$is_valid = 0;
-									if (isset($item['value'])) {
-										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$item['value'] = sanitize_text_field($item['value']);
-										array_filter($form_fields_array, function ($fr) use ($item, &$validated_item, &$is_valid) {
-											if (isset($fr['id_']) && isset($item['id_']) && $fr['id_'] == $item['id_']) {
-												$item['value'] = $item['value'] == '1' ?   $fr['on'] : $fr['off'];
-												$validated_item = $item;
-												$is_valid = 1;
-												return;
-											}
-										});
-									}
-									$still_processing = false;
-									break;
-								case 'option':
-									$is_valid = 0;
-									if (isset($item['value'])) {
-										/* An option row belongs to the checkbox-family field named
-										 * by its id_. Store it under that field's saved type: the
-										 * viewer groups on it, the email prices on it, and a
-										 * browser that names some other type must not pick the
-										 * render branch. A row whose parent is not a checkbox
-										 * field is not an option answer at all. */
-										$option_parent_type = $this->parent_field_type_efb($item['id_'] ?? null, $form_fields_array);
-										if ($option_parent_type === '' || strpos(strtolower($option_parent_type), 'checkbox') === false) {
-											$validated_item = null;
-											$still_processing = false;
-											break;
-										}
-										$item['type'] = $option_parent_type;
-										$item['value'] = sanitize_text_field($item['value']);
-										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										/* The 'option' allow-list admits price and qty for the
-										 * priced and free-text checkbox kinds. On any other parent a
-										 * browser-supplied price is not overwritten below and would
-										 * be summed into the viewer's "total paid"; qty is only ever
-										 * typed into a chlCheckBox's companion input. */
-										if (is_array($item)) {
-											if (stripos($option_parent_type, 'pay') === false) unset($item['price']);
-											if (stripos($option_parent_type, 'chl') === false) unset($item['qty']);
-										}
-										/* F05: the option must belong to the field the row names
-										 * (an option id of another field was stored under this one). */
-										if (((isset($f['id_']) && isset($item['id_ob']) && $f['id_'] == $item['id_ob'])
-											|| (isset($f['id_']) && isset($item['id_']) && $f['type'] == "chlCheckBox"  && $f['id_'] == $item['id_ob']))
-											&& (!isset($f['parent']) || (string) $f['parent'] === (string) ($item['id_'] ?? ''))
-										) {
-											/* The saved option's own text, as for radio: the browser's
-											 * label is only a claim, and any text sent with a real
-											 * option id used to be stored as the answer. */
-											$item['value'] = isset($f['value']) && is_string($f['value']) ? $f['value'] : $this->sanitize_value_efb($item['value'],'option');
-											$validated_item = $item;
-											$is_valid = 1;
-											$t = strpos($item['type'], 'pay');
-											if (gettype($t) != 'boolean') {
-												$item['price'] = $f['price'];
-											}
-											if ($form_condition == 'booking') {
-												if (isset($f['dateExp']) == true) {
-													if (strtotime($f['dateExp']) < strtotime(wp_date('Y-m-d'))) {
-														$is_valid = 0;
-														$error_message = $this->lanText['bkXpM_'];
-														$error_message = str_replace('%s', $f['value'], $error_message);
-													}
-												}
-												// F05: the capacity (mlen) is taken atomically in insert_message_db() (\Emsfb\Stock).
-											}
-										}
-									}
-									$still_processing = false;
-									break;
-								case 'r_matrix':
-									$is_valid = 0;
-									$item['value'] = sanitize_text_field($item['value']);
-									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-									/* A loose comparison let "3 anything" through as a score. */
-									if (!is_array($item) || !is_string($item['value'] ?? null) || preg_match('/^[1-5]$/', trim($item['value'])) !== 1) {
-										$m =  $this->lanText['somethingWentWrongPleaseRefresh'] . '<br>' . esc_html__('Error Code', 'easy-form-builder') . ': 600';
-										$response = array('success' => false, 'm' => $m);
-										wp_send_json_success($response, 200);
-									}
-									$is_valid = 1;
-									$item['name'] = $f['value'];
-									$item['label'] = "";
-									foreach ($form_fields_array as $k => $v) {
-										if ($v['type'] == 'table_matrix' && $v['id_'] == $item['id_']) {
-											$item['label'] = $v['name'];
-											break;
-										}
-									}
-									$validated_item = $item;
-									$still_processing = false;
-									break;
-								case 'pointr5':
-									$is_valid = 0;
-									if (isset($item['value']) && is_numeric($item['value'])) {
-										$item['value'] = intval(sanitize_text_field($item['value']));
-										$item = $this->filter_attributes_by_type_efb($item, $f['type']);
-
-										if ($item['value'] >= 1 && $item['value'] <= 5) {
-											$is_valid = 1;
-											$validated_item = $item;
-										}
-									}
-									$still_processing = false;
-									break;
-								case 'pointr10':
-									$is_valid = 0;
-									if (isset($item['value']) && is_numeric($item['value'])) {
-										$item['value'] = intval(sanitize_text_field($item['value']));
-										$item = $this->filter_attributes_by_type_efb($item, $f['type']);
-
-										if ($item['value'] >= 0 && $item['value'] <= 10) {
-											$is_valid = 1;
-											$validated_item = $item;
-										}
-									}
-									$still_processing = false;
-									break;
-								case 'rating':
-									$is_valid = 0;
-									if (isset($item['value']) && is_numeric($item['value'])) {
-										$item['value'] = intval(sanitize_text_field($item['value']));
-										$item = $this->filter_attributes_by_type_efb($item, $f['type']);
-
-										if ($item['value'] >= 1 && $item['value'] <= 5) {
-											$is_valid = 1;
-											$validated_item = $item;
-										}
-									}
-									$still_processing = false;
-									break;
-								case 'multiselect':
-									$is_valid = 0;
-									if (isset($item['value'])) {
-										$item['value'] = sanitize_text_field($item['value']);
-										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$validated_item = null;
-										$rs = explode("@efb!", $item['value']);
-										array_filter($form_fields_array, function ($fr) use ($item, &$validated_item, $rs) {
-											// "&amp;" in a template option vs the "&" the browser sends
-											foreach ($rs as $k => $v) {
-												if (isset($item['type'])  && $fr['type'] == "option" && isset($fr['value']) && isset($v) && $this->same_option_text_efb($fr['value'], $v) &&  $fr['parent'] == $item['id_']) {
-													$validated_item == null ? $validated_item = $v . '@efb!' : $validated_item = $validated_item . $v . '@efb!';
-												}
-											}
-										});
-										if ($validated_item != null) $is_valid = 1;
-										$item['value'] = $validated_item;
-										$validated_item = $item;
-										// F05: minSelect / maxSelect on the server too (only the minimum was checked, in the page).
-										if ($is_valid == 1 && class_exists('\\Emsfb\\Choices')) {
-											$ms_lim_efb = \Emsfb\Choices::limit_check($f, count(array_filter(explode('@efb!', (string) $item['value']), 'strlen')), $this->lanText);
-											if ($ms_lim_efb) { $is_valid = 0; $error_message = $ms_lim_efb['m']; $error_field_id = $ms_lim_efb['field_id']; $this->choices_code_efb = $ms_lim_efb['code']; $validated_item = null; }
-										}
-									}
-									$still_processing = false;
-									break;
-								case 'select':
-								case 'paySelect':
-									$is_valid = 0;
-									if (isset($item['value'])) {
-										$item['value'] = sanitize_text_field($item['value']);
-										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										array_filter($form_fields_array, function ($fr, $ki) use ($item, &$validated_item, &$is_valid, &$form_fields_array, $form_condition, &$error_message) {
-											if (isset($item['type'])  && $fr['type'] == "option" && isset($fr['value']) && isset($item['value']) && $this->same_option_text_efb($fr['value'], $item['value']) &&  $fr['parent'] == $item['id_']) {
-												$is_valid = 1;
-												$item['value'] = $fr['value'];
-												$validated_item = $item;
-												$still_processing = false;
-												if ($form_condition == 'booking') {
-													if (isset($fr['dateExp']) == true) {
-														if (strtotime($fr['dateExp']) < strtotime(wp_date('Y-m-d'))) {
-															$is_valid = 0;
-															$error_message = $this->lanText['bkXpM_'];
-															$error_message = str_replace('%s', $fr['value'], $error_message);
-														}
-													}
-													// F05: the capacity (mlen) is taken atomically in insert_message_db() (\Emsfb\Stock).
-												}
-												return;
-											}
-										}, ARRAY_FILTER_USE_BOTH);
-									}
-									$still_processing = false;
-									break;
-								case 'ranking':
-									// F05-G: an order of the saved choices (all, or the first rank_top), no repeats; value and ov rebuilt here.
-									$is_valid = 0;
-									if (class_exists('\\Emsfb\\Choices')) {
-										$item = $this->filter_attributes_by_type_efb($item, 'ranking');
-										$rk_efb = is_array($item) ? \Emsfb\Choices::ranking_row($f, $item, $form_fields_array, $this->lanText) : array('ok' => false, 'row' => null, 'm' => '', 'code' => 'efb_choice_ranking');
-										$is_valid = $rk_efb['ok'] ? 1 : 0;
-										$validated_item = $rk_efb['row'];
-										if (!$rk_efb['ok']) { $error_message = $rk_efb['m']; $error_field_id = (string) $f['id_']; $this->choices_code_efb = $rk_efb['code']; }
-									}
-									$still_processing = false;
-									break;
-								case 'stateProvince':
-								case 'statePro':
-								case 'conturyList':
-								case 'country':
-								case 'city':
-								case 'cityList':
-									$is_valid = 0;
-									if (isset($item['value'])) {
-										$is_valid = 1;
-										$item['value']= sanitize_text_field($item['value']);
-										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$validated_item = $item;
-									}
-									$still_processing = false;
-									break;
-								case 'sample':
-									/* Was stored verbatim — no sanitising, no attribute
-									 * filtering, and the browser-supplied type kept — so a
-									 * submission to a sample field persisted raw. Put it through
-									 * the same allow-list every other field uses and pin the type
-									 * to the saved field, so nothing untrusted survives here. */
-									if (isset($item['value']) && is_string($item['value'])) {
-										$item['value'] = sanitize_text_field($item['value']);
-									}
-									$item = $this->filter_attributes_by_type_efb($item, $f['type']);
-									if (is_array($item)) { $item['type'] = $f['type']; }
-									$validated_item = $item;
-									$still_processing = false;
-									break;
-								case 'persiaPay':
-								case 'persiapay':
-								case 'payment':
-									if ($form_fields_array[0]['type'] == 'payment') {
-										$item['amount'] = sanitize_text_field($item['amount'] ?? '');
-										$item['id_'] = sanitize_text_field($item['id_'] ?? '');
-										$item['name'] = sanitize_text_field($item['name'] ?? '');
-										if (isset($item['value']) && is_string($item['value'])) {
-											$item['value'] = sanitize_text_field($item['value']);
-										}
-										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-
-										$validated_item = $item;
-										$still_processing = false;
-										$is_valid = 1;
-									} else {
-										$is_valid = 0;
-									}
-									break;
-								case 'file':
-								case 'dadfile':
-								case 'audio_recorder':
-								case 'video_recorder':
-								case 'screen_recorder':
-									$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
-									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-									/* The server determines the kind from the saved form. Do not
-									 * retain a browser-supplied MIME/type in the response row. */
-									$item['type'] = $f['type'];
-									if (isset($item['url']) && strlen($item['url']) > 5) {
-										$is_valid = 0;
-										$ar = ['http://wwww.' . $d, 'https://wwww.' . $d, 'http://' . $d, 'https://' . $d];
-										$s = 0;
-										foreach ($ar as  $r) {
-											$c = strpos($item['url'], $r);
-											if (gettype($c) != 'boolean' && $c == 0) {
-												$s = 1;
-											}
-										}
-									$upload_validation = $s == 1 ? $this->validate_submitted_upload_url_efb($item['url'], $f) : false;
-									if ($upload_validation === true) {
-											$item['url'] = sanitize_url($item['url']);
-											/* The client always sends the "@file@" marker here and
-											 * every reader (viewer, email, CSV) recognises an upload
-											 * by it. It was the one attribute of this row stored
-											 * verbatim, so pin it rather than carry a free string. */
-											$item['value'] = '@file@';
-											$validated_item = $item;
-											$is_valid = 1;
-										} else {
-											$item = null;
-											$validated_item = null;
-											$is_valid = 0;
-											/* Name the field holding the rejected file. The
-											 * attribution recorded before this switch belongs to
-											 * whichever field matched last, so leaving it in place
-											 * reported the problem against a neighbouring field. */
-											$error_field_id = isset($f['id_']) ? $f['id_'] : '';
-											$error_message = is_string($upload_validation) && $upload_validation !== ''
-												? $upload_validation
-												: \Emsfb\Upload_Guard::type_message();
-										}
-									} else {
-										/* The row names this upload field and carries something other
-										 * than the seeded default, but no usable URL - the upload never
-										 * completed. Leaving $is_valid untouched here let it inherit the
-										 * previous field's success, so the file was dropped without
-										 * a word and whichever field failed next took the blame.
-										 * Untouched placeholders never reach this branch: they are
-										 * removed by strip_untouched_upload_rows_efb() up front. */
-										$item = null;
-										$validated_item = null;
-										$is_valid = 0;
-										$error_field_id = isset($f['id_']) ? $f['id_'] : '';
-										$error_message = isset($this->lanText['mnvvXXX_']) && isset($f['name'])
-											? str_replace('%s', '<b>' . $f['name'] . '</b>', $this->lanText['mnvvXXX_'])
-											: \Emsfb\Upload_Guard::type_message();
-									}
-									$still_processing = false;
-									break;
-								case 'esign':
-									$is_valid = 0;
-									/* A signature is a canvas-exported PNG data URL and nothing
-									 * else. The prefix check on its own let a value like
-									 * "data:image/png;base64,<img onerror=...>" through, because
-									 * the tail was never decoded or validated.
-									 * canonical_esign_value_efb() decodes the tail, confirms the
-									 * bytes are a real PNG image and hands back a re-encoded
-									 * data URL, so only bytes the server produced are stored. */
-									$esign_value = isset($item['value']) ? $this->canonical_esign_value_efb($item['value']) : '';
-									if ($esign_value !== '') {
-										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										if (is_array($item)) {
-											$item['value'] = $esign_value;
-											/* The kind of a stored row is decided by the saved field,
-											 * never by the browser. Mirrors the upload branch and
-											 * closes the esign->r_matrix render type-confusion: the
-											 * admin viewer dispatches on this type. */
-											$item['type'] = $f['type'];
-											$validated_item = $item;
-											$is_valid = 1;
-										}
-									}
-									$still_processing = false;
-									break;
-								case 'maps':
-									/* filter_attributes_by_type_efb skips the 'value' key for
-									 * every type, so a marker's address rode into storage
-									 * completely raw — only lat/lng were ever validated.
-									 * Sanitize it here, the same way every other free-text
-									 * value in this switch is hardened. Also build
-									 * $validated_item from the filtered $item (as the other
-									 * cases do) instead of the pre-filter copy, so the
-									 * sanitized address actually reaches storage. */
-									$is_valid = 1;
-									$c = 0;
-									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-									$markers = array();
-									foreach ((is_array($item['value'] ?? null) ? $item['value'] : array()) as $value) {
-										$c += 1;
-										if (!is_array($value) || !isset($value['lat'], $value['lng']) || !is_scalar($value['lat']) || !is_scalar($value['lng'])
-											|| is_numeric($value['lat']) == false || is_numeric($value['lng']) == false) {
-											$is_valid = 0;
-											continue;
-										}
-										/* A marker is exactly lat, lng and address; anything else
-										 * the browser attached is dropped rather than stored. */
-										$markers[] = array(
-											'lat'     => $value['lat'],
-											'lng'     => $value['lng'],
-											'address' => isset($value['address']) && is_scalar($value['address']) ? sanitize_text_field((string) $value['address']) : '',
-										);
-									}
-									$item['value'] = $markers;
-									$validated_item = $is_valid ? $item : null;
-									if ($c != $f['mark']) {
-										$is_valid = 0;
-										$validated_item = null;
-										$error_message = $this->lanText['mnvvXXX_'];
-										$error_message = str_replace('%s', "<b>" . $f['name'] . "</b>", $error_message);
-									}
-									$still_processing = false;
-									break;
-								case 'color':
-									$is_valid = 0;
-									$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-									/* The value lands in a style attribute (viewer and email), so
-									 * it has to be exactly the #rrggbb an <input type="color">
-									 * produces. "starts with # and is 7 long" still let six
-									 * arbitrary characters through, and measured them before
-									 * checking the value was a string at all. */
-									if (isset($item['value']) && is_string($item['value']) && preg_match('/^#[0-9a-fA-F]{6}$/', $item['value']) === 1) {
-										$item['value'] = strtolower($item['value']);
-										$is_valid = 1;
-										$validated_item = $item;
-									}
-									$still_processing = false;
-									break;
-								case 'range':
-								case 'number':
-								case 'prcfld':
-									$is_valid = 0;
-									/* F04: a number or slider is read with local digits and separators, and a field with the
-									 * F04 keys is checked for decimals, step and its limits as decimals (Calc::check_row());
-									 * an old field keeps today's rule and today's stored text. */
-									if ($f['type'] !== 'prcfld' && class_exists('\\Emsfb\\Calc')) {
-										$num_efb = \Emsfb\Calc::check_row($f, is_array($item) ? $item : array(), $this->lanText, isset($form_fields_array[0]) ? $form_fields_array[0] : null);
-										if ($num_efb['ok']) {
-											$num_efb['row']['value'] = sanitize_text_field((string) $num_efb['row']['value']);
-											$validated_item = $this->filter_attributes_by_type_efb($num_efb['row'], $f['type']);
-											$is_valid = is_array($validated_item) ? 1 : 0;
-											// The display of an F04 number (e-mail, viewer): the server's own, never the browser's.
-											if (is_array($validated_item)) $validated_item = \Emsfb\Calc::with_display($validated_item, $f, isset($form_fields_array[0]) ? $form_fields_array[0] : null);
-										} else {
-											$error_message = $num_efb['m'];
-											$error_field_id = isset($f['id_']) ? $f['id_'] : '';
-											$this->num_code_efb = $num_efb['code'];
-										}
-										$still_processing = false;
-										break;
-									}
-									if (isset($item['value']) && is_numeric($item['value'])) {
-										$item['value'] = sanitize_text_field($item['value']);
-										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$is_valid = 1;
-										$validated_item = $item;
-										/* Min and Max of a number, price or range input are the
-										 * lowest and highest value, as the builder labels them and
-										 * the browser checks them; comparing the digit count
-										 * refused every value of an "Age 18-99" field. A Max of 0
-										 * means no maximum, as in the browser. */
-										$number = (float) $item['value'];
-										if (isset($f['milen']) && is_numeric($f['milen']) && $number < (float) $f['milen']) {
-											$is_valid = 0;
-										} else if (isset($f['mlen']) && is_numeric($f['mlen']) && (float) $f['mlen'] != 0 && $number > (float) $f['mlen']) {
-											$is_valid = 0;
-										}
-									}
-									$still_processing = false;
-									break;
-								case 'calc':
-									// F04: what the browser says a calc field is never kept; the server computes every result
-									// after this loop (Calc::submit_rows()) from the checked answers.
-									$is_valid = 1;
-									$validated_item = null;
-									$still_processing = false;
-									break;
-								case 'hiddenField':
-									// F08: the value was rebuilt by smart_hidden_rows_efb() (server tags) or cleaned
-									// (visitor tags); field tags are resolved after this loop from the checked answers.
-									$item = $this->filter_attributes_by_type_efb($item, 'hiddenField');
-									$is_valid = is_array($item) ? 1 : 0;
-									if (is_array($item)) $item['value'] = \Emsfb\Smart_Tags::clean_value(sanitize_text_field(isset($item['value']) && is_scalar($item['value']) ? (string) $item['value'] : ''));
-									$validated_item = $item;
-									$still_processing = false;
-									break;
-								case 'advdate':
-									// F06: the server is the judge of every rule (today in the field's zone), and
-									// rebuilds cal / local / disp / tz / mode / v from the canonical value.
-									$adv_efb = $this->advdate_check_efb($f, $item);
-									$is_valid = $adv_efb['ok'] ? 1 : 0;
-									$validated_item = $adv_efb['row'];
-									if (!$adv_efb['ok']) {
-										$error_message = $adv_efb['m'];
-										$error_field_id = isset($f['id_']) ? $f['id_'] : '';
-									}
-									$still_processing = false;
-									break;
-								case 'pdate':
-								case 'ardate':
-									// A typed Jalali/Hijri date was stored as any text (free
-									// text, mixed digits), and reached email, SMS and Sheets.
-									$is_valid = 0;
-									if (isset($item['value']) && is_scalar($item['value'])) {
-										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										$raw_date = trim(sanitize_text_field((string) $item['value']));
-										if ($raw_date === '') {
-											$item['value'] = '';
-											$is_valid = 1;
-										} else {
-											$date_value = self::normalize_typed_date_efb($raw_date, $f['type'] === 'pdate' ? 'jalali' : 'hijri');
-											if ($date_value !== null) {
-												$item['value'] = $date_value;
-												$is_valid = 1;
-											} elseif (empty($f['required']) || (string) $f['required'] === '0') {
-												// An optional date nobody can read (an old cached page, a
-												// value filled in by another script) is dropped instead of
-												// refusing the whole submission over it.
-												$item['value'] = '';
-												$is_valid = 1;
-											}
-										}
-									}
-									$validated_item = $item;
-									$still_processing = false;
-									break;
-								default:
-									$is_valid = 0;
-									$t	= strtolower($item['type']);
-									$t = strpos(strtolower($f['type']), 'checkbox');
-									$b = strpos(strtolower($f['type']), 'chlcheckbox');
-									// F05: the "Other" row of a checkbox field (the option rows are checked in case 'option').
-									if (gettype($t) == "integer" && class_exists('\\Emsfb\\Choices') && \Emsfb\Choices::is_other_row($f, $item)) {
-										$oth_efb = \Emsfb\Choices::other_row($f, $item, $this->lanText);
-										$is_valid = $oth_efb['ok'] ? 1 : 0;
-										$validated_item = $oth_efb['row'];
-										if (!$oth_efb['ok']) { $error_message = $oth_efb['m']; $error_field_id = (string) $f['id_']; $this->choices_code_efb = $oth_efb['code']; $still_processing = false; }
-										break;
-									}
-									if (gettype($t) == "integer" || (isset($f['type']) && $f['type'] == 'table_matrix')) {
-										$is_valid = 1;
-										break;
-									}
-									if (isset($item['value'])) {
-										$is_valid = 1;
-										$item['value'] = sanitize_text_field($item['value']);
-										$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-										// Mask gate: replaces the length-only check for masked fields (F01).
-										if (!empty($f['mask_preset']) && is_array($item) && class_exists('\\Emsfb\\Masks')) {
-											$mask_res_efb = \Emsfb\Masks::check_field($f, (string) $item['value']); // normalize -> validate -> stored value
-											if (empty($mask_res_efb['legacy'])) {
-												if (!$mask_res_efb['ok']) {
-													$is_valid = 0;
-													$error_message = \Emsfb\Masks::message($mask_res_efb['code'], $f, $this->lanText);
-													// F03: msg_format, the owner's message for every format code of the mask.
-													if (class_exists('\Emsfb\Field_Rules') && ($fmt_custom_efb = \Emsfb\Field_Rules::custom_msg($f, 'format')) !== null) { $error_message = $fmt_custom_efb; $this->field_rules_code_efb = 'format'; }
-													$error_field_id = isset($f['id_']) ? $f['id_'] : '';
-												} else {
-													$item['value'] = $mask_res_efb['stored'];
-												}
-												$validated_item = $item;
-												$still_processing = false;
-												break;
-											}
-											// Unknown preset (other catalog version) or broken custom mask: the old length rules below.
-										}
-										// End mask gate.
-										// F03 §18.3: a textarea newline arrives as "@n#" and counts as one character, as in the browser.
-										$l = mb_strlen(str_replace(array("\r\n", '@n#'), "\n", (string) $item['value']), 'UTF-8');
-										$min_len = isset($f['milen']) ? (int) $f['milen'] : 0;
-										$max_len = isset($f['mlen']) ? (int) $f['mlen'] : 0;
-
-										// F03: the owner's own length messages (msg_minlen / msg_maxlen) win over the defaults.
-										$len_custom_efb = class_exists('\Emsfb\Field_Rules') ? array(\Emsfb\Field_Rules::custom_msg($f, 'minlen'), \Emsfb\Field_Rules::custom_msg($f, 'maxlen')) : array(null, null);
-										// A field with F03 rules says it in the browser's words (tvMinLen_ / tvMaxLen_).
-										if (class_exists('\Emsfb\Field_Rules') && \Emsfb\Field_Rules::has_rules($f)) {
-											if ($len_custom_efb[0] === null) $len_custom_efb[0] = \Emsfb\Field_Rules::msg($f, 'minlen', 'tvMinLen_', $this->lanText, $min_len);
-											if ($len_custom_efb[1] === null) $len_custom_efb[1] = \Emsfb\Field_Rules::msg($f, 'maxlen', 'tvMaxLen_', $this->lanText, $max_len);
-										}
-										if ($min_len > 0 && $l < $min_len) {
-											if (class_exists('\Emsfb\Field_Rules') && ($len_custom_efb[0] !== null || \Emsfb\Field_Rules::has_rules($f))) $this->field_rules_code_efb = 'minlen';
-											$error_message = $len_custom_efb[0] !== null ? $len_custom_efb[0] : strtr($this->lanText['ptrnMmm_'], [
-												'%1$s' => "<b>" . $f['name'] . "</b>",
-												'%2$s' => "<b>" . $min_len . "</b>",
-											]);
-											$is_valid = 0;
-										} else if ($max_len > 0 && $l > $max_len) {
-											if (class_exists('\Emsfb\Field_Rules') && ($len_custom_efb[1] !== null || \Emsfb\Field_Rules::has_rules($f))) $this->field_rules_code_efb = 'maxlen';
-											$error_message = $len_custom_efb[1] !== null ? $len_custom_efb[1] : strtr($this->lanText['ptrnMmx_'], [
-												'%1$s' => "<b>" . $f['name'] . "</b>",
-												'%2$s' => "<b>" . $max_len . "</b>",
-											]);
-											$is_valid = 0;
-										}
-									}
-									$validated_item = $item;
-									$still_processing = false;
-									break;
-							}
-						}
-					});
-					// Field rules gate (F03): one point after the type branch, for every submit endpoint.
-					if ($is_valid == 1 && is_array($validated_item) && class_exists('\Emsfb\Field_Rules')
-						&& !(isset($_ignored_set) && isset($_ignored_set[$f['id_'] ?? ''])) && \Emsfb\Field_Rules::has_rules($f)) {
-						$rules_res_efb = \Emsfb\Field_Rules::check($f, $validated_item, $request_data, $raw_passwords_efb, $this->lanText, $this->field_rules_ctx_efb($form_fields_array, $submitted_values));
-						if (!$rules_res_efb['ok']) {
-							$is_valid = 0;
-							$error_message = $rules_res_efb['m'];
-							// A visitor testing values (unique refusals over the limit) is not told which field.
-							$error_field_id = empty($rules_res_efb['hide']) ? ($f['id_'] ?? '') : '';
-							$this->field_rules_code_efb = empty($rules_res_efb['hide']) ? (string) $rules_res_efb['code'] : '';
-							$validated_item = null;
-						} else {
-							$validated_item = $rules_res_efb['item'];
-							if (!empty($rules_res_efb['unique'])) $this->unique_pending_efb[] = $rules_res_efb['unique'];
-						}
-					}
-					// End field rules gate.
-					/* This field came through clean, so drop the provisional error
-					 * text recorded while it was being checked. It was only ever a
-					 * placeholder, and keeping it meant a later failure that sets no
-					 * message of its own - an empty submission, most of all - was
-					 * reported against this field instead of the real one. */
-					if ($is_valid == 1) {
-						$error_message  = '';
-						$error_field_id = '';
-					}
-					// A row the type filter rejected comes back as false; it is not
-					// visitor data and every later step expects an array.
-					if (isset($validated_item) && is_array($validated_item)) {
-						$validated_item['type'] = $this->stored_row_type_efb($validated_item, $f, $form_fields_array);
-						$validated_item['name'] = $this->stored_row_name_efb($validated_item, $f, $form_fields_array);
-						array_push($validated_items, $validated_item);
-					};
-				}
+				/* F14-E: the per-field checks of every answer, the same code as before in one method that the
+				 * administrator's edit of an entry reuses (Entries::update): the submit's behaviour is unchanged. */
+				$vr_ctx_efb = array(
+					'email_recipients' => $email_recipients,
+					'sms'              => $sms_notification_enabled,
+					'phone_numbers'    => $phone_numbers,
+					'form_condition'   => $form_condition,
+					'upload_ctx'       => $upload_ctx_efb,
+					'request_data'     => $request_data,
+					'raw_passwords'    => $raw_passwords_efb,
+				);
+				if (isset($_ignored_set)) $vr_ctx_efb['ignored'] = $_ignored_set;
+				$vr_efb = $this->validate_rows_efb($form_fields_array, $submitted_values, $vr_ctx_efb);
+				$is_valid = $vr_efb['is_valid'];
+				$validated_items = $vr_efb['rows'];
+				$error_message = $vr_efb['m'];
+				$error_field_id = $vr_efb['field_id'];
+				$email_recipients = $vr_efb['email_recipients'];
+				$sms_notification_enabled = $vr_efb['sms'];
+				$phone_numbers = $vr_efb['phone_numbers'];
 
 				/*
 				 * Redundant server-side guard (Conditional Logic addon only):
@@ -10203,6 +9419,888 @@ public function check_nonce_permission_efb($request) {
 	private function decode_settings_json_efb( $raw ) {
 		$decoded = \emsfb_json_decode_efb($raw);
 		return is_object( $decoded ) ? $decoded : null;
+	}
+
+	/** F14: rows in the storage format of a submission (efb_encode_rows_for_storage_efb), for an administrator's edit. */
+	public function encode_rows_efb($rows) {
+		return $this->efb_encode_rows_for_storage_efb($rows);
+	}
+
+	/** F14: the submit's "required fields are present" check, for an administrator's edit. */
+	public function required_check_efb($form_fields_array, $rows) {
+		return $this->validate_required_fields_present_efb($form_fields_array, $rows, true);
+	}
+
+	/**
+	 * F14-E: the per-field checks of a submission (moved here unchanged from get_form_public_efb(), which calls it),
+	 * so an administrator's edit of an entry goes through the same rules (Entries::update). For each field of the
+	 * form, the answer rows of that field: the type branch (sanitizing, the saved option's text and price, numbers,
+	 * dates, files, signatures, maps …), filter_attributes_by_type_efb(), then the F03 field rules gate.
+	 *
+	 * $ctx: email_recipients, sms, phone_numbers (the notification lists the e-mail / mobile branches add to),
+	 * form_condition ('booking'), upload_ctx (F07 ownership), request_data, raw_passwords, ignored (fields hidden by
+	 * Conditional Logic), admin_edit (an administrator's edit: see the guards below).
+	 *
+	 * @return array is_valid (0|1), ok, rows (validated, in form order), m, field_id, email_recipients, sms, phone_numbers.
+	 */
+	public function validate_rows_efb(array $form_fields_array, array $submitted_values, array $ctx = array()) {
+		$is_valid = 1;
+		$error_message = '';
+		$error_field_id = '';
+		$validated_items = array();
+		$validated_item = null;
+		$email_recipients = isset($ctx['email_recipients']) && is_array($ctx['email_recipients']) ? $ctx['email_recipients'] : array();
+		$sms_notification_enabled = isset($ctx['sms']) ? $ctx['sms'] : 0;
+		$phone_numbers = isset($ctx['phone_numbers']) && is_array($ctx['phone_numbers']) ? $ctx['phone_numbers'] : array(array(), array());
+		$form_condition = isset($ctx['form_condition']) ? $ctx['form_condition'] : '';
+		$upload_ctx_efb = isset($ctx['upload_ctx']) && is_array($ctx['upload_ctx']) ? $ctx['upload_ctx'] : array('form_id' => (int) $this->id, 'buckets' => array(), 'exclude_track' => '');
+		$request_data = isset($ctx['request_data']) && is_array($ctx['request_data']) ? $ctx['request_data'] : array();
+		$raw_passwords_efb = isset($ctx['raw_passwords']) && is_array($ctx['raw_passwords']) ? $ctx['raw_passwords'] : array();
+		if (isset($ctx['ignored']) && is_array($ctx['ignored'])) $_ignored_set = $ctx['ignored'];
+		$this->validate_admin_edit_efb = !empty($ctx['admin_edit']);
+		foreach ($form_fields_array as $key => $f) {
+			$validated_item = null;
+			$still_processing = true;
+			if ($key < 2 && !isset($f['id_'])){ continue;}
+			if ($is_valid == 0) {break;}
+			/* F07: an upload field answers with one row per file. Its rows are checked
+			 * together (ownership, count, minimum, total); a field Conditional Logic hid
+			 * is not checked (its rows are dropped below). */
+			if (isset($f['type']) && in_array($f['type'], array('file', 'dadfile', 'audio_recorder', 'video_recorder', 'screen_recorder'), true)) {
+				if (isset($_ignored_set) && isset($f['id_']) && isset($_ignored_set[$f['id_']])) continue;
+				$up_efb = $this->validate_upload_field_efb($f, $submitted_values, $upload_ctx_efb);
+				if (!$up_efb['ok']) {
+					$is_valid = 0;
+					$error_message = $up_efb['m'];
+					$error_field_id = $up_efb['field_id'];
+					$this->upload_code_efb = $up_efb['code'];
+					break;
+				}
+				foreach ($up_efb['items'] as $up_item_efb) {
+					$up_item_efb['type'] = $this->stored_row_type_efb($up_item_efb, $f, $form_fields_array);
+					$up_item_efb['name'] = $this->stored_row_name_efb($up_item_efb, $f, $form_fields_array);
+					array_push($validated_items, $up_item_efb);
+				}
+				$this->upload_files_efb = array_merge($this->upload_files_efb, $up_efb['files']);
+				$error_message = '';
+				$error_field_id = '';
+				continue;
+			}
+			$it = array_filter($submitted_values, function ($item) use ($f, $key, &$is_valid, &$email_recipients, &$validated_item, &$form_fields_array, &$still_processing, &$error_message, &$error_field_id, $form_condition, &$sms_notification_enabled, &$phone_numbers) {
+				if ($still_processing == false) {
+					return;
+				}
+				$item = $this->normalize_submitted_row_efb($item, isset($f['type']) ? $f['type'] : '');
+				$item_value_len = is_array($item['value'] ?? null) ? count($item['value']) : strlen((string) ($item['value'] ?? ''));
+				// F14: an administrator may fill a field the form shows disabled (spec §8.4-3).
+				if (!$this->validate_admin_edit_efb && ((isset($f['disabled']) == true &&  $f['disabled'] == 1  && isset($f['hidden']) == false)
+						|| (isset($f['disabled']) == true && $f['disabled'] == 1 && isset($f['hidden']) == true && $f['hidden'] == false))
+					&& ($item['id_'] == $f['id_'] || $f['id_'] == $item['id_'])
+					&& $item_value_len > 1
+				) {
+					$is_valid = 0;
+					$still_processing == false;
+					// Name the field, so the visitor is not shown an empty error.
+					if (isset($f['name']) && isset($this->lanText['mnvvXXX_'])) {
+						$error_message = str_replace('%s', "<b>" . esc_html($f['name']) . "</b>", $this->lanText['mnvvXXX_']);
+						$error_field_id = isset($f['id_']) ? $f['id_'] : '';
+					}
+					return;
+				}
+				$t = strpos(strtolower($item['type']), 'checkbox');
+				if (
+					isset($f['id_']) && isset($item['id_']) && ($f['id_'] == $item['id_']
+						||  gettype($t) == "integer" && isset($item['id_ob']) && $f['id_'] == $item['id_ob'])
+					|| (($f['type'] == "persiaPay" || $f['type'] == "persiapay" || $f['type'] == "payment") && $form_fields_array[0]['type'] == 'payment')
+					|| ($item['type'] == 'r_matrix' && isset($item['id_ob']) && $f['id_'] == $item['id_ob'])
+				) {
+					if (isset($f['name'])) {
+						$error_message = $this->lanText['mnvvXXX_'];
+						$error_message = str_replace('%s', "<b>" . $f['name'] . "</b>", $error_message);
+						$error_field_id = isset($f['id_']) ? $f['id_'] : '';
+					}
+					// PAY00: a framework gateway field. Its only row is the donation amount the
+					// visitor chose; the amount itself is checked by Pricing on payments/create.
+					if (isset($f['type']) && is_string($f['type']) && class_exists('\\Emsfb\\Payments\\Registry') && \Emsfb\Payments\Registry::is_field_type($f['type'])) {
+						$item = $this->filter_attributes_by_type_efb($item, $f['type']);
+						$validated_item = is_array($item) ? \Emsfb\Payments\Field::submitted_row($item, $f) : null;
+						$is_valid = ($validated_item !== null || !is_array($item) || !isset($item['value']) || (string) $item['value'] === '') ? 1 : 0;
+						$still_processing = false;
+						return;
+					}
+					switch ($f['type']) {
+						case 'repeater':
+							// F09: the group's own row: its number of rows, already checked and set by Repeater::expand().
+							$item = $this->filter_attributes_by_type_efb($item, 'repeater');
+							$item['value'] = (string) absint(is_scalar($item['value'] ?? '') ? $item['value'] : 0);
+							$validated_item = $item;
+							$is_valid = 1;
+							$still_processing = false;
+							break;
+						case 'email':
+							$is_valid = 0;
+							if (isset($item['value'])) {
+								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+								$item['value'] = sanitize_email(self::normalize_email_input_efb($item['value']));
+								$is_valid = 1;
+								$validated_item = $item;
+								$l = strlen($item['value']);
+								if (!filter_var($item['value'], FILTER_VALIDATE_EMAIL)) {
+									$error_message = str_replace('%s', $f['name'], $error_message);
+									$is_valid = 0;
+								}
+
+								$e_ar = isset($form_fields_array[0]['email_send_type']) ? $form_fields_array[0]['email_send_type'] : false;
+								// F03 §18.1: mlen "0" or "" (the builder's empty Max) means no limit, as the renderers read it.
+								if ((isset($f['milen']) && (int) $f['milen'] > $l) || (isset($f['mlen']) && (int) $f['mlen'] > 0 && (int) $f['mlen'] < $l)) {
+									$is_valid = 0;
+								}
+								if (isset($f['noti']) == true && intval($f['noti']) == 1)  $this->email_list_efb($email_recipients, 1, $item['value'], $e_ar);
+
+							}
+							$still_processing = false;
+							break;
+						case "date":
+							$is_valid = 0;
+							if (isset($item['value'])) {
+								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+								$item['value'] = sanitize_text_field($item['value']);
+								$v = explode("-", $item['value']);
+								if (count($v) == 3 && checkdate($v[1], $v[2], $v[0])) {
+									$is_valid = 1;
+									$validated_item = $item;
+									$current_date = date('Y-m-d');
+									if (isset($f['milen']) && $f['milen'] != '') {
+										$f['milen'] = intval($f['milen']) == 1 ? $current_date : $f['milen'];
+										if ($f['milen'] != '' && (strtotime($f['milen']) > strtotime($item['value']) || strtotime($f['milen']) > strtotime($item['value']))) {
+											$is_valid = 0;
+										}
+									}
+									if (isset($f['mlen']) && $f['mlen'] != '') {
+										$f['mlen'] = intval($f['mlen']) == 1 ? $current_date : $f['mlen'];
+										if ($f['mlen'] != '' && (strtotime($f['mlen']) < strtotime($item['value']) || strtotime($f['mlen']) < strtotime($item['value']))) {
+											$is_valid = 0;
+										}
+									}
+								} else {
+									$validated_item = "";
+									$is_valid = 0;
+								}
+							}
+							$still_processing = false;
+							break;
+						case 'url':
+							$is_valid = 0;
+							if (isset($item['value'])) {
+								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+								$raw_url = is_string($item['value']) ? trim($item['value']) : '';
+								$item['value'] = sanitize_url($raw_url);
+								$is_valid = 1;
+								/* The browser accepts only http(s) addresses with a dotted
+								 * host; sanitize_url() turns plain text into
+								 * "http://not%20a%20url", which used to be stored. */
+								if ($raw_url !== '') {
+									$url_host = wp_parse_url($item['value'], PHP_URL_HOST);
+									if (!preg_match('#^https?://#i', $raw_url) || !is_string($url_host) || strpos($url_host, '.') === false) {
+										$is_valid = 0;
+									}
+								}
+								$l = strlen($item['value']);
+								// F03 §18.1: mlen "0" or "" (the builder's empty Max) means no limit, as the renderers read it.
+								if ((isset($f['milen']) && (int) $f['milen'] > $l) || (isset($f['mlen']) && (int) $f['mlen'] > 0 && (int) $f['mlen'] < $l)) {
+									$is_valid = 0;
+								}
+							}
+
+							$validated_item = $item;
+							$still_processing = false;
+							break;
+						case 'mobile':
+							$is_valid = 0;
+							if (isset($item['value'])) {
+								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+								$item['value'] = sanitize_text_field($item['value']);
+								$is_valid = 0;
+								// Persian/Arabic digits and direction marks (pages cached before the
+								// browser started converting them) would reach the SMS gateway as is.
+								$item['value'] = preg_replace('/\s+/', '', self::normalize_phone_input_efb($item['value']));
+								if (isset($f['smsnoti']) && intval($f['smsnoti']) == 1) {
+									$sms_notification_enabled = 1;
+									array_push($phone_numbers[1], $item['value']);
+								}
+								$l = isset($f['c_n']) && count($f['c_n']) >= 1 ? $f['c_n'] : ['all'];
+								array_filter($l, function ($no) use ($item, &$is_valid) {
+									$pos = strrpos($item['value'], '+');
+									if ($pos !== false) {
+										$item['value'] = substr($item['value'], $pos);
+									}
+
+									$v = strpos($item['value'], '+' . $no);
+									if (strpos($item['value'], '+' . $no) === 0 || $no == 'all') $is_valid = 1;
+								});
+							}
+							$validated_item = $item;
+							$still_processing = false;
+							break;
+						case 'radio':
+						case 'payRadio':
+						case 'chlRadio':
+						case 'imgRadio':
+							$is_valid = 0;
+							// F05: the "Other" choice ({field}_oth): plain text, length-limited, never priced; refused when the field has none.
+							if (class_exists('\\Emsfb\\Choices') && \Emsfb\Choices::is_other_row($f, $item)) {
+								$oth_efb = \Emsfb\Choices::other_row($f, $item, $this->lanText);
+								$is_valid = $oth_efb['ok'] ? 1 : 0;
+								$validated_item = $oth_efb['row'];
+								if (!$oth_efb['ok']) { $error_message = $oth_efb['m']; $error_field_id = (string) $f['id_']; $this->choices_code_efb = $oth_efb['code']; }
+								$still_processing = false;
+								break;
+							}
+							if (isset($item['value'])) {
+								/* The saved field decides the row's kind. The price and
+								 * image lookups below key on it, and so does the attribute
+								 * allow-list, so a browser-supplied type must not steer
+								 * either. */
+								$item['type'] = $f['type'];
+								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+								$item['value'] = sanitize_text_field($item['value']);
+								$radio_parent_efb = (string) $f['id_'];
+								array_filter($form_fields_array, function ($fr, $ki) use (&$item, &$validated_item, &$is_valid, &$form_fields_array, $form_condition, &$error_message, $radio_parent_efb) {
+									// F05: the chosen option must be one of this field's own options (an option id of another field was accepted).
+									if (isset($fr['id_']) && isset($item['id_ob']) && $fr['id_'] == $item['id_ob'] && (string) ($fr['parent'] ?? '') === $radio_parent_efb) {
+										$item['value'] = $fr['value'];
+										$is_valid = 1;
+										/* strpos() finds "pay" at offset 0 of "payRadio", and
+										 * 0 != false is false - so the saved price was never
+										 * applied and the browser's price (admitted by the
+										 * payRadio allow-list) was stored instead. */
+										if (strpos($item['type'], 'pay') !== false) {
+											if (isset($fr['price'])) { $item['price'] = $fr['price']; } else { unset($item['price']); }
+										}
+										$t = strpos($item['type'], 'img');
+										if (isset($fr['src'])) {
+											$item['src'] = $fr['src'];
+											$item['sub_value'] = $fr['sub_value'];
+										}
+										if ($form_condition == 'booking') {
+											if (isset($fr['dateExp']) == true) {
+												if (strtotime($fr['dateExp']) < strtotime(wp_date('Y-m-d'))) {
+													$is_valid = 0;
+													$error_message = $this->lanText['bkXpM_'];
+													$error_message = str_replace('%s', $fr['value'], $error_message);
+												}
+											}
+											// F05: the capacity (mlen) is taken atomically in insert_message_db() (\Emsfb\Stock), not counted here.
+										}
+										$validated_item = $item;
+										return;
+									}
+								}, ARRAY_FILTER_USE_BOTH);
+							}
+							$still_processing = false;
+							break;
+						case 'switch':
+							$is_valid = 0;
+							if (isset($item['value'])) {
+								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+								$item['value'] = sanitize_text_field($item['value']);
+								array_filter($form_fields_array, function ($fr) use ($item, &$validated_item, &$is_valid) {
+									if (isset($fr['id_']) && isset($item['id_']) && $fr['id_'] == $item['id_']) {
+										$item['value'] = $item['value'] == '1' ?   $fr['on'] : $fr['off'];
+										$validated_item = $item;
+										$is_valid = 1;
+										return;
+									}
+								});
+							}
+							$still_processing = false;
+							break;
+						case 'option':
+							$is_valid = 0;
+							if (isset($item['value'])) {
+								/* An option row belongs to the checkbox-family field named
+								 * by its id_. Store it under that field's saved type: the
+								 * viewer groups on it, the email prices on it, and a
+								 * browser that names some other type must not pick the
+								 * render branch. A row whose parent is not a checkbox
+								 * field is not an option answer at all. */
+								$option_parent_type = $this->parent_field_type_efb($item['id_'] ?? null, $form_fields_array);
+								if ($option_parent_type === '' || strpos(strtolower($option_parent_type), 'checkbox') === false) {
+									$validated_item = null;
+									$still_processing = false;
+									break;
+								}
+								$item['type'] = $option_parent_type;
+								$item['value'] = sanitize_text_field($item['value']);
+								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+								/* The 'option' allow-list admits price and qty for the
+								 * priced and free-text checkbox kinds. On any other parent a
+								 * browser-supplied price is not overwritten below and would
+								 * be summed into the viewer's "total paid"; qty is only ever
+								 * typed into a chlCheckBox's companion input. */
+								if (is_array($item)) {
+									if (stripos($option_parent_type, 'pay') === false) unset($item['price']);
+									if (stripos($option_parent_type, 'chl') === false) unset($item['qty']);
+								}
+								/* F05: the option must belong to the field the row names
+								 * (an option id of another field was stored under this one). */
+								if (((isset($f['id_']) && isset($item['id_ob']) && $f['id_'] == $item['id_ob'])
+									|| (isset($f['id_']) && isset($item['id_']) && $f['type'] == "chlCheckBox"  && $f['id_'] == $item['id_ob']))
+									&& (!isset($f['parent']) || (string) $f['parent'] === (string) ($item['id_'] ?? ''))
+								) {
+									/* The saved option's own text, as for radio: the browser's
+									 * label is only a claim, and any text sent with a real
+									 * option id used to be stored as the answer. */
+									$item['value'] = isset($f['value']) && is_string($f['value']) ? $f['value'] : $this->sanitize_value_efb($item['value'],'option');
+									$validated_item = $item;
+									$is_valid = 1;
+									$t = strpos($item['type'], 'pay');
+									if (gettype($t) != 'boolean') {
+										$item['price'] = $f['price'];
+									}
+									if ($form_condition == 'booking') {
+										if (isset($f['dateExp']) == true) {
+											if (strtotime($f['dateExp']) < strtotime(wp_date('Y-m-d'))) {
+												$is_valid = 0;
+												$error_message = $this->lanText['bkXpM_'];
+												$error_message = str_replace('%s', $f['value'], $error_message);
+											}
+										}
+										// F05: the capacity (mlen) is taken atomically in insert_message_db() (\Emsfb\Stock).
+									}
+								}
+							}
+							$still_processing = false;
+							break;
+						case 'r_matrix':
+							$is_valid = 0;
+							$item['value'] = sanitize_text_field($item['value']);
+							$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+							/* A loose comparison let "3 anything" through as a score. */
+							if (!is_array($item) || !is_string($item['value'] ?? null) || preg_match('/^[1-5]$/', trim($item['value'])) !== 1) {
+								$m =  $this->lanText['somethingWentWrongPleaseRefresh'] . '<br>' . esc_html__('Error Code', 'easy-form-builder') . ': 600';
+								$response = array('success' => false, 'm' => $m);
+								wp_send_json_success($response, 200);
+							}
+							$is_valid = 1;
+							$item['name'] = $f['value'];
+							$item['label'] = "";
+							foreach ($form_fields_array as $k => $v) {
+								if ($v['type'] == 'table_matrix' && $v['id_'] == $item['id_']) {
+									$item['label'] = $v['name'];
+									break;
+								}
+							}
+							$validated_item = $item;
+							$still_processing = false;
+							break;
+						case 'pointr5':
+							$is_valid = 0;
+							if (isset($item['value']) && is_numeric($item['value'])) {
+								$item['value'] = intval(sanitize_text_field($item['value']));
+								$item = $this->filter_attributes_by_type_efb($item, $f['type']);
+
+								if ($item['value'] >= 1 && $item['value'] <= 5) {
+									$is_valid = 1;
+									$validated_item = $item;
+								}
+							}
+							$still_processing = false;
+							break;
+						case 'pointr10':
+							$is_valid = 0;
+							if (isset($item['value']) && is_numeric($item['value'])) {
+								$item['value'] = intval(sanitize_text_field($item['value']));
+								$item = $this->filter_attributes_by_type_efb($item, $f['type']);
+
+								if ($item['value'] >= 0 && $item['value'] <= 10) {
+									$is_valid = 1;
+									$validated_item = $item;
+								}
+							}
+							$still_processing = false;
+							break;
+						case 'rating':
+							$is_valid = 0;
+							if (isset($item['value']) && is_numeric($item['value'])) {
+								$item['value'] = intval(sanitize_text_field($item['value']));
+								$item = $this->filter_attributes_by_type_efb($item, $f['type']);
+
+								if ($item['value'] >= 1 && $item['value'] <= 5) {
+									$is_valid = 1;
+									$validated_item = $item;
+								}
+							}
+							$still_processing = false;
+							break;
+						case 'multiselect':
+							$is_valid = 0;
+							if (isset($item['value'])) {
+								$item['value'] = sanitize_text_field($item['value']);
+								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+								$validated_item = null;
+								$rs = explode("@efb!", $item['value']);
+								array_filter($form_fields_array, function ($fr) use ($item, &$validated_item, $rs) {
+									// "&amp;" in a template option vs the "&" the browser sends
+									foreach ($rs as $k => $v) {
+										if (isset($item['type'])  && $fr['type'] == "option" && isset($fr['value']) && isset($v) && $this->same_option_text_efb($fr['value'], $v) &&  $fr['parent'] == $item['id_']) {
+											$validated_item == null ? $validated_item = $v . '@efb!' : $validated_item = $validated_item . $v . '@efb!';
+										}
+									}
+								});
+								if ($validated_item != null) $is_valid = 1;
+								$item['value'] = $validated_item;
+								$validated_item = $item;
+								// F05: minSelect / maxSelect on the server too (only the minimum was checked, in the page).
+								if ($is_valid == 1 && class_exists('\\Emsfb\\Choices')) {
+									$ms_lim_efb = \Emsfb\Choices::limit_check($f, count(array_filter(explode('@efb!', (string) $item['value']), 'strlen')), $this->lanText);
+									if ($ms_lim_efb) { $is_valid = 0; $error_message = $ms_lim_efb['m']; $error_field_id = $ms_lim_efb['field_id']; $this->choices_code_efb = $ms_lim_efb['code']; $validated_item = null; }
+								}
+							}
+							$still_processing = false;
+							break;
+						case 'select':
+						case 'paySelect':
+							$is_valid = 0;
+							if (isset($item['value'])) {
+								$item['value'] = sanitize_text_field($item['value']);
+								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+								array_filter($form_fields_array, function ($fr, $ki) use ($item, &$validated_item, &$is_valid, &$form_fields_array, $form_condition, &$error_message) {
+									if (isset($item['type'])  && $fr['type'] == "option" && isset($fr['value']) && isset($item['value']) && $this->same_option_text_efb($fr['value'], $item['value']) &&  $fr['parent'] == $item['id_']) {
+										$is_valid = 1;
+										$item['value'] = $fr['value'];
+										$validated_item = $item;
+										$still_processing = false;
+										if ($form_condition == 'booking') {
+											if (isset($fr['dateExp']) == true) {
+												if (strtotime($fr['dateExp']) < strtotime(wp_date('Y-m-d'))) {
+													$is_valid = 0;
+													$error_message = $this->lanText['bkXpM_'];
+													$error_message = str_replace('%s', $fr['value'], $error_message);
+												}
+											}
+											// F05: the capacity (mlen) is taken atomically in insert_message_db() (\Emsfb\Stock).
+										}
+										return;
+									}
+								}, ARRAY_FILTER_USE_BOTH);
+							}
+							$still_processing = false;
+							break;
+						case 'ranking':
+							// F05-G: an order of the saved choices (all, or the first rank_top), no repeats; value and ov rebuilt here.
+							$is_valid = 0;
+							if (class_exists('\\Emsfb\\Choices')) {
+								$item = $this->filter_attributes_by_type_efb($item, 'ranking');
+								$rk_efb = is_array($item) ? \Emsfb\Choices::ranking_row($f, $item, $form_fields_array, $this->lanText) : array('ok' => false, 'row' => null, 'm' => '', 'code' => 'efb_choice_ranking');
+								$is_valid = $rk_efb['ok'] ? 1 : 0;
+								$validated_item = $rk_efb['row'];
+								if (!$rk_efb['ok']) { $error_message = $rk_efb['m']; $error_field_id = (string) $f['id_']; $this->choices_code_efb = $rk_efb['code']; }
+							}
+							$still_processing = false;
+							break;
+						case 'stateProvince':
+						case 'statePro':
+						case 'conturyList':
+						case 'country':
+						case 'city':
+						case 'cityList':
+							$is_valid = 0;
+							if (isset($item['value'])) {
+								$is_valid = 1;
+								$item['value']= sanitize_text_field($item['value']);
+								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+								$validated_item = $item;
+							}
+							$still_processing = false;
+							break;
+						case 'sample':
+							/* Was stored verbatim — no sanitising, no attribute
+							 * filtering, and the browser-supplied type kept — so a
+							 * submission to a sample field persisted raw. Put it through
+							 * the same allow-list every other field uses and pin the type
+							 * to the saved field, so nothing untrusted survives here. */
+							if (isset($item['value']) && is_string($item['value'])) {
+								$item['value'] = sanitize_text_field($item['value']);
+							}
+							$item = $this->filter_attributes_by_type_efb($item, $f['type']);
+							if (is_array($item)) { $item['type'] = $f['type']; }
+							$validated_item = $item;
+							$still_processing = false;
+							break;
+						case 'persiaPay':
+						case 'persiapay':
+						case 'payment':
+							if ($form_fields_array[0]['type'] == 'payment') {
+								$item['amount'] = sanitize_text_field($item['amount'] ?? '');
+								$item['id_'] = sanitize_text_field($item['id_'] ?? '');
+								$item['name'] = sanitize_text_field($item['name'] ?? '');
+								if (isset($item['value']) && is_string($item['value'])) {
+									$item['value'] = sanitize_text_field($item['value']);
+								}
+								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+
+								$validated_item = $item;
+								$still_processing = false;
+								$is_valid = 1;
+							} else {
+								$is_valid = 0;
+							}
+							break;
+						case 'file':
+						case 'dadfile':
+						case 'audio_recorder':
+						case 'video_recorder':
+						case 'screen_recorder':
+							$d = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) :'';
+							$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+							/* The server determines the kind from the saved form. Do not
+							 * retain a browser-supplied MIME/type in the response row. */
+							$item['type'] = $f['type'];
+							if (isset($item['url']) && strlen($item['url']) > 5) {
+								$is_valid = 0;
+								$ar = ['http://wwww.' . $d, 'https://wwww.' . $d, 'http://' . $d, 'https://' . $d];
+								$s = 0;
+								foreach ($ar as  $r) {
+									$c = strpos($item['url'], $r);
+									if (gettype($c) != 'boolean' && $c == 0) {
+										$s = 1;
+									}
+								}
+							$upload_validation = $s == 1 ? $this->validate_submitted_upload_url_efb($item['url'], $f) : false;
+							if ($upload_validation === true) {
+									$item['url'] = sanitize_url($item['url']);
+									/* The client always sends the "@file@" marker here and
+									 * every reader (viewer, email, CSV) recognises an upload
+									 * by it. It was the one attribute of this row stored
+									 * verbatim, so pin it rather than carry a free string. */
+									$item['value'] = '@file@';
+									$validated_item = $item;
+									$is_valid = 1;
+								} else {
+									$item = null;
+									$validated_item = null;
+									$is_valid = 0;
+									/* Name the field holding the rejected file. The
+									 * attribution recorded before this switch belongs to
+									 * whichever field matched last, so leaving it in place
+									 * reported the problem against a neighbouring field. */
+									$error_field_id = isset($f['id_']) ? $f['id_'] : '';
+									$error_message = is_string($upload_validation) && $upload_validation !== ''
+										? $upload_validation
+										: \Emsfb\Upload_Guard::type_message();
+								}
+							} else {
+								/* The row names this upload field and carries something other
+								 * than the seeded default, but no usable URL - the upload never
+								 * completed. Leaving $is_valid untouched here let it inherit the
+								 * previous field's success, so the file was dropped without
+								 * a word and whichever field failed next took the blame.
+								 * Untouched placeholders never reach this branch: they are
+								 * removed by strip_untouched_upload_rows_efb() up front. */
+								$item = null;
+								$validated_item = null;
+								$is_valid = 0;
+								$error_field_id = isset($f['id_']) ? $f['id_'] : '';
+								$error_message = isset($this->lanText['mnvvXXX_']) && isset($f['name'])
+									? str_replace('%s', '<b>' . $f['name'] . '</b>', $this->lanText['mnvvXXX_'])
+									: \Emsfb\Upload_Guard::type_message();
+							}
+							$still_processing = false;
+							break;
+						case 'esign':
+							$is_valid = 0;
+							/* A signature is a canvas-exported PNG data URL and nothing
+							 * else. The prefix check on its own let a value like
+							 * "data:image/png;base64,<img onerror=...>" through, because
+							 * the tail was never decoded or validated.
+							 * canonical_esign_value_efb() decodes the tail, confirms the
+							 * bytes are a real PNG image and hands back a re-encoded
+							 * data URL, so only bytes the server produced are stored. */
+							$esign_value = isset($item['value']) ? $this->canonical_esign_value_efb($item['value']) : '';
+							if ($esign_value !== '') {
+								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+								if (is_array($item)) {
+									$item['value'] = $esign_value;
+									/* The kind of a stored row is decided by the saved field,
+									 * never by the browser. Mirrors the upload branch and
+									 * closes the esign->r_matrix render type-confusion: the
+									 * admin viewer dispatches on this type. */
+									$item['type'] = $f['type'];
+									$validated_item = $item;
+									$is_valid = 1;
+								}
+							}
+							$still_processing = false;
+							break;
+						case 'maps':
+							/* filter_attributes_by_type_efb skips the 'value' key for
+							 * every type, so a marker's address rode into storage
+							 * completely raw — only lat/lng were ever validated.
+							 * Sanitize it here, the same way every other free-text
+							 * value in this switch is hardened. Also build
+							 * $validated_item from the filtered $item (as the other
+							 * cases do) instead of the pre-filter copy, so the
+							 * sanitized address actually reaches storage. */
+							$is_valid = 1;
+							$c = 0;
+							$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+							$markers = array();
+							foreach ((is_array($item['value'] ?? null) ? $item['value'] : array()) as $value) {
+								$c += 1;
+								if (!is_array($value) || !isset($value['lat'], $value['lng']) || !is_scalar($value['lat']) || !is_scalar($value['lng'])
+									|| is_numeric($value['lat']) == false || is_numeric($value['lng']) == false) {
+									$is_valid = 0;
+									continue;
+								}
+								/* A marker is exactly lat, lng and address; anything else
+								 * the browser attached is dropped rather than stored. */
+								$markers[] = array(
+									'lat'     => $value['lat'],
+									'lng'     => $value['lng'],
+									'address' => isset($value['address']) && is_scalar($value['address']) ? sanitize_text_field((string) $value['address']) : '',
+								);
+							}
+							$item['value'] = $markers;
+							$validated_item = $is_valid ? $item : null;
+							if ($c != $f['mark']) {
+								$is_valid = 0;
+								$validated_item = null;
+								$error_message = $this->lanText['mnvvXXX_'];
+								$error_message = str_replace('%s', "<b>" . $f['name'] . "</b>", $error_message);
+							}
+							$still_processing = false;
+							break;
+						case 'color':
+							$is_valid = 0;
+							$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+							/* The value lands in a style attribute (viewer and email), so
+							 * it has to be exactly the #rrggbb an <input type="color">
+							 * produces. "starts with # and is 7 long" still let six
+							 * arbitrary characters through, and measured them before
+							 * checking the value was a string at all. */
+							if (isset($item['value']) && is_string($item['value']) && preg_match('/^#[0-9a-fA-F]{6}$/', $item['value']) === 1) {
+								$item['value'] = strtolower($item['value']);
+								$is_valid = 1;
+								$validated_item = $item;
+							}
+							$still_processing = false;
+							break;
+						case 'range':
+						case 'number':
+						case 'prcfld':
+							$is_valid = 0;
+							/* F04: a number or slider is read with local digits and separators, and a field with the
+							 * F04 keys is checked for decimals, step and its limits as decimals (Calc::check_row());
+							 * an old field keeps today's rule and today's stored text. */
+							if ($f['type'] !== 'prcfld' && class_exists('\\Emsfb\\Calc')) {
+								$num_efb = \Emsfb\Calc::check_row($f, is_array($item) ? $item : array(), $this->lanText, isset($form_fields_array[0]) ? $form_fields_array[0] : null);
+								if ($num_efb['ok']) {
+									$num_efb['row']['value'] = sanitize_text_field((string) $num_efb['row']['value']);
+									$validated_item = $this->filter_attributes_by_type_efb($num_efb['row'], $f['type']);
+									$is_valid = is_array($validated_item) ? 1 : 0;
+									// The display of an F04 number (e-mail, viewer): the server's own, never the browser's.
+									if (is_array($validated_item)) $validated_item = \Emsfb\Calc::with_display($validated_item, $f, isset($form_fields_array[0]) ? $form_fields_array[0] : null);
+								} else {
+									$error_message = $num_efb['m'];
+									$error_field_id = isset($f['id_']) ? $f['id_'] : '';
+									$this->num_code_efb = $num_efb['code'];
+								}
+								$still_processing = false;
+								break;
+							}
+							if (isset($item['value']) && is_numeric($item['value'])) {
+								$item['value'] = sanitize_text_field($item['value']);
+								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+								$is_valid = 1;
+								$validated_item = $item;
+								/* Min and Max of a number, price or range input are the
+								 * lowest and highest value, as the builder labels them and
+								 * the browser checks them; comparing the digit count
+								 * refused every value of an "Age 18-99" field. A Max of 0
+								 * means no maximum, as in the browser. */
+								$number = (float) $item['value'];
+								if (isset($f['milen']) && is_numeric($f['milen']) && $number < (float) $f['milen']) {
+									$is_valid = 0;
+								} else if (isset($f['mlen']) && is_numeric($f['mlen']) && (float) $f['mlen'] != 0 && $number > (float) $f['mlen']) {
+									$is_valid = 0;
+								}
+							}
+							$still_processing = false;
+							break;
+						case 'calc':
+							// F04: what the browser says a calc field is never kept; the server computes every result
+							// after this loop (Calc::submit_rows()) from the checked answers.
+							$is_valid = 1;
+							$validated_item = null;
+							$still_processing = false;
+							break;
+						case 'hiddenField':
+							// F08: the value was rebuilt by smart_hidden_rows_efb() (server tags) or cleaned
+							// (visitor tags); field tags are resolved after this loop from the checked answers.
+							$item = $this->filter_attributes_by_type_efb($item, 'hiddenField');
+							$is_valid = is_array($item) ? 1 : 0;
+							if (is_array($item)) $item['value'] = \Emsfb\Smart_Tags::clean_value(sanitize_text_field(isset($item['value']) && is_scalar($item['value']) ? (string) $item['value'] : ''));
+							$validated_item = $item;
+							$still_processing = false;
+							break;
+						case 'advdate':
+							// F06: the server is the judge of every rule (today in the field's zone), and
+							// rebuilds cal / local / disp / tz / mode / v from the canonical value.
+							$adv_efb = $this->advdate_check_efb($f, $item);
+							$is_valid = $adv_efb['ok'] ? 1 : 0;
+							$validated_item = $adv_efb['row'];
+							if (!$adv_efb['ok']) {
+								$error_message = $adv_efb['m'];
+								$error_field_id = isset($f['id_']) ? $f['id_'] : '';
+							}
+							$still_processing = false;
+							break;
+						case 'pdate':
+						case 'ardate':
+							// A typed Jalali/Hijri date was stored as any text (free
+							// text, mixed digits), and reached email, SMS and Sheets.
+							$is_valid = 0;
+							if (isset($item['value']) && is_scalar($item['value'])) {
+								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+								$raw_date = trim(sanitize_text_field((string) $item['value']));
+								if ($raw_date === '') {
+									$item['value'] = '';
+									$is_valid = 1;
+								} else {
+									$date_value = self::normalize_typed_date_efb($raw_date, $f['type'] === 'pdate' ? 'jalali' : 'hijri');
+									if ($date_value !== null) {
+										$item['value'] = $date_value;
+										$is_valid = 1;
+									} elseif (empty($f['required']) || (string) $f['required'] === '0') {
+										// An optional date nobody can read (an old cached page, a
+										// value filled in by another script) is dropped instead of
+										// refusing the whole submission over it.
+										$item['value'] = '';
+										$is_valid = 1;
+									}
+								}
+							}
+							$validated_item = $item;
+							$still_processing = false;
+							break;
+						default:
+							$is_valid = 0;
+							$t	= strtolower($item['type']);
+							$t = strpos(strtolower($f['type']), 'checkbox');
+							$b = strpos(strtolower($f['type']), 'chlcheckbox');
+							// F05: the "Other" row of a checkbox field (the option rows are checked in case 'option').
+							if (gettype($t) == "integer" && class_exists('\\Emsfb\\Choices') && \Emsfb\Choices::is_other_row($f, $item)) {
+								$oth_efb = \Emsfb\Choices::other_row($f, $item, $this->lanText);
+								$is_valid = $oth_efb['ok'] ? 1 : 0;
+								$validated_item = $oth_efb['row'];
+								if (!$oth_efb['ok']) { $error_message = $oth_efb['m']; $error_field_id = (string) $f['id_']; $this->choices_code_efb = $oth_efb['code']; $still_processing = false; }
+								break;
+							}
+							if (gettype($t) == "integer" || (isset($f['type']) && $f['type'] == 'table_matrix')) {
+								$is_valid = 1;
+								break;
+							}
+							if (isset($item['value'])) {
+								$is_valid = 1;
+								$item['value'] = sanitize_text_field($item['value']);
+								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
+								// Mask gate: replaces the length-only check for masked fields (F01).
+								if (!empty($f['mask_preset']) && is_array($item) && class_exists('\\Emsfb\\Masks')) {
+									$mask_res_efb = \Emsfb\Masks::check_field($f, (string) $item['value']); // normalize -> validate -> stored value
+									if (empty($mask_res_efb['legacy'])) {
+										if (!$mask_res_efb['ok']) {
+											$is_valid = 0;
+											$error_message = \Emsfb\Masks::message($mask_res_efb['code'], $f, $this->lanText);
+											// F03: msg_format, the owner's message for every format code of the mask.
+											if (class_exists('\Emsfb\Field_Rules') && ($fmt_custom_efb = \Emsfb\Field_Rules::custom_msg($f, 'format')) !== null) { $error_message = $fmt_custom_efb; $this->field_rules_code_efb = 'format'; }
+											$error_field_id = isset($f['id_']) ? $f['id_'] : '';
+										} else {
+											$item['value'] = $mask_res_efb['stored'];
+										}
+										$validated_item = $item;
+										$still_processing = false;
+										break;
+									}
+									// Unknown preset (other catalog version) or broken custom mask: the old length rules below.
+								}
+								// End mask gate.
+								// F03 §18.3: a textarea newline arrives as "@n#" and counts as one character, as in the browser.
+								$l = mb_strlen(str_replace(array("\r\n", '@n#'), "\n", (string) $item['value']), 'UTF-8');
+								$min_len = isset($f['milen']) ? (int) $f['milen'] : 0;
+								$max_len = isset($f['mlen']) ? (int) $f['mlen'] : 0;
+
+								// F03: the owner's own length messages (msg_minlen / msg_maxlen) win over the defaults.
+								$len_custom_efb = class_exists('\Emsfb\Field_Rules') ? array(\Emsfb\Field_Rules::custom_msg($f, 'minlen'), \Emsfb\Field_Rules::custom_msg($f, 'maxlen')) : array(null, null);
+								// A field with F03 rules says it in the browser's words (tvMinLen_ / tvMaxLen_).
+								if (class_exists('\Emsfb\Field_Rules') && \Emsfb\Field_Rules::has_rules($f)) {
+									if ($len_custom_efb[0] === null) $len_custom_efb[0] = \Emsfb\Field_Rules::msg($f, 'minlen', 'tvMinLen_', $this->lanText, $min_len);
+									if ($len_custom_efb[1] === null) $len_custom_efb[1] = \Emsfb\Field_Rules::msg($f, 'maxlen', 'tvMaxLen_', $this->lanText, $max_len);
+								}
+								if ($min_len > 0 && $l < $min_len) {
+									if (class_exists('\Emsfb\Field_Rules') && ($len_custom_efb[0] !== null || \Emsfb\Field_Rules::has_rules($f))) $this->field_rules_code_efb = 'minlen';
+									$error_message = $len_custom_efb[0] !== null ? $len_custom_efb[0] : strtr($this->lanText['ptrnMmm_'], [
+										'%1$s' => "<b>" . $f['name'] . "</b>",
+										'%2$s' => "<b>" . $min_len . "</b>",
+									]);
+									$is_valid = 0;
+								} else if ($max_len > 0 && $l > $max_len) {
+									if (class_exists('\Emsfb\Field_Rules') && ($len_custom_efb[1] !== null || \Emsfb\Field_Rules::has_rules($f))) $this->field_rules_code_efb = 'maxlen';
+									$error_message = $len_custom_efb[1] !== null ? $len_custom_efb[1] : strtr($this->lanText['ptrnMmx_'], [
+										'%1$s' => "<b>" . $f['name'] . "</b>",
+										'%2$s' => "<b>" . $max_len . "</b>",
+									]);
+									$is_valid = 0;
+								}
+							}
+							$validated_item = $item;
+							$still_processing = false;
+							break;
+					}
+				}
+			});
+			// Field rules gate (F03): one point after the type branch, for every submit endpoint.
+			if ($is_valid == 1 && is_array($validated_item) && class_exists('\Emsfb\Field_Rules')
+				&& !(isset($_ignored_set) && isset($_ignored_set[$f['id_'] ?? ''])) && \Emsfb\Field_Rules::has_rules($f)) {
+				// F14: an administrator's edit checks unique values itself, against the other entries (Entries::update).
+				$rules_ctx_efb = $this->field_rules_ctx_efb($form_fields_array, $submitted_values);
+				if ($this->validate_admin_edit_efb) $rules_ctx_efb['no_db'] = true;
+				$rules_res_efb = \Emsfb\Field_Rules::check($f, $validated_item, $request_data, $raw_passwords_efb, $this->lanText, $rules_ctx_efb);
+				if (!$rules_res_efb['ok']) {
+					$is_valid = 0;
+					$error_message = $rules_res_efb['m'];
+					// A visitor testing values (unique refusals over the limit) is not told which field.
+					$error_field_id = empty($rules_res_efb['hide']) ? ($f['id_'] ?? '') : '';
+					$this->field_rules_code_efb = empty($rules_res_efb['hide']) ? (string) $rules_res_efb['code'] : '';
+					$validated_item = null;
+				} else {
+					$validated_item = $rules_res_efb['item'];
+					if (!empty($rules_res_efb['unique'])) $this->unique_pending_efb[] = $rules_res_efb['unique'];
+				}
+			}
+			// End field rules gate.
+			/* This field came through clean, so drop the provisional error
+			 * text recorded while it was being checked. It was only ever a
+			 * placeholder, and keeping it meant a later failure that sets no
+			 * message of its own - an empty submission, most of all - was
+			 * reported against this field instead of the real one. */
+			if ($is_valid == 1) {
+				$error_message  = '';
+				$error_field_id = '';
+			}
+			// A row the type filter rejected comes back as false; it is not
+			// visitor data and every later step expects an array.
+			if (isset($validated_item) && is_array($validated_item)) {
+				$validated_item['type'] = $this->stored_row_type_efb($validated_item, $f, $form_fields_array);
+				$validated_item['name'] = $this->stored_row_name_efb($validated_item, $f, $form_fields_array);
+				array_push($validated_items, $validated_item);
+			};
+		}
+		$this->validate_admin_edit_efb = false;
+		return array(
+			'is_valid' => $is_valid, 'ok' => $is_valid == 1, 'rows' => $validated_items, 'm' => $error_message, 'field_id' => $error_field_id,
+			'email_recipients' => $email_recipients, 'sms' => $sms_notification_enabled, 'phone_numbers' => $phone_numbers,
+		);
 	}
 
 	/**
