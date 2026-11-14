@@ -58,6 +58,7 @@
     if (!r || !E()) return '<!-- F04: calc-efb.js not loaded -->';
     const dec = [['', T('numAnyDec', 'Any')]].concat(['0', '1', '2', '3', '4', '5', '6'].map((d) => [d, d]));
     let html = `<div class="efb mt-2 efb-calc-panel" id="efbNumPanel" data-id="${esc(r.id_)}">`;
+    if (tag === 'range') html += sel('rangeModeEl', 'range_mode', r, [['single', T('rangeSingle', 'One handle')], ['dual', T('rangeDual', 'Range (two handles)')]], T('rangeMode', 'Slider type'), '');
     if (tag !== 'calc') html += inp('numStepEl', 'num_step', r, T('numStep', 'Step'), tag === 'range' ? '1' : '0.5', T('numStepHelp', 'Empty = any value.'), true);
     html += sel('numDecimalsEl', 'num_decimals', r, tag === 'calc' ? dec.slice(1) : dec, T('numDecimals', 'Decimal places'), '');
     html += efbNumFormatEls(r, tag);
@@ -125,6 +126,15 @@
       return true;
     }
     if (clean === '' && key !== 'formula') delete r[key]; else r[key] = clean;
+    if (key === 'range_mode') {
+      // A two-handle slider starts on its whole range ("min..max"); one handle on the middle again.
+      const lo = r.milen !== undefined && r.milen !== '' ? String(r.milen) : '0', hi = r.mlen !== undefined && r.mlen !== '' && Number(r.mlen) !== 0 ? String(r.mlen) : '100';
+      if (clean === 'dual' && !E().splitRange(r.value)) r.value = lo + '..' + hi;
+      if (clean !== 'dual' && E().splitRange(r.value)) r.value = '';
+      const valueEl = document.getElementById('valueEl');
+      if (valueEl) { valueEl.type = 'text'; valueEl.value = r.value || ''; }
+      redrawCanvas(r);
+    }
     if (key === 'formula') {
       const e = E().formErrors(list())[r.id_];
       if (e) r.formula_err = '1'; else delete r.formula_err;
@@ -311,7 +321,50 @@
     changed();
   }
 
-  const api = { efbCalcPanelEls, efbCalcErrText, efb_calc_insert_efb, efbCalcCanvas, efbCalcOptionEls, efb_calc_opt_change_efb, efbCalcIsF4: isF4, efbNumPanelEls, efbCalcBuilderChange, efbNumInputAttrs, efbNumLimit, efb_calc_redraw_efb: redraw };
+
+  /* ------------------------------------------------------------------ the two-handle slider */
+
+  /** The canvas / preview copy of a two-handle slider (twin of Calc::range2_markup()). */
+  function efbRange2Canvas(r, preview) {
+    if (!r || !E()) return '';
+    const c = cfgOf(r);
+    const dn = (v) => (/^-?\d{1,15}(\.\d{1,6})?$/.test(String(v || '').trim()) ? String(v).trim() : null);
+    const min = dn(r.milen) || '0';
+    let max = dn(r.mlen) !== null && Number(r.mlen) !== 0 ? dn(r.mlen) : '100';
+    if (Number(max) < Number(min)) max = min;
+    const pair = E().splitRange(r.value);
+    let lo = pair ? pair.lo : min, hi = pair ? pair.hi : max;
+    if (Number(lo) < Number(min) || Number(lo) > Number(max)) lo = min;
+    if (Number(hi) > Number(max) || Number(hi) < Number(lo)) hi = max;
+    const step = c.step || 'any';
+    const json = JSON.stringify({ decimals: c.decimals, step: c.step, min: c.min, max: c.max, dec: c.dec, grp: c.grp, group: c.group, script: c.script, prefix: c.prefix, suffix: c.suffix, cur: c.cur, rtl: c.rtl });
+    const rtl = !!(root.efb_var && Number(root.efb_var.rtl) === 1);
+    const name = r.name || '';
+    const dis = preview ? '' : ' disabled';
+    const one = (w, v, lab) => `<input type="range" class="efb efb-range2-${w}" id="${esc(r.id_)}_${w}" min="${esc(min)}" max="${esc(max)}" step="${esc(step)}" value="${esc(v)}" aria-label="${esc(lab + ': ' + name)}" aria-valuetext="${esc(E().format(v, c))}"${dis}>`;
+    if (preview) setTimeout(() => { try { E().sliders.bindAll(); } catch (e) {} }, 0);
+    return `<div class="efb efb-range2${Number(r.required) === 1 ? ' required' : ''}" data-efb-range2="1" data-vid="${esc(r.id_)}" data-formid="0" data-numcfg="${esc(json)}" dir="${rtl ? 'rtl' : 'ltr'}" role="group" aria-labelledby="${esc(r.id_)}_labG">
+      <div class="efb efb-range2-track"><span class="efb efb-range2-fill" aria-hidden="true"></span>${one('lo', lo, T('rngLo', 'Minimum'))}${one('hi', hi, T('rngHi', 'Maximum'))}</div>
+      <output class="efb efb-range2-out fs-6" id="${esc(r.id_)}_rv" aria-live="polite" dir="auto">${esc(E().format(lo, c) + ' – ' + E().format(hi, c))}</output>
+      <input type="hidden" class="efb emsFormBuilder_v" data-vid="${esc(r.id_)}" data-type="range" data-formid="0" id="${esc(r.id_)}_" value="${esc(lo + '..' + hi)}">
+    </div>`;
+  }
+
+  /** The canvas copy of a slider after its type changed. */
+  function redrawCanvas(r) {
+    try {
+      const f = document.getElementById(`${r.id_}-f`);
+      if (!f) return;
+      const old = f.querySelector('.efb-range2, .slider');
+      if (!old) return;
+      const tmp = document.createElement('div');
+      if (r.range_mode === 'dual') tmp.innerHTML = efbRange2Canvas(r, false);
+      else tmp.innerHTML = `<div class="efb slider m-0 p-2 ${esc(r.el_height || '')} ${esc(r.el_text_color || '')} efb1" data-css="${esc(r.id_)}" id="${esc(r.id_)}-range"><input type="range" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 efbField" data-vid="${esc(r.id_)}" id="${esc(r.id_)}_" min="${esc(r.milen || 0)}" max="${esc(r.mlen || 100)}" readonly><p id="${esc(r.id_)}_rv" class="efb mx-1 py-0 my-1 fs-6 text-darkb">50</p></div>`;
+      old.replaceWith(tmp.firstElementChild);
+    } catch (e) { /* drawn again on the next open */ }
+  }
+
+  const api = { efbRange2Canvas, efbCalcPanelEls, efbCalcErrText, efb_calc_insert_efb, efbCalcCanvas, efbCalcOptionEls, efb_calc_opt_change_efb, efbCalcIsF4: isF4, efbNumPanelEls, efbCalcBuilderChange, efbNumInputAttrs, efbNumLimit, efb_calc_redraw_efb: redraw };
   Object.keys(api).forEach((k) => { root[k] = api[k]; });
   if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

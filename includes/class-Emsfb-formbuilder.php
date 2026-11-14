@@ -3100,6 +3100,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 				break;
 
 				case 'range':
+					// F04-F: a two-handle slider (range_mode dual): its own markup (Calc::range2_markup).
+					if (class_exists('\\Emsfb\\Calc') && \Emsfb\Calc::is_dual($vj)) {
+						$ui = $label
+							. '<div class="efb ' . $pos[3] . ' ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="' . esc_attr($element_Id) . '-f">'
+							. $ttip
+							. \Emsfb\Calc::range2_markup($vj, $element_Id, $form_id, $texts, isset($this->valj_efb[0]) ? $this->valj_efb[0] : null, $disabled === 'disabled')
+							. $desc;
+						$dataTag = 'range';
+						break;
+					}
 					$classes = 'form-range';
 					$classes .= str_replace(',', ' ', $vj->classes) ?? '';
 					$maxlen = isset($vj->mlen) ? $vj->mlen : 100;
@@ -3109,6 +3119,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 					$requiredAttr = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 					$ariaRequiredAttr = ($vj->required == 1) ? 'true' : 'false';
 					$valueAttr = $temp ? sprintf('value="%s"', $temp) : '';
+					// F04: a one-handle slider with a step or a number format: step="…", and its value shown formatted
+					// by calc-efb.js (data-numcfg); a slider without the keys renders as before.
+					if (class_exists('\\Emsfb\\Calc') && \Emsfb\Calc::is_f4($vj)) {
+						$rg_efb = \Emsfb\Calc::range_setup($vj, isset($this->valj_efb[0]) ? $this->valj_efb[0] : null);
+						$readonlyAttr = trim($readonlyAttr . ' step="' . esc_attr($rg_efb['step']) . '" data-efb-range1="1" data-numcfg="' . esc_attr(wp_json_encode(\Emsfb\Calc::client_config($rg_efb['cfg']), JSON_UNESCAPED_UNICODE)) . '"');
+					}
 
 					$ui = sprintf(
 						'%1$s <div class="efb %2$s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="%3$s-f"> %4$s <div class="efb slider m-0 p-2 %5$s %6$s efb1 %7$s" data-css="%8$s" id="%3$s-range"> <input type="%9$s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %10$s efbField" data-id="%3$s-el" data-vid="%3$s" data-formid="%8$s" id="%3$s_" oninput="fun_show_val_range_efb(\'%3$s\')" %11$s min="%12$s" max="%13$s" aria-required="%14$s" aria-label="%15$s" %16$s %17$s> <p id="%3$s_rv" class="efb mx-1 py-0 my-1 fs-6 text-darkb">%18$s</p> </div> %19$s',

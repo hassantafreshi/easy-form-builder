@@ -7,7 +7,8 @@
  *  3. a required calc without a result: refused at its field (efb_calc_required / efb_calc_error);
  *  4. numbers: Persian digits stored canonical; a step / decimals / min / max refusal with its efb_num_* code
  *     and field_id; an old number stores exactly what it stored before;
- *  5. the Free plan: no calc result is stored (the field shows the plan notice).
+ *  5. a two-handle slider: "lo..hi" with lo / hi, lo > hi refused (efb_num_order), {id.lo} / {id.hi} in a formula;
+ *  6. the Free plan: no calc result is stored (the field shows the plan notice).
  *
  * Run (under the e2e lock): source the e2e env; php tests/test-calc-submit-http.php
  */
@@ -35,6 +36,8 @@ $F = $H->ctl('f03-form', 'F04 submit http', json_encode(array(
 	array('key' => 'ratio', 'type' => 'calc', 'name' => 'Ratio', 'formula' => '{@@price@@}/{@@qty@@}', 'required' => '1'),
 	array('key' => 'dec', 'type' => 'number', 'name' => 'Weight', 'num_decimals' => '1'),
 	array('key' => 'old', 'type' => 'number', 'name' => 'Old', 'milen' => '1', 'mlen' => '100'),
+	array('key' => 'bud', 'type' => 'range', 'name' => 'Budget', 'range_mode' => 'dual', 'milen' => '10', 'mlen' => '50', 'num_step' => '5', 'value' => '10..50'),
+	array('key' => 'span', 'type' => 'calc', 'name' => 'Span', 'formula' => '{@@bud@@.hi}-{@@bud@@.lo}+{@@bud@@}*0', 'num_decimals' => '0'),
 )), 'currency=usd', '1');
 $fid = $F['form_id']; $ids = $F['ids'];
 $send = function (array $rows) use ($H, $fid) { $H->fresh_jar(); return EfbF11Http::answer($H->submit($fid, $rows)); };
@@ -69,9 +72,18 @@ $a = $send(array($n('price', '10'), $n('qty', '2'), $n('old', '12.50')));
 t('4 an old number stores exactly what it stored before', array(!empty($a['success']), $row($last(), $ids['old'])['value'] ?? null, array_key_exists('disp', (array) $row($last(), $ids['old']))), array(true, '12.50', false));
 
 /* 5 */
+$a = $send(array($n('price', '10'), $n('qty', '2'), array('id_' => $ids['bud'], 'name' => 'Budget', 'id_ob' => $ids['bud'] . '_', 'type' => 'range', 'value' => '۱۵..۴۰')));
+$c = $last();
+t('5 two handles: "15..40" with lo / hi stored; {bud.hi}-{bud.lo} = 25', array(!empty($a['success']), $row($c, $ids['bud'])['value'] ?? null, $row($c, $ids['bud'])['lo'] ?? null, $row($c, $ids['bud'])['hi'] ?? null, $row($c, $ids['span'])['value'] ?? null), array(true, '15..40', '15', '40', '25'));
+$a = $send(array($n('price', '10'), $n('qty', '2'), array('id_' => $ids['bud'], 'name' => 'Budget', 'id_ob' => $ids['bud'] . '_', 'type' => 'range', 'value' => '40..15')));
+t('5 lo > hi: efb_num_order at the field', array($a['code'] ?? null, $a['field_id'] ?? null), array('efb_num_order', $ids['bud']));
+$a = $send(array($n('price', '10'), $n('qty', '2'), array('id_' => $ids['bud'], 'name' => 'Budget', 'id_ob' => $ids['bud'] . '_', 'type' => 'range', 'value' => '5..40')));
+t('5 a handle outside the limits: efb_num_min', $a['code'] ?? null, 'efb_num_min');
+
+/* 6 */
 $H->ctl('plan', '2');
 $a = $send(array($n('price', '10'), $n('qty', '3'), array('id_' => $ids['tot'], 'name' => 'Total', 'id_ob' => $ids['tot'], 'type' => 'calc', 'value' => '1')));
-t('5 Free: accepted, no calc row stored (not even a forged one)', array(!empty($a['success']), $row($last(), $ids['tot'])), array(true, null));
+t('6 Free: accepted, no calc row stored (not even a forged one)', array(!empty($a['success']), $row($last(), $ids['tot'])), array(true, null));
 $H->ctl('plan', isset($plan0['emsfb_pro']) ? (string) $plan0['emsfb_pro'] : '3');
 
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";

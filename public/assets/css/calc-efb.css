@@ -2,3 +2,22 @@
 .efb.efb-vh { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
 /* A number box keeps its digits left to right; its affixes follow the page direction. */
 .efb input[data-num="1"] { direction: ltr; text-align: start; unicode-bidi: plaintext; }
+/* The result of a calc field: read-only, in the page's text colour; the number keeps its own direction. */
+.efb .efb-calc-out { display: block; min-height: 1.5em; padding-block: .375rem; font-weight: 600; unicode-bidi: isolate; }
+.efb .efb-calc-out:empty::before { content: "\2014"; opacity: .45; font-weight: 400; }
+.efb .efb-calc-fml { unicode-bidi: plaintext; overflow-wrap: anywhere; }
+/* Two-handle slider: two native range inputs on one track; only the thumbs take the pointer. */
+.efb .efb-range2 { padding: .5rem 0; }
+.efb .efb-range2-track { position: relative; height: 44px; }
+.efb .efb-range2-track::before { content: ""; position: absolute; inset-inline: 0; top: 50%; height: 6px; margin-top: -3px; border-radius: 3px; background: #dee2e6; }
+.efb .efb-range2-fill { position: absolute; top: 50%; height: 6px; margin-top: -3px; border-radius: 3px; background: currentColor; opacity: .6; inset-inline-start: 0; inset-inline-end: 0; }
+.efb .efb-range2 input[type="range"] { position: absolute; inset-inline: 0; top: 0; width: 100%; height: 44px; margin: 0; background: transparent; pointer-events: none; -webkit-appearance: none; appearance: none; }
+.efb .efb-range2 input[type="range"]::-webkit-slider-runnable-track { background: transparent; height: 44px; }
+.efb .efb-range2 input[type="range"]::-moz-range-track { background: transparent; height: 44px; }
+.efb .efb-range2 input[type="range"]::-webkit-slider-thumb { pointer-events: auto; -webkit-appearance: none; appearance: none; width: 28px; height: 28px; margin-top: 8px; border-radius: 50%; background: #fff; border: 3px solid #4e5bf2; box-shadow: 0 1px 3px rgba(0,0,0,.25); cursor: pointer; }
+.efb .efb-range2 input[type="range"]::-moz-range-thumb { pointer-events: auto; width: 24px; height: 24px; border-radius: 50%; background: #fff; border: 3px solid #4e5bf2; cursor: pointer; }
+.efb .efb-range2 input[type="range"]:focus-visible { outline: none; }
+.efb .efb-range2 input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(78,91,242,.35); }
+.efb .efb-range2 input[type="range"]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px rgba(78,91,242,.35); }
+.efb .efb-range2[dir="rtl"] input[type="range"] { direction: rtl; }
+.efb .efb-range2-out { display: block; margin-top: .25rem; unicode-bidi: isolate; }

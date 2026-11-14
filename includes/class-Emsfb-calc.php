@@ -646,6 +646,55 @@ final class Calc {
 		return array_key_exists($k, $f) && is_scalar($f[$k]) && (string) $f[$k] !== '';
 	}
 
+	/** Whether a slider has two handles (range_mode dual). */
+	public static function is_dual($f) {
+		$f = self::f($f);
+		return isset($f['type'], $f['range_mode']) && $f['type'] === 'range' && $f['range_mode'] === 'dual';
+	}
+
+	/** The limits, step and starting pair of a slider: {min, max, step, lo, hi} as decimal strings. */
+	public static function range_setup($f, $form0 = null) {
+		$f = self::f($f);
+		$cfg = self::field_config($f, $form0);
+		$min = isset($f['milen']) && is_scalar($f['milen']) && preg_match('/^-?\d{1,15}(\.\d{1,6})?$/D', trim((string) $f['milen'])) ? trim((string) $f['milen']) : '0';
+		$max = isset($f['mlen']) && is_scalar($f['mlen']) && preg_match('/^-?\d{1,15}(\.\d{1,6})?$/D', trim((string) $f['mlen'])) && (float) $f['mlen'] != 0 ? trim((string) $f['mlen']) : '100';
+		if ((float) $max < (float) $min) $max = $min;
+		$pair = self::split_range(isset($f['value']) ? $f['value'] : '');
+		$lo = $pair ? $pair['lo'] : $min;
+		$hi = $pair ? $pair['hi'] : $max;
+		if ((float) $lo < (float) $min || (float) $lo > (float) $max) $lo = $min;
+		if ((float) $hi > (float) $max || (float) $hi < (float) $lo) $hi = $max;
+		return array('min' => $min, 'max' => $max, 'step' => $cfg['step'] !== '' ? $cfg['step'] : 'any', 'lo' => $lo, 'hi' => $hi, 'cfg' => $cfg);
+	}
+
+	/**
+	 * The page markup of a two-handle slider (inside the field's -f wrapper; builder twin efbRange2Canvas()):
+	 * two native range inputs on one track, each with its own label ("Minimum: …", "Maximum: …"), the pair
+	 * "lo – hi" announced politely, the hidden answer "lo..hi". calc-efb.js keeps lo <= hi, PageUp / PageDown
+	 * move ten steps; a right-to-left page reverses the track (dir on the wrapper).
+	 */
+	public static function range2_markup($vj, $id, $form_id, $texts = array(), $form0 = null, $disabled = false) {
+		$f = self::f($vj);
+		$e = function ($v) { return function_exists('esc_attr') ? esc_attr($v) : htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); };
+		$h = function ($v) { return function_exists('esc_html') ? esc_html($v) : htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); };
+		$r = self::range_setup($f, $form0);
+		$json = function_exists('wp_json_encode') ? wp_json_encode(self::client_config($r['cfg']), JSON_UNESCAPED_UNICODE) : json_encode(self::client_config($r['cfg']), JSON_UNESCAPED_UNICODE);
+		$name = isset($f['name']) && is_scalar($f['name']) ? (string) $f['name'] : '';
+		$lab_lo = self::t('rngLo', $texts) . ': ' . $name;
+		$lab_hi = self::t('rngHi', $texts) . ': ' . $name;
+		$rtl = function_exists('is_rtl') && is_rtl();
+		$req = isset($f['required']) && in_array($f['required'], array(1, '1', true), true);
+		$dis = $disabled ? ' disabled' : '';
+		$in = function ($which, $val, $label) use ($id, $r, $e, $dis) {
+			return '<input type="range" class="efb efb-range2-' . $which . '" id="' . $e($id) . '_' . $which . '" min="' . $e($r['min']) . '" max="' . $e($r['max']) . '" step="' . $e($r['step']) . '" value="' . $e($val) . '" aria-label="' . $e($label) . '" aria-valuetext="' . $e(Calc::format($val, $r['cfg'])) . '"' . $dis . '>';
+		};
+		return '<div class="efb efb-range2' . ($req ? ' required' : '') . '" data-efb-range2="1" data-vid="' . $e($id) . '" data-formid="' . $e($form_id) . '" data-numcfg="' . $e($json) . '" dir="' . ($rtl ? 'rtl' : 'ltr') . '" role="group" aria-labelledby="' . $e($id) . '_labG">'
+			. '<div class="efb efb-range2-track"><span class="efb efb-range2-fill" aria-hidden="true"></span>' . $in('lo', $r['lo'], $lab_lo) . $in('hi', $r['hi'], $lab_hi) . '</div>'
+			. '<output class="efb efb-range2-out fs-6" id="' . $e($id) . '_rv" aria-live="polite" dir="auto">' . $h(Calc::format($r['lo'], $r['cfg']) . ' – ' . Calc::format($r['hi'], $r['cfg'])) . '</output>'
+			. '<input type="hidden" class="efb emsFormBuilder_v" data-vid="' . $e($id) . '" data-type="range" data-formid="' . $e($form_id) . '" id="' . $e($id) . '_" value="' . $e($r['lo'] . '..' . $r['hi']) . '">'
+			. '</div>';
+	}
+
 	/** Whether a number / range / calc field uses an F04 key (it then renders as a typed-number box). */
 	public static function is_f4($f) {
 		$f = self::f($f);
@@ -1043,6 +1092,28 @@ final class Calc {
 		$bad = function ($m, $code) use ($item) { return array('ok' => false, 'row' => null, 'm' => $m, 'code' => $code); };
 		$cfg = self::field_config($f, $form0);
 		$f4 = self::is_f4($f);
+		// F: a two-handle slider: "lo..hi", both numbers inside the limits and on the step, lo <= hi; lo and hi stored beside it.
+		if (self::is_dual($f)) {
+			if ($cfg['min'] === '' && isset($f['milen']) && is_scalar($f['milen']) && preg_match('/^-?\d{1,15}(\.\d{1,6})?$/D', (string) $f['milen'])) $cfg['min'] = (string) $f['milen'];
+			$pair = self::split_range($raw);
+			if (!$pair) return $bad(self::t('mnvvXXX_', $lanText, array($bname)), 'nan');
+			$lo = self::parse_input($pair['lo'], $cfg);
+			$hi = self::parse_input($pair['hi'], $cfg);
+			if (!$lo['ok'] || !$hi['ok']) return $bad(self::t('mnvvXXX_', $lanText, array($bname)), 'nan');
+			if (self::cmp_dec($lo['canon'], $hi['canon']) > 0) return $bad(self::t('rngOrder', $lanText, array($bname)), 'order');
+			foreach (array($lo['canon'], $hi['canon']) as $one) {
+				$c = self::check($one, $cfg);
+				if ($c === 'dec') return $bad(self::t('numDecM_', $lanText, array($bname, (string) $cfg['decimals'])), 'dec');
+				if ($c === 'step') return $bad(self::t('numStepM_', $lanText, array($bname, $cfg['step'])), 'step');
+				if ($c === 'min') return $bad(self::t('mcplen', $lanText, array(self::format($cfg['min'], $cfg))), 'min');
+				if ($c === 'max') return $bad(self::t('mxcplen', $lanText, array(self::format($cfg['max'], $cfg))), 'max');
+			}
+			$item['value'] = $lo['canon'] . '..' . $hi['canon'];
+			$item['lo'] = $lo['canon'];
+			$item['hi'] = $hi['canon'];
+			return array('ok' => true, 'row' => $item, 'm' => '', 'code' => '');
+		}
+		unset($item['lo'], $item['hi']);
 		if (!$f4 && is_numeric($raw)) {
 			// Today's rule, today's stored text.
 			$n = (float) $raw;

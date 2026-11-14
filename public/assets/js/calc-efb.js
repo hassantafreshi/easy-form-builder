@@ -1071,6 +1071,103 @@
     return { schedule: schedule, recompute: recompute, scheduleAll: scheduleAll, boot: boot, booted: false };
   })();
 
+
+  /* ------------------------------------------------------------------ the page: sliders (spec §4.4) */
+
+  var sliders = (function () {
+    function numOf(x) { return Number(x); }
+    function stepOf(inp) { var s = inp.getAttribute('step'); return s && s !== 'any' && Number(s) > 0 ? Number(s) : 1; }
+    function decOf(x) { x = String(x); var i = x.indexOf('.'); return i === -1 ? 0 : x.length - i - 1; }
+    /** A value on the slider's grid (min + k × step), as a canonical number. */
+    function snap(v, inp) {
+      var min = numOf(inp.min), max = numOf(inp.max), st = stepOf(inp);
+      var k = Math.round((v - min) / st);
+      var out = min + k * st;
+      if (out < min) out = min;
+      if (out > max) out = max;
+      var d = Math.max(decOf(inp.getAttribute('step') || '1'), decOf(inp.min || '0'));
+      return toFixed(roundHalfAway(out, Math.min(d, 6)), Math.min(d, 6) || null);
+    }
+    function canon(v) { var p = parseInput(String(v), { dec: '.', grp: '' }); return p.ok ? p.canon : String(v); }
+    function update(box, moved) {
+      var id = box.getAttribute('data-vid'), fid = Number(box.getAttribute('data-formid') || 0);
+      var lo = box.querySelector('.efb-range2-lo'), hi = box.querySelector('.efb-range2-hi');
+      if (!lo || !hi) return;
+      var cfg = cfgOf(box) || {};
+      var a = numOf(lo.value), b = numOf(hi.value);
+      // The lower handle never passes the upper one.
+      if (a > b) { if (moved === hi) hi.value = lo.value; else lo.value = hi.value; }
+      var L = canon(lo.value), H = canon(hi.value);
+      var t = format(L, cfg) + ' – ' + format(H, cfg);
+      var out = document.getElementById(id + '_rv');
+      if (out && out.textContent !== t) out.textContent = t;
+      lo.setAttribute('aria-valuetext', format(L, cfg));
+      hi.setAttribute('aria-valuetext', format(H, cfg));
+      var fill = box.querySelector('.efb-range2-fill');
+      var span = numOf(lo.max) - numOf(lo.min) || 1;
+      if (fill) { fill.style.insetInlineStart = ((numOf(L) - numOf(lo.min)) / span * 100) + '%'; fill.style.insetInlineEnd = ((numOf(lo.max) - numOf(H)) / span * 100) + '%'; }
+      var hid = document.getElementById(id + '_');
+      var v = L + '..' + H;
+      if (hid) hid.value = v;
+      if (moved === undefined) return;
+      var st = typeof get_structure_by_form_id_efb === 'function' ? get_structure_by_form_id_efb(fid) : (typeof valj_efb !== 'undefined' ? valj_efb : []);
+      var f = null;
+      for (var i = 0; i < (st || []).length; i++) if (st[i] && st[i].id_ === id) f = st[i];
+      var row = { id_: id, name: f ? f.name : '', id_ob: id + '_', amount: f ? f.amount : 0, type: 'range', value: v, lo: L, hi: H, session: typeof sessionPub_emsFormBuilder !== 'undefined' ? sessionPub_emsFormBuilder : '', form_id: fid };
+      if (t !== v) row.disp = t;
+      var R = typeof sendBack_emsFormBuilder_pub !== 'undefined' ? sendBack_emsFormBuilder_pub : null;
+      if (R) { for (var k = R.length - 1; k >= 0; k--) if (R[k] && R[k].id_ === id && Number(R[k].form_id) === fid) R.splice(k, 1); }
+      if (typeof fun_sendBack_emsFormBuilder === 'function' && fid > 0) fun_sendBack_emsFormBuilder(row); else if (R) R.push(row);
+    }
+    function key(e) {
+      var inp = e.target;
+      if (e.key !== 'PageUp' && e.key !== 'PageDown') return;
+      e.preventDefault();
+      var st = stepOf(inp);
+      var v = numOf(inp.value) + (e.key === 'PageUp' ? 10 : -10) * st;
+      inp.value = snap(v, inp);
+      inp.dispatchEvent(new Event('input', { bubbles: true }));
+      inp.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    function bind(box) {
+      if (box.__efbRange) return;
+      box.__efbRange = true;
+      var lo = box.querySelector('.efb-range2-lo'), hi = box.querySelector('.efb-range2-hi');
+      [lo, hi].forEach(function (inp) {
+        if (!inp) return;
+        inp.addEventListener('input', function () { update(box, inp); });
+        inp.addEventListener('change', function () { update(box, inp); });
+        inp.addEventListener('keydown', key);
+      });
+      update(box);
+    }
+    /** A one-handle slider with F04 keys: its value shown formatted; PageUp / PageDown ten steps. */
+    function bindOne(inp) {
+      if (inp.__efbRange) return;
+      inp.__efbRange = true;
+      var show = function () {
+        var out = document.getElementById(String(inp.id).replace(/_$/, '') + '_rv');
+        var cfg = cfgOf(inp) || {};
+        if (out) out.textContent = format(canon(inp.value), cfg);
+        inp.setAttribute('aria-valuetext', format(canon(inp.value), cfg));
+      };
+      inp.addEventListener('input', show);
+      inp.addEventListener('keydown', key);
+      show();
+    }
+    function bindAll() {
+      if (typeof document === 'undefined') return;
+      var a = document.querySelectorAll('[data-efb-range2="1"]');
+      for (var i = 0; i < a.length; i++) bind(a[i]);
+      var b = document.querySelectorAll('input[data-efb-range1="1"]');
+      for (var j = 0; j < b.length; j++) bindOne(b[j]);
+    }
+    if (typeof document !== 'undefined') {
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindAll); else setTimeout(bindAll, 0);
+    }
+    return { bindAll: bindAll, bind: bind, snap: snap, update: update };
+  })();
+
   /** A low..high pair of a two-handle slider ("10..50"), or null. */
   function splitRange(v) {
     var m = /^\s*(-?\d+(?:\.\d+)?)\s*\.\.\s*(-?\d+(?:\.\d+)?)\s*$/.exec(normalizeDigits(str(v)));
@@ -1087,6 +1184,6 @@
     evaluateForm: evaluateForm, optionNumber: optionNumber, CHOICE_TYPES: CHOICE_TYPES,
     formErrors: formErrors, cycleIds: cycleIds, topoOrder: topoOrder, LAYOUT_TYPES: LAYOUT_TYPES,
     FIELD_KEYS: FIELD_KEYS, ENUMS: ENUMS, sanitizeKey: sanitizeKey, isKey: isKey,
-    page: page, formatBare: formatBare, live: live, checkInput: checkInput, bindNumber: bindNumber, cfgOf: cfgOf
+    page: page, sliders: sliders, formatBare: formatBare, live: live, checkInput: checkInput, bindNumber: bindNumber, cfgOf: cfgOf
   };
 });

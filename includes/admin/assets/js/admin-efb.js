@@ -7540,6 +7540,17 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       typeof rating_el_pro_efb =="function" ? 0 : ui=public_pro_message()
       break;
     case 'range':
+        // F04-F: a two-handle slider (calc-builder-efb.js, twin of Calc::range2_markup()).
+        if (valj_efb[iVJ].range_mode === 'dual' && typeof efbRange2Canvas === 'function') {
+          ui = `
+          ${label}
+          <div class="efb ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show  "  id='${rndm}-f'>
+            ${ttip}
+            ${efbRange2Canvas(valj_efb[iVJ], previewSate == true)}
+            ${desc}`
+          dataTag = elementId;
+          break;
+        }
          maxlen = valj_efb[iVJ].hasOwnProperty('mlen') ? valj_efb[iVJ].mlen :100;
         minlen = valj_efb[iVJ].hasOwnProperty('milen')  ? valj_efb[iVJ].milen :0;
         temp =valj_efb[iVJ].value>0 ? valj_efb[iVJ].value :Math.round((Number(valj_efb[iVJ].mlen)+Number(valj_efb[iVJ].milen))/2) ;
