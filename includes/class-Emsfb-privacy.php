@@ -44,7 +44,7 @@ class Privacy {
 	 */
 	const NON_PII_TYPES = array('radio', 'checkbox', 'option', 'select', 'multiselect', 'switch', 'yesNo', 'color', 'rating',
 		'pointr5', 'pointr10', 'r_matrix', 'range', 'number', 'date', 'pdate', 'ardate', 'conturyList', 'stateProvince',
-		'cityList', 'imgRadio', 'chlCheckBox', 'chlRadio', 'trmCheckbox', 'prcfld', 'payment');
+		'cityList', 'imgRadio', 'chlCheckBox', 'chlRadio', 'trmCheckbox', 'prcfld', 'payment', 'repeater');
 
 	/** Form types whose entries may be left unstored (C): the others need the stored row. */
 	const NOSTORE_TYPES = array('form', 'subscribe');
@@ -1103,6 +1103,8 @@ class Privacy {
 				if (!is_array($r) || !isset($r['type']) || $r['type'] === 'w_link') continue;
 				$name = isset($r['name']) && $r['name'] !== '' ? (string) $r['name'] : (isset($r['id_']) ? (string) $r['id_'] : '');
 				$name = str_replace('@efb@dq#', '"', $name);
+				// F09: a repeater row's answer names its row, as the CSV does ("Name #2").
+				if (isset($r['rg'], $r['ri']) && is_numeric($r['ri'])) $name .= ' #' . ((int) $r['ri'] + 1);
 				$val = self::readable_value($r, $l);
 				if ($r['type'] === 'payment' && !empty($r['paymentIntent'])) $val .= ' (' . $r['paymentIntent'] . ')';
 				$data[] = array('name' => $name, 'value' => $val);

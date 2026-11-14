@@ -157,6 +157,25 @@ console.log('\n=== F04: a formatted number (disp) in the viewer and the CSV ==='
   t('F04: a negative canonical number is not prefixed in the CSV', csvEscape_EFB('-12') === '-12' && csvEscape_EFB('1250000.5') === '1250000.5');
 }
 
+console.log('\n=== F09: repeater rows in the viewer ===');
+{
+  global.efb_var = { text: { rowN: 'Row %s', rptRowsCount: '%s rows', rptCount: '%s (count)' }, wp_lan: 'en_US' };
+  const { efbRptViewerSplitEfb, efbRptViewerBlockEfb } = new Function(grab('efbRptViewerSplitEfb') + grab('efbRptViewerBlockEfb') + 'return { efbRptViewerSplitEfb, efbRptViewerBlockEfb };')();
+  const tree9 = escResponseTreeEfb([
+    { id_: 'g', type: 'repeater', name: '<img src=x onerror=alert(1)>Trip', value: '2' },
+    { id_: 'nm', type: 'text', name: 'Name', value: '<script>alert(2)</script>', rg: 'g', ri: '1' },
+    { id_: 'nm', type: 'text', name: 'Name', value: 'Sara', rg: 'g', ri: '0' },
+    { id_: 'x', type: 'text', name: 'Other', value: 'y' },
+  ]);
+  const sp = efbRptViewerSplitEfb(tree9);
+  t('F09: the rows are taken out of the list and grouped by row', sp.rest.length === 2 && sp.groups.g.rows['0'][0].value === 'Sara' && sp.groups.g.rows['1'].length === 1);
+  t('F09: an old entry (no rg) is not split', efbRptViewerSplitEfb([{ id_: 'a', value: 'b' }]) === null);
+  const html9 = efbRptViewerBlockEfb(sp.groups.g, tree9[0], (rows) => rows.map((r) => `<span>${r.value}</span>`).join(''));
+  t('F09: the block: "Row 1" before "Row 2", in row order (ri 0 before ri 1)', html9.indexOf('Row 1') < html9.indexOf('Sara') && html9.indexOf('Sara') < html9.indexOf('Row 2') && html9.indexOf('Row 2') < html9.indexOf('&lt;script&gt;'));
+  t('F09: a hostile group name and value stay text', html9.indexOf('<img') === -1 && html9.indexOf('<script>') === -1);
+  t('F09: the head carries the CSV key "{group} (count)" and the number of rows', /data-csv-key="&lt;img[^"]*Trip \(count\)"/.test(html9) && html9.indexOf('2 rows') !== -1);
+}
+
 console.log('\n========================================');
 console.log(`RESULTS: ${pass} passed, ${fail} failed`);
 console.log('========================================');

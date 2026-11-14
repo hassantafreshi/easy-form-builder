@@ -3909,13 +3909,34 @@ function clear_garbeg_emsFormBuilder() {
   document.getElementById('clrUnfileEfb').classList.remove('disabled')
 }
 
+/* F09: the CSV columns of repeater rows (a documented, stable scheme): a field of row k of a group is the column
+   "{group} › {field} #k" (k from 1), the group's own row "{group} (count)"; every other answer keeps its column.
+   One line per entry (the "one line per row" mode is left to F14). Returns new rows; old entries unchanged. */
+function efb_csv_repeater_rows_efb(content) {
+  if (!Array.isArray(content) || !content.some((r) => r && r.rg !== undefined && r.ri !== undefined)) return content;
+  const names = {};
+  content.forEach((r) => { if (r && r.type === 'repeater' && r.id_ !== undefined) names[r.id_] = r.name || r.id_; });
+  const T = (k, fb) => (efb_var.text && efb_var.text[k]) || fb;
+  return content.map((r) => {
+    if (!r || typeof r !== 'object') return r;
+    if (r.type === 'repeater' && names[r.id_] !== undefined) return Object.assign({}, r, { name: String(T('rptCount', '%s (count)')).replace('%s', names[r.id_]) });
+    if (r.rg === undefined || r.ri === undefined || !/^\d{1,4}$/.test(String(r.ri))) return r;
+    return Object.assign({}, r, { name: `${names[r.rg] !== undefined ? names[r.rg] : r.rg} › ${r.name || r.id_} #${Number(r.ri) + 1}` });
+  });
+}
 function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
   window.efb_csv_file_cells_efb = {}; // F07: the file cells of this export
   let head = {};
   let heads = [];
   let ids = [];
   let count = -1;
-  let rows = Array.from(Array(value.length + 1), () => Array(100).fill('null@EFB'));
+  // F09: as many columns as the entries need (two per answer column for TID / ISO extras), never fewer than the
+  // 100 of before; a form with more columns was cut at 100.
+  const parsedAllEfb = value.map((v) => efbParseJson(replaceContentMessageEfb(v.content, true)));
+  const colNamesEfb = new Set();
+  parsedAllEfb.forEach((pc) => { const rr = efb_csv_repeater_rows_efb(pc); (Array.isArray(rr) ? rr : []).forEach((r) => { if (r && r.name !== undefined) colNamesEfb.add(String(r.name)); }); });
+  const colsEfb = Math.max(100, 2 + colNamesEfb.size * 2 + 2);
+  let rows = Array.from(Array(value.length + 1), () => Array(colsEfb).fill('null@EFB'));
 
   rows[0][0] = 'id';
   rows[0][1] = efb_var.text.createDate;
@@ -3927,7 +3948,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
         rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value;
       } else {
         const r = rows.length
-        const row = Array.from(Array(1), () => Array(100).fill('notCount@EFB'))
+        const row = Array.from(Array(1), () => Array(colsEfb).fill('notCount@EFB'))
         rows = rows.concat(row);
         rows[parseInt(r)][parseInt(value_col_index)] = content[c].value;
         rows[parseInt(r)][0] = v;
@@ -3938,11 +3959,11 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
       rows[parseInt(i_count)][parseInt(value_col_index)] == "null@EFB" ? rows[parseInt(i_count)][parseInt(value_col_index)] = content[c].value : rows[parseInt(i_count)][parseInt(value_col_index)] += "|| " + content[c].value
     }
   }
-  for (let v of value) {
+  for (let [vIdxEfb, v] of value.entries()) {
 
     // F05: choices as labels or stored values, "Other: text", a ranking "A > B > C".
     const csvModeEfb = window.efb_csv_opt_val_now || (typeof efb_csv_opt_val_efb === 'function' ? efb_csv_opt_val_efb() : 'label');
-    const parsedEfb = efbParseJson(replaceContentMessageEfb(v.content, true));
+    const parsedEfb = efb_csv_repeater_rows_efb(parsedAllEfb[vIdxEfb]);
     const content = Array.isArray(parsedEfb) && typeof efb_csv_choice_row_efb === 'function' ? parsedEfb.map((r) => efb_csv_choice_row_efb(r, csvModeEfb)) : parsedEfb;
     count += 1;
     i_count += i_count == -1 ? 2 : 1;
@@ -4027,7 +4048,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
                     rows[parseInt(i_count)][parseInt(value_col_index)] = n;
                   } else {
                     const r = rows.length
-                    const row = Array.from(Array(1), () => Array(100).fill('notCount@EFB'))
+                    const row = Array.from(Array(1), () => Array(colsEfb).fill('notCount@EFB'))
                     rows = rows.concat(row);
                     rows[parseInt(r)][parseInt(value_col_index)] = n;
                     rows[parseInt(r)][0] = v.msg_id;

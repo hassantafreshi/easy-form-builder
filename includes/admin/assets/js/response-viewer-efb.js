@@ -880,6 +880,47 @@ function efbChoiceTextEfb(c, label) {
   }
   return out;
 }
+/* F09: the answers of an entry split into the repeater groups' rows ({g: {name, rows: {ri: [answers]}}}) and the
+   rest; null for an entry without rows (old entries: nothing changes). */
+function efbRptViewerSplitEfb(content) {
+  if (!Array.isArray(content) || !content.some((c) => c && c.rg !== undefined && c.ri !== undefined)) return null;
+  const groups = {};
+  content.forEach((c) => { if (c && c.type === 'repeater' && c.id_ !== undefined) groups[c.id_] = { id: c.id_, name: c.name || '', rows: {} }; });
+  const rest = [];
+  content.forEach((c) => {
+    if (c && c.rg !== undefined && c.ri !== undefined && groups[c.rg] && /^\d{1,4}$/.test(String(c.ri))) {
+      (groups[c.rg].rows[String(c.ri)] = groups[c.rg].rows[String(c.ri)] || []).push(c);
+    } else rest.push(c);
+  });
+  return { groups, rest };
+}
+/* F09: one group's block: its title and number of rows, then a card per row (the values are escaped already). */
+function efbRptViewerBlockEfb(g, sum, render) {
+  const T = (k, fb) => (efb_var.text && efb_var.text[k]) || fb;
+  const loc = (efb_var && (efb_var.wp_lan || efb_var.language)) || 'en_US';
+  const num = (n) => (typeof window !== 'undefined' && window.EFBRepeaterCore ? window.EFBRepeaterCore.digits(String(n), loc) : String(n));
+  const keys = Object.keys(g.rows).map(Number).sort((a, b) => a - b);
+  const count = sum && sum.value !== undefined ? String(sum.value) : String(keys.length);
+  const name = g.name || (sum && sum.name) || '';
+  let h = `<div class="efb efb-msg-field-block efb-msg-rpt" data-rpt="${g.id}" data-name="${name}">`
+    + `<div class="efb efb-msg-field-row efb-msg-rpt-head"><span class="efb-msg-field-label" data-csv-key="${String(T('rptCount', '%s (count)')).replace('%s', name)}">${name}:</span> <span class="efb-msg-field-value" data-csv="${count}"><bdi>${String(T('rptRowsCount', '%s rows')).replace('%s', num(count))}</bdi></span></div>`
+    + `<div class="efb efb-msg-rpt-rows">`;
+  keys.forEach((ri, i) => {
+    h += `<div class="efb efb-msg-rpt-row" data-ri="${ri}" role="group" aria-label="${String(T('rowN', 'Row %s')).replace('%s', num(i + 1))}">`
+      + `<div class="efb efb-msg-rpt-title">${String(T('rowN', 'Row %s')).replace('%s', num(i + 1))}</div>`
+      + `<div class="efb efb-msg-rpt-body">${render(g.rows[String(ri)], true)}</div></div>`;
+  });
+  return h + '</div></div>';
+}
+/* F09: the CSV column of a viewer row: "Group › Field #k" inside a repeater row, the label otherwise. */
+function efbCsvKeyEfb(row, lbl) {
+  const base = lbl.getAttribute('data-csv-key') || lbl.textContent.trim().replace(/:$/, '').trim();
+  const rr = row.closest ? row.closest('.efb-msg-rpt-row') : null;
+  if (!rr) return base;
+  const blk = rr.closest('.efb-msg-rpt');
+  const rows = blk ? Array.prototype.slice.call(blk.querySelectorAll('.efb-msg-rpt-row')) : [rr];
+  return `${blk ? blk.getAttribute('data-name') : ''} › ${base} #${rows.indexOf(rr) + 1}`;
+}
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   /* Single choke point for stored-response XSS: every caller (dashboard list,
    * admin modal, public response box, reply thread) reaches innerHTML through
@@ -955,7 +996,14 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   const isCurrencyEfb = (v) => typeof v == 'string' && /^[A-Za-z]{3}$/.test(v);
   let currency = content[0].hasOwnProperty('paymentcurrency') && isCurrencyEfb(content[0].paymentcurrency) ? content[0].paymentcurrency :'usd';
   let last_type ='';
-  for (const c of content) {
+  /* F09: the rows of a repeater group (rg / ri) are drawn as one block at the group's own row: a card per row
+     ("Row 1", "Row 2" …) holding that row's answers with the same branches as any answer; old entries have no rg. */
+  const rptEfb = efbRptViewerSplitEfb(content);
+  const efbRenderRowsEfb = (rowsList, inRowEfb) => {
+  let m = '';
+  let checboxs = [];
+  for (const c of rowsList) {
+    if (rptEfb && !inRowEfb && c && c.type === 'repeater' && rptEfb.groups[c.id_]) { m += efbRptViewerBlockEfb(rptEfb.groups[c.id_], c, efbRenderRowsEfb); continue; }
     /* F13: an answer removed by anonymization (stored as @prv@), whatever its type. */
     if (c && c.value === '@prv@') {
       let prvTitle = c.hasOwnProperty('name') ? String(c.name) : '';
@@ -981,7 +1029,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       /* F07 §9: every file of one field in one row, as cards (a thumbnail for an image, chosen by the
          address's extension, not the row type the server pins to file / dadfile). A private file goes
          through the admin download action. */
-      const groupEfb = c.id_ ? content.filter((x) => x && x.value == '@file@' && x.id_ === c.id_ && typeof x.url == 'string' && /^https?:\/\//i.test(x.url) && list.indexOf(x.url) === -1) : [];
+      const groupEfb = c.id_ ? rowsList.filter((x) => x && x.value == '@file@' && x.id_ === c.id_ && typeof x.url == 'string' && /^https?:\/\//i.test(x.url) && list.indexOf(x.url) === -1) : [];
       if (groupEfb.length > 1 || (c.id_ob && c.fsz !== undefined)) {
         groupEfb.forEach((g) => list.push(g.url));
         value = efbFileCardsEfb(groupEfb.length ? groupEfb : [c]);
@@ -1095,7 +1143,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
       s = true;
       let vc ='null';
       checboxs.push(c.id_);
-      for(let op of content){
+      for(let op of rowsList){
         if(op.type=="checkbox" && op.id_ == c.id_){
           // F05: "Other: <text>" and the stored value next to the label when it differs (the tree is escaped already).
           const opv = efbChoiceTextEfb(op);
@@ -1187,6 +1235,9 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     }
     last_type = c.hasOwnProperty('type') ? c.type :'';
   }
+  return m;
+  };
+  m += efbRenderRowsEfb(rptEfb ? rptEfb.rest : content, false);
   m += '</div>';
   if(totalpaid>0){
     m +=`<div class="efb efb-msg-total">
@@ -1788,7 +1839,7 @@ function generateCSV_EFB(id) {
     card.querySelectorAll('.efb-msg-fields .efb-msg-field-row').forEach(function(row) {
       var lbl = row.querySelector('.efb-msg-field-label');
       if (lbl) {
-        var key = lbl.textContent.trim().replace(/:$/, '').trim();
+        var key = efbCsvKeyEfb(row, lbl);
         if (key && fieldLabels.indexOf(key) === -1) fieldLabels.push(key);
       }
     });
@@ -1823,7 +1874,7 @@ function generateCSV_EFB(id) {
     card.querySelectorAll('.efb-msg-fields .efb-msg-field-row').forEach(function(row) {
       var lbl = row.querySelector('.efb-msg-field-label');
       if (!lbl) return;
-      var key = lbl.textContent.trim().replace(/:$/, '').trim();
+      var key = efbCsvKeyEfb(row, lbl);
       var cellVal = '';
 
       // Signature (esign) - base64 data URL → note; external URL → link

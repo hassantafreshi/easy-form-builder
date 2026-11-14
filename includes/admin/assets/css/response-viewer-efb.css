@@ -1585,3 +1585,11 @@
 .efb-file-card-name { unicode-bidi: plaintext; max-width: 108px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .8rem; }
 .efb-file-card-size { unicode-bidi: plaintext; font-size: .75rem; color: #6c757d; }
 @media print { .efb-file-card { width: 23%; } }
+
+/* F09: a repeater group's rows in an entry: a card per row; two or more columns on a wide panel; print keeps a row together. */
+.efb-msg-rpt { margin-block: .5rem; }
+.efb-msg-rpt-rows { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr)); gap: .5rem; margin-top: .25rem; }
+.efb-msg-rpt-row { border: 1px solid rgba(0, 0, 0, .1); border-radius: .5rem; padding: .5rem .75rem; break-inside: avoid; page-break-inside: avoid; }
+.efb-msg-rpt-title { font-weight: 600; margin-bottom: .25rem; text-align: start; }
+.efb-msg-rpt-body .efb-msg-field-row { padding-inline: 0; }
+@media print { .efb-msg-rpt-rows { display: block; } .efb-msg-rpt-row { margin-bottom: .5rem; } }

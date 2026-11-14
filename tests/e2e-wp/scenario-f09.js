@@ -24,6 +24,9 @@
  *        rows (a choice with calculation values × a quantity = a line per row), the total sum({tickets.line}) is the
  *        amount; a forged lower total is refused (quote_changed with the server's amount); the provider is asked for
  *        the server's amount; paid: the entry holds the rows and the server's total.
+ *  f09l  Display: a guest sends two rows; the response viewer shows the group as one block ("Travellers: 2 rows",
+ *        "Row 1", "Row 2", each with its own answers, nothing repeated as loose answers, mixed script isolated);
+ *        the form CSV has the stable columns "{group} (count)" / "{group} › {field} #k"; fa_IR at 375 px.
  */
 'use strict';
 
@@ -428,5 +431,61 @@ module.exports = function (S) {
     const c = ((lastEntry(F.form_id) || {}).content) || [];
     const files = c.filter((r) => r && r.id_ === ids.doc);
     R.check('f09k: stored: two file rows under the field\'s own id with ri 0 / 1 and their own addresses', files.length === 2 && files.map((r) => r.ri).join(',') === '0,1' && files.every((r) => /^https?:/.test(r.url || '')) && files[0].url !== files[1].url, files);
+  });
+
+  /* ------------------------------------------------------------------ f09l */
+  scenario('f09l', 'F09 display: the response viewer shows the rows as blocks (en 1280, fa_IR 375), the form CSV columns', async ({ context, adminPage }) => {
+    pro(true);
+    ctl('locale', '');
+    const F = travellers({ g: { collapsible: '0', rmv_confirm: '0' } });
+    const ids = F.ids;
+    const g = await open(context, pageOf(F.form_id), 'f09l');
+    await g.fill(`[id="${ids.nm}_r0_"]`, 'Sara');
+    await g.press(`[id="${ids.nm}_r0_"]`, 'Tab');
+    await g.click(`[id="${ids.g}_add"]`);
+    await sleep(500);
+    await g.fill(`[id="${ids.nm}_r1_"]`, 'Reza علی 12');
+    await g.press(`[id="${ids.nm}_r1_"]`, 'Tab');
+    await g.check(`[id="${ids.e2}_r1"]`);
+    await g.fill(`[id="${ids.after}_"]`, 'guest@example.test');
+    await g.press(`[id="${ids.after}_"]`, 'Tab');
+    const out = await send(g);
+    R.check('f09l: the entry with two rows is accepted', out.res && out.res.success === true, out.res);
+    const e = lastEntry(F.form_id);
+    const viewer = async (admin) => {
+      await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+      await admin.waitForFunction(() => typeof fun_get_messages_by_id === 'function' || document.querySelector('.efb-act-msg'), null, { timeout: 20000 });
+      const btn = await admin.$(`.efb-act-msg[data-id="${F.form_id}"]`);
+      if (btn) await btn.click(); else await admin.evaluate((id) => fun_get_messages_by_id(Number(id)), F.form_id);
+      await admin.waitForSelector(`#btn-m-${e.msg_id}`, { timeout: 20000 });
+      const csv = await admin.evaluate(() => (Array.isArray(window.efb_export_rows_efb) ? window.efb_export_rows_efb[0] : null));
+      await admin.click(`#btn-m-${e.msg_id}`);
+      await admin.waitForSelector('.efb-msg-rpt .efb-msg-rpt-row', { timeout: 20000 });
+      await sleep(800);
+      const v = await admin.evaluate(() => {
+        const b = document.querySelector('.efb-msg-rpt');
+        return { rows: Array.from(b.querySelectorAll('.efb-msg-rpt-row')).map((r) => ({ title: r.querySelector('.efb-msg-rpt-title').textContent.trim(), text: r.querySelector('.efb-msg-rpt-body').textContent.replace(/\s+/g, ' ').trim() })),
+          head: b.querySelector('.efb-msg-rpt-head').textContent.replace(/\s+/g, ' ').trim(), loose: Array.from(document.querySelectorAll('.efb-msg-field-row:not(.efb-msg-rpt-head)')).filter((r) => !r.closest('.efb-msg-rpt') && /Sara|Reza/.test(r.textContent)).length,
+          dir: getComputedStyle(b).direction, scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+          bidi: Array.from(b.querySelectorAll('.efb-msg-field-value bdi, .efb-msg-field-value [dir="auto"]')).some((x) => /Reza علی 12/.test(x.textContent)) };
+      });
+      return { csv, v };
+    };
+    const admin = await adminPage();
+    const en = await viewer(admin);
+    R.check('f09l: the viewer shows the group as one block "Travellers: 2 rows", then "Row 1" with Sara and "Row 2" with Reza and Seat', /Travellers:?\s*2 rows/.test(en.v.head) && en.v.rows.length === 2 && en.v.rows[0].title === 'Row 1' && /Sara/.test(en.v.rows[0].text) && !/Reza/.test(en.v.rows[0].text) && /Reza/.test(en.v.rows[1].text) && /Seat/.test(en.v.rows[1].text) && !/Seat/.test(en.v.rows[0].text), en.v);
+    R.check('f09l: the rows are not shown again as loose answers; a mixed-script value isolated (bdi / dir auto)', en.v.loose === 0 && en.v.bidi === true, en.v);
+    R.check('f09l: the form CSV columns: "Travellers (count)", "Travellers › Name #1", "Travellers › Name #2", "E-mail"', Array.isArray(en.csv) && ['Travellers (count)', 'Travellers › Name #1', 'Travellers › Name #2', 'E-mail'].every((h) => en.csv.includes(h)), en.csv);
+    await admin.screenshot({ path: SHOT('f09l-viewer-en'), fullPage: true });
+    ctl('locale', 'fa_IR');
+    try {
+      const fa = await adminPage({ viewport: { width: 375, height: 800 } }, 'admin-fa');
+      const r = await viewer(fa);
+      R.check('f09l: fa_IR at 375 px: the block is right to left, row titles in Persian digits (۱ / ۲), no horizontal scroll', r.v.dir === 'rtl' && /۱/.test(r.v.rows[0].title) && /۲/.test(r.v.rows[1].title) && r.v.scroll <= 1, r.v);
+      await fa.screenshot({ path: SHOT('f09l-viewer-fa_IR-375'), fullPage: true });
+      await (await fa.$('.efb-msg-rpt')).screenshot({ path: SHOT('f09l-viewer-fa_IR-375-rows') });
+      const clip = await fa.evaluate(() => { const p = document.querySelector('.efb-msg-rpt').getBoundingClientRect(); const t = document.querySelector('.efb-msg-rpt-title').getBoundingClientRect(); return { p: [p.left, p.right], rows: Array.from(document.querySelectorAll('.efb-msg-rpt-row')).map((r) => { const b = r.getBoundingClientRect(); return [b.left, b.right]; }), title: [t.left, t.right] }; });
+      R.check('f09l: fa_IR at 375 px: each row card fits inside the block (not cut at either side); its title starts at the right', clip.rows.every((b) => b[0] >= clip.p[0] - 1 && b[1] <= clip.p[1] + 1) && clip.title[1] >= clip.rows[0][1] - 20, clip);
+    } finally { ctl('locale', ''); }
   });
 };

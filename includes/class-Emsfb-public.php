@@ -9314,9 +9314,45 @@ public function check_nonce_permission_efb($request) {
 
 			};
 
+			/* F09: the rows of a repeater group (rg / ri) are printed at the group's own row as one block: its name and
+			 * number of rows, then each row ("Row N") as its own small table of answers (the same branches as any answer),
+			 * at most efb_email_repeater_rows rows (20) and a line that says how many more are in the dashboard. */
+			$rpt_groups_efb = array();
+			foreach ($content as $c) { if (is_array($c) && ($c['type'] ?? '') === 'repeater' && isset($c['id_']) && is_scalar($c['id_'])) $rpt_groups_efb[(string) $c['id_']] = array(); }
+			if ($rpt_groups_efb) {
+				foreach ($content as $c) {
+					if (is_array($c) && isset($c['rg'], $c['ri']) && is_scalar($c['rg']) && isset($rpt_groups_efb[(string) $c['rg']]) && preg_match('/^\d{1,4}$/D', (string) $c['ri'])) $rpt_groups_efb[(string) $c['rg']][(int) $c['ri']][] = $c;
+				}
+			}
+
 			foreach ($content as $c){
 
 				if (!is_array($c)) { continue; }
+				if ($rpt_groups_efb && isset($c['rg'], $c['ri']) && is_scalar($c['rg']) && isset($rpt_groups_efb[(string) $c['rg']])) { continue; }
+				if ($rpt_groups_efb && ($c['type'] ?? '') === 'repeater' && isset($c['id_']) && isset($rpt_groups_efb[(string) $c['id_']])) {
+					$rpt_rows_efb = $rpt_groups_efb[(string) $c['id_']];
+					ksort($rpt_rows_efb);
+					$rpt_cap_efb = class_exists('\\Emsfb\\Repeater') ? \Emsfb\Repeater::caps()['email_rows'] : 20;
+					$rpt_t_efb = function ($k, $fb) { return class_exists('\\Emsfb\\Repeater') ? \Emsfb\Repeater::t($k) : $fb; };
+					$rpt_d_efb = function ($n) { return class_exists('\\Emsfb\\Repeater') ? \Emsfb\Repeater::digits((string) $n) : (string) $n; };
+					$rpt_name_efb = isset($c['name']) && is_scalar($c['name']) ? str_replace('@efb@dq#', '"', (string) $c['name']) : '';
+					$m .= '<tr><td colspan="2" class="columnEmailEfb" style="padding:5px; line-height:20px;">';
+					$m .= '<p style="margin:0 0 6px 0;font-weight:bold;font-size:16px;" dir="auto">' . esc_html($rpt_name_efb) . ': <span style="font-weight:normal;font-size:14px;">' . esc_html(str_replace('%s', $rpt_d_efb(count($rpt_rows_efb)), $rpt_t_efb('rptRowsCount', '%s rows'))) . '</span></p>';
+					$rpt_i_efb = 0;
+					foreach ($rpt_rows_efb as $rpt_list_efb) {
+						if ($rpt_i_efb >= $rpt_cap_efb) break;
+						$rpt_i_efb++;
+						$m .= '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #e3e3e3;border-radius:6px;margin:0 0 8px 0;"><tr><td style="padding:6px 8px;">';
+						$m .= '<p style="margin:0 0 4px 0;font-weight:bold;font-size:14px;" dir="auto">' . esc_html(str_replace('%s', $rpt_d_efb($rpt_i_efb), $rpt_t_efb('rowN', 'Row %s'))) . '</p>';
+						$m .= $this->email_get_content_efb($rpt_list_efb, $track);
+						$m .= '</td></tr></table>';
+					}
+					if (count($rpt_rows_efb) > $rpt_cap_efb) {
+						$m .= '<p style="margin:0 0 6px 0;font-size:13px;" dir="auto">' . esc_html(str_replace('%s', $rpt_d_efb(count($rpt_rows_efb) - $rpt_cap_efb), $rpt_t_efb('rptMoreRows', '%s more rows. See the whole answer in the dashboard.'))) . '</p>';
+					}
+					$m .= '</td></tr>';
+					continue;
+				}
 				foreach (array('type', 'name') as $text_key_efb) {
 					if (isset($c[$text_key_efb]) && !is_string($c[$text_key_efb])) {
 						$c[$text_key_efb] = is_scalar($c[$text_key_efb]) ? (string) $c[$text_key_efb] : '';
