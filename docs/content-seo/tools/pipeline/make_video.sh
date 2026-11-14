@@ -28,6 +28,9 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TOOLS="$(cd "$HERE/.." && pwd)"
 source "$TOOLS/wp-env/env.sh"
+# ElevenLabs key/voice for fresh cloud sessions: decrypted in memory from secrets/secrets.env.enc (owner decision 2026-11-14);
+# variables already set in the environment win. Never echo them.
+[ -f "$TOOLS/secrets/load-secrets.sh" ] && source "$TOOLS/secrets/load-secrets.sh" >/dev/null 2>&1 || true
 
 SB=""; NAME=""; OUT=""; FORMATS="16x9,9x16"; STAGES="site,capture,voice,fit,render,mux"; REUSE=0; VOICE_FILE=""; LEAD=2; MUSIC=""; FRESH=1; CRF=18
 FLOW="contact"; CAP=""

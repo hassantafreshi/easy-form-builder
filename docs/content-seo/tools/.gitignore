@@ -6,7 +6,9 @@ video/out/
 video/output/
 pipeline/out/
 pipeline/output/
-secrets/
+secrets/*
+!secrets/secrets.env.enc
+!secrets/load-secrets.sh
 *.env
 !*.env.example
 *.webm
