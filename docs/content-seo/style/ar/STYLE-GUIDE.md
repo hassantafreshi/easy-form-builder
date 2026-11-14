@@ -243,7 +243,7 @@ Pattern: **verb + UI element + (condition) + result**.
 ### 7.6 FAQ
 * H2 «الأسئلة الشائعة» (4-6 items), each question an H3 ending with «؟», answer 1-3 sentences (40-60 words for the first answer).
 * Natural openers: «هل … ؟», «كيف … ؟», «ما … ؟», «لماذا … ؟», «كم … ؟», «أيّ … ؟». Do not mirror the EN structure «Can I …» as «هل يمكنني» every time.
-* Same Q/A text goes into FAQPage schema (language `ar`).
+* FAQPage schema is off by default (Google stopped FAQ rich results on 2026-05-07); if it is ever enabled, the same Q/A text goes into it (language `ar`).
 
 ### 7.7 Call to action
 * One CTA near the end; singular imperative; concrete; no «!»; no emoji; no «رحلة»:

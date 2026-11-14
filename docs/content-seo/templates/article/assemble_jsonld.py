@@ -6,6 +6,7 @@ assemble_jsonld.py - build the efb_jsonld meta value from jsonld-templates.json.
     python3 assemble_jsonld.py jsonld-templates.json --demo --mode standalone --video self_hosted
 
 --mode   supplement | standalone   which objects to emit (see _meta.modes in the template file)
+--faq    also emit FAQPage (off by default: Google stopped FAQ rich results on 2026-05-07)
 --video  youtube | self_hosted | none   (VideoObject is dropped with "none")
 data.json is a flat object {"PLACEHOLDER": "value"}; numbers may be passed as JSON numbers or strings.
 Output: a JSON array of schema.org objects, compact, UTF-8, ready for the efb_jsonld post meta.
@@ -74,8 +75,10 @@ def build_faq(tpl: dict, data: dict) -> dict | None:
     return tpl
 
 
-def assemble(templates: dict, data: dict, mode: str, video: str) -> list:
+def assemble(templates: dict, data: dict, mode: str, video: str, faq: bool = False) -> list:
     emit = list(templates["assemble"][mode])
+    if faq:
+        emit.append("FAQPage")  # opt-in: no Google rich result since 2026-05-07
     if video == "none" or not has(data, "VIDEO_NAME"):
         emit = [e for e in emit if e != "VideoObject"]
     objs, missing = [], set()
@@ -117,8 +120,17 @@ def validate(objs: list) -> list[str]:
                 problems.append("VideoObject needs exactly one of embedUrl / contentUrl")
         if t == "FAQPage" and not 2 <= len(o["mainEntity"]) <= 6:
             problems.append("FAQPage should have 2-6 questions")
-        if t in ("TechArticle", "Article") and not o.get("author", {}).get("name"):
-            problems.append("Article without a real author name")
+        if t == "Article":
+            if not o.get("author", {}).get("name"):
+                problems.append("Article without a real author name")
+            if not o.get("author", {}).get("url"):
+                problems.append("Article author without url (Google recommends author.url)")
+            if len(o.get("image", [])) < 3:
+                problems.append("Article image should list the 16x9, 4x3 and 1x1 crops")
+        if t == "VideoObject":
+            for k in ("name", "thumbnailUrl", "uploadDate"):
+                if not o.get(k):
+                    problems.append(f"VideoObject.{k} is required by Google")
     return problems
 
 
@@ -129,8 +141,10 @@ DEMO = {
     "META_DESCRIPTION": "Send every Easy Form Builder entry to Google Sheets in about ten minutes. Step-by-step guide with screenshots, tested on version 4.3.1.",
     "LANG_BCP47": "en-US", "DATE_PUBLISHED_ISO": "2026-11-13T07:00:00+00:00", "DATE_MODIFIED_ISO": "2026-11-13T07:00:00+00:00",
     "AUTHOR_NAME": "Example Author", "AUTHOR_URL": "https://whitestudio.team/author/example/",
-    "IMAGE_URL": "https://whitestudio.team/wp-content/uploads/2026/11/cover-demo.jpg", "CATEGORY_NAME": "Documentation",
-    "WORD_COUNT": 1020, "EFB_VERSION": "4.3.1", "WP_MIN": "5.7",
+    "IMAGE_URL_16X9": "https://whitestudio.team/wp-content/uploads/2026/11/cover-demo-16x9.jpg",
+    "IMAGE_URL_4X3": "https://whitestudio.team/wp-content/uploads/2026/11/cover-demo-4x3.jpg",
+    "IMAGE_URL_1X1": "https://whitestudio.team/wp-content/uploads/2026/11/cover-demo-1x1.jpg", "CATEGORY_NAME": "Documentation",
+    "WORD_COUNT": 1020,
     "CRUMB_2_NAME": "Documentation", "CRUMB_2_URL": "https://whitestudio.team/documents/",
     "VIDEO_NAME": "Connect Easy Form Builder to Google Sheets in 60 seconds", "VIDEO_DESCRIPTION": "Short demo of the Google Sheets add-on.",
     "VIDEO_THUMBNAIL_URL": "https://whitestudio.team/wp-content/uploads/2026/11/demo-poster.jpg", "VIDEO_UPLOAD_DATE_ISO": "2026-11-13",
@@ -149,6 +163,7 @@ def main(argv=None) -> int:
     ap.add_argument("data", nargs="?")
     ap.add_argument("--mode", choices=["supplement", "standalone"], required=True)
     ap.add_argument("--video", choices=["youtube", "self_hosted", "none"], default="none")
+    ap.add_argument("--faq", action="store_true", help="also emit FAQPage (no Google rich result since 2026-05-07)")
     ap.add_argument("--demo", action="store_true")
     ap.add_argument("-o", "--output")
     ap.add_argument("--pretty", action="store_true")
@@ -156,7 +171,7 @@ def main(argv=None) -> int:
     try:
         templates = json.load(open(a.templates, encoding="utf-8"))
         data = DEMO if a.demo else json.load(open(a.data, encoding="utf-8"))
-        objs = assemble(templates, data, a.mode, a.video)
+        objs = assemble(templates, data, a.mode, a.video, a.faq)
         problems = validate(objs)
     except (Missing, ValueError, OSError, KeyError) as exc:
         print(f"assemble_jsonld: error: {exc}", file=sys.stderr)

@@ -19,7 +19,7 @@ def demo():
 
 class AssembleTests(unittest.TestCase):
     def test_template_file_is_valid_and_covers_the_four_types(self):
-        self.assertEqual(set(TEMPLATES["templates"]), {"TechArticle", "BreadcrumbList", "VideoObject", "FAQPage"})
+        self.assertEqual(set(TEMPLATES["templates"]), {"Article", "BreadcrumbList", "VideoObject", "FAQPage"})
         for mode, names in TEMPLATES["assemble"].items():
             if mode != "output":
                 self.assertTrue(set(names) <= set(TEMPLATES["templates"]), mode)
@@ -35,17 +35,20 @@ class AssembleTests(unittest.TestCase):
 
     def test_supplement_has_no_article_or_breadcrumb(self):
         objs = J.assemble(TEMPLATES, demo(), "supplement", "youtube")
-        self.assertEqual([o["@type"] for o in objs], ["VideoObject", "FAQPage"])
+        self.assertEqual([o["@type"] for o in objs], ["VideoObject"])
         self.assertEqual(J.validate(objs), [])
+        self.assertEqual([o["@type"] for o in J.assemble(TEMPLATES, demo(), "supplement", "youtube", faq=True)], ["VideoObject", "FAQPage"])
 
-    def test_standalone_has_four_objects_and_valid_values(self):
+    def test_standalone_has_three_objects_and_valid_values(self):
         objs = J.assemble(TEMPLATES, demo(), "standalone", "self_hosted")
-        self.assertEqual([o["@type"] for o in objs], ["TechArticle", "BreadcrumbList", "VideoObject", "FAQPage"])
+        self.assertEqual([o["@type"] for o in objs], ["Article", "BreadcrumbList", "VideoObject"])
         self.assertEqual(J.validate(objs), [])
-        art, crumbs, video, faq = objs
+        art, crumbs, video = objs
         self.assertIsInstance(art["wordCount"], int)
         self.assertEqual(art["inLanguage"], "en-US")
-        self.assertIn("Easy Form Builder 4.3.1", art["dependencies"])
+        self.assertEqual(len(art["image"]), 3)
+        self.assertTrue(art["author"]["name"] and art["author"]["url"])
+        self.assertEqual(video["creator"]["@type"], "Organization")
         self.assertEqual([i["position"] for i in crumbs["itemListElement"]], [1, 2, 3])
         self.assertIn("contentUrl", video)
         self.assertNotIn("embedUrl", video)
@@ -58,21 +61,22 @@ class AssembleTests(unittest.TestCase):
         self.assertNotIn("contentUrl", v)
 
     def test_video_dropped_when_none_or_no_data(self):
-        self.assertEqual([o["@type"] for o in J.assemble(TEMPLATES, demo(), "supplement", "none")], ["FAQPage"])
+        self.assertEqual([o["@type"] for o in J.assemble(TEMPLATES, demo(), "supplement", "none", faq=True)], ["FAQPage"])
+        self.assertEqual(J.assemble(TEMPLATES, demo(), "supplement", "none"), [])
         d = demo()
         d.pop("VIDEO_NAME")
-        self.assertEqual([o["@type"] for o in J.assemble(TEMPLATES, d, "supplement", "youtube")], ["FAQPage"])
+        self.assertEqual([o["@type"] for o in J.assemble(TEMPLATES, d, "supplement", "youtube", faq=True)], ["FAQPage"])
 
     def test_faq_items_follow_data_and_clone_up_to_six(self):
         d = demo()
         d.pop("FAQ_3_Q")
         d.pop("FAQ_3_A_PLAIN")
-        faq = J.assemble(TEMPLATES, d, "supplement", "none")[0]
+        faq = J.assemble(TEMPLATES, d, "supplement", "none", faq=True)[0]
         self.assertEqual([q["name"] for q in faq["mainEntity"]], ["Does this need the Pro plan?", "Can I use an existing spreadsheet?"])
         d = demo()
         for n in (4, 5, 6):
             d[f"FAQ_{n}_Q"], d[f"FAQ_{n}_A_PLAIN"] = f"Q{n}?", f"A{n}."
-        faq = J.assemble(TEMPLATES, d, "supplement", "none")[0]
+        faq = J.assemble(TEMPLATES, d, "supplement", "none", faq=True)[0]
         self.assertEqual(len(faq["mainEntity"]), 6)
         self.assertEqual(faq["mainEntity"][5]["acceptedAnswer"]["text"], "A6.")
 
@@ -81,7 +85,7 @@ class AssembleTests(unittest.TestCase):
         for k in ("FAQ_2_Q", "FAQ_2_A_PLAIN", "FAQ_3_Q", "FAQ_3_A_PLAIN"):
             d.pop(k)
         with self.assertRaises(ValueError):
-            J.assemble(TEMPLATES, d, "supplement", "none")
+            J.assemble(TEMPLATES, d, "supplement", "none", faq=True)
         d = demo()
         d.pop("PAGE_URL")
         with self.assertRaisesRegex(J.Missing, "PAGE_URL"):
@@ -92,11 +96,21 @@ class AssembleTests(unittest.TestCase):
         d["VIDEO_DURATION_ISO"] = "58 seconds"
         d["LANG_BCP47"] = "english"
         d["FAQ_1_A_PLAIN"] = "bad </script><script>alert(1)</script>"
-        problems = J.validate(J.assemble(TEMPLATES, d, "supplement", "youtube"))
+        problems = J.validate(J.assemble(TEMPLATES, d, "standalone", "youtube", faq=True))
         joined = " | ".join(problems)
         self.assertIn("duration", joined)
         self.assertIn("inLanguage", joined)
         self.assertIn("</script", joined)
+
+    def test_validation_requires_google_video_and_article_fields(self):
+        objs = J.assemble(TEMPLATES, demo(), "standalone", "youtube")
+        objs[0]["author"].pop("url")
+        objs[0]["image"] = objs[0]["image"][:1]
+        objs[2].pop("thumbnailUrl")
+        joined = " | ".join(J.validate(objs))
+        self.assertIn("author without url", joined)
+        self.assertIn("16x9, 4x3 and 1x1", joined)
+        self.assertIn("thumbnailUrl", joined)
 
     def test_output_is_json_array_and_survives_the_mu_plugin_rule(self):
         # the mu-plugin accepts anything json_decode turns into an array (object or list)

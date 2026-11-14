@@ -206,6 +206,8 @@ If a caption is used, it must also be written into the block's `<figcaption>`, b
 
 ## 11. Cover (featured) image
 
+> **Google Article markup (checked 2026-11-14):** recommends the featured image in **three crops — 16:9, 4:3 and 1:1 — each at least 50,000 px in area** and in a Google-Images-supported format. Export the cover once, then crop it to `-16x9.jpg` (1600 x 900), `-4x3.jpg` (1200 x 900) and `-1x1.jpg` (900 x 900); keep the subject inside the central square so all three crops work. These URLs fill `IMAGE_URL_16X9 / _4X3 / _1X1` in the JSON-LD.
+
 Proposal; no WPForms measurement behind it. **1600 x 840 JPEG** (1.9:1, crops cleanly to the 1200 x 630 Open Graph size), quality 82, <= 200 KB. Brand gradient background
 `#652EBA -> #4C238B` (theme `--brand-gradient`), one real annotated UI crop on the right, at most **five words** of title text in white on the left (no sentence, no logo clutter).
 JPEG rather than WebP because several social scrapers still ignore WebP (not re-verified). Same file for the three sites; the title text is re-set per locale. YouTube thumbnails follow plan 5.2

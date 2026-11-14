@@ -8,7 +8,7 @@ components that `simple-ws-theme` 1.11.44 styles.
 | file | role |
 |---|---|
 | `article-template.en.html` | the body skeleton (placeholders `{{LIKE_THIS}}`, optional spans, clone blocks) |
-| `jsonld-templates.json` | Article/TechArticle, BreadcrumbList, VideoObject, FAQPage templates for the `efb_jsonld` meta |
+| `jsonld-templates.json` | Article, BreadcrumbList, VideoObject (+ optional FAQPage, off by default) templates for the `efb_jsonld` meta; v2 checked against Google Search Central on 2026-11-14 |
 | `fill_template.py` | reference fill step (clone, drop optional spans, strip notes, escape, validate) + built-in `--demo` data |
 | `assemble_jsonld.py` | builds the `efb_jsonld` string from the JSON-LD templates (modes `supplement` / `standalone`) |
 | `test_fill_template.py`, `test_assemble_jsonld.py` | 18 tests: `python3 -m unittest discover -s . -p "test_*.py"` |
