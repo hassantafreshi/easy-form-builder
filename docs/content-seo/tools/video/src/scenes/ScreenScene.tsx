@@ -5,7 +5,7 @@ import type { Brand, ResolvedAsset, ResolvedScene, ScreenScene } from '../lib/ty
 import { Backdrop } from './Intro';
 import { CalloutBadge } from '../components/Callout';
 import { Cursor } from '../components/Cursor';
-import { LowerThirdBar } from '../components/LowerThird';
+import { LowerThirdBar, lowerThirdBox } from '../components/LowerThird';
 
 export const ScreenSceneView: React.FC<{ s: ScreenScene & ResolvedScene; asset: ResolvedAsset; brand: Brand; portrait: boolean; unit: number; zoomBoost: number }> = ({ s, asset, brand, portrait, unit, zoomBoost }) => {
   const frame = useCurrentFrame();
@@ -36,7 +36,7 @@ export const ScreenSceneView: React.FC<{ s: ScreenScene & ResolvedScene; asset: 
           <Cursor cam={cam} events={asset.events} tv={tv} unit={unit} accent={brand.accent} />
         </div>
       ) : null}
-      {(s.callouts || []).map((c, i) => <CalloutBadge key={i} c={c} cam={cam} asset={asset} t={t} unit={unit} brand={brand} W={W} H={H} />)}
+      {(s.callouts || []).map((c, i) => <CalloutBadge key={i} c={c} cam={cam} asset={asset} t={t} unit={unit} brand={brand} W={W} H={H} portrait={portrait} avoid={s.lowerThird && t >= s.lowerThird.at && t <= s.lowerThird.at + (s.lowerThird.dur ?? 3) + 0.5 ? [lowerThirdBox(s.lowerThird, unit, portrait, H)] : []} />)}
       {s.lowerThird ? <LowerThirdBar lt={s.lowerThird} t={t} unit={unit} brand={brand} portrait={portrait} H={H} /> : null}
     </AbsoluteFill>
   );

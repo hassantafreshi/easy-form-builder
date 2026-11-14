@@ -26,14 +26,16 @@ export function wrapLines(text, maxChars = 42) {
 }
 
 /** Sentences with {start,end} (output timeline, seconds) -> SRT text. Long sentences are split into several cues. */
-export function toSrt(sentences, { maxChars = 42, maxLines = 2, offset = 0 } = {}) {
+export function toSrt(sentences, { maxChars = 37, maxLines = 2, offset = 0, gap = 0.08 } = {}) {
+  // 37 characters per line = the comfort target of tools/srt/validate_srt.py (42 is its hard limit); cues split
+  // from one sentence keep `gap` seconds between them.
   const cues = [];
   for (const s of sentences) {
     const lines = wrapLines(s.text, maxChars);
     const groups = []; for (let i = 0; i < lines.length; i += maxLines) groups.push(lines.slice(i, i + maxLines));
     const total = groups.reduce((a, g) => a + g.join(' ').length, 0);
     let t = s.start + offset;
-    for (const g of groups) { const d = (s.end - s.start) * (g.join(' ').length / total); cues.push({ start: t, end: t + d, text: g.join('\n') }); t += d; }
+    groups.forEach((g, i) => { const d = (s.end - s.start) * (g.join(' ').length / total); cues.push({ start: t, end: t + d - (i < groups.length - 1 ? gap : 0), text: g.join('\n') }); t += d; });
   }
   return cues.map((c, i) => `${i + 1}\n${fmtSrt(c.start)} --> ${fmtSrt(c.end)}\n${c.text}\n`).join('\n');
 }

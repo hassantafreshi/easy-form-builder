@@ -1,13 +1,47 @@
 import React from 'react';
-import { AbsoluteFill, spring, useCurrentFrame, useVideoConfig } from 'remotion';
+import { AbsoluteFill, Img, spring, staticFile, useCurrentFrame, useVideoConfig } from 'remotion';
 import { ramp } from '../lib/camera';
-import type { Brand, IntroScene } from '../lib/types';
+import type { Brand, IntroScene, ResolvedAsset } from '../lib/types';
 
 export const Backdrop: React.FC<{ brand: Brand; angle?: number }> = ({ brand, angle = 135 }) => (
   <AbsoluteFill style={{ background: `linear-gradient(${angle}deg, ${brand.dark} 0%, #1b1f66 55%, ${brand.primary} 130%)` }} />
 );
 
-export const Intro: React.FC<{ s: IntroScene; brand: Brand; portrait: boolean; unit: number }> = ({ s, brand, unit }) => {
+/**
+ * Hook card (scene has `bg`): the result screenshot fills the frame (slow push-in), a dark gradient on the left
+ * carries the headline. Text is fully visible at frame 0 (only position animates), per the motion style guide.
+ */
+const Hook: React.FC<{ s: IntroScene; brand: Brand; portrait: boolean; unit: number; asset: ResolvedAsset }> = ({ s, brand, portrait, unit, asset }) => {
+  const frame = useCurrentFrame();
+  const { fps, width: W, height: H, durationInFrames } = useVideoConfig();
+  const k = frame / Math.max(1, durationInFrames);
+  const [sw, sh] = asset.size;
+  // bgFocus (0..1 of the screenshot) lands at 76% of the width (landscape) / 70% of the height (portrait)
+  const [fx, fy] = s.bgFocus || [0.5, 0.5];
+  const cover = Math.max(W / sw, H / sh) * (s.bgZoom || 1) * (1 + 0.04 * k);
+  const iw = sw * cover, ih = sh * cover;
+  const il = portrait ? W / 2 - fx * iw : W * 0.76 - fx * iw;
+  const it = portrait ? H * 0.7 - fy * ih : H / 2 - fy * ih;
+  const slide = spring({ frame, fps, config: { damping: 200, stiffness: 140 } });
+  const fadeOut = Math.min(1, (durationInFrames - frame) / 6);
+  return (
+    <AbsoluteFill style={{ fontFamily: brand.font, color: brand.text, opacity: fadeOut, background: brand.dark }}>
+      <Img src={staticFile(asset.image!)} style={{ position: 'absolute', width: iw, height: ih, left: il, top: it }} />
+      <AbsoluteFill style={{ background: portrait ? `linear-gradient(180deg, ${brand.dark} 0%, ${brand.dark}f5 40%, ${brand.dark}00 58%)` : `linear-gradient(90deg, ${brand.dark} 0%, ${brand.dark} 38%, ${brand.dark}e6 45%, ${brand.dark}00 56%)` }} />
+      <div style={{ position: 'absolute', left: unit * 110, top: portrait ? unit * 220 : H * 0.27, width: portrait ? W - unit * 200 : W * 0.38, transform: `translateX(${(1 - slide) * -unit * 40}px)` }}>
+        {s.badge ? <div style={{ display: 'inline-block', background: brand.accent, color: '#fff', fontWeight: 800, fontSize: unit * 26, letterSpacing: 3, textTransform: 'uppercase', padding: `${unit * 8}px ${unit * 24}px`, borderRadius: unit * 40, marginBottom: unit * 30 }}>{s.badge}</div> : null}
+        <div style={{ fontSize: unit * 88, fontWeight: 800, lineHeight: 1.04, letterSpacing: -1.5 }}>{s.title}</div>
+        {s.subtitle ? <div style={{ fontSize: unit * 40, fontWeight: 500, opacity: 0.9, marginTop: unit * 26 }}>{s.subtitle}</div> : null}
+        {s.chips?.length ? <div style={{ display: 'flex', gap: unit * 14, marginTop: unit * 34, flexWrap: 'wrap' }}>{s.chips.map((c, i) => <div key={i} style={{ fontSize: unit * 24, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', padding: `${unit * 8}px ${unit * 20}px`, borderRadius: unit * 30, background: 'rgba(255,255,255,.14)', border: '1px solid rgba(255,255,255,.35)' }}>{c}</div>)}</div> : null}
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+export const Intro: React.FC<{ s: IntroScene; brand: Brand; portrait: boolean; unit: number; asset?: ResolvedAsset }> = (props) =>
+  props.s.bg && props.asset?.image ? <Hook {...props} asset={props.asset} /> : <TitleCard {...props} />;
+
+const TitleCard: React.FC<{ s: IntroScene; brand: Brand; portrait: boolean; unit: number }> = ({ s, brand, unit }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
   const p = spring({ frame, fps, config: { damping: 16, stiffness: 110 } });

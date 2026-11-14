@@ -1,0 +1,523 @@
+{
+  "meta": {
+    "title": "How to Create a Stripe Payment Form in WordPress with Easy Form Builder",
+    "queue_id": "R47",
+    "article": "https://whitestudio.team/document/wordpress-stripe-payment-form-plugin/",
+    "plugin_version": "4.3.1",
+    "plan": "Free Plus",
+    "capture": "node tools/capture/capture.mjs --flow stripe --out ${EFB_WORK}/capture-r47",
+    "fps": 30,
+    "portraitZoom": 1.0,
+    "brand": {
+      "primary": "#3640d4",
+      "accent": "#ff4b93",
+      "dark": "#0e1230",
+      "text": "#ffffff"
+    }
+  },
+  "assets": {
+    "flow": {
+      "video": "${EFB_WORK}/capture-r47/video/flow.mp4",
+      "events": "${EFB_WORK}/capture-r47/video/events.json",
+      "markers": "${EFB_WORK}/capture-r47/video/markers.json"
+    },
+    "payform": {
+      "image": "${EFB_WORK}/capture-r47/stills/payform.png",
+      "size": [
+        1600,
+        900
+      ]
+    }
+  },
+  "captions": {
+    "srt": null,
+    "style": "bar"
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "type": "intro",
+      "bg": "payform",
+      "badge": "WordPress tutorial",
+      "title": "Stripe payments in a WordPress form",
+      "subtitle": "Easy Form Builder + Stripe add-on",
+      "chips": [
+        "Free Plus plan",
+        "No Pro license"
+      ],
+      "narration": "Take Stripe payments with a WordPress form.",
+      "bgZoom": 1.25,
+      "bgFocus": [
+        0.5,
+        0.78
+      ]
+    },
+    {
+      "id": "addon",
+      "type": "recording",
+      "src": "flow",
+      "from": "addons-nav",
+      "to": "settings-start",
+      "narration": "Easy Form Builder's Stripe add-on runs on the Free Plus plan, no Pro license needed. Open Add-ons and install the Stripe Payment Add-on.",
+      "camera": [
+        {
+          "at": 0,
+          "zoom": 1
+        },
+        {
+          "at": "addons",
+          "zoom": 1
+        },
+        {
+          "at": "addons+0.6",
+          "zoom": 1.7,
+          "focus": "stripe-card",
+          "ease": "inOut"
+        },
+        {
+          "at": "installed+2",
+          "zoom": 1.7,
+          "focus": "stripe-card"
+        }
+      ],
+      "callouts": [
+        {
+          "at": "addons-nav",
+          "dur": 1.1,
+          "n": 1,
+          "target": "menu-addons",
+          "text": "Add-ons",
+          "side": "right"
+        },
+        {
+          "at": "install-click-0.1",
+          "dur": 1.4,
+          "n": 2,
+          "target": "stripe-install",
+          "text": "Install",
+          "side": "right"
+        },
+        {
+          "at": "installed+0.1",
+          "dur": 2.0,
+          "target": "stripe-remove",
+          "text": "Installed on Free Plus",
+          "side": "left",
+          "ring": false
+        }
+      ],
+      "lowerThird": {
+        "at": "addons-nav",
+        "dur": 2.6,
+        "title": "Step 1 · Install the add-on",
+        "subtitle": "Easy Form Builder → Add-ons"
+      }
+    },
+    {
+      "id": "keys",
+      "type": "recording",
+      "src": "flow",
+      "from": "settings-start",
+      "to": "create-start",
+      "narration": "Next, go to Panel, Settings, Payments, paste your Public Key and Secret Key, and click Save.",
+      "camera": [
+        {
+          "at": 0,
+          "zoom": 1
+        },
+        {
+          "at": "payments-0.2",
+          "zoom": 1
+        },
+        {
+          "at": "payments+0.4",
+          "zoom": 1.55,
+          "focus": "keys-box",
+          "ease": "inOut"
+        },
+        {
+          "at": "save-settings-0.3",
+          "zoom": 1.55,
+          "focus": "keys-box"
+        },
+        {
+          "at": "save-settings+0.3",
+          "zoom": 1.35,
+          "focus": "save-settings",
+          "ease": "inOut"
+        }
+      ],
+      "callouts": [
+        {
+          "at": "nav-settings",
+          "dur": 0.9,
+          "n": 1,
+          "target": "nav-settings",
+          "text": "Settings",
+          "side": "below"
+        },
+        {
+          "at": "tab-payments",
+          "dur": 0.9,
+          "n": 2,
+          "target": "tab-payments",
+          "text": "Payments",
+          "side": "below"
+        },
+        {
+          "at": "payments+0.5",
+          "dur": 1.6,
+          "n": 3,
+          "target": "keys-box",
+          "text": "Stripe test keys (pk_test_ / sk_test_)",
+          "side": "below",
+          "ring": false
+        },
+        {
+          "at": "save-settings",
+          "dur": 1.3,
+          "n": 4,
+          "target": "save-settings",
+          "text": "Save",
+          "side": "left"
+        }
+      ],
+      "lowerThird": {
+        "at": 0,
+        "dur": 2.4,
+        "title": "Step 2 · Add your Stripe keys",
+        "subtitle": "Panel → Settings → Payments"
+      },
+      "pad": 1.0
+    },
+    {
+      "id": "form",
+      "type": "recording",
+      "src": "flow",
+      "from": "create-start",
+      "to": "add-stripe",
+      "maxSpeed": 6,
+      "narration": "Under Create, pick Payment Form. Add Name, Email, and a Payment Single Choose field with your prices.",
+      "camera": [
+        {
+          "at": 0,
+          "zoom": 1
+        },
+        {
+          "at": "tpl-payment-card-0.3",
+          "zoom": 1.5,
+          "focus": "tpl-payment-card",
+          "ease": "inOut"
+        },
+        {
+          "at": "choose-payment+0.2",
+          "zoom": 1.5,
+          "focus": "tpl-payment-card"
+        },
+        {
+          "at": "builder",
+          "zoom": 1.15,
+          "focus": [
+            0.5,
+            0.42
+          ]
+        },
+        {
+          "at": "options-0.2",
+          "zoom": 1.15,
+          "focus": [
+            0.5,
+            0.42
+          ]
+        },
+        {
+          "at": "options+0.2",
+          "zoom": 1.5,
+          "focus": "label-input",
+          "ease": "inOut"
+        },
+        {
+          "at": "options-box-0.1",
+          "zoom": 1.5,
+          "focus": "label-input"
+        },
+        {
+          "at": "options-box+0.3",
+          "zoom": 1.55,
+          "focus": "options-box",
+          "ease": "inOut"
+        }
+      ],
+      "callouts": [
+        {
+          "at": "tpl-payment-card",
+          "dur": 1.0,
+          "n": 1,
+          "target": "tpl-payment-card",
+          "text": "Payment Form",
+          "side": "left"
+        },
+        {
+          "at": "field-name",
+          "dur": 0.7,
+          "n": 2,
+          "target": "field-name",
+          "text": "Name",
+          "side": "right"
+        },
+        {
+          "at": "field-email",
+          "dur": 0.7,
+          "n": 3,
+          "target": "field-email",
+          "text": "Email",
+          "side": "right"
+        },
+        {
+          "at": "field-payradio",
+          "dur": 1.0,
+          "n": 4,
+          "target": "field-payradio",
+          "text": "Payment Single Choose",
+          "side": "right"
+        },
+        {
+          "at": "options+0.2",
+          "dur": 0.8,
+          "target": "label-input",
+          "text": "Label",
+          "side": "right"
+        },
+        {
+          "at": "options-box",
+          "dur": 2.2,
+          "n": 5,
+          "target": "options-box",
+          "text": "Title and Price per option",
+          "side": "right"
+        }
+      ],
+      "lowerThird": {
+        "at": 0,
+        "dur": 2.2,
+        "title": "Step 3 · Build the payment form",
+        "subtitle": "Create → Payment Form"
+      },
+      "pad": 2.5
+    },
+    {
+      "id": "stripefield",
+      "type": "recording",
+      "src": "flow",
+      "from": "add-stripe",
+      "to": "visitor",
+      "narration": "Then add the Stripe field, and click Save to get the shortcode.",
+      "camera": [
+        {
+          "at": 0,
+          "zoom": 1.15,
+          "focus": [
+            0.5,
+            0.42
+          ]
+        },
+        {
+          "at": "save-form-0.2",
+          "zoom": 1.15,
+          "focus": [
+            0.5,
+            0.42
+          ]
+        },
+        {
+          "at": "shortcode-0.3",
+          "zoom": 1.0
+        },
+        {
+          "at": "shortcode+0.3",
+          "zoom": 1.7,
+          "focus": "shortcode-box",
+          "ease": "inOut"
+        }
+      ],
+      "callouts": [
+        {
+          "at": "add-stripe",
+          "dur": 1.2,
+          "n": 6,
+          "target": "field-stripe",
+          "text": "Stripe",
+          "side": "right"
+        },
+        {
+          "at": "save-form",
+          "dur": 0.9,
+          "n": 7,
+          "target": "save-form",
+          "text": "Save",
+          "side": "right"
+        },
+        {
+          "at": "shortcode+0.4",
+          "dur": 1.6,
+          "target": "shortcode-box",
+          "text": "Your shortcode",
+          "side": "below"
+        }
+      ],
+      "pad": 0.5
+    },
+    {
+      "id": "pay",
+      "type": "recording",
+      "src": "flow",
+      "from": "visitor",
+      "to": "payments-nav",
+      "maxSpeed": 5,
+      "narration": "Put the shortcode on any page. Visitors choose an option, enter their card, and click Pay Now.",
+      "camera": [
+        {
+          "at": 0,
+          "zoom": 1.3,
+          "focus": [
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "at": "ticket-0.3",
+          "zoom": 1.3,
+          "focus": [
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "at": "card",
+          "zoom": 1.5,
+          "focus": "card-number",
+          "ease": "inOut"
+        },
+        {
+          "at": "card-number-2-0.05",
+          "zoom": 1.5,
+          "focus": "card-number"
+        },
+        {
+          "at": "card-number-2",
+          "zoom": 1.5,
+          "focus": "pay-now",
+          "ease": "linear"
+        },
+        {
+          "at": "confirmed-0.5",
+          "zoom": 1.5,
+          "focus": "pay-now"
+        },
+        {
+          "at": "confirmed-0.05",
+          "zoom": 1.3,
+          "focus": "confirmation",
+          "ease": "inOut"
+        }
+      ],
+      "callouts": [
+        {
+          "at": "ticket",
+          "dur": 1.1,
+          "n": 1,
+          "target": "ticket-option",
+          "text": "Choose a ticket",
+          "side": "right"
+        },
+        {
+          "at": "card+0.1",
+          "dur": 1.9,
+          "n": 2,
+          "target": "card-number",
+          "text": "Test card 4242 4242 4242 4242",
+          "side": "below"
+        },
+        {
+          "at": "pay-click-0.1",
+          "dur": 1.0,
+          "n": 3,
+          "target": "pay-now",
+          "text": "Pay Now",
+          "side": "right"
+        },
+        {
+          "at": "confirmed-0.2",
+          "dur": 1.6,
+          "target": "confirmation",
+          "text": "Paid and submitted",
+          "side": "below",
+          "ring": false
+        }
+      ],
+      "lowerThird": {
+        "at": 0,
+        "dur": 2.4,
+        "title": "Step 4 · The visitor pays",
+        "subtitle": "Page with the shortcode"
+      },
+      "pad": 2.5
+    },
+    {
+      "id": "proof",
+      "type": "recording",
+      "src": "flow",
+      "from": "payments-nav",
+      "to": "end",
+      "narration": "Each payment is verified with Stripe on your server and shows as Completed under Stripe Payments.",
+      "camera": [
+        {
+          "at": 0,
+          "zoom": 1
+        },
+        {
+          "at": "payments-list+0.2",
+          "zoom": 1
+        },
+        {
+          "at": "payments-list+0.9",
+          "zoom": 1.55,
+          "focus": "payment-row",
+          "ease": "inOut"
+        }
+      ],
+      "callouts": [
+        {
+          "at": "payments-nav",
+          "dur": 1.1,
+          "n": 1,
+          "target": "menu-stripe-payments-2",
+          "text": "Stripe Payments",
+          "side": "right"
+        },
+        {
+          "at": "payments-list+1.1",
+          "dur": 2.6,
+          "target": "payment-status",
+          "text": "Completed · $25.00",
+          "side": "below"
+        }
+      ],
+      "lowerThird": {
+        "at": 0,
+        "dur": 2.2,
+        "title": "Step 5 · Check the payment",
+        "subtitle": "Easy Form Builder → Stripe Payments"
+      }
+    },
+    {
+      "id": "outro",
+      "type": "outro",
+      "title": "Take payments with Easy Form Builder",
+      "subtitle": "Free on WordPress.org · Stripe on the Free Plus plan",
+      "cta": "Full guide in the description",
+      "narration": "Get Easy Form Builder free on WordPress.org.",
+      "hold": 1.6
+    }
+  ]
+}

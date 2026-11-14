@@ -9,9 +9,12 @@ export type CameraKey = { at: number; zoom?: number; focus?: Focus; ease?: 'line
 export type Callout = {
   at: number; dur?: number; n?: number; text: string;
   target: Focus; side?: 'above' | 'below' | 'left' | 'right';
+  ring?: boolean;                       // focus ring around the target (default true)
 };
+// Before fit-storyboard runs, camera/callout/lower-third `at` may also be a chapter reference: "chapter-id" or
+// "chapter-id+0.4" / "chapter-id-0.3" (seconds of OUTPUT time after the chapter). fit-storyboard turns it into a number.
 
-export type LowerThird = { at: number; dur?: number; title: string; subtitle?: string };
+export type LowerThird = { at: number; dur?: number; title: string; subtitle?: string; position?: 'top' | 'bottom' }; // default top (captions own the bottom)
 
 export type AssetRef = {
   video?: string; image?: string;       // path, relative to the storyboard file (or absolute)
@@ -20,7 +23,7 @@ export type AssetRef = {
 };
 
 export type SceneBase = { id?: string; dur?: number; note?: string };
-export type IntroScene = SceneBase & { type: 'intro'; title: string; subtitle?: string; badge?: string };
+export type IntroScene = SceneBase & { type: 'intro'; title: string; subtitle?: string; badge?: string; bg?: string; bgFocus?: [number, number]; bgZoom?: number; chips?: string[] }; // bg: asset key of a result screenshot -> hook card (text visible at frame 0)
 export type OutroScene = SceneBase & { type: 'outro'; title: string; subtitle?: string; cta?: string };
 export type ScreenScene = SceneBase & {
   type: 'recording' | 'image';

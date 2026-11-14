@@ -16,7 +16,7 @@ export const Tutorial: React.FC<TutorialProps> = ({ resolved }) => {
     <AbsoluteFill style={{ background: brand.dark }}>
       {scenes.map((s: any, i: number) => (
         <Sequence key={i} from={s.startFrame} durationInFrames={s.durFrames} name={`${s.type}:${s.id || i}`}>
-          {s.type === 'intro' ? <Intro s={s} brand={brand} portrait={portrait} unit={unit} />
+          {s.type === 'intro' ? <Intro s={s} brand={brand} portrait={portrait} unit={unit} asset={s.bg ? assets[s.bg] : undefined} />
             : s.type === 'outro' ? <Outro s={s} brand={brand} unit={unit} />
             : <ScreenSceneView s={s} asset={assets[s.src]} brand={brand} portrait={portrait} unit={unit} zoomBoost={resolved.portraitZoom} />}
         </Sequence>

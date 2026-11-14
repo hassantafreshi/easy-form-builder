@@ -10,6 +10,8 @@
  * Usage:
  *   node capture.mjs [--out DIR] [--locales en_US,de_DE,ar] [--only screens|video] [--video-viewport 1600x900]
  *                    [--base http://localhost:8080] [--skip-addons] [--addons-all]
+ *   node capture.mjs --flow stripe [--out DIR]     # other recorded flows live in flows/<name>.mjs (sharp 2x recorder,
+ *                                                  # see lib-recorder.mjs); they write video/flow.mp4 instead of .webm
  *
  * Output (default $EFB_WORK/capture):
  *   screens/<locale>/<name>.png   video/flow.webm   video/events.json   video/markers.json   manifest.json
@@ -29,6 +31,12 @@ const OUT = path.resolve(String(args.out || path.join(EFB_WORK, 'capture')));
 const LOCALES = String(args.locales || 'en_US,de_DE,ar').split(',').map((s) => s.trim()).filter(Boolean);
 const [VW, VH] = String(args['video-viewport'] || '1600x900').split('x').map(Number);
 const ONLY = args.only ? String(args.only) : '';
+if (args.flow && args.flow !== 'contact') {
+  if (!/^[a-z0-9-]+$/.test(String(args.flow))) throw new Error(`bad --flow ${args.flow}`);
+  const { run } = await import(`./flows/${args.flow}.mjs`);
+  await run({ OUT, BASE, args });
+  process.exit(0);
+}
 const SITE_MAP = (() => { try { return JSON.parse(fs.readFileSync(path.join(EFB_WORK, 'site-map.json'), 'utf8')); } catch { return { forms: {} }; } })();
 const CONTACT_URL = SITE_MAP.forms?.['contact-us']?.url || `${BASE}/contact-us/`;
 

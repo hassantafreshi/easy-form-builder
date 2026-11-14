@@ -28,9 +28,9 @@ tools/wp-env/teardown.sh                     # stop + delete the site (cache kep
 | Folder | What | Entry point |
 | --- | --- | --- |
 | `wp-env/` | Local WordPress on `php -S`, SQLite (no MySQL), plugin copied from this repo, locales, seeded forms | `setup.sh`, `reset.sh`, `teardown.sh`, `server.sh`, `seed.sh`, `install-languages.sh`, `activate-pro.sh` (owner key only) |
-| `capture/` | Playwright: 1440x900@2x screenshots per locale + one recorded click-through with cursor events and UI-element boxes | `capture.mjs` |
+| `capture/` | Playwright: 1440x900@2x screenshots per locale + one recorded click-through with cursor events and UI-element boxes. Extra flows in `flows/<name>.mjs` (`--flow stripe`) use `lib-recorder.mjs`: 2x device-pixel frames over CDP (3200x1800, ~10 fps) encoded to H.264 CRF 16, so zoomed text stays sharp; cursor events logged from Node (also over iframes); `pause()/resume()` cut long waits; secret fields masked on screen | `capture.mjs`, `flows/stripe.mjs`, `lib-recorder.mjs` |
 | `video/` | Remotion project: intro, screen scene (zoom/pan keyframes, cursor + click ripple), numbered callouts, lower third, SRT captions, outro; driven by `storyboards/*.json` | `render.mjs`, `install.sh` |
-| `voice/` | Narration timing (silence-based aligner for any single-take MP3, or ElevenLabs REST with timestamps), storyboard fitting, SRT writer (any language) | `align.mjs`, `fit-storyboard.mjs`, `srt-from-timing.mjs`, `tts-elevenlabs.mjs` (untested: needs an API key) |
+| `voice/` | Narration timing (silence-based aligner for any single-take MP3, or ElevenLabs REST with timestamps), silence padding for busy scenes (no new TTS), storyboard fitting, SRT writer (any language) | `align.mjs`, `pad-voice.mjs`, `fit-storyboard.mjs`, `srt-from-timing.mjs`, `tts-elevenlabs.mjs` (used for R47: 1 generation, ledger in `usage-ledger.csv`) |
 | `assemble/` | ffmpeg mux, loudness (-14 LUFS), optional music bed, deliverable checker | `mux.sh`, `verify.sh`, `make-bed.sh` |
 | `pipeline/` | The whole chain with retries, timeouts, lock, per-stage timing report | `make_video.sh` |
 | `lib/` | Shared Node helpers | `common.mjs` |
@@ -59,6 +59,13 @@ tools/wp-env/teardown.sh                     # stop + delete the site (cache kep
 
 * `from` / `to` are seconds or **chapter ids** written by `capture.mjs` into `markers.json`; `focus` / `target` are
   **marker names** (bounding boxes of real UI elements recorded during capture), `[nx, ny]` (0..1) or `{x, y}` source px.
+* `at` of camera keys, callouts and the step label may be a **chapter id or marker name** with an offset
+  (`"install-click-0.2"`): fit-storyboard places it where that moment falls after speed fitting.
+* `pad` (seconds) on a scene inserts silence after its narration (`voice/pad-voice.mjs`), `maxSpeed` lifts the 4x
+  playback cap, `hold` on the outro keeps it on screen after the last word. Intro with `bg` (an image asset) is a hook
+  card: result screenshot on the right, headline readable from frame 0.
+* Callouts draw a focus ring around the target's box and place the badge **beside** it (never on it), inside the safe
+  area above the caption band; the step label (`lowerThird`) sits top-left by default so captions never meet it.
 * `narration` is the text that is spoken. `voice/fit-storyboard.mjs` then sets every scene's duration (and recording speed,
   camera/callout timing) from the sentence timing, and writes the SRT used both for burned-in captions and as a separate file.
 * Adding a new video = a new storyboard JSON (+ new capture flow if the click-through is new). No Remotion code changes.

@@ -8,7 +8,9 @@
 #   --out DIR              output root (default: $EFB_WORK/out/<name>/<UTC timestamp>)
 #   --formats 16x9,9x16    which Remotion compositions to render (default both)
 #   --stages LIST          subset of: site,capture,voice,fit,render,mux  (default all)
-#   --reuse-capture        keep the last capture in $EFB_WORK/capture instead of re-recording
+#   --reuse-capture        keep the last capture in the capture dir instead of re-recording
+#   --flow NAME            recorded flow: contact (default, capture.mjs) or flows/NAME.mjs (e.g. stripe; sharp 2x recorder)
+#   --capture-dir DIR      where the capture goes (default $EFB_WORK/capture; must match the storyboard's asset paths)
 #   --voice-file MP3       use this narration audio (cached take) instead of calling the TTS API
 #   --lead SECONDS         voice-over starts this far into the video (default 2 = intro length)
 #   --music FILE           optional background bed (mixed at -24 dB)
@@ -28,10 +30,12 @@ TOOLS="$(cd "$HERE/.." && pwd)"
 source "$TOOLS/wp-env/env.sh"
 
 SB=""; NAME=""; OUT=""; FORMATS="16x9,9x16"; STAGES="site,capture,voice,fit,render,mux"; REUSE=0; VOICE_FILE=""; LEAD=2; MUSIC=""; FRESH=1; CRF=18
+FLOW="contact"; CAP=""
 while [ $# -gt 0 ]; do case "$1" in
   --storyboard) SB="$2"; shift 2;; --name) NAME="$2"; shift 2;; --out) OUT="$2"; shift 2;; --formats) FORMATS="$2"; shift 2;;
   --stages) STAGES="$2"; shift 2;; --reuse-capture) REUSE=1; shift;; --voice-file) VOICE_FILE="$2"; shift 2;; --lead) LEAD="$2"; shift 2;;
   --music) MUSIC="$2"; shift 2;; --keep-site) FRESH=0; shift;; --crf) CRF="$2"; shift 2;;
+  --flow) FLOW="$2"; shift 2;; --capture-dir) CAP="$2"; shift 2;;
   -h|--help) sed -n '2,28p' "$0"; exit 0;; *) echo "unknown arg $1" >&2; exit 2;; esac; done
 [ -n "$SB" ] || { echo "--storyboard required" >&2; exit 2; }
 SB="$(cd "$(dirname "$SB")" && pwd)/$(basename "$SB")"
@@ -63,7 +67,7 @@ run() {
 }
 
 WORKSB="$OUT/storyboard.json"; cp "$SB" "$WORKSB"
-CAP="$EFB_WORK/capture"
+CAP="${CAP:-$EFB_WORK/capture}"
 
 # --- site ---------------------------------------------------------------------------------------------------------
 if has site; then
@@ -71,8 +75,9 @@ if has site; then
 fi
 # --- capture ------------------------------------------------------------------------------------------------------
 if has capture; then
-  if [ "$REUSE" = 1 ] && [ -f "$CAP/video/flow.webm" ]; then efb_log "[capture] reusing $CAP"; record capture 0 reused
-  else run capture 600 2 node "$TOOLS/capture/capture.mjs" --out "$CAP" --locales "${EFB_CAPTURE_LOCALES:-en_US}" --skip-addons; fi
+  if [ "$REUSE" = 1 ] && { [ -f "$CAP/video/flow.webm" ] || [ -f "$CAP/video/flow.mp4" ]; }; then efb_log "[capture] reusing $CAP"; record capture 0 reused
+  elif [ "$FLOW" = contact ]; then run capture 600 2 node "$TOOLS/capture/capture.mjs" --out "$CAP" --locales "${EFB_CAPTURE_LOCALES:-en_US}" --skip-addons
+  else run capture 900 1 node "$TOOLS/capture/capture.mjs" --flow "$FLOW" --out "$CAP"; fi   # flows change site state: 1 attempt (rebuild the site to retry)
 fi
 # --- voice --------------------------------------------------------------------------------------------------------
 if has voice; then
@@ -83,10 +88,13 @@ if has voice; then
   elif [ -n "${ELEVENLABS_API_KEY:-}" ]; then
     run voice 180 1 node "$TOOLS/voice/tts-elevenlabs.mjs" --storyboard "$WORKSB" --out-dir "$OUT/voice"
   else efb_log "[voice] no --voice-file and no ELEVENLABS_API_KEY: cannot continue"; record voice 0 "skipped-no-audio"; exit 3; fi
+  # scenes with "pad" get silence after their narration (more screen time, no new TTS); a no-op without pads
+  mkdir -p "$OUT/voice/padded"
+  node "$TOOLS/voice/pad-voice.mjs" --storyboard "$WORKSB" --timing "$OUT/voice/timing.json" --audio "$OUT/voice/voiceover.mp3" --out-dir "$OUT/voice/padded" >>"$OUT/logs/voice.log" 2>&1
 fi
 # --- fit ----------------------------------------------------------------------------------------------------------
 if has fit; then
-  run fit 60 1 node "$TOOLS/voice/fit-storyboard.mjs" --storyboard "$WORKSB" --timing "$OUT/voice/timing.json" --out "$OUT/storyboard.fitted.json" --srt "$OUT/$NAME.en.srt" --lead "$LEAD"
+  run fit 60 1 node "$TOOLS/voice/fit-storyboard.mjs" --storyboard "$WORKSB" --timing "$OUT/voice/padded/timing.json" --out "$OUT/storyboard.fitted.json" --srt "$OUT/$NAME.en.srt" --lead "$LEAD"
 fi
 # --- render -------------------------------------------------------------------------------------------------------
 if has render; then
@@ -97,7 +105,7 @@ fi
 if has mux; then
   for f in ${FORMATS//,/ }; do
     tmp="$OUT/.$NAME-$f.part.mp4"; final="$OUT/$NAME-$f.mp4"
-    args=(--video "$OUT/render/$NAME-$f.mp4" --voice "$OUT/voice/voiceover.mp3" --out "$tmp" --lead "$LEAD"); [ -n "$MUSIC" ] && args+=(--music "$MUSIC")
+    args=(--video "$OUT/render/$NAME-$f.mp4" --voice "$OUT/voice/padded/voiceover.mp3" --out "$tmp" --lead "$LEAD"); [ -n "$MUSIC" ] && args+=(--music "$MUSIC")
     run "mux-$f" 300 1 "$TOOLS/assemble/mux.sh" "${args[@]}"
     mv "$tmp" "$final"; "$TOOLS/assemble/verify.sh" "$final" | tee -a "$OUT/logs/verify.log"
   done
