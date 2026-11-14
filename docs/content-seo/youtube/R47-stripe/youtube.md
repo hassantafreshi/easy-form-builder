@@ -196,7 +196,7 @@ What will you sell with your Stripe form: tickets, services or donations?
 
 ## 7. End screen and cards
 
-- End screen: ۵ ثانیهٔ آخر (0:49 تا 0:54) → Subscribe + یک ویدیو (فعلاً «Best for viewer»). خلاصهٔ outro سمت چپ است؛ عناصر را سمت راست بگذارید.
+- End screen: ۵ ثانیهٔ آخر (0:49 تا 0:54) → Subscribe + یک ویدیو («Best for viewer»). متن outro وسط تصویر است؛ عناصر را در گوشه‌های پایین بگذارید که روی متن نیفتند.
 - Card: در 0:35 یک کارت به ویدیوی قدیمی لازم نیست؛ برعکس، روی ویدیوی قدیمی `tCTeO1-FAi8` یک کارت به این ویدیو بگذارید.
 
 ## 8. Checklist

@@ -126,6 +126,7 @@ Ref: {EFB-N-A1}
 | Theme | {light|dark} (dark for fix/security topics) |
 | File | `thumbnail.png` (1280 x 720, under 2 MB; rendered from the Remotion `Thumb` still) |
 | 168 x 94 legibility check | {pass|fail} |
+| Brand lockup (owner rule 2026-11-14) | Easy Form Builder logo (`includes/admin/assets/image/logo.svg`) about 100 px high + the name "Easy Form Builder" in white, about 54 px, bold, bottom-left; bottom-right stays free for the duration badge |
 
 ## 7. Pinned comment
 
