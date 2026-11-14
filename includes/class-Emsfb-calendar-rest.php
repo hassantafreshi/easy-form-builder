@@ -270,7 +270,7 @@ class Calendar_Rest {
  */
 class Form_Schema {
 
-	const STRUCTURAL = array('step', 'option', 'r_matrix', 'html', 'heading', 'link', 'ttlprc', 'steps');
+	const STRUCTURAL = array('step', 'option', 'r_matrix', 'html', 'heading', 'section', 'link', 'ttlprc', 'steps');
 
 	public static function build($form_id, array $context = array()) {
 		$rows = Calendar_Rest::form_rows($form_id);

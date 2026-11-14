@@ -3024,10 +3024,41 @@ if ( ! defined( 'ABSPATH' ) ) {
 			. '</fieldset>';
 	}
 
+	/**
+	 * F10-B: a section heading (type section). The header is a button that shows / hides the fields after it in its
+	 * step (up to the next section or step): the region is empty here and layout-efb.js moves those fields into it
+	 * after the page loads, so without JavaScript every field stays where it was and open. A section that is not
+	 * collapsible is a plain heading. Twin of efbLayoutSectionMarkup() in layout-builder-efb.js (the builder canvas
+	 * and preview); tests/test-section-render.php holds them byte for byte. The markup opens and closes its own -f
+	 * wrapper (section is in $single_close_efb) and starts with a block tag (wpautop).
+	 */
+	public function generate_section_efb($vj, $formId) {
+		$id = isset($vj->id_) ? (string) $vj->id_ : '';
+		$on = function ($v) { return in_array($v, array(true, 1, '1'), true); };
+		$collapsible = !isset($vj->collapsible) || $vj->collapsible === '' || $on($vj->collapsible);
+		$collapsed = $collapsible && isset($vj->collapsed) && $on($vj->collapsed);
+		$name = isset($vj->name) && is_scalar($vj->name) ? (string) $vj->name : '';
+		$msg = isset($vj->message) && is_scalar($vj->message) ? (string) $vj->message : '';
+		$size = isset($vj->el_text_size) && is_string($vj->el_text_size) && preg_match('/^(fs-[1-7]|display-[1-6])$/', $vj->el_text_size) ? $vj->el_text_size : 'fs-5';
+		$color = isset($vj->el_text_color) && is_string($vj->el_text_color) && preg_match('/^[a-zA-Z0-9_-]{1,40}$/', $vj->el_text_color) ? $vj->el_text_color : 'text-labelEfb';
+		$align = isset($vj->label_align) && in_array($vj->label_align, array('txt-left', 'txt-right', 'txt-center'), true) ? $vj->label_align : '';
+		$icon = isset($vj->icon) && is_string($vj->icon) && preg_match('/^bi-[a-z0-9-]{1,40}$/', $vj->icon) ? '<i class="efb ' . $vj->icon . ' efb-section-icon" aria-hidden="true"></i>' : '';
+		$extra = isset($vj->classes) && is_string($vj->classes) ? trim(preg_replace('/[^A-Za-z0-9_ -]/', '', str_replace(',', ' ', $vj->classes))) : '';
+		$title = '<span id="' . esc_attr($id) . '_lab" class="efb efb-section-title">' . esc_html($name) . '</span>';
+		$head = $collapsible
+			? '<button type="button" class="efb efb-section-btn ' . $color . '" id="' . esc_attr($id) . '_btn" aria-expanded="true" aria-controls="' . esc_attr($id) . '-region" data-section="' . esc_attr($id) . '">' . $icon . $title . '<i class="efb bi-chevron-down efb-section-chev" aria-hidden="true"></i></button>'
+			: $icon . $title;
+		$desc = $msg !== '' ? '<div class="efb efb-section-desc"><small id="' . esc_attr($id) . '-des" class="efb form-text text-muted">' . esc_html($msg) . '</small></div>' : '';
+		return '<div class="efb px-0 mx-0 col-12 efb-section' . ($extra !== '' ? ' ' . $extra : '') . '" id="' . esc_attr($id) . '-f" data-formid="' . esc_attr((string) $formId) . '" data-section="' . esc_attr($id) . '" data-collapsible="' . ($collapsible ? '1' : '0') . '" data-collapsed="' . ($collapsed ? '1' : '0') . '">'
+			. '<h3 class="efb efb-section-head ' . $size . ' ' . $color . ($align !== '' ? ' ' . $align : '') . '" id="' . esc_attr($id) . '-h">' . $head . '</h3>'
+			. $desc
+			. '<div class="efb efb-section-region row mx-0 px-0" id="' . esc_attr($id) . '-region" role="region" aria-labelledby="' . esc_attr($id) . '-h"></div></div>';
+	}
+
 	public function addNewElement_efb($i, $rndm,$form_id,$texts,$pro) {
 		$this->pro_efb =$pro;
 
-		$nfield = ['html','stripe','paypal','persiapay','persiaPay','zarinPal','heading','link'];
+		$nfield = ['html','stripe','paypal','persiapay','persiaPay','zarinPal','heading','link','section'];
 		$element_Id = $this->valj_efb[$i]->id_;
 		$elementId = $this->valj_efb[$i]->type;
 		$currency = isset($this->valj_efb[0]->currency) ? $this->valj_efb[0]->currency : 'USD';
@@ -3714,6 +3745,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 					$dataTag = $elementId;
 
 				break;
+				case 'section':
+					// F10-B: a section heading that shows / hides the fields after it (free).
+					$ui = $this->generate_section_efb($vj, $form_id);
+					$dataTag = $elementId;
+				break;
 				case 'link':
 
 					$ui = $pro == true ? $this->generate_link_efb(true, $pos, $rndm, $vj, $form_id) : $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
@@ -3924,7 +3960,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$tagT = in_array($elementId, ["esign", "yesNo", "rating"]) ? '' : 'def';
 			$stepNo = (int)$vj->step - 1;
 			// Field types whose markup opens no inner "-f" wrapper: they get one closing tag below.
-			$single_close_efb = ['option', 'html', 'stripe', 'heading', 'link','conturyList','country','stateProvince','statePro','city','cityList','maps','ttlprc','audio_recorder','video_recorder','screen_recorder','repeater'];
+			$single_close_efb = ['option', 'html', 'stripe', 'heading', 'section', 'link','conturyList','country','stateProvince','statePro','city','cityList','maps','ttlprc','audio_recorder','video_recorder','screen_recorder','repeater'];
 			// Every other type gets two, the first for its "-f" wrapper. On a plan
 			// without the field, its markup is only the plan notice, so that first
 			// tag closed the form container and the following fields fell outside it.

@@ -590,6 +590,8 @@ async function createStepsOfPublic() {
   // F05: shuffled order (kept for the session), Other, Select all, the maximum lock, capacities, ranking (choices-efb.js).
   if (window.EfbChoices) { try { window.EfbChoices.initAll(); efb_choices_stock_efb(); } catch (e) { /* the form works without it; the server checks again */ } }
   if (window.EFBRepeater) { try { window.EFBRepeater.ready(); } catch (e) { /* idem */ } }
+  // F10-B: the fields after each section heading go into its region (collapsible; without JS they stay open).
+  if (window.EFBLayout) { try { window.EFBLayout.mountSections(document); } catch (e) { /* the fields stay where they are */ } }
 
 }
 /**
@@ -3395,6 +3397,8 @@ function efb_row_belongs_to_form_efb(row, form_id) {
 smoothy_scroll_postion_efb=(id, form_id=0)=>{
   // F09: a field in a folded repeater row is unfolded first.
   if (window.EFBRepeater && typeof window.EFBRepeater.reveal === 'function') { try { window.EFBRepeater.reveal(id, form_id); } catch (e) {} }
+  // F10-B: a field in a closed section: its section opens first.
+  if (typeof efb_section_reveal_efb === 'function') { try { efb_section_reveal_efb(id, form_id); } catch (e) {} }
 
   const element = Number(form_id) > 0 && typeof efb_get_by_id_in_form_efb === 'function'
     ? efb_get_by_id_in_form_efb(form_id, id)
@@ -3754,7 +3758,8 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
       if (!x || x.state !== false || Number(x.form_id) !== Number(form_id)) return false;
       if (x.step && Number(x.step) > Number(no_step)) return false;
       const fieldEl = document.getElementById(String(x.id_) + '_');
-      if (!fieldEl || fieldEl.offsetParent === null) return false;
+      // F10-B: a field in a closed section is still the visitor's answer (only a field hidden by logic is not).
+      if (!fieldEl || (fieldEl.offsetParent === null && !(fieldEl.closest && fieldEl.closest('.efb-section-region[hidden]') && !fieldEl.closest('.d-none')))) return false;
       // Emptied again and not required: nothing invalid is left to send.
       const isEmpty = typeof fieldEl.value === 'string' && fieldEl.value.trim() === '';
       const isRequired = fieldEl.required || fieldEl.getAttribute('aria-required') === 'true' || fieldEl.classList.contains('required');
@@ -5047,7 +5052,9 @@ async function fun_validation_efb_v4(form_id) {
     /* Skip validation for fields hidden by conditional logic (wrapper has d-none class,
      * or efb-anim-hide while the hide animation is still playing) */
     const _wrapper_v = efb_get_by_id_in_form_efb(form_id, valj_efb[row].id_);
-    if (_wrapper_v && (_wrapper_v.classList.contains('d-none') || _wrapper_v.classList.contains('efb-anim-hide'))) {
+    /* F10-B: a field inside a section hidden by Conditional Logic is hidden too (a closed section is not: its
+     * region only carries the hidden attribute, so its required fields are still checked). */
+    if (_wrapper_v && (_wrapper_v.classList.contains('d-none') || _wrapper_v.classList.contains('efb-anim-hide') || (_wrapper_v.closest && valj_efb[row].type !== 'section' && _wrapper_v.closest('[data-tag="section"].d-none, [data-tag="section"].efb-anim-hide')))) {
       if (Number(valj_efb[row].step) === Number(current_s_efb)) {
         efb_steps_debug_efb('validation:skip-hidden-field', {
           form_id: form_id,
@@ -5535,7 +5542,7 @@ if (typeof document !== 'undefined' && typeof window !== 'undefined' && !window.
  * nonce, same origin). The resume token lives in sessionStorage of this tab only.
  * ------------------------------------------------------------------------------------------- */
 const EFB_DRAFT_NOT_SAVED = ['password', 'file', 'dadfile', 'esign', 'audio_recorder', 'video_recorder', 'screen_recorder', 'image', 'document', 'media', 'allformat', 'zip',
-  'stripe', 'paypal', 'persiaPay', 'persiapay', 'zarinPal', 'payment', 'captcha_v2', 'prcfld', 'ttlprc', 'html', 'heading', 'link', 'step', 'steps', 'w_link'];
+  'stripe', 'paypal', 'persiaPay', 'persiapay', 'zarinPal', 'payment', 'captcha_v2', 'prcfld', 'ttlprc', 'html', 'heading', 'section', 'link', 'step', 'steps', 'w_link'];
 function efb_f11_text_efb(k, fb) {
   try { const t = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm && ajax_object_efm.text) ? ajax_object_efm.text : null; if (t && t[k]) return t[k]; } catch (e) {}
   return fb;

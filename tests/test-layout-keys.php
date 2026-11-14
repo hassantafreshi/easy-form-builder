@@ -8,6 +8,10 @@
  *     characters (tags and %XX gone); vis_view (the page's own mark) is never stored; an old form without the
  *     keys comes back unchanged; review_on() is false on a form with a Stripe / PayPal / PersiaPay field and on
  *     login / register forms; the registry has setting:review_before_submit (free) and capabilities.layout.
+ *  B  section: collapsible / collapsed / section_accordion are '1' / '0'; section_members() is the array order in
+ *     a step (up to the next section or step; a repeater group's fields with it; options are not fields);
+ *     expand_hidden_sections() hides the fields of a section that Conditional Logic hid (not required, ignored);
+ *     field:section is free.
  *
  * Run: php tests/test-layout-keys.php
  */
@@ -96,10 +100,29 @@ t('A json_needs_runtime: the stored column (escaped quotes)', Layout::json_needs
 t('A json_needs_runtime: "0" is not on', Layout::json_needs_runtime('[{"type":"form","review_before_submit":"0"}]'), false);
 t('A json_needs_runtime: an old form', Layout::json_needs_runtime('[{"type":"form"}]'), false);
 
+/* ---- B: sections ---- */
+$f = function ($id, $type, $step = '1', $extra = array()) { return array_merge(array('id_' => $id, 'type' => $type, 'step' => $step, 'name' => $id), $extra); };
+$rows = $form(array('section_accordion' => true, 'steps' => 2), array(
+	$f('a', 'text'), $f('s1', 'section', '1', array('collapsible' => 'on', 'collapsed' => true)), $f('b', 'text', '1', array('required' => '1')), $f('c', 'radio'), array('id_' => 'o1', 'type' => 'option', 'parent' => 'c', 'step' => '1'),
+	$f('g', 'repeater'), $f('gk', 'text', '1', array('group' => 'g')), $f('s2', 'section', '1', array('collapsible' => 'no', 'collapsed' => '1')), $f('d', 'text'),
+	array('id_' => '2', 'type' => 'step', 'step' => '2', 'name' => 'S2'), $f('e', 'text', '2'),
+));
+$s = $save($rows);
+t('B section_accordion true → "1"', $s[0]['section_accordion'], '1');
+t('B collapsible "on" → "1", collapsed true → "1"', array($s[3]['collapsible'], $s[3]['collapsed']), array('1', '1'));
+t('B collapsible "no" → "0"', $s[9]['collapsible'], '0');
+t('B section_members: the array order up to the next section / step (a group\'s field with it, options not)', Layout::section_members($s), array('s1' => array('b', 'c', 'g', 'gk'), 's2' => array('d')));
+list($r2, $ig) = Layout::expand_hidden_sections($s, array('s1' => true));
+t('B a section hidden by a rule: its fields are ignored and not required', array(isset($ig['b'], $ig['c'], $ig['gk']), isset($ig['d']), $r2[4]['required']), array(true, false, false));
+list($r3, $ig3) = Layout::expand_hidden_sections($s, array('d' => true));
+t('B nothing hidden at a section: the set and the rows are unchanged', array($ig3, $r3[4]['required']), array(array('d' => true), '1'));
+t('B json_needs_runtime: a form with a section', Layout::json_needs_runtime('[{\"type\":\"form\"},{\"type\":\"section\"}]'), true);
+
 /* registry */
 $caps = Layout::capabilities(array('plan' => array('package_type' => 2), 'features' => array()));
 t('A registry: setting:review_before_submit is free and available on Free', array($caps['features']['setting:review_before_submit']['package'], $caps['features']['setting:review_before_submit']['available_now']), array('free', true));
 t('A registry: capabilities.layout lists the form keys (spec F10)', array($caps['layout']['spec'], $caps['layout']['form_keys']), array('F10', Layout::FORM_KEYS));
+t('B registry: field:section is free and available on Free', array($caps['features']['field:section']['package'], $caps['features']['field:section']['available_now']), array('free', true));
 $GLOBALS['efb_filters']['efb_layout_plan'] = function ($need, $part) { return $part === 'review' ? 'pro' : $need; };
 $caps = Layout::capabilities(array('plan' => array('package_type' => 2), 'features' => array()));
 t('A registry: the owner may change a part\'s plan (efb_layout_plan)', array($caps['features']['setting:review_before_submit']['package'], $caps['features']['setting:review_before_submit']['available_now']), array('pro', false));

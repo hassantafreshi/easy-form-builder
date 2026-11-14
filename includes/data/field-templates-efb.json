@@ -113,6 +113,9 @@
   "heading": {
    "pro": false
   },
+  "section": {
+   "pro": false
+  },
   "color": {
    "pro": true
   },
@@ -5737,6 +5740,27 @@
      "el_text_color": "text-dark",
      "el_align": "justify-content-start",
      "pro": true
+    }
+   ],
+   "form_patch": null
+  },
+  "section": {
+   "rows": [
+    {
+     "id_": "⟦id:0⟧",
+     "dataId": "⟦id:0⟧-id",
+     "type": "section",
+     "elementId": "section",
+     "name": "⟦section⟧",
+     "message": "",
+     "classes": "",
+     "size": 100,
+     "collapsible": "1",
+     "collapsed": "0",
+     "el_text_size": "fs-5",
+     "el_text_color": "text-labelEfb",
+     "label_align": "txt-left",
+     "pro": false
     }
    ],
    "form_patch": null

@@ -186,6 +186,7 @@ const fields_efb = [
   { name: efb_var.text.switch, icon: 'bi-toggle2-on', id: 'switch', pro: true, tag:'advance all' },
   { name: efb_var.text.chlCheckBox, icon: 'bi-card-checklist', id: 'chlCheckBox', pro: true, tag:'advance all' },
   { name: efb_var.text.heading, icon: 'bi-fonts', id: 'heading', pro: false, tag:'advance all' },
+  { name: efb_var.text.section || 'Section', icon: 'bi-arrows-collapse', id: 'section', pro: false, tag:'advance all' },
 
   { name: efb_var.text.color, icon: 'bi-palette', id: 'color', pro: true, tag:'basic all' },
   { name: efb_var.text.rating, icon: 'bi-star', id: 'rating', pro: false, tag:'advance all' },
@@ -298,7 +299,7 @@ const EFB_PRV_NON_PII_TYPES = ['radio', 'checkbox', 'option', 'select', 'multise
 const efb_prv_pii_default_efb = (type) => !(EFB_PRV_NON_PII_TYPES.includes(type) || String(type).indexOf('pay') === 0);
 const prvPiiEls = (indx) => {
   const row = valj_efb[indx];
-  if (!row || ['ttlprc', 'html', 'heading', 'link', 'step', 'steps'].includes(row.type)) return '';
+  if (!row || ['ttlprc', 'html', 'heading', 'section', 'link', 'step', 'steps'].includes(row.type)) return '';
   const cur = row.hasOwnProperty('prv_pii') ? String(row.prv_pii) : '';
   const yes = (efb_var.text && efb_var.text.yes) || 'Yes';
   const no = efb_prv_text_efb('prvPiiNo', 'No');
@@ -1838,6 +1839,17 @@ function show_setting_window_efb(idset, opts) {
                 ${fontSizeEls(idset,indx)}
                 ${widthEls}
                 ${mobileWidthEls}
+                ${classesEls}
+                <div class="efb  clearfix"></div>
+                `
+        break;
+      case "section":
+        // F10-B: a section heading (layout-builder-efb.js): title, description, collapsible, collapsed.
+        body = `
+                <div class="efb  mb-3">
+                ${labelEls}
+                ${desEls}
+                ${typeof efbLayoutSectionPanelEls === 'function' ? efbLayoutSectionPanelEls(indx, idset) : '<!-- F10 layout-builder-efb.js not loaded -->'}
                 ${classesEls}
                 <div class="efb  clearfix"></div>
                 `

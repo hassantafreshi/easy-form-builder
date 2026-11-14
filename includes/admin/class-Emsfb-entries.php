@@ -549,7 +549,7 @@ class Entries {
 	}
 
 	/** Types that carry no answer (structure and decoration). */
-	const NO_VALUE_TYPES = array('step', 'option', 'html', 'heading', 'link', 'buttonNav', 'steps', 'ttlprc', 'table_matrix', 'w_link', 'form', 'login', 'register', 'subscribe', 'survey', 'payment_page');
+	const NO_VALUE_TYPES = array('step', 'option', 'html', 'heading', 'section', 'link', 'buttonNav', 'steps', 'ttlprc', 'table_matrix', 'w_link', 'form', 'login', 'register', 'subscribe', 'survey', 'payment_page');
 
 	/** Choice types whose options are rows of the form (parent = field id). */
 	const CHOICE_TYPES = array('radio', 'checkbox', 'select', 'multiselect', 'imgRadio', 'payRadio', 'payCheckbox', 'paySelect', 'payMultiselect', 'chlRadio', 'chlCheckBox', 'trmCheckbox', 'ranking', 'conturyList', 'stateProvince', 'cityList', 'yesNo', 'switch');

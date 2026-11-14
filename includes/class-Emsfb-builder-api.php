@@ -251,7 +251,7 @@ class Builder_Api {
 			if ($addon !== null) $pkg = self::normalize_plan($addon_level($addon)) === 'pro' ? 'pro' : 'free_plus';
 			// F13: pii_default = what anonymization does with this type when the field has no prv_pii.
 			// null for types that hold no answer (display only).
-			$pii = class_exists('\\Emsfb\\Privacy') && !in_array($type, array('html', 'heading', 'link', 'steps', 'step', 'ttlprc'), true)
+			$pii = class_exists('\\Emsfb\\Privacy') && !in_array($type, array('html', 'heading', 'section', 'link', 'steps', 'step', 'ttlprc'), true)
 				? Privacy::row_is_personal(array('type' => (string) $type)) : null;
 			$add('field:' . $type, 'field', $pkg, $addon, array('label_key' => $type, 'pii_default' => $pii));
 		}

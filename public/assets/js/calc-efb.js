@@ -671,7 +671,7 @@
 
   /* ------------------------------------------------------------------ a form's formulas (twin of Calc::form_errors) */
 
-  var LAYOUT_TYPES = ['option', 'step', 'form', 'r_matrix', 'heading', 'link', 'html', 'buttonNav', 'submit'];
+  var LAYOUT_TYPES = ['option', 'step', 'form', 'r_matrix', 'heading', 'section', 'link', 'html', 'buttonNav', 'submit'];
 
   function sortedKeys(o) { return Object.keys(o).sort(function (a, b) { return a < b ? -1 : (a > b ? 1 : 0); }); }
 

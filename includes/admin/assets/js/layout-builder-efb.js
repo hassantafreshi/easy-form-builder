@@ -3,6 +3,10 @@
  *
  *  - A: the review page (form settings: review_before_submit, review_hide_empty, review_title); not offered on a
  *    form with a Stripe / PayPal / PersiaPay field (the visitor pays inside the form, before Send).
+ *  - B: the section (palette "Section"): title, description, collapsible, collapsed; "Keep only one section open at a
+ *    time" (section_accordion) in the form settings. efbLayoutSectionMarkup() is the twin of the PHP renderer's
+ *    generate_section_efb() (byte for byte, tests/test-section-render.php); on the canvas it is inert and marks
+ *    where the section starts, in the preview it opens and closes like the page.
  *
  * Every key goes through the save rule EFBLayoutCore.sanitizeKey (layout-efb.js, twin of \Emsfb\Layout::sanitize_key()).
  */
@@ -50,7 +54,76 @@
         <label for="reviewTitleEl" class="efb form-label mt-2 mb-1">${esc(T('rvwTtlLbl', 'Review page title'))}</label>
         <input type="text" class="efb elEdit form-control text-muted h-d-efb border-d rounded-4 mb-1" id="reviewTitleEl" data-id="formSet" data-key="review_title" maxlength="${C() ? C().LIMITS.review_title : 120}" dir="auto" placeholder="${esc(T('rvwTtl', 'Review your answers'))}" value="${esc(r0.review_title || '')}">
       </div>
+      ${efbLayoutAccordionEls()}
     </div>`;
+  }
+
+  /* ------------------------------------------------------------------ B: sections */
+
+  const attr = (v) => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+  /**
+   * The section's markup: the twin of Formbuilder::generate_section_efb() (same string for the same row). inert
+   * (the canvas): an extra class and a header that is not a control.
+   */
+  function efbLayoutSectionMarkup(r, formId, inert) {
+    if (!r) return '';
+    const id = String(r.id_ == null ? '' : r.id_);
+    const collapsible = r.collapsible === undefined || r.collapsible === '' || on(r.collapsible);
+    const collapsed = collapsible && on(r.collapsed);
+    const name = r.name == null || typeof r.name === 'object' ? '' : String(r.name);
+    const msg = r.message == null || typeof r.message === 'object' ? '' : String(r.message);
+    const size = typeof r.el_text_size === 'string' && /^(fs-[1-7]|display-[1-6])$/.test(r.el_text_size) ? r.el_text_size : 'fs-5';
+    const color = typeof r.el_text_color === 'string' && /^[a-zA-Z0-9_-]{1,40}$/.test(r.el_text_color) ? r.el_text_color : 'text-labelEfb';
+    const align = ['txt-left', 'txt-right', 'txt-center'].indexOf(r.label_align) !== -1 ? r.label_align : '';
+    const icon = typeof r.icon === 'string' && /^bi-[a-z0-9-]{1,40}$/.test(r.icon) ? `<i class="efb ${r.icon} efb-section-icon" aria-hidden="true"></i>` : '';
+    const extra = typeof r.classes === 'string' ? r.classes.replace(/,/g, ' ').replace(/[^A-Za-z0-9_ -]/g, '').trim() : '';
+    const title = `<span id="${attr(id)}_lab" class="efb efb-section-title">${esc(name)}</span>`;
+    const head = collapsible
+      ? `<button type="button" class="efb efb-section-btn ${color}" id="${attr(id)}_btn" aria-expanded="true" aria-controls="${attr(id)}-region" data-section="${attr(id)}"${inert ? ' tabindex="-1"' : ''}>${icon}${title}<i class="efb bi-chevron-down efb-section-chev" aria-hidden="true"></i></button>`
+      : icon + title;
+    const desc = msg !== '' ? `<div class="efb efb-section-desc"><small id="${attr(id)}-des" class="efb form-text text-muted">${esc(msg)}</small></div>` : '';
+    return `<div class="efb px-0 mx-0 col-12 efb-section${extra !== '' ? ' ' + extra : ''}${inert ? ' efb-section-canvas' : ''}" id="${attr(id)}-f" data-formid="${attr(String(formId))}" data-section="${attr(id)}" data-collapsible="${collapsible ? '1' : '0'}" data-collapsed="${collapsed ? '1' : '0'}">`
+      + `<h3 class="efb efb-section-head ${size} ${color}${align !== '' ? ' ' + align : ''}" id="${attr(id)}-h">${head}</h3>`
+      + desc
+      + `<div class="efb efb-section-region row mx-0 px-0" id="${attr(id)}-region" role="region" aria-labelledby="${attr(id)}-h"></div></div>`;
+  }
+  /** The canvas drawn again after a setting changed (the description line comes and goes). */
+  function efbLayoutSectionRedraw(indx) {
+    const r = list()[indx];
+    if (!r) return;
+    const old = document.getElementById(`${r.id_}-f`);
+    if (!old) return;
+    const t = document.createElement('div');
+    t.innerHTML = efbLayoutSectionMarkup(r, typeof form_ID_emsFormBuilder !== 'undefined' ? form_ID_emsFormBuilder : 0, !old.closest('#dropZoneEFB') ? false : true);
+    old.replaceWith(t.firstElementChild);
+  }
+  /** The section's own settings (show_setting_window_efb case 'section'). */
+  function efbLayoutSectionPanelEls(indx, idset) {
+    const r = list()[indx];
+    if (!r) return '';
+    const sw = (id, key, label, dflt, disabled) => {
+      const v = r[key] === undefined || r[key] === '' ? dflt : on(r[key]);
+      return `<div class="efb form-check form-switch mx-1 my-2">
+        <input type="checkbox" role="switch" class="efb elEdit form-check-input" id="${id}" data-id="${esc(idset)}" data-key="${key}" ${v ? 'checked' : ''}${disabled ? ' disabled aria-disabled="true"' : ''}>
+        <label class="efb form-check-label" for="${id}">${esc(label)}</label></div>`;
+    };
+    const coll = r.collapsible === undefined || r.collapsible === '' || on(r.collapsible);
+    return `<div class="efb efb-layout-section mt-2" id="efbLayoutSection" data-id="${esc(r.id_)}">
+      ${sw('sectionCollapsibleEl', 'collapsible', T('sectionCollapsible', 'Visitors can collapse this section'), true, false)}
+      ${sw('sectionCollapsedEl', 'collapsed', T('sectionCollapsed', 'Collapsed when the form opens'), false, !coll)}
+      <small class="efb form-text text-muted fs-8 d-block">${esc(T('sectionHelp', 'The section holds the fields after it in this step, up to the next section.'))}</small>
+    </div>`;
+  }
+  /** The accordion switch in the form settings (only when the form has a section). */
+  function efbLayoutAccordionEls() {
+    const L = list();
+    if (!L.some((r, i) => i > 0 && r && r.type === 'section')) return '';
+    return check('sectionAccordionEl', 'section_accordion', L[0] || {}, T('sectionAccordion', 'Keep only one section open at a time'), false);
+  }
+  /** The builder's PC preview: sections open and close like the page. */
+  function efbLayoutPreviewInit(root) {
+    if (root && root.EFBLayout === undefined && typeof EFBLayout !== 'undefined') root = document;
+    try { if (typeof EFBLayout !== 'undefined') EFBLayout.mountSections(root || document, { accordion: on((list()[0] || {}).section_accordion) }); } catch (e) { /* the preview without sections */ }
   }
 
   /* ------------------------------------------------------------------ change handler */
@@ -80,10 +153,30 @@
         if (el.value !== L[0].review_title) el.value = L[0].review_title;
         changed('setting', []);
         return true;
+      case 'sectionAccordionEl':
+        L[0].section_accordion = sanitize('section_accordion', el.checked ? '1' : '0');
+        changed('setting', []);
+        return true;
+      case 'sectionCollapsibleEl':
+      case 'sectionCollapsedEl': {
+        const r = L[indx];
+        if (!r || r.type !== 'section') return false;
+        if (el.id === 'sectionCollapsibleEl') {
+          r.collapsible = el.checked ? '1' : '0';
+          if (!el.checked) r.collapsed = '0';
+          const c = document.getElementById('sectionCollapsedEl');
+          if (c) { c.disabled = !el.checked; if (!el.checked) c.checked = false; }
+        } else {
+          r.collapsed = sanitize('collapsed', el.checked ? '1' : '0');
+        }
+        efbLayoutSectionRedraw(indx);
+        changed('setting', [r.id_]);
+        return true;
+      }
     }
     return false;
   }
 
-  const api = { efbLayoutFormEls, efbLayoutBuilderChange };
+  const api = { efbLayoutFormEls, efbLayoutBuilderChange, efbLayoutSectionMarkup, efbLayoutSectionRedraw, efbLayoutSectionPanelEls, efbLayoutAccordionEls, efbLayoutPreviewInit };
   Object.keys(api).forEach((k) => { root[k] = api[k]; });
 })(typeof window !== 'undefined' ? window : globalThis);

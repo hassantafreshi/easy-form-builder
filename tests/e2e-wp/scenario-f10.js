@@ -9,6 +9,12 @@
  *  f10b  The review page in fa_IR and ar at 375 px: right to left, labels aligned like the other labels (txt-right),
  *        mixed-script answers in their order (bdi, unicode-bidi plaintext), Persian / Arabic-Indic row numbers of a
  *        repeater group, 44 px buttons, no horizontal scroll.
+ *  f10c  Sections (B): the Section tile in the builder (real clicks): the header on the canvas (inert, the dashed
+ *        start line), its panel (Visitors can collapse, Collapsed when the form opens), "Keep only one section open"
+ *        in the form settings, Save through the real sanitizer; a guest: the fields after it in its region, closed
+ *        at load (aria-expanded false), keyboard Enter / Space, Send with an empty required field inside the closed
+ *        section opens it and stops, then the entry is stored; fa_IR and ar at 375 px (header aligned right, 44 px,
+ *        no horizontal scroll).
  *  f10pay A payment-framework form (test gateway) with the review page: the amount row is the server's own text
  *        (payments/quote: €27.00 for Adult 25 + fee 2), nothing stored before Confirm, then the provider is asked
  *        for 2700 and the entry is paid.
@@ -180,6 +186,104 @@ module.exports = function (S) {
         await p.close();
       }
     } finally { ctl('locale', ''); ctl('set-option', 'efb_e2e_f09_plan', 'del'); }
+  });
+
+  /* ------------------------------------------------------------------ f10c */
+  scenario('f10c', 'F10-B sections: builder tile, panel and Save; a guest opens / closes them (keyboard), a closed required field opens its section; fa_IR / ar at 375 px', async ({ context, adminPage }) => {
+    plan(3);
+    ctl('locale', '');
+    const admin = await adminPage();
+    await openNewForm(admin);
+    const sec = await addTile(admin, 'section');
+    const t1 = await addTile(admin, 'text');
+    void t1;
+    const canvas = await admin.evaluate((id) => { const s = document.getElementById(id + '-f'); return s ? { canvas: s.classList.contains('efb-section-canvas'), tab: (s.querySelector('.efb-section-btn') || {}).tabIndex, dashed: getComputedStyle(s).borderTopStyle } : null; }, sec.id_);
+    R.check('f10c: the Section tile adds a section heading; on the canvas it is inert and marks where it starts (dashed line)', sec.type === 'section' && sec.collapsible === '1' && canvas && canvas.canvas && canvas.tab === -1 && canvas.dashed === 'dashed', { sec: { type: sec.type, c: sec.collapsible }, canvas });
+    await closePanel(admin);
+    await admin.click(`#dropZoneEFB [data-id="${sec.dataId}"]`, { position: { x: 20, y: 10 } });
+    await admin.waitForSelector('#sectionCollapsedEl', { timeout: 8000 });
+    await admin.fill('#labelEl', 'Your contact details');
+    await admin.press('#labelEl', 'Tab');
+    await sleep(400);
+    await admin.check('#sectionCollapsedEl');
+    await sleep(500);
+    const row = await admin.evaluate((id) => JSON.parse(JSON.stringify(valj_efb.find((r) => r.id_ === id))), sec.id_);
+    R.check('f10c: the panel writes the title and "Collapsed when the form opens"', row.name === 'Your contact details' && row.collapsed === '1', { name: row.name, collapsed: row.collapsed });
+    await admin.screenshot({ path: SHOT('f10c-builder-section-en') });
+    await closePanel(admin);
+    await admin.click("a[onclick=\"show_setting_window_efb('formSet')\"]");
+    await admin.waitForSelector('#sectionAccordionEl', { timeout: 8000 });
+    await admin.check('#sectionAccordionEl');
+    await sleep(500);
+    const saved = admin.waitForResponse((x) => /admin-ajax\.php/.test(x.url()) && /add_form_Emsfb|update_form_Emsfb/.test(x.request().postData() || ''), { timeout: 20000 }).catch(() => null);
+    await admin.evaluate(() => saveFormEfb(1));
+    const sres = await saved;
+    const sj = sres ? await sres.json() : {};
+    await sleep(800);
+    const sfid = Number(String((sj.data && (sj.data.value || sj.data.id)) || '').replace(/\D+/g, '')) || await admin.evaluate(() => Number(form_ID_emsFormBuilder));
+    const stored = ctl('form', String(sfid)).form_structer || [];
+    const ss = stored.find((r) => r.type === 'section') || {};
+    R.check('f10c: Save stores the section (collapsible 1, collapsed 1, its title) and section_accordion 1', ss.collapsible === '1' && ss.collapsed === '1' && ss.name === 'Your contact details' && (stored[0] || {}).section_accordion === '1', { ss, acc: (stored[0] || {}).section_accordion });
+
+    // A guest.
+    const F = form('F10 e2e sections', [
+      { key: 'intro', type: 'text', name: 'Your name', required: 1 },
+      { key: 'sa', type: 'section', name: 'Contact', collapsible: '1', collapsed: '1', message: 'How we reach you' },
+      { key: 'em', type: 'email', name: 'E-mail', required: 1 },
+      { key: 'ph', type: 'text', name: 'Phone' },
+      { key: 'sb', type: 'section', name: 'Notes', collapsible: '1', collapsed: '0' },
+      { key: 'nt', type: 'textarea', name: 'Note' },
+    ]);
+    const ids = F.ids;
+    const p = await open(context, pageOf(F.form_id), 'f10c-guest');
+    const m = await p.evaluate((x) => {
+      const reg = (id) => { const w = document.getElementById(id); const r = w && w.closest('.efb-section-region'); return r ? r.id : ''; };
+      return { em: reg(x.em), ph: reg(x.ph), nt: reg(x.nt), intro: reg(x.intro), hidden: document.getElementById(x.sa + '-region').hidden, exp: document.getElementById(x.sa + '_btn').getAttribute('aria-expanded') };
+    }, ids);
+    R.check('f10c: the fields after a section are in its region; "Contact" closed at load (aria-expanded false)', m.em === ids.sa + '-region' && m.ph === ids.sa + '-region' && m.nt === ids.sb + '-region' && m.intro === '' && m.hidden === true && m.exp === 'false', m);
+    await p.focus(byId(ids.sa + '_btn'));
+    await p.keyboard.press('Enter');
+    await sleep(150);
+    const k1 = await p.evaluate((id) => document.getElementById(id + '-region').hidden, ids.sa);
+    await p.keyboard.press('Space');
+    await sleep(150);
+    const k2 = await p.evaluate((id) => document.getElementById(id + '-region').hidden, ids.sa);
+    R.check('f10c: Enter opens and Space closes the section (keyboard only)', k1 === false && k2 === true, { k1, k2 });
+    await type(p, ids.intro, 'Sara');
+    await p.click('#btn_send_efb');
+    await sleep(900);
+    const open1 = await p.evaluate((id) => ({ hidden: document.getElementById(id + '-region').hidden, exp: document.getElementById(id + '_btn').getAttribute('aria-expanded') }), ids.sa);
+    R.check('f10c: Send with an empty required field in the closed section: stopped, the section opens', open1.hidden === false && open1.exp === 'true' && entries(F.form_id).length === 0, open1);
+    await type(p, ids.em, 'sara@example.test');
+    const resp = p.waitForResponse((x) => /forms\/message\/add/.test(x.url()), { timeout: 30000 }).catch(() => null);
+    await p.click('#btn_send_efb');
+    await resp;
+    await sleep(1200);
+    const e = lastEntry(F.form_id);
+    R.check('f10c: then the entry is stored (no row for the sections)', !!e && (e.content || []).some((x) => x.id_ === ids.em) && !(e.content || []).some((x) => x.id_ === ids.sa || x.type === 'section'), e && e.content);
+    await p.close();
+    try {
+      for (const loc of ['fa_IR', 'ar']) {
+        ctl('locale', loc);
+        const fa = loc === 'fa_IR';
+        const L = form('F10 e2e sections ' + loc, [
+          { key: 'sa', type: 'section', name: fa ? 'اطلاعات تماس (Contact)' : 'معلومات الاتصال (Contact)', collapsible: '1', collapsed: '0', label_align: 'txt-right' },
+          { key: 'em', type: 'email', name: fa ? 'ایمیل' : 'البريد', label_align: 'txt-right' },
+          { key: 'sb', type: 'section', name: fa ? 'یادداشت' : 'ملاحظة', collapsible: '1', collapsed: '1', label_align: 'txt-right' },
+          { key: 'nt', type: 'textarea', name: fa ? 'متن' : 'النص', label_align: 'txt-right' },
+        ]);
+        const g = await open(context, pageOf(L.form_id), 'f10c-' + loc, { viewport: { width: 375, height: 800 }, locale: fa ? 'fa-IR' : 'ar' });
+        const facts = await g.evaluate((x) => {
+          const b = document.getElementById(x.sa + '_btn');
+          const lab = document.querySelector('[id="' + x.em + '_labG"]');
+          return { dir: getComputedStyle(b).direction, align: getComputedStyle(b).textAlign, labAlign: lab ? getComputedStyle(lab).textAlign : '', h: b.getBoundingClientRect().height, bidi: getComputedStyle(b).unicodeBidi,
+            chevRight: b.querySelector('.efb-section-chev').getBoundingClientRect().left < b.querySelector('.efb-section-title').getBoundingClientRect().left, scroll: document.documentElement.scrollWidth <= window.innerWidth + 1 };
+        }, L.ids);
+        R.check(`f10c (${loc}): the header right to left, aligned right like the labels, the chevron at the end (left), 44 px, plaintext, no horizontal scroll`, facts.dir === 'rtl' && facts.align === 'right' && facts.labAlign === 'right' && facts.chevRight && facts.h >= 44 && facts.bidi === 'plaintext' && facts.scroll, facts);
+        await g.screenshot({ path: SHOT(`f10c-sections-${loc}-375`), fullPage: true });
+        await g.close();
+      }
+    } finally { ctl('locale', ''); }
   });
 
   /* ------------------------------------------------------------------ f10pay */

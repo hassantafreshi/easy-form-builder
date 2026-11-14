@@ -3048,7 +3048,7 @@ public function check_nonce_permission_efb($request) {
 			$submitted_values = $this->smart_hidden_rows_efb($form_fields_array, $submitted_values, $request_data);
 			// F08: hidden values alone are not an answer (the blank-form refusal above, with hidden rows sent).
 			if ($this->smart_hidden_efb && !array_filter($submitted_values, function ($r) { return is_array($r) && ($r['type'] ?? '') !== 'hiddenField'; })
-				&& array_filter($form_fields_array, function ($f) { return is_array($f) && isset($f['id_'], $f['type']) && !in_array($f['type'], array('hiddenField', 'step', 'option', 'r_matrix', 'html', 'heading', 'link'), true); })
+				&& array_filter($form_fields_array, function ($f) { return is_array($f) && isset($f['id_'], $f['type']) && !in_array($f['type'], array('hiddenField', 'step', 'option', 'r_matrix', 'html', 'heading', 'link', 'section'), true); })
 				&& !in_array($submission_type, array('logout', 'recovery'), true)) {
 				wp_send_json_success(['success' => false, 'm' => isset($this->lanText['PleaseFillForm']) ? $this->lanText['PleaseFillForm'] : 'Please complete the form.'], 200);
 			}
@@ -3102,6 +3102,10 @@ public function check_nonce_permission_efb($request) {
 					}
 				}
 				unset( $_f );
+				// F10-B: a section hidden by a rule hides the fields in it (they are not required, their answers dropped).
+				if ( class_exists( '\\Emsfb\\Layout' ) && ! empty( $_ignored_set ) ) {
+					list( $form_fields_array, $_ignored_set ) = \Emsfb\Layout::expand_hidden_sections( $form_fields_array, $_ignored_set );
+				}
 
 				// block_submit / end_form: the server is authoritative — a matched
 				// veto rule rejects the submission even if the frontend was bypassed.
@@ -10528,7 +10532,7 @@ public function check_nonce_permission_efb($request) {
 	private function validate_required_fields_present_efb($form_fields_array, $submitted_values, $is_pro = true) {
 		// F04: calc is computed by the server after the field loop (Calc::submit_rows() checks a required one).
 		// F09: a repeater group's rows are checked by Repeater::expand() (its children arrive here as copies per row).
-		static $structural_types = ['form', 'step', 'option', 'submit', 'r_matrix', 'buttonnav', 'payment', 'stripe', 'paypal', 'persiapay', 'prcfld', 'calc', 'repeater'];
+		static $structural_types = ['form', 'step', 'option', 'submit', 'r_matrix', 'buttonnav', 'payment', 'stripe', 'paypal', 'persiapay', 'prcfld', 'calc', 'repeater', 'section'];
 		/* A Pro field on a site that moved to Free shows the plan notice
 		 * instead of the input, so "required" can never be met and every
 		 * submission was refused. Not shown means not required. */

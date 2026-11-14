@@ -5589,6 +5589,16 @@ class efbFunction {
 			"rvwFilesN" => $state && isset($ac->text->rvwFilesN) ? $ac->text->rvwFilesN : esc_html__('%s files','easy-form-builder'),
 			/* translators: F10: review page: text under the title */
 			"rvwHelp" => $state && isset($ac->text->rvwHelp) ? $ac->text->rvwHelp : esc_html__('Check your answers. Use Edit to change one, then send the form.','easy-form-builder'),
+			/* translators: F10: palette tile: a section heading that can collapse the fields after it */
+			"section" => $state && isset($ac->text->section) ? $ac->text->section : esc_html__('Section','easy-form-builder'),
+			/* translators: F10: section setting (switch) */
+			"sectionCollapsible" => $state && isset($ac->text->sectionCollapsible) ? $ac->text->sectionCollapsible : esc_html__('Visitors can collapse this section','easy-form-builder'),
+			/* translators: F10: section setting (switch) */
+			"sectionCollapsed" => $state && isset($ac->text->sectionCollapsed) ? $ac->text->sectionCollapsed : esc_html__('Collapsed when the form opens','easy-form-builder'),
+			/* translators: F10: form setting (switch) */
+			"sectionAccordion" => $state && isset($ac->text->sectionAccordion) ? $ac->text->sectionAccordion : esc_html__('Keep only one section open at a time','easy-form-builder'),
+			/* translators: F10: section settings help */
+			"sectionHelp" => $state && isset($ac->text->sectionHelp) ? $ac->text->sectionHelp : esc_html__('The section holds the fields after it in this step, up to the next section.','easy-form-builder'),
 			/* translators: F14: %s = number */
 			"entExported" => $state && isset($ac->text->entExported) ? $ac->text->entExported : esc_html__('%s entries exported.','easy-form-builder'),
 			/* translators: F14: export column */
@@ -6532,6 +6542,8 @@ class efbFunction {
 					case 'review_before_submit':
 					case 'review_hide_empty':
 					case 'review_title':
+					case 'section_accordion':
+					case 'collapsed':
 					case 'vis_view':
 						if (!class_exists('\\Emsfb\\Layout') && is_readable(__DIR__ . '/class-Emsfb-layout.php')) require_once __DIR__ . '/class-Emsfb-layout.php';
 						$valp[$key][$k] = class_exists('\\Emsfb\\Layout') ? \Emsfb\Layout::sanitize_key($k, $v, $type) : '';

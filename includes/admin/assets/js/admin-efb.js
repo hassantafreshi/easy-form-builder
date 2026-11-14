@@ -2416,11 +2416,14 @@ let change_el_edit_Efb = (el) => {
       case "labelEl":
 
         valj_efb[indx].name = el.value;
+        // F10-B: a section's title is text only (the page escapes it too).
+        if (valj_efb[indx].type == 'section') { valj_efb[indx].name = sanitize_text_efb(el.value); document.getElementById(`${valj_efb[indx].id_}_lab`).textContent = valj_efb[indx].name; break; }
         document.getElementById(`${valj_efb[indx].id_}_lab`).innerHTML = sanitize_text_efb(el.value)
 
         break;
       case "desEl":
         valj_efb[indx].message = el.value;
+        if (valj_efb[indx].type == 'section' && typeof efbLayoutSectionRedraw === 'function') { valj_efb[indx].message = sanitize_text_efb(el.value); efbLayoutSectionRedraw(indx); break; }
         document.getElementById(`${valj_efb[indx].id_}-des`).innerHTML =sanitize_text_efb(el.value)
         break;
       case 'bookDateExpEl':
@@ -2522,6 +2525,9 @@ let change_el_edit_Efb = (el) => {
       case "reviewBeforeSubmitEl":
       case "reviewHideEmptyEl":
       case "reviewTitleEl":
+      case "sectionAccordionEl":
+      case "sectionCollapsibleEl":
+      case "sectionCollapsedEl":
         // F10: the review page, sections, rich text, visibility by role, typed signature (layout-builder-efb.js).
         if (typeof efbLayoutBuilderChange === 'function') efbLayoutBuilderChange(el, indx);
         break;
@@ -4861,7 +4867,7 @@ let sampleElpush_efb = (rndm, elementId) => {
     || elementId == "paySelect" || elementId == "payRadio" || elementId == "payCheckbox" || elementId == "heading" || elementId == "link" || elementId == "stripe" || elementId == "persiaPay" || elementId == "trmCheckbox") { pro = true }
 
   if (elementId != "file" && elementId != "dadfile" && elementId != "html" && elementId != "steps" && elementId != "heading" && elementId != "link"
-    && elementId != "audio_recorder" && elementId != "video_recorder" && elementId != "screen_recorder") {
+    && elementId != "section" && elementId != "audio_recorder" && elementId != "video_recorder" && elementId != "screen_recorder") {
 
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: type, elementId: elementId, placeholder: efb_var.text[elementId], value: '', size: size, message: "",
@@ -4945,6 +4951,12 @@ let sampleElpush_efb = (rndm, elementId) => {
     valj_efb.push({
       id_: rndm, dataId: `${rndm}-id`, type: elementId, classes: '', value: efb_var.text[elementId], amount: amount_el_efb, step: step_el_efb, el_text_size: 'display-4',
       el_text_color: 'text-dark', el_align: 'justify-content-start', pro: pro
+    })
+  } else if (elementId == "section") {
+    // F10-B: a section heading; its fields are the ones after it in its step (never stored as a list).
+    valj_efb.push({
+      id_: rndm, dataId: `${rndm}-id`, type: elementId, elementId: elementId, name: efb_var.text.section || 'Section', message: '', classes: '', amount: amount_el_efb, step: step_el_efb,
+      size: 100, collapsible: '1', collapsed: '0', el_text_size: 'fs-5', el_text_color: 'text-labelEfb', label_align: label_align, pro: pro
     })
   } else if (elementId == "link") {
     valj_efb.push({
@@ -8239,6 +8251,11 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       dataTag = elementId;
       ui =typeof headning_el_pro_efb =="function" ?headning_el_pro_efb (rndm,pos,iVJ) :public_pro_message();
       break;
+    case 'section':
+      // F10-B: the same markup as the page (PHP generate_section_efb); inert on the canvas, live in the preview.
+      dataTag = elementId;
+      ui = typeof efbLayoutSectionMarkup === 'function' ? efbLayoutSectionMarkup(valj_efb[iVJ], form_ID_emsFormBuilder || 0, previewSate != true) : '';
+      break;
     case 'booking':
       dataTag = elementId;
       break;
@@ -8419,7 +8436,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     ${previewSate != true && pro_efb == false && pro_el==true ? proActiv : ''}
     ${previewSate != true ? contorl : '<!--efb.app-->'}
     ${previewSate != true && pro_efb == false && pro_el==true  ? '</div>' : ''}
-    ${(previewSate == true && elementId != 'option' && elementId != "html" && elementId != "stripe" && elementId != "heading" && elementId != "link" && !(elementId == 'repeater' && typeof efbRptPreviewEls === 'function')) || previewSate != true ? endTags : '</div>'}
+    ${(previewSate == true && elementId != 'option' && elementId != "html" && elementId != "stripe" && elementId != "heading" && elementId != "section" && elementId != "link" && !(elementId == 'repeater' && typeof efbRptPreviewEls === 'function')) || previewSate != true ? endTags : '</div>'}
     ${previewSate == false  ? ` </section><!--endTag EFB-->` :''}
      <!--endTag EFB-->
     `;
@@ -10163,6 +10180,8 @@ function previewFormEfb(state) {
     efb_builder_init_logic_preview_efb();
     // F09: the preview's repeater rows (Add / Remove, limits) on a copy of the form.
     if (typeof efbRptPreviewInit === 'function') { try { efbRptPreviewInit(document); } catch (e) {} }
+    // F10-B: sections open and close in the preview as on the page.
+    if (typeof efbLayoutPreviewInit === 'function') { try { efbLayoutPreviewInit(document); } catch (e) {} }
   }
   if (state == 'run') {
     sitekye_emsFormBuilder.length > 1 ? loadCaptcha_efb() : '';

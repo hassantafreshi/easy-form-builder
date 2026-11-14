@@ -282,7 +282,7 @@
       const grp = document.createElement('optgroup');
       grp.label = T('fields', 'Fields');
       valj_efb.forEach((f, i) => {
-        if (i < 1 || !f || !f.id_ || ['option', 'r_matrix', 'step', 'html', 'heading', 'link', 'esign', 'maps', 'password'].indexOf(f.type) !== -1) return;
+        if (i < 1 || !f || !f.id_ || ['option', 'r_matrix', 'step', 'html', 'heading', 'section', 'link', 'esign', 'maps', 'password'].indexOf(f.type) !== -1) return;
         if (row && f.id_ === row.id_) return;
         const o = document.createElement('option');
         o.value = '{field:' + f.id_ + '}';

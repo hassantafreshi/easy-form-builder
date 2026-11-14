@@ -4,7 +4,10 @@
  *  - EFBLayoutCore (no DOM; also module.exports for the Node tests): the save rule of every F10 key
  *    (sanitizeKey, twin of \Emsfb\Layout::sanitize_key()), and the text of an answer on the review page
  *    (answerText: what the visitor typed, never a password, never markup).
- *  - EFBLayout (the page): the review page before sending (A).
+ *  - EFBLayout (the page): the review page before sending (A); sections (B): the fields after a section heading in
+ *    its step move into the section's region once the page is drawn (without JavaScript they stay open where they
+ *    were), the header button shows / hides the region (hidden attribute, so its required fields are still checked
+ *    and a field with an error opens its section), accordion mode keeps one section of a step open.
  *
  * core-efb.js calls EFBLayout.reviewIntercept() where it would send the form, and EFBLayout.reviewReturn()
  * when Next is pressed on a step opened from the review page. Values are written with textContent only.
@@ -14,11 +17,11 @@
 
   /* ================================================================== core (no DOM) */
 
-  var FORM_KEYS = ['review_before_submit', 'review_hide_empty', 'review_title'];
-  var FIELD_KEYS = [];
+  var FORM_KEYS = ['review_before_submit', 'review_hide_empty', 'review_title', 'section_accordion'];
+  var FIELD_KEYS = ['collapsed'];
   var RUNTIME_KEYS = ['vis_view'];
   var LIMITS = { review_title: 120 };
-  var DEFAULTS = { review_before_submit: '0', review_hide_empty: '1', review_title: '' };
+  var DEFAULTS = { review_before_submit: '0', review_hide_empty: '1', review_title: '', section_accordion: '0', collapsible: '1', collapsed: '0' };
   var LEGACY_PAY_TYPES = ['stripe', 'paypal', 'persiaPay', 'persiapay', 'zarinPal'];
   /** Rows that are never an answer on the review page (structure, secrets, hidden values). */
   var SKIP_TYPES = ['form', 'step', 'option', 'r_matrix', 'html', 'heading', 'link', 'steps', 'buttonNav', 'ttlprc', 'section',
@@ -42,6 +45,8 @@
     switch (k) {
       case 'review_before_submit':
       case 'review_hide_empty':
+      case 'section_accordion':
+      case 'collapsed':
         return on(v) ? '1' : '0';
       case 'review_title':
         return cut(textField(v), LIMITS.review_title);
@@ -203,8 +208,7 @@
       if (!w) return true;
       if (w.classList.contains('d-none') || w.classList.contains('efb-anim-hide')) return true;
       if (typeof efb_rpt_hidden_efb === 'function' && efb_rpt_hidden_efb(fid, row)) return true;
-      var reg = w.closest ? w.closest('.efb-section-region') : null;
-      if (reg && (reg.classList.contains('d-none') || reg.classList.contains('efb-anim-hide'))) return true;
+      if (w.closest && w.closest('[data-tag="section"].d-none, [data-tag="section"].efb-anim-hide')) return true;
       return false;
     }
     function rowsOfField(all, id) { return all.filter(function (r) { return str(r.id_) === str(id); }); }
@@ -541,11 +545,92 @@
       if (b && b.dataset.returnReview === '1') { delete b.dataset.returnReview; nextText(fid, false); }
     }
 
+    /* ---------------------------------------------------------------- B: sections */
+
+    function regionOf(sec) { return sec ? sec.querySelector(':scope > .efb-section-region, :scope > .efb-section > .efb-section-region') : null; }
+    function sectionEl(wrap) { return wrap ? (wrap.classList.contains('efb-section') ? wrap : wrap.querySelector('.efb-section')) : null; }
+    /** Opens or closes one section (the header's aria-expanded follows; accordion closes the others of its step). */
+    function setOpen(sec, open, accordion) {
+      var s = sectionEl(sec);
+      var reg = regionOf(s);
+      if (!s || !reg) return;
+      if (s.getAttribute('data-collapsible') !== '1') open = true;
+      reg.hidden = !open;
+      s.classList.toggle('efb-section-closed', !open);
+      var btn = s.querySelector('.efb-section-btn');
+      if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open && accordion) {
+        var fs = s.closest('fieldset') || s.parentNode;
+        if (fs) fs.querySelectorAll('.efb-section[data-collapsible="1"]').forEach(function (o) { if (o !== s && regionOf(o) && !regionOf(o).hidden) setOpen(o, false, false); });
+      }
+    }
+    function accordionOf(fid) { var s0 = (structure(fid) || [])[0] || {}; return on(s0.section_accordion); }
+    /**
+     * Moves the fields after each section (same step, up to the next section) into its region, then applies
+     * "collapsed". root: the page (or a preview container); opts.accordion overrides the form's setting.
+     * Called again on the same root, it adds nothing.
+     */
+    function mountSections(root, opts) {
+      root = root || doc();
+      if (!root || !root.querySelectorAll) return 0;
+      opts = opts || {};
+      var n = 0;
+      root.querySelectorAll('[data-tag="section"]').forEach(function (wrap) {
+        var s = sectionEl(wrap);
+        var reg = regionOf(s);
+        // The builder canvas draws sections inert (efb-section-canvas): its fields are never moved.
+        if (!s || !reg || s.getAttribute('data-mounted') === '1' || s.classList.contains('efb-section-canvas')) return;
+        s.setAttribute('data-mounted', '1');
+        n++;
+        var sib = wrap.nextElementSibling;
+        while (sib) {
+          var nextSib = sib.nextElementSibling;
+          if (sib.getAttribute('data-tag') === 'section' || sib.getAttribute('data-tag') === 'step' || sib.tagName === 'FIELDSET') break;
+          if (sib.classList.contains('efbField') && sib.hasAttribute('data-tag')) reg.appendChild(sib);
+          sib = nextSib;
+        }
+        var fid = s.getAttribute('data-formid') || '';
+        var acc = opts.accordion !== undefined ? !!opts.accordion : accordionOf(fid);
+        var btn = s.querySelector('.efb-section-btn');
+        if (btn && !btn._efbSection) {
+          btn._efbSection = true;
+          btn.addEventListener('click', function () { if (opts.inert) return; setOpen(s, !!reg.hidden, opts.accordion !== undefined ? !!opts.accordion : accordionOf(fid)); });
+        }
+        setOpen(s, s.getAttribute('data-collapsed') !== '1', false);
+      });
+      // Accordion: one open section per step (the first one that is open).
+      root.querySelectorAll('fieldset').forEach(function (fs) {
+        var first = null;
+        fs.querySelectorAll('.efb-section[data-collapsible="1"][data-mounted="1"]').forEach(function (s) {
+          var acc = opts.accordion !== undefined ? !!opts.accordion : accordionOf(s.getAttribute('data-formid') || '');
+          if (!acc || !regionOf(s) || regionOf(s).hidden) return;
+          if (!first) first = s; else setOpen(s, false, false);
+        });
+      });
+      return n;
+    }
+    /** A field in a closed section: open it (validation, the review page's Edit, a server error). true when opened. */
+    function revealSection(id, fid) {
+      var w = byId(fid, id);
+      if (!w || !w.closest) return false;
+      var reg = w.closest('.efb-section-region');
+      var opened = false;
+      while (reg) {
+        if (reg.hidden) { setOpen(reg.closest('.efb-section'), true, accordionOf(fid)); opened = true; }
+        var up = reg.parentNode && reg.parentNode.closest ? reg.parentNode.closest('.efb-section-region') : null;
+        reg = up;
+      }
+      return opened;
+    }
+
     return { wanted: wanted, collect: collect, render: render, open: open, close: close, confirm: confirm, edit: edit,
-      reviewIntercept: reviewIntercept, reviewReturn: reviewReturn, reviewCancelReturn: reviewCancelReturn, digits: digits };
+      reviewIntercept: reviewIntercept, reviewReturn: reviewReturn, reviewCancelReturn: reviewCancelReturn, digits: digits,
+      mountSections: mountSections, revealSection: revealSection, setSectionOpen: setOpen };
   })();
 
   root.EFBLayoutCore = core;
   root.EFBLayout = page;
+  /** F10-B: opens the section of a field (core-efb.js calls it before it scrolls to a field with an error). */
+  root.efb_section_reveal_efb = function (id, fid) { try { return page.revealSection(id, fid); } catch (e) { return false; } };
   if (typeof module === 'object' && module.exports) module.exports = core;
 })(typeof window !== 'undefined' ? window : globalThis);

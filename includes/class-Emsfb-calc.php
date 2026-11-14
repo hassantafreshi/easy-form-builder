@@ -764,7 +764,7 @@ final class Calc {
 	}
 
 	/** Types a formula can read as a number (or a list of choices); everything else is text (a number or an error). */
-	const LAYOUT_TYPES = array('option', 'step', 'form', 'r_matrix', 'heading', 'link', 'html', 'buttonNav', 'submit');
+	const LAYOUT_TYPES = array('option', 'step', 'form', 'r_matrix', 'heading', 'section', 'link', 'html', 'buttonNav', 'submit');
 
 	/**
 	 * The formula problems of a form's calc fields: id => {code, pos, near, ref}. code: calcSyntax / calcLong /

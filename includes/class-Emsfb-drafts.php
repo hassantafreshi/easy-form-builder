@@ -32,7 +32,7 @@ class Drafts {
 	/** Types never kept in a draft (spec §5 "آنچه ذخیره نمی‌شود"). */
 	const NOT_SAVED = array(
 		'password', 'file', 'dadfile', 'esign', 'audio_recorder', 'video_recorder', 'screen_recorder', 'image', 'document', 'media', 'allformat', 'zip',
-		'stripe', 'paypal', 'persiaPay', 'persiapay', 'zarinPal', 'payment', 'captcha_v2', 'prcfld', 'ttlprc', 'html', 'heading', 'link', 'step', 'steps', 'w_link',
+		'stripe', 'paypal', 'persiaPay', 'persiapay', 'zarinPal', 'payment', 'captcha_v2', 'prcfld', 'ttlprc', 'html', 'heading', 'section', 'link', 'step', 'steps', 'w_link',
 	);
 
 	/** Test clock (unix seconds); null = time(). */

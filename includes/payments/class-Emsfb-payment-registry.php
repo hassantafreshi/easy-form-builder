@@ -35,7 +35,7 @@ class Registry {
 	/** Types a gateway slug may not take (EFB's own field and row types). */
 	const RESERVED = array( 'stripe', 'paypal', 'persiapay', 'zarinpal', 'payment', 'option', 'step', 'form', 'text', 'email', 'number', 'select',
 		'radio', 'checkbox', 'file', 'html', 'prcfld', 'ttlprc', 'paycheckbox', 'payradio', 'payselect', 'paymultiselect', 'date', 'url', 'tel',
-		'mobile', 'textarea', 'password', 'range', 'color', 'maps', 'esign', 'rating', 'switch', 'heading', 'link', 'yesno', 'steps', 'coupon', 'w_link' );
+		'mobile', 'textarea', 'password', 'range', 'color', 'maps', 'esign', 'rating', 'switch', 'heading', 'section', 'link', 'yesno', 'steps', 'coupon', 'w_link' );
 
 	private static $gateways = array();
 	private static $errors = array();
