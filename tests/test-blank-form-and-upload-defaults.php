@@ -16,10 +16,15 @@
  *      such a form, so the blank-submission branch was unreachable and the
  *      visitor got that same misleading upload error instead.
  *
- * Run: php tests/test-blank-form-and-upload-defaults.php
+ * Part 2 uses a form of its own (a text field and an optional file field), created through the builder's sanitizer
+ * and removed at the end, so forms other tests leave on the site (the newest one may have a schedule, a limit or a
+ * required upload) do not change what is tested.
+ *
+ * Run: php tests/test-blank-form-and-upload-defaults.php   (EFB_WP_LOAD=/path/to/wp-load.php, or the e2e env)
  */
 
-$wp_load = dirname( __DIR__, 4 ) . '/wp-load.php';
+// The plugin inside a site (wp-content/plugins/…), or the site named by EFB_WP_LOAD / EFB_E2E_SITE_DIR (the e2e site).
+$wp_load = getenv( 'EFB_WP_LOAD' ) ?: ( getenv( 'EFB_E2E_SITE_DIR' ) ? rtrim( getenv( 'EFB_E2E_SITE_DIR' ), '/' ) . '/wp-load.php' : dirname( __DIR__, 4 ) . '/wp-load.php' );
 if ( ! is_readable( $wp_load ) ) {
 	echo "[SKIP] WordPress bootstrap was not found at {$wp_load}\n";
 	exit( 0 );
@@ -161,24 +166,34 @@ echo "\n=== end to end ===\n";
 
 $fn = get_efbFunction();
 
-// Any published form whose structure carries an optional file/dadfile field.
-$candidates = $wpdb->get_results( "SELECT form_id, form_structer FROM {$wpdb->prefix}emsfb_form WHERE form_type='form' ORDER BY form_id DESC LIMIT 40" );
+// A form of its own: a text field and an optional file field (saved through the builder's sanitizer).
+$rid = function () { return 'efbbl' . substr( md5( uniqid( '', true ) ), 0, 6 ); };
+$tid = $rid();
+$uid = $rid();
+$style = array( 'size' => 100, 'required' => 0, 'label_text_size' => 'fs-6', 'label_position' => 'up', 'el_text_size' => 'fs-6', 'label_text_color' => 'text-labelEfb', 'el_border_color' => 'border-d', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'el_height' => 'h-d-efb', 'label_align' => 'txt-left', 'message_align' => 'justify-content-start', 'el_align' => 'justify-content-start', 'classes' => '', 'message' => '', 'placeholder' => '', 'value' => '', 'icon_input' => '' );
+$fixture = $fn->sanitize_obj_msg_efb( array(
+	array( 'type' => 'form', 'steps' => 1, 'formName' => 'efb blank-form regression', 'email' => '', 'trackingCode' => '1', 'EfbVersion' => 2, 'button_single_text' => 'Send', 'button_color' => 'btn-darkb', 'icon' => 'bi-ui-checks-grid', 'button_state' => 'single', 'email_to' => '', 'show_icon' => '1', 'captcha' => '', 'sendEmail' => '', 'stateForm' => 0, 'thank_you' => 'msg', 'label_text_color' => 'text-labelEfb', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'icon_color' => 'text-white', 'el_height' => 'h-d-efb' ),
+	array( 'id_' => '1', 'type' => 'step', 'dataId' => '1', 'id' => '1', 'name' => 'Step 1', 'icon' => 'bi-ui-checks-grid', 'step' => 1, 'amount' => 1, 'EfbVersion' => 2, 'classes' => '', 'message' => '', 'visible' => 1 ),
+	array_merge( $style, array( 'id_' => $tid, 'dataId' => $tid . '-id', 'type' => 'text', 'elementId' => 'text', 'name' => 'Name', 'step' => 1, 'amount' => 2 ) ),
+	array_merge( $style, array( 'id_' => $uid, 'dataId' => $uid . '-id', 'type' => 'file', 'elementId' => 'file', 'name' => 'File upload', 'file' => 'allformat', 'step' => 1, 'amount' => 3 ) ),
+) );
+$wpdb->insert( $wpdb->prefix . 'emsfb_form', array( 'form_name' => 'efb blank-form regression', 'form_structer' => str_replace( '"', '\\"', wp_json_encode( $fixture, JSON_UNESCAPED_UNICODE ) ), 'form_email' => '', 'form_type' => 'form', 'form_created_by' => '1', 'form_access_by' => '', 'form_create_date' => current_time( 'mysql' ), 'status' => 1 ) );
+$own_fid = (int) $wpdb->insert_id;
+register_shutdown_function( function () use ( $wpdb, $own_fid ) {
+	if ( $own_fid > 0 ) {
+		$wpdb->delete( $wpdb->prefix . 'emsfb_form', array( 'form_id' => $own_fid ) );
+		$wpdb->delete( $wpdb->prefix . 'emsfb_msg_', array( 'form_id' => $own_fid ) );
+	}
+} );
 $target = null;
-foreach ( $candidates as $row ) {
-	$fields = json_decode( str_replace( '\\', '', $row->form_structer ), true );
-	if ( ! is_array( $fields ) ) continue;
-	foreach ( $fields as $i => $f ) {
-		if ( $i < 2 || empty( $f['type'] ) ) continue;
-		if ( ! in_array( $f['type'], array( 'file', 'dadfile' ), true ) ) continue;
-		$is_required = isset( $f['required'] ) && in_array( $f['required'], array( true, 1, '1', 'true' ), true );
-		if ( $is_required ) continue;
-		$target = array( 'form_id' => (int) $row->form_id, 'fields' => $fields, 'upload' => $f );
-		break 2;
+if ( $own_fid > 0 ) {
+	foreach ( $fixture as $i => $f ) {
+		if ( $i >= 2 && isset( $f['type'] ) && 'file' === $f['type'] ) $target = array( 'form_id' => $own_fid, 'fields' => $fixture, 'upload' => $f );
 	}
 }
 
 if ( null === $target ) {
-	echo "[SKIP] no form with an optional file/dadfile field exists on this site\n";
+	echo "[SKIP] the test form could not be created on this site\n";
 	echo "\n========================================\n";
 	echo "RESULTS: {$pass} passed, {$fail} failed\n";
 	exit( $fail > 0 ? 1 : 0 );

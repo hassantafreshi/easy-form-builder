@@ -1338,6 +1338,67 @@ on a page only when a form has a group); builder: `includes/admin/assets/js/repe
   `test-addon-googlesheet-repeater.php`, `test-repeater-restore-browser.js`, `test-repeater-plan-gating.js`,
   `test-ap-repeater.js` and the e2e scenarios `f09a` … `f09d`, `f09k`, `f09l`, `f09m`, `f09pay`.
 
+### F10. Layout and special fields: review page, sections, rich text, who sees a field, typed signature (`section`, `efbBuilderApi.setFieldLayout`, `window.EFBLayout` / `EFBSign`, codes)
+
+Spec: `docs/feature-gaps/F10-layout-special-fields.fa.md`. Server: `Emsfb\Layout` (`includes/class-Emsfb-layout.php`);
+page runtime and shared rules: `public/assets/js/layout-efb.js` (`window.EFBLayoutCore`, `window.EFBLayout`,
+`window.EFBSign`) and `public/assets/js/rich-text-efb.js` (`window.EFBRichCore`, `window.EFBRich`), each loaded on a
+page only when a form uses it; builder: `includes/admin/assets/js/layout-builder-efb.js`.
+
+| Keys | Where | Plan (`Layout::PLAN`, filter `efb_layout_plan`) |
+|---|---|---|
+| `review_before_submit`, `review_hide_empty` (`'1'` \| `'0'`), `review_title` (plain text ≤ 120) | row 0 | **Free** (`setting:review_before_submit`) |
+| type `section` (`name`, `message`, `collapsible`, `collapsed`); `section_accordion` (row 0) | section row | **Free** (`field:section`) |
+| `rich_text` (`'1'` \| `'0'`), `rich_toolbar` (`basic` \| `full`) | a textarea | **Free Plus** (`setting:rich_text`) |
+| `vis_mode` (`all` \| `in` \| `out` \| `roles`), `vis_roles` (role slugs of this site, comma list) | any field, section or heading | **Pro** for the builder control (`setting:vis_mode`); a saved rule is **enforced on every plan** |
+| `esign_mode` (`draw` \| `type` \| `both`), `esign_font` (`auto` \| `latin` \| `arabic`) | an e-signature | the e-signature's own plan (`setting:esign_mode`, Free Plus) |
+
+- **Review page.** After the last step the page lists the answers by step (`textContent` only; never a password,
+  a hidden field, a field hidden by logic or by role), with Edit per step and per field and Confirm, which sends
+  through the form's normal Send. Not on a form with a Stripe / PayPal / PersiaPay field (paid inside the form);
+  a payment-framework form shows the server's amount from `POST Emsfb/v1/payments/quote` (the same checks as
+  `payments/create`, nothing stored, rate limited, `no-store`). An assistant never presses Confirm.
+- **Sections.** The fields after a section in its step, up to the next section or step, are its members (never
+  stored). A section is not a repeater child; a group may sit in a section. A section hidden by logic or by a
+  visibility rule hides its members (server too). No answer row.
+- **Rich text.** The answer is cleaned HTML with `fmt: "html"` (written by the server: `p br strong b em i u ul ol
+  li blockquote h3 h4`, `a href` http/https/mailto with `rel="nofollow ugc noopener" target="_blank"`); length
+  limits and F03 rules read the text. Notifications, the export, Smart Tags, Conditional Logic and Google Sheets
+  read the text. An assistant types plain text.
+- **Who sees a field.** The server leaves a field the viewer may not see out of the page (HTML and the page's copy
+  of the form), out of `forms/{id}/schema` and out of every submit route (its answers dropped, never required);
+  entries.read leaves out the answers of a role-only field for a caller without the role. A page with such a form
+  is not page-cached (`Cache_Compat::render_bypass(…, 'vis')`); when a site keeps it cacheable (filter
+  `emsfb_cache_bypass` false), the page holds only the fields every visitor sees (`vis_view: "public"`), and the
+  submit says so (body `vis_view` or header `X-EFB-Vis-View: public`), which only narrows. Administrators follow the
+  rule like any role. A step left without a field is skipped (`data-vis-empty`).
+- **Typed signature.** The page draws the typed name on the field's canvas with a bundled font (Dancing Script,
+  Aref Ruqaa; SIL OFL) and sends that PNG like a drawn one, with `sig_mode: "type"`, `sig_text` (≤ 60) and
+  `sig_font`. The server keeps those keys only on a field that allows typing. Displays add "Typed signature: name".
+- **Builder.** `insertItems` / `setForm` / `setFormSettings` check the keys with the save rules and between keys;
+  `efbBuilderApi.setFieldLayout(id, patch)` → `{changed, values}` sets one field's layout keys. Codes (with
+  `path`): `layout_invalid` (a value, a key on the wrong type, vis_roles without `roles`, the page marks `vis_view`
+  / `vis_empty`), `layout_vis_role` (a role this site does not have, `efb_var.roles`), `layout_section_group`,
+  `layout_review_payment`, `plan_required`, `unknown_target`.
+- **Save.** `sanitize_obj_msg_efb` (explicit cases → `Layout::sanitize_key`), then `Layout::normalize_rows()`:
+  keys only where they mean something, and the save notices `layout_review_payment` and `layout_security_change`
+  (`changes: [{field, key: vis_mode|vis_roles|rich_text, from, to}]`, the preview's `security_changes`).
+- **Registry.** `setting:review_before_submit`, `field:section`, `setting:rich_text`, `setting:vis_mode`,
+  `setting:esign_mode`, each with `form_keys`; top level `layout` = `{v, form_keys, field_keys, defaults, limits,
+  review, rich_text, visibility, typed_signature, section, plan, spec}`.
+- **Schema.** `forms/{id}/schema` (per viewer, `private, no-store`): `review: {on, how}`, `sections: [{id, title,
+  step, collapsible, collapsed, fields}]`, a rich textarea has `rich_text: true` (plain text in), an e-signature
+  `assistant: "visitor_only"` with `signature.modes`; a field hidden from the caller is absent (and not named in
+  a group's `children`).
+- **Visitor page.** `EFBLayout.revealSection(fieldId, formId)` opens the section of a field; `EFBSign.commit(canvas,
+  name)` is the page's own typing (an assistant does not sign).
+- **Tests.** `test-review-step.js`, `test-layout-keys.php`, `test-layout-parity.js`, `test-review-quote-http.php`,
+  `test-section-render.php`, `test-section-mount.js`, `test-rich-text-editor.js`, `test-rich-text-browser.js`,
+  `test-rich-text-kses.php`, `test-addon-googlesheet-rich.php`, `test-addon-logic-layout.php`,
+  `test-field-visibility.php`, `test-field-visibility-submit.php`, `test-field-visibility-browser.js`,
+  `test-esign-typed-browser.js`, `test-esign-stored-xss.php`, `test-layout-builder-change.js`,
+  `test-layout-save-schema.php`, `test-ap-layout.js` and the e2e scenarios `f10a` … `f10f`, `f10pay`.
+
 ### F14. Entries management (read-only entries API, registry entries, hooks)
 
 Spec: `docs/feature-gaps/F14-entries-management.fa.md`; SitePilot contract §5.5 `entries.read`. Server:

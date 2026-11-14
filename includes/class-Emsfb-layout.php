@@ -73,6 +73,8 @@ class Layout {
 		if (!function_exists('add_filter')) return;
 		add_filter('efb_capabilities', array(__CLASS__, 'capabilities'), 29, 2);
 		add_filter('efb_admin_localize_vars', array(__CLASS__, 'localize_vars'), 29, 2);
+		add_filter('efb_form_schema_field', array(__CLASS__, 'schema_field'), 15, 3);
+		add_filter('efb_form_schema', array(__CLASS__, 'schema'), 20, 3);
 	}
 
 	/* ------------------------------------------------------------------ plan */
@@ -492,6 +494,105 @@ class Layout {
 	/** The typed name of a stored signature row ('' for a drawn one). */
 	public static function sig_text_of($row) {
 		return self::s($row, 'sig_mode') === 'type' ? self::s($row, 'sig_text') : '';
+	}
+
+	/* ------------------------------------------------------------------ forms/{id}/schema */
+
+	/** A field's F10 facts for an assistant: a rich textarea takes plain text; a signature is the visitor's own. */
+	public static function schema_field($e, $r, $form_id = 0) {
+		if (!is_array($e) || !is_array($r)) return $e;
+		$t = isset($r['type']) ? (string) $r['type'] : '';
+		if ($t === 'textarea' && self::rich_on($r)) {
+			$e['rich_text'] = true;
+			if (!isset($e['fill']) || !is_array($e['fill'])) $e['fill'] = array();
+			$e['fill']['format'] = 'plain text (the page keeps the formatting the visitor adds; the server keeps only the allowed tags)';
+		}
+		if ($t === 'esign') {
+			$e['assistant'] = 'visitor_only';
+			$e['signature'] = array('modes' => self::sig_mode($r) === 'both' ? array('draw', 'type') : array(self::sig_mode($r)), 'note' => 'the visitor draws or types the signature; an assistant never signs');
+		}
+		return $e;
+	}
+
+	/**
+	 * The form's F10 facts: the review page (the visitor confirms; an assistant never presses Confirm) and the sections
+	 * (title, step, whether they fold, the fields they hold) as this viewer gets them. A repeater group's children
+	 * list keeps only the fields of the schema (a child hidden from this viewer is not named).
+	 */
+	public static function schema($out, $form_id = 0, $context = array()) {
+		if (!is_array($out) || !isset($out['fields']) || !class_exists('\\Emsfb\\Calendar_Rest')) return $out;
+		$rows = Calendar_Rest::form_rows((int) $form_id);
+		if (!is_array($rows)) return $out;
+		if (self::has_vis($rows)) $rows = self::filter_rows($rows);
+		$present = array();
+		foreach ($out['fields'] as $e) if (is_array($e) && isset($e['id'])) $present[(string) $e['id']] = true;
+		foreach ($out['fields'] as $k => $e) {
+			if (is_array($e) && isset($e['repeater']['children']) && is_array($e['repeater']['children'])) {
+				$out['fields'][$k]['repeater']['children'] = array_values(array_filter($e['repeater']['children'], function ($c) use ($present) { return isset($present[(string) $c]); }));
+			}
+		}
+		if (self::review_on($rows)) $out['review'] = array('on' => true, 'how' => 'after the last step the page lists the answers; the visitor edits or presses Confirm (an assistant never confirms for the visitor)');
+		$sections = array();
+		$members = self::section_members($rows);
+		foreach ($rows as $i => $r) {
+			if ($i < 1 || self::s($r, 'type') !== 'section') continue;
+			$id = self::s($r, 'id_');
+			$coll = !isset($r['collapsible']) || $r['collapsible'] === '' || self::on($r['collapsible']);
+			$sections[] = array('id' => $id, 'title' => self::s($r, 'name'), 'step' => (int) self::s($r, 'step', '1'), 'collapsible' => $coll, 'collapsed' => $coll && self::on(self::s($r, 'collapsed')),
+				'fields' => array_values(array_filter(isset($members[$id]) ? $members[$id] : array(), function ($f) use ($present) { return isset($present[(string) $f]); })),
+				'fill' => 'a field in a closed section opens it (EFBLayout.revealSection(field_id, form_id))', 'assistant' => 'none');
+		}
+		if ($sections) $out['sections'] = $sections;
+		return $out;
+	}
+
+	/* ------------------------------------------------------------------ save (between keys) */
+
+	/**
+	 * After sanitize_obj_msg_efb(), on every save (builder, AutoPilot, import): the F10 keys only where they mean
+	 * something (rich_text on a textarea, esign_* on an e-signature, vis_* on a field — not a step, an option or the
+	 * login / register rows, vis_roles only with "roles"), a section never in a repeater group, no review page on a
+	 * form paid inside the form. $old_rows (the stored form) adds a security_changes warning when who sees a field
+	 * changed or a rich editor was switched on (SitePilot preview). [rows, warnings]; never refuses the save.
+	 */
+	public static function normalize_rows(array $rows, $old_rows = null) {
+		$warnings = array();
+		$old = array();
+		foreach ((array) $old_rows as $i => $r) if ($i > 0 && is_array($r) && isset($r['id_'])) $old[(string) $r['id_']] = $r;
+		$changes = array();
+		foreach ($rows as $i => $r) {
+			if ($i < 1 || !is_array($r)) continue;
+			$t = isset($r['type']) ? (string) $r['type'] : '';
+			if ($t !== 'textarea') unset($rows[$i]['rich_text'], $rows[$i]['rich_toolbar']);
+			if ($t !== 'esign') unset($rows[$i]['esign_mode'], $rows[$i]['esign_font']);
+			if (in_array($t, array('step', 'option', 'r_matrix'), true) || in_array(isset($r['id_']) ? (string) $r['id_'] : '', self::VIS_FIXED_IDS, true)) unset($rows[$i]['vis_mode'], $rows[$i]['vis_roles']);
+			if (isset($rows[$i]['vis_roles']) && (!isset($rows[$i]['vis_mode']) || $rows[$i]['vis_mode'] !== 'roles')) unset($rows[$i]['vis_roles']);
+			if ($t === 'section' && isset($r['group']) && $r['group'] !== '') unset($rows[$i]['group']);
+			$id = isset($r['id_']) ? (string) $r['id_'] : '';
+			if ($id === '' || $old_rows === null) continue;
+			$o = isset($old[$id]) ? $old[$id] : array();
+			foreach (array('vis_mode' => 'all', 'vis_roles' => '', 'rich_text' => '0') as $k => $d) {
+				$a = isset($o[$k]) && is_scalar($o[$k]) && $o[$k] !== '' ? (string) $o[$k] : $d;
+				$b = isset($rows[$i][$k]) && is_scalar($rows[$i][$k]) && $rows[$i][$k] !== '' ? (string) $rows[$i][$k] : $d;
+				if ($a === $b || ($k === 'rich_text' && $b !== '1')) continue;
+				$changes[] = array('field' => $id, 'key' => $k, 'from' => $a, 'to' => $b);
+			}
+		}
+		if (isset($rows[0]) && is_array($rows[0]) && isset($rows[0]['review_before_submit']) && $rows[0]['review_before_submit'] === '1' && self::legacy_payment($rows)) {
+			$rows[0]['review_before_submit'] = '0';
+			$warnings[] = array('code' => 'layout_review_payment', 'm' => self::t('rvwNotPayment', 'Review is not available on forms that take a payment inside the form (Stripe, PayPal, PersiaPay).'));
+		}
+		if ($changes) $warnings[] = array('code' => 'layout_security_change', 'changes' => $changes, 'm' => self::t('layoutSecChange', 'Who sees a field, or a rich text editor, has changed on this form.'));
+		return array($rows, $warnings);
+	}
+
+	private static function t($key, $fallback) {
+		$fn = function_exists('get_efbFunction') ? get_efbFunction() : null;
+		if ($fn && method_exists($fn, 'text_efb')) {
+			$l = $fn->text_efb(array($key));
+			if (is_array($l) && isset($l[$key]) && is_string($l[$key]) && $l[$key] !== '') return $l[$key];
+		}
+		return $fallback;
 	}
 
 	/* ------------------------------------------------------------------ capabilities */

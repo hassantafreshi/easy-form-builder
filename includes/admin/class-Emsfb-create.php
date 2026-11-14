@@ -506,6 +506,11 @@ class Create {
 			list($valp, $upload_warn_efb) = \Emsfb\Uploads::normalize_rows($valp, null);
 			$save_warnings_efb = array_merge($save_warnings_efb, $upload_warn_efb);
 		}
+		// F10: the layout keys only where they mean something; who sees a field / a rich editor changed (security_changes); never refuses.
+		if (is_array($valp) && class_exists('\\Emsfb\\Layout')) {
+			list($valp, $layout_warn_efb) = \Emsfb\Layout::normalize_rows($valp, null);
+			$save_warnings_efb = array_merge(isset($save_warnings_efb) ? $save_warnings_efb : array(), $layout_warn_efb);
+		}
 		// F08: a tag in the redirect host, an answer from a later step, a hidden value that stores personal data; never refuses.
 		if (is_array($valp) && class_exists('\\Emsfb\\Smart_Tags')) {
 			$save_warnings_efb = array_merge(isset($save_warnings_efb) ? $save_warnings_efb : array(), \Emsfb\Smart_Tags::form_warnings_text($valp, isset($lang) && is_array($lang) ? $lang : array()));

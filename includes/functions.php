@@ -5673,6 +5673,8 @@ class efbFunction {
 			"sigFontLatin" => $state && isset($ac->text->sigFontLatin) ? $ac->text->sigFontLatin : esc_html__('Latin script (Dancing Script)','easy-form-builder'),
 			/* translators: F10: builder, Signature font; Aref Ruqaa is a font name, keep it */
 			"sigFontArabic" => $state && isset($ac->text->sigFontArabic) ? $ac->text->sigFontArabic : esc_html__('Persian / Arabic script (Aref Ruqaa)','easy-form-builder'),
+			/* translators: F10: save notice (and the AI preview): a field visibility rule or a rich text editor changed */
+			"layoutSecChange" => $state && isset($ac->text->layoutSecChange) ? $ac->text->layoutSecChange : esc_html__('Who sees a field, or a rich text editor, has changed on this form.','easy-form-builder'),
 			/* translators: F10: builder help under How visitors sign */
 			"sigTypeHelp" => $state && isset($ac->text->sigTypeHelp) ? $ac->text->sigTypeHelp : esc_html__('A typed name is drawn as a signature image and kept with the answer, so visitors without a mouse or a touch screen can sign too.','easy-form-builder'),
 			/* translators: F14: %s = number */

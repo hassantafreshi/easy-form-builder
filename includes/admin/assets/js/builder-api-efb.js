@@ -257,6 +257,8 @@
     if (caErrs.length) throw failCalc(caErrs);
     var rpErrs = rptCheck(next.slice(1), 1, next.slice(1));
     if (rpErrs.length) throw failRpt(rpErrs);
+    var lyErrs = layoutCheck(next.slice(1), 1, next.slice(1), next[0]);
+    if (lyErrs.length) throw failLayout(lyErrs);
     rptPlace(next);
     if (typeof efbNormalizeOrderEfb === 'function') efbNormalizeOrderEfb(next);
     valj_efb = next;
@@ -290,6 +292,8 @@
     if (caErrs.length) throw failCalc(caErrs);
     var rpErrs = rptCheck(add, 0, list.slice(1).concat(add));
     if (rpErrs.length) throw failRpt(rpErrs);
+    var lyErrs = layoutCheck(add, 0, list.slice(1).concat(add));
+    if (lyErrs.length) throw failLayout(lyErrs);
     if (items && items.formPatch && typeof items.formPatch === 'object') {
       var fpErrs = uploadCheck([items.formPatch], 0);
       if (fpErrs.length) throw failUpload(fpErrs);
@@ -626,11 +630,18 @@
       var errs = efb_limits_validate_efb(patch, r[0]);
       if (errs.length) throw fail(errs[0].code, errs[0].message);
     }
+    // F10: the review / section keys of row 0 with the save rules (a form paid inside the form has no review page).
+    var lay0 = {};
+    ['review_before_submit', 'review_hide_empty', 'review_title', 'section_accordion', 'vis_view', 'vis_empty'].forEach(function (k) { if (patch[k] !== undefined) lay0[k] = patch[k]; });
+    if (Object.keys(lay0).length) {
+      var lyErrs0 = layoutCheck([], 0, r.slice(1), lay0);
+      if (lyErrs0.length) throw failLayout(lyErrs0);
+    }
     var values = {};
     keys.forEach(function (k) {
       var v = patch[k];
       var f11 = typeof efb_limits_value_efb === 'function' ? efb_limits_value_efb(k, v) : null;
-      values[k] = f11 !== null ? f11 : (v === true ? '1' : v === false ? '' : String(v == null ? '' : v));
+      values[k] = lay0 && lay0[k] !== undefined ? lay0[k] : (f11 !== null ? f11 : (v === true ? '1' : v === false ? '' : String(v == null ? '' : v)));
     });
     keys.forEach(function (k) { r[0][k] = values[k]; });
     try { sessionStorage.setItem('valj_efb', JSON.stringify(r)); } catch (e) {}
@@ -1468,12 +1479,128 @@
     return { changed: Object.keys(values), values: values, plan: gated };
   }
 
+  /* ------------------------------------------------------------ F10 layout and special fields */
+
+  function layCore() { return window.EFBLayoutCore || null; }
+  var LAY_FLAGS = [true, false, 1, 0, '1', '0', 'true', 'false', ''];
+  var LAY_FLAG_KEYS = ['review_before_submit', 'review_hide_empty', 'section_accordion', 'collapsed', 'rich_text'];
+  var LAY_NO_VIS = ['step', 'option', 'r_matrix', 'form'];
+  var LAY_FIXED_IDS = ['emaillogin', 'passwordlogin', 'usernameRegisterEFB', 'passwordRegisterEFB', 'repasswordRegisterEFB', 'emailRegisterEFB'];
+  /**
+   * The F10 keys of rows written by the API, with the save rules (EFBLayoutCore.sanitizeKey = Layout::sanitize_key)
+   * and the rules between keys (Layout::normalize_rows): a flag is one of true / false / 1 / 0; the review title is
+   * text; rich_text / rich_toolbar only on a textarea, esign_mode / esign_font only on an e-signature, vis_mode /
+   * vis_roles on a field (not a step, an option or a login / register row), vis_roles = roles of this site
+   * (efb_var.roles) with vis_mode "roles"; a section never in a repeater group; no review page on a form with a
+   * Stripe / PayPal / PersiaPay field; rich text below Free Plus and a visibility rule below Pro are plan_required.
+   * vis_view / vis_empty are the page's own marks. Values are written normalized. Errors {code, path, key, field}.
+   */
+  function layoutCheck(items, offset, all, row0) {
+    var C = layCore(), out = [];
+    if (!C) return out;
+    var cap = (window.efb_var && efb_var.capabilities && efb_var.capabilities.features) || {};
+    var roles = (window.efb_var && Array.isArray(efb_var.roles)) ? efb_var.roles.map(function (x) { return String(x && x.slug); }) : null;
+    var err = function (code, path, key, field) { out.push({ code: code, path: path + key, key: key, field: field === undefined ? '' : field }); };
+    var flag = function (r, k, path, id) {
+      if (r[k] === undefined) return;
+      if (LAY_FLAGS.indexOf(r[k]) === -1) { err('layout_invalid', path, k, id); return; }
+      r[k] = C.sanitizeKey(k, r[k]);
+    };
+    var checkRow0 = function (r, path) {
+      C.RUNTIME_KEYS.forEach(function (k) { if (r[k] !== undefined) err('layout_invalid', path, k); });
+      ['review_before_submit', 'review_hide_empty', 'section_accordion'].forEach(function (k) { flag(r, k, path); });
+      if (r.review_title !== undefined) {
+        if (r.review_title !== null && typeof r.review_title === 'object') err('layout_invalid', path, 'review_title');
+        else r.review_title = C.sanitizeKey('review_title', r.review_title);
+      }
+      if (r.review_before_submit === '1' && C.legacyPayment([r].concat(all || []))) err('layout_review_payment', path, 'review_before_submit');
+    };
+    if (row0) checkRow0(row0, 'rows[0].');
+    (items || []).forEach(function (r, i) {
+      if (!r || typeof r !== 'object') return;
+      var path = 'rows[' + (i + (offset || 0)) + '].';
+      var t = String(r.type || ''), id = r.id_;
+      C.RUNTIME_KEYS.forEach(function (k) { if (r[k] !== undefined) err('layout_invalid', path, k, id); });
+      if (t === 'section') {
+        if (r.group !== undefined && r.group !== '') err('layout_section_group', path, 'group', id);
+        flag(r, 'collapsed', path, id);
+        if (r.collapsible !== undefined) { if (LAY_FLAGS.indexOf(r.collapsible) === -1) err('layout_invalid', path, 'collapsible', id); else r.collapsible = C.on(r.collapsible) ? '1' : '0'; }
+      } else if (r.collapsed !== undefined) err('layout_invalid', path, 'collapsed', id);
+      if (r.rich_text !== undefined || r.rich_toolbar !== undefined) {
+        if (t !== 'textarea') { err('layout_invalid', path, r.rich_text !== undefined ? 'rich_text' : 'rich_toolbar', id); }
+        else {
+          flag(r, 'rich_text', path, id);
+          if (r.rich_toolbar !== undefined) { if (['basic', 'full'].indexOf(r.rich_toolbar) === -1) err('layout_invalid', path, 'rich_toolbar', id); }
+          if (r.rich_text === '1' && cap['setting:rich_text'] && cap['setting:rich_text'].available_now === false) err('plan_required', path, 'rich_text', id);
+        }
+      }
+      if (r.esign_mode !== undefined || r.esign_font !== undefined) {
+        if (t !== 'esign') err('layout_invalid', path, r.esign_mode !== undefined ? 'esign_mode' : 'esign_font', id);
+        else {
+          if (r.esign_mode !== undefined && C.SIG_MODES.indexOf(r.esign_mode) === -1) err('layout_invalid', path, 'esign_mode', id);
+          if (r.esign_font !== undefined && C.SIG_FONTS.indexOf(r.esign_font) === -1) err('layout_invalid', path, 'esign_font', id);
+        }
+      }
+      if (r.vis_mode !== undefined || r.vis_roles !== undefined) {
+        if (LAY_NO_VIS.indexOf(t) !== -1 || LAY_FIXED_IDS.indexOf(String(id)) !== -1) { err('layout_invalid', path, r.vis_mode !== undefined ? 'vis_mode' : 'vis_roles', id); return; }
+        var m = r.vis_mode === undefined ? 'all' : r.vis_mode;
+        if (C.VIS_MODES.indexOf(m) === -1) { err('layout_invalid', path, 'vis_mode', id); return; }
+        if (r.vis_roles !== undefined) {
+          if (m !== 'roles' || (r.vis_roles !== null && typeof r.vis_roles === 'object')) { err('layout_invalid', path, 'vis_roles', id); return; }
+          var want = String(r.vis_roles).split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+          var bad = roles ? want.filter(function (x) { return roles.indexOf(x) === -1; }) : [];
+          if (bad.length) { err('layout_vis_role', path, 'vis_roles', id); return; }
+          r.vis_roles = C.sanitizeKey('vis_roles', r.vis_roles);
+        } else if (m === 'roles') r.vis_roles = '';
+        if (m !== 'all' && cap['setting:vis_mode'] && cap['setting:vis_mode'].available_now === false) err('plan_required', path, 'vis_mode', id);
+      }
+    });
+    return out;
+  }
+  function failLayout(errs) {
+    var e0 = errs[0];
+    var msg = {
+      layout_invalid: 'This value cannot be used for ' + e0.key,
+      layout_section_group: 'A section cannot go inside a repeater group',
+      layout_review_payment: 'The review page is not available on a form with a Stripe, PayPal or PersiaPay field',
+      layout_vis_role: 'vis_roles names a role this site does not have',
+      plan_required: e0.key + ' needs a higher plan',
+    }[e0.code] || e0.code;
+    var e = fail(e0.code, msg + ' (' + e0.path + ')');
+    e.path = e0.path; e.errors = errs;
+    return e;
+  }
+  /**
+   * F10: set the layout keys of one field (section collapsible / collapsed, rich_text / rich_toolbar, vis_mode /
+   * vis_roles, esign_mode / esign_font) with the same rules as insertItems. Returns {changed, values}.
+   */
+  function setFieldLayout(id, patch) {
+    var list = rows();
+    var idx = fieldIndex(list, String(id));
+    if (idx < 1) throw fail('unknown_target', 'No field with id ' + id + '.');
+    if (!patch || typeof patch !== 'object' || Array.isArray(patch)) throw fail('layout_invalid', 'setFieldLayout() needs an object of keys.');
+    var C = layCore();
+    var allowed = (C ? C.FIELD_KEYS : []).concat(['collapsible']);
+    Object.keys(patch).forEach(function (k) { if (allowed.indexOf(k) === -1) throw fail('layout_invalid', 'key ' + k + ' cannot be set with setFieldLayout().'); });
+    var row = clone(list[idx]);
+    Object.keys(patch).forEach(function (k) { row[k] = patch[k]; });
+    if (row.vis_mode !== undefined && row.vis_mode !== 'roles') delete row.vis_roles;
+    var errs = layoutCheck([row], idx, list.slice(1));
+    if (errs.length) throw failLayout(errs);
+    list[idx] = row;
+    apiChanged('setFieldLayout', [row.id_]);
+    var values = {};
+    Object.keys(patch).forEach(function (k) { values[k] = row[k]; });
+    return { changed: Object.keys(values), values: values };
+  }
+
   var api = {
     version: API_VERSION,
     addGroup: addGroup,
     moveIntoGroup: moveIntoGroup,
     moveOutOfGroup: moveOutOfGroup,
     setGroup: setGroup,
+    setFieldLayout: setFieldLayout,
     setOptions: setOptions,
     setChoices: setChoices,
     setCalc: setCalc,

@@ -1109,6 +1109,16 @@ ri)`. Entries carry `rg` / `ri`. Details: `docs/autopilot-integration.md` (F09).
 **F10 layout and special fields.** Create: row-0 `review_*`, `section_accordion`; `section` type;
 `rich_text`, `rich_toolbar`; `vis_mode`, `vis_roles`; `esign_mode`, `esign_font`. Must add: schema
 and entries honour `vis_mode` for the viewer; `vis_*` and `rich_text` are `security_changes`.
+*Shipped 2026-11-14 (dev4):* the keys with one save rule in PHP and JS (`Layout::sanitize_key()` /
+`EFBLayoutCore.sanitizeKey()`, explicit cases in `sanitize_obj_msg_efb`, `Layout::normalize_rows()` between keys);
+`efbBuilderApi.insertItems` / `setForm` / `setFormSettings` / `setFieldLayout` with the codes `layout_invalid`,
+`layout_vis_role`, `layout_section_group`, `layout_review_payment`, `plan_required`. `forms/{id}/schema` and
+entries.read honour `vis_mode` for the caller (schema `private, no-store`); the save reports
+`layout_security_change` (`changes: [{field, key: vis_mode|vis_roles|rich_text, from, to}]`) for the preview's
+`security_changes`. Schema: `review`, `sections`, `rich_text: true` on a rich textarea, `assistant:
+"visitor_only"` on an e-signature, `section` stays without an entry (`assistant: "none"`). Plans: review and
+section Free, rich text Free Plus, the visibility control Pro (the rule is enforced on every plan), typed
+signature with the e-signature field. Details: `docs/autopilot-integration.md` (F10).
 
 **F11 limits, schedule, resume.** Create: `lim_*`, `sched_*`, `draft_*`, `partial_*`,
 `allowed_roles`, `custom_css` (opt-in + `unfiltered_html`). Fill: schema `gate`; the assistant must
