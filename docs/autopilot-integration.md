@@ -1104,7 +1104,7 @@ kept equal by 168 shared vectors (`docs/feature-gaps/reference/smart-tag-vectors
 - **Syntax** `{ns:arg|fallback}`; namespaces `get`, `cookie`, `ref`, `page` (`url`, `path`, `title`, `id`),
   `post`, `user` (`id`, `login`, `email`, `display_name`, `first_name`, `last_name`, `role`), `date`
   (PHP-style letters), `ip`, `uid`, `field` (`{field:id}`, `.label`, `.value`), `form`, `site`, `entry`
-  (`track`, only after submit); `geo` is reserved (phase 2) and always gives its fallback. The legacy
+  (`track`, only after submit); `geo` is reserved for the `AdnGEO` add-on (SPLIT §10.6, owner decision 2026-11-14) and gives its fallback without it. The legacy
   `{field_id}` still works in subjects and redirects and now gives the option label. Each place accepts a
   set of tags (`capabilities.smart_tags.places`); a tag outside its place gives the fallback.
 - **Cache rule.** The page HTML holds only `form`, `site` and `post` values; everything per visitor is a
@@ -1827,3 +1827,65 @@ was then rebuilt with the same 156 entries.
 - Core still carries an older `public/assets/js/persia_pay-efb.js` (same `pay*`/`prcfld` filter).
   No PHP enqueues it (the page loads the add-on's `vendor/persiapay/persia_pay-efb.js` through
   `efb_enqueue_persia`, which is the copy fixed); it could be removed.
+
+## SPLIT: which features need which add-on (owner decision 2026-11-14)
+
+Spec: [`docs/feature-gaps/SPLIT-core-addons.fa.md`](feature-gaps/SPLIT-core-addons.fa.md) (status: spec ready, not
+built). Several features leave core for add-ons. Until each SPLIT subtask is built, the code still lives in core and
+the registry still says `addon: null`; after it, the entries below carry their add-on. AutoPilot must read the
+registry, never a hand-kept list.
+
+### Feature → add-on and plan
+
+| Feature (registry key) | Add-on | Plan to install | Inner gate |
+|---|---|---|---|
+| `field:calc`, `setting:number_format`, `setting:range_dual`, `setting:calc_option` (F04) | `AdnCLC` Numbers & Calculations | Free Plus | — |
+| `setting:calc_price` (a calc result as the amount to pay) | `AdnCLC` | Free Plus | Pro |
+| `setting:esign_mode` (typed signature, F10-E) | `AdnTSG` Typed Signature | Free Plus | — (drawn signature stays in core) |
+| `field:maps`, `setting:addr_lookup` (F17 address search), postcode → city | `AdnADR` Address & Postal | every plan (proposed) | Free Plus |
+| `mask_preset` = one of the 18 postal presets (`ir.postal_code`, `us.zip`, `uk.postcode`, …) | `AdnADR` | every plan (proposed) | free |
+| `setting:smart_geo`: `{geo:country}`, `{geo:country_name}`, hidden-field "Visitor country" preset, `geo_on`, `geo_notice` | `AdnGEO` Visitor Country | **Free Plus and Pro** (owner) | the site admin enters their own ipinfo.io or ip-api.com key |
+| `setting:advdate_availability` (`availability`, `bk_*`), the older booking form (`booking`, option `dateExp`) | `AdnBEF` Booking | Pro (proposed) | — |
+| "My submissions", cancel / reschedule (F20) | `AdnPRT` Customer Portal | Pro | — |
+| `field:stripe`, `field:paypal`, `field:persiaPay` | `AdnSPF`, `AdnPAP`, `AdnPPF` | Free Plus, Free Plus, Pro | — |
+| `field:<slug>` of the PAY00 gateways | `AdnMOL` … `AdnXND` | Free Plus | — |
+| Form export / import screens, bulk, preview, Contact Form 7 and other importers | the separate free plugin *Easy Form Builder Data Tools* | free | — |
+| Payment framework (PAY00), form package contract (F15-D), Google reCAPTCHA, F06 calendar engine, F05 stock, tracking box, login / register forms, plain number and single slider | **core** | — | — |
+
+### How AutoPilot discovers it
+
+- `efb_var.capabilities` / `get_efbFunction()->capabilities_efb()`: `features[key].addon`, `available_now`,
+  `reason` (`plan` | `addon`), `addons[code]` (installed and on); new block `split = {v:1, moved:{feature: code}}` and
+  `contracts` = `efb_addon_contracts()` (`{calc, typed_signature, address, booking, legacy_gateway, smart_tags_ext,
+  form_package, captcha, payments, portal_core}` with `version`, `provider_addon`, `active`).
+- Builder: `efbBuilderApi` (version 1). `setCalc`, `validateFormula`, `setFieldLayout({esign_mode})`,
+  `newItems('maps')` throw `addon_required` (`e.addon`) when the add-on is missing — the code already used for
+  payment fields.
+- Visitor side: `GET Emsfb/v1/forms/{id}/schema` marks a field whose add-on is missing with
+  `assistant: 'none'` and `unavailable: {addon, reason}`.
+- Forms between sites: `efb_form_package_api()` (F15-D); a key owned by an inactive add-on is reported in
+  `dropped[]` with `reason: 'addon_inactive'`.
+
+### When a needed add-on is missing
+
+1. Never drop keys silently and never "simplify" the form. Say in the preview which feature needs which add-on and
+   plan (`label_key`, `message_key`).
+2. Offer the install: `admin.php?page=Emsfb_addon`, or the F18 dialog
+   `efb_upgrade_prompt_efb({feature: 'addon:AdnCLC', origin: 'sitepilot'})`. Installing or changing the plan needs a
+   person's click.
+3. If the owner goes on without it, write the keys anyway: the save keeps keys of an absent add-on from the stored
+   version of the same row and answers `warnings[]` with `addon_keys_kept`.
+4. Never publish a paid form whose amount comes from a calc field until `payment_ready` is true. Without `AdnCLC`
+   the server refuses the payment with `pay_calc_unavailable` (nothing stored, nothing charged, the browser amount is
+   never read); without a legacy gateway add-on visitors see the `pay_not_ready` message.
+5. `AdnGEO`: AutoPilot may turn `geo_on` on, set `geo_notice` and add the preset; it never chooses the provider and
+   never writes or reads the API key (the registry says only `configured: true|false`). Without the add-on
+   `{geo:country}` renders empty and `{geo:country|XX}` gives `XX`.
+
+### Stable contracts
+
+`form_package` v1 (F15-D), `captcha` v1 and the provider registry v2 (F12b), `payments` (PAY00,
+`EMSFB_PAYMENTS_API`), `calc` v1 (`efb_payment_computed_items` is the server recompute of a calc amount),
+`legacy_gateway` v1 (Stripe / PayPal / PersiaPay bridge until they move to PAY00), `typed_signature` v1,
+`address` v1, `booking` v1 (F06 hooks `efb_date_availability*`, `efb_date_before_commit`), `smart_tags_ext` v1
+(`efb_smart_tag_namespaces`, `efb_smart_tag_value`), `portal_core` v1 (F20).
