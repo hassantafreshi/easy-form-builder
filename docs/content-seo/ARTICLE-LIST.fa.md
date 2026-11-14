@@ -5,15 +5,15 @@
 
 ## خلاصه
 
-| مسیر | تعداد | مدت با ریتم روزی یک مقاله |
+| مسیر | تعداد | مدت (ریتم روزانه: ۱ بازنویسی + ۲ جدید + ۳ ویدیو؛ تصمیم مالک 2026-11-14) |
 |---|---|---|
 | بازنویسی مقالات موجود | **68** | ≈ 68 روز |
-| مقالهٔ جدید | **132** | ≈ 132 روز (حدود ۴٫۵ ماه) |
+| مقالهٔ جدید | **132** | ≈ 66 روز (روزی ۲ مقاله) |
 | ریدایرکت ۳۰۱ (ادغام) | 11 | همراه ردیف ادغام‌کننده |
 | دستهٔ روز صفر (آرشیو/فنی/پاکسازی بلوک‌های AI) | 10 | یک‌باره، پس از دریافت دسترسی |
 | در انتظار انتشار ویژگی (HOLD) | 6 | بعد از انتشار ویژگی |
 
-**۱۴ روز اول:** روز ۱ پایلوت (R47 Stripe + A1 مرور نسخهٔ 4.3.1)؛ ۷ روز اول همه draft.
+**ریتم روزانه (تصمیم مالک 2026-11-14):** هر روز ۱ بازنویسی + ۲ مقالهٔ جدید + ۳ ویدیو، انتشار زنده. روز ۱: R47 (Stripe، امروز منتشر شد) + A1 + E1. بازنویسی‌ها روز ۶۸ و مقالات جدید روز ۶۶ تمام می‌شوند.
 
 ---
 
@@ -103,137 +103,137 @@
 |---|---|---|---|---|---|---|---|
 
 | 1 | A1 | A انتشار/موجودیت/مرجع | Easy Form Builder 4.3.1: What's New Since 4.0 (4.1, 4.2, 4.3 Recap) | easy form builder 4.3.1 | ANN | همه | ویدیوی جدید (توضیحی) |
-| 2 | E1 | E اسپم و امنیت | Stop WordPress Form Spam Without CAPTCHA: Security & Spam Protection Guide | stop wordpress form spam without captcha | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
-| 3 | C1 | C مهاجرت از CF7 | How to Migrate from Contact Form 7 to Easy Form Builder (One-Click Import) | migrate contact form 7 wordpress | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 4 | G1 | G یکپارچه‌سازی | Send WordPress Form Entries to Google Sheets Without Zapier | wordpress form to google sheets | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
-| 5 | B1 | B مقایسه و تجاری | Easy Form Builder vs Contact Form 7: Which Is Better in 2026? | easy form builder vs contact form 7 | COM | — | ویدیوی جدید (توضیحی) |
-| 6 | F1 | F Conditional Logic | How to Show or Hide Form Fields Based on a User's Answer in WordPress | wordpress conditional fields | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 7 | D1 | D ایمیل و اعلان | Weekly Email Deliverability Report: How to Read Score, SPF, DKIM, DMARC | wordpress email deliverability report | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 8 | B8 | B مقایسه و تجاری | Contact Form 7 Alternatives for 2026 (After the Feature Freeze) | contact form 7 alternatives | COM | — | ویدیوی جدید (توضیحی) |
-| 9 | C2 | C مهاجرت از CF7 | Contact Form 7 Import: What Carries Over and What to Rebuild | contact form 7 import fields mapping | REF | Free | ویدیوی جدید (ضبط صفحه) |
-| 10 | G2 | G یکپارچه‌سازی | Google Cloud Service Account for Forms: Step-by-Step Setup | google sheets service account wordpress | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
-| 11 | E3 | E اسپم و امنیت | Honeypot vs reCAPTCHA vs silentCAPTCHA vs Behavior Scoring for WordPress Forms | honeypot vs recaptcha wordpress forms | COM | — | ویدیوی جدید (توضیحی) |
-| 12 | F4 | F Conditional Logic | Route Form Emails by Answer: Sales vs Support (Conditional Notifications) | conditional email routing form wordpress | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 13 | G7 | G یکپارچه‌سازی | Get WordPress Form Notifications in Telegram (Bot Setup in 5 Minutes) | wordpress form telegram notification | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
-| 14 | A4 | A انتشار/موجودیت/مرجع | Easy Form Builder Shortcodes Reference ([EMS_Form_Builder] and More) | easy form builder shortcode | REF | همه | ویدیوی جدید (ضبط صفحه) |
-| 15 | F3 | F Conditional Logic | Skip or Jump Steps in a Multi-Step WordPress Form (Branching Logic) | multi step form skip logic wordpress | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 16 | F2 | F Conditional Logic | Make a Form Field Required Only When Another Answer Is Selected | conditional required field wordpress | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 17 | E2 | E اسپم و امنیت | Monitor-Only, Soft Block or Strict: Which Spam Protection Mode to Choose | form spam protection modes | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
-| 18 | G3 | G یکپارچه‌سازی | Map Form Fields to Google Sheet Columns (Order, Titles, Styles) | google sheets field mapping form | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
-| 19 | B5 | B مقایسه و تجاری | Free WordPress Form Plugin with Conditional Logic (No Paid Add-On) | free conditional logic form plugin wordpress | COM | Free Plus | ویدیوی جدید (توضیحی) |
-| 20 | K4 | K ورودی‌ها و پیگیری | Export Form Entries to CSV (Free in Every Version) | export wordpress form entries csv | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 21 | H1 | H پرداخت | Accept Donations with a WordPress Form (Stripe or PayPal) | wordpress donation form | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 22 | I1 | I فرم‌های کاربردی | Create a Job Application Form with Resume Upload in WordPress | job application form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
-| 23 | I3 | I فرم‌های کاربردی | Create a Quote Request Form in WordPress | quote request form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
-| 24 | I8 | I فرم‌های کاربردی | Support Request Form with a Tracking Code for Every Ticket | support form tracking code wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
-| 25 | J10 | J راهنمای فیلدها | Audio Recorder Field: Record Voice Messages in a Form | wordpress form audio recorder | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 26 | J11 | J راهنمای فیلدها | Video Recorder Field: Record from the Webcam | wordpress form video recorder | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 27 | J12 | J راهنمای فیلدها | Screen Recorder Field: Quality, Duration and Countdown Settings | wordpress form screen recorder | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 28 | E4 | E اسپم و امنیت | Protect Your SMS, Telegram and Email Quota from Bot Submissions | protect sms quota form spam | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
-| 29 | A2 | A انتشار/موجودیت/مرجع | Easy Form Builder Roadmap 2026: Shipped and Coming Next | easy form builder roadmap | REF | همه | ویدیوی جدید (توضیحی) |
-| 30 | B2 | B مقایسه و تجاری | Easy Form Builder vs WPForms Lite: Free Features Compared | easy form builder vs wpforms | COM | — | ویدیوی جدید (توضیحی) |
-| 31 | D2 | D ایمیل و اعلان | Email Error Log and Dashboard Widget: Find Failed Form Emails | wordpress form email error log | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 32 | E5 | E اسپم و امنیت | IP Allowlist and Blocklist for WordPress Forms | wordpress form ip blocklist | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
-| 33 | F5 | F Conditional Logic | Show a Different Thank-You Message or Redirect Based on the Answer | conditional redirect form wordpress | HOW | Pro | ویدیوی جدید (ضبط صفحه) |
-| 34 | G4 | G یکپارچه‌سازی | Google Sheets Sync Log: Troubleshoot Missing Rows | google sheets sync not working wordpress | TRB | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
-| 35 | H2 | H پرداخت | Recurring Payments in a WordPress Form: Daily, Weekly, Monthly, Yearly | wordpress recurring payment form | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 36 | I2 | I فرم‌های کاربردی | Create an Event Registration Form in WordPress (Multi-Step) | event registration form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
-| 37 | J1 | J راهنمای فیلدها | Signature Field: Collect E-Signatures in WordPress Forms | wordpress form signature field | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 38 | K1 | K ورودی‌ها و پیگیری | Reply to Form Submissions from the Dashboard (with Attachments) | reply to form submissions wordpress dashboard | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 39 | L1 | L پنل/عیب‌یابی | First 5 Minutes: The Easy Form Builder Setup Wizard | easy form builder setup | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 40 | M1 | M چندزبانه و RTL | RTL Forms in WordPress: Arabic, Persian and Hebrew Setup Checklist | rtl wordpress form | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 41 | A3 | A انتشار/موجودیت/مرجع | Free WordPress Form Plugin: Every Feature Included at No Cost | free wordpress form plugin features | COM | Free / Free Plus | ویدیوی جدید (توضیحی) |
-| 42 | B3 | B مقایسه و تجاری | Easy Form Builder vs Fluent Forms: Free Plan Comparison | easy form builder vs fluent forms | COM | — | ویدیوی جدید (توضیحی) |
-| 43 | D3 | D ایمیل و اعلان | Form Emails Not Arriving on Microsoft 365 or Outlook? Fix Delays and Spam | wordpress form email microsoft 365 | TRB | Free | ویدیوی جدید (ضبط صفحه) |
-| 44 | E6 | E اسپم و امنیت | Real Visitors Blocked by Your Form? Fix False Positives | wordpress form blocked false positive | TRB | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
-| 45 | F6 | F Conditional Logic | Send a Webhook Only When Conditions Match (Conditional Webhook) | conditional webhook wordpress form | HOW | Pro | ویدیوی جدید (ضبط صفحه) |
-| 46 | G5 | G یکپارچه‌سازی | Send WordPress Form Data to Any API with a Webhook (Zapier, Make, n8n) | wordpress form webhook | HOW | Pro | ویدیوی جدید (ضبط صفحه) |
-| 47 | H3 | H پرداخت | Build an Order Form with Price Fields, Quantity and Total | wordpress order form total price | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 48 | I4 | I فرم‌های کاربردی | Create an Appointment or Reservation Request Form | appointment request form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
-| 49 | J2 | J راهنمای فیلدها | Matrix and Table Field for Structured Answers | wordpress matrix table form field | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 50 | K2 | K ورودی‌ها و پیگیری | Open vs Closed Status and Bulk Actions for Form Entries | manage form entries wordpress bulk | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 51 | L2 | L پنل/عیب‌یابی | Builder Autosave: Recover an Unsaved Form Draft | form builder autosave | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 52 | M2 | M چندزبانه و RTL | Translate Easy Form Builder into Your Language (Language Packs) | translate easy form builder | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 53 | A5 | A انتشار/موجودیت/مرجع | Easy Form Builder Hooks and Filters for Developers | wordpress form plugin hooks filters | REF | همه | ویدیوی جدید (توضیحی) |
-| 54 | B4 | B مقایسه و تجاری | Best Free WordPress Form Plugins in 2026 (Tested Comparison) | best free wordpress form plugin | COM | — | ویدیوی جدید (توضیحی) |
-| 55 | D4 | D ایمیل و اعلان | Reply-To in Form Notification Emails: Answer Visitors Straight from Your Inbox | wordpress form reply-to email | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 56 | E7 | E اسپم و امنیت | Secure File Uploads in WordPress Forms: Allowed Types and Blocked Extensions | secure file upload wordpress form | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 57 | F7 | F Conditional Logic | Build a Quote Calculator in a WordPress Form (Form Calculations) | wordpress form calculator | HOW | Pro | ویدیوی جدید (ضبط صفحه) |
-| 58 | G6 | G یکپارچه‌سازی | Test Form Webhooks Safely: Inspect Payloads Before Going Live | test webhook wordpress form | HOW | Pro | ویدیوی جدید (ضبط صفحه) |
-| 59 | H4 | H پرداخت | Test Stripe Payments in Test Mode Before Going Live (Checklist) | stripe test mode wordpress form | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 60 | N1 | N هاب‌ها | The Complete Guide to WordPress Forms (2026) | wordpress forms guide | HUB | — | ویدیوی جدید (توضیحی) |
-| 61 | I5 | I فرم‌های کاربردی | Create an Order Form Without Online Payment | order form wordpress no payment | USE | Free | ویدیوی جدید (ضبط صفحه) |
-| 62 | J3 | J راهنمای فیلدها | Rating Stars, 5-Point Scale and NPS Fields | wordpress rating field nps | HOW | Free / Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 63 | K3 | K ورودی‌ها و پیگیری | Search, Edit and Delete Form Entries by Confirmation Code | search form entries wordpress | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 64 | L3 | L پنل/عیب‌یابی | Preview and Test a Form Safely with Development Mode | wordpress form preview test mode | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 65 | M3 | M چندزبانه و RTL | Build One Contact Form for English, Arabic, German and Persian Visitors | multilingual contact form wordpress | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 66 | A6 | A انتشار/موجودیت/مرجع | How Easy Form Builder Secures Form Submissions (Security Model) | wordpress form plugin security | REF | همه | ویدیوی جدید (توضیحی) |
-| 67 | B6 | B مقایسه و تجاری | Best Multi-Step Form Plugins for WordPress (Free Options) | multi step form plugin wordpress | COM | Free | ویدیوی جدید (توضیحی) |
-| 68 | D5 | D ایمیل و اعلان | Send Form Notifications to Different Teams Based on the Answer | conditional email notification wordpress form | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 69 | E8 | E اسپم و امنیت | GDPR-Friendly WordPress Forms: Local Storage, Retention and Deleting Entries | gdpr wordpress form | REF | Free | ویدیوی جدید (توضیحی) |
-| 70 | F8 | F Conditional Logic | Nested AND/OR Condition Groups Explained with Examples | nested and or conditions form | HOW | Pro | ویدیوی جدید (ضبط صفحه) |
-| 71 | G8 | G یکپارچه‌سازی | Auto-Fill a Form from a CSV Dataset (Lookup Form Example) | wordpress form autofill from csv | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
-| 72 | H5 | H پرداخت | How Stripe Payments Are Verified on the Server (What 4.3.1 Changed) | stripe payment verification wordpress | REF | Free Plus | ویدیوی جدید (توضیحی) |
-| 73 | I6 | I فرم‌های کاربردی | Customer Feedback Form with NPS in WordPress | customer feedback form wordpress | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 74 | J4 | J راهنمای فیلدها | Range Slider and Switch (Toggle) Fields | wordpress range slider form field | HOW | Free / Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 75 | N3 | N هاب‌ها | Form Security and Spam Hub | wordpress form security | HUB | — | ویدیوی جدید (توضیحی) |
-| 76 | K5 | K ورودی‌ها و پیگیری | Poll Results as Charts: Show and Export Survey Data | wordpress poll results chart | HOW | Free / Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 77 | L4 | L پنل/عیب‌یابی | Build and Edit WordPress Forms on Your Phone or Tablet | build forms on mobile wordpress | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 78 | B7 | B مقایسه و تجاری | Free WordPress Stripe Payment Form Plugin (Stripe in Free Plus) | free stripe payment form wordpress | COM | Free Plus | ویدیوی جدید (توضیحی) |
-| 79 | E9 | E اسپم و امنیت | Accessible WordPress Forms: A WCAG-Friendly Checklist | accessible wordpress forms wcag | REF | Free | ویدیوی جدید (توضیحی) |
-| 80 | F9 | F Conditional Logic | Test and Debug Conditional Logic: Test Mode and Inspector | debug conditional logic form wordpress | HOW | Free Plus / Pro | ویدیوی جدید (ضبط صفحه) |
-| 81 | G9 | G یکپارچه‌سازی | Auto-Fill a Form from an External API with Bearer Token | wordpress form prefill from api | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
-| 82 | H6 | H پرداخت | Stripe 401 Error After Saving Settings: Cause and Fix | stripe 401 error wordpress form | TRB | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 83 | I7 | I فرم‌های کاربردی | Customer Satisfaction (CSAT) Survey with Star Ratings | csat survey wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
-| 84 | J5 | J راهنمای فیلدها | Color Picker Field | wordpress color picker form field | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 85 | K6 | K ورودی‌ها و پیگیری | Dashboard Widget: Form Views, Submissions and Email Stats | wordpress form dashboard widget | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 86 | L5 | L پنل/عیب‌یابی | Form Stuck on 'Please Wait' or Not Submitting? Checklist | wordpress form not submitting | TRB | Free | ویدیوی جدید (ضبط صفحه) |
-| 87 | F10 | F Conditional Logic | What You Can Build with the Free Plus Conditional Logic Limits | conditional logic free limits | REF | Free Plus | ویدیوی جدید (توضیحی) |
-| 88 | G10 | G یکپارچه‌سازی | Add Easy Form Builder to Elementor (Widget Guide) | elementor form widget easy form builder | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 89 | H7 | H پرداخت | Pending, Paid and Failed Payments: How Statuses Work in Entries | form payment status pending failed | REF | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 90 | N2 | N هاب‌ها | Form Integrations Hub: Sheets, Webhooks, Telegram, SMS, Payments | wordpress form integrations | HUB | — | ویدیوی جدید (توضیحی) |
-| 91 | I9 | I فرم‌های کاربردی | Newsletter Signup Form in WordPress | newsletter signup form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
-| 92 | J6 | J راهنمای فیلدها | Country, State and City Dropdowns (and Where the Data Comes From) | wordpress country state city dropdown form | HOW | Free / Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 93 | K7 | K ورودی‌ها و پیگیری | Tracking Codes in Your Own Language: 7 Styles for RTL and Non-Latin Sites | confirmation code styles wordpress form | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 94 | L6 | L پنل/عیب‌یابی | Easy Form Builder Admin Blank or Slow? Blocked Google Fonts and CDN Fix | wordpress admin blank form builder | TRB | Free | ویدیوی جدید (ضبط صفحه) |
-| 95 | F11 | F Conditional Logic | Quote Request Form That Adapts to the Visitor's Budget | quote request form wordpress | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 96 | G11 | G یکپارچه‌سازی | Add a WordPress Form in Divi with a Shortcode Module | divi contact form wordpress | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 97 | H8 | H پرداخت | Payment Notification Emails: Receipts for Admin and Customer | payment form notification email wordpress | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 98 | I10 | I فرم‌های کاربردی | Volunteer or Membership Application Form | membership application form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
-| 99 | J7 | J راهنمای فیلدها | Terms and Conditions Checkbox: Collect Consent in Forms | wordpress form consent checkbox | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 100 | K8 | K ورودی‌ها و پیگیری | Let Visitors Follow Up on Their Submission with the Confirmation Code Page | track form submission wordpress visitor | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 101 | L7 | L پنل/عیب‌یابی | File Upload Failing? PHP Limits, Allowed Types and Quotas | wordpress form file upload failed | TRB | Free | ویدیوی جدید (ضبط صفحه) |
-| 102 | F12 | F Conditional Logic | Support Form That Changes by Issue Type | support form conditional fields | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 103 | G12 | G یکپارچه‌سازی | Use Easy Form Builder on WordPress Multisite | wordpress multisite form plugin | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 104 | H9 | H پرداخت | ZarinPal and Iranian Payment Gateways with Easy Form Builder | zarinpal wordpress form | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
-| 105 | I11 | I فرم‌های کاربردی | Photo or File Contest Submission Form with Uploads | contest entry form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
-| 106 | J8 | J راهنمای فیلدها | Address Field | wordpress address field form | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 107 | L8 | L پنل/عیب‌یابی | What the 'Form Request Failure' Dashboard Notice Means | wordpress form request failure notice | TRB | Free | ویدیوی جدید (ضبط صفحه) |
-| 108 | F13 | F Conditional Logic | Event Registration Form with Ticket-Type Logic | event registration form wordpress | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 109 | G13 | G یکپارچه‌سازی | Multilingual Forms with WPML or Polylang (Setup Notes) | wpml form plugin multilingual | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 110 | I12 | I فرم‌های کاربردی | Collect Video Testimonials with a Video Recorder Field | video testimonial form wordpress | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 111 | J9 | J راهنمای فیلدها | Jalali (Persian) Date Picker for WordPress Forms | jalali date picker wordpress form | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
-| 112 | L9 | L پنل/عیب‌یابی | Make Forms Work with WP Rocket Delay JS and Cloudflare Rocket Loader | wp rocket delay js form not working | TRB | Free | ویدیوی جدید (ضبط صفحه) |
-| 113 | F14 | F Conditional Logic | Job Application Form That Adapts to the Position | job application form wordpress | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 114 | I13 | I فرم‌های کاربردی | Voice Message Form with an Audio Recorder Field | voice message form wordpress | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 115 | J13 | J راهنمای فیلدها | Yes/No and Link/Heading Fields to Shape Your Form Layout | wordpress yes no field heading | HOW | Free / Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 116 | L10 | L پنل/عیب‌یابی | Updating Easy Form Builder Safely: Backup and Post-Update Checklist | update wordpress form plugin safely | HOW | Free | ویدیوی جدید (توضیحی) |
-| 117 | F15 | F Conditional Logic | Conditional Logic with Payments: Amount- and Status-Based Rules | conditional logic payment form | HOW | Pro | ویدیوی جدید (ضبط صفحه) |
-| 118 | I14 | I فرم‌های کاربردی | Bug Report Form with Screen Recording | bug report form wordpress screen recording | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 119 | L11 | L پنل/عیب‌یابی | When to Enable the Bootstrap Option in Easy Form Builder | easy form builder bootstrap | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 120 | F16 | F Conditional Logic | Auto-Set, Copy and Clear Field Values with Conditional Logic | autofill form fields conditional | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 121 | I15 | I فرم‌های کاربردی | E-Signature Agreement or Waiver Form in WordPress | wordpress signature form | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 122 | L12 | L پنل/عیب‌یابی | Style Forms to Match Your Theme: Custom CSS Recipes | style wordpress form custom css | HOW | Free | ویدیوی جدید (ضبط صفحه) |
-| 123 | F17 | F Conditional Logic | Why Hidden Fields Stay Secure: Server-Side Validation in Conditional Logic | conditional logic server side validation | REF | Free Plus | ویدیوی جدید (توضیحی) |
-| 124 | I16 | I فرم‌های کاربردی | Custom WordPress User Registration Form | wordpress custom registration form | USE | Free | ویدیوی جدید (ضبط صفحه) |
-| 125 | I17 | I فرم‌های کاربردی | Custom WordPress Login Form | wordpress custom login form | USE | Free | ویدیوی جدید (ضبط صفحه) |
-| 126 | I18 | I فرم‌های کاربردی | Private Client Intake Form (Login Required) | private wordpress form logged in only | USE | Free | ویدیوی جدید (ضبط صفحه) |
-| 127 | I19 | I فرم‌های کاربردی | Lead Qualification Form: Multi-Step with Smart Routing | lead qualification form wordpress | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 128 | I20 | I فرم‌های کاربردی | Real-Estate Inquiry Form with a Map Location Picker | real estate inquiry form wordpress | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
-| 129 | I21 | I فرم‌های کاربردی | Restaurant Table Reservation Form | restaurant reservation form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
-| 130 | I22 | I فرم‌های کاربردی | Course or Class Enrollment Form | enrollment form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
-| 131 | I23 | I فرم‌های کاربردی | Incident or Complaint Report Form with Tracking | complaint form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
-| 132 | I24 | I فرم‌های کاربردی | Offline Data Collection Form (Field Surveys Without Internet) | offline form wordpress | USE | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
+| 1 | E1 | E اسپم و امنیت | Stop WordPress Form Spam Without CAPTCHA: Security & Spam Protection Guide | stop wordpress form spam without captcha | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
+| 2 | C1 | C مهاجرت از CF7 | How to Migrate from Contact Form 7 to Easy Form Builder (One-Click Import) | migrate contact form 7 wordpress | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 2 | G1 | G یکپارچه‌سازی | Send WordPress Form Entries to Google Sheets Without Zapier | wordpress form to google sheets | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
+| 3 | B1 | B مقایسه و تجاری | Easy Form Builder vs Contact Form 7: Which Is Better in 2026? | easy form builder vs contact form 7 | COM | — | ویدیوی جدید (توضیحی) |
+| 3 | F1 | F Conditional Logic | How to Show or Hide Form Fields Based on a User's Answer in WordPress | wordpress conditional fields | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 4 | D1 | D ایمیل و اعلان | Weekly Email Deliverability Report: How to Read Score, SPF, DKIM, DMARC | wordpress email deliverability report | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 4 | B8 | B مقایسه و تجاری | Contact Form 7 Alternatives for 2026 (After the Feature Freeze) | contact form 7 alternatives | COM | — | ویدیوی جدید (توضیحی) |
+| 5 | C2 | C مهاجرت از CF7 | Contact Form 7 Import: What Carries Over and What to Rebuild | contact form 7 import fields mapping | REF | Free | ویدیوی جدید (ضبط صفحه) |
+| 5 | G2 | G یکپارچه‌سازی | Google Cloud Service Account for Forms: Step-by-Step Setup | google sheets service account wordpress | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
+| 6 | E3 | E اسپم و امنیت | Honeypot vs reCAPTCHA vs silentCAPTCHA vs Behavior Scoring for WordPress Forms | honeypot vs recaptcha wordpress forms | COM | — | ویدیوی جدید (توضیحی) |
+| 6 | F4 | F Conditional Logic | Route Form Emails by Answer: Sales vs Support (Conditional Notifications) | conditional email routing form wordpress | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 7 | G7 | G یکپارچه‌سازی | Get WordPress Form Notifications in Telegram (Bot Setup in 5 Minutes) | wordpress form telegram notification | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
+| 7 | A4 | A انتشار/موجودیت/مرجع | Easy Form Builder Shortcodes Reference ([EMS_Form_Builder] and More) | easy form builder shortcode | REF | همه | ویدیوی جدید (ضبط صفحه) |
+| 8 | F3 | F Conditional Logic | Skip or Jump Steps in a Multi-Step WordPress Form (Branching Logic) | multi step form skip logic wordpress | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 8 | F2 | F Conditional Logic | Make a Form Field Required Only When Another Answer Is Selected | conditional required field wordpress | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 9 | E2 | E اسپم و امنیت | Monitor-Only, Soft Block or Strict: Which Spam Protection Mode to Choose | form spam protection modes | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
+| 9 | G3 | G یکپارچه‌سازی | Map Form Fields to Google Sheet Columns (Order, Titles, Styles) | google sheets field mapping form | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
+| 10 | B5 | B مقایسه و تجاری | Free WordPress Form Plugin with Conditional Logic (No Paid Add-On) | free conditional logic form plugin wordpress | COM | Free Plus | ویدیوی جدید (توضیحی) |
+| 10 | K4 | K ورودی‌ها و پیگیری | Export Form Entries to CSV (Free in Every Version) | export wordpress form entries csv | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 11 | H1 | H پرداخت | Accept Donations with a WordPress Form (Stripe or PayPal) | wordpress donation form | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 11 | I1 | I فرم‌های کاربردی | Create a Job Application Form with Resume Upload in WordPress | job application form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
+| 12 | I3 | I فرم‌های کاربردی | Create a Quote Request Form in WordPress | quote request form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
+| 12 | I8 | I فرم‌های کاربردی | Support Request Form with a Tracking Code for Every Ticket | support form tracking code wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
+| 13 | J10 | J راهنمای فیلدها | Audio Recorder Field: Record Voice Messages in a Form | wordpress form audio recorder | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 13 | J11 | J راهنمای فیلدها | Video Recorder Field: Record from the Webcam | wordpress form video recorder | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 14 | J12 | J راهنمای فیلدها | Screen Recorder Field: Quality, Duration and Countdown Settings | wordpress form screen recorder | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 14 | E4 | E اسپم و امنیت | Protect Your SMS, Telegram and Email Quota from Bot Submissions | protect sms quota form spam | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
+| 15 | A2 | A انتشار/موجودیت/مرجع | Easy Form Builder Roadmap 2026: Shipped and Coming Next | easy form builder roadmap | REF | همه | ویدیوی جدید (توضیحی) |
+| 15 | B2 | B مقایسه و تجاری | Easy Form Builder vs WPForms Lite: Free Features Compared | easy form builder vs wpforms | COM | — | ویدیوی جدید (توضیحی) |
+| 16 | D2 | D ایمیل و اعلان | Email Error Log and Dashboard Widget: Find Failed Form Emails | wordpress form email error log | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 16 | E5 | E اسپم و امنیت | IP Allowlist and Blocklist for WordPress Forms | wordpress form ip blocklist | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
+| 17 | F5 | F Conditional Logic | Show a Different Thank-You Message or Redirect Based on the Answer | conditional redirect form wordpress | HOW | Pro | ویدیوی جدید (ضبط صفحه) |
+| 17 | G4 | G یکپارچه‌سازی | Google Sheets Sync Log: Troubleshoot Missing Rows | google sheets sync not working wordpress | TRB | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
+| 18 | H2 | H پرداخت | Recurring Payments in a WordPress Form: Daily, Weekly, Monthly, Yearly | wordpress recurring payment form | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 18 | I2 | I فرم‌های کاربردی | Create an Event Registration Form in WordPress (Multi-Step) | event registration form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
+| 19 | J1 | J راهنمای فیلدها | Signature Field: Collect E-Signatures in WordPress Forms | wordpress form signature field | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 19 | K1 | K ورودی‌ها و پیگیری | Reply to Form Submissions from the Dashboard (with Attachments) | reply to form submissions wordpress dashboard | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 20 | L1 | L پنل/عیب‌یابی | First 5 Minutes: The Easy Form Builder Setup Wizard | easy form builder setup | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 20 | M1 | M چندزبانه و RTL | RTL Forms in WordPress: Arabic, Persian and Hebrew Setup Checklist | rtl wordpress form | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 21 | A3 | A انتشار/موجودیت/مرجع | Free WordPress Form Plugin: Every Feature Included at No Cost | free wordpress form plugin features | COM | Free / Free Plus | ویدیوی جدید (توضیحی) |
+| 21 | B3 | B مقایسه و تجاری | Easy Form Builder vs Fluent Forms: Free Plan Comparison | easy form builder vs fluent forms | COM | — | ویدیوی جدید (توضیحی) |
+| 22 | D3 | D ایمیل و اعلان | Form Emails Not Arriving on Microsoft 365 or Outlook? Fix Delays and Spam | wordpress form email microsoft 365 | TRB | Free | ویدیوی جدید (ضبط صفحه) |
+| 22 | E6 | E اسپم و امنیت | Real Visitors Blocked by Your Form? Fix False Positives | wordpress form blocked false positive | TRB | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
+| 23 | F6 | F Conditional Logic | Send a Webhook Only When Conditions Match (Conditional Webhook) | conditional webhook wordpress form | HOW | Pro | ویدیوی جدید (ضبط صفحه) |
+| 23 | G5 | G یکپارچه‌سازی | Send WordPress Form Data to Any API with a Webhook (Zapier, Make, n8n) | wordpress form webhook | HOW | Pro | ویدیوی جدید (ضبط صفحه) |
+| 24 | H3 | H پرداخت | Build an Order Form with Price Fields, Quantity and Total | wordpress order form total price | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 24 | I4 | I فرم‌های کاربردی | Create an Appointment or Reservation Request Form | appointment request form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
+| 25 | J2 | J راهنمای فیلدها | Matrix and Table Field for Structured Answers | wordpress matrix table form field | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 25 | K2 | K ورودی‌ها و پیگیری | Open vs Closed Status and Bulk Actions for Form Entries | manage form entries wordpress bulk | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 26 | L2 | L پنل/عیب‌یابی | Builder Autosave: Recover an Unsaved Form Draft | form builder autosave | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 26 | M2 | M چندزبانه و RTL | Translate Easy Form Builder into Your Language (Language Packs) | translate easy form builder | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 27 | A5 | A انتشار/موجودیت/مرجع | Easy Form Builder Hooks and Filters for Developers | wordpress form plugin hooks filters | REF | همه | ویدیوی جدید (توضیحی) |
+| 27 | B4 | B مقایسه و تجاری | Best Free WordPress Form Plugins in 2026 (Tested Comparison) | best free wordpress form plugin | COM | — | ویدیوی جدید (توضیحی) |
+| 28 | D4 | D ایمیل و اعلان | Reply-To in Form Notification Emails: Answer Visitors Straight from Your Inbox | wordpress form reply-to email | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 28 | E7 | E اسپم و امنیت | Secure File Uploads in WordPress Forms: Allowed Types and Blocked Extensions | secure file upload wordpress form | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 29 | F7 | F Conditional Logic | Build a Quote Calculator in a WordPress Form (Form Calculations) | wordpress form calculator | HOW | Pro | ویدیوی جدید (ضبط صفحه) |
+| 29 | G6 | G یکپارچه‌سازی | Test Form Webhooks Safely: Inspect Payloads Before Going Live | test webhook wordpress form | HOW | Pro | ویدیوی جدید (ضبط صفحه) |
+| 30 | H4 | H پرداخت | Test Stripe Payments in Test Mode Before Going Live (Checklist) | stripe test mode wordpress form | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 30 | N1 | N هاب‌ها | The Complete Guide to WordPress Forms (2026) | wordpress forms guide | HUB | — | ویدیوی جدید (توضیحی) |
+| 31 | I5 | I فرم‌های کاربردی | Create an Order Form Without Online Payment | order form wordpress no payment | USE | Free | ویدیوی جدید (ضبط صفحه) |
+| 31 | J3 | J راهنمای فیلدها | Rating Stars, 5-Point Scale and NPS Fields | wordpress rating field nps | HOW | Free / Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 32 | K3 | K ورودی‌ها و پیگیری | Search, Edit and Delete Form Entries by Confirmation Code | search form entries wordpress | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 32 | L3 | L پنل/عیب‌یابی | Preview and Test a Form Safely with Development Mode | wordpress form preview test mode | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 33 | M3 | M چندزبانه و RTL | Build One Contact Form for English, Arabic, German and Persian Visitors | multilingual contact form wordpress | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 33 | A6 | A انتشار/موجودیت/مرجع | How Easy Form Builder Secures Form Submissions (Security Model) | wordpress form plugin security | REF | همه | ویدیوی جدید (توضیحی) |
+| 34 | B6 | B مقایسه و تجاری | Best Multi-Step Form Plugins for WordPress (Free Options) | multi step form plugin wordpress | COM | Free | ویدیوی جدید (توضیحی) |
+| 34 | D5 | D ایمیل و اعلان | Send Form Notifications to Different Teams Based on the Answer | conditional email notification wordpress form | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 35 | E8 | E اسپم و امنیت | GDPR-Friendly WordPress Forms: Local Storage, Retention and Deleting Entries | gdpr wordpress form | REF | Free | ویدیوی جدید (توضیحی) |
+| 35 | F8 | F Conditional Logic | Nested AND/OR Condition Groups Explained with Examples | nested and or conditions form | HOW | Pro | ویدیوی جدید (ضبط صفحه) |
+| 36 | G8 | G یکپارچه‌سازی | Auto-Fill a Form from a CSV Dataset (Lookup Form Example) | wordpress form autofill from csv | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
+| 36 | H5 | H پرداخت | How Stripe Payments Are Verified on the Server (What 4.3.1 Changed) | stripe payment verification wordpress | REF | Free Plus | ویدیوی جدید (توضیحی) |
+| 37 | I6 | I فرم‌های کاربردی | Customer Feedback Form with NPS in WordPress | customer feedback form wordpress | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 37 | J4 | J راهنمای فیلدها | Range Slider and Switch (Toggle) Fields | wordpress range slider form field | HOW | Free / Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 38 | N3 | N هاب‌ها | Form Security and Spam Hub | wordpress form security | HUB | — | ویدیوی جدید (توضیحی) |
+| 38 | K5 | K ورودی‌ها و پیگیری | Poll Results as Charts: Show and Export Survey Data | wordpress poll results chart | HOW | Free / Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 39 | L4 | L پنل/عیب‌یابی | Build and Edit WordPress Forms on Your Phone or Tablet | build forms on mobile wordpress | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 39 | B7 | B مقایسه و تجاری | Free WordPress Stripe Payment Form Plugin (Stripe in Free Plus) | free stripe payment form wordpress | COM | Free Plus | ویدیوی جدید (توضیحی) |
+| 40 | E9 | E اسپم و امنیت | Accessible WordPress Forms: A WCAG-Friendly Checklist | accessible wordpress forms wcag | REF | Free | ویدیوی جدید (توضیحی) |
+| 40 | F9 | F Conditional Logic | Test and Debug Conditional Logic: Test Mode and Inspector | debug conditional logic form wordpress | HOW | Free Plus / Pro | ویدیوی جدید (ضبط صفحه) |
+| 41 | G9 | G یکپارچه‌سازی | Auto-Fill a Form from an External API with Bearer Token | wordpress form prefill from api | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
+| 41 | H6 | H پرداخت | Stripe 401 Error After Saving Settings: Cause and Fix | stripe 401 error wordpress form | TRB | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 42 | I7 | I فرم‌های کاربردی | Customer Satisfaction (CSAT) Survey with Star Ratings | csat survey wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
+| 42 | J5 | J راهنمای فیلدها | Color Picker Field | wordpress color picker form field | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 43 | K6 | K ورودی‌ها و پیگیری | Dashboard Widget: Form Views, Submissions and Email Stats | wordpress form dashboard widget | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 43 | L5 | L پنل/عیب‌یابی | Form Stuck on 'Please Wait' or Not Submitting? Checklist | wordpress form not submitting | TRB | Free | ویدیوی جدید (ضبط صفحه) |
+| 44 | F10 | F Conditional Logic | What You Can Build with the Free Plus Conditional Logic Limits | conditional logic free limits | REF | Free Plus | ویدیوی جدید (توضیحی) |
+| 44 | G10 | G یکپارچه‌سازی | Add Easy Form Builder to Elementor (Widget Guide) | elementor form widget easy form builder | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 45 | H7 | H پرداخت | Pending, Paid and Failed Payments: How Statuses Work in Entries | form payment status pending failed | REF | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 45 | N2 | N هاب‌ها | Form Integrations Hub: Sheets, Webhooks, Telegram, SMS, Payments | wordpress form integrations | HUB | — | ویدیوی جدید (توضیحی) |
+| 46 | I9 | I فرم‌های کاربردی | Newsletter Signup Form in WordPress | newsletter signup form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
+| 46 | J6 | J راهنمای فیلدها | Country, State and City Dropdowns (and Where the Data Comes From) | wordpress country state city dropdown form | HOW | Free / Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 47 | K7 | K ورودی‌ها و پیگیری | Tracking Codes in Your Own Language: 7 Styles for RTL and Non-Latin Sites | confirmation code styles wordpress form | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 47 | L6 | L پنل/عیب‌یابی | Easy Form Builder Admin Blank or Slow? Blocked Google Fonts and CDN Fix | wordpress admin blank form builder | TRB | Free | ویدیوی جدید (ضبط صفحه) |
+| 48 | F11 | F Conditional Logic | Quote Request Form That Adapts to the Visitor's Budget | quote request form wordpress | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 48 | G11 | G یکپارچه‌سازی | Add a WordPress Form in Divi with a Shortcode Module | divi contact form wordpress | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 49 | H8 | H پرداخت | Payment Notification Emails: Receipts for Admin and Customer | payment form notification email wordpress | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 49 | I10 | I فرم‌های کاربردی | Volunteer or Membership Application Form | membership application form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
+| 50 | J7 | J راهنمای فیلدها | Terms and Conditions Checkbox: Collect Consent in Forms | wordpress form consent checkbox | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 50 | K8 | K ورودی‌ها و پیگیری | Let Visitors Follow Up on Their Submission with the Confirmation Code Page | track form submission wordpress visitor | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 51 | L7 | L پنل/عیب‌یابی | File Upload Failing? PHP Limits, Allowed Types and Quotas | wordpress form file upload failed | TRB | Free | ویدیوی جدید (ضبط صفحه) |
+| 51 | F12 | F Conditional Logic | Support Form That Changes by Issue Type | support form conditional fields | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 52 | G12 | G یکپارچه‌سازی | Use Easy Form Builder on WordPress Multisite | wordpress multisite form plugin | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 52 | H9 | H پرداخت | ZarinPal and Iranian Payment Gateways with Easy Form Builder | zarinpal wordpress form | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
+| 53 | I11 | I فرم‌های کاربردی | Photo or File Contest Submission Form with Uploads | contest entry form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
+| 53 | J8 | J راهنمای فیلدها | Address Field | wordpress address field form | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 54 | L8 | L پنل/عیب‌یابی | What the 'Form Request Failure' Dashboard Notice Means | wordpress form request failure notice | TRB | Free | ویدیوی جدید (ضبط صفحه) |
+| 54 | F13 | F Conditional Logic | Event Registration Form with Ticket-Type Logic | event registration form wordpress | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 55 | G13 | G یکپارچه‌سازی | Multilingual Forms with WPML or Polylang (Setup Notes) | wpml form plugin multilingual | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 55 | I12 | I فرم‌های کاربردی | Collect Video Testimonials with a Video Recorder Field | video testimonial form wordpress | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 56 | J9 | J راهنمای فیلدها | Jalali (Persian) Date Picker for WordPress Forms | jalali date picker wordpress form | HOW | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
+| 56 | L9 | L پنل/عیب‌یابی | Make Forms Work with WP Rocket Delay JS and Cloudflare Rocket Loader | wp rocket delay js form not working | TRB | Free | ویدیوی جدید (ضبط صفحه) |
+| 57 | F14 | F Conditional Logic | Job Application Form That Adapts to the Position | job application form wordpress | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 57 | I13 | I فرم‌های کاربردی | Voice Message Form with an Audio Recorder Field | voice message form wordpress | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 58 | J13 | J راهنمای فیلدها | Yes/No and Link/Heading Fields to Shape Your Form Layout | wordpress yes no field heading | HOW | Free / Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 58 | L10 | L پنل/عیب‌یابی | Updating Easy Form Builder Safely: Backup and Post-Update Checklist | update wordpress form plugin safely | HOW | Free | ویدیوی جدید (توضیحی) |
+| 59 | F15 | F Conditional Logic | Conditional Logic with Payments: Amount- and Status-Based Rules | conditional logic payment form | HOW | Pro | ویدیوی جدید (ضبط صفحه) |
+| 59 | I14 | I فرم‌های کاربردی | Bug Report Form with Screen Recording | bug report form wordpress screen recording | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 60 | L11 | L پنل/عیب‌یابی | When to Enable the Bootstrap Option in Easy Form Builder | easy form builder bootstrap | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 60 | F16 | F Conditional Logic | Auto-Set, Copy and Clear Field Values with Conditional Logic | autofill form fields conditional | HOW | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 61 | I15 | I فرم‌های کاربردی | E-Signature Agreement or Waiver Form in WordPress | wordpress signature form | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 61 | L12 | L پنل/عیب‌یابی | Style Forms to Match Your Theme: Custom CSS Recipes | style wordpress form custom css | HOW | Free | ویدیوی جدید (ضبط صفحه) |
+| 62 | F17 | F Conditional Logic | Why Hidden Fields Stay Secure: Server-Side Validation in Conditional Logic | conditional logic server side validation | REF | Free Plus | ویدیوی جدید (توضیحی) |
+| 62 | I16 | I فرم‌های کاربردی | Custom WordPress User Registration Form | wordpress custom registration form | USE | Free | ویدیوی جدید (ضبط صفحه) |
+| 63 | I17 | I فرم‌های کاربردی | Custom WordPress Login Form | wordpress custom login form | USE | Free | ویدیوی جدید (ضبط صفحه) |
+| 63 | I18 | I فرم‌های کاربردی | Private Client Intake Form (Login Required) | private wordpress form logged in only | USE | Free | ویدیوی جدید (ضبط صفحه) |
+| 64 | I19 | I فرم‌های کاربردی | Lead Qualification Form: Multi-Step with Smart Routing | lead qualification form wordpress | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 64 | I20 | I فرم‌های کاربردی | Real-Estate Inquiry Form with a Map Location Picker | real estate inquiry form wordpress | USE | Free Plus | ویدیوی جدید (ضبط صفحه) |
+| 65 | I21 | I فرم‌های کاربردی | Restaurant Table Reservation Form | restaurant reservation form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
+| 65 | I22 | I فرم‌های کاربردی | Course or Class Enrollment Form | enrollment form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
+| 66 | I23 | I فرم‌های کاربردی | Incident or Complaint Report Form with Tracking | complaint form wordpress | USE | Free | ویدیوی جدید (ضبط صفحه) |
+| 66 | I24 | I فرم‌های کاربردی | Offline Data Collection Form (Field Surveys Without Internet) | offline form wordpress | USE | Add-on (Pro) | ویدیوی جدید (ضبط صفحه) |
 
 ---
 

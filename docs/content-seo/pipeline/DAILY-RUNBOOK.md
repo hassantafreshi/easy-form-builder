@@ -19,9 +19,9 @@
 2. Environment health: `tools/wp-env/setup.sh` (rebuilds local WordPress + Easy Form Builder if missing); `ffmpeg -version`; Node 22; Playwright Chromium; Remotion deps present.
 3. Site health (read-only): `GET /wp-json/wp/v2/users/me` on EN/AR/DE → 200 and `publish_posts`. If a site fails → continue everything else, skip publishing on that site, report.
 4. Detect uploaded videos: read `https://www.youtube.com/feeds/videos.xml?channel_id=$YT_CHANNEL_ID`; match new entries to rows (`Ref:` code in description, else exact title); for each match run **Stage 10** (video link-up) before new work.
-5. Compute today's rows: `rewrite` track `day = D`, `new` track `day = D`, where `D` = number of completed days + 1 (see `status` columns). Skip `blocked` rows and report them.
+5. Compute today's rows (owner decision 15: **three articles a day**): one `rewrite` row with `day = D` and the two `new` rows with `day = D`, where `D` = number of completed days + 1 (see `status` columns). Skip `blocked` rows and report them.
 
-## 2. Stages (per row; run both rows in parallel with sub-agents)
+## 2. Stages (per row; run the three rows in parallel with sub-agents)
 
 | Stage | Action | Output | Gate |
 |---|---|---|---|
@@ -30,7 +30,7 @@
 | 3 Verify | Fact-check against code and the local plugin (screenshots of every step) | `qa-report.md` §A | QA-GATES A |
 | 4 Translate | AR and DE per `TRANSLATION-WORKFLOW.md` | `article.{ar,de}.html`, `meta.{ar,de}.json` | QA-GATES C |
 | 5 Images | `tools/capture` → `tools/annotate` per `IMAGE-STYLE-GUIDE.md` (EN; de_DE and ar when feasible) | `images/*.webp` | QA-GATES D1 |
-| 6 Video | `tools/pipeline/make_video.sh` (site → capture → voice → fit → Remotion 16:9 → mux/verify) → `youtube.md` (no subtitles: decision 13; thumbnail + SEO title/description + localised title/description only) (`templates/video/youtube-package-template.md`). Render the two videos one after the other (≈ 6.5 GB RAM each). Never call ElevenLabs twice for one script (cache by script hash); on a TTS error report and stop | `video/*`, `thumbnail.jpg`, `youtube.md` | QA-GATES D2, D3, D5 |
+| 6 Video | `tools/pipeline/make_video.sh` (site → capture → voice → fit → Remotion 16:9 → mux/verify) → `youtube.md` (no subtitles: decision 13; thumbnail + SEO title/description + localised title/description only) (`templates/video/youtube-package-template.md`). Render the three videos one after the other (≈ 6.5–10 GB RAM each; never in parallel). Never call ElevenLabs twice for one script (cache by script hash); on a TTS error report and stop | `video/*`, `thumbnail.jpg`, `youtube.md` | QA-GATES D2, D3, D5 |
 | 7 Publish | Per `PUBLISHING-WORDPRESS.md`: EN → AR → DE; status from `PUBLISH_MODE` in `pipeline/site-config.json` (`publish` since 2026-11-14, decision 14; the file wins over the environment); media, SEO meta, JSON-LD, redirects. **After every write read the meta back and compare** (`efb_jsonld`, `efb_youtube_id`, SEO title/description): the mu-plugin stores an empty string, silently, for invalid input and that can erase the previous value (`MU-PLUGIN-TEST.md` rows 5–6). `JSON.parse` the JSON-LD before sending; redirect targets are same-site paths only | post ids in CSV | — |
 | 8 Verify live | QA-GATES E on every URL | `qa-report.md` §E | QA-GATES E |
 | 9 Package | Write `youtube.md`; update CSV `status`/ids/dates | — | — |
@@ -40,7 +40,7 @@ If a stage fails twice, mark the row `blocked:<stage>:<reason>`, keep what is sa
 
 ## 3. Daily report (Persian, ≤ 25 lines, plain language)
 
-Sections: (1) what was done (rewrite row + new row; links to the 6 posts, draft or live); (2) videos ready for YouTube (paths + `youtube.md` titles + thumbnails); (3) items needing the owner (blocked rows, decisions, uploads waiting); (4) QA highlights (failures fixed, any claim that could not be verified); (5) tomorrow's two rows; (6) credits used (ElevenLabs characters/credits) if known.
+Sections: (1) what was done (1 rewrite row + 2 new rows; links to the 9 posts); (2) videos ready for YouTube (paths + `youtube.md` titles + thumbnails); (3) items needing the owner (blocked rows, decisions, uploads waiting); (4) QA highlights (failures fixed, any claim that could not be verified); (5) tomorrow's two rows; (6) credits used (ElevenLabs characters/credits) if known.
 
 ## 4. Weekly (Friday) extras
 
