@@ -1593,3 +1593,6 @@
 .efb-msg-rpt-title { font-weight: 600; margin-bottom: .25rem; text-align: start; }
 .efb-msg-rpt-body .efb-msg-field-row { padding-inline: 0; }
 @media print { .efb-msg-rpt-rows { display: block; } .efb-msg-rpt-row { margin-bottom: .5rem; } }
+
+/* "Row 2" keeps its order on RTL admin pages until the phrase is translated. */
+.efb-msg-rpt-title { unicode-bidi: plaintext; }

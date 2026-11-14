@@ -593,13 +593,15 @@ class Readiness {
 	 */
 	public static function admin_notice_html( array $forms ) {
 		if ( ! $forms ) return '';
-		$h = '<div class="efb notice notice-error efb-pay-notready-notice" id="efbPayNotReadyNotice"><p><strong>' . esc_html__( 'Payment setup incomplete: visitors cannot pay with these forms yet.', 'easy-form-builder' ) . '</strong></p><ul style="list-style:disc;padding-inline-start:20px">';
+		$h = '<div class="efb notice notice-error efb-pay-notready-notice" id="efbPayNotReadyNotice"><p style="unicode-bidi:plaintext"><strong>' . esc_html__( 'Payment setup incomplete: visitors cannot pay with these forms yet.', 'easy-form-builder' ) . '</strong></p><ul style="list-style:disc;padding-inline-start:20px">';
 		$n = 0;
 		foreach ( $forms as $id => $f ) {
 			if ( ++$n > 5 ) break;
 			$first = isset( $f['issues'][0]['m'] ) ? (string) $f['issues'][0]['m'] : '';
 			$url = function_exists( 'admin_url' ) ? admin_url( 'admin.php?page=Emsfb&state=edit-form&id=' . (int) $id ) : '';
-			$h .= '<li data-form="' . (int) $id . '"><a href="' . esc_url( $url ) . '">' . esc_html( $f['name'] !== '' ? $f['name'] : '#' . (int) $id ) . '</a>: ' . esc_html( $first );
+			// Each line keeps its own direction (an English sentence on an RTL admin page, or the reverse) and the
+			// form's name is isolated so a Persian name inside an English line keeps its place.
+			$h .= '<li data-form="' . (int) $id . '" style="unicode-bidi:plaintext"><bdi><a href="' . esc_url( $url ) . '">' . esc_html( $f['name'] !== '' ? $f['name'] : '#' . (int) $id ) . '</a></bdi>: ' . esc_html( $first );
 			if ( count( $f['issues'] ) > 1 ) {
 				/* translators: %d: number of further problems */
 				$h .= ' ' . esc_html( sprintf( _n( '(and %d more problem)', '(and %d more problems)', count( $f['issues'] ) - 1, 'easy-form-builder' ), count( $f['issues'] ) - 1 ) );
@@ -609,7 +611,7 @@ class Readiness {
 		$h .= '</ul>';
 		if ( count( $forms ) > 5 ) {
 			/* translators: %d: number of further forms */
-			$h .= '<p>' . esc_html( sprintf( _n( 'And %d more form.', 'And %d more forms.', count( $forms ) - 5, 'easy-form-builder' ), count( $forms ) - 5 ) ) . '</p>';
+			$h .= '<p style="unicode-bidi:plaintext">' . esc_html( sprintf( _n( 'And %d more form.', 'And %d more forms.', count( $forms ) - 5, 'easy-form-builder' ), count( $forms ) - 5 ) ) . '</p>';
 		}
 		return $h . '</div>';
 	}

@@ -153,3 +153,7 @@
 .efb-ent-rs-prev dt { font-weight: 600; }
 .efb-ent-rs-prev dd { margin: 0 0 .5rem; text-align: start; }
 .efb-ent-rs-prev dd bdi { unicode-bidi: isolate; }
+
+/* An English sentence on an RTL admin page (or the reverse) keeps its own order: the full stop and an
+   inserted row number or date stay where the sentence's language puts them. */
+.efb-ent-note-private, .efb-ent-notes > li, .efb-ent-edit-rowset > legend, .efb-ent-edited-link { unicode-bidi: plaintext; }
