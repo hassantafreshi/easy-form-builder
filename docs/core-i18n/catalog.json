@@ -4,7 +4,7 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-15",
     "counts": {
-        "active": 4091,
+        "active": 4130,
         "obsolete": 518
     },
     "entries": [
@@ -1787,6 +1787,21 @@
             "context": null,
             "plural": null,
             "translators": "F11: above a form with a total limit. %s: number of places",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s problems need your attention",
+            "context": null,
+            "plural": null,
+            "translators": "F16 title of the error list at the top of a form. %s: number of problems",
             "files": [
                 "includes/functions.php"
             ],
@@ -4495,7 +4510,7 @@
             "msgid": "Address",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F16 form builder: group in the \"Browser autofill\" list",
             "files": [
                 "includes/functions.php"
             ],
@@ -4528,6 +4543,36 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-verification.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Address line 1",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Address line 2",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
             ],
             "scope": [
                 "core"
@@ -5471,8 +5516,9 @@
             "msgid": "Amount",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
             "files": [
+                "includes/data/autocomplete-labels-efb.php",
                 "includes/payments/class-Emsfb-payment-admin.php",
                 "includes/payments/class-Emsfb-payment-frontend.php",
                 "includes/payments/class-Emsfb-payment-service.php"
@@ -6929,7 +6975,7 @@
             "msgid": "Automatic",
             "context": null,
             "plural": null,
-            "translators": "F13: option of the identifying email field: the form's user email field, else any email field translators: F01 builder, mobile keyboard option: chosen from the field format, or the phone default translators: F12b: builder: CAPTCHA option value",
+            "translators": "F13: option of the identifying email field: the form's user email field, else any email field translators: F01 builder, mobile keyboard option: chosen from the field format, or the phone default translators: F16 form builder: \"Browser autofill\" option translators: F12b: builder: CAPTCHA option value",
             "files": [
                 "includes/functions.php"
             ],
@@ -8251,6 +8297,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Browser autofill",
+            "context": null,
+            "plural": null,
+            "translators": "F16 form builder: what the browser may fill into a field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Budget resets after (seconds)",
             "context": null,
             "plural": null,
@@ -9446,6 +9507,51 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Card expiry date",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Card number",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Card security code",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Card security code (CVC)",
             "context": null,
             "plural": null,
@@ -9811,6 +9917,21 @@
             "context": null,
             "plural": null,
             "translators": "F01 builder: select of the check-digit algorithm (Luhn, IBAN ...) for a custom mask",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Check fields",
+            "context": null,
+            "plural": null,
+            "translators": "F16 form builder setting: when the visitor's answers are checked",
             "files": [
                 "includes/functions.php"
             ],
@@ -10486,8 +10607,9 @@
             "msgid": "City",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
             "files": [
+                "includes/data/autocomplete-labels-efb.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -11510,6 +11632,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Company or organization",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Compare the free plans",
             "context": null,
             "plural": null,
@@ -11967,7 +12104,7 @@
             "msgid": "Contact",
             "context": null,
             "plural": null,
-            "translators": "F11: column",
+            "translators": "F11: column translators: F16 form builder: group in the \"Browser autofill\" list",
             "files": [
                 "includes/functions.php"
             ],
@@ -12798,6 +12935,51 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Country calling code",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Country code",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Country name",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Country, State, Province and City Fields",
             "context": null,
             "plural": null,
@@ -13118,8 +13300,9 @@
             "msgid": "Currency",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
             "files": [
+                "includes/data/autocomplete-labels-efb.php",
                 "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-frontend.php"
             ],
@@ -13189,6 +13372,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Current password",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Current step",
@@ -13888,8 +14086,9 @@
             "msgid": "Date of birth",
             "context": null,
             "plural": null,
-            "translators": "F06 builder, advanced date field panel",
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in translators: F06 builder, advanced date field panel",
             "files": [
+                "includes/data/autocomplete-labels-efb.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -17264,8 +17463,9 @@
             "msgid": "Email address",
             "context": null,
             "plural": null,
-            "translators": "F11: dialog field",
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in translators: F11: dialog field",
             "files": [
+                "includes/data/autocomplete-labels-efb.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -18990,6 +19190,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Error:",
+            "context": null,
+            "plural": null,
+            "translators": "F16 hidden word read by screen readers before a field's error message",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Error: No payment gateway has been added to the form.",
             "context": null,
             "plural": null,
@@ -20047,8 +20262,9 @@
             "msgid": "First name",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
             "files": [
+                "includes/data/autocomplete-labels-efb.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -21635,6 +21851,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Full name",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Full width",
             "context": null,
             "plural": null,
@@ -21799,6 +22030,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Gender",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -26240,6 +26486,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Job title",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "John Doe",
             "context": null,
             "plural": null,
@@ -27101,8 +27362,9 @@
             "msgid": "Last name",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
             "files": [
+                "includes/data/autocomplete-labels-efb.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -29593,6 +29855,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Messenger address",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Meta Background",
             "context": null,
             "plural": null,
@@ -29690,6 +29967,21 @@
             "translators": "country group in the form builder's \"Format / mask\" list",
             "files": [
                 "includes/data/masks-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Middle name",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
             ],
             "scope": [
                 "core"
@@ -30844,7 +31136,7 @@
             "msgid": "Name",
             "context": null,
             "plural": null,
-            "translators": "Name = generic column/summary label",
+            "translators": "F16 form builder: group in the \"Browser autofill\" list translators: Name = generic column/summary label",
             "files": [
                 "includes/functions.php",
                 "includes/phrases.php"
@@ -30863,6 +31155,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Name on card",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
             ],
             "scope": [
                 "core"
@@ -31145,6 +31452,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "New password",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "New user registration",
             "context": null,
             "plural": null,
@@ -31228,6 +31550,21 @@
             "translators": "F06 picker",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Nickname",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
             ],
             "scope": [
                 "core"
@@ -33258,7 +33595,7 @@
             "msgid": "Off",
             "context": null,
             "plural": null,
-            "translators": "F02 builder option",
+            "translators": "F16 form builder: \"Browser autofill\" option translators: F02 builder option",
             "files": [
                 "includes/functions.php"
             ],
@@ -33763,6 +34100,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "One-time code",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Online payment for this form is not available right now. Please try again later or contact the site.",
@@ -34716,7 +35068,7 @@
             "msgid": "Other",
             "context": null,
             "plural": null,
-            "translators": "Label of the auto-added \"Other\" choice on a radio field with \"Add Other option\" enabled translators: F05: the text of the “Other” choice",
+            "translators": "Label of the auto-added \"Other\" choice on a radio field with \"Add Other option\" enabled translators: F16 form builder: group in the \"Browser autofill\" list translators: F05: the text of the “Other” choice",
             "files": [
                 "includes/functions.php"
             ],
@@ -35668,7 +36020,7 @@
             "msgid": "Payment",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F16 form builder: group in the \"Browser autofill\" list",
             "files": [
                 "includes/functions.php",
                 "vendor/paypal/class-Emsfb-paypal-handler.php",
@@ -36574,6 +36926,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Phone number (national)",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Phone number (with country code)",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Phone numbers must include country code (e.g. +1 for US, +44 for UK)",
             "context": null,
             "plural": null,
@@ -36595,6 +36977,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Photo address",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
             ],
             "scope": [
                 "core"
@@ -38437,6 +38834,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Postal code",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Postal code formats for 18 countries, the map field and address search.",
             "context": null,
             "plural": null,
@@ -38533,6 +38945,21 @@
             "translators": "F18: preview of the credit Free Plus shows under forms; keep it identical to the public credit text",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Preferred language",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
             ],
             "scope": [
                 "core"
@@ -45735,6 +46162,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Show a list of problems at the top of the form",
+            "context": null,
+            "plural": null,
+            "translators": "F16 form builder switch",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Show as a popup",
             "context": null,
             "plural": null,
@@ -47493,6 +47935,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "State or province",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "State/Prov Drop-down",
             "context": null,
             "plural": null,
@@ -47557,6 +48014,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Stay on this page",
+            "context": null,
+            "plural": null,
+            "translators": "F16 button that stops the redirect after a form is sent",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Step",
             "context": null,
             "plural": null,
@@ -47575,7 +48047,7 @@
             "msgid": "Step %1$s of %2$s",
             "context": null,
             "plural": null,
-            "translators": "1: current step number, 2: total number of steps",
+            "translators": "1: current step number, 2: total number of steps translators: F16 announced when the visitor moves to another step. %1$s: step number, %2$s: number of steps",
             "files": [
                 "includes/functions.php"
             ],
@@ -47583,6 +48055,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Step %1$s of %2$s: %3$s",
+            "context": null,
+            "plural": null,
+            "translators": "F16 hidden name of a form step for screen readers. %1$s: step number, %2$s: number of steps, %3$s: step name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -47988,6 +48475,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Street address (all lines)",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -54342,6 +54844,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "There is a problem",
+            "context": null,
+            "plural": null,
+            "translators": "F16 title of the error list at the top of a form with one problem",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "There is an auto-saved version of the form available. Do you want to restore it?",
             "context": null,
             "plural": null,
@@ -56526,6 +57043,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Title (Mr, Ms, Dr)",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -59564,9 +60096,10 @@
             "msgid": "Username",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
             "files": [
                 "includes/class-email-handler.php",
+                "includes/data/autocomplete-labels-efb.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -60762,6 +61295,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Warn visitors who leave a half-filled form",
+            "context": null,
+            "plural": null,
+            "translators": "F16 form builder switch",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Warning",
             "context": null,
             "plural": null,
@@ -61442,6 +61990,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Website address",
+            "context": null,
+            "plural": null,
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "files": [
+                "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Week starts on",
             "context": null,
             "plural": null,
@@ -61927,6 +62490,36 @@
             "context": null,
             "plural": null,
             "translators": "F13: setting: what happens to an entry when its retention time is over",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "When the value changes (previous behaviour)",
+            "context": null,
+            "plural": null,
+            "translators": "F16 form builder: option of \"Check fields\"",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "When the visitor leaves a field (recommended)",
+            "context": null,
+            "plural": null,
+            "translators": "F16 form builder: option of \"Check fields\"",
             "files": [
                 "includes/functions.php"
             ],
