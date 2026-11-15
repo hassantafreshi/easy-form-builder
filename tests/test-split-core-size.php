@@ -25,7 +25,10 @@ function t($name, $ok, $info = '') {
 
 const EFB_SPLIT_BEFORE_CODE = 12684732;   // ff8f21ad, without languages
 const EFB_SPLIT_AFTER_CODE  = 12175102;   // subtask L, without languages
-const EFB_SPLIT_MIN_GAIN    = 400000;     // the core keeps at least this much of SPLIT's gain
+// The core keeps at least this much of SPLIT's gain. Raised on purpose for F21 (2026-11-15): the Pro renewal reminder
+// (includes/class-Emsfb-renewal-reminder.php, its wiring, readme) adds 58,695 bytes, and the core was 5,333 bytes
+// under the old 400,000 budget at 45010e04 (12,279,399 → 12,338,094 bytes without languages).
+const EFB_SPLIT_MIN_GAIN    = 340000;
 
 $paths = array('includes', 'public', 'languages', 'composer', 'emsfb.php', 'autoload.php', 'index.php', 'readme.txt');
 $files = array();
