@@ -195,6 +195,9 @@
     invalidate() { contexts.forEach(context=>{context.time=0;}); tickets.forEach(ticket=>{ticket.time=0;}); }
   };
   document.addEventListener('focusin',event=>{
+    // F16: focus the page itself moves (a step, the error summary, the thank-you heading: tabindex -1) is not the
+    // visitor starting the form; on a full form it would only ask for a context the server refuses.
+    if (event.target && event.target.getAttribute && event.target.getAttribute('tabindex')==='-1') return;
     const target=event.target && event.target.closest && event.target.closest('#body_efb,[id^="body_efb_"],[data-formid]');
     if (!target) return;
     const fid=Number(target.dataset.formid || String(target.id||'').replace('body_efb_',''))||0;

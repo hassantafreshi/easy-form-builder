@@ -6,7 +6,8 @@
  *  2  a repeater group's help text starts where its legend starts (F09: the field description's mx-4 indent);
  *  3  on a right-to-left page labels sit on the right even when English (plaintext keeps the order, not the side);
  *  4  the F15 versions dialog: the date in the administrator's calendar and digits (fa_IR: Solar Hijri, Persian digits);
- *  5  the F12 spam reasons joined the language's way (Intl.ListFormat), not with an Arabic comma between English words.
+ *  5  the F12 spam reasons joined the language's way (Intl.ListFormat), not with an Arabic comma between English words;
+ *  6  (F16 §4.2, J's CSS part) Windows high contrast, "more contrast", "reduce motion" and visible focus rules.
  * The browser side of 1, 3 and 5 is in tests/test-a11y-field-errors.js, tests/test-entries-list-render.js and the e2e
  * scenario f16-e; this checks the rules and the server's date.
  *
@@ -23,6 +24,10 @@ $root = dirname(__DIR__);
 $css = file_get_contents($root . '/includes/admin/assets/css/style-efb.css');
 t('1 a phone: the box in the flow, stronger than the old negative-margin rules (and the RTL file)', strpos($css, '.body_efb .efb.efb.ttiptext.ttiptext[id$="-message"]') !== false && strpos($css, 'position: static !important') !== false);
 t('1 a blur-timed form: the box in the flow at every width', strpos($css, '.efb-vt-blur .efb.efb.ttiptext.ttiptext[id$="-message"] { position: static !important;') !== false);
+t('6 Windows high contrast: an invalid field and the summary keep a visible outline (CanvasText)', (bool) preg_match('/@media \(forced-colors: active\) \{[^}]*\[aria-invalid="true"\] \{ outline: 2px solid CanvasText/s', $css));
+t('6 "more contrast": darker error text and borders', strpos($css, '@media (prefers-contrast: more)') !== false);
+t('6 "reduce motion": no animation or smooth scroll in a form', (bool) preg_match('/@media \(prefers-reduced-motion: reduce\) \{\s*\.body_efb \*[^}]*animation-duration: \.01ms !important; transition-duration: \.01ms !important; scroll-behavior: auto !important;/s', $css));
+t('6 visible keyboard focus in a form (3 px outline)', strpos($css, ':focus-visible, .efb-final-step a:focus-visible { outline: 3px solid #1a56db !important;') !== false);
 $rpt = file_get_contents($root . '/public/assets/css/repeater-efb.css');
 t('2 the repeater group\'s help text: no inline indent', strpos($rpt, '.efb.efb-rpt > .efb-field-description > small[id$="-des"] { margin-inline: 0 !important;') !== false);
 t('3 right to left: labels and messages aligned right (a label left by an English-speaking admin too)', (bool) preg_match('/:is\(\[dir="rtl"\], \.rtl\) \.body_efb :is\(\.efb\.col-form-label\.txt-left, legend\.txt-left, \.efb-pf-label[^{]*\{ text-align: right !important; \}/s', $css));

@@ -2671,7 +2671,8 @@ hide_msg_efb=(el)=>{
   if(!el) return;
   const go = () => { el.style.display='none'; el.innerHTML=''; efb_msg_aria_efb(el, false); };
   // F16: a field left by pressing Send / Next: its box closes after the click, so the button does not move under the pointer.
-  if (window.EFBInline && EFBInline.busy && EFBInline.busy() && el.style.display === 'block') { const s = el._efbSeq = (el._efbSeq || 0) + 1; EFBInline.later(() => { if (el._efbSeq === s) go(); }); return; }
+  // Not when another script wrote a new message meanwhile (its own way, without show_msg_efb).
+  if (window.EFBInline && EFBInline.busy && EFBInline.busy() && el.style.display === 'block') { const s = el._efbSeq = (el._efbSeq || 0) + 1, t0 = el.textContent; EFBInline.later(() => { if (el._efbSeq === s && el.textContent === t0) go(); }); return; }
   go();
 }
 /* ---------------------------------------------------------------- F16 accessibility and inline validation

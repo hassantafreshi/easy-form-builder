@@ -115,7 +115,7 @@
     opts = opts || {};
     if (!el) return;
     const m0 = opts.msgEl || msgOf(el);
-    if (down && !opts.now) { const seq = m0 ? (m0._efbSeq = (m0._efbSeq || 0) + 1) : 0; queue.push(() => { if (!m0 || m0._efbSeq === seq) clearError(el, Object.assign({}, opts, { now: true })); }); return; }
+    if (down && !opts.now) { const seq = m0 ? (m0._efbSeq = (m0._efbSeq || 0) + 1) : 0, t0 = m0 ? m0.textContent : ''; queue.push(() => { if (!m0 || (m0._efbSeq === seq && m0.textContent === t0)) clearError(el, Object.assign({}, opts, { now: true })); }); return; }
     const m = m0;
     const host = hostOf(el);
     if (m) { m.textContent = ''; m.style.display = 'none'; m.removeAttribute('data-efb-prefix'); }
