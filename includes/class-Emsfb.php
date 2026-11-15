@@ -179,6 +179,11 @@ class Emsfb {
     }
 
     public function maybe_upgrade_schema_efb(): void {
+        // SPLIT-G: a site whose tables were removed while the plugin stays active (Easy Form Builder Data Tools'
+        // "Remove", a manual DROP) gets them back the WordPress way (dbDelta through Install::install()), once, instead
+        // of a "table doesn't exist" error on every request. Checked at most every 12 hours (one SHOW TABLES).
+        $this->ensure_tables_efb();
+
         $stored = get_option('Emsfb_db_version', '0');
 
         if (version_compare((string) $stored, (string) EMSFB_DB_VERSION, '>=')) {
@@ -202,6 +207,37 @@ class Emsfb {
         } finally {
             delete_transient('emsfb_schema_lock');
         }
+    }
+
+    /** SPLIT-G: re-create the core tables when they are missing (never on every request: a 12-hour transient). */
+    public function ensure_tables_efb(): void {
+        if (get_transient('emsfb_tables_ok') || !class_exists('\Emsfb\Install') || !method_exists('\Emsfb\Install', 'install')) {
+            return;
+        }
+        global $wpdb;
+        if (!is_object($wpdb)) {
+            return;
+        }
+        $suppress = $wpdb->suppress_errors(true);
+        $missing = array();
+        foreach (array('emsfb_form', 'emsfb_msg_', 'emsfb_rsp_', 'emsfb_stts_', 'emsfb_setting') as $t) {
+            $name = $wpdb->prefix . $t;
+            if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $name)) !== $name) $missing[] = $t;
+        }
+        if ($missing && !get_transient('emsfb_schema_lock')) {
+            set_transient('emsfb_schema_lock', time(), 60);
+            try {
+                \Emsfb\Install::install();
+                // install() creates what is missing; the upgrade steps run again on the next check.
+                delete_option('Emsfb_db_version');
+            } catch (\Throwable $e) {
+                // Leave it to the next check; never break the request.
+            } finally {
+                delete_transient('emsfb_schema_lock');
+            }
+        }
+        $wpdb->suppress_errors($suppress);
+        set_transient('emsfb_tables_ok', 1, $missing ? 5 * MINUTE_IN_SECONDS : 12 * HOUR_IN_SECONDS);
     }
 
     /**
@@ -602,15 +638,8 @@ class Emsfb {
             }
             new \Emsfb\Dashboard_Widget();
 
-            // Import from Contact Form 7: a self-contained module, loaded only
-            // where it is offered (Panel, Create) and for its own admin-ajax
-            // actions. Optional - the plugin works the same without the folder.
-            if (self::is_cf7_importer_request_efb()) {
-                $cf7_importer = $this->plugin_path . 'includes/importers/cf7/class-Emsfb-cf7-importer.php';
-                if (is_readable($cf7_importer)) {
-                    require_once $cf7_importer;
-                }
-            }
+            // SPLIT §8: importing from Contact Form 7 (and other form plugins) and form export / import are the free plugin
+            // Easy Form Builder Data Tools; core keeps the form package contract (Form_Package) and shows its card (Split).
 
             $ac = self::get_setting_Emsfb('decoded');
 
@@ -815,21 +844,6 @@ class Emsfb {
 
        $this->load_page_builder_integrations();
 
-    }
-
-    /**
-     * Whether this admin request is one the Contact Form 7 importer serves:
-     * the Panel or Create screen, or one of its efb_cf7_* admin-ajax actions.
-     */
-    private static function is_cf7_importer_request_efb(): bool {
-        // phpcs:disable WordPress.Security.NonceVerification -- routing only; the module verifies its own requests.
-        if (wp_doing_ajax()) {
-            $action = isset($_REQUEST['action']) ? sanitize_key(wp_unslash($_REQUEST['action'])) : '';
-            return 0 === strpos($action, 'efb_cf7_');
-        }
-        $page = isset($_GET['page']) ? sanitize_key(wp_unslash($_GET['page'])) : '';
-        // phpcs:enable
-        return 'emsfb' === $page || 'emsfb_create' === $page;
     }
 
     /**

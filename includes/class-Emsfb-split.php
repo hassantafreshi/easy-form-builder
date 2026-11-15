@@ -46,6 +46,8 @@ class Split {
 		add_action('admin_notices', array(__CLASS__, 'admin_notices'));
 		add_action('wp_ajax_efb_split_retry', array(__CLASS__, 'ajax_retry'));
 		add_action('wp_ajax_efb_split_dismiss', array(__CLASS__, 'ajax_dismiss'));
+		add_action('admin_notices', array(__CLASS__, 'data_tools_card'));
+		add_action('wp_ajax_efb_split_dt_dismiss', array(__CLASS__, 'ajax_dt_dismiss'));
 	}
 
 	/* ------------------------------------------------------------------------- contracts core still has */
@@ -182,7 +184,7 @@ class Split {
 			'codes'     => array('save' => array('addon_keys_kept', 'addon_keys_dropped'), 'builder' => array('addon_required'), 'payment' => array('pay_calc_unavailable', 'pay_not_ready', 'pay_addon_inactive'),
 				'import' => array('addon_inactive'), 'logic' => array('logic_ref_addon_inactive')),
 			'install'   => array('ajax' => 'add_addons_Emsfb', 'page' => function_exists('admin_url') ? admin_url('admin.php?page=Emsfb_addon') : 'admin.php?page=Emsfb_addon', 'human_only' => true),
-			'data_tools' => array('slug' => 'easy-form-builder-data-tools', 'active' => function_exists('efbdt_core_api') || defined('EFBDT_VERSION'), 'replaces' => array('cf7_importer', 'form_export_import')),
+			'data_tools' => array('slug' => 'easy-form-builder-data-tools', 'active' => self::data_tools_active(), 'page' => 'tools.php?page=easy-form-builder-data-tools', 'replaces' => array('cf7_importer', 'form_export_import')),
 		);
 		return $out;
 	}
@@ -484,6 +486,45 @@ class Split {
 		if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $t)) !== $t) return 0;
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
 		return (int) $wpdb->get_var("SELECT COUNT(*) FROM `{$t}` WHERE gateway = 'stripe' AND status = 'pending'");
+	}
+
+	/** Whether the free plugin Easy Form Builder Data Tools is active. */
+	public static function data_tools_active() {
+		return defined('EFBDT_VERSION') || function_exists('efbdt_render_page');
+	}
+
+	/**
+	 * SPLIT §8: on the forms panel and the Create screen, the card that replaced "Import from Contact Form 7": Data Tools
+	 * active → its screen (Tools › Form Data Tools); otherwise WordPress's own installer for the plugin (open question 12,
+	 * approved by owner 2026-11-14: it is on wordpress.org), for users who may install plugins. Dismissible per user.
+	 */
+	public static function data_tools_card() {
+		if (!function_exists('current_user_can') || !current_user_can('manage_options')) return;
+		$screen = function_exists('get_current_screen') ? get_current_screen() : null;
+		$id = $screen ? (string) $screen->id : '';
+		if ($id !== 'toplevel_page_Emsfb' && strpos($id, 'Emsfb_create') === false) return;
+		if (get_user_meta(get_current_user_id(), 'efb_dt_card_dismissed', true)) return;
+		$t = function_exists('get_efbFunction') ? get_efbFunction()->text_efb(array('dataToolsCard')) : array();
+		$text = isset($t['dataToolsCard']) ? $t['dataToolsCard'] : __('Import and export forms with Easy Form Builder Data Tools (free).', 'easy-form-builder');
+		if (self::data_tools_active()) {
+			$url = admin_url('tools.php?page=easy-form-builder-data-tools');
+			$btn = __('Open Data Tools', 'easy-form-builder');
+		} elseif (current_user_can('install_plugins')) {
+			$url = admin_url('plugin-install.php?tab=plugin-information&plugin=easy-form-builder-data-tools');
+			$btn = __('Install', 'easy-form-builder');
+		} else {
+			return;
+		}
+		echo '<div class="notice notice-info is-dismissible efb-dt-card" id="efbDataToolsCard" data-nonce="' . esc_attr(wp_create_nonce('efb_split')) . '"><p style="unicode-bidi:plaintext">'
+			. '<span class="dashicons dashicons-database-import" aria-hidden="true"></span> ' . esc_html(wp_strip_all_tags($text)) . ' '
+			. '<a class="button button-primary" style="min-height:44px;line-height:42px" href="' . esc_url($url) . '">' . esc_html($btn) . '</a></p></div>'
+			. '<script>(function(){var n=document.getElementById("efbDataToolsCard");if(!n||!window.fetch)return;n.addEventListener("click",function(e){if(!e.target.classList.contains("notice-dismiss"))return;var b=new FormData();b.append("action","efb_split_dt_dismiss");b.append("nonce",n.getAttribute("data-nonce"));fetch(window.ajaxurl||"' . esc_url(admin_url('admin-ajax.php')) . '",{method:"POST",credentials:"same-origin",body:b});});})();</script>';
+	}
+
+	public static function ajax_dt_dismiss() {
+		if (!function_exists('check_ajax_referer') || !check_ajax_referer('efb_split', 'nonce', false) || !current_user_can('manage_options')) wp_send_json_error(array(), 403);
+		update_user_meta(get_current_user_id(), 'efb_dt_card_dismissed', 1);
+		wp_send_json_success(array());
 	}
 
 	/** The forms list badge texts (ajax_object_efm.split_badge). */

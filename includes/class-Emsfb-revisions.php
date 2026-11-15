@@ -7,7 +7,7 @@
  * 1.11) first keeps the state it replaces, marked "initial". A save that changes nothing (same md5 of the JSON)
  * keeps nothing. Who saved (user_id), how (source: builder | autopilot | restore | created | initial | api) and a
  * note are kept with it. The versions are written by the save hooks efb_form_saved / efb_form_created, so every
- * save path (the builder, AutoPilot through the builder, the CF7 importer, a future API) keeps them; an error
+ * save path (the builder, AutoPilot through the builder, an importer through Form_Package, a future API) keeps them; an error
  * here never stops a save (error_log only).
  *
  * How many: the site setting form_rev_keep (earlier versions besides the current one; default 10, 0 = off)

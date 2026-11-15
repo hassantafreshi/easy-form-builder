@@ -29,7 +29,8 @@ defined('ABSPATH') || exit;
 
 class Form_Package {
 
-	const API_VERSION = 1;
+	/** 1.1 (SPLIT-G): delete() of a form an import created (import_token) and import_entries(); backward compatible. */
+	const API_VERSION = 1.1;
 	const SCHEMA = 1;
 	const EXTRAS_VERSION = 1;
 	const MAX_BYTES = 8388608;
@@ -61,7 +62,8 @@ class Form_Package {
 	public static function api() {
 		$a = array(
 			'version'  => self::API_VERSION, 'schema' => self::SCHEMA, 'extras_version' => self::EXTRAS_VERSION,
-			'class'    => __CLASS__, 'functions' => array('export', 'validate', 'import', 'export_extras', 'import_extras'),
+			'class'    => __CLASS__, 'functions' => array('export', 'validate', 'import', 'export_extras', 'import_extras', 'delete', 'import_entries'),
+			'import_token' => 'import() returns import_token; delete($form_id, $import_token) removes only a form that import created',
 			'filters'  => array('efb_form_export_extras', 'efb_form_import_extras', 'efb_form_package_remap_ids', 'efb_form_package_known_types', 'efb_form_package_addon_active'),
 			'actions'  => array('efb_form_created (context source "import" / "duplicate")'),
 			'limits'   => array('bytes' => self::MAX_BYTES, 'depth' => self::MAX_DEPTH, 'rows' => self::MAX_ROWS),
@@ -464,6 +466,102 @@ class Form_Package {
 		return array('rows' => $valp, 'warnings' => $warn, 'error' => null);
 	}
 
+	/* ------------------------------------------------------------------ 1.1: undo an import, import entries */
+
+	const IMPORTS_OPTION = 'efb_form_package_imports';
+
+	/** Records the forms an import created under a token (the caller's own token to group a batch, or a new one). */
+	private static function remember_import($form_id, $token, $user_id) {
+		$all = function_exists('get_option') ? get_option(self::IMPORTS_OPTION, array()) : array();
+		$all = is_array($all) ? $all : array();
+		$now = time();
+		foreach ($all as $k => $r) if (!is_array($r) || !isset($r['at']) || (int) $r['at'] < $now - 30 * DAY_IN_SECONDS) unset($all[$k]);
+		if (!preg_match('/^[A-Za-z0-9]{16,64}$/', $token) || !isset($all[$token]) || (int) $all[$token]['user'] !== (int) $user_id) {
+			$token = function_exists('wp_generate_password') ? wp_generate_password(32, false, false) : bin2hex(random_bytes(16));
+			$all[$token] = array('forms' => array(), 'user' => (int) $user_id, 'at' => $now);
+		}
+		$all[$token]['forms'][] = (int) $form_id;
+		$all[$token]['at'] = $now;
+		if (count($all) > 100) $all = array_slice($all, -100, null, true);
+		if (function_exists('update_option')) update_option(self::IMPORTS_OPTION, $all, false);
+		return $token;
+	}
+
+	/** Who may undo an import or bring entries in: an administrator, or a user of the plugin's dashboard. */
+	private static function can_manage() {
+		if (!function_exists('current_user_can')) return false;
+		if (current_user_can('manage_options')) return true;
+		$fn = function_exists('get_efbFunction') ? get_efbFunction() : null;
+		return $fn && method_exists($fn, 'user_permission_efb_admin_dashboard') && $fn->user_permission_efb_admin_dashboard();
+	}
+
+	/**
+	 * Undo an import: deletes a form only when the import identified by $import_token created it (and the token is the
+	 * current user's, or the user is an administrator). Its entries, versions and caches go with it, as the builder's
+	 * own delete does (efb_form_deleted). @return true|\WP_Error
+	 */
+	public static function delete($form_id, $import_token) {
+		$form_id = (int) $form_id;
+		if (!self::can_manage()) return self::err('package_forbidden', 'You are not allowed to do this.', array('status' => 403));
+		$all = function_exists('get_option') ? get_option(self::IMPORTS_OPTION, array()) : array();
+		$rec = is_array($all) && is_string($import_token) && isset($all[$import_token]) ? $all[$import_token] : null;
+		$uid = function_exists('get_current_user_id') ? (int) get_current_user_id() : 0;
+		if (!$rec || !in_array($form_id, array_map('intval', (array) $rec['forms']), true)) return self::err('package_not_imported', 'This form was not created by that import.', array('status' => 404));
+		if ((int) $rec['user'] !== $uid && !(function_exists('current_user_can') && current_user_can('manage_options'))) return self::err('package_forbidden', 'You are not allowed to do this.', array('status' => 403));
+		global $wpdb;
+		$t = $wpdb->prefix . 'emsfb_form';
+		$r = $wpdb->delete($t, array('form_id' => $form_id), array('%d'));
+		if ($r === false) return self::err('package_not_deleted', 'The form could not be deleted.', array('status' => 500));
+		if (class_exists('\\Emsfb\\Privacy')) Privacy::delete_form_entries($form_id);
+		else $wpdb->delete($wpdb->prefix . 'emsfb_msg_', array('form_id' => $form_id), array('%d'));
+		if (class_exists('\\Emsfb\\Revisions')) Revisions::delete_for_form($form_id);
+		// The form's caches, the keys the builder's own delete clears (Admin::clear_form_cache_efb()).
+		if (function_exists('wp_cache_delete')) {
+			foreach (array(array('form_structer', 'form_type'), array('form_structer'), array('form_type'), array('form_name'), array('form_name', 'form_structer')) as $set) wp_cache_delete('efb_form_' . $form_id . '_' . md5(implode('_', $set)), 'emsfb');
+		}
+		if (function_exists('do_action')) do_action('efb_form_deleted', $form_id);
+		$all[$import_token]['forms'] = array_values(array_diff(array_map('intval', (array) $rec['forms']), array($form_id)));
+		if (!$all[$import_token]['forms']) unset($all[$import_token]);
+		update_option(self::IMPORTS_OPTION, $all, false);
+		return true;
+	}
+
+	/**
+	 * Entries for a form, through the submit's own rules (_Public::validate_rows_efb with admin_edit, as an
+	 * administrator's edit of an entry: sanitizing, the saved options, numbers, dates, the F03 field rules), stored in
+	 * core's format. Each row: {answers: [{id_, value, …}], date?: "Y-m-d H:i:s", read?: 0-9, track?: string}. A row
+	 * that does not pass is skipped and reported; nothing else of the site is touched (no e-mail, no payment, no
+	 * capacity taken). @return array{imported: int, skipped: array}|\WP_Error
+	 */
+	public static function import_entries($form_id, array $rows) {
+		$form_id = (int) $form_id;
+		if (!self::can_manage()) return self::err('package_forbidden', 'You are not allowed to do this.', array('status' => 403));
+		$form = class_exists('\\Emsfb\\Entries') ? Entries::form_rows($form_id) : null;
+		if (!is_array($form)) return self::err('package_form_missing', 'The form was not found.', array('status' => 404));
+		if (!class_exists('\\Emsfb\\_Public') || !_Public::$instance_efb) return self::err('package_unavailable', 'Entries cannot be imported right now.', array('status' => 503));
+		$pub = _Public::$instance_efb->prepare_validation_efb($form_id);
+		global $wpdb;
+		$msg = $wpdb->prefix . 'emsfb_msg_';
+		$name = (string) $wpdb->get_var($wpdb->prepare("SELECT form_name FROM `{$wpdb->prefix}emsfb_form` WHERE form_id = %d", $form_id));
+		$out = array('imported' => 0, 'skipped' => array(), 'msg_ids' => array());
+		foreach (array_values($rows) as $i => $row) {
+			if (count($out['msg_ids']) + count($out['skipped']) >= self::MAX_ROWS) { $out['skipped'][] = array('index' => $i, 'code' => 'package_too_many', 'm' => 'Too many entries in one call.'); continue; }
+			$answers = is_array($row) && isset($row['answers']) && is_array($row['answers']) ? array_values(array_filter($row['answers'], 'is_array')) : null;
+			if (!$answers) { $out['skipped'][] = array('index' => $i, 'code' => 'package_entry_invalid', 'm' => 'No answers.'); continue; }
+			$v = $pub->validate_rows_efb($form, $answers, array('admin_edit' => true, 'form_condition' => ''));
+			if (empty($v['ok'])) { $out['skipped'][] = array('index' => $i, 'code' => 'package_entry_refused', 'm' => isset($v['m']) ? wp_strip_all_tags((string) $v['m']) : '', 'field_id' => isset($v['field_id']) ? (string) $v['field_id'] : ''); continue; }
+			$content = $pub->encode_rows_efb(isset($v['rows']) ? $v['rows'] : array());
+			$date = isset($row['date']) && is_string($row['date']) && preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $row['date']) ? $row['date'] : (function_exists('wp_date') ? wp_date('Y-m-d H:i:s') : gmdate('Y-m-d H:i:s'));
+			$track = isset($row['track']) && is_string($row['track']) && preg_match('/^[A-Za-z0-9_-]{4,40}$/', $row['track']) && !$wpdb->get_var($wpdb->prepare("SELECT msg_id FROM `{$msg}` WHERE track = %s", $row['track'])) ? $row['track'] : strtoupper(substr(md5(uniqid('efb', true) . $i), 0, 10));
+			$rec = array('form_id' => $form_id, 'track' => $track, 'ip' => '', 'form_title_x' => function_exists('sanitize_text_field') ? sanitize_text_field($name) : $name, 'content' => $content, 'date' => $date, 'read_' => isset($row['read']) ? min(9, max(0, (int) $row['read'])) : 0, 'read_by' => '');
+			if ($wpdb->insert($msg, $rec) === false) { $out['skipped'][] = array('index' => $i, 'code' => 'package_entry_not_saved', 'm' => 'The entry could not be saved.'); continue; }
+			$out['msg_ids'][] = (int) $wpdb->insert_id;
+			$out['imported']++;
+			if (function_exists('do_action')) do_action('efb_entry_imported', (int) $wpdb->insert_id, $form_id);
+		}
+		return $out;
+	}
+
 	/** What the importing site should know (not refusals): Pro fields, add-ons, media and redirects of another host, CAPTCHA service. */
 	public static function import_warnings(array $rows) {
 		$w = array();
@@ -514,7 +612,8 @@ class Form_Package {
 		if ($type === 'login' || $type === 'register') do_action('create_temporary_links_table_Emsfb');
 		do_action('efb_form_created', $fid, $rows, array('form_id' => $fid, 'source' => 'import', 'user_id' => $uid));
 		$x = self::import_extras($fid, $v['extras'], array('context' => 'import', 'id_map' => $v['id_map']));
-		$res = array('form_id' => $fid, 'form_name' => $name, 'form_type' => $type, 'shortcode' => '[EMS_Form_Builder id=' . $fid . ']', 'dropped' => $v['dropped'],
+		$token = self::remember_import($fid, isset($args['import_token']) ? (string) $args['import_token'] : '', $uid);
+		$res = array('form_id' => $fid, 'import_token' => $token, 'form_name' => $name, 'form_type' => $type, 'shortcode' => '[EMS_Form_Builder id=' . $fid . ']', 'dropped' => $v['dropped'],
 			'notices' => array_merge($v['notices'], $x['notices']), 'extras_applied' => $x['applied'], 'id_map' => $v['id_map']);
 		if (class_exists('\\Emsfb\\Payments\\Readiness')) {
 			$a = Payments\Readiness::save_answer(array(), $rows, $fid);

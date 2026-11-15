@@ -593,12 +593,13 @@ e2e روی `tests/e2e-wp` (سناریوی تازهٔ `scenario-split.js`، fa_IR
 ### G — Data Tools
 پس از انتشار Data Tools ≥ 1.1.0 (درون‌ریز CF7 با آزمون‌هایش): هم‌زیستی §۸، کارت نصب، سپس حذف `includes/importers/` و `test-cf7-*` از هسته؛ خط «منسوخ» در نقشهٔ راه `AdnIEM`. معیار: e2e Data Tools روی همان سایت؛ هسته بی‌خطا وقتی Data Tools نیست.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- پیش‌شرط: Data Tools 1.1.0 با درون‌ریز CF7 و آزمون‌هایش در `easy-form-builder-data-tools` شاخهٔ `dev4` (`ff84981`، `804a945`) منتشر شده بود.
+- فایل‌های تغییرکرده: حذف `includes/importers/` (161,309 بایت)، `tests/test-cf7-importer.php` و `-browser.js`؛ `class-Emsfb.php` (بی بارگذار درون‌ریز؛ `ensure_tables_efb()`: جدول‌های حذف‌شده با `Install::install()` یک بار و بی‌صدا بازساخته می‌شوند، بررسی هر ۱۲ ساعت)؛ `class-Emsfb-split.php` (کارت «Import and export forms with Easy Form Builder Data Tools (free)» در Panel/Create: فعال → صفحهٔ Tools › Form Data Tools، وگرنه نصب‌کنندهٔ وردپرس برای `easy-form-builder-data-tools`، قابل‌بستن)؛ `class-Emsfb-form-package.php` نسخهٔ **1.1** (سازگار با 1.0): `import()` حالا `import_token` می‌دهد، `delete($form_id, $import_token)` فقط فرمی را که همان ورود ساخت حذف می‌کند (با پاسخ‌ها، نسخه‌ها، کش‌ها، `efb_form_deleted`)، `import_entries($form_id, $rows)` از قواعد ارسال (`validate_rows_efb`، `admin_edit`) و قالب ذخیرهٔ هسته؛ `docs/form-package-contract.en.md` بخش 1.1. در `vendores-efb`: خط «منسوخ — Data Tools» بالای نقشهٔ راه `AdnIEM`.
+- تست‌ها: تازه `test-form-package-v11-wp.php` (9، روی وردپرس واقعی با `EFB_WP_LOAD`)، `test-split-schema-quiet.php` (7)؛ `test-form-package.php` (نسخهٔ 1.1 و دو تابع تازه در `functions`).
+- وضعیت ترجمه: `Open Data Tools` تازه (انگلیسی)؛ عبارت‌های درون‌ریز CF7 با فایل‌هایش رفتند (Data Tools دامنهٔ خودش را دارد).
+- مورد باز: الزامی بودن فیلدها در `import_entries` بررسی نمی‌شود (پاسخ‌های قدیمی ممکن است فیلدی را که بعداً افزوده شده نداشته باشند)؛ مقادیر هر پاسخ همان قواعد ارسال را می‌گذرانند.
+- اقدام بعدی: H.
 
 ### H — AutoPilot / SitePilot
 `efbBuilderApi`: `addon_required` برای `setCalc`، `validateFormula`، `setFieldLayout({esign_mode})`، `newItems('maps')`؛ `forms/{id}/schema` با `unavailable`؛ مستندات (این سند §۱۵، `autopilot-integration.md`، `sitepilot-compatibility.en.md` §13، مخزن `sitepilot-ai`). معیار: `test-split-capabilities.js`، `test-ap-*` سبز.
