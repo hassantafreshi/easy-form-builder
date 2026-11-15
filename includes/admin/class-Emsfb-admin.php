@@ -2096,6 +2096,11 @@ class Admin {
                 } else {
                     $m[$key] = $spam_val_efb;
                 }
+            }else if($key == 'renewMail'){
+                // F21: the renewal e-mail switch, '1' / '0'; an administrator's choice (manage_options).
+                $m[$key] = class_exists('\Emsfb\Renewal_Reminder')
+                    ? \Emsfb\Renewal_Reminder::sanitize_setting($value, is_object($ac) && isset($ac->renewMail) ? $ac->renewMail : null)
+                    : (in_array($value, [0, '0', false, 'false'], true) ? '0' : '1');
             }else if($key == 'text' && is_array($value)){
                 // Localization tab: phrase key => custom text. sanitize_text_field()
                 // on the whole array stored "", so no custom text was ever kept.
@@ -2130,6 +2135,11 @@ class Admin {
             foreach (array_keys(\Emsfb\Spam::SETTING_DEFAULTS) as $spam_key_efb) {
                 if (!array_key_exists($spam_key_efb, $m) && isset($ac->$spam_key_efb)) $m[$spam_key_efb] = $ac->$spam_key_efb;
             }
+        }
+
+        // F21: a settings page that does not send renewMail (Free, an older cached screen) keeps what is stored.
+        if (!array_key_exists('renewMail', $m) && is_object($ac) && isset($ac->renewMail)) {
+            $m['renewMail'] = in_array($ac->renewMail, [0, '0', false, 'false'], true) ? '0' : '1';
         }
 
         // F14: a settings page that does not send these keys keeps what is stored.

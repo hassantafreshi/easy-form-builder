@@ -123,4 +123,24 @@ $at($T0 + 37 * 3600);
 $out();
 t('the answer is 37 hours old: a check is asked for within a minute', isset($GLOBALS['efb_rt']['scheduled']['emsfb_revalidate_license']), true);
 
+echo "--- Settings › General (efb_var.renewal) and the renewMail value ---\n";
+$setup(30);
+$v = RR::localize_vars(array(), 'panel');
+t('Pro, an administrator, the server\'s date: shown, on, the line with the date in <bdi>', array($v['renewal']['show'], $v['renewal']['on'], $v['renewal']['label'], (bool) preg_match('#^Pro is active until <bdi>[^<]+</bdi>$#', $v['renewal']['line'])), array(true, true, 'Email me before my Pro subscription ends', true));
+$setup(30, array('auto_renew' => true));
+t('automatic renewal: "Renews automatically on <bdi>…</bdi>"', (bool) preg_match('#^Renews automatically on <bdi>[^<]+</bdi>$#', RR::localize_vars(array())['renewal']['line']), true);
+$setup(30); delete_option('emsfb_license_info');
+t('no date from the server: the switch without a line', array(RR::localize_vars(array())['renewal']['show'], RR::localize_vars(array())['renewal']['line']), array(true, ''));
+$setup(30); update_option('emsfb_pro', 3);
+t('Free Plus: not shown', RR::localize_vars(array())['renewal']['show'], false);
+$setup(30); $GLOBALS['efb_rt']['locale'] = 'fa_IR';
+t('fa_IR: not shown', RR::localize_vars(array())['renewal']['show'], false);
+$GLOBALS['efb_rt']['locale'] = 'en_US';
+$setup(30); update_option('emsfb_settings_obj', (object) array('renewMail' => '0'));
+t('renewMail 0: the switch is off', RR::localize_vars(array())['renewal']['on'], false);
+t('save by an administrator: \'1\' / \'0\' only', array(RR::sanitize_setting('0'), RR::sanitize_setting(false), RR::sanitize_setting('1'), RR::sanitize_setting('<b>')), array('0', '0', '1', '1'));
+$GLOBALS['efb_rt']['caps'] = array('Emsfb' => true);
+t('save by someone without manage_options: what is stored stays', array(RR::sanitize_setting('1', '0'), RR::sanitize_setting('0', '1'), RR::sanitize_setting('0', null)), array('0', '1', '1'));
+$GLOBALS['efb_rt']['caps'] = array('manage_options' => true);
+
 efb_rt_done();

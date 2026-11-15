@@ -439,12 +439,13 @@ Easy Form Builder > Settings.
 پذیرش: بی `<img>` بیرونی و بی `http` غیر از پیوند تمدید؛ `dir="rtl"` برای fa_IR و ar؛ ≤ ۱۲۰ واژه؛ AltBody فقط برای همین پیام (ایمیل بعدی سایت AltBody ندارد).
 تست‌ها: `php tests/test-renewal-email-template.php` (شمارش واژه، نبود نشانی بیرونی، `dir`، AltBody و برداشتن hook).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: `class-Emsfb-renewal-reminder.php` (`email_html()`: سند کامل با `<html lang dir>`، دو meta طرح رنگ، preheader پنهان، یک ستون `max-width:560px;width:100%`، همهٔ سبک‌ها درون‌خطی (بی `<style>` و بی class)، دکمهٔ جدولی با `bgcolor` و حاشیهٔ هم‌رنگ، `text-align` و padding فهرست در سمت آغاز، `dir` روی `html`/`body`/خانه‌ها، `unicode-bidi: plaintext` روی هر بند، نام سایت/تاریخ/میزبان در `<bdi>`، کانتراست متن ۱۴:۱ و دکمه ۶٫۷:۱؛ بی تصویر، بی فونت، بی ردیاب؛ تنها نشانی همان پیوند تمدید؛ `email_text()` همان متن §۱۱.۲ با پیوند نوشته؛ `subject()` بی CR/LF؛ نام سایت: decode یک‌باره، حذف نویسه‌های کنترلی، سپس escape؛ `localize_vars()` ⇒ `efb_var.renewal`؛ `sanitize_setting()`)، `class-Emsfb-admin.php` (ذخیرهٔ `renewMail` فقط `'1'`/`'0'`، فقط `manage_options`؛ صفحه‌ای که کلید را نفرستد مقدار ذخیره را نگه می‌دارد)، `list_form-efb.js` (`efb_renewal_settings_html_efb()`: سطر «Pro is active until …» / «Renews automatically on …» و سوییچ زیر کد فعال‌سازی فقط روی Pro؛ Save فقط وقتی سوییچ در صفحه است `renewMail` می‌فرستد).
+- تصمیم: ایمیل از قالب سفارشی سایت (`emailTemp`) استفاده نمی‌کند: پیام مدیریتی است و قالب مشترک تصویر سرصفحه و پیوندهای «Built with» دارد که با پذیرش D («بی `<img>` بیرونی و بی `http` جز پیوند تمدید») نمی‌خواند؛ ارسال همچنان از `send_email_state_new()` (فرستنده، `femail`، گزارش تحویل).
+- تست‌ها: تازه `tests/test-renewal-email-template.php` (37: ۷۸ واژه بی پانویس، `ar`/`he_IL`/`fa_IR` راست‌به‌چپ و `en_US`/`de_DE` چپ‌به‌راست، نام سایت خصمانه، متن ساده دقیقاً §۱۱.۲، ایمیل `t0`)، `tests/test-renewal-settings-ui.js` (6)؛ `test-renewal-notice-render.php` (42 با بخش تنظیمات).
+- وضعیت ترجمه: عبارت‌های ایمیل، سوییچ و سطر وضعیت در کلاس؛ ترجمه نمی‌شود.
+- مورد باز: —
+- اقدام بعدی: E.
 
 ### E — آشتی با اعلان منقضی امروز (`t0`) و باگ‌های ۱ و ۲
 فایل‌ها: `noti_expire_efb()` (متن بر پایهٔ علت: `deactive` با `expires_at` → §۱۱.۳؛ `notExists` یا دامنهٔ ناجور → «This activation code doesn't match this site…»؛ پایان مهلت قطعی → همان متن ایمیل قطعی)، `esc_url` و `rel`، ایمیل `t0` یک‌باره.

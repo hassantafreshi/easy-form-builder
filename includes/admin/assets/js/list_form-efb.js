@@ -1465,6 +1465,7 @@ function fun_show_setting__emsFormBuilder() {
                                 ${package_type == 1 ? `<p class="efb text-darkb fs-7 mx-2 ">${efb_var.text.actvtcmsg}</p>` : '' }
                                     <span id="activeCode_emsFormBuilder-message" class="efb text-danger"></span>
                                 </div>
+                                ${efb_renewal_settings_html_efb()}
 
                                 <h5 class="efb  card-title mt-3 mobile-title">
                                     <i class="efb  bi-layers m-3"></i>${efb_var.text.plnMng}
@@ -3625,6 +3626,8 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
     let setting = { ...(valueJson_ws_setting || {}) };
     const patch = {
           activeCode: activeCode,
+          // F21: "Email me before my Pro subscription ends" (shown on Pro only; elsewhere the stored value stays).
+          ...(document.getElementById('renewMail_emsFormBuilder') ? { renewMail: f('renewMail_emsFormBuilder') ? '1' : '0' } : {}),
           siteKey: sitekey,
           secretKey: secretkey,
           emailSupporter: email,
@@ -5607,4 +5610,19 @@ function efb_secret_tools_efb(id, v) {
   if (!v || typeof v !== 'object') return '';
   const t = (k, fb) => (efb_var && efb_var.text && efb_var.text[k]) || fb;
   return `<div class="efb d-flex gap-2 align-items-center flex-wrap mt-1"><small class="efb form-text efb-secret-keep" id="${id}-keep" dir="auto" style="unicode-bidi:plaintext">${t('secretKeep', 'Leave empty to keep the saved key.')}</small><button type="button" class="efb btn btn-sm btn-outline-secondary efb-spam-clear" data-for="${id}" onclick="efb_spam_clear_secret_efb(this)">${t('secretRemove', 'Remove')}</button></div>`;
+}
+
+/* F21: Settings › General on a Pro site: the read-only line "Pro is active until …" / "Renews automatically on …"
+   (only when the licence server told the site; the date is in <bdi>) and the switch for the renewal e-mail. The words
+   and the state come from efb_var.renewal (Renewal_Reminder::localize_vars(); escaped there). */
+function efb_renewal_settings_html_efb() {
+  const r = (typeof efb_var === 'object' && efb_var && efb_var.renewal) ? efb_var.renewal : null;
+  if (!r || !r.show) return '';
+  const on = r.on !== false;
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  return `<div class="efb card-body mx-0 py-1 efb-renewal-settings" id="efbRenewalSettings">
+      ${r.line ? `<p class="efb text-darkb fs-7 mx-2 mb-1" id="efbRenewalLine" style="unicode-bidi:plaintext">${r.line}</p>` : ''}
+      <button type="button" id="renewMail_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb btn-toggle ${on ? 'active' : ''}" data-toggle="button" aria-pressed="${on ? 'true' : 'false'}" autocomplete="off"><div class="efb handle"></div></button>
+      <label class="efb form-check-label fs-6 efb mx-2 my-3" for="renewMail_emsFormBuilder" style="unicode-bidi:plaintext">${esc(r.label)}</label>
+    </div>`;
 }

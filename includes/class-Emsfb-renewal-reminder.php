@@ -408,7 +408,7 @@ class Renewal_Reminder {
 	private static function site_name() {
 		$n = function_exists('get_bloginfo') ? (string) get_bloginfo('name') : '';
 		$n = function_exists('wp_specialchars_decode') ? wp_specialchars_decode($n, ENT_QUOTES) : html_entity_decode($n, ENT_QUOTES, 'UTF-8');
-		return trim(preg_replace('/[\r\n\t]+/', ' ', $n));
+		return trim(preg_replace('/[\x00-\x1f\x7f]+/', ' ', $n));
 	}
 
 	private static function no_breaks($s) {
