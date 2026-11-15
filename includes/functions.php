@@ -10708,9 +10708,10 @@ public function addon_add_efb($value) {
 				'make_post_request_efb: farsi offline mode - local activation-code check ' . ($valid ? 'PASSED' : 'FAILED') . ' for host(s) "' . implode(', ', $this->license_domain_candidates_efb()) . '"',
 				$valid ? 'farsi_local_ok' : ''
 			);
+			// 'local': a verdict made here, not by the licence server (F21 keeps nothing from it).
 			return $valid
-				? (object) ['r' => true, 'state' => 'active', 'pakcage' => 1]
-				: (object) ['r' => false, 'state' => 'notExists'];
+				? (object) ['r' => true, 'state' => 'active', 'pakcage' => 1, 'local' => true]
+				: (object) ['r' => false, 'state' => 'notExists', 'local' => true];
 		}
 
 		// Reachability probe only: a HEAD against the licence server's REST
@@ -10724,7 +10725,7 @@ public function addon_add_efb($value) {
 			// otherwise we report a transport error rather than inventing a
 			// "notExists" verdict that would revoke a valid licence.
 			if ($this->activation_code_matches_domain_efb($ac)) {
-				return (object)['r' => true, 'state' => 'active', 'pakcage' => 1];
+				return (object)['r' => true, 'state' => 'active', 'pakcage' => 1, 'local' => true];
 			}
 			return (object)['transport_error' => true, 'reason' => 'probe_failed'];
 		}
@@ -10741,7 +10742,9 @@ public function addon_add_efb($value) {
 			'template_path' => get_template(),
 			'plugins_cache' => get_option('emsfb_cache_plugins'),
 		);
-		$data = array('key' => $ac ,'info'=>$info);
+		// F21: the plugin understands the `license` field of contract v1 (expiry date, server clock, renew link).
+		// Nothing personal is added; an older server ignores the key.
+		$data = array('key' => $ac ,'info'=>$info, 'caps' => array('license_v1'));
 		 $options = array(
 			'method' => 'POST',
 			'body' => json_encode($data),
@@ -10879,6 +10882,11 @@ public function addon_add_efb($value) {
 		}
 		update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
 		$state = isset($json->state) ? $json->state : '';
+		// F21: the expiry date the server sent with this verdict (or none: an older server, a garbled field → the
+		// stored field is dropped and no reminder is shown). Never changes the verdict itself.
+		if (class_exists('\Emsfb\Renewal_Reminder')) {
+			\Emsfb\Renewal_Reminder::store($json, $code);
+		}
 		if($state=="new") {
 			$activeCode = $json->key;
 			update_option('emsfb_pro_activeCode', $activeCode);
@@ -11271,7 +11279,8 @@ public function addon_add_efb($value) {
 				 * (cron_check_pro_efb) calls update_pro_status_efb() directly and
 				 * still records a lapsed licence. */
 				$previous = array();
-				foreach (array('emsfb_pro', 'emsfb_pro_activeCode', 'emsfb_pro_ac_date') as $option) {
+				// F21: the expiry date the server sent for the refused code must not replace the stored one.
+				foreach (array('emsfb_pro', 'emsfb_pro_activeCode', 'emsfb_pro_ac_date', 'emsfb_license_info', 'emsfb_license_lapse_cause') as $option) {
 					$previous[$option] = get_option($option, null);
 				}
 				$granted = $this->update_pro_status_efb($s);

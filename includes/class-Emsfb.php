@@ -418,6 +418,9 @@ class Emsfb {
         if ($cache_ok) \Emsfb\Cache_Compat::register();
         $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-install.php') && $json_ok && $runtime_ok && $health_ok && $cache_ok;
         $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-email-monitor.php') && $core_ok;
+        // F21: the Pro renewal reminder (the licence server's expiry date, the notice, one e-mail). Optional: every
+        // caller checks class_exists('\Emsfb\Renewal_Reminder').
+        $this->require_plugin_file_efb('includes/class-Emsfb-renewal-reminder.php');
         $core_ok = $this->require_plugin_file_efb('includes/class-Emsfb-addon-compatibility.php') && $core_ok;
 
         // No-ops when class-Emsfb-addon-compatibility.php loaded above; keeps

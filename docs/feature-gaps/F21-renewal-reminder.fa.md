@@ -401,12 +401,12 @@ Easy Form Builder > Settings.
 پذیرش: پاسخ بی `license` → گزینه پاک؛ `expires_at` بد، خارج از بازه، `v` ناشناخته، `renew_url` با میزبان غیرمجاز → نادیده یا نشانی پیش‌فرض؛ هیچ تغییری در `state` و `emsfb_pro`.
 تست‌ها: `php tests/test-renewal-license-parse.php` (۲۰+ بردار: سرور قدیم، مادام‌العمر، تاریخ بد، نشانی خصمانه، `auto_renew`).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: تازه `includes/class-Emsfb-renewal-reminder.php` (`Emsfb\Renewal_Reminder`: `parse_license()` سخت‌گیر — `v` فقط عدد صحیح ۱، `server_time`/`expires_at` فقط ISO-8601 با `Z` یا `+00:00`، بازهٔ `server_time − ۴۰۰ روز … + ۵ سال`، `null` = مادام‌العمر، `auto_renew` فقط بولی، `lapse_effect` فقط دو مقدار؛ هر چیز دیگر ⇒ null یعنی سکوت؛ `safe_renew_url()`: فقط https، میزبان فهرست مجاز با `www.` اختیاری، بی user/pass/پورت، بی کد فعال‌سازی یا نیمهٔ محرمانهٔ آن حتی با دو بار URL-encode؛ `store()`: پاسخ `local` (fa_IR آفلاین، probe ناموفق) و «نه حکم» چیزی را عوض نمی‌کنند، سرور قدیم/فیلد بد/`notExists` ⇒ حذف؛ `fallback_renew_url()` = `…/checkout?renew=site&d=<md5 دامنه>` بی کد؛ `forget()`)؛ `functions.php` (`make_post_request_efb`: `caps: ["license_v1"]` و نشانهٔ `local` روی پاسخ‌های ساختگی؛ `update_pro_status_efb`: `store()` پس از هر حکم، بی تغییر در منطق `state`؛ `is_efb_pro($s)`: `emsfb_license_info` هم در snapshot کد ردشده)؛ `class-Emsfb-admin.php` (حذف کد در تنظیمات و تغییر پلن ⇒ `forget()`)؛ `class-Emsfb.php` (بارگذاری کلاس).
+- تست‌ها: تازه `tests/renewal-test-lib.php` (جایگزین‌های وردپرس، چند سایت، ایمیل‌گیر) و `tests/test-renewal-license-parse.php` (60).
+- وضعیت ترجمه: در A عبارتی نیامد.
+- مورد باز: — (قرارداد سرور: §قرارداد سرور و `docs/licensing/renewal-reminder-contract.en.md`، زیرتسک G).
+- اقدام بعدی: B.
 
 ### B — ریاضی تاریخ، زمان‌بندی و ایمیل یک‌باره
 فایل‌ها: `Renewal_Reminder::state()`/`tick()`، `weekly_check_pro_efb()` (شرط پنجره، سقف ۲۰ ساعت)، `class-email-handler.php` (حالت `renewReminder`، AltBody موقت).

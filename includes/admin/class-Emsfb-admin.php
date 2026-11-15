@@ -1963,6 +1963,8 @@ class Admin {
                         delete_option('emsfb_license_failed_since');
                         delete_option('emsfb_license_fail_reason');
                         delete_option('emsfb_license_suspend_notified');
+                        // F21: no code, no expiry date, no reminder.
+                        if (class_exists('\Emsfb\Renewal_Reminder')) \Emsfb\Renewal_Reminder::forget();
                     }
                     continue;
                 }
@@ -4488,6 +4490,8 @@ function admin_notices_efb () {
             delete_option('emsfb_license_failed_since');
             delete_option('emsfb_license_fail_reason');
             delete_option('emsfb_license_suspend_notified');
+            // F21: no code, no expiry date, no reminder.
+            if (class_exists('\Emsfb\Renewal_Reminder')) \Emsfb\Renewal_Reminder::forget();
         }
 
         /*
