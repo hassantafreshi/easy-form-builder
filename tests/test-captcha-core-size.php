@@ -9,8 +9,8 @@
  *  - the runtime layer (registry, base provider, Google, helpers, captcha-efb.js) — measured: before F12b (F12 at
  *    a47eaa04) class-Emsfb-captcha.php 21,030 + captcha-efb.js 9,622 = 30,652; after: see the output. The spec's
  *    budget was 40,000 bytes; the layer is over it (v2 invisible, v3 → v2, the replay guard, the contract, lazy and
- *    late rendering; every comment already moved to docs/spam/captcha-contract.en.md), so this guard holds the
- *    measured size with 1 % headroom (EFB_CP_LAYER_CAP) and the owner decides (F12b Checkpoint E, open item).
+ *    late rendering, the efb_otp token; every comment already moved to docs/spam/captcha-contract.en.md). The owner
+ *    accepted about 45.5 KB (approved by owner (2026-11-15)) and this cap stays at 46,000 (EFB_CP_LAYER_CAP).
  *    The admin side (Captcha\Admin: settings save, catalogue, D4) is apart and loaded only when used.
  *
  * Run: php tests/test-captcha-core-size.php
