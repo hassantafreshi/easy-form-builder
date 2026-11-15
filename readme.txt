@@ -482,6 +482,16 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = Unreleased =
 
+* New: Accessible errors on every form. A field's error is written under it as text, is tied to the field for screen readers (aria-invalid, aria-describedby) and is read once; on phones it is words again (no more icon-only warning) and sits between the label and the field instead of over the label, right to left too.
+* New: "Check fields when the visitor leaves a field" (Form settings, the default for new forms): no error while someone is still typing, the error when a changed field is left, gone as soon as it is right; Next / Send still check everything. Forms made before keep checking when a value changes.
+* New: A list of problems at the top of the form after Next / Send (new forms), with links that take the keyboard to each field; a field the server refuses brings the visitor back to it with the same list.
+* New: Keyboard and screen-reader focus follows the form: each step is announced ("Step 2 of 4"), the thank-you message gets the focus after sending, and a redirect after sending waits longer with a "Stay on this page" button.
+* New: Browser autofill for every field type (name, e-mail, phone, address, country / state / city lists, amounts), and a "Browser autofill" choice per field. Older forms keep "off" on plain text fields.
+* New: "Warn visitors who leave a half-filled form" (Form settings; on for new forms of several steps).
+* Changed: the mobile field is a phone input (type tel), the required star is no longer read aloud, choice groups are named by their label, and Windows high contrast, "more contrast" and "reduce motion" are respected.
+* Fix: on right-to-left sites labels sit on the right even when their text is English; the repeater group's help text is no longer indented; the form versions dialog shows dates in your calendar and digits; lists in the entries screen (spam reasons, addresses) are joined the language's way.
+* Developers: window.EFBInline (inline validation and the error summary for any page, contract version 1: docs/a11y/inline-validation-contract.en.md) with efb_inline_api() / efb_inline_error(); efb_form_defaults_efb(); efbBuilderApi.setAutocomplete(); the event efb:submit-result.
+
 * New: Pro renewal reminder: seven days before your Pro subscription ends, your own site tells you, with a short notice on the plugin's screens and the WordPress dashboard (administrators only) and one e-mail sent by the site, that says what stays safe and what pauses if it lapses. "Already renewed? Check again" confirms a renewal at once. After the end, one "Pro features are paused" e-mail. It needs the expiry date from the licence server, so it starts when the server sends it; nothing is shown on Persian (fa_IR) sites, on Free and Free Plus, or with automatic renewal. Settings › General shows "Pro is active until …" and the switch "Email me before my Pro subscription ends".
 * Fix: the message shown when Pro is off said "Your activation code has expired!" for every cause; it now says why (the subscription ended, the code was made for another domain, or the licence could not be confirmed for a while).
 * Security: renew links (the notice, the add-on pages, the licence e-mails) no longer contain your activation code.

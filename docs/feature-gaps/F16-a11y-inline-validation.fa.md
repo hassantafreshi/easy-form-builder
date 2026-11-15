@@ -1,10 +1,36 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P1 · تلاش: M · وابستگی: F03 (کدهای خطا و پیام هر قاعده)؛ F01 (کلید `inputmode` و `autocomplete` پیش‌تنظیم‌ها)
+وضعیت: **v1 (A تا G) و P21 پیاده‌سازی و آزموده شد (۲۰۲۶-۱۱-۱۵)**؛ فاز ۲ (H، I، J) ساخته نشد · اولویت: P1 · تلاش: M · وابستگی: F03 (کدهای خطا و پیام هر قاعده)؛ F01 (کلید `inputmode` و `autocomplete` پیش‌تنظیم‌ها)
 
 # F16 — دسترس‌پذیری و اعتبارسنجی لحظه‌ای
 
 تاریخ: ۲۰ آبان ۱۴۰۵ (2026-11-11)، شاخهٔ `dev4`، افزونهٔ 4.3.1. همهٔ ارجاع‌های `file:line` امروز خوانده و بررسی شده‌اند. پیش از ویرایش هر محل، نام تابع را دوباره grep کن.
 
 مراجع: [راهنمای پیاده‌سازی](IMPLEMENTATION-PLAYBOOK.en.md) (§2.3 چهار renderer، §2.4 اعتبارسنجی کلاینت، §4 Recipe C، §8، §9، §10.7 wpautop)، [امکانات فعلی](reference/current-capabilities.en.md)، [ماتریس رقبا](reference/competitor-matrix.en.md) (§6 ردیف «Accessibility checker»، §10 بندهای ۸، ۹ و ۱۱)، [F01](F01-input-masks.fa.md) و [F03](F03-text-validation.fa.md).
+
+---
+
+## وضعیت پیاده‌سازی (۲۰۲۶-۱۱-۱۵)
+
+کامیت‌ها روی `dev4` (هسته): `4ef422b7` (A تا G)، `d99cfeb5` (P21)، `c3fb6701` (اشکال‌های همراه)، `b69c2bc8` (AutoPilot)، `239cc8e4` (فهرست عبارت‌ها)، `4ab7239d` و `22e17abd` (e2e و axe-core)؛ افزونه‌ها: `e8001be`.
+
+**تغییر نقشه پس از SPLIT، F12b و F21** (این سند پیش از آن‌ها نوشته شد):
+- اعداد و محاسبه (`AdnCLC`)، امضای تایپی (`AdnTSG`)، قالب‌های پستی و نقشه (`AdnADR`)، رزرو (`AdnBEF`) و کپچاها (`AdnCTS`، `AdnHCP`، `AdnALT`، `AdnQCP`، `AdnFRC`) اکنون افزونه‌اند. رفتار مشترک در هسته ماند و به‌صورت یک **قرارداد** درآمد: `window.EFBInline` (نسخهٔ ۱، `public/assets/js/inline-efb.js`، سند `docs/a11y/inline-validation-contract.en.md`) و کمک‌کننده‌های هسته (`efb_set_field_error_efb` و دیگران). افزونه‌ها از آن استفاده می‌کنند (محاسبه، امضای تایپی، نقشه، منطق شرطی، وضعیت پرداخت‌های قدیمی)؛ هیچ امکانی به هسته برنگشت. کپچاها و درگاه‌های PAY00 از پیش با live region هسته کار می‌کردند.
+- کمک‌کننده‌ها به‌جای `new-efb.js` (۱۰۶ کیلوبایت، مخصوص سازنده) در ماژول کوچک جدای `inline-efb.js` هستند، تا پرتال (F20، P21) بدون آن بارگذاری‌اش کند.
+- درون‌ریز CF7 (`Mapper`) دیگر در هسته نیست (افزونهٔ Data Tools)؛ نگاشت `autocomplete:` و `efb_form_defaults_efb()` آنجا مانده است.
+- `aria-describedby` در رندر PHP همان می‌ماند؛ `_-message` هنگام نمایش خطا (اول فهرست) افزوده و هنگام پاک شدن برداشته می‌شود (پذیرش A برآورده است و آزمون‌های بایت‌به‌بایت قدیمی نمی‌شکنند). `aria-label` برابر برچسب ماند (گروه تکرارشونده و برچسب‌های هوشمند آن را عوض می‌کنند)؛ فقط برچسب خالی دیگر `aria-label=""` نمی‌سازد.
+- عنصر پیام `role="alert"` ندارد و جملهٔ «{برچسب}: {پیام}» یک بار در live region فرم گفته می‌شود؛ پیام‌هایی که F03، F05، F06، F07 و F09 از پیش با `role="alert"` می‌نوشتند همان می‌مانند و دوباره اعلام نمی‌شوند.
+- textarea در حالت خودکار صفت `autocomplete` نمی‌گیرد (جدول §۵.۱ `off` گفته بود): مرورگرها textarea را پر نمی‌کنند و markup فرم‌های قدیمی بایت‌به‌بایت می‌ماند. مدیر هنوز می‌تواند `street-address` بگذارد.
+- خطای سرور با `field_id`: با `err_summary=1` بازدیدکننده به مرحلهٔ فیلد برمی‌گردد (§۴.۴)؛ فرم بدون کلید صفحهٔ پایان قبلی را نشان می‌دهد ولی فیلد علامت می‌خورد و Previous به آن می‌برد (رفتار فرم‌های قدیمی عوض نشد).
+
+**پرسش‌های باز §۱۸ — همه طبق پیشنهاد سند** (approved by owner (2026-11-14, default to recommendations)):
+1. `warn_unsaved` فرم تازه: ۱ برای چندمرحله‌ای و ۰ برای تک‌مرحله‌ای (`efb_form_defaults_efb($steps)`، `efbA11yDefaults()`) — approved by owner (2026-11-14, default to recommendations).
+2. `<a role="button">` به `<button>` تبدیل نشد (نسخهٔ major با یادداشت مهاجرت)؛ به‌جایش `aria-disabled` همیشه با ظاهر `disabled` هماهنگ است — approved by owner (2026-11-14, default to recommendations).
+3. `axe-core` 4.14.0 به‌عنوان devDependency (کنار Playwright در `node_modules` مخزن، بدون CDN) — approved by owner (2026-11-14, default to recommendations).
+4. فرم‌های قدیمی خودکار `blur` نمی‌شوند؛ فقط با تصمیم مدیر (A12 بررسی‌کننده در فاز ۲) — approved by owner (2026-11-14, default to recommendations).
+5. حالت آیکون‌تنها حذف شد؛ پیام همیشه متن است — approved by owner (2026-11-14, default to recommendations).
+
+**فاز ۲ (§۰ بند ۷، اختیاری)**: H (برچسب شناور)، I (بررسی‌کنندهٔ سازنده) و J (کلید تضاد بالای پیشخوان) ساخته نشدند. از J فقط بخش CSS عمومی آمد: `forced-colors: active`، `prefers-contrast: more` و `prefers-reduced-motion` در `style-efb.css`.
+
+**اندازه**: `inline-efb.js` حدود ۲۰ کیلوبایت (خام)، `core-efb.js` از ۳۰۶٬۱۲۳ به حدود ۳۱۷ هزار بایت؛ بودجهٔ آزمون اندازهٔ SPLIT عمداً بالا رفت (دلیل در `tests/test-split-core-size.php`).
 
 ---
 
@@ -251,84 +277,84 @@ F16 قاعدهٔ اعتبارسنجی تازه‌ای اضافه نمی‌کند
 - پذیرش: هر خطا `aria-invalid="true"` می‌گذارد و `_-message` را در `aria-describedby` دارد. پاک شدن خطا هر دو را برمی‌دارد و `-des` را حفظ می‌کند. در عرض ۳۲۰ پیکسل متن خطا دیده می‌شود. هیچ `innerHTML` با متن مدیر یا سرور باقی نمی‌ماند (grep در تست). دو فرم در یک صفحه live region جدا دارند.
 - تست‌ها: `node tests/test-a11y-field-errors.js` (اجرای `core-efb.js` و `new-efb.js` در `vm` با DOM جعلی، الگوی `tests/test-core-multiform-validation-scope.js`)، و `php tests/test-a11y-render.php` (الگوی `tests/test-password-placeholder-render.php`). تست‌های موجود `node tests/test-core-multiform-validation-scope.js`، `node tests/test-final-step-loading-reset.js` و `node tests/test-submit-failure-causes.js` باید پاس بمانند.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (۲۰۲۶-۱۱-۱۵)**
+- فایل‌های تغییرکرده: `public/assets/js/inline-efb.js` (تازه)، `core-efb.js` (`show_msg_efb`/`hide_msg_efb` با ARIA، `efb_set_field_error_efb`، `efb_clear_field_error_efb`، `efb_announce_efb`، `efb_field_target_efb`، حذف شاخه‌های آیکون‌تنها، `textContent`)، `new-efb.js` (`role="alert"` در toast)، `class-Emsfb-formbuilder.php` و `admin-efb.js` (tooltip بی « ! »)، `class-Emsfb-public.php` (live region و جعبهٔ خلاصه، enqueue)، `style-efb.css`.
+- تست‌ها: `node tests/test-a11y-field-errors.js` — ۲۳ پاس؛ `test-core-multiform-validation-scope.js` ۲۷، `test-final-step-loading-reset.js` ۱۷، `test-submit-failure-causes.js` پاس.
+- وضعیت ترجمه: عبارت‌ها افزوده و فهرست/pot تازه شد؛ ترجمه نشد (دستور مالک).
+- مورد باز: پیش‌نمایش سازنده (نسخهٔ `includes/admin/assets/js/core-efb.js`) هنوز کمک‌کننده‌ها را صدا نمی‌زند.
+- اقدام بعدی: —
 
 ### B. زمان‌بندی Baymard (`val_timing`)
 - فایل‌ها: `val-efb.js` و `admin-efb.js` (کنترل فرم)، `creator_form_builder_Efb`، قالب‌ها و CF7 `form_settings` (پیش‌فرض فرم تازه)، `core-efb.js` (ماشین حالت و `opts.silent`).
 - پذیرش: Tab بدون تایپ خطای required نشان نمی‌دهد. تایپ ایمیل ناقص و blur خطا نشان می‌دهد. اصلاح، خطا را بدون blur برمی‌دارد. Next همهٔ موارد را نشان می‌دهد. فرم بدون کلید دقیقاً مثل امروز رفتار می‌کند (تست رگرسیون).
 - تست‌ها: `node tests/test-a11y-timing.js` (ماشین حالت با رویدادهای جعلی) و Playwright `tests/test-a11y-browser.js` (سناریوی timing).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (۲۰۲۶-۱۱-۱۵)**
+- فایل‌های تغییرکرده: `a11y-builder-efb.js` (تازه: `efbA11yFormEls`، `efbA11yDefaults`)، `val-efb.js` (formSet و پیش‌فرض فرم تازه)، `admin-efb.js` (قالب‌ها)، `core-efb.js` (`efb_vt_bind_efb`، `efb_vt_after_efb`، `efbQuiet`)، `functions.php` (sanitizer)، `class-Emsfb-a11y.php`.
+- تست‌ها: `node tests/test-a11y-timing.js` — ۱۶ پاس (فرم بی کلید هم).
+- وضعیت ترجمه: افزوده، ترجمه نشد.
+- مورد باز: —
+- اقدام بعدی: —
 
 ### C. خلاصهٔ خطا و خطای سرور
 - فایل‌ها: `core-efb.js` (`fun_validation_efb_v4` 4343-4580، `invalidFilled` 3225-3252، پاسخ 1831-1878)، ظرف خلاصه در PHP و JS، CSS، و `err_summary` در سازنده.
 - پذیرش: با سه خطا، سه لینک ساخته می‌شود و فوکوس روی خلاصه است. لینک radio را فوکوس می‌کند. خطای سرور با `field_id` به مرحلهٔ درست می‌رود، فیلد را علامت می‌زند و خلاصه می‌سازد. با `err_summary=0` toast نقش `alert` دارد و فوکوس روی اولین فیلد می‌رود.
 - تست‌ها: `node tests/test-a11y-summary.js` و Playwright (صفحه‌کلید تنها: Tab، Enter روی لینک).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (۲۰۲۶-۱۱-۱۵)**
+- فایل‌های تغییرکرده: `core-efb.js` (`efb_step_errors_efb`، `efb_invalid_step_efb`، `efb_server_field_efb`، رویداد `efb:submit-result`)، `inline-efb.js` (`summary`، `applyServer`)، PHP جعبهٔ خلاصه، CSS.
+- تست‌ها: `node tests/test-a11y-summary.js` — ۱۸ پاس؛ e2e `f16-b`، `f16-d`.
+- وضعیت ترجمه: افزوده، ترجمه نشد.
+- مورد باز: —
+- اقدام بعدی: —
 
 ### D. مدیریت فوکوس و legend مرحله
 - فایل‌ها: `class-Emsfb-public.php:1555`، 1560 (legend و `tabindex`)، JS پیش‌نمایش، `core-efb.js` (`efb_focus_step_efb`، 3310-3413، صفحهٔ پایان 1885-1912، ریدایرکت 1886-1890).
 - پذیرش: پس از Next، `document.activeElement` همان fieldset جدید است و legend آن «Step 2 of 4: …» است. فوکوس هیچ‌وقت به `body` نمی‌افتد. پس از ارسال، عنوان پایان فوکوس دارد. ریدایرکت دکمهٔ «Stay on this page» دارد. wpautop هیچ `<p>` تازه‌ای نمی‌سازد.
 - تست‌ها: Playwright `tests/test-a11y-browser.js` (سناریوی steps)، `php tests/test-shortcode-content-filters.php` و `node tests/layout-regression.js`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (۲۰۲۶-۱۱-۱۵)**
+- فایل‌های تغییرکرده: `class-Emsfb-public.php` (legend و `tabindex`)، `class-Emsfb-a11y.php` (`step_legend`)، `core-efb.js` (`efb_focus_step_efb`، `efb_focus_final_efb`، دکمهٔ «Stay on this page»، فیلد پنهان‌شده)، افزونهٔ منطق (`jump_to_step`).
+- تست‌ها: `node tests/test-a11y-browser.js` — ۱۴ پاس؛ `test-section-render.php`، `test-shortcode-content-filters.php` (نیاز به وردپرس؛ در e2e)؛ e2e `f16-b`.
+- وضعیت ترجمه: افزوده، ترجمه نشد.
+- مورد باز: —
+- اقدام بعدی: —
 
 ### E. اصلاح markup (ردیف‌های ۹ و ۱۴ تا ۲۳)
 - فایل‌ها: `formbuilder.php` (48، 71، 234، 1306-1307، 2380-2402، 2472، 2621-2628، 2790-2810)، `admin-efb.js` (`addNewElement`)، `pro_els-efb.js:717-718`، `val-efb.js` (`aria-pressed` اولیه)، و `core-efb.js:3362` (`aria-disabled`).
 - پذیرش: هر گروه گزینه `role` و `aria-labelledby` دارد. ستاره `aria-hidden` است. `mobile` از `type="tel"` استفاده می‌کند و intl-tel-input همچنان کار می‌کند (تست موجود mobile و `class-Emsfb-public.php:2861`). toggle فعال سازنده `aria-pressed="true"` دارد.
 - تست‌ها: `php tests/test-a11y-render.php`، `node tests/test-cf7-importer-browser.js` (موجود)، و Playwright.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (۲۰۲۶-۱۱-۱۵)**
+- فایل‌های تغییرکرده: `formbuilder.php` (ستاره، گروه‌ها، موبایل tel، textarea، `aria_label_efb`، حذف `generateSwitchInput_efb`)، `admin-efb.js`، `pro_els-efb.js`، `val-efb.js` (`aria-pressed`)، `core-efb.js` و `new-efb.js` (موبایل tel، `aria-disabled`).
+- تست‌ها: `php tests/test-a11y-render.php` — ۴۱ پاس؛ آزمون‌های بایت‌به‌بایت F04، F08، F10 و SPLIT با `tests/f16-markup.php`.
+- وضعیت ترجمه: —
+- مورد باز: تبدیل دکمه‌ها به `<button>` (پرسش ۲).
+- اقدام بعدی: —
 
 ### F. نگاشت `autocomplete` و پیش‌فرض `inputmode`
 - فایل‌ها: `formbuilder.php` (`generateAutocomplete_efb` و selectهای نشانی)، `admin-efb.js:6878`، `val-efb.js` (`autocompleteEls`)، `functions.php` (`case 'autocomplete'`)، `includes/data/autocomplete-labels-efb.php`، CF7 mapper، و `inputmode` پیش‌فرض جدول §۵.۱ در `generateMaskAttributes_efb` F01.
 - پذیرش: خروجی هر ردیف جدول §۵.۱ در تست render پوشش داده می‌شود. توکن ناشناخته (`"evil onfocus"`) در save به `""` تبدیل می‌شود. فرم قدیمی `text` همچنان `off` دارد. پرکردن خودکار Chrome در Playwright نام، ایمیل و نشانی را درست پر می‌کند (سناریوی دستی با پروفایل).
 - تست‌ها: `php tests/test-a11y-render.php` (بخش autocomplete) و `php tests/test-a11y-save-roundtrip.php`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (۲۰۲۶-۱۱-۱۵)**
+- فایل‌های تغییرکرده: `class-Emsfb-a11y.php` (`autocomplete_for`، `token`)، `includes/data/autocomplete-labels-efb.php`، `formbuilder.php` (متن، textarea، کشور/استان/شهر)، `a11y-builder-efb.js` (`efbA11yAutocompleteEls`)، `builder-api-efb.js` (`setAutocomplete`)، `functions.php` (sanitizer).
+- تست‌ها: `php tests/test-a11y-render.php` (بخش F و دوقلوی JS)، `php tests/test-a11y-save-roundtrip.php` — ۱۸ پاس؛ e2e `f16-a`، `f16-b`. پر کردن خودکار با پروفایل Chrome دستی بررسی نشد (headless پروفایل ندارد)؛ توکن‌ها در صفحه و schema بررسی شدند.
+- وضعیت ترجمه: افزوده، ترجمه نشد.
+- مورد باز: نگاشت CF7 (Data Tools).
+- اقدام بعدی: —
 
 ### G. هشدار ترک صفحه
 - فایل‌ها: `val-efb.js` و `admin-efb.js` (`warnUnsavedEl`)، و `core-efb.js` (handler و `efb_dirty_forms_efb`).
 - پذیرش: تایپ و ترک صفحه هشدار می‌دهد. بارگذاری و ترک بدون تایپ هشدار نمی‌دهد. پس از ارسال موفق یا ریدایرکت هشدار نمی‌دهد. با `AfLnFrm` و افزونهٔ فعال هشدار نمی‌دهد. پیش‌نمایش سازنده هشدار نمی‌دهد.
 - تست‌ها: Playwright (`page.on('dialog')` با `beforeunload`) و `node tests/test-a11y-unsaved.js`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (۲۰۲۶-۱۱-۱۵)**
+- فایل‌های تغییرکرده: `inline-efb.js` (`watch`، `clean`)، `core-efb.js` (`efb_unsaved_off_efb`، پاک شدن پس از ارسال)، `a11y-builder-efb.js` (`warnUnsavedEl`).
+- تست‌ها: `node tests/test-a11y-unsaved.js` — ۱۰ پاس؛ e2e `f16-g`.
+- وضعیت ترجمه: افزوده، ترجمه نشد.
+- مورد باز: —
+- اقدام بعدی: —
 
 ## ۱۷. گسترش‌های فاز ۲ مرتبط
 
@@ -338,12 +364,8 @@ F16 قاعدهٔ اعتبارسنجی تازه‌ای اضافه نمی‌کند
 - دسترس‌پذیری: برچسب همان `<label for>` واقعی می‌ماند. placeholder اصلی مدیر به توضیح (`-des`) منتقل می‌شود، چون در حالت شناور تا فوکوس دیده نمی‌شود.
 - فایل‌ها: `generateTextInput_efb`، `get_position_col_el` (`formbuilder.php:247`، شرط `label_position` در 324)، `addNewElement`، `labelPostionEls` در `val-efb.js` و CSS. رشته: `a11yLabelFloat` «Inside the field (floating)».
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (۲۰۲۶-۱۱-۱۵)**
+- ساخته نشد (فاز ۲، اختیاری).
 
 ### I. بررسی‌کنندهٔ دسترس‌پذیری در سازنده (GF 3.0، Jotform، Typeform)
 - دکمهٔ «Check accessibility» در نوار سازنده، و اجرای خودکار پیش از save (غیرمسدودکننده: تعداد هشدارها روی دکمهٔ save). تابع خالص `efb_a11y_audit_efb(valj_efb) → [{rule, severity, field_id, message}]` در فایل تازهٔ `includes/admin/assets/js/a11y-check-efb.js` (قابل اجرا در Node برای تست).
@@ -363,24 +385,17 @@ F16 قاعدهٔ اعتبارسنجی تازه‌ای اضافه نمی‌کند
 - هر مورد لینکی دارد که پنل تنظیمات همان فیلد را باز می‌کند (`show_setting_window_efb`). چیزی ذخیره نمی‌شود.
 - تست: `node tests/test-a11y-audit.js` با fixture فرم‌ها (`tests/fixtures/`). رشته‌ها: `a11yCheck` «Check accessibility» و یک کلید برای هر قاعده (`a11yA1`…`a11yA12`).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (۲۰۲۶-۱۱-۱۵)**
+- ساخته نشد (فاز ۲، اختیاری).
 
 ### J. حالت تضاد بالا در پیشخوان (Forminator)
 - toggle در نوار سازنده و صفحهٔ تنظیمات. user meta `efb_admin_hc` با AJAX §۸. فیلتر `admin_body_class` کلاس `efb-hc` را اضافه می‌کند و `includes/admin/assets/css/admin-hc-efb.css` فقط در صورت روشن بودن enqueue می‌شود (`class-Emsfb-create.php:287` و `class-Emsfb-panel.php`).
 - محتوا: تضاد متن ≥ ۷:۱، حاشیهٔ همهٔ کنترل‌ها، حلقهٔ فوکوس ۳ پیکسلی، toggleها با متن روشن یا خاموش علاوه بر رنگ، و حذف سایه‌های کم‌تضاد. صرف‌نظر از toggle، `@media (prefers-contrast: more)` و `(forced-colors: active)` در CSS پیشخوان و صفحهٔ عمومی پشتیبانی می‌شوند.
 - تست: Playwright اسکرین‌شات سازنده با `efb-hc` و بررسی تضاد چند عنصر کلیدی با `getComputedStyle`. رشته: `a11yHighContrast` «High contrast».
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (۲۰۲۶-۱۱-۱۵)**
+- ساخته نشد (فاز ۲، اختیاری).
+- از J فقط CSS عمومی `forced-colors` / `prefers-contrast` / `prefers-reduced-motion` آمد.
 
 ## ۱۸. پرسش‌های باز
 
