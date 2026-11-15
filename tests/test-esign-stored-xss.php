@@ -144,27 +144,31 @@ if (!function_exists('sanitize_text_field')) {
 }
 if (!defined('ABSPATH')) define('ABSPATH', __DIR__ . '/');
 require_once __DIR__ . '/../includes/class-Emsfb-layout.php';
+// SPLIT §7: the typed signature's row rule (sig_attrs) is the Typed Signature add-on's (vendor/typed-signature).
+require_once (getenv('EFB_TYPED_SIGNATURE_DIR') ?: __DIR__ . '/../vendor/typed-signature') . '/class-Emsfb-typed-signature.php';
 $png = $legit_signature;
 $row = function ($extra) use ($png) { return array_merge(array('id_' => 's1', 'name' => 'Sign', 'type' => 'esign', 'value' => $png), $extra); };
 $both = array('id_' => 's1', 'type' => 'esign', 'esign_mode' => 'both');
 $draw = array('id_' => 's1', 'type' => 'esign');
-$x = \Emsfb\Layout::sig_attrs($row(array('sig_mode' => 'type', 'sig_text' => '<img src=x onerror=alert(1)>Jane "Q" Doe', 'sig_font' => '"><script>')), $both);
+$x = \Emsfb\Typed_Signature_Efb::sig_attrs($row(array('sig_mode' => 'type', 'sig_text' => '<img src=x onerror=alert(1)>Jane "Q" Doe', 'sig_font' => '"><script>')), $both);
 t_xss('F10-E hostile sig_text: tags gone, the name kept as text', ($x['sig_text'] ?? null) === 'Jane "Q" Doe' && ($x['sig_mode'] ?? null) === 'type');
 t_xss('F10-E sig_font is the server\'s (never the browser\'s): latin for a Latin name', ($x['sig_font'] ?? null) === 'latin');
-$x = \Emsfb\Layout::sig_attrs($row(array('sig_mode' => 'type', 'sig_text' => 'محمد رضایی')), $both);
+$x = \Emsfb\Typed_Signature_Efb::sig_attrs($row(array('sig_mode' => 'type', 'sig_text' => 'محمد رضایی')), $both);
 t_xss('F10-E a Persian name: kept, font arabic (auto)', ($x['sig_text'] ?? null) === 'محمد رضایی' && ($x['sig_font'] ?? null) === 'arabic');
-$x = \Emsfb\Layout::sig_attrs($row(array('sig_mode' => 'type', 'sig_text' => 'عبدالله ۱۲۳')), array('type' => 'esign', 'esign_mode' => 'type', 'esign_font' => 'latin'));
+$x = \Emsfb\Typed_Signature_Efb::sig_attrs($row(array('sig_mode' => 'type', 'sig_text' => 'عبدالله ۱۲۳')), array('type' => 'esign', 'esign_mode' => 'type', 'esign_font' => 'latin'));
 t_xss('F10-E the field\'s font wins over the script; digits kept as typed', ($x['sig_font'] ?? null) === 'latin' && ($x['sig_text'] ?? null) === 'عبدالله ۱۲۳');
-$x = \Emsfb\Layout::sig_attrs($row(array('sig_mode' => 'type', 'sig_text' => str_repeat('ب', 80))), $both);
+$x = \Emsfb\Typed_Signature_Efb::sig_attrs($row(array('sig_mode' => 'type', 'sig_text' => str_repeat('ب', 80))), $both);
 t_xss('F10-E the name is cut at 60 characters', mb_strlen($x['sig_text'] ?? '', 'UTF-8') === 60);
-$x = \Emsfb\Layout::sig_attrs($row(array('sig_mode' => 'type', 'sig_text' => 'Jane Doe', 'sig_font' => 'latin')), $draw);
+$x = \Emsfb\Typed_Signature_Efb::sig_attrs($row(array('sig_mode' => 'type', 'sig_text' => 'Jane Doe', 'sig_font' => 'latin')), $draw);
 t_xss('F10-E a forged "type" on a draw-only field (an old form): no sig key is kept', !isset($x['sig_mode']) && !isset($x['sig_text']) && !isset($x['sig_font']) && $x['value'] === $png);
-$x = \Emsfb\Layout::sig_attrs($row(array('sig_mode' => 'type', 'sig_text' => array('x'))), $both);
+$x = \Emsfb\Typed_Signature_Efb::sig_attrs($row(array('sig_mode' => 'type', 'sig_text' => array('x'))), $both);
 t_xss('F10-E an array name or an empty one: a drawn signature (no key)', !isset($x['sig_mode']) && !isset($x['sig_text']));
-$x = \Emsfb\Layout::sig_attrs($row(array('sig_mode' => 'draw', 'sig_text' => 'ignored')), $both);
+$x = \Emsfb\Typed_Signature_Efb::sig_attrs($row(array('sig_mode' => 'draw', 'sig_text' => 'ignored')), $both);
 t_xss('F10-E a drawn signature carries no sig key', !isset($x['sig_mode']) && !isset($x['sig_text']));
 $esign_slice2 = $esign_start !== false ? substr($public_src, $esign_start, 2600) : '';
-t_xss('F10-E the esign branch and the payment merge apply sig_attrs()', strpos($esign_slice2, 'Layout::sig_attrs($item, $f)') !== false && strpos($merge_slice, 'Layout::sig_attrs($clean, $field)') !== false);
+// SPLIT §7: both go through esign_row_efb() (efb_esign_row: the add-on's sig_attrs(), or the typed keys removed).
+t_xss('F10-E the esign branch and the payment merge apply the row rule (esign_row_efb → sig_attrs())', strpos($esign_slice2, '$this->esign_row_efb($item, $f)') !== false && strpos($merge_slice, '$this->esign_row_efb($clean, $field)') !== false
+	&& strpos($public_src, "apply_filters('efb_esign_row', null, \$item, \$field)") !== false && strpos($public_src, "unset(\$item['sig_mode'], \$item['sig_text'], \$item['sig_font']);") !== false);
 t_xss('F10-E the e-mail prints the typed name through esc_html', (bool) preg_match('/sig_text_of\(\$c\).{0,400}esc_html\(/s', $public_src));
 t_xss('F10-E the viewer prints the name from the escaped tree (c.sig_text), never innerHTML of raw data', strpos($viewer_src, "c.sig_mode === 'type' && typeof c.sig_text === 'string'") !== false && strpos($viewer_src, 'content = escResponseTreeEfb(content);') !== false);
 

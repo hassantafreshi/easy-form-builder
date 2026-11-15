@@ -11,7 +11,13 @@ $in = json_decode(stream_get_contents(STDIN), true);
 $GLOBALS['efb_plan'] = isset($in['plan']) ? $in['plan'] : 'pro';
 $GLOBALS['efb_locale'] = isset($in['locale']) ? $in['locale'] : 'en_US';
 $GLOBALS['efb_test_rtl'] = !empty($in['rtl']);
-function apply_filters($h, $v) { return $h === 'efb_f03_plan' ? 'free' : $v; }
+function apply_filters($h, $v) {
+	if ($h === 'efb_f03_plan') return 'free';
+	// SPLIT §7: the Typed Signature add-on's parts of an e-signature (the page as a site with AdnTSG shows it; "no_tsg" in
+	// the input: a site without it).
+	if ($h === 'efb_esign_parts' && empty($GLOBALS['efb_no_tsg']) && class_exists('\\Emsfb\\Typed_Signature_Efb')) { $a = func_get_args(); return \Emsfb\Typed_Signature_Efb::parts($v, $a[2], isset($a[3]) ? $a[3] : array()); }
+	return $v;
+}
 function efb_plan_at_least_efb($need) { $r = array('free' => 0, 'free_plus' => 1, 'pro' => 2); return $r[$GLOBALS['efb_plan']] >= $r[$need]; }
 function get_locale() { return $GLOBALS['efb_locale']; }
 function determine_locale() { return $GLOBALS['efb_locale']; }
@@ -31,6 +37,9 @@ require_once (getenv('EFB_CALC_DIR') ?: __DIR__ . '/../vendor/calc') . '/class-E
 require_once __DIR__ . '/../includes/class-Emsfb-form-gate.php';
 require_once __DIR__ . '/../includes/class-Emsfb-repeater.php';
 if (is_readable(__DIR__ . '/../includes/class-Emsfb-layout.php')) require_once __DIR__ . '/../includes/class-Emsfb-layout.php';
+$GLOBALS['efb_no_tsg'] = !empty($in['no_tsg']);
+$efb_tsg_dir = getenv('EFB_TYPED_SIGNATURE_DIR') ?: __DIR__ . '/../vendor/typed-signature';
+if (is_readable($efb_tsg_dir . '/class-Emsfb-typed-signature.php')) require_once $efb_tsg_dir . '/class-Emsfb-typed-signature.php';
 $texts = array_merge(array('nothingSelected' => 'Nothing selected', 'tfnapca' => 'Not available', 'thisFeatureAvailableFreePlusPro' => 'Free Plus', 'updateUrbrowser' => 'Update your browser',
 	'next' => 'Next', 'previous' => 'Previous', 'send' => 'Send', 'finish' => 'Finish'), isset($in['texts']) ? $in['texts'] : array());
 $out = array();

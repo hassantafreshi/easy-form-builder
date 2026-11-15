@@ -1,6 +1,6 @@
 /**
  * F10-E: the typed signature in Chromium, on the PHP renderer's markup (tests/layout-page-lib.php) with core-efb.js,
- * pro_els-efb.js (the canvas) and layout-efb.js (EFBSign), the bundled fonts served from public/assets/fonts.
+ * pro_els-efb.js (the canvas) and layout-efb.js and the Typed Signature add-on (AdnTSG, SPLIT §7: EFBSign, the bundled fonts from its assets/fonts).
  *
  *  - esign_mode "type": the keyboard alone signs: Tab to the name box, type "Jane Doe" → the canvas holds ink drawn
  *    with the Latin font (document.fonts reports it loaded), centred, inside the canvas; the answer row is the PNG
@@ -24,6 +24,7 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
+const TSG = process.env.EFB_TYPED_SIGNATURE_DIR || path.join(ROOT, 'vendor', 'typed-signature'); // SPLIT §7: the Typed Signature add-on
 let pass = 0, fail = 0;
 const check = (label, ok, detail) => {
   if (ok) { pass++; console.log('[PASS] ' + label); } else { fail++; console.log('[FAIL] ' + label + (detail !== undefined ? ' ' + JSON.stringify(detail).slice(0, 900) : '')); }
@@ -61,14 +62,15 @@ async function open(browser, fid, opts) {
   await page.route('**/*', (r) => {
     const u = r.request().url();
     const m = /\/fonts\/([a-z0-9-]+\.woff2)$/.exec(u);
-    if (m) return r.fulfill({ status: 200, contentType: 'font/woff2', body: fs.readFileSync(path.join(ROOT, 'public/assets/fonts', m[1])) });
+    if (m) return r.fulfill({ status: 200, contentType: 'font/woff2', body: fs.readFileSync(path.join(TSG, 'assets/fonts', m[1])) });
     if (/\/assets\/css\/layout-efb\.css$/.test(u)) return r.fulfill({ status: 200, contentType: 'text/css', body: fs.readFileSync(path.join(ROOT, 'public/assets/css/layout-efb.css')) });
-    return r.fulfill({ status: 200, contentType: 'text/html', body: `<!doctype html><html lang="${opts.rtl ? 'fa' : 'en'}"${opts.rtl ? ' dir="rtl"' : ''}><head><meta charset="utf-8"><link rel="stylesheet" href="http://site.test/wp-content/plugins/efb/public/assets/css/layout-efb.css"></head><body style="margin:0 16px">${html}</body></html>` });
+    if (/\/assets\/css\/typed-signature-efb\.css$/.test(u)) return r.fulfill({ status: 200, contentType: 'text/css', body: fs.readFileSync(path.join(TSG, 'assets/css/typed-signature-efb.css')) });
+    return r.fulfill({ status: 200, contentType: 'text/html', body: `<!doctype html><html lang="${opts.rtl ? 'fa' : 'en'}"${opts.rtl ? ' dir="rtl"' : ''}><head><meta charset="utf-8"><link rel="stylesheet" href="http://site.test/wp-content/plugins/efb/public/assets/css/layout-efb.css"><link rel="stylesheet" href="http://site.test/wp-content/plugins/efb/vendor/typed-signature/assets/css/typed-signature-efb.css"></head><body style="margin:0 16px">${html}</body></html>` });
   });
   await page.goto('http://site.test/f/');
   const lang = opts.rtl ? 'fa_IR' : 'en_US';
   await page.addScriptTag({ content: `var efb_var = { text: ${JSON.stringify(TEXT)}, rtl: ${opts.rtl ? 1 : 0}, id: ${fid}, wp_lan: '${lang}', language: '${lang}' }; var ajax_object_efm = { text: ${JSON.stringify(TEXT)}, form_setting: {}, ajax_value_forms: [], wp_lan: '${lang}', language: '${lang}', page_id: 1 };` });
-  for (const js of ['includes/admin/assets/js/jquery.min-efb.js', 'includes/admin/assets/js/new-efb.js', 'public/assets/js/repeater-efb.js', 'public/assets/js/layout-efb.js', 'public/assets/js/core-efb.js', 'includes/admin/assets/js/pro_els-efb.js']) await page.addScriptTag({ path: path.join(ROOT, js) });
+  for (const js of ['includes/admin/assets/js/jquery.min-efb.js', 'includes/admin/assets/js/new-efb.js', 'public/assets/js/repeater-efb.js', 'public/assets/js/layout-efb.js', path.join(TSG, 'assets/js/typed-signature-efb.js'), 'public/assets/js/core-efb.js', 'includes/admin/assets/js/pro_els-efb.js']) await page.addScriptTag({ path: path.isAbsolute(js) ? js : path.join(ROOT, js) });
   await page.evaluate(([id, rows]) => {
     valj_efb_new = [{ id, type: rows[0].type, sid: 'sid1', form_structer: rows }];
     createStepsOfPublic();

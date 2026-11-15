@@ -2575,6 +2575,9 @@ public function check_nonce_permission_efb($request) {
 			wp_enqueue_style('efb-layout-css', EMSFB_PLUGIN_URL . 'public/assets/css/layout-efb.css', array(), $asset_version('public/assets/css/layout-efb.css'));
 			$core_deps[] = 'efb-layout-js';
 		}
+		// SPLIT: a SPLIT add-on (Typed Signature, Address & Postal, Visitor Country, …) enqueues what this form needs and
+		// returns the handles core's script must load after (efb_public_enqueue).
+		$core_deps = (array) apply_filters('efb_public_enqueue', $core_deps, $form_structure_json, $asset_version);
 		// F10-C: the visitor's rich text editor, only on a form with a rich textarea.
 		if (class_exists('\\Emsfb\\Layout') && \Emsfb\Layout::json_has_rich($form_structure_json)) {
 			wp_register_script('efb-rich-text-js', EMSFB_PLUGIN_URL . 'public/assets/js/rich-text-efb.js', array(), $asset_version('public/assets/js/rich-text-efb.js'), true);
@@ -7642,6 +7645,18 @@ public function check_nonce_permission_efb($request) {
 		return '';
 	}
 
+	/**
+	 * SPLIT §7: a signature row's typed-signature keys (sig_mode "type", sig_text, sig_font) are kept only by the Typed
+	 * Signature add-on (efb_esign_row) on a field that allows typing; without it they are removed, as on a draw-only
+	 * field (a forged "type" row is never stored). The PNG itself is checked as for every signature.
+	 */
+	public function esign_row_efb(array $item, $field) {
+		$out = apply_filters('efb_esign_row', null, $item, $field);
+		if (is_array($out)) return $out;
+		unset($item['sig_mode'], $item['sig_text'], $item['sig_font']);
+		return $item;
+	}
+
 	public function string_to_url($string) {
 			$rePage= preg_replace('/(http:@efb@)+/','http://',$string);
 			$rePage= preg_replace('/(https:@efb@)+/','https://',$rePage);
@@ -9319,7 +9334,7 @@ public function check_nonce_permission_efb($request) {
 							if ($esign_value !== '') {
 								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 								// F10-E: sig_mode / sig_text / sig_font only on a field that allows typing (a forged "type" on a draw-only field is dropped).
-								if (is_array($item) && class_exists('\\Emsfb\\Layout')) $item = \Emsfb\Layout::sig_attrs($item, $f);
+								if (is_array($item)) $item = $this->esign_row_efb($item, $f);
 								if (is_array($item)) {
 									$item['value'] = $esign_value;
 									/* The kind of a stored row is decided by the saved field,
@@ -10185,7 +10200,7 @@ public function check_nonce_permission_efb($request) {
 			$esign_value = isset($clean['value']) ? $this->canonical_esign_value_efb($clean['value']) : '';
 			if ($esign_value === '') return null;
 			$clean['value'] = $esign_value;
-			if (class_exists('\\Emsfb\\Layout')) $clean = \Emsfb\Layout::sig_attrs($clean, $field);
+			$clean = $this->esign_row_efb($clean, $field);
 		} elseif (isset($clean['value'])) {
 			if (is_array($clean['value'])) {
 				$markers = array();

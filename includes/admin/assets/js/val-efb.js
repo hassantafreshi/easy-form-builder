@@ -1988,7 +1988,7 @@ function show_setting_window_efb(idset, opts) {
         <div class="efb  mb-3">
         <!--  not   advanced-->
         ${Nadvanced}
-        ${el.dataset.tag == 'esign' && typeof efbLayoutSigEls === 'function' ? efbLayoutSigEls(indx, idset) : ''}
+        ${el.dataset.tag == 'esign' && typeof efbLayoutSigEls === 'function' ? efbLayoutSigEls(indx, idset) : (el.dataset.tag == 'esign' && valj_efb[indx] && (valj_efb[indx].esign_mode === 'type' || valj_efb[indx].esign_mode === 'both') && typeof efb_addon_needed_html_efb === 'function' ? efb_addon_needed_html_efb('AdnTSG') : '')}
         ${el.dataset.tag == 'advdate' && typeof efbAdvdatePanelEls === 'function' ? efbAdvdatePanelEls(indx, idset) : ''}
         ${el.dataset.tag == 'date' && typeof efbAdvdateUpgradeEls === 'function' ? efbAdvdateUpgradeEls(indx, idset) : ''}
         ${typeof efbPrefillEls === 'function' ? efbPrefillEls(indx, idset) : ''}

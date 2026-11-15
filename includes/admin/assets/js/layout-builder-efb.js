@@ -239,63 +239,7 @@
     </div>`;
   }
 
-  /* ------------------------------------------------------------------ E: typed signature */
-
-  const SIG_MODES = ['draw', 'type', 'both'];
-  const sigModeOf = (r) => (r && SIG_MODES.indexOf(r.esign_mode) !== -1 ? r.esign_mode : 'draw');
-  /** [tabs, canvas attributes, name box] of an e-signature (twin of Formbuilder::esign_typed_parts_efb()). */
-  function efbLayoutSigParts(r, inert) {
-    const mode = sigModeOf(r);
-    if (mode === 'draw') return ['', '', ''];
-    const font = r.esign_font === 'latin' || r.esign_font === 'arabic' ? r.esign_font : 'auto';
-    const id = attr(r.id_);
-    const disabled = r.disabled == 1 || r.disabled === true ? ' disabled' : '';
-    let tabs = '';
-    if (mode === 'both') {
-      tabs = `<div class='efb efb-sig-tabs' role='tablist' aria-label='${attr(typeof r.name === 'string' ? r.name : '')}' id='${id}_sigtabs'>`
-        + `<button type='button' class='efb efb-sig-tab' role='tab' id='${id}_sigtab_draw' aria-selected='true' aria-controls='${id}_' tabindex='${inert ? '-1' : '0'}' data-sig-tab='draw'${disabled}><i class='efb bi-pen' aria-hidden='true'></i>${esc(T('sigDraw', 'Draw'))}</button>`
-        + `<button type='button' class='efb efb-sig-tab' role='tab' id='${id}_sigtab_type' aria-selected='false' aria-controls='${id}_sigtype' tabindex='-1' data-sig-tab='type'${disabled}><i class='efb bi-keyboard' aria-hidden='true'></i>${esc(T('sigType', 'Type'))}</button></div>`;
-    }
-    const attrs = ` data-sig-mode='${mode}' data-sig-font='${font}'`;
-    const input = `<label class='efb visually-hidden' for='${id}_sigtype'>${esc(T('sigTypeLbl', 'Type your full name'))}</label>`
-      + `<input type='text' class='efb form-control efb-sig-type${mode === 'both' ? ' d-none' : ''}' id='${id}_sigtype' autocomplete='name' maxlength='60' dir='auto' placeholder='${esc(T('sigTypeLbl', 'Type your full name'))}' data-sig-for='${id}'${disabled}${inert ? " tabindex='-1' readonly" : ''}>`;
-    return [tabs, attrs, input];
-  }
-  /** The canvas card after a change: the tabs and the name box come and go, the attributes follow. */
-  function sigCanvas(r) {
-    const cv = document.getElementById(`${r.id_}_`);
-    if (!cv || !cv.parentNode) return;
-    const wrap = cv.parentNode;
-    wrap.querySelectorAll('.efb-sig-tabs, .efb-sig-type, label[for$="_sigtype"]').forEach((x) => x.remove());
-    const [tabs, , input] = efbLayoutSigParts(r, !!cv.closest('#dropZoneEFB'));
-    const mode = sigModeOf(r);
-    if (mode === 'draw') { cv.removeAttribute('data-sig-mode'); cv.removeAttribute('data-sig-font'); return; }
-    cv.setAttribute('data-sig-mode', mode);
-    cv.setAttribute('data-sig-font', r.esign_font === 'latin' || r.esign_font === 'arabic' ? r.esign_font : 'auto');
-    if (tabs) cv.insertAdjacentHTML('beforebegin', tabs);
-    cv.insertAdjacentHTML('afterend', input);
-  }
-  /** "How visitors sign" and "Signature font" (show_setting_window_efb, e-signature). */
-  function efbLayoutSigEls(indx, idset) {
-    const r = list()[indx];
-    if (!r || r.type !== 'esign') return '';
-    const m = sigModeOf(r);
-    const f = r.esign_font === 'latin' || r.esign_font === 'arabic' ? r.esign_font : 'auto';
-    const opt = (v, cur, label) => `<option value="${v}" ${cur === v ? 'selected' : ''}>${esc(label)}</option>`;
-    return `<div class="efb efb-layout-sig mt-3" id="efbLayoutSig">
-      <label for="sigModeEl" class="efb form-label mb-1"><i class="efb bi-pen fs-7 mx-1" aria-hidden="true"></i>${esc(T('sigModeLbl', 'How visitors sign'))}</label>
-      <select class="efb elEdit form-select border-d rounded-4 mb-1" id="sigModeEl" data-id="${esc(idset)}" data-key="esign_mode">
-        ${opt('draw', m, T('sigModeDraw', 'Draw only'))}${opt('type', m, T('sigModeType', 'Type the name only'))}${opt('both', m, T('sigModeBoth', 'Draw or type'))}
-      </select>
-      <div class="efb ${m === 'draw' ? 'd-none' : ''}" id="efbLayoutSigFont">
-        <label for="sigFontEl" class="efb form-label mt-2 mb-1">${esc(T('sigFontLbl', 'Signature font'))}</label>
-        <select class="efb elEdit form-select border-d rounded-4 mb-1" id="sigFontEl" data-id="${esc(idset)}" data-key="esign_font">
-          ${opt('auto', f, T('sigFontAuto', 'By the name\'s script'))}${opt('latin', f, T('sigFontLatin', 'Latin script (Dancing Script)'))}${opt('arabic', f, T('sigFontArabic', 'Persian / Arabic script (Aref Ruqaa)'))}
-        </select>
-      </div>
-      <small class="efb form-text text-muted fs-8 d-block">${esc(T('sigTypeHelp', 'A typed name is drawn as a signature image and kept with the answer, so visitors without a mouse or a touch screen can sign too.'))}</small>
-    </div>`;
-  }
+  /* E: the typed signature's settings and canvas are the Typed Signature add-on's (AdnTSG, SPLIT §7). */
 
   /* ------------------------------------------------------------------ change handler */
 
@@ -369,21 +313,9 @@
         return true;
       }
       case 'sigModeEl':
-      case 'sigFontEl': {
-        const r = L[indx];
-        if (!r || r.type !== 'esign') return false;
-        if (el.id === 'sigModeEl') {
-          r.esign_mode = sanitize('esign_mode', el.value);
-          if (r.esign_mode !== 'draw' && r.esign_font === undefined) r.esign_font = 'auto';
-          const box = document.getElementById('efbLayoutSigFont');
-          if (box) box.classList.toggle('d-none', r.esign_mode === 'draw');
-        } else {
-          r.esign_font = sanitize('esign_font', el.value);
-        }
-        sigCanvas(r);
-        changed('setting', [r.id_]);
-        return true;
-      }
+      case 'sigFontEl':
+        // SPLIT §7: the Typed Signature add-on's settings (typed-signature-builder-efb.js).
+        return typeof root.efbSigBuilderChange === 'function' ? root.efbSigBuilderChange(el, indx) : false;
       case 'sectionAccordionEl':
         L[0].section_accordion = sanitize('section_accordion', el.checked ? '1' : '0');
         changed('setting', []);
@@ -409,6 +341,6 @@
   }
 
   const api = { efbLayoutFormEls, efbLayoutBuilderChange, efbLayoutSectionMarkup, efbLayoutSectionRedraw, efbLayoutSectionPanelEls, efbLayoutAccordionEls, efbLayoutPreviewInit,
-    efbLayoutRichAttrs, efbLayoutRichEls, efbLayoutVisEls, efbLayoutVisMark, efbLayoutSigParts, efbLayoutSigEls };
+    efbLayoutRichAttrs, efbLayoutRichEls, efbLayoutVisEls, efbLayoutVisMark };
   Object.keys(api).forEach((k) => { root[k] = api[k]; });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -36,6 +36,8 @@ function context(planOpen) {
   vm.createContext(ctx);
   vm.runInContext(fs.readFileSync(path.join(ROOT, 'public/assets/js/layout-efb.js'), 'utf8'), ctx);
   vm.runInContext(fs.readFileSync(path.join(ROOT, 'includes/admin/assets/js/layout-builder-efb.js'), 'utf8'), ctx);
+  // SPLIT §7: "How visitors sign" / "Signature font" are the Typed Signature add-on's settings.
+  vm.runInContext(fs.readFileSync(path.join(process.env.EFB_TYPED_SIGNATURE_DIR || path.join(ROOT, 'vendor', 'typed-signature'), 'assets/js/typed-signature-builder-efb.js'), 'utf8'), ctx);
   return ctx;
 }
 const rows = () => [{ type: 'form', steps: 1 }, { id_: 's1', type: 'step', step: '1' },

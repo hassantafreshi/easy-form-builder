@@ -69,7 +69,10 @@ t('save: an old form comes back unchanged, nothing reported', array($n, $w), arr
 /* schema_field */
 t('schema: a rich textarea says so and takes plain text', array_keys(Layout::schema_field(array('id' => 'b', 'fill' => array('api' => 'dom')), array('type' => 'textarea', 'rich_text' => '1'), 1)), array('id', 'fill', 'rich_text'));
 $e = Layout::schema_field(array('id' => 'c'), array('type' => 'esign', 'esign_mode' => 'both'), 1);
-t('schema: an e-signature is visitor_only, with its ways to sign', array($e['assistant'], $e['signature']['modes']), array('visitor_only', array('draw', 'type')));
+t('schema without the Typed Signature add-on: an e-signature is visitor_only and drawn (SPLIT §7)', array($e['assistant'], $e['signature']['modes']), array('visitor_only', array('draw')));
+require_once (getenv('EFB_TYPED_SIGNATURE_DIR') ?: __DIR__ . '/../vendor/typed-signature') . '/class-Emsfb-typed-signature.php';
+$e = \Emsfb\Typed_Signature_Efb::schema_field($e, array('type' => 'esign', 'esign_mode' => 'both'), 1);
+t('schema with the add-on: an e-signature is visitor_only, with its ways to sign', array($e['assistant'], $e['signature']['modes']), array('visitor_only', array('draw', 'type')));
 t('schema: a plain textarea is unchanged', Layout::schema_field(array('id' => 'q'), array('type' => 'textarea'), 1), array('id' => 'q'));
 
 /* schema (a guest) */

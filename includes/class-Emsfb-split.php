@@ -56,8 +56,8 @@ class Split {
 	 */
 	public static function core_contracts($c) {
 		$c = is_array($c) ? $c : array();
-		// Typed signature (F10-E), postal presets / map field (F01, maps) and the booking editor are still in core.
-		foreach (array('typed_signature', 'address', 'booking') as $id) if (!self::addon_provides($id)) $c[$id]['core'] = 1;
+		// Postal presets / map field (F01, maps) and the booking editor are still in core.
+		foreach (array('address', 'booking') as $id) if (!self::addon_provides($id)) $c[$id]['core'] = 1;
 		return $c;
 	}
 

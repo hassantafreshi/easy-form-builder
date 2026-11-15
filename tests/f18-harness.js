@@ -48,7 +48,7 @@ function capabilities(pkg, settings) {
     function get_option($k, $d = false) { return $d; }
     function add_filter() {} function add_action() {}
     // SPLIT: a site with the Numbers & Calculations add-on active (it announces the calc contract).
-    function apply_filters($h, $v) { if ($h === 'efb_addon_contracts') $v['calc']['AdnCLC'] = 1; return $v; }
+    function apply_filters($h, $v) { if ($h === 'efb_addon_contracts') { $v['calc']['AdnCLC'] = 1; $v['typed_signature']['AdnTSG'] = 1; } return $v; }
     function rest_url($p = '') { return '/wp-json/' . $p; }
     function get_setting_Emsfb($m = 'decoded') { return json_decode($GLOBALS['settings']); }
     $GLOBALS['settings'] = stream_get_contents(STDIN);
@@ -67,6 +67,9 @@ function capabilities(pkg, settings) {
     // SPLIT §6: the Numbers & Calculations add-on (vendor/calc or EFB_CALC_DIR) provides Emsfb\\Calc.
     require_once '${CALC}/class-Emsfb-calc.php';
     foreach (array('Form_Gate', 'Field_Rules', 'Verification', 'Calendar_Rest', 'Uploads', 'Smart_Tags', 'Choices', 'Calc', 'Repeater', 'Entries', 'Layout', 'Spam', 'Builder_Tools', 'Revisions', 'Form_Package') as $c) { $c = '\\\\Emsfb\\\\' . $c; $caps = $c::capabilities($caps, array('package' => ${Number(pkg)})); }
+    // SPLIT §7: the Typed Signature add-on (vendor/typed-signature) adds setting:esign_mode and capabilities.layout.typed_signature.
+    $tsg = (getenv('EFB_TYPED_SIGNATURE_DIR') ?: '${ROOT.replace(/\\/g, '/')}/vendor/typed-signature') . '/class-Emsfb-typed-signature.php';
+    if (is_readable($tsg)) { require_once $tsg; $caps = \\Emsfb\\Typed_Signature_Efb::capabilities($caps, array()); }
     // SPLIT (99): the add-on of every moved entry and capabilities.split.
     foreach (array('addon-contracts-functions-efb.php', 'class-Emsfb-addon-keys.php', 'class-Emsfb-split.php') as $f) require_once '${INC}/' . $f;
     $caps = \\Emsfb\\Split::capabilities($caps, array('package' => ${Number(pkg)}));

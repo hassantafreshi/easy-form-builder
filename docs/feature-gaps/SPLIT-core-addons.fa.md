@@ -563,12 +563,12 @@ e2e روی `tests/e2e-wp` (سناریوی تازهٔ `scenario-split.js`، fa_IR
 ### D — `AdnTSG`
 `vendores-efb/typed-signature`: فونت‌ها، `EFBSign`، کنترل‌های سازنده، `sig_attrs`؛ هسته: `efb_esign_parts`، `efb_esign_row`، نمایش می‌ماند. معیار: `test-esign-typed-browser.js` و e2e `f10` (بخش E) با افزونه؛ بی‌افزونه کشیدنی.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: افزونهٔ تازه `vendores-efb/typed-signature` (`routes-efb.php`، `class-Emsfb-typed-signature.php` = `sig_mode`/`sig_font_for`/`sig_attrs`/`esign_typed_parts_efb` هسته + ثبت `setting:esign_mode` و `capabilities.layout.typed_signature` + حالت‌های امضا در schema، `assets/js/typed-signature-efb.js` (EFBSign)، `assets/js/typed-signature-builder-efb.js` (تنظیمات سازنده و `efbSigBuilderChange`)، `assets/css/typed-signature-efb.css` (`@font-face` و `.efb-sig-*`)، `assets/fonts/` (چهار woff2 + OFL، 99,476 بایت)، ۱۲ عبارت در `efb-typed-signature`، زیپ). هسته: `class-Emsfb-layout.php` (بی سه متد و ورودی‌های رجیستری؛ `Layout::s()` عمومی؛ `json_needs_runtime` دیگر برای امضای تایپی layout-efb.js نمی‌خواهد)، `class-Emsfb-formbuilder.php` (`efb_esign_parts`)، `class-Emsfb-public.php` (`esign_row_efb()` با `efb_esign_row`؛ هوک عمومی `efb_public_enqueue`)، `create.php`/`panel.php` (`do_action('efb_admin_enqueue_builder')`)، `layout-efb.js`، `layout-builder-efb.js` (`sigModeEl`/`sigFontEl` به `efbSigBuilderChange`)، `layout-efb.css`، `val-efb.js` (پیام Install در پنل وقتی حالت ذخیره‌شده type/both است)، `functions.php` (۱۲ عبارت به افزونه)، حذف `public/assets/fonts/`.
+- تست‌ها: تازه `test-split-esign-fallback.php` (13: بی‌افزونه همان امضای کشیدنی بایت‌به‌بایت جز ردیفی که به صفحه داده می‌شود، ردیف جعلی type بی‌کلید ذخیره می‌شود، نمایش `sig_text` می‌ماند). منطبق‌شده: `test-esign-typed-browser.js` (19، فونت و اسکریپت از افزونه)، `test-esign-stored-xss.php`، `test-layout-save-schema.php` (ادعای بی‌افزونه + با افزونه)، `test-layout-builder-change.js`، `tests/layout-page-lib.php`، `tests/f18-harness.js`، `tests/ap-builder-harness.js`. e2e با `AdnTSG` روشن: `f10a`–`f10f`، `f10pay` = 66/66.
+- وضعیت ترجمه: ۱۲ کلید به `efb-typed-signature`؛ `sigTyped` و `rvwSigned` در هسته (نمایش).
+- مورد باز: —
+- اقدام بعدی: E.
 
 ### E — `AdnADR` (پستی و نقشه)
 `vendores-efb/address`: ۱۸ پیش‌تنظیم با `efb_mask_presets` و برچسب‌ها، فیلد `maps` با Leaflet محلی، رفع URL-encode و کش reverse (BUGS-FOUND ردیف Nominatim)؛ هسته: حذف از کاتالوگ و `pro_els-efb.js`، نمایش ردیف `maps` می‌ماند. معیار: `test-masks-*` با افزونه، `test-split-postal-unknown.php` بی‌افزونه.

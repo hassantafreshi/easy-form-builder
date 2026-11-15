@@ -368,6 +368,8 @@ class Create {
 		wp_enqueue_script('efb-layout-js', EMSFB_PLUGIN_URL . 'public/assets/js/layout-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/layout-efb.js'), true);
 		wp_enqueue_script('efb-layout-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/layout-builder-efb.js', array('efb-val-js', 'efb-layout-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/layout-builder-efb.js'), true);
 		wp_enqueue_style('efb-layout-css', EMSFB_PLUGIN_URL . 'public/assets/css/layout-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/layout-efb.css'));
+		// SPLIT: a SPLIT add-on (Typed Signature, Address & Postal, Booking, …) enqueues its builder scripts here.
+		do_action('efb_admin_enqueue_builder', 'create');
 		// F12: the form's CAPTCHA service, its v3 score and its spam settings (form settings panel), the preview's placeholder.
 		wp_enqueue_script('efb-spam-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/spam-builder-efb.js', array('efb-val-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/spam-builder-efb.js'), true);
 		// F10-C: the rich text editor (the preview, the entry editor) and its allow-list (the viewer shows rich answers with it).

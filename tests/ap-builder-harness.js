@@ -108,6 +108,9 @@ async function openBuilder(opts) {
   // F04: the formula / number engine and the number / calc / slider controls.
   if (fs.existsSync(path.join(EFB_CALC_DIR, 'assets', 'js', 'calc-efb.js'))) await page.addScriptTag({ path: path.join(EFB_CALC_DIR, 'assets', 'js', 'calc-efb.js') });
   if (fs.existsSync(path.join(EFB_CALC_DIR, 'assets', 'js', 'calc-builder-efb.js'))) await page.addScriptTag({ path: path.join(EFB_CALC_DIR, 'assets', 'js', 'calc-builder-efb.js') });
+  // SPLIT §7: the Typed Signature add-on's builder settings and EFBSign.
+  const TSG = process.env.EFB_TYPED_SIGNATURE_DIR || path.join(__dirname, '..', 'vendor', 'typed-signature');
+  for (const f of ['typed-signature-efb.js', 'typed-signature-builder-efb.js']) if (fs.existsSync(path.join(TSG, 'assets', 'js', f))) await page.addScriptTag({ path: path.join(TSG, 'assets', 'js', f) });
   for (const s of (opts.scripts || [])) await page.addScriptTag({ path: path.join(ROOT, s) });
   await page.evaluate(() => { _efb_nonce_ = 'n0nce'; setting_emsFormBuilder = efb_var.setting; });
   const bootErrors = errors.splice(0);
