@@ -1591,6 +1591,25 @@ versions are kept (Free 3, Free Plus 10, Pro 50 earlier versions).
   `history.batch`), `php tests/test-form-revisions.php`, `php tests/test-form-revisions-http.php`,
   `php tests/test-form-package.php`, `php tests/test-form-package-http.php`; e2e `f15a` … `f15d`.
 
+### F21. Pro renewal reminder (`capabilities.plan.renewal`, read-only)
+
+Spec: [F21](feature-gaps/F21-renewal-reminder.fa.md); server contract: [licensing/renewal-reminder-contract.en.md](licensing/renewal-reminder-contract.en.md).
+No form key, nothing to write. Seven days before a Pro subscription ends the site shows administrators a notice and
+sends one e-mail; after the end one "paused" e-mail. It starts only once the licence server sends the expiry date.
+
+- **Read.** `efb_var.capabilities.plan.renewal` (and `Emsfb\Builder_Api::capabilities()` without a `package`
+  argument): `{known, ends_on: "2026-11-20" (the last day Pro works, site time zone), expires_at: "2026-11-21T00:00:00Z",
+  days_left, auto_renew, lifetime, stage: "t7"|"t1"|"t0"|null, reminder_sent: {t7: ISO|null, t0: ISO|null},
+  reminder_email: bool}`. `known` is false without a fresh answer from the server (8 days), on `fa_IR` sites and for
+  another code; then every value is null. An assistant may tell the owner "Pro ends next Friday" and point to the
+  plugin's own notice.
+- **Never in it:** the renew link (it holds a short-lived token), the activation code, any e-mail address.
+- **Not for assistants:** the reminder cannot be configured through AutoPilot (no schedule, no recipients, no
+  `renewMail`); the two AJAX actions of the notice (`efb_renew_dismiss`, `efb_license_recheck`) need
+  `manage_options` and the notice's own nonce. An assistant never clicks "Renew Pro" and never pays. The visitor
+  assistant (`forms/{id}/schema`) never sees any of it.
+- **Tests.** `php tests/test-renewal-capability.php`; e2e `f21-a` … `f21-g`.
+
 ## Part C: the contract is kept
 
 Everything Part C of the brief lists still works as before (`node tests/test-ap-contract.js`, 16

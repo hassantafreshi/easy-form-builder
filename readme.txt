@@ -482,6 +482,11 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = Unreleased =
 
+* New: Pro renewal reminder: seven days before your Pro subscription ends, your own site tells you, with a short notice on the plugin's screens and the WordPress dashboard (administrators only) and one e-mail sent by the site, that says what stays safe and what pauses if it lapses. "Already renewed? Check again" confirms a renewal at once. After the end, one "Pro features are paused" e-mail. It needs the expiry date from the licence server, so it starts when the server sends it; nothing is shown on Persian (fa_IR) sites, on Free and Free Plus, or with automatic renewal. Settings › General shows "Pro is active until …" and the switch "Email me before my Pro subscription ends".
+* Fix: the message shown when Pro is off said "Your activation code has expired!" for every cause; it now says why (the subscription ended, the code was made for another domain, or the licence could not be confirmed for a while).
+* Security: renew links (the notice, the add-on pages, the licence e-mails) no longer contain your activation code.
+* Fix: a translation with an apostrophe in the "Pro is off" card no longer stops the plugin's admin pages from loading.
+
 * Fix: a paid form whose amount comes from a calculation is never charged without that part: when the calculation engine is not available the payment is refused before the payment page opens (pay_calc_unavailable), and the payment readiness says why.
 * Fix: saving a form on a site where an add-on it uses is not active keeps that add-on's settings (formulas, number format, typed-signature mode, postal format, booking dates) instead of removing them; the save answer says which were kept (addon_keys_kept).
 * Changed: number format, steps and decimals, two-handle sliders, calculated fields, calculation values on choices and a calculated amount to pay are now the Numbers & Calculations add-on (Free Plus and Pro). Sites that use them get the add-on installed automatically on update (a Free site that already used them keeps them). Without it, a number is the plain number box (Persian and Arabic digits are still read) and a calculated field shows a short notice; the form still sends, and its settings are kept.

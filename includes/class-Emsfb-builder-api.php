@@ -368,6 +368,11 @@ class Builder_Api {
 				'paypal' => $key_set('paypalSKey') && $key_set('paypalPKey'),
 			),
 		);
+		// F21: the licence's end as the licence server told this site (read-only; no renew link, no code). Only for
+		// the site's own plan (not when an integration asks about another package).
+		if (class_exists('\\Emsfb\\Renewal_Reminder') && !isset($args['package'])) {
+			$out['plan']['renewal'] = Renewal_Reminder::capability();
+		}
 		// PAY00: every framework gateway, without any key or account value (configured = yes/no only).
 		if (class_exists('\\Emsfb\\Payments\\Registry')) {
 			$out['payment_gateways'] = array();

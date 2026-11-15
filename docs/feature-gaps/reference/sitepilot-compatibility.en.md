@@ -1235,6 +1235,15 @@ lower plan the public form shows the first colour), `mobile_step_bg` under `sett
 `efbStepBgContrastEfb()` / `efb_step_bg_contrast_efb()` (worst stop, 4.5:1). Nothing secret; no
 submit-side effect.
 
+**F21 Pro renewal reminder** (shipped 2026-11-15; [contract](../../licensing/renewal-reminder-contract.en.md)).
+Create: nothing (no form key, no setting an agent may write; `renewMail` is an administrator's switch in Settings ›
+General and stays out of contract, like the licence keys of §4.4). Read: `capabilities.plan.renewal` (`efb_var.capabilities`,
+`Builder_Api::capabilities()`; `manifest.plan.renewal` when §4.1 is built) = `{known, ends_on, expires_at, days_left, auto_renew, lifetime, stage, reminder_sent,
+reminder_email}`, read-only, no renew link, no code, no address; `known: false` on `fa_IR` sites (one-time purchases,
+owner decision) and until the licence server sends the date. Fill: none (the visitor assistant never sees it). Must
+add: nothing in SitePilot; an admin-side assistant may mention the date and point to the plugin's notice, never
+"Renew Pro" or a payment (§7.2).
+
 ---
 
 ## 10. Conflicts and mismatches found

@@ -11,6 +11,8 @@ Stop letting a support ticket be the only way people learn there's no separate "
 
 Each guide covers the same ground in full: getting the code from the pricing page, entering it under Settings → General, the Plan Management / Change Plan overlay (Free, Free Plus, Pro), how domain-hash validation works and what happens after a migration, the weekly re-check and the offline validation path for Farsi-locale sites, expiration banners and renewal, every "Pro Version Required" / "Free Plus or Pro" prompt in the product, a common-errors table, a pre-activation checklist, an FAQ section, ready-to-publish `FAQPage` JSON-LD structured data for SEO, and editorial notes for publishing the article on a website.
 
+**For the licence server:** [renewal-reminder-contract.en.md](renewal-reminder-contract.en.md) is the contract v1 the server has to implement so the plugin can remind customers seven days before a Pro subscription ends (F21): the `license` field (`expires_at`, `server_time`, `auto_renew`, `renew_url` with a short-lived token, `lapse_effect`), what the server answers at renewal and at the end, and the fallback renew link that never holds the activation code.
+
 This folder replaces ad hoc, screenshot-based activation write-ups (like the one previously published at whitestudio.team/document/how-to-activate-pro-version-easy-form-builder-plugin/) with a version checked against the plugin's actual UI strings and save flow, so it won't go stale the next time a label changes.
 
 ## Landing page (English)
