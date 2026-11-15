@@ -603,6 +603,8 @@ class Renewal_Reminder {
 		$scr = function_exists('get_current_screen') ? get_current_screen() : null;
 		if (!$scr || !is_string($scr->id)) return '';
 		if ($scr->id === 'dashboard') return 'dashboard';
+		// The form builder screen shows the "Pro is off" card itself (noti_expire_efb()).
+		if (stripos($scr->id, 'emsfb_create') !== false) return 'create';
 		return stripos($scr->id, 'emsfb') !== false ? 'efb' : '';
 	}
 
@@ -675,9 +677,9 @@ class Renewal_Reminder {
 	}
 
 	/**
-	 * admin_notices: administrators (manage_options) on the plugin's screens and the dashboard. At t0 the plugin's
-	 * screens show the existing card (noti_expire_efb(), new words) and only the dashboard gets a notice; the script
-	 * is printed on the plugin's screens too so the card's "Check again" works.
+	 * admin_notices: administrators (manage_options) on the plugin's screens and the dashboard. At t0 the form builder
+	 * screen shows its existing card (noti_expire_efb(), new words) instead of the notice; the script is printed there
+	 * too so the card's "Check again" works. Every other plugin screen and the dashboard get the notice.
 	 */
 	public static function render_notice() {
 		if (!function_exists('current_user_can') || !current_user_can('manage_options')) return;
@@ -687,7 +689,7 @@ class Renewal_Reminder {
 		if (!$st['stage']) return;
 		self::maybe_schedule_check();
 		$js = self::notice_css() . self::notice_js();
-		if ($st['stage'] === 't0' && $where === 'efb') {
+		if ($st['stage'] === 't0' && $where === 'create') {
 			echo $js; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped parts
 			return;
 		}

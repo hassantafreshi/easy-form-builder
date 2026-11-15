@@ -489,12 +489,13 @@ Easy Form Builder > Settings.
 فایل‌ها: `tests/e2e-wp/scenario-f21.js`، `ctl.php f21-license` (نوشتن پاسخ ساختگی سرور با `pre_http_request` در mu-plugin برای `EMSFB_LICENSE_SERVER_URL`؛ تنظیم `days_left`، `auto_renew`، `state`)، ضبط ایمیل با `efb_e2e_capture_mail` (`tests/e2e-wp/mu-plugins/efb-e2e.php:25-53`، `ctl.php mails`).
 سناریو: **a** ۷ روز مانده → اعلان در پیشخوان وردپرس و صفحهٔ افزونه، نه برای ویرایشگر؛ `wp cron event run emsfb_revalidate_license` دو بار → یک ایمیل در `mails` با موضوع A، AltBody، بی `<img>`؛ **b** «Remind me later» → پس از بارگذاری نیست؛ ۱ روز مانده → عنوان «tomorrow» برمی‌گردد؛ **c** سرور تاریخ تازه می‌دهد + «Check again» → اعلان محو و «Thanks…»؛ **d** `auto_renew` → هیچ؛ سرور قدیم → هیچ؛ سرور قطع → هیچ؛ **e** `deactive` → اعلان `t0` و یک ایمیل `t0`، فرم عمومی فیلد Pro را «unavailable» نشان می‌دهد و ارسال پذیرفته می‌شود (راستی‌آزمایی متن)؛ **f** en، `fa_IR` (با `lapse_effect` ساختگی) و `ar` در ۳۷۵ و ۱۲۸۰ پیکسل: RTL، `<bdi>`، دکمه‌های تمام‌عرض، بی اسکرول افقی، تمرکز پس از بستن؛ HTML ایمیل در ۳۷۵ (نمایش از `mails` در صفحهٔ خالی). اسکرین‌شات‌ها `f21*.png`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: تازه `tests/e2e-wp/scenario-f21.js` (`f21-a` … `f21-g`، در `run.js`)، `tests/e2e-wp/ctl-f21.php` (به‌جای `ctl.php f21-license`: `license <days> [k=v]` با تاریخ پایان ثابت، `advance <days>` برای جلو بردن ساعت سرور با همان تاریخ، `check`، `cron`، `state`، `mails`، `calls`، `reset`، `off`)، `tests/e2e-wp/mu-plugins/efb-e2e-f21.php` (سرور مجوز ساختگی روی `pre_http_request`: HEAD و `pro/key` با قرارداد v1، بی فیلد، فیلد خراب، بی پاسخ؛ ثبت درخواست بی کلید؛ PHPMailer ضبط‌کننده که `wp_mail()` را تا آخر اجرا می‌کند تا `AltBody` واقعاً دیده شود)، `tests/e2e-wp/README.md`. سایت آزمون: `wp language core install he_IL`.
+- یافتهٔ QA و رفع: کارت `noti_exp_efb` فقط در صفحهٔ ساخت فرم رندر می‌شود، پس در `t0` پنل افزونه هیچ نشانی نداشت ⇒ اعلان `t0` روی همهٔ صفحه‌های افزونه جز سازندهٔ فرم (که کارت خودش را دارد) و پیشخوان؛ سطر تنظیمات هم‌تراز کادر کد فعال‌سازی شد.
+- تست‌ها: e2e جداگانه زیر قفل: 7 سناریو، 73 بررسی سبز (۸/۷/۶/۱/۰/−۱ روز؛ فیلد نبود/خراب/سرور قطع؛ تمدید پیش و پس از ایمیل؛ بستن و بازگشت؛ fa_IR بی درخواست؛ ar و he_IL در ۳۷۵ و ۱۲۸۰؛ HTML ایمیل در ۳۷۵ برای en/ar/he_IL؛ نبود کد در نشانی‌ها). اسکرین‌شات‌ها `f21-notice-{en,ar,he_IL}-{375,1280}.png`، `f21-dashboard-*.png`، `f21-email-{en,ar,he_IL}-375.png`، `f21-settings-en-1280.png`. تست‌های وردپرسی مرتبط روی سایت آزمون: `test-addon-plan-gate.php` (48/3 — همان ۳ شکست در 45010e04، بی‌ربط: لایه‌های افزودنی SPLIT)، `test-plan-selection-first-run.php` (16)، `test-delivery-notice-scenarios.php` (46)، `test-fresh-install-email-template.php` (12)، `test-weekly-report-states.php` (43)، `test-email-tester-cache-notice.php` (21)، `test-weekly-report-cache-notice.php` (10)، `test-spam-notice.php` (12).
+- وضعیت ترجمه: بی عبارت تازه؛ فهرست عبارت‌ها در گام پایانی با `extract.php`.
+- مورد باز: ساخت سمت سرور (کار مالک)؛ چندسایته فقط در تست واحد (سایت آزمون تک‌سایته است).
+- اقدام بعدی: فهرست عبارت‌ها، کل مجموعهٔ واحد و کل e2e.
 
 ---
 

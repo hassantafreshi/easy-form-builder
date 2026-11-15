@@ -84,9 +84,11 @@ $setup(-1, array(), 'deactive');
 $screen('dashboard');
 $h = $out();
 t('t0 on the dashboard: "Pro features are paused on this site", the date in <bdi>, Renew + Check again, no "later"', array(strpos($h, 'Pro features are paused on this site') !== false, (bool) preg_match('#ended on <bdi>[^<]+</bdi>\. Your forms, entries and settings are all still here#', $h), strpos($h, 'data-efb-renew="check"') !== false, strpos($h, 'data-efb-renew="later"') === false), array(true, true, true, true));
-$screen('toplevel_page_Emsfb');
+$screen('easy-form-builder_page_Emsfb_create');
 $h = $out();
-t('t0 on the plugin\'s screen: no second notice (the card says it), but the script for the card\'s Check again', array($has($h), strpos($h, 'id="efb-renew-js"') !== false), array(false, true));
+t('t0 on the form builder screen: no notice (its card says it), but the script for the card\'s Check again', array($has($h), strpos($h, 'id="efb-renew-js"') !== false), array(false, true));
+$screen('toplevel_page_Emsfb');
+t('t0 on the other plugin screens (the panel): the notice', $has($out()), true);
 
 echo "--- dismiss: per user, per stage ---\n";
 $setup(5);

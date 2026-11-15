@@ -1465,7 +1465,7 @@ function fun_show_setting__emsFormBuilder() {
                                 ${package_type == 1 ? `<p class="efb text-darkb fs-7 mx-2 ">${efb_var.text.actvtcmsg}</p>` : '' }
                                     <span id="activeCode_emsFormBuilder-message" class="efb text-danger"></span>
                                 </div>
-                                ${efb_renewal_settings_html_efb()}
+                                ${efb_renewal_settings_html_efb(mxCSize4)}
 
                                 <h5 class="efb  card-title mt-3 mobile-title">
                                     <i class="efb  bi-layers m-3"></i>${efb_var.text.plnMng}
@@ -5615,12 +5615,12 @@ function efb_secret_tools_efb(id, v) {
 /* F21: Settings › General on a Pro site: the read-only line "Pro is active until …" / "Renews automatically on …"
    (only when the licence server told the site; the date is in <bdi>) and the switch for the renewal e-mail. The words
    and the state come from efb_var.renewal (Renewal_Reminder::localize_vars(); escaped there). */
-function efb_renewal_settings_html_efb() {
+function efb_renewal_settings_html_efb(boxClass) {
   const r = (typeof efb_var === 'object' && efb_var && efb_var.renewal) ? efb_var.renewal : null;
   if (!r || !r.show) return '';
   const on = r.on !== false;
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  return `<div class="efb card-body mx-0 py-1 efb-renewal-settings" id="efbRenewalSettings">
+  return `<div class="efb card-body mx-0 py-1 ${esc(boxClass || '')} efb-renewal-settings" id="efbRenewalSettings">
       ${r.line ? `<p class="efb text-darkb fs-7 mx-2 mb-1" id="efbRenewalLine" style="unicode-bidi:plaintext">${r.line}</p>` : ''}
       <button type="button" id="renewMail_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb btn-toggle ${on ? 'active' : ''}" data-toggle="button" aria-pressed="${on ? 'true' : 'false'}" autocomplete="off"><div class="efb handle"></div></button>
       <label class="efb form-check-label fs-6 efb mx-2 my-3" for="renewMail_emsFormBuilder" style="unicode-bidi:plaintext">${esc(r.label)}</label>

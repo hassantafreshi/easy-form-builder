@@ -16,8 +16,8 @@ const src = fs.readFileSync(path.join(__dirname, '..', 'includes/admin/assets/js
 let passed = 0, failed = 0;
 const t = (n, a, e) => { const A = JSON.stringify(a), E = JSON.stringify(e); if (A === E) { passed++; console.log('[PASS] ' + n); } else { failed++; console.log('[FAIL] ' + n + '\n  expected: ' + E + '\n  actual:   ' + A); } };
 
-const fnSrc = src.match(/function efb_renewal_settings_html_efb\(\) \{[\s\S]*?\n\}\n/);
-t('list_form-efb.js has the renderer and Settings › General calls it after the activation code', [!!fnSrc, /activeCode_emsFormBuilder-message[\s\S]{0,200}\$\{efb_renewal_settings_html_efb\(\)\}/.test(src)], [true, true]);
+const fnSrc = src.match(/function efb_renewal_settings_html_efb\(boxClass\) \{[\s\S]*?\n\}\n/);
+t('list_form-efb.js has the renderer and Settings › General calls it after the activation code (aligned with it)', [!!fnSrc, /activeCode_emsFormBuilder-message[\s\S]{0,200}\$\{efb_renewal_settings_html_efb\(mxCSize4\)\}/.test(src)], [true, true]);
 const html = (renewal) => { const efb_var = { renewal }; return new Function('efb_var', fnSrc[0] + '; return efb_renewal_settings_html_efb();')(efb_var); };
 
 t('no renewal data, or show false (Free, Free Plus, fa_IR, not an administrator): nothing', [html(undefined), html({ show: false, on: true, label: 'x', line: '' })], ['', '']);

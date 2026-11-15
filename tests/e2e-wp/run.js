@@ -2086,6 +2086,12 @@ require('./scenario-f15.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewFo
  * fa_IR / ar at 375 px: tests/e2e-wp/scenario-split.js. */
 require('./scenario-split.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
 
+/* F21 the Pro renewal reminder: the notice for administrators (dashboard and the plugin's screens), one e-mail per
+ * end date, "Remind me later" / "Check again", the end (paused, the card, a public form still sends), silence (auto
+ * renewal, an older server, a garbled field, no answer, Free Plus, fa_IR), en / ar / he_IL at 375 and 1280 px and the
+ * e-mail at 375 px, Settings › General; the licence server and the mailer are stand-ins: tests/e2e-wp/scenario-f21.js. */
+require('./scenario-f21.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */
