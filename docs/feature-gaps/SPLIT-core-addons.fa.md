@@ -654,12 +654,12 @@ e2e روی `tests/e2e-wp` (سناریوی تازهٔ `scenario-split.js`، fa_IR
 ### M — «کشور بازدیدکننده از IP»: هوک در هسته، افزونهٔ `AdnGEO`
 هسته: `includes/admin/assets/js/smart-tags-builder-efb.js:55`، `90` (برداشتن پیش‌تنظیم غیرفعال؛ `efbSmartPresetsExtra` و `efb:smart-presets`)؛ `includes/functions.php:5206`، `5434` (`hdnCountry` به افزونه، `soon` حذف اگر خوانندهٔ دیگری نیست)؛ `includes/class-Emsfb-smart-tags.php:32-46`، `278`، `329-330` (`efb_smart_tag_namespaces`، `efb_smart_tag_value`، `geo` رزروشدهٔ افزونه)؛ `public/assets/js/smart-tags-efb.js:18`، `221` (`server_only`)؛ رجیستری `setting:smart_geo`؛ آزمون‌های `tests/test-smart-tags-builder.js:42-43`، `tests/test-smart-tags.js:54`؛ `docs/autopilot-integration.md` (F08). افزونه `vendores-efb/geo` طبق §۱۰.۶، زیپ با `build_zip.php`. معیار: آزمون‌های §۱۷ (`test-split-geo-absent`، `test-addon-geo`)؛ e2e: فرم با فیلد پنهان کشور، با افزونه و ارائه‌دهندهٔ ساختگی (mu-plugin مثل fake درگاه‌ها) کد کشور ذخیره می‌شود و IP نه؛ بی‌افزونه خالی و ارسال موفق؛ fa_IR در ۳۷۵ پیکسل برای صفحهٔ تنظیمات کلید. سند F08 و README فاز ۲ با همین سند علامت خوردند.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: هسته — `class-Emsfb-smart-tags.php` (`geo` نام‌فضای رزروشدهٔ افزونه: `efb_smart_tag_value`؛ `addon_namespaces()` با `efb_smart_tag_namespaces`؛ زمینهٔ ارسال `visitor_ip` و `form0` دارد، هرگز در صفحه)، `class-Emsfb-public.php` (`visitor_ip` از `Client_IP::get()` فقط در زمینهٔ ارسال)، `class-Emsfb-formbuilder.php` (`efb_hidden_field_note`: یادداشت افزونه کنار فیلد پنهان)، `smart-tags-builder-efb.js` (بی پیش‌تنظیم غیرفعال «coming soon»؛ `window.efbSmartPresetsExtra` و رویداد `efb:smart-presets`)، `functions.php` (`soon` حذف، `hdnCountry` به `efb-geo`). افزونهٔ تازه `vendores-efb/geo` (Free Plus و Pro): `class-Emsfb-geo.php` (ipinfo.io یا pro.ip-api.com با کلید خود مدیر، رمزگذاری با `Payments\Secrets`، فقط‌نوشتنی «Saved • ends with …»؛ فقط سمت سرور هنگام ارسال؛ بی‌کلید بی‌درخواست؛ کش با HMAC نشانی، TTL ۶ ساعت با `efb_geo_cache_ttl`؛ timeout ۲ ثانیه بی‌تلاش دوباره، شکست باز با شمارندهٔ خطا؛ فقط با `geo_on = 1` یا تنظیم «همهٔ فرم‌ها» و با متن اطلاع‌رسانی کنار فیلد؛ صفحهٔ تنظیمات با «Test connection» روی 8.8.8.8؛ رجیستری فقط `configured`)، `assets/js/geo-builder-efb.js` (دو پیش‌تنظیم)، `geo-phrases-efb.php` (۲۱ عبارت در `efb-geo`)، زیپ.
+- تست‌ها: تازه `test-addon-geo.php` (22، HTTP ساختگی: بی‌کلید بی‌درخواست، فقط هنگام ارسال، کش HMAC، timeout → خالی و شمارنده، کلید و IP در هیچ خروجی/ذخیره، نشانی خصوصی و فرم خاموش بی‌درخواست، ip-api.com، حذف کلید). `test-smart-tags-builder.js` (§۱۸ M: بی ورودی کشور بدون افزونه، با افزونه دو پیش‌تنظیم فعال پیش از «Value template»)؛ `test-smart-tags*.js|php` بی‌تغییر سبز (بردار `{geo:country|XX}`).
+- وضعیت ترجمه: `hdnCountry` و ۲۰ عبارت تازه در `efb-geo`؛ `soon` از هسته حذف شد.
+- مورد باز: ارائه‌دهندهٔ سوم محلی (MaxMind GeoLite2) فاز ۲ از راه `efb_geo_providers` (پرسش ۱۵). در سازنده کلید `geo_on`/`geo_notice` هر فرم کنترل جدا ندارد؛ تنظیم «همهٔ فرم‌ها» در صفحهٔ افزونه و AutoPilot آن‌ها را می‌نویسند.
+- اقدام بعدی: H، I، J، K، L.
 
 ---
 

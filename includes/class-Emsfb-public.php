@@ -6974,6 +6974,8 @@ public function check_nonce_permission_efb($request) {
 			'page_id' => isset($request_data['page_id']) && is_numeric($request_data['page_id']) ? (int) $request_data['page_id'] : 0,
 			// F13: {ip} as this form may store it (as is, anonymized, or '').
 			'ip'      => class_exists('\\Emsfb\\Privacy') ? \Emsfb\Privacy::store_ip($this->get_ip_address(), (int) $this->id) : '',
+			// SPLIT §10.6: the address an add-on's server-side namespace may look up (Visitor Country); never stored.
+			'visitor_ip' => class_exists('\\Emsfb\\Client_IP') ? (string) \Emsfb\Client_IP::get() : (string) $this->get_ip_address(),
 		));
 		return $this->smart_ctx_efb;
 	}

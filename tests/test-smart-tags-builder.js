@@ -39,8 +39,20 @@ const c = makeChecker();
     // The panel.
     await page.evaluate((id) => show_setting_window_efb(id + '-id'), ids[0]);
     await page.waitForSelector('#hdnPresetEl', { timeout: 8000 });
-    const pane = await page.evaluate(() => ({ presets: [...document.querySelectorAll('#hdnPresetEl option')].map((o) => o.value), geo: document.querySelector('#hdnPresetEl option[value="geo"]').disabled, mail: !!document.getElementById('hdnVisitorMailEl'), prefill: !!document.getElementById('prefillKeyEl'), required: !!document.getElementById('requiredEl') }));
-    c.check('panel: the presets of spec §4.4 (country disabled: phase 2), visitor copy, prefill key, no "required"', pane.presets.length === 27 && pane.presets.includes('utm_campaign') && pane.presets.includes('cookie') && pane.geo && pane.mail && pane.prefill && !pane.required, pane);
+    // SPLIT §10.6: the visitor's country is the Visitor Country add-on's (AdnGEO): without it no entry (no disabled
+    // "coming soon"); with it its two presets come in through window.efbSmartPresetsExtra (checked below).
+    const pane = await page.evaluate(() => ({ presets: [...document.querySelectorAll('#hdnPresetEl option')].map((o) => o.value), geo: !document.querySelector('#hdnPresetEl option[value="geo"]'), mail: !!document.getElementById('hdnVisitorMailEl'), prefill: !!document.getElementById('prefillKeyEl'), required: !!document.getElementById('requiredEl') }));
+    c.check('panel: the presets of spec §4.4 (no country entry without the AdnGEO add-on), visitor copy, prefill key, no "required"', pane.presets.length === 26 && pane.presets.includes('utm_campaign') && pane.presets.includes('cookie') && pane.geo && pane.mail && pane.prefill && !pane.required, pane);
+    const withGeo = await page.evaluate((id) => {
+      window.efbSmartPresetsExtra = [['geo', 'Visitor country', '{geo:country}'], ['geo_name', 'Visitor country name', '{geo:country_name}']];
+      const indx = valj_efb.findIndex((x) => x.id_ === id);
+      const box = document.createElement('div');
+      box.innerHTML = efbHiddenPanelEls(indx, id + '-id');
+      const o = [...box.querySelectorAll('#hdnPresetEl option')];
+      window.efbSmartPresetsExtra = [];
+      return { ids: o.map((x) => x.value), disabled: o.filter((x) => x.disabled).map((x) => x.value) };
+    }, ids[0]);
+    c.check('with the Visitor Country add-on: "Visitor country" and its name before "Value template", enabled', withGeo.ids.length === 28 && withGeo.ids.indexOf('geo') === withGeo.ids.length - 3 && withGeo.ids.indexOf('geo_name') === withGeo.ids.length - 2 && withGeo.ids[withGeo.ids.length - 1] === 'custom' && withGeo.disabled.length === 0, withGeo);
     await page.selectOption('#hdnPresetEl', 'utm_campaign');
     let v = await page.evaluate((id) => [efbBuilderApi.getForm().find((x) => x.id_ === id).value, document.getElementById('hdnTemplateEl').value, (document.getElementById(id + '_tpl') || {}).textContent], ids[0]);
     c.check('preset UTM campaign writes {get:utm_campaign} (template input and canvas follow)', v[0] === '{get:utm_campaign}' && v[1] === v[0] && v[2] === v[0], v);

@@ -77,7 +77,7 @@
 | تخته نقاشی (Drawing Board) | Jotform | F10 |
 | ضبط صدا با تبدیل خودکار به متن | Fillout | فاز ۲ مستقل (ضبط صدا را داریم) |
 | نمایشگر PDF داخل فرم | Fillout | F10 |
-| کشور پاسخ‌دهنده به‌عنوان مقدار پنهان | Tally | **به افزونهٔ `AdnGEO` منتقل شد** (تصمیم مالک، Free Plus و Pro، کلید API خود مدیر؛ [SPLIT §۱۰.۶](SPLIT-core-addons.fa.md)) |
+| کشور پاسخ‌دهنده به‌عنوان مقدار پنهان | Tally | **به افزونهٔ `AdnGEO` منتقل و ساخته شد (SPLIT-M)** (تصمیم مالک، Free Plus و Pro، کلید API خود مدیر؛ [SPLIT §۱۰.۶](SPLIT-core-addons.fa.md)) |
 | شمارهٔ ترتیبی پاسخ با پیشوند | Forminator، Ninja | F14 |
 | کپی «همانند نشانی قبلی» | Gravity Forms | F17 |
 | ذخیرهٔ متن رضایت‌نامه همراه نسخه | Gravity Forms | F13 |

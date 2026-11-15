@@ -52,9 +52,9 @@
       ['datetime', T('hdnDateTime', 'Date and time'), '{date:Y-m-d H:i}'],
       ['uid', T('hdnUid', 'Unique ID'), '{uid}'],
       ['cookie', T('hdnCookie', 'Cookie'), '{cookie:%s}'],
-      ['geo', T('hdnCountry', 'Visitor country') + ' — ' + T('soon', 'coming soon'), null],
+    ].concat(extraPresets(), [
       ['custom', T('hdnTemplate', 'Value template'), null]
-    ];
+    ]);
   }
   /** Which preset a stored template is (and the parameter / cookie name of the two that take one). */
   function presetOf(tpl) {
@@ -82,12 +82,24 @@
 
   /* ---------------------------------------------------------------- the hidden field's panel */
 
+  /**
+   * SPLIT §10.6 (smart_tags_ext v1): presets an add-on adds (the Visitor Country add-on: {geo:country},
+   * {geo:country_name}) through window.efbSmartPresetsExtra ([id, label, template]) or the event efb:smart-presets
+   * (detail.presets, an array to push to). Shown before "Value template". (Before SPLIT a disabled "soon" entry stood here.)
+   */
+  function extraPresets() {
+    const out = [];
+    const add = (p) => { if (Array.isArray(p) && typeof p[0] === 'string' && /^[a-z_]{2,30}$/.test(p[0]) && typeof p[1] === 'string' && (p[2] === null || typeof p[2] === 'string')) out.push([p[0], p[1], p[2]]); };
+    try { (Array.isArray(window.efbSmartPresetsExtra) ? window.efbSmartPresetsExtra : []).forEach(add); } catch (e) { /* none */ }
+    try { const d = { presets: [] }; document.dispatchEvent(new CustomEvent('efb:smart-presets', { detail: d })); d.presets.forEach(add); } catch (e) { /* old browser */ }
+    return out;
+  }
   function efbHiddenPanelEls(indx, idset) {
     if (typeof valj_efb === 'undefined' || !valj_efb[indx] || valj_efb[indx].type !== 'hiddenField') return '';
     const r = valj_efb[indx];
     const pr = presetOf(r.value);
     const mailOn = r.hdn_visitor_mail === '1' || r.hdn_visitor_mail === 1;
-    const opts = presets().map((p) => `<option value="${p[0]}" ${p[0] === pr.id ? 'selected' : ''} ${p[0] === 'geo' ? 'disabled' : ''}>${esc(p[1])}</option>`).join('');
+    const opts = presets().map((p) => `<option value="${p[0]}" ${p[0] === pr.id ? 'selected' : ''}>${esc(p[1])}</option>`).join('');
     const showArg = pr.id === 'param' || pr.id === 'cookie';
     return `<div class="efb mt-2 efb-hdn-panel" id="hdnPanelEl" data-id="${esc(idset)}">
       <div class="efb mt-2 mb-1">

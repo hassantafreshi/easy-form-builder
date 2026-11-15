@@ -29,7 +29,17 @@ if (!defined('ABSPATH')) {
 
 class Smart_Tags {
 
-	/** Known namespaces (geo is phase 2: known, so it is not text, but it resolves to its fallback). */
+	/**
+	 * Add-on namespaces (SPLIT §10.6, smart_tags_ext v1): filter efb_smart_tag_namespaces → {ns: {args, places,
+	 * server_only, addon}}. geo is reserved for the Visitor Country add-on: known (not text), resolved only on the server.
+	 */
+	public static function addon_namespaces() {
+		$ns = array('geo' => array('args' => self::ARGS['geo'], 'places' => array('hidden', 'email', 'thanks'), 'server_only' => true, 'addon' => 'AdnGEO'));
+		if (function_exists('apply_filters')) { $f = apply_filters('efb_smart_tag_namespaces', $ns); if (is_array($f)) $ns = $f; }
+		return $ns;
+	}
+
+	/** Known namespaces (geo: the Visitor Country add-on's, server-side only, empty without it). */
 	const NS = array('get', 'cookie', 'ref', 'page', 'post', 'user', 'date', 'ip', 'uid', 'field', 'form', 'site', 'entry', 'geo');
 
 	/** Longest value a tag gives, and the longest hidden-field template. */
@@ -327,7 +337,11 @@ class Smart_Tags {
 			case 'field':
 				return self::field_value($arg, $ctx);
 			case 'geo':
-				return null;
+				// SPLIT §10.6: a namespace reserved for the Visitor Country add-on (AdnGEO): server-side only, on the
+				// submission; without the add-on (or its key) it is empty and {geo:country|XX} is XX, never raw text.
+				if (!in_array($arg, self::ARGS['geo'], true) || !function_exists('apply_filters')) return null;
+				$g = apply_filters('efb_smart_tag_value', null, 'geo', $arg, $ctx);
+				return is_scalar($g) && (string) $g !== '' ? (string) $g : null;
 		}
 		return null;
 	}
@@ -718,6 +732,10 @@ class Smart_Tags {
 			'fields'  => self::fields_of($rows),
 			'values'  => array(),
 			'entry'   => array('track' => ''),
+			// SPLIT §10.6 (smart_tags_ext v1): only for an add-on's server-side namespace on this submission (the Visitor
+			// Country add-on), never stored, never in the page: the visitor's real address and the form's settings row.
+			'visitor_ip' => isset($req['visitor_ip']) && is_string($req['visitor_ip']) ? $req['visitor_ip'] : '',
+			'form0'   => $s0,
 		);
 		return $ctx;
 	}

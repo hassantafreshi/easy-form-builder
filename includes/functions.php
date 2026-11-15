@@ -5238,7 +5238,6 @@ class efbFunction {
 			"hdnUid" => $state && isset($ac->text->hdnUid) ? $ac->text->hdnUid : esc_html__('Unique ID','easy-form-builder'),
 			"hdnCookie" => $state && isset($ac->text->hdnCookie) ? $ac->text->hdnCookie : esc_html__('Cookie','easy-form-builder'),
 			"hdnCookieName" => $state && isset($ac->text->hdnCookieName) ? $ac->text->hdnCookieName : esc_html__('Cookie name','easy-form-builder'),
-			"hdnCountry" => $state && isset($ac->text->hdnCountry) ? $ac->text->hdnCountry : esc_html__('Visitor country','easy-form-builder'),
 			"hdnTemplate" => $state && isset($ac->text->hdnTemplate) ? $ac->text->hdnTemplate : esc_html__('Value template','easy-form-builder'),
 			"hdnVisitorMail" => $state && isset($ac->text->hdnVisitorMail) ? $ac->text->hdnVisitorMail : esc_html__('Include in the visitor\'s email copy','easy-form-builder'),
 			/* translators: F08: badge of a hidden value in the response viewer */
@@ -5466,7 +5465,6 @@ class efbFunction {
 			"prefillReserved" => $state && isset($ac->text->prefillReserved) ? $ac->text->prefillReserved : esc_html__('WordPress already uses this parameter. Choose another name.','easy-form-builder'),
 			/* translators: F08: the general fallback of a smart tag */
 			"stUnavailable" => $state && isset($ac->text->stUnavailable) ? $ac->text->stUnavailable : esc_html__('Not available','easy-form-builder'),
-			"soon" => $state && isset($ac->text->soon) ? $ac->text->soon : esc_html__('coming soon','easy-form-builder'),
 			/* translators: F07 visitor: one file is too large; %s = megabytes */
 			"fileTooBigMB" => $state && isset($ac->text->fileTooBigMB) ? $ac->text->fileTooBigMB : esc_html__('This file is larger than %s MB.','easy-form-builder'),
 			/* translators: F07 visitor: one file of a type the field does not take */

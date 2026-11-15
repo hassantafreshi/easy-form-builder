@@ -10,6 +10,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	   public $pub_bg_button_color_efb='btn-primary';
 	   public $package_type_efb = 0;
     private $mobile_pos = ['', 'col-12', 'col-12', 'col-12'];
+    /** SPLIT §10.6: hidden fields that show an add-on's note (their wrapper is not hidden). */
+    private $hidden_note_ids_efb = array();
     /* F18: the element being rendered and the phrases, for the administrator's note on a locked field. */
     private $pro_notice_type_efb = '';
     private $pro_notice_texts_efb = array();
@@ -3182,6 +3184,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 						$hdn_static_efb ? esc_attr($hdn_tpl_efb) : '',
 						$hdn_static_efb ? '' : ' data-st-hidden="1"'
 					);
+					// SPLIT §10.6 (smart_tags_ext v1): an add-on whose server-side tag this field uses may show a short note
+					// here (the Visitor Country add-on's privacy notice); the field itself stays hidden.
+					$hdn_note_efb = function_exists('apply_filters') ? apply_filters('efb_hidden_field_note', '', $vj, $form_id, isset($this->valj_efb[0]) ? $this->valj_efb[0] : null) : '';
+					if (is_string($hdn_note_efb) && $hdn_note_efb !== '') {
+						$ui = '<div class="efb efb-hdn-note">' . wp_kses_post($hdn_note_efb) . '</div>' . $ui;
+						$this->hidden_note_ids_efb[(string) $element_Id] = true;
+					}
 					$dataTag = 'hiddenField';
 					break;
 
@@ -3857,7 +3866,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		if ($vj->type != "form" && $dataTag != "step" && $vj->type != 'option') {
 			// F04: a calc field set to "do not show the result" is computed, sent and stored, but not shown.
-			$hidden = (isset($vj->hidden) && $vj->hidden == 1) || $elementId === 'hiddenField' || ($elementId === 'calc' && isset($vj->calc_show) && $vj->calc_show === 'hidden') ? 'd-none' : '';
+			$hidden = (isset($vj->hidden) && $vj->hidden == 1) || ($elementId === 'hiddenField' && empty($this->hidden_note_ids_efb[(string) $vj->id_])) || ($elementId === 'calc' && isset($vj->calc_show) && $vj->calc_show === 'hidden') ? 'd-none' : '';
 			$tagId = in_array($elementId, ["firstName", "lastName", "address", "address_line", "postalcode"]) ? 'text' : $elementId;
 			$tagT = in_array($elementId, ["esign", "yesNo", "rating"]) ? '' : 'def';
 			$stepNo = (int)$vj->step - 1;
