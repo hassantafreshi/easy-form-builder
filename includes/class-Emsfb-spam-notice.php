@@ -75,7 +75,7 @@ class Spam_Notice {
 		if (self::needed() && !get_user_meta($uid, self::META, true)) {
 			$shown = true;
 			printf(
-				'<div class="notice notice-info is-dismissible efb-spam-notice" id="efb-spam-notice" data-efb-notice="spam" dir="auto"><p style="unicode-bidi:plaintext">%1$s</p><p class="efb-spam-notice-actions"><button type="button" class="button button-primary" data-efb-spam-do="enable">%2$s</button> <a class="button" href="%3$s">%4$s</a></p><p class="efb-spam-notice-status" role="status" aria-live="polite" style="unicode-bidi:plaintext"></p></div>',
+				'<div class="notice notice-info is-dismissible efb efb-spam-notice" id="efb-spam-notice" data-efb-notice="spam" dir="auto"><p style="unicode-bidi:plaintext">%1$s</p><p class="efb-spam-notice-actions"><button type="button" class="button button-primary" data-efb-spam-do="enable">%2$s</button> <a class="button" href="%3$s">%4$s</a></p><p class="efb-spam-notice-status" role="status" aria-live="polite" style="unicode-bidi:plaintext"></p></div>',
 				esc_html(self::t('spamSuggestNotice', 'Easy Form Builder can now catch spam without a CAPTCHA: a hidden trap field and a minimum time to fill. Turn them on in Settings › Captchas.')),
 				esc_html(self::t('spamTurnOnRecommended', 'Turn on recommended protection')),
 				esc_url(admin_url('admin.php?page=Emsfb&state=setting&tab=captchas')),
@@ -95,7 +95,7 @@ class Spam_Notice {
 				$lines[] = '<li style="unicode-bidi:plaintext">' . wp_kses($txt, array('bdi' => array())) . ' <span class="efb-cp-ids">(' . esc_html(implode(', ', array_slice($e['ids'], 0, 10))) . ')</span></li>';
 			}
 			printf(
-				'<div class="notice notice-warning is-dismissible efb-cp-notice" id="efb-cp-notice" data-efb-notice="cp" data-sig="%1$s" dir="auto"><ul>%2$s</ul><p><a class="button button-primary" href="%3$s">%4$s</a></p></div>',
+				'<div class="notice notice-warning is-dismissible efb efb-cp-notice" id="efb-cp-notice" data-efb-notice="cp" data-sig="%1$s" dir="auto"><ul>%2$s</ul><p><a class="button button-primary" href="%3$s">%4$s</a></p></div>',
 				esc_attr($sig), implode('', $lines), esc_url(admin_url('admin.php?page=Emsfb_addon')), esc_html(self::t('cpInstallAddon', 'Install the add-on'))
 			);
 		}
@@ -103,7 +103,7 @@ class Spam_Notice {
 		$on = esc_js(self::t('spamTurnedOn', 'Spam protection is on: hidden field, 3 seconds, spam kept 30 days.'));
 		$url = esc_url_raw(admin_url('admin-ajax.php'));
 		echo "<script>(function(){function go(d,x){var f=new FormData();f.append('action','efb_spam_notice');f.append('do',d);f.append('nonce','" . esc_js($nonce) . "');if(x)f.append('sig',x);return fetch('" . esc_js($url) . "',{method:'POST',body:f,credentials:'same-origin'}).then(function(r){return r.json();});}"
-			. "document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-efb-spam-do=\"enable\"]');if(b){b.disabled=true;go('enable').then(function(j){var n=document.getElementById('efb-spam-notice');if(!n)return;var s=n.querySelector('.efb-spam-notice-status');if(j&&j.success){s.textContent='" . $on . "';n.className='notice notice-success efb-spam-notice';var a=n.querySelector('.efb-spam-notice-actions');if(a)a.remove();}else{b.disabled=false;}});return;}"
+			. "document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-efb-spam-do=\"enable\"]');if(b){b.disabled=true;go('enable').then(function(j){var n=document.getElementById('efb-spam-notice');if(!n)return;var s=n.querySelector('.efb-spam-notice-status');if(j&&j.success){s.textContent='" . $on . "';n.className='notice notice-success efb efb-spam-notice';var a=n.querySelector('.efb-spam-notice-actions');if(a)a.remove();}else{b.disabled=false;}});return;}"
 			. "var x=e.target.closest&&e.target.closest('.notice-dismiss');if(!x)return;var n=x.closest('[data-efb-notice]');if(!n)return;go(n.getAttribute('data-efb-notice')==='cp'?'dismiss_cp':'dismiss',n.getAttribute('data-sig'));});})();</script>";
 	}
 

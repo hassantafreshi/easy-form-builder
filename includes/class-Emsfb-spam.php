@@ -685,7 +685,7 @@ class Spam {
 			'require_js' => $cfg['require_js'],
 			// F12b: what the form asks for, what protects it now (a fallback when its add-on, plan or keys are missing).
 			'captcha'    => array('on' => $on, 'provider' => $on ? $eff['want'] : null, 'effective_provider' => $ep ? $ep->id() : null, 'kind' => $kind,
-				'ready' => $on ? ($ep !== null && !$eff['fallback']) : null, 'widget' => $on ? ($ep === null || $kind !== 'widget' ? 'none' : 'visible') : null,
+				'ready' => $on ? ($ep !== null && !$eff['fallback']) : null, 'widget' => $on ? ($ep === null || $kind === 'invisible' ? 'none' : 'visible') : null,
 				'fallback' => $on && $eff['fallback'] ? ($ep ? 'google' : 'soft_checks') : null, 'why' => $on ? $eff['why'] : null),
 			'akismet'    => $cfg['akismet'] && self::akismet_available(),
 			'disallowed_keys' => $cfg['disallowed'],

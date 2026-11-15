@@ -124,9 +124,11 @@ class Admin {
 			$out[] = array('id' => $id, 'label' => $p->label(), 'plan' => $p->plan(), 'addon' => $p->addon_key(), 'installed' => true, 'available' => $st === null,
 				'state' => $st, 'ready' => $p->ready($row), 'kind' => $p->kind(), 'privacy' => $p->privacy(), 'csp' => $p->csp_hosts(), 'options' => $p->form_options_schema(), 'settings' => $sch);
 		}
+		$set = $row === null && function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : $row;
 		foreach (self::ADDONS as $code => $id) {
 			if (Registry::get($id)) continue;
-			$st = class_exists('\\Emsfb\\Addon_Catalog') ? \Emsfb\Addon_Catalog::state($code, $row) : 'addon';
+			// Above the plan → 'plan' even while not installed (installing would not help); else the catalogue's reason.
+			$st = class_exists('\\Emsfb\\Addon_Catalog') ? (\Emsfb\Addon_Catalog::plan_allows($code) ? \Emsfb\Addon_Catalog::state($code, $set) : 'plan') : 'addon';
 			$out[] = array('id' => $id, 'label' => class_exists('\\Emsfb\\Addon_Catalog') ? \Emsfb\Addon_Catalog::name($code) : $id, 'plan' => 'free_plus', 'addon' => $code,
 				'installed' => false, 'available' => false, 'state' => $st ?: 'addon', 'ready' => false, 'kind' => null, 'privacy' => null, 'csp' => array(), 'options' => array(), 'settings' => array());
 		}

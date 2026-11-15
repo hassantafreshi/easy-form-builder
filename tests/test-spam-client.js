@@ -57,7 +57,8 @@ function grab(name) {
   t('actionSendData: the hidden field is added after every branch built data, before payments/create and the send', hp > send.lastIndexOf('payment: \'paypal\'') && hp < send.indexOf('window.EFBPay.submit(data, form_id)') && hp < send.indexOf('post_api_forms_efb(data,form_id)'), true);
   const quote = core.slice(core.indexOf('async function efb_review_quote_efb('), core.indexOf('async function efb_review_quote_efb(') + 2500);
   t('the review page\'s payments/quote sends it too (before decorate)', quote.indexOf('efb_spam_add_to_request_efb(data, form_id)') > 0 && quote.indexOf('efb_spam_add_to_request_efb(data, form_id)') < quote.indexOf('EFBRuntime.decorate'), true);
-  const resp = core.slice(core.indexOf('async function response_fill_form_efb('), core.indexOf('async function response_fill_form_efb(') + 1200);
+  const resp = core.slice(core.indexOf('async function response_fill_form_efb('), core.indexOf('async function response_fill_form_efb(') + 2000);
+  t('F12b v3 → v2: the challenge brings the visitor back to the box\'s step (not the error view) and focuses the box', /EFBCaptcha\.challenge\(form_id\)\) \{[\s\S]{0,700}efb_go_to_step_direct\(form_id, cpStep\)[\s\S]{0,120}cpBox\.focus\(\)[\s\S]{0,60}return;/.test(resp), true);
   t('a refused answer resets the form\'s CAPTCHA (a token is spent once)', /if \(!\(res && res\.data && res\.data\.success == true\) && window\.EFBCaptcha[^\n]*window\.EFBCaptcha\.reset\(form_id\)/.test(resp), true);
   // F12b-C: only a visible widget of the form needs a row (needsWidgetToken: not v3, v2 invisible or a form without a box).
   t('the "tick the box" check asks EFBCaptcha.needsWidgetToken(form) (skips v3, v2 invisible, no box)', /Number\(valj_efb\[0\]\.captcha\) === 1 && \(window\.EFBCaptcha \? window\.EFBCaptcha\.needsWidgetToken\(form_id\)/.test(core), true);

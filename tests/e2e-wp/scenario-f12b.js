@@ -1,0 +1,658 @@
+/**
+ * F12b scenarios of tests/e2e-wp/run.js (docs/feature-gaps/F12b-captcha-providers.fa.md, the scenario matrix), on the
+ * real site with the five CAPTCHA add-ons in vendor/. The services are never reached: the browser gets stand-in scripts
+ * for Google (google.com and recaptcha.net), Turnstile, hCaptcha and the Friendly Captcha SDK (Playwright routes; a
+ * "Verify" button hands over a token, invisible widgets answer execute()); the server's siteverify calls are answered
+ * by the mu-plugin efb-e2e-f12b.php from the token itself (f12b.<base64 JSON answer>.<random>, f12b-slow, f12b-bad).
+ * ALTCHA and the question CAPTCHA are the add-ons' own widgets: real challenges from the site, really solved.
+ *
+ *  f12b-1  Builder and AutoPilot (rows 1, 2, 25): the service select (keys missing → disabled with the reason, an add-on
+ *          not installed → "Not installed"), an add-on's options, Save, switching back drops the other service's
+ *          options; efbBuilderApi on the real builder (addon_required, plan_required on Free, capabilities); the form
+ *          schema; a form whose service has no keys → the visitor gets the fallback, only an administrator the note.
+ *  f12b-2  Google modes (rows 1, 5, 9, 11): v2 invisible (execute on send), v3 → v2 challenge in the same box, an
+ *          expired checkbox token, recaptcha.net.
+ *  f12b-3  Many forms on one page (rows 10–14): v2 ×2, v3, Turnstile ×2, hCaptcha, Friendly, ALTCHA ×2, question —
+ *          unique ids, one script per service, lazy rendering, a refused token resets only its own box, each form
+ *          stored; a form added later (AJAX / popup) loads its service's script late.
+ *  f12b-4  Multi-step, cached page, failures (rows 5–7, 16, 17): the widget on step 2 renders there; a cached copy of
+ *          an ALTCHA page gets a live challenge; a timeout / broken answer / a replayed token → nothing stored.
+ *  f12b-5  D1 and D3 in the browser (rows 15, 20, 21): login with v2 (no token → refused; solved → signed in),
+ *          registration with the question CAPTCHA, the tracking box and the reply box on one page (own contexts, own
+ *          resets, one solve good for the session).
+ *  f12b-6  D2, D4, fallback, languages (rows 22, 27–30): the notice by keyboard; Settings › Captchas never prints a
+ *          secret; an add-on switched off → the fallback, on again → back; ALTCHA by keyboard and its accessibility
+ *          tree; fa_IR and ar at 375 px (right to left, no horizontal scroll), screenshots.
+ */
+'use strict';
+
+const path = require('path');
+const http = require('http');
+
+module.exports = function (S) {
+  const { scenario, R, ctl, CFG, sleep, SHOT } = S;
+  const plan = (n) => { if (String(ctl('state').emsfb_pro) !== String(n)) ctl('plan', n); };
+  const form = (name, fields, row0, steps) => ctl('f03-form', name, JSON.stringify(fields), row0 || '', steps ? String(steps) : '1');
+  const pageOf = (fid) => ctl('page', String(fid)).url;
+  const entries = (fid) => ctl('f14-entries', String(fid)) || [];
+  const setting = (kv) => ctl('f12-setting', kv);
+  const del = (...ids) => ids.forEach((f) => { try { ctl('f12-delete-form', String(f.form_id || f)); } catch (e) { /* gone */ } });
+  const byId = (id) => `[id="${id}"]`;
+  const ctlb = (...a) => { const out = S.wp('eval-file', path.join(__dirname, 'ctl-f12b.php'), ...a).trim().split('\n'); return JSON.parse(out[out.length - 1]); };
+  const NM = [{ key: 'nm', type: 'text', name: 'Name' }];
+  const GOOGLE = 'siteKey=e2e-v2-site-placeholder&secretKey=e2e-v2-secret-placeholder&rciSiteKey=e2e-v2i-site-placeholder&rciSecretKey=e2e-v2i-secret-placeholder&rc3SiteKey=e2e-v3-site-placeholder&rc3SecretKey=e2e-v3-secret-placeholder&rc3Threshold=0.5&rc3_low_action=spam&spam_min_time=0&captcha_provider=recaptcha_v2';
+  const GOOGLE_DEL = 'siteKey=del&secretKey=del&rciSiteKey=del&rciSecretKey=del&rc3SiteKey=del&rc3SecretKey=del&rc3Threshold=del&rc3_low_action=del&captcha_provider=del&rc_host=del&scaptcha=del&captcha_login=del';
+  const ADDONS = ['AdnCTS', 'AdnHCP', 'AdnALT', 'AdnQCP', 'AdnFRC'];
+  /* The official public test keys of the services (placeholders; never a real secret). */
+  const KEYS = {
+    turnstile: [{ site_key: '1x00000000000000000000AA' }, { secret: '1x0000000000000000000000000000000AA' }],
+    hcaptcha: [{ site_key: '10000000-ffff-ffff-ffff-000000000001' }, { secret: '0x0000000000000000000000000000000000000000' }],
+    friendly: [{ site_key: 'FCMTESTSITEKEY0000', endpoint: 'global' }, { api_key: 'e2e-friendly-api-key-placeholder' }],
+  };
+  const addons = (on, which) => {
+    (which || ADDONS).forEach((a) => ctl('addon-flag', a, on ? '1' : '0'));
+    if (!on) return;
+    Object.keys(KEYS).forEach((id) => ctlb('cpv', id, JSON.stringify(KEYS[id][0]), JSON.stringify(KEYS[id][1])));
+  };
+  const setup = (extra) => {
+    plan(3);
+    ctl('locale', '');
+    ctlb('mu');
+    ctlb('mock', '1');
+    ctlb('rl-reset');
+    addons(true);
+    setting(GOOGLE + (extra ? '&' + extra : ''));
+  };
+  const teardown = () => { ctlb('mock', '0'); setting(GOOGLE_DEL); addons(false); ctl('locale', ''); };
+
+  /* ------------------------------------------------------------------ stand-in scripts of the services */
+  const FAKE = (kind) => `(function(){
+    var W = window;
+    var cap = W.__cb = W.__cb || { renders: [], resets: [], executes: [], v3: [], cbs: {}, gid: 0, n: 0 };
+    W.__f12bTok = W.__f12bTok || function (ans) {
+      var a = { success: true, hostname: '@home', challenge_ts: '@now' }; ans = ans || {}; for (var k in ans) a[k] = ans[k];
+      return 'f12b.' + btoa(JSON.stringify(a)).split('+').join('-').split('/').join('_').split('=').join('') + '.' + Math.random().toString(36).slice(2) + Date.now();
+    };
+    function next(k, ans) { var nx = W.__cbNext || {}; if (nx[k]) { var t = nx[k]; delete nx[k]; return t; } return W.__f12bTok(ans); }
+    function rec(k, id, el, o) {
+      var c = {}; for (var x in o) if (typeof o[x] !== 'function' && x !== 'element') c[x] = o[x];
+      var box = el.closest ? el.closest('.efb-captcha-box') : null;
+      cap.renders.push({ kind: k, id: id, opts: c, formid: el.getAttribute('data-formid'), ctx: el.getAttribute('data-ctx'), box: box ? box.id : '' });
+    }
+    function button(k, id, el, go) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'efb-fake-cap'; b.style.minHeight = '44px'; b.style.maxWidth = '100%';
+      b.textContent = 'Verify'; b.setAttribute('data-kind', k); b.setAttribute('data-wid', String(id));
+      b.onclick = function () { go(); b.textContent = 'Verified'; };
+      el.appendChild(b);
+    }
+    function render(k, numeric) {
+      return function (el, o) {
+        var id = numeric ? cap.gid++ : k + (++cap.n);
+        rec(k, id, el, o);
+        cap.cbs[k + ':' + id] = o;
+        var ans = function () { return k === 'turnstile' ? { action: o.action } : {}; };
+        if (o.size !== 'invisible') button(k, id, el, function () { o.callback(next(k, ans())); });
+        return id;
+      };
+    }
+    function exec(k) { return function (id) { cap.executes.push(k + ':' + id); var o = cap.cbs[k + ':' + id]; if (o) setTimeout(function () { o.callback(next(k, {})); }, 30); }; }
+    function reset(k) { return function (id) { cap.resets.push(k + ':' + id); }; }
+    W.__cbExpire = function (k, id) { var o = cap.cbs[k + ':' + id]; if (o && o['expired-callback']) o['expired-callback'](); };
+    ${kind === 'google' ? `W.grecaptcha = { render: render('recaptcha', true), reset: reset('recaptcha'), ready: function (cb) { cb(); },
+      execute: function (key, o) { if (typeof key === 'number') return exec('recaptcha')(key); cap.v3.push({ key: key, action: o && o.action }); return Promise.resolve(next('v3', { score: 0.9, action: o && o.action })); } };` : ''}
+    ${kind === 'hcaptcha' ? "W.hcaptcha = { render: render('hcaptcha'), reset: reset('hcaptcha'), execute: exec('hcaptcha'), remove: function () {} };" : ''}
+    ${kind === 'turnstile' ? "W.turnstile = { render: render('turnstile'), reset: reset('turnstile'), execute: exec('turnstile'), remove: function () {} };" : ''}
+    ${kind === 'friendly' ? `W.frcaptcha = { FriendlyCaptchaSDK: function () { this.createWidget = function (o) {
+      var id = 'friendly' + (++cap.n); rec('friendly', id, o.element, o);
+      button('friendly', id, o.element, function () { o.element.dispatchEvent(new CustomEvent('frc:widget.complete', { detail: { response: next('friendly', {}) } })); });
+      return { reset: function () { cap.resets.push('friendly:' + id); }, start: function () {}, destroy: function () {} }; }; } };` : ''}
+  })();`;
+  const RE = /^https:\/\/(js\.hcaptcha\.com\/|challenges\.cloudflare\.com\/turnstile\/|www\.google\.com\/recaptcha\/|www\.recaptcha\.net\/recaptcha\/|cdn\.jsdelivr\.net\/npm\/@friendlycaptcha\/)/;
+  const scripts = [];
+  async function fake(ctx) {
+    await ctx.route(RE, (route) => {
+      const u = route.request().url();
+      scripts.push(u);
+      const kind = /hcaptcha/.test(u) ? 'hcaptcha' : /cloudflare/.test(u) ? 'turnstile' : /friendlycaptcha/.test(u) ? 'friendly' : 'google';
+      return route.fulfill({ status: 200, contentType: 'application/javascript', body: FAKE(kind) });
+    });
+  }
+  /** A guest's page: the stand-ins, every CAPTCHA box scrolled into view (lazy rendering) unless opts.noScroll. */
+  async function open(context, url, label, opts, more) {
+    more = more || {};
+    const ctx = more.ctx || await context(opts || {}, label);
+    if (!more.ctx) await fake(ctx);
+    const g = await ctx.newPage();
+    await g.goto(url, { waitUntil: 'load' });
+    await g.waitForSelector(more.sel || '[id^="body_efb_"]', { state: 'attached', timeout: 20000 });
+    await g.waitForFunction(() => typeof sendBack_emsFormBuilder_pub !== 'undefined' && window.EFBCaptcha, null, { timeout: 20000 });
+    await sleep(600);
+    if (!more.noScroll) await scrollBoxes(g);
+    return g;
+  }
+  async function scrollBoxes(g) {
+    const n = await g.evaluate(() => document.querySelectorAll('.efb-captcha-box').length);
+    for (let i = 0; i < n; i++) { await g.evaluate((k) => { const b = document.querySelectorAll('.efb-captcha-box')[k]; if (b) b.scrollIntoView({ block: 'center' }); }, i); await sleep(200); }
+    await sleep(400);
+  }
+  const type = async (p, id, v) => { await p.fill(byId(id + '_'), v); await p.press(byId(id + '_'), 'Tab'); await sleep(120); };
+  async function sendIn(g, fid, wait, btn) {
+    const resp = g.waitForResponse((x) => /forms\/message\/add/.test(x.url()), { timeout: wait || 30000 }).catch(() => null);
+    await g.click(`#body_efb_${fid} ${btn || '#btn_send_efb'}`);
+    const r = await resp;
+    let j = null; try { j = r ? await r.json() : null; } catch (e) { j = null; }
+    await sleep(900);
+    return r ? (j && j.data ? j.data : (j || {})) : null;
+  }
+  const cap = (g) => g.evaluate(() => JSON.parse(JSON.stringify(window.__cb || { renders: [], resets: [], executes: [], v3: [] })));
+  const msgOf = (g, fid) => g.evaluate((f) => { const m = document.querySelector('.efb-captcha-box[data-formid="' + f + '"] .efb-captcha-msg'); return m ? m.textContent : null; }, fid);
+  const phone = (p) => p.evaluate(() => ({ dir: getComputedStyle(document.body).direction, scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth }));
+  /** After a refused answer the form shows the error with "Previous": the visitor goes back to the form. */
+  const back = async (g, fid) => { const sel = `#body_efb_${fid} #prev_efb_send`; if (await g.isVisible(sel).catch(() => false)) { await g.click(sel); await sleep(500); } };
+  const clickFake = async (g, fid) => { await g.click(`.efb-captcha-box[data-formid="${fid}"] .efb-fake-cap`); await sleep(250); };
+  /** ALTCHA: tick the box, wait for the proof of work. */
+  async function altcha(g, fid) {
+    await g.click(`.efb-captcha-box[data-formid="${fid}"] .efb-altcha-cb`);
+    await g.waitForFunction((f) => { const a = document.querySelector('.efb-captcha-box[data-formid="' + f + '"] .efb-altcha'); return a && a.getAttribute('data-state') === 'verified'; }, fid, { timeout: 30000 });
+  }
+  /** The question CAPTCHA: read the sum, type the answer. */
+  async function question(g, fid, wrong) {
+    const sel = `.efb-captcha-box[data-formid="${fid}"] .efb-qcp`;
+    await g.waitForFunction((s) => { const q = document.querySelector(s + ' .efb-qcp-q'); return q && /\d/.test(q.textContent.replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))); }, sel, { timeout: 15000 });
+    const ans = await g.evaluate((s) => {
+      const t = document.querySelector(s + ' .efb-qcp-q').textContent.replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+      const n = (t.match(/\d+/g) || []).map(Number);
+      return /minus/i.test(t) ? n[0] - n[1] : /times/i.test(t) ? n[0] * n[1] : n[0] + n[1];
+    }, sel);
+    await g.fill(sel + ' input', String(wrong ? ans + 7 : ans));
+    await g.press(sel + ' input', 'Tab');
+    await sleep(200);
+    return ans;
+  }
+  const get = (url) => new Promise((ok, no) => { http.get(url, (res) => { let b = ''; res.on('data', (c) => { b += c; }); res.on('end', () => ok({ status: res.statusCode, body: b })); }).on('error', no); });
+
+  /* ================================================================== f12b-1 builder, AutoPilot, schema, fallback */
+  scenario('f12b-1', 'F12b builder and AutoPilot: the service select (no keys / not installed), an add-on\'s options, Save, switching back; efbBuilderApi addon_required / plan_required; the schema; no keys → fallback, the note for administrators only', async ({ context, adminPage }) => {
+    setup();
+    ctl('addon-flag', 'AdnFRC', '0');
+    ctlb('cpv', 'turnstile', JSON.stringify({ site_key: '' }), JSON.stringify({ secret: '__clear__' }));
+    const made = [];
+    try {
+      const admin = await adminPage({}, 'f12b-builder');
+      await S.openNewForm(admin);
+      await S.addTile(admin, 'text');
+      await S.closePanel(admin);
+      await admin.click("a[onclick=\"show_setting_window_efb('formSet')\"]");
+      await admin.waitForSelector('#captchaProviderEl', { timeout: 10000 });
+      const opts = await admin.evaluate(() => Array.from(document.getElementById('captchaProviderEl').options).map((o) => ({ v: o.value, d: o.disabled, t: o.textContent })));
+      const o = (v) => opts.find((x) => x.v === v) || {};
+      R.check('f12b-1: the select: Site default first; Google\'s three modes and the add-ons with keys enabled', opts[0].v === '' && ['recaptcha_v2', 'recaptcha_v2i', 'recaptcha_v3', 'hcaptcha', 'altcha', 'question'].every((v) => o(v).v === v && o(v).d === false), opts);
+      R.check('f12b-1: Turnstile without keys → disabled, "Keys are not set"; Friendly Captcha switched off → disabled, "Not installed" (row 2)', o('turnstile').d === true && /Keys are not set/.test(o('turnstile').t) && o('friendly').d === true && /Not installed/.test(o('friendly').t), [o('turnstile'), o('friendly')]);
+      await admin.selectOption('#captchaProviderEl', 'altcha');
+      await sleep(500);
+      await admin.evaluate(() => { const el = document.getElementById('captchaEl'); if (el && !el.classList.contains('active')) { el.classList.add('active'); fun_switch_form_efb(el); } });
+      await sleep(600);
+      const altOpts = await admin.evaluate(() => Array.from(document.querySelectorAll('#efbCpOpts [data-key]')).map((x) => x.getAttribute('data-key')));
+      R.check('f12b-1: ALTCHA\'s own options appear (start, floating, footer …), each with a label', altOpts.indexOf('cp_start') !== -1 && altOpts.indexOf('cp_floating') !== -1 && await admin.evaluate(() => Array.from(document.querySelectorAll('#efbCpOpts [data-key]')).every((x) => !!document.querySelector('label[for="' + x.id + '"]'))), altOpts);
+      const startId = await admin.evaluate(() => document.querySelector('#efbCpOpts [data-key="cp_start"]').id);
+      await admin.selectOption(byId(startId), 'onload');
+      await S.settle(admin);
+      await admin.screenshot({ path: SHOT('f12b-1-builder-altcha-en') });
+      const save = async () => {
+        const saved = admin.waitForResponse((x) => /admin-ajax\.php/.test(x.url()) && /add_form_Emsfb|update_form_Emsfb/.test(x.request().postData() || ''), { timeout: 20000 }).catch(() => null);
+        await admin.evaluate(() => saveFormEfb(1));
+        const r = await saved;
+        const j = r ? await r.json() : {};
+        await sleep(900);
+        return Number(String((j.data && (j.data.value || j.data.id)) || '').replace(/\D+/g, '')) || await admin.evaluate(() => Number(form_ID_emsFormBuilder));
+      };
+      const fid = await save();
+      made.push(fid);
+      let r0 = (ctl('form', String(fid)).form_structer || [])[0] || {};
+      R.check('f12b-1: Save stores captcha_provider "altcha" and cp_start "onload" (the real sanitizer)', String(r0.captcha) === '1' && r0.captcha_provider === 'altcha' && r0.cp_start === 'onload', { p: r0.captcha_provider, s: r0.cp_start });
+      // Switch to Google v2: ALTCHA's options leave the form.
+      await admin.selectOption('#captchaProviderEl', 'recaptcha_v2');
+      await S.settle(admin);
+      await save();
+      r0 = (ctl('form', String(fid)).form_structer || [])[0] || {};
+      R.check('f12b-1: switched to reCAPTCHA v2 and saved: the other service\'s options are gone', r0.captcha_provider === 'recaptcha_v2' && r0.cp_start === undefined && r0.cp_floating === undefined, r0);
+
+      // AutoPilot on the real builder.
+      const ap = await admin.evaluate(() => {
+        const tryit = (f) => { try { const v = f(); return v === undefined ? 'ok' : JSON.parse(JSON.stringify(v)); } catch (e) { return { code: e.code, addon: e.addon }; } };
+        const caps = efb_var.capabilities || {};
+        return { absent: tryit(() => efbBuilderApi.setFormSettings({ captcha_provider: 'friendly' })), q: tryit(() => efbBuilderApi.setFormSettings({ captcha_provider: 'question', cp_mode: 'math' })), r0: { p: valj_efb[0].captcha_provider, m: valj_efb[0].cp_mode },
+          secret: tryit(() => efbBuilderApi.setFormSettings({ secretKey: 'x' })), provs: ((caps.spam || {}).providers || []).map((p) => p.id), feature: ((caps.features || {})['setting:captcha_provider'] || {}).values || [] };
+      });
+      R.check('f12b-1: AutoPilot: an add-on not installed → addon_required with its code (AdnFRC)', ap.absent.code === 'addon_required' && ap.absent.addon === 'AdnFRC', ap.absent);
+      R.check('f12b-1: AutoPilot: the question CAPTCHA and its option set; a secret refused (spam_secret)', ap.q !== null && !ap.q.code && ap.r0.p === 'question' && ap.r0.m === 'math' && ap.secret.code === 'spam_secret', ap);
+      R.check('f12b-1: capabilities list every provider (Google\'s three and the five add-ons)', ['recaptcha_v2', 'recaptcha_v2i', 'recaptcha_v3', 'turnstile', 'hcaptcha', 'altcha', 'question', 'friendly'].every((id) => ap.provs.indexOf(id) !== -1 && ap.feature.indexOf(id) !== -1), ap.provs);
+      await save();
+      const sch = await get(CFG.base + '/wp-json/Emsfb/v1/forms/' + fid + '/schema');
+      let sj = {}; try { sj = JSON.parse(sch.body); } catch (e) { sj = {}; }
+      const sc = ((sj.spam || (sj.data && sj.data.spam) || {}).captcha) || {};
+      R.check('f12b-1: forms/{id}/schema: spam.captcha names the service, what protects the form now and its widget', sc.on === true && sc.provider === 'question' && sc.effective_provider === 'question' && sc.widget === 'visible' && sc.ready === true, sc);
+
+      // Free: an add-on above the plan → plan_required.
+      plan(2);
+      await S.openNewForm(admin);
+      await S.addTile(admin, 'text');
+      await S.closePanel(admin);
+      const pr = await admin.evaluate(() => { try { efbBuilderApi.setFormSettings({ captcha_provider: 'altcha' }); return 'ok'; } catch (e) { return { code: e.code }; } });
+      R.check('f12b-1: on Free an add-on service → plan_required', pr.code === 'plan_required', pr);
+      plan(3);
+
+      // Row 2: a form asks for Turnstile, which has no keys → the visitor gets Google v2 (the fallback), no note; an administrator sees the note.
+      const T = form('F12b no keys', NM, 'captcha=1&captcha_provider=turnstile');
+      made.push(T.form_id);
+      const url = pageOf(T.form_id);
+      const g = await open(context, url, 'f12b-1-guest');
+      const gv = await g.evaluate(() => ({ p: (document.querySelector('.efb-captcha[data-provider]') || {}).getAttribute ? document.querySelector('.efb-captcha[data-provider]').getAttribute('data-provider') : null, note: !!document.querySelector('.efb-cp-admin-note') }));
+      R.check('f12b-1: Turnstile without keys: the visitor gets reCAPTCHA v2 (fallback §5) and no note', gv.p === 'recaptcha_v2' && gv.note === false, gv);
+      const ga = await adminPage({}, 'f12b-1-admin-view');
+      await ga.goto(url, { waitUntil: 'load' });
+      await sleep(800);
+      const note = await ga.evaluate(() => { const n = document.querySelector('.efb-cp-admin-note'); return n ? n.textContent : ''; });
+      R.check('f12b-1: … an administrator sees why ("keys … not set")', /not set/i.test(note), note);
+    } finally {
+      del(...made);
+      plan(3);
+      teardown();
+    }
+  });
+
+  /* ================================================================== f12b-2 Google modes */
+  scenario('f12b-2', 'F12b Google: v2 invisible (execute on send), v3 → v2 challenge in the same box, an expired checkbox token, recaptcha.net', async ({ context }) => {
+    setup();
+    const made = [];
+    try {
+      // v2 invisible.
+      const I = form('F12b v2i', NM, 'captcha=1&captcha_provider=recaptcha_v2i&cp_badge=inline');
+      made.push(I);
+      scripts.length = 0;
+      const g = await open(context, pageOf(I.form_id), 'f12b-2-v2i');
+      await g.waitForFunction(() => window.__cb && window.__cb.renders.length > 0, null, { timeout: 15000 });
+      let c = await cap(g);
+      R.check('f12b-2: v2 invisible renders size "invisible" with its own key and badge, no button', c.renders[0].opts.size === 'invisible' && c.renders[0].opts.sitekey === 'e2e-v2i-site-placeholder' && c.renders[0].opts.badge === 'inline' && !(await g.$('.efb-fake-cap')), c.renders[0]);
+      await type(g, I.ids.nm, 'Ivy Invisible');
+      const a1 = await sendIn(g, I.form_id);
+      c = await cap(g);
+      R.check('f12b-2: v2 invisible: Send asks execute(widget) and the answer is stored', a1 && a1.success === true && c.executes.length === 1 && entries(I.form_id).length === 1, { a1, ex: c.executes });
+
+      // v3 → v2.
+      const V = form('F12b v3 fallback', NM, 'captcha=1&captcha_provider=recaptcha_v3&rc3_fallback=1');
+      made.push(V);
+      const g3 = await open(context, pageOf(V.form_id), 'f12b-2-v3');
+      await type(g3, V.ids.nm, 'Lou Low');
+      await g3.waitForFunction(() => typeof window.__f12bTok === 'function', null, { timeout: 10000 });
+      await g3.evaluate(() => { window.__cbNext = { v3: window.__f12bTok({ score: 0.1, action: 'efb_submit' }) }; });
+      const low = await sendIn(g3, V.form_id);
+      await sleep(600);
+      const ch = await g3.evaluate((fid) => {
+        const box = document.querySelector('.efb-captcha-box[data-formid="' + fid + '"]'), el = box && box.querySelector('.efb-captcha');
+        return { code: null, hidden: el && el.hasAttribute('hidden'), msg: (box.querySelector('.efb-captcha-msg') || {}).textContent, focus: document.activeElement === box, v2: window.__cb.renders.filter((r) => r.opts.sitekey === 'e2e-v2-site-placeholder').length };
+      }, V.form_id);
+      R.check('f12b-2: v3 low score with the fallback on → nothing stored, the v2 checkbox in the same box, "Please confirm you are not a robot.", focus on the box', low && low.success === false && entries(V.form_id).length === 0 && ch.hidden === false && ch.v2 === 1 && /not a robot/.test(ch.msg) && ch.focus === true, { low, ch });
+      await g3.screenshot({ path: SHOT('f12b-2-v3-challenge-en') });
+      let kind = null;
+      g3.on('request', (r) => { if (/forms\/message\/add/.test(r.url())) { try { kind = JSON.parse(r.postData() || '{}').captcha_kind || ''; } catch (e) { kind = '?'; } } });
+      await clickFake(g3, V.form_id);
+      const ok = await sendIn(g3, V.form_id);
+      R.check('f12b-2: solved → sent with captcha_kind v2 and stored', ok && ok.success === true && kind === 'v2' && entries(V.form_id).length === 1, { ok, kind });
+
+      // Expired checkbox token (row 5).
+      const E = form('F12b v2 expired', NM, 'captcha=1&captcha_provider=recaptcha_v2');
+      made.push(E);
+      const ge = await open(context, pageOf(E.form_id), 'f12b-2-exp');
+      await type(ge, E.ids.nm, 'Eve Expired');
+      await clickFake(ge, E.form_id);
+      const wid = (await cap(ge)).renders[0].id;
+      await ge.evaluate((id) => window.__cbExpire('recaptcha', id), wid);
+      await sleep(300);
+      const em = await msgOf(ge, E.form_id);
+      const ex = await sendIn(ge, E.form_id, 6000);
+      R.check('f12b-2: an expired token → "The check expired …" in the live region, nothing stored', /expired/i.test(em) && (ex === null || ex.success === false) && entries(E.form_id).length === 0, { em, ex });
+      await clickFake(ge, E.form_id);
+      const ex2 = await sendIn(ge, E.form_id);
+      R.check('f12b-2: solved again → stored', ex2 && ex2.success === true && entries(E.form_id).length === 1, ex2);
+
+      // recaptcha.net.
+      setting('rc_host=recaptcha.net');
+      scripts.length = 0;
+      const gn = await open(context, pageOf(E.form_id), 'f12b-2-net');
+      await gn.waitForFunction(() => window.__cb && window.__cb.renders.length > 0, null, { timeout: 15000 });
+      await type(gn, E.ids.nm, 'Nat Net');
+      await clickFake(gn, E.form_id);
+      const an = await sendIn(gn, E.form_id);
+      const calls = ctlb('calls');
+      R.check('f12b-2: rc_host recaptcha.net: the script and siteverify on www.recaptcha.net, stored', scripts.some((u) => /^https:\/\/www\.recaptcha\.net\/recaptcha\/api\.js/.test(u)) && !scripts.some((u) => /google\.com/.test(u)) && an && an.success === true && calls.length && /recaptcha\.net/.test(calls[calls.length - 1].url), { scripts, last: calls[calls.length - 1] });
+    } finally {
+      del(...made);
+      teardown();
+    }
+  });
+
+  /* ================================================================== f12b-3 many forms on one page */
+  scenario('f12b-3', 'F12b many forms on one page: v2 ×2, v3, Turnstile ×2, hCaptcha, Friendly, ALTCHA ×2, question — unique ids, one script per service, lazy rendering, own resets, each stored; a form added later loads its script late', async ({ context }) => {
+    setup();
+    const made = [];
+    try {
+      const mk = (name, row0) => { const f = form('F12b multi ' + name, NM, 'captcha=1&' + row0); made.push(f); return f; };
+      const F = {
+        v2a: mk('v2a', 'captcha_provider=recaptcha_v2'), v2b: mk('v2b', 'captcha_provider=recaptcha_v2'), v3: mk('v3', 'captcha_provider=recaptcha_v3'),
+        tsa: mk('tsa', 'captcha_provider=turnstile'), tsb: mk('tsb', 'captcha_provider=turnstile'), hc: mk('hc', 'captcha_provider=hcaptcha'), fr: mk('fr', 'captcha_provider=friendly'),
+        ala: mk('ala', 'captcha_provider=altcha'), alb: mk('alb', 'captcha_provider=altcha'), q: mk('q', 'captcha_provider=question'),
+      };
+      const order = ['v2a', 'v2b', 'v3', 'tsa', 'tsb', 'hc', 'fr', 'ala', 'alb', 'q'];
+      const pg = ctl('f12-page-multi', ...order.map((k) => String(F[k].form_id)));
+      scripts.length = 0;
+      const g = await open(context, pg.url, 'f12b-3-multi', { viewport: { width: 1280, height: 700 } }, { noScroll: true });
+      await sleep(1200);
+      const before = await g.evaluate(() => Array.from(document.querySelectorAll('.efb-captcha')).map((e) => [e.getAttribute('data-provider'), e.getAttribute('data-efb-rendered')]));
+      R.check('f12b-3: lazy: the boxes far down the page are not drawn before they come into view', before.length === 10 && before[before.length - 1][1] !== '1', before);
+      await scrollBoxes(g);
+      await g.waitForFunction(() => document.querySelectorAll('.efb-captcha[data-efb-rendered="1"]').length >= 10, null, { timeout: 30000 }).catch(() => {});
+      const ids = await g.evaluate(() => Array.from(document.querySelectorAll('.efb-captcha-box')).map((b) => b.id));
+      R.check('f12b-3: ten boxes, ten unique ids (efb-cp-<form>-<n>)', ids.length === 10 && new Set(ids).size === 10 && ids.every((i) => /^efb-cp-\d+-\d+$/.test(i)), ids);
+      const by = (re) => scripts.filter((u) => re.test(u)).length;
+      const page = await g.evaluate(() => Array.from(document.scripts).map((s) => s.src).filter(Boolean));
+      const adapters = (n) => page.filter((u) => u.indexOf(n) !== -1).length;
+      R.check('f12b-3: one script per service: Google once (render=<v3 key>), Turnstile, hCaptcha, Friendly once; each adapter once', by(/google\.com\/recaptcha/) === 1 && scripts.some((u) => /render=e2e-v3-site-placeholder/.test(u)) && by(/cloudflare/) === 1 && by(/hcaptcha/) === 1 && by(/friendlycaptcha/) === 1
+        && ['turnstile-adapter-efb.js', 'hcaptcha-adapter-efb.js', 'friendly-adapter-efb.js', 'altcha-adapter-efb.js', 'question-adapter-efb.js'].every((a) => adapters(a) === 1), { scripts, page: page.filter((u) => /adapter|widget/.test(u)) });
+      const c0 = await cap(g);
+      const rOf = (k) => c0.renders.filter((r) => String(r.formid) === String(F[k].form_id));
+      R.check('f12b-3: every widget drawn once in its own box (v2 ×2, Turnstile ×2, hCaptcha, Friendly; v3 none)', ['v2a', 'v2b', 'tsa', 'tsb', 'hc', 'fr'].every((k) => rOf(k).length === 1) && rOf('v3').length === 0, c0.renders.map((r) => [r.kind, r.formid]));
+      R.check('f12b-3: ALTCHA ×2 and the question drawn by their own widgets', await g.evaluate(() => document.querySelectorAll('.efb-altcha').length === 2 && document.querySelectorAll('.efb-qcp').length === 1));
+      await g.screenshot({ path: SHOT('f12b-3-multi-en'), fullPage: true });
+
+      // A refused Turnstile token on tsa resets tsa only; tsb's token stays good.
+      for (const k of order) await type(g, F[k].ids.nm, 'Multi ' + k);
+      await clickFake(g, F.tsb.form_id);
+      await g.evaluate(() => { window.__cbNext = { turnstile: window.__f12bTok({ success: false, 'error-codes': ['invalid-input-response'] }) }; });
+      await clickFake(g, F.tsa.form_id);
+      const bad = await sendIn(g, F.tsa.form_id);
+      const c1 = await cap(g);
+      const tsaId = rOf('tsa')[0].id, tsbId = rOf('tsb')[0].id;
+      R.check('f12b-3: a refused token on one Turnstile form: its message and reset, the other Turnstile not reset', bad && bad.success === false && c1.resets.indexOf('turnstile:' + tsaId) !== -1 && c1.resets.indexOf('turnstile:' + tsbId) === -1 && entries(F.tsa.form_id).length === 0, { bad, resets: c1.resets });
+      const okb = await sendIn(g, F.tsb.form_id);
+      R.check('f12b-3: … the other Turnstile form sends with its own token', okb && okb.success === true && entries(F.tsb.form_id).length === 1, okb);
+      await back(g, F.tsa.form_id);
+      await clickFake(g, F.tsa.form_id);
+      const oka = await sendIn(g, F.tsa.form_id);
+      R.check('f12b-3: … and the first, solved again', oka && oka.success === true && entries(F.tsa.form_id).length === 1, oka);
+      // The rest, one by one.
+      const results = {};
+      for (const k of ['v2a', 'v2b', 'hc', 'fr']) { await clickFake(g, F[k].form_id); results[k] = await sendIn(g, F[k].form_id); }
+      results.v3 = await sendIn(g, F.v3.form_id);
+      await altcha(g, F.ala.form_id);
+      await altcha(g, F.alb.form_id);
+      const altTokens = await g.evaluate(() => Array.from(document.querySelectorAll('.efb-captcha[data-provider="altcha"]')).map((e) => e.getAttribute('data-efb-box')));
+      results.ala = await sendIn(g, F.ala.form_id);
+      results.alb = await sendIn(g, F.alb.form_id);
+      await question(g, F.q.form_id);
+      results.q = await sendIn(g, F.q.form_id);
+      const stored = {};
+      Object.keys(results).forEach((k) => { stored[k] = [results[k] && results[k].success, entries(F[k].form_id).length]; });
+      R.check('f12b-3: every other form solved and stored with its own token (v2 ×2, v3, hCaptcha, Friendly, ALTCHA ×2, question)', Object.keys(stored).every((k) => stored[k][0] === true && stored[k][1] === 1) && new Set(altTokens).size === 2, stored);
+      const calls = ctlb('calls');
+      R.check('f12b-3: the server asked each service once per answer (Google, Turnstile, hCaptcha, Friendly)', ['google.com/recaptcha', 'challenges.cloudflare.com', 'api.hcaptcha.com', 'frcapi.com'].every((h) => calls.some((x) => x.url.indexOf(h) !== -1)), calls.map((x) => x.url));
+
+      // Row 14: a form added later (AJAX, a popup): its box appears → its service's script and adapter load late.
+      const H = mk('late', 'captcha_provider=hcaptcha');
+      const solo = mk('solo', 'captcha_provider=turnstile');
+      scripts.length = 0;
+      const gl = await open(context, pageOf(solo.form_id), 'f12b-3-late');
+      const html = (await get(pageOf(H.form_id))).body;
+      const m = html.match(/<div class="efb row mx-0 efb-captcha-box"[\s\S]*?<\/small><\/div>/);
+      await gl.evaluate((h) => { const d = document.createElement('div'); d.id = 'efb-late'; d.innerHTML = h; document.body.appendChild(d); d.scrollIntoView(); try { window.dispatchEvent(new Event('elementor/popup/show')); } catch (e) {} }, m ? m[0] : '');
+      await gl.waitForFunction(() => window.__cb && window.__cb.renders.some((r) => r.kind === 'hcaptcha'), null, { timeout: 30000 }).catch(() => {});
+      const late = await gl.evaluate(() => ({ r: (window.__cb.renders || []).map((r) => r.kind), s: Array.from(document.scripts).map((s) => s.src).filter((u) => /hcaptcha/.test(u)) }));
+      R.check('f12b-3: a box added later: the hCaptcha script and adapter load late (https only) and the widget renders', !!m && late.r.indexOf('hcaptcha') !== -1 && late.s.some((u) => /js\.hcaptcha\.com/.test(u)) && late.s.some((u) => /hcaptcha-adapter-efb\.js/.test(u)), late);
+    } finally {
+      del(...made);
+      teardown();
+    }
+  });
+
+  /* ================================================================== f12b-4 multi-step, cached page, failures */
+  scenario('f12b-4', 'F12b multi-step (the widget on step 2), a cached copy of an ALTCHA page, a timeout / a broken answer / a replayed token → nothing stored', async ({ context }) => {
+    setup();
+    const made = [];
+    try {
+      // Multi-step: the box is on the last step.
+      const M = form('F12b steps', [{ key: 'nm', type: 'text', name: 'Name' }, { key: 'nt', type: 'text', name: 'Note', step: 2 }], 'captcha=1&captcha_provider=turnstile', 2);
+      made.push(M);
+      const g = await open(context, pageOf(M.form_id), 'f12b-4-steps');
+      const r1 = (await cap(g)).renders.length;
+      await type(g, M.ids.nm, 'Stella Step');
+      await g.click('#next_efb');
+      await sleep(800);
+      await scrollBoxes(g);
+      await g.waitForFunction(() => window.__cb && window.__cb.renders.length > 0, null, { timeout: 15000 }).catch(() => {});
+      const r2 = (await cap(g)).renders.length;
+      R.check('f12b-4: multi-step: the widget is drawn when its step is shown, not before', r1 === 0 && r2 === 1, { r1, r2 });
+      await type(g, M.ids.nt, 'second step');
+      await clickFake(g, M.form_id);
+      const a = await sendIn(g, M.form_id, 30000, '#next_efb'); // the last step's "Submit"
+      R.check('f12b-4: … solved on step 2 and stored', a && a.success === true && entries(M.form_id).length === 1, a);
+
+      // A cached copy of an ALTCHA page: the challenge still comes live.
+      const A = form('F12b cached altcha', NM, 'captcha=1&captcha_provider=altcha');
+      made.push(A);
+      const url = pageOf(A.form_id);
+      const stale = (await get(url)).body;
+      await sleep(1500);
+      const ctx = await context({}, 'f12b-4-cached');
+      await fake(ctx);
+      let challenges = 0;
+      ctx.on('request', (r) => { if (/captcha(\/|%2F)altcha(\/|%2F)challenge/.test(r.url())) challenges++; });
+      await ctx.route((u) => u.toString() === url, (route) => route.fulfill({ status: 200, contentType: 'text/html; charset=UTF-8', body: stale }));
+      const gc = await open(context, url, 'f12b-4-cached', {}, { ctx });
+      await type(gc, A.ids.nm, 'Cass Cached');
+      await altcha(gc, A.form_id);
+      const ac = await sendIn(gc, A.form_id);
+      R.check('f12b-4: a cached copy of the page: ALTCHA fetched a live challenge, solved, stored', challenges >= 1 && ac && ac.success === true && entries(A.form_id).length === 1, { challenges, ac });
+
+      // Failures: timeout, a broken answer, a replayed token.
+      const V = form('F12b failures', NM, 'captcha=1&captcha_provider=recaptcha_v2');
+      made.push(V);
+      const fail = async (label, tok) => {
+        const gf = await open(context, pageOf(V.form_id), 'f12b-4-' + label);
+        await type(gf, V.ids.nm, 'Fay ' + label);
+        await gf.evaluate((t) => { window.__cbNext = { recaptcha: t }; }, tok);
+        await clickFake(gf, V.form_id);
+        const r = await sendIn(gf, V.form_id);
+        const m = await msgOf(gf, V.form_id);
+        const resets = (await cap(gf)).resets.length;
+        return { r, m, resets, gf };
+      };
+      const rnd = () => Math.random().toString(36).slice(2) + Date.now();
+      const t1 = await fail('slow', 'f12b-slow.' + rnd() + 'ssssssssss');
+      R.check('f12b-4: the service times out → refused (closed), the message, the widget reset, nothing stored', t1.r && t1.r.success === false && t1.resets >= 1 && entries(V.form_id).length === 0, { r: t1.r, m: t1.m });
+      const t2 = await fail('bad', 'f12b-bad.' + rnd() + 'bbbbbbbbbb');
+      R.check('f12b-4: an answer that is not JSON → refused, nothing stored', t2.r && t2.r.success === false && entries(V.form_id).length === 0, t2.r);
+      const tok = await t2.gf.evaluate(() => window.__f12bTok({}));
+      const t3 = await fail('first', tok);
+      const t4 = await fail('replay', tok);
+      R.check('f12b-4: a token used once → stored; the same token from another visitor → refused (replay)', t3.r && t3.r.success === true && t4.r && t4.r.success === false && entries(V.form_id).length === 1, { first: t3.r, replay: t4.r });
+    } finally {
+      del(...made);
+      teardown();
+    }
+  });
+
+  /* ================================================================== f12b-5 D1 login / register, D3 tracker + reply */
+  scenario('f12b-5', 'F12b D1 and D3 in the browser: login with v2 (no token → refused, solved → signed in), registration with the question CAPTCHA, the tracking box and the reply box (own contexts, own resets, one solve per session)', async ({ context }) => {
+    setup('scaptcha=1');
+    const made = [];
+    const user = 'efb_f12b_e2e_' + Math.random().toString(36).slice(2, 7);
+    const reg = 'efb_f12b_reg_' + Math.random().toString(36).slice(2, 7);
+    try {
+      const U = ctlb('user', user);
+      const L = ctlb('auth-form', 'login');
+      made.push(L.form_id);
+      const ctx = await context({}, 'f12b-5-login');
+      await fake(ctx);
+      const g = await open(context, pageOf(L.form_id), 'f12b-5-login', {}, { ctx });
+      await g.fill('#emaillogin_', U.login);
+      await g.fill('#passwordlogin_', U.password);
+      const none = await sendIn(g, L.form_id, 8000);
+      const signed = async () => (await ctx.cookies()).some((c) => /^wordpress_logged_in_/.test(c.name));
+      R.check('f12b-5 (D1): login without solving the CAPTCHA → not signed in', (none === null || none.success === false) && !(await signed()), none);
+      await back(g, L.form_id);
+      await clickFake(g, L.form_id);
+      const ok = await sendIn(g, L.form_id);
+      R.check('f12b-5 (D1): solved → signed in (the server checked the token)', ok && ok.success === true && await signed(), ok);
+
+      const Rg = ctlb('auth-form', 'register', 'captcha_provider=question');
+      made.push(Rg.form_id);
+      const gr = await open(context, pageOf(Rg.form_id), 'f12b-5-register');
+      await gr.fill('#usernameRegisterEFB_', reg);
+      await gr.fill('#emailRegisterEFB_', reg + '@example.test');
+      await gr.fill('#passwordRegisterEFB_', reg + '-Pass-123!');
+      await question(gr, Rg.form_id, true);
+      const wrong = await sendIn(gr, Rg.form_id, 10000);
+      R.check('f12b-5 (D1): registration with a wrong answer → refused, no account', (wrong === null || wrong.success === false) && ctlb('user-exists', reg) === false, wrong);
+      await back(gr, Rg.form_id);
+      await sleep(1800);
+      await question(gr, Rg.form_id);
+      const made2 = await sendIn(gr, Rg.form_id);
+      R.check('f12b-5 (D1): the right answer (a new question after the refusal) → the account is made', made2 && made2.success === true && ctlb('user-exists', reg) === true, made2);
+      await gr.screenshot({ path: SHOT('f12b-5-register-question-en') });
+
+      // D3: the tracking box and the reply box on one page.
+      const F = form('F12b reply', NM);
+      made.push(F.form_id);
+      const seeded = ctl('f14-seed', String(F.form_id), JSON.stringify([{ id_: F.ids.nm, name: 'Name', type: 'text', value: 'Tracked' }]), '');
+      const tp = ctl('f12-page-tracker');
+      const gt = await open(context, tp.url, 'f12b-5-tracker', {}, { sel: '#body_tracker_emsFormBuilder' });
+      await gt.waitForFunction(() => window.__cb && window.__cb.renders.length > 0, null, { timeout: 15000 });
+      await gt.fill('#trackingCodeEfb', seeded.track);
+      await clickFake(gt, -1);
+      const look = gt.waitForResponse((x) => /forms\/response\/get/.test(x.url()), { timeout: 30000 }).catch(() => null);
+      await gt.click('#vaid_check_emsFormBuilder');
+      const lr = await look;
+      await sleep(1500);
+      await gt.waitForSelector('#replayB_emsFormBuilder', { timeout: 15000 });
+      await scrollBoxes(gt);
+      await gt.waitForFunction(() => window.__cb.renders.some((r) => /^reply_/.test(r.ctx || '')), null, { timeout: 15000 }).catch(() => {});
+      const c = await cap(gt);
+      const tr = c.renders.find((r) => r.ctx === 'tracker'), rp = c.renders.find((r) => /^reply_/.test(r.ctx || ''));
+      R.check('f12b-5 (D3): the reply box gets its own widget (context reply_<id>, its own box id) next to the tracking box', !!lr && !!tr && !!rp && rp.box !== tr.box && /^efb-cp-reply_\d+-\d+$/.test(rp.box), { tr, rp });
+      const reply = async (text) => {
+        await gt.click('#efb_rich_editor');
+        await gt.keyboard.type(text);
+        const resp = gt.waitForResponse((x) => /forms\/response\/add/.test(x.url()), { timeout: 15000 }).catch(() => null);
+        await gt.click('#replayB_emsFormBuilder');
+        const r = await resp;
+        let j = null; try { j = r ? await r.json() : null; } catch (e) { j = null; }
+        await sleep(1200);
+        return r ? (j && j.data ? j.data : j) : null;
+      };
+      const count = () => { const r = ctl('replies', String(seeded.msg_id)); return Array.isArray(r) ? r.length : -1; };
+      const n0 = count();
+      const r1 = await reply('no solve');
+      const c1 = await cap(gt);
+      R.check('f12b-5 (D3): a reply without solving → refused, nothing stored; only the reply widget reset (never the tracking box)', (r1 === null || (r1 && r1.success === false)) && count() === n0 && !c1.resets.some((x) => x === 'recaptcha:' + tr.id), { r1, resets: c1.resets });
+      await gt.click(`#${rp.box} .efb-fake-cap`);
+      await sleep(300);
+      await gt.evaluate(() => { const e = document.getElementById('efb_rich_editor'); if (e) e.innerHTML = ''; });
+      const r2 = await reply('solved reply');
+      R.check('f12b-5 (D3): solved → the reply is stored', r2 && r2.success === true && count() === n0 + 1, r2);
+      await gt.screenshot({ path: SHOT('f12b-5-reply-captcha-en'), fullPage: true });
+    } finally {
+      try { ctlb('user-del', user, reg); } catch (e) { /* gone */ }
+      del(...made);
+      teardown();
+    }
+  });
+
+  /* ================================================================== f12b-6 D2, D4, fallback, keyboard, languages */
+  scenario('f12b-6', 'F12b D2 notice by keyboard; Settings › Captchas prints no secret; an add-on off → fallback, on → back; ALTCHA and the question by keyboard, the accessibility tree; fa_IR and ar at 375 px', async ({ context, adminPage }) => {
+    setup();
+    const made = [];
+    try {
+      // D2 by keyboard.
+      ctlb('notice-reset');
+      setting('spam_honeypot=del&spam_min_time=del&spam_require_js=del&spam_action=del&spam_akismet=del&spam_disallowed_keys=del&spam_retention_days=del');
+      const admin = await adminPage({}, 'f12b-6-admin');
+      await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+      await admin.waitForSelector('#efb-spam-notice', { timeout: 15000 });
+      await admin.focus('#efb-spam-notice [data-efb-spam-do="enable"]');
+      const done = admin.waitForResponse((x) => /admin-ajax\.php/.test(x.url()) && /efb_spam_notice/.test(x.request().postData() || ''), { timeout: 15000 }).catch(() => null);
+      await admin.keyboard.press('Enter');
+      await done;
+      await sleep(600);
+      const st = await admin.evaluate(() => { const s = document.querySelector('.efb-spam-notice-status'); return s ? { text: s.textContent, role: s.getAttribute('role') } : null; });
+      const f12 = ctl('f12-setting', '');
+      R.check('f12b-6 (D2): "Turn on recommended protection" by keyboard (Enter): the status line says so (role status), the four keys written', st && st.role === 'status' && st.text.length > 0 && f12.spam_honeypot === '1' && f12.spam_min_time === '3' && f12.spam_action === 'spam' && f12.spam_retention_days === '30', { st, f12 });
+      setting('spam_min_time=0');
+
+      // D4: the settings screen never prints a secret.
+      const sec = await adminPage({}, 'f12b-6-settings');
+      const bodies = [];
+      sec.on('response', async (r) => { try { if (/admin-ajax|wp-json/.test(r.url())) bodies.push(await r.text()); } catch (e) { /* binary */ } });
+      await sec.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb&state=setting&tab=captchas', { waitUntil: 'load' });
+      await sleep(2500);
+      const html = (await sec.content()) + bodies.join('\n');
+      const leaked = ['e2e-v2-secret-placeholder', 'e2e-v3-secret-placeholder', KEYS.turnstile[1].secret, KEYS.hcaptcha[1].secret, KEYS.friendly[1].api_key].filter((s) => html.indexOf(s) !== -1);
+      R.check('f12b-6 (D4): Settings › Captchas: no secret in the page or its requests (Google and add-ons)', leaked.length === 0, leaked);
+
+      // Row 22: ALTCHA switched off while a form uses it → fallback; on again → back.
+      const A = form('F12b altcha kb', NM, 'captcha=1&captcha_provider=altcha');
+      const Q = form('F12b question kb', NM, 'captcha=1&captcha_provider=question');
+      const T = form('F12b turnstile phone', NM, 'captcha=1&captcha_provider=turnstile');
+      made.push(A, Q, T);
+      ctl('addon-flag', 'AdnALT', '0');
+      const goff = await open(context, pageOf(A.form_id), 'f12b-6-off');
+      const off = await goff.evaluate(() => (document.querySelector('.efb-captcha[data-provider]') || { getAttribute: () => null }).getAttribute('data-provider'));
+      ctl('addon-flag', 'AdnALT', '1');
+      const gon = await open(context, pageOf(A.form_id), 'f12b-6-on');
+      const on = await gon.evaluate(() => (document.querySelector('.efb-captcha[data-provider]') || { getAttribute: () => null }).getAttribute('data-provider'));
+      R.check('f12b-6: ALTCHA switched off → the form is protected by reCAPTCHA v2; on again → ALTCHA', off === 'recaptcha_v2' && on === 'altcha', { off, on });
+
+      // Keyboard only (row 28) and the accessibility tree (row 29) on the ALTCHA form.
+      await gon.focus(byId(A.ids.nm + '_'));
+      await gon.keyboard.type('Kay Board');
+      await gon.keyboard.press('Tab');
+      const f1 = await gon.evaluate(() => document.activeElement && document.activeElement.className);
+      await gon.keyboard.press('Space');
+      await gon.waitForFunction(() => { const a = document.querySelector('.efb-altcha'); return a && a.getAttribute('data-state') === 'verified'; }, null, { timeout: 30000 });
+      const status = await gon.evaluate(() => { const s = document.querySelector('.efb-altcha-status'); return { t: s.textContent, role: s.getAttribute('role') }; });
+      let reached = '';
+      for (let i = 0; i < 6 && reached !== 'btn_send_efb'; i++) { await gon.keyboard.press('Tab'); reached = await gon.evaluate(() => document.activeElement && document.activeElement.id); }
+      const aria = await gon.locator('.efb-captcha-box').first().ariaSnapshot();
+      const resp = gon.waitForResponse((x) => /forms\/message\/add/.test(x.url()), { timeout: 30000 }).catch(() => null);
+      await gon.keyboard.press('Enter');
+      const sent = await resp;
+      await sleep(900);
+      R.check('f12b-6 (keyboard): Tab from the field reaches the ALTCHA checkbox, Space solves it ("Verified", role status), Tab reaches Send, Enter sends, stored', /efb-altcha-cb/.test(f1) && status.role === 'status' && /Verified/.test(status.t) && reached === 'btn_send_efb' && !!sent && entries(A.form_id).length === 1, { f1, status, reached });
+      R.check('f12b-6 (screen reader): the box is a group named "Security check" with a labelled checkbox', /group "Security check"/.test(aria) && /checkbox "I'm not a robot"/.test(aria), aria);
+
+      // fa_IR and ar at 375 px.
+      for (const loc of ['fa_IR', 'ar']) {
+        ctl('locale', loc);
+        try {
+          const pg = ctl('f12-page-multi', String(A.form_id), String(Q.form_id), String(T.form_id));
+          const m = await open(context, pg.url, 'f12b-6-' + loc, { viewport: { width: 375, height: 800 }, locale: loc.replace('_', '-') });
+          await m.waitForFunction(() => window.__cb && window.__cb.renders.length > 0 && document.querySelector('.efb-qcp-q') && /\d/.test(document.querySelector('.efb-qcp-q').textContent), null, { timeout: 20000 }).catch(() => {});
+          const ph = await phone(m);
+          const w = await m.evaluate(() => {
+            const r = (window.__cb.renders.find((x) => x.kind === 'turnstile') || {}).opts || {};
+            const box = (s) => { const e = document.querySelector(s); return e ? Math.round(e.getBoundingClientRect().right) : -1; };
+            return { size: r.size, lang: r.language, alt: box('.efb-altcha'), q: box('.efb-qcp'), vw: document.documentElement.clientWidth, dir: (document.querySelector('.efb-captcha-box') && getComputedStyle(document.querySelector('.efb-captcha-box')).direction) };
+          });
+          R.check(`f12b-6 (${loc}): 375 px right to left — no horizontal scroll, Turnstile flexible in the page language, ALTCHA and the question inside the screen`, ph.dir === 'rtl' && ph.scroll <= 1 && w.size === 'flexible' && w.lang === loc.split('_')[0] && w.alt <= w.vw && w.q <= w.vw && w.dir === 'rtl', { ph, w });
+          await m.evaluate(() => { const b = document.querySelector('.efb-captcha-box'); if (b) b.scrollIntoView({ block: 'start' }); });
+          await sleep(300);
+          await m.screenshot({ path: SHOT(`f12b-6-captchas-${loc}-375`), fullPage: true });
+        } finally { ctl('locale', ''); }
+      }
+    } finally {
+      del(...made);
+      setting('spam_honeypot=1&spam_min_time=0&spam_action=spam&spam_retention_days=30');
+      ctlb('notice-reset');
+      teardown();
+    }
+  });
+};

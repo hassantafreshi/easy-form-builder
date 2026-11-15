@@ -8,7 +8,7 @@
  *    (a form's own failure text, cp_msg_failed, wins);
  *  - lazy: with IntersectionObserver a widget renders when its box comes into view; beforeSend forces it;
  *  - an adapter that executes on submit (cfg.ex): beforeSend asks it for the token, 10-second limit;
- *  - a form drawn after the footer: the provider's script and adapter are injected from the config (https only) when
+ *  - a form drawn after the footer: the provider's script and adapter are injected from the config (https, or this site's own adapter) when
  *    they are not on the page; never twice, never when the page already has them;
  *  - theme auto follows prefers-color-scheme; reset() reaches the adapter.
  *
@@ -88,6 +88,9 @@ const c = checker();
     const R = page([{ provider: 'latecap', fid: 9, cfg: { src: 'http://insecure.example/api.js' } }]);
     R.run();
     c.t('only https', R.added, []);
+    const H = page([{ provider: 'latecap', fid: 9, cfg: { src: 'http://insecure.example/api.js', ad: 'http://site.test/wp-content/plugins/x/late-adapter.js' } }], { before: (w) => { w.location = { origin: 'http://site.test' }; } });
+    H.run();
+    c.t('… or this site itself (an adapter on a site served over http), never another http host', H.added, ['http://site.test/wp-content/plugins/x/late-adapter.js']);
   }
   /* scan() for boxes added later; theme auto */
   {

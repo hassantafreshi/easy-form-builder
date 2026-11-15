@@ -59,7 +59,7 @@
   function load(c) {
     if (tries < 10) return;
     [c.src, c.ad].forEach(function (u) {
-      if (!u || loaded[u] || !/^https:\/\//.test(u)) return;
+      if (!u || loaded[u] || !(/^https:\/\//.test(u) || (W.location && u.indexOf(W.location.origin + '/') === 0))) return;
       loaded[u] = 1;
       try {
         var b = u.split('?')[0], s = D.scripts || [];

@@ -2071,6 +2071,12 @@ require('./scenario-f10.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewFo
  * disallowed words, the tracking box's CAPTCHA (P20); fa_IR / ar at 375 px: tests/e2e-wp/scenario-f12.js. */
 require('./scenario-f12.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
 
+/* F12b CAPTCHA providers: the builder's service select and AutoPilot, Google's modes (v2 invisible, v3 → v2), many
+ * forms of every service on one page, multi-step / cached page / failures, login, registration, tracking and reply
+ * boxes, the spam notice, secrets never printed, an add-on switched off, keyboard and the accessibility tree, fa_IR / ar
+ * at 375 px (stand-in scripts, siteverify mocked): tests/e2e-wp/scenario-f12b.js. */
+require('./scenario-f12b.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
+
 /* F15 builder productivity: the palette search and the shortcuts, undo / redo, form versions, export / import
  * (P23 add-on extras); fa_IR / ar at 375 px: tests/e2e-wp/scenario-f15.js. Its forms are deleted at the end. */
 require('./scenario-f15.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });

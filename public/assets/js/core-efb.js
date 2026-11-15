@@ -2353,7 +2353,14 @@ async function response_fill_form_efb(res ,form_id=0) {
   // F12: a refused answer spent the CAPTCHA token: the widget asks again (every service, reCAPTCHA v2 included).
   // F12b: a v3 score too low on a form with the fallback: the v2 checkbox appears in the same box (nothing was stored).
   if (res && res.data && res.data.code === 'efb_captcha_challenge' && window.EFBCaptcha && typeof window.EFBCaptcha.challenge === 'function' && window.EFBCaptcha.challenge(form_id)) {
+    // Back on the step of the box (what "Previous" does), not the error view: the visitor ticks it and sends again.
     efb_hide_submit_ajax_badge_efb(form_id);
+    const cpBox = document.querySelector('.efb-captcha-box[data-formid="' + form_id + '"]');
+    const cpT = valj_efb_new.find(x => x.id == form_id);
+    const cpStep = (cpBox && Number(cpBox.getAttribute('data-step'))) || (cpT && cpT.form_structer && Number(cpT.form_structer[0].steps)) || 1;
+    if (typeof efb_go_to_step_direct === 'function') efb_go_to_step_direct(form_id, cpStep);
+    if (cpBox) setTimeout(() => { try { cpBox.focus(); } catch (e) {} }, 120);
+    return;
   } else if (!(res && res.data && res.data.success == true) && window.EFBCaptcha && typeof window.EFBCaptcha.reset === 'function') { try { window.EFBCaptcha.reset(form_id); } catch (e) {} }
   // F09: the server names a field of a repeater row by its own id and the row (row_index): the copy in the page.
   if (res.data && res.data.field_id && res.data.row_index !== undefined && res.data.row_index !== null && window.EFBRepeater) {

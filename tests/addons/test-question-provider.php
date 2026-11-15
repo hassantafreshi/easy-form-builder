@@ -67,5 +67,7 @@ t('the box: the challenge URL, the label and help, never a question', array(strp
 Registry::rest();
 $r = $p->rest_challenge(new class { public function get_param($k) { return $k === 'l' ? 'fa' : 'math'; } });
 t('the route: 200, no-store, {q, t}', array($r->status, $r->headers['Cache-Control'] ?? '', array_keys($r->data)), array(200, 'no-store, max-age=0', array('q', 't')));
+$sch = \Emsfb\Spam::form_schema(array('type' => 'form', 'captcha' => '1', 'captcha_provider' => 'question'))['captcha'];
+t('the form schema (AutoPilot): the question is a widget the visitor sees (kind endpoint, widget visible)', array($sch['effective_provider'], $sch['kind'], $sch['widget']), array('question', 'endpoint', 'visible'));
 t('the adapter is under 2 KB', filesize($D . '/assets/question-adapter-efb.js') < 2048, true);
 efb_done();
