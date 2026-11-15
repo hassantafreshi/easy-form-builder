@@ -11,6 +11,7 @@ if (!function_exists('__')) { function __($s) { return $s; } }
 if (!function_exists('wp_strip_all_tags')) { function wp_strip_all_tags($s) { return trim(strip_tags((string) $s)); } }
 require __DIR__ . '/field-rules-render-lib.php';
 require_once __DIR__ . '/../includes/class-Emsfb-a11y.php';
+if (is_readable(__DIR__ . '/../includes/class-Emsfb-repeater.php')) require_once __DIR__ . '/../includes/class-Emsfb-repeater.php';
 if (is_readable(__DIR__ . '/../includes/class-Emsfb-choices.php')) { require_once __DIR__ . '/../includes/class-Emsfb-stock.php'; require_once __DIR__ . '/../includes/class-Emsfb-choices.php'; }
 $GLOBALS['efb_test_rtl'] = getenv('EFB_TEST_RTL') === '1';
 $in = json_decode(stream_get_contents(STDIN), true);

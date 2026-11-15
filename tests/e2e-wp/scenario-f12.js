@@ -171,7 +171,7 @@ module.exports = function (S) {
     ctl('f12-op', String(F.form_id), 'spam', String(spamId));
     const two = ctl('f14-seed', String(F.form_id), JSON.stringify([{ id_: F.ids.nm, name: 'Name', type: 'text', value: 'علی Bot ۱۲' }]), 'entry_status=1');
     ctl('f12-log-add', String(two.msg_id), 'spam', 'honeypot,too_fast');
-    for (const [loc, comma] of [['fa_IR', '،'], ['ar', '،']]) {
+    for (const [loc, comma] of [['fa_IR', ' و '], ['ar', ' و']]) { // F16: joined the language's way (Intl.ListFormat)
       ctl('locale', loc);
       try {
         const m = await panel(adminPage, { viewport: { width: 375, height: 800 } }, 'admin-' + loc);

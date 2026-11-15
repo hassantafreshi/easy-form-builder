@@ -301,11 +301,30 @@ class Revisions {
 				'hash' => (string) $r['struct_hash'], 'fields' => (int) $r['field_count'], 'steps' => (int) $r['step_count'],
 				'user' => $names[$uid], 'source' => (string) $r['source'], 'note' => (string) $r['note'],
 				'created' => (string) $r['created'], 'iso' => $ts ? gmdate('c', $ts) : '',
-				'date' => ($ts && function_exists('wp_date')) ? wp_date(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), $ts) : (string) $r['created'],
+				'date' => self::when_efb($ts, (string) $r['created']),
 				'current' => $i === 0,
 			);
 		}
 		return $rows;
+	}
+
+	/**
+	 * F16 (BUGS-FOUND, F15): the date of a version in the administrator's calendar and digits, like the rest of the
+	 * screen (fa_IR: Solar Hijri with Persian digits, "۲۴ آبان ۱۴۰۵ ۱۴:۳۰"); a Gregorian, Latin-digit locale keeps the
+	 * site's own date and time formats.
+	 */
+	private static function when_efb($ts, $raw) {
+		if (!$ts || !function_exists('wp_date')) return $raw;
+		$loc = function_exists('get_user_locale') ? get_user_locale() : (function_exists('get_locale') ? get_locale() : 'en_US');
+		if (class_exists('\\Emsfb\\Calendar') && function_exists('efb_calendar_format')) {
+			$ld = \Emsfb\Calendar::locale_defaults_filtered($loc);
+			if ($ld['default'] !== 'gregory' || $ld['digits'] !== 'latn') {
+				$p = \Emsfb\Calendar::medium_pattern($loc) . ' HH:mm';
+				$out = efb_calendar_format(wp_date('Y-m-d', $ts), $ld['default'], $p, $loc, array('time' => wp_date('H:i', $ts)));
+				if ($out !== '') return $out;
+			}
+		}
+		return wp_date(get_option('date_format', 'Y-m-d') . ' ' . get_option('time_format', 'H:i'), $ts);
 	}
 
 	/** One version with its form (rows, decoded), or null. */

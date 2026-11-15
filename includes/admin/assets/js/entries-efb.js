@@ -30,6 +30,14 @@
   /** Persian / Arabic-Indic digits typed by a person to Latin. */
   const latin = (s) => String(s == null ? '' : s).replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06F0)).replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660));
   /** A count in the site's digits with grouping (1,234 / ۱٬۲۳۴ / ١٬٢٣٤). */
+  /* F16 (BUGS-FOUND, F12): a list joined the language's way (Intl.ListFormat: "A، B و C" in fa, "A, B and C" in en);
+     items are markup already escaped (<bdi>), the joining words are escaped here. */
+  const joinList = (items, type) => {
+    try {
+      const lf = new Intl.ListFormat(locale().replace('_', '-'), { style: 'long', type: type || 'conjunction' });
+      return lf.formatToParts(items.map((x, i) => '\u0001' + i)).map((p) => (p.type === 'element' ? items[Number(p.value.slice(1))] : esc(p.value))).join('');
+    } catch (e) { return items.join(isRtl() ? '، ' : ', '); }
+  };
   const num = (n) => { const v = Number(n) || 0; let s; try { s = v.toLocaleString(locale().replace('_', '-')); } catch (e) { s = String(v); } return digits(s); };
   /** A sentence with values: every value is isolated (<bdi>) so a mixed-script sentence keeps its order. */
   const fill = (tpl, vals) => { let out = esc(tpl); vals.forEach((v, i) => { out = out.split(`%${i + 1}$s`).join(`<bdi>${v}</bdi>`); }); if (vals.length === 1) out = out.split('%s').join(`<bdi>${vals[0]}</bdi>`); return out; };
@@ -176,8 +184,7 @@
     const seen = {};
     const words = list.map((r) => String(r)).filter((r) => /^[a-z_]{1,24}$/.test(r)).map((r) => (r === 'akismet_discard' ? 'akismet' : r))
       .filter((r) => (seen[r] ? false : (seen[r] = true))).map((r) => `<bdi>${esc(T('spamR_' + r, SPAM_R[r] || r))}</bdi>`);
-    const comma = /^(fa|ar|ur|ps|ckb)/.test(String(locale())) ? '، ' : ', ';
-    return words.join(comma);
+    return joinList(words);
   }
   function spamWhy(list) {
     const r = spamReasons(list);
@@ -1037,7 +1044,7 @@
       if (!res || res.success !== true) { if (res && res.code === 'efb_plan_required') gate('resend', opener); return; }
       const p = res.preview;
       const one = ids.length === 1;
-      const list = (a) => a.map((x) => `<bdi dir="ltr">${esc(x)}</bdi>`).join(isRtl() ? '، ' : ', ');
+      const list = (a) => joinList(a.map((x) => `<bdi dir="ltr">${esc(x)}</bdi>`), 'unit');
       const adminTxt = p.admin.length ? list(p.admin) : (p.admin_fallback ? list([p.admin_fallback]) : '—');
       const prev = one ? `<dl class="efb efb-ent-rs-prev small mb-2" id="efbRsPrev">
           <dt>${esc(T('entResendAdmin', 'Administrator only'))}</dt><dd>${adminTxt}${p.rules ? `<div class="efb text-muted">${esc(T('entResendRules', "The form's notification rules decide the administrator's copy."))}</div>` : ''}</dd>

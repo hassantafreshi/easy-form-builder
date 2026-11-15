@@ -2111,3 +2111,9 @@ body:has(.efb-rc3-notice) .grecaptcha-badge { visibility: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .body_efb *, .body_efb *::before, .body_efb *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+/* F16 (BUGS-FOUND): on a right-to-left page a label starts on the right even when its text is English. unicode-bidi:
+   plaintext keeps each sentence in its own order, but text-align: start then followed the sentence (an English label
+   sat on the left of an Arabic page); and "left", the builder's default for an English-speaking administrator, means
+   the start of the line there. */
+:is([dir="rtl"], .rtl) .body_efb :is(.efb.col-form-label.txt-left, legend.txt-left, .efb-pf-label, .efb-pf-sum-title, .efb-rpt-title, .efb-rpt-summary, .efb-review-title, .efb-review-help, .efb-review-label, .efb-review-step-name, .efb-section-head, .efb-section-desc, .efb-rank-help, .efb-cal-disp, .efb-cal-hint, .efb-vrf-status, .efb-vrf-error, .efb-vrf-tips, .efb-captcha-msg, .efb-rc3-notice, .efb-counter, .efb-help-pop, .efb-pw-word, .efb-field-error, .efb-errsum, [id$="_-message"], [id$="-des"]),
+.body_efb[dir="rtl"] :is(.efb.col-form-label.txt-left, legend.txt-left, .efb-field-error, .efb-errsum, [id$="_-message"]) { text-align: right !important; }

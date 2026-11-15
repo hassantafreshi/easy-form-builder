@@ -40,3 +40,6 @@
 [data-rpt-body] .efb-rpt-out { display: inline-block; }
 [data-rpt-body] .efb-rpt-in { display: none !important; }
 .efb.efb-rpt-add-cv[disabled] { opacity: .7; }
+/* F16 (BUGS-FOUND, F09): the group's help text starts where its legend starts (the field description's mx-4 indent
+   belongs to fields whose label sits above them, not to a group). */
+.efb.efb-rpt > .efb-field-description > small[id$="-des"] { margin-inline: 0 !important; padding-inline: 0 !important; }

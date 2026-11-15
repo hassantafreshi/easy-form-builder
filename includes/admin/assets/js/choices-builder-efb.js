@@ -342,7 +342,7 @@
     const D = C().digits;
     const lines = [];
     lines.push(T('bulkCount', '%1$s choices, %2$s repeated labels').replace('%1$s', D(res.items.length)).replace('%2$s', D(res.dupLabels.length)));
-    if (res.stripped.length) lines.push(T('bulkStripped', 'The characters " < and > were removed from lines %s.').replace('%s', res.stripped.map(D).join('، ')));
+    if (res.stripped.length) lines.push(T('bulkStripped', 'The characters " < and > were removed from lines %s.').replace('%s', (() => { const a = res.stripped.map(D); try { return new Intl.ListFormat(String((window.efb_var && (efb_var.wp_lan || efb_var.language)) || 'en').replace('_', '-'), { type: 'unit' }).format(a); } catch (e) { return a.join(', '); } })()));
     if (res.tooMany) lines.push(T('bulkTooMany', 'Only the first 500 lines are added.'));
     if (res.skippedGroups) lines.push(T('bulkGroupsLater', 'Lines that start with “## ” (choice groups) are not used yet.'));
     if (res.dupValues.length) lines.push(T('bulkDupValue', 'These stored values are used twice: %s').replace('%s', res.dupValues.slice(0, 10).join(', ')));
