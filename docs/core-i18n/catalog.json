@@ -4,8 +4,8 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-15",
     "counts": {
-        "active": 4059,
-        "obsolete": 515
+        "active": 4091,
+        "obsolete": 518
     },
     "entries": [
         {
@@ -1283,6 +1283,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%s day from now",
+            "context": null,
+            "plural": "%s days from now",
+            "translators": "%s: number of days, in the site's digits.",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s days",
             "context": null,
             "plural": null,
@@ -2148,6 +2163,7 @@
             "plural": null,
             "translators": "F18: for screen readers, after a link that opens a new tab",
             "files": [
+                "includes/class-Emsfb-renewal-reminder.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -5360,6 +5376,21 @@
             "first_seen": "4.3.1",
             "status": "obsolete",
             "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "Already renewed? Check again",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Also check the CAPTCHA on login and registration",
@@ -10927,6 +10958,7 @@
                 "includes/admin/class-Emsfb-create.php",
                 "includes/admin/class-Emsfb-panel.php",
                 "includes/class-Emsfb-deactivation-feedback.php",
+                "includes/class-Emsfb-renewal-reminder.php",
                 "includes/class-Emsfb-review-request.php",
                 "includes/functions.php"
             ],
@@ -16161,6 +16193,96 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Easy Form Builder Pro ends on %s",
+            "context": null,
+            "plural": null,
+            "translators": "%s: the last day Pro is active, a localized date such as \"November 21, 2026\".",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Easy Form Builder Pro ends today",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Easy Form Builder Pro ends tomorrow",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Easy Form Builder Pro on %1$s ended on %2$s, so Pro features are paused for now. Your forms, entries and settings are all still here, and nothing was deleted. Until you renew, Pro fields show as unavailable to visitors and online payments in your forms are paused. Renew and everything comes back as soon as the renewal is confirmed — no setup needed.",
+            "context": null,
+            "plural": null,
+            "translators": "1: site name, 2: localized date of the last day Pro was active.",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Easy Form Builder Pro on %1$s ends on %2$s",
+            "context": null,
+            "plural": null,
+            "translators": "1: site name, 2: localized date of the last day Pro is active.",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Easy Form Builder Pro on %1$s ends on %2$s — %3$s.",
+            "context": null,
+            "plural": null,
+            "translators": "1: site name, 2: localized date of the last day Pro is active, 3: \"7 days from now\".",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Easy Form Builder SMS service",
             "context": null,
             "plural": null,
@@ -16247,6 +16369,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Easy Form Builder could not confirm your Pro licence for a while, so Pro is paused. Nothing was deleted. Open Easy Form Builder › Settings and press Save to check again.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -17360,6 +17497,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Email me before my Pro subscription ends",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -22781,6 +22933,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Hi,",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Hi, I placed my order last week and still have no tracking code. Could you check it?",
             "context": null,
             "plural": null,
@@ -24057,6 +24224,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "If it lapses:",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "If outgoing requests are blocked, ask your host to allow connections to the Easy Form Builder update server.",
             "context": null,
             "plural": null,
@@ -24233,6 +24415,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "If you moved this website to a new domain, re-activate your licence for it and paste the new code into Easy Form Builder › Settings. Your forms, entries and settings are all still here.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -31962,6 +32159,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "No renewal found yet. If you just renewed, try again in a few minutes.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "No response was recorded for this add-on.",
             "context": null,
             "plural": null,
@@ -33585,6 +33797,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Online payments through your forms will pause.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Only a paid payment can be refunded.",
             "context": null,
             "plural": null,
@@ -34146,6 +34373,21 @@
             "translators": "Link to the Plugins screen for an installed service",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Open Settings",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
             ],
             "scope": [
                 "core"
@@ -38781,6 +39023,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Pro add-ons stop getting updates until you renew.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Pro feature",
             "context": null,
             "plural": null,
@@ -38811,12 +39068,73 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Pro features are paused on %s",
+            "context": null,
+            "plural": null,
+            "translators": "%s: site name.",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Pro features are paused on this site",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php",
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Pro fields on your live forms will show as unavailable to visitors.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Pro includes every feature and add-on, shows no credit on your pages, and includes support.",
             "context": null,
             "plural": null,
             "translators": "F18: upgrade dialog text for a Pro feature",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Pro is active until %s",
+            "context": null,
+            "plural": null,
+            "translators": "%s: the last day Pro is active, a localized date.",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
             ],
             "scope": [
                 "core"
@@ -40560,6 +40878,7 @@
             "plural": null,
             "translators": "",
             "files": [
+                "includes/class-Emsfb-renewal-reminder.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -40831,6 +41150,7 @@
             "translators": "F18: button",
             "files": [
                 "includes/class-Emsfb-email-monitor.php",
+                "includes/class-Emsfb-renewal-reminder.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -40846,13 +41166,72 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/admin/class-Emsfb-admin.php",
-                "includes/functions.php"
+                "includes/admin/class-Emsfb-admin.php"
             ],
             "scope": [
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Renew before then and everything keeps running exactly as it does today. If it lapses, your forms and entries stay safe, but Pro fields will show as unavailable to visitors and online payments in your forms will pause.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Renew before then and nothing changes: your forms keep working exactly as they do today.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Renew before then and your visitors won't notice a thing.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Renew before then to keep getting updates, new add-ons and support. Your forms keep working either way.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -40868,6 +41247,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Renews automatically on %s",
+            "context": null,
+            "plural": null,
+            "translators": "%s: a localized date.",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -49629,6 +50023,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Thanks — your renewal is confirmed.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "That code is not correct. %s attempts left.",
             "context": null,
             "plural": null,
@@ -50554,6 +50963,21 @@
             "translators": "F13: status when the automatic deletion never ran",
             "files": [
                 "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The button opens %s. We'll never ask for your password by email.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: the web address the Renew button opens, such as whitestudio.team.",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
             ],
             "scope": [
                 "core"
@@ -54184,6 +54608,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This activation code doesn't match this site",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -63715,6 +64154,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "You're getting this because you manage %s, which uses Easy Form Builder Pro. It was sent by your own website, once for this renewal. To stop these reminders, renew, or turn off \"Email me before my Pro subscription ends\" in Easy Form Builder › Settings.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: site name. The setting's name is quoted exactly as it appears in Settings.",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Youngest age",
             "context": null,
             "plural": null,
@@ -63735,6 +64189,37 @@
             "plural": null,
             "translators": "F09 builder: warning about the Conditional Logic add-on and rules inside rows",
             "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your Easy Form Builder Pro subscription ended on %s. Your forms, entries and settings are all still here. Renew and Pro comes back as soon as the renewal is confirmed — no setup needed.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: the last day Pro was active, a localized date.",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your Easy Form Builder Pro subscription has ended. Your forms, entries and settings are all still here. Renew and Pro comes back as soon as the renewal is confirmed — no setup needed.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -63786,8 +64271,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Your Easy Form Builder Pro subscription has expired. To continue using the %s add-on and all Pro features, please renew your subscription.",
@@ -63801,8 +64286,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Your Email Template cannot exceed 10,000 characters.",
@@ -63981,8 +64466,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Your answers are saved as you type so the site owner can follow up.",
@@ -64496,6 +64981,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Your forms keep working either way. Renewing keeps updates, new add-ons and support coming.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your forms, entries and settings are all still here.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Your forms, entries and settings are untouched, every free feature keeps working, and your activation code is still stored &mdash; nothing was deleted.",
             "context": null,
             "plural": null,
@@ -64507,6 +65022,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your forms, entries and settings stay safe. Nothing is deleted.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-renewal-reminder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },

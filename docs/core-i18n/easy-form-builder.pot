@@ -565,8 +565,16 @@ msgstr ""
 msgid "%s copied!"
 msgstr ""
 
+#. translators: %s: number of days, in the site's digits.
+#: includes/class-Emsfb-renewal-reminder.php:433
+#, php-format
+msgid "%s day from now"
+msgid_plural "%s days from now"
+msgstr[0] ""
+msgstr[1] ""
+
 #. translators: F06 %s = number of days translators: %s: number of days.
-#: includes/functions.php:4850 includes/functions.php:11092
+#: includes/functions.php:4850 includes/functions.php:11119
 #, php-format
 msgid "%s days"
 msgstr ""
@@ -747,7 +755,7 @@ msgstr ""
 msgid "%s not found"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4195
+#: includes/admin/class-Emsfb-admin.php:4208
 #, php-format
 msgid "%s notification"
 msgstr ""
@@ -891,7 +899,7 @@ msgid_plural "(and %d more problems)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/admin/class-Emsfb-addon.php:169
+#: includes/admin/class-Emsfb-addon.php:170
 msgid "(currently enabled and paused)"
 msgstr ""
 
@@ -899,7 +907,7 @@ msgstr ""
 msgid "(no title)"
 msgstr ""
 
-#: includes/admin/class-Emsfb-addon.php:171
+#: includes/admin/class-Emsfb-addon.php:172
 msgid "(not enabled)"
 msgstr ""
 
@@ -910,7 +918,8 @@ msgid "(old value) %s"
 msgstr ""
 
 #. translators: F18: for screen readers, after a link that opens a new tab
-#: includes/functions.php:3166
+#: includes/class-Emsfb-renewal-reminder.php:640
+#: includes/class-Emsfb-renewal-reminder.php:799 includes/functions.php:3166
 msgid "(opens in a new tab)"
 msgstr ""
 
@@ -1143,7 +1152,7 @@ msgstr ""
 msgid "A mobile field asks for the confirmation SMS, but SMS notifications are off for this form, so no SMS will be sent."
 msgstr ""
 
-#: includes/class-email-handler.php:1028
+#: includes/class-email-handler.php:1034
 msgid "A new user has registered on your website."
 msgstr ""
 
@@ -1359,7 +1368,7 @@ msgid "Action name"
 msgstr ""
 
 #. translators: %s: site name.
-#: includes/functions.php:11019
+#: includes/functions.php:11045
 #, php-format
 msgid "Action needed: Easy Form Builder Pro is paused on %s"
 msgstr ""
@@ -1408,7 +1417,7 @@ msgstr ""
 msgid "Activation Code"
 msgstr ""
 
-#: includes/functions.php:11095
+#: includes/functions.php:11122
 msgid "Activation code"
 msgstr ""
 
@@ -1594,7 +1603,7 @@ msgid "Add-on"
 msgstr ""
 
 #. translators: %s: add-on name
-#: includes/functions.php:9444
+#: includes/functions.php:9445
 #, php-format
 msgid "Add-on affected: %s"
 msgstr ""
@@ -1603,7 +1612,7 @@ msgstr ""
 msgid "Add-on directory is ready for file operations"
 msgstr ""
 
-#: includes/functions.php:9855
+#: includes/functions.php:9856
 msgid "Add-on folder"
 msgstr ""
 
@@ -1636,7 +1645,7 @@ msgstr ""
 msgid "Additional Information"
 msgstr ""
 
-#: includes/admin/class-Emsfb-addon.php:132
+#: includes/admin/class-Emsfb-addon.php:133
 msgid "Addon Installation Issue"
 msgstr ""
 
@@ -1889,7 +1898,7 @@ msgstr ""
 msgid "Allow the address /wp-json/Emsfb/ in that plugin (for example Disable REST API), or ask your hosting company."
 msgstr ""
 
-#: includes/functions.php:9835
+#: includes/functions.php:9836
 msgid "Allowed"
 msgstr ""
 
@@ -1903,6 +1912,11 @@ msgstr ""
 #: includes/importers/cf7/class-Emsfb-cf7-importer.php
 #, php-format
 msgid "Already imported as form #%s"
+msgstr ""
+
+#: includes/class-Emsfb-renewal-reminder.php:642
+#: includes/class-Emsfb-renewal-reminder.php:800
+msgid "Already renewed? Check again"
 msgstr ""
 
 #. translators: F12b: Settings > Captchas
@@ -2275,7 +2289,7 @@ msgstr ""
 msgid "Attaching files to the e-mail needs Pro. The e-mail keeps the links until then."
 msgstr ""
 
-#: includes/functions.php:9858
+#: includes/functions.php:9859
 msgid "Attempts made"
 msgstr ""
 
@@ -2621,7 +2635,7 @@ msgstr ""
 msgid "Block these domains"
 msgstr ""
 
-#: includes/functions.php:9834
+#: includes/functions.php:9835
 msgid "Blocked by WP_HTTP_BLOCK_EXTERNAL — outgoing requests are disabled on this site."
 msgstr ""
 
@@ -2799,7 +2813,7 @@ msgstr ""
 msgid "Building forms"
 msgstr ""
 
-#: includes/class-email-handler.php:437 includes/class-email-handler.php:449
+#: includes/class-email-handler.php:443 includes/class-email-handler.php:455
 #, php-format
 msgid "Built with %1$sEasy Form Builder%2$s by %3$sWhiteStudio.team%4$s"
 msgstr ""
@@ -3054,7 +3068,7 @@ msgstr ""
 msgid "Cannot be chosen"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3691 includes/functions.php:8933
+#: includes/admin/class-Emsfb-admin.php:3704 includes/functions.php:8934
 msgid "Cannot install add-ons because this server has disabled the PHP filesystem functions needed to prepare the download. Please ask your hosting provider to enable mkdir and rename, or configure the WordPress filesystem."
 msgstr ""
 
@@ -3064,20 +3078,20 @@ msgstr ""
 msgid "Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the %s server"
 msgstr ""
 
-#: includes/functions.php:9990
+#: includes/functions.php:9991
 msgid "Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3674 includes/functions.php:8916
+#: includes/admin/class-Emsfb-admin.php:3687 includes/functions.php:8917
 msgid "Cannot install add-ons of Easy Form Builder because the plugin is not able to download files"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3705 includes/functions.php:8949
+#: includes/admin/class-Emsfb-admin.php:3718 includes/functions.php:8950
 msgid "Cannot install add-ons of Easy Form Builder because the plugin is not able to move the downloaded file"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3717 includes/functions.php:8963
-#: includes/functions.php:9993
+#: includes/admin/class-Emsfb-admin.php:3730 includes/functions.php:8964
+#: includes/functions.php:9994
 msgid "Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files"
 msgstr ""
 
@@ -3271,7 +3285,7 @@ msgstr ""
 msgid "Check licence"
 msgstr ""
 
-#: includes/functions.php:11113
+#: includes/functions.php:11140
 msgid "Check my licence now"
 msgstr ""
 
@@ -3305,8 +3319,8 @@ msgstr ""
 msgid "Check your answers. Use Edit to change one, then send the form."
 msgstr ""
 
-#: includes/admin/class-Emsfb-addon.php:144
-#: includes/admin/class-Emsfb-addon.php:149
+#: includes/admin/class-Emsfb-addon.php:145
+#: includes/admin/class-Emsfb-addon.php:150
 #, php-format
 msgid "Checked %s ago"
 msgstr ""
@@ -3323,7 +3337,7 @@ msgstr ""
 msgid "Checking %s earlier entries for duplicates…"
 msgstr ""
 
-#: includes/admin/class-Emsfb-addon.php:154
+#: includes/admin/class-Emsfb-addon.php:155
 msgid "Checking add-on installation capabilities&hellip;"
 msgstr ""
 
@@ -3542,7 +3556,7 @@ msgstr ""
 msgid "Clear this answer when anonymizing"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4165
+#: includes/admin/class-Emsfb-admin.php:4178
 msgid "Click \"Check Email Server\" and wait for the test to finish"
 msgstr ""
 
@@ -3551,7 +3565,7 @@ msgstr ""
 msgid "Click \"Check Email Server\" to test delivery, turn this switch on, then press Save."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4163
+#: includes/admin/class-Emsfb-admin.php:4176
 msgid "Click Settings from the top menu"
 msgstr ""
 
@@ -3564,7 +3578,7 @@ msgstr ""
 msgid "Click here"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4277 includes/functions.php:2535
+#: includes/admin/class-Emsfb-admin.php:4290 includes/functions.php:2535
 msgid "Click here for more details"
 msgstr ""
 
@@ -3572,7 +3586,7 @@ msgstr ""
 msgid "Click here to watch a video tutorial."
 msgstr ""
 
-#: includes/class-email-handler.php:933
+#: includes/class-email-handler.php:939
 msgid "Click the button below to set a new password. This link will be valid for 24 hours."
 msgstr ""
 
@@ -3602,13 +3616,13 @@ msgid "Clock"
 msgstr ""
 
 #. translators: F11: close button of the popup
-#: includes/admin/class-Emsfb-admin.php:4152
-#: includes/admin/class-Emsfb-create.php:170
-#: includes/admin/class-Emsfb-panel.php:163
+#: includes/admin/class-Emsfb-admin.php:4165
+#: includes/admin/class-Emsfb-create.php:171
+#: includes/admin/class-Emsfb-panel.php:164
 #: includes/class-Emsfb-deactivation-feedback.php:1041
+#: includes/class-Emsfb-renewal-reminder.php:806
 #: includes/class-Emsfb-review-request.php:1149
 #: includes/class-Emsfb-review-request.php:1239 includes/functions.php:1659
-#: includes/functions.php:2960
 msgid "Close"
 msgstr ""
 
@@ -3853,7 +3867,7 @@ msgstr ""
 msgid "Confirmation Code Finder"
 msgstr ""
 
-#: includes/class-email-handler.php:657
+#: includes/class-email-handler.php:663
 msgid "Congratulations! Email System Working"
 msgstr ""
 
@@ -3983,7 +3997,7 @@ msgstr ""
 msgid "Continue with Free Plus"
 msgstr ""
 
-#: includes/class-email-handler.php:583
+#: includes/class-email-handler.php:589
 msgid "Continue your form"
 msgstr ""
 
@@ -4107,7 +4121,7 @@ msgstr ""
 msgid "Could not be carried over"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2489
+#: includes/admin/class-Emsfb-admin.php:2502
 msgid "Could not start email test."
 msgstr ""
 
@@ -4381,7 +4395,7 @@ msgstr ""
 msgid "D&D File Upload"
 msgstr ""
 
-#: includes/functions.php:9845
+#: includes/functions.php:9846
 msgid "DISABLE_WP_CRON is on — background retries only run if a server cron task calls wp-cron.php."
 msgstr ""
 
@@ -4429,7 +4443,7 @@ msgstr ""
 #. versions dialog column translators: Date = column header
 #: includes/functions.php:2147 includes/functions.php:4992
 #: includes/functions.php:5235 includes/functions.php:6120
-#: includes/functions.php:10634
+#: includes/functions.php:10635
 #: includes/payments/class-Emsfb-payment-admin.php:150 includes/phrases.php:202
 msgid "Date"
 msgstr ""
@@ -4757,7 +4771,7 @@ msgstr ""
 msgid "Diagnosis & Troubleshooting"
 msgstr ""
 
-#: includes/functions.php:9875
+#: includes/functions.php:9876
 msgid "Diagnostics"
 msgstr ""
 
@@ -4810,7 +4824,7 @@ msgstr ""
 msgid "Disabled Field"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4200
+#: includes/admin/class-Emsfb-admin.php:4213
 #, php-format
 msgid "Disabling this feature may affect the proper functionality of Easy Form Builder. If you plan to use the %s feature, please ensure it is enabled."
 msgstr ""
@@ -5164,11 +5178,11 @@ msgid "Earliest date"
 msgstr ""
 
 #: emsfb.php includes/admin/class-Emsfb-admin.php:225
-#: includes/admin/class-Emsfb-admin.php:3915
-#: includes/admin/class-Emsfb-admin.php:4153
-#: includes/admin/class-Emsfb-admin.php:4156
-#: includes/admin/class-Emsfb-admin.php:4296
-#: includes/admin/class-Emsfb-create.php:208
+#: includes/admin/class-Emsfb-admin.php:3928
+#: includes/admin/class-Emsfb-admin.php:4166
+#: includes/admin/class-Emsfb-admin.php:4169
+#: includes/admin/class-Emsfb-admin.php:4309
+#: includes/admin/class-Emsfb-create.php:209
 #: includes/admin/class-Emsfb-dashboard-widget.php:85
 msgid "Easy Form Builder"
 msgstr ""
@@ -5177,8 +5191,42 @@ msgstr ""
 msgid "Easy Form Builder Documentation"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4298
+#: includes/admin/class-Emsfb-admin.php:4311
 msgid "Easy Form Builder Email Warning:"
+msgstr ""
+
+#. translators: %s: the last day Pro is active, a localized date such as
+#. "November 21, 2026".
+#: includes/class-Emsfb-renewal-reminder.php:626
+#, php-format
+msgid "Easy Form Builder Pro ends on %s"
+msgstr ""
+
+#: includes/class-Emsfb-renewal-reminder.php:624
+msgid "Easy Form Builder Pro ends today"
+msgstr ""
+
+#: includes/class-Emsfb-renewal-reminder.php:624
+msgid "Easy Form Builder Pro ends tomorrow"
+msgstr ""
+
+#. translators: 1: site name, 2: localized date of the last day Pro was active.
+#: includes/class-Emsfb-renewal-reminder.php:453
+#, php-format
+msgid "Easy Form Builder Pro on %1$s ended on %2$s, so Pro features are paused for now. Your forms, entries and settings are all still here, and nothing was deleted. Until you renew, Pro fields show as unavailable to visitors and online payments in your forms are paused. Renew and everything comes back as soon as the renewal is confirmed — no setup needed."
+msgstr ""
+
+#. translators: 1: site name, 2: localized date of the last day Pro is active.
+#: includes/class-Emsfb-renewal-reminder.php:424
+#, php-format
+msgid "Easy Form Builder Pro on %1$s ends on %2$s"
+msgstr ""
+
+#. translators: 1: site name, 2: localized date of the last day Pro is active,
+#. 3: "7 days from now".
+#: includes/class-Emsfb-renewal-reminder.php:467
+#, php-format
+msgid "Easy Form Builder Pro on %1$s ends on %2$s — %3$s."
 msgstr ""
 
 #: includes/functions.php:2667
@@ -5201,20 +5249,24 @@ msgid "Easy Form Builder cannot display the form because jQuery is not properly 
 msgstr ""
 
 #. translators: 1: number of days, 2: site name.
-#: includes/functions.php:11059
+#: includes/functions.php:11086
 #, php-format
 msgid "Easy Form Builder could not confirm your Pro licence for %1$s days in a row, so the Pro features on %2$s are paused for now."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4251
+#: includes/class-Emsfb-renewal-reminder.php:777
+msgid "Easy Form Builder could not confirm your Pro licence for a while, so Pro is paused. Nothing was deleted. Open Easy Form Builder › Settings and press Save to check again."
+msgstr ""
+
+#: includes/admin/class-Emsfb-admin.php:4264
 msgid "Easy Form Builder could not connect to the email tester service."
 msgstr ""
 
-#: includes/functions.php:9870
+#: includes/functions.php:9871
 msgid "Easy Form Builder could not reinstall its add-on files automatically. Forms that rely on those add-ons are showing a temporary message to visitors until this is resolved."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4239
+#: includes/admin/class-Emsfb-admin.php:4252
 msgid "Easy Form Builder could not start the email delivery test. Please try again later."
 msgstr ""
 
@@ -5232,7 +5284,7 @@ msgstr ""
 msgid "Easy Form Builder form versions"
 msgstr ""
 
-#: includes/admin/class-Emsfb-addon.php:163
+#: includes/admin/class-Emsfb-addon.php:164
 msgid "Easy Form Builder has safely paused each affected active add-on, so the rest of the plugin can continue working."
 msgstr ""
 
@@ -5261,7 +5313,7 @@ msgstr ""
 msgid "Easy Form Builder will not send any email — neither to you nor to the person who submits this form — until \"This site can send emails\" is enabled in Email Settings."
 msgstr ""
 
-#: includes/functions.php:9431
+#: includes/functions.php:9432
 msgid "Easy Form Builder: add-on downloads are being blocked"
 msgstr ""
 
@@ -5429,7 +5481,7 @@ msgstr ""
 
 #. translators: Email = input field for email address translators: F01 builder,
 #. mobile keyboard option: keyboard with @ and .
-#: includes/admin/class-Emsfb-admin.php:4196 includes/functions.php:1621
+#: includes/admin/class-Emsfb-admin.php:4209 includes/functions.php:1621
 #: includes/functions.php:4430
 msgid "Email"
 msgstr ""
@@ -5451,7 +5503,7 @@ msgstr ""
 msgid "Email Delivery Status Checking"
 msgstr ""
 
-#: includes/class-email-handler.php:669
+#: includes/class-email-handler.php:675
 msgid "Email Delivery Tips"
 msgstr ""
 
@@ -5459,7 +5511,7 @@ msgstr ""
 msgid "Email Error Logging"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4278
+#: includes/admin/class-Emsfb-admin.php:4291
 msgid "Email Issue"
 msgstr ""
 
@@ -5489,7 +5541,7 @@ msgstr ""
 msgid "Email address for the discount code"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3137
+#: includes/admin/class-Emsfb-admin.php:3150
 msgid "Email capability verified"
 msgstr ""
 
@@ -5503,7 +5555,7 @@ msgstr ""
 msgid "Email confirmation"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3164
+#: includes/admin/class-Emsfb-admin.php:3177
 #, php-format
 msgid "Email delivery failed: %s"
 msgstr ""
@@ -5528,11 +5580,11 @@ msgstr ""
 msgid "Email delivery log"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4262
+#: includes/admin/class-Emsfb-admin.php:4275
 msgid "Email delivery test failed."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4270
+#: includes/admin/class-Emsfb-admin.php:4283
 msgid "Email delivery test is pending."
 msgstr ""
 
@@ -5555,6 +5607,10 @@ msgstr ""
 #. translators: Status message shown when the test email is delayed
 #: includes/functions.php:4241
 msgid "Email is on its way — still waiting for delivery confirmation."
+msgstr ""
+
+#: includes/class-Emsfb-renewal-reminder.php:838
+msgid "Email me before my Pro subscription ends"
 msgstr ""
 
 #: includes/class-Emsfb-deactivation-feedback.php:1021
@@ -5587,11 +5643,11 @@ msgstr ""
 msgid "Email received"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3458
+#: includes/admin/class-Emsfb-admin.php:3471
 msgid "Email sending confirmed by the site owner"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4214
+#: includes/admin/class-Emsfb-admin.php:4227
 msgid "Email sending is blocked by server settings."
 msgstr ""
 
@@ -5615,11 +5671,11 @@ msgstr ""
 msgid "Email subject: %s"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4210
+#: includes/admin/class-Emsfb-admin.php:4223
 msgid "Email system is not available."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4206
+#: includes/admin/class-Emsfb-admin.php:4219
 msgid "Email system is working properly."
 msgstr ""
 
@@ -5629,25 +5685,25 @@ msgstr ""
 msgid "Email template blocks"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3105
+#: includes/admin/class-Emsfb-admin.php:3118
 msgid "Email test failed"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2675
-#: includes/admin/class-Emsfb-admin.php:3150
+#: includes/admin/class-Emsfb-admin.php:2688
+#: includes/admin/class-Emsfb-admin.php:3163
 msgid "Email test is waiting for delivery confirmation"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4250
+#: includes/admin/class-Emsfb-admin.php:4263
 msgid "Email tester connection error."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2488
+#: includes/admin/class-Emsfb-admin.php:2501
 msgid "Email tester service error"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4238
-#: includes/admin/class-Emsfb-admin.php:4258
+#: includes/admin/class-Emsfb-admin.php:4251
+#: includes/admin/class-Emsfb-admin.php:4271
 msgid "Email tester service error."
 msgstr ""
 
@@ -5804,13 +5860,13 @@ msgstr ""
 msgid "Enable silentCAPTCHA (Shield Security) to protect against spam and bots."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4158
+#: includes/admin/class-Emsfb-admin.php:4171
 msgid "Enable the Email Notification Feature"
 msgstr ""
 
 #. translators: Enabled = generic status label translators: Enabled = status
 #. when feature is active
-#: includes/functions.php:2629 includes/functions.php:9846
+#: includes/functions.php:2629 includes/functions.php:9847
 #: includes/phrases.php:193
 msgid "Enabled"
 msgstr ""
@@ -5992,7 +6048,7 @@ msgstr ""
 msgid "Error Monitor"
 msgstr ""
 
-#: includes/functions.php:11096
+#: includes/functions.php:11123
 msgid "Error code"
 msgstr ""
 
@@ -6029,15 +6085,15 @@ msgstr ""
 #: includes/admin/class-Emsfb-admin.php:1014
 #: includes/admin/class-Emsfb-admin.php:1043
 #: includes/admin/class-Emsfb-admin.php:1129
-#: includes/admin/class-Emsfb-admin.php:1165
-#: includes/admin/class-Emsfb-admin.php:1307
+#: includes/admin/class-Emsfb-admin.php:1166
+#: includes/admin/class-Emsfb-admin.php:1308
 #, php-format
 msgid "Error: server (%s) responded with an invalid request. responded code : %s "
 msgstr ""
 
 #: includes/functions.php:8672 includes/functions.php:8731
 #: includes/functions.php:8761 includes/functions.php:8774
-#: includes/functions.php:8794 includes/functions.php:8855
+#: includes/functions.php:8795 includes/functions.php:8856
 #, php-format
 msgid "Error: server (%s) responded with an invalid request. responded code: %s"
 msgstr ""
@@ -6338,7 +6394,7 @@ msgstr ""
 msgid "First color only"
 msgstr ""
 
-#: includes/functions.php:11089
+#: includes/functions.php:11116
 msgid "First failed check"
 msgstr ""
 
@@ -6434,7 +6490,7 @@ msgstr ""
 
 #: includes/class-Emsfb-drafts.php:593 includes/class-Emsfb-unique.php:592
 #: includes/class-Emsfb-verification.php:1395 includes/functions.php:2143
-#: includes/functions.php:9851
+#: includes/functions.php:9852
 #: includes/page-builders/visual-composer/class-Emsfb-visual-composer.php:148
 #: includes/payments/class-Emsfb-payment-admin.php:150
 #: includes/payments/class-Emsfb-payment-admin.php:190
@@ -6584,7 +6640,7 @@ msgstr ""
 msgid "Form submissions and email status are checked separately."
 msgstr ""
 
-#: includes/class-email-handler.php:807
+#: includes/class-email-handler.php:813
 msgid "Form submitted successfully without tracking."
 msgstr ""
 
@@ -6715,11 +6771,11 @@ msgstr ""
 msgid "Free Plus is on. %s is ready."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4458
+#: includes/admin/class-Emsfb-admin.php:4471
 msgid "Free Plus plan activated with enhanced features."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4380
+#: includes/admin/class-Emsfb-admin.php:4393
 msgid "Free Plus shows a credit link on your pages. Please activate it from the button that explains this."
 msgstr ""
 
@@ -6739,7 +6795,7 @@ msgstr ""
 msgid "Free allows up to %d steps per form"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4452
+#: includes/admin/class-Emsfb-admin.php:4465
 msgid "Free plan activated - no additional features."
 msgstr ""
 
@@ -6943,7 +6999,7 @@ msgstr ""
 msgid "Gluten-free"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4162
+#: includes/admin/class-Emsfb-admin.php:4175
 #, php-format
 msgid "Go to the <a href=\"%s\" style=\"font-weight:600;\">Easy Form Builder Panel</a>"
 msgstr ""
@@ -7042,7 +7098,7 @@ msgstr ""
 msgid "Governorates of Egypt"
 msgstr ""
 
-#: includes/functions.php:11090
+#: includes/functions.php:11117
 msgid "Grace period"
 msgstr ""
 
@@ -7203,12 +7259,16 @@ msgstr ""
 msgid "Hex colour"
 msgstr ""
 
-#: includes/class-email-handler.php:927 includes/class-email-handler.php:993
+#: includes/class-email-handler.php:933 includes/class-email-handler.php:999
 msgid "Hi"
 msgstr ""
 
 #: includes/functions.php:2297
 msgid "Hi dear user"
+msgstr ""
+
+#: includes/class-Emsfb-renewal-reminder.php:463
+msgid "Hi,"
 msgstr ""
 
 #. translators: Sample message body shown in the dialog preview
@@ -7418,7 +7478,7 @@ msgstr ""
 msgid "How to add The Confirmation Code Finder to a post, page, or custom post type"
 msgstr ""
 
-#: includes/functions.php:11102
+#: includes/functions.php:11129
 msgid "How to bring Pro back"
 msgstr ""
 
@@ -7559,7 +7619,11 @@ msgstr ""
 msgid "If it keeps happening, let the Easy Form Builder team know."
 msgstr ""
 
-#: includes/functions.php:9882
+#: includes/class-Emsfb-renewal-reminder.php:479
+msgid "If it lapses:"
+msgstr ""
+
+#: includes/functions.php:9883
 msgid "If outgoing requests are blocked, ask your host to allow connections to the Easy Form Builder update server."
 msgstr ""
 
@@ -7575,7 +7639,7 @@ msgstr ""
 msgid "If something went wrong instead, send us feedback and we will fix it."
 msgstr ""
 
-#: includes/functions.php:9881
+#: includes/functions.php:9882
 msgid "If the add-on folder is not writable, ask your host to allow writing to the plugin folder."
 msgstr ""
 
@@ -7586,7 +7650,7 @@ msgstr ""
 msgid "If the message turns up later, the report goes to %s."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4166
+#: includes/admin/class-Emsfb-admin.php:4179
 msgid "If the score is above 70 — enable the \"This site can send emails\" switch and save"
 msgstr ""
 
@@ -7594,7 +7658,7 @@ msgstr ""
 msgid "If we fix it and you change your mind, we would love a rating later."
 msgstr ""
 
-#: includes/admin/class-Emsfb-create.php:208
+#: includes/admin/class-Emsfb-create.php:209
 msgid "If you are seeing this message, it is likely for one of these reasons: If you have a caching plugin installed, its settings may need to be reviewed."
 msgstr ""
 
@@ -7603,19 +7667,23 @@ msgstr ""
 msgid "If you did not request this, you can ignore this email."
 msgstr ""
 
-#: includes/class-email-handler.php:920 includes/class-email-handler.php:986
+#: includes/class-email-handler.php:926 includes/class-email-handler.php:992
 msgid "If you did not request this, you can safely ignore it."
 msgstr ""
 
-#: includes/functions.php:10630
+#: includes/functions.php:10631
 msgid "If you experience any issues, please exclude the page where your form is published from caching or disable these plugins. For detailed guidance on how to set up this exclusion, please refer to the documentation of the respective caching plugin."
+msgstr ""
+
+#: includes/class-Emsfb-renewal-reminder.php:768
+msgid "If you moved this website to a new domain, re-activate your licence for it and paste the new code into Easy Form Builder › Settings. Your forms, entries and settings are all still here."
 msgstr ""
 
 #: includes/functions.php:1665
 msgid "If you need to create more than 2 steps, you can activate the pro version of Easy Form Builder, which allows for unlimited steps."
 msgstr ""
 
-#: includes/class-email-handler.php:2108
+#: includes/class-email-handler.php:2114
 msgid "If you receive this email multiple times, it could indicate a recurring issue."
 msgstr ""
 
@@ -7626,7 +7694,7 @@ msgid "If you skip, form notifications stay off until you check or turn them on 
 msgstr ""
 
 #. translators: %s: this site's outgoing IP address
-#: includes/functions.php:9362
+#: includes/functions.php:9363
 #, php-format
 msgid "If you would rather fix the connection, ask your hosting provider why outgoing requests from %s are being blocked."
 msgstr ""
@@ -7656,7 +7724,7 @@ msgid "If your language translation is not available yet, translate it and get a
 msgstr ""
 
 #. translators: 1: opening link tag, 2: closing link tag.
-#: includes/functions.php:11080
+#: includes/functions.php:11107
 #, php-format
 msgid "If your subscription has expired, or you moved this website to a new domain, %1$srenew or re-activate your licence%2$s and paste the new code into Settings."
 msgstr ""
@@ -7707,7 +7775,7 @@ msgstr ""
 msgid "Importance scale"
 msgstr ""
 
-#: includes/functions.php:10621
+#: includes/functions.php:10622
 msgid "Important: Caching Plugin May Affect Easy Form Builder"
 msgstr ""
 
@@ -7906,20 +7974,20 @@ msgstr ""
 msgid "Invalid country code"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2421
+#: includes/admin/class-Emsfb-admin.php:2434
 msgid "Invalid email address"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4230
+#: includes/admin/class-Emsfb-admin.php:4243
 msgid "Invalid email address."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4246
+#: includes/admin/class-Emsfb-admin.php:4259
 msgid "Invalid email test."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4242
-#: includes/admin/class-Emsfb-admin.php:4254
+#: includes/admin/class-Emsfb-admin.php:4255
+#: includes/admin/class-Emsfb-admin.php:4267
 msgid "Invalid email tester response."
 msgstr ""
 
@@ -7947,11 +8015,11 @@ msgstr ""
 msgid "Invalid payment selection. Please review your choices and try again. If the problem persists, contact the site administrator."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4355
+#: includes/admin/class-Emsfb-admin.php:4368
 msgid "Invalid plan data format."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4364
+#: includes/admin/class-Emsfb-admin.php:4377
 msgid "Invalid plan type."
 msgstr ""
 
@@ -7972,11 +8040,11 @@ msgstr ""
 msgid "Invalid security token."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2459
+#: includes/admin/class-Emsfb-admin.php:2472
 msgid "Invalid sender email"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4234
+#: includes/admin/class-Emsfb-admin.php:4247
 msgid "Invalid sender email."
 msgstr ""
 
@@ -7988,12 +8056,12 @@ msgstr ""
 msgid "Invalid service account."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2518
-#: includes/admin/class-Emsfb-admin.php:2990
+#: includes/admin/class-Emsfb-admin.php:2531
+#: includes/admin/class-Emsfb-admin.php:3003
 msgid "Invalid service response"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2904
+#: includes/admin/class-Emsfb-admin.php:2917
 msgid "Invalid test hash"
 msgstr ""
 
@@ -8120,7 +8188,7 @@ msgstr ""
 msgid "It seems that you are the admin of this form. Please log in and try again."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4227
+#: includes/admin/class-Emsfb-admin.php:4240
 msgid "It seems that your WordPress site could not send a test email. To manually test your email system, go to Easy Form Builder > Settings > Email Settings tab and click the \"Check Email Server\" button."
 msgstr ""
 
@@ -9307,7 +9375,7 @@ msgstr ""
 msgid "Missing challenge."
 msgstr ""
 
-#: includes/class-Emsfb.php:897
+#: includes/class-Emsfb.php:902
 msgid "Missing files:"
 msgstr ""
 
@@ -9646,7 +9714,7 @@ msgstr ""
 msgid "New option"
 msgstr ""
 
-#: includes/class-email-handler.php:566 includes/class-email-handler.php:604
+#: includes/class-email-handler.php:572 includes/class-email-handler.php:610
 #: includes/class-Emsfb-public.php:7558
 msgid "New user registration"
 msgstr ""
@@ -9764,7 +9832,7 @@ msgstr ""
 msgid "No comment"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2951
+#: includes/admin/class-Emsfb-admin.php:2964
 msgid "No connection could be opened from your site to our mail testing service. This is usually outbound traffic blocked by your server or its network - some hosts block connections to other countries - rather than a problem with the service. Your hosting provider can confirm it."
 msgstr ""
 
@@ -9812,7 +9880,7 @@ msgstr ""
 msgid "No email arrived during the test window."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4222
+#: includes/admin/class-Emsfb-admin.php:4235
 msgid "No email handler configured."
 msgstr ""
 
@@ -9844,7 +9912,7 @@ msgstr ""
 msgid "No field matches %s."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3773
+#: includes/admin/class-Emsfb-admin.php:3786
 #: includes/class-Emsfb-public.php:5381 includes/class-Emsfb-public.php:6051
 msgid "No file was received. Please choose a file and try again."
 msgstr ""
@@ -9941,7 +10009,11 @@ msgstr ""
 msgid "No recording is ready to upload."
 msgstr ""
 
-#: includes/functions.php:9816
+#: includes/class-Emsfb-renewal-reminder.php:725
+msgid "No renewal found yet. If you just renewed, try again in a few minutes."
+msgstr ""
+
+#: includes/functions.php:9817
 msgid "No response was recorded for this add-on."
 msgstr ""
 
@@ -10097,7 +10169,7 @@ msgstr ""
 msgid "Not what I needed"
 msgstr ""
 
-#: includes/functions.php:9831
+#: includes/functions.php:9832
 msgid "Not writable — the add-on folder cannot be created or extracted into."
 msgstr ""
 
@@ -10405,7 +10477,7 @@ msgstr ""
 
 #. translators: Lead-in sentence used when advertising one of the plugin's free
 #. features
-#: includes/functions.php:10006
+#: includes/functions.php:10007
 msgid "One of the free features"
 msgstr ""
 
@@ -10413,7 +10485,7 @@ msgstr ""
 msgid "One or more add-on files are missing. Click the button below to reinstall them."
 msgstr ""
 
-#: includes/class-email-handler.php:2110
+#: includes/class-email-handler.php:2116
 msgid "One or more of the plugins listed below—typically related to caching or security—might be triggering this issue. For troubleshooting, temporarily deactivate them and test your site."
 msgstr ""
 
@@ -10441,6 +10513,10 @@ msgstr ""
 
 #: includes/payments/class-Emsfb-payment-registry.php:490
 msgid "Online payments are not part of the plan of this site, so visitors cannot pay. Choose a plan that includes payments."
+msgstr ""
+
+#: includes/class-Emsfb-renewal-reminder.php:483
+msgid "Online payments through your forms will pause."
 msgstr ""
 
 #: includes/payments/class-Emsfb-payment-service.php:1376
@@ -10590,7 +10666,7 @@ msgid "Open %1$s and look for a blocked request at %2$s."
 msgstr ""
 
 #. translators: 1: opening bold tag, 2: closing bold tag.
-#: includes/functions.php:11069
+#: includes/functions.php:11096
 #, php-format
 msgid "Open %1$sEasy Form Builder &rarr; Settings%2$s and press %1$sSave%2$s. That checks the licence again straight away; if the connection is back, Pro switches on within a minute."
 msgstr ""
@@ -10603,7 +10679,7 @@ msgstr ""
 msgid "Open Data Tools"
 msgstr ""
 
-#: includes/functions.php:9880
+#: includes/functions.php:9881
 msgid "Open Easy Form Builder in your dashboard and use the Recover add-ons button."
 msgstr ""
 
@@ -10628,6 +10704,11 @@ msgstr ""
 #. translators: Link to the Plugins screen for an installed service
 #: includes/functions.php:4091
 msgid "Open Plugins"
+msgstr ""
+
+#: includes/class-Emsfb-renewal-reminder.php:770
+#: includes/class-Emsfb-renewal-reminder.php:779
+msgid "Open Settings"
 msgstr ""
 
 #: includes/class-Emsfb-formbuilder.php:5433
@@ -10689,7 +10770,7 @@ msgstr ""
 msgid "Options"
 msgstr ""
 
-#: includes/class-email-handler.php:913 includes/class-email-handler.php:979
+#: includes/class-email-handler.php:919 includes/class-email-handler.php:985
 msgid "Or copy and paste this link:"
 msgstr ""
 
@@ -10739,7 +10820,7 @@ msgstr ""
 msgid "Other amount"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4167
+#: includes/admin/class-Emsfb-admin.php:4180
 msgid "Otherwise, follow the instructions shown in the test results"
 msgstr ""
 
@@ -10747,7 +10828,7 @@ msgstr ""
 msgid "Outer Padding"
 msgstr ""
 
-#: includes/functions.php:9856
+#: includes/functions.php:9857
 msgid "Outgoing requests"
 msgstr ""
 
@@ -10789,7 +10870,7 @@ msgstr ""
 msgid "Page address"
 msgstr ""
 
-#: includes/functions.php:9850
+#: includes/functions.php:9851
 msgid "Page that needed it"
 msgstr ""
 
@@ -10889,7 +10970,7 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
-#: includes/class-email-handler.php:571
+#: includes/class-email-handler.php:577
 msgid "Password Reset"
 msgstr ""
 
@@ -11075,7 +11156,7 @@ msgstr ""
 msgid "Payment service is temporarily unavailable. Please try again later or contact the site administrator."
 msgstr ""
 
-#: includes/admin/class-Emsfb-panel.php:457
+#: includes/admin/class-Emsfb-panel.php:458
 msgid "Payment setup incomplete"
 msgstr ""
 
@@ -11273,7 +11354,7 @@ msgstr ""
 msgid "Plain"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4555
+#: includes/admin/class-Emsfb-admin.php:4570
 #, php-format
 msgid "Plan \"%s\" has been successfully processed."
 msgstr ""
@@ -11289,7 +11370,7 @@ msgstr ""
 msgid "Plan change"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4345
+#: includes/admin/class-Emsfb-admin.php:4358
 msgid "Plan data is missing."
 msgstr ""
 
@@ -11310,7 +11391,7 @@ msgstr ""
 msgid "Please Enter a maximum of NN Characters For this field"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3916
+#: includes/admin/class-Emsfb-admin.php:3929
 #: includes/class-Emsfb-public.php:10464 includes/functions.php:1588
 msgid "Please Wait"
 msgstr ""
@@ -11323,7 +11404,7 @@ msgstr ""
 msgid "Please add the shortcode_message shortcode to the email template."
 msgstr ""
 
-#: includes/admin/class-Emsfb-create.php:208
+#: includes/admin/class-Emsfb-create.php:209
 msgid "Please also ensure that you have a stable internet connection and try again."
 msgstr ""
 
@@ -11434,7 +11515,7 @@ msgstr ""
 msgid "Please complete the form."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4442
+#: includes/admin/class-Emsfb-admin.php:4455
 msgid "Please confirm this plan downgrade before continuing."
 msgstr ""
 
@@ -11451,7 +11532,7 @@ msgstr ""
 msgid "Please connect a service account first."
 msgstr ""
 
-#: includes/class-email-handler.php:2109
+#: includes/class-email-handler.php:2115
 msgid "Please contact our support team for assistance."
 msgstr ""
 
@@ -11492,11 +11573,11 @@ msgstr ""
 msgid "Please enter a valid URL. Protocol is required (http://, https://)"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4231
+#: includes/admin/class-Emsfb-admin.php:4244
 msgid "Please enter a valid admin email address before testing email delivery."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2321
+#: includes/admin/class-Emsfb-admin.php:2334
 msgid "Please enter a valid admin email address."
 msgstr ""
 
@@ -11513,8 +11594,8 @@ msgstr ""
 msgid "Please enter a valid e-mail address in \"%s\"."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2422
-#: includes/admin/class-Emsfb-admin.php:2438
+#: includes/admin/class-Emsfb-admin.php:2435
+#: includes/admin/class-Emsfb-admin.php:2451
 #: includes/class-Emsfb-review-request.php:1243
 msgid "Please enter a valid email address."
 msgstr ""
@@ -11644,7 +11725,7 @@ msgstr ""
 msgid "Please keep this page open; it takes about a minute."
 msgstr ""
 
-#: includes/functions.php:2145 includes/functions.php:9887
+#: includes/functions.php:2145 includes/functions.php:9888
 msgid "Please kindly report the following issue to the Easy Form Builder team."
 msgstr ""
 
@@ -11659,7 +11740,7 @@ msgstr ""
 msgid "Please navigate to the Easy Form Builder Panel, then go to Settings and click on Google Keys to configure the keys for Google reCAPTCHA."
 msgstr ""
 
-#: includes/functions.php:10628
+#: includes/functions.php:10629
 msgid "Please note that these plugins may affect the functionality of Easy Form Builder."
 msgstr ""
 
@@ -11738,7 +11819,7 @@ msgstr ""
 msgid "Please verify your PayPal API credentials in the plugin settings."
 msgstr ""
 
-#: includes/class-email-handler.php:999
+#: includes/class-email-handler.php:1005
 msgid "Please verify your email address by clicking the button below. This activation link will be valid for 24 hours."
 msgstr ""
 
@@ -11761,11 +11842,11 @@ msgstr ""
 msgid "Plugin"
 msgstr ""
 
-#: includes/functions.php:10624
+#: includes/functions.php:10625
 msgid "Plugin Name"
 msgstr ""
 
-#: includes/functions.php:9852
+#: includes/functions.php:9853
 msgid "Plugin version"
 msgstr ""
 
@@ -11996,8 +12077,12 @@ msgstr ""
 msgid "Pro Version"
 msgstr ""
 
-#: includes/functions.php:11353
+#: includes/functions.php:11396
 msgid "Pro Version Required"
+msgstr ""
+
+#: includes/class-Emsfb-renewal-reminder.php:484
+msgid "Pro add-ons stop getting updates until you renew."
 msgstr ""
 
 #. translators: F18: short note next to a locked control
@@ -12005,8 +12090,24 @@ msgstr ""
 msgid "Pro feature"
 msgstr ""
 
-#: includes/class-email-handler.php:575
+#: includes/class-email-handler.php:581
 msgid "Pro features are paused"
+msgstr ""
+
+#. translators: %s: site name.
+#: includes/class-Emsfb-renewal-reminder.php:421
+#, php-format
+msgid "Pro features are paused on %s"
+msgstr ""
+
+#: includes/class-Emsfb-renewal-reminder.php:616
+#: includes/class-Emsfb-renewal-reminder.php:775 includes/functions.php:11389
+#: includes/functions.php:11440
+msgid "Pro features are paused on this site"
+msgstr ""
+
+#: includes/class-Emsfb-renewal-reminder.php:482
+msgid "Pro fields on your live forms will show as unavailable to visitors."
 msgstr ""
 
 #. translators: F18: upgrade dialog text for a Pro feature
@@ -12014,7 +12115,13 @@ msgstr ""
 msgid "Pro includes every feature and add-on, shows no credit on your pages, and includes support."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4468
+#. translators: %s: the last day Pro is active, a localized date.
+#: includes/class-Emsfb-renewal-reminder.php:848
+#, php-format
+msgid "Pro is active until %s"
+msgstr ""
+
+#: includes/admin/class-Emsfb-admin.php:4481
 msgid "Pro plan activated with existing activation code."
 msgstr ""
 
@@ -12249,7 +12356,7 @@ msgstr ""
 msgid "Real payments will be taken from now on. Continue?"
 msgstr ""
 
-#: includes/functions.php:11088
+#: includes/functions.php:11115
 #: includes/payments/class-Emsfb-payment-admin.php:224
 msgid "Reason"
 msgstr ""
@@ -12324,7 +12431,7 @@ msgstr ""
 msgid "Redirect page"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4479
+#: includes/admin/class-Emsfb-admin.php:4492
 msgid "Redirecting to Pro plan purchase page."
 msgstr ""
 
@@ -12412,7 +12519,7 @@ msgstr ""
 msgid "Register players for recreational sports leagues."
 msgstr ""
 
-#: includes/class-email-handler.php:1043 includes/functions.php:1674
+#: includes/class-email-handler.php:1049 includes/functions.php:1674
 msgid "Registered"
 msgstr ""
 
@@ -12429,7 +12536,7 @@ msgstr ""
 msgid "Reload this page"
 msgstr ""
 
-#: includes/functions.php:3438
+#: includes/class-Emsfb-renewal-reminder.php:636 includes/functions.php:3438
 msgid "Remind me later"
 msgstr ""
 
@@ -12519,16 +12626,42 @@ msgid "Renew Easy Form Builder Pro"
 msgstr ""
 
 #. translators: F18: button
-#: includes/class-Emsfb-email-monitor.php:2059 includes/functions.php:3130
+#: includes/class-Emsfb-email-monitor.php:2059
+#: includes/class-Emsfb-renewal-reminder.php:447
+#: includes/class-Emsfb-renewal-reminder.php:640
+#: includes/class-Emsfb-renewal-reminder.php:765 includes/functions.php:3130
+#: includes/functions.php:11392 includes/functions.php:11441
 msgid "Renew Pro"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:1160 includes/functions.php:11349
+#: includes/admin/class-Emsfb-admin.php:1161
 msgid "Renew Subscription"
+msgstr ""
+
+#: includes/class-Emsfb-renewal-reminder.php:629
+msgid "Renew before then and everything keeps running exactly as it does today. If it lapses, your forms and entries stay safe, but Pro fields will show as unavailable to visitors and online payments in your forms will pause."
+msgstr ""
+
+#: includes/class-Emsfb-renewal-reminder.php:472
+msgid "Renew before then and nothing changes: your forms keep working exactly as they do today."
+msgstr ""
+
+#: includes/class-Emsfb-renewal-reminder.php:462
+msgid "Renew before then and your visitors won't notice a thing."
+msgstr ""
+
+#: includes/class-Emsfb-renewal-reminder.php:628
+msgid "Renew before then to keep getting updates, new add-ons and support. Your forms keep working either way."
 msgstr ""
 
 #: includes/class-Emsfb-email-monitor.php:2056
 msgid "Renew your subscription to restore all Pro features and add-ons."
+msgstr ""
+
+#. translators: %s: a localized date.
+#: includes/class-Emsfb-renewal-reminder.php:846
+#, php-format
+msgid "Renews automatically on %s"
 msgstr ""
 
 #: includes/functions.php:2177
@@ -12610,8 +12743,8 @@ msgstr ""
 msgid "Report generated %s"
 msgstr ""
 
-#: includes/class-email-handler.php:579 includes/functions.php:2146
-#: includes/functions.php:9117
+#: includes/class-email-handler.php:585 includes/functions.php:2146
+#: includes/functions.php:9118
 msgid "Report problem"
 msgstr ""
 
@@ -12671,7 +12804,7 @@ msgstr ""
 msgid "Reservation"
 msgstr ""
 
-#: includes/class-email-handler.php:892
+#: includes/class-email-handler.php:898
 msgid "Reset Password"
 msgstr ""
 
@@ -12957,7 +13090,7 @@ msgstr ""
 msgid "Russian"
 msgstr ""
 
-#: includes/class-email-handler.php:2144
+#: includes/class-email-handler.php:2150
 msgid "SID Validation Error"
 msgstr ""
 
@@ -12967,7 +13100,7 @@ msgstr ""
 msgid "SMS"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3847
+#: includes/admin/class-Emsfb-admin.php:3860
 msgid "SMS Add-on Not Installed"
 msgstr ""
 
@@ -13140,8 +13273,8 @@ msgstr ""
 
 #. translators: F15: builder shortcut: save the form translators: Save =
 #. generic save button
-#: includes/admin/class-Emsfb-create.php:171
-#: includes/admin/class-Emsfb-panel.php:164 includes/functions.php:1605
+#: includes/admin/class-Emsfb-create.php:172
+#: includes/admin/class-Emsfb-panel.php:165 includes/functions.php:1605
 #: includes/functions.php:5932
 #: includes/payments/class-Emsfb-payment-admin.php:326 includes/phrases.php:606
 msgid "Save"
@@ -13317,7 +13450,7 @@ msgstr ""
 msgid "Security & Spam Protection"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3840
+#: includes/admin/class-Emsfb-admin.php:3853
 msgid "Security Error"
 msgstr ""
 
@@ -13481,7 +13614,7 @@ msgstr ""
 msgid "Select every entry on this page"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4164
+#: includes/admin/class-Emsfb-admin.php:4177
 msgid "Select the Email Settings tab"
 msgstr ""
 
@@ -13614,7 +13747,7 @@ msgstr ""
 msgid "Sending&hellip;"
 msgstr ""
 
-#: includes/functions.php:10632
+#: includes/functions.php:10633
 msgid "Sent by"
 msgstr ""
 
@@ -13625,7 +13758,7 @@ msgid "Sent by shortcode_website_name"
 msgstr ""
 
 #: includes/class-email-handler.php:58 includes/functions.php:2298
-#: includes/functions.php:9889
+#: includes/functions.php:9890
 msgid "Sent by:"
 msgstr ""
 
@@ -13654,7 +13787,7 @@ msgstr ""
 msgid "Separate with commas: example.com, *.edu, name@example.com"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3138
+#: includes/admin/class-Emsfb-admin.php:3151
 msgid "Server confirmed ability to send emails."
 msgstr ""
 
@@ -13676,7 +13809,7 @@ msgstr ""
 msgid "Service account saved, but the connection test failed: %s"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3025
+#: includes/admin/class-Emsfb-admin.php:3038
 msgid "Service error"
 msgstr ""
 
@@ -14008,7 +14141,7 @@ msgstr ""
 msgid "Single bar"
 msgstr ""
 
-#: includes/functions.php:9849
+#: includes/functions.php:9850
 msgid "Site"
 msgstr ""
 
@@ -14084,7 +14217,7 @@ msgstr ""
 msgid "Slider type"
 msgstr ""
 
-#: includes/functions.php:10626
+#: includes/functions.php:10627
 msgid "Slug"
 msgstr ""
 
@@ -14125,11 +14258,11 @@ msgstr ""
 
 #. translators: Premium and Agency are the names of the paid Easy Form Builder
 #. plans
-#: includes/functions.php:9884
+#: includes/functions.php:9885
 msgid "Some add-ons are only available on the Premium or Agency plans. If your subscription has expired, renew it to get those add-ons back."
 msgstr ""
 
-#: includes/admin/class-Emsfb-addon.php:162
+#: includes/admin/class-Emsfb-addon.php:163
 msgid "Some add-ons need a PHP server change"
 msgstr ""
 
@@ -14151,7 +14284,7 @@ msgstr ""
 msgid "Some of your forms use features that are now add-ons."
 msgstr ""
 
-#: includes/class-Emsfb.php:896
+#: includes/class-Emsfb.php:901
 msgid "Some plugin files are missing, so the plugin stopped loading to keep your site running. Please reinstall Easy Form Builder from the Plugins page — your forms, messages, and settings are kept."
 msgstr ""
 
@@ -14163,7 +14296,7 @@ msgstr ""
 msgid "Something unexpected happened. Please try again by refreshing the page."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:1472
+#: includes/admin/class-Emsfb-admin.php:1473
 msgid "Something went wrong, please refresh the page."
 msgstr ""
 
@@ -14457,13 +14590,13 @@ msgid "Still installing"
 msgstr ""
 
 #. translators: %s: licence server address.
-#: includes/functions.php:11075
+#: includes/functions.php:11102
 #, php-format
 msgid "Still paused? Ask your hosting provider to allow outgoing HTTPS connections to %s &mdash; a firewall, proxy or regional block is the usual cause &mdash; then repeat step 1."
 msgstr ""
 
 #. translators: 1: opening link tag, 2: closing link tag.
-#: includes/functions.php:11130
+#: includes/functions.php:11157
 #, php-format
 msgid "Still stuck? Send the details above to %1$sour support team%2$s and we will take it from there."
 msgstr ""
@@ -14773,7 +14906,7 @@ msgstr ""
 msgid "Syrian mobile"
 msgstr ""
 
-#: includes/admin/class-Emsfb-addon.php:148
+#: includes/admin/class-Emsfb-addon.php:149
 msgid "System Ready"
 msgstr ""
 
@@ -14833,7 +14966,7 @@ msgstr ""
 msgid "Technical & support question"
 msgstr ""
 
-#: includes/admin/class-Emsfb-addon.php:136
+#: includes/admin/class-Emsfb-addon.php:137
 msgid "Technical Details"
 msgstr ""
 
@@ -14923,7 +15056,7 @@ msgstr ""
 msgid "Test connection (Test)"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4226
+#: includes/admin/class-Emsfb-admin.php:4239
 msgid "Test email could not be sent."
 msgstr ""
 
@@ -15054,6 +15187,10 @@ msgstr ""
 msgid "Thanks for filling out the form."
 msgstr ""
 
+#: includes/class-Emsfb-renewal-reminder.php:739
+msgid "Thanks — your renewal is confirmed."
+msgstr ""
+
 #. translators: F02 visitor: %s = attempts left
 #: includes/functions.php:4678
 #, php-format
@@ -15089,7 +15226,7 @@ msgstr ""
 msgid "The %s add-on for Easy Form Builder enables you to integrate your WordPress site with %s for payment processing, donations, and online orders."
 msgstr ""
 
-#: includes/functions.php:11355
+#: includes/functions.php:11398
 #, php-format
 msgid "The %s add-on is a Pro feature. Please upgrade to Easy Form Builder Pro to access this functionality."
 msgstr ""
@@ -15122,7 +15259,7 @@ msgid "The %s field must be correctly filled out to proceed."
 msgstr ""
 
 #. translators: %s is the action or process that was successfully completed
-#: includes/functions.php:3397 includes/functions.php:8894
+#: includes/functions.php:3397 includes/functions.php:8895
 #, php-format
 msgid "The %s has been successfully completed"
 msgstr ""
@@ -15198,7 +15335,7 @@ msgstr ""
 msgid "The PHP OpenSSL extension is required for Google Sheet sync but is not available on this server."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4211
+#: includes/admin/class-Emsfb-admin.php:4224
 msgid "The PHP mail() function is missing. Your server cannot send emails."
 msgstr ""
 
@@ -15259,11 +15396,11 @@ msgstr ""
 msgid "The activation code you entered is incorrect. Please double-check and try again."
 msgstr ""
 
-#: includes/functions.php:9060
+#: includes/functions.php:9061
 msgid "The add-on could not be installed."
 msgstr ""
 
-#: includes/functions.php:9327
+#: includes/functions.php:9328
 msgid "The add-on download URL is not an approved Easy Form Builder source."
 msgstr ""
 
@@ -15275,11 +15412,11 @@ msgstr ""
 msgid "The add-on of this gateway is not active, so it cannot refund. Activate it, or refund in the gateway's dashboard and use \"Mark as refunded outside EFB\"."
 msgstr ""
 
-#: includes/functions.php:9309
+#: includes/functions.php:9310
 msgid "The add-on server did not provide a download URL."
 msgstr ""
 
-#: includes/functions.php:9054
+#: includes/functions.php:9055
 msgid "The add-on server returned an unexpected response."
 msgstr ""
 
@@ -15341,6 +15478,13 @@ msgstr ""
 #. translators: F13: status when the automatic deletion never ran
 #: includes/functions.php:2806
 msgid "The automatic cleanup has not run yet."
+msgstr ""
+
+#. translators: %s: the web address the Renew button opens, such as
+#. whitestudio.team.
+#: includes/class-Emsfb-renewal-reminder.php:446
+#, php-format
+msgid "The button opens %s. We'll never ask for your password by email."
 msgstr ""
 
 #. translators: %s is a number or %amount% stays as written
@@ -15519,8 +15663,8 @@ msgstr ""
 msgid "The email has just been sent. If it is not in your inbox, check the spam folder."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3106
-#: includes/admin/class-Emsfb-admin.php:4263
+#: includes/admin/class-Emsfb-admin.php:3119
+#: includes/admin/class-Emsfb-admin.php:4276
 msgid "The email server test could not verify email capability."
 msgstr ""
 
@@ -15532,42 +15676,42 @@ msgstr ""
 msgid "The email subject was not copied: Easy Form Builder uses one subject for your notification and for the visitor’s confirmation, so its standard subjects are kept."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2905
-#: includes/admin/class-Emsfb-admin.php:2921
+#: includes/admin/class-Emsfb-admin.php:2918
+#: includes/admin/class-Emsfb-admin.php:2934
 msgid "The email test hash is not valid."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4247
+#: includes/admin/class-Emsfb-admin.php:4260
 msgid "The email test identifier is invalid. Please start a new test."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3026
-#: includes/admin/class-Emsfb-admin.php:3038
-#: includes/admin/class-Emsfb-admin.php:4259
+#: includes/admin/class-Emsfb-admin.php:3039
+#: includes/admin/class-Emsfb-admin.php:3051
+#: includes/admin/class-Emsfb-admin.php:4272
 msgid "The email tester service could not return the result."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2880
+#: includes/admin/class-Emsfb-admin.php:2893
 msgid "The email tester service could not start the test."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2829
-#: includes/admin/class-Emsfb-admin.php:2991
-#: includes/admin/class-Emsfb-admin.php:3003
-#: includes/admin/class-Emsfb-admin.php:3408
-#: includes/admin/class-Emsfb-admin.php:4255
+#: includes/admin/class-Emsfb-admin.php:2842
+#: includes/admin/class-Emsfb-admin.php:3004
+#: includes/admin/class-Emsfb-admin.php:3016
+#: includes/admin/class-Emsfb-admin.php:3421
+#: includes/admin/class-Emsfb-admin.php:4268
 msgid "The email tester service returned an invalid JSON response."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2519
-#: includes/admin/class-Emsfb-admin.php:2536
-#: includes/admin/class-Emsfb-admin.php:4243
+#: includes/admin/class-Emsfb-admin.php:2532
+#: includes/admin/class-Emsfb-admin.php:2549
+#: includes/admin/class-Emsfb-admin.php:4256
 #: includes/class-Emsfb-email-monitor.php:958
 #: includes/class-Emsfb-email-monitor.php:1071
 msgid "The email tester service returned an invalid response."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3102
+#: includes/admin/class-Emsfb-admin.php:3115
 msgid "The email was sent, but it never arrived"
 msgstr ""
 
@@ -15584,7 +15728,7 @@ msgstr ""
 msgid "The entry could not be saved"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3804
+#: includes/admin/class-Emsfb-admin.php:3817
 #: includes/class-Emsfb-upload-guard.php:1035
 #: includes/class-Emsfb-upload-guard.php:1039
 msgid "The file could not be read. Please try attaching it again."
@@ -15614,7 +15758,7 @@ msgstr ""
 msgid "The following cache plugins may interfere with form functionality. If you experience issues, please review the documentation."
 msgstr ""
 
-#: includes/functions.php:10622
+#: includes/functions.php:10623
 msgid "The following caching plugins are active on your site:"
 msgstr ""
 
@@ -15827,15 +15971,15 @@ msgstr ""
 msgid "The last email check found that emails from this site do not reach the inbox."
 msgstr ""
 
-#: includes/functions.php:11166
+#: includes/functions.php:11193
 msgid "The licence check could not be completed."
 msgstr ""
 
-#: includes/functions.php:11153
+#: includes/functions.php:11180
 msgid "The licence server answered with an error and could not confirm your licence."
 msgstr ""
 
-#: includes/functions.php:11163
+#: includes/functions.php:11190
 msgid "The licence server&rsquo;s answer arrived damaged, usually because a security plugin, proxy or CDN changed it on the way."
 msgstr ""
 
@@ -15844,7 +15988,7 @@ msgstr ""
 msgid "The link was sent."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4215
+#: includes/admin/class-Emsfb-admin.php:4228
 msgid "The mail() function is disabled in your server PHP configuration (php.ini)."
 msgstr ""
 
@@ -15867,11 +16011,11 @@ msgstr ""
 msgid "The message card surface"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3100
+#: includes/admin/class-Emsfb-admin.php:3113
 msgid "The message never left your website. WordPress reported an error while sending, so nothing could be delivered."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2631
+#: includes/admin/class-Emsfb-admin.php:2644
 msgid "The message never left your website: WordPress reported an error while trying to send it. This is the one case where the fix really is on the WordPress or hosting side - usually an SMTP plugin, or PHP mail disabled by the host."
 msgstr ""
 
@@ -16072,7 +16216,7 @@ msgstr ""
 msgid "The response attachment could not be secured. Please try again."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:1815
+#: includes/admin/class-Emsfb-admin.php:1816
 #: includes/class-Emsfb-public.php:6451
 msgid "The response attachment could not be verified. Please attach the file again."
 msgstr ""
@@ -16145,12 +16289,12 @@ msgstr ""
 msgid "The sender address %s was not carried over: Easy Form Builder sends from one address for all forms, set in its email settings."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2460
-#: includes/admin/class-Emsfb-admin.php:2477
+#: includes/admin/class-Emsfb-admin.php:2473
+#: includes/admin/class-Emsfb-admin.php:2490
 msgid "The sender email address is not valid."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4235
+#: includes/admin/class-Emsfb-admin.php:4248
 msgid "The sender email address is not valid. Please check your email settings."
 msgstr ""
 
@@ -16190,7 +16334,7 @@ msgstr ""
 msgid "The site leaves this field out of the page and out of the sent answers for anyone else, and it is never required for them. Administrators follow the rule too."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3459
+#: includes/admin/class-Emsfb-admin.php:3472
 msgid "The site owner confirmed that this host can send email. No delivery check was run."
 msgstr ""
 
@@ -16245,7 +16389,7 @@ msgstr ""
 msgid "The test email was delivered, but its deliverability score is only %1$s out of 100 (below %2$s), so the emails your forms send are very likely to be rejected or filtered as spam."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4267
+#: includes/admin/class-Emsfb-admin.php:4280
 msgid "The test message was delivered, but its deliverability score is too low to rely on. Sending through SMTP and adding SPF and DKIM records for your domain is what fixes this."
 msgstr ""
 
@@ -16315,7 +16459,7 @@ msgstr ""
 msgid "The uploaded file is not in the correct file format."
 msgstr ""
 
-#: includes/class-email-handler.php:1051
+#: includes/class-email-handler.php:1057
 msgid "The user has been sent a verification email to confirm their account."
 msgstr ""
 
@@ -16335,7 +16479,7 @@ msgstr ""
 msgid "The value of the %1$s field does not match the pattern and must be at most %2$s characters."
 msgstr ""
 
-#: includes/functions.php:8810
+#: includes/functions.php:8811
 msgid "The version of the add-on is not compatible with the version of the Easy Form Builder plugin."
 msgstr ""
 
@@ -16380,7 +16524,7 @@ msgstr ""
 msgid "The whole value must match. You do not need ^ or $."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4219
+#: includes/admin/class-Emsfb-admin.php:4232
 msgid "The wp_mail() function is missing or not available. WordPress email features may be broken."
 msgstr ""
 
@@ -16487,6 +16631,10 @@ msgstr ""
 msgid "Thickness (px)"
 msgstr ""
 
+#: includes/class-Emsfb-renewal-reminder.php:767
+msgid "This activation code doesn't match this site"
+msgstr ""
+
 #. translators: F18: warning before switching a lapsed Pro site to Free Plus
 #: includes/functions.php:3136
 msgid "This also removes the stored licence key from this site. You can enter it again later."
@@ -16511,7 +16659,7 @@ msgstr ""
 msgid "This calendar cannot be used in this field."
 msgstr ""
 
-#: includes/admin/class-Emsfb-addon.php:155
+#: includes/admin/class-Emsfb-addon.php:156
 msgid "This check runs once after plugin activation. Please refresh the page in a few moments."
 msgstr ""
 
@@ -16568,12 +16716,12 @@ msgstr ""
 msgid "This email domain is not accepted."
 msgstr ""
 
-#: includes/class-email-handler.php:1329 includes/class-Emsfb.php:2223
+#: includes/class-email-handler.php:1335 includes/class-Emsfb.php:2228
 #: includes/functions.php:3877
 msgid "This email was sent automatically. Please do not reply directly."
 msgstr ""
 
-#: includes/class-email-handler.php:407 includes/class-email-handler.php:1330
+#: includes/class-email-handler.php:413 includes/class-email-handler.php:1336
 msgid "This email was sent automatically. Please do not reply."
 msgstr ""
 
@@ -16817,7 +16965,7 @@ msgstr ""
 msgid "This is a warning for WPBakery users. For more information, please click here."
 msgstr ""
 
-#: includes/class-email-handler.php:2107
+#: includes/class-email-handler.php:2113
 msgid "This is an alert message regarding a SID validation error. This issue may have occurred due to a plugin conflict or an unauthorized attempt to access the website."
 msgstr ""
 
@@ -16903,7 +17051,7 @@ msgstr ""
 
 #. translators: F03 builder error. %s: why the pattern cannot be used
 #: includes/admin/class-Emsfb-admin.php:440
-#: includes/admin/class-Emsfb-create.php:478 includes/functions.php:4524
+#: includes/admin/class-Emsfb-create.php:479 includes/functions.php:4524
 #, php-format
 msgid "This pattern cannot be used: %s"
 msgstr ""
@@ -17025,7 +17173,7 @@ msgstr ""
 msgid "This username or password combination is incorrect."
 msgstr ""
 
-#: includes/admin/class-Emsfb-addon.php:184
+#: includes/admin/class-Emsfb-addon.php:185
 msgid "This usually means the needed PHP extension is not installed, or the function is listed in disable_functions in php.ini. Please ask your hosting provider to enable it, then refresh this page."
 msgstr ""
 
@@ -17163,7 +17311,7 @@ msgid "To finish, the page reloads now."
 msgstr ""
 
 #. translators: %s: link to the WhiteStudio dashboard.
-#: includes/functions.php:9011
+#: includes/functions.php:9012
 #, php-format
 msgid "To fix this, sign in to your %s, download the Add-ons Handler plugin from the Downloads section, then install and activate it. After that, activate the add-ons you need from the Add-ons Handler plugin."
 msgstr ""
@@ -17172,7 +17320,7 @@ msgstr ""
 msgid "To preview the form, you need to save the built form and try again."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4160
+#: includes/admin/class-Emsfb-admin.php:4173
 msgid "To receive email notifications from your forms, verify your email server by following these steps:"
 msgstr ""
 
@@ -17583,7 +17731,7 @@ msgid "UPPERCASE"
 msgstr ""
 
 #. translators: URL = Website address/link
-#: includes/functions.php:1637 includes/functions.php:10633
+#: includes/functions.php:1637 includes/functions.php:10634
 msgid "URL"
 msgstr ""
 
@@ -17878,7 +18026,7 @@ msgstr ""
 #. translators: Upgrade to Pro = button text for upgrading
 #: includes/class-Emsfb-email-monitor.php:2060 includes/functions.php:1425
 #: includes/functions.php:1765 includes/functions.php:1940
-#: includes/functions.php:11359
+#: includes/functions.php:11402
 msgid "Upgrade to Pro"
 msgstr ""
 
@@ -18048,7 +18196,7 @@ msgstr ""
 msgid "User role"
 msgstr ""
 
-#: includes/class-email-handler.php:605 includes/class-email-handler.php:1037
+#: includes/class-email-handler.php:611 includes/class-email-handler.php:1043
 #: includes/functions.php:2215 includes/functions.php:5232
 msgid "Username"
 msgstr ""
@@ -18180,7 +18328,7 @@ msgstr ""
 msgid "Verify"
 msgstr ""
 
-#: includes/class-email-handler.php:958
+#: includes/class-email-handler.php:964
 msgid "Verify Email"
 msgstr ""
 
@@ -18190,7 +18338,7 @@ msgid "Verify with an SMS code"
 msgstr ""
 
 #: includes/functions.php:3968 includes/functions.php:3978
-#: includes/functions.php:10625
+#: includes/functions.php:10626
 msgid "Version"
 msgstr ""
 
@@ -18328,7 +18476,7 @@ msgstr ""
 msgid "Visitors cannot pay with %s"
 msgstr ""
 
-#: includes/admin/class-Emsfb-panel.php:457
+#: includes/admin/class-Emsfb-panel.php:458
 msgid "Visitors cannot pay with this form yet. Open it to see what is missing."
 msgstr ""
 
@@ -18363,7 +18511,7 @@ msgstr ""
 msgid "WP SMS settings"
 msgstr ""
 
-#: includes/functions.php:9857
+#: includes/functions.php:9858
 msgid "WP-Cron"
 msgstr ""
 
@@ -18558,7 +18706,7 @@ msgid_plural "We found %s Contact Form 7 forms on this site. Copy them into Easy
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/functions.php:9904
+#: includes/functions.php:9905
 #: vendor/persiapay/class-Emsfb-persiapay-legacy.php:99
 #: vendor/stripe/class-Emsfb-stripe-legacy.php:197
 msgid "We have made some updates. Please wait a few minutes before trying again."
@@ -18633,7 +18781,7 @@ msgstr ""
 
 #. translators: Name of the built-in "Website" social icon preset
 #: includes/functions.php:3912 includes/functions.php:4326
-#: includes/functions.php:11087
+#: includes/functions.php:11114
 msgid "Website"
 msgstr ""
 
@@ -18646,7 +18794,7 @@ msgstr ""
 msgid "Weekly"
 msgstr ""
 
-#: includes/class-email-handler.php:465
+#: includes/class-email-handler.php:471
 msgid "Weekly Easy Form Builder report"
 msgstr ""
 
@@ -18668,7 +18816,7 @@ msgstr ""
 msgid "Welcome"
 msgstr ""
 
-#: includes/class-email-handler.php:567
+#: includes/class-email-handler.php:573
 msgid "Welcome!"
 msgstr ""
 
@@ -18681,7 +18829,7 @@ msgstr ""
 msgid "What is kept"
 msgstr ""
 
-#: includes/functions.php:9872
+#: includes/functions.php:9873
 msgid "What is missing"
 msgstr ""
 
@@ -18703,7 +18851,7 @@ msgstr ""
 msgid "What to do"
 msgstr ""
 
-#: includes/functions.php:9878
+#: includes/functions.php:9879
 msgid "What to do next"
 msgstr ""
 
@@ -18840,7 +18988,7 @@ msgstr ""
 msgid "WhiteStudio"
 msgstr ""
 
-#: includes/functions.php:9012
+#: includes/functions.php:9013
 msgid "WhiteStudio dashboard"
 msgstr ""
 
@@ -18899,7 +19047,7 @@ msgstr ""
 msgid "Word limit"
 msgstr ""
 
-#: includes/functions.php:9853
+#: includes/functions.php:9854
 msgid "WordPress"
 msgstr ""
 
@@ -18933,7 +19081,7 @@ msgstr ""
 msgid "WordPress accepted and sent the message. Waiting for it to arrive…"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2693
+#: includes/admin/class-Emsfb-admin.php:2706
 msgid "WordPress accepted and sent the test email. Waiting for it to arrive."
 msgstr ""
 
@@ -18965,12 +19113,12 @@ msgstr ""
 
 #. translators: Title shown when wp_mail() itself failed and nothing left the
 #. site
-#: includes/admin/class-Emsfb-admin.php:2630
-#: includes/admin/class-Emsfb-admin.php:3099 includes/functions.php:4039
+#: includes/admin/class-Emsfb-admin.php:2643
+#: includes/admin/class-Emsfb-admin.php:3112 includes/functions.php:4039
 msgid "WordPress could not send the email"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2650
+#: includes/admin/class-Emsfb-admin.php:2663
 msgid "WordPress could not send the test email. The message never left your website, so nothing was delivered."
 msgstr ""
 
@@ -19032,7 +19180,7 @@ msgstr ""
 msgid "WordPress login form"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4218
+#: includes/admin/class-Emsfb-admin.php:4231
 msgid "WordPress mail function not found."
 msgstr ""
 
@@ -19078,12 +19226,12 @@ msgstr ""
 msgid "WordPress sent the last test message successfully, so your site and this plugin did their part - it was lost, delayed or rejected after leaving WordPress. Usually the receiving mailbox treated it as spam, or your host never delivered it from the outbound queue. Sending through an SMTP service, with SPF and DKIM records for your domain, is what fixes this."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3103
+#: includes/admin/class-Emsfb-admin.php:3116
 msgid "WordPress sent the message successfully, so your site and this plugin did their part. It was lost, delayed or rejected after leaving WordPress - usually the receiving side treated it as spam, or your host never delivered it from the outbound queue."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3151
-#: includes/admin/class-Emsfb-admin.php:4271
+#: includes/admin/class-Emsfb-admin.php:3164
+#: includes/admin/class-Emsfb-admin.php:4284
 msgid "WordPress sent the test email, but delivery has not been confirmed yet."
 msgstr ""
 
@@ -19092,7 +19240,7 @@ msgstr ""
 msgid "WordPress sent the test email, but our server has not received it yet. This may be a temporary delay. Check the diagnostics below to troubleshoot."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2676
+#: includes/admin/class-Emsfb-admin.php:2689
 msgid "WordPress sent the test email. Easy Form Builder is waiting for the delivery result before marking email as ready."
 msgstr ""
 
@@ -19130,7 +19278,7 @@ msgstr ""
 msgid "Would you like to customize the form using the colors of the active template?"
 msgstr ""
 
-#: includes/functions.php:9830
+#: includes/functions.php:9831
 msgid "Writable"
 msgstr ""
 
@@ -19339,8 +19487,8 @@ msgstr ""
 msgid "You do not have permission to change Development Mode."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2338
-#: includes/admin/class-Emsfb-admin.php:2359
+#: includes/admin/class-Emsfb-admin.php:2351
+#: includes/admin/class-Emsfb-admin.php:2372
 msgid "You do not have permission to complete setup."
 msgstr ""
 
@@ -19352,8 +19500,8 @@ msgstr ""
 msgid "You do not have permission to download this file."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2316
-#: includes/admin/class-Emsfb-admin.php:2394
+#: includes/admin/class-Emsfb-admin.php:2329
+#: includes/admin/class-Emsfb-admin.php:2407
 msgid "You do not have permission to update these settings."
 msgstr ""
 
@@ -19390,7 +19538,7 @@ msgstr ""
 msgid "You have reached the maximum of %s rows."
 msgstr ""
 
-#: includes/class-email-handler.php:932
+#: includes/class-email-handler.php:938
 msgid "You have requested to reset your password."
 msgstr ""
 
@@ -19445,6 +19593,13 @@ msgstr ""
 msgid "You're all done"
 msgstr ""
 
+#. translators: %s: site name. The setting's name is quoted exactly as it
+#. appears in Settings.
+#: includes/class-Emsfb-renewal-reminder.php:442
+#, php-format
+msgid "You're getting this because you manage %s, which uses Easy Form Builder Pro. It was sent by your own website, once for this renewal. To stop these reminders, renew, or turn off \"Email me before my Pro subscription ends\" in Easy Form Builder › Settings."
+msgstr ""
+
 #. translators: F06 builder, advanced date field panel
 #: includes/functions.php:4936
 msgid "Youngest age"
@@ -19456,20 +19611,31 @@ msgstr ""
 msgid "Your Conditional Logic add-on does not support per-row rules yet; required checks inside rows are relaxed on the server."
 msgstr ""
 
-#: includes/functions.php:8791
+#. translators: %s: the last day Pro was active, a localized date.
+#: includes/class-Emsfb-renewal-reminder.php:618
+#: includes/class-Emsfb-renewal-reminder.php:785
+#, php-format
+msgid "Your Easy Form Builder Pro subscription ended on %s. Your forms, entries and settings are all still here. Renew and Pro comes back as soon as the renewal is confirmed — no setup needed."
+msgstr ""
+
+#: includes/class-Emsfb-renewal-reminder.php:789 includes/functions.php:11390
+msgid "Your Easy Form Builder Pro subscription has ended. Your forms, entries and settings are all still here. Renew and Pro comes back as soon as the renewal is confirmed — no setup needed."
+msgstr ""
+
+#: includes/functions.php:8792
 msgid "Your Easy Form Builder Pro subscription has expired, so the Pro add-ons could not be downloaded. The plugin keeps working without them. Renew your subscription to restore all Pro features:"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:1159
+#: includes/admin/class-Emsfb-admin.php:1160
 msgid "Your Easy Form Builder Pro subscription has expired, so this add-on cannot be downloaded."
 msgstr ""
 
-#: includes/functions.php:11387
+#: includes/functions.php
 #, php-format
 msgid "Your Easy Form Builder Pro subscription has expired. To continue enjoying all Pro features and keep your forms running, %1$sRenew your subscription now.%2$s"
 msgstr ""
 
-#: includes/functions.php:11345
+#: includes/functions.php
 #, php-format
 msgid "Your Easy Form Builder Pro subscription has expired. To continue using the %s add-on and all Pro features, please renew your subscription."
 msgstr ""
@@ -19509,7 +19675,7 @@ msgstr ""
 msgid "Your account has been successfully activated. You can now log in and get started!"
 msgstr ""
 
-#: includes/class-email-handler.php:998
+#: includes/class-email-handler.php:1004
 msgid "Your account has been successfully created!"
 msgstr ""
 
@@ -19521,7 +19687,7 @@ msgstr ""
 msgid "Your activation code has been verified. Enjoy all Pro features of Easy Form Builder."
 msgstr ""
 
-#: includes/functions.php:11343 includes/functions.php:11391
+#: includes/functions.php
 msgid "Your activation code has expired!"
 msgstr ""
 
@@ -19623,11 +19789,11 @@ msgstr ""
 msgid "Your email server is working. A detailed HTML report has been sent to %s."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4266
+#: includes/admin/class-Emsfb-admin.php:4279
 msgid "Your emails are arriving in the spam folder."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:3143
+#: includes/admin/class-Emsfb-admin.php:3156
 msgid "Your emails are being delivered to spam"
 msgstr ""
 
@@ -19687,8 +19853,20 @@ msgstr ""
 msgid "Your forms and submissions are ready to use"
 msgstr ""
 
-#: includes/functions.php:11064
+#: includes/class-Emsfb-renewal-reminder.php:477
+msgid "Your forms keep working either way. Renewing keeps updates, new add-ons and support coming."
+msgstr ""
+
+#: includes/class-Emsfb-renewal-reminder.php:449
+msgid "Your forms, entries and settings are all still here."
+msgstr ""
+
+#: includes/functions.php:11091
 msgid "Your forms, entries and settings are untouched, every free feature keeps working, and your activation code is still stored &mdash; nothing was deleted."
+msgstr ""
+
+#: includes/class-Emsfb-renewal-reminder.php:481
+msgid "Your forms, entries and settings stay safe. Nothing is deleted."
 msgstr ""
 
 #. translators: %s = megabytes. Hint under the max file size setting showing
@@ -19734,7 +19912,7 @@ msgstr ""
 msgid "Your login status changed. Reopen the form before continuing."
 msgstr ""
 
-#: includes/class-email-handler.php:861
+#: includes/class-email-handler.php:867
 msgid "Your message has been received and recorded successfully."
 msgstr ""
 
@@ -19830,7 +20008,7 @@ msgid "Your security session has expired or is invalid. Please refresh the page.
 msgstr ""
 
 #. translators: 1: download server host name, 2: sign-in URL
-#: includes/functions.php:9351
+#: includes/functions.php:9352
 #, php-format
 msgid "Your server could not reach %1$s, so the add-on could not be downloaded. This is almost always a firewall on your hosting blocking the outgoing request, not a problem with your licence. To install add-ons without any download at all, sign in at %2$s and download the Easy Form Builder Add-ons Handler plugin, then install it like any other plugin. It contains every add-on your licence covers."
 msgstr ""
@@ -19849,15 +20027,15 @@ msgstr ""
 msgid "Your server had an error (HTTP %d)"
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4223
+#: includes/admin/class-Emsfb-admin.php:4236
 msgid "Your server has no SMTP host or sendmail path set. Emails may not be delivered."
 msgstr ""
 
-#: includes/class-email-handler.php:660
+#: includes/class-email-handler.php:666
 msgid "Your server has successfully sent this test email. The email delivery system is properly configured and functioning."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:4207
+#: includes/admin/class-Emsfb-admin.php:4220
 msgid "Your server is able to send emails using the default PHP mail system."
 msgstr ""
 
@@ -19884,7 +20062,7 @@ msgstr ""
 msgid "Your session has expired. Save your work and reload the page."
 msgstr ""
 
-#: includes/admin/class-Emsfb-admin.php:2950
+#: includes/admin/class-Emsfb-admin.php:2963
 #: includes/class-Emsfb-review-request.php:1211
 msgid "Your site could not connect"
 msgstr ""
@@ -20011,7 +20189,7 @@ msgstr ""
 msgid "Your website blocked the form request"
 msgstr ""
 
-#: includes/functions.php:11159
+#: includes/functions.php:11186
 msgid "Your website could not reach the licence server &mdash; almost always a network, firewall or DNS restriction on the hosting side."
 msgstr ""
 
@@ -20325,7 +20503,7 @@ msgstr ""
 msgid "date, day, calendar, birthday"
 msgstr ""
 
-#: includes/admin/class-Emsfb-addon.php:174
+#: includes/admin/class-Emsfb-addon.php:175
 msgid "disabled in php.ini:"
 msgstr ""
 
@@ -20508,7 +20686,7 @@ msgstr ""
 msgid "inline flags such as (?i) are not supported; use the switch instead"
 msgstr ""
 
-#: includes/functions.php:3404 includes/functions.php:8895
+#: includes/functions.php:3404 includes/functions.php:8896
 msgid "installation"
 msgstr ""
 
@@ -20630,7 +20808,7 @@ msgstr ""
 msgid "not available"
 msgstr ""
 
-#: includes/admin/class-Emsfb-addon.php:178
+#: includes/admin/class-Emsfb-addon.php:179
 msgid "not provided by PHP or its required extension:"
 msgstr ""
 
