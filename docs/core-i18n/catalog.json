@@ -4,7 +4,7 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-15",
     "counts": {
-        "active": 4130,
+        "active": 4140,
         "obsolete": 518
     },
     "entries": [
@@ -1907,6 +1907,21 @@
             "context": null,
             "plural": null,
             "translators": "F14: %s = number of selected entries",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s settings",
+            "context": null,
+            "plural": null,
+            "translators": "F12b-L: add-on settings page title. %s: the CAPTCHA add-on's name",
             "files": [
                 "includes/functions.php"
             ],
@@ -7172,6 +7187,21 @@
             "context": null,
             "plural": null,
             "translators": "F07 builder: camera option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Back to Settings",
+            "context": null,
+            "plural": null,
+            "translators": "F12b-L: add-on settings page: link back to Easy Form Builder's Settings",
             "files": [
                 "includes/functions.php"
             ],
@@ -16255,6 +16285,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Each add-on has its own settings page.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b-L: settings: under the list of the installed CAPTCHA add-ons",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Each guide has a short video, screenshots and a ready-made prompt you can paste into any AI assistant to be walked through it step by step.",
             "context": null,
             "plural": null,
@@ -21050,6 +21095,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Form progress",
+            "context": null,
+            "plural": null,
+            "translators": "F16 the name a screen reader gives the form's step progress bar",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -26861,6 +26921,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Keys are stored encrypted and never shown again. Leave a key empty to keep the saved one.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b-L: add-on settings page: under the title",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Kind",
             "context": null,
             "plural": null,
@@ -31224,6 +31299,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Needs keys",
+            "context": null,
+            "plural": null,
+            "translators": "F12b-L: settings: status of a CAPTCHA add-on whose keys are missing",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Needs setup",
             "context": null,
             "plural": null,
@@ -33620,6 +33710,21 @@
             "first_seen": "4.3.1",
             "status": "obsolete",
             "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "Off for your plan",
+            "context": null,
+            "plural": null,
+            "translators": "F12b-L: settings: status of a CAPTCHA add-on the site's plan does not include",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Offline Form Data Collection",
@@ -40550,7 +40655,7 @@
             "msgid": "Ready",
             "context": null,
             "plural": null,
-            "translators": "F02 settings status",
+            "translators": "F02 settings status translators: F12b-L: settings: status of a CAPTCHA add-on whose keys are set",
             "files": [
                 "includes/functions.php"
             ],
@@ -41440,6 +41545,21 @@
             "context": null,
             "plural": null,
             "translators": "AutoPilot B4: asked when the admin changes a login or registration form to another type",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Remove the saved key",
+            "context": null,
+            "plural": null,
+            "translators": "F12b-L: add-on settings page: checkbox under a saved secret key",
             "files": [
                 "includes/functions.php"
             ],
@@ -45832,8 +45952,9 @@
             "msgid": "Settings saved.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F12b-L: add-on settings page: after Save",
             "files": [
+                "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
@@ -47370,6 +47491,7 @@
             "plural": null,
             "translators": "",
             "files": [
+                "includes/captcha/class-Emsfb-captcha-screen.php",
                 "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
@@ -48010,6 +48132,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Status:",
+            "context": null,
+            "plural": null,
+            "translators": "F12b-L: add-on settings page: before the status of the add-on",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -55125,6 +55262,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This CAPTCHA add-on is not installed or not active.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b-L: add-on settings page of an add-on that is not there",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },

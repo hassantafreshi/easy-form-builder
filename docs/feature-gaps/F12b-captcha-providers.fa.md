@@ -1,4 +1,4 @@
-وضعیت: پیاده‌سازی شد (A تا K انجام شد، 2026-11-15؛ Checkpointها پایین؛ همهٔ پرسش‌های باز و کدهای افزونه را مالک در 2026-11-14 تأیید کرد — approved by owner (2026-11-14)) · اولویت: P1 · تلاش: L (هسته M + افزونه‌ها هر کدام S) · وابستگی: F12 (کپچا و ضداسپم هسته)، F15 (خروجی و ورودی فرم)، F11 (`Rate_Limit`)، F13 (حالت IP)، F18 (پنجرهٔ ارتقا)؛ ساخت درست پس از F15
+وضعیت: پیاده‌سازی شد (A تا K انجام شد، 2026-11-15؛ F12b-L — صفحهٔ تنظیمات جدا برای هر افزونهٔ کپچا — انجام شد، 2026-11-15، approved by owner (2026-11-15)؛ Checkpointها پایین؛ همهٔ پرسش‌های باز و کدهای افزونه را مالک در 2026-11-14 تأیید کرد — approved by owner (2026-11-14)) · اولویت: P1 · تلاش: L (هسته M + افزونه‌ها هر کدام S) · وابستگی: F12 (کپچا و ضداسپم هسته)، F15 (خروجی و ورودی فرم)، F11 (`Rate_Limit`)، F13 (حالت IP)، F18 (پنجرهٔ ارتقا)؛ ساخت درست پس از F15
 
 # F12b — کپچا به‌شکل افزونه، انتخاب v2 یا v3 گوگل برای هر فرم، چند فرم در یک صفحه، و چهار مورد باز F12
 
@@ -230,7 +230,7 @@ F12 منتشر نشده است (`readme.txt` نسخهٔ پایدار 4.3.1؛ ی�
 
 ### تنظیمات افزونه‌ها
 
-`emsfb_cpv_<id>` (autoload خاموش): `{v:1, public:{site_key:…}, secret:{secret:'enc:v1:…'}, updated_at}`؛ `emsfb_cpv_public` (autoload روشن): `{<id>:{site_key:…, …public}}`. بدون جدول تازه؛ بدون تغییر نسخهٔ پایگاه داده. محافظ تکرار در جدول موجود `emsfb_vrfy_rl_` (`Rate_Limit`).
+**از F12b-L (approved by owner 2026-11-15):** در ردیف تنظیمات اصلی (`emsfb_setting`)، هر افزونه یک کلید سطح‌بالای خودش: `captcha_<id>` = `{v:2, public:{…}, secret:{<key>:'enc:v1:…'}, updated_at}`؛ فقط از راه `efbFunction::set_setting_Emsfb()` با همان یک کلید نوشته می‌شود (بخش «F12b-L» پایین). پیش از آن (F12b): `emsfb_cpv_<id>` (autoload خاموش) و `emsfb_cpv_public` (autoload روشن) — یک بار به ردیف منتقل و پاک می‌شوند. بدون جدول تازه؛ بدون تغییر نسخهٔ پایگاه داده. محافظ تکرار در جدول موجود `emsfb_vrfy_rl_` (`Rate_Limit`).
 
 ### کلیدهای `valj_efb[0]` (scalar)
 
@@ -485,6 +485,39 @@ F12 منتشر نشده است (`readme.txt` نسخهٔ پایدار 4.3.1؛ ی�
 - مورد باز: (۱) بودجهٔ حجم: بسته شد — مالک حدود ۴۵٫۵ کیلوبایت را پذیرفت (approved by owner (2026-11-15))، سقف تست 46,000 می‌ماند؛ (۲) SDK ‏Friendly: بسته شد (1.1.5، پیگیری)؛ (۳) ALTCHA ویجت خود افزونه است نه altcha.js؛ (۴) پاک‌کنندهٔ اعلان: بسته شد (پیگیری؛ اعلان‌های هسته و افزونه‌ها می‌مانند، `tests/test-admin-notice-cleaner.js`)؛ (۵) ردیف ۱۹: بسته شد (پیگیری): `Verification::otp_captcha()` و `EFBCaptcha.otpToken()`؛ `tests/test-otp-captcha-http.php`، e2e ‏`f12b-7`.
 - پیگیری‌ها (2026-11-15، approved by owner (2026-11-15)): SDK ‏Friendly 1.1.5؛ پاک‌کنندهٔ اعلان‌ها؛ ردیف ۱۹ (`efb_otp`)؛ پذیرش حجم حدود ۴۵٫۵ کیلوبایت (سقف 46,000)؛ صفحهٔ تنظیمات و اعلان‌ها در fa_IR و ar ‏۳۷۵px (e2e ‏`f12b-8`)؛ ویجت رسمی ALTCHA 3.5.0؛ جعبهٔ پاسخ بی‌دردسر (e2e ‏`f12b-9`). مجموعهٔ واحد: 487 فایل، 24,766 گذر، 6 شکست (همه از پیش در a47eaa04). e2e کامل تنها زیر قفل: 117 سناریو، 1,408 گذر، 0 شکست.
 - اقدام بعدی: بازبینی مالک و انتشار با 4.3.2 (افزونه‌ها zip دارند).
+
+---
+
+## F12b-L: صفحهٔ تنظیمات هر افزونه (approved by owner 2026-11-15)
+
+**سخن مالک (ترجمه):** «مراقب باش: تنظیمات افزونه‌های کپچا فقط وقتی افزونه نصب است به پنجرهٔ تنظیمات اضافه شود، نه به‌طور پیش‌فرض. برای ساده ماندن کد، هر افزونهٔ کپچای نصب‌شده صفحهٔ تنظیمات خودش را داشته باشد؛ وقتی کاربر آن را تغییر داد، به JSON تنظیمات اضافه شود. این‌طور پنجرهٔ اصلی تنظیمات شلوغ نمی‌شود و پیچیدگی کمتر است.» و: «هسته از قبل تابع ذخیره‌ای دارد که جلوی تداخل و اشتباه را می‌گیرد؛ از همان استفاده کن، نه چیز دیگر.»
+
+### آنچه ساخته شد
+1. **پنجرهٔ اصلی (Settings › Captchas)** — `includes/admin/assets/js/spam-settings-efb.js`: فقط کلیدهای گوگل، جعبهٔ پاسخ و — فقط وقتی دست‌کم یک افزونهٔ کپچا نصب و فعال است — فهرست کوتاه «CAPTCHA add-ons»: یک ردیف برای هر افزونه (نام در `<bdi>`، وضعیت Ready / Needs keys / Off for your plan / Update or turn on the add-on، دکمهٔ «Settings» که پیوندی است به صفحهٔ خودش و با `aria-describedby` به نام و وضعیت). بی افزونه: نه عنوان، نه ردیف، نه جای خالی. select «CAPTCHA service» سایت: حالت‌های گوگل و افزونه‌های نصب و فعال؛ افزونهٔ رفته فقط وقتی انتخاب ذخیره‌شده است با «Not installed» می‌ماند تا ذخیره آن را عوض نکند. تنظیمات درون‌خطی (`addonSet`، `efb_cpv_save_efb`) حذف شد.
+2. **صفحهٔ هر افزونه** — `includes/captcha/class-Emsfb-captcha-screen.php` (`Captcha\Screen`): `admin.php?page=Emsfb_captcha&provider=<id>`، صفحهٔ استاندارد وردپرس (پیوند «Back to Settings»، عنوان «<نام> settings»، وضعیت، «Data goes to»، فیلدها از `settings_schema()` افزونه با یک رندرکنندهٔ مشترک در هسته، Save)، برای `manage_options`. ذخیره با فرم ساده (`admin-post.php?action=efb_captcha_settings`، nonce) — بی JavaScript هم کار می‌کند؛ اعلان‌های `efb-notice` («Settings saved.»، «Not saved: <نام فیلدها>»). secret: جعبهٔ رمز خالی با mask، خالی = نگه داشتن، «Remove the saved key» = پاک کردن. افزونهٔ نصب‌نشده، خاموش، حالت گوگل یا شناسهٔ ناشناس: HTTP 404 با «This CAPTCHA add-on is not installed or not active.». منوی جدا ندارد (از ردیف باز می‌شود). کیبورد، صفحه‌خوان (همهٔ کنترل‌ها برچسب و توضیح دارند)، RTL (متن انگلیسیِ ترجمه‌نشده با `unicode-bidi: plaintext`) و ۳۷۵px.
+3. **ذخیره** — `Captcha\Admin::save()` / `import()` / `remove()` فقط از راه `efbFunction::set_setting_Emsfb()` و فقط با کلید خود افزونه (`captcha_<id>`) می‌نویسند؛ ردیف تاریخچه، گزینهٔ `emsfb_settings`، transient سی‌دقیقه‌ای و کش‌ها همان تابع است و wipe guard آن هر کلید سطح‌بالایی را که فرستاده نشده نگه می‌دارد. خواندن: `Registry::raw()` از `get_setting_Emsfb()`. پنجرهٔ اصلی این کلیدها را هرگز نمی‌گیرد (`Admin::redact_settings()`، `Builder_Api::redact_settings()`) و `set_settings_Emsfb` هر `captcha_<id>` فرستاده‌شده را دور می‌اندازد (`Admin::without_addon_keys()`) تا مقدار ذخیره‌شده بماند. secretها با `Payments\Secrets` رمز می‌شوند و فقط‌نوشتنی‌اند (D4 سبز می‌ماند).
+4. **مهاجرت یک‌باره** — `Admin::migrate()` روی `init` (اولویت ۴): هر `emsfb_cpv_<id>` نوشته، **از خود جدول** دوباره خوانده و فقط بعد پاک می‌شود؛ تا آن لحظه `Registry::raw()` هنوز گزینهٔ قدیمی را می‌خواند (فرم هیچ لحظه بی کلید نمی‌ماند)؛ مقداری که در ردیف هست برنده است؛ نوشتن ناموفق = گزینه می‌ماند و بار بعد دوباره؛ `emsfb_cpv_public` حذف؛ نشانه `emsfb_cpv_moved`.
+5. **خاموش کردن و حذف** — خاموش کردن افزونه کلیدش را نگه می‌دارد؛ `uninstall()` افزونه `Admin::remove()` را صدا می‌زند که فقط کلید خودش را `null` می‌کند.
+6. **افزونه‌ها** (`vendores-efb`، پنج افزونه): `has_settings()` (هستهٔ تازه: `Registry::raw()`، هستهٔ قدیمی: گزینه)، `uninstall()` با `Admin::remove()`، مهاجرت F12 در Turnstile و hCaptcha فقط دو کلید `ts…`/`hc…` را خالی می‌فرستد (نه کل ردیف خوانده‌شده)؛ zipها دوباره ساخته شدند.
+7. **AutoPilot / SitePilot AI** — `capabilities.spam.providers[]` همان `{id, label, plan, addon, installed, available_now, ready, state, …}` بی هیچ مقدار یا mask، به‌علاوهٔ `settings_url`؛ `capabilities.spam.addon_settings` جای ذخیره و «فقط خواندن وضعیت» را می‌گوید.
+8. **کار کوچک (کامیت اول)**: فایل‌های axe-core که F16 به مخزن افزوده بود untrack شدند (روی دیسک می‌مانند)، `node_modules/.package-lock.json` به `752276e3` برگشت، axe-core devDependency ماند، `scenario-f16.js` آن را با `require.resolve('axe-core')` پیدا می‌کند و نبودش خطای «run npm install» است.
+
+### تصمیم‌ها (پرسش‌های باز با پاسخ انتخاب‌شده)
+1. **نام کلید**: `captcha_<id>` (مثال خود دستور)، یک کلید سطح‌بالا برای هر افزونه نه یک شیء مشترک (wipe guard روی سطح بالا کار می‌کند). شناسه‌ای که کلیدش با کلید هسته یکی شود (`login`، `provider`) در رجیستری رد می‌شود (`bad_id`). «`captcha_addons`» در دستور = مجموع این کلیدها.
+2. **حذف کلید از راه `set_setting_Emsfb`**: چون کلیدِ فرستاده‌نشده نگه داشته می‌شود، حذف یعنی فرستادن `null`؛ خواننده‌ها `null` را «بی تنظیمات» می‌دانند. خود تابع دست نخورد.
+3. **سطح پلن**: بی تغییر نسبت به F12b (افزونه‌ها Free Plus و Pro؛ گوگل همه). وضعیت «Off for your plan» از `Registry::state() === 'plan'`.
+4. **مجوز صفحه**: `manage_options` (همان ذخیرهٔ AJAX قبلی)؛ صفحه بی ورودی منو.
+5. **فهرست select سایت**: گوگل + افزونه‌های نصب و فعال؛ انتخاب ذخیره‌شدهٔ رفته، نمایش با «Not installed» (برای اینکه Save مقدار را بی‌صدا عوض نکند).
+6. **AJAX قدیمی** `efb_captcha_provider_save` برای سازگاری ماند و همان `Admin::save()` را می‌زند.
+7. **اندازهٔ لایهٔ runtime**: 45,999 بایت (سقف 46,000): خواندن از ردیف کوتاه نوشته شد و ثبت AJAX به `Screen::register()` (بخش مدیریت) رفت.
+8. **Data Tools**: `emsfb_setting` را نمی‌خواند و نمی‌نویسد (فقط `emailSupporter`/`femail`/`siteKey` برای متن‌ها)؛ تغییری لازم نشد. بستهٔ فرم F15 تنظیمات سایت را حمل نمی‌کند.
+9. **مخزن sitepilot-ai**: شکل قابلیت‌ها فقط یک فیلد (`settings_url`) و یک بخش (`addon_settings`) گرفت؛ اسناد هسته (`autopilot-integration.md`، `reference/sitepilot-compatibility.en.md`) به‌روز شد؛ در آن مخزن تغییری لازم نشد.
+
+**Checkpoint (F12b-L) (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده (هسته): `includes/captcha/class-Emsfb-captcha-admin.php`، `class-Emsfb-captcha-registry.php`، `class-Emsfb-captcha-screen.php` (تازه)، `includes/class-Emsfb.php`، `includes/admin/class-Emsfb-admin.php`، `includes/class-Emsfb-builder-api.php`، `includes/class-Emsfb-spam.php`، `includes/admin/assets/js/spam-settings-efb.js`، `style-efb.css`، `includes/functions.php` (۱۱ عبارت)؛ تست‌ها: `tests/test-captcha-addon-settings.php` (تازه؛ `set_setting_Emsfb` واقعی روی جدول در حافظه)، `tests/test-captcha-addon-settings-http.php` (تازه، وردپرس واقعی)، `tests/test-captcha-settings-screen.js`، `tests/test-ap-spam.js`، `tests/test-captcha-fallback.php`، `tests/addons/*`، `tests/e2e-wp/ctl-f12b.php`، `scenario-f12b.js` (`f12b-10`)، `lib.js`. افزونه‌ها: پنج افزونهٔ کپچا و zipها.
+- تست‌ها: مجموعهٔ واحد (`tests/test-*`) ‏508 فایل، 25,263 گذر، 6 شکست — همان 6 شکست پایهٔ 3e59392d (506 فایل، 25,229 گذر) و همان 44 فایلِ نیازمند وردپرس؛ هیچ شکست تازه. تازه‌ها: `test-captcha-addon-settings.php` ‏29/29، `test-captcha-settings-screen.js` ‏22/22، `test-ap-spam.js` ‏25/25؛ `tests/addons/*` ‏146/146. روی وردپرس واقعی: `test-captcha-addon-settings-http.php` ‏22/22 و آزمون‌های HTTP ‏F12/F12b (fallback، verify، پاکت، form-package، ورود، OTP، پاسخ، schema، redaction، Akismet، هم‌زیستی، واژه‌های ممنوع، وضعیت ورودی، اعلان، runtime، tracker) روی‌هم 306/306. e2e کامل تنها زیر قفل: 132 سناریو، 1,581 گذر، 1 شکست (`f12b-10/7`: خطای «Transition was aborted … Page already revealed» از view transition‌های خود وردپرس 7.1 در پیشخوان وقتی صفحه هنگام نمایان شدن دوباره ناوبری می‌کند؛ سناریو با `reducedMotion: 'reduce'` اجرا شد و سه بار تنها 13/13). عکس‌ها (بازبینی‌شده): `f12b-10-list-{en,fa_IR-375,ar-375}.png`، `f12b-10-screen-{hcaptcha-en,fa_IR-375,ar-375}.png`.
+- وضعیت ترجمه: `tests/core-i18n/extract.php`: ۱۰ عبارت تازه (۹ از F12b-L و «Form progress» که از F16 مانده بود)، ۲ توضیح مترجم تغییرکرده («Ready»، «Settings saved.»)، ۰ منسوخ؛ هیچ ترجمه‌ای ساخته نشد (دستور مالک). افزونه‌ها عبارت تازه نگرفتند.
+- مورد باز برای مالک: (۱) `set_setting_Emsfb()` در شکست جدول هم کش را به‌روز می‌کند (BUGS-FOUND؛ مهاجرت به آن تکیه نمی‌کند)؛ (۲) نویسندگان read-modify-write هسته در پنجرهٔ چندمیلی‌ثانیه‌ای می‌توانند نسخهٔ قدیمی `captcha_<id>` را برگردانند (BUGS-FOUND، کم‌خطر).
 
 ---
 

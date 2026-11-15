@@ -155,13 +155,25 @@ $body, $headers)` → `['json' => …]` or `['ok' => false, 'code' => 'network'|
 
 - Google: the site settings row (`siteKey` / `secretKey`, `rciSiteKey` / `rciSecretKey`, `rc3SiteKey` /
   `rc3SecretKey`, `rc_host`).
-- Add-ons: option `emsfb_cpv_<id>` = `['public' => […], 'secret' => […]]`, secrets encrypted (`enc:v1:`, the payments
-  secret box); the public values of every add-on also in `emsfb_cpv_public` (autoloaded, for rendering).
+- Add-ons (F12b-L, approved by owner 2026-11-15): the site settings row (`emsfb_setting`), one top-level key per add-on,
+  `captcha_<id>` = `{v: 2, public: {…}, secret: {<key>: "enc:v1:…"}, updated_at}` (secrets encrypted with the payments
+  secret box). Read: `Registry::raw($id)` / `Registry::stored($id)` / `Provider::setting()`. Written only by
+  `Captcha\Admin::save()` / `import()` / `remove()`, which call `efbFunction::set_setting_Emsfb()` with that one key:
+  its wipe guard keeps every key a write leaves out, so neither the main window's save nor another add-on touches it.
+  An add-on never writes the row itself; when it must change core keys (an F12 migration) it sends only those keys.
+  An add-on id whose key would be core's (`login`, `provider`) is refused (`bad_id`).
+- The settings screen of an add-on is core's: `admin.php?page=Emsfb_captcha&provider=<id>` (`Captcha\Screen`), drawn
+  from `settings_schema()`; the catalogue gives it as `settings_url`. Whether it has settings yet: an add-on
+  calls `Registry::raw($id) !== null` (on an older core: `get_option(Registry::option($id), null) !== null`).
+- F12b sites kept them in the option `emsfb_cpv_<id>` (and `emsfb_cpv_public`): `Admin::migrate()` moves them once on
+  `init` (written, read back from the table, then deleted; mark `emsfb_cpv_moved`); until then `Registry::raw()` still
+  reads the option.
 - Screens get a secret as `{"set": true, "last4": "…"}` (last4 only for secrets of 16+ characters). On save `''`, the
   mask or that object keeps the stored value; `'__clear__'` removes it. Filter `efb_secret_setting_keys` adds keys of
   the settings row that must be treated as secrets.
-- Uninstall: removing an add-on keeps its settings (its public map entry is dropped, action `efb_addon_removed`); the
-  provider's static `uninstall()` deletes them.
+- Uninstall: switching an add-on off or removing it on the Add-ons page keeps its settings; the provider's static
+  `uninstall()` calls `Admin::remove($id)`, which sets only its own key to `null` (the wipe guard keeps a key that is
+  left out, so `null` is how a key is cleared through `set_setting_Emsfb()`).
 
 ### Which provider protects a form (`Registry::effective_for`)
 

@@ -482,6 +482,9 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = Unreleased =
 
+* Changed: Each CAPTCHA add-on (Cloudflare Turnstile, hCaptcha, ALTCHA, Question CAPTCHA, Friendly Captcha) has its own settings page. Settings › Captchas stays short: Google's keys, the reply box and — only while a CAPTCHA add-on is installed and active — a list with each add-on's status (Ready, Needs keys, Off for your plan) and a Settings button. With no CAPTCHA add-on there is nothing about them on the screen. Their settings are now kept with the plugin's other settings (keys still encrypted and never shown again); they move there once, automatically, and are not touched when you save the main Settings window.
+* Developers: an add-on's CAPTCHA settings are the key captcha_<id> of the settings row, written only through set_setting_Emsfb() (Captcha\Admin::save() / import() / remove()); core draws the add-on's screen (admin.php?page=Emsfb_captcha&provider=<id>) from settings_schema(). docs/spam/captcha-contract.en.md.
+
 * New: Accessible errors on every form. A field's error is written under it as text, is tied to the field for screen readers (aria-invalid, aria-describedby) and is read once; on phones it is words again (no more icon-only warning) and sits between the label and the field instead of over the label, right to left too.
 * New: "Check fields when the visitor leaves a field" (Form settings, the default for new forms): no error while someone is still typing, the error when a changed field is left, gone as soon as it is right; Next / Send still check everything. Forms made before keep checking when a value changes.
 * New: A list of problems at the top of the form after Next / Send (new forms), with links that take the keyboard to each field; a field the server refuses brings the visitor back to it with the same list.

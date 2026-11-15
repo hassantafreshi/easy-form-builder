@@ -1000,6 +1000,11 @@ module.exports = function (S) {
     setting(GOOGLE);
     addons(false);
     const made = [];
+    /* WordPress 7.1's wp-admin uses cross-document view transitions (wp-admin/css/view-transitions.css, only without
+       "reduce motion"); a page that navigates again while the new one is being revealed throws "Transition was aborted
+       … Page already revealed" in Chromium (WordPress core, not the plugin). These admin pages navigate quickly
+       (Save → redirect, keyboard Enter), so they run with reduced motion, as many administrators do. */
+    const RM = { reducedMotion: 'reduce' };
     const captchas = async (p) => {
       await p.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb&state=setting&tab=captchas', { waitUntil: 'load' });
       await p.waitForSelector('#efb-spam-settings', { state: 'attached', timeout: 30000 });
@@ -1014,7 +1019,7 @@ module.exports = function (S) {
     };
     try {
       // No CAPTCHA add-on installed and active.
-      const admin = await adminPage({}, 'f12b-10-none');
+      const admin = await adminPage(RM, 'f12b-10-none');
       const none = await captchas(admin);
       R.check('f12b-10: no add-on → no "CAPTCHA add-ons" heading, no list, no row, no placeholder; the site select has Google\'s modes only', !none.head && none.list === 0 && none.rows.length === 0 && none.inline === 0 && !none.text && none.opts.join() === 'recaptcha_v2,recaptcha_v2i,recaptcha_v3', none);
       const nf = await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_captcha&provider=turnstile', { waitUntil: 'load' });
@@ -1047,6 +1052,7 @@ module.exports = function (S) {
       await saved;
       const hs2 = await admin.evaluate(() => ({ notice: (document.querySelector('.notice-success.efb-notice') || {}).textContent, status: (document.querySelector('.efb-cps-st') || {}).textContent, secret: (document.getElementById('efbcps_hcaptcha_secret') || {}).value, ph: (document.getElementById('efbcps_hcaptcha_secret') || { getAttribute: () => '' }).getAttribute('placeholder'), html: document.documentElement.outerHTML }));
       R.check('f12b-10: typed by keyboard (Tab from the site key reaches the secret), Enter saves: "Settings saved.", status Ready, the secret box empty with its mask, no secret in the page', onSecret === 'efbcps_hcaptcha_secret' && /Settings saved/.test(hs2.notice || '') && hs2.status === 'Ready' && hs2.secret === '' && /••••/.test(hs2.ph || '') && hs2.html.indexOf(KEYS.hcaptcha[1].secret) === -1 && hs2.html.indexOf('enc:v1:') === -1, { onSecret, notice: hs2.notice, status: hs2.status, ph: hs2.ph });
+      await sleep(800); // WordPress' page-to-page view transition ends first
       await admin.screenshot({ path: SHOT('f12b-10-screen-hcaptcha-en'), fullPage: true });
       // Turnstile's screen: a new site key (Cloudflare's "always passes" test key with another prefix), the secret kept.
       await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_captcha&provider=turnstile', { waitUntil: 'load' });
@@ -1089,7 +1095,7 @@ module.exports = function (S) {
       for (const loc of ['fa_IR', 'ar']) {
         ctl('locale', loc);
         try {
-          const m = await adminPage({ viewport: { width: 375, height: 812 }, locale: loc.replace('_', '-') }, 'f12b-10-' + loc);
+          const m = await adminPage(Object.assign({ viewport: { width: 375, height: 812 }, locale: loc.replace('_', '-') }, RM), 'f12b-10-' + loc);
           await captchas(m);
           await m.evaluate(() => { const l = document.querySelector('.efb-cpa-list'); if (l) l.scrollIntoView({ block: 'center' }); });
           await sleep(400);

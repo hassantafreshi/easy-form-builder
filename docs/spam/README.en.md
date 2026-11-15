@@ -17,8 +17,8 @@ CAPTCHA outside a form and the provider contract for add-ons: `docs/spam/captcha
 | Question / math | `question` | add-on `AdnQCP` | Free Plus, Pro |
 | Friendly Captcha | `friendly` | add-on `AdnFRC` | Free Plus, Pro |
 
-Each add-on has its own settings fieldset in Settings › Captchas (keys write-only), its own per-form options (`cp_*`)
-in the builder, its own text domain (`efb-<slug>`) and `.pot`. A form whose service is not usable (add-on switched off,
+Each add-on has its own settings screen (F12b-L, approved by owner 2026-11-15; keys write-only), its own per-form
+options (`cp_*`) in the builder, its own text domain (`efb-<slug>`) and `.pot`. A form whose service is not usable (add-on switched off,
 plan, keys) is protected by the site's Google mode when ready, else by the soft checks (hidden field, 3 seconds);
 administrators see a notice listing those forms. Sites updated from F12 keep their hCaptcha / Turnstile keys: they move
 into the add-ons' settings when the add-on is installed.
@@ -33,6 +33,34 @@ staff (`manage_options` or the `Emsfb` capability) have neither the CAPTCHA nor 
 per tracking code in 10 minutes (`reply_rl_track`) and 20 per address in an hour (`reply_rl_ip`, 0 = Off; filter
 `efb_reply_rate_limits`); over a limit the route answers HTTP 429 with `Retry-After` and the page says when the
 visitor can send again (aria-live), keeps the typed text and keeps Send off with a countdown.
+
+## A CAPTCHA add-on's own settings screen (F12b-L)
+
+Approved by owner 2026-11-15: the main Settings window stays short, so an add-on's settings are not in it.
+
+- **Settings › Captchas** shows Google's keys, the reply box and — only while at least one CAPTCHA add-on is installed
+  and active — "CAPTCHA add-ons": one row per add-on with its name, its status (Ready, Needs keys, Off for your plan,
+  Update or turn on the add-on) and a "Settings" button. With no such add-on nothing of the add-ons is drawn (no
+  heading, no empty list). The site's "CAPTCHA service" select offers Google's modes and the installed, active add-ons
+  (an add-on that is gone stays listed only while it is the saved choice, marked "Not installed", so a save keeps it).
+- **The add-on's screen** `admin.php?page=Emsfb_captcha&provider=<id>` (administrators, `manage_options`): a standard
+  WordPress admin page — "Back to Settings", the title "<name> settings", the status, where the data goes, the
+  add-on's fields drawn by core from its `settings_schema()` (an add-on ships no screen), Save. Saved with a plain
+  form (`admin-post.php?action=efb_captcha_settings`, nonce) — it works without JavaScript; notices "Settings saved."
+  and "Not saved: <field names>" (`efb-notice`). A secret is an empty password box with its mask ("Saved (•••• 1234)");
+  an empty box keeps it, "Remove the saved key" clears it. An add-on that is not installed and active (or a Google
+  mode, or an unknown id) gets an HTTP 404 page: "This CAPTCHA add-on is not installed or not active."
+- **Storage**: the main settings JSON (`emsfb_setting`), one top-level key per add-on, `captcha_<id>` =
+  `{v: 2, public: {…}, secret: {<key>: "enc:v1:…"}, updated_at}`, read with `get_setting_Emsfb()` and written only
+  through `efbFunction::set_setting_Emsfb()` with that one key (its history row, the `emsfb_settings` option, the
+  30-minute transient and the caches follow; its wipe guard keeps every key a write leaves out). The main window
+  never receives these keys (`Captcha\Admin::redact_settings()`) and its save drops any it is sent
+  (`Admin::without_addon_keys()`), so a main save keeps them and one add-on's save never touches another key.
+  Switching an add-on off keeps its key; its `uninstall()` (`Admin::remove()`) sets only its own key to `null`.
+- **Migration**: F12b kept these in the options `emsfb_cpv_<id>` (and a page map `emsfb_cpv_public`). On `init`, once,
+  each option is written into the row, read back from the table and only then deleted (mark `emsfb_cpv_moved`); until
+  then the provider still reads the option, so a form never loses its keys. A form package (F15 export) never
+  carries site settings; Easy Form Builder Data Tools does not read or write `emsfb_setting`.
 
 ## Settings › Captchas (site)
 
@@ -106,7 +134,7 @@ files, notes and history).
 Akismet receives the answer's name, e-mail, link and text, the page address, the language and — only as the form's
 IP mode allows (F13) — the address (store: as is; anonymize: anonymized; do not store: no address and no browser).
 The CAPTCHA services receive the token and the secret, never the visitor's address from the plugin. What each service
-sees in the browser (cookies, address, where it is based) is on its fieldset in Settings › Captchas
+sees in the browser (cookies, address, where it is based) is on its settings screen (F12b-L)
 (`Provider::privacy()`); ALTCHA and the question CAPTCHA reach no third party.
 
 ## Content-Security-Policy
