@@ -1205,7 +1205,14 @@ map is returned) + the builder's save path, `import()` = a new form; the `form.c
 `warn_unsaved`; field `autocomplete`. Must add: new-form defaults also applied by
 `efb_form_defaults_efb()` for API-created forms; schema exposes the effective `autocomplete` token
 (the assistant uses it to map visitor data to fields); `efb:submit-result` carries `field_id` and
-`code`.
+`code`. **Built (2026-11-15):** `efb_form_defaults_efb($steps = 1)` returns the F16 keys of a new form
+(`val_timing: "blur"`, `err_summary: "1"`, `warn_unsaved: "1"` only for several steps, F16 open question 1; filter
+`efb_form_defaults`); the builder, its templates and the API use it (the CF7 importer left core with SPLIT: its add-on
+should call it too). `capabilities.features["setting:val_timing|err_summary|warn_unsaved|autocomplete"]` (free) and
+`capabilities.a11y` (keys, timings, defaults, tokens, the automatic token per type); `forms/{id}/schema`:
+`a11y: {val_timing, err_summary, warn_unsaved}` and each field's effective `autocomplete`; `efbBuilderApi.setAutocomplete()`;
+`efb:submit-result {form_id, ok, code, field_id}`; the page module `window.EFBInline` v1 (P21,
+`docs/a11y/inline-validation-contract.en.md`). Names unchanged, so sitepilot-ai needs no update.
 
 **F17 localized name and address.** Create: `cmp_grp`, `cmp_kind`, `name_format`, `name_part`,
 `name_strict`, `addr_scheme`, `addr_part`, `addr_cascade`, `addr_lookup`, `addr_req_mode`, new
@@ -1264,7 +1271,7 @@ add: nothing in SitePilot; an admin-side assistant may mention the date and poin
 | C12 | calendar contract §6.1 "published form" | EFB has no published state | "published" = `status = 1` after §5.3 |
 | C13 | EFB tests vs sitepilot-ai | `docs/EFB-CONDITIONAL-LOGIC-AUTHORING.md` referenced, not in the repo | Publish it with the SitePilot docs or copy under EFB `docs/` and update the three test comments |
 | C14 | G4 / BUGS-FOUND | Whole `form_structer` is public, including `notification_rules` recipients and `webhook_rules` | Until fixed, the agent must put admin recipients only in row-0 `email` and needs `allow.webhooks` for rules |
-| C15 | F16 new-form defaults vs API | Defaults live in JS and the CF7 mapper only | `efb_form_defaults_efb()` shared by builder, importers and API |
+| C15 | F16 new-form defaults vs API | Defaults live in JS and the CF7 mapper only | `efb_form_defaults_efb()` shared by builder, importers and API — **resolved by F16 (2026-11-15)**: `efb_form_defaults_efb($steps)` (the F16 keys) and the builder's twin `efbA11yDefaults()` |
 
 ---
 

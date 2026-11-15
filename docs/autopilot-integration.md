@@ -1610,6 +1610,38 @@ sends one e-mail; after the end one "paused" e-mail. It starts only once the lic
   assistant (`forms/{id}/schema`) never sees any of it.
 - **Tests.** `php tests/test-renewal-capability.php`; e2e `f21-a` … `f21-g`.
 
+### F16. Accessibility and inline validation (`val_timing`, `err_summary`, `warn_unsaved`, field `autocomplete`, `efbBuilderApi.setAutocomplete`, `window.EFBInline`)
+
+Spec: [F16](feature-gaps/F16-a11y-inline-validation.fa.md); page contract (F20 P21):
+[a11y/inline-validation-contract.en.md](a11y/inline-validation-contract.en.md). Free on every plan (spec §14).
+
+- **Form keys (row 0).** `val_timing`: `"blur"` (errors when a changed field is left, cleared while typing once right,
+  everything on Next / Send) or `"change"`; missing = `"change"` (forms from before F16). `err_summary` `"1"`: the
+  error summary with links at the top of the form; `warn_unsaved` `"1"`: "Leave this page?" while typed and unsent.
+  Missing = `"0"`. A new form, a template and `efb_form_defaults_efb($steps)` (PHP) give `val_timing: "blur"`,
+  `err_summary: "1"`, `warn_unsaved: "1"` for a form of several steps, `"0"` for one step (open question 1). Write them
+  with `efbBuilderApi.setFormSettings({val_timing: 'blur', err_summary: true, warn_unsaved: false})`: the save rules
+  apply (`"BLUR"` → `"blur"`, true → `"1"`), anything else for `val_timing` throws `invalid_setting`.
+- **Field key `autocomplete`.** `""` (automatic: the type's token, §5.1 of the spec), `"off"`, or a WHATWG autofill
+  token with an optional `section-*` and `shipping` / `billing` (`"section-a shipping street-address"`). Unknown values
+  are dropped on save. `efbBuilderApi.setAutocomplete(id, token)` → `{id, autocomplete, effective}` (`effective`: what
+  the page gets, `""` = no attribute); an unknown token throws `invalid_setting`, an unknown field `unknown_field`.
+  `insertItems()` rows may carry the key too (the save rules apply on Save).
+- **Registry.** `capabilities.features["setting:val_timing" | "setting:err_summary" | "setting:warn_unsaved"]`
+  (scope form) and `["setting:autocomplete"]` (scope field), all `package: "free"`; `capabilities.a11y`: `v`,
+  `form_keys`, `field_keys`, `timings`, `defaults`, `defaults_multi_step`, `missing`, `autocomplete.tokens`,
+  `autocomplete.auto` (the automatic token of each type), `builder`, `page_api`, `event`.
+- **`forms/{id}/schema`.** `a11y: {val_timing, err_summary, warn_unsaved}` and, per field, `autocomplete`: the token
+  the page uses (`""` = none). A visitor assistant matches what it knows about the visitor to the field this way.
+- **Page.** `window.EFBInline` (version 1): `setError` / `clearError`, `summary`, `applyServer`, `attach` (any form),
+  `watch` / `clean`, `num` / `list`. Every submit answer fires `efb:submit-result` on `document` with
+  `{form_id, ok, code, field_id}`: an assistant explains a refused field to the visitor with it. A value an assistant
+  types goes through the same checks and messages as the visitor's (the page shows them; the server decides).
+- **Not for assistants:** nothing secret is involved; an assistant never presses "Stay on this page" or answers the
+  browser's "Leave this page?" for the visitor.
+- **Tests.** `node tests/test-ap-a11y.js` (13), `node tests/test-inline-api.js` (18), `node tests/test-a11y-*.js`,
+  `php tests/test-a11y-render.php`, `php tests/test-a11y-save-roundtrip.php`; e2e `f16-a` … `f16-g`.
+
 ## Part C: the contract is kept
 
 Everything Part C of the brief lists still works as before (`node tests/test-ap-contract.js`, 16
