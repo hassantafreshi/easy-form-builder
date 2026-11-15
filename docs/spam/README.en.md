@@ -13,7 +13,7 @@ CAPTCHA outside a form and the provider contract for add-ons: `docs/spam/captcha
 | Google reCAPTCHA v3 (score; optional v2 checkbox on a low score, `rc3_fallback`) | `recaptcha_v3` | core | every plan |
 | Cloudflare Turnstile | `turnstile` | add-on `AdnCTS` | Free Plus, Pro |
 | hCaptcha | `hcaptcha` | add-on `AdnHCP` | Free Plus, Pro |
-| ALTCHA (proof of work in the browser, no third party) | `altcha` | add-on `AdnALT` | Free Plus, Pro |
+| ALTCHA (the official widget 3.5.0, bundled; proof of work in the browser, no third party; needs HTTPS) | `altcha` | add-on `AdnALT` | Free Plus, Pro |
 | Question / math | `question` | add-on `AdnQCP` | Free Plus, Pro |
 | Friendly Captcha | `friendly` | add-on `AdnFRC` | Free Plus, Pro |
 

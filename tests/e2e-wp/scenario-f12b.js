@@ -4,7 +4,8 @@
  * for Google (google.com and recaptcha.net), Turnstile, hCaptcha and the Friendly Captcha SDK (Playwright routes; a
  * "Verify" button hands over a token, invisible widgets answer execute()); the server's siteverify calls are answered
  * by the mu-plugin efb-e2e-f12b.php from the token itself (f12b.<base64 JSON answer>.<random>, f12b-slow, f12b-bad).
- * ALTCHA and the question CAPTCHA are the add-ons' own widgets: real challenges from the site, really solved.
+ * ALTCHA is the official widget (altcha 3.5.0, bundled in the add-on) and the question CAPTCHA the add-on's own widget:
+ * real challenges from the site, really solved.
  *
  *  f12b-1  Builder and AutoPilot (rows 1, 2, 25): the service select (keys missing → disabled with the reason, an add-on
  *          not installed → "Not installed"), an add-on's options, Save, switching back drops the other service's
@@ -156,10 +157,14 @@ module.exports = function (S) {
   /** After a refused answer the form shows the error with "Previous": the visitor goes back to the form. */
   const back = async (g, fid) => { const sel = `#body_efb_${fid} #prev_efb_send`; if (await g.isVisible(sel).catch(() => false)) { await g.click(sel); await sleep(500); } };
   const clickFake = async (g, fid) => { await g.click(`.efb-captcha-box[data-formid="${fid}"] .efb-fake-cap`); await sleep(250); };
-  /** ALTCHA: tick the box, wait for the proof of work. */
+  /** ALTCHA (the official widget): it starts when the visitor starts the form; tick the box if it has not, wait for it. */
+  const altState = (g, fid) => g.evaluate((f) => { const a = document.querySelector('.efb-captcha-box[data-formid="' + f + '"] altcha-widget .altcha'); return a ? a.getAttribute('data-state') : null; }, fid);
   async function altcha(g, fid) {
-    await g.click(`.efb-captcha-box[data-formid="${fid}"] .efb-altcha-cb`);
-    await g.waitForFunction((f) => { const a = document.querySelector('.efb-captcha-box[data-formid="' + f + '"] .efb-altcha'); return a && a.getAttribute('data-state') === 'verified'; }, fid, { timeout: 30000 });
+    await g.waitForSelector(`.efb-captcha-box[data-formid="${fid}"] altcha-widget input[type=checkbox]`, { timeout: 20000 });
+    // A person clicks the box; the widget's (transparent) tick lies over its centre, so Playwright clicks the label.
+    if (await altState(g, fid) === 'unverified') await g.click(`.efb-captcha-box[data-formid="${fid}"] altcha-widget label`);
+    await g.waitForFunction((f) => { const a = document.querySelector('.efb-captcha-box[data-formid="' + f + '"] altcha-widget .altcha'); return a && a.getAttribute('data-state') === 'verified'; }, fid, { timeout: 30000 });
+    await sleep(200);
   }
   /** The question CAPTCHA: read the sum, type the answer. */
   async function question(g, fid, wrong) {
@@ -199,7 +204,7 @@ module.exports = function (S) {
       await admin.evaluate(() => { const el = document.getElementById('captchaEl'); if (el && !el.classList.contains('active')) { el.classList.add('active'); fun_switch_form_efb(el); } });
       await sleep(600);
       const altOpts = await admin.evaluate(() => Array.from(document.querySelectorAll('#efbCpOpts [data-key]')).map((x) => x.getAttribute('data-key')));
-      R.check('f12b-1: ALTCHA\'s own options appear (start, floating, footer …), each with a label', altOpts.indexOf('cp_start') !== -1 && altOpts.indexOf('cp_floating') !== -1 && await admin.evaluate(() => Array.from(document.querySelectorAll('#efbCpOpts [data-key]')).every((x) => !!document.querySelector('label[for="' + x.id + '"]'))), altOpts);
+      R.check('f12b-1: ALTCHA\'s own options appear (start, complexity, display, footer, logo …), each with a label', ['cp_start', 'cp_complexity', 'cp_display', 'cp_hide_footer', 'cp_hide_logo'].every((k) => altOpts.indexOf(k) !== -1) && await admin.evaluate(() => Array.from(document.querySelectorAll('#efbCpOpts [data-key]')).every((x) => !!document.querySelector('label[for="' + x.id + '"]'))), altOpts);
       const startId = await admin.evaluate(() => document.querySelector('#efbCpOpts [data-key="cp_start"]').id);
       await admin.selectOption(byId(startId), 'onload');
       await S.settle(admin);
@@ -221,7 +226,7 @@ module.exports = function (S) {
       await S.settle(admin);
       await save();
       r0 = (ctl('form', String(fid)).form_structer || [])[0] || {};
-      R.check('f12b-1: switched to reCAPTCHA v2 and saved: the other service\'s options are gone', r0.captcha_provider === 'recaptcha_v2' && r0.cp_start === undefined && r0.cp_floating === undefined, r0);
+      R.check('f12b-1: switched to reCAPTCHA v2 and saved: the other service\'s options are gone', r0.captcha_provider === 'recaptcha_v2' && r0.cp_start === undefined && r0.cp_display === undefined, r0);
 
       // AutoPilot on the real builder.
       const ap = await admin.evaluate(() => {
@@ -368,7 +373,7 @@ module.exports = function (S) {
       const c0 = await cap(g);
       const rOf = (k) => c0.renders.filter((r) => String(r.formid) === String(F[k].form_id));
       R.check('f12b-3: every widget drawn once in its own box (v2 ×2, Turnstile ×2, hCaptcha, Friendly; v3 none)', ['v2a', 'v2b', 'tsa', 'tsb', 'hc', 'fr'].every((k) => rOf(k).length === 1) && rOf('v3').length === 0, c0.renders.map((r) => [r.kind, r.formid]));
-      R.check('f12b-3: ALTCHA ×2 and the question drawn by their own widgets', await g.evaluate(() => document.querySelectorAll('.efb-altcha').length === 2 && document.querySelectorAll('.efb-qcp').length === 1));
+      R.check('f12b-3: ALTCHA ×2 and the question drawn by their own widgets', await g.evaluate(() => document.querySelectorAll('.efb-captcha-box altcha-widget .altcha').length === 2 && document.querySelectorAll('.efb-qcp').length === 1 && !!customElements.get('altcha-widget')));
       await g.screenshot({ path: SHOT('f12b-3-multi-en'), fullPage: true });
 
       // A refused Turnstile token on tsa resets tsa only; tsb's token stays good.
@@ -706,9 +711,8 @@ module.exports = function (S) {
           R.check(`f12b-8 (${loc}): the registration form with the question CAPTCHA — right to left, labels at the start, the question isolated`, rtlOk(rs), rs);
           await gr.screenshot({ path: SHOT(`f12b-8-register-${loc}-375`), fullPage: true });
           const ga = await open(context, pageOf(A.form_id), 'f12b-8-altcha-' + loc, vp);
-          await ga.click(`.efb-captcha-box[data-formid="${A.form_id}"] .efb-altcha-cb`).catch(() => {});
-          await ga.waitForFunction(() => { const x = document.querySelector('.efb-altcha'); return x && x.getAttribute('data-state') === 'verified'; }, null, { timeout: 30000 }).catch(() => {});
-          const al = await rtlCheck(ga, '#body_efb_' + A.form_id, 'label', '.efb-altcha-status, .efb-altcha-label');
+          await altcha(ga, A.form_id).catch(() => {});
+          const al = await rtlCheck(ga, '#body_efb_' + A.form_id, 'label', null);
           R.check(`f12b-8 (${loc}): an ALTCHA form — right to left, its status at the start and isolated, nothing off-screen`, rtlOk(al), al);
           await ga.screenshot({ path: SHOT(`f12b-8-altcha-${loc}-375`), fullPage: true });
 
@@ -792,11 +796,11 @@ module.exports = function (S) {
       // Keyboard only (row 28) and the accessibility tree (row 29) on the ALTCHA form.
       await gon.focus(byId(A.ids.nm + '_'));
       await gon.keyboard.type('Kay Board');
+      // onfocus (default): the check started when the visitor entered the form; by the box it is usually done.
       await gon.keyboard.press('Tab');
-      const f1 = await gon.evaluate(() => document.activeElement && document.activeElement.className);
-      await gon.keyboard.press('Space');
-      await gon.waitForFunction(() => { const a = document.querySelector('.efb-altcha'); return a && a.getAttribute('data-state') === 'verified'; }, null, { timeout: 30000 });
-      const status = await gon.evaluate(() => { const s = document.querySelector('.efb-altcha-status'); return { t: s.textContent, role: s.getAttribute('role') }; });
+      const f1 = await gon.evaluate(() => document.activeElement && document.activeElement.closest('altcha-widget') && document.activeElement.type);
+      await gon.waitForFunction(() => { const a = document.querySelector('altcha-widget .altcha'); return a && a.getAttribute('data-state') === 'verified'; }, null, { timeout: 30000 });
+      const status = await gon.evaluate(() => { const w = document.querySelector('altcha-widget'); const live = document.querySelector('.efb-captcha-box [role=status][aria-live=polite]'); const l = w.querySelector('label'); return { t: l ? l.textContent : '', live: live ? live.textContent : null }; });
       let reached = '';
       for (let i = 0; i < 6 && reached !== 'btn_send_efb'; i++) { await gon.keyboard.press('Tab'); reached = await gon.evaluate(() => document.activeElement && document.activeElement.id); }
       const aria = await gon.locator('.efb-captcha-box').first().ariaSnapshot();
@@ -804,8 +808,8 @@ module.exports = function (S) {
       await gon.keyboard.press('Enter');
       const sent = await resp;
       await sleep(900);
-      R.check('f12b-6 (keyboard): Tab from the field reaches the ALTCHA checkbox, Space solves it ("Verified", role status), Tab reaches Send, Enter sends, stored', /efb-altcha-cb/.test(f1) && status.role === 'status' && /Verified/.test(status.t) && reached === 'btn_send_efb' && !!sent && entries(A.form_id).length === 1, { f1, status, reached });
-      R.check('f12b-6 (screen reader): the box is a group named "Security check" with a labelled checkbox', /group "Security check"/.test(aria) && /checkbox "I'm not a robot"/.test(aria), aria);
+      R.check('f12b-6 (keyboard): typing in the form started the check; Tab reaches the ALTCHA checkbox ("Verified", announced through aria-live), Tab reaches Send, Enter sends, stored', f1 === 'checkbox' && /Verified/.test(status.live || '') && /Verified/.test(status.t) && reached === 'btn_send_efb' && !!sent && entries(A.form_id).length === 1, { f1, status, reached });
+      R.check('f12b-6 (screen reader): the box is a group named "Security check" with a labelled checkbox', /group "Security check"/.test(aria) && /checkbox "Verified"/.test(aria), aria);
 
       // fa_IR and ar at 375 px.
       for (const loc of ['fa_IR', 'ar']) {
@@ -818,7 +822,7 @@ module.exports = function (S) {
           const w = await m.evaluate(() => {
             const r = (window.__cb.renders.find((x) => x.kind === 'turnstile') || {}).opts || {};
             const box = (s) => { const e = document.querySelector(s); return e ? Math.round(e.getBoundingClientRect().right) : -1; };
-            return { size: r.size, lang: r.language, alt: box('.efb-altcha'), q: box('.efb-qcp'), vw: document.documentElement.clientWidth, dir: (document.querySelector('.efb-captcha-box') && getComputedStyle(document.querySelector('.efb-captcha-box')).direction) };
+            return { size: r.size, lang: r.language, alt: box('altcha-widget .altcha'), q: box('.efb-qcp'), vw: document.documentElement.clientWidth, dir: (document.querySelector('.efb-captcha-box') && getComputedStyle(document.querySelector('.efb-captcha-box')).direction) };
           });
           R.check(`f12b-6 (${loc}): 375 px right to left — no horizontal scroll, Turnstile flexible in the page language, ALTCHA and the question inside the screen`, ph.dir === 'rtl' && ph.scroll <= 1 && w.size === 'flexible' && w.lang === loc.split('_')[0] && w.alt <= w.vw && w.q <= w.vw && w.dir === 'rtl', { ph, w });
           await m.evaluate(() => { const b = document.querySelector('.efb-captcha-box'); if (b) b.scrollIntoView({ block: 'start' }); });
