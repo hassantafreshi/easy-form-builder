@@ -1925,6 +1925,16 @@ class Admin {
                 }
             }
         }
+        /* F12b D4: secrets are write-only. The screen never receives them (Registry::redact_settings()), so an empty
+         * box, a mask ("••••", {"set":true}) or a missing key keeps the stored secret; "__clear__" removes it; any
+         * other text replaces it. Gateway secrets (Stripe, PayPal) follow the same rule (they live in this row). */
+        if (is_array($m) && class_exists('\Emsfb\Captcha\Registry')) {
+            foreach (\Emsfb\Captcha\Registry::secret_keys() as $secret_key_efb) {
+                $stored_secret_efb = is_object($ac) && isset($ac->$secret_key_efb) && is_scalar($ac->$secret_key_efb) ? (string) $ac->$secret_key_efb : '';
+                if (array_key_exists($secret_key_efb, $m)) $m[$secret_key_efb] = \Emsfb\Captcha\Registry::secret_on_save($m[$secret_key_efb], $stored_secret_efb);
+                elseif ($stored_secret_efb !== '') $m[$secret_key_efb] = $stored_secret_efb;
+            }
+        }
         foreach ($m as $key => $value) {
              if (in_array($key ,['emailSupporter','femail'])) {
                 $value = sanitize_text_field($value);

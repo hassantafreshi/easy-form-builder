@@ -2054,5 +2054,15 @@ body:has(.efb-rc3-notice) .grecaptcha-badge { visibility: hidden; }
 .efb.efb-spam-settings .efb-spam-check { flex: 0 0 auto; margin: 0; float: none; position: static; }
 .efb.efb-spam-settings .efb-spam-lbl { flex: 1 1 auto; margin: 0; unicode-bidi: plaintext; text-align: start; }
 .efb.efb-spam-settings .efb-spam-help { display: block; max-width: 40rem; }
+/* F12b: the CAPTCHA add-ons' settings (folded per service), write-only secrets, the administrator's note above a form. */
+.efb.efb-spam-settings details.efb-cpv { border: 1px solid #dfe3ea; border-radius: 6px; padding: .25rem .75rem .75rem; margin-block: .5rem; max-width: 40rem; }
+.efb.efb-spam-settings details.efb-cpv > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: .25rem; unicode-bidi: plaintext; text-align: start; }
+.efb.efb-spam-settings .efb-cpv-status, .efb.efb-spam-settings legend { unicode-bidi: plaintext; }
+.efb.efb-spam-settings textarea.efb-spam-input { max-width: 40rem; }
+.efb.efb-spam-settings .efb-secret-input { flex: 1 1 12rem; min-width: 0; }
+.efb.efb-spam-settings .efb-spam-prov-site > legend::after { content: " ★"; }
+.efb.efb-cp-admin-note { unicode-bidi: plaintext; text-align: start; }
+.efb.efb-spam-form .efb-cp-opts .form-label, .efb.efb-spam-form .efb-cp-opts .form-check-label { unicode-bidi: plaintext; text-align: start; }
+.efb.efb-captcha-box .efb-captcha { min-width: 0; }
 /* On a right-to-left site every line is aligned right like the other labels; each keeps its own order (plaintext). */
 .efb.efb-spam-settings[dir="rtl"] .efb-spam-lbl, .efb.efb-spam-settings[dir="rtl"] .efb-spam-help, .efb.efb-spam-settings[dir="rtl"] .form-label, .efb.efb-spam-form[dir="rtl"] .form-text { text-align: right; }

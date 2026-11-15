@@ -373,12 +373,12 @@ F12 منتشر نشده است (`readme.txt` نسخهٔ پایدار 4.3.1؛ ی�
 - پذیرش: هر چهار حالت با پاسخ mock؛ امتیاز ۰٫۳ با بازگشت ⇒ ویجت v2 در همان فرم، هیچ ذخیره، سپس ذخیرهٔ موفق با توکن v2؛ توکن v2 روی فرم بدون بازگشت رد؛ action دیگر رد؛ `hidden` بدون متن گوگل ممکن نباشد؛ `recaptcha.net` در src و siteverify؛ زبان `fa` و `ar`.
 - تست: گسترش `test-captcha-verify.php`، `node tests/test-rc-modes-client.js`؛ e2e `f12b-b`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: سرور در A آمد (`class-Emsfb-captcha-google.php`: `rciSiteKey`/`rciSecretKey`، `rc_host` برای اسکریپت و siteverify، `cp_theme`/`cp_size`/`cp_badge`/`cp_lang`/`cp_align`/`cp_msg_*`، `rc3_threshold`/`rc3_action`/`rc3_fallback`؛ `Spam::verify_captcha` با کد `challenge` و `kind=v2` فقط برای فرم دارای بازگشت؛ پیام فرم `Spam::captcha_message()`؛ notice گوگل همیشه با `cp_badge=hidden`). در B: `spam-settings-efb.js` (جفت کلید v2 نامرئی، «Load reCAPTCHA from»، `captcha_login`، select سایت از رجیستری، fieldset هر افزونه از `settings_schema()` با دکمهٔ ذخیرهٔ خودش (`efb_captcha_provider_save`)، کلیدهای همهٔ سرویس‌ها همیشه دیده می‌شوند چون هر فرم سرویس خودش را دارد؛ secretها فقط‌نوشتنی: کادر خالی + «Saved (•••• 1234)» + «Remove» با تأیید ⇒ `__clear__`)، `admin/class-Emsfb-admin.php` (ذخیرهٔ تنظیمات: کادر خالی/ماسک/شیء ⇒ نگه‌داشتن، `__clear__` ⇒ حذف، برای همهٔ `Registry::secret_keys()`)، `style-efb.css`.
+- تست‌ها: تازه `tests/test-rc-modes-client.js` (18: v2 تم و اندازه، v2 نامرئی execute و badge، v3 با action فرم، بازگشت v3→v2 در همان جعبه، اتصال `core-efb.js`)، `tests/test-captcha-settings-screen.js` (16، Playwright: en 1280 و fa 375، برچسب همهٔ کنترل‌ها، بی اسکرول افقی، `__clear__`، ذخیرهٔ افزونه)؛ سمت سرور B در `test-captcha-registry.php` (بخش Google modes).
+- وضعیت ترجمه: بی ترجمه (دستور مالک).
+- مورد باز: نشان v3 فقط `hidden`/`bottomright` (جای نشان v3 با `render=<key>` را گوگل تعیین می‌کند)؛ `inline`/`bottomleft` برای v2 نامرئی.
+- اقدام بعدی: C.
 
 ### C — runtime چند فرم
 - فایل‌ها: `captcha-efb.js` (قواعد ۱ تا ۱۰ §۴)، `core-efb.js` (حذف `loadCaptcha_efb`، 4375، 5324)، `class-Emsfb-captcha.php` و `class-Emsfb-formbuilder.php` (شناسهٔ یکتا، حذف تکراری‌ها)، BUGS-FOUND (بستن ردیف `#gRecaptcha`).
