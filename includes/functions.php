@@ -12018,7 +12018,7 @@ public function addon_add_efb($value) {
 
             $last_id = $wpdb->get_var("SELECT MAX(id) FROM {$table_name}");
 
-            $wpdb->update(
+            $written = $wpdb->update(
                 $table_name,
                 [
                     'setting' => $json,
@@ -12032,7 +12032,7 @@ public function addon_add_efb($value) {
             );
         } else {
 
-            $wpdb->insert(
+            $written = $wpdb->insert(
                 $table_name,
                 [
                     'setting' => $json,
@@ -12042,6 +12042,14 @@ public function addon_add_efb($value) {
                 ],
                 ['%s', '%d', '%s', '%s']
             );
+        }
+
+        /* The table is the source of truth. When its write fails (a lost connection, a full disk, a table that is
+         * gone), the option, the transient and the caches keep what the table holds, so no screen shows settings
+         * that a cache expiry would take back; the caller is told (false). 0 rows from update() is not a failure:
+         * the row already held this JSON. */
+        if ($written === false || (isset($wpdb->last_error) && is_string($wpdb->last_error) && $wpdb->last_error !== '')) {
+            return false;
         }
 
         update_option('emsfb_settings', $json);
