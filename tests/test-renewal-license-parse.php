@@ -55,6 +55,7 @@ $bad = array(
 	'expires_at more than 5 years ahead' => array('expires_at' => $iso($now + 6 * 365 * 86400)),
 	'expires_at more than 400 days ago' => array('expires_at' => $iso($now - 401 * 86400)),
 	'expires_at year 1970' => array('expires_at' => '1970-01-01T00:00:00Z'),
+	'expires_at with a newline after the Z' => array('expires_at' => $iso($now + 86400) . "\n"),
 	'auto_renew "yes"' => array('auto_renew' => 'yes'),
 	'auto_renew 1' => array('auto_renew' => 1),
 	'lapse_effect unknown' => array('lapse_effect' => 'delete_everything'),

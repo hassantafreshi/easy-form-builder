@@ -86,7 +86,7 @@ class Renewal_Reminder {
 	/** An ISO-8601 instant in UTC ("2026-11-21T00:00:00Z", fractions and +00:00 allowed) → Unix time, else null. */
 	public static function iso_time($v) {
 		if (!is_string($v) || strlen($v) > 40) return null;
-		if (!preg_match('/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?(?:Z|[+-]00:?00)$/', $v, $m)) return null;
+		if (!preg_match('/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,9})?(?:Z|[+-]00:?00)$/D', $v, $m)) return null;
 		list(, $y, $mo, $d, $h, $mi, $s) = array_map('intval', $m);
 		if ($y < 2000 || $y > 2100 || !checkdate($mo, $d, $y) || $h > 23 || $mi > 59 || $s > 59) return null;
 		return gmmktime($h, $mi, $s, $mo, $d, $y);
@@ -138,7 +138,7 @@ class Renewal_Reminder {
 		$base = rtrim($base, '/') . '/checkout?renew=site';
 		$code = function_exists('get_option') ? (string) get_option('emsfb_pro_activeCode', '') : '';
 		$site = explode('@', $code)[0];
-		return preg_match('/^[a-f0-9]{32}$/', $site) ? $base . '&d=' . $site : $base;
+		return preg_match('/^[a-f0-9]{32}$/D', $site) ? $base . '&d=' . $site : $base;
 	}
 
 	/** The link of every "Renew" button: the server's (token) link when it is stored and valid, else the fallback. */
@@ -394,7 +394,7 @@ class Renewal_Reminder {
 		$names = $wpdb->get_col($wpdb->prepare("SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s", $like));
 		$n = 0;
 		foreach ((array) $names as $name) {
-			if (preg_match('/^' . preg_quote(self::LOCK, '/') . '(\d+)_(t7|t0)$/', (string) $name, $m) && (int) $m[1] < self::time() - 60 * self::DAY) {
+			if (preg_match('/^' . preg_quote(self::LOCK, '/') . '(\d+)_(t7|t0)$/D', (string) $name, $m) && (int) $m[1] < self::time() - 60 * self::DAY) {
 				delete_option($name);
 				$n++;
 			}
@@ -712,7 +712,7 @@ class Renewal_Reminder {
 		if (!check_ajax_referer(self::NONCE, 'nonce', false) || !current_user_can('manage_options')) wp_send_json_error(array('m' => 'forbidden'), 403);
 		$period = isset($_POST['period']) ? (string) wp_unslash($_POST['period']) : '';
 		$stage = isset($_POST['stage']) ? (string) wp_unslash($_POST['stage']) : '';
-		if (!preg_match('/^[a-f0-9]{16}$/', $period) || !preg_match('/^(t7|t1|t0)$/', $stage)) wp_send_json_error(array('m' => 'bad_request'), 400);
+		if (!preg_match('/^[a-f0-9]{16}$/D', $period) || !preg_match('/^(t7|t1|t0)$/D', $stage)) wp_send_json_error(array('m' => 'bad_request'), 400);
 		update_user_meta(get_current_user_id(), self::META, $period . ':' . $stage);
 		wp_send_json_success(array('done' => true));
 	}

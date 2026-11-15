@@ -426,12 +426,13 @@ Easy Form Builder > Settings.
 پذیرش: فقط `manage_options`؛ فقط صفحه‌های افزونه و `index.php`؛ بستن در `user_meta` و ماندگار؛ `t1` دوباره ظاهر؛ «Check again» با nonce و محدودیت ۵ دقیقه؛ پس از تمدید اعلان بی بارگذاری کامل محو.
 تست‌ها: `php tests/test-renewal-notice-render.php` (نقش‌ها، صفحه‌ها، escape نام سایت خصمانه، `<bdi>`)، `php tests/test-renewal-ajax.php` (nonce، قابلیت، الگوی ورودی).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: `class-Emsfb-renewal-reminder.php` (`render_notice()` روی `admin_notices`: فقط `manage_options`، فقط صفحه‌های `emsfb` و `dashboard`؛ `notice_html()`: `notice notice-info|notice-warning is-dismissible efb efb-renew-notice` با `data-efb-notice="renew"` (قاعدهٔ F12b برای پاک‌کنندهٔ اعلان‌ها)، `role="region"` + `aria-labelledby`، تاریخ در `<bdi>`، «Renew Pro» با `target="_blank" rel="noopener noreferrer"` و متن صفحه‌خوان، «Remind me later» و «Already renewed? Check again» به‌شکل `<button>`، ناحیهٔ `role="status" aria-live="polite"`؛ CSS منطقی با `unicode-bidi: plaintext` و در ≤ ۷۸۲px دکمه‌های تمام‌عرض ۴۴px؛ اسکریپت درون‌خطی یک‌بار: بستن با × یا «بعداً» ⇒ AJAX و برگشت تمرکز به عنوان صفحه، «Check again» ⇒ AJAX و در صورت تمدید تبدیل اعلان به `notice-success` با «Thanks — your renewal is confirmed.» بی بارگذاری؛ در `t0` روی صفحه‌های افزونه فقط اسکریپت (کارت، زیرتسک E)؛ `maybe_schedule_check()` پشتیبان cron؛ `ajax_dismiss()` و `ajax_recheck()` با nonce `efb_renew_notice`، `manage_options`، الگوهای `^[a-f0-9]{16}$` و `^(t7|t1|t0)$` با پرچم `D`، transient پنج‌دقیقه‌ای برای کل سایت)، `class-Emsfb.php` (`register()`).
+- یافتهٔ QA و رفع: `$` در PCRE پیش از `\n` پایانی هم می‌خورد: `"t7\n"` به‌عنوان مرحله و تاریخ ISO با `\n` پذیرفته می‌شد ⇒ همهٔ الگوهای کلاس با `/D`؛ بردار در هر دو تست. «ends tomorrow» در ۲۴ ساعت آخر گاهی نادرست بود (روز آخر امروز است) ⇒ عبارت تازهٔ `Easy Form Builder Pro ends today` بر پایهٔ منطقهٔ زمانی سایت (اصلاح جزئی متن، مجاز در بریف).
+- تست‌ها: تازه `tests/test-renewal-notice-render.php` (34)، `tests/test-renewal-ajax.php` (18)؛ `node tests/test-admin-notice-cleaner.js` سبز (4).
+- وضعیت ترجمه: عبارت‌های §۱۱.۱ و `No renewal found yet. If you just renewed, try again in a few minutes.` (تازه، برای «Check again» بی نتیجه)؛ ترجمه نمی‌شود.
+- مورد باز: —
+- اقدام بعدی: D.
 
 ### D — قالب ایمیل و تنظیمات
 فایل‌ها: `email_html()` (یک ستون، درون‌خطی، `dir`، `color-scheme`، دکمهٔ bulletproof)، `email_text()`، سوییچ `renewMail` و سطر وضعیت در تنظیمات › عمومی.

@@ -72,6 +72,15 @@ function wp_next_scheduled($h) { return isset($GLOBALS['efb_rt']['scheduled'][$h
 function wp_schedule_single_event($t, $h) { $GLOBALS['efb_rt']['scheduled'][$h] = $t; return true; }
 function get_current_screen() { return $GLOBALS['efb_rt']['screen']; }
 
+class EfbRtJson extends Exception { public $data; public $ok; public $status; public function __construct($ok, $data, $status) { parent::__construct('json'); $this->ok = $ok; $this->data = $data; $this->status = $status; } }
+function wp_send_json_success($d = null, $s = 200) { throw new EfbRtJson(true, $d, $s); }
+function wp_send_json_error($d = null, $s = 200) { throw new EfbRtJson(false, $d, $s); }
+function check_ajax_referer($action, $field = false, $die = true) { $n = isset($_POST[$field]) ? $_POST[$field] : (isset($_REQUEST[$field]) ? $_REQUEST[$field] : ''); return $n === 'nonce-' . $action ? 1 : false; }
+/** Runs an AJAX handler: [ok, status, data]. */
+function efb_rt_ajax($cb, array $post) { $_POST = $post; $_REQUEST = $post; try { call_user_func($cb); } catch (EfbRtJson $e) { return array($e->ok, $e->status, $e->data); } return array(null, 0, null); }
+/** Output of a renderer. */
+function efb_rt_render($cb) { ob_start(); call_user_func($cb); return ob_get_clean(); }
+
 /** A PHPMailer stand-in: what wp_mail() would hand to phpmailer_init. */
 class EfbRtMailer { public $Subject = ''; public $Body = ''; public $AltBody = ''; public $to = array(); }
 
