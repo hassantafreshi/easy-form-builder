@@ -131,3 +131,43 @@ if (!function_exists('efb_addon_state')) {
 		return class_exists('\\Emsfb\\Addon_Catalog') ? \Emsfb\Addon_Catalog::state($code, function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null) : 'addon';
 	}
 }
+
+/* ------------------------------------------------------------------ legacy_gateway v1 (SPLIT §5.2) */
+
+if (!function_exists('efb_legacy_gateway_ready')) {
+	/**
+	 * Whether a Stripe / PayPal / PersiaPay field can take a payment now: its add-on is on, this PHP can run it and it
+	 * announced the legacy_gateway contract (an add-on from before SPLIT does not, and is treated as absent).
+	 */
+	function efb_legacy_gateway_ready($type) {
+		if (!class_exists('\\Emsfb\\Split') || !class_exists('\\Emsfb\\Addon_Catalog')) return false;
+		$map = \Emsfb\Split::legacy_types();
+		if (!isset($map[$type])) return false;
+		$code = $map[$type];
+		if (!\Emsfb\Addon_Catalog::flag_on($code, function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null)) return false;
+		if (function_exists('emsfb_is_addon_compatible_efb') && !emsfb_is_addon_compatible_efb($code)) return false;
+		$c = efb_addon_contracts();
+		return isset($c['legacy_gateway']['providers'][$code]) && !empty($c['legacy_gateway']['active']);
+	}
+}
+
+if (!function_exists('efb_gate_prepare')) {
+	/** F11's form gate for an add-on's own payment endpoint (the same gate and places as the submit). */
+	function efb_gate_prepare($form_id, $request = null) {
+		$pub = class_exists('\\Emsfb\\_Public') ? \Emsfb\_Public::$instance_efb : null;
+		if ($pub && method_exists($pub, 'gate_prepare_for_endpoint_efb')) return $pub->gate_prepare_for_endpoint_efb((int) $form_id, $request);
+		return null;
+	}
+}
+
+if (!function_exists('efb_legacy_server_price')) {
+	/**
+	 * The amount of a legacy-gateway order computed by the server from the stored form (price fields, priced choices,
+	 * logic prices, calc amounts; a lowered price is refused): fun_validation_pay_elements_efb() of core.
+	 * @return array {price_total, email, valobj} (refusals answer the request themselves, as before).
+	 */
+	function efb_legacy_server_price($rows, $form) {
+		$pub = class_exists('\\Emsfb\\_Public') ? \Emsfb\_Public::$instance_efb : null;
+		return $pub ? $pub->fun_validation_pay_elements_efb($rows, $form) : array('price_total' => 0, 'email' => '', 'valobj' => array());
+	}
+}

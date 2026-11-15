@@ -331,7 +331,7 @@ class Cache_Compat {
     }
 
     public static function asset_src($src,$handle) {
-        $files=array('stripe_js'=>'public/assets/js/stripe_pay-efb.js','Emsfb-list_form-efb-js'=>'includes/admin/assets/js/list_form-efb.js','efb-request-health'=>'public/assets/js/request-health-efb.js');
+        $files=array('stripe_js'=>'vendor/stripe/assets/js/stripe_pay-efb.js','Emsfb-list_form-efb-js'=>'includes/admin/assets/js/list_form-efb.js','efb-request-health'=>'public/assets/js/request-health-efb.js');
         if (!isset($files[$handle]) || !is_string($src) || strpos($src,EMSFB_PLUGIN_URL)!==0) return $src;
         $path=EMSFB_PLUGIN_DIRECTORY.$files[$handle];
         return is_readable($path) ? add_query_arg('ver',(string)filemtime($path),$src) : $src;

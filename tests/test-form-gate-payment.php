@@ -141,13 +141,23 @@ $retry = substr($src, strpos($src, 'public static function retry('));
 t('Service::retry() asks efb_payment_retry_gate before Store::insert', strpos($retry, "apply_filters( 'efb_payment_retry_gate'") !== false && strpos($retry, "apply_filters( 'efb_payment_retry_gate'") < strpos($retry, 'Store::insert('), true);
 t('Service::message() shows the gate sentence for the five codes', array(\Emsfb\Payments\Service::message('efb_form_full', array('visitor' => 'Full.')), \Emsfb\Payments\Service::message('efb_role_denied', array('visitor' => 'No.'))), array('Full.', 'No.'));
 
-/* 7: the legacy gateway routes that store the pending entry themselves are gated too */
-$pub = file_get_contents(__DIR__ . '/../includes/class-Emsfb-public.php');
-foreach (array('pay_stripe_sub_Emsfb_api' => 'StripePayment', 'pay_paypal_sub_Emsfb_api' => 'handle_create_payment(', 'pay_persia_sub_Emsfb_api' => 'pay_persia_sub_Emsfb_api($data_POST_ ,$this)') as $fn => $delegate) {
-	$body = substr($pub, strpos($pub, 'public function ' . $fn . '('));
-	$body = substr($body, 0, strpos($body, "\n\t}\n"));
-	t("legacy route {$fn}() runs the gate before it stores anything", strpos($body, 'gate_prepare_for_endpoint_efb(') !== false && strpos($body, 'gate_prepare_for_endpoint_efb(') < strpos($body, $delegate), true);
+/* 7: the legacy gateway routes that store the pending entry themselves are gated too (SPLIT §5: their code lives in the
+ * Stripe / PayPal / PersiaPay add-ons on the legacy bridge and reaches the gate through efb_gate_prepare()). */
+$vdir = function ($d) { foreach (array(getenv('EFB_' . strtoupper($d) . '_DIR'), __DIR__ . '/../vendor/' . $d, '/home/user/vendores-efb/' . $d) as $x) if ($x && is_dir($x)) return $x; return ''; };
+$legacy_src = array(
+	'pay_stripe_sub_Emsfb_api' => array(@file_get_contents($vdir('stripe') . '/class-Emsfb-stripe-legacy.php'), 'StripePayment'),
+	'pay_paypal_sub_Emsfb_api' => array(@file_get_contents($vdir('paypal') . '/class-Emsfb-paypal-legacy.php'), 'handle_create_payment('),
+	'pay_persia_sub_Emsfb_api' => array(@file_get_contents($vdir('persiapay') . '/class-Emsfb-persiapay-legacy.php'), 'pay_persia_sub_Emsfb_api( $data_POST_, $this->pub )'),
+);
+foreach ($legacy_src as $fn => $x) {
+	list($pub, $delegate) = $x;
+	$body = substr((string) $pub, (int) strpos((string) $pub, 'public function ' . $fn . '('));
+	$body = substr($body, 0, (int) strpos($body, "\n\t}\n"));
+	$gate = strpos($body, 'efb_gate_prepare(');
+	t("legacy route {$fn}() runs the gate before it stores anything", $gate !== false && strpos($body, $delegate) !== false && $gate < strpos($body, $delegate), true);
 }
+$gate_fn = file_get_contents(__DIR__ . '/../includes/addon-contracts-functions-efb.php');
+t('efb_gate_prepare() is core\'s gate_prepare_for_endpoint_efb()', strpos($gate_fn, '->gate_prepare_for_endpoint_efb((int) $form_id, $request)') !== false, true);
 
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

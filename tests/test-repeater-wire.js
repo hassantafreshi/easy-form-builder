@@ -68,7 +68,7 @@ const core = fs.readFileSync(path.join(ROOT, 'public', 'assets', 'js', 'core-efb
 const sendEnd = [core.indexOf('async function efb_review_quote_efb'), core.indexOf('function efb_page_query_efb')].filter((i) => i > core.indexOf('async function actionSendData_emsFormBuilder')).sort((x, y) => x - y)[0];
 const send = core.slice(core.indexOf('async function actionSendData_emsFormBuilder'), sendEnd);
 t('actionSendData: one conversion, after localStorage is written and before data is built', [send.split('efb_repeater_wire_rows_efb(').length - 1, send.indexOf("localStorage.setItem('sendback'") < send.indexOf('efb_repeater_wire_rows_efb('), send.indexOf('efb_repeater_wire_rows_efb(') < send.indexOf('let  data = {')], [1, true, true]);
-const stripe = fs.readFileSync(path.join(ROOT, 'public', 'assets', 'js', 'stripe_pay-efb.js'), 'utf8');
+const stripe = fs.readFileSync(/* SPLIT §5: the Stripe add-on's script */ (function(){const fs=require('fs'),p=require('path');const d=[process.env.EFB_STRIPE_DIR,p.join(__dirname,'..','vendor','stripe'),'/home/user/vendores-efb/stripe'].filter(Boolean).find(x=>fs.existsSync(p.join(x,'assets','js','stripe_pay-efb.js')));return p.join(d,'assets','js','stripe_pay-efb.js');})(), 'utf8');
 t('stripe_pay-efb.js sends the converted rows', (stripe.match(/efb_repeater_wire_rows_efb\(sendBack_emsFormBuilder_pub, form_id\)/g) || []).length, 2);
 console.log(`\nRESULTS: ${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

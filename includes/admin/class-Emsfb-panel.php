@@ -356,8 +356,11 @@ class Panel_edit  {
 
 				do_action('efb_enqueue_persia');
 			}
-			wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION , true);
-			wp_enqueue_script('stripe_js');
+			// SPLIT §5: the Stripe page script lives in the Stripe add-on (vendor/stripe), loaded only while it can take payments.
+			if (function_exists('efb_legacy_gateway_ready') && efb_legacy_gateway_ready('stripe') && is_readable(EMSFB_PLUGIN_DIRECTORY . 'vendor/stripe/assets/js/stripe_pay-efb.js')) {
+				wp_register_script('stripe_js', EMSFB_PLUGIN_URL . 'vendor/stripe/assets/js/stripe_pay-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION, true);
+				wp_enqueue_script('stripe_js');
+			}
 			 wp_enqueue_script( 'Emsfb-core-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/core-efb.js', array('jquery','efb-recorder-js'), EMSFB_PLUGIN_VERSION );
 			 wp_localize_script('Emsfb-core-js','ajax_object_efm_core',array(
 					'nonce'=> wp_create_nonce("wp_rest"),

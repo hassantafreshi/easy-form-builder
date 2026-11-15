@@ -55,7 +55,8 @@ function efb_reads_posted_amount($s) {
 $creates = array(); $posted_amount = array();
 foreach ($own as $p) {
 	$s = file_get_contents($p);
-	if (preg_match('/paymentIntents->create|prices->create|subscriptions->create|PaymentIntent::create|Price::create|Subscription::create|Charge::create/', $s)) $creates[] = basename($p);
+	// SPLIT §5: class-Emsfb-stripe-legacy.php is core's former Stripe code (checked like core's below).
+	if (basename($p) !== 'class-Emsfb-stripe-legacy.php' && preg_match('/paymentIntents->create|prices->create|subscriptions->create|PaymentIntent::create|Price::create|Subscription::create|Charge::create/', $s)) $creates[] = basename($p);
 	if (efb_reads_posted_amount($s)) $posted_amount[] = basename($p);
 }
 st('add-on PHP files scanned (SDK excluded)', count($own) >= 3, $own);
@@ -63,12 +64,14 @@ st('no add-on file creates a PaymentIntent, price, subscription or charge', $cre
 st('no add-on file reads an amount, price or total from the request', $posted_amount === array(), $posted_amount);
 st('(the scan does see such a read: the old PayPal handler line)', efb_reads_posted_amount("\$amount = sanitize_text_field( \$data_POST['amount'] ?? '' );"));
 
-// 3. Core's intent: the amount is the server total.
+// 3. The intent (core's code, in the add-on since SPLIT §5): the amount is the server total.
 $core = file_get_contents(__DIR__ . '/../includes/class-Emsfb-public.php');
-preg_match('/\tpublic function pay_stripe_sub_Emsfb_api\(.*?\n\t}\n/s', $core, $m);
+$legacy = is_readable($dir . '/class-Emsfb-stripe-legacy.php') ? file_get_contents($dir . '/class-Emsfb-stripe-legacy.php') : '';
+preg_match('/\tpublic function pay_stripe_sub_Emsfb_api\(.*?\n\t}\n/s', $legacy !== '' ? $legacy : $core, $m);
 $body = $m[0] ?? '';
-st('core pay_stripe_sub_Emsfb_api found', $body !== '');
-st('core prices the intent with fun_validation_pay_elements_efb()', strpos($body, '$obj = $this->fun_validation_pay_elements_efb($val_ , $fs_);') !== false && strpos($body, "\$price_f = \$obj['price_total'];") !== false);
+st('pay_stripe_sub_Emsfb_api found (the Stripe add-on\'s legacy-bridge class)', $body !== '');
+st('core no longer has the Stripe intent code (SPLIT §5)', strpos($core, 'function pay_stripe_sub_Emsfb_api') === false && strpos($core, 'paymentIntents->create') === false);
+st('the intent is priced with fun_validation_pay_elements_efb() (core\'s, through the bridge)', strpos($body, '$obj = $this->fun_validation_pay_elements_efb($val_ , $fs_);') !== false && strpos($body, "\$price_f = \$obj['price_total'];") !== false);
 st('the one-time intent and the subscription price use that amount', preg_match("/'amount' => \\\$price_f,/", $body) === 1 && preg_match("/'unit_amount' => \\\$price_f,/", $body) === 1);
 st('core never reads a posted amount/price for Stripe', !preg_match("/\\\$data_POST\\[\\s*'(amount|price|price_total|total)'\\s*\\]/", $body));
 st('fun_validation_pay_elements_efb() runs Builder_Api::apply_server_prices() (B7)', strpos($core, '\Emsfb\Builder_Api::apply_server_prices($val_, $fs_)') !== false);

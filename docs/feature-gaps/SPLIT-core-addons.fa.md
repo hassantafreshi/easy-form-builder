@@ -543,12 +543,12 @@ e2e روی `tests/e2e-wp` (سناریوی تازهٔ `scenario-split.js`، fa_IR
 ### B — درگاه‌های قدیمی (پل v1 و انتقال کد)
 گام ۱ (هسته): هوک‌های §۵.۲ کنار کد فعلی. گام ۲ (`vendores-efb/stripe|paypal|persiapay`): کد را با کلاس خود افزونه بیاورند؛ با هستهٔ قدیمی بی‌اثر (§۱۲ قاعدهٔ ۱). گام ۳ (هسته): حذف موجودی §۵.۱ و `persia_pay-efb.js`. معیار: سناریوهای Stripe/PayPal با fake و `test-addon-paypal-server-price.php`، `test-addon-persiapay-server-price.php`، `test-addon-stripe-server-price.php` سبز؛ بی‌افزونه `pay_not_ready`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: هسته — `class-Emsfb-public.php` (حذف بلوک Stripe، وضعیت سفارش PayPal با OAuth، سه callback PayPal، `pay_persia_sub_Emsfb_api` و تأیید زرین‌پال؛ به‌جایشان `legacy_payment_state_efb()` (ردیفی که هیچ افزونه‌ای نمی‌سنجد = unpaid)، `legacy_gateway_blocked_efb()` (رد `pay_not_ready` پیش از خواندن `payid`)، `efb_legacy_payment_verify`، `efb_legacy_gateway_localize`؛ سه متد کمکی و `$db` عمومی شدند)، `class-Emsfb-formbuilder.php` (`add_ui_*` حذف؛ `legacy_gateway_ui_efb()` با `efb_legacy_gateway_render` و در نبود افزونه `Readiness::public_notice`)، `addon-contracts-functions-efb.php` (`efb_legacy_gateway_ready()`، `efb_gate_prepare()`، `efb_legacy_server_price()`)، `payments/class-Emsfb-payment-registry.php` (`pay_addon_inactive` برای مسیر قدیمی، نشان فهرست فرم‌ها)، `class-Emsfb-split.php` (وضعیت `update` برای افزونهٔ پیش از SPLIT، اعلان پرداخت‌های pending استرایپ)، `admin/class-Emsfb-admin.php` (پاک کردن cron هنگام حذف `AdnSPF`)، `create.php`/`panel.php`/`cache-compat.php` (اسکریپت از `vendor/stripe`)؛ حذف `public/assets/js/stripe_pay-efb.js` و `persia_pay-efb.js` (مرده، §۲۰ بند ۴). افزونه‌ها (`vendores-efb`) — `stripe/class-Emsfb-stripe-legacy.php`، `paypal/class-Emsfb-paypal-legacy.php`، `persiapay/class-Emsfb-persiapay-legacy.php` (کد منتقل‌شده، بی‌تغییر جز دسترسی به اعضای هسته از راه `$this->pub`)، `stripe/assets/js/stripe_pay-efb.js`، `routes-efb.php` هر سه (با هستهٔ پیش از SPLIT همان مسیرهای قدیمی، §۱۲ قاعدهٔ ۱)، زیپ‌ها.
+- تست‌ها: تازه `test-split-legacy-gateway.php` (25). منطبق‌شده بی‌ضعیف‌کردن ادعا: `test-addon-stripe-server-price.php` (بدنهٔ intent از کلاس افزونه + ادعای تازهٔ «هسته کد intent ندارد»)، `test-form-gate-payment.php` (دروازه پیش از ذخیره در کد افزونه، از راه `efb_gate_prepare`)، `test-stripe-runtime.js`، `test-runtime-fallback.js`، `test-repeater-wire.js` (اسکریپت افزونه). `test-addon-require-guards.php` ۱۰ ادعای کمتر دارد چون محل require زرین‌پال دیگر در هسته نیست. کل مجموعه در برابر `ff8f21ad`: بی‌شکست تازه.
+- وضعیت ترجمه: عبارت تازه‌ای نیست جز «N Stripe payments are waiting to be checked…» (انگلیسی).
+- مورد باز: زبانهٔ Payments تنظیمات (`list_form-efb.js`) و کاشی/بوم/پنل سازنده (`admin-efb.js`، `val-efb.js`، `new-efb.js`، `core-efb.js`) هنوز در هسته‌اند؛ چارچوب `window.efbFieldKinds` و `efb_settings_tabs` با PAY08–PAY10 (انتقال کامل به `Payments\Gateway`) ساخته می‌شود. e2e سناریوهای PayPal/Stripe در J.
+- اقدام بعدی: C.
 
 ### C — `AdnCLC`
 `vendores-efb/calc` با `Calc`، assets، عبارت‌ها، آزمون‌ها؛ هسته: هوک‌های §۶.۲، افت پیش از F04 (§۶.۴)، سه رفع (پرسش ۱)، حذف فایل‌ها و `Calc::register()`. معیار: همهٔ آزمون‌های F04 و F09-J با افزونه سبز؛ `test-split-number-fallback.php` و `test-split-pay-calc-failsafe.php` بی‌افزونه سبز؛ e2e `f04*` و `f04pay`.

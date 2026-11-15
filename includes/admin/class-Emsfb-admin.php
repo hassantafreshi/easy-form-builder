@@ -1437,6 +1437,10 @@ class Admin {
             $ac->AdnGoS=0;
         }
         $ac->{$post_value}=0;
+        // SPLIT §5.2: the Stripe add-on's background check of pending payments stops with it.
+        if ($post_value === 'AdnSPF' && function_exists('wp_clear_scheduled_hook')) {
+            wp_clear_scheduled_hook('emsfb_stripe_reconcile_efb');
+        }
         if(empty($this->db)){
             global $wpdb;
             $this->db = $wpdb;

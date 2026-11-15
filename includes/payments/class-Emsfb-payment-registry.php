@@ -467,6 +467,16 @@ class Readiness {
 			if ( Registry::has( $r['type'] ) ) {
 				$out['has_payment'] = true;
 				$registered = true;
+			} elseif ( function_exists( 'efb_legacy_gateway_ready' ) && class_exists( '\\Emsfb\\Split' ) && isset( \Emsfb\Split::legacy_types()[ $r['type'] ] ) ) {
+				// SPLIT §5.3: Stripe / PayPal / PersiaPay (legacy bridge) speak the same language: pay_addon_inactive
+				// when the add-on cannot take the payment now; otherwise the add-on's own flow decides.
+				if ( ! efb_legacy_gateway_ready( $r['type'] ) ) {
+					$code = \Emsfb\Split::legacy_types()[ $r['type'] ];
+					$out['has_payment'] = true;
+					$issues[] = array( 'code' => 'pay_addon_inactive', 'level' => 'error', 'field_id' => isset( $r['id_'] ) && is_scalar( $r['id_'] ) ? (string) $r['id_'] : '', 'gateway' => $r['type'], 'addon' => $code,
+						/* translators: %s: name of a payment add-on (the gateway's name) */
+						'm' => sprintf( __( 'The %s add-on of this payment field is not active, so visitors cannot pay. Activate it in Easy Form Builder → Add-ons, or remove the payment field.', 'easy-form-builder' ), class_exists( '\\Emsfb\\Addon_Catalog' ) ? \Emsfb\Addon_Catalog::name( $code ) : $code ) );
+				}
 			} elseif ( in_array( $r['type'], self::catalogue_types(), true ) ) {
 				$out['has_payment'] = true;
 				$issues[] = array( 'code' => 'pay_addon_inactive', 'level' => 'error', 'field_id' => isset( $r['id_'] ) && is_scalar( $r['id_'] ) ? (string) $r['id_'] : '', 'gateway' => $r['type'], 'addon' => self::addon_of( $r['type'] ),
@@ -569,7 +579,7 @@ class Readiness {
 		global $wpdb;
 		$out = array();
 		if ( ! is_object( $wpdb ) ) return $out;
-		$types = array_unique( array_merge( Registry::slugs(), self::catalogue_types() ) );
+		$types = array_unique( array_merge( Registry::slugs(), self::catalogue_types(), class_exists( '\\Emsfb\\Split' ) ? array_keys( \Emsfb\Split::legacy_types() ) : array() ) );
 		if ( ! $types ) return $out;
 		$t = $wpdb->prefix . 'emsfb_form';
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix

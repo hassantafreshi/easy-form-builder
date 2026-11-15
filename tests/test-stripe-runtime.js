@@ -1,7 +1,7 @@
 const fs = require('fs');
 const vm = require('vm');
 const assert = require('assert');
-const source = fs.readFileSync('public/assets/js/stripe_pay-efb.js', 'utf8');
+const source = fs.readFileSync(/* SPLIT §5: the Stripe add-on's script */ (function(){const fs=require('fs'),p=require('path');const d=[process.env.EFB_STRIPE_DIR,p.join(__dirname,'..','vendor','stripe'),'/home/user/vendores-efb/stripe'].filter(Boolean).find(x=>fs.existsSync(p.join(x,'assets','js','stripe_pay-efb.js')));return p.join(d,'assets','js','stripe_pay-efb.js');})(), 'utf8');
 // Retry pauses run immediately here; the schedule itself is asserted through the recorded delays.
 // The 30 s offline wait never times out in the test, so only the 'online' event can end it.
 const pauses = [];

@@ -2044,102 +2044,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 		 }
 	}
 
-	public function add_ui_stripe_efb($rndm , $cl, $sub,$form_id,$texts) {
-		$currency = $this->valj_efb[0]->currency;
-		$amount =self::formatPrice_efb(0, $currency);
-		return  '
-		<!-- stripe -->
-		<div class="efb  ' . $this->mobile_pos[3] . ' stripe emsFormBuilder_v"  id="'.$rndm.'-f" data-formid="'.$form_id.'">
-		<div class="efb  stripe-bg  p-3 card w-100">
-		<div class="efb  headpay border-b row col-md-12 mb-3">
-		  <div class="efb  h3 col-sm-5">
-			<div class="efb  col-12 text-dark"> '.$texts['payAmount'].'</div>
-			<div class="efb  text-labelEfb mx-2 my-1 fs-7"> <i class="efb mx-1 bi-shield-check" id="powerby_icon_'.$form_id.'"></i><span class="efb" id="powerby_label_'.$form_id.'">Powered by Stripe</span></div>
-		  </div>
-		  <div class="efb  h3 col-sm-7 d-flex justify-content-end payPriceEfb" id="payPriceEfb"  data-formid="'.$form_id.'">
-			<span  class="efb  totalpayEfb d-flex justify-content-evenly mx-1 stripe"  data-formid="'.$form_id.'" id="totalpayEfb_'.$form_id.'">'.$amount.'</span>
-
-			<span class="efb  text-labelEfb '.$cl.' text-capitalize" id="chargeEfb"  data-formid="'.$form_id.'">'.$sub.'</span>
-		  </div>
-		</div>
-		<div id="stripeCardSectionEfb" class="efb ">
-		  <div class="efb  col-md-12 my-2">
-		  <label for="cardnoEfb" class="efb fs-6 text-dark priceEfb">'.$texts['cardNumber'].': </label>
-		  <div id="cardnoEfb" class="efb form-control h-d-efb text-labelEfb"></div>
-		  </div>
-		  <div class="efb  col-sm-12 row my-2">
-			<div class="efb  col-sm-6 my-2">
-			<label for="cardexpEfb" class="efb  fs-6 text-dark priceEfb">'.$texts['cardExpiry'].': </label>
-			<div id="cardexpEfb" class="efb form-control h-d-efb text-labelEfb"></div>
-			</div>
-			<div class="efb  col-sm-6 my-2">
-			<label for="cardcvcEfb" class="efb  fs-6 text-dark priceEfb">'.$texts['cardCVC'].': </label>
-			<div id="cardcvcEfb" class="efb form-control h-d-efb text-labelEfb"></div>
-			</div>
-		  </div>
-		</div>
-		<div class="efb efb-slot"><a class="efb  btn my-2 efb p-2 rounded-3 h-l-efb  efb-btn-lg float-end text-decoration-none disabled '.$this->pub_bg_button_color_efb.' text-white" id="btnStripeEfb" data-formid="'.$form_id.'">'.$texts['payNow'].'</a></div>
-		<div class="efb  bg-light border-d rounded-3 p-2 bg-muted" id="statusStripEfb" style="display: none"></div>
-		</div>
-		</div>
-		<!-- end stripe -->
-		';
-	}
-
-	public function add_ui_paypal_efb($rndm, $form_id, $texts, $currency = 'USD', $charge_class = '', $sub = '') {
-
-		$currency = $this->valj_efb[0]->currency;
-		$amount =self::formatPrice_efb(0, $currency);
-
-		return '
-		<div class="efb card w-100 ' . $this->mobile_pos[3] . ' m-0 p-0" id="'.$rndm.'-f" data-formid="'.$form_id.'">
-			<div class="efb p-3 d-block" id="beforePay" data-formid="'.$form_id.'">
-				<div class="efb headpay border-b row col-md-12 mb-3">
-					<div class="efb h3 col-sm-5">
-						<div class="efb col-12 text-dark">'.$texts['payAmount'].':</div>
-						<div class="efb text-labelEfb mx-2 my-1 fs-7">
-							<i class="efb mx-1 bi-shield-check" id="powerby_icon_'.$form_id.'"></i>
-							<span class="efb" id="powerby_label_'.$form_id.'">Powered by PayPal</span>
-						</div>
-					</div>
-					<div class="efb h3 col-sm-7 d-flex justify-content-end" id="payPriceEfb" data-formid="'.$form_id.'">
-						<span  class="efb  totalpayEfb d-flex justify-content-evenly mx-1 paypal"  data-formid="'.$form_id.'" id="totalpayEfb_'.$form_id.'">'.$amount.'</span>'.
-						(!empty($sub) ? '<span class="efb text-labelEfb '.htmlspecialchars($charge_class, ENT_QUOTES).' text-capitalize mx-1" id="chargeEfb" data-formid="'.$form_id.'">'.htmlspecialchars($sub, ENT_QUOTES).'</span>' : '')
-					.'</div>
-				</div>
-				<div class="my-2 efb p-2" id="paypal-button-container" data-formid="'.$form_id.'">
-					<div class="efb efb-slot"><a class="efb btn rounded-3 h-l-efb btn-primary text-white text-decoration-none disabled w-100 paypalEfb"
-					onclick="startPaymentPayPal_efb('.intval($form_id).')"
-					id="paypalEfb"
-					data-formid="'.$form_id.'">'.$texts['payNow'].'</a></div>
-				</div>
-			</div>
-			<div class="efb p-3 card w-100 d-none" id="afterPayefb" data-formid="'.$form_id.'">
-			</div>
-		';
-	}
-
-	public function add_ui_zp_efb($rndm , $form_id,$texts) {
-		return  '
-		<div class="efb card w-100 ' . $this->mobile_pos[3] . ' m-0 p-0"  id="'.$rndm.'-f"  data-formid="'.$form_id.'">
-			<div class="efb  p-3 d-block" id="beforePay">
-				<div class="efb  headpay border-b row col-md-12 mb-3">
-					<div class="efb  h3 col-sm-5">
-						<div class="efb  col-12 text-dark"> '.$texts['payAmount'].':</div>
-						<div class="efb  text-labelEfb mx-2 my-1 fs-7"> <i class="efb mx-1 bi-shield-check"></i>پرداخت توسط <span Class="efb fs-6" id="efbPayBy">زرین پال</span></div>
-					</div>
-					<div class="efb  h3 col-sm-7 d-flex justify-content-end" id="payPriceEfb"  data-formid="'.$form_id.'">
-						<span  class="efb totalpayEfb d-flex justify-content-evenly mx-1 zp" data-formid="'.$form_id.'">'.number_format(0, 2, '.', ',').'</span>
-						<!-- <span class="efb currencyPayEfb fs-5" id="currencyPayEfb">تومان</span> -->
-						<!-- <span class="efb  text-labelEfb one" id="chargeEfb">'.$texts['onetime'].'</span>-->
-					</div>
-				</div>
-				<div class="efb efb-slot"><a class="efb btn my-2 efb p-2 rounded-3 h-l-efb btn-primary text-white text-decoration-none disabled w-100" onclick="pay_persia_efb('.$form_id.')" id="persiaPayEfb"  data-formid="'.$form_id.'">'.$texts['payment'].'</a></div>
-			</div>
-			<div class="efb p-3 card w-100 d-none" id="afterPayefb">
-			</div>
-		';
-
+	/**
+	 * SPLIT §5.2: the box of a Stripe / PayPal / PersiaPay field comes from its add-on (efb_legacy_gateway_render).
+	 * Without it (absent, off, too old) the visitor reads the pay_not_ready sentence in its place and the page keeps
+	 * the form from sending (data-efb-pay-blocked); whoever can fix it also reads which add-on is missing.
+	 */
+	private function legacy_gateway_ui_efb($type, $vj, $rndm, $form_id, $texts) {
+		$ready = function_exists('efb_legacy_gateway_ready') && efb_legacy_gateway_ready($type);
+		$currency = isset($this->valj_efb[0]->currency) ? $this->valj_efb[0]->currency : 'usd';
+		$html = $ready && function_exists('apply_filters') ? apply_filters('efb_legacy_gateway_render', null, $type, $vj, array(
+			'form_id' => $form_id, 'rndm' => $rndm, 'texts' => $texts, 'currency' => $currency, 'preview' => false,
+			'row0' => isset($this->valj_efb[0]) ? $this->valj_efb[0] : null, 'mobile_col' => $this->mobile_pos[3],
+			'btn_color' => $this->pub_bg_button_color_efb, 'amount0' => self::formatPrice_efb(0, $currency),
+		)) : null;
+		if (is_string($html) && $html !== '') return $html;
+		$code = class_exists('\\Emsfb\\Split') ? (\Emsfb\Split::legacy_types()[$type] ?? '') : '';
+		$name = $code !== '' && class_exists('\\Emsfb\\Addon_Catalog') ? \Emsfb\Addon_Catalog::name($code) : $type;
+		$issue = array('code' => 'pay_addon_inactive', 'level' => 'error', 'field_id' => isset($vj->id_) ? (string) $vj->id_ : '', 'gateway' => $type, 'addon' => $code,
+			/* translators: %s: name of a payment add-on (the gateway's name) */
+			'm' => sprintf(__('The %s add-on of this payment field is not active, so visitors cannot pay. Activate it in Easy Form Builder → Add-ons, or remove the payment field.', 'easy-form-builder'), $name),
+			'fix' => array('kind' => 'addons', 'url' => function_exists('admin_url') ? admin_url('admin.php?page=Emsfb_addon') : '', 'label' => __('Add-ons', 'easy-form-builder')));
+		if (class_exists('\\Emsfb\\Payments\\Readiness')) {
+			return '<div class="efb ' . $this->mobile_pos[3] . ' px-0 mx-0" id="' . esc_attr($rndm) . '-f">' . \Emsfb\Payments\Readiness::public_notice(array('issues' => array($issue)), $issue['field_id'], $form_id) . '</div>';
+		}
+		return '<div class="efb alert alert-warning efb-pay-blocked" role="alert" data-efb-pay-blocked="1" id="' . esc_attr($rndm) . '-f">' . esc_html__('Online payment for this form is not available right now. Please try again later or contact the site.', 'easy-form-builder') . '</div>';
 	}
 
 	 public function totalprice_el_pro_efb($rndm, $vj ,$currency,$form_id) {
@@ -3935,15 +3863,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
-					$sub = $texts['onetime'];
-					$cl = 'one';
-					if (isset($this->valj_efb[0]->paymentmethod) && $this->valj_efb[0]->paymentmethod != 'charge') {
-						$n = $this->valj_efb[0]->paymentmethod.'ly';
-						$sub = isset($texts[$n]) ? $texts[$n] : $texts['onetime'];
-						$cl = $this->valj_efb[0]->paymentmethod;
-					}
-
-					$ui = $this->add_ui_stripe_efb($rndm , $cl, $sub,$form_id,$texts);
+					$ui = $this->legacy_gateway_ui_efb('stripe', $vj, $rndm, $form_id, $texts);
 
 					$dataTag = $elementId;
 
@@ -3953,15 +3873,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						$ui =$this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						break;
 					}
-					$sub = $texts['onetime'];
-					$cl = 'one';
-					if (isset($this->valj_efb[0]->paymentmethod) && $this->valj_efb[0]->paymentmethod != 'charge') {
-						$n = $this->valj_efb[0]->paymentmethod.'ly';
-						$sub = isset($texts[$n]) ? $texts[$n] : $texts['onetime'];
-						$cl = $this->valj_efb[0]->paymentmethod;
-					}
-
-					$ui = $this->add_ui_paypal_efb($rndm , $form_id,$texts ,'USD' , $cl , $sub);
+					$ui = $this->legacy_gateway_ui_efb('paypal', $vj, $rndm, $form_id, $texts);
 					$dataTag = $elementId;
 				break;
 				case "persiaPay":
@@ -3972,11 +3884,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						break;
 					}
 
-					if (has_action('efb_enqueue_persia')){
-						do_action('efb_enqueue_persia');
-					}
-
-					$ui = $this->add_ui_zp_efb($rndm , $form_id,$texts);
+					$ui = $this->legacy_gateway_ui_efb($elementId === 'zarinPal' ? 'zarinPal' : 'persiaPay', $vj, $rndm, $form_id, $texts);
 					$dataTag = $elementId;
 
 				break;

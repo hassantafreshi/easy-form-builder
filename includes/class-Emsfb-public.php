@@ -13,7 +13,7 @@ class _Public {
 	public $ip;
 	public $name;
 	public $setting;
-	protected $db;
+	public $db; // SPLIT §5: read by the gateway add-ons on the legacy bridge
 	public $efbFunction;
 	/** The visitor's address for the owner's Reply-To, set by email_status_efb() for this submission. */
 	private $owner_reply_to_efb = '';
@@ -178,9 +178,7 @@ class _Public {
 		add_action('init',  array($this, 'hide_toolmenu'));
 		add_action('wp_ajax_form_preview_efb', [$this, 'form_preview_efb']);
 		add_action('delete_preview_page_efb', [$this,'delete_preview_page_efb'], 10, 1);
-		// Background re-check of one-time Stripe payments left 'pending' (see reconcile_stripe_payments_efb()).
-		add_action('emsfb_stripe_reconcile_efb', [$this, 'reconcile_stripe_payments_efb']);
-		add_action('emsfb_daily_maintenance', [$this, 'reconcile_stripe_payments_efb'], 20);
+		// SPLIT §5: the background re-check of pending Stripe payments is registered by the Stripe add-on.
 
 		if (!is_admin()) {
 			add_action('wp_enqueue_scripts', [$this, 'init_elementor_compatibility'], 1);
@@ -1945,46 +1943,21 @@ public function check_nonce_permission_efb($request) {
 
 						if($typeOfForm=="payment"){
 
-							if ($valj_efb[$i]->type =='stripe' ){
-
-									/* The Stripe PHP SDK lives in vendor/stripe and is required when the
-									 * payment is confirmed server-side. Rendering the card form without it
-									 * would take the visitor's card details and then fail at charge time,
-									 * so the form is replaced by the update notice instead. */
-									if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe")) {
-										$queued = $this->efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => 'AdnSPF', 'source' => 'public_payment_form'));
-										return $this->efbFunction->addon_wait_message_public_efb(empty($queued['queued']) ? 0 : 25);
-									}
-
-									wp_register_script('stripe-js', 'https://js.stripe.com/v3/', null, null, true);
-									wp_enqueue_script('stripe-js');
-
-									wp_register_script('stripe_js',  EMSFB_PLUGIN_URL .'/public/assets/js/stripe_pay-efb.js', array('jquery'),EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/stripe_pay-efb.js'),true);
-									wp_enqueue_script('stripe_js');
-									$paymentKey = $this->resolve_payment_key_efb( $setting, 'stripePKey' );
-									$ar_core = array_merge($ar_core , array(
-									'paymentGateway' =>'stripe',
-									'paymentKey' => $paymentKey
-								));
-							}
-							if($valj_efb[$i]->type =='paypal'){
-								$paymentType="paypal";
-								$paymentKey = $this->resolve_payment_key_efb( $setting, 'paypalPKey' );
-								$currency ='USD';
-
-								/* Without the add-on the script URL below 404s and filemtime() warns on a
-								 * missing file, leaving a dead pay button on the page. */
-								if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/paypal")) {
-									$queued = $this->efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => 'AdnPAP', 'source' => 'public_payment_form'));
+							// SPLIT §5.2: Stripe / PayPal / PersiaPay scripts and keys come from their add-ons
+							// (efb_legacy_gateway_localize). Flag on but the files gone: the recovery and its notice, as before.
+							$legacy_types_efb = class_exists('\\Emsfb\\Split') ? \Emsfb\Split::legacy_types() : array();
+							$lg_type_efb = isset($valj_efb[$i]->type) && is_string($valj_efb[$i]->type) ? $valj_efb[$i]->type : '';
+							if (isset($legacy_types_efb[$lg_type_efb])) {
+								$lg_code_efb = $legacy_types_efb[$lg_type_efb];
+								$lg_dir_efb = class_exists('\\Emsfb\\Addon_Catalog') ? \Emsfb\Addon_Catalog::get($lg_code_efb)['dir'] : '';
+								if ($lg_dir_efb !== '' && \Emsfb\Addon_Catalog::flag_on($lg_code_efb, $setting) && !is_dir(EMSFB_PLUGIN_DIRECTORY . '/vendor/' . $lg_dir_efb)) {
+									$queued = $this->efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => $lg_code_efb, 'source' => 'public_payment_form'));
 									return $this->efbFunction->addon_wait_message_public_efb(empty($queued['queued']) ? 0 : 25);
 								}
-
-								wp_register_script('paypalefb-js', EMSFB_PLUGIN_URL . 'vendor/paypal/assets/js/paypal_efb.js',array('jquery', 'Emsfb-core_js'), filemtime(EMSFB_PLUGIN_DIRECTORY . 'vendor/paypal/assets/js/paypal_efb.js'), true);
-								wp_enqueue_script('paypalefb-js');
-								$ar_core = array_merge($ar_core , array(
-									'paymentGateway' =>'paypal',
-									'paymentKey_paypal' => $paymentKey
-								));
+								if (function_exists('efb_legacy_gateway_ready') && efb_legacy_gateway_ready($lg_type_efb)) {
+									if ($lg_type_efb === 'paypal') { $paymentType = 'paypal'; $currency = 'USD'; }
+									$ar_core = apply_filters('efb_legacy_gateway_localize', $ar_core, $lg_type_efb, $setting, (int) $form_id);
+								}
 							}
 						}
 					}
@@ -3918,6 +3891,14 @@ public function check_nonce_permission_efb($request) {
 								$this->payment_framework_create_efb($form_fields_array, $validated_items, $request_data, $session_id, $url, $style_trackingCode);
 								exit;
 							}
+							// SPLIT §5.3: a Stripe / PayPal / PersiaPay field whose add-on is absent, off or too old: refused
+							// before the payment reference is read (pay_not_ready); no entry is stored.
+							$legacy_block_efb = $this->legacy_gateway_blocked_efb($form_fields_array);
+							if ($legacy_block_efb !== '') {
+								wp_send_json_success(array('success' => false, 'code' => 'pay_not_ready', 'gateway' => $legacy_block_efb,
+									'm' => class_exists('\\Emsfb\\Payments\\Readiness') ? \Emsfb\Payments\Readiness::visitor_text() : esc_html__('Online payment for this form is not available right now. Please try again later or contact the site.', 'easy-form-builder')), 200);
+								die();
+							}
 							$id = isset($request_data['payid']) ? sanitize_text_field($request_data['payid']) : '';
 							$table_name_ = $this->db->prefix . "emsfb_msg_";
 							$currentDateTime = date('Y-m-d H');
@@ -3951,13 +3932,15 @@ public function check_nonce_permission_efb($request) {
 								 * step (or faked "paid" in the console) file an order marked
 								 * active and mail its amount to the owner. Decided by the saved
 								 * card/add row, not by the request's gateway parameter. */
-								$stripe_state = $this->stripe_order_payment_state_efb($saved_payment_content);
+								// SPLIT §5.2: each gateway add-on answers for its own saved row (efb_legacy_payment_state);
+								// a saved row no add-on can check counts as unpaid (fail closed).
+								$stripe_state = $this->legacy_payment_state_efb($saved_payment_content, 'stripe');
 								if ($stripe_state === 'unpaid') {
 									$response = array('success' => false, 'm' => esc_html__('Your payment has not been completed. Please pay before sending the form.', 'easy-form-builder'));
 									wp_send_json_success($response, 200);
 									die();
 								}
-								$paypal_state = $this->paypal_order_payment_state_efb($saved_payment_content);
+								$paypal_state = $this->legacy_payment_state_efb($saved_payment_content, 'paypal');
 								if ($paypal_state === 'unpaid') {
 									$response = array('success' => false, 'm' => esc_html__('Your payment has not been completed. Please pay before sending the form.', 'easy-form-builder'));
 									wp_send_json_success($response, 200);
@@ -3978,89 +3961,13 @@ public function check_nonce_permission_efb($request) {
 									return $carry + ($item['price'] ?? 0);
 								}, 0);
 								if ($payment_gateway == "persiaPay") {
-									if ( ! emsfb_is_addon_compatible_efb( 'AdnPPF' ) ) {
-										$response = array( 'success' => false, 'm' => emsfb_get_addon_unavailable_message_efb( 'AdnPPF' ) );
-										wp_send_json_success( $response, 503 );
-										return;
-									}
-
-									$payment_merchant_id = $plugin_settings['payToken'] ?? null;
-									$data = array("merchant_id" => $payment_merchant_id, "authority" => sanitize_text_field($request_data['auth']), "amount" => $amount);
-									$jsonData = json_encode($data);
-									if (!file_exists(EMSFB_PLUGIN_DIRECTORY . "/vendor/persiapay/zarinpal.php")) {
-										$msg = " خطای تنظیمات : با مدیر وبسایت تماس بگیرید . نیاز به نصب مجدد درگاه می باشد";
-									} else {
-										require_once(EMSFB_PLUGIN_DIRECTORY . "/vendor/persiapay/zarinpal.php");
-										$persiaPay = new zarinPalEFB();
-										$result = $persiaPay->validate_payment_zarinPal($jsonData);
-										$msg = $result['errors']['message'] ?? "ok";
-									}
-									if ($msg != "ok") {
-										$response = array('success' => false, "m" => $msg);
-										wp_send_json_success($response, 200);
+									// SPLIT §5.2: the ZarinPal verification lives in the PersiaPay add-on (efb_legacy_payment_verify).
+									$result = apply_filters('efb_legacy_payment_verify', null, $payment_gateway, $request_data, $amount, array('track' => $id, 'table' => $table_name_, 'settings' => is_array($plugin_settings) ? $plugin_settings : (array) $plugin_settings, 'rows' => $saved_payment_content));
+									if (!is_array($result)) {
+										$m_lv_efb = is_wp_error($result) ? $result->get_error_message() : (class_exists('\\Emsfb\\Payments\\Readiness') ? \Emsfb\Payments\Readiness::visitor_text() : esc_html__('Online payment for this form is not available right now. Please try again later or contact the site.', 'easy-form-builder'));
+										wp_send_json_success(array('success' => false, 'm' => $m_lv_efb, 'code' => is_wp_error($result) ? 'pay_verify_failed' : 'pay_not_ready'), 200);
 										die();
 									}
-									/* One Authority pays for one bill. ZarinPal answers 101 ("already
-									 * verified") for an Authority paid before, and the Authority is not
-									 * tied to the bill, so one real payment could mark other pending bills
-									 * of the same amount as paid. The first bill to verify an Authority
-									 * claims it atomically (INSERT IGNORE, as Form_Runtime::begin does), so
-									 * two simultaneous submits cannot both pass; a retry of the same bill
-									 * still does. Payments verified before this release have no claim, so
-									 * a 101 is also refused when another entry already holds the Authority. */
-									$zp_code = isset($result['data']['code']) ? (int) $result['data']['code'] : 0;
-									$zp_auth = sanitize_text_field($request_data['auth'] ?? '');
-									if ($zp_auth !== '') {
-										$zp_used_message = esc_html__('This payment has already been used for another entry. If you think this is a mistake, contact the site owner with your payment receipt.', 'easy-form-builder');
-										$zp_claim_key = 'efb_zp_auth_' . md5($zp_auth);
-										$zp_claimed = $this->db->query($this->db->prepare(
-											"INSERT IGNORE INTO {$this->db->options} (option_name, option_value, autoload) VALUES (%s, %s, %s)",
-											$zp_claim_key, (string) $id, 'off'
-										));
-										wp_cache_delete($zp_claim_key, 'options');
-										wp_cache_delete('notoptions', 'options');
-										if ($zp_claimed === false) {
-											$response = array('success' => false, 'm' => esc_html__('The request could not be safely recorded. Your input has been kept.', 'easy-form-builder'));
-											wp_send_json_success($response, 200);
-											die();
-										}
-										if ($zp_claimed !== 1) {
-											$zp_owner = (string) $this->db->get_var($this->db->prepare("SELECT option_value FROM {$this->db->options} WHERE option_name = %s", $zp_claim_key));
-											if ($zp_owner !== (string) $id) {
-												$response = array('success' => false, 'm' => $zp_used_message);
-												wp_send_json_success($response, 200);
-												die();
-											}
-										}
-										if ($zp_code === 101) {
-											$zp_used = $this->db->get_var($this->db->prepare(
-												"SELECT track FROM `$table_name_` WHERE track <> %s AND read_ <> 2 AND (content LIKE %s OR content LIKE %s) LIMIT 1",
-												$id,
-												'%' . $this->db->esc_like('"paymentIntent":"' . $zp_auth . '"') . '%',
-												'%' . $this->db->esc_like('\\"paymentIntent\\":\\"' . $zp_auth . '\\"') . '%'
-											));
-											if ($zp_used) {
-												$response = array('success' => false, 'm' => $zp_used_message);
-												wp_send_json_success($response, 200);
-												die();
-											}
-										}
-									}
-									date_default_timezone_set('Iran');
-									$result = [
-										'id_' => "payment",
-										'name' => "payment",
-										'amount' => 0,
-										'total' => $amount,
-										'type' => "payment",
-										"paymentGateway" => $payment_gateway,
-										"paymentCreated" => wp_date(__('Y/m/d \a\t g:ia', 'easy-form-builder')),
-										"paymentmethod" => 'کارت',
-										"paymentIntent" => sanitize_text_field($request_data['auth']),
-										"paymentCard" => $result['data']['card_pan'],
-										"refId" => $result['data']['ref_id'],
-										"paymentcurrency" => 'IRR'
-									];
 								}
 								$form_id = $value[0]->form_id;
 								$table_name = $this->db->prefix . "emsfb_form";
@@ -4950,7 +4857,7 @@ public function check_nonce_permission_efb($request) {
 	 * F11: the gate of an endpoint that stores an entry without the submit handler (the legacy
 	 * Stripe add-on route). Refuses at once; the places are taken in insert_message_db().
 	 */
-	private function gate_prepare_for_endpoint_efb($fid, $req = null) {
+	public function gate_prepare_for_endpoint_efb($fid, $req = null) {
 		$this->gate_s0 = null;
 		$this->gate_reserved = false;
 		$this->stock_rows_efb = null;
@@ -7699,881 +7606,37 @@ public function check_nonce_permission_efb($request) {
 		$out = preg_replace('/<!--efb-hdn:0-->.*?<!--\/efb-hdn-->/s', '', $content);
 		return is_string($out) ? $out : $content;
 	}
-	/* GET Emsfb/v1/forms/payment/stripe/pkey — fresh publishable key for pages
-	 * whose cached HTML was localized before the keys were saved. */
-	public function get_stripe_public_key_Emsfb_api() {
-		$key = $this->resolve_payment_key_efb( get_setting_Emsfb( 'decoded' ), 'stripePKey' );
-		wp_send_json_success( [ 'success' => $key !== 'null', 'key' => $key ], 200 );
-	}
-	public function pay_stripe_sub_Emsfb_api($data_POST_) {
-		if ( ! emsfb_is_addon_compatible_efb( 'AdnSPF' ) ) {
-			wp_send_json_success( array(
-				'success' => false,
-				'm'       => emsfb_get_addon_unavailable_message_efb( 'AdnSPF' ),
-			), 503 );
-			return;
-		}
-
-		$data_POST = $data_POST_->get_json_params();
-		$data_POST = is_array($data_POST) ? $data_POST : array();
-		$user = wp_get_current_user();
-		$uid= $user->exists() ? $user->user_nicename :  esc_html__('Guest','easy-form-builder') ;
-		$this->id =sanitize_text_field($data_POST['id'] ?? '');
-		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
-		// F11: the legacy Stripe endpoint stores the pending entry itself: same gate, same places.
-		$this->gate_prepare_for_endpoint_efb((int) $this->id, $data_POST);
-
-		$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
-		if(gettype($r)=="string"){
-			$setting = $this->decode_settings_json_efb( $r );
-		} elseif ( is_array( $r ) ) {
-			$setting = (object) $r;
-		} else {
-			$setting = $r;
-		}
-		$Sk = $this->resolve_payment_key_efb( $setting, 'stripeSKey' );
-		if ($Sk=="null"){
-				$m = esc_html__('Stripe', 'easy-form-builder').'->'.	esc_html__('error', 'easy-form-builder') . ' 402';
-				$response = ['success' => false, 'm' => $m];
-				wp_send_json_success($response, 200);
-				die("secure!");
-		}
-		if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/stripe")) {
-			/* REST endpoint: the caller is the payment JS, so answer in the shape it
-			 * understands instead of returning markup it will never render. Recovery
-			 * is queued rather than run so the request returns immediately. */
-			$this->efbFunction->queue_addon_recovery_efb(array(
-				'form_id' => isset($data_POST['id']) ? intval($data_POST['id']) : 0,
-				'addon'   => 'AdnSPF',
-				'source'  => 'public_payment_rest',
-			));
-			wp_send_json_success(array(
-				'success' => false,
-				'm'       => esc_html__('We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder'),
-			), 200);
-			return;
-		}
-		/* Load the Stripe SDK guarded: another plugin may already have loaded a
-		 * Stripe SDK or this very composer build — re-requiring the composer
-		 * bootstrap then fatals on the ComposerAutoloaderInit class redeclare. */
-		if ( ! class_exists( '\Stripe\StripeClient' ) ) {
-			$stripe_init = EMSFB_PLUGIN_DIRECTORY . '/vendor/stripe/stripe-php/init.php';
-			if ( file_exists( $stripe_init ) ) {
-				require_once $stripe_init;
-			} else {
-				require_once( EMSFB_PLUGIN_DIRECTORY . "/vendor/autoload.php" );
-			}
-		}
-		$this->id = intval($data_POST['id'] ?? 0);
-		$val_ = sanitize_text_field($data_POST['value'] ?? '');
-		if(empty($this->db)){
-            global $wpdb;
-            $this->db = $wpdb;
-        }
-		$table_name = $this->db->prefix . "emsfb_form";
-		$value_form = $this->db->get_results(
-			$this->db->prepare(
-				"SELECT form_structer ,form_type FROM `$table_name` WHERE form_id = %d",
-				$this->id
-			)
-		);
-		$fs = empty($value_form) ? '' : \emsfb_json_normalize_efb($value_form[0]->form_structer);
-		$fs_ = is_string($fs) && $fs !== '' ? json_decode($fs,true) : null;
-		$val =\emsfb_json_normalize_efb($val_);
-		$val_ = is_string($val) && $val !== '' ? json_decode($val,true) : null;
-		if (!is_array($fs_) || !isset($fs_[0]) || !is_array($fs_[0]) || !is_array($val_)) {
-			$m = esc_html__('Stripe', 'easy-form-builder').'->'.	esc_html__('error', 'easy-form-builder') . ' 400';
-			wp_send_json_success(['success' => false, 'm' => $m], 200);
-			return;
-		}
-		$paymentmethod = isset($fs_[0]['paymentmethod']) ? $fs_[0]['paymentmethod'] : '';
-		$price_c =0;
-		$price_f=0;
-		$email ='';
-		$valobj=[];
-		$obj = $this->fun_validation_pay_elements_efb($val_ , $fs_);
-
-		$price_f = $obj['price_total'];
-		$email = $obj['email'];
-		$valobj = $obj['valobj'];
-		$currency= isset($fs_[0]['currency']) && strlen((string)$fs_[0]['currency'])>2 ? $fs_[0]['currency'] : 'usd';
-		// Stripe takes the smallest unit of the currency: x100 charged a ¥500 order ¥50,000.
-		$minor_factor = $this->stripe_minor_factor_efb($currency);
-		$price_f = $this->stripe_minor_amount_efb($price_f, $currency);
-		$description =  get_bloginfo('name') . ' >' . $fs_[0]['formName'];
-		if($price_f>0){
-
-			/* A Stripe API failure (invalid key, unsupported currency, amount below
-			 * minimum, network...) must reach the visitor as a readable message,
-			 * not as an uncaught exception / HTTP 500. */
-			try {
-			$stripe = new \Stripe\StripeClient($Sk);
-			$newPay = [
-				'amount' => $price_f,
-				'currency' => $currency,
-				'payment_method_types' =>['card'],
-				'description' =>$description,
-			];
-			 $subPay;
-			 $amount;
-			 $paymentIntent;
-			 $amount;$created;$val ;
-			 if($paymentmethod=='charge'){
-				if(strlen($email)>1){$newPay=array_merge($newPay , array('receipt_email'=>$email));}
-				$paymentIntent = $stripe->paymentIntents->create($newPay);
-				$amount = $paymentIntent->amount/$minor_factor;
-				$created= date("Y-m-d-h:i:s",$paymentIntent->created);
-				$val = $paymentIntent->amount/$minor_factor . ' ' . $paymentIntent->currency;
-			}else{
-				$token= sanitize_text_field($data_POST['token']);
-
-				$product = $stripe->products->create([
-					'name' => $description,
-					]);
-
-					$price= $stripe->prices->create([
-						'unit_amount' => $price_f,
-						'currency' => $currency,
-						'recurring' => ['interval' => $paymentmethod],
-						'product' => $product->id,
-					]);
-					$customerData= [
-						'description' => $description,
-						'source'=>$token,
-					];
-					if(strlen($email)>1){$customerData=array_merge($customerData , array('email'=>$email));}
-					$customer =$stripe->customers->create($customerData);
-					  $paymentIntent =	$stripe->subscriptions->create([
-						'customer' => $customer,
-						'items' => [
-						  ['price' => $price],
-						],
-					  ]);
-					  $amount = $paymentIntent->plan->amount/$minor_factor;
-					  $created= date("Y-m-d-h:i:s",$paymentIntent->created);
-					  $val =  $amount . ' ' . $paymentIntent->currency;
-			}
-			} catch ( \Throwable $e ) {
-				$provider_status = $e instanceof \Stripe\Exception\ApiErrorException ? (int) $e->getHttpStatus() : 0;
-				\Emsfb\Request_Health::record('payment', $provider_status >= 400 && $provider_status <= 599 ? $provider_status : 503, 'server', 'gateway_creation_failed');
-				$response = [ 'success' => false, 'payment_uncertain' => $e instanceof \Stripe\Exception\ApiConnectionException || (isset($paymentIntent) && is_object($paymentIntent)), 'm' => esc_html__('Payment could not be started. Please try again later.', 'easy-form-builder') ];
-				wp_send_json_success( $response, 200 );
-				return;
-			}
-			$filtered = array_filter($valobj, function($item) {
-				if(isset($item['price']))	return $item;
-			});
-			$created= date("Y-m-d-h:i:s",$paymentIntent->created);
-			$response;
-			if($paymentmethod!='charge'){
-				$amount = $price->unit_amount/$minor_factor;
-				$payA =  $amount  . ' '. $price->currency;
-				$nextdate = date("Y-m-d-h:i:s",$paymentIntent->current_period_end);
-				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> esc_html__('Payment','easy-form-builder') ,'type'=>'payment',
-				'value'=> $payA , 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' ,
-				'paymentAmount'=>$amount,'paymentCreated'=>$created ,'paymentcurrency' =>$price->currency, 'gateway'=>'stripe',
-				'interval'=>$paymentIntent->plan->interval,'nextDate'=> $nextdate, 'paymentmethod'=>$paymentmethod
-				,'uid'=>$uid ,'status'=>'active' ,'updatetime'=>$created , 'description'=>$description,'total'=>$amount ];
-				 $filtered=array_merge($filtered , array($ar));
-				$response = array( 'success' => true  ,  'transStat'=>$ar , 'uid'=> $uid);
-			}else{
-				$amount = $paymentIntent->amount/$minor_factor;
-				$payA =  $amount  . ' '. $paymentIntent->currency;
-				$ar = (object)['id_'=>'payment','amount'=>0,'name'=> esc_html__('Payment','easy-form-builder') ,'type'=>'payment',
-				'value'=> $payA , 'paymentIntent'=>$paymentIntent->id , 'paymentGateway'=>'stripe' , 'paymentmethod'=>$paymentmethod,
-				'paymentAmount'=>$amount ,'paymentCreated'=>$created ,'paymentcurrency' =>$paymentIntent->currency , 'gateway'=>'stripe'
-				,'uid'=>$uid ,'status'=>'active','updatetime'=>$created,'description'=>$description,'total'=>$amount ];
-				 $filtered=array_merge($filtered , array($ar));
-				$response = array( 'success' => true  , 'client_secret'=>$paymentIntent->client_secret ,'transStat'=>$ar, 'uid'=> $uid);
-			}
-
-			$this->ip = \Emsfb\Privacy::store_ip($this->get_ip_address(), $this->id);
-			$ip = $this->ip;
-			$val_ = json_encode($filtered ,JSON_UNESCAPED_UNICODE);
-			$this->value = str_replace('"', '\\"', $val_);
-			$this->name = sanitize_text_field($data_POST['name']);
-			$style_trackingCode = 'date_en_mix';
-			if (is_object($this->setting) && isset($this->setting->trackCodeStyle)) {
-				$style_trackingCode = $this->setting->trackCodeStyle;
-			}
-			$check=	$this->insert_message_db(2,false,$style_trackingCode);
-
-			$stripe_payment_file = EMSFB_PLUGIN_DIRECTORY . 'vendor/stripe/class-Emsfb-stripe-payment.php';
-			if ( ! class_exists( '\Emsfb\StripePayment' ) && file_exists( $stripe_payment_file ) ) {
-				require_once $stripe_payment_file;
-			}
-			if ( class_exists( '\Emsfb\StripePayment' ) ) {
-				$pay_data = [
-					'form_id'        => (int) $this->id,
-					'track'          => $check,
-					'gateway'        => 'stripe',
-					'amount'         => (float) $amount,
-					'currency'       => strtoupper( $paymentmethod !== 'charge' ? $price->currency : $paymentIntent->currency ),
-					'payer_email'    => $email,
-					'uid'            => $uid,
-					'ip'             => $this->ip,
-					'form_name'      => isset( $fs_[0]['formName'] ) ? $fs_[0]['formName'] : '',
-				];
-				if ( $paymentmethod !== 'charge' ) {
-
-					$pay_data['payment_type']    = 'subscription';
-					$pay_data['transaction_id']  = $paymentIntent->id;
-					$pay_data['subscription_id'] = $paymentIntent->id;
-					$pay_data['plan_id']         = $price->id ?? '';
-					$pay_data['product_id']      = $product->id ?? '';
-					$pay_data['status']          = 'active';
-					$pay_data['interval_unit']   = strtoupper( $paymentmethod );
-				} else {
-
-					$pay_data['payment_type']    = 'one-time';
-					$pay_data['transaction_id']  = $paymentIntent->id;
-					$pay_data['status']          = 'pending';
-				}
-				StripePayment::insert_payment( $pay_data );
-			}
-			if ( $paymentmethod === 'charge' ) {
-				// Re-checked in the background in case the visitor's confirmation never arrives.
-				$this->schedule_stripe_reconcile_efb( 15 * MINUTE_IN_SECONDS );
-			}
-
-			$response=array_merge($response , ['id'=>$check]);
-			wp_send_json_success($response, 200);
-		}else{
-			$msg = esc_html__('No payment amount detected. Please review your selected items and try again. If the problem persists, contact support.', 'easy-form-builder');
-			$response = array( 'success' => false  , 'm'=>$msg);
-			wp_send_json_success($response, 200);
-		}
-	}
-
-	/* POST Emsfb/v1/forms/payment/stripe/confirm
-	 *
-	 * Called by stripe_pay-efb.js right after Stripe.js reported a one-time
-	 * charge as succeeded. A public REST nonce and a client-side success
-	 * message are not proof of payment, so the PaymentIntent is retrieved from
-	 * Stripe and compared with this site's own record.
-	 *
-	 * The card is already charged when this runs. Only HTTP 409 means "this
-	 * payment does not match this site's record" and stops the submission;
-	 * every other failure (503 gateway or storage unavailable, 500, timeout) is
-	 * retried by the browser, which then submits the form anyway. The record
-	 * stays 'pending' and reconcile_stripe_payments_efb() re-checks it. This
-	 * handler only reads from Stripe, so repeating it is safe. */
-	public function pay_stripe_confirm_Emsfb_api( $request ) {
-		if ( ! emsfb_is_addon_compatible_efb( 'AdnSPF' ) ) {
-			wp_send_json_success( array(
-				'success' => false,
-				'm'       => emsfb_get_addon_unavailable_message_efb( 'AdnSPF' ),
-			), 503 );
-			return;
-		}
-
-		$data_POST       = $request->get_json_params();
-		$payment_intent  = is_string( $data_POST['paymentIntentId'] ?? null ) ? sanitize_text_field( $data_POST['paymentIntentId'] ) : '';
-		$trackid         = is_string( $data_POST['trackid'] ?? null ) ? sanitize_text_field( $data_POST['trackid'] ) : '';
-
-		if ( ! preg_match( '/^pi_[a-zA-Z0-9]+$/D', $payment_intent ) || $trackid === '' ) {
-			wp_send_json_success( [ 'success' => false, 'm' => esc_html__( 'Payment Intent ID is missing', 'easy-form-builder' ) ], 400 );
-			return;
-		}
-
-		global $wpdb;
-		$pay_table   = $wpdb->prefix . 'emsfb_pay_';
-		$table_ready = $this->stripe_pay_table_exists_efb();
-		$pay_row     = null;
-		if ( $table_ready ) {
-			$pay_row = $wpdb->get_row( $wpdb->prepare(
-				"SELECT * FROM {$pay_table} WHERE transaction_id = %s AND track = %s AND gateway = 'stripe' LIMIT 1",
-				$payment_intent, $trackid
-			) );
-			if ( ! $pay_row && $wpdb->last_error !== '' ) {
-				\Emsfb\Request_Health::record('payment',503,'server','payment_record_unavailable');
-				wp_send_json_success( array( 'success' => false, 'm' => 'Payment verification is temporarily unavailable.' ), 503 );
-				return;
-			}
-		}
-
-		if ( $pay_row ) {
-			if ( $pay_row->payment_type !== 'one-time' || ! in_array( $pay_row->status, array( 'pending', 'completed' ), true ) ) {
-				\Emsfb\Request_Health::record('payment',409,'server','payment_record_mismatch');
-				wp_send_json_success( array( 'success' => false, 'm' => 'Payment record does not match.' ), 409 );
-				return;
-			}
-			if ( $pay_row->status === 'completed' ) {
-				// Verified before: an earlier attempt whose response was lost, or the background check.
-				wp_send_json_success( [
-					'success'         => true,
-					'paymentIntentId' => $payment_intent,
-					'trackid'         => $trackid,
-				], 200 );
-				return;
-			}
-			// The same minor units card/add charged in.
-			$expected_amount   = $this->stripe_minor_amount_efb( $pay_row->amount, $pay_row->currency );
-			$expected_currency = (string) $pay_row->currency;
-		} else {
-			/* No record. The Stripe add-on creates emsfb_pay_ only from its admin
-			 * screen, so a site that never opened that screen has no table, and a
-			 * failed insert leaves no row: neither is evidence of a mismatch. Use
-			 * what card/add stored server-side for this tracking code instead.
-			 * Nothing is written here. An intent that is recorded under a
-			 * different tracking code is still a mismatch. */
-			$elsewhere = $table_ready ? $wpdb->get_var( $wpdb->prepare(
-				"SELECT id FROM {$pay_table} WHERE transaction_id = %s AND gateway = 'stripe' LIMIT 1",
-				$payment_intent
-			) ) : null;
-			$stub = $elsewhere ? null : $this->find_stripe_charge_stub_efb( $trackid, $payment_intent );
-			if ( ! $stub ) {
-				\Emsfb\Request_Health::record('payment',409,'server','payment_record_mismatch');
-				wp_send_json_success( array( 'success' => false, 'm' => 'Payment record does not match.' ), 409 );
-				return;
-			}
-			list( $expected_amount, $expected_currency ) = $stub;
-		}
-
-		$verification = $this->verify_stripe_intent_efb( $payment_intent, $expected_amount, $expected_currency );
-		if ( $verification['state'] === 'unavailable' ) {
-			\Emsfb\Request_Health::record('payment',$verification['status'],'server',$verification['reason']);
-			if ( $pay_row ) {
-				$this->schedule_stripe_reconcile_efb( 10 * MINUTE_IN_SECONDS );
-			}
-			wp_send_json_success( array( 'success' => false, 'm' => 'Payment verification is temporarily unavailable.' ), 503 );
-			return;
-		}
-		if ( $verification['state'] !== 'verified' ) {
-			\Emsfb\Request_Health::record('payment',409,'server','payment_not_verified');
-			wp_send_json_success( array( 'success' => false, 'm' => 'Payment has not been verified.' ), 409 );
-			return;
-		}
-		if ( $pay_row ) {
-			$updated = $this->update_pending_stripe_payment_efb( $pay_row->id, [
-				'status'     => 'completed',
-				'capture_id' => $payment_intent,
-			] );
-			if ( $updated === false ) {
-				\Emsfb\Request_Health::record('payment',500,'server','payment_status_storage_failed');
-				$this->schedule_stripe_reconcile_efb( 10 * MINUTE_IN_SECONDS );
-				wp_send_json_success( array( 'success' => false, 'm' => 'Payment status could not be saved.' ), 500 );
-				return;
-			}
-		}
-
-		/* No second table to touch here. emsfb_pay_.status, set just above, is
-		 * where a completed payment is recorded - the same and only place the
-		 * PayPal handler writes to. The update that used to sit here named a
-		 * table (prefix . 'emsfb') and columns ('status', 'tracking') that the
-		 * schema has never had, so every confirmed Stripe payment logged a
-		 * "table doesn't exist" database error and changed nothing. */
-
-		wp_send_json_success( [
-			'success'         => true,
-			'paymentIntentId' => $payment_intent,
-			'trackid'         => $trackid,
-		], 200 );
-	}
+	/* SPLIT §5 (legacy gateway bridge v1): the Stripe, PayPal and PersiaPay code that was here (the REST callbacks,
+	 * the emsfb_pay_ table, the Stripe SDK and background reconcile, the order states of the final submit, the ZarinPal
+	 * verification) lives in their add-ons now (vendor/stripe|paypal|persiapay/class-Emsfb-*-legacy.php). Core keeps
+	 * the hooks: efb_legacy_gateway_render / _localize / efb_legacy_payment_state / efb_legacy_payment_verify,
+	 * efb_legacy_server_price() and efb_gate_prepare() (includes/addon-contracts-functions-efb.php). */
 
 	/**
-	 * Whether the shared payment table (created by the Stripe/PayPal add-on's
-	 * admin screen, never by core) exists. Checked instead of trusting the
-	 * add-on's emsfb_pay_table_version option, and so a missing table does not
-	 * log a database error on every confirmation.
-	 *
-	 * @return bool
+	 * SPLIT §5.2: the state of the saved order of one legacy gateway on the final submit. 'none' when the saved rows
+	 * hold no order of that gateway; otherwise the add-on's answer (paid / unpaid / unverified), and 'unpaid' when no
+	 * add-on answers (absent, off or too old): a row nobody can check is never taken as paid.
 	 */
-	private function stripe_pay_table_exists_efb() {
-		global $wpdb;
-		$table = $wpdb->prefix . 'emsfb_pay_';
-		$found = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) );
-		return is_string( $found ) && strcasecmp( $found, $table ) === 0;
+	public function legacy_payment_state_efb($saved_rows, $gateway) {
+		$has = false;
+		foreach ((array) $saved_rows as $row) {
+			if (is_array($row) && ($row['type'] ?? '') === 'payment' && ($row['paymentGateway'] ?? '') === $gateway) { $has = true; break; }
+		}
+		if (!$has) return 'none';
+		$state = apply_filters('efb_legacy_payment_state', null, (array) $saved_rows, (string) $gateway);
+		return in_array($state, array('paid', 'unpaid', 'unverified', 'none'), true) ? $state : 'unpaid';
 	}
 
-	/**
-	 * The payment row card/add stored server-side for this tracking code (the
-	 * pending submission, or the final one after it was sent). Used only when
-	 * emsfb_pay_ has no record, to learn what was charged. Read-only.
-	 *
-	 * @param string $trackid        Tracking code returned by card/add.
-	 * @param string $payment_intent PaymentIntent id (pi_...).
-	 * @return array|null [amount in minor units, currency], or null when this
-	 *                    tracking code does not belong to this PaymentIntent.
-	 */
-	private function find_stripe_charge_stub_efb( $trackid, $payment_intent ) {
-		global $wpdb;
-		$content = $wpdb->get_var( $wpdb->prepare(
-			"SELECT content FROM `{$wpdb->prefix}emsfb_msg_` WHERE track = %s LIMIT 1",
-			$trackid
-		) );
-		if ( ! is_string( $content ) || $content === '' ) {
-			return null;
+	/** SPLIT §5.3: the type of the first legacy gateway field of a stored form whose add-on cannot take it now, or ''. */
+	public function legacy_gateway_blocked_efb($form_rows) {
+		if (!is_array($form_rows) || !function_exists('efb_legacy_gateway_ready') || !class_exists('\\Emsfb\\Split')) return '';
+		$types = \Emsfb\Split::legacy_types();
+		foreach ($form_rows as $i => $r) {
+			if ($i === 0) continue;
+			$t = is_array($r) ? ($r['type'] ?? '') : (is_object($r) && isset($r->type) ? $r->type : '');
+			if (is_string($t) && isset($types[$t]) && !efb_legacy_gateway_ready($t)) return $t;
 		}
-		$rows = \emsfb_json_decode_efb( $content, true );
-		if ( ! is_array( $rows ) ) {
-			return null;
-		}
-		$match = null;
-		foreach ( $rows as $row ) {
-			if ( ! is_array( $row ) || ( $row['type'] ?? '' ) !== 'payment' || ( $row['paymentGateway'] ?? '' ) !== 'stripe'
-				|| ( $row['paymentmethod'] ?? '' ) !== 'charge' || ( $row['paymentIntent'] ?? '' ) !== $payment_intent
-				|| ! isset( $row['paymentAmount'], $row['paymentcurrency'] ) || ! is_numeric( $row['paymentAmount'] ) ) {
-				continue;
-			}
-			// card/add appends its own row last, after the visitor's priced items.
-			$match = array( $this->stripe_minor_amount_efb( $row['paymentAmount'], $row['paymentcurrency'] ), (string) $row['paymentcurrency'] );
-		}
-		return $match;
-	}
-
-	/**
-	 * Load the Stripe SDK the add-on bundles, in the same order as card/add,
-	 * without a fatal error when it is missing.
-	 *
-	 * @return bool Whether \Stripe\StripeClient is available.
-	 */
-	private function load_stripe_sdk_efb() {
-		if ( class_exists( '\Stripe\StripeClient' ) ) {
-			return true;
-		}
-		$init = EMSFB_PLUGIN_DIRECTORY . 'vendor/stripe/stripe-php/init.php';
-		$file = is_readable( $init ) ? $init : EMSFB_PLUGIN_DIRECTORY . 'vendor/autoload.php';
-		if ( is_readable( $file ) ) {
-			require_once $file;
-		}
-		return class_exists( '\Stripe\StripeClient' );
-	}
-
-	/**
-	 * Run one Stripe SDK call with bounded HTTP timeouts. The SDK waits up to
-	 * 80 s by default; the browser gives a confirmation attempt 25 s and a cron
-	 * run must not hang on an unreachable gateway. The previous values are put
-	 * back for any other Stripe code in the same request.
-	 *
-	 * @param callable $call
-	 * @return mixed What $call returns.
-	 */
-	private function stripe_call_with_timeouts_efb( $call ) {
-		$http     = null;
-		$previous = null;
-		if ( class_exists( '\Stripe\HttpClient\CurlClient' ) && is_callable( array( '\Stripe\HttpClient\CurlClient', 'instance' ) ) ) {
-			$http = \Stripe\HttpClient\CurlClient::instance();
-			if ( is_object( $http ) && method_exists( $http, 'getTimeout' ) && method_exists( $http, 'setTimeout' )
-				&& method_exists( $http, 'getConnectTimeout' ) && method_exists( $http, 'setConnectTimeout' ) ) {
-				$previous = array( (int) $http->getTimeout(), (int) $http->getConnectTimeout() );
-				$http->setTimeout( $previous[0] > 0 && $previous[0] < 20 ? $previous[0] : 20 );
-				$http->setConnectTimeout( $previous[1] > 0 && $previous[1] < 8 ? $previous[1] : 8 );
-			}
-		}
-		try {
-			return $call();
-		} finally {
-			if ( $previous ) {
-				$http->setTimeout( $previous[0] );
-				$http->setConnectTimeout( $previous[1] );
-			}
-		}
-	}
-
-	/**
-	 * Retrieve a one-time PaymentIntent from Stripe and compare it with what
-	 * this site charged. Shared by the confirmation endpoint and the background
-	 * reconciliation. Never throws.
-	 *
-	 * @param string $payment_intent    pi_... id.
-	 * @param int    $expected_amount   Amount in minor units, as created by card/add.
-	 * @param string $expected_currency ISO currency code.
-	 * @return array {
-	 *     @type string $state         'verified', 'mismatch' (definitive) or 'unavailable' (try again later).
-	 *     @type int    $status        HTTP status for diagnostics (provider status when Stripe answered with an error).
-	 *     @type string $reason        Request_Health reason.
-	 *     @type string $stripe_status PaymentIntent status, '' when Stripe was not reached.
-	 * }
-	 */
-	/**
-	 * Final submit of an order whose saved card/add row is a PayPal one-time
-	 * order: 'paid', 'unverified' (PayPal could not be asked) or 'unpaid';
-	 * 'none' when the order has no PayPal row. card/add saves the order as
-	 * "active" before the buyer has approved anything, so that row alone let a
-	 * visitor who closed the PayPal window without paying press Submit and file
-	 * an order that looked paid (with a confirmation code and the owner email).
-	 * Decided by the payments table and by PayPal, never by the browser.
-	 * Subscriptions keep their own activation flow and are not changed here.
-	 */
-	private function paypal_order_payment_state_efb( $saved_rows ) {
-		$pay = null;
-		foreach ( (array) $saved_rows as $row ) {
-			if ( is_array( $row ) && ( $row['type'] ?? '' ) === 'payment' && ( $row['paymentGateway'] ?? '' ) === 'paypal' ) {
-				$pay = $row;
-				break;
-			}
-		}
-		if ( null === $pay ) {
-			return 'none';
-		}
-		if ( ( $pay['paymentmethod'] ?? '' ) === 'subscription' ) {
-			return 'paid';
-		}
-		$order = (string) ( $pay['paymentIntent'] ?? '' );
-		if ( ! preg_match( '/^[A-Z0-9]{5,64}$/D', $order ) ) {
-			return 'unpaid';
-		}
-		global $wpdb;
-		$pay_row = null;
-		if ( $this->stripe_pay_table_exists_efb() ) {
-			$pay_row = $wpdb->get_row( $wpdb->prepare( "SELECT id, status FROM {$wpdb->prefix}emsfb_pay_ WHERE gateway = 'paypal' AND transaction_id = %s ORDER BY id DESC LIMIT 1", $order ) );
-			if ( $pay_row && 'completed' === $pay_row->status ) {
-				return 'paid';
-			}
-			if ( $pay_row && in_array( $pay_row->status, array( 'failed', 'cancelled', 'refunded' ), true ) ) {
-				return 'unpaid';
-			}
-		}
-		$status = $this->paypal_order_status_efb( $order );
-		if ( 'COMPLETED' === $status ) {
-			if ( $pay_row ) {
-				// Older PayPal add-ons never marked a captured order completed.
-				$wpdb->update( $wpdb->prefix . 'emsfb_pay_', array( 'status' => 'completed', 'updated_at' => wp_date( 'Y-m-d H:i:s' ) ), array( 'id' => (int) $pay_row->id ) );
-			}
-			return 'paid';
-		}
-		return '' === $status ? 'unverified' : 'unpaid';
-	}
-
-	/**
-	 * PayPal's status of a one-time order ('COMPLETED', 'APPROVED', 'CREATED',
-	 * 'NOT_FOUND' ...), or '' when PayPal cannot be asked (no keys, network,
-	 * PayPal error) or a capture is still pending. Same host choice as the
-	 * PayPal add-on: Development Mode uses the PayPal sandbox.
-	 */
-	private function paypal_order_status_efb( $order_id ) {
-		$setting = get_setting_Emsfb( 'decoded' );
-		$client  = $this->resolve_payment_key_efb( $setting, 'paypalPKey' );
-		$secret  = $this->resolve_payment_key_efb( $setting, 'paypalSKey' );
-		if ( 'null' === $client || 'null' === $secret ) {
-			return '';
-		}
-		$server = ( defined( 'EMSFB_DEV_MODE' ) && EMSFB_DEV_MODE ) ? 'https://api-m.sandbox.paypal.com/' : 'https://api-m.paypal.com/';
-		$token  = wp_remote_post( $server . 'v1/oauth2/token', array(
-			'timeout' => 15,
-			'headers' => array(
-				'Authorization' => 'Basic ' . base64_encode( $client . ':' . $secret ),
-				'Accept'        => 'application/json',
-				'Content-Type'  => 'application/x-www-form-urlencoded',
-			),
-			'body'    => 'grant_type=client_credentials',
-		) );
-		if ( is_wp_error( $token ) || 200 !== (int) wp_remote_retrieve_response_code( $token ) ) {
-			return '';
-		}
-		$token  = json_decode( wp_remote_retrieve_body( $token ), true );
-		$access = is_array( $token ) && ! empty( $token['access_token'] ) ? (string) $token['access_token'] : '';
-		if ( '' === $access ) {
-			return '';
-		}
-		$order = wp_remote_get( $server . 'v2/checkout/orders/' . rawurlencode( $order_id ), array(
-			'timeout' => 15,
-			'headers' => array( 'Authorization' => 'Bearer ' . $access, 'Accept' => 'application/json' ),
-		) );
-		if ( is_wp_error( $order ) ) {
-			return '';
-		}
-		$code = (int) wp_remote_retrieve_response_code( $order );
-		if ( 404 === $code ) {
-			return 'NOT_FOUND';
-		}
-		if ( 200 !== $code ) {
-			return '';
-		}
-		$order  = json_decode( wp_remote_retrieve_body( $order ), true );
-		$status = is_array( $order ) && isset( $order['status'] ) ? strtoupper( (string) $order['status'] ) : '';
-		if ( 'COMPLETED' === $status ) {
-			$capture = strtoupper( (string) ( $order['purchase_units'][0]['payments']['captures'][0]['status'] ?? 'COMPLETED' ) );
-			if ( 'PENDING' === $capture ) {
-				return '';
-			}
-			if ( 'COMPLETED' !== $capture ) {
-				return 'CAPTURE_' . $capture;
-			}
-		}
-		return $status;
-	}
-
-	/**
-	 * Final submit of an order whose saved card/add row is a Stripe one-time
-	 * charge: 'paid', 'unverified' (Stripe could not be reached) or 'unpaid';
-	 * 'none' when the order has no Stripe row. Only that row and Stripe
-	 * decide, never the browser. Subscriptions are charged when card/add
-	 * creates them.
-	 */
-	private function stripe_order_payment_state_efb( $saved_rows ) {
-		$pay = null;
-		foreach ( (array) $saved_rows as $row ) {
-			if ( is_array( $row ) && ( $row['type'] ?? '' ) === 'payment' && ( $row['paymentGateway'] ?? '' ) === 'stripe' ) {
-				$pay = $row;
-				break;
-			}
-		}
-		if ( null === $pay ) {
-			return 'none';
-		}
-		if ( ( $pay['paymentmethod'] ?? 'charge' ) !== 'charge' ) {
-			return 'paid';
-		}
-		$intent = (string) ( $pay['paymentIntent'] ?? '' );
-		if ( ! preg_match( '/^pi_[a-zA-Z0-9]+$/D', $intent ) ) {
-			return 'unpaid';
-		}
-		$pay_row = null;
-		if ( $this->stripe_pay_table_exists_efb() ) {
-			global $wpdb;
-			$pay_row = $wpdb->get_row( $wpdb->prepare( "SELECT id, status FROM {$wpdb->prefix}emsfb_pay_ WHERE gateway = 'stripe' AND transaction_id = %s ORDER BY id DESC LIMIT 1", $intent ) );
-			if ( $pay_row && 'completed' === $pay_row->status ) {
-				return 'paid';
-			}
-			if ( $pay_row && in_array( $pay_row->status, array( 'failed', 'cancelled', 'refunded' ), true ) ) {
-				return 'unpaid';
-			}
-		}
-		$currency = (string) ( $pay['paymentcurrency'] ?? '' );
-		$result   = $this->verify_stripe_intent_efb( $intent, $this->stripe_minor_amount_efb( $pay['paymentAmount'] ?? 0, $currency ), $currency );
-		if ( 'verified' === $result['state'] ) {
-			if ( $pay_row ) {
-				$this->update_pending_stripe_payment_efb( $pay_row->id, array( 'status' => 'completed', 'capture_id' => $intent ) );
-			}
-			return 'paid';
-		}
-		return 'unavailable' === $result['state'] ? 'unverified' : 'unpaid';
-	}
-
-	/**
-	 * Stripe amounts are in the currency's smallest unit: x100 for most,
-	 * x1 for the zero-decimal currencies (JPY, KRW, VND...), x1000 for the
-	 * three-decimal ones (BHD, KWD, OMR...). Stripe's own lists.
-	 */
-	private function stripe_minor_factor_efb( $currency ) {
-		$currency = strtolower( (string) $currency );
-		if ( in_array( $currency, array( 'bif', 'clp', 'djf', 'gnf', 'jpy', 'kmf', 'krw', 'mga', 'pyg', 'rwf', 'ugx', 'vnd', 'vuv', 'xaf', 'xof', 'xpf' ), true ) ) {
-			return 1;
-		}
-		if ( in_array( $currency, array( 'bhd', 'jod', 'kwd', 'omr', 'tnd' ), true ) ) {
-			return 1000;
-		}
-		return 100;
-	}
-
-	/** An amount in major units as Stripe's integer minor units (a typed 3.333 is no longer refused). */
-	private function stripe_minor_amount_efb( $amount, $currency ) {
-		$factor = $this->stripe_minor_factor_efb( $currency );
-		$minor  = (int) round( (float) $amount * $factor );
-		// Stripe wants three-decimal amounts rounded to a multiple of 10.
-		return 1000 === $factor ? (int) ( round( $minor / 10 ) * 10 ) : $minor;
-	}
-
-	private function verify_stripe_intent_efb( $payment_intent, $expected_amount, $expected_currency ) {
-		$unavailable = array( 'state' => 'unavailable', 'status' => 503, 'reason' => 'gateway_verification_unavailable', 'stripe_status' => '' );
-		try {
-			$key = $this->resolve_payment_key_efb( get_setting_Emsfb( 'decoded' ), 'stripeSKey' );
-			if ( $key === 'null' || ! $this->load_stripe_sdk_efb() ) {
-				return $unavailable;
-			}
-			$client = new \Stripe\StripeClient( $key );
-			$intent = $this->stripe_call_with_timeouts_efb( static function () use ( $client, $payment_intent ) {
-				return $client->paymentIntents->retrieve( $payment_intent, array() );
-			} );
-		} catch ( \Throwable $error ) {
-			$provider_status = $error instanceof \Stripe\Exception\ApiErrorException ? (int) $error->getHttpStatus() : 0;
-			if ( $provider_status >= 400 && $provider_status <= 599 ) {
-				$unavailable['status'] = $provider_status;
-			}
-			return $unavailable;
-		}
-		$status = is_object( $intent ) && isset( $intent->status ) ? (string) $intent->status : '';
-		if ( ! is_object( $intent ) || ! isset( $intent->id ) || (string) $intent->id !== $payment_intent ) {
-			return array( 'state' => 'mismatch', 'status' => 409, 'reason' => 'payment_not_verified', 'stripe_status' => $status );
-		}
-		if ( $status === 'processing' ) {
-			// Stripe has not settled the charge yet: neither paid nor failed.
-			return array( 'state' => 'unavailable', 'status' => 503, 'reason' => 'gateway_payment_processing', 'stripe_status' => $status );
-		}
-		$amount   = isset( $intent->amount_received ) ? (int) $intent->amount_received : -1;
-		$currency = isset( $intent->currency ) ? strtolower( (string) $intent->currency ) : '';
-		if ( $status !== 'succeeded' || $amount !== (int) $expected_amount || $currency !== strtolower( (string) $expected_currency ) ) {
-			return array( 'state' => 'mismatch', 'status' => 409, 'reason' => 'payment_not_verified', 'stripe_status' => $status );
-		}
-		return array( 'state' => 'verified', 'status' => 200, 'reason' => '', 'stripe_status' => $status );
-	}
-
-	/**
-	 * Update a payment row only while it is still 'pending', so a refund or
-	 * cancellation made in the meantime is never overwritten. Same columns as
-	 * StripePayment::update_payment(), which the add-on may not have loaded.
-	 *
-	 * @param int   $row_id
-	 * @param array $fields Columns to set; updated_at is always refreshed.
-	 * @return int|false Rows changed, or false on a database error.
-	 */
-	private function update_pending_stripe_payment_efb( $row_id, array $fields ) {
-		global $wpdb;
-		$fields['updated_at'] = wp_date( 'Y-m-d H:i:s' );
-		return $wpdb->update( $wpdb->prefix . 'emsfb_pay_', $fields, array( 'id' => (int) $row_id, 'status' => 'pending' ) );
-	}
-
-	/**
-	 * Queue one background reconciliation run unless one is already queued.
-	 *
-	 * @param int $delay Seconds from now.
-	 */
-	private function schedule_stripe_reconcile_efb( $delay ) {
-		if ( ! function_exists( 'wp_next_scheduled' ) || wp_next_scheduled( 'emsfb_stripe_reconcile_efb' ) ) {
-			return;
-		}
-		wp_schedule_single_event( time() + max( MINUTE_IN_SECONDS, (int) $delay ), 'emsfb_stripe_reconcile_efb' );
-	}
-
-	/**
-	 * Re-check one-time Stripe payments that are still 'pending': the visitor's
-	 * confirmation never reached this site, or could not reach Stripe and the
-	 * form was submitted anyway. Runs from WP-Cron only (emsfb_stripe_reconcile_efb,
-	 * queued by card/add and by a failed confirmation, plus the daily
-	 * maintenance as a backstop), never inside a page load. Bounded: rows 10
-	 * minutes to 7 days old, each re-checked at most about hourly, at most 20
-	 * Stripe requests and 60 s per run, and the run stops at the first gateway
-	 * error. Uses the same comparison as the confirmation endpoint. An intent
-	 * still waiting for a payment method an hour after card/add (declined, or
-	 * the visitor left) is marked 'failed': every Pay Now click creates a new
-	 * intent, so that one can no longer be paid.
-	 */
-	public function reconcile_stripe_payments_efb() {
-		try {
-			$this->run_stripe_reconcile_efb();
-		} catch ( \Throwable $error ) {
-			if ( defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-				error_log( '[EFB][Stripe] Payment reconciliation stopped: ' . get_class( $error ) );
-			}
-		}
-	}
-
-	private function run_stripe_reconcile_efb() {
-		$lock = 'emsfb_stripe_reconcile_lock';
-		if ( get_transient( $lock ) ) {
-			return;
-		}
-		if ( ! function_exists( 'emsfb_is_addon_compatible_efb' ) || ! emsfb_is_addon_compatible_efb( 'AdnSPF' ) || ! $this->stripe_pay_table_exists_efb() ) {
-			return;
-		}
-		global $wpdb;
-		$table      = $wpdb->prefix . 'emsfb_pay_';
-		$started    = time();
-		$candidates = $wpdb->get_results( $wpdb->prepare(
-			"SELECT id, transaction_id, amount, currency, created_at, updated_at FROM {$table}
-			WHERE gateway = 'stripe' AND payment_type = 'one-time' AND status = 'pending'
-			AND created_at >= %s AND created_at <= %s
-			ORDER BY updated_at ASC, id ASC LIMIT 60",
-			wp_date( 'Y-m-d H:i:s', $started - 7 * DAY_IN_SECONDS ),
-			wp_date( 'Y-m-d H:i:s', $started - 10 * MINUTE_IN_SECONDS )
-		) );
-		if ( empty( $candidates ) ) {
-			return;
-		}
-		// Keep coming back about hourly while anything inside the window is still pending.
-		$this->schedule_stripe_reconcile_efb( HOUR_IN_SECONDS );
-
-		// created_at/updated_at are site-local 'Y-m-d H:i:s' strings, as the add-on writes them.
-		$recheck_before = wp_date( 'Y-m-d H:i:s', $started - 50 * MINUTE_IN_SECONDS );
-		$abandon_before = wp_date( 'Y-m-d H:i:s', $started - HOUR_IN_SECONDS );
-		$due            = array();
-		foreach ( $candidates as $row ) {
-			$never_checked = abs( (int) strtotime( (string) $row->updated_at ) - (int) strtotime( (string) $row->created_at ) ) < 60;
-			if ( ( $never_checked || (string) $row->updated_at <= $recheck_before ) && preg_match( '/^pi_[a-zA-Z0-9]+$/D', (string) $row->transaction_id ) ) {
-				$due[] = $row;
-				if ( count( $due ) >= 20 ) {
-					break;
-				}
-			}
-		}
-		if ( ! $due ) {
-			return;
-		}
-		$key = $this->resolve_payment_key_efb( get_setting_Emsfb( 'decoded' ), 'stripeSKey' );
-		if ( $key === 'null' || ! $this->load_stripe_sdk_efb() ) {
-			return;
-		}
-
-		set_transient( $lock, $started, 5 * MINUTE_IN_SECONDS );
-		try {
-			foreach ( $due as $row ) {
-				if ( time() - $started > 60 ) {
-					break;
-				}
-				$result = $this->verify_stripe_intent_efb( (string) $row->transaction_id, $this->stripe_minor_amount_efb( $row->amount, $row->currency ), (string) $row->currency );
-				if ( $result['state'] === 'verified' ) {
-					$this->update_pending_stripe_payment_efb( $row->id, array( 'status' => 'completed', 'capture_id' => (string) $row->transaction_id ) );
-					continue;
-				}
-				if ( $result['stripe_status'] === 'canceled' ) {
-					$this->update_pending_stripe_payment_efb( $row->id, array( 'status' => 'cancelled' ) );
-					continue;
-				}
-				/* Declined (requires_payment_method) or abandoned before or during
-				 * 3-D Secure (requires_confirmation / requires_action): after an
-				 * hour the visitor is gone. 'processing' is left alone - bank
-				 * debits settle over days. */
-				if ( in_array( $result['stripe_status'], array( 'requires_payment_method', 'requires_confirmation', 'requires_action' ), true ) && (string) $row->created_at <= $abandon_before ) {
-					$this->update_pending_stripe_payment_efb( $row->id, array( 'status' => 'failed' ) );
-					continue;
-				}
-				// Not paid (yet), a mismatch, or Stripe unreachable: the row stays
-				// 'pending'; touching updated_at moves it to the back of the queue.
-				$this->update_pending_stripe_payment_efb( $row->id, array() );
-				if ( $result['state'] === 'unavailable' && $result['stripe_status'] === '' && $result['status'] !== 404 ) {
-					// Gateway down or key rejected: do not spend the batch (and up to 20 s per row) on it.
-					break;
-				}
-			}
-		} finally {
-			delete_transient( $lock );
-		}
-	}
-
-	public function pay_persia_sub_Emsfb_api($data_POST_){
-		if ( ! emsfb_is_addon_compatible_efb( 'AdnPPF' ) ) {
-			wp_send_json_success( array(
-				'success' => false,
-				'm'       => emsfb_get_addon_unavailable_message_efb( 'AdnPPF' ),
-			), 503 );
-			return;
-		}
-
-		/* The check above only covers PHP requirements. This route is registered by
-		 * vendor/persiapay/routes-efb.php, so a partial add-on install - the folder
-		 * and the route file present, the gateway class missing - still reaches here
-		 * and would fatal on the require below. Answer in the shape the payment JS
-		 * understands and queue a recovery instead of taking the payment. */
-		if ( ! file_exists( EMSFB_PLUGIN_DIRECTORY . "/vendor/persiapay/zarinpal.php" ) ) {
-			$efbFunction = $this->efbFunction ? $this->efbFunction : get_efbFunction();
-			$efbFunction->queue_addon_recovery_efb( array(
-				'form_id' => isset( $data_POST_['id'] ) ? intval( $data_POST_['id'] ) : 0,
-				'addon'   => 'AdnPPF',
-				'source'  => 'public_payment_rest',
-			) );
-			wp_send_json_success( array(
-				'success' => false,
-				'm'       => esc_html__( 'We have made some updates. Please wait a few minutes before trying again.', 'easy-form-builder' ),
-			), 200 );
-			return;
-		}
-
-		require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiapay/zarinpal.php");
-		// F11: the legacy PersiaPay route stores the pending entry itself (insert_message_db): same gate, same places.
-		$gate_req_efb = is_object( $data_POST_ ) && method_exists( $data_POST_, 'get_json_params' ) ? $data_POST_->get_json_params() : array();
-		$this->gate_prepare_for_endpoint_efb( is_array( $gate_req_efb ) && isset( $gate_req_efb['id'] ) && is_scalar( $gate_req_efb['id'] ) ? (int) $gate_req_efb['id'] : 0, $gate_req_efb );
-		$persiapay = new zarinPalEFB() ;
-		if(gettype($persiapay)=="object"){
-			$r= $this->setting!=NULL  && empty($this->setting)!=true ? $this->setting:  get_setting_Emsfb('raw');
-			$persiapay->pay_persia_sub_Emsfb_api($data_POST_ ,$this);
-		}else{
-			$m = esc_html__('persiaPayment', 'easy-form-builder').'->'.	esc_html__('error', 'easy-form-builder') . ' 406';
-			$response = ['success' => false, 'm' => $m];
-			wp_send_json_success($response, 200);
-		}
-
+		return '';
 	}
 
 	public function string_to_url($string) {
@@ -9648,7 +8711,7 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	/* Use the shared decoder so all settings readers preserve JSON escapes. */
-	private function decode_settings_json_efb( $raw ) {
+	public function decode_settings_json_efb( $raw ) {
 		$decoded = \emsfb_json_decode_efb($raw);
 		return is_object( $decoded ) ? $decoded : null;
 	}
@@ -10629,7 +9692,7 @@ public function check_nonce_permission_efb($request) {
 	 * healed decoded settings → emsfb_settings option → latest DB row. The DB
 	 * step also refreshes the option/transient so a stale cache self-heals.
 	 * Returns the key, or the string 'null' (legacy contract) when absent. */
-	private function resolve_payment_key_efb( $setting, $key ) {
+	public function resolve_payment_key_efb( $setting, $key ) {
 		$value = ( is_object( $setting ) && isset( $setting->$key ) ) ? trim( (string) $setting->$key ) : '';
 		// The settings screen's "could not read this field" marker is never a key.
 		if ( $value === 'NotFoundEl' ) $value = '';
@@ -12442,54 +11505,6 @@ public function check_nonce_permission_efb($request) {
 
     return $out;
 }
-
-	public function pay_paypal_sub_Emsfb_api($data_POST_) {
-		$handler_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/paypal/class-Emsfb-paypal-handler.php';
-		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_sub_Emsfb_api START: handler_path=' . $handler_path . ', request_type=' . gettype( $data_POST_ ));
-		if ( ! file_exists( $handler_path ) ) {
-			// error_log('[EFB][PayPal][PUBLIC] pay_paypal_sub_Emsfb_api ERROR: handler file not found.');
-			wp_send_json_error( [ 'success' => false, 'm' => 'PayPal module not available' ], 500 );
-			return;
-		}
-		require_once $handler_path;
-		$paypal_setting = is_object( $this->setting ) ? $this->setting : get_setting_Emsfb( 'decoded' );
-		$handler = new PaypalHandler( $paypal_setting );
-		// F11: the legacy PayPal route stores the pending entry itself (insert_message_db): same gate, same places.
-		$gate_req_efb = is_object( $data_POST_ ) && method_exists( $data_POST_, 'get_json_params' ) ? $data_POST_->get_json_params() : array();
-		$this->gate_prepare_for_endpoint_efb( is_array( $gate_req_efb ) && isset( $gate_req_efb['id'] ) && is_scalar( $gate_req_efb['id'] ) ? (int) $gate_req_efb['id'] : 0, $gate_req_efb );
-		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_sub_Emsfb_api: handler loaded, delegating create payment.');
-		$handler->handle_create_payment( $data_POST_, $this );
-	}
-
-	public function pay_paypal_capture_Emsfb_api($data_POST_) {
-		$handler_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/paypal/class-Emsfb-paypal-handler.php';
-		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_capture_Emsfb_api START: handler_path=' . $handler_path . ', request_type=' . gettype( $data_POST_ ));
-		if ( ! file_exists( $handler_path ) ) {
-			// error_log('[EFB][PayPal][PUBLIC] pay_paypal_capture_Emsfb_api ERROR: handler file not found.');
-			wp_send_json_error( [ 'success' => false, 'm' => 'PayPal module not available' ], 500 );
-			return;
-		}
-		require_once $handler_path;
-		$paypal_setting = is_object( $this->setting ) ? $this->setting : get_setting_Emsfb( 'decoded' );
-		$handler = new PaypalHandler( $paypal_setting );
-		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_capture_Emsfb_api: handler loaded, delegating capture.');
-		$handler->handle_capture( $data_POST_ );
-	}
-
-	public function pay_paypal_subscription_activate_Emsfb_api($data_POST_) {
-		$handler_path = EMSFB_PLUGIN_DIRECTORY . '/vendor/paypal/class-Emsfb-paypal-handler.php';
-		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_subscription_activate_Emsfb_api START: handler_path=' . $handler_path . ', request_type=' . gettype( $data_POST_ ));
-		if ( ! file_exists( $handler_path ) ) {
-			// error_log('[EFB][PayPal][PUBLIC] pay_paypal_subscription_activate_Emsfb_api ERROR: handler file not found.');
-			wp_send_json_error( [ 'success' => false, 'm' => 'PayPal module not available' ], 500 );
-			return;
-		}
-		require_once $handler_path;
-		$paypal_setting = is_object( $this->setting ) ? $this->setting : get_setting_Emsfb( 'decoded' );
-		$handler = new PaypalHandler( $paypal_setting );
-		// error_log('[EFB][PayPal][PUBLIC] pay_paypal_subscription_activate_Emsfb_api: handler loaded, delegating subscription activate.');
-		$handler->handle_subscription_activate( $data_POST_ );
-	}
 
 	public function fix_elementor_ultimate_DEPRECATED() {
 		if (!is_admin()) {

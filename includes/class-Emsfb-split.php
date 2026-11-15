@@ -123,6 +123,14 @@ class Split {
 	public static function addon_state($code) {
 		if (!class_exists('\\Emsfb\\Addon_Catalog')) return 'addon';
 		$e = Addon_Catalog::get($code);
+		// A gateway on the legacy bridge: on and loaded but without the contract = an add-on from before SPLIT.
+		if ($e && $e['contract'] === 'legacy_gateway') {
+			$settings = function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null;
+			if (!Addon_Catalog::flag_on($code, $settings)) return 'addon';
+			if (function_exists('emsfb_is_addon_compatible_efb') && !emsfb_is_addon_compatible_efb($code)) return 'addon';
+			$c = function_exists('efb_addon_contracts') ? efb_addon_contracts() : array();
+			return isset($c['legacy_gateway']['providers'][$code]) ? null : 'update';
+		}
 		if ($e && $e['contract'] && function_exists('efb_addon_contracts')) {
 			$c = efb_addon_contracts();
 			if (isset($c[$e['contract']]['providers']['core'])) return null; // still part of core on this version
@@ -459,10 +467,27 @@ class Split {
 		if (!function_exists('current_user_can') || !current_user_can('manage_options')) return;
 		$screen = function_exists('get_current_screen') ? get_current_screen() : null;
 		if (!$screen || stripos((string) $screen->id, 'emsfb') === false) return;
+		// SPLIT §5.3: Stripe payments still pending while the Stripe add-on is absent are not checked meanwhile.
+		$pending = self::stripe_pending_without_addon();
+		if ($pending > 0) {
+			/* translators: %d: number of payments */
+			echo '<div class="notice notice-warning efb-split-stripe-pending"><p style="unicode-bidi:plaintext">' . esc_html(sprintf(_n('%d Stripe payment is waiting to be checked; install Stripe to finish it.', '%d Stripe payments are waiting to be checked; install Stripe to finish them.', $pending, 'easy-form-builder'), $pending)) . '</p></div>';
+		}
 		$forms = self::forms_needing();
 		if (!$forms) return;
 		if (get_user_meta(get_current_user_id(), 'efb_split_notice_dismissed', true) === md5(wp_json_encode($forms))) return;
 		echo self::admin_notice_html($forms); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above
+	}
+
+	/** Pending Stripe rows of emsfb_pay_ while AdnSPF cannot check them (0 when the add-on is ready or no table). */
+	public static function stripe_pending_without_addon() {
+		if (function_exists('efb_legacy_gateway_ready') && efb_legacy_gateway_ready('stripe')) return 0;
+		global $wpdb;
+		if (!is_object($wpdb)) return 0;
+		$t = $wpdb->prefix . 'emsfb_pay_';
+		if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $t)) !== $t) return 0;
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+		return (int) $wpdb->get_var("SELECT COUNT(*) FROM `{$t}` WHERE gateway = 'stripe' AND status = 'pending'");
 	}
 
 	/** The forms list badge texts (ajax_object_efm.split_badge). */

@@ -81,7 +81,7 @@ function boot(route,extra={}) {
   // Stripe: a charged card is always confirmed, even when prepare is throttled.
   const stripe=boot(url=>url.endsWith('session/prepare')?reply(429,{code:'rest_too_many_requests'}):reply(200,{data:{success:true}}),{console:{log(){},error(){}},AbortSignal});
   stripe.sandbox.window.EFBRequestHealth={report(){}};
-  vm.runInContext(fs.readFileSync('public/assets/js/stripe_pay-efb.js','utf8'),stripe.sandbox);
+  vm.runInContext(fs.readFileSync(/* SPLIT §5: the Stripe add-on's script */ (function(){const fs=require('fs'),p=require('path');const d=[process.env.EFB_STRIPE_DIR,p.join(__dirname,'..','vendor','stripe'),'/home/user/vendores-efb/stripe'].filter(Boolean).find(x=>fs.existsSync(p.join(x,'assets','js','stripe_pay-efb.js')));return p.join(d,'assets','js','stripe_pay-efb.js');})(),'utf8'),stripe.sandbox);
   assert.equal(await stripe.sandbox.confirm_stripe_payment_efb('pi_test','track',7),'verified');
   const confirm=stripe.calls.find(c=>c.url.endsWith('stripe/confirm'));
   assert.equal(confirm.options.headers.get('X-WP-Nonce'),'page-nonce');assert.equal(confirm.options.headers.get('sid'),'form-7-sid');
