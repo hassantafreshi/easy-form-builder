@@ -119,14 +119,14 @@
     var c = conf(el);
     if (c.p === 'recaptcha_v3' && !el._fb) return v3Token(c.k, 10000, c.action);
     var have = tokens[bid(el)];
-    if (have && !c.ex && c.kind === 'widget') return Promise.resolve(have);
+    if (have && !c.ex && c.kind !== 'invisible') return Promise.resolve(have);
     render(el, 1);
     var a = A[c.p], id = at(el, 'data-efb-widget-id');
     if (!a || !a.execute) return Promise.reject(new Error('not ready'));
     return limit(new Promise(function (ok, no) { el._res = ok; el._rej = no; try { Promise.resolve(a.execute(id, c, el)).then(function (t) { if (t) solved(el, t); }, no); } catch (e) { no(e); } }), 10000);
   }
 
-  function needs(el) { var c = conf(el); return !!el._fb || (c.kind === 'widget' && !c.ex); }
+  function needs(el) { var c = conf(el); return !!el._fb || (c.kind !== 'invisible' && !c.ex); }
   function needsWidgetToken(fid) { var el = boxFor(fid); return !!el && needs(el); }
 
   async function beforeSend(data, fid) {
