@@ -2,10 +2,10 @@
     "domain": "easy-form-builder",
     "about": "Every phrase looked up in the easy-form-builder text domain: the core plus add-ons that still use that domain. Maintained by tests/core-i18n/extract.php (agent efb-core-i18n); do not edit by hand.",
     "plugin_version": "4.3.1",
-    "updated": "2026-11-14",
+    "updated": "2026-11-15",
     "counts": {
-        "active": 4120,
-        "obsolete": 376
+        "active": 4010,
+        "obsolete": 512
     },
     "entries": [
         {
@@ -207,8 +207,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "%1$s allows at most %2$s rows.",
@@ -462,8 +462,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "%1$s needs \"%2$s\". Choose it in the payment field's settings.",
@@ -833,6 +833,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%d Stripe payment is waiting to be checked; install Stripe to finish it.",
+            "context": null,
+            "plural": "%d Stripe payments are waiting to be checked; install Stripe to finish them.",
+            "translators": "%d: number of payments",
+            "files": [
+                "includes/class-Emsfb-split.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%d form",
+            "context": null,
+            "plural": "%d forms",
+            "translators": "%d: number of forms",
+            "files": [
+                "includes/class-Emsfb-split.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s (count)",
             "context": null,
             "plural": null,
@@ -919,8 +949,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "%s Day",
@@ -1159,8 +1189,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "%s characters left",
@@ -1989,8 +2019,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "(Avoid adding JavaScript or jQuery codes to HTML for security reasons.)",
@@ -2064,8 +2094,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "(not enabled)",
@@ -2229,8 +2259,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "1 unsaved change",
@@ -2493,10 +2523,10 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-calc.php"
+                "vendor/calc/class-Emsfb-calc.php"
             ],
             "scope": [
-                "core"
+                "addon:calc"
             ],
             "first_seen": "4.3.1",
             "status": "active",
@@ -2769,8 +2799,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "A little more detail, please - one sentence about what broke is enough.",
@@ -3025,8 +3055,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "A unique address is being generated for this test.",
@@ -3070,8 +3100,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "AI assistants: access to entries",
@@ -4315,6 +4345,7 @@
             "translators": "F02 settings link",
             "files": [
                 "includes/admin/class-Emsfb-addon.php",
+                "includes/class-Emsfb-formbuilder.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -4370,6 +4401,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Add-ons your forms need",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-split.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Additional Information",
             "context": null,
             "plural": null,
@@ -4411,6 +4457,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Address & Postal",
+            "context": null,
+            "plural": null,
+            "translators": "Address & Postal add-on card title on the Add-ons page (SPLIT)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -4921,8 +4982,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Align",
@@ -5237,8 +5298,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Also delete uploaded files",
@@ -5524,8 +5585,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "An unpaid entry stays \"pending payment\". Choose when each notification goes out.",
@@ -5764,8 +5825,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Any domain",
@@ -6529,8 +6590,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Australian states and territories",
@@ -7389,8 +7450,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Black",
@@ -7678,6 +7739,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Booking",
+            "context": null,
+            "plural": null,
+            "translators": "Booking add-on card title on the Add-ons page (SPLIT)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Bootstrap Template",
             "context": null,
             "plural": null,
@@ -7900,8 +7976,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Brazilian CNPJ (numeric or alphanumeric)",
@@ -8397,8 +8473,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "CAPTCHA service",
@@ -8654,8 +8730,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Calculation value",
@@ -8669,8 +8745,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Calendar",
@@ -8774,8 +8850,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Canadian provinces and territories",
@@ -8799,7 +8875,6 @@
             "translators": "Cancel = discards the edits made in the Colors & Fonts dialog translators: F14: dialog button translators: Cancel = generic cancel action",
             "files": [
                 "includes/functions.php",
-                "includes/importers/cf7/class-Emsfb-cf7-importer.php",
                 "includes/phrases.php"
             ],
             "scope": [
@@ -8976,6 +9051,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Capacity is not checked until Booking is installed.",
+            "context": null,
+            "plural": null,
+            "translators": "Admin notice on a date field that uses booking availability without the Booking add-on",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -9186,8 +9276,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Categories or tags",
@@ -9998,8 +10088,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Choose at most %2$s options in %1$s.",
@@ -10133,8 +10223,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Choose the style for the %s.",
@@ -10673,8 +10763,7 @@
                 "includes/admin/class-Emsfb-panel.php",
                 "includes/class-Emsfb-deactivation-feedback.php",
                 "includes/class-Emsfb-review-request.php",
-                "includes/functions.php",
-                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -11689,8 +11778,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Contact Us Form",
@@ -12062,8 +12151,7 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-deactivation-feedback.php",
-                "includes/class-Emsfb-formbuilder.php",
-                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+                "includes/class-Emsfb-formbuilder.php"
             ],
             "scope": [
                 "core"
@@ -12114,8 +12202,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Copy",
@@ -12233,8 +12321,7 @@
             "plural": null,
             "translators": "Copy shortcode label with tooltip",
             "files": [
-                "includes/functions.php",
-                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -12375,8 +12462,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Could not start email test.",
@@ -13069,8 +13156,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Custom Order Form",
@@ -13679,7 +13766,7 @@
             "msgid": "Decimal places",
             "context": null,
             "plural": null,
-            "translators": "F01 builder, number format: how many digits after the decimal separator translators: F04 builder",
+            "translators": "F01 builder, number format: how many digits after the decimal separator",
             "files": [
                 "includes/functions.php"
             ],
@@ -13694,7 +13781,7 @@
             "msgid": "Decimal separator",
             "context": null,
             "plural": null,
-            "translators": "F01 builder, number format: the character before the decimals (12.5 or 12,5) translators: F04 builder",
+            "translators": "F01 builder, number format: the character before the decimals (12.5 or 12,5)",
             "files": [
                 "includes/functions.php"
             ],
@@ -14274,8 +14361,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Describe the bug and we will send you a 99% discount code for your first year of the Pro version, as a thank you.",
@@ -14590,8 +14677,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Direction",
@@ -15171,6 +15258,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Download manually",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-split.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Download payment records",
             "context": null,
             "plural": null,
@@ -15348,8 +15450,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Draw only",
@@ -15363,8 +15465,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Draw or type",
@@ -15378,8 +15480,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Drinks",
@@ -15558,8 +15660,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "E-mail addresses (separate with commas)",
@@ -16240,6 +16342,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Edit booking forms: an end date and a number of places for each choice, and booking availability for dates.",
+            "context": null,
+            "plural": null,
+            "translators": "Booking add-on card description on the Add-ons page",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Edit details",
             "context": null,
             "plural": null,
@@ -16281,8 +16398,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Edit step %s",
@@ -16506,8 +16623,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Egyptian tax registration number",
@@ -17198,8 +17315,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Email system is not available.",
@@ -17333,8 +17450,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Email without the Easy Form Builder footer",
@@ -17499,8 +17616,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Empty = no limit",
@@ -18702,8 +18819,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Example link",
@@ -19215,8 +19332,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "File",
@@ -19338,6 +19455,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Fill a hidden field with the visitor's country, found from the IP address by the service you choose with your own API key.",
+            "context": null,
+            "plural": null,
+            "translators": "Visitor Country add-on card description on the Add-ons page",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Fill with",
@@ -20513,7 +20645,7 @@
             "msgid": "Formula",
             "context": null,
             "plural": null,
-            "translators": "Formula = field label for the calculation expression input translators: F04 builder",
+            "translators": "Formula = field label for the calculation expression input",
             "files": [
                 "includes/functions.php"
             ],
@@ -21152,8 +21284,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "GCC countries",
@@ -21349,8 +21481,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Germany",
@@ -21740,8 +21872,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Google reCAPTCHA v2 Spam Protection",
@@ -21974,12 +22106,13 @@
             "plural": null,
             "translators": "Guest = user who is not logged in",
             "files": [
-                "includes/class-Emsfb-public.php",
                 "includes/functions.php",
-                "vendor/paypal/class-Emsfb-paypal-handler.php"
+                "vendor/paypal/class-Emsfb-paypal-handler.php",
+                "vendor/stripe/class-Emsfb-stripe-legacy.php"
             ],
             "scope": [
                 "addon:paypal",
+                "addon:stripe",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -23198,8 +23331,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Human Shield checks these functions before enforcing security rules.",
@@ -24063,13 +24196,28 @@
             "plural": null,
             "translators": "F15: how a version was saved",
             "files": [
-                "includes/functions.php",
-                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Import and export forms with Easy Form Builder Data Tools (free).",
+            "context": null,
+            "plural": null,
+            "translators": "Card in the forms panel pointing to the separate free plugin Easy Form Builder Data Tools",
+            "files": [
+                "includes/class-Emsfb-split.php",
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -24085,8 +24233,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Import from Contact Form 7",
@@ -24100,8 +24248,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Importance scale",
@@ -24160,8 +24308,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "In %s, clear the cache (Purge All) and reload this page. If it happens again, exclude this page from caching.",
@@ -24355,8 +24503,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Indian mobile number",
@@ -24445,8 +24593,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Insert shortcode:",
@@ -24482,8 +24630,10 @@
             "msgid": "Install",
             "context": null,
             "plural": null,
-            "translators": "Button that opens the WordPress installer for a service plugin",
+            "translators": "Button that installs an Easy Form Builder add-on translators: Button that opens the WordPress installer for a service plugin",
             "files": [
+                "includes/class-Emsfb-formbuilder.php",
+                "includes/class-Emsfb-split.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -25228,8 +25378,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Iraq",
@@ -25678,8 +25828,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Jump to Step",
@@ -26068,8 +26218,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Label",
@@ -26234,8 +26384,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Language digits",
@@ -26249,8 +26399,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Language files installed. Reloading&hellip;",
@@ -26536,8 +26686,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Latitude",
@@ -26672,8 +26822,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Leave this field empty",
@@ -26815,6 +26965,21 @@
             "context": null,
             "plural": null,
             "translators": "F06 builder, advanced date field panel",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Let visitors sign by typing their name in a handwriting font, beside or instead of drawing.",
+            "context": null,
+            "plural": null,
+            "translators": "Typed Signature add-on card description on the Add-ons page",
             "files": [
                 "includes/functions.php"
             ],
@@ -27708,8 +27873,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Looks good",
@@ -28315,9 +28480,8 @@
             "msgid": "Maximum",
             "context": null,
             "plural": null,
-            "translators": "F04 visitor: label of the upper handle of a range slider",
+            "translators": "",
             "files": [
-                "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
@@ -28339,8 +28503,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Maximum date",
@@ -28641,8 +28805,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Message after the form closed",
@@ -29024,9 +29188,8 @@
             "msgid": "Minimum",
             "context": null,
             "plural": null,
-            "translators": "F04 visitor: label of the lower handle of a range slider",
+            "translators": "",
             "files": [
-                "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
@@ -29618,8 +29781,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Morocco",
@@ -29845,8 +30008,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Multi-Step",
@@ -30165,6 +30328,24 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Needs the %s add-on",
+            "context": null,
+            "plural": null,
+            "translators": "%s: name of an Easy Form Builder add-on (a product name) translators: %s: name of an Easy Form Builder add-on (a product name, not translated) translators: %s: name of an Easy Form Builder add-on (a product name, not translated). Shown on a field or form whose feature is now an add-on",
+            "files": [
+                "includes/class-Emsfb-addon-keys.php",
+                "includes/class-Emsfb-formbuilder.php",
+                "includes/class-Emsfb-split.php",
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Net Promoter Score",
             "context": null,
             "plural": null,
@@ -30221,8 +30402,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "New Form",
@@ -30296,8 +30477,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "New message received",
@@ -30528,8 +30709,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "No Response",
@@ -30978,8 +31159,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "No fields found.",
@@ -31274,10 +31455,10 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-public.php"
+                "vendor/stripe/class-Emsfb-stripe-legacy.php"
             ],
             "scope": [
-                "core"
+                "addon:stripe"
             ],
             "first_seen": "4.2.0",
             "status": "active",
@@ -31542,7 +31723,7 @@
             "msgid": "None",
             "context": null,
             "plural": null,
-            "translators": "F19: background mode: no background for this step translators: F01 builder: \"no input format\" option, and \"no check digit\" option translators: F04 builder: separator option",
+            "translators": "F19: background mode: no background for this step translators: F01 builder: \"no input format\" option, and \"no check digit\" option",
             "files": [
                 "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-frontend.php"
@@ -31671,8 +31852,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Not checked",
@@ -32166,8 +32347,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Notifications stay off until delivery is verified",
@@ -32196,8 +32377,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Number",
@@ -32219,6 +32400,21 @@
             "context": null,
             "plural": null,
             "translators": "F04 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "Number format, steps and decimals, two-handle sliders, calculated fields with formulas, calculation values on choices and a calculated amount to pay.",
+            "context": null,
+            "plural": null,
+            "translators": "Numbers & Calculations add-on card description on the Add-ons page",
             "files": [
                 "includes/functions.php"
             ],
@@ -32294,6 +32490,21 @@
             "context": null,
             "plural": null,
             "translators": "F01 builder, mobile keyboard option: digits only",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Numbers & Calculations",
+            "context": null,
+            "plural": null,
+            "translators": "Numbers & Calculations add-on card title on the Add-ons page (SPLIT)",
             "files": [
                 "includes/functions.php"
             ],
@@ -32391,8 +32602,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Offline Form Data Collection",
@@ -32511,8 +32722,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Omise payments",
@@ -32721,8 +32932,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "One moment before you deactivate",
@@ -32880,6 +33091,7 @@
             "plural": null,
             "translators": "",
             "files": [
+                "includes/class-Emsfb-formbuilder.php",
                 "includes/class-Emsfb-public.php",
                 "includes/payments/class-Emsfb-payment-registry.php"
             ],
@@ -33082,8 +33294,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Only past dates",
@@ -33377,6 +33589,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Open Data Tools",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-split.php"
             ],
             "scope": [
                 "core"
@@ -34287,8 +34514,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Party Invitation",
@@ -34734,12 +34961,13 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-public.php",
                 "includes/functions.php",
-                "vendor/paypal/class-Emsfb-paypal-handler.php"
+                "vendor/paypal/class-Emsfb-paypal-handler.php",
+                "vendor/stripe/class-Emsfb-stripe-legacy.php"
             ],
             "scope": [
                 "addon:paypal",
+                "addon:stripe",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -34797,10 +35025,10 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-public.php"
+                "vendor/stripe/class-Emsfb-stripe-legacy.php"
             ],
             "scope": [
-                "core"
+                "addon:stripe"
             ],
             "first_seen": "4.2.0",
             "status": "active",
@@ -34917,10 +35145,10 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-public.php"
+                "vendor/stripe/class-Emsfb-stripe-legacy.php"
             ],
             "scope": [
-                "core"
+                "addon:stripe"
             ],
             "first_seen": "4.3.1",
             "status": "active",
@@ -35543,8 +35771,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Persian Date Picker",
@@ -35798,8 +36026,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Plan \"%s\" has been successfully processed.",
@@ -36418,8 +36646,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Please enter a number that is greater than or equal to NN.",
@@ -36463,8 +36691,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Please enter a valid URL. Protocol is required (http://, https://)",
@@ -37485,6 +37713,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Postal code formats for 18 countries, the map field and address search.",
+            "context": null,
+            "plural": null,
+            "translators": "Address & Postal add-on card description on the Add-ons page",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Posts or pages",
             "context": null,
             "plural": null,
@@ -37578,7 +37821,7 @@
             "msgid": "Prefix",
             "context": null,
             "plural": null,
-            "translators": "F03 builder: short text shown before the input box, e.g. +98 or $ translators: F04 builder",
+            "translators": "F03 builder: short text shown before the input box, e.g. +98 or $",
             "files": [
                 "includes/functions.php"
             ],
@@ -37713,7 +37956,7 @@
             "msgid": "Preview",
             "context": null,
             "plural": null,
-            "translators": "F01 builder: label of the live preview of a custom mask translators: F15: builder shortcut: Alt+P translators: F04 builder: the visible preview of the result in the builder",
+            "translators": "F01 builder: label of the live preview of a custom mask translators: F15: builder shortcut: Alt+P",
             "files": [
                 "includes/functions.php"
             ],
@@ -38788,8 +39031,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Range and several dates",
@@ -40218,8 +40461,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Replace the form",
@@ -40498,8 +40741,7 @@
             "plural": null,
             "translators": "Required = field must be filled out",
             "files": [
-                "includes/functions.php",
-                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -42008,8 +42250,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Saudi National ID / Iqama",
@@ -42083,8 +42325,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Save",
@@ -42881,10 +43123,12 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-calc.php",
-                "includes/payments/class-Emsfb-payment-registry.php"
+                "includes/class-Emsfb-split.php",
+                "includes/payments/class-Emsfb-payment-registry.php",
+                "vendor/calc/class-Emsfb-calc.php"
             ],
             "scope": [
+                "addon:calc",
                 "core"
             ],
             "first_seen": "4.3.1",
@@ -44136,8 +44380,7 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php",
-                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -44158,6 +44401,22 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Settings of %s are kept until the add-on is installed.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: name of an Easy Form Builder add-on (a product name)",
+            "files": [
+                "includes/class-Emsfb-addon-keys.php",
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -44522,8 +44781,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Show attributes",
@@ -44717,8 +44976,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Show this field in public survey results",
@@ -44882,8 +45141,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Shuffle choices",
@@ -44987,8 +45246,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Signed-in visitors",
@@ -45137,8 +45396,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Site time now: %1$s (%2$s)",
@@ -45257,8 +45516,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Slug",
@@ -45502,6 +45761,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Some of your forms use features that are now add-ons.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-split.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Some plugin files are missing, so the plugin stopped loading to keep your site running. Please reinstall Easy Form Builder from the Plugins page — your forms, messages, and settings are kept.",
             "context": null,
             "plural": null,
@@ -45582,8 +45856,7 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php",
-                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -45701,7 +45974,7 @@
             "msgid": "Space",
             "context": null,
             "plural": null,
-            "translators": "F01 builder, thousands separator option: a space character translators: F04 builder: separator option",
+            "translators": "F01 builder, thousands separator option: a space character",
             "files": [
                 "includes/functions.php"
             ],
@@ -46260,7 +46533,7 @@
             "msgid": "Step",
             "context": null,
             "plural": null,
-            "translators": "F04 builder: the step of a number field (e.g. 0.5)",
+            "translators": "",
             "files": [
                 "includes/functions.php"
             ],
@@ -46727,10 +47000,11 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-public.php",
-                "includes/functions.php"
+                "includes/functions.php",
+                "vendor/stripe/class-Emsfb-stripe-legacy.php"
             ],
             "scope": [
+                "addon:stripe",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -47253,7 +47527,7 @@
             "msgid": "Suffix",
             "context": null,
             "plural": null,
-            "translators": "F03 builder: short text shown after the input box, e.g. kg or .com translators: F04 builder",
+            "translators": "F03 builder: short text shown after the input box, e.g. kg or .com",
             "files": [
                 "includes/functions.php"
             ],
@@ -48832,6 +49106,7 @@
             "plural": null,
             "translators": "%s: name of a payment add-on (the gateway's name)",
             "files": [
+                "includes/class-Emsfb-formbuilder.php",
                 "includes/payments/class-Emsfb-payment-registry.php"
             ],
             "scope": [
@@ -48958,8 +49233,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The Conditional Logic Add-on enables dynamic and interactive forms based on specific user inputs or conditional rules. It allows for highly personalized forms tailored to meet users’ unique needs.",
@@ -49472,6 +49747,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The add-ons could not be downloaded automatically (no connection to the add-on server).",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-split.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The advanced date field has every calendar, limits, holidays, ranges and times, without the old add-ons. New answers are stored as Gregorian dates (YYYY-MM-DD). If a webhook or Google Sheet expects the local date, keep the old format.",
             "context": null,
             "plural": null,
@@ -49540,6 +49830,22 @@
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php",
                 "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The amount of this form is calculated by an add-on that is not active. Payment is paused.",
+            "context": null,
+            "plural": null,
+            "translators": "Admin message: a payment form whose amount comes from the calculation add-on",
+            "files": [
+                "includes/class-Emsfb-split.php",
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -49740,8 +50046,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The characters \" < and > were removed from lines %s.",
@@ -49785,8 +50091,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The choices of “%s” sent a different value in the email (the text after “|”). Easy Form Builder saves the text the visitor sees.",
@@ -49920,8 +50226,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The connection failed (%s).",
@@ -50025,8 +50331,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The delivery result is not known yet. You can finish setup and check again later.",
@@ -50175,8 +50481,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The email subject was not copied: Easy Form Builder uses one subject for your notification and for the visitor’s confirmation, so its standard subjects are kept.",
@@ -50190,8 +50496,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The email test hash is not valid.",
@@ -50812,6 +51118,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The forms still work and their settings are kept; install the add-on to use the feature again.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-split.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The formula has an error near “%s”.",
             "context": null,
             "plural": null,
@@ -50823,8 +51144,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The formula is too long or too deep.",
@@ -50838,8 +51159,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The free daily check limit for this site was reached. Notifications are unchanged; run the check again tomorrow from Email Settings.",
@@ -50958,8 +51279,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The hidden field “%s” was not carried over: Easy Form Builder has no hidden field.",
@@ -51033,8 +51354,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The last delivery check could not get a message through, so nothing your forms send is reaching anybody. A hosting server usually sends mail without a trusted signature; sending through an SMTP service is the standard fix.",
@@ -51333,8 +51654,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The notification could not be sent.",
@@ -51695,8 +52016,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The reason is in the message your visitor saw, below.",
@@ -51857,9 +52178,10 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-form-runtime.php",
-                "includes/class-Emsfb-public.php"
+                "vendor/persiapay/class-Emsfb-persiapay-legacy.php"
             ],
             "scope": [
+                "addon:persiapay",
                 "core"
             ],
             "first_seen": "4.3.1",
@@ -52134,8 +52456,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The sender email address is not valid.",
@@ -52179,8 +52501,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The server could not store the recording. Please try again or contact the site administrator.",
@@ -52329,8 +52651,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The survey has been successfully completed.",
@@ -52764,8 +53086,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The visitor must move an item or confirm the order",
@@ -52929,8 +53251,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Theme",
@@ -53154,8 +53476,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "These settings apply to the public response box only; the admin panel always keeps the default palette.",
@@ -53595,6 +53917,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This field needs an add-on that is not active on this site.",
+            "context": null,
+            "plural": null,
+            "translators": "Visitor sees this in place of a field whose add-on is not active",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This field type cannot be placed inside a repeater group.",
             "context": null,
             "plural": null,
@@ -53818,8 +54155,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "This form does not accept answers at the moment.",
@@ -54062,8 +54399,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "This gateway can only refund the full remaining amount (%s).",
@@ -54553,10 +54890,10 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-public.php"
+                "vendor/persiapay/class-Emsfb-persiapay-legacy.php"
             ],
             "scope": [
-                "core"
+                "addon:persiapay"
             ],
             "first_seen": "4.3.1",
             "status": "active",
@@ -54877,8 +55214,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "This value has already been used.",
@@ -54959,7 +55296,7 @@
             "msgid": "Thousands separator",
             "context": null,
             "plural": null,
-            "translators": "F01 builder, number format: the character between groups of digits (1,234,567) translators: F04 builder: format option",
+            "translators": "F01 builder, number format: the character between groups of digits (1,234,567)",
             "files": [
                 "includes/functions.php"
             ],
@@ -54982,8 +55319,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Time",
@@ -55208,6 +55545,21 @@
                 "core"
             ],
             "first_seen": "4.3.0",
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "To enable the Location Picker field, the Address & Postal add-on loads Leaflet.js from its own files — only on pages where this feature is used. The map tiles come from OpenStreetMap.",
+            "context": null,
+            "plural": null,
+            "translators": "Leaflet.js (leafletjs.com) is a mapping library; \"Address & Postal\" is the name of an Easy Form Builder add-on",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -55845,8 +56197,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Treatments",
@@ -55945,6 +56297,7 @@
             "translators": "Button that runs the email check again. translators: F18: button translators: F07 visitor: button",
             "files": [
                 "includes/class-Emsfb-review-request.php",
+                "includes/class-Emsfb-split.php",
                 "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-frontend.php"
             ],
@@ -56057,8 +56410,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Turkish T.C. Kimlik No",
@@ -56207,8 +56560,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Type it twice",
@@ -56267,8 +56620,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Type your full name",
@@ -56282,8 +56635,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Type your message here&hellip;",
@@ -56312,6 +56665,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Typed Signature",
+            "context": null,
+            "plural": null,
+            "translators": "Typed Signature add-on card title on the Add-ons page (SPLIT)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -56553,8 +56921,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "UPPERCASE",
@@ -56703,8 +57071,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "US phone with extension",
@@ -56817,8 +57185,7 @@
             "plural": null,
             "translators": "Toolbar & sidebar labels for email builder translators: F15: builder shortcut translators: F15: builder toolbar button and shortcut translators: F14: button in the message after moving to the trash",
             "files": [
-                "includes/functions.php",
-                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -57034,8 +57401,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Unknown payment gateway.",
@@ -57338,6 +57705,22 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Update %s to keep using it with this version.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: name of an Easy Form Builder add-on (a product name)",
+            "files": [
+                "includes/class-Emsfb-split.php",
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Updating&hellip;",
             "context": null,
             "plural": null,
@@ -57531,8 +57914,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Uploading",
@@ -57771,8 +58154,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Use this background for every step? Steps with their own background will use it too.",
@@ -57861,8 +58244,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Use {n} for the row number.",
@@ -58562,8 +58945,7 @@
             "plural": null,
             "translators": "F15: versions dialog button: show the fields of a version",
             "files": [
-                "includes/functions.php",
-                "includes/importers/cf7/class-Emsfb-cf7-importer.php"
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -58723,6 +59105,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Visitor Country",
+            "context": null,
+            "plural": null,
+            "translators": "Visitor Country add-on card title on the Add-ons page (SPLIT)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Visitor IP address",
             "context": null,
             "plural": null,
@@ -58779,8 +59176,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Visitor only",
@@ -58824,8 +59221,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Visitors can see this value in the page source.",
@@ -59575,8 +59972,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "We have made some updates. Please wait a few minutes before trying again.",
@@ -59584,10 +59981,13 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-public.php",
-                "includes/functions.php"
+                "includes/functions.php",
+                "vendor/persiapay/class-Emsfb-persiapay-legacy.php",
+                "vendor/stripe/class-Emsfb-stripe-legacy.php"
             ],
             "scope": [
+                "addon:persiapay",
+                "addon:stripe",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -61688,10 +62088,10 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-public.php"
+                "vendor/persiapay/class-Emsfb-persiapay-legacy.php"
             ],
             "scope": [
-                "core"
+                "addon:persiapay"
             ],
             "first_seen": "4.2.0",
             "status": "active",
@@ -64979,8 +65379,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "button, url",
@@ -65174,8 +65574,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "conditional email notifications",
@@ -65515,11 +65915,13 @@
             "files": [
                 "includes/class-Emsfb-public.php",
                 "vendor/paypal/class-Emsfb-paypal-handler.php",
-                "vendor/persiapay/zarinpal.php"
+                "vendor/persiapay/zarinpal.php",
+                "vendor/stripe/class-Emsfb-stripe-legacy.php"
             ],
             "scope": [
                 "addon:paypal",
                 "addon:persiapay",
+                "addon:stripe",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -66537,12 +66939,10 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-public.php",
                 "vendor/persiapay/zarinpal.php"
             ],
             "scope": [
-                "addon:persiapay",
-                "core"
+                "addon:persiapay"
             ],
             "first_seen": "4.2.0",
             "status": "active",
@@ -66845,8 +67245,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "score, nps, points",
@@ -67586,8 +67986,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "“%s” allowed only one choice, so it is now a group of radio buttons.",
@@ -67601,8 +68001,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "“%s” filled itself in (from the logged-in user, the page address or the page). That is not carried over.",
@@ -67616,8 +68016,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "“%s” had to stay unticked in Contact Form 7. In Easy Form Builder it is an ordinary optional checkbox.",
@@ -67631,8 +68031,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "“%s” has the wrong number of values.",
@@ -67646,8 +68046,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "“%s” was read-only. It is now an ordinary field.",
@@ -67661,8 +68061,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "“Select all” is hidden because the maximum is lower than the number of choices.",
