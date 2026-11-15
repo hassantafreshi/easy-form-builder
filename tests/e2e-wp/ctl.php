@@ -1212,6 +1212,97 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( $sum );
 		break;
 
+	case 'split-mu':
+		// Copy tests/e2e-wp/mu-plugins/efb-e2e-split.php into the site's mu-plugins (SPLIT tests: the scan never downloads).
+		$dst = WPMU_PLUGIN_DIR . '/efb-e2e-split.php';
+		if ( ! is_dir( WPMU_PLUGIN_DIR ) ) wp_mkdir_p( WPMU_PLUGIN_DIR );
+		$src = dirname( __FILE__ ) . '/mu-plugins/efb-e2e-split.php';
+		$same = is_readable( $dst ) && md5_file( $dst ) === md5_file( $src );
+		$ok = $same || copy( $src, $dst );
+		if ( ! $same ) sleep( 3 );
+		efb_e2e_out( array( 'copied' => $ok, 'changed' => ! $same, 'path' => $dst ) );
+		break;
+
+	case 'addon-flags':
+		// SPLIT: several add-on switches at once: <AdnXXX,AdnYYY> <0|1> (the add-ons' files must be in vendor/).
+		$s = get_setting_Emsfb( 'decoded' );
+		if ( ! is_object( $s ) ) efb_e2e_out( array( 'error' => 'no settings' ) );
+		$on = isset( $efb_e2e_rest[1] ) && '1' === $efb_e2e_rest[1];
+		$out = array();
+		foreach ( explode( ',', isset( $efb_e2e_rest[0] ) ? $efb_e2e_rest[0] : '' ) as $key ) {
+			$key = preg_replace( '/[^A-Za-z]/', '', $key );
+			if ( '' === $key ) continue;
+			$s->$key = $on ? 1 : 0;
+			if ( $on ) update_option( 'emsfb_addon_' . $key, 1 ); else delete_option( 'emsfb_addon_' . $key );
+			$out[ $key ] = $on ? 1 : 0;
+		}
+		\efbFunction::set_setting_Emsfb( $s );
+		efb_e2e_out( array( 'ok' => true, 'flags' => $out ) );
+		break;
+
+	case 'split-scan':
+		// SPLIT §13: the upgrade scan. <reset> a site from before SPLIT (no scan yet, nothing scheduled, no install
+		// recorded); <state>; <cron> the scheduled event as WP-Cron runs it, batch after batch; <retry> "Try again";
+		// <grandfather> <json list> the add-ons the site keeps on its plan.
+		$op = isset( $efb_e2e_rest[0] ) ? $efb_e2e_rest[0] : 'state';
+		$ev = \Emsfb\Split::EVENT;
+		if ( 'reset' === $op ) {
+			delete_option( \Emsfb\Split::OPTION );
+			wp_clear_scheduled_hook( $ev );
+			delete_option( 'efb_e2e_split_installs' );
+			delete_metadata( 'user', 0, 'efb_split_notice_dismissed', '', true );
+		} elseif ( 'cron' === $op ) {
+			$n = 0;
+			do {
+				wp_clear_scheduled_hook( $ev );
+				do_action( $ev );
+				$st = \Emsfb\Split::scan_state();
+			} while ( empty( $st['done'] ) && ++$n < 100 );
+		} elseif ( 'retry' === $op ) {
+			\Emsfb\Split::retry();
+		} elseif ( 'grandfather' === $op ) {
+			$st = \Emsfb\Split::scan_state();
+			$st['grandfather'] = isset( $efb_e2e_rest[1] ) ? (array) json_decode( $efb_e2e_rest[1], true ) : array();
+			update_option( \Emsfb\Split::OPTION, $st, false );
+		}
+		$st = \Emsfb\Split::scan_state();
+		efb_e2e_out( array(
+			'state'     => $st,
+			'next'      => wp_next_scheduled( $ev ),
+			'installs'  => get_option( 'efb_e2e_split_installs', array() ),
+			'needing'   => \Emsfb\Split::forms_needing(),
+			'moved'     => \Emsfb\Split::moved_codes(),
+			'loaded'    => array_keys( \Emsfb\Addon_Catalog::loaded() ),
+			'states'    => array_map( array( '\\Emsfb\\Split', 'addon_state' ), array_combine( \Emsfb\Split::AUTO_INSTALL, \Emsfb\Split::AUTO_INSTALL ) ),
+			'flags'     => array_map( static function ( $c ) { $s = get_setting_Emsfb( 'decoded' ); return is_object( $s ) && ! empty( $s->$c ) ? 1 : 0; }, array_combine( \Emsfb\Split::AUTO_INSTALL, \Emsfb\Split::AUTO_INSTALL ) ),
+		) );
+		break;
+
+	case 'split-geo':
+		// SPLIT §10.6 (AdnGEO): <save> <json settings> through the add-on's own save (the key encrypted); <fake> <ip>
+		// <answer json> the fake visitor address and provider (mu-plugin); <calls>; <off> the real address again.
+		$op = isset( $efb_e2e_rest[0] ) ? $efb_e2e_rest[0] : 'calls';
+		if ( 'save' === $op ) {
+			if ( ! class_exists( '\\Emsfb\\Geo_Efb' ) ) efb_e2e_out( array( 'error' => 'AdnGEO not loaded' ) );
+			$r = \Emsfb\Geo_Efb::save( (array) json_decode( isset( $efb_e2e_rest[1] ) ? $efb_e2e_rest[1] : '{}', true ) );
+			efb_e2e_out( is_wp_error( $r ) ? array( 'error' => $r->get_error_code() ) : array( 'ok' => true, 'public' => $r, 'stored' => get_option( 'emsfb_geo_settings' ) ) );
+		}
+		if ( 'fake' === $op ) {
+			update_option( 'efb_e2e_geo_ip', (string) $efb_e2e_rest[1], false );
+			update_option( 'efb_e2e_geo_answer', isset( $efb_e2e_rest[2] ) ? (string) $efb_e2e_rest[2] : '{}', false );
+			update_option( 'efb_e2e_geo_calls', 0, false );
+			delete_option( 'efb_e2e_geo_last' );
+			delete_option( 'emsfb_geo_failures' );
+			$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '\\_transient%efb\\_geo\\_%'" ); // phpcs:ignore
+		}
+		if ( 'off' === $op ) {
+			foreach ( array( 'efb_e2e_geo_ip', 'efb_e2e_geo_answer', 'efb_e2e_geo_calls', 'efb_e2e_geo_last', 'emsfb_geo_settings', 'emsfb_geo_failures' ) as $o ) delete_option( $o );
+			$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '\\_transient%efb\\_geo\\_%'" ); // phpcs:ignore
+		}
+		$cache = $wpdb->get_results( "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE '\\_transient\\_efb\\_geo\\_%'", ARRAY_A ); // phpcs:ignore
+		efb_e2e_out( array( 'calls' => (int) get_option( 'efb_e2e_geo_calls', 0 ), 'last' => get_option( 'efb_e2e_geo_last', '' ), 'failures' => (int) get_option( 'emsfb_geo_failures', 0 ), 'cache' => $cache ? $cache : array(), 'settings' => get_option( 'emsfb_geo_settings', null ) ) );
+		break;
+
 	case 'f15-usermeta':
 		// F15: a builder preference of the admin (user 1): <meta key> [value | del].
 		$k = (string) $efb_e2e_rest[0];

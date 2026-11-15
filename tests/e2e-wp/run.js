@@ -34,6 +34,8 @@
  *      visitor sees a notice, Send is off, nothing is stored (also for hand-made requests); the owner
  *      sees why (page, forms list badge, admin notice, Saved dialog); AutoPilot readiness; fa_IR / ar
  *      at 375 px; keys added → ready without saving again
+ *   split*  SPLIT (features that left core for add-ons): upgrade scan, no add-ons, paid calc, Visitor Country
+ *      (tests/e2e-wp/scenario-split.js); before the scenarios after 1 the SPLIT add-ons are switched on
  *   9  PAY00 payments with the test gateway efbmock (fake provider on the site, no network): builder
  *      tile + panel + Save, AutoPilot API; fixed / computed (B7) / donation amounts from the server;
  *      pending → paid only after the provider confirms; webhook before return, twice, bad signature;
@@ -2073,13 +2075,25 @@ require('./scenario-f12.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewFo
  * (P23 add-on extras); fa_IR / ar at 375 px: tests/e2e-wp/scenario-f15.js. Its forms are deleted at the end. */
 require('./scenario-f15.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
 
+/* SPLIT features that left core for add-ons: the upgrade scan (installer mocked), the site without the add-ons (notice,
+ * badge, public page, builder Save keeps the keys, AutoPilot), a paid calc refused, Visitor Country with a fake provider;
+ * fa_IR / ar at 375 px: tests/e2e-wp/scenario-split.js. */
+require('./scenario-split.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */
 (async () => {
   const started = Date.now();
+  let splitReady = false;
   for (const s of SCENARIOS) {
     if (ONLY.length && !ONLY.includes(s.id)) continue;
+    // SPLIT: the features that left core (calculations, typed signature, postal formats and the map) are add-ons; the
+    // scenarios written before SPLIT test them with their add-on switched on, as on a site that has them (the add-ons'
+    // files are in vendor/). Their plan still applies. The upgrade scan never downloads here (mu-plugin).
+    if (s.id !== '1' && !splitReady) {
+      try { ctl('split-mu'); ctl('addon-flags', 'AdnCLC,AdnTSG,AdnADR', '1'); splitReady = true; } catch (e) { /* the site is down: the scenario says so */ }
+    }
     R.start(s.id, s.title);
     let errs = [];
     try {

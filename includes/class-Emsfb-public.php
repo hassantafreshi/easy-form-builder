@@ -1646,6 +1646,19 @@ public function check_nonce_permission_efb($request) {
 						$value = str_replace('"', '\\"', $val_);
 						$fs = $val_;
 					}
+					/* SPLIT §4.1: a field an absent add-on draws (the map, a calc result) shows its notice: the page's copy of
+					 * the form does not require it either (the submit does the same), so the visitor can send the form. */
+					if (is_string($fs) && $fs !== '' && is_array($formObj) && class_exists('\\Emsfb\\Split')) {
+						$unreq_rows_efb = \Emsfb\Split::unrequire_absent($formObj);
+						if ($unreq_rows_efb !== $formObj) {
+							if (isset($unreq_rows_efb[0]['thank_you']) && $unreq_rows_efb[0]['thank_you'] === 'rdrct') $unreq_rows_efb[0]['rePage'] = '';
+							$formObj = $unreq_rows_efb;
+							$val_ = json_encode($formObj, JSON_UNESCAPED_UNICODE);
+							$valj_efb = json_decode($val_, false);
+							$value = str_replace('"', '\\"', $val_);
+							$fs = $val_;
+						}
+					}
 
 				$k="";
 				if(($value_form_data->form_type=="login" || $value_form_data->form_type=="register"))$value= $value_form_data->form_structer;
