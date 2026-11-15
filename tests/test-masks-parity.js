@@ -19,7 +19,14 @@ function check(label, cond, detail) {
 const plugin = fs.readFileSync(path.join(root, 'includes/data/masks-catalog-efb.json'));
 const docs = path.join(root, 'docs/feature-gaps/reference/masks-catalog.json');
 if (fs.existsSync(docs)) {
-  check('includes/data/masks-catalog-efb.json is byte-identical to the docs catalog', Buffer.compare(plugin, fs.readFileSync(docs)) === 0);
+  // SPLIT §10.1: core's catalogue + the Address & Postal add-on's 18 postal presets = the docs catalogue, entry for
+  // entry (the same JSON for every id, the same order); everything outside "masks" byte for byte.
+  const ref = JSON.parse(fs.readFileSync(docs, 'utf8'));
+  const site = require('./masks-addon-lib.js').catalog();
+  const core = JSON.parse(plugin.toString('utf8'));
+  const strip = (o) => { const c = Object.assign({}, o); delete c.masks; return JSON.stringify(c); };
+  check('core catalogue + the add-on\'s postal presets equal the docs catalogue (every entry, same order)', JSON.stringify(site.masks) === JSON.stringify(ref.masks) && strip(core) === strip(ref), `(${site.masks.length} / ${ref.masks.length})`);
+  check('core keeps no postal_code preset (SPLIT §10.1)', core.masks.every((m) => m.category !== 'postal_code') && ref.masks.filter((m) => m.category === 'postal_code').length === 18);
 } else {
   console.log('[SKIP] docs catalog not present');
 }

@@ -1655,17 +1655,13 @@ public function check_nonce_permission_efb($request) {
 				$s_m ='<!--efb-->';
 
 				if( is_string($value) && (strpos($value , '\"type\":\"maps\"') !== false || strpos($value , '"type":"maps"') !== false)){
-					$sm = $this->efbFunction->openstreet_map_required_efb(1);
-					if($sm==false){
-						$s_m =" <script>alert('OpenStreetMap Error:".$lanText['tfnapca']."')</script>";
-					}
+					// SPLIT §10.2: Leaflet from the Address & Postal add-on; without it the field shows its notice (no alert()).
+					$this->efbFunction->openstreet_map_required_efb(1);
 				}else{
 					$new_string_value = json_encode($value);
 					if(strpos($new_string_value , 'type":"maps"') !== false || strpos($new_string_value , 'type\":\"maps\"') !== false){
-						$sm = $this->efbFunction->openstreet_map_required_efb(1);
-						if($sm==false){
-							$s_m =" <script>alert('OpenStreetMap Error:".$lanText['tfnapca']."')</script>";
-						}
+						// SPLIT §10.2: Leaflet from the Address & Postal add-on; without it the field shows its notice (no alert()).
+						$this->efbFunction->openstreet_map_required_efb(1);
 					}
 
 				}
@@ -2329,10 +2325,8 @@ public function check_nonce_permission_efb($request) {
 				}
 
 				if(isset($valstng->osLocationPicker) && $valstng->osLocationPicker==true){
-					$sm = $this->efbFunction->openstreet_map_required_efb(1);
-					if($sm==false){
-						$s_m =" <script>alert('OpenStreetMap Error:".$text['tfnapca']."')</script>";
-					}
+					// SPLIT §10.2: Leaflet from the Address & Postal add-on; without it the field shows its notice (no alert()).
+					$this->efbFunction->openstreet_map_required_efb(1);
 				}
 		}
 
@@ -3090,6 +3084,8 @@ public function check_nonce_permission_efb($request) {
 		$sms_notification_enabled = strpos($form_structure_json, '\"smsnoti\":\"1\"') !== false || $sms_notification_enabled == 1 ? 1 : 0;
 		if ($form_structure_json != '') {
 			$form_fields_array = json_decode($form_structure_json, true);
+			// SPLIT §4.1: a field an absent add-on draws (the map, a calc result) is shown as a notice: never required.
+			if (is_array($form_fields_array) && class_exists('\\Emsfb\\Split')) $form_fields_array = \Emsfb\Split::unrequire_absent($form_fields_array);
 			$form_structure_json = null;
 			// F05: choices built from the site (posts, terms, users, CSV), expanded again with the same ids, so a
 			// choice that is gone (deleted, made private) is not accepted and every check below sees the real list.

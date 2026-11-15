@@ -17,6 +17,9 @@ if (!function_exists('esc_attr')) {
 	function esc_attr($v) { return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); }
 }
 require_once __DIR__ . '/../includes/class-Emsfb-masks.php';
+// SPLIT §10.1: a site with the Address & Postal add-on (its 18 postal presets; tests/masks-addon-lib.php).
+require_once __DIR__ . '/masks-addon-lib.php';
+efb_test_masks_install_address();
 require_once __DIR__ . '/../includes/class-Emsfb-formbuilder.php';
 
 $pass = 0;

@@ -44,6 +44,7 @@ class EfbMasksAjaxFn {
 function get_efbFunction() { return new EfbMasksAjaxFn(); }
 
 require_once __DIR__ . '/../includes/class-Emsfb-masks.php';
+require_once __DIR__ . '/masks-addon-lib.php';
 require_once __DIR__ . '/../includes/admin/class-Emsfb-admin.php';
 
 $pass = 0;
@@ -63,7 +64,7 @@ function efbt_call() {
 }
 function efbt_reset($o) {
 	$GLOBALS['efbt'] = array_merge($GLOBALS['efbt'], array('nonce' => true, 'can' => true, 'tr' => array(), 'cache' => array(), 'cache_sets' => 0), $o);
-	\Emsfb\Masks::reset();
+	\Emsfb\Masks::reset(); efb_test_masks_install_address(); // SPLIT §10.1: the site keeps the add-on
 }
 
 $src = file_get_contents(__DIR__ . '/../includes/admin/class-Emsfb-admin.php');
@@ -76,7 +77,9 @@ efbt_reset(array('can' => false));
 $r = efbt_call();
 efbt('no permission -> success:false with error403', is_array($r) && $r['success'] === false && $r['m'] === 'E403');
 
-$cat = json_decode(file_get_contents(__DIR__ . '/../includes/data/masks-catalog-efb.json'), true);
+// SPLIT §10.1: a site with the Address & Postal add-on (its 18 postal presets; tests/masks-addon-lib.php).
+require_once __DIR__ . '/masks-addon-lib.php';
+$cat = efb_test_masks_install_address();
 $catIds = array_map(function ($m) { return $m['id']; }, $cat['masks']);
 sort($catIds);
 
@@ -152,7 +155,10 @@ efbt('en placeholder for non fa/ar admins', $r['groups'][0]['presets'][0]['place
 
 // Labels file: one literal __() per catalog id and per group, English = catalog label.en.
 \Emsfb\Masks::load_labels();
-$labels = \Emsfb\Masks_Labels::presets();
+// SPLIT §10.1: the 18 postal formats' labels are the Address & Postal add-on's (text domain efb-address).
+if (!defined('ABSPATH')) define('ABSPATH', __DIR__ . '/');
+require_once efb_test_address_dir() . '/address-phrases-efb.php';
+$labels = \Emsfb\Masks_Labels::presets() + Emsfb_Addon_Phrases_Address::preset_labels();
 $lids = array_keys($labels);
 sort($lids);
 efbt('labels file covers exactly the catalog ids', $lids === $catIds);
@@ -164,7 +170,10 @@ efbt('labels file English text equals catalog label.en', $same);
 $prefixes = array_unique(array_map(function ($id) { return substr($id, 0, strpos($id, '.')); }, $catIds));
 efbt('labels file has one group per id prefix (' . count($prefixes) . ')', count(\Emsfb\Masks_Labels::groups()) === count($prefixes) && !array_diff($prefixes, array_keys(\Emsfb\Masks_Labels::groups())));
 $lsrc = file_get_contents(__DIR__ . '/../includes/data/masks-labels-efb.php');
-efbt('labels are literal __() calls with the plugin text domain', preg_match_all("/__\\('[^']+', 'easy-form-builder'\\)/", $lsrc) === count($catIds) + count(\Emsfb\Masks_Labels::groups()));
+$asrc = file_get_contents(efb_test_address_dir() . '/address-phrases-efb.php');
+$postal_n = count(Emsfb_Addon_Phrases_Address::preset_labels());
+efbt('labels are literal __() calls: core\'s with the plugin text domain, the add-on\'s 18 with efb-address', preg_match_all("/__\\('[^']+', 'easy-form-builder'\\)/", $lsrc) === count($catIds) - $postal_n + count(\Emsfb\Masks_Labels::groups())
+	&& $postal_n === 18 && preg_match_all("/__\\( '[^']+', 'efb-address' \\)/", $asrc) === 18);
 
 // Builder phrases exist in text_efb().
 $fsrc = file_get_contents(__DIR__ . '/../includes/functions.php');

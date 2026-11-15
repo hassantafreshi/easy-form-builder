@@ -27,6 +27,7 @@ const check = (label, ok, detail) => {
 const catalogJson = execFileSync('php', ['-r', `
   define('ABSPATH', '/'); function __($t, $d = '') { return $t; }
   require '${path.join(ROOT, 'includes', 'class-Emsfb-masks.php').replace(/\\/g, '/')}';
+  require '${path.join(__dirname, 'masks-addon-lib.php').replace(/\\/g, '/')}'; efb_test_masks_install_address(); // SPLIT §10.1: with the Address & Postal add-on
   echo json_encode(array('success' => true, 'data' => \\Emsfb\\Masks::builder_catalog('en_US', 'en_US')), JSON_UNESCAPED_UNICODE);
 `]).toString('utf8');
 

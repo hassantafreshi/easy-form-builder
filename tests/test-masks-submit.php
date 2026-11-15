@@ -78,7 +78,9 @@ function row_item($id, $type, $value) {
 }
 
 // 1. Every catalog vector, on a tel field for phones and a text field otherwise.
-$cat = json_decode(file_get_contents(__DIR__ . '/../includes/data/masks-catalog-efb.json'), true);
+// SPLIT §10.1: a site with the Address & Postal add-on (its 18 postal presets; tests/masks-addon-lib.php).
+require_once __DIR__ . '/masks-addon-lib.php';
+$cat = efb_test_masks_install_address();
 $jsStored = null;
 $node = trim((string) @shell_exec('command -v node'));
 if ($node !== '') {

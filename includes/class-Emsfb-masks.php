@@ -1786,7 +1786,11 @@ class Masks {
 		$row = is_array($row) ? $row : (is_object($row) ? get_object_vars($row) : array());
 		$p = isset($row['mask_preset']) ? $row['mask_preset'] : '';
 		if ($p !== '' && $p !== null) {
-			if (!is_string($p) || ($p !== 'custom' && $p !== 'numeric' && self::preset($p) === null)) {
+			if (is_string($p) && self::preset($p) === null && class_exists('\\Emsfb\\Addon_Keys') && in_array($p, Addon_Keys::POSTAL_PRESETS, true)) {
+				// SPLIT §10.1: a postal format of the Address & Postal add-on while it is absent: a warning, never a refusal
+				// (the stored id is kept; the field checks only the length).
+				$warnings[] = array('key' => 'mask_preset', 'code' => 'unknown_mask', 'addon' => 'AdnADR');
+			} elseif (!is_string($p) || ($p !== 'custom' && $p !== 'numeric' && self::preset($p) === null)) {
 				$errors[] = array('key' => 'mask_preset', 'code' => 'unknown_mask');
 			} elseif ($p === 'custom') {
 				if (!self::check_mask(isset($row['mask_custom']) ? $row['mask_custom'] : '')) {

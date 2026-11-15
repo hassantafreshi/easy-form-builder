@@ -56,8 +56,8 @@ class Split {
 	 */
 	public static function core_contracts($c) {
 		$c = is_array($c) ? $c : array();
-		// Postal presets / map field (F01, maps) and the booking editor are still in core.
-		foreach (array('address', 'booking') as $id) if (!self::addon_provides($id)) $c[$id]['core'] = 1;
+		// The booking editor is still in core (until SPLIT-F).
+		foreach (array('booking') as $id) if (!self::addon_provides($id)) $c[$id]['core'] = 1;
 		return $c;
 	}
 
@@ -214,6 +214,19 @@ class Split {
 		$e['assistant'] = 'none';
 		$e['unavailable'] = array('addon' => $code, 'reason' => $st);
 		return $e;
+	}
+
+	/** Fields drawn by an add-on that is not usable now are not required (their notice is in their place). */
+	public static function unrequire_absent(array $rows) {
+		$legacy = self::legacy_types();
+		foreach ($rows as $i => $r) {
+			if ($i === 0 || !is_array($r) || empty($r['required'])) continue;
+			$type = isset($r['type']) && is_string($r['type']) ? $r['type'] : '';
+			if ($type === '' || isset($legacy[$type])) continue; // a payment field keeps its own refusal (pay_not_ready)
+			$code = self::field_addon($r);
+			if ($code !== '' && self::addon_state($code) !== null) $rows[$i]['required'] = false;
+		}
+		return $rows;
 	}
 
 	/** The add-on that draws a whole field (calc, maps, the legacy gateways), or ''. */

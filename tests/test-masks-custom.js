@@ -12,7 +12,8 @@ const { execFileSync } = require('child_process');
 const E = require('../public/assets/js/masks-efb.js');
 
 const fx = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', 'masks-custom-vectors.json'), 'utf8'));
-const cat = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'includes', 'data', 'masks-catalog-efb.json'), 'utf8'));
+// SPLIT §10.1: a site with the Address & Postal add-on (its 18 postal presets; tests/masks-addon-lib.js).
+const cat = require('./masks-addon-lib.js').catalog();
 const byId = {};
 for (const m of cat.masks) byId[m.id] = m;
 

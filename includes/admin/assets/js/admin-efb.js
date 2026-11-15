@@ -4811,7 +4811,7 @@ let editFormEfb =async () => {
 
           if (type == 'maps') {
             setTimeout(() => {
-              efbCreateMap(valj_efb[v].id_ ,valj_efb[v],false)
+              if (typeof efbCreateMap === 'function') efbCreateMap(valj_efb[v].id_ ,valj_efb[v],false)
             }, (len * 2));
           }
 
@@ -7712,7 +7712,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <!-- ${rndm}-map -->
       ${ttip}
-       ${typeof maps_os_pro_efb =="function" ? maps_os_pro_efb(previewSate, pos , rndm,iVJ) : public_pro_message()}
+       ${typeof efbCreateMap !== 'function' ? efb_addon_needed_html_efb('AdnADR') : (typeof maps_os_pro_efb =="function" ? maps_os_pro_efb(previewSate, pos , rndm,iVJ) : public_pro_message())}
         ${desc}`
       dataTag = elementId;
       break;
@@ -9637,7 +9637,7 @@ function switchViewEfb(view) {
           }
 
           if (type == 'maps') {
-            setTimeout(() => { efbCreateMap(valj_efb[v].id_, valj_efb[v], false); }, (len * 2));
+            if (typeof efbCreateMap === 'function') setTimeout(() => { efbCreateMap(valj_efb[v].id_, valj_efb[v], false); }, (len * 2));
           }
         }
       } catch (error) {}
@@ -10097,7 +10097,7 @@ function previewFormEfb(state) {
       let disabled = v.hasOwnProperty('disabled') ? v.disabled : false;
       switch (v.type) {
         case "maps":
-          efbCreateMap(v.id_ ,v,false)
+          if (typeof efbCreateMap === 'function') efbCreateMap(v.id_ ,v,false)
           break;
         case "esign":
           const canvas = document.getElementById(`${v.id_}_`);

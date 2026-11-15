@@ -3339,8 +3339,8 @@ class efbFunction {
 			/* translators: %s is the list of valid file formats */
 			"ivf" => $state  &&  isset($ac->text->ivf) ? $ac->text->ivf : esc_html__('Valid formats: %s','easy-form-builder'),
 			"zoom" => $state  &&  isset($ac->text->zoom) ? $ac->text->zoom : esc_html__('Zoom','easy-form-builder'),
-			/* translators: CDN = Content Delivery Network - a service that loads files faster; Leaflet.js (leafletjs.com) is a mapping library; unpkg.com is a JavaScript file hosting service */
-			"lpds" => $state  &&  isset($ac->text->lpds) ? $ac->text->lpds : esc_html__('To enable the Location Picker field, Easy Form Builder loads Leaflet.js from the unpkg.com CDN — only on pages where this feature is used.','easy-form-builder'),
+			/* translators: Leaflet.js (leafletjs.com) is a mapping library; "Address & Postal" is the name of an Easy Form Builder add-on */
+			"lpds" => $state  &&  isset($ac->text->lpds) ? $ac->text->lpds : esc_html__('To enable the Location Picker field, the Address & Postal add-on loads Leaflet.js from its own files — only on pages where this feature is used. The map tiles come from OpenStreetMap.','easy-form-builder'),
 			"elpo" => $state  &&  isset($ac->text->elpo) ? $ac->text->elpo : esc_html__('Enable Location Picker in Easy Form Builder','easy-form-builder'),
 			"jqinl" => $state  &&  isset($ac->text->jqinl) ? $ac->text->jqinl : esc_html__('Easy Form Builder cannot display the form because jQuery is not properly loaded. This issue might be due to incorrect jQuery invocation by another plugin or the current website theme.','easy-form-builder'),
 
@@ -10400,28 +10400,13 @@ public function addon_add_efb($value) {
 
 	}
 
+	/**
+	 * SPLIT §10.2: Leaflet for the map field is the Address & Postal add-on's (local and versioned, efb_maps_assets).
+	 * Before SPLIT this sent a HEAD request to unpkg.com on every render and loaded Leaflet.fullscreen without a version
+	 * (§20 item 3). True when the add-on enqueued it.
+	 */
 	public function openstreet_map_required_efb($s){
-
-		$url = 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.js';
-		$response = wp_remote_head($url);
-		$s =false;
-		if (!is_wp_error($response) && 200 == wp_remote_retrieve_response_code($response)) {
-
-			$s= true;
-		}
-		if($s==false) return false;
-
-		wp_register_style('leaflet_css_efb', 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css', array(), '1.7.1');
-		wp_enqueue_style('leaflet_css_efb');
-		wp_register_script('leaflet_js_efb', $url, array(), '1.7.1', true);
-		wp_enqueue_script('leaflet_js_efb');
-		wp_register_style('leaflet_fullscreen_css_efb', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.css');
-		wp_enqueue_style('leaflet_fullscreen_css_efb');
-		wp_register_script('leaflet_fullscreen_js_efb', 'https://unpkg.com/leaflet.fullscreen/Control.FullScreen.js');
-		wp_enqueue_script('leaflet_fullscreen_js_efb');
-
-		return true;
-
+		return function_exists('apply_filters') ? (bool) apply_filters('efb_maps_assets', false, $s) : false;
 	}
 
 	public function check_and_enqueue_google_captcha_efb($lang) {

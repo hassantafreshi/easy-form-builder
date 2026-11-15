@@ -573,12 +573,12 @@ e2e روی `tests/e2e-wp` (سناریوی تازهٔ `scenario-split.js`، fa_IR
 ### E — `AdnADR` (پستی و نقشه)
 `vendores-efb/address`: ۱۸ پیش‌تنظیم با `efb_mask_presets` و برچسب‌ها، فیلد `maps` با Leaflet محلی، رفع URL-encode و کش reverse (BUGS-FOUND ردیف Nominatim)؛ هسته: حذف از کاتالوگ و `pro_els-efb.js`، نمایش ردیف `maps` می‌ماند. معیار: `test-masks-*` با افزونه، `test-split-postal-unknown.php` بی‌افزونه.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: افزونهٔ تازه `vendores-efb/address` (`routes-efb.php`، `class-Emsfb-address.php`: `efb_mask_presets` با ۱۸ پیش‌تنظیم `data/postal-presets-efb.json`، برچسب‌ها با `efb_mask_catalog`، رندر فیلد نقشه با `efb_render_field` (کد `case 'maps'`، `map_search_section_efb`، `field_maps_style_efb` هسته)، `efb_maps_assets`/`efb_public_enqueue`/`efb_admin_enqueue_builder`؛ `assets/js/maps-efb.js` = کد نقشهٔ `pro_els-efb.js`؛ `assets/vendor/leaflet-1.7.1` و `leaflet-fullscreen-1.6.0` محلی با مجوزها؛ `address-phrases-efb.php` ۱۸ برچسب در `efb-address`؛ زیپ). هسته: `masks-catalog-efb.json` (140 → 122)، `masks-labels-efb.php` (−18)، `class-Emsfb-masks.php` (`unknown_mask` پستی = هشدار با `addon:AdnADR`)، `class-Emsfb-formbuilder.php` (`case 'maps'` → `efb_render_field` یا پیام افزونه)، `functions.php` (`openstreet_map_required_efb()` = فیلتر `efb_maps_assets`، بی درخواست HEAD به unpkg؛ متن `lpds` به‌روز)، `class-Emsfb-public.php` (بی `alert()` با عبارت بی‌escape؛ `Split::unrequire_absent()` پیش از اعتبارسنجی)، `class-Emsfb-split.php` (`unrequire_absent()`؛ `address` دیگر `core` نیست)، `pro_els-efb.js` (بی کد نقشه)، `admin-efb.js` (فراخوان‌های `efbCreateMap` محافظت‌شده؛ پیام Install در بوم).
+- تست‌ها: تازه `test-split-postal-unknown.php` (13). آزمون‌های ماسک با افزونه (کمک‌کننده‌های `tests/masks-addon-lib.php|js`: کاتالوگ هسته + پیش‌تنظیم‌های افزونه به ترتیب سند مرجع): `test-masks-vectors.js` همان 1332 بردار، `.php` 192، `test-masks-submit.php` 1151، `test-masks-catalog-ajax.php` (برچسب‌ها: هسته با `easy-form-builder`، ۱۸ تا با `efb-address`)، `test-masks-parity.js` (هسته + افزونه = سند مرجع، ورودی به ورودی؛ هسته بی postal_code)، `test-masks-render.php`، `test-masks-*-browser.js`. `test-maps-stored-xss.php` همان یک شکست پایه. کل مجموعهٔ مرتبط: بی‌شکست تازه.
+- وضعیت ترجمه: ۱۸ برچسب به `efb-address`؛ عبارت‌های نقشه (`locateMe`، `slocation`، …) مشترک‌اند و در هسته ماندند؛ `lpds` بازنویسی شد (ترجمه نمی‌شود).
+- مورد باز: جست‌وجوی نشانی F17 و کد پستی → شهر هنوز ساخته نشده‌اند (F17)؛ جای آن‌ها در همین افزونه است. نشانی ملی عربستان (پرسش ۹) با گیت Pro در همین افزونه خواهد بود.
+- اقدام بعدی: F.
 
 ### F — رزرو (`AdnBEF` اسکلت و قرارداد)
 هسته: `efb_choice_option_state` با پیش‌فرض منجمد، دو ورودی رجیستری §۹.۳، حذف `case "reservation"`، کنترل‌های فقط‌خواندنی؛ `vendores-efb/booking`: ویرایش فرم رزرو قدیمی و قالب، اسکلت availability (پیاده‌سازی کامل تسک جدا پس از F20). معیار: `test-split-booking-legacy.php`؛ e2e `f05` (موجودی) بی‌تغییر.

@@ -3603,99 +3603,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 					$dataTag = $elementId;
 				break;
 				case 'maps':
-
-					$lat = isset($vj->lat) ? $vj->lat : '0';
-					$lng = isset($vj->lng) ? $vj->lng : '0';
-					$zoom = isset($vj->zoom) ? $vj->zoom : '8';
-					$formId = $form_id;
-					$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
-					$el_height = isset($vj->el_height) ? $vj->el_height : '300px';
-					$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $element_Id . '-des"' : '';
-					$message = $vj->message;
-
-					$ui .= sprintf(
-						"<div class='efb col-md-12' id='%1\$s-f' data-formid='%2\$s'>
-							<label for='%1\$s_' class='efb form-label text-labelEfb'>
-								<span>%3\$s</span>
-								<span class='text-danger' role='none'>%4\$s</span>
-							</label>
-							<div class='efb maps-efb maps-os emsFormBuilder_v  %5\$s %12\$s' id='%1\$s-map' data-vid='%1\$s' data-formid='%2\$s' data-lat='%6\$s' data-lng='%7\$s' data-zoom='%8\$s' data-id='%1\$s-el' %9\$s></div>
-							<input type='hidden' name='%1\$s-lat' id='%1\$s_lat' value='%6\$s' class='efb emsFormBuilder_v'  data-formid='%2\$s' data-type='maps' data-vid='%1\$s' %10\$s>
-							<input type='hidden' name='%1\$s-lng' id='%1\$s_lng' value='%7\$s' class='efb emsFormBuilder_v'  data-formid='%2\$s' data-type='maps' data-vid='%1\$s' %10\$s>
-							<small id='%1\$s-des' class='form-text text-muted'>%11\$s</small>
-						</div>",
-						$element_Id,
-						$formId,
-						$label,
-						($required ? '*' : ''),
-						$el_height,
-						$lat,
-						$lng,
-						$zoom,
-						$ariaDescribedBy,
-						$required,
-						$message,
-						isset($vj->mark) && (int)$vj->mark>0 ? 'd-none' : ''
-					);
-
-					if(isset($vj->mark) && (int)$vj->mark>0 ){
-
-						$ui .=sprintf(
-							"<script>
-								document.addEventListener('DOMContentLoaded', function() {
-									setTimeout(() => {
-										%s
-									}, 1000);
-								});
-							</script>",
-							$this->map_search_section_efb($element_Id,$vj,$form_id),
-
-						);
-					}else{
-						$ui .= sprintf(
-							"<script>
-								function efbCreateMap_%s() {
-									var map = L.map('%s-map').setView([%s, %s], %s);
-									L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-										attribution: '&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors'
-									}).addTo(map);
-
-									var marker = L.marker([%s, %s], { draggable: true }).addTo(map);
-									marker.on('dragend', function(event) {
-										var position = marker.getLatLng();
-										document.getElementById('%s_lat').value = position.lat;
-										document.getElementById('%s_lng').value = position.lng;
-									});
-
-									map.whenReady(function() { map.invalidateSize(); });
-									setTimeout(function() { map.invalidateSize(); }, 100);
-									setTimeout(function() { map.invalidateSize(); }, 500);
-									setTimeout(function() { map.invalidateSize(); }, 1500);
-								}
-
-								document.addEventListener('DOMContentLoaded', function() {
-									efbCreateMap_%s();
-									<!--code new maps -->
-								});
-							</script>",
-							$element_Id,
-							$element_Id, $lat, $lng, $zoom,
-							$lat, $lng,
-							$element_Id, $element_Id,
-							$element_Id,
-						);
+					// SPLIT §10.2: the map field is the Address & Postal add-on's (efb_render_field); without it the field
+					// shows the add-on notice in its place and is not required (stored answers still display).
+					$maps_efb = function_exists('apply_filters') ? apply_filters('efb_render_field', null, 'maps', $vj, array('element_id' => $element_Id, 'form_id' => $form_id, 'label' => $label, 'texts' => $texts)) : null;
+					if (is_array($maps_efb) && isset($maps_efb['ui']) && is_string($maps_efb['ui'])) {
+						$ui .= $maps_efb['ui'];
+						if ($pro!==true &&  $pro!==1) {
+							$ui = $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
+						}
+						$style = isset($maps_efb['style']) && is_string($maps_efb['style']) ? $maps_efb['style'] : '';
+					} else {
+						$ui = $this->addon_needed_message_efb('AdnADR', $texts);
 					}
-
-					if($efbFunction === null)$efbFunction = get_efbFunction();
-					$efbFunction->openstreet_map_required_efb(0);
-					if ($pro!==true &&  $pro!==1) {
-						$ui = $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
-					}
-
-					$style = $this->field_maps_style_efb();
 					$dataTag = "maps";
 					break;
-				break;
 
 				case 'rating':
 
@@ -4304,16 +4225,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 				return $this->generateSwitchOffColorCss($vj->id_, $val);
 			}
 		}
-	}
-
-	public function map_search_section_efb($element_Id, $vj, $form_id) {
-
-		 return sprintf('efbCreateMap("%1$s", %2$s, %3$s);',
-			$element_Id,
-			json_encode($vj, JSON_HEX_TAG | JSON_HEX_AMP),
-			'false'
-		);
-
 	}
 
 public function check_error_console_efb(){
@@ -5690,217 +5601,6 @@ public function check_error_console_efb(){
 			$this->efb_print_schema_ld( $schema );
 			$this->efb_register_head_hooks();
 		} */
-
-		public function field_maps_style_efb(){
-			return '
-					.map-container {
-					width: 100%;
-					height: 350px;
-					margin-top: 10px;
-					}
-					.map {
-					width: 100%;
-					height: 100%;
-					}
-					.leaflet-control-container .leaflet-control-layers {
-					background: white;
-					padding: 10px;
-					}
-					.leaflet-control-container .custom-control {
-						position: relative;
-						bottom: 0;
-						left: 0;
-						width: 100%;
-						background: rgba(248, 249, 250, 0.95);
-						padding: 8px;
-						box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-						z-index: 1000;
-						border-radius: 8px;
-					}
-
-					.leaflet-control-container .custom-control .d-flex {
-						gap: 6px;
-						flex-wrap: wrap;
-					}
-
-					.leaflet-control-container .custom-control input,
-					.leaflet-control-container .custom-control button,
-					.leaflet-control-container .custom-control a {
-						margin: 2px;
-						border-radius: 6px;
-						border: none;
-						box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-						transition: all 0.2s ease;
-					}
-
-					.leaflet-control-container .custom-control a:hover {
-						transform: translateY(-1px);
-						box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-					}
-
-					.leaflet-control-container .custom-control input[type="text"] {
-						flex: 1;
-						min-width: 150px;
-						padding: 6px 12px;
-						border: 1px solid #dee2e6;
-						background: white;
-					}
-
-					@media (max-width: 576px) {
-						.leaflet-control-container .custom-control {
-							padding: 6px;
-							width: calc(100% - 10px);
-							margin: 5px;
-						}
-
-						.leaflet-control-container .custom-control .d-flex {
-							gap: 4px;
-						}
-
-						.leaflet-control-container .custom-control input[type="text"] {
-							min-width: 120px;
-							font-size: 14px;
-							padding: 8px 10px;
-						}
-
-						.leaflet-control-container .custom-control .btn {
-							padding: 8px 10px;
-							font-size: 14px;
-						}
-
-						.leaflet-control-container .custom-control .btn i {
-							font-size: 16px;
-						}
-
-						.leaflet-control-container .custom-control .d-none.d-md-inline {
-							display: none !important;
-						}
-
-						.leaflet-control-container .custom-control .d-inline.d-md-none {
-							display: inline !important;
-						}
-					}
-
-					@media (min-width: 577px) and (max-width: 992px) {
-						.leaflet-control-container .custom-control {
-							width: calc(100% - 10px);
-							margin: 5px;
-						}
-
-						.leaflet-control-container .custom-control input[type="text"] {
-							min-width: 180px;
-						}
-					}
-					@media (min-width: 993px) {
-						.leaflet-control-container .custom-control {
-							width: auto;
-							max-width: 90%;
-						}
-
-						.leaflet-control-container .custom-control input[type="text"] {
-							min-width: 200px;
-						}
-					}
-					.leaflet-control-container .error-message {
-					color: red;
-					margin: 5px;
-					}
-					#efb-create-map-btn {
-					margin: 10px;
-					}
-
-					.custom-control.leaflet-control {
-					display: flex;
-					align-items: center;
-					gap: 10px;
-					}
-
-					.custom-control.leaflet-control .efb {
-					margin: 0 5px;
-					}
-
-					.custom-control.leaflet-control input[type="text"] {
-					flex: 1;
-					min-width: 200px;
-					}
-
-					.custom-control.leaflet-control a,
-					.custom-control.leaflet-control input[type="text"] {
-					margin: 0;
-					}
-
-					.custom-control.leaflet-control .error-message {
-					margin-top: 10px;
-					}
-					.efb-searchbox .btn {
-						transition: all 0.2s ease-in-out;
-						border: none;
-						font-weight: 500;
-					}
-
-					.efb-searchbox .btn:hover {
-						transform: translateY(-1px);
-						box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-					}
-
-					.efb-searchbox .btn:active {
-						transform: translateY(0);
-					}
-
-					.efb-searchbox .form-control {
-						border: 1px solid #dee2e6;
-						border-radius: 6px;
-						transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-					}
-
-					.efb-searchbox .form-control:focus {
-						border-color: #86b7fe;
-						outline: 0;
-						box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-					}
-
-					.efb .map-control-container {
-					display: flex !important;
-					flex-wrap: nowrap !important;
-					align-items: center !important;
-					justify-content: flex-start !important;
-					gap: 4px !important;
-					position: relative !important;
-					}
-
-					.efb .map-control-container .flex-shrink-0 {
-					min-width: 32px !important;
-					height: 32px !important;
-					padding: 0 !important;
-					flex-shrink: 0 !important;
-					}
-
-					.efb .map-control-container .form-control {
-					min-width: 100px !important;
-					height: 32px !important;
-					font-size: 13px !important;
-					padding: 4px 8px !important;
-					flex-grow: 1 !important;
-					}
-
-					@media (max-width: 576px) {
-					.efb .map-control-container {
-						gap: 2px !important;
-					}
-
-					.efb .map-control-container .flex-shrink-0 {
-						min-width: 30px !important;
-						height: 30px !important;
-					}
-
-					.efb .map-control-container .form-control {
-						font-size: 12px !important;
-						padding: 3px 6px !important;
-						height: 30px !important;
-					}
-					}
-					';
-		}
 
 		public function field_mobile_style_efb(){
 			return '

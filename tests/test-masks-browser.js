@@ -40,6 +40,7 @@ const php = execFileSync('php', ['-r', `
   function get_option($o, $d = false) { return $d; }
   function esc_attr($v) { return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); }
   require '${ROOT.replace(/\\/g, '/')}/includes/class-Emsfb-masks.php';
+  require '${path.join(__dirname, 'masks-addon-lib.php').replace(/\\/g, '/')}'; efb_test_masks_install_address(); // SPLIT §10.1: with the Address & Postal add-on
   require '${ROOT.replace(/\\/g, '/')}/includes/class-Emsfb-formbuilder.php';
   $forms = json_decode(stream_get_contents(STDIN), true);
   $m = new ReflectionMethod('\\\\Emsfb\\\\Formbuilder', 'generateElementSpecificFields_efb'); $m->setAccessible(true);

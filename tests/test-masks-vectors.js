@@ -11,7 +11,8 @@ const fs = require('fs');
 const path = require('path');
 const E = require('../public/assets/js/masks-efb.js');
 
-const cat = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'includes', 'data', 'masks-catalog-efb.json'), 'utf8'));
+// SPLIT §10.1: a site with the Address & Postal add-on (its 18 postal presets; tests/masks-addon-lib.js).
+const cat = require('./masks-addon-lib.js').catalog();
 
 function vectorRows() {
   const rows = [];

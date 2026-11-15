@@ -16,7 +16,9 @@ require_once __DIR__ . '/../includes/class-Emsfb-masks.php';
 
 use Emsfb\Masks;
 
-$cat = json_decode(file_get_contents(__DIR__ . '/../includes/data/masks-catalog-efb.json'), true);
+// SPLIT §10.1: a site with the Address & Postal add-on (its 18 postal presets; tests/masks-addon-lib.php).
+require_once __DIR__ . '/masks-addon-lib.php';
+$cat = efb_test_masks_install_address();
 
 function efbm_test_rows($cat) {
 	$rows = array();
@@ -132,7 +134,7 @@ efbm_check("all $expected_rows catalog vectors present", count($rows) === $expec
 $npresets = count($cat['masks']);
 
 // Catalog loading, preset lookup and the browser subset.
-Masks::reset();
+Masks::reset(); efb_test_masks_install_address(); // SPLIT §10.1: the site keeps the add-on
 $t0 = microtime(true);
 $loaded = Masks::catalog();
 $ms = (microtime(true) - $t0) * 1000;

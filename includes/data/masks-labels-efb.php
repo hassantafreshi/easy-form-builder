@@ -30,8 +30,6 @@ class Masks_Labels {
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'ir.economic_code' => __('Iranian economic code', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
-			'ir.postal_code' => __('Iranian postal code', 'easy-form-builder'),
-			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'ir.bank_card' => __('Iranian bank card (Shetab)', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'ir.sheba' => __('Sheba (Iranian IBAN)', 'easy-form-builder'),
@@ -62,10 +60,6 @@ class Masks_Labels {
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'sa.iban' => __('Saudi IBAN', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
-			'sa.postal_code' => __('Saudi postal code', 'easy-form-builder'),
-			/* translators: input format preset shown in the form builder's "Format / mask" list */
-			'sa.short_address' => __('Saudi National Address short code', 'easy-form-builder'),
-			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'sa.date_hijri' => __('Hijri date (Umm al-Qura)', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'ae.mobile' => __('UAE mobile number', 'easy-form-builder'),
@@ -82,15 +76,11 @@ class Masks_Labels {
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'eg.iban' => __('Egyptian IBAN', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
-			'eg.postal_code' => __('Egyptian postal code', 'easy-form-builder'),
-			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'kw.mobile' => __('Kuwaiti mobile number', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'kw.civil_id' => __('Kuwaiti Civil ID', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'kw.iban' => __('Kuwaiti IBAN', 'easy-form-builder'),
-			/* translators: input format preset shown in the form builder's "Format / mask" list */
-			'kw.postal_code' => __('Kuwaiti postal code', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'qa.mobile' => __('Qatari mobile number', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
@@ -108,15 +98,11 @@ class Masks_Labels {
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'om.iban' => __('Omani IBAN', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
-			'om.postal_code' => __('Omani postal code', 'easy-form-builder'),
-			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'jo.mobile' => __('Jordanian mobile number', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'jo.national_number' => __('Jordanian national number', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'jo.iban' => __('Jordanian IBAN', 'easy-form-builder'),
-			/* translators: input format preset shown in the form builder's "Format / mask" list */
-			'jo.postal_code' => __('Jordanian postal code', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'iq.mobile' => __('Iraqi mobile number', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
@@ -132,13 +118,9 @@ class Masks_Labels {
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'ma.iban' => __('Moroccan IBAN (RIB)', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
-			'ma.postal_code' => __('Moroccan postal code', 'easy-form-builder'),
-			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'dz.mobile' => __('Algerian mobile number', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'dz.iban' => __('Algerian IBAN', 'easy-form-builder'),
-			/* translators: input format preset shown in the form builder's "Format / mask" list */
-			'dz.postal_code' => __('Algerian postal code', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'tn.mobile' => __('Tunisian mobile number', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
@@ -146,13 +128,9 @@ class Masks_Labels {
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'tn.iban' => __('Tunisian IBAN', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
-			'tn.postal_code' => __('Tunisian postal code', 'easy-form-builder'),
-			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'intl.phone_e164' => __('International phone (E.164)', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'us.phone' => __('US / Canada phone (NANP)', 'easy-form-builder'),
-			/* translators: input format preset shown in the form builder's "Format / mask" list */
-			'us.zip' => __('US ZIP code', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'us.ssn' => __('US Social Security number', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
@@ -162,27 +140,17 @@ class Masks_Labels {
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'uk.landline' => __('UK landline', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
-			'uk.postcode' => __('UK postcode', 'easy-form-builder'),
-			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'uk.nino' => __('UK National Insurance number', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
-			'ca.postal_code' => __('Canadian postal code', 'easy-form-builder'),
-			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'au.mobile' => __('Australian mobile number', 'easy-form-builder'),
-			/* translators: input format preset shown in the form builder's "Format / mask" list */
-			'au.postcode' => __('Australian postcode', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'au.abn' => __('Australian Business Number (ABN)', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'in.mobile' => __('Indian mobile number', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
-			'in.pin' => __('Indian PIN code', 'easy-form-builder'),
-			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'in.pan' => __('Indian PAN', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'in.aadhaar' => __('Aadhaar number', 'easy-form-builder'),
-			/* translators: input format preset shown in the form builder's "Format / mask" list */
-			'de.plz' => __('German postal code (PLZ)', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'intl.iban' => __('IBAN (any country)', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
@@ -222,8 +190,6 @@ class Masks_Labels {
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'br.cnpj' => __('Brazilian CNPJ (numeric or alphanumeric)', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
-			'br.cep' => __('Brazilian CEP', 'easy-form-builder'),
-			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'br.mobile' => __('Brazilian mobile', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'br.phone' => __('Brazilian landline', 'easy-form-builder'),
@@ -257,8 +223,6 @@ class Masks_Labels {
 			'fr.siret' => __('French SIRET', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'nl.bsn' => __('Dutch BSN', 'easy-form-builder'),
-			/* translators: input format preset shown in the form builder's "Format / mask" list */
-			'nl.postcode' => __('Dutch postcode', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */
 			'mx.curp' => __('Mexican CURP', 'easy-form-builder'),
 			/* translators: input format preset shown in the form builder's "Format / mask" list */

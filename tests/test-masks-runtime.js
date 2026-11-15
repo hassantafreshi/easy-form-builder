@@ -20,7 +20,8 @@ const grab = (name) => {
 const names = ['efb_mask_fd_efb', 'efb_bind_mask_efb', 'efb_mask_error_efb', 'efb_mask_display_efb', 'efb_mask_row_sensitive_efb', 'valid_typed_value_efb', 'efb_sendback_for_storage_efb'];
 const code = names.map(grab).join('\n');
 const E = require('../public/assets/js/masks-efb.js');
-const cat = require('../includes/data/masks-catalog-efb.json');
+// SPLIT §10.1: a site with the Address & Postal add-on (its 18 postal presets; tests/masks-addon-lib.js).
+const cat = require('./masks-addon-lib.js').catalog();
 const entry = (id) => { const m = cat.masks.find((x) => x.id === id); const o = {}; for (const k of ['id', 'category', 'mask', 'formatter', 'regex', 'regex_strict', 'checksum', 'validator', 'calendar', 'date_order', 'year_range', 'strip', 'uppercase', 'fold_letters', 'pad_left', 'store', 'e164', 'inputmode', 'dir']) o[k] = m[k]; o.placeholder = m.placeholder.en; return o; };
 
 let pass = 0, fail = 0;
