@@ -571,7 +571,7 @@ if ( ! function_exists( 'efb_steps_classic_progress_efb' ) ) {
 		 * line break produced. */
 		return '<div class="efb d-flex justify-content-center efb-progress-gap" id="f-progress-efb" data-formid="' . esc_attr( $form_id ) . '">'
 			. '<div class="efb progress mx-3 w-100 ' . esc_attr( $accent ) . '">'
-			. '<div class="efb progress-bar-efb progress-bar-striped progress-bar-animated" role="progressbar"'
+			. '<div class="efb progress-bar-efb progress-bar-striped progress-bar-animated" role="progressbar" aria-label="' . esc_attr( efb_progress_name_efb() ) . '"'
 			. ' aria-valuemin="0" aria-valuemax="100" style="width: ' . esc_attr( $percent ) . '%;"'
 			. ' data-formid="' . esc_attr( $form_id ) . '"></div>'
 			. '</div></div>';
@@ -586,6 +586,13 @@ if ( ! function_exists( 'efb_steps_classic_progress_efb' ) ) {
  * showing nothing but a stripe pattern - the bar never actually read as
  * progress. The classic shape keeps that behaviour on purpose.
  */
+if ( ! function_exists( 'efb_progress_name_efb' ) ) {
+	/** F16: the progress bar's accessible name (WCAG 4.1.2; axe aria-progressbar-name). */
+	function efb_progress_name_efb() {
+		/* translators: F16 the name a screen reader gives the form's step progress bar */
+		return function_exists( '__' ) ? __( 'Form progress', 'easy-form-builder' ) : 'Form progress';
+	}
+}
 if ( ! function_exists( 'efb_steps_progress_efb' ) ) {
 	function efb_steps_progress_efb( $args ) {
 		$style = efb_progress_style_name_efb( isset( $args['progress_style'] ) ? $args['progress_style'] : '' );
@@ -638,7 +645,7 @@ if ( ! function_exists( 'efb_steps_progress_efb' ) ) {
 
 		return '<div class="efb efb-sp__prog efb-progress-gap"' . $attrs . '>' . $meta
 			. '<div class="efb progress efb-sp__track">'
-			. '<div class="efb progress-bar-efb efb-sp__fill ' . esc_attr( $accent ) . '" role="progressbar"'
+			. '<div class="efb progress-bar-efb efb-sp__fill ' . esc_attr( $accent ) . '" role="progressbar" aria-label="' . esc_attr( efb_progress_name_efb() ) . '"'
 			. ' aria-valuemin="0" aria-valuemax="100" aria-valuenow="' . esc_attr( $percent ) . '"'
 			. ' style="width:' . esc_attr( $percent ) . '%;" data-formid="' . esc_attr( $form_id ) . '"></div>'
 			. '</div></div>';

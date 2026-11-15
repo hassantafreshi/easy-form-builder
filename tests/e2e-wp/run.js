@@ -2092,6 +2092,11 @@ require('./scenario-split.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNew
  * e-mail at 375 px, Settings › General; the licence server and the mailer are stand-ins: tests/e2e-wp/scenario-f21.js. */
 require('./scenario-f21.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT });
 
+/* F16 accessibility and inline validation: the builder and AutoPilot, a guest by keyboard (en, fa_IR, ar at 375 and
+ * 1280, axe-core), several forms on one page, a repeater, the add-ons' fields, the leave warning:
+ * tests/e2e-wp/scenario-f16.js. */
+require('./scenario-f16.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */

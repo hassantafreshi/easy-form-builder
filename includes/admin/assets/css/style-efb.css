@@ -2091,6 +2091,7 @@ body:has(.efb-rc3-notice) .grecaptcha-badge { visibility: hidden; }
 .efb.efb-errsum-l { margin: 0; padding-inline-start: 1.25rem; }
 .efb.efb-errsum-l a { color: #b3261e; text-decoration: underline; font-weight: 600; display: inline-block; padding: 10px 0; line-height: 1.5; unicode-bidi: plaintext; }
 .efb.steps-efb:focus, .efb.efb-step-h:focus { outline: none; }
+.body_efb .efb.ttiptext[id$="-message"], .body_efb .efb.efb-field-error { color: #b3261e !important; } /* 4.5:1 on its pale red (was 4.0:1) */
 .body_efb :is(input, select, textarea, a, button, [tabindex="0"]):focus-visible, .efb-final-step a:focus-visible { outline: 3px solid #1a56db !important; outline-offset: 2px; }
 .efb.efb-stay { min-height: 44px; min-width: 44px; }
 .efb-vt-blur .efb.efb.ttiptext.ttiptext[id$="-message"] { position: static !important; margin: 4px 0 2px !important; max-width: 100% !important; text-align: start !important; white-space: normal; }
