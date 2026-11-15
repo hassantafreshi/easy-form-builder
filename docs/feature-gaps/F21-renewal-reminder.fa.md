@@ -495,7 +495,9 @@ Easy Form Builder > Settings.
 - تست‌ها: e2e جداگانه زیر قفل: 7 سناریو، 73 بررسی سبز (۸/۷/۶/۱/۰/−۱ روز؛ فیلد نبود/خراب/سرور قطع؛ تمدید پیش و پس از ایمیل؛ بستن و بازگشت؛ fa_IR بی درخواست؛ ar و he_IL در ۳۷۵ و ۱۲۸۰؛ HTML ایمیل در ۳۷۵ برای en/ar/he_IL؛ نبود کد در نشانی‌ها). اسکرین‌شات‌ها `f21-notice-{en,ar,he_IL}-{375,1280}.png`، `f21-dashboard-*.png`، `f21-email-{en,ar,he_IL}-375.png`، `f21-settings-en-1280.png`. تست‌های وردپرسی مرتبط روی سایت آزمون: `test-addon-plan-gate.php` (48/3 — همان ۳ شکست در 45010e04، بی‌ربط: لایه‌های افزودنی SPLIT)، `test-plan-selection-first-run.php` (16)، `test-delivery-notice-scenarios.php` (46)، `test-fresh-install-email-template.php` (12)، `test-weekly-report-states.php` (43)، `test-email-tester-cache-notice.php` (21)، `test-weekly-report-cache-notice.php` (10)، `test-spam-notice.php` (12).
 - وضعیت ترجمه: بی عبارت تازه؛ فهرست عبارت‌ها در گام پایانی با `extract.php`.
 - مورد باز: ساخت سمت سرور (کار مالک)؛ چندسایته فقط در تست واحد (سایت آزمون تک‌سایته است).
-- اقدام بعدی: فهرست عبارت‌ها، کل مجموعهٔ واحد و کل e2e.
+- اقدام بعدی: — (انجام شد، پایین).
+
+**اعداد نهایی (2026-11-15):** فهرست عبارت‌ها با `extract.php`: ۳۵ تازه، ۳ منسوخ (`catalog.json` و `.pot`؛ بی ترجمه). کل مجموعهٔ واحد: 496 فایل، 25,045 موفق، 6 شکست — همه همان شکست‌های 45010e04 (`test-conditional-logic-scenarios.js`/`.php`، `test-maps-stored-xss.php`)؛ تست‌های F21 همه سبز (279 بررسی در 9 فایل). `test-split-core-size.php` (نگهبان حجم SPLIT) با F21 از بودجه گذشت (+58,695 بایت؛ پیش از F21 فقط 5,333 بایت زیر بودجه بود) ⇒ بودجه آگاهانه و با دلیل در خود تست به 340,000 بایت رسید. کل e2e جداگانه زیر قفل: 124 سناریو، 1,481 موفق، 0 شکست (f21: 73).
 
 ---
 
