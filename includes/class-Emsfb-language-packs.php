@@ -1828,7 +1828,7 @@ class Language_Packs {
 				}
 				$this->notice_printed = true;
 				printf(
-					'<div id="%1$s" class="notice notice-info"><p><span class="spinner is-active" style="float:none;margin:0 8px 0 0;vertical-align:middle;"></span><span class="%1$s-text">%2$s</span></p></div>',
+					'<div id="%1$s" class="notice notice-info efb-notice"><p><span class="spinner is-active" style="float:none;margin:0 8px 0 0;vertical-align:middle;"></span><span class="%1$s-text">%2$s</span></p></div>',
 					esc_attr( $this->ui_id() ),
 					/* translators: 1: plugin name, 2: language name */
 					esc_html( sprintf( __( '%1$s is installing its language files (%2$s)&hellip;', 'easy-form-builder' ), $this->config['plugin_name'], $this->language_name( $locale ) ) )

@@ -47,7 +47,7 @@ class Admin {
 		foreach ( Registry::errors() as $e ) {
 			if ( $e['code'] === 'api_version' ) {
 				/* translators: %s: add-on key */
-				echo '<div class="notice notice-warning"><p>' . esc_html( sprintf( __( 'The payment add-on %s was made for another version of Easy Form Builder. Please update the add-on and Easy Form Builder.', 'easy-form-builder' ), $e['addon'] !== '' ? $e['addon'] : $e['slug'] ) ) . '</p></div>';
+				echo '<div class="notice notice-warning efb-notice"><p>' . esc_html( sprintf( __( 'The payment add-on %s was made for another version of Easy Form Builder. Please update the add-on and Easy Form Builder.', 'easy-form-builder' ), $e['addon'] !== '' ? $e['addon'] : $e['slug'] ) ) . '</p></div>';
 			}
 		}
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
@@ -59,7 +59,7 @@ class Admin {
 		if ( $screen && strpos( (string) $screen->id, self::SLUG ) !== false && defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) {
 			$last = (int) get_option( 'emsfb_pmt_reconcile_last', 0 );
 			if ( Store::ready() && $last < time() - 2 * HOUR_IN_SECONDS && Store::stats()['pending'] > 0 ) {
-				echo '<div class="notice notice-warning"><p>' . esc_html__( 'WP-Cron is disabled and pending payments are not being checked.', 'easy-form-builder' ) . '</p></div>';
+				echo '<div class="notice notice-warning efb-notice"><p>' . esc_html__( 'WP-Cron is disabled and pending payments are not being checked.', 'easy-form-builder' ) . '</p></div>';
 			}
 		}
 	}
@@ -273,8 +273,8 @@ class Admin {
 	private static function gateways_tab() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- message after a redirect
 		$msg = isset( $_GET['efb_msg'] ) ? sanitize_key( wp_unslash( $_GET['efb_msg'] ) ) : '';
-		if ( $msg === 'saved' ) echo '<div class="notice notice-success"><p>' . esc_html__( 'Settings saved.', 'easy-form-builder' ) . '</p></div>';
-		if ( $msg === 'refused' ) echo '<div class="notice notice-error"><p>' . esc_html__( 'Some keys were not saved because they do not look like keys of this gateway.', 'easy-form-builder' ) . '</p></div>';
+		if ( $msg === 'saved' ) echo '<div class="notice notice-success efb-notice"><p>' . esc_html__( 'Settings saved.', 'easy-form-builder' ) . '</p></div>';
+		if ( $msg === 'refused' ) echo '<div class="notice notice-error efb-notice"><p>' . esc_html__( 'Some keys were not saved because they do not look like keys of this gateway.', 'easy-form-builder' ) . '</p></div>';
 		if ( ! Registry::all() ) {
 			echo '<p>' . esc_html__( 'No payment gateway add-on is installed yet. Install one from the Add-ons page.', 'easy-form-builder' ) . '</p>';
 			return;

@@ -587,6 +587,11 @@ module.exports = function (S) {
       const f12 = ctl('f12-setting', '');
       R.check('f12b-6 (D2): "Turn on recommended protection" by keyboard (Enter): the status line says so (role status), the four keys written', st && st.role === 'status' && st.text.length > 0 && f12.spam_honeypot === '1' && f12.spam_min_time === '3' && f12.spam_action === 'spam' && f12.spam_retention_days === '30', { st, f12 });
       setting('spam_min_time=0');
+      // The EFB screens' notice cleaner keeps the plugin's and its add-ons' notices, hides other plugins' ones.
+      await admin.evaluate(() => { const w = document.getElementById('wpbody-content'); w.insertAdjacentHTML('afterbegin', '<div class="notice notice-warning efb-notice" id="t-own"><p>WP-Cron is disabled and pending payments are not being checked.</p></div><div class="notice notice-info" id="t-other"><p>Another plugin</p></div>'); });
+      await sleep(600);
+      const kept = await admin.evaluate(() => [!!document.getElementById('t-own'), !!document.getElementById('t-other'), !!document.getElementById('efb-spam-notice')]);
+      R.check('f12b-6: the notice cleaner keeps an EFB notice (efb-notice) and the D2 notice, removes another plugin\'s', kept[0] === true && kept[1] === false && kept[2] === true, kept);
 
       // D4: the settings screen never prints a secret.
       const sec = await adminPage({}, 'f12b-6-settings');

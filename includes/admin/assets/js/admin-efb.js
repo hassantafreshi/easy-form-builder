@@ -6781,10 +6781,19 @@ function report_problem_efb(state ,value){
   });
 }
 
+/* EFB screens hide other plugins' notices (update nags, ads). A notice of Easy Form Builder or of one of its add-ons
+   stays: class efb or efb-notice (any class or id starting with efb / emsfb) or data-efb-notice. */
+efb_is_own_notice_efb=(el)=>{
+  if (!el || !el.classList) return false;
+  if (el.hasAttribute && el.hasAttribute('data-efb-notice')) return true;
+  if (/^(efb|emsfb)/i.test(el.id || '')) return true;
+  for (const c of el.classList) if (/^(efb|emsfb)/i.test(c)) return true;
+  return false;
+}
 fun_observer_state_efb=(mutation)=>{
   noti_check =()=>{
     for (const el of document.querySelectorAll(".update-nag, .nf-admin-notice, .notice")) {
-      if(!el.classList.contains('efb')) el.remove();
+      if(!efb_is_own_notice_efb(el)) el.remove();
     }
   }
   if (mutation.type === 'childList') {

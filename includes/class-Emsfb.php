@@ -892,7 +892,7 @@ class Emsfb {
         }
 
         $files = array_map('esc_html', array_unique($this->missing_core_files));
-        echo '<div class="notice notice-error"><p><b>Easy Form Builder:</b> '
+        echo '<div class="notice notice-error efb-notice"><p><b>Easy Form Builder:</b> '
             . esc_html__('Some plugin files are missing, so the plugin stopped loading to keep your site running. Please reinstall Easy Form Builder from the Plugins page — your forms, messages, and settings are kept.', 'easy-form-builder')
             . '</p><p>' . esc_html__('Missing files:', 'easy-form-builder') . ' <code>'
             . implode('</code>, <code>', $files)

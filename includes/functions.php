@@ -9978,8 +9978,8 @@ public function addon_add_efb($value) {
 
 		}
 		?>
-		<div class="notice <?php $t ?> is-dismissible">
-			<p><?php $v ?></p>
+		<div class="notice efb-notice <?php echo esc_attr($t); ?> is-dismissible">
+			<p><?php echo $v; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_html__() above ?></p>
 		</div>
 		<?php
 	}
