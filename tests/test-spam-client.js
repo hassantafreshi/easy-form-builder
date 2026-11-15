@@ -59,8 +59,10 @@ function grab(name) {
   t('the review page\'s payments/quote sends it too (before decorate)', quote.indexOf('efb_spam_add_to_request_efb(data, form_id)') > 0 && quote.indexOf('efb_spam_add_to_request_efb(data, form_id)') < quote.indexOf('EFBRuntime.decorate'), true);
   const resp = core.slice(core.indexOf('async function response_fill_form_efb('), core.indexOf('async function response_fill_form_efb(') + 1200);
   t('a refused answer resets the form\'s CAPTCHA (a token is spent once)', /if \(!\(res && res\.data && res\.data\.success == true\) && window\.EFBCaptcha[^\n]*window\.EFBCaptcha\.reset\(form_id\)/.test(resp), true);
-  t('the "tick the box" check skips a reCAPTCHA v3 form (no widget, no row)', /Number\(valj_efb\[0\]\.captcha\) === 1 && !\(window\.EFBCaptcha && window\.EFBCaptcha\.isInvisible\(form_id\)\)/.test(core), true);
-  t('loadCaptcha_efb() leaves another service\'s widget to EFBCaptcha', /if \(el\.dataset\.provider && el\.dataset\.provider !== 'recaptcha_v2'\) return;/.test(core), true);
+  // F12b-C: only a visible widget of the form needs a row (needsWidgetToken: not v3, v2 invisible or a form without a box).
+  t('the "tick the box" check asks EFBCaptcha.needsWidgetToken(form) (skips v3, v2 invisible, no box)', /Number\(valj_efb\[0\]\.captcha\) === 1 && \(window\.EFBCaptcha \? window\.EFBCaptcha\.needsWidgetToken\(form_id\)/.test(core), true);
+  // F12b-C: loadCaptcha_efb() no longer renders with the site-wide v2 key; every box is EFBCaptcha's (its own key).
+  t('loadCaptcha_efb() hands every box to EFBCaptcha (no grecaptcha.render with a site-wide key)', /function loadCaptcha_efb\(\) \{\s*if \(window\.EFBCaptcha && typeof window\.EFBCaptcha\.scan === 'function'\) window\.EFBCaptcha\.scan\(\);\s*\}/.test(core) && core.indexOf('sitekye_emsFormBuilder = ajax_object_efm?.form_setting?.siteKey') === -1, true);
 }
 
 /* ---------------------------------------------------------------- captcha-efb.js */

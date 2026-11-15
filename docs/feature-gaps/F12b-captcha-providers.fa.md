@@ -385,12 +385,12 @@ F12 منتشر نشده است (`readme.txt` نسخهٔ پایدار 4.3.1؛ ی�
 - پذیرش: ردیف‌های «چند فرم» ماتریس؛ صفحه بدون شناسهٔ تکراری (`document.querySelectorAll('[id]')` یکتا)؛ یک `<script>` برای هر ارائه‌دهنده؛ خطای یک فرم ویجت فرم دیگر را reset نکند.
 - تست: `node tests/test-captcha-multiform.js` (vm، دو تا شش جعبه)؛ e2e `f12b-c`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: `captcha-efb.js` (در A: قواعد ۱ تا ۱۰ — جعبه با شناسهٔ `efb-cp-{fid}-{n}` و توکن به‌ازای جعبه، `reset(fid)` فقط همان فرم، `reset(-1, ctx)` فقط همان زمینه، رندر تنبل با `IntersectionObserver`، `scan()` و پنجرهٔ بازشوی Elementor، بارگذاری اسکریپت فرم دیرآمده فقط https و یک بار، مهلت ۱۰ ثانیه، بی callback سراسری)؛ در C: `core-efb.js` (`loadCaptcha_efb()` فقط `EFBCaptcha.scan()` است و دیگر با کلید سراسری v2 رندر نمی‌کند؛ بررسی «تیک بزنید» با `needsWidgetToken()` و متن `cp_msg_required` فرم در ناحیهٔ زندهٔ همان جعبه و فوکوس به آن؛ `efb_captcha_challenge` ⇒ `EFBCaptcha.challenge()`؛ جعبهٔ پیگیری با `reset(-1,'tracker')`؛ `#gRecaptcha` ⇒ `.efb-captcha-box`)، `response-viewer-efb.js` (جعبهٔ پیگیری برای هر سرویس، نامرئی‌ها با `EFBCaptcha.token('tracker')`، نشانه‌گذاری بی `#gRecaptcha`)؛ PHP در A (`box_html`، `fun_captcha_*` نازک، بی `#gRecaptcha` و `#step-1-efb-msg`). BUGS-FOUND: ردیف `id="gRecaptcha"` بسته شد.
+- تست‌ها: تازه `tests/test-captcha-multiform.js` (20: دو فرم v2، v2+v2i+v3، دو جعبهٔ یک افزونه، tracker+reply_1+reply_2+فرم، شش جعبه، و PHP: شناسه‌های یکتا، یک اسکریپت گوگل با کلید v3، اسکریپت و adapter افزونه یک بار)؛ `test-spam-client.js` (دو ادعای `core-efb.js` به رفتار C تغییر کرد).
+- وضعیت ترجمه: —
+- مورد باز: دو نسخه از یک فرم در یک صفحه هر دو جعبهٔ یکتا دارند ولی ردیف `captcha_v2` در `sendBack` به‌ازای `form_id` است (مثل 4.3.1).
+- اقدام بعدی: D (D4 اول).
 
 ### D — بستن چهار مورد باز F12
 

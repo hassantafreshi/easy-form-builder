@@ -2351,7 +2351,10 @@ async function response_fill_form_efb(res ,form_id=0) {
      (and any later array operations) keep working. */
   if (!Array.isArray(sendBack_emsFormBuilder_pub)) sendBack_emsFormBuilder_pub = [];
   // F12: a refused answer spent the CAPTCHA token: the widget asks again (every service, reCAPTCHA v2 included).
-  if (!(res && res.data && res.data.success == true) && window.EFBCaptcha && typeof window.EFBCaptcha.reset === 'function') { try { window.EFBCaptcha.reset(form_id); } catch (e) {} }
+  // F12b: a v3 score too low on a form with the fallback: the v2 checkbox appears in the same box (nothing was stored).
+  if (res && res.data && res.data.code === 'efb_captcha_challenge' && window.EFBCaptcha && typeof window.EFBCaptcha.challenge === 'function' && window.EFBCaptcha.challenge(form_id)) {
+    efb_hide_submit_ajax_badge_efb(form_id);
+  } else if (!(res && res.data && res.data.success == true) && window.EFBCaptcha && typeof window.EFBCaptcha.reset === 'function') { try { window.EFBCaptcha.reset(form_id); } catch (e) {} }
   // F09: the server names a field of a repeater row by its own id and the row (row_index): the copy in the page.
   if (res.data && res.data.field_id && res.data.row_index !== undefined && res.data.row_index !== null && window.EFBRepeater) {
     try { const rptVid = window.EFBRepeater.fieldAt(form_id, res.data.field_id, res.data.row_index); if (rptVid) res.data.field_id = rptVid; } catch (e) {}
@@ -2579,29 +2582,11 @@ async function response_fill_form_efb(res ,form_id=0) {
     }
   }
 }
-  function loadCaptcha_efb(timer = 20) {
-  let sitekye_emsFormBuilder = ajax_object_efm?.form_setting?.siteKey;
-  if (!sitekye_emsFormBuilder) return;
-
-  if (!window.grecaptcha || !window.grecaptcha.render) {
-    setTimeout(() => {
-      loadCaptcha_efb(timer + 100);
-    }, timer);
-  } else {
-    document.querySelectorAll('.g-recaptcha').forEach(el => {
-      if (el.dataset.grecaptchaWidgetId) return;
-      if (el.dataset.provider && el.dataset.provider !== 'recaptcha_v2') return; // F12: another service's widget (EFBCaptcha)
-      const formId = el.dataset.formid ?? -1;
-      const widgetId = grecaptcha.render(el, {
-        sitekey: sitekye_emsFormBuilder,
-        callback: (token) => recaptchaSuccessEfb(token, formId),
-        'expired-callback': () => recaptchaExpiredEfb(formId),
-        'error-callback': () => recaptchaErrorEfb?.(formId),
-      });
-      el.dataset.grecaptchaWidgetId = String(widgetId);
-    });
-  }
-};
+/* F12b-C: every CAPTCHA box is drawn by EFBCaptcha (captcha-efb.js) with its own key and options; this name stays for
+   add-ons and old snippets that call it. */
+function loadCaptcha_efb() {
+  if (window.EFBCaptcha && typeof window.EFBCaptcha.scan === 'function') window.EFBCaptcha.scan();
+}
 
 recaptchaExpiredEfb = (formId)=>{
   formId = formId==-1 ? -1 : Number(formId);
@@ -3109,6 +3094,8 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
    ticket, clear the widget and the stored token so the next try gets a
    fresh one instead of failing with a spent token. */
 efb_reset_tracker_captcha_efb=()=>{
+  // F12b: the tracking box only (context "tracker"), never a reply box or a form on the same page.
+  if (window.EFBCaptcha && typeof window.EFBCaptcha.reset === 'function') { try { window.EFBCaptcha.reset(-1, 'tracker'); } catch (e) {} return; }
   const el = document.querySelector('.g-recaptcha[data-formid="-1"]');
   if (!el) return;
   try {
@@ -3240,7 +3227,7 @@ document.addEventListener("DOMContentLoaded",async function() {
     captcha = [1, '1', true, 'true'].includes(captcha) ? true : false;
   });
 
-  if(captcha) loadCaptcha_efb(20);
+  if(captcha) loadCaptcha_efb();
 
   try {
     valj_efb_new.forEach(function(formData) {
@@ -4372,7 +4359,7 @@ fun_prev_send =(form_id =0) =>{
   if (stp == 2) {
        const btn_send_efb = efb_find_in_form_efb(form_id, '#btn_send_efb', body_efb);
        if (btn_send_efb) btn_send_efb.classList.remove('d-none');
-       const gRecaptcha = efb_find_in_form_efb(form_id, '#gRecaptcha', body_efb);
+       const gRecaptcha = efb_find_in_form_efb(form_id, '.efb-captcha-box', body_efb);
     if(gRecaptcha) {
       gRecaptcha.classList.remove('d-none');
       }
@@ -5320,8 +5307,9 @@ async function fun_validation_efb_v4(form_id) {
 
   if (state === true && valj_efb[0]) {
     var max_step_v = Number(valj_efb[0].steps) || 1;
-    // F12: a reCAPTCHA v3 form has no widget and no row (its token is asked for while sending).
-    if (Number(current_s_efb) === max_step_v && Number(valj_efb[0].captcha) === 1 && !(window.EFBCaptcha && window.EFBCaptcha.isInvisible(form_id))) {
+    // F12 / F12b: only a visible widget of this form needs a row; an invisible one (v3, v2 invisible, …) gets its
+    // token while sending, a form without a box (no service usable now: hidden field and minimum time) none.
+    if (Number(current_s_efb) === max_step_v && Number(valj_efb[0].captcha) === 1 && (window.EFBCaptcha ? window.EFBCaptcha.needsWidgetToken(form_id) : !!document.querySelector('.g-recaptcha[data-formid="' + Number(form_id) + '"]'))) {
       var hasCaptcha = sendBack_emsFormBuilder_pub.findIndex(function(x) {
         return x != null && x.id_ === 'captcha_v2' && Number(x.form_id) === Number(form_id);
       }) !== -1;
@@ -5332,7 +5320,10 @@ async function fun_validation_efb_v4(form_id) {
           current_step: current_s_efb,
           max_step: max_step_v
         });
-        alert_message_efb(efb_var.text.checkedBoxIANotRobot, '', 8, 'warning');
+        // F12b: the form's own text (cp_msg_required) in the box's live region and the alert; focus goes to the box.
+        var cpMsgReq = valj_efb[0].cp_msg_required ? String(valj_efb[0].cp_msg_required).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }) : efb_var.text.checkedBoxIANotRobot;
+        try { var cpBox = document.querySelector('.efb-captcha[data-formid="' + Number(form_id) + '"]'); if (cpBox && window.EFBCaptcha) { window.EFBCaptcha.message(cpBox, valj_efb[0].cp_msg_required ? String(valj_efb[0].cp_msg_required) : efb_var.text.checkedBoxIANotRobot); const b = cpBox.closest('.efb-captcha-box'); if (b) b.focus(); } } catch (e) {}
+        alert_message_efb(cpMsgReq, '', 8, 'warning');
         return false;
       }
     }

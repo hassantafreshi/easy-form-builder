@@ -2042,7 +2042,7 @@ function fun_tracking_show_emsFormBuilder() {
                         <i class="efb bi-hash efb-tracker-input-icon"></i>
                         <input type="text" class="efb input-efb efb-tracker-input" placeholder="${ajax_object_efm.text.entrTrkngNo}" id="trackingCodeEfb" ${get_track} autocomplete="off" spellcheck="false">
                       </div>
-                      ${setting_emsFormBuilder.scaptcha==true && setting_emsFormBuilder.siteKey ? `<div class="efb efb-tracker-captcha"><div id="gRecaptcha" class="efb g-recaptcha" data-sitekey="${escHtmlEfb(setting_emsFormBuilder.siteKey)}" data-formid="-1" data-callback="verifyCaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
+                      ${setting_emsFormBuilder.scaptcha==true && setting_emsFormBuilder.siteKey ? `<div class="efb efb-tracker-captcha"><div class="efb row mx-0 efb-captcha-box" role="group" aria-label="${escHtmlEfb((ajax_object_efm.text && ajax_object_efm.text.captchaLabel) || 'Security check')}"><div class="efb efb-captcha g-recaptcha my-2" data-provider="recaptcha_v2" data-sitekey="${escHtmlEfb(setting_emsFormBuilder.siteKey)}" data-formid="-1" data-ctx="tracker"></div><small class="efb text-danger efb-captcha-msg" role="alert" aria-live="assertive"></small></div></div>` : ''}
                       <button type="submit" class="efb btn btn-pinkEfb efb-tracker-btn" id="vaid_check_emsFormBuilder" onclick="fun_vaid_tracker_check_emsFormBuilder()">
                         <i class="efb bi-search efb-tracker-btn-icon"></i> ${ajax_object_efm.text.search}
                       </button>
@@ -2053,7 +2053,7 @@ function fun_tracking_show_emsFormBuilder() {
   `
     if(setting_emsFormBuilder.scaptcha==true && setting_emsFormBuilder.siteKey){
       sitekye_emsFormBuilder=setting_emsFormBuilder.siteKey;
-      loadCaptcha_efb(20);
+      if (typeof loadCaptcha_efb === 'function') loadCaptcha_efb();
     }
   }, time);
 }
@@ -2078,17 +2078,16 @@ function fun_vaid_tracker_check_emsFormBuilder() {
     if (currentTab_emsFormBuilder == 0) {
         const captcha = sendBack_emsFormBuilder_pub.filter(x=>Number(x.form_id)==-1 && x.id_=='captcha_v2');
         recaptcha_emsFormBuilder = '';
+        // F12b: the tracking box's CAPTCHA (any service; context "tracker"): a visible one must be solved first.
+        const cpTrack = document.querySelector('.efb-captcha[data-formid="-1"][data-ctx="tracker"]') || document.querySelector('.efb-tracker-captcha .efb-captcha[data-formid="-1"]');
+        const cpNeeds = !!cpTrack && (!window.EFBCaptcha || !window.EFBCaptcha.config || (function (c) { return c.kind === 'widget' && !c.ex; })(window.EFBCaptcha.config(cpTrack)));
         if(captcha.length>0){
-            recaptcha_emsFormBuilder=captcha.length>0 ? captcha[0].value : '';
-        }else{
-          // F12: any CAPTCHA widget of the tracking box (hCaptcha, Turnstile: .efb-captcha), not only reCAPTCHA v2.
-          let captacha_exists = document.querySelector('#gRecaptcha[data-formid="-1"], .efb-captcha[data-formid="-1"]:not([data-provider="recaptcha_v3"])');
-          if (captacha_exists) {
+            recaptcha_emsFormBuilder=captcha[0].value;
+        }else if (cpNeeds) {
             document.getElementById('vaid_check_emsFormBuilder').innerHTML = innrBtn
             document.getElementById('vaid_check_emsFormBuilder').classList.toggle('disabled')
             noti_message_efb_v4(ajax_object_efm.text.checkedBoxIANotRobot, 'danger' ,'body_efb-track',0)
             return;
-          }
         }
         sessionStorage.setItem('track', el);
         data = {
@@ -2100,8 +2099,8 @@ function fun_vaid_tracker_check_emsFormBuilder() {
           sid:efb_var.sid,
           id: 0,
         };
-        // F12 (P20): a reCAPTCHA v3 tracking box asks Google for its token right before the lookup.
-        if (window.EFBCaptcha && document.querySelector('.efb-captcha[data-provider="recaptcha_v3"][data-formid="-1"]')) {
+        // F12 (P20) / F12b: an invisible tracking box (v3, v2 invisible, an add-on that checks on submit) asks for its token now.
+        if (window.EFBCaptcha && cpTrack && !cpNeeds) {
           window.EFBCaptcha.token('tracker').then((tk) => { data.valid = tk || ''; post_api_tracker_check_efb(data, innrBtn); });
           return;
         }
