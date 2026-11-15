@@ -485,11 +485,8 @@ class Emsfb {
             \Emsfb\Stock::register();
         }
 
-        // F04: numbers and calculations (one formula grammar, server twin of calc-efb.js; the server's own
-        // result of every calc field on submit). Optional: every caller checks class_exists('\Emsfb\Calc').
-        if ($this->require_plugin_file_efb('includes/class-Emsfb-calc.php')) {
-            \Emsfb\Calc::register();
-        }
+        // F04 numbers and calculations: the Numbers & Calculations add-on (AdnCLC, SPLIT §6), loaded by
+        // Addon_Catalog::load() from vendor/calc/routes-efb.php. Every caller checks class_exists('\Emsfb\Calc').
 
         // F09: the repeater group (the model, the save rules, the rows of a submission, display).
         // Optional: every caller checks class_exists('\Emsfb\Repeater').

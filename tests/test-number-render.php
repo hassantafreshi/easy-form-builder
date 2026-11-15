@@ -24,7 +24,7 @@ function t($name, $actual, $expected) {
 }
 if (!function_exists('get_locale')) { function get_locale() { return $GLOBALS['efb_test_locale'] ?? 'en_US'; } }
 require __DIR__ . '/field-rules-render-lib.php';
-require_once __DIR__ . '/../includes/class-Emsfb-calc.php';
+require_once (getenv('EFB_CALC_DIR') ?: __DIR__ . '/../vendor/calc') . '/class-Emsfb-calc.php';
 
 function efb_nr_render(array $field, $row0 = array(), $rtl = false, $locale = 'en_US', $options = array()) {
 	$GLOBALS['efb_test_rtl'] = $rtl;

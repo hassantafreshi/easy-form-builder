@@ -67,6 +67,7 @@ function blankForm(extra) {
  *   builder    true: build the real builder workspace (creator_form_builder_Efb) so the canvas exists
  *   scripts    extra script paths (relative to the repository root) loaded last
  */
+const EFB_CALC_DIR = process.env.EFB_CALC_DIR || require('path').join(__dirname, '..', 'vendor', 'calc'); // SPLIT §6: the Numbers & Calculations add-on
 async function openBuilder(opts) {
   opts = opts || {};
   const browser = await launchChromiumEfb();
@@ -105,8 +106,8 @@ async function openBuilder(opts) {
   if (fs.existsSync(path.join(ROOT, 'public/assets/js/choices-efb.js'))) await page.addScriptTag({ path: path.join(ROOT, 'public/assets/js/choices-efb.js') });
   if (fs.existsSync(JS + 'choices-builder-efb.js')) await page.addScriptTag({ path: JS + 'choices-builder-efb.js' });
   // F04: the formula / number engine and the number / calc / slider controls.
-  if (fs.existsSync(path.join(ROOT, 'public/assets/js/calc-efb.js'))) await page.addScriptTag({ path: path.join(ROOT, 'public/assets/js/calc-efb.js') });
-  if (fs.existsSync(JS + 'calc-builder-efb.js')) await page.addScriptTag({ path: JS + 'calc-builder-efb.js' });
+  if (fs.existsSync(path.join(EFB_CALC_DIR, 'assets', 'js', 'calc-efb.js'))) await page.addScriptTag({ path: path.join(EFB_CALC_DIR, 'assets', 'js', 'calc-efb.js') });
+  if (fs.existsSync(path.join(EFB_CALC_DIR, 'assets', 'js', 'calc-builder-efb.js'))) await page.addScriptTag({ path: path.join(EFB_CALC_DIR, 'assets', 'js', 'calc-builder-efb.js') });
   for (const s of (opts.scripts || [])) await page.addScriptTag({ path: path.join(ROOT, s) });
   await page.evaluate(() => { _efb_nonce_ = 'n0nce'; setting_emsFormBuilder = efb_var.setting; });
   const bootErrors = errors.splice(0);

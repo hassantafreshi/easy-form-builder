@@ -30,7 +30,7 @@ function efb_plan_at_least_efb($need) { $r = array('free' => 0, 'free_plus' => 1
 function get_locale() { return $GLOBALS['efb_locale']; }
 function determine_locale() { return $GLOBALS['efb_locale']; }
 require __DIR__ . '/field-rules-render-lib.php';
-require_once __DIR__ . '/../includes/class-Emsfb-calc.php';
+require_once (getenv('EFB_CALC_DIR') ?: __DIR__ . '/../vendor/calc') . '/class-Emsfb-calc.php';
 require_once __DIR__ . '/../includes/class-Emsfb-form-gate.php';
 require_once __DIR__ . '/../includes/class-Emsfb-repeater.php';
 

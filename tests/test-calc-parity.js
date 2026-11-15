@@ -12,7 +12,8 @@ const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const root = path.join(__dirname, '..');
-const C = require(path.join(root, 'public', 'assets', 'js', 'calc-efb.js'));
+const EFB_CALC_DIR = process.env.EFB_CALC_DIR || require('path').join(__dirname, '..', 'vendor', 'calc'); // SPLIT §6: the Numbers & Calculations add-on
+const C = require(path.join(EFB_CALC_DIR, 'assets', 'js', 'calc-efb.js'));
 const V = JSON.parse(fs.readFileSync(path.join(root, 'docs', 'feature-gaps', 'reference', 'calc-test-vectors.json'), 'utf8'));
 let pass = 0, fail = 0;
 function test(label, js, php) {
@@ -84,7 +85,7 @@ V.forms.forEach((f) => {
   }
 });
 
-const php = `define('ABSPATH', 'x'); require ${JSON.stringify(path.join(root, 'includes', 'class-Emsfb-calc.php'))};
+const php = `define('ABSPATH', 'x'); require ${JSON.stringify(path.join(EFB_CALC_DIR, 'class-Emsfb-calc.php'))};
 $in = json_decode(stream_get_contents(STDIN), true); $o = array('calc' => array(), 'num' => array());
 foreach ($in['cases'] as $c) { $r = \\Emsfb\\Calc::run($c['f'], $c['values'], $c['d'], $c['opts']); $p = \\Emsfb\\Calc::parse($c['f']); $o['calc'][] = array($r, $p['ok'] ? \\Emsfb\\Calc::ref_ids($p) : array($p['code'], $p['pos'], $p['near'])); }
 foreach ($in['nums'] as $n) { $cfg = \\Emsfb\\Calc::config($n['field'], array('locale' => $n['locale'], 'currency' => $n['currency'])); $pi = \\Emsfb\\Calc::parse_input($n['raw'], $cfg);

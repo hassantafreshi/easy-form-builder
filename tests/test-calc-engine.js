@@ -10,7 +10,8 @@
 const fs = require('fs');
 const path = require('path');
 const root = path.join(__dirname, '..');
-const C = require(path.join(root, 'public', 'assets', 'js', 'calc-efb.js'));
+const EFB_CALC_DIR = process.env.EFB_CALC_DIR || require('path').join(__dirname, '..', 'vendor', 'calc'); // SPLIT §6: the Numbers & Calculations add-on
+const C = require(path.join(EFB_CALC_DIR, 'assets', 'js', 'calc-efb.js'));
 const V = JSON.parse(fs.readFileSync(path.join(root, 'docs', 'feature-gaps', 'reference', 'calc-test-vectors.json'), 'utf8'));
 let pass = 0, fail = 0;
 function test(label, actual, expected) {
@@ -34,7 +35,7 @@ V.forms.forEach((f, i) => test('form #' + i + ' ' + f.name, sortObj(C.evaluateFo
 test('about 120 or more calc vectors', V.calc.length >= 120, true);
 
 // No string is ever executed.
-const src = fs.readFileSync(path.join(root, 'public', 'assets', 'js', 'calc-efb.js'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+const src = fs.readFileSync(path.join(EFB_CALC_DIR, 'assets', 'js', 'calc-efb.js'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
 test('no eval / Function / setTimeout(string) in calc-efb.js', /\beval\s*\(|\bFunction\s*\(|new\s+Function|setTimeout\s*\(\s*['"]/.test(src), false);
 
 // Long input refused quickly.

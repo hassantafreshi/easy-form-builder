@@ -183,6 +183,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 				// typed digits and separators; the limits are values, read by the page from data-numcfg; the
 				// affixes or the form currency sit in the F03 input group; "between min and max" for a screen
 				// reader. A number without the keys renders byte for byte as before.
+				// SPLIT §6.4: without the Numbers & Calculations add-on a number that uses its keys is the plain number box
+				// it was before F04, with step="any" so the browser does not refuse the decimals the field allows.
+				if ($elementId === 'number' && !class_exists('\\Emsfb\\Calc') && class_exists('\\Emsfb\\Addon_Keys') && in_array('AdnCLC', \Emsfb\Addon_Keys::used_addons(array(array('type' => 'form'), $vj)), true)) {
+					$telPattern = trim($telPattern . ' step="any"');
+				}
 				if ($elementId === 'number' && class_exists('\\Emsfb\\Calc') && \Emsfb\Calc::is_f4($vj)) {
 					$row0_efb = isset($this->valj_efb[0]) ? $this->valj_efb[0] : null;
 					$type = 'text';
@@ -826,6 +831,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 	 * gets the neutral $text notice. When $admin_text is empty every viewer gets
 	 * $text (backward compatible with the existing callers).
 	 */
+	/**
+	 * SPLIT §4.1: a field whose add-on is not active on this site. The visitor reads the neutral "This field is
+	 * currently unavailable" in its place and the form still sends (no rule of the field runs); whoever can manage
+	 * the site reads which add-on it needs, with a link to install it. The add-on's name is a product name, isolated
+	 * in <bdi>; the sentence keeps its own direction on a right-to-left page.
+	 */
+	private function addon_needed_message_efb($code, $texts = null) {
+		$texts = is_array($texts) ? $texts : $this->pro_notice_texts_efb;
+		$visitor = isset($texts['tfnapca']) ? (string) $texts['tfnapca'] : 'This field is currently unavailable. Please contact the site administrator.';
+		$body = esc_html($visitor);
+		if (function_exists('current_user_can') && current_user_can('manage_options')) {
+			$name = class_exists('\\Emsfb\\Addon_Catalog') ? \Emsfb\Addon_Catalog::name($code) : $code;
+			/* translators: %s: name of an Easy Form Builder add-on (a product name, not translated) */
+			$need = esc_html(sprintf(isset($texts['addonNeededT']) ? $texts['addonNeededT'] : __('Needs the %s add-on', 'easy-form-builder'), '%%NAME%%'));
+			$body = str_replace('%%NAME%%', '<bdi>' . esc_html($name) . '</bdi>', $need)
+				. ' <a class="efb text-white text-decoration-underline d-inline-block" style="min-height:44px;line-height:44px" href="' . esc_url(admin_url('admin.php?page=Emsfb_addon')) . '">' . esc_html(isset($texts['addonInstallBtn']) ? $texts['addonInstallBtn'] : __('Install', 'easy-form-builder')) . '</a>';
+		}
+		$r = '<div class="efb text-white fs-6 bg-danger px-1 rounded px-2 py-1 efb-addon-needed" role="note" data-efb-addon="' . esc_attr($code) . '" style="unicode-bidi:plaintext">' . $body . '</div>';
+		$this->last_pro_notice_efb = $r;
+		return $r;
+	}
+
 	private function public_pro_message_efb($text, $admin_text = '', $texts = null){
 		$texts = is_array($texts) ? $texts : $this->pro_notice_texts_efb;
 		$type = preg_replace('/[^A-Za-z0-9_]/', '', (string) $this->pro_notice_type_efb);
@@ -3092,7 +3119,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				case 'calc':
 					// F04: a calculation (Free Plus): a read-only result the page computes and the server computes again.
-					if (!class_exists('\\Emsfb\\Calc') || !\Emsfb\Calc::plan_ok('calc')) {
+					if (!class_exists('\\Emsfb\\Calc')) {
+						// SPLIT §6.4: the Numbers & Calculations add-on is absent, off, too old or above the plan.
+						$ui = $this->addon_needed_message_efb('AdnCLC', $texts);
+						$dataTag = 'calc';
+						break;
+					}
+					if (!\Emsfb\Calc::plan_ok('calc')) {
 						$ui = $this->public_pro_message_efb($texts['tfnapca'], isset($texts['thisFeatureAvailableFreePlusPro']) ? $texts['thisFeatureAvailableFreePlusPro'] : '');
 						$dataTag = 'calc';
 						break;
@@ -3233,6 +3266,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				case 'range':
 					// F04-F: a two-handle slider (range_mode dual): its own markup (Calc::range2_markup).
+					// SPLIT §6.4: a two-handle slider without its add-on is not drawn as one handle (the answer would change shape).
+					if (!class_exists('\\Emsfb\\Calc') && isset($vj->range_mode) && $vj->range_mode === 'dual') {
+						$ui = $this->addon_needed_message_efb('AdnCLC', $texts);
+						$dataTag = 'range';
+						break;
+					}
 					if (class_exists('\\Emsfb\\Calc') && \Emsfb\Calc::is_dual($vj)) {
 						$ui = $label
 							. '<div class="efb ' . $pos[3] . ' ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="' . esc_attr($element_Id) . '-f">'

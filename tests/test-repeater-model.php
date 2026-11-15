@@ -49,7 +49,7 @@ require $EFB . '/includes/json-efb.php';
 require $EFB . '/includes/class-Emsfb-masks.php';
 require $EFB . '/includes/class-Emsfb-field-rules.php';
 require $EFB . '/includes/class-Emsfb-choices.php';
-require $EFB . '/includes/class-Emsfb-calc.php';
+require (getenv('EFB_CALC_DIR') ?: $EFB . '/vendor/calc') . '/class-Emsfb-calc.php';
 require $EFB . '/includes/class-Emsfb-repeater.php';
 require $EFB . '/includes/functions.php';
 

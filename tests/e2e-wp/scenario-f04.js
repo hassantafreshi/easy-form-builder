@@ -28,10 +28,12 @@ module.exports = function (S) {
   const sel = (id) => `[id="${id}"]`;
   const plan = (n) => { if (String(ctl('state').emsfb_pro) !== String(n)) ctl('plan', n); };
   async function open(context, url, label, opts) {
-    const g = await (await context(opts || {}, label)).newPage();
+    const ctxOpts = Object.assign({}, opts || {}); delete ctxOpts.noCalc;
+    const g = await (await context(ctxOpts, label)).newPage();
     await g.goto(url, { waitUntil: 'load' });
     await g.waitForSelector('[id^="body_efb_"]', { state: 'attached', timeout: 20000 });
-    await g.waitForFunction(() => typeof sendBack_emsFormBuilder_pub !== 'undefined' && window.EFBCalc, null, { timeout: 20000 });
+    // SPLIT §6: EFBCalc is the Numbers & Calculations add-on's; on a plan below the add-on's it is not on the page.
+    await g.waitForFunction((needCalc) => typeof sendBack_emsFormBuilder_pub !== 'undefined' && (!needCalc || window.EFBCalc), !(opts && opts.noCalc), { timeout: 20000 });
     await sleep(900);
     return g;
   }
@@ -303,9 +305,10 @@ module.exports = function (S) {
     ]);
     try {
       plan(2);
-      const g = await open(context, pageOf(F.form_id), 'f04e-free');
-      const v = await g.evaluate((ids) => ({ out: !!document.getElementById(ids.c + '_out'), notice: !!document.querySelector('[id="' + ids.c + '-f"]'), oldType: document.getElementById(ids.old + '_').type, oldMax: document.getElementById(ids.old + '_').getAttribute('maxlength') }), F.ids);
-      R.check('f04e: Free: the calc field shows the plan notice (no output)', v.out === false && v.notice === true, v);
+      // SPLIT §6.4: AdnCLC is a Free Plus add-on; on Free it is not loaded (as without the add-on): the calc field shows the notice.
+      const g = await open(context, pageOf(F.form_id), 'f04e-free', { noCalc: true });
+      const v = await g.evaluate((ids) => ({ out: !!document.getElementById(ids.c + '_out'), notice: !!document.querySelector('[id="' + ids.c + '-f"]') || !!document.querySelector('[id="' + ids.c + '"] .efb-addon-needed'), calcJs: !!window.EFBCalc, oldType: document.getElementById(ids.old + '_').type, oldMax: document.getElementById(ids.old + '_').getAttribute('maxlength') }), F.ids);
+      R.check('f04e: Free: the calc field shows the notice (no output; the add-on is above the plan, so EFBCalc is not on the page)', v.out === false && v.notice === true && v.calcJs === false, v);
       R.check('f04e: an old number field without F04 keys renders as before (type number, maxlength="9" as before F04)', v.oldType === 'number' && v.oldMax === '9', v);
       await g.fill(sel(F.ids.a + '_'), '4');
       await g.press(sel(F.ids.a + '_'), 'Tab');

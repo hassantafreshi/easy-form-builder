@@ -329,9 +329,14 @@ class Panel_edit  {
 			wp_enqueue_script('efb-smart-tags-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/smart-tags-builder-efb.js', array('efb-val-js', 'efb-smart-tags-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/smart-tags-builder-efb.js'));
 			wp_enqueue_style('efb-upload-css', EMSFB_PLUGIN_URL . 'public/assets/css/upload-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/upload-efb.css'));
 			// F04: the formula and number engine (also formats numbers in the response viewer) and the builder controls.
-			wp_enqueue_script('efb-calc-js', EMSFB_PLUGIN_URL . 'public/assets/js/calc-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/calc-efb.js'));
-			wp_enqueue_script('efb-calc-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/calc-builder-efb.js', array('efb-val-js', 'efb-calc-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/calc-builder-efb.js'));
-			wp_enqueue_style('efb-calc-css', EMSFB_PLUGIN_URL . 'public/assets/css/calc-efb.css', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/css/calc-efb.css'));
+			// F04 (the Numbers & Calculations add-on, SPLIT §6): its scripts and style from efb_calc_api()['assets'].
+			$calc_api_efb = function_exists('efb_calc_api') ? efb_calc_api() : null;
+			if ($calc_api_efb && !empty($calc_api_efb['assets']['js'])) {
+				$calc_ver_efb = isset($calc_api_efb['assets']['ver']) ? (string) $calc_api_efb['assets']['ver'] : EMSFB_PLUGIN_VERSION;
+				wp_enqueue_script('efb-calc-js', $calc_api_efb['assets']['js'], array(), $calc_ver_efb);
+				if (!empty($calc_api_efb['assets']['builder_js'])) wp_enqueue_script('efb-calc-builder-js', $calc_api_efb['assets']['builder_js'], array('efb-val-js', 'efb-calc-js'), $calc_ver_efb, true);
+				if (!empty($calc_api_efb['assets']['css'])) wp_enqueue_style('efb-calc-css', $calc_api_efb['assets']['css'], array(), $calc_ver_efb);
+			}
 			// F09: the repeater group (EFBRepeaterCore, the twin of Repeater; the page runtime for the preview) and its builder controls.
 			wp_enqueue_script('efb-repeater-js', EMSFB_PLUGIN_URL . 'public/assets/js/repeater-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/repeater-efb.js'));
 			wp_enqueue_script('efb-repeater-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/repeater-builder-efb.js', array('efb-val-js', 'efb-repeater-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/repeater-builder-efb.js'));

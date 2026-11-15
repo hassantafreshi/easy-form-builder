@@ -23,7 +23,7 @@ function t($name, $actual, $expected) {
 if (!function_exists('get_locale')) { function get_locale() { return 'en_US'; } }
 if (!function_exists('wp_json_encode')) { function wp_json_encode($v, $f = 0) { return json_encode($v, $f); } }
 require __DIR__ . '/field-rules-render-lib.php';
-require_once __DIR__ . '/../includes/class-Emsfb-calc.php';
+require_once (getenv('EFB_CALC_DIR') ?: __DIR__ . '/../vendor/calc') . '/class-Emsfb-calc.php';
 function render_rows(array $fields) {
 	$all = array((object) array('type' => 'form', 'steps' => 1, 'formName' => 'T', 'currency' => 'usd'), (object) array('type' => 'step', 'id_' => '1', 'step' => '1', 'name' => 'S'));
 	foreach ($fields as $f) $all[] = (object) $f;

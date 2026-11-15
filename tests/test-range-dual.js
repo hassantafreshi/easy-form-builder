@@ -20,7 +20,8 @@ function t(label, actual, expected) {
   const a = JSON.stringify(actual), e = JSON.stringify(expected);
   if (a === e) { pass++; console.log('[PASS] ' + label); } else { fail++; console.log('[FAIL] ' + label + '\n  expected ' + e + '\n  actual   ' + a); }
 }
-const C = require(path.join(ROOT, 'public/assets/js/calc-efb.js'));
+const EFB_CALC_DIR = process.env.EFB_CALC_DIR || require('path').join(__dirname, '..', 'vendor', 'calc'); // SPLIT §6: the Numbers & Calculations add-on
+const C = require(path.join(EFB_CALC_DIR, 'assets', 'js', 'calc-efb.js'));
 function markup(dir, cfg) {
   const json = JSON.stringify(cfg).replace(/"/g, '&quot;');
   const one = (w, v, l) => `<input type="range" class="efb efb-range2-${w}" id="b_${w}" min="10" max="100" step="5" value="${v}" aria-label="${l}: Budget" aria-valuetext="${v}">`;
@@ -31,8 +32,8 @@ function markup(dir, cfg) {
 }
 (async () => {
   const b = await launch();
-  const css = fs.readFileSync(path.join(ROOT, 'public/assets/css/calc-efb.css'), 'utf8');
-  const js = fs.readFileSync(path.join(ROOT, 'public/assets/js/calc-efb.js'), 'utf8');
+  const css = fs.readFileSync(path.join(EFB_CALC_DIR, 'assets', 'css', 'calc-efb.css'), 'utf8');
+  const js = fs.readFileSync(path.join(EFB_CALC_DIR, 'assets', 'js', 'calc-efb.js'), 'utf8');
   async function open(dir, width, cfg) {
     const p = await b.newPage({ viewport: { width, height: 700 } });
     const errs = [];

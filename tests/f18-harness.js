@@ -42,10 +42,13 @@ function capabilities(pkg, settings) {
   const API = path.join(ROOT, 'includes/class-Emsfb-builder-api.php').replace(/\\/g, '/');
   const FUNCS = path.join(ROOT, 'includes/functions.php').replace(/\\/g, '/');
   const INC = path.join(ROOT, 'includes').replace(/\\/g, '/');
+  const CALC = (process.env.EFB_CALC_DIR || path.join(ROOT, 'vendor', 'calc')).replace(/\\/g, '/');
   const out = execFileSync('php', ['-r', `
     define('ABSPATH','/'); define('EMSFB_PLUGIN_VERSION','4.3.1'); define('EMSFB_API_VERSION',1);
     function get_option($k, $d = false) { return $d; }
-    function add_filter() {} function add_action() {} function apply_filters($h, $v) { return $v; }
+    function add_filter() {} function add_action() {}
+    // SPLIT: a site with the Numbers & Calculations add-on active (it announces the calc contract).
+    function apply_filters($h, $v) { if ($h === 'efb_addon_contracts') $v['calc']['AdnCLC'] = 1; return $v; }
     function rest_url($p = '') { return '/wp-json/' . $p; }
     function get_setting_Emsfb($m = 'decoded') { return json_decode($GLOBALS['settings']); }
     $GLOBALS['settings'] = stream_get_contents(STDIN);
@@ -60,7 +63,9 @@ function capabilities(pkg, settings) {
     // F11 (20) Form_Gate, F03 (21) Field_Rules, F02 / F06 (22) Verification / Calendar_Rest, F07 (23) Uploads,
     // F08 (24) Smart_Tags, F05 (25) Choices, F04 (26) Calc, F09 (27) Repeater, F14 (28) Entries, F10 (29) Layout, F12 (30) Spam,
     // F15 (31) Builder_Tools, (32) Revisions, (33) Form_Package.
-    foreach (array('class-Emsfb-rate-limit.php', 'class-Emsfb-client-ip.php', 'class-Emsfb-form-css.php', 'class-Emsfb-form-gate.php', 'class-Emsfb-masks.php', 'class-Emsfb-field-rules.php', 'verification/interface-provider.php', 'class-Emsfb-verification.php', 'class-Emsfb-calendar.php', 'class-Emsfb-calendar-rest.php', 'class-Emsfb-upload-guard.php', 'class-Emsfb-uploads.php', 'class-Emsfb-smart-tags.php', 'class-Emsfb-choices.php', 'class-Emsfb-stock.php', 'class-Emsfb-calc.php', 'class-Emsfb-repeater.php', 'admin/class-Emsfb-entries.php', 'class-Emsfb-layout.php', 'class-Emsfb-captcha.php', 'class-Emsfb-spam.php', 'class-Emsfb-builder-tools.php', 'class-Emsfb-revisions.php', 'class-Emsfb-form-package.php') as $f) require_once '${INC}/' . $f;
+    foreach (array('class-Emsfb-rate-limit.php', 'class-Emsfb-client-ip.php', 'class-Emsfb-form-css.php', 'class-Emsfb-form-gate.php', 'class-Emsfb-masks.php', 'class-Emsfb-field-rules.php', 'verification/interface-provider.php', 'class-Emsfb-verification.php', 'class-Emsfb-calendar.php', 'class-Emsfb-calendar-rest.php', 'class-Emsfb-upload-guard.php', 'class-Emsfb-uploads.php', 'class-Emsfb-smart-tags.php', 'class-Emsfb-choices.php', 'class-Emsfb-stock.php', 'class-Emsfb-repeater.php', 'admin/class-Emsfb-entries.php', 'class-Emsfb-layout.php', 'class-Emsfb-captcha.php', 'class-Emsfb-spam.php', 'class-Emsfb-builder-tools.php', 'class-Emsfb-revisions.php', 'class-Emsfb-form-package.php') as $f) require_once '${INC}/' . $f;
+    // SPLIT §6: the Numbers & Calculations add-on (vendor/calc or EFB_CALC_DIR) provides Emsfb\\Calc.
+    require_once '${CALC}/class-Emsfb-calc.php';
     foreach (array('Form_Gate', 'Field_Rules', 'Verification', 'Calendar_Rest', 'Uploads', 'Smart_Tags', 'Choices', 'Calc', 'Repeater', 'Entries', 'Layout', 'Spam', 'Builder_Tools', 'Revisions', 'Form_Package') as $c) { $c = '\\\\Emsfb\\\\' . $c; $caps = $c::capabilities($caps, array('package' => ${Number(pkg)})); }
     // SPLIT (99): the add-on of every moved entry and capabilities.split.
     foreach (array('addon-contracts-functions-efb.php', 'class-Emsfb-addon-keys.php', 'class-Emsfb-split.php') as $f) require_once '${INC}/' . $f;

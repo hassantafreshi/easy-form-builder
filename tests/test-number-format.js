@@ -11,7 +11,8 @@
  */
 'use strict';
 const path = require('path');
-const C = require(path.join(__dirname, '..', 'public', 'assets', 'js', 'calc-efb.js'));
+const EFB_CALC_DIR = process.env.EFB_CALC_DIR || require('path').join(__dirname, '..', 'vendor', 'calc'); // SPLIT §6: the Numbers & Calculations add-on
+const C = require(path.join(EFB_CALC_DIR, 'assets', 'js', 'calc-efb.js'));
 let pass = 0, fail = 0;
 function t(label, actual, expected) {
   const a = JSON.stringify(actual), e = JSON.stringify(expected);

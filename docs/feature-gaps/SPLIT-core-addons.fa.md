@@ -553,12 +553,12 @@ e2e روی `tests/e2e-wp` (سناریوی تازهٔ `scenario-split.js`، fa_IR
 ### C — `AdnCLC`
 `vendores-efb/calc` با `Calc`، assets، عبارت‌ها، آزمون‌ها؛ هسته: هوک‌های §۶.۲، افت پیش از F04 (§۶.۴)، سه رفع (پرسش ۱)، حذف فایل‌ها و `Calc::register()`. معیار: همهٔ آزمون‌های F04 و F09-J با افزونه سبز؛ `test-split-number-fallback.php` و `test-split-pay-calc-failsafe.php` بی‌افزونه سبز؛ e2e `f04*` و `f04pay`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: افزونهٔ تازه `vendores-efb/calc` (`routes-efb.php` با بررسی قرارداد، `class-Emsfb-calc.php` = موتور هسته بی‌تغییر جز مسیر جدول ارز و پیام‌ها از `efb-calc`، `class-Emsfb-calc-addon.php` برای `efb_addon_contracts`/`efb_calc_api` (با `assets`)/`efb_payment_computed_items`، `calc-phrases-efb.php` با ۵۴ عبارت در دامنهٔ `efb-calc` و افت به ترجمهٔ موجود `easy-form-builder`، `assets/js/calc-efb.js`، `assets/js/calc-builder-efb.js`، `assets/css/calc-efb.css`، زیپ). هسته: حذف چهار فایل (178,812 بایت)، `class-Emsfb.php` (بی `Calc::register()`)، `functions.php` (بی require مسیر هسته؛ ۵۴ عبارت به افزونه؛ زیرمجموعه‌های صفحه کلید گم‌شده را از ارائه‌دهندهٔ افزونه می‌گیرند)، `class-Emsfb-split.php` (`calc` دیگر `core` نیست)، enqueue از `efb_calc_api()['assets']` در `class-Emsfb-public.php`، `create.php`، `panel.php`؛ `class-Emsfb-formbuilder.php`: افت پیش از F04 (`step="any"`)، پیام «Needs the Numbers & Calculations add-on» برای `calc` و اسلایدر دوطرفه (`addon_needed_message_efb`)؛ `class-Emsfb-public.php`: پرسش ۱ — ارقام فارسی/عربی در عدد ساده؛ `admin-efb.js`: `efb_addon_needed_html_efb()` با دکمهٔ Install در بوم.
+- تست‌ها: تازه `test-split-number-fallback.php` (23، شامل بایت‌به‌بایت فیکسچر `f04-old-form-render.json` بی‌افزونه). همهٔ آزمون‌های F04/F09-J با افزونه (`vendor/calc` یا `EFB_CALC_DIR`): `test-calc-*` (engine 309، parity 3448، …)، `test-number-*`، `test-range-dual*`، `test-ap-calc.js`، `test-repeater-calc.js`، `test-split-pay-calc-failsafe.php` (حالا افزونه را مثل هسته از `routes-efb.php` بار می‌کند). کل مجموعه در برابر `ff8f21ad`: بی‌شکست تازه. e2e روی سایت واقعی با `AdnCLC` روشن: `f04a`–`f04e`، `f04pay` = 42/42 (`f04e` حالا «افزونه بالای پلن» را می‌سنجد: روی Free افزونه بار نمی‌شود و پیام جای فیلد است).
+- وضعیت ترجمه: ۵۴ کلید به `efb-calc` (فقط فهرست؛ `.pot` افزونه در K).
+- مورد باز: هوک‌های ریز §۶.۲ (`efb_number_render_parts`، `efb_number_check_row`، `efb_submit_computed_rows`) به‌صورت نام‌کلاس پیاده شده‌اند: هسته همان فراخوان‌های محافظت‌شدهٔ `class_exists('\Emsfb\Calc')` را نگه داشت و افزونه همان کلاس `Emsfb\Calc` را تعریف می‌کند (SPLIT §۱۲: «Calc برای AdnCLC همان namespace»)؛ قرارداد نسخه با `efb_calc_api()` سنجیده می‌شود. این برابری بایت‌به‌بایت رندر و ارسال را تضمین کرد.
+- اقدام بعدی: D.
 
 ### D — `AdnTSG`
 `vendores-efb/typed-signature`: فونت‌ها، `EFBSign`، کنترل‌های سازنده، `sig_attrs`؛ هسته: `efb_esign_parts`، `efb_esign_row`، نمایش می‌ماند. معیار: `test-esign-typed-browser.js` و e2e `f10` (بخش E) با افزونه؛ بی‌افزونه کشیدنی.

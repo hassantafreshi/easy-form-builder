@@ -5483,10 +5483,6 @@ class efbFunction {
 			/* translators: F07 visitor: state of one photo being made smaller */
 			"fileResizing" => $state && isset($ac->text->fileResizing) ? $ac->text->fileResizing : esc_html__('Preparing','easy-form-builder'),
 			/* F07 phrases end */
-			/* translators: F04 builder: the default label of a new calculation field */
-			"calc" => $state && isset($ac->text->calc) ? $ac->text->calc : esc_html__('Calculation','easy-form-builder'),
-			/* translators: F04 builder: palette tile of the calculation field */
-			"calcField" => $state && isset($ac->text->calcField) ? $ac->text->calcField : esc_html__('Calculation','easy-form-builder'),
 			/* translators: F09 builder: heading of the repeater fields in the formula's "Insert field" list (each gives a list of values, one per row) */
 			"calcRows" => $state && isset($ac->text->calcRows) ? $ac->text->calcRows : esc_html__('Rows','easy-form-builder'),
 			/* translators: F09 builder: palette tile and type name of the repeater group (a set of fields the visitor can repeat) */
@@ -6387,110 +6383,6 @@ class efbFunction {
 			"entTrashDays" => $state && isset($ac->text->entTrashDays) ? $ac->text->entTrashDays : esc_html__('Empty the trash after (days, 0 = never)','easy-form-builder'),
 			/* translators: F14 settings section title */
 			"entSettingsTitle" => $state && isset($ac->text->entSettingsTitle) ? $ac->text->entSettingsTitle : esc_html__('Entries','easy-form-builder'),
-			/* translators: F04 builder: the step of a number field (e.g. 0.5) */
-			"numStep" => $state && isset($ac->text->numStep) ? $ac->text->numStep : esc_html__('Step','easy-form-builder'),
-			/* translators: F04 builder: help under the step box */
-			"numStepHelp" => $state && isset($ac->text->numStepHelp) ? $ac->text->numStepHelp : esc_html__('Empty = any value.','easy-form-builder'),
-			/* translators: F04 builder: warning */
-			"numStepBad" => $state && isset($ac->text->numStepBad) ? $ac->text->numStepBad : esc_html__('The step must be a positive number, such as 0.5 or 5.','easy-form-builder'),
-			/* translators: F04 builder: warning for a minimum / maximum */
-			"numLimitBad" => $state && isset($ac->text->numLimitBad) ? $ac->text->numLimitBad : esc_html__('Please enter a number, such as -10 or 9.5.','easy-form-builder'),
-			/* translators: F04 builder */
-			"numDecimals" => $state && isset($ac->text->numDecimals) ? $ac->text->numDecimals : esc_html__('Decimal places','easy-form-builder'),
-			/* translators: F04 builder: decimal places not limited */
-			"numAnyDec" => $state && isset($ac->text->numAnyDec) ? $ac->text->numAnyDec : esc_html__('Any','easy-form-builder'),
-			/* translators: F04 builder */
-			"numFormat" => $state && isset($ac->text->numFormat) ? $ac->text->numFormat : esc_html__('Number format','easy-form-builder'),
-			/* translators: F04 builder: format option without separators */
-			"numFmtNone" => $state && isset($ac->text->numFmtNone) ? $ac->text->numFmtNone : esc_html__('Plain','easy-form-builder'),
-			/* translators: F04 builder: format option */
-			"numGrouped" => $state && isset($ac->text->numGrouped) ? $ac->text->numGrouped : esc_html__('Thousands separator','easy-form-builder'),
-			/* translators: F04 builder */
-			"numDecSep" => $state && isset($ac->text->numDecSep) ? $ac->text->numDecSep : esc_html__('Decimal separator','easy-form-builder'),
-			/* translators: F04 builder: separator chosen from the site language */
-			"numSepAuto" => $state && isset($ac->text->numSepAuto) ? $ac->text->numSepAuto : esc_html__('Language default','easy-form-builder'),
-			/* translators: F04 builder: separator option */
-			"numSepSpace" => $state && isset($ac->text->numSepSpace) ? $ac->text->numSepSpace : esc_html__('Space','easy-form-builder'),
-			/* translators: F04 builder: separator option */
-			"numSepNone" => $state && isset($ac->text->numSepNone) ? $ac->text->numSepNone : esc_html__('None','easy-form-builder'),
-			/* translators: F04 builder */
-			"numDigits" => $state && isset($ac->text->numDigits) ? $ac->text->numDigits : esc_html__('Digits shown','easy-form-builder'),
-			/* translators: F04 builder: digits option (0-9) */
-			"numDigitsLatin" => $state && isset($ac->text->numDigitsLatin) ? $ac->text->numDigitsLatin : esc_html__('0-9','easy-form-builder'),
-			/* translators: F04 builder: digits option (the digits of the site language) */
-			"numDigitsNative" => $state && isset($ac->text->numDigitsNative) ? $ac->text->numDigitsNative : esc_html__('Language digits','easy-form-builder'),
-			/* translators: F04 builder: digits option (Persian / Arabic digits on such sites, 0-9 elsewhere) */
-			"numDigitsAuto" => $state && isset($ac->text->numDigitsAuto) ? $ac->text->numDigitsAuto : esc_html__('Site language','easy-form-builder'),
-			/* translators: F04 builder */
-			"numPrefix" => $state && isset($ac->text->numPrefix) ? $ac->text->numPrefix : esc_html__('Prefix','easy-form-builder'),
-			/* translators: F04 builder */
-			"numSuffix" => $state && isset($ac->text->numSuffix) ? $ac->text->numSuffix : esc_html__('Suffix','easy-form-builder'),
-			/* translators: F04 builder */
-			"numUseCurrency" => $state && isset($ac->text->numUseCurrency) ? $ac->text->numUseCurrency : esc_html__('Show as form currency','easy-form-builder'),
-			/* translators: F04 builder: switch that makes a maximum of 0 a real maximum */
-			"numMaxZero" => $state && isset($ac->text->numMaxZero) ? $ac->text->numMaxZero : esc_html__('Maximum 0 is a real maximum','easy-form-builder'),
-			/* translators: F04 builder */
-			"numSepSame" => $state && isset($ac->text->numSepSame) ? $ac->text->numSepSame : esc_html__('The decimal and thousands separators must differ.','easy-form-builder'),
-			/* translators: F04 builder: help of the calculation field */
-			"calcHelp" => $state && isset($ac->text->calcHelp) ? $ac->text->calcHelp : esc_html__('Use {field} references, numbers, + - * / ( ) and the functions below.','easy-form-builder'),
-			/* translators: F04 builder */
-			"calcFormula" => $state && isset($ac->text->calcFormula) ? $ac->text->calcFormula : esc_html__('Formula','easy-form-builder'),
-			/* translators: F04 builder */
-			"calcInsertField" => $state && isset($ac->text->calcInsertField) ? $ac->text->calcInsertField : esc_html__('Insert field','easy-form-builder'),
-			/* translators: F04 builder */
-			"calcFunctions" => $state && isset($ac->text->calcFunctions) ? $ac->text->calcFunctions : esc_html__('Functions','easy-form-builder'),
-			/* translators: F04 builder */
-			"calcShowRes" => $state && isset($ac->text->calcShowRes) ? $ac->text->calcShowRes : esc_html__('Show the result to the visitor','easy-form-builder'),
-			/* translators: F04 builder */
-			"calcEmptyZero" => $state && isset($ac->text->calcEmptyZero) ? $ac->text->calcEmptyZero : esc_html__('Treat empty answers as 0','easy-form-builder'),
-			/* translators: F04 builder: option: an empty answer leaves the result empty */
-			"calcEmptyBlank" => $state && isset($ac->text->calcEmptyBlank) ? $ac->text->calcEmptyBlank : esc_html__('Leave the result empty','easy-form-builder'),
-			/* translators: F04 builder: %s = the text near the error */
-			"calcErrAt" => $state && isset($ac->text->calcErrAt) ? $ac->text->calcErrAt : esc_html__('The formula has an error near “%s”.','easy-form-builder'),
-			/* translators: F04 builder */
-			"calcCycle" => $state && isset($ac->text->calcCycle) ? $ac->text->calcCycle : esc_html__('This formula uses its own result (directly or through another calculation).','easy-form-builder'),
-			/* translators: F04 builder: %s = the reference, e.g. {price} */
-			"calcErrRef" => $state && isset($ac->text->calcErrRef) ? $ac->text->calcErrRef : esc_html__('No field matches %s.','easy-form-builder'),
-			/* translators: F04 builder: %s = the reference */
-			"calcErrForbidden" => $state && isset($ac->text->calcErrForbidden) ? $ac->text->calcErrForbidden : esc_html__('%s cannot be used in a calculation (password, file, signature, map or HTML).','easy-form-builder'),
-			/* translators: F04 builder: %s = the function name */
-			"calcErrFn" => $state && isset($ac->text->calcErrFn) ? $ac->text->calcErrFn : esc_html__('Unknown function “%s”.','easy-form-builder'),
-			/* translators: F04 builder: %s = the function name */
-			"calcErrArgs" => $state && isset($ac->text->calcErrArgs) ? $ac->text->calcErrArgs : esc_html__('“%s” has the wrong number of values.','easy-form-builder'),
-			/* translators: F04 builder */
-			"calcErrLong" => $state && isset($ac->text->calcErrLong) ? $ac->text->calcErrLong : esc_html__('The formula is too long or too deep.','easy-form-builder'),
-			/* translators: F04 builder */
-			"calcPublic" => $state && isset($ac->text->calcPublic) ? $ac->text->calcPublic : esc_html__('Visitors can read the formula in the page source.','easy-form-builder'),
-			/* translators: F04 builder: the visible preview of the result in the builder */
-			"calcPreview" => $state && isset($ac->text->calcPreview) ? $ac->text->calcPreview : esc_html__('Preview','easy-form-builder'),
-			/* translators: F04 builder: switch on a calculation field (payment forms) */
-			"calcAsPrice" => $state && isset($ac->text->calcAsPrice) ? $ac->text->calcAsPrice : esc_html__('Use the result as the amount to pay','easy-form-builder'),
-			/* translators: F04 builder: help of that switch */
-			"calcAsPriceHelp" => $state && isset($ac->text->calcAsPriceHelp) ? $ac->text->calcAsPriceHelp : esc_html__('The server computes the amount again from the answers; a negative result is refused.','easy-form-builder'),
-			/* translators: F04 builder: a choice’s number used in calculations */
-			"calcOptValue" => $state && isset($ac->text->calcOptValue) ? $ac->text->calcOptValue : esc_html__('Calculation value','easy-form-builder'),
-			/* translators: F04 builder */
-			"rangeMode" => $state && isset($ac->text->rangeMode) ? $ac->text->rangeMode : esc_html__('Slider type','easy-form-builder'),
-			/* translators: F04 builder: slider type option */
-			"rangeSingle" => $state && isset($ac->text->rangeSingle) ? $ac->text->rangeSingle : esc_html__('One handle','easy-form-builder'),
-			/* translators: F04 builder: slider type option */
-			"rangeDual" => $state && isset($ac->text->rangeDual) ? $ac->text->rangeDual : esc_html__('Range (two handles)','easy-form-builder'),
-			/* translators: F04 visitor: label of the lower handle of a range slider */
-			"rngLo" => $state && isset($ac->text->rngLo) ? $ac->text->rngLo : esc_html__('Minimum','easy-form-builder'),
-			/* translators: F04 visitor: label of the upper handle of a range slider */
-			"rngHi" => $state && isset($ac->text->rngHi) ? $ac->text->rngHi : esc_html__('Maximum','easy-form-builder'),
-			/* translators: F04 visitor: %s = the field label */
-			"rngOrder" => $state && isset($ac->text->rngOrder) ? $ac->text->rngOrder : esc_html__('%s: the lower value must not be above the upper value.','easy-form-builder'),
-			/* translators: F04 visitor: %1$s = lowest value, %2$s = highest value */
-			"numRange" => $state && isset($ac->text->numRange) ? $ac->text->numRange : esc_html__('Between %1$s and %2$s','easy-form-builder'),
-			/* translators: F04 visitor: %1$s = the field label, %2$s = the step */
-			"numStepM_" => $state && isset($ac->text->numStepM_) ? $ac->text->numStepM_ : esc_html__('%1$s must be a multiple of %2$s.','easy-form-builder'),
-			/* translators: F04 visitor: %1$s = the field label, %2$s = a number */
-			"numDecM_" => $state && isset($ac->text->numDecM_) ? $ac->text->numDecM_ : esc_html__('%1$s allows at most %2$s decimal places.','easy-form-builder'),
-			/* translators: F04 visitor: %s = the field label */
-			"numNanM_" => $state && isset($ac->text->numNanM_) ? $ac->text->numNanM_ : esc_html__('Please enter a number in %s.','easy-form-builder'),
-			/* translators: F04 visitor: a calculation that cannot be made (division by zero, a text answer) */
-			"calcErr" => $state && isset($ac->text->calcErr) ? $ac->text->calcErr : esc_html__('This value cannot be calculated from the answers given.','easy-form-builder'),
 			/* F04 phrases end */
 
 		];
@@ -6500,6 +6392,16 @@ class efbFunction {
 
 		if(gettype($inp) =="array"){
 			$rtrn=array_intersect_key($lang, array_flip($inp));
+			// SPLIT §16: keys a SPLIT add-on took into its own text domain (efb-calc, efb-typed-signature, …) come from
+			// its phrase file while it is installed; a subset asks for them only when core no longer has them.
+			if (count($rtrn) < count($inp)) {
+				static $efb_split_phrases = null;
+				if ($efb_split_phrases === null) {
+					if (!class_exists('EfbAddonPhrases') && defined('EMSFB_PLUGIN_DIRECTORY') && is_readable(EMSFB_PLUGIN_DIRECTORY . 'includes/phrases.php')) require_once EMSFB_PLUGIN_DIRECTORY . 'includes/phrases.php';
+					$efb_split_phrases = class_exists('EfbAddonPhrases') ? emsfb_decode_typographic_entities_efb((array) EfbAddonPhrases::get_addon_base_phrases_efb($ac, $state)) : array();
+				}
+				$rtrn += array_intersect_key($efb_split_phrases, array_flip($inp));
+			}
 		}else{
 			if($inp==1){
 				$lan_2 =$this->efb_sentence_forms();
@@ -6653,9 +6555,9 @@ class efbFunction {
 		return 0;
 	}
 
-	/** F04: whether $k is a Calc key on a row of $type (loads the class when the save runs without the plugin bootstrap). */
+	/** F04: whether $k is a Calc key on a row of $type (the Numbers & Calculations add-on, SPLIT §6; without it the
+	 *  stored values of its keys are kept by Addon_Keys::keep()). */
 	private function calc_key_efb($k, $type) {
-		if (!class_exists('\\Emsfb\\Calc') && is_readable(__DIR__ . '/class-Emsfb-calc.php')) require_once __DIR__ . '/class-Emsfb-calc.php';
 		return class_exists('\\Emsfb\\Calc') && \Emsfb\Calc::is_key($k, is_string($type) ? $type : '');
 	}
 
@@ -7158,7 +7060,6 @@ class efbFunction {
 			if (class_exists('\\Emsfb\\Choices')) $valp = \Emsfb\Choices::normalize_rows($valp);
 			// F04: formula_err on every calc field whose formula does not parse, reads a missing or forbidden field, or
 			// is part of a cycle (the builder shows why; the page leaves the result empty).
-			if (!class_exists('\\Emsfb\\Calc') && is_readable(__DIR__ . '/class-Emsfb-calc.php')) require_once __DIR__ . '/class-Emsfb-calc.php';
 			if (class_exists('\\Emsfb\\Calc')) $valp = \Emsfb\Calc::normalize_rows($valp);
 			// F09: repeater limits in order, children in their group's step and right after it, `group` only where it makes a child.
 			if (!class_exists('\\Emsfb\\Repeater') && is_readable(__DIR__ . '/class-Emsfb-repeater.php')) require_once __DIR__ . '/class-Emsfb-repeater.php';

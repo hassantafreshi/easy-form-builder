@@ -53,7 +53,8 @@ const ctx = {
 ctx.fun_sendBack_emsFormBuilder = (row) => { sendBackCalls++; ctx.sendBack_emsFormBuilder_pub.push(row); if (row.type !== 'calc') ctx.EFBCalc.page.schedule(row.form_id); };
 ctx.self = ctx;
 vm.createContext(ctx);
-vm.runInContext(fs.readFileSync(path.join(ROOT, 'public/assets/js/calc-efb.js'), 'utf8'), ctx);
+const EFB_CALC_DIR = process.env.EFB_CALC_DIR || require('path').join(__dirname, '..', 'vendor', 'calc'); // SPLIT §6: the Numbers & Calculations add-on
+vm.runInContext(fs.readFileSync(path.join(EFB_CALC_DIR, 'assets', 'js', 'calc-efb.js'), 'utf8'), ctx);
 const P = ctx.EFBCalc.page;
 const flush = () => { while (timers.length) { const f = timers.shift(); if (f) f(); } };
 const answer = (id, value, fid) => { const R = ctx.sendBack_emsFormBuilder_pub; const i = R.findIndex((r) => r.id_ === id && r.form_id === fid); if (i !== -1) R.splice(i, 1); if (value !== '') ctx.fun_sendBack_emsFormBuilder({ id_: id, type: 'number', value, form_id: fid }); else P.schedule(fid); };

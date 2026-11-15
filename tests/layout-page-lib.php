@@ -27,7 +27,7 @@ if (!empty($in['gateways'])) {
 	eval('namespace Emsfb\\Payments; class Registry { public static function is_field_type($t) { return in_array($t, $GLOBALS["efb_gateways"], true); } public static function has($t) { return self::is_field_type($t); } public static function all() { return array(); } } class Frontend { public static function field_markup($vj) { return "<div class=\\"efb efb-pf\\" data-pf=\\"" . htmlspecialchars($vj->id_) . "\\"></div>"; } }');
 }
 require __DIR__ . '/field-rules-render-lib.php';
-require_once __DIR__ . '/../includes/class-Emsfb-calc.php';
+require_once (getenv('EFB_CALC_DIR') ?: __DIR__ . '/../vendor/calc') . '/class-Emsfb-calc.php';
 require_once __DIR__ . '/../includes/class-Emsfb-form-gate.php';
 require_once __DIR__ . '/../includes/class-Emsfb-repeater.php';
 if (is_readable(__DIR__ . '/../includes/class-Emsfb-layout.php')) require_once __DIR__ . '/../includes/class-Emsfb-layout.php';

@@ -38,8 +38,6 @@ class Split {
 	public static function register() {
 		if (!function_exists('add_filter')) return;
 		add_filter('efb_addon_contracts', array(__CLASS__, 'core_contracts'), 1);
-		add_filter('efb_calc_api', array(__CLASS__, 'core_calc_api'), 1);
-		add_filter('efb_payment_computed_items', array(__CLASS__, 'core_computed_items'), 1, 4);
 		add_filter('efb_capabilities', array(__CLASS__, 'capabilities'), 99, 2);
 		add_filter('efb_payment_readiness', array(__CLASS__, 'payment_readiness'), 30, 3);
 		add_filter('efb_form_schema_field', array(__CLASS__, 'schema_field'), 40, 3);
@@ -58,7 +56,6 @@ class Split {
 	 */
 	public static function core_contracts($c) {
 		$c = is_array($c) ? $c : array();
-		if (class_exists('\\Emsfb\\Calc') && !self::addon_provides('calc')) $c['calc']['core'] = 1;
 		// Typed signature (F10-E), postal presets / map field (F01, maps) and the booking editor are still in core.
 		foreach (array('typed_signature', 'address', 'booking') as $id) if (!self::addon_provides($id)) $c[$id]['core'] = 1;
 		return $c;
@@ -73,19 +70,6 @@ class Split {
 		$busy = false;
 		foreach (isset($all[$contract]) && is_array($all[$contract]) ? $all[$contract] : array() as $code => $v) if ($code !== 'core') return true;
 		return false;
-	}
-
-	/** efb_calc_api while the engine is part of core. */
-	public static function core_calc_api($api) {
-		if ($api !== null || !class_exists('\\Emsfb\\Calc')) return $api;
-		return array('version' => 1, 'provider' => 'core',
-			'plan_ok' => array('\\Emsfb\\Calc', 'plan_ok'), 'json_needs_runtime' => array('\\Emsfb\\Calc', 'json_needs_runtime'));
-	}
-
-	/** efb_payment_computed_items while the engine is part of core (Calc::price_items()). */
-	public static function core_computed_items($res, $form, $rows, $hidden = array()) {
-		if ($res !== null || !class_exists('\\Emsfb\\Calc')) return $res;
-		return \Emsfb\Calc::price_items($form, is_array($rows) ? $rows : array(), is_array($hidden) ? $hidden : array());
 	}
 
 	/* --------------------------------------------------------------------------------------------- types */

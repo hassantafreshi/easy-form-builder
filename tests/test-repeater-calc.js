@@ -50,7 +50,7 @@ const html = JSON.parse(execFileSync('php', [path.join(__dirname, 'repeater-rend
   await page.route('**/*', (r) => r.fulfill({ status: 200, contentType: 'text/html', body: `<!doctype html><html><head><meta charset="utf-8"></head><body><div id="body_efb_11" data-formid="11" data-currentstep="1" data-steps="1">${html}</div></body></html>` }));
   await page.goto('http://site.test/f/');
   await page.addScriptTag({ content: `var efb_var = { text: {}, rtl: 0, id: 11, wp_lan: 'en_US', language: 'en_US' }; var ajax_object_efm = { text: {}, form_setting: {}, ajax_value_forms: [], wp_lan: 'en_US' }; ` });
-  for (const js of ['includes/admin/assets/js/jquery.min-efb.js', 'includes/admin/assets/js/new-efb.js', 'public/assets/js/calc-efb.js', 'public/assets/js/repeater-efb.js', 'public/assets/js/core-efb.js']) await page.addScriptTag({ path: path.join(ROOT, js) });
+  for (const js of ['includes/admin/assets/js/jquery.min-efb.js', 'includes/admin/assets/js/new-efb.js', 'vendor/calc/assets/js/calc-efb.js', 'public/assets/js/repeater-efb.js', 'public/assets/js/core-efb.js']) await page.addScriptTag({ path: path.join(ROOT, js) });
   await page.evaluate((rows) => {
     valj_efb_new = [{ id: 11, form_structer: [{ type: 'form', steps: 1 }, { id_: '1', type: 'step', step: 1 }].concat(rows) }];
     createStepsOfPublic();
@@ -71,11 +71,12 @@ const html = JSON.parse(execFileSync('php', [path.join(__dirname, 'repeater-rend
   check('the first row removed: the sum 20.50 and count 2 (its line no longer counts)', (await out('total')) === '20.50' && (await out('n')) === '2', [await out('total'), await out('n')]);
   const sent = await page.evaluate(() => efb_repeater_wire_rows_efb(sendBack_emsFormBuilder_pub.filter((r) => Number(r.form_id) === 11), 11));
   check('what is sent: price / qty under their own ids with ri 0 / 1 (the rows left)', sent.filter((r) => r.id_ === 'price').map((r) => r.value + '@' + r.ri).join(',') === '5.5@0,1@1', sent.filter((r) => r.id_ === 'price'));
+const EFB_CALC_DIR = process.env.EFB_CALC_DIR || require('path').join(__dirname, '..', 'vendor', 'calc'); // SPLIT §6: the Numbers & Calculations add-on
 
   // The server: the same answers through Repeater::expand() and Calc::evaluate_form(), a forged line ignored.
   const forged = sent.concat([{ id_: 'line', type: 'calc', value: '999', rg: 'items', ri: '0' }]);
   const php = execFileSync('php', ['-r', `define('ABSPATH','/'); function apply_filters($h,$v){return $v;} function esc_html($s){return $s;}
-    require '${path.join(ROOT, 'includes', 'class-Emsfb-calc.php').replace(/\\/g, '/')}'; require '${path.join(ROOT, 'includes', 'class-Emsfb-repeater.php').replace(/\\/g, '/')}';
+    require '${path.join(EFB_CALC_DIR, 'class-Emsfb-calc.php').replace(/\\/g, '/')}'; require '${path.join(ROOT, 'includes', 'class-Emsfb-repeater.php').replace(/\\/g, '/')}';
     $in = json_decode(stream_get_contents(STDIN), true);
     $x = \\Emsfb\\Repeater::expand($in['fields'], $in['rows'], array());
     echo json_encode(array('ok' => $x['ok'], 'calc' => \\Emsfb\\Calc::evaluate_form($x['fields'], $x['rows'])));`], { input: JSON.stringify({ fields: [{ type: 'form' }, { id_: '1', type: 'step' }].concat(FORM), rows: forged }) }).toString('utf8');
@@ -87,7 +88,7 @@ const html = JSON.parse(execFileSync('php', [path.join(__dirname, 'repeater-rend
   await b.route('**/*', (r) => r.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><html><body></body></html>' }));
   await b.goto('http://site.test/b/');
   await b.addScriptTag({ content: `var efb_var = { text: {}, rtl: 0, calc: { plan: { calc: true } } };` });
-  for (const js of ['public/assets/js/calc-efb.js', 'public/assets/js/repeater-efb.js', 'includes/admin/assets/js/calc-builder-efb.js']) await b.addScriptTag({ path: path.join(ROOT, js) });
+  for (const js of ['vendor/calc/assets/js/calc-efb.js', 'public/assets/js/repeater-efb.js', 'vendor/calc/assets/js/calc-builder-efb.js']) await b.addScriptTag({ path: path.join(ROOT, js) });
   const lists = await b.evaluate((rows) => {
     window.valj_efb = [{ type: 'form' }, { id_: '1', type: 'step' }].concat(rows);
     const opts = (id) => { const d = document.createElement('div'); d.innerHTML = efbCalcPanelEls(valj_efb.findIndex((x) => x.id_ === id), id + '-id'); return Array.from(d.querySelectorAll('#calcInsertEl option')).map((o) => o.value).filter(Boolean); };

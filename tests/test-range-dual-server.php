@@ -22,7 +22,7 @@ function t($label, $actual, $expected) {
 if (!function_exists('get_locale')) { function get_locale() { return $GLOBALS['loc'] ?? 'en_US'; } }
 if (!function_exists('wp_json_encode')) { function wp_json_encode($v, $f = 0) { return json_encode($v, $f); } }
 require __DIR__ . '/field-rules-render-lib.php';
-require_once __DIR__ . '/../includes/class-Emsfb-calc.php';
+require_once (getenv('EFB_CALC_DIR') ?: __DIR__ . '/../vendor/calc') . '/class-Emsfb-calc.php';
 use Emsfb\Calc;
 $lan = array('rngOrder' => '%s: the lower value must not be above the upper value.', 'mcplen' => 'At least NN.', 'mxcplen' => 'At most NN', 'numStepM_' => '%1$s must be a multiple of %2$s.', 'mnvvXXX_' => 'Please enter valid value for the %s field.');
 $f = array('id_' => 'b', 'type' => 'range', 'name' => 'Budget', 'range_mode' => 'dual', 'milen' => '10', 'mlen' => '50', 'num_step' => '5', 'num_format' => 'group');

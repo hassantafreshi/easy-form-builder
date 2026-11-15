@@ -15,7 +15,7 @@ function esc_html($v) { return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'
 function apply_filters($h, $v) { return $v; }
 
 
-require __DIR__ . '/../includes/class-Emsfb-calc.php';
+require (getenv('EFB_CALC_DIR') ?: __DIR__ . '/../vendor/calc') . '/class-Emsfb-calc.php';
 $pass = 0; $fail = 0;
 function t($label, $actual, $expected) {
 	global $pass, $fail;

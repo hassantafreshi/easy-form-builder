@@ -18,7 +18,7 @@ require __DIR__ . '/../includes/class-Emsfb-builder-api.php';
 efb_pay_test_load();
 if (!function_exists('get_locale')) { function get_locale() { return 'en_US'; } }
 if (!function_exists('esc_html')) { function esc_html($v) { return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); } }
-require_once __DIR__ . '/../includes/class-Emsfb-calc.php';
+require_once (getenv('EFB_CALC_DIR') ?: __DIR__ . '/../vendor/calc') . '/class-Emsfb-calc.php';
 use Emsfb\Payments\Pricing;
 $t = 'efb_pay_t';
 $GLOBALS['opts']['emsfb_pro'] = 1;

@@ -22,6 +22,7 @@ const base = (id, type, name, extra) => Object.assign({ id_: id, dataId: id + '-
   amount: 2, step: 1, label_text_size: 'fs-6', label_position: 'up', el_text_size: 'fs-6', label_text_color: 'text-labelEfb', el_border_color: 'border-d', el_text_color: 'text-labelEfb',
   message_text_color: 'text-muted', el_height: 'h-d-efb', label_align: 'txt-left', message_align: 'justify-content-start', el_align: 'justify-content-start', pro: false, icon_input: '' }, extra || {});
 
+const EFB_CALC_DIR = process.env.EFB_CALC_DIR || require('path').join(__dirname, '..', 'vendor', 'calc'); // SPLIT §6: the Numbers & Calculations add-on
 (async () => {
   const form = blankForm();
   form.push(base('price', 'number', 'Price', { amount: '2' }));
@@ -66,7 +67,7 @@ const base = (id, type, name, extra) => Object.assign({ id_: id, dataId: id + '-
   const formNow = await page.evaluate(() => JSON.parse(JSON.stringify(valj_efb)));
   const cases = ['round({price}*1.09,2)', '{tot}+{nothere}', 'max(1,', '{pw}+1', '{price}*2'];
   const js = await page.evaluate((cs) => cs.map((f) => efbBuilderApi.validateFormula(f)), cases);
-  const php = JSON.parse(execFileSync('php', ['-r', `define('ABSPATH','x'); require ${JSON.stringify(path.join(__dirname, '..', 'includes', 'class-Emsfb-calc.php'))}; $in = json_decode(stream_get_contents(STDIN), true); $o = array(); foreach ($in['c'] as $f) $o[] = \\Emsfb\\Calc::validate_formula($f, $in['form']); echo json_encode($o);`], { input: JSON.stringify({ c: cases, form: formNow }) }).toString());
+  const php = JSON.parse(execFileSync('php', ['-r', `define('ABSPATH','x'); require ${JSON.stringify(path.join(EFB_CALC_DIR, 'class-Emsfb-calc.php'))}; $in = json_decode(stream_get_contents(STDIN), true); $o = array(); foreach ($in['c'] as $f) $o[] = \\Emsfb\\Calc::validate_formula($f, $in['form']); echo json_encode($o);`], { input: JSON.stringify({ c: cases, form: formNow }) }).toString());
   c.check('validateFormula (JS) = Calc::validate_formula (PHP) for 5 formulas', JSON.stringify(js) === JSON.stringify(php), [js, php]);
   // The canvas.
   await page.evaluate(() => efbBuilderApi.insertItems([{ id_: 'rg', type: 'range', name: 'Budget', range_mode: 'dual', milen: '10', mlen: '50', value: '10..50' }]));

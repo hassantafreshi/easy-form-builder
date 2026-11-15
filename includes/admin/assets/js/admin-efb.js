@@ -1313,6 +1313,28 @@ function efb_addon_required_package_efb(item) {
   return row && row.pro != true ? 0 : 1;
 }
 
+/* SPLIT §4.1: a field or setting whose add-on is not active on this site: "Needs the X add-on" (the add-on's name is
+   a product name, isolated in <bdi>; the sentence keeps its own direction on a right-to-left page) with Install (the
+   same add_addons_Emsfb request as the Add-ons page) or, when the plan does not include it, the upgrade dialog. */
+function efb_addon_needed_html_efb(code) {
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const ev = (typeof efb_var !== 'undefined' && efb_var) || {};
+  const cat = (ev.addon_catalog && ev.addon_catalog[code]) || {};
+  const t = ev.text || {};
+  const msg = esc(t.addonNeededT || 'Needs the %s add-on').replace('%s', `<bdi>${esc(cat.name || code)}</bdi>`);
+  return `<div class="efb alert alert-warning efb-addon-needed my-1 d-flex flex-wrap align-items-center gap-2" role="note" data-efb-addon="${esc(code)}" style="unicode-bidi:plaintext"><i class="efb bi-puzzle" aria-hidden="true"></i><span class="efb">${msg}</span> <button type="button" class="efb btn btn-sm btn-primary efb-addon-install" data-addon="${esc(code)}" style="min-height:44px;min-width:44px" onclick="efb_addon_install_click_efb(this.getAttribute('data-addon'))">${esc(t.addonInstallBtn || 'Install')}</button></div>`;
+}
+function efb_addon_install_click_efb(code) {
+  if (!/^Adn[A-Za-z]{2,5}$/.test(String(code || ''))) return false;
+  if (typeof efb_addon_can_install_efb === 'function' && !efb_addon_can_install_efb(code) && typeof efb_upgrade_prompt_efb === 'function') {
+    efb_upgrade_prompt_efb({ feature: 'addon:' + code, origin: 'builder' });
+    return false;
+  }
+  if (typeof actionSendAddons_efb === 'function') { actionSendAddons_efb(code); return true; }
+  window.location.href = 'admin.php?page=Emsfb_addon';
+  return true;
+}
+
 /* One answer for both the card and the click. */
 function efb_addon_can_install_efb(item) {
   const required = efb_addon_required_package_efb(item);
@@ -7654,6 +7676,12 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       typeof rating_el_pro_efb =="function" ? 0 : ui=public_pro_message()
       break;
     case 'range':
+        // SPLIT §6.4: a two-handle slider without the Numbers & Calculations add-on is not drawn as one handle.
+        if (valj_efb[iVJ].range_mode === 'dual' && typeof efbRange2Canvas !== 'function') {
+          ui = `${label}<div class="efb ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show" id='${rndm}-f'>${ttip}${efb_addon_needed_html_efb('AdnCLC')}${desc}`;
+          dataTag = elementId;
+          break;
+        }
         // F04-F: a two-handle slider (calc-builder-efb.js, twin of Calc::range2_markup()).
         if (valj_efb[iVJ].range_mode === 'dual' && typeof efbRange2Canvas === 'function') {
           ui = `
@@ -7839,7 +7867,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
       ${label}
       <div class="efb  ${pos[3]} col-sm-12 px-0 mx-0 ttEfb show" data-id="${rndm}-el" id='${rndm}-f'>
       ${ttip}
-      ${typeof efbCalcCanvas === 'function' ? efbCalcCanvas(valj_efb[iVJ], previewSate == true) : `<output id="${rndm}_out"></output>`}
+      ${typeof efbCalcCanvas === 'function' ? efbCalcCanvas(valj_efb[iVJ], previewSate == true) : efb_addon_needed_html_efb('AdnCLC')}
       <div class="efb  mb-3">${desc}</div>
       `;
       if (previewSate == true && valj_efb[iVJ].calc_show === 'hidden') hidden = 'd-none';

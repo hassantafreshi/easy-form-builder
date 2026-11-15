@@ -7,7 +7,7 @@
  * Run: php tests/test-calc-engine.php
  */
 define('ABSPATH', __DIR__ . '/');
-require __DIR__ . '/../includes/class-Emsfb-calc.php';
+require (getenv('EFB_CALC_DIR') ?: __DIR__ . '/../vendor/calc') . '/class-Emsfb-calc.php';
 use Emsfb\Calc;
 
 $pass = 0; $fail = 0;
@@ -43,7 +43,7 @@ foreach ($V['forms'] as $i => $f) {
 	ksort($r); $e = $f['expect']; ksort($e);
 	t("form #$i {$f['name']}", $r, $e);
 }
-$src = preg_replace('#/\*.*?\*/#s', '', file_get_contents(__DIR__ . '/../includes/class-Emsfb-calc.php'));
+$src = preg_replace('#/\*.*?\*/#s', '', file_get_contents((getenv('EFB_CALC_DIR') ?: __DIR__ . '/../vendor/calc') . '/class-Emsfb-calc.php'));
 $src = preg_replace('#//.*$#m', '', $src);
 t('no eval / create_function / assert / preg_replace /e in class-Emsfb-calc.php', (bool) preg_match('/\beval\s*\(|create_function|\bassert\s*\(|\bshell_exec|\bexec\s*\(|\bsystem\s*\(|\bpassthru|\bproc_open|\bpopen/', $src), false);
 

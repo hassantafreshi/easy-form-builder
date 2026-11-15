@@ -16,7 +16,7 @@
 define('ABSPATH', __DIR__ . '/');
 function esc_html($v) { return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); }
 function get_locale() { return $GLOBALS['loc'] ?? 'en_US'; }
-require __DIR__ . '/../includes/class-Emsfb-calc.php';
+require (getenv('EFB_CALC_DIR') ?: __DIR__ . '/../vendor/calc') . '/class-Emsfb-calc.php';
 use Emsfb\Calc;
 $pass = 0; $fail = 0;
 function t($label, $actual, $expected) {

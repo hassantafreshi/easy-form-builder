@@ -2552,10 +2552,13 @@ public function check_nonce_permission_efb($request) {
 			$core_deps[] = 'efb-choices-js';
 		}
 		// F04: numbers with the F04 keys, calc fields, choice calc values and two-handle sliders (only on a form that uses one).
-		if (class_exists('\\Emsfb\\Calc') && \Emsfb\Calc::json_needs_runtime($form_structure_json)) {
-			wp_register_script('efb-calc-js', EMSFB_PLUGIN_URL . 'public/assets/js/calc-efb.js', array(), $asset_version('public/assets/js/calc-efb.js'), true);
+		// F04 (the Numbers & Calculations add-on, SPLIT §6): its page script and style come from efb_calc_api()['assets'].
+		$calc_api_efb = function_exists('efb_calc_api') ? efb_calc_api() : null;
+		if ($calc_api_efb && !empty($calc_api_efb['assets']['js']) && class_exists('\\Emsfb\\Calc') && \Emsfb\Calc::json_needs_runtime($form_structure_json)) {
+			$calc_ver_efb = isset($calc_api_efb['assets']['ver']) ? (string) $calc_api_efb['assets']['ver'] : EMSFB_PLUGIN_VERSION;
+			wp_register_script('efb-calc-js', $calc_api_efb['assets']['js'], array(), $calc_ver_efb, true);
 			wp_enqueue_script('efb-calc-js');
-			wp_enqueue_style('efb-calc-css', EMSFB_PLUGIN_URL . 'public/assets/css/calc-efb.css', array(), $asset_version('public/assets/css/calc-efb.css'));
+			if (!empty($calc_api_efb['assets']['css'])) wp_enqueue_style('efb-calc-css', $calc_api_efb['assets']['css'], array(), $calc_ver_efb);
 			$core_deps[] = 'efb-calc-js';
 		}
 		// F09: the repeater group's rows (add / remove, min / max, collapsible, rows_from), only on a form with one.
@@ -9405,6 +9408,12 @@ public function check_nonce_permission_efb($request) {
 								}
 								$still_processing = false;
 								break;
+							}
+							/* SPLIT §6.4 (open question 1, approved by owner 2026-11-14): without the Numbers & Calculations
+							 * add-on a plain number still reads Persian, Arabic-Indic and full-width digits (a fix F04
+							 * brought, kept in core), so "۱۲" is the number 12 and not a refusal. */
+							if ($f['type'] === 'number' && isset($item['value']) && is_string($item['value']) && class_exists('\\Emsfb\\Masks')) {
+								$item['value'] = str_replace("\u{066B}", '.', \Emsfb\Masks::normalize_digits(trim($item['value'])));
 							}
 							if (isset($item['value']) && is_numeric($item['value'])) {
 								$item['value'] = sanitize_text_field($item['value']);

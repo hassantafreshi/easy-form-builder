@@ -9,6 +9,7 @@
  *  - the payment readiness reports pay_calc_unavailable with fix {kind: addon, addon: AdnCLC}; the visitor text is
  *    the pay_not_ready sentence.
  * On the old code (before SPLIT) the first block fails: without the Calc class quote() charged the other items.
+ * The engine is the Numbers & Calculations add-on (vendor/calc or EFB_CALC_DIR) since SPLIT-C.
  *
  * Run: php tests/test-split-pay-calc-failsafe.php
  */
@@ -100,8 +101,10 @@ $t('an amount that is not a number: price_not_computable', $q['error'], 'price_n
 $GLOBALS['efb_filters']['efb_payment_computed_items'] = array_slice($GLOBALS['efb_filters']['efb_payment_computed_items'], 0, -1);
 $GLOBALS['efb_filters']['efb_calc_api'] = array_slice($GLOBALS['efb_filters']['efb_calc_api'], 0, -1);
 
-// ---- 4. with the engine (core's Calc now, the AdnCLC add-on after SPLIT-C): the server's amount
-require_once __DIR__ . '/../includes/class-Emsfb-calc.php';
+// ---- 4. with the Numbers & Calculations add-on (AdnCLC, loaded the way core loads it: its routes-efb.php): the server's amount
+if (!function_exists('load_textdomain')) { function load_textdomain() { return false; } }
+require (getenv('EFB_CALC_DIR') ?: __DIR__ . '/../vendor/calc') . '/routes-efb.php';
+$t('the add-on announces the calc contract v1 (provider AdnCLC)', efb_addon_contracts()['calc']['provider_addon'], 'AdnCLC');
 $t('efb_calc_api() answers version 1', efb_calc_api()['version'], 1);
 $t('contract calc is active', efb_addon_contract_active('calc'), true);
 $q = Pricing::quote($form, $rows('3', 'r2', array(array('id_' => 'fee', 'type' => 'calc', 'value' => '0.01', 'price' => '0.01'))));

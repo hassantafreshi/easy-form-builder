@@ -67,7 +67,7 @@ check('limits: required raises the minimum; missing keys are the defaults', JSON
   await page.goto('http://site.test/form/');
   await page.addScriptTag({ content: `var efb_var = { text: { rowN: 'Row %s', rowAdded: 'Row %s added', rowRemoved: 'Row removed', removeRow: 'Remove row %s', rptChildLabel: '%1$s, row %2$s' }, rtl: 0, id: 101, wp_lan: 'en_US' };
     var ajax_object_efm = { text: efb_var.text, form_setting: {}, ajax_value_forms: [], wp_lan: 'en_US' }; var sendBack_emsFormBuilder_pub = [];` });
-  for (const js of ['public/assets/js/calc-efb.js', 'public/assets/js/repeater-efb.js', 'public/assets/js/core-efb.js']) await page.addScriptTag({ path: path.join(ROOT, js) });
+  for (const js of ['vendor/calc/assets/js/calc-efb.js', 'public/assets/js/repeater-efb.js', 'public/assets/js/core-efb.js']) await page.addScriptTag({ path: path.join(ROOT, js) });
   await page.evaluate(([a, b]) => {
     valj_efb_new = [{ id: 101, form_structer: [{ type: 'form', steps: 1 }, { id_: '1', type: 'step', step: 1 }].concat(a) }, { id: 202, form_structer: [{ type: 'form', steps: 1 }, { id_: '1', type: 'step', step: 1 }].concat(b) }];
     window.__ev = [];
