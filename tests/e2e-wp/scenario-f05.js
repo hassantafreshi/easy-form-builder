@@ -435,9 +435,13 @@ module.exports = function (S) {
       { key: 's1', type: 'option', parent_key: 'slot', value: 'Only', inv_cap: '2' },
     ], 'captcha=1');
     ctl('f05-stock', String(K.form_id), 'reset');
-    // A page with the form runtime (the captcha form itself shows the site-key notice on this site).
+    // F12b §5: a form whose CAPTCHA has no keys is protected by the soft checks and accepted; give the site reCAPTCHA v2
+    // keys (placeholders) so the captcha is really asked for, and send no token: refused before any place is taken.
+    ctl('f12-setting', 'siteKey=e2e-f05-site-placeholder&secretKey=e2e-f05-secret-placeholder');
+    // A page with the form runtime.
     const k = await open(context, pageOf(B.form_id), 'f05d-k');
     const kr = await post(k, K.form_id, [{ id_: K.ids.slot, name: 'Slot', id_ob: K.ids.s1, type: 'radio', value: 'Only' }]);
+    ctl('f12-setting', 'siteKey=del&secretKey=del');
     const kst = ctl('f05-stock', String(K.form_id));
     R.check('f05d: a submission refused at the captcha takes no place', kr && kr.success === false && (kst.rows || []).every((r) => Number(r.used) === 0), [kr, kst.rows]);
   });
