@@ -88,7 +88,7 @@ class Spam_Notice {
 			$shown = true;
 			$lines = array();
 			foreach ($un as $want => $e) {
-				$code = array_search($want, Captcha\Registry::ADDONS, true);
+				$code = array_search($want, Captcha\Admin::ADDONS, true);
 				$name = $code !== false && class_exists('\\Emsfb\\Addon_Catalog') ? Addon_Catalog::name($code) : $want;
 				$by = $e['by'] ? (Captcha\Registry::get($e['by']) ? Captcha\Registry::get($e['by'])->label() : $e['by']) : self::t('cpFallbackSoft', 'the hidden field and the minimum time');
 				$txt = sprintf(self::t('cpUnavailableNotice', '%1$s forms use %2$s, which is not available now. They are protected by %3$s.'), '<bdi>' . count($e['ids']) . '</bdi>', '<bdi>' . esc_html($name) . '</bdi>', '<bdi>' . esc_html($by) . '</bdi>');

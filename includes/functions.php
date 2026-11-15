@@ -5688,10 +5688,6 @@ class efbFunction {
 			"siteDefault" => $state && isset($ac->text->siteDefault) ? $ac->text->siteDefault : esc_html__('Site default','easy-form-builder'),
 			/* translators: F12: CAPTCHA service name */
 			"reCAPTCHAv3" => $state && isset($ac->text->reCAPTCHAv3) ? $ac->text->reCAPTCHAv3 : esc_html__('Google reCAPTCHA v3','easy-form-builder'),
-			/* translators: F12: CAPTCHA service name */
-			"hCaptcha" => $state && isset($ac->text->hCaptcha) ? $ac->text->hCaptcha : esc_html__('hCaptcha','easy-form-builder'),
-			/* translators: F12: CAPTCHA service name */
-			"turnstile" => $state && isset($ac->text->turnstile) ? $ac->text->turnstile : esc_html__('Cloudflare Turnstile','easy-form-builder'),
 			/* translators: F12: reCAPTCHA v3: the score an answer needs */
 			"rc3Threshold" => $state && isset($ac->text->rc3Threshold) ? $ac->text->rc3Threshold : esc_html__('Minimum score','easy-form-builder'),
 			/* translators: F12: help under Minimum score */
@@ -6156,8 +6152,6 @@ class efbFunction {
 			"revSrcImport" => $state && isset($ac->text->revSrcImport) ? $ac->text->revSrcImport : esc_html__('Import','easy-form-builder'),
 			/* translators: F15: how a version was saved */
 			"revSrcDuplicate" => $state && isset($ac->text->revSrcDuplicate) ? $ac->text->revSrcDuplicate : esc_html__('Copy of a form','easy-form-builder'),
-			/* translators: F12: Settings > Captchas: a Turnstile key in the wrong format (it starts with 0x) */
-			"captchaKeyBad" => $state && isset($ac->text->captchaKeyBad) ? $ac->text->captchaKeyBad : esc_html__('This key does not look like a Cloudflare Turnstile key.','easy-form-builder'),
 			/* translators: F14: %s = number */
 			"entExported" => $state && isset($ac->text->entExported) ? $ac->text->entExported : esc_html__('%s entries exported.','easy-form-builder'),
 			/* translators: F14: export column */

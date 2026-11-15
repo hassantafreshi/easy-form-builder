@@ -38,20 +38,34 @@ require __DIR__ . '/../includes/class-Emsfb-spam.php';
 use Emsfb\Captcha;
 use Emsfb\Spam;
 
+/* F12b-E: hCaptcha and Turnstile left core for their add-ons (AdnHCP, AdnCTS); the same F12 checks run on them. Their
+ * keys live in the add-ons' options: efb_cp_sync() mirrors this test's settings row into them. */
+$efb_v = is_dir(__DIR__ . '/../vendor/hcaptcha') ? __DIR__ . '/../vendor' : dirname(__DIR__, 2) . '/vendores-efb';
+require $efb_v . '/hcaptcha/class-Emsfb-hcaptcha-provider.php';
+require $efb_v . '/turnstile/class-Emsfb-turnstile-provider.php';
+\Emsfb\Captcha\Registry::boot();
+\Emsfb\Captcha\Registry::add(new \Emsfb\Captcha\Hcaptcha_Provider());
+\Emsfb\Captcha\Registry::add(new \Emsfb\Captcha\Turnstile_Provider());
+function efb_cp_sync($s) {
+	$g = function ($k) use ($s) { return isset($s[$k]) ? (string) $s[$k] : ''; };
+	\Emsfb\Captcha\Registry::set_stored('hcaptcha', array('public' => array('site_key' => $g('hcSiteKey')), 'secret' => array('secret' => $g('hcSecretKey'))));
+	\Emsfb\Captcha\Registry::set_stored('turnstile', array('public' => array('site_key' => $g('tsSiteKey')), 'secret' => array('secret' => $g('tsSecretKey'))));
+}
+
 $pass = 0; $fail = 0;
 function t($name, $actual, $expected) {
 	global $pass, $fail;
 	if ($actual === $expected) { $pass++; echo "[PASS] {$name}\n"; }
 	else { $fail++; echo "[FAIL] {$name}\n  expected: " . json_encode($expected) . "\n  actual:   " . json_encode($actual) . "\n"; }
 }
-$ok = function ($extra = array()) { return array('body' => json_encode(array_merge(array('success' => true, 'hostname' => 'site.test', 'challenge_ts' => '2026-11-14T10:00:00Z'), $extra))); };
+$ok = function ($extra = array()) { return array('body' => json_encode(array_merge(array('success' => true, 'hostname' => 'site.test', 'challenge_ts' => gmdate('Y-m-d\TH:i:s\Z')), $extra))); };
 $S = array(
 	'siteKey' => 'v2-site-key-placeholder', 'secretKey' => 'v2-secret-placeholder',
 	'rc3SiteKey' => 'v3-site-key-placeholder', 'rc3SecretKey' => 'v3-secret-placeholder', 'rc3Threshold' => '0.5',
 	'hcSiteKey' => 'hc-site-key-placeholder', 'hcSecretKey' => 'hc-secret-placeholder',
 	'tsSiteKey' => '0x4AAAAAAA-site-placeholder', 'tsSecretKey' => '0x4AAAAAAA-secret-placeholder',
 );
-$GLOBALS['efb_t']['settings'] = $S;
+$GLOBALS['efb_t']['settings'] = $S; efb_cp_sync($GLOBALS['efb_t']['settings']);
 $tok = str_repeat('t', 40);
 $v = function ($p, $token, $reply, $ctx = array()) { $GLOBALS['efb_t']['calls'] = array(); $GLOBALS['efb_t']['reply'] = $reply; return Captcha::verify($p, $token, $ctx); };
 
@@ -71,9 +85,9 @@ $r = $v('recaptcha_v2', $tok, $ok(array('hostname' => 'elsewhere.test')));
 t('reCAPTCHA v2: another hostname still passes (as before)', $r['ok'], true);
 
 echo "--- fails closed ---\n";
-$GLOBALS['efb_t']['settings'] = array_merge($S, array('hcSecretKey' => ''));
+$GLOBALS['efb_t']['settings'] = array_merge($S, array('hcSecretKey' => '')); efb_cp_sync($GLOBALS['efb_t']['settings']);
 t('no secret → config, nothing sent', array($v('hcaptcha', $tok, $ok())['code'], count($GLOBALS['efb_t']['calls'])), array('config', 0));
-$GLOBALS['efb_t']['settings'] = $S;
+$GLOBALS['efb_t']['settings'] = $S; efb_cp_sync($GLOBALS['efb_t']['settings']);
 t('no token → missing, nothing sent', array($v('turnstile', '', $ok())['code'], count($GLOBALS['efb_t']['calls'])), array('missing', 0));
 t('a short token → missing', $v('turnstile', 'abc', $ok())['code'], 'missing');
 t('a network error (timeout) → network', $v('hcaptcha', $tok, new WP_Error('http_request_failed'))['code'], 'network');
@@ -91,10 +105,10 @@ t('v3: another action → action', $v('recaptcha_v3', $tok, $ok(array('action' =
 $GLOBALS['efb_t']['filters']['efb_captcha_check_hostname'] = function () { return false; };
 t('efb_captcha_check_hostname false (several domains): another hostname passes', $v('hcaptcha', $tok, $ok(array('hostname' => 'evil.test')))['ok'], true);
 unset($GLOBALS['efb_t']['filters']['efb_captcha_check_hostname']);
-$GLOBALS['efb_t']['settings'] = array_merge($S, array('tsSecretKey' => '1x0000000000000000000000000000000AA', 'hcSecretKey' => '0x0000000000000000000000000000000000000000'));
+$GLOBALS['efb_t']['settings'] = array_merge($S, array('tsSecretKey' => '1x0000000000000000000000000000000AA', 'hcSecretKey' => '0x0000000000000000000000000000000000000000')); efb_cp_sync($GLOBALS['efb_t']['settings']);
 t('official test secrets: their dummy hostname / empty action pass (spec C acceptance)', array($v('turnstile', $tok, $ok(array('hostname' => 'example.com', 'action' => '')))['ok'], $v('hcaptcha', $tok, $ok(array('hostname' => 'dummy-key-pass')))['ok']), array(true, true));
 t('official test secrets recognised; a real-looking key is not', array(Captcha::is_test_secret('turnstile', '2x0000000000000000000000000000000AA'), Captcha::is_test_secret('turnstile', '0x4AAAAAAA-secret-placeholder')), array(true, false));
-$GLOBALS['efb_t']['settings'] = $S;
+$GLOBALS['efb_t']['settings'] = $S; efb_cp_sync($GLOBALS['efb_t']['settings']);
 
 echo "--- reCAPTCHA v3 score ---\n";
 $r = $v('recaptcha_v3', $tok, $ok(array('action' => 'efb_submit', 'score' => 0.9)));
@@ -108,7 +122,7 @@ $q = Spam::verify_captcha($tok, 'form', array('form' => $form, 'low_score' => 'b
 t('v3 in a form with rc3_low_action block → refused low_score', array($q['ok'], $q['code']), array(false, 'low_score'));
 $q = Spam::verify_captcha($tok, 'form', array('form' => array_merge($form, array('rc3_threshold' => '0.2'))));
 t('the form\'s own rc3_threshold 0.2: 0.3 passes clean', array($q['ok'], $q['spam']), array(true, false));
-$GLOBALS['efb_t']['settings'] = array_merge($S, array('captcha_provider' => 'recaptcha_v3'));
+$GLOBALS['efb_t']['settings'] = array_merge($S, array('captcha_provider' => 'recaptcha_v3')); efb_cp_sync($GLOBALS['efb_t']['settings']);
 $q = Spam::verify_captcha($tok, 'portal_signin');
 t('P20 outside a form (portal_signin): a low score is refused, never "spam"', array($q['ok'], $q['code'], $q['provider']), array(false, 'low_score', 'recaptcha_v3'));
 $GLOBALS['efb_t']['reply'] = $ok(array('action' => 'efb_submit', 'score' => 0.8));
@@ -116,16 +130,18 @@ t('P20 outside a form: a good score passes', Spam::verify_captcha($tok, 'portal_
 $GLOBALS['efb_t']['filters']['efb_captcha_verify_result'] = function ($r, $ctx) { if ($ctx === 'tracker') { $r['ok'] = false; $r['code'] = 'site_rule'; } return $r; };
 t('P20: efb_captcha_verify_result may change the answer for a context', Spam::verify_captcha($tok, 'tracker')['code'], 'site_rule');
 unset($GLOBALS['efb_t']['filters']['efb_captcha_verify_result']);
-$GLOBALS['efb_t']['settings'] = $S;
+$GLOBALS['efb_t']['settings'] = $S; efb_cp_sync($GLOBALS['efb_t']['settings']);
 
 echo "--- provider of a form, keys, markup ---\n";
 // F12b §5: an id that is not registered (an add-on switched off) is kept as asked; what protects the form is effective_for().
 t('provider: the form\'s own, else the site\'s, else reCAPTCHA v2; an unknown id is kept as asked, a malformed one is not', array(Captcha::provider_for(array('captcha_provider' => 'hcaptcha')), Captcha::provider_for(array()), Captcha::provider_for((object) array('captcha_provider' => 'evil')), Captcha::provider_for(array('captcha_provider' => 'Bad Id!'))), array('hcaptcha', 'recaptcha_v2', 'evil', 'recaptcha_v2'));
 t('effective provider of an unknown id: the site\'s Google mode that is ready (v2 here)', \Emsfb\Captcha\Registry::effective_for(array('captcha' => 1, 'captcha_provider' => 'evil'), $S)['id'], 'recaptcha_v2');
-$GLOBALS['efb_t']['settings'] = array_merge($S, array('captcha_provider' => 'turnstile'));
+$GLOBALS['efb_t']['settings'] = array_merge($S, array('captcha_provider' => 'turnstile')); efb_cp_sync($GLOBALS['efb_t']['settings']);
 t('provider: the site\'s when the form has none', Captcha::provider_for(array('captcha_provider' => '')), 'turnstile');
-$GLOBALS['efb_t']['settings'] = $S;
+$GLOBALS['efb_t']['settings'] = $S; efb_cp_sync($GLOBALS['efb_t']['settings']);
+efb_cp_sync(array('hcSiteKey' => 'hc-site-key-placeholder', 'hcSecretKey' => 'hc-secret-placeholder'));
 t('ready map: a provider without both keys is not ready', Captcha::ready_map(array('siteKey' => 'v2-site-key-placeholder', 'secretKey' => '', 'hcSiteKey' => 'hc-site-key-placeholder', 'hcSecretKey' => 'hc-secret-placeholder')), array('recaptcha_v2' => false, 'recaptcha_v2i' => false, 'recaptcha_v3' => false, 'hcaptcha' => true, 'turnstile' => false));
+efb_cp_sync($S);
 $w = Captcha::widget_html('hcaptcha', 9, 'form', 2);
 t('widget: the site key, the provider, the form, a label for screen readers and a live region; never the secret', strpos($w, 'data-sitekey="hc-site-key-placeholder"') !== false && strpos($w, 'data-provider="hcaptcha"') !== false && strpos($w, 'data-formid="9"') !== false
 	&& (bool) preg_match('/id="(efb-cp-9-\\d+)"[^>]*aria-labelledby="\\1-l"/', $w) && strpos($w, 'role="alert" aria-live="assertive"') !== false && strpos($w, 'secret') === false, true);
@@ -136,7 +152,9 @@ $w3 = Captcha::widget_html('recaptcha_v3', 9);
 t('widget v3: no widget, a hidden marker and Google\'s notice with its links', strpos($w3, 'data-provider="recaptcha_v3"') !== false && strpos($w3, ' hidden></div>') !== false && strpos($w3, 'https://policies.google.com/privacy') !== false && strpos($w3, 'https://policies.google.com/terms') !== false, true);
 $w4 = Captcha::widget_html('turnstile', 0, 'portal_signin');
 t('P20 widget outside a form: data-formid -1, data-ctx, its own ids', strpos($w4, 'data-formid="-1"') !== false && strpos($w4, 'data-ctx="portal_signin"') !== false && (bool) preg_match('/id="efb-cp-portal_signin-\\d+"/', $w4), true);
+efb_cp_sync(array_merge($S, array('tsSiteKey' => '')));
 t('no site key → no widget', Captcha::widget_html('turnstile', 1, 'form', 0, array('tsSiteKey' => '')), '');
+efb_cp_sync($S);
 
 echo "--- scripts and language ---\n";
 t('one Google script: v3 key wins (v2 widgets render on it), else explicit', array(Captcha::google_url('v3key', 'fa'), Captcha::google_url('', 'ar')), array('https://www.google.com/recaptcha/api.js?hl=fa&render=v3key', 'https://www.google.com/recaptcha/api.js?hl=ar&render=explicit'));
@@ -144,8 +162,8 @@ t('hCaptcha: explicit render, the page language, no reCAPTCHA compatibility', Ca
 t('widget language: fa_IR → fa, ar → ar, pt_BR → pt-BR, zh_CN → zh-CN, de_DE_formal → de', array(Captcha::lang('fa_IR'), Captcha::lang('ar'), Captcha::lang('pt_BR'), Captcha::lang('zh_CN'), Captcha::lang('de_DE_formal')), array('fa', 'ar', 'pt-BR', 'zh-CN', 'de'));
 
 /* ------------------------------------------------------------------ part 2: the e2e site */
-require __DIR__ . '/f11-http-lib.php';
-$H = new EfbF11Http();
+require __DIR__ . '/f12b-http-lib.php';
+$H = new EfbF12bHttp();
 if ($why = $H->unavailable()) {
 	echo "[SKIP] site part: {$why}\n";
 } else {
@@ -153,7 +171,13 @@ if ($why = $H->unavailable()) {
 	$H->ctl('plan', '3');
 	$H->ctl('f12-mu');
 	$H->ctl('set-option', 'efb_e2e_f12_mock', '1');
-	$H->ctl('f12-setting', 'hcSiteKey=10000000-ffff-ffff-ffff-000000000001&hcSecretKey=0x0000000000000000000000000000000000000000&tsSiteKey=1x00000000000000000000AA&tsSecretKey=1x0000000000000000000000000000000AA&rc3SiteKey=e2e-v3-site-placeholder&rc3SecretKey=e2e-v3-secret-placeholder&rc3Threshold=0.5&rc3_low_action=spam&spam_min_time=0&spam_honeypot=del');
+	// F12b-E: hCaptcha and Turnstile are add-ons now (AdnHCP, AdnCTS): switched on, their official test keys in their options.
+	$H->ctl('addon-flag', 'AdnHCP', '1');
+	$H->ctl('addon-flag', 'AdnCTS', '1');
+	$H->ctlb('cpv', 'hcaptcha', json_encode(array('site_key' => '10000000-ffff-ffff-ffff-000000000001')), json_encode(array('secret' => '0x0000000000000000000000000000000000000000')));
+	$H->ctlb('cpv', 'turnstile', json_encode(array('site_key' => '1x00000000000000000000AA')), json_encode(array('secret' => '1x0000000000000000000000000000000AA')));
+	$H->ctlb('rl-reset', 'cptk');
+	$H->ctl('f12-setting', 'rc3SiteKey=e2e-v3-site-placeholder&rc3SecretKey=e2e-v3-secret-placeholder&rc3Threshold=0.5&rc3_low_action=spam&spam_min_time=0&spam_honeypot=del');
 	$mk = function ($prov) use ($H) { return $H->ctl('f03-form', 'F12 ' . $prov, json_encode(array(array('key' => 'nm', 'type' => 'text', 'name' => 'Name'))), 'captcha=1&captcha_provider=' . $prov); };
 	// F12b: a token is accepted once (replay guard): every mocked token gets a suffix of its own.
 	$send = function ($F, $token) use ($H) { $H->fresh_jar(); return EfbF11Http::answer($H->submit((int) $F['form_id'], array(array('id_' => $F['ids']['nm'], 'name' => 'Name', 'type' => 'text', 'value' => 'Visitor')), array('valid' => $token !== '' ? $token . bin2hex(random_bytes(6)) : ''))); };
@@ -189,14 +213,16 @@ if ($why = $H->unavailable()) {
 	$H->ctl('f12-setting', 'rc3_low_action=block');
 	t('site v3: rc3_low_action block → a low score is refused', ($send($V, 'low-' . str_repeat('c', 30))['code'] ?? ''), 'efb_captcha_low_score');
 	$P = $mk('hcaptcha'); $made[] = $P['form_id'];
-	$H->ctl('f12-setting', 'hcSecretKey=');
+	$H->ctlb('cpv', 'hcaptcha', '{}', json_encode(array('secret' => '__clear__')));
 	// F12b §5: the form's service has no secret → the site's Google mode that is ready (v3 here) protects it; never unprotected.
 	$H->ctl('f12-setting', 'rc3_low_action=spam');
 	t('site: the form\'s service has no secret → protected by the ready Google mode (a Google token passes, a bad one does not)', array(!empty($send($P, 'pass-' . str_repeat('d', 30))['success']), ($send($P, 'fail-' . str_repeat('d', 30))['code'] ?? '')), array(true, 'efb_captcha_failed'));
 	$page = $H->http('GET', $H->page((int) $V['form_id']), null, array(), false);
 	t('site: the page of a v3 form has the site key and Google\'s notice, never a secret', strpos($page['body'], 'e2e-v3-site-placeholder') !== false && strpos($page['body'], 'policies.google.com/privacy') !== false && strpos($page['body'], 'e2e-v3-secret-placeholder') === false && strpos($page['body'], '0x0000000000000000000000000000000000000000') === false, true);
 	foreach ($made as $id) $H->ctl('f12-delete-form', (string) $id);
-	$H->ctl('f12-setting', 'hcSiteKey=del&hcSecretKey=del&tsSiteKey=del&tsSecretKey=del&rc3SiteKey=del&rc3SecretKey=del&rc3Threshold=del&rc3_low_action=del&spam_min_time=del');
+	$H->ctl('f12-setting', 'rc3SiteKey=del&rc3SecretKey=del&rc3Threshold=del&rc3_low_action=del&spam_min_time=del');
+	$H->ctl('addon-flag', 'AdnHCP', '0');
+	$H->ctl('addon-flag', 'AdnCTS', '0');
 	$H->ctl('set-option', 'efb_e2e_f12_mock', 'del');
 }
 

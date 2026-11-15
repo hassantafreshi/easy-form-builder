@@ -1,14 +1,8 @@
 <?php
 /**
- * F12b §1: Google reCAPTCHA in core (every plan), on the provider contract. One class, three ids:
- *  - recaptcha_v2  the checkbox (siteKey / secretKey, as since 4.3.1);
- *  - recaptcha_v2i v2 invisible (rciSiteKey / rciSecretKey: Google gives an invisible key its own pair); executed
- *                  when the visitor sends, a challenge when Google asks for one;
- *  - recaptcha_v3  a score (rc3SiteKey / rc3SecretKey); with rc3_fallback the form shows the v2 checkbox in its box
- *                  when the score is low (the server answers efb_captcha_challenge, nothing is stored).
- * Keys stay in the settings row (secrets write-only: D4). rc_host: google.com or recaptcha.net (where google.com is
- * blocked); the script and siteverify use the same host. One Google script per page (render=<v3 key> when a v3 box
- * is on it, else explicit): every v2 / invisible box renders on it.
+ * F12b §1: Google reCAPTCHA in core (every plan): recaptcha_v2 (checkbox; siteKey / secretKey), recaptcha_v2i
+ * (invisible; rciSiteKey / rciSecretKey), recaptcha_v3 (score; rc3SiteKey / rc3SecretKey; rc3_fallback shows the v2
+ * checkbox on a low score). rc_host google.com or recaptcha.net for the script and siteverify; one script per page.
  */
 
 namespace Emsfb\Captcha;
@@ -23,7 +17,6 @@ class Google extends Provider {
 
 	private $id;
 
-	/** v3 key of a v3 box on this page ('' = none yet): the one Google script carries it. */
 	public static $page_v3 = '';
 
 	public function __construct($id) {
@@ -45,29 +38,28 @@ class Google extends Provider {
 	public function settings_schema() {
 		list($site, $secret) = self::KEYS[$this->id];
 		return array(
-			array('key' => $site, 'type' => 'text', 'label_key' => 'siteKey', 'label' => 'Site Key', 'required' => true, 'public' => true),
-			array('key' => $secret, 'type' => 'secret', 'label_key' => 'SecreTKey', 'label' => 'Secret Key', 'required' => true),
+			array('key' => $site, 'type' => 'text', 'label_key' => 'siteKey', 'required' => true, 'public' => true),
+			array('key' => $secret, 'type' => 'secret', 'label_key' => 'SecreTKey', 'required' => true),
 		);
 	}
 
 	public function form_options_schema() {
 		$o = array();
-		if ($this->id !== 'recaptcha_v3') $o[] = array('key' => 'cp_theme', 'type' => 'enum', 'values' => array('light', 'dark', 'auto'), 'default' => 'light', 'label_key' => 'cpTheme', 'label' => 'Theme', 'group' => 'appearance');
-		if ($this->id === 'recaptcha_v2') $o[] = array('key' => 'cp_size', 'type' => 'enum', 'values' => array('auto', 'normal', 'compact'), 'default' => 'auto', 'label_key' => 'cpSize', 'label' => 'Size', 'group' => 'appearance');
-		if ($this->id !== 'recaptcha_v2') $o[] = array('key' => 'cp_badge', 'type' => 'enum', 'values' => $this->id === 'recaptcha_v3' ? array('hidden', 'bottomright') : array('bottomright', 'bottomleft', 'inline', 'hidden'), 'default' => $this->id === 'recaptcha_v3' ? 'hidden' : 'bottomright', 'label_key' => 'cpBadge', 'label' => 'Badge position', 'group' => 'appearance');
-		$o[] = array('key' => 'cp_lang', 'type' => 'text', 'maxlen' => 10, 'pattern' => '^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,4})?$', 'default' => '', 'label_key' => 'cpLang', 'label' => 'Language', 'group' => 'appearance');
-		$o[] = array('key' => 'cp_align', 'type' => 'enum', 'values' => array('start', 'center', 'end'), 'default' => 'start', 'label_key' => 'cpAlign', 'label' => 'Alignment', 'group' => 'appearance');
+		if ($this->id !== 'recaptcha_v3') $o[] = array('key' => 'cp_theme', 'type' => 'enum', 'values' => array('light', 'dark', 'auto'), 'default' => 'light', 'label_key' => 'cpTheme');
+		if ($this->id === 'recaptcha_v2') $o[] = array('key' => 'cp_size', 'type' => 'enum', 'values' => array('auto', 'normal', 'compact'), 'default' => 'auto', 'label_key' => 'cpSize');
+		if ($this->id !== 'recaptcha_v2') $o[] = array('key' => 'cp_badge', 'type' => 'enum', 'values' => $this->id === 'recaptcha_v3' ? array('hidden', 'bottomright') : array('bottomright', 'bottomleft', 'inline', 'hidden'), 'default' => $this->id === 'recaptcha_v3' ? 'hidden' : 'bottomright', 'label_key' => 'cpBadge');
+		$o[] = array('key' => 'cp_lang', 'type' => 'text', 'maxlen' => 10, 'pattern' => '^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,4})?$', 'label_key' => 'cpLang');
+		$o[] = array('key' => 'cp_align', 'type' => 'enum', 'values' => array('start', 'center', 'end'), 'default' => 'start', 'label_key' => 'cpAlign');
 		if ($this->id === 'recaptcha_v3') {
-			$o[] = array('key' => 'rc3_threshold', 'type' => 'number', 'min' => 0, 'max' => 1, 'default' => '', 'label_key' => 'rc3Threshold', 'label' => 'Minimum score', 'group' => 'behaviour');
-			$o[] = array('key' => 'rc3_action', 'type' => 'text', 'maxlen' => 40, 'pattern' => '^[A-Za-z0-9_\/]{1,40}$', 'default' => '', 'label_key' => 'rc3Action', 'label' => 'Action name', 'group' => 'behaviour');
-			$o[] = array('key' => 'rc3_fallback', 'type' => 'toggle', 'default' => '', 'label_key' => 'rc3Fallback', 'label' => 'Show the checkbox when the score is low', 'group' => 'behaviour');
+			$o[] = array('key' => 'rc3_threshold', 'type' => 'number', 'min' => 0, 'max' => 1, 'label_key' => 'rc3Threshold');
+			$o[] = array('key' => 'rc3_action', 'type' => 'text', 'maxlen' => 40, 'pattern' => '^[A-Za-z0-9_\/]{1,40}$', 'label_key' => 'rc3Action');
+			$o[] = array('key' => 'rc3_fallback', 'type' => 'toggle', 'label_key' => 'rc3Fallback');
 		}
-		$o[] = array('key' => 'cp_msg_failed', 'type' => 'text', 'maxlen' => 200, 'default' => '', 'label_key' => 'cpMsgFailed', 'label' => 'Message when the check fails', 'group' => 'texts');
-		$o[] = array('key' => 'cp_msg_required', 'type' => 'text', 'maxlen' => 200, 'default' => '', 'label_key' => 'cpMsgRequired', 'label' => 'Message when the check is missing', 'group' => 'texts');
+		$o[] = array('key' => 'cp_msg_failed', 'type' => 'text', 'maxlen' => 200, 'label_key' => 'cpMsgFailed');
+		$o[] = array('key' => 'cp_msg_required', 'type' => 'text', 'maxlen' => 200, 'label_key' => 'cpMsgRequired');
 		return $o;
 	}
 
-	/** The keys from the settings row (never the database here when a row is given: tests, the submit handler). */
 	public function settings($row = null) {
 		list($site, $secret) = self::KEYS[$this->id];
 		return array('public' => array($site => \Emsfb\Captcha::key_value($row, $site), 'rc_host' => self::host($row)), 'secret' => array($secret => \Emsfb\Captcha::key_value($row, $secret)));
@@ -75,7 +67,6 @@ class Google extends Provider {
 
 	public function site_key($row = null) { return $this->setting(self::KEYS[$this->id][0], $row); }
 
-	/** google.com (default) or recaptcha.net. */
 	public static function host($row = null) {
 		$s = \Emsfb\Captcha::settings($row);
 		return isset($s['rc_host']) && $s['rc_host'] === 'recaptcha.net' ? 'recaptcha.net' : 'google.com';
@@ -114,7 +105,6 @@ class Google extends Provider {
 		return array('config' => $c, 'class' => $this->id === 'recaptcha_v2' ? 'g-recaptcha' : '', 'after_html' => $after);
 	}
 
-	/** The action a v3 token is asked for: the context's (F02 efb_otp …), else the form's rc3_action, else efb_submit. */
 	public function action($s0, array $ctx = array()) {
 		if (!empty($ctx['action']) && is_string($ctx['action'])) return $ctx['action'];
 		$a = $this->opt($s0, 'rc3_action');

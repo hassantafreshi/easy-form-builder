@@ -582,7 +582,7 @@ class Form_Package {
 		if (!empty($rows[0]['captcha_provider']) && class_exists('\\Emsfb\\Captcha\\Registry')) {
 			// F12b: a service whose add-on this site lacks (the form keeps it and its cp_* options; the fallback protects it).
 			$p = (string) $rows[0]['captcha_provider'];
-			$addon = array_search($p, Captcha\Registry::ADDONS, true);
+			$addon = array_search($p, Captcha\Admin::ADDONS, true);
 			if (!Captcha\Registry::get($p) || !Captcha\Registry::available($p)) $w[] = array('code' => 'captcha_addon_missing', 'provider' => $p, 'addon' => $addon !== false ? $addon : null);
 			elseif (!Captcha::ready($p)) $w[] = array('code' => 'captcha_not_ready', 'provider' => $p);
 		}

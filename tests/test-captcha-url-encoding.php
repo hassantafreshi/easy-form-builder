@@ -93,6 +93,15 @@ if (!function_exists('is_wp_error')) { function is_wp_error($v) { return false; 
 if (!function_exists('apply_filters')) { function apply_filters($h, $v) { return $v; } }
 if (!function_exists('home_url')) { function home_url() { return 'https://site.test'; } }
 require_once __DIR__ . '/../includes/class-Emsfb-captcha.php';
+// F12b-E: hCaptcha and Turnstile are add-ons (AdnHCP, AdnCTS) on the provider contract; their keys live in their options.
+$efb_v = is_dir(__DIR__ . '/../vendor/hcaptcha') ? __DIR__ . '/../vendor' : dirname(__DIR__, 2) . '/vendores-efb';
+require_once $efb_v . '/hcaptcha/class-Emsfb-hcaptcha-provider.php';
+require_once $efb_v . '/turnstile/class-Emsfb-turnstile-provider.php';
+\Emsfb\Captcha\Registry::boot();
+\Emsfb\Captcha\Registry::add(new \Emsfb\Captcha\Hcaptcha_Provider());
+\Emsfb\Captcha\Registry::add(new \Emsfb\Captcha\Turnstile_Provider());
+\Emsfb\Captcha\Registry::set_stored('hcaptcha', array('public' => array('site_key' => 'hc-site-placeholder'), 'secret' => array('secret' => $secret)));
+\Emsfb\Captcha\Registry::set_stored('turnstile', array('public' => array('site_key' => '0x4AAA-site'), 'secret' => array('secret' => '0x4AAA-' . $secret)));
 $keys = array('siteKey' => 'v2-site-placeholder', 'secretKey' => $secret, 'rc3SiteKey' => 'v3-site-placeholder', 'rc3SecretKey' => $secret, 'hcSiteKey' => 'hc-site-placeholder', 'hcSecretKey' => $secret, 'tsSiteKey' => '0x4AAA-site', 'tsSecretKey' => '0x4AAA-' . $secret);
 foreach (array('recaptcha_v2', 'recaptcha_v3', 'hcaptcha', 'turnstile') as $prov) {
     $GLOBALS['efb_cap_posts'] = array();

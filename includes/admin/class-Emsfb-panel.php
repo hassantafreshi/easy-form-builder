@@ -290,7 +290,7 @@ class Panel_edit  {
 				'wp_lan'=>get_locale(),
 				'location'=>$location,
 				// F12b D4: secrets are write-only: never in a page (set / last four only).
-				'setting'=>class_exists('\\Emsfb\\Captcha\\Registry') ? \Emsfb\Captcha\Registry::redact_settings($ac) : $ac,
+				'setting'=>class_exists('\\Emsfb\\Captcha\\Registry') ? \Emsfb\Captcha\Admin::redact_settings($ac) : $ac,
 				'v_efb'=>EMSFB_PLUGIN_VERSION,
 				'colors'=>$colors,
 				'sid'=>$sid,
@@ -412,7 +412,7 @@ class Panel_edit  {
 				$decoded = \emsfb_json_decode_efb($stng[0]->setting);
 				if ($decoded !== null) {
 					// F12b D4: the settings screen gets every secret as {"set":true,"last4":…}, never its value.
-					if (class_exists('\\Emsfb\\Captcha\\Registry')) $decoded = \Emsfb\Captcha\Registry::redact_settings($decoded);
+					if (class_exists('\\Emsfb\\Captcha\\Registry')) $decoded = \Emsfb\Captcha\Admin::redact_settings($decoded);
 					$stng[0]->setting = json_encode($decoded, JSON_UNESCAPED_UNICODE);
 				} elseif (class_exists('\\Emsfb\\Captcha\\Registry')) {
 					$stng[0]->setting = '{}';

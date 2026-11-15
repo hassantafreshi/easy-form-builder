@@ -1,5 +1,5 @@
 /**
- * F12: Settings › Captchas — the CAPTCHA service of the site (reCAPTCHA v2 / v3, hCaptcha, Cloudflare Turnstile) and
+ * F12 / F12b: Settings › Captchas — the CAPTCHA service of the site (Google reCAPTCHA in core, every CAPTCHA add-on) and
  * spam protection without a CAPTCHA (hidden trap field, minimum time, JavaScript, what to do with spam, Akismet,
  * WordPress' disallowed words, how long spam is kept). docs/feature-gaps/F12-spam-core.fa.md.
  *
@@ -19,8 +19,8 @@
   function on(v) { return v === true || v === 1 || v === '1' || v === 'true'; }
   function latin(s) { return String(s == null ? '' : s).replace(/[۰-۹]/g, function (d) { return String(d.charCodeAt(0) - 1776); }).replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 1632); }).replace(/٫/g, '.'); }
   function rtl() { try { return Number(W.efb_var && W.efb_var.rtl) === 1; } catch (e) { return false; } }
-  var BUILTIN = [['recaptcha_v2', 'reCAPTCHAv2', 'reCAPTCHA v2'], ['recaptcha_v2i', 'reCAPTCHAv2i', 'Google reCAPTCHA v2 (invisible)'], ['recaptcha_v3', 'reCAPTCHAv3', 'Google reCAPTCHA v3'], ['hcaptcha', 'hCaptcha', 'hCaptcha'], ['turnstile', 'turnstile', 'Cloudflare Turnstile']];
-  var KEY_LINKS = { recaptcha_v2i: 'https://www.google.com/recaptcha/admin/create', recaptcha_v3: 'https://www.google.com/recaptcha/admin/create', hcaptcha: 'https://dashboard.hcaptcha.com/sites', turnstile: 'https://dash.cloudflare.com/?to=/:account/turnstile' };
+  var BUILTIN = [['recaptcha_v2', 'reCAPTCHAv2', 'reCAPTCHA v2'], ['recaptcha_v2i', 'reCAPTCHAv2i', 'Google reCAPTCHA v2 (invisible)'], ['recaptcha_v3', 'reCAPTCHAv3', 'Google reCAPTCHA v3']];
+  var KEY_LINKS = { recaptcha_v2i: 'https://www.google.com/recaptcha/admin/create', recaptcha_v3: 'https://www.google.com/recaptcha/admin/create' };
   /* F12b: every provider of the registry (efb_var.captcha_providers): [id, phrase key, label, entry]. */
   function catalog() { var c = W.efb_var && W.efb_var.captcha_providers; return Array.isArray(c) ? c : []; }
   function providers() {
@@ -158,8 +158,6 @@
       + radio('rc3Low_efb', 'rc3Low_spam_efb', 'spam', low !== 'block', T('markAsSpam', 'Save as spam'))
       + radio('rc3Low_efb', 'rc3Low_block_efb', 'block', low === 'block', T('blockSubmission', 'Block the submission')) + '</div>'
       + '</fieldset>'
-      + '<fieldset class="efb efb-spam-prov" data-for="hcaptcha"><legend class="efb fs-6 fw-bold">' + esc(T('hCaptcha', 'hCaptcha')) + '</legend>' + keyPair('hcaptcha', s, 'hcSiteKey', 'hcSecretKey') + '</fieldset>'
-      + '<fieldset class="efb efb-spam-prov" data-for="turnstile"><legend class="efb fs-6 fw-bold">' + esc(T('turnstile', 'Cloudflare Turnstile')) + '</legend>' + keyPair('turnstile', s, 'tsSiteKey', 'tsSecretKey') + '</fieldset>'
       + '<p class="efb text-danger efb-spam-err" id="efbSpamErr" role="alert" aria-live="polite"></p>'
       + (addons.length ? '<h6 class="efb mt-3 fw-bold">' + esc(T('cpAddonProviders', 'CAPTCHA add-ons')) + '</h6>' + addons.map(addonSet).join('') : '')
       + '</div>'
@@ -210,9 +208,9 @@
     var g = function (id) { return document.getElementById(id); };
     var p = g('captchaProvider_efb');
     if (p && /^[a-z][a-z0-9_]{2,23}$/.test(p.value)) out.captcha_provider = p.value;
-    ['rc3SiteKey', 'rciSiteKey', 'hcSiteKey', 'tsSiteKey'].forEach(function (k) { var e = g(k + '_efb'); if (e) out[k] = String(e.value || '').trim(); });
+    ['rc3SiteKey', 'rciSiteKey'].forEach(function (k) { var e = g(k + '_efb'); if (e) out[k] = String(e.value || '').trim(); });
     // D4: '' keeps the stored secret on the server, '__clear__' removes it.
-    ['rc3SecretKey', 'rciSecretKey', 'hcSecretKey', 'tsSecretKey'].forEach(function (k) { var v = W.efb_secret_value_efb(k + '_efb'); if (v !== undefined) out[k] = v; });
+    ['rc3SecretKey', 'rciSecretKey'].forEach(function (k) { var v = W.efb_secret_value_efb(k + '_efb'); if (v !== undefined) out[k] = v; });
     var rh = g('rcHost_efb'); if (rh) out.rc_host = rh.value === 'recaptcha.net' ? 'recaptcha.net' : 'google.com';
     var cl = g('captchaLogin_efb'); if (cl) out.captcha_login = cl.checked ? '1' : '';
     var thr = g('rc3Threshold_efb');
@@ -229,11 +227,6 @@
     return out;
   };
 
-  /** A Turnstile key that does not look like one (0x…, or 1x / 2x / 3x test keys): said before saving. */
-  W.efb_spam_settings_check_efb = function () {
-    var e = document.getElementById('efbSpamErr');
-    var bad = ['tsSiteKey_efb', 'tsSecretKey_efb'].some(function (id) { var x = document.getElementById(id); return x && x.value.trim() !== '' && !/^[0-3]x[A-Za-z0-9_-]{6,98}$/.test(x.value.trim()); });
-    if (e) e.textContent = bad ? T('captchaKeyBad', 'This key does not look like a Cloudflare Turnstile key.') : '';
-    return !bad;
-  };
+  /** F12b: every key of a service is checked by the server (its schema) when saved; nothing to say before. */
+  W.efb_spam_settings_check_efb = function () { return true; };
 })();

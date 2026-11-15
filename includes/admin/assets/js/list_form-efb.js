@@ -3324,7 +3324,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
     });
     return;
   }
-  // F12: a Cloudflare Turnstile key that does not look like one is said before saving (the server would keep the old one).
+  // F12: a CAPTCHA key the screen can tell is wrong is said before saving (the server would keep the old one).
   if (state_auto == 0 && typeof efb_spam_settings_check_efb === 'function' && !efb_spam_settings_check_efb()) {
     const capTab = document.getElementById('nav-captchas-tab'); if (capTab) capTab.click();
     const capErr = document.getElementById('efbSpamErr'); if (capErr) capErr.scrollIntoView({ block: 'center' });

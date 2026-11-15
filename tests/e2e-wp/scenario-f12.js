@@ -37,6 +37,15 @@ module.exports = function (S) {
   const why = (e) => { if (!e) return ''; const l = ctl('f14-log', String(e.msg_id)) || []; const r = l.find((x) => x.action === 'spam'); return r ? r.meta : ''; };
   const setting = (kv) => ctl('f12-setting', kv);
   const byId = (id) => `[id="${id}"]`;
+  /* F12b-E: hCaptcha and Turnstile are add-ons (AdnHCP, AdnCTS): switched on, their official test keys in their options. */
+  const ctlb = (...a) => { const out = S.wp('eval-file', require('path').join(__dirname, 'ctl-f12b.php'), ...a).trim().split('\n'); return JSON.parse(out[out.length - 1]); };
+  const addonKeys = (on) => {
+    ctl('addon-flag', 'AdnHCP', on ? '1' : '0');
+    ctl('addon-flag', 'AdnCTS', on ? '1' : '0');
+    if (!on) return;
+    ctlb('cpv', 'hcaptcha', JSON.stringify({ site_key: '10000000-ffff-ffff-ffff-000000000001' }), JSON.stringify({ secret: '0x0000000000000000000000000000000000000000' }));
+    ctlb('cpv', 'turnstile', JSON.stringify({ site_key: '1x00000000000000000000AA' }), JSON.stringify({ secret: '1x0000000000000000000000000000000AA' }));
+  };
   const HC_SITE = '10000000-ffff-ffff-ffff-000000000001';
   const HC_SECRET = '0x0000000000000000000000000000000000000000';
   const TS_SITE = '1x00000000000000000000AA';
@@ -291,7 +300,8 @@ module.exports = function (S) {
     ctl('locale', '');
     ctl('f12-mu');
     ctl('set-option', 'efb_e2e_f12_mock', '1');
-    setting(`hcSiteKey=${HC_SITE}&hcSecretKey=${HC_SECRET}&tsSiteKey=${TS_SITE}&tsSecretKey=${TS_SECRET}&spam_min_time=0`);
+    addonKeys(true);
+    setting('spam_min_time=0');
     try {
       // The builder: a new form, the CAPTCHA switch and the service select (real clicks), Save.
       const admin = await adminPage({}, 'admin-builder');
@@ -369,7 +379,7 @@ module.exports = function (S) {
       }
     } finally {
       ctl('set-option', 'efb_e2e_f12_mock', 'del');
-      setting('hcSiteKey=del&hcSecretKey=del&tsSiteKey=del&tsSecretKey=del');
+      addonKeys(false);
     }
   });
 
@@ -479,7 +489,8 @@ module.exports = function (S) {
     ctl('locale', '');
     ctl('f12-mu');
     ctl('set-option', 'efb_e2e_f12_mock', '1');
-    setting(`captcha_provider=turnstile&tsSiteKey=${TS_SITE}&tsSecretKey=${TS_SECRET}&scaptcha=1&spam_min_time=0`);
+    addonKeys(true);
+    setting('captcha_provider=turnstile&scaptcha=1&spam_min_time=0');
     try {
       const F = form('F12 e2e tracker', [{ key: 'nm', type: 'text', name: 'Name' }]);
       const seeded = ctl('f14-seed', String(F.form_id), JSON.stringify([{ id_: F.ids.nm, name: 'Name', type: 'text', value: 'Tracked' }]), '');
@@ -513,7 +524,8 @@ module.exports = function (S) {
       ctl('f12-delete-form', String(F.form_id));
     } finally {
       ctl('set-option', 'efb_e2e_f12_mock', 'del');
-      setting('captcha_provider=del&tsSiteKey=del&tsSecretKey=del&scaptcha=del');
+      setting('captcha_provider=del&scaptcha=del');
+      addonKeys(false);
     }
   });
 };

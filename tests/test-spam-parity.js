@@ -52,7 +52,7 @@ $out = array();
 foreach ($in['k'] as $v) $out[] = \\Emsfb\\Spam::sanitize_form_key($v[0], $v[1]);
 $o = array();
 foreach ($in['o'] as $v) $o[] = \\Emsfb\\Captcha\\Registry::sanitize_form_option($v[0], $v[1], $v[2]);
-echo json_encode(array('k' => $out, 'o' => $o, 'cat' => \\Emsfb\\Captcha\\Registry::catalog(array())), JSON_UNESCAPED_UNICODE);
+echo json_encode(array('k' => $out, 'o' => $o, 'cat' => \\Emsfb\\Captcha\\Admin::catalog(array())), JSON_UNESCAPED_UNICODE);
 `;
 const both = JSON.parse(execFileSync('php', ['-r', php], { input: JSON.stringify({ k: vectors, o: optVectors }) }).toString());
 const server = both.k;

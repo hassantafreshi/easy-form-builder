@@ -1,15 +1,5 @@
-/**
- * F12 / F12b: the CAPTCHA boxes of Easy Form Builder on a page (window.EFBCaptcha). docs/spam/captcha-contract.en.md.
- *
- *  - each box (.efb-captcha[data-provider], data-efb-captcha = its public config) has its own id, widget and token;
- *    many forms, mixed services and Google modes on one page do not share anything;
- *  - a service's adapter registers with EFBCaptcha.provider(id, {ready, render, execute, reset, remove}); core
- *    brings Google (v2 checkbox, v2 invisible, v3 score, v3 → v2 checkbox when the score is low);
- *  - a visible widget renders when its box comes into view (the last step of a long form spends nothing early); a
- *    token for the invisible kinds is asked for right before sending (10 s limit); no global callback;
- *  - a solved widget hands its token to its form ("captcha_v2" row, sent as "valid") and fires efb:captcha;
- *  - reset(formId) resets that form's boxes only; reset(-1, ctx) one context outside a form (tracker, reply_1 …).
- */
+/* F12 / F12b: the CAPTCHA boxes of Easy Form Builder (window.EFBCaptcha): one box, widget and token each; adapters
+   register with EFBCaptcha.provider(id, {ready, render, execute, reset, remove}). docs/spam/captcha-contract.en.md */
 (function () {
   'use strict';
   if (typeof window === 'undefined') return;
@@ -34,7 +24,6 @@
     return (w > 0 && w < 304) || (W.innerWidth || 1024) < 400;
   }
   function dark() { try { return !!(W.matchMedia && W.matchMedia('(prefers-color-scheme: dark)').matches); } catch (e) { return false; } }
-  /** The box's config: data-efb-captcha (F12b) or the F12 attributes. */
   function conf(el) {
     if (el._c) return el._c;
     var c = {};
@@ -67,7 +56,6 @@
     say(el, conf(el).mf || T('captchaFailed', 'The security check could not be completed. Please try again.'));
   }
 
-  /** A provider's script (and adapter) that is not on the page: a form drawn after the footer. */
   function load(c) {
     if (tries < 10) return;
     [c.src, c.ad].forEach(function (u) {
@@ -83,7 +71,6 @@
     });
   }
 
-  /** Draws one widget (force: also when out of view); false while its service is not there yet. */
   function render(el, force) {
     if (at(el, 'data-efb-rendered') === '1') return true;
     var c = conf(el), a = A[c.p];
@@ -110,7 +97,6 @@
     if (waiting && tries < 240) { tries++; setTimeout(boot, tries < 30 ? 100 : 500); }
   }
 
-  /** A promise that gives up after ms (the visitor reads the message). */
   function limit(p, ms) {
     return new Promise(function (ok, no) {
       var done = 0, t = setTimeout(function () { if (!done) { done = 1; no(new Error('timeout')); } }, ms);
@@ -118,7 +104,6 @@
     });
   }
 
-  /** A fresh reCAPTCHA v3 token (Promise; rejects after timeoutMs). */
   function v3Token(key, timeoutMs, action) {
     return limit(new Promise(function (ok, no) {
       var go = function () {
@@ -130,7 +115,6 @@
     }), timeoutMs || 10000);
   }
 
-  /** The token of an invisible box (v3, v2 invisible, an adapter that executes on submit). */
   function tokenOf(el) {
     var c = conf(el);
     if (c.p === 'recaptcha_v3' && !el._fb) return v3Token(c.k, 10000, c.action);
@@ -145,7 +129,6 @@
   function needs(el) { var c = conf(el); return !!el._fb || (c.kind === 'widget' && !c.ex); }
   function needsWidgetToken(fid) { var el = boxFor(fid); return !!el && needs(el); }
 
-  /** Before a form request: an invisible box gets its token in data.valid; false = do not send (message shown). */
   async function beforeSend(data, fid) {
     var el = boxFor(fid);
     if (!el) return true;
@@ -161,7 +144,6 @@
     }
   }
 
-  /** v3 → v2: the server found the score low; the checkbox appears in the same box (true when the form has one). */
   function challenge(fid) {
     var el = boxFor(fid), c = el ? conf(el) : null;
     if (!c || !c.fb) return false;
@@ -177,7 +159,6 @@
     return true;
   }
 
-  /** After a refused answer: the spent token is gone, the widget asks again. reset(-1, ctx): one context only. */
   function reset(fid, ctx) {
     fid = Number(fid) || -1;
     var l = list('[data-formid="' + fid + '"]');
@@ -190,7 +171,6 @@
     try { if (typeof W.recaptchaExpiredEfb === 'function') W.recaptchaExpiredEfb(fid); } catch (e) {}
   }
 
-  /** P20: the token of a box outside a form (an invisible one is asked for now). Promise of '' when none. */
   async function token(ctx) {
     var l = list('[data-ctx="' + String(ctx || '').replace(/[^a-z0-9_]/g, '') + '"]'), el = l.length ? l[0] : null;
     if (!el) return '';
@@ -198,7 +178,6 @@
     try { return await tokenOf(el); } catch (e) { failed(el); return ''; }
   }
 
-  /* Google: one script for the page; every box renders on it with its own key and options. */
   var G = {
     ready: function () { return !!(W.grecaptcha && W.grecaptcha.render); },
     render: function (el, c, cb) {
@@ -211,11 +190,6 @@
     reset: function (id) { W.grecaptcha.reset(Number(id)); }
   };
   A.recaptcha_v2 = A.recaptcha_v2i = A.recaptcha_v3 = G;
-  /* F12b-A until F12b-E moves them to their add-ons: hCaptcha and Turnstile of F12. */
-  A.hcaptcha = { ready: function () { return !!(W.hcaptcha && W.hcaptcha.render); }, reset: function (id) { W.hcaptcha.reset(id); },
-    render: function (el, c, cb) { return W.hcaptcha.render(el, { sitekey: c.k, hl: c.lang, size: c.narrow ? 'compact' : 'normal', callback: cb.solved, 'expired-callback': cb.expired, 'error-callback': cb.error }); } };
-  A.turnstile = { ready: function () { return !!(W.turnstile && W.turnstile.render); }, reset: function (id) { W.turnstile.reset(id); },
-    render: function (el, c, cb) { return W.turnstile.render(el, { sitekey: c.k, action: c.action || ACTION, language: c.lang || 'auto', size: c.narrow ? 'flexible' : 'normal', callback: cb.solved, 'expired-callback': cb.expired, 'error-callback': cb.error, 'timeout-callback': cb.expired }); } };
 
   function provider(id, adapter) {
     if (!/^[a-z][a-z0-9_]{2,23}$/.test(String(id)) || !adapter || typeof adapter.render !== 'function' || A[id]) return false;
@@ -236,7 +210,6 @@
     message: say, provider: provider, config: conf };
 
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', boot); else boot();
-  // Forms drawn later (a popup, a tab, AJAX, a page builder's preview) bring their boxes with them.
   try {
     if (typeof MutationObserver !== 'undefined') {
       new MutationObserver(function (m) {

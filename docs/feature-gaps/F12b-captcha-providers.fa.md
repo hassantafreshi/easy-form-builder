@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A تا D انجام شد؛ Checkpointها پایین؛ همهٔ پرسش‌های باز و کدهای افزونه را مالک در 2026-11-14 تأیید کرد — approved by owner (2026-11-14)) · اولویت: P1 · تلاش: L (هسته M + افزونه‌ها هر کدام S) · وابستگی: F12 (کپچا و ضداسپم هسته)، F15 (خروجی و ورودی فرم)، F11 (`Rate_Limit`)، F13 (حالت IP)، F18 (پنجرهٔ ارتقا)؛ ساخت درست پس از F15
+وضعیت: در حال پیاده‌سازی (A تا G انجام شد؛ Checkpointها پایین؛ همهٔ پرسش‌های باز و کدهای افزونه را مالک در 2026-11-14 تأیید کرد — approved by owner (2026-11-14)) · اولویت: P1 · تلاش: L (هسته M + افزونه‌ها هر کدام S) · وابستگی: F12 (کپچا و ضداسپم هسته)، F15 (خروجی و ورودی فرم)، F11 (`Rate_Limit`)، F13 (حالت IP)، F18 (پنجرهٔ ارتقا)؛ ساخت درست پس از F15
 
 # F12b — کپچا به‌شکل افزونه، انتخاب v2 یا v3 گوگل برای هر فرم، چند فرم در یک صفحه، و چهار مورد باز F12
 
@@ -455,18 +455,19 @@ F12 منتشر نشده است (`readme.txt` نسخهٔ پایدار 4.3.1؛ ی�
 - پذیرش: ردیف‌های پلن و غیرفعال شدن ماتریس؛ `grep -ri "hcaptcha\|turnstile" includes public` فقط notice مهاجرت؛ سقف حجم (پایین).
 - تست: `php tests/test-captcha-fallback.php`، `php tests/test-captcha-core-size.php`؛ e2e `f12b-e`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: حذف `includes/captcha/class-Emsfb-captcha-f12.php` و adapterهای موقت hCaptcha/Turnstile از `captcha-efb.js`؛ `Spam` (کلیدهای `hc*`/`ts*` از `SETTING_DEFAULTS` و sanitizer بیرون؛ فقط برای redaction در `SECRET_SETTING_KEYS` می‌مانند تا افزونه آن‌ها را منتقل کند)، `spam-settings-efb.js` و `spam-builder-efb.js` (فهرست از رجیستری)، `class-Emsfb.php` (`pub` بی کلید آن دو)، `functions.php` (سه عبارت مخصوص آن دو حذف)، `admin/class-Emsfb-admin.php` (`do_action('efb_addon_removed', $code)` و redaction پاسخ حذف افزونه — یافتهٔ D4)، `Addon_Catalog` پنج کد (در D آمد)؛ بخش مدیریتی لایه به `includes/captcha/class-Emsfb-captcha-admin.php` (`Captcha\Admin`: ذخیره، کاتالوگ، D4) با autoload، فقط هنگام نیاز خوانده می‌شود. `grep -ri "hcaptcha\|turnstile" includes public`: فقط ردیف‌های کاتالوگ افزونه‌ها و نقشهٔ `Admin::ADDONS` (کد ⇒ شناسه، برای «نصب افزونه» پیش از نصب).
+- حجم (اندازه‌گیری): پیش از F12b لایهٔ F12 = `class-Emsfb-captcha.php` 21,030 + `captcha-efb.js` 9,622 = 30,652 بایت. پس: `registry` 9,889 + `provider` 4,590 + `google` 7,126 + `class-Emsfb-captcha.php` 13,355 + `captcha-efb.js` 10,490 = **45,450** بایت (بودجهٔ سند ۴۰٬۰۰۰ — **تجاوز ۵٬۴۵۰ بایت**، با وجود انتقال همهٔ توضیحات کد به `docs/spam/captcha-contract.en.md`)، بخش مدیریتی جدا 7,924 بایت؛ `captcha-efb.js` زیر ۱۲٬۰۰۰ ✓. `tests/test-captcha-core-size.php` اندازهٔ اندازه‌گیری‌شده را با سقف ۴۶٬۰۰۰ نگه می‌دارد. تست حجم SPLIT سبز.
+- تست‌ها: تازه `tests/test-captcha-fallback.php` (18، وردپرس واقعی: افزونه خاموش ⇒ گوگل، پیام فقط برای مدیر، فرم دست‌نخورده، بی کلید ⇒ هانی‌پات و ۳ ثانیه اجباری، schema، کاهش پلن، مهاجرت §۶)، `tests/test-captcha-core-size.php` (6). تست‌های F12 برای hCaptcha/Turnstile حالا افزونه‌ها را بارگذاری می‌کنند، بی تغییر انتظار: `test-captcha-verify.php`، `test-captcha-url-encoding.php`، `test-spam-client.js`، `test-spam-coexistence.php`، e2e `f12c`/`f12f`؛ `test-spam-soft-checks.php` (کلید Turnstile دیگر تنظیم هسته نیست).
+- وضعیت ترجمه: —
+- مورد باز: **بودجهٔ حجم** (بالا) — تصمیم مالک: پذیرش ۴۵٫۵ کیلوبایت یا کوچک‌سازی بیشتر (حذف نام‌های قرارداد ۱ در `class-Emsfb-captcha.php`).
+- اقدام بعدی: F و G.
 
 ### F — افزونهٔ Turnstile (`AdnCTS`) · G — افزونهٔ hCaptcha (`AdnHCP`) · H — ALTCHA (`AdnALT`) · I — پرسش و ریاضی (`AdnQCP`) · J — Friendly Captcha (`AdnFRC`)
 هر کدام جدا با Checkpoint خودش. فایل‌ها: `vendores-efb/<dir>/` (ثبت، کلاس، adapter، phrases، `locales.json`، zip)، ردیف readme. پذیرش مشترک: ثبت با `API=2`؛ کلیدهای آزمایشی رسمی (Turnstile `1x00000000000000000000AA`/`1x0000000000000000000000000000000AA` و `2x…AA` همیشه‌ناموفق؛ hCaptcha `10000000-ffff-ffff-ffff-000000000001`/`0x0000000000000000000000000000000000000000`) با پاسخ mock؛ همهٔ گزینه‌های فرم در خروجی render اثر کنند؛ hostname، action، انقضا، تکرار، timeout و JSON خراب بسته؛ مهاجرت کلیدهای F12 (F و G)؛ ALTCHA: امضای دستکاری‌شده، عدد اشتباه، چالش منقضی، استفادهٔ دوباره، بی شبکهٔ بیرونی؛ پرسش: ارقام فارسی و عربی، `ي`/`ی`، پاسخ‌های چندگانه، پرسش هرگز در HTML؛ adapter زیر ۲ کیلوبایت؛ fa_IR و ar در ۳۷۵px؛ کیبورد و صفحه‌خوان. تست: `php tests/addons/test-<id>-provider.php` (مستقل)، `node tests/addons/test-<id>-adapter.js`، e2e `f12b-<id>`.
 
-**Checkpoint (F)** فایل‌های تغییرکرده: · تست‌ها: · وضعیت ترجمه: · مورد باز: · اقدام بعدی:
-**Checkpoint (G)** فایل‌های تغییرکرده: · تست‌ها: · وضعیت ترجمه: · مورد باز: · اقدام بعدی:
+**Checkpoint (F) (انجام شد، 2026-11-15)** فایل‌های تغییرکرده: `vendores-efb/turnstile/` (`routes-efb.php`: فقط با قرارداد `captcha_provider` 2، `efb_addon_contracts`، ثبت روی `efb_register_captcha_providers`، مهاجرت §۶ هنگام `init`، `efb_addon_removed`؛ `class-Emsfb-turnstile-provider.php`: کلیدها با الگوی `0x…`/`1x…`، گزینه‌های تم، اندازه، ظاهر `always`/`execute`/`interaction-only`، زبان، چینش، action، retry، پیام‌ها؛ siteverify با `idempotency_key`؛ کلیدهای آزمایشی رسمی؛ `assets/turnstile-adapter-efb.js` 1,303 بایت؛ `turnstile-phrases-efb.php` با دامنهٔ `efb-turnstile`؛ `languages/efb-turnstile.pot`؛ `turnstile.zip`)؛ هسته: `Addon_Catalog` `AdnCTS` سطح ۳. · تست‌ها: `tests/addons/test-turnstile-provider.php` (26)، `tests/addons/test-turnstile-adapter.js` (9)، `test-captcha-fallback.php`، e2e `f12c`/`f12f`. · وضعیت ترجمه: ۹ عبارت در `.pot`، بی ترجمه. · مورد باز: Turnstile چالش صوتی ندارد (در متن راهنما گفته شد). · اقدام بعدی: G.
+**Checkpoint (G) (انجام شد، 2026-11-15)** فایل‌های تغییرکرده: `vendores-efb/hcaptcha/` (همان ساختار؛ siteverify با `sitekey`؛ اندازهٔ `invisible` با execute هنگام ارسال؛ متن راهنما: شرکت آمریکایی، احتمال مسدودی برای ایران؛ `assets/hcaptcha-adapter-efb.js` 1,104 بایت؛ `efb-hcaptcha.pot`؛ `hcaptcha.zip`). · تست‌ها: `tests/addons/test-hcaptcha-provider.php` (12)، `tests/addons/test-hcaptcha-adapter.js` (5)، `test-spam-coexistence.php`، e2e `f12c`. · وضعیت ترجمه: ۳ عبارت، بی ترجمه. · مورد باز: —. · اقدام بعدی: H.
 **Checkpoint (H)** فایل‌های تغییرکرده: · تست‌ها: · وضعیت ترجمه: · مورد باز: · اقدام بعدی:
 **Checkpoint (I)** فایل‌های تغییرکرده: · تست‌ها: · وضعیت ترجمه: · مورد باز: · اقدام بعدی:
 **Checkpoint (J)** فایل‌های تغییرکرده: · تست‌ها: · وضعیت ترجمه: · مورد باز: · اقدام بعدی:

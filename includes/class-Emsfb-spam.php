@@ -48,12 +48,8 @@ class Spam {
 		'captcha_provider'     => 'recaptcha_v2',
 		'rc3SiteKey'           => '',
 		'rciSiteKey'           => '',
-		'hcSiteKey'            => '',
-		'tsSiteKey'            => '',
 		'rc3SecretKey'         => '',
 		'rciSecretKey'         => '',
-		'hcSecretKey'          => '',
-		'tsSecretKey'          => '',
 		'rc3Threshold'         => '0.5',
 		'rc3_low_action'       => 'spam',
 		'rc_host'              => 'google.com',
@@ -142,11 +138,7 @@ class Spam {
 			case 'rc3SiteKey':
 			case 'rciSiteKey':
 			case 'rciSecretKey':
-			case 'hcSiteKey':
-			case 'tsSiteKey':
 			case 'rc3SecretKey':
-			case 'hcSecretKey':
-			case 'tsSecretKey':
 				$v = function_exists('sanitize_text_field') ? sanitize_text_field($v) : $v;
 				return Captcha::key_shape_ok($key, $v) ? $v : null; // null: refused (the stored value stays)
 		}
@@ -709,7 +701,7 @@ class Spam {
 			return array_merge(array('kind' => 'setting', 'scope' => 'form', 'package' => 'free', 'addon' => null, 'available_now' => true, 'reason' => null,
 				'prompt_state' => 0, 'message_key' => null, 'form_keys' => $keys, 'label_key' => $label), $extra);
 		};
-		$cat = Captcha\Registry::catalog();
+		$cat = Captcha\Admin::catalog();
 		$plans = array();
 		foreach ($cat as $c) $plans[$c['id']] = array('plan' => $c['plan'], 'addon' => $c['addon'], 'installed' => $c['installed'], 'available_now' => $c['available'], 'ready' => $c['ready'],
 			'prompt_state' => $c['available'] ? 0 : ($c['state'] === 'plan' ? 3 : 0), 'reason' => $c['available'] ? null : ($c['state'] === 'plan' ? 'plan_required' : 'addon_missing'));
@@ -740,7 +732,7 @@ class Spam {
 		if (!is_array($vars)) return $vars;
 		$vars['captcha_ready'] = Captcha::ready_map();
 		// F12b: every provider (installed or not) with its plan, state, options schema and settings schema (no secret value).
-		$vars['captcha_providers'] = Captcha\Registry::catalog();
+		$vars['captcha_providers'] = Captcha\Admin::catalog();
 		$vars['spam'] = array(
 			'site_provider' => Captcha::site_provider(),
 			'plugin_url'    => function_exists('admin_url') ? admin_url('admin.php?page=Emsfb_addons') : '',

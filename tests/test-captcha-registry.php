@@ -59,6 +59,7 @@ require __DIR__ . '/../includes/class-Emsfb-spam.php';
 use Emsfb\Captcha;
 use Emsfb\Spam;
 use Emsfb\Captcha\Registry;
+use Emsfb\Captcha\Admin;
 use Emsfb\Captcha\Provider;
 
 $pass = 0; $fail = 0;
@@ -112,11 +113,11 @@ t('core registers the three Google modes; the fake add-on provider is listed', a
 $errs = array_map(function ($e) { return $e['id'] . ':' . $e['code']; }, Registry::errors());
 t('refused: duplicate, malformed id, contract 3 (core too old), contract 1 (add-on too old), recaptcha_ prefix, unknown add-on code',
 	$errs, array('fakecap:duplicate', 'Bad Id:bad_id', 'newer:core_too_old', 'older:addon_too_old', 'recaptcha_x:bad_id', 'nokey:unknown_addon'));
-$cat = Registry::catalog($S);
+$cat = Admin::catalog($S);
 $fake = array_values(array_filter($cat, function ($e) { return $e['id'] === 'fakecap'; }))[0];
 t('catalogue: plan, add-on, kind, options schema, settings schema; the secret only as "saved"', array($fake['plan'], $fake['addon'], $fake['kind'], count($fake['options']), $fake['settings'][1]['saved'], $fake['settings'][0]['value']), array('free_plus', 'AdnCTS', 'widget', 4, array('set' => true, 'last4' => 'e-99'), 'fake-site-key-1234'));
 t('catalogue: never a secret value', strpos(json_encode($cat), 'fake-secret-value-99') === false && strpos(json_encode($cat), 'v3-secret-placeholder') === false, true);
-t('catalogue: add-ons core knows but that are not installed say so (Install the add-on)', array_values(array_map(function ($e) { return $e['id']; }, array_filter($cat, function ($e) { return !$e['installed']; }))), array('altcha', 'question', 'friendly')); // F12b-E adds turnstile and hcaptcha (they leave core)
+t('catalogue: add-ons core knows but that are not installed say so (Install the add-on)', array_values(array_map(function ($e) { return $e['id']; }, array_filter($cat, function ($e) { return !$e['installed']; }))), array('turnstile', 'hcaptcha', 'altcha', 'question', 'friendly')); // F12b-E: hCaptcha and Turnstile are add-ons too
 $caps = Spam::capabilities(array('features' => array()));
 t('capabilities: the fake provider is a value of setting:captcha_provider with its plan', array(in_array('fakecap', $caps['features']['setting:captcha_provider']['values'], true), $caps['features']['setting:captcha_provider']['providers']['fakecap']['plan']), array(true, 'free_plus'));
 t('capabilities: no secret anywhere', strpos(json_encode($caps), 'secret-value') === false && strpos(json_encode($caps), 'placeholder-000') === false, true);
@@ -236,16 +237,16 @@ t('captcha_provider of a form: any well-formed id is kept (the add-on may come b
 
 echo "--- D4: secrets write-only ---\n";
 $row = (object) array('secretKey' => '6LcAAAAAAAAAAAAAAAAAAAAAAA1234', 'rc3SecretKey' => 'short-secret', 'stripeSKey' => 'sk_test_PLACEHOLDER_0000000000abcd', 'paypalSKey' => '', 'siteKey' => 'public-site-key-value');
-$red = Registry::redact_settings($row);
+$red = Admin::redact_settings($row);
 t('object: secrets → {set, last4} (16+ characters), a short one → {set} only, empty → "", public keys untouched', array($red->secretKey, $red->rc3SecretKey, $red->stripeSKey, $red->paypalSKey, $red->siteKey), array(array('set' => true, 'last4' => '1234'), array('set' => true), array('set' => true, 'last4' => 'abcd'), '', 'public-site-key-value'));
 t('object: the original row is not changed', $row->secretKey, '6LcAAAAAAAAAAAAAAAAAAAAAAA1234');
-$j = Registry::redact_settings(json_encode(array('secretKey' => '6LcAAAAAAAAAAAAAAAAAAAAAAA1234', 'x' => 'y')));
+$j = Admin::redact_settings(json_encode(array('secretKey' => '6LcAAAAAAAAAAAAAAAAAAAAAAA1234', 'x' => 'y')));
 t('JSON string: redacted and still JSON', strpos($j, '6LcAAAA') === false && json_decode($j, true)['x'] === 'y', true);
 $GLOBALS['T']['filters']['efb_secret_setting_keys'] = function ($k) { $k[] = 'myAddonToken'; return $k; };
-t('efb_secret_setting_keys adds a key', Registry::redact_settings(array('myAddonToken' => 'tok-value-0000000000'))['myAddonToken'], array('set' => true, 'last4' => '0000'));
+t('efb_secret_setting_keys adds a key', Admin::redact_settings(array('myAddonToken' => 'tok-value-0000000000'))['myAddonToken'], array('set' => true, 'last4' => '0000'));
 unset($GLOBALS['T']['filters']['efb_secret_setting_keys']);
 t('secret_on_save: empty, a mask, an object, NotFoundEl keep; __clear__ removes; text replaces', array(
-	Registry::secret_on_save('', 'old'), Registry::secret_on_save('•••• 1234', 'old'), Registry::secret_on_save(array('set' => true), 'old'), Registry::secret_on_save('NotFoundEl', 'old'), Registry::secret_on_save('__clear__', 'old'), Registry::secret_on_save(' new-key ', 'old')),
+	Admin::secret_on_save('', 'old'), Admin::secret_on_save('•••• 1234', 'old'), Admin::secret_on_save(array('set' => true), 'old'), Admin::secret_on_save('NotFoundEl', 'old'), Admin::secret_on_save('__clear__', 'old'), Admin::secret_on_save(' new-key ', 'old')),
 	array('old', 'old', 'old', 'old', '', 'new-key'));
 
 echo "\nRESULTS: {$pass} passed, {$fail} failed\n";

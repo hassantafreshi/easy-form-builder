@@ -54,7 +54,8 @@ t('retention: digits only, at most 3650', array(Spam::sanitize_setting('spam_ret
 t('action and low-score action: allow-listed', array(Spam::sanitize_setting('spam_action', 'reject'), Spam::sanitize_setting('spam_action', 'x'), Spam::sanitize_setting('rc3_low_action', 'block'), Spam::sanitize_setting('rc3_low_action', '')), array('reject', 'spam', 'block', 'spam'));
 t('threshold: ۰٫۷ → 0.7, 3 → 1, junk → 0.5', array(Spam::sanitize_setting('rc3Threshold', '۰٫۷'), Spam::sanitize_setting('rc3Threshold', '3'), Spam::sanitize_setting('rc3Threshold', 'abc')), array('0.7', '1', '0.5'));
 t('provider: allow-listed, else reCAPTCHA v2', array(Spam::sanitize_setting('captcha_provider', 'turnstile'), Spam::sanitize_setting('captcha_provider', '<x>')), array('turnstile', 'recaptcha_v2'));
-t('a Turnstile secret must look like one (0x…, or 1x/2x/3x test keys); else refused (the stored value stays)', array(Spam::sanitize_setting('tsSecretKey', '0x4AAAAAAAplaceholder00'), Spam::sanitize_setting('tsSecretKey', 'not-a-key-1234'), Spam::sanitize_setting('tsSecretKey', '')), array('0x4AAAAAAAplaceholder00', null, ''));
+// F12b-E: the Turnstile keys are the AdnCTS add-on's (its settings schema checks their shape); not a core setting any more.
+t('tsSecretKey is not a core setting any more (the add-on\'s schema checks Turnstile keys)', array(Spam::sanitize_setting('tsSecretKey', '0x4AAAAAAAplaceholder00'), Spam::is_setting_key('tsSecretKey')), array(null, false));
 
 echo "--- the rules of a form ---\n";
 $set(array('spam_honeypot' => '1', 'spam_min_time' => '3', 'spam_require_js' => '', 'spam_action' => 'spam'));
@@ -135,7 +136,14 @@ echo "--- form keys and the schema ---\n";
 t('captcha_provider: a well-formed id ("" = the site\'s)', array(Spam::sanitize_form_key('captcha_provider', 'hcaptcha'), Spam::sanitize_form_key('captcha_provider', 'evil'), Spam::sanitize_form_key('captcha_provider', '<x>'), Spam::sanitize_form_key('captcha_provider', 'Turnstile')), array('hcaptcha', 'evil', '', ''));
 t('rc3_threshold: ۰٫۳ → 0.3; junk → ""', array(Spam::sanitize_form_key('rc3_threshold', '۰٫۳'), Spam::sanitize_form_key('rc3_threshold', 'x')), array('0.3', ''));
 t('spam_off / spam_akismet flags', array(Spam::sanitize_form_key('spam_off', true), Spam::sanitize_form_key('spam_off', '1'), Spam::sanitize_form_key('spam_off', 'no'), Spam::sanitize_form_key('spam_akismet', '0'), Spam::sanitize_form_key('spam_akismet', '1')), array('1', '1', '', '0', ''));
-$set(array('spam_honeypot' => '1', 'spam_min_time' => '4', 'captcha_provider' => 'turnstile', 'tsSiteKey' => '1x00000000000000000000AA', 'tsSecretKey' => '1x0000000000000000000000000000000AA'));
+$set(array('spam_honeypot' => '1', 'spam_min_time' => '4', 'captcha_provider' => 'turnstile'));
+$sch = Spam::form_schema(array('type' => 'form', 'captcha' => '1'));
+t('schema without the Turnstile add-on: asked turnstile, no Google keys → soft checks (honeypot, 4 s), no widget', array($sch['honeypot'], $sch['min_time'], $sch['captcha']['provider'], $sch['captcha']['ready'], $sch['captcha']['widget'], $sch['captcha']['fallback']), array(true, 4, 'turnstile', false, 'none', 'soft_checks'));
+// F12b-E: with the add-on (AdnCTS) and its keys (Cloudflare's public test keys).
+$efb_v = is_dir(__DIR__ . '/../vendor/turnstile') ? __DIR__ . '/../vendor' : dirname(__DIR__, 2) . '/vendores-efb';
+require_once $efb_v . '/turnstile/class-Emsfb-turnstile-provider.php';
+\Emsfb\Captcha\Registry::add(new \Emsfb\Captcha\Turnstile_Provider());
+\Emsfb\Captcha\Registry::set_stored('turnstile', array('public' => array('site_key' => '1x00000000000000000000AA'), 'secret' => array('secret' => '1x0000000000000000000000000000000AA')));
 $sch = Spam::form_schema(array('type' => 'form', 'captcha' => '1'));
 t('schema: what protects the form (honeypot, 4 s, Turnstile ready, visible widget)', array($sch['honeypot'], $sch['min_time'], $sch['captcha']['provider'], $sch['captcha']['ready'], $sch['captcha']['widget']), array(true, 4, 'turnstile', true, 'visible'));
 $js = json_encode($sch);

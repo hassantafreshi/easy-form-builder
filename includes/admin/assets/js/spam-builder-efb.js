@@ -22,7 +22,7 @@
   const esc = (v) => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
   const list = () => (typeof valj_efb !== 'undefined' ? valj_efb : []);
   const on = (v) => v === true || v === 1 || v === '1' || v === 'true';
-  const NAMES = { recaptcha_v2: ['reCAPTCHAv2', 'reCAPTCHA v2'], recaptcha_v2i: ['reCAPTCHAv2i', 'Google reCAPTCHA v2 (invisible)'], recaptcha_v3: ['reCAPTCHAv3', 'Google reCAPTCHA v3'], hcaptcha: ['hCaptcha', 'hCaptcha'], turnstile: ['turnstile', 'Cloudflare Turnstile'] };
+  const NAMES = { recaptcha_v2: ['reCAPTCHAv2', 'reCAPTCHA v2'], recaptcha_v2i: ['reCAPTCHAv2i', 'Google reCAPTCHA v2 (invisible)'], recaptcha_v3: ['reCAPTCHAv3', 'Google reCAPTCHA v3'] };
   const ID_RE = /^[a-z][a-z0-9_]{2,23}$/;
   const latin = (s) => String(s == null ? '' : s).replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 1776)).replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 1632)).replace(/٫/g, '.');
   /** The registry's providers (efb_var.captcha_providers), or the F12 ready map of an older server. */
@@ -120,7 +120,7 @@
       const lab = esc(T(f.label_key, f.label || f.key));
       if (f.type === 'toggle') return `<div class="efb form-check form-switch mx-1 my-2"><input type="checkbox" role="switch" class="efb elEdit form-check-input" id="${id}" data-id="formSet" data-key="${f.key}" ${on(v) ? 'checked' : ''}><label class="efb form-check-label" for="${id}">${lab}</label></div>`;
       if (f.type === 'enum') {
-        const opts = [`<option value=""${v === '' ? ' selected' : ''}>${esc(T('siteDefault', 'Site default'))}</option>`].concat((f.values || []).map((x) => `<option value="${esc(x)}"${v === String(x) ? ' selected' : ''}>${esc(OPT_LABELS[x] ? T(OPT_LABELS[x][0], OPT_LABELS[x][1]) : x)}</option>`)).join('');
+        const opts = [`<option value=""${v === '' ? ' selected' : ''}>${esc(T('siteDefault', 'Site default'))}</option>`].concat((f.values || []).map((x) => `<option value="${esc(x)}"${v === String(x) ? ' selected' : ''}>${esc(OPT_LABELS[x] ? T(OPT_LABELS[x][0], OPT_LABELS[x][1]) : T('cpv_' + x, x))}</option>`)).join('');
         const note = f.key === 'cp_badge' ? `<small class="efb form-text text-muted d-block fs-8 ${v === 'hidden' ? '' : 'd-none'}" id="cpBadgeNote" dir="auto">${esc(T('cpBadgeHiddenNote', 'Google requires its notice when the badge is hidden; it is shown under the submit button.'))}</small>` : '';
         return `<label for="${id}" class="efb form-label mt-2 mb-1">${lab}</label><select class="efb elEdit form-select border-d rounded-4 mb-1" id="${id}" data-id="formSet" data-key="${f.key}">${opts}</select>${note}`;
       }

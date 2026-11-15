@@ -66,6 +66,8 @@ function grab(name) {
 }
 
 /* ---------------------------------------------------------------- captcha-efb.js */
+const ADDON_DIR = fs.existsSync(path.join(ROOT, 'vendor', 'turnstile')) ? path.join(ROOT, 'vendor') : path.join(ROOT, '..', 'vendores-efb');
+const ADAPTERS = ['turnstile/assets/turnstile-adapter-efb.js', 'hcaptcha/assets/hcaptcha-adapter-efb.js'].map((f) => fs.readFileSync(path.join(ADDON_DIR, f), 'utf8'));
 function el(attrs, parent) {
   const a = Object.assign({}, attrs);
   const e = {
@@ -113,6 +115,8 @@ function page(widgets, opts) {
   win.window = win;
   const ctx = vm.createContext(win);
   vm.runInContext(capSrc, ctx);
+  // F12b-E: hCaptcha and Turnstile left core: their add-ons' adapters register on EFBCaptcha.provider().
+  ADAPTERS.forEach((src) => vm.runInContext(src, ctx));
   return { win, all, calls, timers, run: () => { const ts = timers.splice(0); ts.forEach((x) => x.fn()); } };
 }
 

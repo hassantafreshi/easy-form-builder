@@ -1437,6 +1437,8 @@ class Admin {
             $ac->AdnGoS=0;
         }
         $ac->{$post_value}=0;
+        // F12b: an add-on that leaves may tidy up (a CAPTCHA add-on drops its public values from the page map).
+        do_action('efb_addon_removed', $post_value);
         // SPLIT §5.2: the Stripe add-on's background check of pending payments stops with it.
         if ($post_value === 'AdnSPF' && function_exists('wp_clear_scheduled_hook')) {
             wp_clear_scheduled_hook('emsfb_stripe_reconcile_efb');
@@ -1448,7 +1450,8 @@ class Admin {
 
         delete_option($name_space);
         $efbFunction->set_setting_Emsfb( $ac, $ac->emailSupporter );
-        $newAc = json_encode( $ac, JSON_UNESCAPED_UNICODE );
+        // F12b D4: the screen gets the settings without their secrets.
+        $newAc = json_encode( class_exists('\Emsfb\Captcha\Registry') ? \Emsfb\Captcha\Admin::redact_settings($ac) : $ac, JSON_UNESCAPED_UNICODE );
         $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
         wp_send_json_success($response, 200);
     }
@@ -1925,13 +1928,13 @@ class Admin {
                 }
             }
         }
-        /* F12b D4: secrets are write-only. The screen never receives them (Registry::redact_settings()), so an empty
+        /* F12b D4: secrets are write-only. The screen never receives them (Admin::redact_settings()), so an empty
          * box, a mask ("••••", {"set":true}) or a missing key keeps the stored secret; "__clear__" removes it; any
          * other text replaces it. Gateway secrets (Stripe, PayPal) follow the same rule (they live in this row). */
         if (is_array($m) && class_exists('\Emsfb\Captcha\Registry')) {
-            foreach (\Emsfb\Captcha\Registry::secret_keys() as $secret_key_efb) {
+            foreach (\Emsfb\Captcha\Admin::secret_keys() as $secret_key_efb) {
                 $stored_secret_efb = is_object($ac) && isset($ac->$secret_key_efb) && is_scalar($ac->$secret_key_efb) ? (string) $ac->$secret_key_efb : '';
-                if (array_key_exists($secret_key_efb, $m)) $m[$secret_key_efb] = \Emsfb\Captcha\Registry::secret_on_save($m[$secret_key_efb], $stored_secret_efb);
+                if (array_key_exists($secret_key_efb, $m)) $m[$secret_key_efb] = \Emsfb\Captcha\Admin::secret_on_save($m[$secret_key_efb], $stored_secret_efb);
                 elseif ($stored_secret_efb !== '') $m[$secret_key_efb] = $stored_secret_efb;
             }
         }
@@ -2083,8 +2086,8 @@ class Admin {
                     ? \Emsfb\Entries::sanitize_setting($key, $value)
                     : \Emsfb\Entries::setting($key, $ac);
             }else if(class_exists('\Emsfb\Spam') && \Emsfb\Spam::is_setting_key($key)){
-                // F12: anti-spam and CAPTCHA services, allow-listed values; a key of the wrong shape (a Turnstile
-                // secret that is not 0x…) keeps what is stored. An administrator's choice (manage_options).
+                // F12: anti-spam and CAPTCHA settings, allow-listed values; a key of the wrong shape keeps what is
+                // stored. An administrator's choice (manage_options).
                 $spam_val_efb = current_user_can('manage_options') ? \Emsfb\Spam::sanitize_setting($key, $value) : null;
                 if ($spam_val_efb === null) {
                     if (is_object($ac) && isset($ac->$key)) $m[$key] = $ac->$key; else unset($m[$key]);

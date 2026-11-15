@@ -1454,8 +1454,6 @@ class Emsfb {
                     'captchaProvider' => (isset($decoded->captcha_provider) && is_string($decoded->captcha_provider) && preg_match('/^[a-z][a-z0-9_]{2,23}$/', $decoded->captcha_provider)) ? $decoded->captcha_provider : 'recaptcha_v2',
                     'rc3SiteKey' => $decoded->rc3SiteKey ?? '',
                     'rciSiteKey' => $decoded->rciSiteKey ?? '',
-                    'hcSiteKey' => $decoded->hcSiteKey ?? '',
-                    'tsSiteKey' => $decoded->tsSiteKey ?? '',
                     'mapKey' => $decoded->apiKeyMap ?? '',
                     'paymentKey' => $decoded->stripePKey ?? '',
                     'version' => $decoded->efb_version ?? '1.0.0',

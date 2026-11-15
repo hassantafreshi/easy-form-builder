@@ -50,15 +50,18 @@ if (is_readable($hs)) {
 	echo "[SKIP] Human Shield's code is not here\n";
 }
 
-require __DIR__ . '/f11-http-lib.php';
-$H = new EfbF11Http();
+require __DIR__ . '/f12b-http-lib.php';
+$H = new EfbF12bHttp();
 if ($why = $H->unavailable()) {
 	echo "[SKIP] site part: {$why}\n";
 } else {
 	$H->ctl('plan', '3');
 	$H->ctl('f12-mu');
 	$H->ctl('set-option', 'efb_e2e_f12_mock', '1');
-	$H->ctl('f12-setting', 'hcSiteKey=10000000-ffff-ffff-ffff-000000000001&hcSecretKey=0x0000000000000000000000000000000000000000&spam_min_time=0&spam_honeypot=1&siteKey=e2e-v2-site-placeholder&secretKey=e2e-v2-secret-placeholder');
+	// F12b-E: hCaptcha is the AdnHCP add-on now: switched on, hCaptcha's official test keys in its option.
+	$H->ctl('addon-flag', 'AdnHCP', '1');
+	$H->ctlb('cpv', 'hcaptcha', json_encode(array('site_key' => '10000000-ffff-ffff-ffff-000000000001')), json_encode(array('secret' => '0x0000000000000000000000000000000000000000')));
+	$H->ctl('f12-setting', 'spam_min_time=0&spam_honeypot=1&siteKey=e2e-v2-site-placeholder&secretKey=e2e-v2-secret-placeholder');
 	$F = $H->ctl('f03-form', 'F12 shield', json_encode(array(array('key' => 'nm', 'type' => 'text', 'name' => 'Name'))), 'captcha=1&captcha_provider=hcaptcha&shield_silent_captcha=1');
 	$fid = (int) $F['form_id'];
 	$send = function ($tok, $extra = array(), $id = null, $key = 'nm', $ids = null) use ($H, $fid, $F) { $ids = $ids ?: $F['ids']; $H->fresh_jar(); return EfbF11Http::answer($H->submit($id ?: $fid, array(array('id_' => $ids[$key], 'name' => 'Name', 'type' => 'text', 'value' => 'x')), array_merge(array('valid' => $tok !== '' ? $tok . bin2hex(random_bytes(6)) : '', 'efb_hp' => ''), $extra))); }; // F12b: one use per token
@@ -103,7 +106,8 @@ if ($why = $H->unavailable()) {
 	t('site: rendering asked no CAPTCHA service anything (no siteverify, no HEAD)', count(array_filter($calls, function ($c) { return isset($c['url']) && strpos($c['url'], 'google') !== false; })), 0);
 	foreach (array($fid, (int) $N['form_id'], (int) $V2['form_id']) as $id) $H->ctl('f12-delete-form', (string) $id);
 	$H->ctl('set-option', 'efb_e2e_f12_mock', 'del');
-	$H->ctl('f12-setting', 'hcSiteKey=del&hcSecretKey=del&spam_min_time=del&spam_honeypot=del&siteKey=del&secretKey=del');
+	$H->ctl('f12-setting', 'spam_min_time=del&spam_honeypot=del&siteKey=del&secretKey=del');
+	$H->ctl('addon-flag', 'AdnHCP', '0');
 }
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

@@ -11,7 +11,7 @@
  *   auth-form <login|register> [row-0 k=v&…]   a login or registration form (fields emaillogin / passwordlogin or
  *                              usernameRegisterEFB / emailRegisterEFB / passwordRegisterEFB), saved through the sanitizer
  *   user <login>               a subscriber with password <login>-pass-123 (made or reset); user-del <login>; user-exists <login>
- *   cpv <id> <public JSON> <secret JSON>   an add-on provider's settings through Registry::save() (the screen's path)
+ *   cpv <id> <public JSON> <secret JSON>   an add-on provider's settings through Admin::save() (the screen's path)
  *   cpv-raw <id>               what the option holds: public values, which secrets are set, whether they are encrypted
  *   rl-reset [scope …]         drop the counters of these Rate_Limit scopes (default rply rplt cptk cpch)
  *   providers                  the registry (id, addon, state, ready) and its registration errors
@@ -97,7 +97,7 @@ switch ( $efb_b_cmd ) {
 		$id = isset( $efb_b_rest[0] ) ? sanitize_key( $efb_b_rest[0] ) : '';
 		$pub = isset( $efb_b_rest[1] ) ? json_decode( $efb_b_rest[1], true ) : array();
 		$sec = isset( $efb_b_rest[2] ) ? json_decode( $efb_b_rest[2], true ) : array();
-		efb_b_out( \Emsfb\Captcha\Registry::save( $id, is_array( $pub ) ? $pub : array(), is_array( $sec ) ? $sec : array() ) );
+		efb_b_out( \Emsfb\Captcha\Admin::save( $id, is_array( $pub ) ? $pub : array(), is_array( $sec ) ? $sec : array() ) );
 		break;
 
 	case 'cpv-raw':
@@ -127,8 +127,8 @@ switch ( $efb_b_cmd ) {
 		break;
 
 	case 'settings-redacted':
-		// What an EFB screen receives of the settings row (Registry::redact_settings()).
-		efb_b_out( \Emsfb\Captcha\Registry::redact_settings( get_setting_Emsfb( 'decoded' ) ) );
+		// What an EFB screen receives of the settings row (Admin::redact_settings()).
+		efb_b_out( \Emsfb\Captcha\Admin::redact_settings( get_setting_Emsfb( 'decoded' ) ) );
 		break;
 
 	case 'secret':

@@ -74,7 +74,9 @@ function page(boxes, opts) {
   if (opts.matchDark) win.matchMedia = () => ({ matches: true });
   if (opts.before) opts.before(win);
   win.window = win;
-  vm.runInContext(SRC, vm.createContext(win));
+  const ctx = vm.createContext(win);
+  vm.runInContext(SRC, ctx);
+  (opts.adapters || []).forEach((src) => vm.runInContext(src, ctx));
   return {
     win, all, calls, timers, added, io,
     C: win.EFBCaptcha,
@@ -110,4 +112,10 @@ function fakeGoogle() {
   return g;
 }
 
-module.exports = { page, tick, checker, fakeGoogle, SRC };
+/** An add-on's adapter source (core's vendor/<dir>, else ../vendores-efb/<dir>). */
+function adapter(dir, file) {
+  const a = path.join(ROOT, 'vendor', dir, 'assets', file);
+  return fs.readFileSync(fs.existsSync(a) ? a : path.join(ROOT, '..', 'vendores-efb', dir, 'assets', file), 'utf8');
+}
+
+module.exports = { page, tick, checker, fakeGoogle, adapter, SRC };
