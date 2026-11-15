@@ -1,0 +1,133 @@
+<?php
+/**
+ * SPLIT §4.3: the contracts core keeps for the features that left it, and how an add-on announces it implements
+ * one. An add-on adds itself on the filter efb_addon_contracts:
+ *
+ *   add_filter('efb_addon_contracts', function ($c) { $c['calc']['AdnCLC'] = 1; return $c; });
+ *
+ * efb_addon_contracts() answers {contract_id: {version, min, provider_addon, providers, active, outdated, core}}.
+ * A provider whose version is below min is "outdated": core treats the add-on as absent (SPLIT §4.1) and the
+ * owner sees "Update the add-on". An add-on that needs a newer contract than core has does not register
+ * (its routes-efb.php checks version before anything else, SPLIT §12 rule 1).
+ *
+ * Contract details: docs/autopilot-integration.md "SPLIT"; docs/feature-gaps/SPLIT-core-addons.fa.md §4–§10.
+ *
+ * @package Emsfb
+ */
+defined('ABSPATH') || exit;
+
+if (!function_exists('efb_addon_contract_versions')) {
+	/**
+	 * The version of each contract this core speaks, and the oldest provider version it accepts.
+	 * "core" = core implements it itself (no add-on); otherwise an add-on must provide it.
+	 */
+	function efb_addon_contract_versions() {
+		$fp = class_exists('\\Emsfb\\Form_Package') ? \Emsfb\Form_Package::API_VERSION : 1;
+		return array(
+			'calc'            => array('version' => 1, 'min' => 1, 'core' => false),
+			'typed_signature' => array('version' => 1, 'min' => 1, 'core' => false),
+			'address'         => array('version' => 1, 'min' => 1, 'core' => false),
+			'booking'         => array('version' => 1, 'min' => 1, 'core' => false),
+			'legacy_gateway'  => array('version' => 1, 'min' => 1, 'core' => false),
+			'smart_tags_ext'  => array('version' => 1, 'min' => 1, 'core' => false),
+			'form_package'    => array('version' => $fp, 'min' => 1, 'core' => class_exists('\\Emsfb\\Form_Package')),
+			'payments'        => array('version' => defined('EMSFB_PAYMENTS_API') ? (int) EMSFB_PAYMENTS_API : 1, 'min' => 1, 'core' => class_exists('\\Emsfb\\Payments\\Registry')),
+			'captcha'         => array('version' => 1, 'min' => 1, 'core' => function_exists('efb_captcha_api')),
+		);
+	}
+}
+
+if (!function_exists('efb_addon_contracts')) {
+	/** @return array<string, array> every contract, its providers and whether it is usable now. */
+	function efb_addon_contracts() {
+		$providers = function_exists('apply_filters') ? apply_filters('efb_addon_contracts', array()) : array();
+		$providers = is_array($providers) ? $providers : array();
+		$out = array();
+		foreach (efb_addon_contract_versions() as $id => $v) {
+			$list = array();
+			if (isset($providers[$id]) && is_array($providers[$id])) {
+				foreach ($providers[$id] as $code => $ver) {
+					if (is_string($code) && preg_match('/^(Adn[A-Za-z]{2,5}|core)$/', $code) && is_numeric($ver)) $list[$code] = (float) $ver;
+				}
+			}
+			$ok = array_filter($list, function ($ver) use ($v) { return $ver >= $v['min'] && floor($ver) <= floor($v['version']); });
+			$out[$id] = array(
+				'version'        => $v['version'],
+				'min'            => $v['min'],
+				'core'           => (bool) $v['core'],
+				'providers'      => $list,
+				'provider_addon' => $ok ? (string) array_keys($ok)[0] : ($list ? (string) array_keys($list)[0] : null),
+				'active'         => (bool) $v['core'] || (bool) $ok,
+				'outdated'       => !$v['core'] && $list && !$ok,
+			);
+		}
+		return $out;
+	}
+}
+
+if (!function_exists('efb_addon_contract_active')) {
+	/** Whether a contract has a usable implementation now (core's own, or an add-on with a compatible version). */
+	function efb_addon_contract_active($id) {
+		$c = efb_addon_contracts();
+		return isset($c[$id]) && !empty($c[$id]['active']);
+	}
+}
+
+if (!function_exists('efb_calc_api')) {
+	/**
+	 * SPLIT §6.2 (calc contract v1): the calculation engine's API, or null when no add-on provides it.
+	 * {version: 1, plan_ok: callable(part): bool, json_needs_runtime: callable(json): bool, ...}
+	 */
+	function efb_calc_api() {
+		$api = function_exists('apply_filters') ? apply_filters('efb_calc_api', null) : null;
+		if (!is_array($api) || !isset($api['version']) || (int) $api['version'] < 1) return null;
+		return $api;
+	}
+}
+
+if (!function_exists('efb_form_calc_price_fields')) {
+	/**
+	 * SPLIT §6.3 rule 1: the calc fields of a form used as the amount to pay (type calc, calc_as_price 1), read from
+	 * the raw rows (arrays or objects) without the calculation add-on. @return array<int, string> their id_.
+	 */
+	function efb_form_calc_price_fields($form) {
+		$ids = array();
+		if (!is_array($form)) return $ids;
+		foreach ($form as $i => $r) {
+			if ($i === 0) continue;
+			if (is_object($r)) $r = get_object_vars($r);
+			if (!is_array($r) || !isset($r['type'], $r['id_']) || $r['type'] !== 'calc') continue;
+			if (isset($r['calc_as_price']) && in_array($r['calc_as_price'], array(1, '1', true), true) && is_scalar($r['id_'])) $ids[] = (string) $r['id_'];
+		}
+		return $ids;
+	}
+}
+
+if (!function_exists('efb_payment_computed_items')) {
+	/**
+	 * SPLIT §6.3: the amounts of the calc fields used as a price, from the add-on (filter efb_payment_computed_items).
+	 * {ok, items: [{id, label, value}]} or {ok:false, error, field_id}. A form without such a field: ok, no items.
+	 * A form with one and no add-on (absent, off, contract too old, plan below the add-on's): pay_calc_unavailable,
+	 * so the whole payment is refused (never a lower amount: SPLIT §20 item 1).
+	 */
+	function efb_payment_computed_items($form, array $rows, array $hidden = array()) {
+		$ids = efb_form_calc_price_fields($form);
+		if (!$ids) return array('ok' => true, 'items' => array());
+		$res = efb_calc_api() !== null && function_exists('apply_filters') ? apply_filters('efb_payment_computed_items', null, $form, $rows, $hidden) : null;
+		if (!is_array($res) || !array_key_exists('ok', $res)) return array('ok' => false, 'error' => 'pay_calc_unavailable', 'field_id' => $ids[0]);
+		if (empty($res['ok'])) return array('ok' => false, 'error' => isset($res['error']) && is_string($res['error']) ? $res['error'] : 'price_not_computable', 'field_id' => isset($res['field_id']) ? (string) $res['field_id'] : $ids[0]);
+		$items = array();
+		foreach (isset($res['items']) && is_array($res['items']) ? $res['items'] : array() as $it) {
+			if (!is_array($it) || !isset($it['id'], $it['value']) || !is_numeric($it['value'])) return array('ok' => false, 'error' => 'price_not_computable', 'field_id' => $ids[0]);
+			$items[] = array('id' => (string) $it['id'], 'label' => isset($it['label']) ? (string) $it['label'] : '', 'value' => (string) $it['value']);
+		}
+		return array('ok' => true, 'items' => $items);
+	}
+}
+
+if (!function_exists('efb_addon_state')) {
+	/** Why an add-on is not usable now (null = usable; 'addon', 'plan', 'update'). */
+	function efb_addon_state($code) {
+		return class_exists('\\Emsfb\\Addon_Catalog') ? \Emsfb\Addon_Catalog::state($code, function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null) : 'addon';
+	}
+}

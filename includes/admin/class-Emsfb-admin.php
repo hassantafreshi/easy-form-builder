@@ -489,6 +489,16 @@ class Admin {
         if (is_array($valp) && class_exists('\\Emsfb\\Smart_Tags')) {
         	$save_warnings_efb = array_merge(isset($save_warnings_efb) ? $save_warnings_efb : array(), \Emsfb\Smart_Tags::form_warnings_text($valp, isset($lang) && is_array($lang) ? $lang : array()));
         }
+        // SPLIT §4.2: the keys of an add-on that is not active keep their stored values (addon_keys_kept); never emptied by a save.
+        if (is_array($valp) && class_exists('\\Emsfb\\Addon_Keys')) {
+        	if (!isset($old_rows_efb)) {
+        		if(empty($this->db)){ global $wpdb; $this->db = $wpdb; }
+        		$old_structer_ak_efb = $this->db->get_var($this->db->prepare("SELECT form_structer FROM `{$this->db->prefix}emsfb_form` WHERE form_id = %d", $id));
+        		$old_rows_efb = is_string($old_structer_ak_efb) ? json_decode(\emsfb_json_normalize_efb($old_structer_ak_efb), true) : null;
+        	}
+        	list($valp, $addon_keys_warn_efb) = \Emsfb\Addon_Keys::keep($valp, is_array($old_rows_efb) ? $old_rows_efb : null);
+        	$save_warnings_efb = array_merge(isset($save_warnings_efb) ? $save_warnings_efb : array(), $addon_keys_warn_efb);
+        }
         $form_type = $valp[0]['type'];
 		$value =json_encode($valp,JSON_UNESCAPED_UNICODE);
         $value_ =str_replace('"', '\"', $value);

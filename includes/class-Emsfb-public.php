@@ -12261,8 +12261,16 @@ public function check_nonce_permission_efb($request) {
 		/* F04-G (Pro): a calc field used as the amount is computed here from the submitted answers; the browser's
 		 * calc row must carry the same price (a lowered one is a tampered request), and the amount charged is
 		 * the server's. A negative result or a formula that fails cannot be paid. */
-		if (class_exists('\Emsfb\Calc')) {
-			$calc_pay_efb = \Emsfb\Calc::price_items($fs_, array_values(array_filter($val_, 'is_array')));
+		/* SPLIT §6.3: the calculation add-on computes it; a form that uses one while no add-on can compute it is
+		 * refused before any gateway call (pay_calc_unavailable), never charged without that part. */
+		$calc_pay_efb = class_exists('\Emsfb\Payments\Pricing') ? \Emsfb\Payments\Pricing::computed_items($fs_, array_values(array_filter($val_, 'is_array')))
+			: (class_exists('\Emsfb\Calc') ? \Emsfb\Calc::price_items($fs_, array_values(array_filter($val_, 'is_array'))) : null);
+		if ($calc_pay_efb !== null) {
+			if (empty($calc_pay_efb['ok']) && ($calc_pay_efb['error'] ?? '') === 'pay_calc_unavailable') {
+				$m_pcu_efb = class_exists('\Emsfb\Payments\Readiness') ? \Emsfb\Payments\Readiness::visitor_text() : __('Online payment for this form is not available right now. Please try again later or contact the site.', 'easy-form-builder');
+				wp_send_json_success(['success' => false, 'code' => 'pay_calc_unavailable', 'm' => esc_html($m_pcu_efb)], 200);
+				return ['price_total' => 0, 'email' => '', 'valobj' => []];
+			}
 			if (empty($calc_pay_efb['ok'])) {
 				$invalid();
 				return ['price_total' => 0, 'email' => '', 'valobj' => []];

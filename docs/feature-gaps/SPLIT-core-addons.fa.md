@@ -1,4 +1,4 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P0 (پیش از F12b) · تلاش: L (هسته) + M برای هر افزونه · وابستگی: F15-D (قرارداد بستهٔ فرم، در حال ساخت)، PAY00، F04، F05، F06، F10، F18؛ اثر بر F12b، F16، F17، F20-core، F21
+وضعیت: در حال پیاده‌سازی (زیرتسک‌ها و Checkpointها پایین؛ همهٔ پرسش‌های باز §۲۱ را مالک در 2026-11-14 تأیید کرد) · اولویت: P0 (پیش از F12b) · تلاش: L (هسته) + M برای هر افزونه · وابستگی: F15-D (قرارداد بستهٔ فرم، در حال ساخت)، PAY00، F04، F05، F06، F10، F18؛ اثر بر F12b، F16، F17، F20-core، F21
 
 # SPLIT — بیرون بردن امکانات از هستهٔ Easy Form Builder به افزونه‌ها (تصمیم مالک)، قراردادهایی که در هسته می‌ماند، و مستندات AutoPilot
 
@@ -533,12 +533,12 @@ e2e روی `tests/e2e-wp` (سناریوی تازهٔ `scenario-split.js`، fa_IR
 ### A — زیرساخت مشترک و شکست ایمن پرداخت (پیش از هر حذف)
 فایل‌ها: `includes/class-Emsfb-addon-keys.php`، `includes/class-Emsfb-addon-catalog.php`، `includes/addon-contracts-functions-efb.php` (تازه)؛ `functions.php` (کلیدها، پلن، فایل‌های لازم از کاتالوگ؛ مسیر ذخیره)، `class-Emsfb-addon-compatibility.php`، `class-Emsfb.php` (بارگذار)، `admin-efb.js` (کاتالوگ و آینهٔ پلن)، `class-Emsfb-builder-api.php` (`split`، `contracts`، `addon` ورودی‌ها)، `payments/class-Emsfb-payment-pricing.php` و `class-Emsfb-public.php:12264` (قاعدهٔ §۶.۳)، اعلان مدیر و نشان فهرست فرم‌ها، گام ارتقای §۴.۵. معیار: آزمون‌های A در §۱۷ سبز؛ هیچ رفتار بازدیدکننده‌ای عوض نشده (همهٔ افزونه‌ها هنوز در هسته‌اند).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: تازه `includes/class-Emsfb-addon-catalog.php` (`Emsfb\Addon_Catalog`: جدول یگانه، `load()`، `state()`، `plan_allows()`، grandfather)، `includes/class-Emsfb-addon-keys.php` (`Emsfb\Addon_Keys`: مانیفست، `keep()`، `drop_for_import()`، `used_addons()`)، `includes/addon-contracts-functions-efb.php` (`efb_addon_contracts()`، `efb_calc_api()`، `efb_form_calc_price_fields()`، `efb_payment_computed_items()`)، `includes/class-Emsfb-split.php` (`Emsfb\Split`: رجیستری، آمادگی پرداخت، schema، اسکن ارتقا، اعلان و نشان)؛ تغییر `functions.php` (سه فهرست از کاتالوگ، grandfather در گیت پلن و پایین‌آوردن پلن، ۱۸ عبارت تازه)، `class-Emsfb.php` (بارگذاری و `Addon_Catalog::load()`)، `class-Emsfb-addon-compatibility.php`، `class-Emsfb-builder-api.php` (بی‌فهرست ششم)، `payments/class-Emsfb-payment-pricing.php` (`Pricing::computed_items()`)، `class-Emsfb-payment-service.php`، `class-Emsfb-public.php` (`fun_validation_pay_elements_efb`)، مسیر ذخیره در `admin/class-Emsfb-admin.php`، `admin/class-Emsfb-create.php`، `class-Emsfb-form-package.php`؛ `admin/class-Emsfb-panel.php` و `list_form-efb.js` (نشان فهرست فرم‌ها)، `admin-efb.js` (آینهٔ `efb_var.addon_catalog` و پنج کارت).
+- تست‌ها: تازه `test-split-catalog.php` (25)، `test-split-addon-keys.php` (26)، `test-split-pay-calc-failsafe.php` (20؛ روی کد قدیمی شکست می‌خورد)، `test-split-upgrade-scan.php` (21، نصب‌کننده ساختگی). آزمون‌هایی که منبع فهرست‌ها را از `functions.php` می‌خواندند به کاتالوگ اشاره می‌کنند، بی‌ضعیف‌کردن ادعا: `test-addon-{omise,paymob,paytabs,xendit}-package.php`، `test-addon-require-guards.php`، `test-pay-capabilities.php`، `test-plan-gate-registry.{php,js}`، `test-ap-b3-capabilities.js`، `tests/f18-harness.js`. کل مجموعهٔ واحد در برابر `ff8f21ad`: هیچ شکست تازه.
+- وضعیت ترجمه: ۱۸ عبارت تازهٔ هسته (کارت‌ها، `addonNeededT`، `addonInstallBtn`، `addonKeysKept`، `payCalcUnavailable`، `addonUpdateNeeded`، `dataToolsCard`، `bkCapUnchecked`، `addonFieldNotice`) فقط انگلیسی؛ ترجمه به دستور مالک انجام نمی‌شود.
+- مورد باز: `AdnPRT` تا ساخت F20 در کاتالوگ نیست (هیچ کلیدی بی‌افزونه، §۲۰ بند ۶)؛ F20 آن را با `efb_addon_catalog` ثبت می‌کند. تا زیرتسک C موتور محاسبه هنوز در هسته است و با ارائه‌دهندهٔ `core` در `efb_addon_contracts` معرفی می‌شود.
+- اقدام بعدی: B.
 
 ### B — درگاه‌های قدیمی (پل v1 و انتقال کد)
 گام ۱ (هسته): هوک‌های §۵.۲ کنار کد فعلی. گام ۲ (`vendores-efb/stripe|paypal|persiapay`): کد را با کلاس خود افزونه بیاورند؛ با هستهٔ قدیمی بی‌اثر (§۱۲ قاعدهٔ ۱). گام ۳ (هسته): حذف موجودی §۵.۱ و `persia_pay-efb.js`. معیار: سناریوهای Stripe/PayPal با fake و `test-addon-paypal-server-price.php`، `test-addon-persiapay-server-price.php`، `test-addon-stripe-server-price.php` سبز؛ بی‌افزونه `pay_not_ready`.
@@ -686,21 +686,21 @@ e2e روی `tests/e2e-wp` (سناریوی تازهٔ `scenario-split.js`، fa_IR
 
 ## ۲۱. پرسش‌های باز (با پاسخ پیشنهادی)
 
-1. **سه رفع کوچک F04 در عدد ساده (ارقام فارسی، حداقل ≠ الزامی، حد اعشاری در سازنده) در هسته بمانند؟** پیشنهاد: بله؛ رفع باگ‌اند و برداشتنشان کاربران فارسی‌زبان را آزار می‌دهد. اگر «دقیقاً مثل پیش از F04» مطلق است، فقط (۳) را نگه داریم.
-2. **سایت‌های Free که پیش از SPLIT قالب عدد یا اسلایدر دوطرفه (رایگان در F04) را به کار برده‌اند؟** پیشنهاد: grandfather: `emsfb_split_scan` این سایت‌ها را ثبت و `addon_plan_allows_install_efb('AdnCLC')` برایشان true می‌دهد؛ درون افزونه همان گیت‌های امروز (`Calc::PLAN`، `class-Emsfb-calc.php:50`).
-3. **`calc_as_price` درون `AdnCLC` Pro بماند؟** پیشنهاد: بله (`PLAN['calc_price'] = 'pro'`).
-4. **پلن `AdnADR`؟** پیشنهاد: نصب برای همه، گیت درونی برابر امروز (§۱۰.۴).
-5. **نقشه برود؟** پیشنهاد: بله (§۱۰.۲).
-6. **پلن `AdnBEF`؟** پیشنهاد: Pro؛ کد همان `AdnBEF`.
-7. **`advdate` با `availability = booking` بی‌افزونه بسته شود؟** پیشنهاد: نه؛ `none` + اعلان قرمز مدیر.
-8. **جعبهٔ پیگیری و فرم‌های ورود/ثبت‌نام در هسته؟** پیشنهاد: بله (§۹.۱).
-9. **نشانی ملی عربستان (SPL) افزونهٔ جدا یا بخشی از `AdnADR`؟** پیشنهاد: بخشی از `AdnADR` با گیت Pro (همان مخاطب).
-10. **Stripe/PayPal/PersiaPay: پل اکنون، PAY00 بعداً؟** پیشنهاد: بله.
-11. **ترتیب انتشار و سرور مجوز:** سرور باید زیپ و کاتالوگ `AdnCLC`، `AdnTSG`، `AdnADR`، `AdnBEF` را پیش از نسخهٔ هسته‌ای که کد را حذف می‌کند داشته باشد. پیشنهاد: نسخهٔ N هسته = قراردادها + کد قدیمی (افزونه اگر هست برنده است)؛ نسخهٔ N+1 = حذف کد. نسخهٔ N اسکن §۴.۵ را اجرا و افزونه‌ها را از قبل نصب می‌کند.
-12. **Data Tools روی wordpress.org؟** پیشنهاد: بله، تا نصب یک‌کلیکی با نصب‌کنندهٔ خود وردپرس باشد.
-13. **دامنه‌های ترجمه:** پیشنهاد: `efb-calc`، `efb-typed-signature`، `efb-address`، `efb-booking` (الگوی `efb-<slug>`).
-14. **`AdnGEO` وقتی حالت IP فرم `none` است جست‌وجو کند؟** پیشنهاد: بله، فقط اگر `geo_on` روشن و متن اطلاع‌رسانی نمایش داده شود؛ IP هرگز به‌خاطر این ویژگی ذخیره نمی‌شود. پلن `AdnGEO` تصمیم گرفته شد: Free Plus و Pro.
-15. **ارائه‌دهندهٔ سوم (مثلاً MaxMind GeoLite2 محلی، بی‌درخواست بیرونی)؟** پیشنهاد: فاز ۲ از راه فیلتر `efb_geo_providers`؛ برای سایت‌هایی که نمی‌خواهند IP را بیرون بفرستند.
+1. **سه رفع کوچک F04 در عدد ساده (ارقام فارسی، حداقل ≠ الزامی، حد اعشاری در سازنده) در هسته بمانند؟** پیشنهاد: بله؛ رفع باگ‌اند و برداشتنشان کاربران فارسی‌زبان را آزار می‌دهد. اگر «دقیقاً مثل پیش از F04» مطلق است، فقط (۳) را نگه داریم. — **approved by owner (2026-11-14)**.
+2. **سایت‌های Free که پیش از SPLIT قالب عدد یا اسلایدر دوطرفه (رایگان در F04) را به کار برده‌اند؟** پیشنهاد: grandfather: `emsfb_split_scan` این سایت‌ها را ثبت و `addon_plan_allows_install_efb('AdnCLC')` برایشان true می‌دهد؛ درون افزونه همان گیت‌های امروز (`Calc::PLAN`، `class-Emsfb-calc.php:50`). — **approved by owner (2026-11-14)**.
+3. **`calc_as_price` درون `AdnCLC` Pro بماند؟** پیشنهاد: بله (`PLAN['calc_price'] = 'pro'`). — **approved by owner (2026-11-14)**.
+4. **پلن `AdnADR`؟** پیشنهاد: نصب برای همه، گیت درونی برابر امروز (§۱۰.۴). — **approved by owner (2026-11-14)**.
+5. **نقشه برود؟** پیشنهاد: بله (§۱۰.۲). — **approved by owner (2026-11-14)**.
+6. **پلن `AdnBEF`؟** پیشنهاد: Pro؛ کد همان `AdnBEF`. — **approved by owner (2026-11-14)**.
+7. **`advdate` با `availability = booking` بی‌افزونه بسته شود؟** پیشنهاد: نه؛ `none` + اعلان قرمز مدیر. — **approved by owner (2026-11-14)**.
+8. **جعبهٔ پیگیری و فرم‌های ورود/ثبت‌نام در هسته؟** پیشنهاد: بله (§۹.۱). — **approved by owner (2026-11-14)**.
+9. **نشانی ملی عربستان (SPL) افزونهٔ جدا یا بخشی از `AdnADR`؟** پیشنهاد: بخشی از `AdnADR` با گیت Pro (همان مخاطب). — **approved by owner (2026-11-14)**.
+10. **Stripe/PayPal/PersiaPay: پل اکنون، PAY00 بعداً؟** پیشنهاد: بله. — **approved by owner (2026-11-14)**.
+11. **ترتیب انتشار و سرور مجوز:** سرور باید زیپ و کاتالوگ `AdnCLC`، `AdnTSG`، `AdnADR`، `AdnBEF` را پیش از نسخهٔ هسته‌ای که کد را حذف می‌کند داشته باشد. پیشنهاد: نسخهٔ N هسته = قراردادها + کد قدیمی (افزونه اگر هست برنده است)؛ نسخهٔ N+1 = حذف کد. نسخهٔ N اسکن §۴.۵ را اجرا و افزونه‌ها را از قبل نصب می‌کند. — **approved by owner (2026-11-14)**.
+12. **Data Tools روی wordpress.org؟** پیشنهاد: بله، تا نصب یک‌کلیکی با نصب‌کنندهٔ خود وردپرس باشد. — **approved by owner (2026-11-14)**.
+13. **دامنه‌های ترجمه:** پیشنهاد: `efb-calc`، `efb-typed-signature`، `efb-address`، `efb-booking` (الگوی `efb-<slug>`). — **approved by owner (2026-11-14)**.
+14. **`AdnGEO` وقتی حالت IP فرم `none` است جست‌وجو کند؟** پیشنهاد: بله، فقط اگر `geo_on` روشن و متن اطلاع‌رسانی نمایش داده شود؛ IP هرگز به‌خاطر این ویژگی ذخیره نمی‌شود. پلن `AdnGEO` تصمیم گرفته شد: Free Plus و Pro. — **approved by owner (2026-11-14)**.
+15. **ارائه‌دهندهٔ سوم (مثلاً MaxMind GeoLite2 محلی، بی‌درخواست بیرونی)؟** پیشنهاد: فاز ۲ از راه فیلتر `efb_geo_providers`؛ برای سایت‌هایی که نمی‌خواهند IP را بیرون بفرستند. — **approved by owner (2026-11-14)**.
 
 ---
 

@@ -460,6 +460,17 @@ class Emsfb {
             }
         }
 
+        // SPLIT §4: the add-on catalogue (one table of every add-on), the contracts core keeps for the features that
+        // left it, the keys of absent add-ons kept on save, and the glue (notices, upgrade scan, registry entries).
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-addon-catalog.php')) {
+            \Emsfb\Addon_Catalog::register();
+        }
+        $this->require_plugin_file_efb('includes/addon-contracts-functions-efb.php');
+        $this->require_plugin_file_efb('includes/class-Emsfb-addon-keys.php');
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-split.php') && method_exists('\Emsfb\Split', 'register')) {
+            \Emsfb\Split::register();
+        }
+
         // F08: smart tags, hidden fields, answer piping and URL prefill (one resolver, server twin of
         // smart-tags-efb.js). Optional: every caller checks class_exists('\Emsfb\Smart_Tags').
         if ($this->require_plugin_file_efb('includes/class-Emsfb-smart-tags.php')) {
@@ -744,6 +755,12 @@ class Emsfb {
 			// vendor/<dir>/routes-efb.php registers the gateway on efb_register_payment_gateways.
 			if ( class_exists( '\\Emsfb\\Payments\\Registry' ) ) {
 				\Emsfb\Payments\Registry::load_addons( $ac_routes, $this->plugin_path );
+			}
+
+			// SPLIT add-ons (Addon_Catalog loader "routes"): vendor/<dir>/routes-efb.php of every add-on that is on,
+			// compatible and on the site's plan; the file checks its contract version and registers its hooks.
+			if ( class_exists( '\\Emsfb\\Addon_Catalog' ) ) {
+				\Emsfb\Addon_Catalog::load( $ac_routes, $this->plugin_path );
 			}
 
 			if ( ! empty( $ac_routes->AdnPPF ) && emsfb_is_addon_compatible_efb( 'AdnPPF' ) ) {

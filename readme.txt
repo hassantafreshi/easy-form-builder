@@ -482,6 +482,9 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = Unreleased =
 
+* Fix: a paid form whose amount comes from a calculation is never charged without that part: when the calculation engine is not available the payment is refused before the payment page opens (pay_calc_unavailable), and the payment readiness says why.
+* Fix: saving a form on a site where an add-on it uses is not active keeps that add-on's settings (formulas, number format, typed-signature mode, postal format, booking dates) instead of removing them; the save answer says which were kept (addon_keys_kept).
+* Developers: one add-on catalogue (Emsfb\Addon_Catalog, filter efb_addon_catalog) for the add-on keys, plans, required files and the builder's mirror; efb_addon_contracts() reports the contracts core keeps for features that are add-ons; capabilities.split in efb_var.capabilities.
 * New: Undo and Redo in the form builder (toolbar buttons, Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z): every change — a field added, moved, duplicated or deleted, a setting, an option, a step, the form settings, a change made by the AI assistant — can be taken back; the message names what was undone.
 * New: Form versions: every save keeps a version of the form (who saved it and how). The Versions dialog in the builder shows them, lists the fields of a version, compares it with the form now and restores it (it opens unsaved, so you can look before saving, and Undo takes it back). Settings › General sets how many are kept (Free 3, Free Plus 10, Pro 50).
 * New: Search the field list of the builder by name or by other words (for example "phone" finds Mobile and Phone, in any language), together with the categories; Enter adds the first field found.

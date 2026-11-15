@@ -41,15 +41,16 @@ $t('field_templates("efbmock"): one row of the gateway type and a form_patch', a
 $m = Builder_Api::field_templates('mollie', array('text' => array()));
 $t('field_templates("mollie") without its add-on → addon_required', $m instanceof WP_Error ? $m->get_error_code() : $m, 'addon_required');
 
-$fn = file_get_contents(__DIR__ . '/../includes/functions.php');
+// SPLIT §4.4: addon_required_package_efb() and the key list read one table, Emsfb\Addon_Catalog::ADDONS.
+$fn = file_get_contents(__DIR__ . '/../includes/class-Emsfb-addon-catalog.php');
 $js = file_get_contents(__DIR__ . '/../includes/admin/assets/js/admin-efb.js');
 $ok = true;
 foreach (array('AdnMOL', 'AdnPPG', 'AdnTAP', 'AdnOMS', 'AdnPTB', 'AdnPMB', 'AdnXND') as $k) {
-	if (!preg_match("/'{$k}' => 3,/", $fn)) $ok = false;
+	if (!preg_match("/\\t'{$k}' => array\\([^\\n]*'package' => 3,/", $fn)) $ok = false;
 	if (strpos($js, "'{$k}'") === false) $ok = false;
-	if (strpos($fn, "'{$k}', //") === false) $ok = false;
+	if (strpos(file_get_contents(__DIR__ . '/../includes/functions.php'), 'return \\Emsfb\\Addon_Catalog::keys();') === false) $ok = false;
 }
 $t('the seven gateway add-ons: Free Plus in addon_required_package_efb(), in its JS twin and in the add-on key list', $ok, true);
-$t('add-on names have phrases (ADDON_LABEL_KEYS → text_efb)', strpos($fn, '"mollieTAddon" =>') !== false && Builder_Api::ADDON_LABEL_KEYS['AdnXND'] === 'xenditTAddon', true);
+$t('add-on names have phrases (ADDON_LABEL_KEYS → text_efb)', strpos(file_get_contents(__DIR__ . '/../includes/functions.php'), '"mollieTAddon" =>') !== false && Builder_Api::ADDON_LABEL_KEYS['AdnXND'] === 'xenditTAddon', true);
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

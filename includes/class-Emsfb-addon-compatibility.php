@@ -82,6 +82,15 @@ class Emsfb_Addon_Compatibility {
 			$requirements[ $key ] = array( 'name' => $name, 'functions' => $gateway );
 		}
 
+		// SPLIT §4.4: every other add-on of the catalogue (Emsfb\Addon_Catalog), with its name and no special function.
+		if ( class_exists( '\\Emsfb\\Addon_Catalog' ) ) {
+			foreach ( \Emsfb\Addon_Catalog::all() as $key => $entry ) {
+				if ( ! isset( $requirements[ $key ] ) ) {
+					$requirements[ $key ] = array( 'name' => $entry['name'], 'functions' => array() );
+				}
+			}
+		}
+
 		return function_exists( 'apply_filters' )
 			? apply_filters( 'emsfb_addon_php_requirements', $requirements )
 			: $requirements;

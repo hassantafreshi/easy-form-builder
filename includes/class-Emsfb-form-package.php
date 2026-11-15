@@ -350,6 +350,11 @@ class Form_Package {
 		// The save path of the builder / AutoPilot.
 		$p = self::prepare_rows($rows);
 		if ($p['error']) { $out['errors'][] = $p['error']; return $out; }
+		// SPLIT §4.2: the keys of an add-on that is not active on this site are not imported (dropped, addon_inactive).
+		if (class_exists('\\Emsfb\\Addon_Keys')) {
+			list($p['rows'], $ak_dropped) = Addon_Keys::drop_for_import($p['rows']);
+			$out['dropped'] = array_merge($out['dropped'], $ak_dropped);
+		}
 		$out['form'] = array('form_name' => isset($form['form_name']) && is_scalar($form['form_name']) ? self::text((string) $form['form_name'], 250) : '', 'form_type' => (string) $p['rows'][0]['type'], 'form_structer' => $p['rows']);
 		$out['notices'] = array_merge($out['notices'], self::import_warnings($p['rows']), $p['warnings']);
 		$out['extras'] = isset($package['extras']) && is_array($package['extras']) ? $package['extras'] : array();

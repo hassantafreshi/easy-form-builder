@@ -441,6 +441,9 @@ class Panel_edit  {
 					// PAY00 readiness: the forms with a payment field that visitors cannot pay with now (badge in the list).
 					'pay_not_ready' => class_exists('\\Emsfb\\Payments\\Readiness') ? (object) \Emsfb\Payments\Readiness::not_ready_forms() : (object) array(),
 					'pay_badge' => array('label' => __('Payment setup incomplete', 'easy-form-builder'), 'hint' => __('Visitors cannot pay with this form yet. Open it to see what is missing.', 'easy-form-builder')),
+					// SPLIT: the forms that use a feature whose add-on is not usable now (badge "Needs the X add-on").
+					'split_forms' => class_exists('\\Emsfb\\Split') ? (object) \Emsfb\Split::forms_needing() : (object) array(),
+					'split_badge' => class_exists('\\Emsfb\\Split') ? \Emsfb\Split::badge_texts() : array(),
 					'messages_state' =>$this->get_not_read_message(),
 					'response_state' =>$this->get_not_read_response(),
 					'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg',

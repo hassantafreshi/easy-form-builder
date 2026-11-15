@@ -148,6 +148,8 @@ class Builder_Api {
 		// PAY00 gateway add-ons.
 		'AdnMOL' => 'mollieTAddon', 'AdnPPG' => 'payplugTAddon', 'AdnTAP' => 'tapTAddon', 'AdnOMS' => 'omiseTAddon',
 		'AdnPTB' => 'paytabsTAddon', 'AdnPMB' => 'paymobTAddon', 'AdnXND' => 'xenditTAddon',
+		// SPLIT add-ons.
+		'AdnCLC' => 'TAdnCLC', 'AdnTSG' => 'TAdnTSG', 'AdnADR' => 'TAdnADR', 'AdnBEF' => 'TAdnBEF', 'AdnGEO' => 'TAdnGEO',
 	);
 
 	/** B9: row-0 keys that no JS or PHP reads (checked by tests/test-ap-b9-deprecated-keys.js). */
@@ -207,12 +209,12 @@ class Builder_Api {
 		$settings = is_array($settings) ? (object) $settings : (is_object($settings) ? $settings : new \stdClass());
 		$fn = function_exists('get_efbFunction') ? get_efbFunction() : null;
 
-		$addon_keys = ($fn && method_exists($fn, 'get_all_addon_keys_efb')) ? $fn->get_all_addon_keys_efb()
-			: array('AdnSPF', 'AdnOF', 'AdnPPF', 'AdnATC', 'AdnSS', 'AdnCPF', 'AdnESZ', 'AdnSE', 'AdnWHS', 'AdnPAP', 'AdnWSP', 'AdnSMF', 'AdnPLF', 'AdnMSF', 'AdnBEF', 'AdnPDP', 'AdnADP', 'AdnATF', 'AdnTLG', 'AdnGoS', 'AdnHSH', 'AdnMOL', 'AdnPPG', 'AdnTAP', 'AdnOMS', 'AdnPTB', 'AdnPMB', 'AdnXND');
+		// SPLIT §4.4: without the plugin's function object (tests, CLI) the add-on catalogue is read directly.
+		if (!class_exists('\\Emsfb\\Addon_Catalog') && is_readable(__DIR__ . '/class-Emsfb-addon-catalog.php')) require_once __DIR__ . '/class-Emsfb-addon-catalog.php';
+		$addon_keys = ($fn && method_exists($fn, 'get_all_addon_keys_efb')) ? $fn->get_all_addon_keys_efb() : Addon_Catalog::keys();
 		$addon_level = function ($code) use ($fn) {
 			if ($fn && method_exists($fn, 'addon_required_package_efb')) return (int) $fn->addon_required_package_efb($code);
-			$t = array('AdnOF' => 0, 'AdnSMF' => 3, 'AdnSPF' => 3, 'AdnPAP' => 3, 'AdnMOL' => 3, 'AdnPPG' => 3, 'AdnTAP' => 3, 'AdnOMS' => 3, 'AdnPTB' => 3, 'AdnPMB' => 3, 'AdnXND' => 3);
-			return isset($t[$code]) ? $t[$code] : 1;
+			return Addon_Catalog::package($code);
 		};
 		$installed = function ($code) use ($settings) {
 			if (isset($settings->$code)) return intval($settings->$code) === 1;
@@ -384,7 +386,7 @@ class Builder_Api {
 				// also carries payment_ready / payment_issues.
 				'readiness' => array('rest' => function_exists('rest_url') ? rest_url('Emsfb/v1/payments/readiness') : '/wp-json/Emsfb/v1/payments/readiness', 'methods' => array('GET', 'POST'),
 					'builder' => 'efbBuilderApi.paymentReadiness', 'save_answer' => array('payment_ready', 'payment_issues'),
-					'codes' => array('pay_addon_inactive', 'pay_plan', 'pay_not_configured', 'pay_currency', 'pay_amount_limit', 'pay_method_currency', 'pay_option_required', 'pay_option_field_missing', 'pay_multiple_fields', 'pay_form_type', 'pay_gw_*'),
+					'codes' => array('pay_addon_inactive', 'pay_plan', 'pay_not_configured', 'pay_currency', 'pay_amount_limit', 'pay_method_currency', 'pay_option_required', 'pay_option_field_missing', 'pay_multiple_fields', 'pay_form_type', 'pay_calc_plan', 'pay_calc_unavailable', 'pay_gw_*'),
 					'visitor_code' => 'pay_not_ready'));
 		}
 		return function_exists('apply_filters') ? apply_filters('efb_capabilities', $out, $args) : $out;

@@ -240,10 +240,11 @@ efb_rmtree( $tmp_root );
 
 echo "\n--- C. guards agree with get_addon_required_files_efb() ---\n";
 
-$functions_src = file_get_contents( $plugin_dir . '/includes/functions.php' );
+// SPLIT §4.4: get_addon_required_files_efb() reads the add-on catalogue (Emsfb\Addon_Catalog::ADDONS, 'files').
+$functions_src = file_get_contents( $plugin_dir . '/includes/class-Emsfb-addon-catalog.php' );
 $manifest      = array();
-if ( preg_match( '/function get_addon_required_files_efb\(\)\s*\{(.*?)\n\t\}/s', $functions_src, $m ) ) {
-	if ( preg_match_all( '/\'(Adn[A-Za-z]+)\'\s*=>\s*array\(\s*\'([^\']+)\'/', $m[1], $rows, PREG_SET_ORDER ) ) {
+if ( preg_match( '/const ADDONS = array\((.*?)\n\t\);/s', $functions_src, $m ) ) {
+	if ( preg_match_all( '/\'(Adn[A-Za-z]+)\'\s*=>\s*array\([^\n]*?\'files\'\s*=>\s*array\(\s*\'([^\']+)\'/', $m[1], $rows, PREG_SET_ORDER ) ) {
 		foreach ( $rows as $row ) {
 			$manifest[ $row[1] ] = efb_normalise_vendor_path( $row[2] );
 		}

@@ -200,6 +200,7 @@ class Service {
 			case 'retry_unavailable':
 				return __( 'This payment can no longer be started again here. Please reload the page and send the form again.', 'easy-form-builder' );
 			case 'pay_not_ready':
+			case 'pay_calc_unavailable': // SPLIT §6.3: the amount needs the calculation add-on
 				return Readiness::visitor_text();
 			// F11 form gate on payments/create and payments/retry: the gate's own sentence (closed, full, …).
 			case 'efb_form_pending':

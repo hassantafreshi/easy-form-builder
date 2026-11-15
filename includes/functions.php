@@ -3987,6 +3987,42 @@ class efbFunction {
 			"TAdnGoS" => $state  &&  isset($ac->text->TAdnGoS) ? $ac->text->TAdnGoS : esc_html__('Google Sheet Add-on','easy-form-builder'),
 			/* translators: Google Sheet add-on card description on the Add-ons page */
 			"DAdnGoS" => $state  &&  isset($ac->text->DAdnGoS) ? $ac->text->DAdnGoS : esc_html__('Automatically send form submissions to your Google Sheets in real time. Connect a service account, map fields to columns, and keep a live, styled spreadsheet of every response — no webhook or browser login required.','easy-form-builder'),
+			/* translators: Numbers & Calculations add-on card title on the Add-ons page (SPLIT) */
+			"TAdnCLC" => $state && isset($ac->text->TAdnCLC) ? $ac->text->TAdnCLC : esc_html__('Numbers & Calculations','easy-form-builder'),
+			/* translators: Numbers & Calculations add-on card description on the Add-ons page */
+			"DAdnCLC" => $state && isset($ac->text->DAdnCLC) ? $ac->text->DAdnCLC : esc_html__('Number format, steps and decimals, two-handle sliders, calculated fields with formulas, calculation values on choices and a calculated amount to pay.','easy-form-builder'),
+			/* translators: Typed Signature add-on card title on the Add-ons page (SPLIT) */
+			"TAdnTSG" => $state && isset($ac->text->TAdnTSG) ? $ac->text->TAdnTSG : esc_html__('Typed Signature','easy-form-builder'),
+			/* translators: Typed Signature add-on card description on the Add-ons page */
+			"DAdnTSG" => $state && isset($ac->text->DAdnTSG) ? $ac->text->DAdnTSG : esc_html__('Let visitors sign by typing their name in a handwriting font, beside or instead of drawing.','easy-form-builder'),
+			/* translators: Address & Postal add-on card title on the Add-ons page (SPLIT) */
+			"TAdnADR" => $state && isset($ac->text->TAdnADR) ? $ac->text->TAdnADR : esc_html__('Address & Postal','easy-form-builder'),
+			/* translators: Address & Postal add-on card description on the Add-ons page */
+			"DAdnADR" => $state && isset($ac->text->DAdnADR) ? $ac->text->DAdnADR : esc_html__('Postal code formats for 18 countries, the map field and address search.','easy-form-builder'),
+			/* translators: Booking add-on card title on the Add-ons page (SPLIT) */
+			"TAdnBEF" => $state && isset($ac->text->TAdnBEF) ? $ac->text->TAdnBEF : esc_html__('Booking','easy-form-builder'),
+			/* translators: Booking add-on card description on the Add-ons page */
+			"DAdnBEF" => $state && isset($ac->text->DAdnBEF) ? $ac->text->DAdnBEF : esc_html__('Edit booking forms: an end date and a number of places for each choice, and booking availability for dates.','easy-form-builder'),
+			/* translators: Visitor Country add-on card title on the Add-ons page (SPLIT) */
+			"TAdnGEO" => $state && isset($ac->text->TAdnGEO) ? $ac->text->TAdnGEO : esc_html__('Visitor Country','easy-form-builder'),
+			/* translators: Visitor Country add-on card description on the Add-ons page */
+			"DAdnGEO" => $state && isset($ac->text->DAdnGEO) ? $ac->text->DAdnGEO : esc_html__('Fill a hidden field with the visitor\'s country, found from the IP address by the service you choose with your own API key.','easy-form-builder'),
+			/* translators: %s: name of an Easy Form Builder add-on (a product name, not translated). Shown on a field or form whose feature is now an add-on */
+			"addonNeededT" => $state && isset($ac->text->addonNeededT) ? $ac->text->addonNeededT : esc_html__('Needs the %s add-on','easy-form-builder'),
+			/* translators: Button that installs an Easy Form Builder add-on */
+			"addonInstallBtn" => $state && isset($ac->text->addonInstallBtn) ? $ac->text->addonInstallBtn : esc_html__('Install','easy-form-builder'),
+			/* translators: %s: name of an Easy Form Builder add-on (a product name) */
+			"addonKeysKept" => $state && isset($ac->text->addonKeysKept) ? $ac->text->addonKeysKept : esc_html__('Settings of %s are kept until the add-on is installed.','easy-form-builder'),
+			/* translators: Admin message: a payment form whose amount comes from the calculation add-on */
+			"payCalcUnavailable" => $state && isset($ac->text->payCalcUnavailable) ? $ac->text->payCalcUnavailable : esc_html__('The amount of this form is calculated by an add-on that is not active. Payment is paused.','easy-form-builder'),
+			/* translators: %s: name of an Easy Form Builder add-on (a product name) */
+			"addonUpdateNeeded" => $state && isset($ac->text->addonUpdateNeeded) ? $ac->text->addonUpdateNeeded : esc_html__('Update %s to keep using it with this version.','easy-form-builder'),
+			/* translators: Card in the forms panel pointing to the separate free plugin Easy Form Builder Data Tools */
+			"dataToolsCard" => $state && isset($ac->text->dataToolsCard) ? $ac->text->dataToolsCard : esc_html__('Import and export forms with Easy Form Builder Data Tools (free).','easy-form-builder'),
+			/* translators: Admin notice on a date field that uses booking availability without the Booking add-on */
+			"bkCapUnchecked" => $state && isset($ac->text->bkCapUnchecked) ? $ac->text->bkCapUnchecked : esc_html__('Capacity is not checked until Booking is installed.','easy-form-builder'),
+			/* translators: Visitor sees this in place of a field whose add-on is not active */
+			"addonFieldNotice" => $state && isset($ac->text->addonFieldNotice) ? $ac->text->addonFieldNotice : esc_html__('This field needs an add-on that is not active on this site.','easy-form-builder'),
 			/* translators: Validation message shown when a required form field is left empty */
 			"fillrequiredfields" => $state && isset($ac->text->fillrequiredfields) ? $ac->text->fillrequiredfields : esc_html__('Please fill in all required fields', 'easy-form-builder'),
 
@@ -7580,22 +7616,14 @@ class efbFunction {
 	 * @return int
 	 */
 	public function addon_required_package_efb($addon) {
-		static $tiers = array(
-			'AdnOF'  => 0, // Offline Forms - free on every plan
-			'AdnSMF' => 3, // Conditional Logic - Free Plus and Pro
-			'AdnSPF' => 3, // Stripe payments - Free Plus and Pro since 4.3.1
-			'AdnPAP' => 3, // PayPal payments - Free Plus and Pro since 4.3.1
-			// PAY00 gateway add-ons: Free Plus, like Stripe and PayPal (proposed default; owner to confirm).
-			'AdnMOL' => 3, // Mollie
-			'AdnPPG' => 3, // Payplug
-			'AdnTAP' => 3, // Tap Payments
-			'AdnOMS' => 3, // Omise
-			'AdnPTB' => 3, // PayTabs
-			'AdnPMB' => 3, // Paymob
-			'AdnXND' => 3, // Xendit
-		);
-		$addon = (string) $addon;
-		return isset($tiers[$addon]) ? $tiers[$addon] : 1;
+		// SPLIT §4.4: one table (Emsfb\Addon_Catalog::ADDONS, filter efb_addon_catalog); an unknown key is Pro.
+		$this->addon_catalog_loaded_efb();
+		return class_exists('\\Emsfb\\Addon_Catalog') ? \Emsfb\Addon_Catalog::package((string) $addon) : 1;
+	}
+
+	/** SPLIT §4.4: the add-on catalogue is loaded even when this file runs without the plugin bootstrap (tests, CLI). */
+	private function addon_catalog_loaded_efb() {
+		if (!class_exists('\\Emsfb\\Addon_Catalog') && is_readable(__DIR__ . '/class-Emsfb-addon-catalog.php')) require_once __DIR__ . '/class-Emsfb-addon-catalog.php';
 	}
 
 	/**
@@ -7625,7 +7653,8 @@ class efbFunction {
 		$allowed = array();
 		foreach ($this->get_all_addon_keys_efb() as $key) {
 			$required = $this->addon_required_package_efb($key);
-			if (0 === $required || 1 === $package_type || (3 === $package_type && 3 === $required)) {
+			if (0 === $required || 1 === $package_type || (3 === $package_type && 3 === $required)
+				|| (class_exists('\\Emsfb\\Addon_Catalog') && \Emsfb\Addon_Catalog::grandfathered($key))) {
 				$allowed[] = $key;
 			}
 		}
@@ -7653,6 +7682,12 @@ class efbFunction {
 			return true;
 		}
 		if (3 === $local_package && 3 === $required) {
+			return true;
+		}
+		// SPLIT open question 2 (approved by owner 2026-11-14): a site that used a feature on its plan before the
+		// feature became an add-on keeps it (emsfb_split_scan.grandfather, written by the upgrade scan).
+		$this->addon_catalog_loaded_efb();
+		if (class_exists('\\Emsfb\\Addon_Catalog') && \Emsfb\Addon_Catalog::grandfathered($addon)) {
 			return true;
 		}
 
@@ -7698,37 +7733,9 @@ class efbFunction {
 	 * @return array<int, string>
 	 */
 	public function get_all_addon_keys_efb(){
-		return array(
-			'AdnSPF', // Stripe payment gateway
-			'AdnOF',  // Offline Forms
-			'AdnPPF', // Persia Payment
-			'AdnATC', // Advanced Tracking Code
-			'AdnSS',  // SMS notifications
-			'AdnCPF', // AdnCPF add-on (reserved)
-			'AdnESZ', // AdnESZ add-on (reserved)
-			'AdnSE',  // Search Entry
-			'AdnWHS', // Webhook
-			'AdnPAP', // PayPal payment gateway
-			'AdnWSP', // AdnWSP add-on (reserved)
-			'AdnSMF', // Conditional Logic (smart form)
-			'AdnPLF', // AdnPLF add-on (reserved)
-			'AdnMSF', // AdnMSF add-on (reserved)
-			'AdnBEF', // Booking
-			'AdnPDP', // Persian (Jalali) Date Picker
-			'AdnADP', // Arabic (Hijri) Date Picker
-			'AdnATF', // Auto-Populate / Autofill
-			'AdnTLG', // Telegram notifications
-			'AdnGoS', // Google Sheet integration
-			'AdnHSH', // Human Shield (form security & spam protection)
-			// PAY00 payment gateway add-ons (vendor/<folder>/routes-efb.php registers the gateway).
-			'AdnMOL', // Mollie (mollie)
-			'AdnPPG', // Payplug (payplug)
-			'AdnTAP', // Tap Payments (tappay)
-			'AdnOMS', // Omise (omise)
-			'AdnPTB', // PayTabs (paytabs)
-			'AdnPMB', // Paymob (paymob)
-			'AdnXND', // Xendit (xendit)
-		);
+		// SPLIT §4.4: read from Emsfb\Addon_Catalog::ADDONS (filter efb_addon_catalog), historical order first.
+		$this->addon_catalog_loaded_efb();
+		return \Emsfb\Addon_Catalog::keys();
 	}
 
 	/**
@@ -7740,28 +7747,9 @@ class efbFunction {
 	 * @return array<string, array<int, string>>
 	 */
 	public function get_addon_required_files_efb(){
-		return array(
-			'AdnSPF' => array( 'vendor/stripe/class-Emsfb-stripe-payment.php' ),
-			'AdnOF'  => array( 'vendor/offline/json/countries.js', 'vendor/offline/json/states/ir.json', 'vendor/offline/json/states/zw.json', 'vendor/offline/json/cites/ir/teh.json', 'vendor/offline/json/cites/zw/mbn.json' ),
-			'AdnPPF' => array( 'vendor/persiapay/zarinpal.php' ),
-			'AdnSS'  => array( 'vendor/smssended/smsefb.php' ),
-			'AdnPDP' => array( 'vendor/persiadatepicker/persiandate.php' ),
-			'AdnADP' => array( 'vendor/arabicdatepicker/arabicdate.php' ),
-			'AdnPAP' => array( 'vendor/paypal/paypalefb.php' ),
-			'AdnTLG' => array( 'vendor/telegram/telegram-new-efb.php' ),
-			'AdnATF' => array( 'vendor/autofill/autofillefb.php' ),
-			'AdnGoS' => array( 'vendor/googlesheet/class-Emsfb-googlesheet.php' ),
-			'AdnSMF' => array( 'vendor/logic/logic/class-Emsfb-logic-validator.php' ),
-			'AdnHSH' => array( 'vendor/human-shield/human-shield-efb.php' ),
-			// PAY00 gateway add-ons: the file that registers the gateway.
-			'AdnMOL' => array( 'vendor/mollie/routes-efb.php' ),
-			'AdnPPG' => array( 'vendor/payplug/routes-efb.php' ),
-			'AdnTAP' => array( 'vendor/tappay/routes-efb.php' ),
-			'AdnOMS' => array( 'vendor/omise/routes-efb.php' ),
-			'AdnPTB' => array( 'vendor/paytabs/routes-efb.php' ),
-			'AdnPMB' => array( 'vendor/paymob/routes-efb.php' ),
-			'AdnXND' => array( 'vendor/xendit/routes-efb.php' ),
-		);
+		// SPLIT §4.4: the files of each add-on come from Emsfb\Addon_Catalog::ADDONS.
+		$this->addon_catalog_loaded_efb();
+		return \Emsfb\Addon_Catalog::required_files();
 	}
 
 	/**
@@ -7794,7 +7782,13 @@ class efbFunction {
 			'AdnPTB' => array( 'vendor/paytabs/paytabs-phrases-efb.php', 'vendor/paytabs/languages/locales.json' ),
 			'AdnPMB' => array( 'vendor/paymob/paymob-phrases-efb.php', 'vendor/paymob/languages/locales.json' ),
 			'AdnXND' => array( 'vendor/xendit/xendit-phrases-efb.php', 'vendor/xendit/languages/locales.json' ),
-		);
+		) + ( $this->addon_catalog_i18n_efb() );
+	}
+
+	/** SPLIT add-ons: their phrase files from the catalogue (own text domain efb-<dir>). */
+	private function addon_catalog_i18n_efb() {
+		$this->addon_catalog_loaded_efb();
+		return class_exists('\\Emsfb\\Addon_Catalog') ? \Emsfb\Addon_Catalog::i18n_files() : array();
 	}
 
 	/**

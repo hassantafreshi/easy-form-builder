@@ -29,6 +29,7 @@ const check = (label, ok, detail) => {
 
 const API = path.join(ROOT, 'includes/class-Emsfb-builder-api.php').replace(/\\/g, '/');
 const FUNCS = path.join(ROOT, 'includes/functions.php').replace(/\\/g, '/');
+const CATALOG = path.join(ROOT, 'includes/class-Emsfb-addon-catalog.php').replace(/\\/g, '/');
 function php() {
   const out = execFileSync('php', ['-r', `
     define('ABSPATH','/'); define('EMSFB_PLUGIN_VERSION','4.3.1'); define('EMSFB_API_VERSION',1);
@@ -36,10 +37,9 @@ function php() {
     function get_option($k, $d = false) { return array_key_exists($k, $GLOBALS['opt']) ? $GLOBALS['opt'][$k] : $d; }
     function add_filter() {} function apply_filters($h, $v) { return $v; }
     function get_setting_Emsfb($m = 'decoded') { return (object) array('AdnSPF' => 1, 'AdnSS' => 0, 'AdnPAP' => 0, 'AdnSMF' => 1); }
-    $src = file_get_contents('${FUNCS}');
-    preg_match('/static \\$tiers = array\\(([\\s\\S]*?)\\);/', $src, $m);
-    preg_match_all("/'(Adn\\\\w+)'\\\\s*=>\\\\s*(\\\\d)/", $m[1], $mm, PREG_SET_ORDER);
-    $GLOBALS['tiers'] = array(); foreach ($mm as $t) $GLOBALS['tiers'][$t[1]] = (int) $t[2];
+    // SPLIT §4.4: the add-on plans are one table (Emsfb\\Addon_Catalog::ADDONS).
+    require '${CATALOG}';
+    $GLOBALS['tiers'] = array(); foreach (\\Emsfb\\Addon_Catalog::ADDONS as $k => $e) $GLOBALS['tiers'][$k] = (int) $e['package'];
     class F { public function addon_required_package_efb($a) { return isset($GLOBALS['tiers'][$a]) ? $GLOBALS['tiers'][$a] : 1; } }
     function get_efbFunction() { return new F(); }
     require '${API}';

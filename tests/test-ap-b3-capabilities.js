@@ -76,11 +76,11 @@ c.check('efb_feature_required_package_efb(): 3 for esign, 1 for an unknown key (
 const json = JSON.stringify(free) + JSON.stringify(fplus) + JSON.stringify(pro);
 c.check('no secret in the output (keys reported as configured true/false)', !json.includes('SECRET123') && !json.includes('PUBLIC123') && free.caps.payment_keys.stripe === true && free.caps.payment_keys.paypal === false, free.caps.payment_keys);
 
-// Add-on levels equal addon_required_package_efb() in functions.php.
-const fn = fs.readFileSync(path.join(ROOT, 'includes/functions.php'), 'utf8');
+// Add-on levels equal addon_required_package_efb(), which reads the add-on catalogue (SPLIT §4.4, Emsfb\Addon_Catalog::ADDONS).
+const fn = fs.readFileSync(path.join(ROOT, 'includes/class-Emsfb-addon-catalog.php'), 'utf8');
 const tiers = {};
-(fn.match(/static \$tiers = array\(([\s\S]*?)\);/) || ['', ''])[1].replace(/'(Adn\w+)'\s*=>\s*(\d)/g, (m, k, v) => { tiers[k] = Number(v); return m; });
-const keys = (fn.match(/function get_all_addon_keys_efb\(\)\{\s*return array\(([\s\S]*?)\);/) || ['', ''])[1].match(/'(Adn\w+)'/g).map((s) => s.slice(1, -1));
+const keys = [];
+(fn.match(/const ADDONS = array\(([\s\S]*?)\n\t\);/) || ['', ''])[1].replace(/\t'(Adn\w+)'\s*=>\s*array\([^\n]*'package' => (\d)/g, (m, k, v) => { tiers[k] = Number(v); keys.push(k); return m; });
 const lvl = (n) => (n === 0 ? 'free' : n === 3 ? 'free_plus' : 'pro');
 const bad = keys.filter((k) => F(free, 'addon:' + k).package !== lvl(k in tiers ? tiers[k] : 1));
 c.check(`every add-on (${keys.length}) has the level of addon_required_package_efb()`, keys.length >= 20 && bad.length === 0, bad);

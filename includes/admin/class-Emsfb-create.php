@@ -517,6 +517,11 @@ class Create {
 			list($valp, $layout_warn_efb) = \Emsfb\Layout::normalize_rows($valp, null);
 			$save_warnings_efb = array_merge(isset($save_warnings_efb) ? $save_warnings_efb : array(), $layout_warn_efb);
 		}
+		// SPLIT §4.2: keys of an add-on that is not active are not written on a new form (addon_keys_dropped).
+		if (is_array($valp) && class_exists('\\Emsfb\\Addon_Keys')) {
+			list($valp, $addon_keys_warn_efb) = \Emsfb\Addon_Keys::keep($valp, null);
+			$save_warnings_efb = array_merge(isset($save_warnings_efb) ? $save_warnings_efb : array(), $addon_keys_warn_efb);
+		}
 		// F08: a tag in the redirect host, an answer from a later step, a hidden value that stores personal data; never refuses.
 		if (is_array($valp) && class_exists('\\Emsfb\\Smart_Tags')) {
 			$save_warnings_efb = array_merge(isset($save_warnings_efb) ? $save_warnings_efb : array(), \Emsfb\Smart_Tags::form_warnings_text($valp, isset($lang) && is_array($lang) ? $lang : array()));

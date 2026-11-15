@@ -24,7 +24,8 @@ $t = function ($name, $actual, $expected) use (&$passed, &$failed) {
 $dir = is_dir(__DIR__ . '/../vendor/xendit') ? realpath(__DIR__ . '/../vendor/xendit') : '/home/user/vendores-efb/xendit';
 $zip = dirname($dir) . '/xendit.zip';
 
-$fn = file_get_contents(__DIR__ . '/../includes/functions.php');
+// SPLIT §4.4: the required files live in the add-on catalogue (class-Emsfb-addon-catalog.php), the phrase files in functions.php.
+$fn = file_get_contents(__DIR__ . '/../includes/functions.php') . file_get_contents(__DIR__ . '/../includes/class-Emsfb-addon-catalog.php');
 preg_match_all("#'vendor/xendit/([^']+)'#", $fn, $m);
 $missing = array_values(array_filter(array_unique($m[1]), function ($f) use ($dir) { return !is_file($dir . '/' . $f); }));
 $t('core\'s required-file maps name routes-efb.php, xendit-phrases-efb.php, languages/locales.json, and they exist', array(count(array_unique($m[1])) >= 3, $missing), array(true, array()));

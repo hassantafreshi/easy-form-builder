@@ -562,6 +562,12 @@ function fun_default_addons_efb_admin() {
     {id:12, name:'AdnGoS', title:'TAdnGoS', desc:'DAdnGoS', icon:'bi-file-earmark-spreadsheet', link:'', download:true, pro:true, state:true, tag:'form integration google sheet spreadsheet data export sync', version:0.1, v_required:4.1, package:4},
     {id:10, name:'AdnSMF', title:'condATAddon', desc:'condADAddon', icon:'bi-diagram-3', link:'', download:true, pro:false, state:true, tag:'form logic conditional smart', version:0.1, v_required:4.0, package:1},
     {id:11, name:'AdnHSH', title:'TAdnHSH', desc:'DAdnHSH', icon:'bi-shield-check', link:'', download:true, pro:true, state:true, tag:'form security spam protection rate limit', version:0.1, v_required:4.1, package:4},
+    /* SPLIT: features that left core (plans from efb_var.addon_catalog: Emsfb\Addon_Catalog). */
+    {id:20, name:'AdnCLC', title:'TAdnCLC', desc:'DAdnCLC', icon:'bi-calculator', link:'', download:true, pro:true, state:true, tag:'number calculation formula price slider', version:1.0, v_required:4.3, package:3},
+    {id:21, name:'AdnTSG', title:'TAdnTSG', desc:'DAdnTSG', icon:'bi-pen', link:'', download:true, pro:true, state:true, tag:'signature typed font', version:1.0, v_required:4.3, package:3},
+    {id:22, name:'AdnADR', title:'TAdnADR', desc:'DAdnADR', icon:'bi-geo-alt', link:'', download:true, pro:false, state:true, tag:'address postal zip map location', version:1.0, v_required:4.3, package:0},
+    {id:23, name:'AdnBEF', title:'TAdnBEF', desc:'DAdnBEF', icon:'bi-calendar-check', link:'', download:true, pro:true, state:true, tag:'booking reservation capacity date', version:1.0, v_required:4.3, package:1},
+    {id:24, name:'AdnGEO', title:'TAdnGEO', desc:'DAdnGEO', icon:'bi-globe', link:'', download:true, pro:true, state:true, tag:'country ip geolocation hidden', version:1.0, v_required:4.3, package:3},
   ];
 }
 
@@ -1288,6 +1294,9 @@ createCardFormEfb = (i) => {
    sold; it cannot place one in the Free Plus tier. */
 function efb_addon_required_package_efb(item) {
   const name = typeof item === 'string' ? item : (item && item.name);
+  /* SPLIT §4.4: the server's add-on catalogue (Emsfb\Addon_Catalog, efb_var.addon_catalog) is the one table. */
+  const cat = (typeof efb_var !== 'undefined' && efb_var && efb_var.addon_catalog) || null;
+  if (cat && name && Object.prototype.hasOwnProperty.call(cat, name) && cat[name] && cat[name].package != null) return Number(cat[name].package);
   if (name === 'AdnOF') return 0;
   if (name === 'AdnSMF') return 3;
   // Stripe and PayPal: Free Plus and Pro since 4.3.1.

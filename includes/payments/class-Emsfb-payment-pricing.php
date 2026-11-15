@@ -25,6 +25,19 @@ class Pricing {
 	const PAY_TYPES = array( 'payRadio', 'paySelect', 'payCheckbox', 'payMultiselect', 'prcfld' );
 
 	/**
+	 * SPLIT §6.3: the calc amounts of a form ({ok, items} / {ok:false, error}), or null when the form has no calc field
+	 * used as the amount. Read without the calculation add-on (efb_form_calc_price_fields()); the add-on computes them.
+	 */
+	public static function computed_items( array $form, array $rows ) {
+		if ( function_exists( 'efb_payment_computed_items' ) ) {
+			if ( ! efb_form_calc_price_fields( $form ) ) return null;
+			return efb_payment_computed_items( $form, $rows );
+		}
+		// A core without the SPLIT contracts file: the engine in core, as before.
+		return class_exists( '\Emsfb\Calc' ) ? \Emsfb\Calc::price_items( $form, $rows ) : null;
+	}
+
+	/**
 	 * @param array $form  Stored form rows (associative arrays; row 0 = settings).
 	 * @param array $rows  Submitted (ideally already validated) rows.
 	 * @param array $ctx   field_id (the payment field), gateway (slug), supports (Gateway::supports()),
@@ -115,8 +128,10 @@ class Pricing {
 
 		// F04-G (Pro): a calc field used as the amount (calc_as_price): the server's own result from the answers;
 		// a calc row or price in the request is never read. A negative amount or a formula that fails is refused.
-		if ( class_exists( '\Emsfb\Calc' ) ) {
-			$cp = \Emsfb\Calc::price_items( $form, $rows );
+		// SPLIT §6.3: the calculation add-on computes it (efb_payment_computed_items); a form that uses one while no
+		// add-on can compute it is refused as a whole (pay_calc_unavailable), never charged without that part.
+		$cp = self::computed_items( $form, $rows );
+		if ( $cp !== null ) {
 			if ( empty( $cp['ok'] ) ) return self::err( $cp['error'], isset( $cp['field_id'] ) ? $cp['field_id'] : '' );
 			foreach ( $cp['items'] as $ci ) {
 				$minor = Money::from_decimal( $ci['value'], $currency, $gateway );

@@ -39,15 +39,14 @@ function apply_filters($h, $v) {
 }
 function get_setting_Emsfb($m = 'decoded') { return (object) array('AdnSPF' => 1); }
 
-/* addon_required_package_efb() as functions.php has it (parsed, so the test follows the real table). */
-$fn_src = file_get_contents(__DIR__ . '/../includes/functions.php');
-preg_match('/static \$tiers = array\(([\s\S]*?)\);/', $fn_src, $m);
-preg_match_all("/'(Adn\w+)'\s*=>\s*(\d)/", $m[1], $mm, PREG_SET_ORDER);
+/* addon_required_package_efb() and get_all_addon_keys_efb() read one table since SPLIT §4.4 (Emsfb\Addon_Catalog::ADDONS);
+   parsed from the source, so the test follows the real table. */
+$fn_src = file_get_contents(__DIR__ . '/../includes/class-Emsfb-addon-catalog.php');
+preg_match('/const ADDONS = array\(([\s\S]*?)\n\t\);/', $fn_src, $m);
+preg_match_all("/\t'(Adn\w+)'\s*=>\s*array\([^\n]*'package' => (\d)/", $m[1], $mm, PREG_SET_ORDER);
 $GLOBALS['tiers'] = array();
 foreach ($mm as $t) $GLOBALS['tiers'][$t[1]] = (int) $t[2];
-preg_match('/function get_all_addon_keys_efb\(\)\{\s*return array\(([\s\S]*?)\);/', $fn_src, $k);
-preg_match_all("/'(Adn\w+)'/", $k[1], $kk);
-$GLOBALS['addon_keys'] = $kk[1];
+$GLOBALS['addon_keys'] = array_keys($GLOBALS['tiers']);
 class EfbPlanGateFn {
 	public function addon_required_package_efb($a) { return isset($GLOBALS['tiers'][$a]) ? $GLOBALS['tiers'][$a] : 1; }
 	public function get_all_addon_keys_efb() { return $GLOBALS['addon_keys']; }

@@ -49,10 +49,9 @@ function capabilities(pkg, settings) {
     function rest_url($p = '') { return '/wp-json/' . $p; }
     function get_setting_Emsfb($m = 'decoded') { return json_decode($GLOBALS['settings']); }
     $GLOBALS['settings'] = stream_get_contents(STDIN);
-    $src = file_get_contents('${FUNCS}');
-    preg_match('/static \\$tiers = array\\(([\\s\\S]*?)\\);/', $src, $m);
-    preg_match_all("/'(Adn\\\\w+)'\\\\s*=>\\\\s*(\\\\d)/", $m[1], $mm, PREG_SET_ORDER);
-    $GLOBALS['tiers'] = array(); foreach ($mm as $t) $GLOBALS['tiers'][$t[1]] = (int) $t[2];
+    // SPLIT §4.4: the add-on plans are one table (Emsfb\\Addon_Catalog::ADDONS).
+    require '${INC}/class-Emsfb-addon-catalog.php';
+    $GLOBALS['tiers'] = array(); foreach (\\Emsfb\\Addon_Catalog::ADDONS as $k => $e) $GLOBALS['tiers'][$k] = (int) $e['package'];
     class F { public function addon_required_package_efb($a) { return isset($GLOBALS['tiers'][$a]) ? $GLOBALS['tiers'][$a] : 1; } }
     function get_efbFunction() { return new F(); }
     require '${API}';
@@ -63,6 +62,9 @@ function capabilities(pkg, settings) {
     // F15 (31) Builder_Tools, (32) Revisions, (33) Form_Package.
     foreach (array('class-Emsfb-rate-limit.php', 'class-Emsfb-client-ip.php', 'class-Emsfb-form-css.php', 'class-Emsfb-form-gate.php', 'class-Emsfb-masks.php', 'class-Emsfb-field-rules.php', 'verification/interface-provider.php', 'class-Emsfb-verification.php', 'class-Emsfb-calendar.php', 'class-Emsfb-calendar-rest.php', 'class-Emsfb-upload-guard.php', 'class-Emsfb-uploads.php', 'class-Emsfb-smart-tags.php', 'class-Emsfb-choices.php', 'class-Emsfb-stock.php', 'class-Emsfb-calc.php', 'class-Emsfb-repeater.php', 'admin/class-Emsfb-entries.php', 'class-Emsfb-layout.php', 'class-Emsfb-captcha.php', 'class-Emsfb-spam.php', 'class-Emsfb-builder-tools.php', 'class-Emsfb-revisions.php', 'class-Emsfb-form-package.php') as $f) require_once '${INC}/' . $f;
     foreach (array('Form_Gate', 'Field_Rules', 'Verification', 'Calendar_Rest', 'Uploads', 'Smart_Tags', 'Choices', 'Calc', 'Repeater', 'Entries', 'Layout', 'Spam', 'Builder_Tools', 'Revisions', 'Form_Package') as $c) { $c = '\\\\Emsfb\\\\' . $c; $caps = $c::capabilities($caps, array('package' => ${Number(pkg)})); }
+    // SPLIT (99): the add-on of every moved entry and capabilities.split.
+    foreach (array('addon-contracts-functions-efb.php', 'class-Emsfb-addon-keys.php', 'class-Emsfb-split.php') as $f) require_once '${INC}/' . $f;
+    $caps = \\Emsfb\\Split::capabilities($caps, array('package' => ${Number(pkg)}));
     echo json_encode($caps);
   `], { input: JSON.stringify(settings || {}) }).toString();
   return JSON.parse(out);
