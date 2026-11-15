@@ -97,6 +97,41 @@ const base = (id, type, name, extra) => Object.assign({ id_: id, dataId: id + '-
   c.check('the CAPTCHA switch: on with a service that has its keys (v3), refused with one that has none (Turnstile, the help says why)', on1 === true && on2.c !== true && on2.active === false && on2.help === true, [on1, on2]);
   c.check('no page error', h.errors.length === 0, h.errors);
   await h.browser.close();
+  // F12b: the registry's providers (efb_var.captcha_providers): an absent add-on, a plan, keys not set, cp_* options.
+  const PROVS = [
+      { id: 'recaptcha_v2', installed: true, available: true, ready: true, options: [{ key: 'cp_theme', type: 'enum', values: ['light', 'dark', 'auto'] }, { key: 'cp_size', type: 'enum', values: ['auto', 'normal', 'compact'] }] },
+      { id: 'recaptcha_v3', installed: true, available: true, ready: true, options: [{ key: 'rc3_action', type: 'text', maxlen: 40, pattern: '^[A-Za-z0-9_\\/]{1,40}$' }, { key: 'rc3_fallback', type: 'toggle' }, { key: 'cp_badge', type: 'enum', values: ['hidden', 'bottomright'] }] },
+      { id: 'turnstile', installed: true, available: true, ready: false, addon: 'AdnCTS', options: [{ key: 'cp_appearance', type: 'enum', values: ['always', 'execute', 'interaction-only'] }] },
+      { id: 'altcha', installed: false, available: false, state: 'addon', addon: 'AdnALT', options: [] },
+      { id: 'question', installed: false, available: false, state: 'plan', addon: 'AdnQCP', options: [] },
+    ];
+  const form2 = blankForm();
+  form2.push(base('nm', 'text', 'Name', { amount: '2' }));
+  const h2 = await openBuilder({ builder: true, pro: 0, packageType: 3, form: form2, scripts: ['includes/admin/assets/js/spam-builder-efb.js'],
+    extraVar: { capabilities: capabilities(3), captcha: 'true', captcha_ready: { recaptcha_v2: true, recaptcha_v3: true, turnstile: false }, captcha_providers: PROVS, addon_catalog: { AdnALT: { name: 'ALTCHA', package: 3 } }, spam: { site_provider: 'recaptcha_v2', akismet: false } } });
+  const f12b = await h2.page.evaluate(() => {
+    const tryit = (f) => { try { const v = f(); return v === undefined ? 'ok' : v; } catch (e) { return { code: e.code, addon: e.addon, key: e.errors && e.errors[0] && e.errors[0].key }; } };
+    const o = {};
+    o.absent = tryit(() => efbBuilderApi.setFormSettings({ captcha_provider: 'altcha' }));
+    o.plan = tryit(() => efbBuilderApi.setFormSettings({ captcha_provider: 'question' }));
+    o.notReady = tryit(() => efbBuilderApi.setFormSettings({ captcha_provider: 'turnstile', cp_appearance: 'execute' }));
+    o.r0a = { p: valj_efb[0].captcha_provider, a: valj_efb[0].cp_appearance };
+    o.v3 = tryit(() => efbBuilderApi.setFormSettings({ captcha_provider: 'recaptcha_v3', rc3_action: 'contact_us', rc3_fallback: true, cp_badge: 'hidden' }));
+    o.r0b = { a: valj_efb[0].rc3_action, f: valj_efb[0].rc3_fallback, b: valj_efb[0].cp_badge };
+    o.badAction = tryit(() => efbBuilderApi.setFormSettings({ rc3_action: 'has spaces' }));
+    o.badOpt = tryit(() => efbBuilderApi.setFormSettings({ cp_badge: 'inline' }));
+    o.v2secret = tryit(() => efbBuilderApi.setFormSettings({ rciSecretKey: 'x' }));
+    o.siteOnly = tryit(() => efbBuilderApi.setFormSettings({ rc_host: 'recaptcha.net' }));
+    return o;
+  });
+  await h2.browser.close();
+  c.check('F12b: a CAPTCHA add-on that is not installed → addon_required with the add-on (as SPLIT)', f12b.absent.code === 'addon_required' && f12b.absent.addon === 'AdnALT', f12b.absent);
+  c.check('F12b: one above the plan → plan_required', f12b.plan.code === 'plan_required', f12b.plan);
+  c.check('F12b: one without its keys yet → accepted with the warning captcha_not_ready; its option set', f12b.notReady.warnings && f12b.notReady.warnings[0].code === 'captcha_not_ready' && f12b.r0a.p === 'turnstile' && f12b.r0a.a === 'execute', [f12b.notReady, f12b.r0a]);
+  c.check('F12b: v3 with its action, the v2 fallback and the badge', f12b.v3.values && f12b.r0b.a === 'contact_us' && f12b.r0b.f === '1' && f12b.r0b.b === 'hidden', [f12b.v3, f12b.r0b]);
+  c.check('F12b: a bad action or an option value outside the schema → spam_invalid; secrets and site settings refused', f12b.badAction.code === 'spam_invalid' && f12b.badOpt.code === 'spam_invalid' && f12b.v2secret.code === 'spam_secret' && f12b.siteOnly.code === 'spam_site_only', f12b);
+
+  await h.browser.close();
 
   // The registry.
   const caps = capabilities(2);

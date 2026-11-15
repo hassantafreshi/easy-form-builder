@@ -136,7 +136,7 @@
     const own = ID_RE.test(String(r0.captcha_provider || '')) ? r0.captcha_provider : '';
     const eff = efbSpamProvider(r0);
     const e = entry(eff);
-    const why = (x) => (!x.installed ? T('cpNotInstalled', 'Not installed') : x.available === false ? T('cpPlanNeeded', 'Available on Free Plus and Pro') : x.ready === false ? T('captchaKeyMissing', 'Keys are not set for this service.') : '');
+    const why = (x) => (x.state === 'plan' ? T('cpPlanNeeded', 'Available on Free Plus and Pro') : !x.installed ? T('cpNotInstalled', 'Not installed') : x.available === false ? T('cpPlanNeeded', 'Available on Free Plus and Pro') : x.ready === false ? T('captchaKeyMissing', 'Keys are not set for this service.') : '');
     const opt = (v, label, dis) => `<option value="${esc(v)}"${own === v ? ' selected' : ''}${dis ? ' disabled' : ''}>${esc(label)}</option>`;
     const site = siteProvider();
     let opts = opt('', T('captchaSiteDefaultNow', 'Site default (now %s)').replace('%s', name(site)), false)

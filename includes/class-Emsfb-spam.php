@@ -704,7 +704,7 @@ class Spam {
 		$cat = Captcha\Admin::catalog();
 		$plans = array();
 		foreach ($cat as $c) $plans[$c['id']] = array('plan' => $c['plan'], 'addon' => $c['addon'], 'installed' => $c['installed'], 'available_now' => $c['available'], 'ready' => $c['ready'],
-			'prompt_state' => $c['available'] ? 0 : ($c['state'] === 'plan' ? 3 : 0), 'reason' => $c['available'] ? null : ($c['state'] === 'plan' ? 'plan_required' : 'addon_missing'));
+			'prompt_state' => $c['available'] ? 0 : ($c['state'] === 'plan' ? 3 : 0), 'reason' => $c['available'] ? null : ($c['state'] === 'plan' ? 'plan_required' : 'addon_required'));
 		$out['features']['setting:captcha_provider'] = $e(array_merge(array('captcha', 'captcha_provider'), array_values(array_diff(self::FORM_KEYS, array('captcha_provider', 'spam_off', 'spam_akismet')))), 'captchaProvider',
 			array('values' => array_merge(array(''), array_column($cat, 'id')), 'ready' => Captcha::ready_map(), 'providers' => $plans, 'option_prefix' => 'cp_', 'not_on' => 'payment forms'));
 		$out['features']['setting:spam_off'] = $e(array('spam_off', 'spam_akismet'), 'spamOff', array('risk' => 'high'));

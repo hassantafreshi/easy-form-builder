@@ -1623,7 +1623,7 @@
   /**
    * The F12 / F12b keys of row 0 with the save rules (EFBSpamCore.sanitizeKey = Spam::sanitize_form_key(), sanitizeOption =
    * Captcha\Registry::sanitize_form_option()): captcha_provider a service of the registry ('' = the site's) — not
-   * installed: addon_missing, above the plan: plan_required, no keys yet: accepted with the warning captcha_not_ready;
+   * installed: addon_required (e.addon, as SPLIT), above the plan: plan_required, no keys yet: accepted with the warning captcha_not_ready;
    * rc3_threshold 0.0 … 1.0 (Persian / Arabic-Indic digits accepted), rc3_action, rc3_fallback, the cp_* options of
    * the service (its schema), spam_off and spam_akismet flags. A secret key (spam_secret) or a site setting
    * (spam_site_only, any *SecretKey) is never a form key. Values are written normalized ('' = not set). Errors {code, path, key}.
@@ -1646,7 +1646,8 @@
       if (k === 'captcha_provider' && v !== '' && C && C.entry) {
         var e = C.entry(v);
         if (!e) { err('spam_invalid', k); return; }
-        if (!e.installed || e.state === 'addon' || e.state === 'update') { err('addon_missing', k); return; }
+        if (e.state === 'plan') { err('plan_required', k); return; }
+        if (!e.installed || e.state === 'addon' || e.state === 'update') { out.push({ code: 'addon_required', path: (path || '') + k, key: k, addon: e.addon || '' }); return; }
         if (e.available === false) { err('plan_required', k); return; }
         if (e.ready === false && warn) warn.push({ code: 'captcha_not_ready', key: k, provider: v });
       }
@@ -1671,9 +1672,10 @@
       spam_secret: e0.key + ' is a site secret: it is set in Settings, never in a form',
       spam_site_only: e0.key + ' is a site setting (Settings › Captchas), not a form key',
       spam_invalid: 'This value cannot be used for ' + e0.key,
-      addon_missing: 'This CAPTCHA service is an add-on that is not installed (Add-ons page)',
       plan_required: 'This CAPTCHA service needs Free Plus or Pro',
     }[e0.code] || e0.code;
+    // SPLIT's code for an absent add-on (the same answer setCalc gives without AdnCLC), with the add-on to install.
+    if (e0.code === 'addon_required') { var ae = addonFail(e0.addon, 'This CAPTCHA service'); ae.errors = errs; return ae; }
     var e = fail(e0.code, msg);
     e.errors = errs;
     return e;
