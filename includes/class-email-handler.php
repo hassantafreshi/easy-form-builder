@@ -218,7 +218,7 @@ class EmsfbEmailHandler {
         // Human Shield (or any other guard) may veto submit-driven notification
         // emails. Admin diagnostics (test mail, problem reports, the licence
         // suspension warning) are never gated.
-        $efb_shield_internal_states = array("reportProblem", "testMailServer", "addonsDlProblem", "licenseSuspended");
+        $efb_shield_internal_states = array("reportProblem", "testMailServer", "addonsDlProblem", "licenseSuspended", "renewReminder", "renewPaused");
         if (!(is_string($state) && in_array($state, $efb_shield_internal_states, true))) {
             $efb_shield_email_context = array(
                 'channel'    => 'email',
@@ -390,6 +390,12 @@ class EmsfbEmailHandler {
     }
 
     public function email_template_efb($pro, $state, $m, $link, $email_content_type, $st = "null") {
+
+        // F21: the renewal reminder and the "Pro is paused" e-mail are complete documents of their own
+        // (Renewal_Reminder::email_html(): lang, dir, colour scheme, one column, no image): sent as they are.
+        if (in_array($state, array('renewReminder', 'renewPaused'), true) && is_string($m)) {
+            return $m;
+        }
 
         $l = 'https://whitestudio.team';
         $wp_lan = get_locale();

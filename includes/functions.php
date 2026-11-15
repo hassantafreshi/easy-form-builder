@@ -11194,7 +11194,10 @@ public function addon_add_efb($value) {
 		$ac_date = strtotime($ac_date);
 		$now = strtotime(date('Y-m-d H:i:s'));
 		$diff = ($now - $ac_date) / (60 * 60 * 24);
-		if ($diff > 7) {
+		// F21: while the end of a subscription is 8 days away or less (or past while Pro is still on), ask every day
+		// instead of every week (at most once per 20 hours), so a renewal or the end is seen within a day.
+		$near_end = class_exists('\Emsfb\Renewal_Reminder') && \Emsfb\Renewal_Reminder::needs_daily_check();
+		if ($diff > 7 || ($near_end && $diff >= 20 / 24)) {
 
 			// update_pro_status_efb() is now the single place that decides what a
 			// given outcome means, including the grace period for outages, so its
@@ -11321,7 +11324,12 @@ public function addon_add_efb($value) {
 			return null;
 		}
 
-		return $this->weekly_check_pro_efb($activeCode);
+		$granted = $this->weekly_check_pro_efb($activeCode);
+		// F21: the e-mail owed now (once per expiry date), decided without the network.
+		if (class_exists('\Emsfb\Renewal_Reminder')) {
+			\Emsfb\Renewal_Reminder::tick();
+		}
+		return $granted;
 	}
 
 	public function render_pro_gate_efb( $addon_name = '' ) {

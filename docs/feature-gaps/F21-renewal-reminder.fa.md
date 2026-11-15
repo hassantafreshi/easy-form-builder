@@ -413,12 +413,13 @@ Easy Form Builder > Settings.
 پذیرش: ساعت سایت ±۳ روز غلط → همان `days_left`؛ دو اجرای هم‌زمان → یک ایمیل (`add_option`)؛ cron دیر (۳ روز مانده) → یک ایمیل با «3 days»؛ پس از پایان → بی `t7`؛ `renewMail = 0` یا ارسال خاموش → بی ایمیل و بی نشانگر؛ `auto_renew` → هیچ؛ پاسخ موفق قدیمی‌تر از ۸ روز → هیچ.
 تست‌ها: `php tests/test-renewal-reminder-dates.php` (منطقه‌های `UTC`، `Asia/Tehran`، `America/New_York` روی گذار DST مارس و نوامبر، `Pacific/Auckland`، `Asia/Riyadh`؛ مرز دقیق ۷ روز، ۱ ثانیه پیش و پس؛ تاریخ نمایشی `expires_at - 1`)، `php tests/test-renewal-reminder-idempotent.php` (`pre_wp_mail` شمارشی؛ دو tick، دو سایت چندسایته، دورهٔ تازه پس از تمدید زودهنگام، کاهش پلن).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: `class-Emsfb-renewal-reminder.php` (`state()`: مرحله، روز باقی‌مانده با `ceil`، «اکنون» = ساعت سایت + `offset` سرور، تازگی < ۸ روز و نه از آینده، `t1` با «today»/«tomorrow» بر پایهٔ روز آخر در منطقهٔ زمانی سایت، پس از موعد فقط با `deactive` و `emsfb_pro = 0` ⇒ `t0` وگرنه سکوت تا سرور تصمیم بگیرد؛ `tick()`: یادآور در کل پنجرهٔ ۷ روزه اگر هنوز نرفته، `t0` یک بار، قفل اتمیک `add_option('emsfb_renew_lock_{expires_at}_{t7|t0}')`، شکست ارسال ⇒ آزاد شدن قفل و تلاش در اجرای بعد، `renewMail = 0`/ارسال خاموش/بی گیرنده ⇒ بی نشانگر؛ `needs_daily_check()`؛ `cleanup_locks()` روی `emsfb_daily_maintenance`؛ `deliver()` با `switch_to_locale(get_locale())` و `phpmailer_init` موقت برای `AltBody`)، `functions.php` (`weekly_check_pro_efb`: روزانه با سقف ۲۰ ساعت در ۸ روز آخر یا پس از موعد؛ `cron_check_pro_efb`: `tick()`)، `class-email-handler.php` (حالت‌های `renewReminder` و `renewPaused`: سند کامل خودشان بی تغییر فرستاده می‌شود و در فهرست حالت‌های داخلی بی‌وتو هستند).
+- تصمیم (به‌جای متن قبلی): کلید «یک ایمیل» **تاریخ پایان** است نه `period`، تا تغییر پلن یا کد تازه با همان تاریخ ایمیل دوم نسازد (خواستهٔ «دقیقاً یک ایمیل برای هر تاریخ»)؛ `emsfb_renew_reminder` = `{expires_at, period, t7_sent, t0_sent}`. اگر cron نخستین بار در روز آخر اجرا شود همان ایمیل یادآور («1 day from now») می‌رود؛ «یک ایمیل در هر دوره» حفظ می‌شود.
+- تست‌ها: تازه `tests/test-renewal-reminder-dates.php` (47) و `tests/test-renewal-reminder-idempotent.php` (33؛ با ایمیل‌گیر کتابخانه به‌جای `pre_wp_mail`؛ شمارش با `pre_wp_mail` روی وردپرس واقعی در H)؛ موجودها سبز: `test-problem-report-email-template.php` (24)، `test-email-template-style-quotes.php` (16).
+- وضعیت ترجمه: عبارت‌های ایمیل (§۱۱.۲، §۱۱.۳) در کلاس با `__()`/`_n()`؛ ترجمه نمی‌شود (دستور مالک).
+- مورد باز: —
+- اقدام بعدی: C.
 
 ### C — اعلان پیشخوان، بستن و «Check again»
 فایل‌ها: `Renewal_Reminder::render_notice()` روی `admin_notices`، دو اکشن AJAX، اسکریپت کوچک درون‌خطی یا `renewal-notice-efb.js`، CSS منطقی.
