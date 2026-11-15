@@ -5786,6 +5786,118 @@ class efbFunction {
 			"spamR_filter" => $state && isset($ac->text->spamR_filter) ? $ac->text->spamR_filter : esc_html__('Another plugin','easy-form-builder'),
 			/* translators: F12: Settings: placeholder of a stored secret key */
 			"captchaSecretSaved" => $state && isset($ac->text->captchaSecretSaved) ? $ac->text->captchaSecretSaved : esc_html__('Saved. Type a new key to replace it.','easy-form-builder'),
+			/* translators: F12b: name of a CAPTCHA service (product name) */
+			"reCAPTCHAv2i" => $state && isset($ac->text->reCAPTCHAv2i) ? $ac->text->reCAPTCHAv2i : esc_html__('Google reCAPTCHA v2 (invisible)','easy-form-builder'),
+			/* translators: F12b: builder: reCAPTCHA v3 option */
+			"rc3Fallback" => $state && isset($ac->text->rc3Fallback) ? $ac->text->rc3Fallback : esc_html__('Show the checkbox when the score is low','easy-form-builder'),
+			/* translators: F12b: builder: help of the option above */
+			"rc3FallbackHelp" => $state && isset($ac->text->rc3FallbackHelp) ? $ac->text->rc3FallbackHelp : esc_html__('Needs the reCAPTCHA v2 keys too.','easy-form-builder'),
+			/* translators: F12b: builder: the reCAPTCHA v3 action name of a form */
+			"rc3Action" => $state && isset($ac->text->rc3Action) ? $ac->text->rc3Action : esc_html__('Action name','easy-form-builder'),
+			/* translators: F12b: builder: help of the action name */
+			"rc3ActionHelp" => $state && isset($ac->text->rc3ActionHelp) ? $ac->text->rc3ActionHelp : esc_html__('Letters, digits, _ and / only. Shown in your reCAPTCHA admin console.','easy-form-builder'),
+			/* translators: F12b: Settings > Captchas: where Google's script is loaded from */
+			"rcHost" => $state && isset($ac->text->rcHost) ? $ac->text->rcHost : esc_html__('Load reCAPTCHA from','easy-form-builder'),
+			/* translators: F12b: Settings > Captchas: help */
+			"rcHostHelp" => $state && isset($ac->text->rcHostHelp) ? $ac->text->rcHostHelp : esc_html__('Use recaptcha.net where google.com is blocked.','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option */
+			"cpTheme" => $state && isset($ac->text->cpTheme) ? $ac->text->cpTheme : esc_html__('Theme','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option */
+			"cpSize" => $state && isset($ac->text->cpSize) ? $ac->text->cpSize : esc_html__('Size','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option (language of the widget) */
+			"cpLang" => $state && isset($ac->text->cpLang) ? $ac->text->cpLang : esc_html__('Language','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option */
+			"cpAlign" => $state && isset($ac->text->cpAlign) ? $ac->text->cpAlign : esc_html__('Alignment','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option (Google's badge) */
+			"cpBadge" => $state && isset($ac->text->cpBadge) ? $ac->text->cpBadge : esc_html__('Badge position','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option (when the widget shows) */
+			"cpAppearance" => $state && isset($ac->text->cpAppearance) ? $ac->text->cpAppearance : esc_html__('Appearance','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option (when the check starts) */
+			"cpStart" => $state && isset($ac->text->cpStart) ? $ac->text->cpStart : esc_html__('Start the check','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option */
+			"cpDifficulty" => $state && isset($ac->text->cpDifficulty) ? $ac->text->cpDifficulty : esc_html__('Difficulty','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option value */
+			"cpAuto" => $state && isset($ac->text->cpAuto) ? $ac->text->cpAuto : esc_html__('Automatic','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option value (theme) */
+			"cpLight" => $state && isset($ac->text->cpLight) ? $ac->text->cpLight : esc_html__('Light','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option value (theme) */
+			"cpDark" => $state && isset($ac->text->cpDark) ? $ac->text->cpDark : esc_html__('Dark','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option value (size) */
+			"cpNormal" => $state && isset($ac->text->cpNormal) ? $ac->text->cpNormal : esc_html__('Normal','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option value (size) */
+			"cpCompact" => $state && isset($ac->text->cpCompact) ? $ac->text->cpCompact : esc_html__('Compact','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option value (size) */
+			"cpFlexible" => $state && isset($ac->text->cpFlexible) ? $ac->text->cpFlexible : esc_html__('Full width','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option value (size) */
+			"cpInvisible" => $state && isset($ac->text->cpInvisible) ? $ac->text->cpInvisible : esc_html__('Invisible','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option value (alignment: the start of the line) */
+			"cpStartAlign" => $state && isset($ac->text->cpStartAlign) ? $ac->text->cpStartAlign : esc_html__('Start','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option value (alignment) */
+			"cpCenter" => $state && isset($ac->text->cpCenter) ? $ac->text->cpCenter : esc_html__('Center','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option value (alignment: the end of the line) */
+			"cpEndAlign" => $state && isset($ac->text->cpEndAlign) ? $ac->text->cpEndAlign : esc_html__('End','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option value (badge) */
+			"cpInline" => $state && isset($ac->text->cpInline) ? $ac->text->cpInline : esc_html__('Inline','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option value (badge) */
+			"cpHidden" => $state && isset($ac->text->cpHidden) ? $ac->text->cpHidden : esc_html__('Hidden','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option value (badge) */
+			"cpBottomRight" => $state && isset($ac->text->cpBottomRight) ? $ac->text->cpBottomRight : esc_html__('Bottom right','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option value (badge) */
+			"cpBottomLeft" => $state && isset($ac->text->cpBottomLeft) ? $ac->text->cpBottomLeft : esc_html__('Bottom left','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option value (language) */
+			"cpPageLang" => $state && isset($ac->text->cpPageLang) ? $ac->text->cpPageLang : esc_html__('Language of the page','easy-form-builder'),
+			/* translators: F12b: builder: when Google's badge is hidden */
+			"cpBadgeHiddenNote" => $state && isset($ac->text->cpBadgeHiddenNote) ? $ac->text->cpBadgeHiddenNote : esc_html__('Google requires its notice when the badge is hidden; it is shown under the submit button.','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option */
+			"cpMsgFailed" => $state && isset($ac->text->cpMsgFailed) ? $ac->text->cpMsgFailed : esc_html__('Message when the check fails','easy-form-builder'),
+			/* translators: F12b: builder: CAPTCHA option */
+			"cpMsgRequired" => $state && isset($ac->text->cpMsgRequired) ? $ac->text->cpMsgRequired : esc_html__('Message when the check is missing','easy-form-builder'),
+			/* translators: F12b: visitor: the score was low, the checkbox is shown */
+			"cpChallenge" => $state && isset($ac->text->cpChallenge) ? $ac->text->cpChallenge : esc_html__('Please confirm you are not a robot.','easy-form-builder'),
+			/* translators: F12b: builder / settings: link to the Add-ons page */
+			"cpInstallAddon" => $state && isset($ac->text->cpInstallAddon) ? $ac->text->cpInstallAddon : esc_html__('Install the add-on','easy-form-builder'),
+			/* translators: F12b: builder / settings: a CAPTCHA add-on that is not installed */
+			"cpNotInstalled" => $state && isset($ac->text->cpNotInstalled) ? $ac->text->cpNotInstalled : esc_html__('Not installed','easy-form-builder'),
+			/* translators: F12b: builder / settings: a CAPTCHA add-on needs a plan */
+			"cpPlanNeeded" => $state && isset($ac->text->cpPlanNeeded) ? $ac->text->cpPlanNeeded : esc_html__('Available on Free Plus and Pro','easy-form-builder'),
+			/* translators: F12b: admin notice. %1$s: number of forms, %2$s: a CAPTCHA service, %3$s: what protects them now */
+			"cpUnavailableNotice" => $state && isset($ac->text->cpUnavailableNotice) ? $ac->text->cpUnavailableNotice : esc_html__('%1$s forms use %2$s, which is not available now. They are protected by %3$s.','easy-form-builder'),
+			/* translators: F12b: admin notice: what protects the forms (fills %3$s above) */
+			"cpFallbackSoft" => $state && isset($ac->text->cpFallbackSoft) ? $ac->text->cpFallbackSoft : esc_html__('the hidden field and the minimum time','easy-form-builder'),
+			/* translators: F12b: shown above a form to a signed-in administrator only */
+			"cpKeysMissingAdmin" => $state && isset($ac->text->cpKeysMissingAdmin) ? $ac->text->cpKeysMissingAdmin : esc_html__('The CAPTCHA keys of this form are not set. Visitors see the form with basic spam protection.','easy-form-builder'),
+			/* translators: F12b: admin notice. %s: add-on name */
+			"cpUpdateAddon" => $state && isset($ac->text->cpUpdateAddon) ? $ac->text->cpUpdateAddon : esc_html__('Update the %s add-on: it was made for an older version of Easy Form Builder.','easy-form-builder'),
+			/* translators: F12b: settings: a CAPTCHA add-on that is off or too old */
+			"cpUpdateAddonShort" => $state && isset($ac->text->cpUpdateAddonShort) ? $ac->text->cpUpdateAddonShort : esc_html__('Update or turn on the add-on','easy-form-builder'),
+			/* translators: F12b: builder: a CAPTCHA service on a form that stores no IP address */
+			"cpPrivacyIp" => $state && isset($ac->text->cpPrivacyIp) ? $ac->text->cpPrivacyIp : esc_html__('This service gets the visitor\'s IP address from the browser, whatever your IP setting.','easy-form-builder'),
+			/* translators: F12b: settings: %s: the company and country a CAPTCHA service sends data to */
+			"cpPrivacyWhere" => $state && isset($ac->text->cpPrivacyWhere) ? $ac->text->cpPrivacyWhere : esc_html__('Data goes to: %s','easy-form-builder'),
+			/* translators: F12b: settings: heading of the CAPTCHA add-ons' settings */
+			"cpAddonProviders" => $state && isset($ac->text->cpAddonProviders) ? $ac->text->cpAddonProviders : esc_html__('CAPTCHA add-ons','easy-form-builder'),
+			/* translators: F12b: settings: %s: names of the values that were not saved */
+			"cpvRefused" => $state && isset($ac->text->cpvRefused) ? $ac->text->cpvRefused : esc_html__('Not saved: %s','easy-form-builder'),
+			/* translators: F12b: settings: a secret key is saved; %s: its last characters as •••• 1234 */
+			"secretSavedMask" => $state && isset($ac->text->secretSavedMask) ? $ac->text->secretSavedMask : esc_html__('Saved (%s)','easy-form-builder'),
+			/* translators: F12b: settings: button */
+			"secretReplace" => $state && isset($ac->text->secretReplace) ? $ac->text->secretReplace : esc_html__('Replace','easy-form-builder'),
+			/* translators: F12b: settings: button that removes a saved secret key */
+			"secretRemove" => $state && isset($ac->text->secretRemove) ? $ac->text->secretRemove : esc_html__('Remove','easy-form-builder'),
+			/* translators: F12b: settings: help under a secret key */
+			"secretKeep" => $state && isset($ac->text->secretKeep) ? $ac->text->secretKeep : esc_html__('Leave empty to keep the saved key.','easy-form-builder'),
+			/* translators: F12b: settings: confirmation before a saved key is removed */
+			"secretRemoveConfirm" => $state && isset($ac->text->secretRemoveConfirm) ? $ac->text->secretRemoveConfirm : esc_html__('Remove the saved key? The forms that use it lose this check until you add a new one.','easy-form-builder'),
+			/* translators: F12b: admin notice button */
+			"spamTurnOnRecommended" => $state && isset($ac->text->spamTurnOnRecommended) ? $ac->text->spamTurnOnRecommended : esc_html__('Turn on recommended protection','easy-form-builder'),
+			/* translators: F12b: admin notice after the button above */
+			"spamTurnedOn" => $state && isset($ac->text->spamTurnedOn) ? $ac->text->spamTurnedOn : esc_html__('Spam protection is on: hidden field, 3 seconds, spam kept 30 days.','easy-form-builder'),
+			/* translators: F12b: visitor: label of the CAPTCHA of a reply box */
+			"replyCaptchaLabel" => $state && isset($ac->text->replyCaptchaLabel) ? $ac->text->replyCaptchaLabel : esc_html__('Security check for replies','easy-form-builder'),
+			/* translators: F12b: visitor: too many replies were sent */
+			"replyTooMany" => $state && isset($ac->text->replyTooMany) ? $ac->text->replyTooMany : esc_html__('Too many replies. Please wait a few minutes.','easy-form-builder'),
+			/* translators: F12b: Settings > Captchas */
+			"loginCaptchaOn" => $state && isset($ac->text->loginCaptchaOn) ? $ac->text->loginCaptchaOn : esc_html__('Also check the CAPTCHA on login and registration','easy-form-builder'),
 			/* translators: F12: Settings: link to the CAPTCHA service's key page */
 			"captchaGetKeys" => $state && isset($ac->text->captchaGetKeys) ? $ac->text->captchaGetKeys : esc_html__('Get the keys','easy-form-builder'),
 			/* translators: F15: builder palette: search box label and placeholder */
@@ -6915,6 +7027,8 @@ class efbFunction {
 					// builder-api-efb.js); on a field row they mean nothing and are dropped. Secrets never reach a form.
 					case 'captcha_provider':
 					case 'rc3_threshold':
+					case 'rc3_action':
+					case 'rc3_fallback':
 					case 'spam_off':
 					case 'spam_akismet':
 						if (!class_exists('\\Emsfb\\Spam') && is_readable(__DIR__ . '/class-Emsfb-spam.php')) { if (!class_exists('\\Emsfb\\Captcha')) require_once __DIR__ . '/class-Emsfb-captcha.php'; require_once __DIR__ . '/class-Emsfb-spam.php'; }
@@ -6922,6 +7036,7 @@ class efbFunction {
 						if ($valp[$key][$k] === '') unset($valp[$key][$k]);
 					break;
 					case 'rc3SecretKey':
+					case 'rciSecretKey':
 					case 'hcSecretKey':
 					case 'tsSecretKey':
 					case 'secretKey':
@@ -7009,6 +7124,14 @@ class efbFunction {
 					// PAY00: a gateway's own options on its field (pgw_*), sanitized from the gateway's
 					// field_schema() (kept conservatively when the add-on is not active); a malformed
 					// pgw_ key is dropped.
+					// F12b: the options of the form's CAPTCHA service (cp_*), by its schema; kept as plain text while its
+					// add-on is absent (switching it off must not wipe them); on a field row they mean nothing.
+					if (is_string($k) && strpos($k, 'cp_') === 0) {
+						if ((string) $key !== '0' || !class_exists('\\Emsfb\\Captcha\\Registry')) { unset($valp[$key][$k]); break; }
+						$cp_v_efb = \Emsfb\Captcha\Registry::sanitize_form_option(\Emsfb\Captcha\Registry::wanted($val), $k, $v);
+						if ($cp_v_efb === '') unset($valp[$key][$k]); else $valp[$key][$k] = $cp_v_efb;
+						break;
+					}
 					if (is_string($k) && strpos($k, 'pgw_') === 0) {
 						if (!preg_match('/^pgw_[a-z0-9_]{1,40}$/', $k) || !class_exists('\\Emsfb\\Payments\\Field')) { unset($valp[$key][$k]); break; }
 						$gw_type = isset($val['type']) && is_string($val['type']) ? $val['type'] : '';

@@ -549,6 +549,8 @@ class Emsfb {
         // Optional: every caller checks class_exists('\Emsfb\Spam') / ('\Emsfb\Captcha').
         if ($this->require_plugin_file_efb('includes/class-Emsfb-captcha.php') && $this->require_plugin_file_efb('includes/class-Emsfb-spam.php') && method_exists('\Emsfb\Spam', 'register')) {
             \Emsfb\Spam::register();
+            // F12b: the provider registry (Google in core; add-ons on efb_register_captcha_providers), its REST and AJAX.
+            if (class_exists('\Emsfb\Captcha\Registry')) \Emsfb\Captcha\Registry::register_hooks();
             $this->require_plugin_file_efb('includes/captcha-functions-efb.php');
         }
 
@@ -1447,8 +1449,9 @@ class Emsfb {
                     'trackingCode' => $decoded->trackingCode ?? '',
                     'siteKey' => $decoded->siteKey ?? '',
                     // F12: the CAPTCHA service and its site keys (public by design); never a secret key.
-                    'captchaProvider' => (isset($decoded->captcha_provider) && in_array($decoded->captcha_provider, array('recaptcha_v2', 'recaptcha_v3', 'hcaptcha', 'turnstile'), true)) ? $decoded->captcha_provider : 'recaptcha_v2',
+                    'captchaProvider' => (isset($decoded->captcha_provider) && is_string($decoded->captcha_provider) && preg_match('/^[a-z][a-z0-9_]{2,23}$/', $decoded->captcha_provider)) ? $decoded->captcha_provider : 'recaptcha_v2',
                     'rc3SiteKey' => $decoded->rc3SiteKey ?? '',
+                    'rciSiteKey' => $decoded->rciSiteKey ?? '',
                     'hcSiteKey' => $decoded->hcSiteKey ?? '',
                     'tsSiteKey' => $decoded->tsSiteKey ?? '',
                     'mapKey' => $decoded->apiKeyMap ?? '',

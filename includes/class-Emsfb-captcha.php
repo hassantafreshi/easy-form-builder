@@ -1,16 +1,13 @@
 <?php
 /**
- * F12: the CAPTCHA services of the core (docs/feature-gaps/F12-spam-core.fa.md §3) and the public check outside a
- * form (F20 P20, docs/spam/captcha-contract.en.md).
+ * F12 / F12b: shared helpers of the CAPTCHA layer (docs/feature-gaps/F12b-captcha-providers.fa.md §2). The providers
+ * live in includes/captcha/ (Provider, Registry, Google); add-ons bring the others. Here: the settings row, the widget
+ * language, the one HTTP call a provider makes (http_post), the box of a form or a context (box_html, with the
+ * provider's scripts enqueued), Google's notice, and the F12 functions other code and add-ons call (contract v1).
  *
- *  - providers: Google reCAPTCHA v2 (as before 4.3.2: siteKey / secretKey), reCAPTCHA v3 (rc3SiteKey / rc3SecretKey,
- *    a score), hCaptcha (hcSiteKey / hcSecretKey) and Cloudflare Turnstile (tsSiteKey / tsSecretKey);
- *  - the provider of a form: its own captcha_provider, else the site's captcha_provider, else reCAPTCHA v2. The
- *    server decides it from the stored form and the settings, never from the request;
- *  - secrets stay in the settings row: never in the page (get_setting_Emsfb('pub') carries site keys only), a log,
- *    the form JSON or forms/{id}/schema. A token is sent to its provider only, never stored or logged;
- *  - one Google script per page: api.js?render=<v3 site key> when a v3 form is on the page (v2 widgets render on it
- *    with grecaptcha.render()), else api.js?render=explicit. No request to Google while the page is built.
+ *  - the provider of a form is decided by the server from the stored form and the settings, never from the request;
+ *  - secrets never reach a page, a log, the form JSON or forms/{id}/schema; a token goes to its service only;
+ *  - every box has its own id (efb-cp-{form}-{n}) and its public config in data-efb-captcha: no inline script.
  */
 
 namespace Emsfb;
@@ -19,40 +16,23 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
+foreach (array('provider', 'registry', 'google', 'f12') as $efb_cp_part) {
+	if (is_readable(__DIR__ . '/captcha/class-Emsfb-captcha-' . $efb_cp_part . '.php')) require_once __DIR__ . '/captcha/class-Emsfb-captcha-' . $efb_cp_part . '.php';
+}
+unset($efb_cp_part);
+
 class Captcha {
 
-	/** Version of the public contract (Spam::verify_captcha(), efb_captcha_verify(), efb_captcha_widget()). */
+	/** Version of the public contract v1 (Spam::verify_captcha(), efb_captcha_verify(), efb_captcha_widget()). */
 	const API_VERSION = 1;
 
-	const PROVIDERS = array('recaptcha_v2', 'recaptcha_v3', 'hcaptcha', 'turnstile');
-
-	const SITE_KEYS = array('recaptcha_v2' => 'siteKey', 'recaptcha_v3' => 'rc3SiteKey', 'hcaptcha' => 'hcSiteKey', 'turnstile' => 'tsSiteKey');
-
-	const SECRET_KEYS = array('recaptcha_v2' => 'secretKey', 'recaptcha_v3' => 'rc3SecretKey', 'hcaptcha' => 'hcSecretKey', 'turnstile' => 'tsSecretKey');
-
-	const VERIFY_URLS = array(
-		'recaptcha_v2' => 'https://www.google.com/recaptcha/api/siteverify',
-		'recaptcha_v3' => 'https://www.google.com/recaptcha/api/siteverify',
-		'hcaptcha'     => 'https://api.hcaptcha.com/siteverify',
-		'turnstile'    => 'https://challenges.cloudflare.com/turnstile/v0/siteverify',
-	);
-
-	/** Script handles (Cache_Compat keeps them out of optimizers). */
-	const HANDLES = array('google' => 'efb-recaptcha', 'hcaptcha' => 'efb-hcaptcha', 'turnstile' => 'efb-turnstile', 'runtime' => 'efb-captcha-js');
-
-	/** The action a v3 / Turnstile token is asked for and checked against. */
+	/** The action a token is asked for when the form names none. */
 	const ACTION = 'efb_submit';
 
-	/** Hosts a page's Content-Security-Policy must allow (user guide). */
-	const CSP_HOSTS = array(
-		'recaptcha_v2' => array('www.google.com', 'www.gstatic.com'),
-		'recaptcha_v3' => array('www.google.com', 'www.gstatic.com'),
-		'hcaptcha'     => array('js.hcaptcha.com', '*.hcaptcha.com'),
-		'turnstile'    => array('challenges.cloudflare.com'),
-	);
+	const RUNTIME = 'efb-captcha-js';
 
-	/** What this request put on the page (one Google script for v2 and v3). */
-	private static $page = array('v2' => false, 'v3' => '', 'lang' => '', 'hcaptcha' => false, 'turnstile' => false);
+	/** Boxes drawn in this request (unique ids). */
+	private static $n = 0;
 
 	/* ------------------------------------------------------------ settings */
 
@@ -63,20 +43,25 @@ class Captcha {
 		return is_array($settings) ? $settings : array();
 	}
 
+	/** A key of the settings row ('' when absent, a marker or too short to be a key). */
+	public static function key_value($settings, $key) {
+		$s = self::settings($settings);
+		$v = isset($s[$key]) && is_scalar($s[$key]) ? trim((string) $s[$key]) : '';
+		return ($v === 'NotFoundEl' || strlen($v) <= 5) ? '' : $v;
+	}
+
 	public static function valid_provider($p) {
-		return is_string($p) && in_array($p, self::PROVIDERS, true);
+		return Captcha\Registry::get($p) !== null;
 	}
 
 	/** The site's provider: captcha_provider, or reCAPTCHA v2 (sites before 4.3.2). */
 	public static function site_provider($settings = null) {
-		$s = self::settings($settings);
-		return isset($s['captcha_provider']) && self::valid_provider($s['captcha_provider']) ? $s['captcha_provider'] : 'recaptcha_v2';
+		return Captcha\Registry::site_provider($settings);
 	}
 
-	/** The provider of a form (row 0 as array or object): its own, else the site's. */
+	/** The provider a form asks for (row 0 as array or object): its own, else the site's. */
 	public static function provider_for($s0, $settings = null) {
-		$v = is_array($s0) ? ($s0['captcha_provider'] ?? '') : (is_object($s0) ? ($s0->captcha_provider ?? '') : '');
-		return self::valid_provider($v) ? $v : self::site_provider($settings);
+		return Captcha\Registry::wanted($s0, $settings);
 	}
 
 	/** Whether the form asks for a CAPTCHA (the builder's "captcha" switch; never on a payment form). */
@@ -86,30 +71,31 @@ class Captcha {
 		return in_array($on, array(true, 1, '1', 'true'), true) && $type !== 'payment';
 	}
 
-	private static function key_value($settings, $key) {
-		$s = self::settings($settings);
-		$v = isset($s[$key]) && is_scalar($s[$key]) ? trim((string) $s[$key]) : '';
-		return ($v === 'NotFoundEl' || strlen($v) <= 5) ? '' : $v;
-	}
-
+	/** The public key of a provider ('' when not set). */
 	public static function site_key($provider, $settings = null) {
-		return self::valid_provider($provider) ? self::key_value($settings, self::SITE_KEYS[$provider]) : '';
+		$p = Captcha\Registry::get($provider);
+		if (!$p) return '';
+		foreach ($p->settings_schema() as $f) if (!empty($f['public']) && !empty($f['required'])) return $p->setting($f['key'], $settings);
+		return '';
 	}
 
-	/** Server side only. */
+	/** Server side only: whether the provider's secrets are set ('' / 'set'). */
 	public static function secret($provider, $settings = null) {
-		return self::valid_provider($provider) ? self::key_value($settings, self::SECRET_KEYS[$provider]) : '';
+		$p = Captcha\Registry::get($provider);
+		if (!$p) return '';
+		foreach ($p->settings_schema() as $f) if (($f['type'] ?? '') === 'secret' && !empty($f['required'])) return $p->setting($f['key'], $settings);
+		return '';
 	}
 
-	/** Both keys of a provider are set. */
+	/** Registered, on this plan and its keys are set. */
 	public static function ready($provider, $settings = null) {
-		return self::site_key($provider, $settings) !== '' && self::secret($provider, $settings) !== '';
+		return Captcha\Registry::usable($provider, $settings);
 	}
 
-	/** {provider: bool} for the builder (efb_var.captcha_ready): a provider without keys is offered disabled. */
+	/** {provider: bool} for the builder (efb_var.captcha_ready). */
 	public static function ready_map($settings = null) {
 		$out = array();
-		foreach (self::PROVIDERS as $p) $out[$p] = self::ready($p, $settings);
+		foreach (Captcha\Registry::all() as $id => $p) $out[$id] = self::ready($id, $settings);
 		return $out;
 	}
 
@@ -129,15 +115,7 @@ class Captcha {
 		return isset($s['rc3_low_action']) && $s['rc3_low_action'] === 'block' ? 'block' : 'spam';
 	}
 
-	/** Official test secrets of hCaptcha and Turnstile (their answers carry a dummy hostname / no action). */
-	public static function is_test_secret($provider, $secret) {
-		$secret = (string) $secret;
-		if ($provider === 'hcaptcha') return (bool) preg_match('/^0x0{40}$/', $secret);
-		if ($provider === 'turnstile') return (bool) preg_match('/^[123]x0{31}AA$/', $secret);
-		return false;
-	}
-
-	/** A Turnstile secret looks like one (0x…, or 1x / 2x / 3x test keys), 8 to 100 characters; '' is allowed. */
+	/** A key of the right shape: 8 to 100 characters of [A-Za-z0-9_-.]; '' is allowed. */
 	public static function key_shape_ok($key, $value) {
 		$v = is_scalar($value) ? trim((string) $value) : '';
 		if ($v === '' || $v === 'NotFoundEl') return true;
@@ -155,28 +133,54 @@ class Captcha {
 		if ($locale === '') return 'en';
 		$parts = preg_split('/[_\-]/', $locale);
 		$l = strtolower($parts[0]);
-		$keep_region = array('pt', 'zh', 'es', 'fr', 'de', 'en');
-		if (isset($parts[1]) && in_array($l, $keep_region, true) && in_array(strtoupper($parts[1]), array('BR', 'PT', 'CN', 'TW', 'HK', '419', 'CA', 'CH', 'AT', 'GB'), true)) {
+		if (isset($parts[1]) && in_array($l, array('pt', 'zh', 'es', 'fr', 'de', 'en'), true) && in_array(strtoupper($parts[1]), array('BR', 'PT', 'CN', 'TW', 'HK', '419', 'CA', 'CH', 'AT', 'GB'), true)) {
 			return $l . '-' . strtoupper($parts[1]);
 		}
 		return $l;
 	}
 
-	/* ------------------------------------------------------------ scripts */
-
-	/** The Google script URL for what is on the page (v3 key wins: v2 widgets render on that script too). */
-	public static function google_url($v3_key = '', $lang = '') {
-		$q = array();
-		if ($lang !== '') $q['hl'] = $lang;
-		$q['render'] = $v3_key !== '' ? $v3_key : 'explicit';
-		return 'https://www.google.com/recaptcha/api.js?' . http_build_query($q);
+	/** The Google script for what is on the page (F12 name). */
+	public static function google_url($v3_key = '', $lang = '', $settings = null) {
+		return Captcha\Google::script_url($v3_key, $lang, $settings);
 	}
 
+	/** Official test secrets of a provider (their answers carry a dummy hostname / no action). */
+	public static function is_test_secret($provider, $secret) {
+		$p = Captcha\Registry::get($provider);
+		return $p ? (bool) $p->is_test_secret($secret) : false;
+	}
+
+	/** The first script of a provider (F12 name). */
 	public static function provider_url($provider, $lang = '') {
-		if ($provider === 'hcaptcha') return 'https://js.hcaptcha.com/1/api.js?' . http_build_query(array_filter(array('render' => 'explicit', 'hl' => $lang, 'recaptchacompat' => 'off')));
-		if ($provider === 'turnstile') return 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-		return '';
+		$p = Captcha\Registry::get($provider);
+		$s = $p ? $p->scripts(array('lang' => $lang)) : array();
+		return isset($s[0]['src']) ? $s[0]['src'] : '';
 	}
+
+	/* ------------------------------------------------------------ the one request a provider makes */
+
+	/**
+	 * POST to the service: 8 s, no redirect, only to a host of the provider's verify_hosts(); never the visitor's IP.
+	 * ['json' => array] or a failed result (network / invalid_response / config). Token and secret are never logged.
+	 */
+	public static function http_post($provider, $url, array $body, array $headers = array()) {
+		$host = (string) parse_url((string) $url, PHP_URL_HOST);
+		if (!($provider instanceof Captcha\Provider) || stripos((string) $url, 'https://') !== 0 || !in_array($host, $provider->verify_hosts(), true)) return array('ok' => false, 'code' => 'config');
+		unset($body['remoteip']);
+		$args = array('timeout' => 8, 'redirection' => 0, 'body' => $body);
+		if ($headers) $args['headers'] = $headers;
+		$res = function_exists('wp_remote_post') ? wp_remote_post($url, $args) : null;
+		if (!is_array($res) || (function_exists('is_wp_error') && is_wp_error($res))) return array('ok' => false, 'code' => 'network');
+		$j = json_decode((string) (function_exists('wp_remote_retrieve_body') ? wp_remote_retrieve_body($res) : ($res['body'] ?? '')), true);
+		if (!is_array($j) || !array_key_exists('success', $j)) return array('ok' => false, 'code' => 'invalid_response');
+		return array('json' => $j);
+	}
+
+	public static function home_host() {
+		return function_exists('home_url') ? (string) parse_url(home_url(), PHP_URL_HOST) : '';
+	}
+
+	/* ------------------------------------------------------------ scripts */
 
 	private static function script_args() {
 		global $wp_version;
@@ -184,58 +188,51 @@ class Captcha {
 		return (isset($wp_version) && version_compare((string) $wp_version, '6.3', '>=')) ? array('in_footer' => true, 'strategy' => 'defer') : true;
 	}
 
-	/**
-	 * Puts the provider's script (and the plugin's captcha runtime) on the page. No network request here (the
-	 * wp_remote_head() of 4.3.1 is gone). Returns true when a script is enqueued.
-	 */
-	public static function enqueue($provider, $lang = null, $settings = null) {
-		if (!self::valid_provider($provider) || !function_exists('wp_register_script')) return false;
-		if ($lang === null || $lang === '') $lang = self::lang();
-		$key = self::site_key($provider, $settings);
-		if ($key === '') return false;
+	/** The provider's scripts and the runtime on the page (no network request here). Returns its first script URL. */
+	public static function enqueue_provider($p, array $ctx = array()) {
+		if (!function_exists('wp_register_script')) return '';
 		self::enqueue_runtime();
-		if ($provider === 'recaptcha_v2' || $provider === 'recaptcha_v3') {
-			if ($provider === 'recaptcha_v2') self::$page['v2'] = true;
-			if ($provider === 'recaptcha_v3') self::$page['v3'] = $key;
-			self::$page['lang'] = $lang;
-			$url = self::google_url(self::$page['v3'], $lang);
-			$h = self::HANDLES['google'];
+		$first = '';
+		foreach ((array) $p->scripts($ctx) as $sc) {
+			if (empty($sc['handle']) || empty($sc['src'])) continue;
+			$h = (string) $sc['handle'];
 			$ws = function_exists('wp_scripts') ? wp_scripts() : null;
 			if ($ws && isset($ws->registered[$h])) {
-				$ws->registered[$h]->src = $url; // the page's last word: v3 joins a v2 form already on it
+				if (!empty($sc['replace'])) $ws->registered[$h]->src = $sc['src']; // Google: v3 joins a v2 form already on the page
 			} else {
-				wp_register_script($h, $url, array(), null, self::script_args()); // version null: Google's URL unchanged
+				wp_register_script($h, $sc['src'], array(), null, self::script_args());
 			}
 			wp_enqueue_script($h);
-			return true;
+			if (!empty($sc['adapter'])) {
+				wp_register_script($h . '-adapter', $sc['adapter'], array(self::RUNTIME), isset($sc['ver']) ? (string) $sc['ver'] : null, true);
+				wp_enqueue_script($h . '-adapter');
+			}
+			if ($first === '') $first = $sc['src'];
 		}
-		$h = self::HANDLES[$provider];
-		if (empty(self::$page[$provider])) {
-			wp_register_script($h, self::provider_url($provider, $lang), array(), null, self::script_args());
-			self::$page[$provider] = true;
-		}
-		wp_enqueue_script($h);
-		return true;
+		return $first;
 	}
 
-	/** public/assets/js/captcha-efb.js (window.EFBCaptcha): renders the widgets, v3 tokens, reset, messages. */
+	/** F12 name: enqueue a provider by id. */
+	public static function enqueue($provider, $lang = null, $settings = null) {
+		$p = Captcha\Registry::get($provider);
+		if (!$p || !$p->ready($settings)) return false;
+		return (bool) self::enqueue_provider($p, array('lang' => $lang === null || $lang === '' ? self::lang() : $lang, 'settings' => $settings));
+	}
+
+	/** public/assets/js/captcha-efb.js (window.EFBCaptcha): renders the boxes, tokens, reset, messages. */
 	public static function enqueue_runtime() {
 		if (!function_exists('wp_register_script') || !defined('EMSFB_PLUGIN_URL')) return;
-		$h = self::HANDLES['runtime'];
-		if (function_exists('wp_script_is') && wp_script_is($h, 'enqueued')) return;
+		if (function_exists('wp_script_is') && wp_script_is(self::RUNTIME, 'enqueued')) return;
 		$file = defined('EMSFB_PLUGIN_DIRECTORY') ? EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/captcha-efb.js' : '';
 		$ver = (defined('EMSFB_PLUGIN_VERSION') ? EMSFB_PLUGIN_VERSION : '1') . ($file !== '' && is_readable($file) ? '.' . (int) @filemtime($file) : '');
-		wp_register_script($h, EMSFB_PLUGIN_URL . 'public/assets/js/captcha-efb.js', array(), $ver, true);
-		wp_localize_script($h, 'efb_captcha_cfg', array(
-			'action' => self::ACTION,
-			'text'   => self::texts(),
-		));
-		wp_enqueue_script($h);
+		wp_register_script(self::RUNTIME, EMSFB_PLUGIN_URL . 'public/assets/js/captcha-efb.js', array(), $ver, true);
+		wp_localize_script(self::RUNTIME, 'efb_captcha_cfg', array('action' => self::ACTION, 'text' => self::texts()));
+		wp_enqueue_script(self::RUNTIME);
 	}
 
-	/** Visitor texts of the widgets (English fallbacks; the phrases are in text_efb()). */
+	/** Visitor texts of the boxes (English fallbacks; the phrases are in text_efb()). */
 	public static function texts() {
-		$keys = array('captchaLabel' => 'Security check', 'captchaExpired' => 'The check expired. Please complete it again.', 'errorCaptcha' => '', 'captchaFailed' => 'The security check could not be completed. Please try again.', 'captchaLoading' => 'Loading the security check…');
+		$keys = array('captchaLabel' => 'Security check', 'captchaExpired' => 'The check expired. Please complete it again.', 'errorCaptcha' => '', 'captchaFailed' => 'The security check could not be completed. Please try again.', 'captchaLoading' => 'Loading the security check…', 'cpChallenge' => 'Please confirm you are not a robot.');
 		$out = array();
 		$fn = function_exists('get_efbFunction') ? get_efbFunction() : null;
 		$t = $fn && method_exists($fn, 'text_efb') ? $fn->text_efb(array_keys($keys)) : array();
@@ -257,47 +254,43 @@ class Captcha {
 	}
 
 	/**
-	 * The widget of a provider. $fid > 0: inside form $fid (step $step); $fid <= 0: outside a form (P20), the
-	 * context names it (tracker, reply, portal_signin, …). reCAPTCHA v2 keeps its 4.3.1 markup (#gRecaptcha,
-	 * .g-recaptcha) so old stylesheets and scripts still find it. v3 has no widget: a marker and the notice
-	 * Google asks for when its badge is hidden. '' without a site key.
+	 * The box of a provider (scripts enqueued). $fid > 0: inside form $fid (step $step, row 0 $s0); $fid <= 0: outside
+	 * a form, $context names it (tracker, reply_1, portal_signin, login …). '' when the provider is not ready.
+	 * role=group with a hidden label, a live region, a unique id; the provider's public config in data-efb-captcha.
 	 */
-	public static function widget_html($provider, $fid = 0, $context = 'form', $step = 0, $settings = null) {
-		if (!self::valid_provider($provider)) return '';
-		$key = self::site_key($provider, $settings);
-		if ($key === '') return '';
+	public static function box_html($provider, $fid = 0, $context = 'form', $step = 0, $s0 = array(), $settings = null, array $extra = array()) {
+		$p = $provider instanceof Captcha\Provider ? $provider : Captcha\Registry::get($provider);
+		if (!$p || !$p->ready($settings)) return '';
 		$fid = (int) $fid;
 		$ctx = preg_replace('/[^a-z0-9_]/', '', strtolower((string) $context));
 		if ($ctx === '') $ctx = 'form';
+		$c = array_merge(array('form' => is_object($s0) ? json_decode(json_encode($s0), true) : (array) $s0, 'fid' => $fid, 'context' => $ctx, 'settings' => $settings, 'lang' => self::lang()), $extra);
+		$w = $p->widget($c);
+		self::enqueue_provider($p, $c);
+		$sc = (array) $p->scripts($c);
+		$cfg = array_merge(array('p' => $p->id(), 'kind' => $p->kind()), isset($w['config']) && is_array($w['config']) ? $w['config'] : array());
+		// A form drawn after the footer (a popup, AJAX) loads its scripts itself from here.
+		if (!empty($sc[0]['src'])) { $cfg['src'] = (string) $sc[0]['src']; if (!empty($sc[0]['adapter'])) $cfg['ad'] = (string) $sc[0]['adapter']; }
+		$s = is_array($c['form']) ? $c['form'] : array();
+		if (!empty($s['cp_msg_failed']) && is_string($s['cp_msg_failed'])) $cfg['mf'] = mb_substr(wp_strip_all_tags_efb_cp($s['cp_msg_failed']), 0, 200);
 		$t = self::texts();
-		$form_attr = $fid > 0 ? (string) $fid : '-1';
-		$box_id = $fid > 0 ? 'efb-captcha-' . $fid : 'efb-captcha-' . $ctx;
-		$msg_id = $fid > 0 ? 'recaptcha-message-' . $fid : 'efb-captcha-msg-' . $ctx;
-		$lang = self::lang();
-		if ($provider === 'recaptcha_v3') {
-			return sprintf(
-				'<div class="efb efb-captcha-box efb-rc3-box" data-step="%1$s" data-formid="%2$s" data-efb-captcha-ctx="%3$s"><div id="%4$s" class="efb efb-captcha" data-provider="recaptcha_v3" data-sitekey="%5$s" data-formid="%2$s" data-ctx="%3$s" hidden></div><p class="efb efb-rc3-notice fs-7 text-muted my-2">%6$s</p><small class="efb text-danger efb-captcha-msg" id="%7$s" role="alert" aria-live="assertive"></small></div>',
-				(int) $step, self::esc($form_attr), self::esc($ctx), self::esc($box_id), self::esc($key), self::notice_html(), self::esc($msg_id)
-			);
-		}
-		$label_id = $box_id . '-lbl';
-		if ($provider === 'recaptcha_v2' && $fid > 0) {
-			// 4.3.1 markup (#gRecaptcha, recaptcha-message-{fid}) plus a label and a live region.
-			return sprintf(
-				'<div class="efb row mx-0 efb-captcha-box" data-step="%1$s" data-formid="%2$s" role="group" aria-labelledby="%5$s"><span class="efb efb-sr-only" id="%5$s">%6$s</span>
-						<div id="gRecaptcha" class="efb g-recaptcha efb-captcha my-2 mx-0 px-0" data-provider="recaptcha_v2" data-sitekey="%3$s" data-lang="%7$s" style="transform:scale(0.88);-webkit-transform:scale(0.88);transform-origin:0 0;-webkit-transform-origin:0 0;" data-formid="%2$s">
-
-						</div>
-						<small class="efb text-danger efb-captcha-msg" id="%4$s" role="alert" aria-live="assertive"></small>
-					</div>',
-				(int) $step, self::esc($form_attr), self::esc($key), self::esc($msg_id), self::esc($label_id), self::esch($t['captchaLabel']), self::esc($lang)
-			);
-		}
-		$cls = $provider === 'recaptcha_v2' ? 'efb g-recaptcha efb-captcha' : 'efb efb-captcha';
+		$id = 'efb-cp-' . ($fid > 0 ? $fid : $ctx) . '-' . (++self::$n);
+		$align = array('center' => 'center', 'end' => 'flex-end')[$cfg['align'] ?? ''] ?? 'flex-start';
+		$legacy = $p->id() === 'recaptcha_v2' ? ' data-efb-legacy="gRecaptcha"' : '';
+		$hidden = $p->id() === 'recaptcha_v3' ? ' hidden' : '';
+		$json = function_exists('wp_json_encode') ? wp_json_encode($cfg) : json_encode($cfg);
 		return sprintf(
-			'<div class="efb row mx-0 efb-captcha-box" data-step="%1$s" data-formid="%2$s" data-efb-captcha-ctx="%3$s" role="group" aria-labelledby="%8$s"><span class="efb efb-sr-only" id="%8$s">%9$s</span><div id="%4$s" class="%5$s my-2 mx-0 px-0" data-provider="%6$s" data-sitekey="%7$s" data-formid="%2$s" data-ctx="%3$s" data-lang="%10$s"></div><small class="efb text-danger efb-captcha-msg" id="%11$s" role="alert" aria-live="assertive"></small></div>',
-			(int) $step, self::esc($form_attr), self::esc($ctx), self::esc($box_id), $cls, self::esc($provider), self::esc($key), self::esc($label_id), self::esch($t['captchaLabel']), self::esc($lang), self::esc($msg_id)
+			'<div class="efb row mx-0 efb-captcha-box" id="%1$s" tabindex="-1" data-step="%2$d" data-formid="%3$s" data-efb-captcha-ctx="%4$s" role="group" aria-labelledby="%1$s-l" style="flex-direction:column;align-items:%5$s"><span class="efb efb-sr-only" id="%1$s-l">%6$s</span>'
+			. '<div class="efb efb-captcha %7$s my-2 mx-0 px-0" data-provider="%8$s" data-sitekey="%9$s" data-formid="%3$s" data-ctx="%4$s" data-lang="%10$s" data-efb-captcha="%11$s"%12$s%13$s></div>%14$s'
+			. '<small class="efb text-danger efb-captcha-msg" id="%1$s-m" role="alert" aria-live="assertive"></small></div>',
+			self::esc($id), (int) $step, self::esc($fid > 0 ? (string) $fid : '-1'), self::esc($ctx), $align, self::esch($t['captchaLabel']),
+			self::esc((string) ($w['class'] ?? '')), self::esc($p->id()), self::esc((string) ($cfg['k'] ?? '')), self::esc((string) ($cfg['lang'] ?? '')), self::esc((string) $json), $legacy, $hidden, (string) ($w['after_html'] ?? '')
 		);
+	}
+
+	/** F12 name of box_html(). */
+	public static function widget_html($provider, $fid = 0, $context = 'form', $step = 0, $settings = null) {
+		return self::box_html($provider, $fid, $context, $step, array(), $settings);
 	}
 
 	/** Google's wording when its badge is hidden (links to its policy and terms). */
@@ -311,69 +304,16 @@ class Captcha {
 		return '<span dir="auto" style="unicode-bidi:plaintext">' . $html . '</span>';
 	}
 
-	/* ------------------------------------------------------------ verify */
+	/* ------------------------------------------------------------ verify (F12 name) */
 
-	/**
-	 * Asks the provider about a token. $ctx: idempotency_key (Turnstile: a network retry does not spend the token
-	 * twice), action (default efb_submit), hostname (default the site's), settings. Returns
-	 * ['ok' => bool, 'code' => '' | config | missing | network | invalid_response | failed | expired | hostname | action,
-	 *  'score' => float|null, 'codes' => provider error codes]. Fails closed (as 4.3.1 did for v2). The token and the
-	 * secret are never logged; the remote IP is not sent (docs/feature-gaps/F12 §cache and security).
-	 */
+	/** Registry::verify() by id; $ctx: settings, request_id / idempotency_key, action, hostname, form. */
 	public static function verify($provider, $token, array $ctx = array()) {
-		$out = array('ok' => false, 'code' => 'config', 'score' => null, 'codes' => array(), 'provider' => (string) $provider);
-		if (!self::valid_provider($provider)) return $out;
-		$settings = isset($ctx['settings']) ? $ctx['settings'] : null;
-		$secret = self::secret($provider, $settings);
-		if ($secret === '') return $out;
-		$token = is_scalar($token) ? trim((string) $token) : '';
-		if (strlen($token) < 20 || strlen($token) > 4096) { $out['code'] = 'missing'; return $out; }
-		$body = array('secret' => $secret, 'response' => $token);
-		if ($provider === 'hcaptcha') {
-			$sk = self::site_key($provider, $settings);
-			if ($sk !== '') $body['sitekey'] = $sk;
-		}
-		if ($provider === 'turnstile' && !empty($ctx['idempotency_key']) && is_string($ctx['idempotency_key']) && preg_match('/^[a-f0-9-]{36}$/', $ctx['idempotency_key'])) {
-			$body['idempotency_key'] = $ctx['idempotency_key'];
-		}
-		$res = function_exists('wp_remote_post') ? wp_remote_post(self::VERIFY_URLS[$provider], array('timeout' => 8, 'body' => $body)) : null;
-		if (!is_array($res) || (function_exists('is_wp_error') && is_wp_error($res))) { $out['code'] = 'network'; return $out; }
-		$j = json_decode((string) (function_exists('wp_remote_retrieve_body') ? wp_remote_retrieve_body($res) : ($res['body'] ?? '')), true);
-		if (!is_array($j) || !array_key_exists('success', $j)) { $out['code'] = 'invalid_response'; return $out; }
-		$codes = isset($j['error-codes']) && is_array($j['error-codes']) ? array_values(array_filter($j['error-codes'], 'is_string')) : array();
-		$out['codes'] = array_slice($codes, 0, 5);
-		if ($j['success'] !== true) {
-			$out['code'] = in_array('timeout-or-duplicate', $codes, true) || in_array('expired-input-response', $codes, true) ? 'expired' : 'failed';
-			return $out;
-		}
-		$test = self::is_test_secret($provider, $secret);
-		$want_host = isset($ctx['hostname']) && is_string($ctx['hostname']) ? $ctx['hostname'] : self::home_host();
-		$check_host = function_exists('apply_filters') ? (bool) apply_filters('efb_captcha_check_hostname', $provider !== 'recaptcha_v2', $provider) : $provider !== 'recaptcha_v2';
-		if ($check_host && !$test && $want_host !== '' && isset($j['hostname']) && is_string($j['hostname']) && $j['hostname'] !== '' && self::bare_host($j['hostname']) !== self::bare_host($want_host)) {
-			$out['code'] = 'hostname';
-			return $out;
-		}
-		$want_action = isset($ctx['action']) && is_string($ctx['action']) ? $ctx['action'] : self::ACTION;
-		if (($provider === 'recaptcha_v3' || $provider === 'turnstile') && !$test && isset($j['action']) && is_string($j['action']) && $j['action'] !== '' && $j['action'] !== $want_action) {
-			$out['code'] = 'action';
-			return $out;
-		}
-		if ($provider === 'recaptcha_v3') {
-			if (!isset($j['score']) || !is_numeric($j['score'])) { $out['code'] = 'invalid_response'; return $out; }
-			$out['score'] = round((float) $j['score'], 2);
-		}
-		$out['ok'] = true;
-		$out['code'] = '';
-		return $out;
+		if (!isset($ctx['request_id']) && isset($ctx['idempotency_key'])) $ctx['request_id'] = $ctx['idempotency_key'];
+		return Captcha\Registry::verify((string) $provider, $token, $ctx);
 	}
+}
 
-	public static function home_host() {
-		$h = function_exists('home_url') ? (string) parse_url(home_url(), PHP_URL_HOST) : '';
-		return $h;
-	}
-
-	private static function bare_host($h) {
-		$h = strtolower(trim((string) $h));
-		return strpos($h, 'www.') === 0 ? substr($h, 4) : $h;
-	}
+/** wp_strip_all_tags() or a copy (tests load this file alone). */
+function wp_strip_all_tags_efb_cp($s) {
+	return function_exists('wp_strip_all_tags') ? wp_strip_all_tags((string) $s) : trim(strip_tags((string) $s));
 }

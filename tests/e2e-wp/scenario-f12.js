@@ -48,12 +48,12 @@ module.exports = function (S) {
     var n = 0;
     function render(k) { return function (el, o) { n++; var id = k + n; var c = {}; for (var x in o) if (typeof o[x] !== 'function') c[x] = o[x]; cap.renders.push({ kind: k, id: id, opts: c, formid: el.getAttribute('data-formid') });
       var b = document.createElement('button'); b.type = 'button'; b.className = 'efb-fake-cap'; b.style.minHeight = '44px'; b.style.maxWidth = '100%'; b.textContent = 'Verify'; b.setAttribute('data-kind', k);
-      b.onclick = function () { var nx = window.__efbCapNext || {}; o.callback(nx[k] || ('pass-' + k + '-' + 'x'.repeat(30))); b.textContent = 'Verified'; };
+      b.onclick = function () { var nx = window.__efbCapNext || {}; o.callback(nx[k] || ('pass-' + k + '-' + 'x'.repeat(30) + Date.now() + Math.random().toString(36).slice(2))); b.textContent = 'Verified'; };
       el.appendChild(b); return id; }; }
     function reset(k) { return function (id) { cap.resets.push(k + ':' + id); }; }
     ${kind === 'hcaptcha' ? "window.hcaptcha = { render: render('hcaptcha'), reset: reset('hcaptcha') };" : ''}
     ${kind === 'turnstile' ? "window.turnstile = { render: render('turnstile'), reset: reset('turnstile') };" : ''}
-    ${kind === 'google' ? "window.grecaptcha = { render: render('recaptcha'), reset: reset('recaptcha'), ready: function (cb) { cb(); }, execute: function (key, o) { cap.executes.push({ key: key, action: o && o.action }); var nx = window.__efbCapNext || {}; return Promise.resolve(nx.v3 || ('pass-v3-' + 'x'.repeat(30))); } };" : ''}
+    ${kind === 'google' ? "window.grecaptcha = { render: render('recaptcha'), reset: reset('recaptcha'), ready: function (cb) { cb(); }, execute: function (key, o) { cap.executes.push({ key: key, action: o && o.action }); var nx = window.__efbCapNext || {}; return Promise.resolve(nx.v3 || ('pass-v3-' + 'x'.repeat(30) + Date.now() + Math.random().toString(36).slice(2))); } };" : ''}
   })();`;
   const scriptLog = [];
   async function fakeServices(ctx) {
@@ -72,6 +72,9 @@ module.exports = function (S) {
     await g.waitForSelector(tracker ? '#body_tracker_emsFormBuilder' : '[id^="body_efb_"]', { state: 'attached', timeout: 20000 });
     await g.waitForFunction(() => typeof sendBack_emsFormBuilder_pub !== 'undefined', null, { timeout: 20000 });
     await sleep(700);
+    // F12b §4 rule 6: a widget renders when its box comes into view (a visitor scrolls to the end of the form).
+    const nBox = await g.evaluate(() => document.querySelectorAll('.efb-captcha-box').length);
+    for (let i = 0; i < nBox; i++) { await g.evaluate((k) => { const b = document.querySelectorAll('.efb-captcha-box')[k]; if (b) b.scrollIntoView({ block: 'center' }); }, i); await sleep(250); }
     return g;
   }
   const type = async (p, id, v) => { await p.fill(byId(id + '_'), v); await p.press(byId(id + '_'), 'Tab'); await sleep(150); };
@@ -298,7 +301,8 @@ module.exports = function (S) {
       await admin.click("a[onclick=\"show_setting_window_efb('formSet')\"]");
       await admin.waitForSelector('#captchaProviderEl', { timeout: 10000 });
       const opts = await admin.evaluate(() => Array.from(document.getElementById('captchaProviderEl').options).map((o) => [o.value, o.disabled]));
-      R.check('f12c: the builder offers "Site default" and the four services; the ones with keys enabled', opts.length === 5 && opts.find((o) => o[0] === 'hcaptcha')[1] === false && opts.find((o) => o[0] === 'turnstile')[1] === false, opts);
+      // F12b: the registry's list (Google's three modes, then the CAPTCHA add-ons: offered but disabled while not installed).
+      R.check('f12c: the builder offers "Site default" and the services; the ones with keys enabled', opts.length >= 5 && opts[0][0] === '' && opts.find((o) => o[0] === 'hcaptcha')[1] === false && opts.find((o) => o[0] === 'turnstile')[1] === false && opts.filter((o) => ['altcha', 'question', 'friendly'].indexOf(o[0]) !== -1).every((o) => o[1] === true), opts);
       await admin.selectOption('#captchaProviderEl', 'turnstile');
       await sleep(400);
       await admin.evaluate(() => { const el = document.getElementById('captchaEl'); if (!el.classList.contains('active')) { el.classList.add('active'); fun_switch_form_efb(el); } });

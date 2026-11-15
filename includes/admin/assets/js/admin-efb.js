@@ -2412,6 +2412,8 @@ let change_el_edit_Efb = (el) => {
   }
   // F15: the undo history names this change ("Change Label"); the same control within a second is one entry.
   if (typeof efbHistEditEfb === 'function') efbHistEditEfb(el);
+  // F12b: the options of the form's CAPTCHA service (cp_*, rc3_action, rc3_fallback; spam-builder-efb.js).
+  if (el.id && el.id.indexOf('cpOpt_') === 0) { if (typeof efbSpamBuilderChange === 'function') efbSpamBuilderChange(el); return; }
 
   if (lenV > 20) {
     timeout = 5;

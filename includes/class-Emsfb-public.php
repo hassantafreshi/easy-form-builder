@@ -1996,30 +1996,21 @@ public function check_nonce_permission_efb($request) {
 					$this->pub_stting = (is_array($pub) && isset($pub[1]) && is_array($pub[1])) ? $pub[1] : [];
 				}
 			}
-			/* F12: the CAPTCHA of the form's service (its captcha_provider, else the site's, else reCAPTCHA v2), at
-			 * the end of the last step. Shown with Conditional Logic too: the server always asked for it, but the
-			 * widget was left out when the form had a "logic" key (even false), so such a form could not be sent
-			 * (BUGS-FOUND F12; the Conditional Logic add-on draws no CAPTCHA of its own). */
-			if($valj_efb[0]->captcha==true){
-				$captcha_provider_efb = class_exists('\\Emsfb\\Captcha') ? \Emsfb\Captcha::provider_for($valj_efb[0]) : 'recaptcha_v2';
-				$error_msg = "<div id='body_efb' class='efb card-public row pb-3 efb px-2'  style='color: #9F6000; background-color: #FEEFB3;  padding: 5px 10px;'> <div class='efb text-center my-5'><h2 style='text-align: center;'></h2><h3 class='efb warning text-center text-darkb fs-4'>".($captcha_provider_efb === 'recaptcha_v2' ? esc_html__('The form is not shown because Google reCAPTCHA has not been added to the Easy Form Builder plugin settings.','easy-form-builder') : esc_html__('The form is not shown because the keys of its CAPTCHA service are not in the Easy Form Builder settings.','easy-form-builder'))."</h3><p class='efb fs-5  text-center my-1 text-pinkEfb' style='text-align: center;'><p></div></div>";
-
-				$siteKey = '';
-				if (class_exists('\\Emsfb\\Captcha')) {
-					$siteKey = \Emsfb\Captcha::site_key($captcha_provider_efb);
-				} elseif (is_array($this->pub_stting) && isset($this->pub_stting['siteKey'])) {
-					$siteKey = (string) $this->pub_stting['siteKey'];
+			/* F12 / F12b: the CAPTCHA box of the form's service at the end of the last step: the provider the form
+			 * really uses (Registry::effective_for(): its own, else the site's; an add-on that is off, a plan below
+			 * it or missing keys fall back to the site's Google mode, else to the forced hidden field and minimum
+			 * time). The form is always shown (4.3.1 hid it without keys); a signed-in administrator reads why. */
+			if (\Emsfb\Captcha::form_on($valj_efb[0]) && class_exists('\\Emsfb\\Captcha\\Registry')) {
+				$cp_eff_efb = \Emsfb\Captcha\Registry::effective_for($valj_efb[0]);
+				if ($cp_eff_efb['provider'] !== null) {
+					$captcha_content = $efbFormBuilder->fun_captcha_widget_efb($cp_eff_efb['id'], '', $form_id, $step_no - 1, $valj_efb[0]);
+					$rgister_captcha_url = $captcha_content !== '';
 				}
-				if(strlen($siteKey) <= 5){
-					return $error_msg;
+				if ($cp_eff_efb['fallback'] && function_exists('current_user_can') && current_user_can('manage_options')) {
+					$captcha_content = '<div class="efb alert alert-warning efb-cp-admin-note fs-7 my-2" role="note" dir="auto" style="unicode-bidi:plaintext">' . esc_html($this->efbFunction->text_efb(array('cpKeysMissingAdmin'))['cpKeysMissingAdmin'] ?? 'The CAPTCHA keys of this form are not set. Visitors see the form with basic spam protection.') . '</div>' . $captcha_content;
 				}
-				if ($captcha_provider_efb === 'recaptcha_v2') {
-					$rgister_captcha_url = $this->efbFunction->check_and_enqueue_google_captcha_efb($lang);
-					$captcha_content =$efbFormBuilder->fun_captcha_load_efb($siteKey, $form_id,$step_no - 1);
-				} else {
-					$rgister_captcha_url = \Emsfb\Captcha::enqueue($captcha_provider_efb);
-					$captcha_content = $efbFormBuilder->fun_captcha_widget_efb($captcha_provider_efb, $siteKey, $form_id, $step_no - 1);
-				}
+				// F12b §3: Human Shield (or anyone) learns which visible check this form has (one per form).
+				apply_filters('efb_captcha_active_for_form', $cp_eff_efb['provider'], array('form_id' => (int) $form_id, 'form' => $valj_efb[0]));
 			}
 
 			if (strlen((string) $content) > 10) {
@@ -2367,24 +2358,11 @@ public function check_nonce_permission_efb($request) {
 			/* Only with a site key: without one the widget cannot render, the
 			 * page's own "tick the box" check then blocked every lookup, and
 			 * the server (verify_tracker_captcha_efb) does not enforce it. */
-			// F12 / P20: another CAPTCHA service of the site draws its own widget (Spam::captcha_widget(), context "tracker").
-			$tracker_provider_efb = class_exists('\\Emsfb\\Captcha') ? \Emsfb\Captcha::site_provider() : 'recaptcha_v2';
-			if ($tracker_provider_efb !== 'recaptcha_v2' && isset($valstng->scaptcha) && $valstng->scaptcha==true && class_exists('\\Emsfb\\Spam')) {
+			// F12 / F12b / P20: the site's CAPTCHA (any provider, Google v2 included) draws its own box, context
+			// "tracker" (Spam::captcha_widget(): its own id, no inline script, the fallback when its add-on is gone).
+			if (isset($valstng->scaptcha) && $valstng->scaptcha==true && class_exists('\\Emsfb\\Spam')) {
 				$tracker_widget_efb = \Emsfb\Spam::captcha_widget('tracker');
 				if ($tracker_widget_efb !== '') $script_call_captcha = '<div class="efb efb-tracker-captcha">' . $tracker_widget_efb . '</div>';
-			} elseif (!empty($valstng->siteKey) && is_string($valstng->siteKey) && isset($valstng->scaptcha) && $valstng->scaptcha==true ){
-				$script_call_captcha =sprintf(
-						'<div class="efb efb-tracker-captcha">
-									<div id="gRecaptcha" class="efb g-recaptcha" data-sitekey="%1$s" data-formid="-1" ></div>
-									<small class="efb text-danger" id="recaptcha-message"></small>
-								</div>	<script>
-						document.addEventListener("DOMContentLoaded", function() {
-							loadCaptcha_efb(20);
-						});
-						</script>' ,
-								esc_attr($valstng->siteKey)
-				);
-				$captcha_exist = true;
 			}
 
 		$track_content =  sprintf(
@@ -3602,66 +3580,49 @@ public function check_nonce_permission_efb($request) {
 						'recipients_so_far'  => $email_recipients,
 					]);
 
-				$recaptcha_secret_key = isset($plugin_settings['secretKey']) && strlen($plugin_settings['secretKey']) > 5 ? $plugin_settings['secretKey'] : null;
 				$response = isset($request_data['valid']) && is_scalar($request_data['valid']) ? sanitize_text_field($request_data['valid']) : null;
-				/* F12 (3): the form's CAPTCHA, a hard gate (the visitor tries again). The provider is the form's own
-				 * captcha_provider, else the site's, else reCAPTCHA v2 (forms and sites before 4.3.2): decided from
-				 * the stored form and the settings, never from the request. Captcha::verify() asks the provider (a
-				 * POST, 8 s, no remote IP; a network error or a reply that is not JSON fails closed, as 4.3.1 did).
-				 * No secret for the provider: refused before anything is stored (errorSiteKeyM). A reCAPTCHA v3 score
-				 * under the threshold is the soft reason low_score (rc3_low_action "spam") or refused ("block"). */
-				$captcha_on_efb = is_array($form_fields_array) && isset($form_fields_array[0]['type'], $form_fields_array[0]['captcha']) && intval($form_fields_array[0]['captcha']) == 1 && $form_fields_array[0]['type'] != 'payment';
-				// Where 4.3.1 enforced it ($skip_captcha: forms, surveys, subscriptions; register / login forms never
-				// were, BUGS-FOUND F12), unchanged.
-				if ($captcha_on_efb && $skip_captcha && !in_array($submission_type, array('logout', 'recovery'), true)) {
-					$captcha_provider_efb = class_exists('\\Emsfb\\Captcha') ? \Emsfb\Captcha::provider_for($form_fields_array[0], $plugin_settings) : 'recaptcha_v2';
-					$captcha_secret_ok_efb = class_exists('\\Emsfb\\Captcha') ? \Emsfb\Captcha::secret($captcha_provider_efb, $plugin_settings) !== '' : (bool) $recaptcha_secret_key;
-					if (!$captcha_secret_ok_efb) {
+				/* F12 (3) / F12b: the form's CAPTCHA, a hard gate (the visitor tries again). The provider is the one the
+				 * form really uses (Registry::effective_for(): its own captcha_provider, else the site's; an add-on that
+				 * is off, a plan below it or missing keys fall back to the site's Google mode, else to the forced soft
+				 * checks, which already ran) — decided from the stored form and the settings, never from the request.
+				 * Registry::verify() asks the service (a POST, 8 s, no remote IP; a network error or an answer that is
+				 * not JSON fails closed) and checks hostname, action, age and replay. v3: a score under the threshold is
+				 * low_score (spam / block) or, with rc3_fallback, efb_captcha_challenge (nothing stored; the page shows
+				 * the v2 checkbox in the same box and sends its token with captcha_kind v2).
+				 * D1: register and login forms (and a password recovery request) are checked too (captcha_login). */
+				$captcha_on_efb = is_array($form_fields_array) && isset($form_fields_array[0]) && is_array($form_fields_array[0]) && \Emsfb\Captcha::form_on($form_fields_array[0]);
+				$captcha_d1_efb = $captcha_on_efb && in_array($form_type, array('register', 'login'), true) && in_array($submission_type, array('register', 'login', 'recovery'), true)
+					&& class_exists('\\Emsfb\\Spam') && \Emsfb\Spam::setting('captcha_login', $plugin_settings) === '1';
+				$captcha_need_efb = $captcha_on_efb && (($skip_captcha && !in_array($submission_type, array('logout', 'recovery'), true)) || $captcha_d1_efb);
+				$cp_eff_efb = $captcha_need_efb && class_exists('\\Emsfb\\Captcha\\Registry') ? \Emsfb\Captcha\Registry::effective_for($form_fields_array[0], $plugin_settings) : null;
+				if ($captcha_need_efb && $cp_eff_efb && $cp_eff_efb['provider'] !== null) {
+					$captcha_check_efb = \Emsfb\Spam::verify_captcha((string) $response, 'form', array(
+						'form'       => $form_fields_array[0],
+						'settings'   => $plugin_settings,
+						'request_id' => isset($request_data['request_id']) && is_string($request_data['request_id']) ? $request_data['request_id'] : '',
+						'kind'       => isset($request_data['captcha_kind']) && $request_data['captcha_kind'] === 'v2' ? 'v2' : '',
+						// A spam answer must not create an account: register / login refuse a low score (D1).
+						'low_score'  => $captcha_d1_efb || \Emsfb\Captcha::low_action($plugin_settings) === 'block' ? 'block' : 'soft',
+					));
+					if (!empty($captcha_check_efb['ok'])) {
+						$captcha_verification_result = (object) array('success' => true);
+						if (!empty($captcha_check_efb['spam'])) $spam_soft_efb = array('spam' => true, 'reasons' => array_merge($spam_soft_efb['reasons'], array('low_score')));
+					} else {
 						$this->efb_trace('submit.blocked', [
 							'form_id' => intval($this->id),
-							'gate'    => $captcha_provider_efb === 'recaptcha_v2' ? 'recaptcha_secret_key_missing' : 'captcha_' . $captcha_provider_efb . '_secret_missing',
-							'reason'  => 'The form has captcha on but the secret key of its CAPTCHA service is empty; the submission is rejected before anything is saved or sent.',
+							'gate'    => 'captcha_' . $captcha_check_efb['provider'],
+							'codes'   => $captcha_check_efb['code'],
+							'reason'  => 'The CAPTCHA service did not confirm the token; the submission stops here, so no email is ever attempted.',
 						]);
-						$response = ['success' => false, 'm' => $this->lanText['errorSiteKeyM']];
-						wp_send_json_success($response, 200);
-						return;
+						$captcha_code_efb = $captcha_check_efb['code'] !== '' ? $captcha_check_efb['code'] : 'failed';
+						wp_send_json_success(['success' => false, 'm' => \Emsfb\Spam::captcha_message($captcha_code_efb, $form_fields_array[0], is_array($this->lanText) ? $this->lanText : array()), 'code' => 'efb_captcha_' . $captcha_code_efb], 200);
+						die();
 					}
-					if (class_exists('\\Emsfb\\Spam')) {
-						$captcha_check_efb = \Emsfb\Spam::verify_captcha((string) $response, 'form', array(
-							'form'            => $form_fields_array[0],
-							'settings'        => $plugin_settings,
-							'idempotency_key' => isset($request_data['request_id']) && is_string($request_data['request_id']) ? $request_data['request_id'] : '',
-							'low_score'       => \Emsfb\Captcha::low_action($plugin_settings) === 'block' ? 'block' : 'soft',
-						));
-						if (!empty($captcha_check_efb['ok'])) {
-							$captcha_verification_result = (object) array('success' => true);
-							if (!empty($captcha_check_efb['spam'])) $spam_soft_efb = array('spam' => true, 'reasons' => array_merge($spam_soft_efb['reasons'], array('low_score')));
-						} else {
-							$this->efb_trace('submit.blocked', [
-								'form_id' => intval($this->id),
-								'gate'    => 'captcha_' . $captcha_provider_efb,
-								'codes'   => $captcha_check_efb['code'],
-								'reason'  => 'The CAPTCHA service did not confirm the token; the submission stops here, so no email is ever attempted.',
-							]);
-							$captcha_msg_efb = $captcha_check_efb['code'] === 'expired' && !empty($this->lanText['captchaExpired']) ? $this->lanText['captchaExpired'] : $this->lanText['errorCaptcha'];
-							wp_send_json_success(['success' => false, 'm' => $captcha_msg_efb, 'code' => 'efb_captcha_' . ($captcha_check_efb['code'] !== '' ? $captcha_check_efb['code'] : 'failed')], 200);
-							die();
-						}
-					} elseif (strlen((string) $response) > 5) {
-						// Build the query with add_query_arg so both values are URL-encoded;
-						// prevents a crafted "response" value from injecting extra query
-						// parameters into the siteverify request.
-						$verify = wp_remote_get( add_query_arg( array(
-							'secret'   => $recaptcha_secret_key,
-							'response' => $response,
-						), 'https://www.google.com/recaptcha/api/siteverify' ) );
-						/* A timeout or a blocked request returns a WP_Error: reading
-						 * $verify['body'] on it was a PHP fatal (HTTP 500), and the visitor
-						 * was told the outcome was unknown although nothing was saved. Now
-						 * it is a failed captcha check with the usual captcha message. */
-						$captcha_decoded = is_wp_error($verify) ? null : json_decode(wp_remote_retrieve_body($verify));
-						$captcha_verification_result = is_object($captcha_decoded) ? $captcha_decoded : "null";
-					}
+				} elseif ($captcha_need_efb) {
+					// No service can check this form now (F12b §5): the hidden field and the minimum time were forced on
+					// for it (Spam::cfg) and already passed; a login form is never locked out (D1).
+					$captcha_verification_result = (object) array('success' => true);
+					$this->efb_trace('submit.gate', array('form_id' => intval($this->id), 'gate' => 'captcha_fallback_soft', 'reason' => 'no CAPTCHA service is usable for this form now (' . (string) ($cp_eff_efb['why'] ?? '') . ')'));
 				}
 				$shield_should_block = apply_filters('efb_submit_bot_decision', false, [
 					'setting' => is_array($plugin_settings) ? $plugin_settings : [],
@@ -4561,13 +4522,13 @@ public function check_nonce_permission_efb($request) {
 		};
 		$site_key = $get('siteKey');
 		$enabled  = $get('scaptcha');
-		/* F12 / P20: the site's CAPTCHA service is hCaptcha, Turnstile or reCAPTCHA v3: the public check
-		 * (Spam::verify_captcha(), context "tracker"). Without its site key no widget is shown: not enforced, as v2. */
-		$provider = $get('captcha_provider');
-		if (is_string($provider) && $provider !== '' && $provider !== 'recaptcha_v2' && class_exists('\\Emsfb\\Spam')) {
-			if ($enabled != true || \Emsfb\Captcha::site_key($provider, $setting) === '') return true;
-			if (\Emsfb\Captcha::secret($provider, $setting) === '') return 'config';
-			$check = \Emsfb\Spam::verify_captcha($token, 'tracker', array('provider' => $provider, 'settings' => $setting));
+		/* F12b / P20: the site's effective CAPTCHA (any provider; the site's Google mode or none when its add-on is
+		 * gone) through the public check, context "tracker". No usable provider: no box on the page, not enforced. */
+		if (class_exists('\\Emsfb\\Captcha\\Registry') && class_exists('\\Emsfb\\Spam')) {
+			if ($enabled != true) return true;
+			$eff = \Emsfb\Captcha\Registry::effective_for(array('captcha' => 1), $setting);
+			if ($eff['provider'] === null) return true;
+			$check = \Emsfb\Spam::verify_captcha($token, 'tracker', array('provider' => $eff['id'], 'settings' => $setting));
 			return !empty($check['ok']) ? true : 'failed';
 		}
 		if (!is_string($site_key) || $site_key === '' || $enabled != true) return true;

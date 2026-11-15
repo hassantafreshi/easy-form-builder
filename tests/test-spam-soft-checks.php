@@ -131,7 +131,8 @@ $p2 = Spam::payload(array(array('id_' => 'n', 'value' => 'علی'), array('id_' 
 t('without name fields: the first text field labelled "name" (any language)', $p2['author'], 'علی');
 
 echo "--- form keys and the schema ---\n";
-t('captcha_provider: allow-list ("" = the site\'s)', array(Spam::sanitize_form_key('captcha_provider', 'hcaptcha'), Spam::sanitize_form_key('captcha_provider', 'evil')), array('hcaptcha', ''));
+// F12b: any well-formed id is kept (an add-on switched off must not wipe the form's choice); a malformed one is dropped.
+t('captcha_provider: a well-formed id ("" = the site\'s)', array(Spam::sanitize_form_key('captcha_provider', 'hcaptcha'), Spam::sanitize_form_key('captcha_provider', 'evil'), Spam::sanitize_form_key('captcha_provider', '<x>'), Spam::sanitize_form_key('captcha_provider', 'Turnstile')), array('hcaptcha', 'evil', '', ''));
 t('rc3_threshold: ۰٫۳ → 0.3; junk → ""', array(Spam::sanitize_form_key('rc3_threshold', '۰٫۳'), Spam::sanitize_form_key('rc3_threshold', 'x')), array('0.3', ''));
 t('spam_off / spam_akismet flags', array(Spam::sanitize_form_key('spam_off', true), Spam::sanitize_form_key('spam_off', '1'), Spam::sanitize_form_key('spam_off', 'no'), Spam::sanitize_form_key('spam_akismet', '0'), Spam::sanitize_form_key('spam_akismet', '1')), array('1', '1', '', '0', ''));
 $set(array('spam_honeypot' => '1', 'spam_min_time' => '4', 'captcha_provider' => 'turnstile', 'tsSiteKey' => '1x00000000000000000000AA', 'tsSecretKey' => '1x0000000000000000000000000000000AA'));
@@ -139,7 +140,7 @@ $sch = Spam::form_schema(array('type' => 'form', 'captcha' => '1'));
 t('schema: what protects the form (honeypot, 4 s, Turnstile ready, visible widget)', array($sch['honeypot'], $sch['min_time'], $sch['captcha']['provider'], $sch['captcha']['ready'], $sch['captcha']['widget']), array(true, 4, 'turnstile', true, 'visible'));
 $js = json_encode($sch);
 t('schema: no secret and no honeypot name', strpos($js, '0000000000AA') === false && strpos($js, 'efb_url_') === false && strpos($js, 'efb_hp') === false, true);
-t('schema: a form without CAPTCHA says so', Spam::form_schema(array('type' => 'form'))['captcha'], array('on' => false, 'provider' => null, 'ready' => null, 'widget' => null));
+t('schema: a form without CAPTCHA says so', Spam::form_schema(array('type' => 'form'))['captcha'], array('on' => false, 'provider' => null, 'effective_provider' => null, 'kind' => null, 'ready' => null, 'widget' => null, 'fallback' => null, 'why' => null));
 
 echo "\nRESULTS: {$pass} passed, {$fail} failed\n";
 exit($fail ? 1 : 0);

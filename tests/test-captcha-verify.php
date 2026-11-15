@@ -119,20 +119,23 @@ unset($GLOBALS['efb_t']['filters']['efb_captcha_verify_result']);
 $GLOBALS['efb_t']['settings'] = $S;
 
 echo "--- provider of a form, keys, markup ---\n";
-t('provider: the form\'s own, else the site\'s, else reCAPTCHA v2', array(Captcha::provider_for(array('captcha_provider' => 'hcaptcha')), Captcha::provider_for(array()), Captcha::provider_for((object) array('captcha_provider' => 'evil'))), array('hcaptcha', 'recaptcha_v2', 'recaptcha_v2'));
+// F12b §5: an id that is not registered (an add-on switched off) is kept as asked; what protects the form is effective_for().
+t('provider: the form\'s own, else the site\'s, else reCAPTCHA v2; an unknown id is kept as asked, a malformed one is not', array(Captcha::provider_for(array('captcha_provider' => 'hcaptcha')), Captcha::provider_for(array()), Captcha::provider_for((object) array('captcha_provider' => 'evil')), Captcha::provider_for(array('captcha_provider' => 'Bad Id!'))), array('hcaptcha', 'recaptcha_v2', 'evil', 'recaptcha_v2'));
+t('effective provider of an unknown id: the site\'s Google mode that is ready (v2 here)', \Emsfb\Captcha\Registry::effective_for(array('captcha' => 1, 'captcha_provider' => 'evil'), $S)['id'], 'recaptcha_v2');
 $GLOBALS['efb_t']['settings'] = array_merge($S, array('captcha_provider' => 'turnstile'));
 t('provider: the site\'s when the form has none', Captcha::provider_for(array('captcha_provider' => '')), 'turnstile');
 $GLOBALS['efb_t']['settings'] = $S;
-t('ready map: a provider without both keys is not ready', Captcha::ready_map(array('siteKey' => 'v2-site-key-placeholder', 'secretKey' => '', 'hcSiteKey' => 'hc-site-key-placeholder', 'hcSecretKey' => 'hc-secret-placeholder')), array('recaptcha_v2' => false, 'recaptcha_v3' => false, 'hcaptcha' => true, 'turnstile' => false));
+t('ready map: a provider without both keys is not ready', Captcha::ready_map(array('siteKey' => 'v2-site-key-placeholder', 'secretKey' => '', 'hcSiteKey' => 'hc-site-key-placeholder', 'hcSecretKey' => 'hc-secret-placeholder')), array('recaptcha_v2' => false, 'recaptcha_v2i' => false, 'recaptcha_v3' => false, 'hcaptcha' => true, 'turnstile' => false));
 $w = Captcha::widget_html('hcaptcha', 9, 'form', 2);
 t('widget: the site key, the provider, the form, a label for screen readers and a live region; never the secret', strpos($w, 'data-sitekey="hc-site-key-placeholder"') !== false && strpos($w, 'data-provider="hcaptcha"') !== false && strpos($w, 'data-formid="9"') !== false
-	&& strpos($w, 'aria-labelledby="efb-captcha-9-lbl"') !== false && strpos($w, 'role="alert" aria-live="assertive"') !== false && strpos($w, 'secret') === false, true);
+	&& (bool) preg_match('/id="(efb-cp-9-\\d+)"[^>]*aria-labelledby="\\1-l"/', $w) && strpos($w, 'role="alert" aria-live="assertive"') !== false && strpos($w, 'secret') === false, true);
 $w2 = Captcha::widget_html('recaptcha_v2', 9, 'form', 2);
-t('widget v2: the 4.3.1 markup (#gRecaptcha, .g-recaptcha, recaptcha-message-9) plus label and live region', strpos($w2, 'id="gRecaptcha" class="efb g-recaptcha') !== false && strpos($w2, 'id="recaptcha-message-9"') !== false && strpos($w2, 'efb-sr-only') !== false, true);
+// F12b-C: no #gRecaptcha / recaptcha-message-{fid} any more (two forms on a page repeated them): .g-recaptcha and data-efb-legacy stay for old CSS.
+t('widget v2: .g-recaptcha with data-efb-legacy="gRecaptcha", a unique id, label and live region; no #gRecaptcha', strpos($w2, 'class="efb efb-captcha g-recaptcha') !== false && strpos($w2, 'data-efb-legacy="gRecaptcha"') !== false && strpos($w2, 'id="gRecaptcha"') === false && strpos($w2, 'efb-sr-only') !== false, true);
 $w3 = Captcha::widget_html('recaptcha_v3', 9);
 t('widget v3: no widget, a hidden marker and Google\'s notice with its links', strpos($w3, 'data-provider="recaptcha_v3"') !== false && strpos($w3, ' hidden></div>') !== false && strpos($w3, 'https://policies.google.com/privacy') !== false && strpos($w3, 'https://policies.google.com/terms') !== false, true);
 $w4 = Captcha::widget_html('turnstile', 0, 'portal_signin');
-t('P20 widget outside a form: data-formid -1, data-ctx, its own ids', strpos($w4, 'data-formid="-1"') !== false && strpos($w4, 'data-ctx="portal_signin"') !== false && strpos($w4, 'id="efb-captcha-portal_signin"') !== false, true);
+t('P20 widget outside a form: data-formid -1, data-ctx, its own ids', strpos($w4, 'data-formid="-1"') !== false && strpos($w4, 'data-ctx="portal_signin"') !== false && (bool) preg_match('/id="efb-cp-portal_signin-\\d+"/', $w4), true);
 t('no site key → no widget', Captcha::widget_html('turnstile', 1, 'form', 0, array('tsSiteKey' => '')), '');
 
 echo "--- scripts and language ---\n";
@@ -152,7 +155,8 @@ if ($why = $H->unavailable()) {
 	$H->ctl('set-option', 'efb_e2e_f12_mock', '1');
 	$H->ctl('f12-setting', 'hcSiteKey=10000000-ffff-ffff-ffff-000000000001&hcSecretKey=0x0000000000000000000000000000000000000000&tsSiteKey=1x00000000000000000000AA&tsSecretKey=1x0000000000000000000000000000000AA&rc3SiteKey=e2e-v3-site-placeholder&rc3SecretKey=e2e-v3-secret-placeholder&rc3Threshold=0.5&rc3_low_action=spam&spam_min_time=0&spam_honeypot=del');
 	$mk = function ($prov) use ($H) { return $H->ctl('f03-form', 'F12 ' . $prov, json_encode(array(array('key' => 'nm', 'type' => 'text', 'name' => 'Name'))), 'captcha=1&captcha_provider=' . $prov); };
-	$send = function ($F, $token) use ($H) { $H->fresh_jar(); return EfbF11Http::answer($H->submit((int) $F['form_id'], array(array('id_' => $F['ids']['nm'], 'name' => 'Name', 'type' => 'text', 'value' => 'Visitor')), array('valid' => $token))); };
+	// F12b: a token is accepted once (replay guard): every mocked token gets a suffix of its own.
+	$send = function ($F, $token) use ($H) { $H->fresh_jar(); return EfbF11Http::answer($H->submit((int) $F['form_id'], array(array('id_' => $F['ids']['nm'], 'name' => 'Name', 'type' => 'text', 'value' => 'Visitor')), array('valid' => $token !== '' ? $token . bin2hex(random_bytes(6)) : ''))); };
 	$made = array();
 	foreach (array('hcaptcha', 'turnstile') as $prov) {
 		$F = $mk($prov); $made[] = $F['form_id'];
@@ -186,7 +190,9 @@ if ($why = $H->unavailable()) {
 	t('site v3: rc3_low_action block → a low score is refused', ($send($V, 'low-' . str_repeat('c', 30))['code'] ?? ''), 'efb_captcha_low_score');
 	$P = $mk('hcaptcha'); $made[] = $P['form_id'];
 	$H->ctl('f12-setting', 'hcSecretKey=');
-	t('site: the form\'s service has no secret → errorSiteKeyM before anything is stored', array(empty($send($P, 'pass-' . str_repeat('d', 30))['success']), is_array($H->ctl('f14-entries', (string) $P['form_id'])) ? count($H->ctl('f14-entries', (string) $P['form_id'])) : -1), array(true, 0));
+	// F12b §5: the form's service has no secret → the site's Google mode that is ready (v3 here) protects it; never unprotected.
+	$H->ctl('f12-setting', 'rc3_low_action=spam');
+	t('site: the form\'s service has no secret → protected by the ready Google mode (a Google token passes, a bad one does not)', array(!empty($send($P, 'pass-' . str_repeat('d', 30))['success']), ($send($P, 'fail-' . str_repeat('d', 30))['code'] ?? '')), array(true, 'efb_captcha_failed'));
 	$page = $H->http('GET', $H->page((int) $V['form_id']), null, array(), false);
 	t('site: the page of a v3 form has the site key and Google\'s notice, never a secret', strpos($page['body'], 'e2e-v3-site-placeholder') !== false && strpos($page['body'], 'policies.google.com/privacy') !== false && strpos($page['body'], 'e2e-v3-secret-placeholder') === false && strpos($page['body'], '0x0000000000000000000000000000000000000000') === false, true);
 	foreach ($made as $id) $H->ctl('f12-delete-form', (string) $id);

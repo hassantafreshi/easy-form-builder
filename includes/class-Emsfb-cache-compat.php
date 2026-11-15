@@ -268,10 +268,10 @@ class Cache_Compat {
             if (is_string($script->src) && strpos($script->src, EMSFB_PLUGIN_URL) === 0) $critical[] = $handle;
         }
         if (self::$dynamic || wp_script_is('efb-main-js','enqueued')) $critical = array_merge($critical, array('jquery','jquery-core','jquery-migrate','stripe-js'));
-        // F12: the CAPTCHA services' own scripts (Google, hCaptcha, Turnstile): an optimizer that delays or combines
-        // them leaves the widget empty and the form unsendable.
-        foreach (array('efb-recaptcha', 'efb-hcaptcha', 'efb-turnstile') as $cap_handle) {
-            if (isset($wp_scripts->registered[$cap_handle])) $critical[] = $cap_handle;
+        // F12 / F12b: the CAPTCHA services' own scripts (Google; every add-on provider's efb-cp-<id>): an optimizer that
+        // delays or combines them leaves the widget empty and the form unsendable.
+        foreach (array_keys($wp_scripts->registered) as $cap_handle) {
+            if ($cap_handle === 'efb-recaptcha' || strpos((string) $cap_handle, 'efb-cp-') === 0) $critical[] = $cap_handle;
         }
         $seen = array();
         while ($critical) {

@@ -9,10 +9,15 @@ if (!defined('ABSPATH')) {
 }
 
 if (!function_exists('efb_captcha_api')) {
-	/** ['version' => 1, 'providers' => [...], 'provider' => the site's, 'ready' => bool]. */
+	/**
+	 * ['version' => 1, 'contract' => 2, 'providers' => [registered ids usable on this plan], 'provider' => the site's
+	 * effective one, 'ready' => bool]. F12b: providers is the registry's list now (consumers use in_array()).
+	 */
 	function efb_captcha_api() {
-		$p = \Emsfb\Captcha::site_provider();
-		return array('version' => \Emsfb\Captcha::API_VERSION, 'providers' => \Emsfb\Captcha::PROVIDERS, 'provider' => $p, 'ready' => \Emsfb\Captcha::ready($p));
+		$eff = \Emsfb\Captcha\Registry::effective_for(array('captcha' => 1));
+		$ids = array();
+		foreach (\Emsfb\Captcha\Registry::all() as $id => $p) if (\Emsfb\Captcha\Registry::available($p)) $ids[] = $id;
+		return array('version' => \Emsfb\Captcha::API_VERSION, 'contract' => \Emsfb\Captcha\Provider::API, 'providers' => $ids, 'provider' => $eff['id'] !== null ? $eff['id'] : $eff['want'], 'ready' => $eff['provider'] !== null);
 	}
 }
 

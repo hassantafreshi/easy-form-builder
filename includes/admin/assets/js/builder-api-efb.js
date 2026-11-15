@@ -665,19 +665,20 @@
     // F12: the anti-spam keys with the save rules; secrets and the site's own settings are refused.
     var spam0 = {};
     keys.forEach(function (k) { spam0[k] = patch[k]; });
-    var spErrs0 = spamCheck(spam0, '');
+    var spWarn = [];
+    var spErrs0 = spamCheck(spam0, '', spWarn);
     if (spErrs0.length) throw failSpam(spErrs0);
     var values = {};
     keys.forEach(function (k) {
       var v = patch[k];
       var f11 = typeof efb_limits_value_efb === 'function' ? efb_limits_value_efb(k, v) : null;
-      values[k] = lay0 && lay0[k] !== undefined ? lay0[k] : (SPAM_FORM_KEYS.indexOf(k) !== -1 ? spam0[k] : (f11 !== null ? f11 : (v === true ? '1' : v === false ? '' : String(v == null ? '' : v))));
+      values[k] = lay0 && lay0[k] !== undefined ? lay0[k] : (SPAM_FORM_KEYS.indexOf(k) !== -1 || /^cp_/.test(k) ? spam0[k] : (f11 !== null ? f11 : (v === true ? '1' : v === false ? '' : String(v == null ? '' : v))));
     });
-    keys.forEach(function (k) { r[0][k] = values[k]; });
+    keys.forEach(function (k) { if (/^cp_|^rc3_(action|fallback)$/.test(k) && values[k] === '') delete r[0][k]; else r[0][k] = values[k]; });
     try { sessionStorage.setItem('valj_efb', JSON.stringify(r)); } catch (e) {}
     apiChanged('setFormSettings', []);
     if (!opts || opts.refresh !== false) { try { refreshSettingsPanel(); } catch (e) {} }
-    return { changed: keys, values: values };
+    return spWarn.length ? { changed: keys, values: values, warnings: spWarn } : { changed: keys, values: values };
   }
 
   /* F03: which rule (EfbRules.TYPES) a field key belongs to; msg_* fit every text-like field. */
@@ -1616,20 +1617,22 @@
   }
   /* ------------------------------------------------------------ F12 anti-spam keys of row 0 */
 
-  var SPAM_FORM_KEYS = ['captcha_provider', 'rc3_threshold', 'spam_off', 'spam_akismet'];
-  var SPAM_SECRETS = ['secretKey', 'rc3SecretKey', 'hcSecretKey', 'tsSecretKey'];
-  var SPAM_SITE_ONLY = ['siteKey', 'rc3SiteKey', 'hcSiteKey', 'tsSiteKey', 'rc3Threshold', 'rc3_low_action', 'spam_honeypot', 'spam_min_time', 'spam_require_js', 'spam_action', 'spam_disallowed_keys', 'spam_retention_days'];
+  var SPAM_FORM_KEYS = ['captcha_provider', 'rc3_threshold', 'rc3_action', 'rc3_fallback', 'spam_off', 'spam_akismet'];
+  var SPAM_SECRETS = ['secretKey', 'rc3SecretKey', 'rciSecretKey', 'hcSecretKey', 'tsSecretKey'];
+  var SPAM_SITE_ONLY = ['siteKey', 'rc3SiteKey', 'rciSiteKey', 'hcSiteKey', 'tsSiteKey', 'rc3Threshold', 'rc3_low_action', 'rc_host', 'captcha_login', 'spam_honeypot', 'spam_min_time', 'spam_require_js', 'spam_action', 'spam_disallowed_keys', 'spam_retention_days'];
   /**
-   * The F12 keys of row 0 with the save rules (EFBSpamCore.sanitizeKey = Spam::sanitize_form_key()): captcha_provider
-   * one of the four services ('' = the site's), rc3_threshold a score 0.0 … 1.0 (Persian / Arabic-Indic digits
-   * accepted), spam_off and spam_akismet flags. A secret key (spam_secret) or a site setting (spam_site_only) is never
-   * a form key: an assistant cannot set them. Values are written normalized ('' = not set). Errors {code, path, key}.
+   * The F12 / F12b keys of row 0 with the save rules (EFBSpamCore.sanitizeKey = Spam::sanitize_form_key(), sanitizeOption =
+   * Captcha\Registry::sanitize_form_option()): captcha_provider a service of the registry ('' = the site's) — not
+   * installed: addon_missing, above the plan: plan_required, no keys yet: accepted with the warning captcha_not_ready;
+   * rc3_threshold 0.0 … 1.0 (Persian / Arabic-Indic digits accepted), rc3_action, rc3_fallback, the cp_* options of
+   * the service (its schema), spam_off and spam_akismet flags. A secret key (spam_secret) or a site setting
+   * (spam_site_only, any *SecretKey) is never a form key. Values are written normalized ('' = not set). Errors {code, path, key}.
    */
-  function spamCheck(r0, path) {
+  function spamCheck(r0, path, warn) {
     var out = [];
     if (!r0 || typeof r0 !== 'object') return out;
     var err = function (code, k) { out.push({ code: code, path: (path || '') + k, key: k }); };
-    SPAM_SECRETS.forEach(function (k) { if (r0[k] !== undefined) err('spam_secret', k); });
+    Object.keys(r0).forEach(function (k) { if (SPAM_SECRETS.indexOf(k) !== -1 || /SecretKey$|secret$/i.test(k)) err('spam_secret', k); });
     SPAM_SITE_ONLY.forEach(function (k) { if (r0[k] !== undefined) err('spam_site_only', k); });
     var C = window.EFBSpamCore;
     SPAM_FORM_KEYS.forEach(function (k) {
@@ -1638,8 +1641,26 @@
       if (raw !== null && typeof raw === 'object') { err('spam_invalid', k); return; }
       var s0 = raw === true ? '1' : raw === false ? '' : String(raw == null ? '' : raw).trim();
       var v = C ? C.sanitizeKey(k, raw) : s0;
-      var neutral = s0 === '' || (k === 'spam_off' && (s0 === '0' || s0 === 'false' || raw === false)) || (k === 'spam_akismet' && (s0 === '1' || s0 === 'true' || s0 === 'on' || raw === true));
+      var neutral = s0 === '' || (k === 'spam_off' && (s0 === '0' || s0 === 'false' || raw === false)) || (k === 'spam_akismet' && (s0 === '1' || s0 === 'true' || s0 === 'on' || raw === true)) || (k === 'rc3_fallback' && (s0 === '0' || raw === false));
       if (v === '' && !neutral) { err('spam_invalid', k); return; }
+      if (k === 'captcha_provider' && v !== '' && C && C.entry) {
+        var e = C.entry(v);
+        if (!e) { err('spam_invalid', k); return; }
+        if (!e.installed || e.state === 'addon' || e.state === 'update') { err('addon_missing', k); return; }
+        if (e.available === false) { err('plan_required', k); return; }
+        if (e.ready === false && warn) warn.push({ code: 'captcha_not_ready', key: k, provider: v });
+      }
+      r0[k] = v;
+    });
+    var prov = r0.captcha_provider !== undefined ? r0.captcha_provider : null;
+    Object.keys(r0).forEach(function (k) {
+      if (!/^cp_/.test(k)) return;
+      var raw = r0[k];
+      if (raw !== null && typeof raw === 'object') { err('spam_invalid', k); return; }
+      var p = prov || (C && C.formProvider ? C.formProvider() : '');
+      var s0 = raw === true ? '1' : raw === false ? '' : String(raw == null ? '' : raw).trim();
+      var v = C && C.sanitizeOption ? C.sanitizeOption(p, k, raw) : '';
+      if (v === '' && s0 !== '' && !(raw === false)) { err('spam_invalid', k); return; }
       r0[k] = v;
     });
     return out;
@@ -1650,6 +1671,8 @@
       spam_secret: e0.key + ' is a site secret: it is set in Settings, never in a form',
       spam_site_only: e0.key + ' is a site setting (Settings › Captchas), not a form key',
       spam_invalid: 'This value cannot be used for ' + e0.key,
+      addon_missing: 'This CAPTCHA service is an add-on that is not installed (Add-ons page)',
+      plan_required: 'This CAPTCHA service needs Free Plus or Pro',
     }[e0.code] || e0.code;
     var e = fail(e0.code, msg);
     e.errors = errs;

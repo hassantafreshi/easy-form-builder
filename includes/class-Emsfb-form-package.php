@@ -579,10 +579,12 @@ class Form_Package {
 				if ($h !== '' && $host !== '' && strcasecmp($h, $host) !== 0) $w[] = array('code' => $k === 'src' ? 'media_other_host' : 'redirect_other_host', 'row' => $i, 'host' => $h);
 			}
 		}
-		if (!empty($rows[0]['captcha_provider']) && class_exists('\\Emsfb\\Captcha')) {
-			$ready = Captcha::ready_map();
+		if (!empty($rows[0]['captcha_provider']) && class_exists('\\Emsfb\\Captcha\\Registry')) {
+			// F12b: a service whose add-on this site lacks (the form keeps it and its cp_* options; the fallback protects it).
 			$p = (string) $rows[0]['captcha_provider'];
-			if (isset($ready[$p]) && !$ready[$p]) $w[] = array('code' => 'captcha_not_ready', 'provider' => $p);
+			$addon = array_search($p, Captcha\Registry::ADDONS, true);
+			if (!Captcha\Registry::get($p) || !Captcha\Registry::available($p)) $w[] = array('code' => 'captcha_addon_missing', 'provider' => $p, 'addon' => $addon !== false ? $addon : null);
+			elseif (!Captcha::ready($p)) $w[] = array('code' => 'captcha_not_ready', 'provider' => $p);
 		}
 		if (!empty($rows[0]['logic_rules']) && !self::addon_active('AdnSMF')) $w[] = array('code' => 'logic_addon_inactive', 'addon' => 'AdnSMF');
 		return $w;

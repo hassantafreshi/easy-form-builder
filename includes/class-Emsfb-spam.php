@@ -34,7 +34,7 @@ class Spam {
 	const REASONS = array('honeypot', 'too_fast', 'no_js', 'low_score', 'akismet', 'akismet_discard', 'disallowed_keys', 'filter');
 
 	/** Row-0 keys of a form (AutoPilot / SitePilot contract). */
-	const FORM_KEYS = array('captcha_provider', 'rc3_threshold', 'spam_off', 'spam_akismet');
+	const FORM_KEYS = array('captcha_provider', 'rc3_threshold', 'rc3_action', 'rc3_fallback', 'spam_off', 'spam_akismet');
 
 	/** Site settings and what a site WITHOUT the key does (= 4.3.1: nothing). */
 	const SETTING_DEFAULTS = array(
@@ -47,19 +47,23 @@ class Spam {
 		'spam_retention_days'  => '0',
 		'captcha_provider'     => 'recaptcha_v2',
 		'rc3SiteKey'           => '',
+		'rciSiteKey'           => '',
 		'hcSiteKey'            => '',
 		'tsSiteKey'            => '',
 		'rc3SecretKey'         => '',
+		'rciSecretKey'         => '',
 		'hcSecretKey'          => '',
 		'tsSecretKey'          => '',
 		'rc3Threshold'         => '0.5',
 		'rc3_low_action'       => 'spam',
+		'rc_host'              => 'google.com',
+		'captcha_login'        => '1',
 	);
 
 	/** A fresh install (Emsfb::get_default_settings_efb()): honeypot and 3 seconds, both "save as spam"; 30 days. */
 	const FRESH_DEFAULTS = array('spam_honeypot' => '1', 'spam_min_time' => '3', 'spam_retention_days' => '30');
 
-	const SECRET_SETTINGS = array('rc3SecretKey', 'hcSecretKey', 'tsSecretKey', 'secretKey');
+	const SECRET_SETTINGS = array('rc3SecretKey', 'rciSecretKey', 'hcSecretKey', 'tsSecretKey', 'secretKey');
 
 	/** This request's verdict (the submit handler sets it; the side-effect gate and insert_message_db() read it). */
 	private static $flag = array('spam' => false, 'reasons' => array());
@@ -116,7 +120,10 @@ class Spam {
 			case 'spam_require_js':
 			case 'spam_akismet':
 			case 'spam_disallowed_keys':
+			case 'captcha_login':
 				return in_array($v, array('1', 'true', 'on'), true) || $value === true || $value === 1 ? '1' : '';
+			case 'rc_host':
+				return $v === 'recaptcha.net' ? 'recaptcha.net' : 'google.com';
 			case 'spam_min_time':
 				$d = preg_replace('/[^0-9]/', '', self::latin_digits($v));
 				return (string) min(60, (int) $d);
@@ -128,11 +135,13 @@ class Spam {
 			case 'rc3_low_action':
 				return $v === 'block' ? 'block' : 'spam';
 			case 'captcha_provider':
-				return Captcha::valid_provider($v) ? $v : 'recaptcha_v2';
+				return Captcha\Registry::valid_id($v) ? $v : 'recaptcha_v2';
 			case 'rc3Threshold':
 				$s = self::score_value($v);
 				return $s === '' ? '0.5' : $s;
 			case 'rc3SiteKey':
+			case 'rciSiteKey':
+			case 'rciSecretKey':
 			case 'hcSiteKey':
 			case 'tsSiteKey':
 			case 'rc3SecretKey':
@@ -157,7 +166,7 @@ class Spam {
 	public static function settings_for_admin($settings = null) {
 		$out = array();
 		foreach (array_keys(self::SETTING_DEFAULTS) as $k) {
-			$out[$k] = in_array($k, self::SECRET_SETTINGS, true) ? (Captcha::secret(array_search($k, Captcha::SECRET_KEYS, true), $settings) !== '' ? '1' : '') : self::setting($k, $settings);
+			$out[$k] = in_array($k, self::SECRET_SETTINGS, true) ? (Captcha::key_value($settings, $k) !== '' ? '1' : '') : self::setting($k, $settings);
 		}
 		return $out;
 	}
@@ -193,10 +202,16 @@ class Spam {
 		$type = isset($ctx['form_type']) ? (string) $ctx['form_type'] : (string) self::v0($s0, 'type');
 		$action = self::setting('spam_action', $settings);
 		if (in_array($type, array('register', 'login', 'payment'), true) || !empty($ctx['payment'])) $action = 'reject';
+		/* F12b §5: a form that asks for a CAPTCHA no provider can show now (add-on off or removed, plan, keys) is never
+		 * left unprotected: the hidden field and the minimum time are on for it, even with spam_off. Not on a login
+		 * form (D1: a login is never broken), whose minimum time is always off (autofill sends in a second). */
+		$forced = $type !== 'login' && Captcha::form_on($s0) && class_exists('\\Emsfb\\Captcha\\Registry') && Captcha\Registry::effective_for($s0, $settings)['provider'] === null;
+		$min = (int) self::setting('spam_min_time', $settings);
 		return array(
 			'off'        => $off,
-			'honeypot'   => !$off && $chk['honeypot'] && self::setting('spam_honeypot', $settings) === '1',
-			'min_time'   => (!$off && $chk['min_time']) ? (int) self::setting('spam_min_time', $settings) : 0,
+			'forced'     => $forced,
+			'honeypot'   => ($forced || (!$off && self::setting('spam_honeypot', $settings) === '1')) && $chk['honeypot'],
+			'min_time'   => $type === 'login' || !$chk['min_time'] ? 0 : ($forced ? max(3, $min) : (!$off ? $min : 0)),
 			'require_js' => !$off && $chk['js'] && self::setting('spam_require_js', $settings) === '1',
 			'akismet'    => !$off && self::setting('spam_akismet', $settings) === '1' && (string) self::v0($s0, 'spam_akismet') !== '0',
 			'disallowed' => !$off && self::setting('spam_disallowed_keys', $settings) === '1',
@@ -580,49 +595,80 @@ class Spam {
 
 	/**
 	 * Stable public check (contract v1, docs/spam/captcha-contract.en.md): is $token a solved CAPTCHA for $context?
-	 * $context: 'form' (args form = row 0: its provider), 'tracker', 'reply', 'portal_signin' or any [a-z0-9_] name.
-	 * args: provider (else the form's / the site's), idempotency_key (Turnstile), low_score ('block' default outside
-	 * a form, 'soft' = ok with spam true), settings. Returns ['ok' => bool, 'code' => '' | config | missing |
-	 * network | invalid_response | failed | expired | hostname | action | low_score, 'provider' => string,
-	 * 'score' => float|null, 'spam' => bool]. Filter efb_captcha_verify_result ($result, $context, $args).
+	 * $context: 'form' (args form = row 0: its provider), 'tracker', 'reply', 'portal_signin', 'login' or any [a-z0-9_]
+	 * name. args: provider (else the form's / the site's effective one), request_id (idempotency_key: a network retry
+	 * is not a replay), kind ('v2': the checkbox of a v3 form with rc3_fallback), action, low_score ('block' default
+	 * outside a form, 'soft' = ok with spam true), settings. Returns ['ok' => bool, 'code' => '' | config | missing |
+	 * network | invalid_response | failed | expired | replay | hostname | action | low_score | challenge,
+	 * 'provider' => string, 'score' => float|null, 'spam' => bool]. Filter efb_captcha_verify_result.
 	 */
 	public static function verify_captcha($token, $context = 'form', array $args = array()) {
 		$context = preg_replace('/[^a-z0-9_]/', '', strtolower((string) $context));
 		if ($context === '') $context = 'form';
 		$settings = isset($args['settings']) ? $args['settings'] : null;
-		$provider = isset($args['provider']) && Captcha::valid_provider($args['provider']) ? $args['provider']
-			: (isset($args['form']) ? Captcha::provider_for($args['form'], $settings) : Captcha::site_provider($settings));
-		$ctx = array('settings' => $settings);
-		if (isset($args['idempotency_key'])) $ctx['idempotency_key'] = $args['idempotency_key'];
-		$r = Captcha::verify($provider, $token, $ctx);
-		$out = array('ok' => !empty($r['ok']), 'code' => (string) $r['code'], 'provider' => $provider, 'score' => $r['score'], 'spam' => false);
-		if ($out['ok'] && $provider === 'recaptcha_v3' && $r['score'] !== null && $r['score'] < Captcha::threshold(isset($args['form']) ? $args['form'] : null, $settings)) {
+		$s0 = isset($args['form']) && (is_array($args['form']) || is_object($args['form'])) ? (is_object($args['form']) ? json_decode(json_encode($args['form']), true) : $args['form']) : array();
+		if (isset($args['provider']) && Captcha\Registry::get($args['provider'])) $provider = $args['provider'];
+		else {
+			$eff = Captcha\Registry::effective_for($s0 ? $s0 : array('captcha' => 1), $settings);
+			$provider = $eff['id'] !== null ? $eff['id'] : $eff['want'];
+		}
+		$fallback = $provider === 'recaptcha_v3' && (string) ($s0['rc3_fallback'] ?? '') === '1' && Captcha::ready('recaptcha_v2', $settings);
+		$ctx = array('settings' => $settings, 'form' => $s0, 'request_id' => isset($args['request_id']) ? $args['request_id'] : ($args['idempotency_key'] ?? ''));
+		if (!empty($args['action']) && is_string($args['action'])) $ctx['action'] = $args['action'];
+		if (($args['kind'] ?? '') === 'v2' && $provider === 'recaptcha_v3') {
+			// v3 → v2: the checkbox's token, only for a form that offers it (never a way around the score elsewhere).
+			$r = $fallback ? Captcha\Registry::verify('recaptcha_v2', $token, $ctx) : array('ok' => false, 'code' => 'failed', 'score' => null);
+			$provider = $fallback ? 'recaptcha_v2' : $provider;
+		} else {
+			$r = Captcha\Registry::verify($provider, $token, $ctx);
+		}
+		$out = array('ok' => !empty($r['ok']), 'code' => (string) $r['code'], 'provider' => $provider, 'score' => $r['score'] ?? null, 'spam' => false);
+		if ($out['ok'] && $provider === 'recaptcha_v3' && $out['score'] !== null && $out['score'] < Captcha::threshold($s0 ? $s0 : null, $settings)) {
 			$soft = isset($args['low_score']) ? $args['low_score'] === 'soft' : ($context === 'form' && Captcha::low_action($settings) === 'spam');
-			if ($soft) $out['spam'] = true;
+			if ($fallback && $context === 'form') { $out['ok'] = false; $out['code'] = 'challenge'; }
+			elseif ($soft) $out['spam'] = true;
 			else { $out['ok'] = false; $out['code'] = 'low_score'; }
 		}
 		if (!$out['ok'] && function_exists('do_action')) do_action('efb_captcha_failed', $context, $provider, $out['code']);
 		return function_exists('apply_filters') ? apply_filters('efb_captcha_verify_result', $out, $context, $args) : $out;
 	}
 
-	/** The widget outside a form (P20): its markup, and the scripts on the page. '' when no CAPTCHA can be shown. */
+	/** The visitor's message for a refused check: the form's own (cp_msg_failed), else the phrase of the code. */
+	public static function captcha_message($code, $s0 = array(), array $lan = array()) {
+		$own = is_array($s0) ? ($s0['cp_msg_failed'] ?? '') : (is_object($s0) ? ($s0->cp_msg_failed ?? '') : '');
+		if ($code === 'challenge') return !empty($lan['cpChallenge']) ? $lan['cpChallenge'] : 'Please confirm you are not a robot.';
+		if (is_string($own) && trim($own) !== '' && $code !== 'missing') return esc_html_efb_spam(mb_substr(trim($own), 0, 200));
+		if ($code === 'expired' && !empty($lan['captchaExpired'])) return $lan['captchaExpired'];
+		return !empty($lan['errorCaptcha']) ? $lan['errorCaptcha'] : 'Please complete the security check.';
+	}
+
+	/**
+	 * The box outside a form (P20, the tracking box, a reply box, login): its markup, scripts on the page. '' when
+	 * no CAPTCHA can be shown. args: provider, settings, lang.
+	 */
 	public static function captcha_widget($context, array $args = array()) {
 		$settings = isset($args['settings']) ? $args['settings'] : null;
-		$provider = isset($args['provider']) && Captcha::valid_provider($args['provider']) ? $args['provider'] : Captcha::site_provider($settings);
-		if (!Captcha::ready($provider, $settings)) return '';
-		Captcha::enqueue($provider, isset($args['lang']) ? (string) $args['lang'] : null, $settings);
-		return Captcha::widget_html($provider, 0, $context, 0, $settings);
+		if (isset($args['provider']) && Captcha::ready($args['provider'], $settings)) $p = $args['provider'];
+		else {
+			$eff = Captcha\Registry::effective_for(array('captcha' => 1), $settings);
+			$p = $eff['id'];
+		}
+		if ($p === null) return '';
+		return Captcha::box_html($p, 0, $context, 0, array(), $settings, isset($args['lang']) ? array('lang' => (string) $args['lang']) : array());
 	}
 
 	/* ------------------------------------------------------------ AutoPilot / SitePilot */
 
-	/** Save rule of the four row-0 keys (sanitize_obj_msg_efb; EFBSpamCore.sanitizeKey() in builder-api-efb.js). '' = drop. */
+	/** Save rule of the row-0 keys (sanitize_obj_msg_efb; EFBSpamCore.sanitizeKey() in builder-api-efb.js). '' = drop. */
 	public static function sanitize_form_key($k, $v) {
 		if ($k === 'spam_akismet' && $v === false) return '0'; // "Akismet for this form": off
 		$v = is_scalar($v) ? trim((string) $v) : '';
 		switch ($k) {
-			case 'captcha_provider': return Captcha::valid_provider($v) ? $v : '';
+			// Any well-formed id, registered or not: an add-on switched off must not wipe the form's choice (F12b §5).
+			case 'captcha_provider': return Captcha\Registry::valid_id($v) ? $v : '';
 			case 'rc3_threshold':    return self::score_value($v);
+			case 'rc3_action':       return preg_match('/^[A-Za-z0-9_\/]{1,40}$/', $v) ? $v : '';
+			case 'rc3_fallback':     return in_array($v, array('1', 'true'), true) ? '1' : '';
 			case 'spam_off':         return in_array($v, array('1', 'true'), true) || $v === '1' ? '1' : '';
 			case 'spam_akismet':     return in_array($v, array('0', 'false', 'off'), true) ? '0' : '';
 		}
@@ -637,13 +683,18 @@ class Spam {
 	public static function form_schema($s0, $settings = null) {
 		$cfg = self::cfg($s0, $settings);
 		$on = Captcha::form_on($s0);
-		$p = Captcha::provider_for($s0, $settings);
+		$eff = $on ? Captcha\Registry::effective_for($s0, $settings) : null;
+		$ep = $eff && $eff['provider'] ? $eff['provider'] : null;
+		$kind = $ep ? $ep->kind() : null;
 		return array(
-			'v'          => 1,
+			'v'          => 2,
 			'honeypot'   => $cfg['honeypot'],
 			'min_time'   => $cfg['min_time'],
 			'require_js' => $cfg['require_js'],
-			'captcha'    => array('on' => $on, 'provider' => $on ? $p : null, 'ready' => $on ? Captcha::ready($p, $settings) : null, 'widget' => $on ? ($p === 'recaptcha_v3' ? 'none' : 'visible') : null),
+			// F12b: what the form asks for, what protects it now (a fallback when its add-on, plan or keys are missing).
+			'captcha'    => array('on' => $on, 'provider' => $on ? $eff['want'] : null, 'effective_provider' => $ep ? $ep->id() : null, 'kind' => $kind,
+				'ready' => $on ? ($ep !== null && !$eff['fallback']) : null, 'widget' => $on ? ($ep === null || $kind !== 'widget' ? 'none' : 'visible') : null,
+				'fallback' => $on && $eff['fallback'] ? ($ep ? 'google' : 'soft_checks') : null, 'why' => $on ? $eff['why'] : null),
 			'akismet'    => $cfg['akismet'] && self::akismet_available(),
 			'disallowed_keys' => $cfg['disallowed'],
 			'action'     => $cfg['action'],
@@ -658,13 +709,19 @@ class Spam {
 			return array_merge(array('kind' => 'setting', 'scope' => 'form', 'package' => 'free', 'addon' => null, 'available_now' => true, 'reason' => null,
 				'prompt_state' => 0, 'message_key' => null, 'form_keys' => $keys, 'label_key' => $label), $extra);
 		};
-		$out['features']['setting:captcha_provider'] = $e(array('captcha', 'captcha_provider', 'rc3_threshold'), 'captchaProvider', array('values' => array_merge(array(''), Captcha::PROVIDERS), 'ready' => Captcha::ready_map(), 'not_on' => 'payment forms'));
+		$cat = Captcha\Registry::catalog();
+		$plans = array();
+		foreach ($cat as $c) $plans[$c['id']] = array('plan' => $c['plan'], 'addon' => $c['addon'], 'installed' => $c['installed'], 'available_now' => $c['available'], 'ready' => $c['ready'],
+			'prompt_state' => $c['available'] ? 0 : ($c['state'] === 'plan' ? 3 : 0), 'reason' => $c['available'] ? null : ($c['state'] === 'plan' ? 'plan_required' : 'addon_missing'));
+		$out['features']['setting:captcha_provider'] = $e(array_merge(array('captcha', 'captcha_provider'), array_values(array_diff(self::FORM_KEYS, array('captcha_provider', 'spam_off', 'spam_akismet')))), 'captchaProvider',
+			array('values' => array_merge(array(''), array_column($cat, 'id')), 'ready' => Captcha::ready_map(), 'providers' => $plans, 'option_prefix' => 'cp_', 'not_on' => 'payment forms'));
 		$out['features']['setting:spam_off'] = $e(array('spam_off', 'spam_akismet'), 'spamOff', array('risk' => 'high'));
 		$out['spam'] = array(
 			'v'           => 1,
 			'spec'        => 'F12',
 			'form_keys'   => self::FORM_KEYS,
-			'providers'   => Captcha::PROVIDERS,
+			'providers'   => array_map(function ($c) { unset($c['settings']); return $c; }, $cat),
+			'contract'    => Captcha\Provider::API,
 			'reasons'     => self::REASONS,
 			'order'       => array('honeypot', 'too_fast', 'no_js', 'fields', 'captcha', 'silent_captcha', 'disallowed_keys', 'akismet', 'verdict'),
 			'outcomes'    => array('captcha' => 'block', 'silent_captcha' => 'block', 'soft' => 'spam (site setting spam_action: spam | reject); register, login and payment forms: reject'),
@@ -672,7 +729,8 @@ class Spam {
 			'secrets'     => 'never settable by an assistant, never in a form or a schema',
 			'risk_high'   => array('captcha off', 'spam_off on'),
 			'api'         => array('functions' => array('efb_captcha_verify', 'efb_captcha_widget', 'efb_captcha_api'), 'version' => Captcha::API_VERSION),
-			'hooks'       => array('efb_core_spam_checks', 'efb_spam_verdict', 'efb_captcha_verify_result', 'efb_captcha_failed', 'efb_captcha_check_hostname', 'efb_akismet_data', 'efb_spam_retention_days'),
+			'hooks'       => array('efb_core_spam_checks', 'efb_spam_verdict', 'efb_captcha_verify_result', 'efb_captcha_failed', 'efb_captcha_check_hostname', 'efb_akismet_data', 'efb_spam_retention_days',
+				'efb_register_captcha_providers', 'efb_captcha_providers', 'efb_captcha_active_for_form', 'efb_reply_rate_limits'),
 		);
 		return $out;
 	}
@@ -681,8 +739,11 @@ class Spam {
 	public static function localize_vars($vars, $context = '') {
 		if (!is_array($vars)) return $vars;
 		$vars['captcha_ready'] = Captcha::ready_map();
+		// F12b: every provider (installed or not) with its plan, state, options schema and settings schema (no secret value).
+		$vars['captcha_providers'] = Captcha\Registry::catalog();
 		$vars['spam'] = array(
 			'site_provider' => Captcha::site_provider(),
+			'plugin_url'    => function_exists('admin_url') ? admin_url('admin.php?page=Emsfb_addons') : '',
 			'akismet'       => self::akismet_available(),
 			'disallowed'    => function_exists('wp_check_comment_disallowed_list'),
 			'reasons'       => self::reason_labels(),
@@ -697,6 +758,14 @@ class Spam {
 		$changes = array();
 		if (Captcha::form_on($old_rows[0]) && !Captcha::form_on($rows[0])) $changes[] = array('key' => 'captcha', 'from' => '1', 'to' => '');
 		if (!self::on($old_rows[0]['spam_off'] ?? '') && self::on($rows[0]['spam_off'] ?? '')) $changes[] = array('key' => 'spam_off', 'from' => '', 'to' => '1');
+		// F12b: a switch to a weaker service (the question / math add-on) is said too (risk medium).
+		$weak = array('question');
+		$was = Captcha\Registry::wanted($old_rows[0]);
+		$now = Captcha\Registry::wanted($rows[0]);
+		$medium = Captcha::form_on($rows[0]) && $was !== $now && in_array($now, $weak, true) && !in_array($was, $weak, true);
+		if ($medium && !$changes) {
+			return array(array('code' => 'spam_security_change', 'risk' => 'medium', 'changes' => array(array('key' => 'captcha_provider', 'from' => $was, 'to' => $now)), 'm' => 'This form now uses a weaker CAPTCHA.'));
+		}
 		if (!$changes) return array();
 		$fn = function_exists('get_efbFunction') ? get_efbFunction() : null;
 		$t = $fn && method_exists($fn, 'text_efb') ? $fn->text_efb(array('spamSecChange')) : array();
@@ -708,6 +777,10 @@ class Spam {
 /** wp_strip_all_tags() or a copy (tests load this file alone). */
 function wp_strip_all_tags_efb_spam($s) {
 	return function_exists('wp_strip_all_tags') ? wp_strip_all_tags((string) $s) : trim(strip_tags((string) $s));
+}
+
+function esc_html_efb_spam($s) {
+	return function_exists('esc_html') ? esc_html((string) $s) : htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
 }
 
 function wp_unslash_efb_spam($s) {

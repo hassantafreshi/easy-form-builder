@@ -101,8 +101,8 @@ const base = (id, type, name, extra) => Object.assign({ id_: id, dataId: id + '-
   // The registry.
   const caps = capabilities(2);
   const f = caps.features;
-  c.check('capabilities: setting:captcha_provider and setting:spam_off are Free; spam_off risk high', f['setting:captcha_provider'].package === 'free' && f['setting:spam_off'].package === 'free' && f['setting:spam_off'].risk === 'high' && f['setting:captcha_provider'].form_keys.join() === 'captcha,captcha_provider,rc3_threshold', [f['setting:captcha_provider'], f['setting:spam_off']]);
-  c.check('capabilities.spam: form keys, reasons, the order of the checks, the hooks, the P20 functions', caps.spam && caps.spam.form_keys.join() === 'captcha_provider,rc3_threshold,spam_off,spam_akismet' && caps.spam.reasons.indexOf('too_fast') !== -1
+  c.check('capabilities: setting:captcha_provider and setting:spam_off are Free; spam_off risk high', f['setting:captcha_provider'].package === 'free' && f['setting:spam_off'].package === 'free' && f['setting:spam_off'].risk === 'high' && f['setting:captcha_provider'].form_keys.join().indexOf('captcha,captcha_provider,rc3_threshold') === 0, [f['setting:captcha_provider'], f['setting:spam_off']]);
+  c.check('capabilities.spam: form keys, reasons, the order of the checks, the hooks, the P20 functions', caps.spam && caps.spam.form_keys.join() === 'captcha_provider,rc3_threshold,rc3_action,rc3_fallback,spam_off,spam_akismet' && caps.spam.reasons.indexOf('too_fast') !== -1
     && caps.spam.order[0] === 'honeypot' && caps.spam.order[caps.spam.order.length - 1] === 'verdict' && caps.spam.hooks.indexOf('efb_spam_verdict') !== -1 && caps.spam.api.functions.indexOf('efb_captcha_verify') !== -1, caps.spam);
   c.check('capabilities: no secret key name is offered as a form key', JSON.stringify(caps.features['setting:captcha_provider']).indexOf('Secret') === -1, null);
   c.done();

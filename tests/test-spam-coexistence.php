@@ -34,7 +34,8 @@ $body = $m ? preg_replace('#/\*.*?\*/#s', '', $m[0]) : ''; // the code, not its 
 t('check_and_enqueue_google_captcha_efb(): no wp_remote_head (no request to Google while a page is built)', $body !== '' && strpos($body, 'wp_remote_head') === false && strpos($body, 'wp_remote_get') === false, true);
 t('…it hands over to Captcha::enqueue(\'recaptcha_v2\')', strpos($body, "\\Emsfb\\Captcha::enqueue('recaptcha_v2'") !== false, true);
 $cc = file_get_contents($root . '/includes/class-Emsfb-cache-compat.php');
-t('Cache_Compat keeps efb-recaptcha, efb-hcaptcha and efb-turnstile out of optimizers', strpos($cc, "array('efb-recaptcha', 'efb-hcaptcha', 'efb-turnstile')") !== false, true);
+// F12b: every provider's own script handle (efb-recaptcha, efb-cp-<id> of the add-ons), not a fixed list.
+t('Cache_Compat keeps efb-recaptcha and every efb-cp-<id> provider script out of optimizers', strpos($cc, "\$cap_handle === 'efb-recaptcha' || strpos((string) \$cap_handle, 'efb-cp-') === 0") !== false, true);
 $sp = file_get_contents($root . '/includes/class-Emsfb-spam.php');
 t('Spam gates side effects at priority 1 (before Human Shield\'s stop-loss)', strpos($sp, "add_filter('efb_shield_allow_side_effect', array(__CLASS__, 'allow_side_effect'), 1, 2);") !== false, true);
 t('the hooks for a security add-on: efb_core_spam_checks, efb_spam_verdict', strpos($sp, "apply_filters('efb_core_spam_checks'") !== false && strpos($sp, "apply_filters('efb_spam_verdict'") !== false, true);
@@ -60,7 +61,7 @@ if ($why = $H->unavailable()) {
 	$H->ctl('f12-setting', 'hcSiteKey=10000000-ffff-ffff-ffff-000000000001&hcSecretKey=0x0000000000000000000000000000000000000000&spam_min_time=0&spam_honeypot=1&siteKey=e2e-v2-site-placeholder&secretKey=e2e-v2-secret-placeholder');
 	$F = $H->ctl('f03-form', 'F12 shield', json_encode(array(array('key' => 'nm', 'type' => 'text', 'name' => 'Name'))), 'captcha=1&captcha_provider=hcaptcha&shield_silent_captcha=1');
 	$fid = (int) $F['form_id'];
-	$send = function ($tok, $extra = array(), $id = null, $key = 'nm', $ids = null) use ($H, $fid, $F) { $ids = $ids ?: $F['ids']; $H->fresh_jar(); return EfbF11Http::answer($H->submit($id ?: $fid, array(array('id_' => $ids[$key], 'name' => 'Name', 'type' => 'text', 'value' => 'x')), array_merge(array('valid' => $tok, 'efb_hp' => ''), $extra))); };
+	$send = function ($tok, $extra = array(), $id = null, $key = 'nm', $ids = null) use ($H, $fid, $F) { $ids = $ids ?: $F['ids']; $H->fresh_jar(); return EfbF11Http::answer($H->submit($id ?: $fid, array(array('id_' => $ids[$key], 'name' => 'Name', 'type' => 'text', 'value' => 'x')), array_merge(array('valid' => $tok !== '' ? $tok . bin2hex(random_bytes(6)) : '', 'efb_hp' => ''), $extra))); }; // F12b: one use per token
 	$H->ctl('set-option', 'efb_e2e_f12_shield', 'bot');
 	$a = $send('pass-' . str_repeat('s', 30));
 	t('site: Shield Security says bot → refused with the robot message even with a solved CAPTCHA, nothing stored', array(empty($a['success']), count((array) $H->ctl('f14-entries', (string) $fid))), array(true, 0));
@@ -85,13 +86,15 @@ if ($why = $H->unavailable()) {
 
 	/* scripts */
 	$V2 = $H->ctl('f03-form', 'F12 v2 page', json_encode(array(array('key' => 'nm', 'type' => 'text', 'name' => 'Name'))), 'captcha=1');
+	$H->ctl('f12-calls', 'clear'); // only what rendering does (earlier tests leave their siteverify calls in the log)
 	$t0 = microtime(true);
 	$page = $H->http('GET', $H->page((int) $V2['form_id']), null, array(), false);
 	$ms = (int) ((microtime(true) - $t0) * 1000);
 	$tag = function ($html, $needle) { return preg_match('/<script\b[^>]*src="' . preg_quote($needle, '/') . '[^"]*"[^>]*>/', $html, $mm) ? $mm[0] : ''; };
 	$g = $tag($page['body'], 'https://www.google.com/recaptcha/api.js');
 	t('site: a reCAPTCHA v2 page enqueues Google\'s script (render=explicit, the page language, deferred, no version added)', $g !== '' && (bool) preg_match('/\?hl=[A-Za-z\-]+&(#038;|amp;)?render=explicit"/', $g) && (bool) preg_match('/\sdefer[\s>]/', $g) && strpos($g, 'ver=') === false, true);
-	t('site: …the widget keeps its 4.3.1 markup and gets a label and a live region', strpos($page['body'], 'id="gRecaptcha" class="efb g-recaptcha efb-captcha') !== false && strpos($page['body'], 'aria-live="assertive"') !== false, true);
+	// F12b-C: .g-recaptcha (data-efb-legacy="gRecaptcha") instead of the id two forms on a page repeated.
+	t('site: …the widget keeps .g-recaptcha (data-efb-legacy="gRecaptcha") and gets a label and a live region', strpos($page['body'], 'class="efb efb-captcha g-recaptcha') !== false && strpos($page['body'], 'data-efb-legacy="gRecaptcha"') !== false && strpos($page['body'], 'aria-live="assertive"') !== false, true);
 	t('site: …and the plugin\'s captcha runtime', strpos($page['body'], 'public/assets/js/captcha-efb.js') !== false, true);
 	$page = $H->http('GET', $H->page($fid), null, array(), false);
 	$hc = $tag($page['body'], 'https://js.hcaptcha.com/1/api.js');
