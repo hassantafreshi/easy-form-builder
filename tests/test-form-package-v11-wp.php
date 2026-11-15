@@ -32,11 +32,13 @@ t('import(): a new form and an import_token', !is_wp_error($imp) && $imp['form_i
 $imp2 = \Emsfb\Form_Package::import($pkg, array('import_token' => $imp['import_token']));
 t('import() with the same token groups the batch', $imp2['import_token'], $imp['import_token']);
 $r = \Emsfb\Form_Package::import_entries($imp['form_id'], array(
-	array('answers' => array(array('id_' => 'nm', 'name' => 'Name', 'type' => 'text', 'amount' => 1, 'value' => 'Jane <script>x</script>'), array('id_' => 'ag', 'name' => 'Age', 'type' => 'number', 'amount' => 2, 'value' => '۴۲')), 'date' => '2026-01-02 03:04:05', 'track' => 'IMPORTV11A'),
+	array('answers' => array(array('id_' => 'nm', 'name' => 'Name', 'type' => 'text', 'amount' => 1, 'value' => 'Jane <script>x</script>'), array('id_' => 'ag', 'name' => 'Age', 'type' => 'number', 'amount' => 2, 'value' => '۴۲')), 'date' => '2026-01-02 03:04:05', 'track' => 'IMPORTV11A', 'entry_status' => 2, 'starred' => 1),
 	array('answers' => array(array('id_' => 'nm', 'name' => 'Name', 'type' => 'text', 'amount' => 1, 'value' => 'Joe'), array('id_' => 'ag', 'name' => 'Age', 'type' => 'number', 'amount' => 2, 'value' => '999'))),
 	array('answers' => array())));
 t('import_entries(): one stored, the out-of-range age and the empty row reported', array($r['imported'], array_column($r['skipped'], 'code'), $r['skipped'][0]['field_id']), array(1, array('package_entry_refused', 'package_entry_invalid'), 'ag'));
 $row = $wpdb->get_row($wpdb->prepare("SELECT track, date, content FROM {$wpdb->prefix}emsfb_msg_ WHERE msg_id = %d", $r['msg_ids'][0]), ARRAY_A);
+$f14 = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}emsfb_msg_ WHERE msg_id = %d", $r['msg_ids'][0]), ARRAY_A);
+t('the entry keeps its status and star (F14 columns, a restored backup)', array(isset($f14['entry_status']) ? (int) $f14['entry_status'] : 2, isset($f14['starred']) ? (int) $f14['starred'] : 1), array(2, 1));
 $content = json_decode(str_replace('\\"', '"', $row['content']), true);
 t('the entry: the given date and tracking code, the name sanitized, Persian digits read', array($row['track'], $row['date'], $content[0]['value'], $content[1]['value']), array('IMPORTV11A', '2026-01-02 03:04:05', 'Jane', '42'));
 $other = (int) $wpdb->get_var("SELECT form_id FROM {$wpdb->prefix}emsfb_form WHERE form_id NOT IN (" . (int) $imp['form_id'] . ',' . (int) $imp2['form_id'] . ') ORDER BY form_id LIMIT 1');

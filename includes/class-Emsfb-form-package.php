@@ -529,7 +529,8 @@ class Form_Package {
 	/**
 	 * Entries for a form, through the submit's own rules (_Public::validate_rows_efb with admin_edit, as an
 	 * administrator's edit of an entry: sanitizing, the saved options, numbers, dates, the F03 field rules), stored in
-	 * core's format. Each row: {answers: [{id_, value, …}], date?: "Y-m-d H:i:s", read?: 0-9, track?: string}. A row
+	 * core's format. Each row: {answers: [{id_, value, …}], date?: "Y-m-d H:i:s", read?: 0-9, track?: string,
+	 * entry_status?: 0-9, starred?: 0|1 (F14 columns, when the site has them)}. A row
 	 * that does not pass is skipped and reported; nothing else of the site is touched (no e-mail, no payment, no
 	 * capacity taken). @return array{imported: int, skipped: array}|\WP_Error
 	 */
@@ -544,6 +545,8 @@ class Form_Package {
 		$msg = $wpdb->prefix . 'emsfb_msg_';
 		$name = (string) $wpdb->get_var($wpdb->prepare("SELECT form_name FROM `{$wpdb->prefix}emsfb_form` WHERE form_id = %d", $form_id));
 		$out = array('imported' => 0, 'skipped' => array(), 'msg_ids' => array());
+		// F14 columns (entry status, star) when this site has them: a backup restored keeps them.
+		$cols = array_map('strtolower', (array) $wpdb->get_col("SHOW COLUMNS FROM `{$msg}`"));
 		foreach (array_values($rows) as $i => $row) {
 			if (count($out['msg_ids']) + count($out['skipped']) >= self::MAX_ROWS) { $out['skipped'][] = array('index' => $i, 'code' => 'package_too_many', 'm' => 'Too many entries in one call.'); continue; }
 			$answers = is_array($row) && isset($row['answers']) && is_array($row['answers']) ? array_values(array_filter($row['answers'], 'is_array')) : null;
@@ -554,6 +557,8 @@ class Form_Package {
 			$date = isset($row['date']) && is_string($row['date']) && preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $row['date']) ? $row['date'] : (function_exists('wp_date') ? wp_date('Y-m-d H:i:s') : gmdate('Y-m-d H:i:s'));
 			$track = isset($row['track']) && is_string($row['track']) && preg_match('/^[A-Za-z0-9_-]{4,40}$/', $row['track']) && !$wpdb->get_var($wpdb->prepare("SELECT msg_id FROM `{$msg}` WHERE track = %s", $row['track'])) ? $row['track'] : strtoupper(substr(md5(uniqid('efb', true) . $i), 0, 10));
 			$rec = array('form_id' => $form_id, 'track' => $track, 'ip' => '', 'form_title_x' => function_exists('sanitize_text_field') ? sanitize_text_field($name) : $name, 'content' => $content, 'date' => $date, 'read_' => isset($row['read']) ? min(9, max(0, (int) $row['read'])) : 0, 'read_by' => '');
+			if (in_array('entry_status', $cols, true) && isset($row['entry_status'])) $rec['entry_status'] = min(9, max(0, (int) $row['entry_status']));
+			if (in_array('starred', $cols, true) && isset($row['starred'])) $rec['starred'] = empty($row['starred']) ? 0 : 1;
 			if ($wpdb->insert($msg, $rec) === false) { $out['skipped'][] = array('index' => $i, 'code' => 'package_entry_not_saved', 'm' => 'The entry could not be saved.'); continue; }
 			$out['msg_ids'][] = (int) $wpdb->insert_id;
 			$out['imported']++;
