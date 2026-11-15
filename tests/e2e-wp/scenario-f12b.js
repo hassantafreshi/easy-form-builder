@@ -102,10 +102,10 @@ module.exports = function (S) {
       execute: function (key, o) { if (typeof key === 'number') return exec('recaptcha')(key); cap.v3.push({ key: key, action: o && o.action }); return Promise.resolve(next('v3', { score: 0.9, action: o && o.action })); } };` : ''}
     ${kind === 'hcaptcha' ? "W.hcaptcha = { render: render('hcaptcha'), reset: reset('hcaptcha'), execute: exec('hcaptcha'), remove: function () {} };" : ''}
     ${kind === 'turnstile' ? "W.turnstile = { render: render('turnstile'), reset: reset('turnstile'), execute: exec('turnstile'), remove: function () {} };" : ''}
-    ${kind === 'friendly' ? `W.frcaptcha = { FriendlyCaptchaSDK: function () { this.createWidget = function (o) {
+    ${kind === 'friendly' ? `W.frcaptcha = { attach: function () {}, createWidget: function (o) {
       var id = 'friendly' + (++cap.n); rec('friendly', id, o.element, o);
       button('friendly', id, o.element, function () { o.element.dispatchEvent(new CustomEvent('frc:widget.complete', { detail: { response: next('friendly', {}) } })); });
-      return { reset: function () { cap.resets.push('friendly:' + id); }, start: function () {}, destroy: function () {} }; }; } };` : ''}
+      return { reset: function () { cap.resets.push('friendly:' + id); }, start: function () {}, destroy: function () {} }; } };` : ''}
   })();`;
   const RE = /^https:\/\/(js\.hcaptcha\.com\/|challenges\.cloudflare\.com\/turnstile\/|www\.google\.com\/recaptcha\/|www\.recaptcha\.net\/recaptcha\/|cdn\.jsdelivr\.net\/npm\/@friendlycaptcha\/)/;
   const scripts = [];
