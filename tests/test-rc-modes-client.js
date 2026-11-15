@@ -65,7 +65,7 @@ const core = fs.readFileSync(path.join(__dirname, '..', 'public/assets/js/core-e
     c.t('the other v3 form on the page is untouched', [P.C.needsWidgetToken(7), 'hidden' in P.all[1].attrs], [false, true]);
   }
   /* core-efb.js wiring */
-  const resp = core.slice(core.indexOf('async function response_fill_form_efb('), core.indexOf('async function response_fill_form_efb(') + 1600);
-  c.t('core: efb_captcha_challenge → EFBCaptcha.challenge(form), not a reset', /res\.data\.code === 'efb_captcha_challenge' && window\.EFBCaptcha && typeof window\.EFBCaptcha\.challenge === 'function' && window\.EFBCaptcha\.challenge\(form_id\)\) \{[\s\S]{0,80}\} else if \(!\(res && res\.data && res\.data\.success == true\) && window\.EFBCaptcha/.test(resp), true);
+  const resp = core.slice(core.indexOf('async function response_fill_form_efb('), core.indexOf('async function response_fill_form_efb(') + 2400);
+  c.t('core: efb_captcha_challenge → EFBCaptcha.challenge(form), not a reset', /res\.data\.code === 'efb_captcha_challenge' && window\.EFBCaptcha && typeof window\.EFBCaptcha\.challenge === 'function' && window\.EFBCaptcha\.challenge\(form_id\)\) \{[\s\S]{0,800}return;\s*\} else if \(!\(res && res\.data && res\.data\.success == true\) && window\.EFBCaptcha/.test(resp), true);
   c.done();
 })();

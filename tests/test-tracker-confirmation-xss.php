@@ -40,7 +40,9 @@ $source = file_get_contents(__DIR__ . '/../includes/class-Emsfb-public.php');
 test_tracker_xss('tracker shortcode output uses esc_attr for get_track value', strpos($source, 'esc_attr($get_track)') !== false);
 test_tracker_xss('tracker shortcode unslashes track before sanitizing', strpos($source, "sanitize_text_field(wp_unslash(\$_GET['track']))") !== false);
 test_tracker_xss('tracker shortcode escapes placeholder attribute text', strpos($source, "esc_attr(\$text['entrTrkngNo'])") !== false);
-test_tracker_xss('tracker shortcode escapes captcha site key attribute', strpos($source, 'esc_attr($valstng->siteKey)') !== false);
+// F12b: the tracker's CAPTCHA box is Spam::captcha_widget('tracker') → Captcha::box_html(), which escapes every attribute (site key included).
+$cp_source = file_get_contents(__DIR__ . '/../includes/class-Emsfb-captcha.php');
+test_tracker_xss('tracker shortcode escapes captcha site key attribute', strpos($source, "Spam::captcha_widget('tracker')") !== false && strpos($cp_source, "self::esc((string) (\$cfg['k'] ?? ''))") !== false && strpos($cp_source, 'esc_attr((string) $s)') !== false);
 test_tracker_xss('tracker shortcode escapes visible tracker labels', strpos($source, "esc_html(\$text['trackingCode'])") !== false);
 
 echo "\n========================================\n";
