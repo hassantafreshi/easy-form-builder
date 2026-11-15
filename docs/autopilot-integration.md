@@ -1514,8 +1514,18 @@ stay; what F12b adds:
   CAPTCHA (v2 invisible, v3) needs `captcha` (a token for the action `efb_otp`) and answers `efb_captcha_*` without it.
 - **Form packages (F15).** `captcha_provider` and `cp_*` travel in the package, never a key; importing on a site
   without that add-on reports `captcha_addon_missing` (the form is protected by the fallback).
-- **Tests.** `node tests/test-ap-spam.js` (F12b block), `php tests/test-captcha-registry.php`,
-  `node tests/e2e-wp/run.js f12b-1` (AutoPilot on the real builder).
+- **F12b-L: each add-on's own settings screen** (approved by owner 2026-11-15). An installed, active CAPTCHA add-on's
+  settings are on `admin.php?page=Emsfb_captcha&provider=<id>` (core's screen, drawn from the add-on's
+  `settings_schema()`), given as `settings_url` in `efb_var.captcha_providers` and `capabilities.spam.providers`
+  (`null` for Google and for an add-on that is not installed); Settings › Captchas only lists those add-ons. They are
+  stored in the settings row under `captcha_<id>` (`capabilities.spam.addon_settings` says so). An assistant reads
+  `installed` / `available_now` / `ready` / `state` and may send the owner to `settings_url`; it never reads or
+  writes these values: they are not in any settings answer (`Builder_Api::redact_settings()` and
+  `Captcha\Admin::redact_settings()` drop every `captcha_<id>`), and `capabilities.spam.providers` carries no
+  `settings` (no value, no mask).
+- **Tests.** `node tests/test-ap-spam.js` (F12b block, F12b-L capabilities), `php tests/test-captcha-registry.php`,
+  `php tests/test-captcha-addon-settings.php` (F12b-L storage), `node tests/e2e-wp/run.js f12b-1` (AutoPilot on the
+  real builder) and `f12b-10` (the add-ons' screens).
 
 ### PAY01. Mollie gateway field (`mollie`, add-on `AdnMOL`)
 

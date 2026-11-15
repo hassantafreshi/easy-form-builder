@@ -733,6 +733,9 @@ class Spam {
 			'outcomes'    => array('captcha' => 'block', 'silent_captcha' => 'block', 'soft' => 'spam (site setting spam_action: spam | reject); register, login and payment forms: reject'),
 			'site_only'   => array_keys(self::SETTING_DEFAULTS),
 			'secrets'     => 'never settable by an assistant, never in a form or a schema',
+			// F12b-L: an installed CAPTCHA add-on's settings are on its own screen (providers[].settings_url) and stored in
+			// the settings row under captcha_<id>; an assistant links the owner there, never reads or writes them.
+			'addon_settings' => array('screen' => 'providers[].settings_url (admin.php?page=Emsfb_captcha&provider=<id>), installed and active add-ons only', 'stored' => 'settings row, key captcha_<id>, secrets encrypted', 'assistant' => 'read only: installed / available_now / ready / state; no value, no secret'),
 			// F12b follow-up: the reply box of a tracked entry (site settings; read only for an assistant).
 			'reply'       => array('pass_minutes' => (int) self::setting('reply_pass_min'), 'per_track_10min' => (int) self::setting('reply_rl_track'),
 				'per_ip_hour' => (int) self::setting('reply_rl_ip') ?: null, 'pass' => 'sliding, bound to the tracking code and the visitor session (never the IP)',

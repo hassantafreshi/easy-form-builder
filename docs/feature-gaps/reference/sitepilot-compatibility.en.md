@@ -1161,6 +1161,11 @@ it, accepted with warning `captcha_not_ready` when its keys are missing. Schema:
 effective_provider, kind, ready, widget, fallback, why}`. `spam_security_change` with `risk: medium` for a switch to the
 question CAPTCHA. Packages (F15) carry `captcha_provider` and `cp_*`, never a key; an import without the add-on
 reports `captcha_addon_missing`. Details: `docs/autopilot-integration.md` (F12b), `docs/spam/captcha-contract.en.md`.
+*F12b-L (approved by owner 2026-11-15):* each installed, active CAPTCHA add-on has its own settings screen
+(`providers[].settings_url`, `admin.php?page=Emsfb_captcha&provider=<id>`; `null` for Google and for add-ons not
+installed); the settings live in the site settings row under `captcha_<id>` and never reach an assistant (no value or
+mask in `providers[]`, dropped from every settings answer). `capabilities.spam.addon_settings` says so. Nothing changes
+for a connector: it keeps reading `installed` / `available_now` / `ready` / `state` and may link the owner to the screen.
 
 **F13 privacy and retention.** Create: `prv_nostore`, `prv_ip`, `prv_days`, `prv_id_field`, field
 `prv_pii`. Must add: `emsfb_prv_forms` map updated from `efb_form_saved`/`efb_form_created` (not only
