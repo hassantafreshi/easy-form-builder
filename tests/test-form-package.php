@@ -6,7 +6,7 @@
  *  - malicious input: > 8 MB, nesting deeper than 64, a PHP object string anywhere (dropped), rows without a type,
  *    unknown types (and their options) dropped, c_c / logic_rules … that are not arrays removed (no PHP warning),
  *    a settings row that is not one refused;
- *  - row 0: secrets, the SMS / Telegram texts (they travel as extras), autofill_id, st_uses never kept; `email`
+ *  - row 0: secrets, autofill_id, st_uses never kept (SMS / Telegram texts kept in the JSON while off stay); `email`
  *    only with with_emails; steps counted again;
  *  - ids: kept; an invalid id gets a new one and every reference follows through efb_form_package_remap_ids
  *    (parent, dataId, group, email_to, lim_email_field, logic rules, calc formulas {field:id}/{id.part}, smart tags
@@ -93,7 +93,7 @@ $codes = array_column($v['dropped'], 'code');
 sort($codes);
 t('dropped: the unknown type, its option, two rows without a type, c_c and autofill_conditions that are not arrays, a PHP object string', $codes, array('not_an_array', 'not_an_array', 'orphan_option', 'php_object', 'row_without_type', 'row_without_type', 'unknown_type'));
 t('no row of an unknown type is kept', count($byType('evil_widget')) + count(array_filter($out, function ($r) { return isset($r['parent']) && $r['parent'] === 'zz'; })), 0);
-t('row 0: secrets, SMS / Telegram texts, autofill_id and st_uses gone; email kept on import; steps counted (2)', array(isset($out[0]['telegram_bot_token']), isset($out[0]['telegram_admin_chat_ids']), isset($out[0]['sms_admins_phone_no']), isset($out[0]['sms_msg_new_noti']), $out[0]['autofill_id'], isset($out[0]['st_uses']), $out[0]['email'], $out[0]['steps']), array(false, false, false, false, '', false, 'owner@example.test', 2));
+t('row 0: secrets, autofill_id and st_uses gone; an SMS text the JSON kept stays; email kept on import; steps counted (2)', array(isset($out[0]['telegram_bot_token']), isset($out[0]['telegram_admin_chat_ids']), isset($out[0]['sms_admins_phone_no']), $out[0]['sms_msg_new_noti'] ?? null, $out[0]['autofill_id'], isset($out[0]['st_uses']), $out[0]['email'], $out[0]['steps']), array(false, false, false, 'New', '', false, 'owner@example.test', 2));
 $new = $v['id_map']['bad id'];
 t('an invalid id gets a new 9-character id in the map', (bool) preg_match('/^[a-z0-9]{9}$/', $new), true);
 $num = $byType('number')[0];
@@ -139,7 +139,7 @@ t('php object strings are recognised (O:… and C:…), plain text is not', arra
 
 /* Export cleaning */
 $c = P::clean_row0(array($r0, $st, array('id_' => 'a', 'type' => 'option', 'registered_count' => '4')), false);
-t('export: row 0 without secrets / texts / autofill_id; email emptied without with_emails; registered_count 0', array(isset($c[0]['telegram_bot_token']), isset($c[0]['sms_msg_new_noti']), $c[0]['email'], $c[0]['autofill_id'], $c[2]['registered_count']), array(false, false, '', '', '0'));
+t('export: row 0 without secrets / autofill_id; email emptied without with_emails; registered_count 0', array(isset($c[0]['telegram_bot_token']), $c[0]['email'], $c[0]['autofill_id'], $c[2]['registered_count']), array(false, '', '', '0'));
 t('export with with_emails keeps the address', P::clean_row0(array($r0, $st), true)[0]['email'], 'owner@example.test');
 
 /* Extras (P23) */

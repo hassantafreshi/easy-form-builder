@@ -36,8 +36,9 @@ class Form_Package {
 	const MAX_DEPTH = 64;
 	const MAX_ROWS = 5000;
 	const ROW0_TYPES = array('form', 'payment', 'survey', 'login', 'register', 'subscribe', 'smartForm');
-	/** Row-0 keys that are never in a package (secrets; add-on texts travel in extras). */
+	/** Row-0 keys that are never in a package (secrets). */
 	const SECRET_ROW0 = array('telegram_bot_token', 'telegram_admin_chat_ids', 'sms_admins_phone_no');
+	/** SMS / Telegram texts a form keeps in its JSON while the notification is off (A5): kept as they are (not secrets). */
 	const ADDON_TEXT_ROW0 = array('sms_msg_new_noti', 'sms_msg_responsed_noti', 'sms_msg_recived_usr', 'sms_msg_recived_user', 'telegram_msg_new_noti', 'telegram_msg_responsed_noti', 'telegram_msg_recived_usr', 'telegram_msg_recived_user');
 	/** Keys that only mean something on the site that made the form. */
 	const SITE_ROW0 = array('autofill_id' => '', 'st_uses' => null);
@@ -161,10 +162,10 @@ class Form_Package {
 		);
 	}
 
-	/** Row 0 without secrets, add-on texts and site-only keys; `email` only when asked for. */
+	/** Row 0 without secrets and site-only keys; `email` only when asked for. */
 	public static function clean_row0(array $rows, $with_emails = false) {
 		if (!isset($rows[0]) || !is_array($rows[0])) return $rows;
-		foreach (array_merge(self::SECRET_ROW0, self::ADDON_TEXT_ROW0) as $k) unset($rows[0][$k]);
+		foreach (self::SECRET_ROW0 as $k) unset($rows[0][$k]);
 		foreach (self::SITE_ROW0 as $k => $v) { if (array_key_exists($k, $rows[0])) { if ($v === null) unset($rows[0][$k]); else $rows[0][$k] = $v; } }
 		foreach (array_keys($rows[0]) as $k) if (is_string($k) && preg_match('/(secret|token|password|api_?key)/i', $k)) unset($rows[0][$k]);
 		if (!$with_emails && isset($rows[0]['email'])) $rows[0]['email'] = '';

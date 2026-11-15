@@ -73,7 +73,7 @@ $api = function_exists('efb_form_package_api') ? efb_form_package_api() : null;
    `efb_form_package_known_types`; this site's payment gateways are known) are dropped with their options.
 4. `autofill_conditions`, `c_c`, `c_n`, `conditions`, `logic_rules`, `notification_rules`, `confirmation_rules`,
    `webhook_rules`, `thank_you_message` that are not arrays are removed (the sanitizer walks them as arrays).
-5. Row 0 is cleaned (secrets, the add-ons' texts, site-only keys); `steps` is counted again.
+5. Row 0 is cleaned (secrets, site-only keys; SMS / Telegram texts a form keeps in its JSON while the notification is off stay); `steps` is counted again.
 6. **Ids** are kept (they only need to be unique inside a form). An id that is not `[A-Za-z0-9_-]{1,40}` gets a new
    9-character id and goes into `id_map` (`old → new`); every reference then follows through the filter
    **`efb_form_package_remap_ids`** `($rows, $map, $ctx)`. Core's own handlers are on that filter: priority 5
