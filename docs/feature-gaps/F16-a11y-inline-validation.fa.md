@@ -24,7 +24,7 @@
 **پرسش‌های باز §۱۸ — همه طبق پیشنهاد سند** (approved by owner (2026-11-14, default to recommendations)):
 1. `warn_unsaved` فرم تازه: ۱ برای چندمرحله‌ای و ۰ برای تک‌مرحله‌ای (`efb_form_defaults_efb($steps)`، `efbA11yDefaults()`) — approved by owner (2026-11-14, default to recommendations).
 2. `<a role="button">` به `<button>` تبدیل نشد (نسخهٔ major با یادداشت مهاجرت)؛ به‌جایش `aria-disabled` همیشه با ظاهر `disabled` هماهنگ است — approved by owner (2026-11-14, default to recommendations).
-3. `axe-core` 4.14.0 به‌عنوان devDependency (کنار Playwright در `node_modules` مخزن، بدون CDN) — approved by owner (2026-11-14, default to recommendations).
+3. `axe-core` 4.14.0 به‌عنوان devDependency (کنار Playwright در `node_modules` مخزن، بدون CDN) — approved by owner (2026-11-14, default to recommendations). به‌روزرسانی ۲۰۲۶-۱۱-۱۵ (مالک: node_modules در مخزن نباشد): فایل‌های axe-core از مخزن بیرون آمدند (`git rm --cached`)؛ devDependency در `package.json` می‌ماند و `npm install` نصبش می‌کند؛ e2e آن را با `require.resolve('axe-core')` پیدا می‌کند و اگر نباشد با پیام «run npm install» شکست می‌خورد (هرگز رد نمی‌شود).
 4. فرم‌های قدیمی خودکار `blur` نمی‌شوند؛ فقط با تصمیم مدیر (A12 بررسی‌کننده در فاز ۲) — approved by owner (2026-11-14, default to recommendations).
 5. حالت آیکون‌تنها حذف شد؛ پیام همیشه متن است — approved by owner (2026-11-14, default to recommendations).
 

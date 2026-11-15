@@ -1,6 +1,6 @@
 /**
  * F16 scenarios of tests/e2e-wp/run.js (docs/feature-gaps/F16-a11y-inline-validation.fa.md, the scenario list of
- * subtasks A–G), on the real site. axe-core (devDependency, node_modules/axe-core/axe.min.js, injected from disk: no CDN)
+ * subtasks A–G), on the real site. axe-core (devDependency: `npm install`; resolved with require.resolve, injected from disk: no CDN)
  * checks the public form against WCAG 2.0 / 2.1 / 2.2 A and AA.
  *
  *  f16-a  builder (en 1280): a new form gets val_timing blur / err_summary 1 / warn_unsaved 0; Form settings shows
@@ -30,13 +30,22 @@ const path = require('path');
 module.exports = function (S) {
   const { scenario, R, ctl, CFG, sleep, SHOT } = S;
   const c16 = (...a) => { const out = S.wp('eval-file', path.join(__dirname, 'ctl-f16.php'), ...a.map(String)).trim().split('\n'); return JSON.parse(out[out.length - 1]); };
-  const AXE = path.join(__dirname, '..', '..', 'node_modules', 'axe-core', 'axe.min.js');
+  /* axe-core is a devDependency (package.json), never committed: `npm install` puts it in node_modules. Resolved
+     through Node (require.resolve), and a missing copy fails the scenario with what to do, never a silent skip. */
+  const axeFile = () => {
+    let main;
+    try { main = require.resolve('axe-core'); } catch (e) {
+      throw new Error('axe-core is not installed: run "npm install" in the plugin folder (it is a devDependency of package.json), then run the e2e again.');
+    }
+    const min = path.join(path.dirname(main), 'axe.min.js');
+    return require('fs').existsSync(min) ? min : main;
+  };
   const form = (name, fields, row0, steps) => ctl('f03-form', name, JSON.stringify(fields), row0 || '', String(steps || 1));
   const guest = async (context, vp, label) => (await context({ viewport: vp || { width: 1280, height: 900 } }, label || 'guest')).newPage();
   const go = async (p, url) => { await p.goto(url, { waitUntil: 'load' }); await p.waitForFunction(() => document.querySelector('.body_efb .emsFormBuilder_v[data-efb-init="1"]'), null, { timeout: 20000 }); await sleep(600); };
   /** axe on the forms of the page (WCAG 2.x A / AA); [] when clean. */
   const axe = async (p) => {
-    await p.addScriptTag({ path: AXE });
+    await p.addScriptTag({ path: axeFile() });
     return p.evaluate(async () => {
       const out = [];
       for (const b of document.querySelectorAll('.body_efb')) {
