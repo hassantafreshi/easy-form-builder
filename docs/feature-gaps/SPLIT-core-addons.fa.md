@@ -604,12 +604,12 @@ e2e روی `tests/e2e-wp` (سناریوی تازهٔ `scenario-split.js`، fa_IR
 ### H — AutoPilot / SitePilot
 `efbBuilderApi`: `addon_required` برای `setCalc`، `validateFormula`، `setFieldLayout({esign_mode})`، `newItems('maps')`؛ `forms/{id}/schema` با `unavailable`؛ مستندات (این سند §۱۵، `autopilot-integration.md`، `sitepilot-compatibility.en.md` §13، مخزن `sitepilot-ai`). معیار: `test-split-capabilities.js`، `test-ap-*` سبز.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: `builder-api-efb.js` (`addonFail()` با `e.addon`، `e.addon_name`، `e.install`؛ `setCalc`/`validateFormula` بی موتور، `newItems('calc'|'maps')`، `setFieldLayout({esign_mode: type|both, esign_font})` و هر `insertItems`/`setForm`/`applyPatch` با کلید، مقدار یا نوع افزونهٔ غایب (`addonKeysCheck`، مانیفست `efb_var.addon_keys`) → `addon_required` با `e.path`؛ هرگز حذف بی‌صدا)، `class-Emsfb-addon-catalog.php` (`efb_var.addon_keys`)، `Split::capabilities()` (`split.addons[code].state`، `codes`، `data_tools`)، `Split::schema_field()` (`forms/{id}/schema`: `assistant: none` و `unavailable`)؛ `tests/f18-harness.js` و `tests/ap-builder-harness.js` (افزونه‌های calc، typed-signature، address)؛ مستندات `docs/autopilot-integration.md` بخش SPLIT (ساخته‌شده، کدها و قراردادها)، `reference/sitepilot-compatibility.en.md` §13؛ مخزن `sitepilot-ai` شاخهٔ `dev4`: `ai-site-assistant-autopilot-docs/docs/connectors/README.md` (نام‌ها و پلن‌های نهایی).
+- تست‌ها: تازه `test-split-capabilities.js` (17)؛ همهٔ `test-ap-*` سبز (B2 با اسکریپت نقشهٔ افزونه).
+- وضعیت ترجمه: —
+- مورد باز: —
+- اقدام بعدی: I، J.
 
 ### I — مهاجرت و ارتقا
 گام §۴.۵، اعلان «Try again» آفلاین، grandfather (پرسش ۲). معیار: e2e شمارهٔ ۶ §۱۷.

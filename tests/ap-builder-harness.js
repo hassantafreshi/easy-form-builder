@@ -111,6 +111,9 @@ async function openBuilder(opts) {
   // SPLIT §7: the Typed Signature add-on's builder settings and EFBSign.
   const TSG = process.env.EFB_TYPED_SIGNATURE_DIR || path.join(__dirname, '..', 'vendor', 'typed-signature');
   for (const f of ['typed-signature-efb.js', 'typed-signature-builder-efb.js']) if (fs.existsSync(path.join(TSG, 'assets', 'js', f))) await page.addScriptTag({ path: path.join(TSG, 'assets', 'js', f) });
+  // SPLIT §10.2: the map field's code is the Address & Postal add-on's (its Leaflet is not needed to build rows).
+  const ADR = process.env.EFB_ADDRESS_DIR || path.join(__dirname, '..', 'vendor', 'address');
+  if (fs.existsSync(path.join(ADR, 'assets', 'js', 'maps-efb.js'))) await page.addScriptTag({ path: path.join(ADR, 'assets', 'js', 'maps-efb.js') });
   for (const s of (opts.scripts || [])) await page.addScriptTag({ path: path.join(ROOT, s) });
   await page.evaluate(() => { _efb_nonce_ = 'n0nce'; setting_emsFormBuilder = efb_var.setting; });
   const bootErrors = errors.splice(0);

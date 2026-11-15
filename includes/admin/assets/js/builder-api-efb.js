@@ -28,6 +28,26 @@
     e.code = code;
     return e;
   }
+  /**
+   * SPLIT §4.1 / §15.3: a call that needs an add-on that is not active refuses with addon_required (never a silent
+   * drop of keys): e.addon is the add-on code, e.addon_name its name, e.install the Add-ons page; installing is a
+   * person's click (efb_upgrade_prompt_efb({feature: 'addon:' + code}) or the Add-ons page).
+   */
+  function addonFail(code, what) {
+    var cat = (typeof efb_var !== 'undefined' && efb_var && efb_var.addon_catalog && efb_var.addon_catalog[code]) || {};
+    var e = fail('addon_required', (what || 'This') + ' needs the ' + (cat.name || code) + ' add-on (' + code + ').');
+    e.addon = code;
+    e.addon_name = cat.name || code;
+    e.install = 'admin.php?page=Emsfb_addon';
+    return e;
+  }
+  /** Whether an add-on's contract is active on this page (capabilities.split, else the add-on's own script). */
+  function addonActive(code, probe) {
+    var caps = (typeof efb_var !== 'undefined' && efb_var && efb_var.capabilities) || null;
+    var a = caps && caps.split && caps.split.addons && caps.split.addons[code];
+    if (a && a.state) return a.state === 'active';
+    return !!probe;
+  }
   function clone(x) { return JSON.parse(JSON.stringify(x)); }
   function rows() {
     if (typeof valj_efb === 'undefined' || !Array.isArray(valj_efb)) throw fail('builder_not_ready', 'The form builder is not loaded.');
@@ -407,6 +427,9 @@
     }
     if (typeof efbPayPaletteEfb === 'function' && typeof fields_efb !== 'undefined') efbPayPaletteEfb(fields_efb);
     if (!COMPOSITES[paletteId] && paletteIds().indexOf(paletteId) < 0) throw fail('unknown_palette_id', 'Unknown palette id ' + paletteId + '.');
+    // SPLIT §10.2 / §6: the map field and the calc field are their add-ons' (AdnADR, AdnCLC).
+    if (paletteId === 'maps' && !addonActive('AdnADR', typeof efbCreateMap === 'function')) throw addonFail('AdnADR', 'The map field');
+    if (paletteId === 'calc' && !addonActive('AdnCLC', !!window.EFBCalc)) throw addonFail('AdnCLC', 'A calculated field');
     // The builder draws a gateway only when its add-on is installed (otherwise it shows a notice).
     var gatewayAddon = { stripe: 'AdnSPF', paypal: 'AdnPAP', persiaPay: 'AdnPPF' }[paletteId];
     if (gatewayAddon && !(typeof addons_emsFormBuilder === 'object' && addons_emsFormBuilder && Number(addons_emsFormBuilder[gatewayAddon]) === 1)) {
@@ -1185,9 +1208,36 @@
    * calcSyntax / calcRef / calcForbidden / calcCycle / …, the same codes as the server); a calc used as the
    * amount to pay needs opts.allow.payment (calc_payment). "step" is never a number setting (it is the form step).
    */
+  /**
+   * SPLIT §4.2 / §15.3: rows that use keys, values or field types of an add-on that is not active are refused with
+   * addon_required (e.addon, e.path) — AutoPilot never drops them silently; the site keeps stored ones on save.
+   */
+  function addonKeysCheck(items, offset) {
+    var man = (typeof efb_var !== 'undefined' && efb_var && efb_var.addon_keys) || null;
+    var split = (typeof efb_var !== 'undefined' && efb_var && efb_var.capabilities && efb_var.capabilities.split) || null;
+    if (!man || !split || !split.addons) return; // a page without the SPLIT registry: the server keeps the keys
+    var match = function (k, list) { return (list || []).some(function (p) { return p === k || (p.slice(-1) === '*' && k.indexOf(p.slice(0, -1)) === 0); }); };
+    Object.keys(man).forEach(function (code) {
+      var m = man[code];
+      if (!split.addons[code] || addonActive(code, false)) return;
+      (items || []).forEach(function (r, i) {
+        if (!r || typeof r !== 'object') return;
+        var at = (i + (offset || 0));
+        var row0 = at === 0 && r.type !== undefined && r.id_ === undefined;
+        var path = 'rows[' + at + ']';
+        if (!row0 && (m.types || []).indexOf(r.type) !== -1) { var e1 = addonFail(code, 'A field of type ' + r.type); e1.path = path + '.type'; throw e1; }
+        Object.keys(r).forEach(function (k) {
+          var own = row0 ? match(k, m.row0) : (r.type === 'option' ? match(k, m.options) : (match(k, (m.fields || {})[r.type]) || match(k, (m.fields || {})['*'])));
+          if (!own && m.values && m.values[k] && m.values[k].indexOf(String(r[k])) !== -1) own = true;
+          if (own && r[k] !== undefined && r[k] !== null && r[k] !== '') { var e = addonFail(code, 'The setting ' + k); e.path = path + '.' + k; throw e; }
+        });
+      });
+    });
+  }
   function calcCheck(items, offset, all, opts) {
     var E = window.EFBCalc;
     var out = [];
+    addonKeysCheck(items, offset);
     if (!E) return out;
     (items || []).forEach(function (r, i) {
       if (!r || typeof r !== 'object') return;
@@ -1223,7 +1273,7 @@
    */
   function validateFormula(formula, list) {
     var E = window.EFBCalc;
-    if (!E) throw fail('builder_not_ready', 'The calc engine (calc-efb.js) is not loaded.');
+    if (!E) throw addonFail('AdnCLC', 'validateFormula()');
     var p = E.parse(String(formula == null ? '' : formula));
     if (!p.ok) return { ok: false, code: p.code, pos: p.pos, near: p.near, refs: [] };
     var base = clone(Array.isArray(list) ? list : rows());
@@ -1239,7 +1289,7 @@
     if (idx < 1 || ['number', 'range', 'calc', 'option'].indexOf(list[idx].type) === -1) throw fail('unknown_field', 'No number, slider, calc field or choice with id ' + id + '.');
     if (!patch || typeof patch !== 'object' || Array.isArray(patch)) throw fail('invalid_setting', 'setCalc() needs an object of number / calc keys.');
     var E = window.EFBCalc;
-    if (!E) throw fail('builder_not_ready', 'The calc engine (calc-efb.js) is not loaded.');
+    if (!E) throw addonFail('AdnCLC', 'setCalc()');
     Object.keys(patch).forEach(function (k) {
       if (k === 'step') throw fail('invalid_setting', 'the step of a number is num_step; "step" is the form step.');
       if (!E.isKey(k, list[idx].type) && k !== 'milen' && k !== 'mlen') throw fail('invalid_setting', 'key ' + k + ' is not a number / calc key of a ' + list[idx].type + '.');
@@ -1628,9 +1678,14 @@
     var idx = fieldIndex(list, String(id));
     if (idx < 1) throw fail('unknown_target', 'No field with id ' + id + '.');
     if (!patch || typeof patch !== 'object' || Array.isArray(patch)) throw fail('layout_invalid', 'setFieldLayout() needs an object of keys.');
+    // SPLIT §7: a typed signature is the Typed Signature add-on's (AdnTSG): esign_mode type / both, esign_font.
+    if ((patch.esign_mode !== undefined && patch.esign_mode !== 'draw') || patch.esign_font !== undefined) {
+      if (!addonActive('AdnTSG', typeof window.efbLayoutSigEls === 'function')) throw addonFail('AdnTSG', 'A typed signature');
+    }
     var C = layCore();
     var allowed = (C ? C.FIELD_KEYS : []).concat(['collapsible']);
     Object.keys(patch).forEach(function (k) { if (allowed.indexOf(k) === -1) throw fail('layout_invalid', 'key ' + k + ' cannot be set with setFieldLayout().'); });
+
     var row = clone(list[idx]);
     Object.keys(patch).forEach(function (k) { row[k] = patch[k]; });
     if (row.vis_mode !== undefined && row.vis_mode !== 'roles') delete row.vis_roles;

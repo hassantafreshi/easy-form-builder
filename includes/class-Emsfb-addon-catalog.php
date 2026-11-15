@@ -233,6 +233,8 @@ class Addon_Catalog {
 	public static function localize_vars($vars, $context = '') {
 		if (!is_array($vars)) return $vars;
 		$vars['addon_catalog'] = self::js_mirror();
+		// SPLIT §4.2: the keys each add-on owns (efbBuilderApi refuses them with addon_required while it is absent).
+		if (class_exists('\\Emsfb\\Addon_Keys')) $vars['addon_keys'] = Addon_Keys::manifest();
 		return $vars;
 	}
 

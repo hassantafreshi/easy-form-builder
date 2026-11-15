@@ -1312,23 +1312,23 @@ until `efb_api_manifest()` exists.
 
 ## 13. Core / add-on split (SPLIT, owner decision 2026-11-14)
 
-Spec: [`SPLIT-core-addons.fa.md`](../SPLIT-core-addons.fa.md); AutoPilot view in
+Status: **built** (2026-11-15). Spec: [`SPLIT-core-addons.fa.md`](../SPLIT-core-addons.fa.md); AutoPilot view in
 [`docs/autopilot-integration.md`](../../autopilot-integration.md#split-which-features-need-which-add-on-owner-decision-2026-11-14).
 
 | Moves to | What | Plan |
 |---|---|---|
 | `AdnCLC` | F04: `calc` field, formula engine (`Emsfb\Calc`, `window.EFBCalc`), option `calc`, `range_mode=dual`, `num_*` settings, `calc_as_price` | Free Plus (calc amount Pro) |
 | `AdnTSG` | F10-E typed signature (`esign_mode`, `esign_font`, fonts) | Free Plus |
-| `AdnADR` | 18 postal mask presets, `maps` field, F17 address search, postcode → city | every plan (proposed), inner gates as today |
+| `AdnADR` | 18 postal mask presets, `maps` field, F17 address search, postcode → city | every plan, inner gates as today |
 | `AdnGEO` | `{geo:country}` / `{geo:country_name}` and the "Visitor country" preset, with the site admin's own ipinfo.io / ip-api.com key, server-side at submit only, fail-open | Free Plus and Pro |
-| `AdnBEF` | booking: older booking-form editing, `advdate` availability, slots, bookings screen | Pro (proposed) |
-| `AdnPRT` | customer portal (F20) | Pro |
-| `AdnSPF` / `AdnPAP` / `AdnPPF` | the gateway code still in core (legacy gateway bridge v1) | as today |
+| `AdnBEF` | booking: older booking-form editing, `advdate` availability, slots, bookings screen | Pro (editing and the template now; availability later) |
+| `AdnPRT` | customer portal (F20; joins the catalogue through `efb_addon_catalog` when built) | Pro |
+| `AdnSPF` / `AdnPAP` / `AdnPPF` | the gateway code that was in core (legacy gateway bridge v1; an add-on from before SPLIT reads as `state: update`) | as today |
 | Data Tools plugin | export / import UI and every importer (CF7 included) | free |
 
 Rules for the connector (they extend §7.2): the registry is the only source (`features[key].addon`, `reason`,
 `capabilities.split`, `capabilities.contracts`); a missing add-on is reported with an install suggestion, never
-worked around by dropping keys; the save keeps keys of an absent add-on (`addon_keys_kept` warning); a paid form
+worked around by dropping keys (`efbBuilderApi` refuses them: `addon_required` with `e.addon`, `e.path`); the save keeps keys of an absent add-on (`addon_keys_kept` warning); a paid form
 whose amount comes from a calc field is not published until `payment_ready`; an agent never stores an add-on's API
 key (gateways, `AdnGEO`). §4.3 (mask catalog): postal presets appear only when `AdnADR` is on. §9 F04, F08, F10,
 F17 rows: read with this section.
