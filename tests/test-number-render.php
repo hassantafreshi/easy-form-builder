@@ -39,6 +39,7 @@ function efb_nr_render(array $field, $row0 = array(), $rtl = false, $locale = 'e
 /* 0 */
 $rows = json_decode(file_get_contents(__DIR__ . '/fixtures/f04-old-form-rows.json'), true);
 $gold = json_decode(file_get_contents(__DIR__ . '/fixtures/f04-old-form-render.json'), true);
+require_once __DIR__ . '/f16-markup.php'; $gold = efb_f16_markup($gold); // F16-E: star aria-hidden, no " ! "
 foreach ($rows as $k => $c) {
 	t("0 old form, byte for byte as before F04: {$k}", efb_nr_render($c['field'], array(), !empty($c['rtl']), isset($c['locale']) ? $c['locale'] : 'en_US', isset($c['options']) ? $c['options'] : array()), $gold[$k]);
 }

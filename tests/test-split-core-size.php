@@ -28,7 +28,11 @@ const EFB_SPLIT_AFTER_CODE  = 12175102;   // subtask L, without languages
 // The core keeps at least this much of SPLIT's gain. Raised on purpose for F21 (2026-11-15): the Pro renewal reminder
 // (includes/class-Emsfb-renewal-reminder.php, its wiring, readme) adds 58,695 bytes, and the core was 5,333 bytes
 // under the old 400,000 budget at 45010e04 (12,279,399 → 12,338,094 bytes without languages).
-const EFB_SPLIT_MIN_GAIN    = 340000;
+// Raised on purpose for F16 (2026-11-15): accessibility and inline validation are free and in core (spec §14), with the
+// F20 P21 page contract: public/assets/js/inline-efb.js (EFBInline), the builder's a11y-builder-efb.js, Emsfb\A11y and
+// its autofill labels, the phrases and the runtime in core-efb.js add about 75 KB of code (12,338,094 → about
+// 12,415,000 bytes without languages); the core stays well under the size before SPLIT.
+const EFB_SPLIT_MIN_GAIN    = 250000;
 
 $paths = array('includes', 'public', 'languages', 'composer', 'emsfb.php', 'autoload.php', 'index.php', 'readme.txt');
 $files = array();

@@ -1396,7 +1396,9 @@ public function check_nonce_permission_efb($request) {
 			/* F10: the rich text editor (rich-text-efb.js). */
 			'rteToolbar','rteBold','rteItalic','rteUnderline','rteBullets','rteNumbers','rteLink','rteQuote','rteHeading','rteClear','rteLinkPrompt','rteLinkBad','sigDraw','sigType','sigTypeLbl','sigTyped',
 			/* F12: the CAPTCHA widgets (captcha-efb.js) and Google's notice under a reCAPTCHA v3 form. */
-			'captchaLabel','captchaExpired','captchaFailed','captchaLoading','rc3Notice'];
+			'captchaLabel','captchaExpired','captchaFailed','captchaLoading','rc3Notice',
+			/* F16: the error summary, the steps and the redirect (inline-efb.js, core-efb.js). */
+			'a11yErrPrefix','a11yErrSumOne','a11yErrSumN','a11yStepOf','a11yStepNow','a11yStay'];
 
 			/* Only now is a form or response box really printed. A form in a widget,
 			 * footer or popup keeps the page cacheable (EFBRuntime.prepare() fetches a
@@ -1838,18 +1840,20 @@ public function check_nonce_permission_efb($request) {
 					$fieldset= '';
 					if($step_no == 1){
 						$fieldset=sprintf(
-							'<fieldset data-step="step-%d-efb" id="step-%d-efb" class="efb my-2 mx-0 px-0 steps-efb efb row fieldset" data-formid="%s">',
+							'<fieldset data-step="step-%d-efb" id="step-%d-efb" class="efb my-2 mx-0 px-0 steps-efb efb row fieldset" data-formid="%s" tabindex="-1">',
 							$step_no, $step_no, $form_id
 						);
 					}else{
 						$fieldset= sprintf(
-							'<div id="step-%d-efb-msg"></div></fieldset><!-- end fieldset --><fieldset data-step="step-%d-efb" id="step-%d-efb" class="efb my-2 mx-0 px-0 steps-efb efb row d-none fieldset" data-formid="%s">',
+							'<div id="step-%d-efb-msg"></div></fieldset><!-- end fieldset --><fieldset data-step="step-%d-efb" id="step-%d-efb" class="efb my-2 mx-0 px-0 steps-efb efb row d-none fieldset" data-formid="%s" tabindex="-1">',
 							$step_no - 1 , $step_no, $step_no, $form_id
 						);
 
 					}
 					// F10-D: a step whose every field is hidden from this viewer is skipped like a step hidden by logic.
 					if (!empty($valj_efb[$i]->vis_empty)) $fieldset = substr($fieldset, 0, -1) . ' data-vis-empty="1">';
+					// F16-D: the step's name for screen readers ("Step 2 of 4: Contact"), the fieldset's first child.
+					if (class_exists('\\Emsfb\\A11y')) $fieldset .= \Emsfb\A11y::step_legend($step_no, $valj_efb[0]->steps, isset($value->name) ? $value->name : '', isset($lanText['a11yStepOf']) ? $lanText['a11yStepOf'] : null);
 					$content .= $fieldset;
 
 					/* Resolved here rather than at the head assembly below because the
@@ -2171,7 +2175,8 @@ public function check_nonce_permission_efb($request) {
 				<!-- start body_efb-->
 
 				'.($gate_render_efb ? $gate_render_efb['html'] : '').'
-				<div id="body_efb_'.$form_id.'" class="efb row pb-3 efb px-2 pre-efb body_efb efb-waiting-'.$this->id.' '.$dShow.(($gate_render_efb && $gate_render_efb['hide_form']) ? ' d-none' : '').'" data-currentstep="1" data-steps="'.$valj_efb[0]->steps.'" data-formid="'.$this->id.'"'.$direction_attr.'>
+				<div id="body_efb_'.$form_id.'" class="efb row pb-3 efb px-2 pre-efb body_efb efb-waiting-'.$this->id.' '.$dShow.(isset($valj_efb[0]->val_timing) && $valj_efb[0]->val_timing === 'blur' ? ' efb-vt-blur' : '').(($gate_render_efb && $gate_render_efb['hide_form']) ? ' d-none' : '').'" data-currentstep="1" data-steps="'.$valj_efb[0]->steps.'" data-formid="'.$this->id.'"'.$direction_attr.'>
+					<div id="efb-live-'.$form_id.'" class="efb efb-vh" role="status" aria-live="polite" aria-atomic="true" data-efb-live></div><div id="efb-errsum-'.$form_id.'" class="efb efb-errsum d-none" tabindex="-1"></div>
 					<form id="efbform" class="mx-0 px-0 efb" data-formid="'.$this->id.'"'.$direction_attr.'>'.(class_exists('\\Emsfb\\Spam') ? \Emsfb\Spam::honeypot_html($this->id, $valj_efb[0]) : '').'
 						<div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2 view-efb" id="view-efb" data-formid="'.$this->id.'">
 						' . (intval($valj_efb[0]->show_icon) != 1
@@ -2589,6 +2594,9 @@ public function check_nonce_permission_efb($request) {
 		wp_enqueue_style('Emsfb-response-viewer-css');
 		wp_register_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js'), $response_viewer_js_version, true);
 		wp_enqueue_script('efb-response-viewer-js');
+		// F16 / P21: field errors, the error summary, focus and the leave warning (EFBInline).
+		wp_register_script('efb-inline-js', EMSFB_PLUGIN_URL . 'public/assets/js/inline-efb.js', array(), $asset_version('public/assets/js/inline-efb.js'), true);
+		$core_deps[] = 'efb-inline-js';
 		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', $main_deps, $main_js_version, true);
 		wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), $core_deps, $core_js_version, true);
 		wp_enqueue_script('Emsfb-core_js');

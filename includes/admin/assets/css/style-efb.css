@@ -2080,3 +2080,34 @@ body:has(.efb-rc3-notice) .grecaptcha-badge { visibility: hidden; }
 .efb.efb-captcha-box .efb-captcha { min-width: 0; }
 /* On a right-to-left site every line is aligned right like the other labels; each keeps its own order (plaintext). */
 .efb.efb-spam-settings[dir="rtl"] .efb-spam-lbl, .efb.efb-spam-settings[dir="rtl"] .efb-spam-help, .efb.efb-spam-settings[dir="rtl"] .form-label, .efb.efb-spam-form[dir="rtl"] .form-text { text-align: right; }
+/* F16 accessibility: hidden text for screen readers, the "Error:" before a field's message (read, not shown), the
+   error summary, the message in the flow on a phone (the bubble covered the label, right to left too), focus that
+   shows, Windows high contrast and "more contrast", less motion. */
+.efb.efb-vh, .efb.visually-hidden-efb { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
+.efb.efb-field-error::before { content: attr(data-efb-prefix); position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+.efb.efb-errsum { border: 3px solid #b3261e; border-radius: 8px; padding: 12px 16px; margin: 8px 0 12px; background: #fff; color: #1f1f1f; text-align: start; }
+.efb.efb-errsum:focus { outline: 3px solid #ffbf47; outline-offset: 2px; }
+.efb.efb-errsum-t { font-size: 1.25rem; font-weight: 700; margin: 0 0 4px; color: #b3261e; unicode-bidi: plaintext; }
+.efb.efb-errsum-l { margin: 0; padding-inline-start: 1.25rem; }
+.efb.efb-errsum-l a { color: #b3261e; text-decoration: underline; font-weight: 600; display: inline-block; padding: 10px 0; line-height: 1.5; unicode-bidi: plaintext; }
+.efb.steps-efb:focus, .efb.efb-step-h:focus { outline: none; }
+.body_efb :is(input, select, textarea, a, button, [tabindex="0"]):focus-visible, .efb-final-step a:focus-visible { outline: 3px solid #1a56db !important; outline-offset: 2px; }
+.efb.efb-stay { min-height: 44px; min-width: 44px; }
+.efb-vt-blur .efb.efb.ttiptext.ttiptext[id$="-message"] { position: static !important; margin: 4px 0 2px !important; max-width: 100% !important; text-align: start !important; white-space: normal; }
+.efb-vt-blur .ttEfb .efb.ttiptext::after { display: none; }
+@media (max-width: 575.98px) {
+  .body_efb .efb.efb.ttiptext.ttiptext[id$="-message"], .body_efb .efb.efb.efb-field-error.efb-field-error { position: static !important; margin: 4px 0 2px !important; max-width: 100% !important; width: auto !important; text-align: start !important; font-size: .85rem !important; white-space: normal; }
+  .ttEfb .efb.ttiptext::after { display: none; }
+}
+@media (forced-colors: active) {
+  .efb [aria-invalid="true"] { outline: 2px solid CanvasText !important; outline-offset: 1px; }
+  .efb.efb-errsum, .efb.ttiptext { border: 2px solid CanvasText !important; }
+  .body_efb :is(input, select, textarea, a, button):focus-visible { outline: 3px solid Highlight !important; }
+}
+@media (prefers-contrast: more) {
+  .efb.ttiptext { color: #7a0000 !important; background: #fff !important; border-color: #7a0000 !important; }
+  .efb [aria-invalid="true"] { border-width: 2px !important; border-color: #7a0000 !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .body_efb *, .body_efb *::before, .body_efb *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}

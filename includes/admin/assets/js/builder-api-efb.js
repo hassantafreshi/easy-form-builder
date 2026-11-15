@@ -651,6 +651,13 @@
       if (!/^[A-Za-z0-9_]+$/.test(k) || k === 'type' || k === 'id_') throw fail('invalid_setting', 'key ' + k + ' cannot be set here.');
       if (v !== null && typeof v === 'object') throw fail('invalid_setting', k + ' must be a string, number or boolean.');
     });
+    // F16: val_timing ("blur" | "change"), err_summary and warn_unsaved ("1" | "0") with the save rules.
+    keys.forEach(function (k) {
+      if (['val_timing', 'err_summary', 'warn_unsaved'].indexOf(k) === -1 || typeof efbA11yClean !== 'function') return;
+      var a = efbA11yClean(k, patch[k]);
+      if (a === '') throw fail('invalid_setting', k + ' must be "blur" or "change".');
+      patch[k] = a;
+    });
     if (typeof efb_limits_validate_efb === 'function') {
       var errs = efb_limits_validate_efb(patch, r[0]);
       if (errs.length) throw fail(errs[0].code, errs[0].message);
@@ -823,6 +830,27 @@
     var e = fail(errs[0].code, errs[0].code === 'upload_config' ? 'min_files is larger than max_files (' + errs[0].path + ')' : 'This value cannot be used for ' + errs[0].key + ' (' + errs[0].path + ')');
     e.path = errs[0].path; e.errors = errs; if (errs[0].reason) e.reason = errs[0].reason;
     return e;
+  }
+  /**
+   * F16: a field's browser autofill, e.g. setAutocomplete('name1', 'given-name'), ('addr', 'shipping street-address'),
+   * ('code', 'off') or ('x', '') for automatic. A value browsers do not know throws invalid_setting. Returns
+   * {id, autocomplete: stored value, effective: the token the page gets ('' = no attribute)}.
+   */
+  function setAutocomplete(id, value, opts) {
+    if (typeof efbA11yClean !== 'function') throw fail('builder_not_ready', 'The F16 builder rules (a11y-builder-efb.js) are not loaded.');
+    var list = rows();
+    var idx = fieldIndex(list, String(id));
+    if (idx < 0) idx = list.findIndex(function (r, i) { return i > 0 && r && r.dataId === String(id); });
+    if (idx < 1 || list[idx].type === 'option' || list[idx].type === 'step') throw fail('unknown_field', 'No field with id ' + id + '.');
+    var v = efbA11yClean('autocomplete', value);
+    if (v === '' && String(value == null ? '' : value).trim() !== '') throw fail('invalid_setting', 'autocomplete "' + value + '" is not a browser autofill token.');
+    var next = clone(list[idx]);
+    if (v === '') delete next.autocomplete; else next.autocomplete = v;
+    list[idx] = next;
+    persist();
+    apiChanged('setAutocomplete', [next.id_]);
+    if (!opts || opts.refresh !== false) { try { refreshSettingsPanel(); } catch (e) {} }
+    return { id: next.id_, autocomplete: v, effective: efbA11yAcFor(next.elementId || next.type, next) };
   }
   /**
    * F07: change the upload keys of one file / dadfile field (by id_ or dataId) with the save rules, e.g.
@@ -1768,6 +1796,7 @@
     rollbackDateField: rollbackDateField,
     setVerification: setVerification,
     setUploadConfig: setUploadConfig,
+    setAutocomplete: setAutocomplete,
     setHiddenField: setHiddenField,
     setPrefill: setPrefill,
     formGate: formGate,

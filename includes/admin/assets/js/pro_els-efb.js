@@ -719,7 +719,7 @@ function create_intlTelInput_efb(rndm,iVJ,previewSate,corner){
   load_intlTelInput_efb(rndm,iVJ)
   const formId = valj_efb[iVJ].form_id || 0;
   return `
-  <input type="phone" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-formid="${formId}" data-vid='${rndm}' id="${rndm}_" aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}"  ${valj_efb[iVJ].message!='' ? `aria-describedby="${valj_efb[iVJ].id_}-des"` : ""}  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'readonly' : ''} ${disabled}>
+  <input type="tel" autocomplete="tel" class="efb  input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control ${valj_efb[iVJ].el_border_color}  ${valj_efb[iVJ].el_height} ${corner} ${valj_efb[iVJ].el_text_color} ${valj_efb[iVJ].required == 1 || valj_efb[iVJ].required == true ? 'required' : ''}  efbField efb1 ${valj_efb[iVJ].classes.replace(`,`, ` `)}" data-css="${rndm}" data-id="${rndm}-el" data-formid="${formId}" data-vid='${rndm}' id="${rndm}_" aria-required="${valj_efb[iVJ].required==1 ? true : false}" aria-label="${valj_efb[iVJ].name}"  ${valj_efb[iVJ].message!='' ? `aria-describedby="${valj_efb[iVJ].id_}-des"` : ""}  ${valj_efb[iVJ].value.length > 0 ? value = `"${valj_efb[iVJ].value}"` : ''} ${previewSate != true ? 'readonly' : ''} ${disabled}>
  `;
 }
 
@@ -806,6 +806,7 @@ load_intlTelInput_efb = (rndm, iVJ, tries = 0) => {
           messageEl.innerHTML = "";
           messageEl.classList.remove("d-block");
           messageEl.classList.add("d-none");
+          if (typeof efb_clear_field_error_efb === 'function') efb_clear_field_error_efb(el_mobile); // F16: aria-invalid off too
 
           if (el_mobile.value.trim()) {
               const form_id = el_mobile.dataset.formid ?? 0;
@@ -838,9 +839,9 @@ load_intlTelInput_efb = (rndm, iVJ, tries = 0) => {
                   let errorCode = iti.getValidationError();
                   errorCode = errorMap[errorCode] ? errorMap[errorCode] : errorMap[0];
 
-                  messageEl.innerHTML = errorCode;
-                  messageEl.classList.remove("d-none");
-                  messageEl.classList.add("d-block");
+                  // F16: as text, with aria-invalid and the message in aria-describedby (the page's helper when it has one).
+                  if (typeof efb_set_field_error_efb === 'function') { messageEl.classList.remove("d-none"); efb_set_field_error_efb(el_mobile, errorCode); }
+                  else { messageEl.textContent = errorCode; messageEl.classList.remove("d-none"); messageEl.classList.add("d-block"); }
 
                   let inx = get_row_sendback_by_id_efb(rndm);
                   if (inx !== -1) {

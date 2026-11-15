@@ -343,6 +343,7 @@ class Create {
 		wp_enqueue_script('efb-verify-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/verify-builder-efb.js', array('efb-val-js', 'efb-verify-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/verify-builder-efb.js'), true);
 		// F07: the upload rules (twin of Uploads::sanitize_key) and the file / dadfile controls (several files, camera, resizing, storage).
 		wp_enqueue_script('efb-upload-js', EMSFB_PLUGIN_URL . 'public/assets/js/upload-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/upload-efb.js'), true);
+		wp_enqueue_script('efb-a11y-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/a11y-builder-efb.js', array('efb-val-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/a11y-builder-efb.js'), true); // F16
 		wp_enqueue_script('efb-upload-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/upload-builder-efb.js', array('efb-val-js', 'efb-upload-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/upload-builder-efb.js'), true);
 		// F05: the choice rules and runtime (twin of Choices::sanitize_key), "Add in bulk", the choice-field controls and the ranking.
 		wp_enqueue_script('efb-choices-js', EMSFB_PLUGIN_URL . 'public/assets/js/choices-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/choices-efb.js'), true);

@@ -45,6 +45,7 @@ function efb_nf_render(array $field, $row0 = array(), $rtl = false, $locale = 'e
 // An old form: byte for byte what core rendered before F04 (and with F04 in core, for a field without the keys).
 $rows = json_decode(file_get_contents(__DIR__ . '/fixtures/f04-old-form-rows.json'), true);
 $gold = json_decode(file_get_contents(__DIR__ . '/fixtures/f04-old-form-render.json'), true);
+require_once __DIR__ . '/f16-markup.php'; $gold = efb_f16_markup($gold); // F16-E: star aria-hidden, no " ! "
 foreach ($rows as $k => $c) {
 	t("old form without the add-on, byte for byte: {$k}", efb_nf_render($c['field'], array(), !empty($c['rtl']), isset($c['locale']) ? $c['locale'] : 'en_US', isset($c['options']) ? $c['options'] : array()), $gold[$k]);
 }

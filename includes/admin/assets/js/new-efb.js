@@ -676,7 +676,7 @@ function alert_message_efb(title, message, sec, alertType) {
     }
 
     const alertHtml = `
-      <div id="${alertId}" class="efb alert_item_efb ${rtl}" style="background:${style.bg}; border-radius:12px; padding:14px 16px; box-shadow:0 4px 20px rgb(0 0 0 / 49%); animation:slideIn_efb .3s ease; transition:all .3s ease; pointer-events:auto;">
+      <div id="${alertId}" class="efb alert_item_efb ${rtl}" role="alert" style="background:${style.bg}; border-radius:12px; padding:14px 16px; box-shadow:0 4px 20px rgb(0 0 0 / 49%); animation:slideIn_efb .3s ease; transition:all .3s ease; pointer-events:auto;">
         <div class="efb d-flex align-items-center">
           <div class="efb" style="display:flex; align-items:center; justify-content:center; border-radius:50%; padding:8px; margin-${isRtl ? 'left' : 'right'}:12px; flex-shrink:0; color:${style.color};">
             ${alertIconSvg_efb(alertIconPaths_efb[style.icon], 1.2)}
@@ -1698,7 +1698,7 @@ function handle_change_event_efb(el){
       vd = document.getElementById(`${el.id}-message`);
       if (vd) { vd.textContent = ''; vd.classList.remove('show'); vd.style.display = 'none'; }
     } else
-    switch (el.type) {
+    switch (el.classList.contains('intlPhone') ? 'text' : el.type) {
       case "text":
       case "color":
       case "number":

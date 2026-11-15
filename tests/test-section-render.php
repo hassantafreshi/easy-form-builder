@@ -75,6 +75,7 @@ t('3 the JS twin prints the PHP markup byte for byte (' . count($php) . ' rows)'
 /* 4 */
 $rows = json_decode(file_get_contents(__DIR__ . '/fixtures/f10-old-form-rows.json'), true);
 $gold = json_decode(file_get_contents(__DIR__ . '/fixtures/f10-old-form-render.json'), true);
+require_once __DIR__ . '/f16-markup.php'; $gold = efb_f16_markup($gold); // F16-E: star aria-hidden, no " ! "
 foreach ($rows as $k => $c) {
 	$GLOBALS['efb_test_rtl'] = !empty($c['rtl']);
 	$all = array((object) array('type' => 'form', 'steps' => 1, 'formName' => 'T'), (object) array('type' => 'step', 'id_' => '1', 'step' => '1', 'name' => 'S'), (object) $c['field']);

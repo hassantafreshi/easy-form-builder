@@ -326,7 +326,7 @@ function legacy_statement_logic_efb(triggeredId, triggeredType) {
     var reqSpan = document.getElementById(fieldId + '_req');
     if (reqSpan) reqSpan.style.display = s.required ? '' : 'none';
     var inp = document.getElementById(fieldId + '_');
-    if (inp) inp.disabled = s.disabled;
+    if (inp) { inp.disabled = s.disabled; inp.setAttribute('aria-required', s.required ? 'true' : 'false'); }
     var sel = document.querySelector('select[data-vid="' + fieldId + '"]');
     if (sel) sel.disabled = s.disabled;
     var ms = document.querySelector('.efblist[data-vid="' + fieldId + '"]');
@@ -346,7 +346,10 @@ function legacy_statement_logic_efb(triggeredId, triggeredType) {
       if (idx !== -1) valj_efb[idx].required = req;
       var reqSpan = document.getElementById(action.target + '_req');
       if (reqSpan) reqSpan.style.display = req ? '' : 'none';
+      var reqIn = document.getElementById(action.target + '_'); // F16: the asterisk is hidden from screen readers; this says it
+      if (reqIn) reqIn.setAttribute('aria-required', req ? 'true' : 'false');
     }
+    if (t === 'hide_field') efb_field_hidden_efb(action.target);
     if (t === 'enable_field' || t === 'disable_field') {
       var en = (t === 'enable_field');
       var el = document.getElementById(action.target + '_');
@@ -592,6 +595,16 @@ async function createStepsOfPublic() {
   if (window.EFBRepeater) { try { window.EFBRepeater.ready(); } catch (e) { /* idem */ } }
   // F10-B: the fields after each section heading go into its region (collapsible; without JS they stay open).
   if (window.EFBLayout) { try { window.EFBLayout.mountSections(document); } catch (e) { /* the fields stay where they are */ } }
+  // F16-E: Next / Previous / Send say they are off (aria-disabled) whenever the "disabled" look is on, whoever sets it.
+  if (typeof MutationObserver !== 'undefined') document.querySelectorAll('.body_efb').forEach((b) => b.querySelectorAll('#next_efb, #btn_send_efb, #prev_efb').forEach((n) => {
+    if (n.dataset.efbAd) return;
+    n.dataset.efbAd = '1';
+    const sync = () => { if (n.classList.contains('disabled')) n.setAttribute('aria-disabled', 'true'); else n.removeAttribute('aria-disabled'); };
+    sync();
+    new MutationObserver(sync).observe(n, { attributes: true, attributeFilter: ['class'] });
+  }));
+  // F16-G: "leave this page?" while a form with warn_unsaved holds what the visitor typed.
+  if (window.EFBInline) document.querySelectorAll('.body_efb[data-formid]').forEach((b) => { if (efb_on_efb((efb_rows_efb(b.dataset.formid)[0] || {}).warn_unsaved) && !efb_unsaved_off_efb(b.dataset.formid)) EFBInline.watch(b); });
   // F10-D: a first step left without a field for this viewer.
   if (document.querySelector('fieldset[data-vis-empty="1"]')) setTimeout(efb_vis_skip_start_efb, 0);
 
@@ -709,7 +722,7 @@ function efb_init_fields_in_efb(root) {
             }
             // Not on a masked field: two rewrites on 'input' fight over the caret, and the keydown filter
             // breaks IMEs and Android keyboards (keyCode 229).
-            if(el.type === 'tel' && !mask_bound_efb) {
+            if(el.type === 'tel' && !mask_bound_efb && !classes.contains('intlPhone')) {
               el.setAttribute('inputmode', 'tel');
               el.addEventListener('input', function() {
                 var cursorPos = this.selectionStart;
@@ -825,8 +838,9 @@ function efb_init_fields_in_efb(root) {
     if(handler_state){
       el.addEventListener("change", async(e) => {
         await handle_change_event_efb_v4(el,form_id);
+        efb_vt_after_efb(el, form_id);
       });
-
+      efb_vt_bind_efb(el, form_id);
     }
 
   }
@@ -1466,19 +1480,15 @@ function valid_email_emsFormBuilder(el) {
     const normalized = efb_normalize_email_efb(el.value);
     if (normalized !== el.value) el.value = normalized;
   }
-  let offsetw = offset_view_efb();
-  const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${ajax_object_efm.text.enterTheEmail}','',10,'danger');"></div>` : ajax_object_efm.text.enterTheEmail;
+  const msg = ajax_object_efm.text.enterTheEmail;
   let check = 0;
   const format =/^[a-zA-Z0-9._%+'-]+@[a-zA-Z0-9.-]+\.(?:[a-zA-Z]{2,}|xn--[a-zA-Z0-9-]+)$/;
   check += el.value.match(format) ? 0 : 1;
   const form_id = el.dataset.formid || 0;
   if (check > 0) {
     el.value.match(format) ? 0 : el.className = colorBorderChangerEfb(el.className, "border-danger");
-    if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-      document.getElementById(`${el.id}-message`).classList.add('unpx');
-    }
     const _me=document.getElementById(`${el.id}-message`);
-    _me.innerHTML = msg;
+    _me.textContent = msg;
     show_msg_efb(_me);
     const i = get_row_sendback_by_id_efb_v4(el.dataset.vid,form_id);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
@@ -1585,19 +1595,15 @@ function valid_typed_value_efb(type, el) {
 function valid_password_emsFormBuilder(el) {
   let check = 0;
   const id = el.id;
-  let offsetw = offset_view_efb();
   const form_id = el.dataset.formid || 0;
-  const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${ajax_object_efm.text.enterThePassword}','',10,'danger');"></div>` : efb_var.text.enterThePassword;
+  const msg = efb_var.text.enterThePassword;
   if (el.value.length < 3) {
     el.className = colorBorderChangerEfb(el.className, "border-danger");
     const i = get_row_sendback_by_id_efb_v4(el.dataset.vid,form_id);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
-    if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-      document.getElementById(`${id}-message`).classList.add('unpx');
-    }
     sendback_state_handler_efb_v4(el.dataset.vid,false,0,form_id)
     const _mp=document.getElementById(`${id}-message`);
-    _mp.innerHTML = msg;
+    _mp.textContent = msg;
     show_msg_efb(_mp);
     return false;
   }
@@ -1823,8 +1829,7 @@ function efb_rules_server_error_efb(form_id, field_id, m) {
 }
 
 function valid_phone_emsFormBuilder(el) {
-  let offsetw = offset_view_efb();
-  const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${ajax_object_efm.text.enterThePhones}','',10,'danger');"></div>` : ajax_object_efm.text.enterThePhones;
+  const msg = ajax_object_efm.text.enterThePhones;
   let check = 0;
   var val = el.value.replace(/\s+/g, ' ').trim();
   var formatChars = /^[0-9+\-\s().]+$/;
@@ -1844,10 +1849,7 @@ function valid_phone_emsFormBuilder(el) {
     el.className = colorBorderChangerEfb(el.className, "border-danger");
     const i = get_row_sendback_by_id_efb_v4(el.dataset.vid,form_id);
     if (i != -1) { sendBack_emsFormBuilder_pub.splice(i, 1) }
-    if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-      msg_el.classList.add('unpx');
-    }
-    msg_el.innerHTML = msg;
+    msg_el.textContent = msg;
     show_msg_efb(msg_el);
     sendback_state_handler_efb_v4(el.dataset.vid,false,0,form_id)
   }
@@ -1915,7 +1917,7 @@ function valid_file_emsFormBuilder(id,tp,filed,form_id) {
       else if(filed.length==0){ message =size_m;}
       const newClass = colorTextChangerEfb(msgEl.className, "text-danger");
       newClass!=false ? msgEl.className=newClass:0;
-      msgEl.innerHTML = message;
+      msgEl.textContent = efb_plain_text_efb(message);
       show_msg_efb(msgEl);
       rtrn = false;
     }
@@ -2371,6 +2373,7 @@ async function response_fill_form_efb(res ,form_id=0) {
     /* Final submit succeeded — now it is safe to drop this form's stored values.
        Other forms on the same page keep their data untouched. */
     clear_sendback_rows_by_form_id_efb(form_id);
+    efb_unsaved_clean_efb(form_id); // F16-G
   } else if (res.data && res.data.field_id) {
     /* Validation failed for one specific field — remove only that field's rows
        (by id_, or by id_ob for chlCheckBox-style fields) so the rest of the
@@ -2398,6 +2401,9 @@ async function response_fill_form_efb(res ,form_id=0) {
       }
     }
   }
+  // F16 / SitePilot: the outcome for a visitor assistant ({form_id, ok, code, field_id}).
+  try { document.dispatchEvent(new CustomEvent('efb:submit-result', { detail: { form_id: form_id, ok: !!(res.data && res.data.success == true), code: (res.data && res.data.code) || '', field_id: (res.data && res.data.field_id) || '' } })); } catch (e) { /* old browser */ }
+  if (!(res.data && res.data.success == true) && res.data && res.data.field_id && efb_server_field_efb(form_id, res.data)) { efb_hide_submit_ajax_badge_efb(form_id); return; }
   let btn_prev ='';
   const t = valj_efb_new.find(x => x.id == form_id);
   const valj_efb = t.form_structer;
@@ -2445,13 +2451,19 @@ async function response_fill_form_efb(res ,form_id=0) {
     // Register and login answer with their message in m and the address in
     // redirect_url; their own cases below redirect, m is not a URL for them.
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct' && typeof res.data.m === 'string' && t.type != 'register' && t.type != 'login'){
+      // F16-D (WCAG 2.2.1): the link has the focus, the wait is 10 s with less motion or the blur timing, and "Stay on this page" stops it.
+      const rdWait = (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) || efb_vt_on_efb(form_id) ? 10000 : 3700;
       efb_final_step.innerHTML = `
       <h3 class="efb fs-4 text-center">${efb_var.text.sentSuccessfully}</h3>
-      <h3 class="efb  text-center">${efb_var.text.pWRedirect} <br><a class="efb text-darkb" href="${efb_attr_url_efb(res.data.m)}">${efb_var.text.orClickHere}</a></h3>
+      <h3 class="efb  text-center">${efb_var.text.pWRedirect} <br><a class="efb text-darkb efb-rd-link" href="${efb_attr_url_efb(res.data.m)}">${efb_var.text.orClickHere}</a></h3>
+      <div class="efb text-center"><button type="button" class="efb btn btn-outline-secondary efb-stay mt-2">${efb_var.text.a11yStay || 'Stay on this page'}</button></div>
       `
-      setTimeout(function() {
+      const rdTimer = setTimeout(function() {
         window.location.href = res.data.m;
-      }, 3700);
+      }, rdWait);
+      const stay = efb_final_step.querySelector('.efb-stay');
+      if (stay) stay.addEventListener('click', () => { clearTimeout(rdTimer); stay.remove(); });
+      try { efb_final_step.querySelector('.efb-rd-link').focus({ preventScroll: true }); } catch (e) { /* hidden */ }
       return ;
     }
     switch (t.type) {
@@ -2579,11 +2591,13 @@ async function response_fill_form_efb(res ,form_id=0) {
     }
 
       if(stps>1 ){smoothy_scroll_postion_efb(id_body)}
+      efb_focus_final_efb(form_id);
   } else {
     if(efb_final_step){efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder text-center'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center efb fs-3  text-center"></i></h1><h3 class="efb  text-center fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5"> ${res.data.m}</span>
     ${isSubmitAjaxError ? `<div class="efb efb-submit-error-badge-slot my-2 d-flex justify-content-center" id="efb-submit-error-badge-slot-${form_id}"></div>` : ``}
     <div class="efb m-1">${efb_error_prev_button_efb(valj_efb, `efb_hide_submit_ajax_badge_efb(${form_id}); ${btn_prev}`)}</div></div>`;
       if (isSubmitAjaxError) { efb_show_submit_ajax_badge_efb(form_id); }
+      efb_focus_final_efb(form_id);
     }else{
       alert_message_efb(res.data.m,'',14,'warning');
     }
@@ -2652,8 +2666,140 @@ fun_text_forbiden_convert_efb=(value)=>{
  value= value.replaceAll(`\r`, " ");
  return value;
 }
-show_msg_efb=(el)=>{ if(el) el.style.display='block'; }
-hide_msg_efb=(el)=>{ if(el){ el.style.display='none'; el.innerHTML=''; } }
+show_msg_efb=(el)=>{ if(el){ el._efbSeq = (el._efbSeq || 0) + 1; el.style.display='block'; efb_msg_aria_efb(el, true); } }
+hide_msg_efb=(el)=>{
+  if(!el) return;
+  const go = () => { el.style.display='none'; el.innerHTML=''; efb_msg_aria_efb(el, false); };
+  // F16: a field left by pressing Send / Next: its box closes after the click, so the button does not move under the pointer.
+  if (window.EFBInline && EFBInline.busy && EFBInline.busy() && el.style.display === 'block') { const s = el._efbSeq = (el._efbSeq || 0) + 1; EFBInline.later(() => { if (el._efbSeq === s) go(); }); return; }
+  go();
+}
+/* ---------------------------------------------------------------- F16 accessibility and inline validation
+ * Every field message goes through show_msg_efb() / hide_msg_efb() or efb_set_field_error_efb(): the field gets
+ * aria-invalid and the message first in aria-describedby (EFBInline, inline-efb.js), and one sentence in the form's
+ * live region (not while Next / Send lists the step's problems in the summary, not for a box that is its own alert).
+ * Without inline-efb.js the messages show as before. */
+let efb_bulk_efb = 0;
+function efb_num_efb(n) { return window.EFBInline ? EFBInline.num(n) : String(n); }
+function efb_rows_efb(fid) {
+  const ob = typeof valj_efb_new !== 'undefined' && Array.isArray(valj_efb_new) ? valj_efb_new.find((x) => x && x.id == fid) : null;
+  return ob && Array.isArray(ob.form_structer) ? ob.form_structer : [];
+}
+const efb_on_efb = (v) => v === true || v === 1 || v === '1';
+/** The field a message box belongs to ({id}_-message → {id}_, else the group / select {id}_options). */
+function efb_msg_field_efb(m) {
+  if (!m || !m.id || !/-message$/.test(m.id)) return null;
+  const base = m.id.slice(0, -8);
+  const sc = (m.closest && m.closest('.body_efb')) || document;
+  const q = (id) => { try { return sc.querySelector('#' + CSS.escape(id)); } catch (e) { return document.getElementById(id); } };
+  const el = q(base);
+  if (el && /^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(el.tagName)) return el;
+  return q(base.replace(/_$/, '') + '_options') || null;
+}
+function efb_msg_aria_efb(m, on) {
+  const I = window.EFBInline, el = I ? efb_msg_field_efb(m) : null;
+  if (!el) return;
+  if (!on) { I.clearError(el, { msgEl: m }); m._efbTxt = ''; if (el.dataset && el.dataset.efbVs === 's') el.dataset.efbVs = 'd'; return; }
+  // F16-B: a field checked again while it is typed keeps the words it shows until it is left ("punish late").
+  if (el.dataset && el.dataset.efbQuiet === '1' && m._efbTxt) m.textContent = m._efbTxt;
+  const text = m.textContent;
+  const say = efb_bulk_efb === 0 && m.getAttribute('role') !== 'alert' && text !== m._efbTxt;
+  I.setError(el, text, { msgEl: m, announce: say, label: I.labelOf(m.closest('.body_efb') || document, I.fieldId(el)) });
+  m._efbTxt = text;
+  if (el.dataset && el.dataset.efbVs) el.dataset.efbVs = 's';
+}
+/** A field's error (input, select, textarea, or a choice of a group): text, aria-invalid, aria-describedby, announced. */
+function efb_set_field_error_efb(el, msg, opts) {
+  if (!el) return;
+  const m = (opts && opts.msgEl) || document.getElementById(`${el.id}-message`) || document.getElementById(`${el.dataset && el.dataset.vid}_-message`);
+  if (/^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName) && el.type !== 'radio' && el.type !== 'checkbox') el.className = colorBorderChangerEfb(el.className, 'border-danger');
+  if (!m) { if (window.EFBInline) EFBInline.setError(el, msg, opts); return; }
+  m.textContent = window.EFBInline ? EFBInline.plain(msg) : String(msg);
+  show_msg_efb(m);
+}
+function efb_clear_field_error_efb(el) {
+  if (!el) return;
+  const m = document.getElementById(`${el.id}-message`) || document.getElementById(`${el.dataset && el.dataset.vid}_-message`);
+  if (m) hide_msg_efb(m); else if (window.EFBInline) EFBInline.clearError(el);
+}
+/* F16-B: val_timing "blur" (Baymard): nothing while typing; the browser's change (leaving a changed field) checks it;
+ * once its message shows, it is checked again 250 ms after each key and cleared as soon as it is right, while a new
+ * kind of problem waits for the field to be left (efbQuiet); Next / Send check every field of the step. A field
+ * passed with Tab only gets no "required" until Next / Send. Forms without the key keep the change timing. */
+function efb_vt_on_efb(form_id) { return ((efb_rows_efb(form_id)[0] || {}).val_timing) === 'blur'; }
+function efb_vt_bind_efb(el, form_id) {
+  if (!el.dataset || el.dataset.efbVs || !efb_vt_on_efb(form_id) || !/^(INPUT|TEXTAREA)$/.test(el.tagName) || /^(radio|checkbox|file|hidden|range|color|submit)$/.test(el.type)) return;
+  el.dataset.efbVs = 'p';
+  let t = 0;
+  el.addEventListener('input', () => {
+    if (el.dataset.efbVs !== 's') { el.dataset.efbVs = 'd'; return; }
+    clearTimeout(t);
+    t = setTimeout(async () => {
+      el.dataset.efbQuiet = '1';
+      try { await handle_change_event_efb_v4(el, form_id); } finally { delete el.dataset.efbQuiet; }
+      efb_vt_after_efb(el, form_id);
+    }, 250);
+  });
+}
+/** Blur timing: the green "right" border only on fields with a format to be right about (e-mail, URL, phone, a mask, a pattern, a range). */
+function efb_vt_after_efb(el, form_id) {
+  if (!el || !el.classList || !el.classList.contains('border-success') || !efb_vt_on_efb(form_id)) return;
+  const r = efb_rows_efb(form_id).find((x) => x && x.id_ === (el.dataset && el.dataset.vid)) || {};
+  const fmt = /^(email|url|tel)$/.test(el.type) || (el.dataset && (el.dataset.mask || el.dataset.maskPreset || el.dataset.num)) || r.pattern || r.pattern_b64 || Number(r.milen) > 0 || Number(r.mlen) > 0;
+  if (!fmt) el.className = colorBorderChangerEfb(el.className, r.el_border_color || 'border-d');
+}
+/* F16-D: a step on screen: focus on its fieldset (its legend names it) and "Step 2 of 4" in the live region. */
+function efb_focus_step_efb(form_id, step) {
+  const body = document.getElementById('body_efb_' + form_id);
+  const fs = body && body.querySelector(`[data-step="step-${step}-efb"]`);
+  const total = Number(body && body.dataset.steps) || 1;
+  if (!fs || !window.EFBInline || total < 2) return;
+  EFBInline.focusStep(fs, String(efb_var.text.a11yStepNow || 'Step %1$s of %2$s').replace('%1$s', efb_num_efb(step)).replace('%2$s', efb_num_efb(total)));
+}
+/* F16-D: the final step after Send: focus on its heading (or on the step while it loads), never on the page. */
+function efb_focus_final_efb(form_id) {
+  const f = efb_get_final_step_efb(form_id, document.getElementById('body_efb_' + form_id));
+  if (!f) return;
+  try {
+    const h = f.querySelector('h1, h2, h3, h4, h5, .efb-recovery-success-card p') || f;
+    if (!h.hasAttribute('tabindex')) h.setAttribute('tabindex', '-1');
+    h.classList.add('efb-step-h');
+    h.focus({ preventScroll: true });
+  } catch (e) { /* hidden, or not a real element */ }
+}
+/* F16-C: a refusal that names a field: the field shows the server's sentence. With err_summary the visitor goes back to
+ * the field's step with the summary (true); otherwise the final step explains, as before, and Previous leads there. */
+function efb_server_field_efb(form_id, d) {
+  const id = d && d.field_id ? String(d.field_id) : '';
+  const el = id ? (efb_get_by_id_in_form_efb(form_id, `${id}_`) || efb_get_by_id_in_form_efb(form_id, `${id}_options`)) : null;
+  if (!el || !window.EFBInline) return false;
+  const text = EFBInline.plain(d.m);
+  const m = efb_get_by_id_in_form_efb(form_id, `${id}_-message`);
+  if (text && !(m && m.style.display === 'block' && m.textContent)) efb_set_field_error_efb(el, text, { msgEl: m });
+  if (!efb_on_efb((efb_rows_efb(form_id)[0] || {}).err_summary)) return false;
+  const row = efb_rows_efb(form_id).find((x) => x && x.id_ === id);
+  efb_go_to_step_direct(form_id, row && row.step ? Number(row.step) : 1);
+  const body = document.getElementById('body_efb_' + form_id);
+  EFBInline.summary(body, [{ id: id, label: EFBInline.labelOf(body, id), message: (m && m.textContent) || text }], { box: body.querySelector('.efb-errsum') });
+  return true;
+}
+/* F16-D (§4.4): a field hidden by logic loses its error and its summary line; focus inside it goes to its step. */
+function efb_field_hidden_efb(id) {
+  const w = document.getElementById(id), m = document.getElementById(`${id}_-message`);
+  if (m && m.style.display === 'block') hide_msg_efb(m);
+  if (w && w.contains(document.activeElement)) { const fs = w.closest('fieldset'); if (fs) { if (!fs.hasAttribute('tabindex')) fs.setAttribute('tabindex', '-1'); fs.focus({ preventScroll: true }); } }
+}
+/* F16-G: no warning where the answers are kept anyway (the offline add-on with AfLnFrm). */
+function efb_unsaved_off_efb(form_id) { return efb_on_efb((efb_rows_efb(form_id)[0] || {}).AfLnFrm) && typeof efb_offline_addon_active_efb === 'function' && efb_offline_addon_active_efb(); }
+function efb_unsaved_clean_efb(form_id) { const b = document.getElementById('body_efb_' + form_id); if (b && window.EFBInline) EFBInline.clean(b, true); }
+/** The form's polite live region (efb-live-{id}, rendered at the start of the form). */
+function efb_announce_efb(form_id, text) {
+  if (window.EFBInline) EFBInline.announce(document.getElementById('body_efb_' + form_id) || document, text);
+}
+/** The element to focus for a field (its input, the chosen / first choice, the select, a file button). */
+function efb_field_target_efb(form_id, id_) {
+  return window.EFBInline ? EFBInline.target(document.getElementById('body_efb_' + form_id) || document, id_) : efb_get_by_id_in_form_efb(form_id, `${id_}_`);
+}
 remove_ttmsg_efb=(id)=>{
   const m=document.getElementById(`${id}_-message`);
   hide_msg_efb(m);
@@ -3869,10 +4015,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
       return !(isEmpty && !isRequired);
     });
     if (invalidFilled.length > 0) {
-      const fieldEl = document.getElementById(String(invalidFilled[0].id_) + '_');
-      try { fieldEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); fieldEl.focus({ preventScroll: true }); } catch (e) {}
-      const _vt = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.text) ? ajax_object_efm.text : {};
-      alert_message_efb(_vt.pleaseEnterVaildValue || 'Please enter a valid value.', '', 8, 'warning');
+      efb_invalid_step_efb(form_id, String(invalidFilled[0].id_), invalidFilled.map(x => String(x.id_)));
       efb_steps_debug_efb('navigate:stop:invalid-filled-field', { form_id: form_id, fields: invalidFilled.map(x => x.id_) });
       return false;
     }
@@ -3998,7 +4141,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
         });
        }
        smoothy_scroll_postion_efb(id_body);
-       // Arriving on the gateway step locks Next until the payment is made - not after it
+       if (no_step > max_step) efb_focus_final_efb(form_id); else efb_focus_step_efb(form_id, no_step); // F16-D
        // (a visitor back from the bank already paid; nothing would unlock it again).
        if(no_step==step_payment_exists && !payment_done_efb){
          if(el) el.classList.add('disabled');
@@ -4057,6 +4200,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     });
     fun_progessbar(no_step,max_step);
     smoothy_scroll_postion_efb(id_body);
+    efb_focus_step_efb(form_id, no_step); // F16-D
     await fun_handle_header_efb(no_step,'backward');
     updateStepButtonState_efb(form_id);
   }else if (btn_state=='btn_send_efb'){
@@ -4090,6 +4234,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
     });
     fun_progessbar(no_step,max_step);
     smoothy_scroll_postion_efb(id_body);
+    efb_focus_final_efb(form_id); // F16-D: before Send is hidden, so focus never falls to the page
     await fun_handle_header_efb(no_step,'forward');
 
     if(el) el.classList.add('d-none');
@@ -4598,7 +4743,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       if(el_msg!=null){
         // Use custom required message if set, otherwise use default
         const customMsg = s.hasOwnProperty('customRequiredMsg') && s.customRequiredMsg.length > 0 ? s.customRequiredMsg : efb_var.text.enterTheValueThisField;
-        el_msg.innerHTML = customMsg;
+        el_msg.textContent = customMsg;
         show_msg_efb(el_msg);
       }
     }
@@ -4610,7 +4755,6 @@ async function handle_change_event_efb_v4(el ,form_id=0){
   }
   validate_len_efb_v4 =async()=>{
 
-    let offsetw = offset_view_efb();
     // The implicit minimum of 2 only ever applied to inputs with a data-type: a text input without
     // minlength accepts one character, as the server does (F03 §18.2 made its failures count).
     const mi=()=> {return  el.type!="number" && el.dataset.hasOwnProperty('type') ? 2 :0}
@@ -4622,13 +4766,10 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       state = false;
       el.className = colorBorderChangerEfb(el.className, "border-danger");
       vd = document.getElementById(`${el.id}-message`);
-      let m = efb_var.text.mmplen.replace('NN',len);
-      let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+      let m = efb_var.text.mmplen.replace('NN',efb_num_efb(len));
+      let msg = m ;
             if(vd){
-              if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                vd.classList.add('unpx');
-              }
-              vd.innerHTML =msg;
+              vd.textContent =msg;
               vd.style.display='block';
             }
             delete_by_id(id_);
@@ -4637,13 +4778,10 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       state = false;
       el.className = colorBorderChangerEfb(el.className, "border-danger");
       vd = document.getElementById(`${el.id}-message`);
-      let m = efb_var.text.mcplen.replace('NN',len);
-      let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+      let m = efb_var.text.mcplen.replace('NN',efb_num_efb(len));
+      let msg = m ;
             if(vd){
-              if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                vd.classList.add('unpx');
-              }
-              vd.innerHTML =msg;
+              vd.textContent =msg;
               vd.style.display='block';
             }
             delete_by_id(id_);
@@ -4655,13 +4793,10 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       state = false;
       el.className = colorBorderChangerEfb(el.className, "border-danger");
       vd = document.getElementById(`${el.id}-message`);
-      let m = efb_var.text.mmxplen.replace('NN',len);
-      let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+      let m = efb_var.text.mmxplen.replace('NN',efb_num_efb(len));
+      let msg = m ;
             if(vd){
-              if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                vd.classList.add('unpx');
-              }
-              vd.innerHTML =msg;
+              vd.textContent =msg;
               vd.style.display='block';
             }
             delete_by_id(id_);
@@ -4670,13 +4805,10 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       state = false;
       el.className = colorBorderChangerEfb(el.className, "border-danger");
       vd = document.getElementById(`${el.id}-message`);
-      let m = efb_var.text.mxcplen.replace('NN',len);
-      let msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${m}','',10,'danger')"></div>` : m ;
+      let m = efb_var.text.mxcplen.replace('NN',efb_num_efb(len));
+      let msg = m ;
             if(vd){
-              if(Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-                vd.classList.add('unpx');
-              }
-              vd.innerHTML =msg;
+              vd.textContent =msg;
               vd.style.display='block';
             }
             delete_by_id(id_);
@@ -4740,7 +4872,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
     el.className = colorBorderChangerEfb(el.className, "border-success");
     hide_msg_efb(document.getElementById(`${el.id}-message`));
   } else
-  switch (el.type) {
+  switch (el.classList.contains('intlPhone') ? 'text' : el.type) { // F16-E: a mobile input is type tel now, read as before
     case "text":
     case "color":
     case "number":
@@ -4764,7 +4896,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
           el.className = colorBorderChangerEfb(el.className, "border-danger");
           vd = document.getElementById(`${el.id}-message`);
           if(vd){
-            vd.innerHTML = efb_var.text.enterValidDate || efb_var.text.pleaseEnterVaildValue;
+            vd.textContent = efb_var.text.enterValidDate || efb_var.text.pleaseEnterVaildValue;
             show_msg_efb(vd);
           }
           sendback_state_handler_efb_v4(id_,false,0,form_id);
@@ -4799,7 +4931,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       } else if (che == null) {
         valid = false;
         el.className = colorBorderChangerEfb(el.className, "border-danger");
-        vd.innerHTML = efb_var.text.enterValidURL;
+        vd.textContent = efb_var.text.enterValidURL;
         show_msg_efb(vd);
          sendback_state_handler_efb_v4(id_,false,0,form_id)
         delete_by_id(id_);
@@ -4820,7 +4952,7 @@ async function handle_change_event_efb_v4(el ,form_id=0){
       } else {
         // Use custom required message if set, otherwise use default
         const customMsgCb = ob.hasOwnProperty('customRequiredMsg') && ob.customRequiredMsg.length > 0 ? ob.customRequiredMsg : efb_var.text.enterTheValueThisField;
-        vd.innerHTML = customMsgCb;
+        vd.textContent = customMsgCb;
         show_msg_efb(vd);
       }
       if( el.checked == false && el.type =="checkbox") {
@@ -5141,7 +5273,6 @@ async function fun_validation_efb_v4(form_id) {
     }
   }
 
-  let offsetw = offset_view_efb();
   const defaultMsg = efb_var.text.enterTheValueThisField;
   let state = true;
   let idi = "null";
@@ -5160,6 +5291,8 @@ async function fun_validation_efb_v4(form_id) {
     } : null,
     notice_target_id: id_noti_message
   });
+  efb_bulk_efb++; // F16: the summary speaks for the step, not each field
+  try {
   for (let row in valj_efb) {
     let s =  get_row_sendback_by_id_efb_v4(valj_efb[row].id_,form_id);
     /* Skip validation for fields hidden by conditional logic (wrapper has d-none class,
@@ -5277,14 +5410,11 @@ async function fun_validation_efb_v4(form_id) {
 
       if (fieldFailed) {
         if (state == true) { state = false; idi = valj_efb[row].id_ , name_field = valj_efb[row].name }
-        if(el && Number(offsetw)<525 && window.matchMedia("(max-width: 480px)").matches==0){
-          el.classList.add('unpx');
-        }
         // Use custom required message if set, otherwise use default
         const fieldMsg = valj_efb[row].hasOwnProperty('customRequiredMsg') && valj_efb[row].customRequiredMsg.length > 0 ? valj_efb[row].customRequiredMsg : defaultMsg;
-        const msg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${fieldMsg}','',10,'danger')"></div>` : fieldMsg;
+        const msg = fieldMsg;
         if (el) {
-          el.innerHTML = msg;
+          el.textContent = msg;
           show_msg_efb(el);
         }
         if (inputEl && type_validate_efb(valj_efb[row].type) == true) {
@@ -5298,7 +5428,7 @@ async function fun_validation_efb_v4(form_id) {
           name_field = valj_efb[row].name
           if (inputEl) inputEl.className = colorBorderChangerEfb(inputEl.className, "border-danger");
           if (el) {
-            el.innerHTML = efb_var.text.minSelect + " " + valj_efb[row].minSelect
+            el.textContent = efb_var.text.minSelect + " " + efb_num_efb(valj_efb[row].minSelect)
             show_msg_efb(el);
           }
           if (state == true) { state = false; idi = valj_efb[row].id_ }
@@ -5328,9 +5458,9 @@ async function fun_validation_efb_v4(form_id) {
         if(em==undefined || em==null ){
             // Use custom required message if set, otherwise use default
             const chlFieldMsg = valj_efb[row].hasOwnProperty('customRequiredMsg') && valj_efb[row].customRequiredMsg.length > 0 ? valj_efb[row].customRequiredMsg : defaultMsg;
-            const chlMsg = Number(offsetw)<380 && window.matchMedia("(max-width: 480px)").matches==0 ? `<div class="efb fs-5 nmsgefb bi-exclamation-diamond-fill" onclick="alert_message_efb('${chlFieldMsg}','',10,'danger')"></div>` : chlFieldMsg;
+            const chlMsg = chlFieldMsg;
             if (msgEl) {
-              msgEl.innerHTML = chlMsg;
+              msgEl.textContent = chlMsg;
               show_msg_efb(msgEl);
             }
 
@@ -5346,6 +5476,7 @@ async function fun_validation_efb_v4(form_id) {
 
     }
   }
+  } finally { efb_bulk_efb--; }
 
   if (state === true && valj_efb[0]) {
     var max_step_v = Number(valj_efb[0].steps) || 1;
@@ -5379,23 +5510,47 @@ async function fun_validation_efb_v4(form_id) {
       first_invalid_name: name_field,
       dom: efb_steps_dom_debug_efb(form_id, body_efb_v || document)
     });
-    alert_message_efb(efb_var.text.fillrequiredfields, '', 6, 'warning');
-    if (idi != "null") {
-      if(typeof smoothy_scroll_postion_efb === 'function'){
-        smoothy_scroll_postion_efb(idi, form_id)
-      }else{
-        const scrollTarget = efb_get_by_id_in_form_efb(form_id, idi);
-        if (scrollTarget) scrollTarget.scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
-      }
-    }
+    efb_invalid_step_efb(form_id, idi);
     return false;
   }
+  if (window.EFBInline && body_efb_v) EFBInline.hideSummary(body_efb_v);
   efb_steps_debug_efb('validation:success', {
     form_id: form_id,
     current_step: current_s_efb,
     dom: efb_steps_dom_debug_efb(form_id, body_efb_v || document)
   });
   return state
+}
+
+/** F16-C: the problems of the shown step (every message box on screen, in page order) as summary items. */
+function efb_step_errors_efb(form_id, only) {
+  const body = document.getElementById('body_efb_' + form_id);
+  if (!body || !window.EFBInline) return [];
+  const fs = body.querySelector(`[data-step="step-${Number(body.dataset.currentstep) || 1}-efb"]`) || body;
+  const out = [], seen = {};
+  (only ? only.map((id) => efb_get_by_id_in_form_efb(form_id, `${id}_-message`)) : Array.from(fs.querySelectorAll('[id$="-message"]'))).forEach((m) => {
+    if (!m || m.style.display === 'none' || !m.textContent.trim() || (m.closest && m.closest('.d-none, .efb-anim-hide'))) return;
+    const id = m.id.replace(/_?-message$/, '');
+    if (seen[id]) return;
+    seen[id] = 1;
+    out.push({ id: id, label: EFBInline.labelOf(body, id), message: m.textContent.trim() });
+  });
+  return out;
+}
+/** F16-C: Next / Send stopped: the error summary (form key err_summary), else the toast and the first field focused. */
+function efb_invalid_step_efb(form_id, first_id, only) {
+  const body = document.getElementById('body_efb_' + form_id);
+  const items = efb_step_errors_efb(form_id, only);
+  if (window.EFBInline && body && items.length && efb_on_efb((efb_rows_efb(form_id)[0] || {}).err_summary)) {
+    EFBInline.summary(body, items, { box: body.querySelector('.efb-errsum') });
+    return;
+  }
+  alert_message_efb(only ? (efb_var.text.pleaseEnterVaildValue || 'Please enter a valid value.') : efb_var.text.fillrequiredfields, '', 8, 'warning');
+  const id = items.length ? items[0].id : first_id;
+  if (!id || id === 'null') return;
+  smoothy_scroll_postion_efb(id, form_id);
+  const t = efb_field_target_efb(form_id, id);
+  if (t) { try { t.focus({ preventScroll: true }); } catch (e) { /* not focusable */ } }
 }
 
 function noti_message_efb_v4(message, alert ,id,form_id=0){

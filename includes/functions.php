@@ -4572,6 +4572,44 @@ class efbFunction {
 			"tvPwShow" => $state && isset($ac->text->tvPwShow) ? $ac->text->tvPwShow : esc_html__('Show password','easy-form-builder'),
 			/* translators: F03 button on a password field */
 			"tvPwHide" => $state && isset($ac->text->tvPwHide) ? $ac->text->tvPwHide : esc_html__('Hide password','easy-form-builder'),
+			/* translators: F16 hidden word read by screen readers before a field's error message */
+			"a11yErrPrefix" => $state && isset($ac->text->a11yErrPrefix) ? $ac->text->a11yErrPrefix : esc_html__('Error:','easy-form-builder'),
+			/* translators: F16 title of the error list at the top of a form with one problem */
+			"a11yErrSumOne" => $state && isset($ac->text->a11yErrSumOne) ? $ac->text->a11yErrSumOne : esc_html__('There is a problem','easy-form-builder'),
+			/* translators: F16 title of the error list at the top of a form. %s: number of problems */
+			"a11yErrSumN" => $state && isset($ac->text->a11yErrSumN) ? $ac->text->a11yErrSumN : esc_html__('%s problems need your attention','easy-form-builder'),
+			/* translators: F16 hidden name of a form step for screen readers. %1$s: step number, %2$s: number of steps, %3$s: step name */
+			"a11yStepOf" => $state && isset($ac->text->a11yStepOf) ? $ac->text->a11yStepOf : esc_html__('Step %1$s of %2$s: %3$s','easy-form-builder'),
+			/* translators: F16 announced when the visitor moves to another step. %1$s: step number, %2$s: number of steps */
+			"a11yStepNow" => $state && isset($ac->text->a11yStepNow) ? $ac->text->a11yStepNow : esc_html__('Step %1$s of %2$s','easy-form-builder'),
+			/* translators: F16 button that stops the redirect after a form is sent */
+			"a11yStay" => $state && isset($ac->text->a11yStay) ? $ac->text->a11yStay : esc_html__('Stay on this page','easy-form-builder'),
+			/* translators: F16 form builder setting: when the visitor's answers are checked */
+			"a11yValTiming" => $state && isset($ac->text->a11yValTiming) ? $ac->text->a11yValTiming : esc_html__('Check fields','easy-form-builder'),
+			/* translators: F16 form builder: option of "Check fields" */
+			"a11yValBlur" => $state && isset($ac->text->a11yValBlur) ? $ac->text->a11yValBlur : esc_html__('When the visitor leaves a field (recommended)','easy-form-builder'),
+			/* translators: F16 form builder: option of "Check fields" */
+			"a11yValChange" => $state && isset($ac->text->a11yValChange) ? $ac->text->a11yValChange : esc_html__('When the value changes (previous behaviour)','easy-form-builder'),
+			/* translators: F16 form builder switch */
+			"a11yErrSummary" => $state && isset($ac->text->a11yErrSummary) ? $ac->text->a11yErrSummary : esc_html__('Show a list of problems at the top of the form','easy-form-builder'),
+			/* translators: F16 form builder switch */
+			"a11yWarnUnsaved" => $state && isset($ac->text->a11yWarnUnsaved) ? $ac->text->a11yWarnUnsaved : esc_html__('Warn visitors who leave a half-filled form','easy-form-builder'),
+			/* translators: F16 form builder: what the browser may fill into a field */
+			"a11yAutocomplete" => $state && isset($ac->text->a11yAutocomplete) ? $ac->text->a11yAutocomplete : esc_html__('Browser autofill','easy-form-builder'),
+			/* translators: F16 form builder: "Browser autofill" option */
+			"a11yAcAuto" => $state && isset($ac->text->a11yAcAuto) ? $ac->text->a11yAcAuto : esc_html__('Automatic','easy-form-builder'),
+			/* translators: F16 form builder: "Browser autofill" option */
+			"a11yAcOff" => $state && isset($ac->text->a11yAcOff) ? $ac->text->a11yAcOff : esc_html__('Off','easy-form-builder'),
+			/* translators: F16 form builder: group in the "Browser autofill" list */
+			"a11yAcGrpName" => $state && isset($ac->text->a11yAcGrpName) ? $ac->text->a11yAcGrpName : esc_html__('Name','easy-form-builder'),
+			/* translators: F16 form builder: group in the "Browser autofill" list */
+			"a11yAcGrpContact" => $state && isset($ac->text->a11yAcGrpContact) ? $ac->text->a11yAcGrpContact : esc_html__('Contact','easy-form-builder'),
+			/* translators: F16 form builder: group in the "Browser autofill" list */
+			"a11yAcGrpAddress" => $state && isset($ac->text->a11yAcGrpAddress) ? $ac->text->a11yAcGrpAddress : esc_html__('Address','easy-form-builder'),
+			/* translators: F16 form builder: group in the "Browser autofill" list */
+			"a11yAcGrpPay" => $state && isset($ac->text->a11yAcGrpPay) ? $ac->text->a11yAcGrpPay : esc_html__('Payment','easy-form-builder'),
+			/* translators: F16 form builder: group in the "Browser autofill" list */
+			"a11yAcGrpOther" => $state && isset($ac->text->a11yAcGrpOther) ? $ac->text->a11yAcGrpOther : esc_html__('Other','easy-form-builder'),
 			/* translators: F03 label of the password strength meter */
 			"tvPwStrength" => $state && isset($ac->text->tvPwStrength) ? $ac->text->tvPwStrength : esc_html__('Password strength','easy-form-builder'),
 			/* translators: F03 password strength level */
@@ -7011,6 +7049,15 @@ class efbFunction {
 						if (!class_exists('\\Emsfb\\Repeater') && is_readable(__DIR__ . '/class-Emsfb-repeater.php')) require_once __DIR__ . '/class-Emsfb-repeater.php';
 						$valp[$key][$k] = class_exists('\\Emsfb\\Repeater') ? \Emsfb\Repeater::sanitize_key($k, $v) : '';
 						if ($valp[$key][$k] === '' && !in_array($k, array('row_label', 'btn_add_text'), true)) unset($valp[$key][$k]);
+					break;
+					// F16: val_timing / err_summary / warn_unsaved (row 0) and autocomplete (a field): allow-lists, A11y::sanitize_key().
+					case 'val_timing':
+					case 'err_summary':
+					case 'warn_unsaved':
+					case 'autocomplete':
+						if (!class_exists('\\Emsfb\\A11y') && is_readable(__DIR__ . '/class-Emsfb-a11y.php')) require_once __DIR__ . '/class-Emsfb-a11y.php';
+						$valp[$key][$k] = class_exists('\\Emsfb\\A11y') && (($k === 'autocomplete') === ($key > 0)) ? \Emsfb\A11y::sanitize_key($k, $v) : '';
+						if ($valp[$key][$k] === '') unset($valp[$key][$k]);
 					break;
 					// F10 layout keys: one rule set, Layout::sanitize_key() (= EFBLayoutCore.sanitizeKey() in layout-efb.js).
 					// vis_view / vis_empty are the page's own marks (a cached page's public view, a step with no field for

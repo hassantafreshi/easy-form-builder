@@ -83,7 +83,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$mobile_hide_label = $this->pro_efb && ($global_mobile_hide_label || (isset($vj->mobile_hflabel) && (int) $vj->mobile_hflabel === 1));
 		$label_align = isset($vj->label_align) ? $vj->label_align : '';
 		$label_text_size = isset($vj->label_text_size) && $vj->label_text_size != "default" ? $vj->label_text_size : '';
-		$required  ='<span class="efb mx-1 text-danger" id="' . $rndm . '_req" role="none">';
+		$required  ='<span class="efb mx-1 text-danger" id="' . $rndm . '_req" aria-hidden="true">';
 		$required .= isset($vj->required) && ($vj->required == 1 || $vj->required == true) ?  '*</span>' : '</span>';
 		$label_color = isset($vj->label_text_color) ? $vj->label_text_color : '';
 
@@ -124,7 +124,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	 * the payment buttons but not here.
 	 */
 	private function generateTooltip_efb($rndm) {
-		return '<small id="' . $rndm . '_-message" class="efb py-1 fs-7 tx ttiptext px-2" style="display:none"> ! </small>';
+		return '<small id="' . $rndm . '_-message" class="efb py-1 fs-7 tx ttiptext px-2" style="display:none"></small>';
 	}
 
 	private function generateDivFId_efb($rndm, $pos, $mobile_pos = null) {
@@ -157,7 +157,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				$isPlaceholderType = !in_array($elementId, $placeholderElements);
 
 				$type = $isTextType ? 'text' : $elementId;
-				$autocomplete = $this->generateAutocomplete_efb($elementId);
+				$autocomplete = $this->generateAutocomplete_efb($elementId, $vj);
 				$placeholder = '';
 				if ($isPlaceholderType && isset($vj->placeholder)) {
 					// F08: a placeholder with visitor tags is filled in the browser (data-st-ph), never in the HTML.
@@ -333,19 +333,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 		return $out;
 	}
 
-	private function generateAutocomplete_efb($elementId) {
-		static $autocompleteOptions = [
-			'email' => 'email',
-			'tel' => 'tel',
-			'url' => 'url',
-			'password' => 'current-password',
-			'firstName' => 'given-name',
-			'lastName' => 'family-name',
-			'postalcode' => 'postal-code',
-			'address_line' => 'street-address'
-		];
-
-		return $autocompleteOptions[$elementId] ?? 'off';
+	/** F16-F: the field's own autocomplete key, else the type's token (§5.1); '' = no attribute. */
+	private function generateAutocomplete_efb($elementId, $vj = null) {
+		if (class_exists('\\Emsfb\\A11y')) return \Emsfb\A11y::autocomplete_for($elementId, $vj, isset($this->valj_efb[0]) ? $this->valj_efb[0] : null);
+		$t = array('email' => 'email', 'tel' => 'tel', 'url' => 'url', 'password' => 'current-password', 'firstName' => 'given-name', 'lastName' => 'family-name', 'postalcode' => 'postal-code', 'address_line' => 'street-address');
+		return isset($t[$elementId]) ? $t[$elementId] : 'off';
 	}
 
 	private function generateLengthAttributes_efb($elementId, $vj) {
@@ -588,21 +580,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$additional_classes = isset($vj->classes) ? str_replace(',', ' ', $vj->classes) : '';
 
 		return sprintf(
-			'%s %s %s <input type="%s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-formid="%s" data-css="%s" id="%s_" %s %s aria-required="%s" aria-label="%s" %s autocomplete="%s" %s %s %s %s> %s',  $label,  $div_f_id,  $ttip,  $type,  $classes,  $el_height,  $corener,  $el_text_color,  $required,  $additional_classes,  $rndm,  $rndm,  $form_id,  $rndm,  $rndm,  $placeholder,  $value,  $aria_required,  $this->st_aria_efb($vj->name),  $aire_describedby,  $autocomplete,  $lenAttributes['maxlen'],  $lenAttributes['minlen'],  $readonly,  $telPattern,  $desc
+			'%s %s %s <input type="%s" class="efb input-efb px-2 mb-0 emsFormBuilder_v w-100 %s %s %s %s %s efbField efb1 %s" data-id="%s-el" data-vid="%s" data-formid="%s" data-css="%s" id="%s_" %s %s aria-required="%s" %s %s %s %s %s %s %s> %s',  $label,  $div_f_id,  $ttip,  $type,  $classes,  $el_height,  $corener,  $el_text_color,  $required,  $additional_classes,  $rndm,  $rndm,  $form_id,  $rndm,  $rndm,  $placeholder,  $value,  $aria_required,  $this->aria_label_efb($vj),  $aire_describedby,  $autocomplete !== '' ? 'autocomplete="' . esc_attr($autocomplete) . '"' : '',  $lenAttributes['maxlen'],  $lenAttributes['minlen'],  $readonly,  $telPattern,  $desc
 		);
 	}
 
-	private function generateSwitchInput_efb($vj, $rndm, $desc, $label, $ttip, $div_f_id, $aire_describedby, $disabled) {
-		return '
-		' . $label . '
-		' . $ttip . '
-		<div class="efb ' . $pos[3] . ' ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id ="' . $rndm . '-f" ' . $aire_describedby . '>
-		<label class="efb fs-6" id="' . $rndm . '_off">' . $vj->off . '</label>
-		<button type="button" data-state="off" class="efb btn ' . $vj->el_height . ' btn-toggle efb1 ' . str_replace(',', ' ', $vj->classes) . '" data-css="' . $rndm . '" data-toggle="button" aria-pressed="false" data-vid="' . $rndm .'" data-formid="' . $form_id . '" onclick="fun_switch_efb(this)" data-id="' . $rndm . '-el" id="' . $rndm . '_" ' . $disabled . '>
-			<div class="efb handle"></div>
-		</button>
-		<label class="efb fs-6" id="' . $rndm . '_on">' . $vj->on . '</label>
-		<div class="efb mb-3">' . $desc . '</div>';
+	/** F16-E (row 23): aria-label="{label}" (repeater rows and smart tags rename it), the placeholder when the label is empty, none when both are. */
+	private function aria_label_efb($vj) {
+		$a = $this->st_aria_efb(isset($vj->name) ? $vj->name : '');
+		if ($a === '' && isset($vj->placeholder) && is_string($vj->placeholder)) $a = esc_attr($vj->placeholder);
+		return $a === '' ? '' : 'aria-label="' . $a . '"';
 	}
 
 	private function get_position_col_el($val, $state) {
@@ -908,7 +894,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 
-        $readonly = '';
+        $readonly = class_exists('\\Emsfb\\A11y') ? \Emsfb\A11y::ac_attr('conturyList', $vj, isset($this->valj_efb[0]) ? $this->valj_efb[0] : null) : ''; // F16-F: autocomplete rides in the unused readonly slot
         $ariaRequired = $vj->required == 1 ? 'true' : 'false';
         $ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
         $disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
@@ -983,7 +969,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         }
 
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
-		$readonly = false ? 'readonly' : '';
+		$readonly = class_exists('\\Emsfb\\A11y') ? \Emsfb\A11y::ac_attr('stateProvince', $vj, isset($this->valj_efb[0]) ? $this->valj_efb[0] : null) : ''; // F16-F: autocomplete rides in the unused readonly slot
 		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
@@ -1055,7 +1041,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         }
 
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
-		$readonly = false ? 'readonly' : '';
+		$readonly = class_exists('\\Emsfb\\A11y') ? \Emsfb\A11y::ac_attr('cityList', $vj, isset($this->valj_efb[0]) ? $this->valj_efb[0] : null) : ''; // F16-F: autocomplete rides in the unused readonly slot
 		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
@@ -1717,7 +1703,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     	);
 
 		$inputPhone = sprintf(
-			'<input type="phone" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formid="%13$s" data-vid="%7$s" id="%7$s_" aria-required="%8$s" aria-label="%9$s" %10$s %11$s %12$s data-utilsjs="%14$s" %15$s>',
+			'<input type="tel" autocomplete="tel" class="efb input-efb intlPhone px-2 mb-0 emsFormBuilder_v form-control %1$s %2$s %3$s %4$s %5$s efbField efb1 %6$s" data-css="%7$s" data-id="%7$s-el" data-formid="%13$s" data-vid="%7$s" id="%7$s_" aria-required="%8$s" aria-label="%9$s" %10$s %11$s %12$s data-utilsjs="%14$s" %15$s>',
 			$vj->el_border_color,
 			$vj->el_height,
 			$corner,
@@ -2971,7 +2957,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			. ' data-collapse-prev="' . (isset($vj->collapse_prev) && (string) $vj->collapse_prev === '0' ? '0' : '1') . '" data-confirm="' . (isset($vj->rmv_confirm) && (string) $vj->rmv_confirm === '0' ? '0' : '1') . '"'
 			. ' data-label="' . esc_attr($tpl) . '"' . ($required ? ' data-required="1"' : '') . ($disabled ? ' data-disabled="1"' : '');
 		return '<fieldset class="efb efb-rpt col-12 px-0 mx-0' . ($from !== '' ? ' efb-rpt-from' : '') . ($required ? ' required' : '') . '" id="' . $g . '-f"' . $data . (!empty($vj->message) ? ' aria-describedby="' . $g . '-des"' : '') . '>'
-			. '<legend class="' . esc_attr($label_cls) . '" id="' . $g . '_labG"><span id="' . $g . '_lab" class="efb">' . esc_html(isset($vj->name) ? $vj->name : '') . '</span><span class="efb mx-1 text-danger" id="' . $g . '_req" role="none">' . ($required ? '*' : '') . '</span></legend>'
+			. '<legend class="' . esc_attr($label_cls) . '" id="' . $g . '_labG"><span id="' . $g . '_lab" class="efb">' . esc_html(isset($vj->name) ? $vj->name : '') . '</span><span class="efb mx-1 text-danger" id="' . $g . '_req" aria-hidden="true">' . ($required ? '*' : '') . '</span></legend>'
 			. $desc
 			. '<div class="efb efb-rpt-rows" role="list" id="' . $g . '_rows">' . $rows . '</div>'
 			// The row template is inert text (wpautop does not reach into a script block; no duplicate ids in the DOM).
@@ -3352,13 +3338,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 					$ta_tpl_efb = $this->st_attr_efb(isset($vj->placeholder) ? $vj->placeholder : '', 'placeholder', 'data-st-ph');
 					$ta_ph_efb = esc_attr($ta_tpl_efb[0]) . ($ta_tpl_efb[1] !== '' ? '"' . rtrim($ta_tpl_efb[1], '"') : '');
 					$ta_def_efb = $this->st_attr_efb(isset($vj->value) ? $vj->value : '', 'default', 'data-st-value');
-					$ta_val_efb = esc_attr($ta_def_efb[0]) . ($ta_def_efb[1] !== '' ? '"' . rtrim($ta_def_efb[1], '"') : '');
+					// F16-E (row 20): a textarea has no value attribute (its text is its value); only the tag template stays.
+					$ta_val_efb = $ta_def_efb[1];
+					$minlen = trim($minlen . (class_exists('\\Emsfb\\A11y') ? \Emsfb\A11y::ac_attr('textarea', $vj, isset($this->valj_efb[0]) ? $this->valj_efb[0] : null) : ''));
 
 					$ui = sprintf('
 						%1$s
 						<div class="efb %2$s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="%3$s-f">
 							%4$s
-							<textarea id="%3$s_" placeholder="%5$s" class="efb px-2 input-efb emsFormBuilder_v form-control w-100 %6$s %7$s %8$s %9$s %10$s efbField efb1 %11$s" data-css="%3$s" data-vid="%3$s" data-id="%3$s-el"  data-formid="%20$s" value="%12$s" aria-required="%13$s" aria-label="%14$s" %15$s rows="5" %16$s %17$s>%18$s</textarea>
+							<textarea id="%3$s_" placeholder="%5$s" class="efb px-2 input-efb emsFormBuilder_v form-control w-100 %6$s %7$s %8$s %9$s %10$s efbField efb1 %11$s" data-css="%3$s" data-vid="%3$s" data-id="%3$s-el"  data-formid="%20$s"%12$s aria-required="%13$s" aria-label="%14$s" %15$s rows="5" %16$s %17$s>%18$s</textarea>
 							%19$s
 							',
 							$label,
@@ -3533,6 +3521,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 						}
 
 						$temp = $elementId == "imgRadio" ? "row justify-content-center" : "";
+						// F16-E (row 14): the group's label names it through aria-labelledby (its for="" pointed at nothing);
+						// a required single choice says so on the radiogroup.
+						if (strpos($ch_parts_efb['wrap'], 'aria-labelledby') !== false) $label = str_replace('<label for="' . $element_Id . '_" ', '<label ', $label);
+						if (strpos($ch_parts_efb['wrap'], 'radiogroup') !== false && ($vj->required == 1 || $vj->required == true)) $ch_parts_efb['wrap'] .= ' aria-required="true"';
 						$ui = sprintf(
 							'<!-- checkbox -->
 							%s

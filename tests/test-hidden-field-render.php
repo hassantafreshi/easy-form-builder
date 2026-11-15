@@ -70,7 +70,7 @@ $snap = '';
 foreach (array(2, 3, 4, 6, 8) as $i) $snap .= $render($plain, $i, array()) . "\n";
 $file = __DIR__ . '/fixtures/smart-tags-render-snapshot.html';
 if (getenv('EFB_WRITE_SNAPSHOT')) file_put_contents($file, $snap);
-t('a form without tags renders byte for byte as the snapshot taken before F08', is_readable($file) && file_get_contents($file) === $snap, 'snapshot differs');
+t('a form without tags renders byte for byte as the snapshot taken before F08', is_readable($file) && (require_once __DIR__ . '/f16-markup.php') && efb_f16_markup(file_get_contents($file)) === $snap /* F16-E */, 'snapshot differs');
 
 if ($with_tags) {
 	$ctx = array('form' => array('id' => '5', 'name' => 'Contact <x>'), 'site' => array('name' => 'Site & Co', 'url' => 'https://site.test/'), 'post' => array('id' => '9', 'title' => 'Page', 'url' => '', 'type' => 'page'), 'fields' => array('color' => array('type' => 'radio', 'name' => 'Color', 'options' => array())), 'user' => array('id' => '1', 'email' => 'secret@example.test', 'display_name' => 'Secret Name'));

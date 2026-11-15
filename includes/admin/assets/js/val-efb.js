@@ -2433,6 +2433,7 @@ function show_setting_window_efb(idset, opts) {
           ${formTypeEls()}
           ${surveyChartTypeEls()}
           ${loadingTypeEls()}
+          ${typeof efbA11yFormEls === 'function' ? efbA11yFormEls() : '<!-- F16 a11y-builder-efb.js not loaded -->'}
           ${typeof efbUploadFormEls === 'function' && (valj_efb[0].type=="form" || valj_efb[0].type=="payment") ? efbUploadFormEls() : '<!-- F07 -->'}
           ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(0) : '<!--efb-->'}
          <!-- content_colors_setting_efb() -->
@@ -2602,6 +2603,13 @@ function show_setting_window_efb(idset, opts) {
       if(el.tagName!="DIV"){el.addEventListener("change", (e) => { change_el_edit_Efb(el);})}
       else{ }
     }
+    // F16: a field's "Browser autofill" in its Advanced part; every toggle says its state (aria-pressed) from the start.
+    if (idset !== 'formSet' && typeof efbA11yAutocompleteEls === 'function') {
+      const acBox = document.querySelector('#childsSideMenuConEfb #collapseAdvanced > div');
+      const acHtml = acBox ? efbA11yAutocompleteEls(indx, idset) : '';
+      if (acHtml) acBox.insertAdjacentHTML('beforeend', acHtml);
+    }
+    document.querySelectorAll('#childsSideMenuConEfb .btn-toggle').forEach((b) => b.setAttribute('aria-pressed', b.classList.contains('active') ? 'true' : 'false'));
     if (document.getElementById('maskPresetEl') && typeof efb_masks_builder_init_efb === 'function') efb_masks_builder_init_efb(idset, indx);
     // F08: "Insert a smart tag" next to the inputs that take tags, and their live notes.
     if (typeof efbSmartPanelInit === 'function') { try { efbSmartPanelInit(idset, indx); } catch (e) {} }
@@ -2718,6 +2726,8 @@ function creator_form_builder_Efb() {
     if (form_type_emsFormBuilder == "payment") {
       Object.assign(valj_efb[0], { getway: 'stripe', currency: 'usd', paymentmethod: 'charge' })
     }
+    // F16: a new form checks fields when they are left and lists the problems at the top (efb_form_defaults_efb()).
+    if (typeof efbA11yDefaults === 'function') Object.assign(valj_efb[0], efbA11yDefaults(1));
 
   }
 

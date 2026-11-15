@@ -117,7 +117,7 @@
     const data = ` data-rpt="${g}" data-formid="${esc(fid)}" data-min="${l.min}" data-max="${l.max}" data-default="${l.default}" data-from="${esc(from)}" data-layout="${layout}" data-collapsible="${collapsible ? '1' : '0'}"`
       + ` data-collapse-prev="${String(r.collapse_prev) === '0' ? '0' : '1'}" data-confirm="${String(r.rmv_confirm) === '0' ? '0' : '1'}" data-label="${esc(tpl)}"${required ? ' data-required="1"' : ''}${disabled ? ' data-disabled="1"' : ''}`;
     return `<fieldset class="efb efb-rpt col-12 px-0 mx-0${from !== '' ? ' efb-rpt-from' : ''}${required ? ' required' : ''}" id="${g}-f"${data}${r.message ? ` aria-describedby="${g}-des"` : ''}>`
-      + `<legend class="${esc(labelCls)}" id="${g}_labG"><span id="${g}_lab" class="efb">${esc(r.name || '')}</span><span class="efb mx-1 text-danger" id="${g}_req" role="none">${required ? '*' : ''}</span></legend>`
+      + `<legend class="${esc(labelCls)}" id="${g}_labG"><span id="${g}_lab" class="efb">${esc(r.name || '')}</span><span class="efb mx-1 text-danger" id="${g}_req" aria-hidden="true">${required ? '*' : ''}</span></legend>`
       + (desc || '')
       + `<div class="efb efb-rpt-rows" role="list" id="${g}_rows">${rows}</div>`
       + `<script type="text/html" class="efb-rpt-tpl" id="${g}_tpl">${template}</script>`

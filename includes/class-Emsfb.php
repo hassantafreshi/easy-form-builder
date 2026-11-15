@@ -541,6 +541,12 @@ class Emsfb {
             \Emsfb\Layout::register();
         }
 
+        // F16: accessibility and inline validation (form keys, autocomplete, registry); P21 its page contract (EFBInline).
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-a11y.php') && method_exists('\Emsfb\A11y', 'register')) {
+            \Emsfb\A11y::register();
+            $this->require_plugin_file_efb('includes/inline-validation-functions-efb.php');
+        }
+
         // F14: entries management (list on the server, status, notes and history, edit, resend, export,
         // statistics). Loaded on every request: its cron jobs, the view / submit counts and the entries API
         // run outside wp-admin. Optional: every caller checks class_exists('\Emsfb\Entries').
