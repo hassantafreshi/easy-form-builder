@@ -38,8 +38,10 @@ class Registry {
 	/** Registers core's Google modes, then asks the add-ons (once per request). */
 	public static function boot() {
 		if (self::$booted) return;
+		foreach (self::GOOGLE as $id) if (!isset(self::$list[$id])) self::add(new Google($id));
+		// Asked before the add-ons are loaded (plugins_loaded): Google only for now, the add-ons on the next call.
+		if (function_exists('did_action') && function_exists('add_action') && !did_action('plugins_loaded')) return;
 		self::$booted = true;
-		foreach (self::GOOGLE as $id) self::add(new Google($id));
 		if (class_exists(__NAMESPACE__ . '\\F12_Service')) { self::add(new F12_Service('hcaptcha')); self::add(new F12_Service('turnstile')); }
 		if (function_exists('do_action')) do_action('efb_register_captcha_providers', new self());
 	}

@@ -54,7 +54,8 @@ $old_files = array(
 
 $keys = $fn->get_all_addon_keys_efb();
 t('the old keys keep their order', array_slice($keys, 0, count($old_keys)), $old_keys);
-t('the SPLIT add-ons are appended', array_slice($keys, count($old_keys)), array('AdnCLC', 'AdnTSG', 'AdnADR', 'AdnGEO'));
+// F12b: the five CAPTCHA add-ons come after the SPLIT ones (codes approved by owner 2026-11-14).
+t('the SPLIT add-ons are appended (then the F12b CAPTCHA add-ons)', array_slice($keys, count($old_keys)), array('AdnCLC', 'AdnTSG', 'AdnADR', 'AdnGEO', 'AdnCTS', 'AdnHCP', 'AdnALT', 'AdnQCP', 'AdnFRC'));
 t('AdnPRT is not listed before F20 builds it (no key without an add-on)', in_array('AdnPRT', $keys, true), false);
 $ok = true;
 foreach ($old_keys as $k) { $want = isset($old_tiers[$k]) ? $old_tiers[$k] : 1; if ($fn->addon_required_package_efb($k) !== $want) { $ok = false; echo "  plan of {$k} changed\n"; } }

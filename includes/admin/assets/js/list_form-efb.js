@@ -1693,7 +1693,7 @@ function fun_show_setting__emsFormBuilder() {
                                 <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.siteKey}" ${sitekey !== "null" ? `value="${sitekey}"` : ""} data-tab="${efb_var.text.captchas}">
                                 <span id="sitekey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                 <label class="efb  form-label mx-2 col-12  mt-4 fs-6">${efb_var.text.SecreTKey}</label>
-                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${secretkey !== "null" ? `value="${secretkey}"` : ""} data-tab="${efb_var.text.captchas}">
+                                <input type="password" autocomplete="new-password" dir="ltr" data-secret="1" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" value="" placeholder="${efb_secret_placeholder_efb(secretkey)}" aria-describedby="secretkey_emsFormBuilder-keep" data-tab="${efb_var.text.captchas}">${efb_secret_tools_efb('secretkey_emsFormBuilder', secretkey)}
                                 <span id="secretkey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                             </div>
 
@@ -1824,7 +1824,7 @@ function fun_show_setting__emsFormBuilder() {
                                   <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="stripePKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" ${stripePKey !== "null" ? `value="${stripePKey}"` : ""} ${lockedInput('setting:payment_keys', 'stripePKey_emsFormBuilder')} data-tab="${efb_var.text.payment}">
                                   <span id="stripePKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                   <label class="efb  form-label mx-2 fs-6 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                  <input type="password" autocomplete="new-password" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" ${stripeSKey !== "null" ? `value="${stripeSKey}"` : ""} ${lockedInput('setting:payment_keys', 'stripeSKey_emsFormBuilder')} data-tab="${efb_var.text.payment}">
+                                  <input type="password" autocomplete="new-password" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" data-secret="1" dir="ltr" value="" placeholder="${efb_secret_placeholder_efb(stripeSKey)}" aria-describedby="stripeSKey_emsFormBuilder-keep" ${lockedInput('setting:payment_keys', 'stripeSKey_emsFormBuilder')} data-tab="${efb_var.text.payment}">${efb_secret_tools_efb('stripeSKey_emsFormBuilder', stripeSKey)}
                                   <span id="stripeSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
 
                               </div>
@@ -1838,7 +1838,7 @@ function fun_show_setting__emsFormBuilder() {
                                     <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="paypalPKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" value="${paypalPKey}" ${lockedInput('setting:payment_keys', 'paypalPKey_emsFormBuilder')} data-tab="${efb_var.text.payment}">
                                     <span id="paypalPKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                     <label class="efb  form-label mx-2 fs-6 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                    <input type="password" autocomplete="new-password" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="paypalSKey_emsFormBuilder" placeholder="${efb_var.text.SecreTKey}" value="${paypalSKey}" ${lockedInput('setting:payment_keys', 'paypalSKey_emsFormBuilder')} data-tab="${efb_var.text.payment}">
+                                    <input type="password" autocomplete="new-password" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="paypalSKey_emsFormBuilder" data-secret="1" dir="ltr" value="" placeholder="${efb_secret_placeholder_efb(paypalSKey)}" aria-describedby="paypalSKey_emsFormBuilder-keep" ${lockedInput('setting:payment_keys', 'paypalSKey_emsFormBuilder')} data-tab="${efb_var.text.payment}">${efb_secret_tools_efb('paypalSKey_emsFormBuilder', paypalSKey)}
                                     <span id="paypalSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                   </div>
                               </div>
@@ -3372,6 +3372,8 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
     /* password: the Stripe and PayPal secret fields. Missing here, Save sent
        "NotFoundEl" as the secret and every payment failed with HTTP 401. */
     if (el.type == "text" || el.type == "password" || el.type == "email" || el.type == "textarea" || el.type == "hidden" || el.type == "color" || el.type == "tel" || el.type == "number" || el.type == "url" || el.type == "search") {
+      // F12b D4: a secret box is empty unless a new key is typed: '' keeps the stored one, '__clear__' removes it.
+      if (typeof el.getAttribute === 'function' && el.getAttribute('data-secret') === '1' && String(el.value || '').trim() === '') return el.getAttribute('data-clear') === '1' ? '__clear__' : '';
       if (id == "emailTemp_emsFirmBuilder") {
         let v = el.value.replace(/(\r\n|\r|\n|\t)+/g, '');
         // The server rewrites double quotes attribute by attribute; a blind swap here
@@ -5592,4 +5594,17 @@ function efb_partial_delete_efb(ids) {
   ids = (ids || []).map(Number).filter((x) => x > 0);
   if (!fid || !ids.length) return;
   jQuery.post(ajax_object_efm.ajax_url, { action: 'delete_partial_entries_Emsfb', nonce: _efb_core_nonce_, form_id: fid, ids: ids.join(',') }, () => efb_partial_tab_efb());
+}
+
+
+/* F12b D4: secrets are write-only. The page receives {"set":true,"last4":"1234"} (or nothing), never the key. */
+function efb_secret_placeholder_efb(v) {
+  const t = (k, fb) => (efb_var && efb_var.text && efb_var.text[k]) || fb;
+  if (v && typeof v === 'object') return String(t('secretSavedMask', 'Saved (%s)')).replace('%s', v.last4 ? '•••• ' + v.last4 : '••••').replace(/"/g, '&quot;');
+  return String(t('SecreTKey', 'Secret Key')).replace(/"/g, '&quot;');
+}
+function efb_secret_tools_efb(id, v) {
+  if (!v || typeof v !== 'object') return '';
+  const t = (k, fb) => (efb_var && efb_var.text && efb_var.text[k]) || fb;
+  return `<div class="efb d-flex gap-2 align-items-center flex-wrap mt-1"><small class="efb form-text" id="${id}-keep" dir="auto">${t('secretKeep', 'Leave empty to keep the saved key.')}</small><button type="button" class="efb btn btn-sm btn-outline-secondary efb-spam-clear" data-for="${id}" onclick="efb_spam_clear_secret_efb(this)">${t('secretRemove', 'Remove')}</button></div>`;
 }

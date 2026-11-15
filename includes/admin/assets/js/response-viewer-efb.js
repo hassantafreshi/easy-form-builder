@@ -336,8 +336,8 @@ const EfbResponseViewer = (function () {
               onclick="fun_send_replayMessage_emsFormBuilder(${msg_id})">
         <i class="bi bi-reply"></i> ${typeof ajax_object_efm !== 'undefined' && ajax_object_efm.text ? ajax_object_efm.text.reply : _t('reply')}
       </button>
-      ${typeof sitekye_emsFormBuilder !== 'undefined' && sitekye_emsFormBuilder ?
-        `<div class="efb row mx-3"><div class="efb g-recaptcha my-2 mx-2" data-sitekey="${sitekye_emsFormBuilder}" id="recaptcha"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ''}
+      ${typeof efb_var !== 'undefined' && efb_var && typeof efb_var.reply_captcha === 'string' && efb_var.reply_captcha ? `<div class="efb efb-reply-captcha mx-3">${efb_var.reply_captcha}</div>` : ''}
+      <div class="efb efb-hp" aria-hidden="true" inert style="position:absolute;inset-inline-start:-10000px;inline-size:1px;block-size:1px;overflow:hidden"><label for="efb-hp-reply">Leave this field empty</label><input type="text" id="efb-hp-reply" name="efb_url_reply" value="" tabindex="-1" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other"></div>
       <p class="efb-reply-status" id="replay_state__emsFormBuilder"></p>
     </div>
     ${uploadHtml}`;

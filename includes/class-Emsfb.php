@@ -551,6 +551,8 @@ class Emsfb {
             \Emsfb\Spam::register();
             // F12b: the provider registry (Google in core; add-ons on efb_register_captcha_providers), its REST and AJAX.
             if (class_exists('\Emsfb\Captcha\Registry')) \Emsfb\Captcha\Registry::register_hooks();
+            // F12b D2 / §5: "turn on spam protection" for a site updated from 4.3.1, forms whose CAPTCHA add-on is gone.
+            if (is_admin() && $this->require_plugin_file_efb('includes/class-Emsfb-spam-notice.php')) \Emsfb\Spam_Notice::register();
             $this->require_plugin_file_efb('includes/captcha-functions-efb.php');
         }
 

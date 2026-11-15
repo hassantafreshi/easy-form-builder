@@ -2743,7 +2743,7 @@ public function check_nonce_permission_efb($request) {
 	public static function submit_translation_keys_efb() {
 		$translation_keys = [
 			'somethingWentWrongPleaseRefresh', 'pleaseMakeSureAllFields', 'PleaseFillForm', 'bkXpM_', 'bkFlM_', 'mnvvXXX_', 'ptrnMmm_', 'ptrnMmx_', 'payment', 'error403', 'errorSiteKeyM',
-			'errorCaptcha', 'captchaExpired', 'pleaseEnterVaildValue', 'createAcountDoneM', 'uraatn', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound', 'errorMRobot',
+			'errorCaptcha', 'captchaExpired', 'cpChallenge', 'replyTooMany', 'pleaseEnterVaildValue', 'createAcountDoneM', 'uraatn', 'incorrectUP', 'sentBy', 'newPassM', 'done', 'surveyComplatedM', 'error405', 'errorSettingNFound', 'errorMRobot',
 			'clcdetls', 'vmgs', 'youRecivedNewMessage', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'thankFillForm', 'trackNo', 'fernvtf', 'msgdml', 'newMessageReceived','sxnlex','snotfound','response','fform','msgSndBut','smsWPN',
 			'surveyResults', 'responses', 'submitBlocked', 'enterValidDate',
 			/* F01 input masks: server messages for masked fields. */
@@ -3495,6 +3495,15 @@ public function check_nonce_permission_efb($request) {
 					return;
 				}
 				if($submission_type=='recovery'){
+					/* F12b D1: a password recovery request (it sends an e-mail) is limited per address (5 an hour) and,
+					 * when the login form has a CAPTCHA that gets its token while sending (v3, v2 invisible, an add-on
+					 * that checks on submit), checked like the login. A visible widget is not on the recovery view, so
+					 * it is not asked for there (the hidden field still is). Nothing is sent when refused. */
+					$rc_gate_efb = $this->recovery_gate_efb(is_array($access_structure) && isset($access_structure[0]) ? $access_structure[0] : array(), $plugin_settings, $request_data);
+					if ($rc_gate_efb !== null) {
+						wp_send_json_success(array('success' => false, 'm' => $rc_gate_efb['m'], 'code' => $rc_gate_efb['code']), 200);
+						return;
+					}
 					// Try to get email from original raw data or numeric array
 					$raw_recovery_data = json_decode($this->value, true);
 					$email = null;
@@ -4514,6 +4523,60 @@ public function check_nonce_permission_efb($request) {
 	 * @param string            $token   The g-recaptcha-response from the page.
 	 * @return true|string
 	 */
+	/** F12b D3: the gate of a guest's reply: null = go on, else ['code', 'm']. */
+	private function reply_gate_efb($data, $setting, $track, $ip) {
+		$hp = isset($data['efb_hp']) ? $data['efb_hp'] : null;
+		if ($hp !== null && (!is_scalar($hp) || trim((string) $hp) !== '')) {
+			$this->efb_trace('submit.blocked', array('gate' => 'reply_honeypot', 'reason' => 'the hidden field of the reply box was filled'));
+			return array('code' => 'efb_spam_honeypot', 'm' => $this->lanText['errorMRobot'] ?? 'Your message was not sent.');
+		}
+		$lim = apply_filters('efb_reply_rate_limits', array('ip' => array(600, 10), 'track' => array(3600, 30)));
+		if (class_exists('\\Emsfb\\Rate_Limit') && \Emsfb\Rate_Limit::ready() && is_array($lim)) {
+			$ok = true;
+			if (isset($lim['ip'][0], $lim['ip'][1])) $ok = \Emsfb\Rate_Limit::hit('rply', \Emsfb\Rate_Limit::hash('rply', (string) $ip), (int) $lim['ip'][0], (int) $lim['ip'][1]);
+			if ($ok && isset($lim['track'][0], $lim['track'][1])) $ok = \Emsfb\Rate_Limit::hit('rplt', \Emsfb\Rate_Limit::hash('rplt', (string) $track), (int) $lim['track'][0], (int) $lim['track'][1]);
+			if (!$ok) return array('code' => 'efb_reply_rate', 'm' => $this->lanText['replyTooMany'] ?? 'Too many replies. Please wait a few minutes.');
+		}
+		$on = is_object($setting) ? !empty($setting->scaptcha) : (is_array($setting) && !empty($setting['scaptcha']));
+		if (!$on || !class_exists('\\Emsfb\\Captcha\\Registry')) return null;
+		$eff = \Emsfb\Captcha\Registry::effective_for(array('captcha' => 1), $setting);
+		if ($eff['provider'] === null) return null; // no box on the page either (no keys): the limits above stay
+		$proof = \Emsfb\Form_Runtime::verify(isset($data['runtime_token']) && is_string($data['runtime_token']) ? $data['runtime_token'] : '', 0);
+		$owner = is_array($proof) && isset($proof['owner']) ? (string) $proof['owner'] : '';
+		$pass = $owner !== '' ? 'efb_rpcp_' . substr(hash('sha256', $owner . '|' . $track), 0, 40) : '';
+		if ($pass !== '' && get_transient($pass)) return null;
+		$chk = \Emsfb\Spam::verify_captcha(isset($data['valid']) && is_scalar($data['valid']) ? (string) $data['valid'] : '', 'reply', array(
+			'settings' => $setting, 'provider' => $eff['id'], 'low_score' => 'block',
+			'request_id' => isset($data['request_id']) && is_string($data['request_id']) ? $data['request_id'] : '',
+		));
+		if (empty($chk['ok'])) {
+			$this->efb_trace('submit.blocked', array('gate' => 'captcha_' . $chk['provider'], 'codes' => $chk['code'], 'reason' => 'reply without a valid CAPTCHA token'));
+			return array('code' => 'efb_captcha_' . ($chk['code'] !== '' ? $chk['code'] : 'failed'), 'm' => $chk['code'] === 'expired' && !empty($this->lanText['captchaExpired']) ? $this->lanText['captchaExpired'] : ($this->lanText['errorCaptcha'] ?? 'Please complete the security check.'));
+		}
+		if ($pass !== '') set_transient($pass, 1, 10 * MINUTE_IN_SECONDS);
+		return null;
+	}
+
+	/** F12b D1: the gate of a password recovery request: null = go on, else ['code', 'm']. */
+	private function recovery_gate_efb($s0, $settings, $request_data) {
+		if (class_exists('\\Emsfb\\Rate_Limit') && \Emsfb\Rate_Limit::ready()) {
+			$ip_efb = \Emsfb\Rate_Limit::hash('rcv', (string) $this->get_ip_address());
+			if (!\Emsfb\Rate_Limit::hit('rcvr', $ip_efb, 3600, (int) apply_filters('efb_recovery_rate_limit', 5))) {
+				return array('code' => 'efb_recovery_rate', 'm' => isset($this->lanText['replyTooMany']) ? $this->lanText['replyTooMany'] : 'Too many requests. Please wait a few minutes.');
+			}
+		}
+		if (!class_exists('\\Emsfb\\Captcha\\Registry') || !\Emsfb\Captcha::form_on($s0) || \Emsfb\Spam::setting('captcha_login', $settings) !== '1') return null;
+		$eff = \Emsfb\Captcha\Registry::effective_for($s0, $settings);
+		if ($eff['provider'] === null || $eff['provider']->kind() === 'widget') return null;
+		$chk = \Emsfb\Spam::verify_captcha(isset($request_data['valid']) && is_scalar($request_data['valid']) ? (string) $request_data['valid'] : '', 'login', array(
+			'form' => $s0, 'settings' => $settings, 'provider' => $eff['id'], 'low_score' => 'block',
+			'request_id' => isset($request_data['request_id']) && is_string($request_data['request_id']) ? $request_data['request_id'] : '',
+		));
+		if (!empty($chk['ok'])) return null;
+		$this->efb_trace('submit.blocked', array('form_id' => intval($this->id), 'gate' => 'captcha_' . $chk['provider'], 'codes' => $chk['code'], 'reason' => 'recovery request without a valid CAPTCHA token'));
+		return array('code' => 'efb_captcha_' . ($chk['code'] !== '' ? $chk['code'] : 'failed'), 'm' => \Emsfb\Spam::captcha_message($chk['code'], $s0, is_array($this->lanText) ? $this->lanText : array()));
+	}
+
 	private function verify_tracker_captcha_efb($setting, $token) {
 		$get = function ($key) use ($setting) {
 			if (is_array($setting)) return $setting[$key] ?? null;
@@ -4664,7 +4727,13 @@ public function check_nonce_permission_efb($request) {
 						}
 					}
 				}
+				// F12b D3: the reply box's own CAPTCHA (context reply_{id}) for a visitor, when it is on for the response box.
+				$reply_cp_efb = '';
+				if (!current_user_can('administrator') && class_exists('\\Emsfb\\Spam') && ((is_object($setting) && !empty($setting->scaptcha)) || (is_array($setting) && !empty($setting['scaptcha'])))) {
+					$reply_cp_efb = \Emsfb\Spam::captcha_widget('reply_' . (int) $this->id, array('settings' => $setting));
+				}
 				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content,'nonce_msg'=> $code , 'id'=>$this->id,
+					'reply_captcha' => $reply_cp_efb,
 					'response_upload_token' => $this->issue_response_upload_token_efb($this->id, $value[0]->track),
 					'response_access_token'=>\Emsfb\Form_Runtime::token(0,$this->id.':'.hash('sha256',$value[0]->track)));
 			}else{
@@ -6086,7 +6155,7 @@ public function check_nonce_permission_efb($request) {
 		if (is_wp_error($replay)) wp_send_json_error(array('code'=>$replay->get_error_code(),'m'=>$replay->get_error_message()),$replay->get_error_data()['status']);
 		if ($replay instanceof \WP_REST_Response) wp_send_json($replay->get_data(),$replay->get_status());
 		$this->text_ = empty($this->text_)==false ? $this->text_ = ['error400','hdnBadge','atcfle','tfnapca','clcdetls','vmgs','required','mcplen','mmxplen','mxcplen','mmplen','offlineSend','settingsNfound','error405','error403','videoDownloadLink','downloadViedo','pleaseEnterVaildValue','errorSomthingWrong','nAllowedUseHtml','guest','messageSent','MMessageNSendEr',
-        'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex','msgSndBut','smsWPN']: $this->text_;
+        'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex','msgSndBut','smsWPN','errorCaptcha','captchaExpired','errorMRobot','replyTooMany','cpChallenge']: $this->text_;
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		$rsp_by = isset($data_POST['user_type']) ?  sanitize_text_field($data_POST['user_type']) :'guest';
@@ -6295,6 +6364,17 @@ public function check_nonce_permission_efb($request) {
 					}
 				} else {
 					$rsp_by = is_user_logged_in() ? 'user' : 'guest';
+				}
+
+				/* F12b D3: a reply that is not the administrator's (signed in, or the e-mailed sc link) passes the
+				 * hidden field, the rate limits (10 in 10 minutes per address, 30 an hour per conversation; filter
+				 * efb_reply_rate_limits) and, when "CAPTCHA in the response box" is on, the site's CAPTCHA — one
+				 * solve is good for 10 minutes of the same reply session. Refused: nothing stored, nothing sent. */
+				if (!$admin_verified_rsp) {
+					$rp_gate_efb = $this->reply_gate_efb($data_POST, $setting, $track, $raw_ip_efb);
+					if ($rp_gate_efb !== null) {
+						wp_send_json_success(array('success' => false, 'm' => $rp_gate_efb['m'], 'code' => $rp_gate_efb['code']), 200);
+					}
 				}
 
 				$read_s = $admin_verified_rsp ? 1 : 0;

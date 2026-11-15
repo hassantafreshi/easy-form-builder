@@ -1,4 +1,4 @@
-وضعیت: در حال پیاده‌سازی (A تا C انجام شد؛ Checkpointها پایین؛ همهٔ پرسش‌های باز و کدهای افزونه را مالک در 2026-11-14 تأیید کرد — approved by owner (2026-11-14)) · اولویت: P1 · تلاش: L (هسته M + افزونه‌ها هر کدام S) · وابستگی: F12 (کپچا و ضداسپم هسته)، F15 (خروجی و ورودی فرم)، F11 (`Rate_Limit`)، F13 (حالت IP)، F18 (پنجرهٔ ارتقا)؛ ساخت درست پس از F15
+وضعیت: در حال پیاده‌سازی (A تا D انجام شد؛ Checkpointها پایین؛ همهٔ پرسش‌های باز و کدهای افزونه را مالک در 2026-11-14 تأیید کرد — approved by owner (2026-11-14)) · اولویت: P1 · تلاش: L (هسته M + افزونه‌ها هر کدام S) · وابستگی: F12 (کپچا و ضداسپم هسته)، F15 (خروجی و ورودی فرم)، F11 (`Rate_Limit`)، F13 (حالت IP)، F18 (پنجرهٔ ارتقا)؛ ساخت درست پس از F15
 
 # F12b — کپچا به‌شکل افزونه، انتخاب v2 یا v3 گوگل برای هر فرم، چند فرم در یک صفحه، و چهار مورد باز F12
 
@@ -401,12 +401,12 @@ F12 منتشر نشده است (`readme.txt` نسخهٔ پایدار 4.3.1؛ ی�
 - پذیرش: ورود با توکن درست موفق؛ بدون توکن یا توکن رد شده `errorCaptcha` و هیچ ورود یا شمارش تلاش ناموفق اضافه؛ سایت بدون secret وارد می‌شود؛ ثبت‌نام با هانی‌پات پر رد؛ ورود با پر شدن خودکار در کمتر از یک ثانیه موفق؛ پیام‌های `efb_login_error_passthrough_codes` بدون تغییر.
 - تست: `php tests/test-login-captcha-http.php` (وردپرس واقعی، کاربر fixture، حذف پس از تست)؛ e2e `f12b-d1`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: `class-Emsfb-public.php` (دروازهٔ مشترک کپچا: `$captcha_d1_efb` برای ثبت‌نام و ورود با `captcha_login`، `low_score` همیشه block؛ ارائه‌دهندهٔ مؤثر ندارد ⇒ ورود بی کپچا؛ `recovery_gate_efb()`: درخواست بازیابی ۵ در ساعت برای هر نشانی (`Rate_Limit` `rcvr`، فیلتر `efb_recovery_rate_limit`) و توکن فقط وقتی سرویس ورود نامرئی است، چون ویجت دیداری در نمای بازیابی نیست)، `class-Emsfb-spam.php` (`cfg()`: فرم ورود بی حداقل زمان و بی «نرم اجباری»؛ ثبت‌نام و ورود reject)، تنظیم `captcha_login` (پیش‌فرض روشن، پرسش باز ۴).
+- تست‌ها: تازه `tests/test-login-captcha-http.php` (22، وردپرس واقعی با کاربر fixture که پاک می‌شود)، `tests/e2e-wp/ctl-f12b.php`، mu-plugin `efb-e2e-f12b.php` (پاسخ siteverify از JSON درون توکن؛ timeout و پاسخ غیر JSON)، `tests/f12b-http-lib.php`.
+- وضعیت ترجمه: —
+- مورد باز: `wp-login.php` فاز ۲ (پرسش باز ۵). شمارندهٔ تلاش ناموفق: بررسی کپچا پیش از `wp_signon()` است، پس افزونه‌های قفل ورود چیزی نمی‌شمارند.
+- اقدام بعدی: D2.
 
 #### D2 — اعلان «ضداسپم را روشن کنید» برای سایت‌های به‌روزشده
 - شرط نمایش: ردیف تنظیمات هیچ‌کدام از کلیدهای `Spam::SETTING_DEFAULTS` بخش ضداسپم (`spam_honeypot`، `spam_min_time`، `spam_action`) را ندارد؛ کاربر `manage_options`؛ فقط در صفحه‌های EFB (`get_current_screen()->id` شامل `Emsfb`)؛ نه وقتی `EFB_HUMAN_SHIELD_RUNTIME` روشن است (Human Shield خودش هانی‌پات دارد؛ پرسش باز ۱۰)؛ نه برای کاربری که بسته است (`user_meta` ‏`emsfb_spam_notice_dismissed`).
@@ -415,12 +415,12 @@ F12 منتشر نشده است (`readme.txt` نسخهٔ پایدار 4.3.1؛ ی�
 - پذیرش: سایت 4.3.1 بی کلید notice را می‌بیند؛ نصب تازه نمی‌بیند؛ ویرایشگر (بدون `manage_options`) نمی‌بیند؛ صفحهٔ «نوشته‌ها» نمی‌بیند؛ بستن برای همان کاربر ماندگار و برای مدیر دوم نه؛ «روشن کردن» چهار کلید را می‌نویسد و ارسال بعدی ربات اسپم می‌شود؛ nonce بد ۴۰۳.
 - تست: `php tests/test-spam-notice.php` (وردپرس واقعی)؛ e2e `f12b-d2` (fa_IR و ar در ۳۷۵px).
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: تازه `includes/class-Emsfb-spam-notice.php` (`Emsfb\Spam_Notice`: notice D2 فقط در صفحه‌های EFB و برای `manage_options`، دکمهٔ «Turn on recommended protection» با AJAX `efb_spam_notice` و `role="status"`، بستن برای هر کاربر؛ notice §۵ «N فرم از X استفاده می‌کنند…» با `<bdi>` و پیوند صفحهٔ افزونه‌ها، بسته‌شدن تا تغییر فهرست)، `class-Emsfb.php`؛ `Addon_Catalog` پنج کد افزونهٔ کپچا (سطح ۳، قرارداد تازهٔ `captcha_provider` نسخهٔ ۲ در `efb_addon_contract_versions()`) تا notice نام سرویس را بداند.
+- تست‌ها: تازه `tests/test-spam-notice.php` (12، وردپرس واقعی: مدیر دوم، ویرایشگر، صفحهٔ نوشته‌ها، nonce بد ۴۰۳، ارسال ربات پس از روشن کردن اسپم)؛ `test-split-catalog.php` (ادعای ترتیب کاتالوگ با پنج کد تازه).
+- وضعیت ترجمه: —
+- مورد باز: شرط Human Shield (`EFB_HUMAN_SHIELD_RUNTIME`) فقط در کد بررسی می‌شود (ثابت در تست HTTP تعریف‌شدنی نیست).
+- اقدام بعدی: D3.
 
 #### D3 — کپچا و محدودیت نرخ برای جعبهٔ پاسخ
 - رفتار: وقتی `scaptcha` روشن است (همان تنظیم «کپچا در جعبهٔ پاسخ» که F12 فقط به جست‌وجو داد)، جعبهٔ پاسخ مهمان ویجت زمینهٔ `reply_{n}` (یکتا برای هر جعبه) دارد و `set_rMessage_id_Emsfb_api()` (`class-Emsfb-public.php:6201`) پس از replay و پیش از هر نوشتن، `Spam::verify_captcha($valid, 'reply')` را صدا می‌زند (خطا ⇒ `errorCaptcha`، هیچ ذخیره و هیچ اعلان). پاسخ مدیر واردشده و پیوند توکن ایمیلی مدیر (`sc`) معاف‌اند. یک حل برای ۱۰ دقیقه در همان نشست پاسخ (`forms/response/session`) کافی است: سرور پس از موفقیت ادعای `cp_ok_until` را در توکن نشست امضاشده می‌گذارد (پرسش باز ۶).
@@ -429,12 +429,12 @@ F12 منتشر نشده است (`readme.txt` نسخهٔ پایدار 4.3.1؛ ی�
 - پذیرش: پاسخ مهمان بی توکن رد؛ با توکن ذخیره؛ پاسخ دوم در ۱۰ دقیقه بی حل دوباره؛ یازدهمین پاسخ در ۱۰ دقیقه رد؛ مدیر معاف؛ دو جعبهٔ پاسخ و یک فرم در یک صفحه بی تداخل؛ سایت بی کلید مثل امروز (بی کپچا، با محدودیت نرخ).
 - تست: `php tests/test-reply-captcha-http.php`؛ گسترش `tests/test-response-viewer-escaping.js`؛ e2e `f12b-d3`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: `class-Emsfb-public.php` (`reply_gate_efb()`: هانی‌پات `efb_hp`، `Rate_Limit` `rply` ۱۰ در ۱۰ دقیقه برای هر نشانی و `rplt` ۳۰ در ساعت برای هر گفت‌وگو، فیلتر `efb_reply_rate_limits`، کپچای سایت با `scaptcha`؛ یک حل برای ۱۰ دقیقه در همان نشست پاسخ — به‌جای ادعای `cp_ok_until` در توکن، گذرنامه‌ای سمت سرور با کلید `owner` توکن runtime امضاشده و `track` (دستکاری‌ناپذیر)؛ مدیر واردشده و پیوند `sc` معاف؛ پاسخ `forms/response/get` جعبهٔ `reply_{id}` را برای مهمان دارد)، `core-efb.js` (`post_api_r_message_efb`: توکن با `EFBCaptcha.token('reply_…')`، `efb_hp`، reset پس از رد)، `response-viewer-efb.js` (جعبهٔ کپچای پاسخ از سرور به‌جای `#recaptcha` با کلید v2 سراسری، فیلد پنهان).
+- تست‌ها: تازه `tests/test-reply-captcha-http.php` (15).
+- وضعیت ترجمه: `replyTooMany` (انگلیسی).
+- مورد باز: محدودیت نرخ برای مدیر اعمال نمی‌شود (فقط مهمان و کاربر عادی).
+- اقدام بعدی: D4 (پیش از D1 ساخته شد؛ اینجا به ترتیب سند).
 
 #### D4 — secretهای فقط‌نوشتنی
 - رفتار: هر فیلد `secret` (گوگل: `secretKey`، `rciSecretKey`، `rc3SecretKey`؛ هر فیلد `secret` در schema افزونه‌ها) هرگز به مرورگر نمی‌رود. `Registry::redact_settings($row)` در هر جایی که ردیف تنظیمات به صفحه می‌رود اعمال می‌شود: `class-Emsfb-panel.php:37,397-405`، `class-Emsfb-create.php:68`، `class-Emsfb-addon.php:52` (و grep برای هر `get_setting_Emsfb('decoded'|'raw')` که به `wp_localize_script` می‌رسد). به‌جای مقدار: `{"set":true,"last4":"1234"}` (چهار نویسهٔ آخر فقط وقتی طول ≥ ۱۶، وگرنه فقط «ذخیره شد»).
@@ -443,12 +443,12 @@ F12 منتشر نشده است (`readme.txt` نسخهٔ پایدار 4.3.1؛ ی�
 - پذیرش: grep صفحهٔ تنظیمات، سازنده، افزونه‌ها و داشبورد برای مقدار secret آزمایشی صفر؛ ذخیرهٔ بی تغییر secret را نگه دارد؛ «جایگزینی» بنویسد؛ «حذف» پاک کند؛ کپچا پس از ذخیره همچنان بررسی شود.
 - تست: `php tests/test-secret-redaction.php` (وردپرس واقعی؛ خروجی HTML همهٔ صفحه‌های EFB)؛ e2e `f12b-d4`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: `Registry::redact_settings()` در `admin/class-Emsfb-panel.php` (هر دو محل: `efb_var.setting` و ردیف خام `ajax_object_efm.setting`)، `admin/class-Emsfb-create.php`، `admin/class-Emsfb-addon.php`؛ `list_form-efb.js` (secret نسخهٔ ۲، Stripe و PayPal: `type=password`، `value=""`، «Saved (•••• 1234)»، «Leave empty to keep the saved key.»، «Remove» ⇒ `__clear__`؛ `secretkey` دیگر خوانده یا نمایش داده نمی‌شود)، `admin/class-Emsfb-admin.php` (B)، `Registry::SECRET_SETTING_KEYS` + فیلتر `efb_secret_setting_keys` (یافتهٔ سند: کلیدهای Stripe و PayPal هم).
+- تست‌ها: تازه `tests/test-secret-redaction.php` (19، وردپرس واقعی: هفت صفحه و REST schema، فرم عمومی، جعبهٔ پیگیری، بستهٔ F15، ذخیره با ماسک/خالی/متن/`__clear__`، ویرایشگر)؛ `test-captcha-settings-screen.js` (B).
+- وضعیت ترجمه: `secretSavedMask`، `secretKeep`، `secretRemove`، `secretRemoveConfirm` (انگلیسی).
+- مورد باز: رمزنگاری secretهای گوگل در `emsfb_setting` فاز ۲ (پرسش باز ۹).
+- اقدام بعدی: E.
 
 ### E — پلن، بازگشت، مهاجرت و خروج hCaptcha و Turnstile از هسته
 - فایل‌ها: `Registry::effective_for`، notice، Request Health، `functions.php` (چهار فهرست افزونه با `AdnCTS`، `AdnHCP`، `AdnALT`، `AdnQCP`، `AdnFRC`؛ سطح ۳)، `Registry::load_addons` (الگوی `Payments\Registry`)، حذف همهٔ سطرهای hCaptcha و Turnstile از هسته، `docs/spam/*`.

@@ -163,10 +163,12 @@ class Captcha {
 	 * POST to the service: 8 s, no redirect, only to a host of the provider's verify_hosts(); never the visitor's IP.
 	 * ['json' => array] or a failed result (network / invalid_response / config). Token and secret are never logged.
 	 */
-	public static function http_post($provider, $url, array $body, array $headers = array()) {
+	public static function http_post($provider, $url, $body, array $headers = array()) {
 		$host = (string) parse_url((string) $url, PHP_URL_HOST);
 		if (!($provider instanceof Captcha\Provider) || stripos((string) $url, 'https://') !== 0 || !in_array($host, $provider->verify_hosts(), true)) return array('ok' => false, 'code' => 'config');
-		unset($body['remoteip']);
+		// A JSON body (a service that takes one) is passed as a string; an array is sent as a form. Never remoteip.
+		if (is_array($body)) unset($body['remoteip']);
+		elseif (!is_string($body)) return array('ok' => false, 'code' => 'config');
 		$args = array('timeout' => 8, 'redirection' => 0, 'body' => $body);
 		if ($headers) $args['headers'] = $headers;
 		$res = function_exists('wp_remote_post') ? wp_remote_post($url, $args) : null;

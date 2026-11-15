@@ -260,7 +260,7 @@ class Addon {
 			"addson"=>$addons,
 			'wp_lan'=>get_locale(),
 			'v_efb'=>EMSFB_PLUGIN_VERSION,
-			'setting'=>$ac,
+			'setting'=>class_exists('\\Emsfb\\Captcha\\Registry') ? \Emsfb\Captcha\Registry::redact_settings($ac) : $ac,
 			'upload_max'=>(int) floor(wp_max_upload_size() / MB_IN_BYTES),
 		), 'addon');
 		wp_localize_script('Emsfb-admin-js','efb_var',$efb_var_data);

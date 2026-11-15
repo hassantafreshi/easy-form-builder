@@ -33,6 +33,8 @@ if (!function_exists('efb_addon_contract_versions')) {
 			'form_package'    => array('version' => $fp, 'min' => 1, 'core' => class_exists('\\Emsfb\\Form_Package')),
 			'payments'        => array('version' => defined('EMSFB_PAYMENTS_API') ? (int) EMSFB_PAYMENTS_API : 1, 'min' => 1, 'core' => class_exists('\\Emsfb\\Payments\\Registry')),
 			'captcha'         => array('version' => 1, 'min' => 1, 'core' => function_exists('efb_captcha_api')),
+			// F12b: an add-on CAPTCHA provider (Emsfb\Captcha\Provider::API); core keeps Google itself.
+			'captcha_provider' => array('version' => 2, 'min' => 2, 'core' => false),
 		);
 	}
 }

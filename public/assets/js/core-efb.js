@@ -3073,6 +3073,8 @@ post_api_tracker_check_efb=(data,innrBtn)=>{
       efb_var.nonce_msg = responseData.data.nonce_msg;
       efb_var.msg_id = responseData.data.id;
       efb_var.response_upload_token = responseData.data.response_upload_token || '';
+      // F12b D3: the reply box's own CAPTCHA (server markup, context reply_{id}); '' when not asked for.
+      efb_var.reply_captcha = typeof responseData.data.reply_captcha === 'string' ? responseData.data.reply_captcha : '';
       if (window.EFBRuntime) window.EFBRuntime.rememberTicket(responseData.data);
     }
     if (!(responseData && responseData.data && responseData.data.success === true)) efb_reset_tracker_captcha_efb();
@@ -3107,6 +3109,14 @@ efb_reset_tracker_captcha_efb=()=>{
 }
 post_api_r_message_efb=async(data,message)=>{
   let runtime;
+  // F12b D3: the reply box's CAPTCHA token (a visible one: its last token; an invisible one: asked for now) and its
+  // hidden field. The server decides (one solve is good for 10 minutes of this reply session).
+  const cpReply = document.querySelector('.efb-captcha[data-formid="-1"][data-ctx^="reply_"]');
+  const cpCtx = cpReply ? cpReply.getAttribute('data-ctx') : '';
+  if (cpReply && window.EFBCaptcha && typeof window.EFBCaptcha.token === 'function') { try { data.valid = (await window.EFBCaptcha.token(cpCtx)) || ''; } catch (e) { data.valid = ''; } }
+  const hpReply = document.getElementById('efb-hp-reply');
+  if (hpReply) data.efb_hp = String(hpReply.value || '');
+  const cpReset = (r) => { if (cpCtx && window.EFBCaptcha && !(r && r.data && r.data.success === true)) { try { window.EFBCaptcha.reset(-1, cpCtx); } catch (e) {} } };
   try {
     if (window.EFBRuntime) {
       runtime=await window.EFBRuntime.decorate(data,0,'reply');
@@ -3138,6 +3148,7 @@ post_api_r_message_efb=async(data,message)=>{
     })
     .then(responseData => {
       if (window.EFBRuntime && responseData?.data?.success===true) window.EFBRuntime.complete(0,'reply');
+      cpReset(responseData);
       response_rMessage_id(responseData, message);
     })
     .catch(async error => {

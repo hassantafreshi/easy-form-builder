@@ -411,10 +411,20 @@
 | بالا | فرم دارای کپچا که کلید `logic` داشت (حتی `false` که پس از ذخیره `''` می‌شود) ویجت کپچا را نشان نمی‌داد، ولی سرور کپچا می‌خواست: فرم ارسال‌پذیر نبود. افزونهٔ منطق شرطی کپچایی رندر نمی‌کند. | `includes/class-Emsfb-public.php` (`EFB_Form_Builder`، رندر کپچا) | **رفع شد (F12)** |
 | متوسط | `check_and_enqueue_google_captcha_efb()` در هر رندر صفحه یک `wp_remote_head` هم‌زمان به google.com می‌فرستاد (کندی؛ بی دسترسی سرور به Google کپچا اصلاً بارگذاری نمی‌شد) و متغیرهای تعریف‌نشده داشت. | `includes/functions.php` | **رفع شد (F12)**: `Captcha::enqueue` با `defer` و بی درخواست |
 | متوسط | `noti_message_efb_v4()` با `innerHTML +=` کل جعبهٔ پیگیری را بازمی‌ساخت: ویجت کپچای حل‌شده رویدادهایش را از دست می‌داد و کد تایپ‌شده پاک می‌شد. | `public/assets/js/core-efb.js` | **رفع شد (F12)**: `insertAdjacentHTML`؛ e2e ‏`f12f` |
-| متوسط | کپچای فرم ثبت‌نام و ورود در سرور اعمال نمی‌شود: `$skip_captcha` فقط در شاخهٔ فرم معمولی مقدار می‌گیرد، پس توکن بررسی نمی‌شود (مرورگر آن را می‌خواهد). | `includes/class-Emsfb-public.php` (`get_form_public_efb`) | **باز** (رفتار امروز حفظ شد؛ تصمیم با مالک: اعمال در سرور ممکن است ورود کاربران کش‌شده را بشکند) |
+| متوسط | کپچای فرم ثبت‌نام و ورود در سرور اعمال نمی‌شود: `$skip_captcha` فقط در شاخهٔ فرم معمولی مقدار می‌گیرد، پس توکن بررسی نمی‌شود (مرورگر آن را می‌خواهد). | `includes/class-Emsfb-public.php` (`get_form_public_efb`) | **بسته شد (F12b-D1، 2026-11-15)**: بررسی مشترک پیش از `switch` نوع ارسال برای `register`/`login` با `captcha_login`؛ بازیابی با محدودیت نرخ و کپچای نامرئی؛ `tests/test-login-captcha-http.php` |
 | کم | توکن کپچا پیش از جدا شدن از ردیف‌ها در `localStorage` (`sendback`) ذخیره می‌شد. | `core-efb.js` (`efb_sendback_for_storage_efb`) | **رفع شد (F12)** |
 | کم | سند F12 ستون `entry_status` (varchar) و `spam_reason` را پیشنهاد کرده بود ولی F14 پیش‌تر `entry_status` TINYINT ساخته بود (تعارض C1). | سند | **بسته شد**: ستون F14 ماند؛ علت در تاریخچه |
 | کم | `reference/current-capabilities.en.md` §3 کلید `shield_silent_captcha` را «Human Shield AdnHSH» نامیده بود؛ این یکپارچگی با افزونهٔ جداگانهٔ Shield Security است. | سند | **رفع شد (F12)** |
+
+## F12b: ارائه‌دهنده‌های کپچا (۲۰۲۶-۱۱-۱۵)
+
+| شدت | مشکل | محل | وضعیت |
+|---|---|---|---|
+| بالا | کل ردیف تنظیمات با secretها (کپچای v2/v3، Stripe، PayPal) در `ajax_object_efm.setting` و `efb_var.setting` همهٔ صفحه‌های مدیریت چاپ می‌شد و secret نسخهٔ ۲ در کادر متنی با `value`. | `admin/class-Emsfb-panel.php`، `create.php`، `addon.php`، `list_form-efb.js` | **رفع شد (F12b-D4)**: `Registry::redact_settings()`، کادرهای فقط‌نوشتنی؛ `tests/test-secret-redaction.php` |
+| متوسط | جعبهٔ پاسخ (`forms/response/add`) مقدار `valid` را می‌خواند ولی کپچا یا محدودیت نرخ نداشت؛ مرورگر توکنِ مصرف‌شدهٔ جست‌وجوی پیگیری را می‌فرستاد. | `class-Emsfb-public.php`، `core-efb.js` | **رفع شد (F12b-D3)** |
+| متوسط | توکن کپچا فقط یک بار در سرویس مصرف می‌شد؛ ALTCHA و پرسش (محلی) و هر سرویس بی `idempotency_key` محافظ تکرار در هسته نداشتند. | `Captcha\Registry::verify()` | **رفع شد (F12b-A)**: `Rate_Limit` ‏`cptk`، همان `request_id` پذیرفته |
+| کم | `loadCaptcha_efb()` همهٔ `.g-recaptcha`ها را با کلید v2 سراسری رندر می‌کرد، حتی جعبه‌ای با کلید دیگر. | `core-efb.js` | **رفع شد (F12b-C)** |
+| کم | درخواست بازیابی رمز (که ایمیل می‌فرستد) نه محدودیت نرخ داشت نه بررسی کپچا. | `class-Emsfb-public.php` | **رفع شد (F12b-D1)**: ۵ در ساعت برای هر نشانی |
 
 ## F15: بهره‌وری سازنده (۲۰۲۶-۱۱-۱۴)
 

@@ -310,7 +310,7 @@ class Create {
 			'wp_lan'=>get_locale(),
 			'location'=>$location,
 			'v_efb'=>EMSFB_PLUGIN_VERSION,
-			'setting'=>$settings,
+			'setting'=>class_exists('\\Emsfb\\Captcha\\Registry') ? \Emsfb\Captcha\Registry::redact_settings($settings) : $settings,
 			'colors'=>$colors,
 			'zone_area'=>CDN_ZONE_AREA,
 			'plugins'=>$plugins,
