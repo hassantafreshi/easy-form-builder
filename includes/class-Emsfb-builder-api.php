@@ -409,12 +409,13 @@ class Builder_Api {
 
 	/* ---------------------------------------------------------------- B8 */
 
-	/** Settings without secrets: gateway secret keys, the licence, tokens, passwords. */
+	/** Settings without secrets: gateway secret keys, the licence, tokens, passwords, the CAPTCHA add-ons' settings. */
 	public static function redact_settings($settings) {
 		$s = is_object($settings) ? clone $settings : (is_array($settings) ? (object) $settings : new \stdClass());
 		foreach (array_keys(get_object_vars($s)) as $k) {
 			if (in_array($k, array('stripeSKey', 'paypalSKey', 'secretKey', 'activeCode', 'payToken', 'email_key', 'apiKeyMap'), true)
-				|| preg_match('/(secret|token|password|passwd|apikey|_key$|SKey$)/i', $k)) {
+				|| preg_match('/(secret|token|password|passwd|apikey|_key$|SKey$)/i', $k)
+				|| (class_exists('\\Emsfb\\Captcha\\Registry') && \Emsfb\Captcha\Admin::is_addon_key($k))) { // F12b-L: an add-on's captcha_<id>
 				unset($s->$k);
 			}
 		}

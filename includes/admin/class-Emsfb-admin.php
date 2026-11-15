@@ -1375,7 +1375,7 @@ class Admin {
         ]);
 
         $efbFunction->set_setting_Emsfb($ac, $ac->emailSupporter);
-        $newAc = json_encode($ac, JSON_UNESCAPED_UNICODE);
+        $newAc = json_encode(class_exists('\Emsfb\Captcha\Registry') ? \Emsfb\Captcha\Admin::redact_settings($ac) : $ac, JSON_UNESCAPED_UNICODE);
         update_option($name_space, 1);
 
         $this->addon_install_log_efb('request_completed', [
@@ -1938,6 +1938,12 @@ class Admin {
                 if (array_key_exists($secret_key_efb, $m)) $m[$secret_key_efb] = \Emsfb\Captcha\Admin::secret_on_save($m[$secret_key_efb], $stored_secret_efb);
                 elseif ($stored_secret_efb !== '') $m[$secret_key_efb] = $stored_secret_efb;
             }
+        }
+        /* F12b-L: a CAPTCHA add-on's settings (captcha_<id>) are saved by its own screen only. This window never
+         * receives them (redact_settings()); anything posted under such a key is dropped here, so set_setting_Emsfb()'s
+         * wipe guard keeps the stored value instead of a stale or empty copy. */
+        if (is_array($m) && class_exists('\Emsfb\Captcha\Admin')) {
+            $m = \Emsfb\Captcha\Admin::without_addon_keys($m);
         }
         foreach ($m as $key => $value) {
              if (in_array($key ,['emailSupporter','femail'])) {

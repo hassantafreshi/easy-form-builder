@@ -34,6 +34,12 @@
  *  f12b-6  D2, D4, fallback, languages (rows 22, 27–30): the notice by keyboard; Settings › Captchas never prints a
  *          secret; an add-on switched off → the fallback, on again → back; ALTCHA by keyboard and its accessibility
  *          tree; fa_IR and ar at 375 px (right to left, no horizontal scroll), screenshots.
+ *  f12b-10 F12b-L (approved by owner 2026-11-15), each CAPTCHA add-on's own settings screen: no add-on → nothing of
+ *          the add-ons in Settings › Captchas (no heading, no row, Google's modes only in the select) and its screen
+ *          is a 404; two add-ons → two rows (name, status, "Settings"); each screen opened from its row by keyboard
+ *          and saved (hCaptcha from "Needs keys" to "Ready"); a form with hCaptcha still verifies (mocked); the main
+ *          window's Save afterwards keeps both add-ons' settings; fa_IR and ar at 375 px: the list and one screen
+ *          (right to left, nothing off-screen, no horizontal scroll), screenshots.
  */
 'use strict';
 
@@ -980,6 +986,128 @@ module.exports = function (S) {
       del(...made);
       setting('spam_honeypot=1&spam_min_time=0&spam_action=spam&spam_retention_days=30');
       ctlb('notice-reset');
+      teardown();
+    }
+  });
+
+  /* ================================================================== f12b-10 F12b-L: each add-on's own settings screen */
+  scenario('f12b-10', 'F12b-L each CAPTCHA add-on\'s own settings screen: no add-on → no add-on UI and a 404 screen; two add-ons → two rows, each screen saves (keyboard), a form with that service still verifies, the main Save keeps them; fa_IR / ar at 375 px', async ({ context, adminPage }) => {
+    plan(3);
+    ctl('locale', '');
+    ctlb('mu');
+    ctlb('mock', '1');
+    ctlb('rl-reset');
+    setting(GOOGLE);
+    addons(false);
+    const made = [];
+    const captchas = async (p) => {
+      await p.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb&state=setting&tab=captchas', { waitUntil: 'load' });
+      await p.waitForSelector('#efb-spam-settings', { state: 'attached', timeout: 30000 });
+      await sleep(900);
+      return p.evaluate(() => ({
+        head: !!document.getElementById('efbCpaTitle'), list: document.querySelectorAll('.efb-cpa-list').length,
+        rows: Array.from(document.querySelectorAll('.efb-cpa-row')).map((r) => [r.getAttribute('data-for'), r.querySelector('bdi.efb-cpa-name').textContent, r.querySelector('.efb-cpa-st').getAttribute('data-status'), r.querySelector('a.efb-cpa-btn').textContent.trim()]),
+        inline: document.querySelectorAll('[data-cpv], details.efb-cpv').length,
+        text: /CAPTCHA add-ons/.test(document.getElementById('efb-spam-settings').textContent),
+        opts: Array.from(document.getElementById('captchaProvider_efb').options).map((o) => o.value),
+      }));
+    };
+    try {
+      // No CAPTCHA add-on installed and active.
+      const admin = await adminPage({}, 'f12b-10-none');
+      const none = await captchas(admin);
+      R.check('f12b-10: no add-on → no "CAPTCHA add-ons" heading, no list, no row, no placeholder; the site select has Google\'s modes only', !none.head && none.list === 0 && none.rows.length === 0 && none.inline === 0 && !none.text && none.opts.join() === 'recaptcha_v2,recaptcha_v2i,recaptcha_v3', none);
+      const nf = await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_captcha&provider=turnstile', { waitUntil: 'load' });
+      const nfText = await admin.evaluate(() => ({ h1: (document.querySelector('#efbCaptchaScreen h1') || {}).textContent, form: !!document.querySelector('.efb-cps-form'), msg: (document.querySelector('#efbCaptchaScreen .efb-cps-missing') || {}).textContent }));
+      R.check('f12b-10: the screen of an add-on that is not on: HTTP 404, "Not Found", "not installed or not active", no form', nf.status() === 404 && !nfText.form && /not installed or not active/.test(nfText.msg || ''), { status: nf.status(), nfText });
+
+      // Two add-ons: Turnstile with its keys, hCaptcha without.
+      addons(true, ['AdnCTS', 'AdnHCP']);
+      ctlb('row-set', 'captcha_hcaptcha', 'null');
+      const two = await captchas(admin);
+      R.check('f12b-10: two add-ons → the heading and two rows: Cloudflare Turnstile Ready, hCaptcha Needs keys, each with "Settings"; no field of theirs in this window; the select adds them', two.head && two.rows.length === 2 && JSON.stringify(two.rows.map((r) => [r[0], r[2], r[3]])) === JSON.stringify([['turnstile', 'ready', 'Settings'], ['hcaptcha', 'keys', 'Settings']]) && two.inline === 0 && two.opts.join() === 'recaptcha_v2,recaptcha_v2i,recaptcha_v3,turnstile,hcaptcha', two);
+      await admin.screenshot({ path: SHOT('f12b-10-list-en'), fullPage: false });
+      const before = ctlb('row-keys');
+
+      // hCaptcha's screen, by keyboard from its row.
+      await admin.focus('.efb-cpa-row[data-for="hcaptcha"] a.efb-cpa-btn');
+      const nav = admin.waitForNavigation({ waitUntil: 'load' });
+      await admin.keyboard.press('Enter');
+      await nav;
+      const hs = await admin.evaluate(() => ({ url: location.search, h1: document.querySelector('#efbCaptchaScreen h1').textContent, bdi: !!document.querySelector('#efbCaptchaScreen h1 bdi'), back: !!document.querySelector('.efb-cps-back a'),
+        labels: Array.from(document.querySelectorAll('.efb-cps-form input:not([type=hidden]), .efb-cps-form select, .efb-cps-form textarea')).filter((e) => e.type !== 'checkbox').every((e) => !!document.querySelector('label[for="' + e.id + '"]')), status: (document.querySelector('.efb-cps-st') || {}).textContent }));
+      R.check('f12b-10: Enter on hCaptcha\'s "Settings" opens its screen: title with the name (bdi), back link, every field labelled, status Needs keys', /page=Emsfb_captcha&provider=hcaptcha/.test(hs.url) && /hCaptcha settings/.test(hs.h1) && hs.bdi && hs.back && hs.labels && hs.status === 'Needs keys', hs);
+      await admin.focus('#efbcps_hcaptcha_site_key');
+      await admin.keyboard.type(KEYS.hcaptcha[0].site_key);
+      await admin.keyboard.press('Tab');
+      const onSecret = await admin.evaluate(() => document.activeElement && document.activeElement.id);
+      await admin.keyboard.type(KEYS.hcaptcha[1].secret);
+      const saved = admin.waitForNavigation({ waitUntil: 'load' });
+      await admin.keyboard.press('Enter');
+      await saved;
+      const hs2 = await admin.evaluate(() => ({ notice: (document.querySelector('.notice-success.efb-notice') || {}).textContent, status: (document.querySelector('.efb-cps-st') || {}).textContent, secret: (document.getElementById('efbcps_hcaptcha_secret') || {}).value, ph: (document.getElementById('efbcps_hcaptcha_secret') || { getAttribute: () => '' }).getAttribute('placeholder'), html: document.documentElement.outerHTML }));
+      R.check('f12b-10: typed by keyboard (Tab from the site key reaches the secret), Enter saves: "Settings saved.", status Ready, the secret box empty with its mask, no secret in the page', onSecret === 'efbcps_hcaptcha_secret' && /Settings saved/.test(hs2.notice || '') && hs2.status === 'Ready' && hs2.secret === '' && /••••/.test(hs2.ph || '') && hs2.html.indexOf(KEYS.hcaptcha[1].secret) === -1 && hs2.html.indexOf('enc:v1:') === -1, { onSecret, notice: hs2.notice, status: hs2.status, ph: hs2.ph });
+      await admin.screenshot({ path: SHOT('f12b-10-screen-hcaptcha-en'), fullPage: true });
+      // Turnstile's screen: a new site key (Cloudflare's "always passes" test key with another prefix), the secret kept.
+      await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_captcha&provider=turnstile', { waitUntil: 'load' });
+      await admin.fill('#efbcps_turnstile_site_key', '1x00000000000000000000AA');
+      await Promise.all([admin.waitForNavigation({ waitUntil: 'load' }), admin.click('#efbCpsSave')]);
+      const after = ctlb('row-keys');
+      const others = (k) => { const o = Object.assign({}, k); delete o.captcha_hcaptcha; delete o.captcha_turnstile; return JSON.stringify(o); };
+      R.check('f12b-10: both screens saved into their own keys of the settings row (secrets encrypted); every other key as it was', after.captcha_hcaptcha && after.captcha_hcaptcha.public.site_key === KEYS.hcaptcha[0].site_key && after.captcha_hcaptcha.encrypted && after.captcha_hcaptcha.secrets.join() === 'secret' && after.captcha_turnstile.secrets.join() === 'secret' && after.captcha_turnstile.encrypted && others(after) === others(before), { hc: after.captcha_hcaptcha, ts: after.captcha_turnstile });
+
+      // A form with hCaptcha still verifies (the siteverify stand-in).
+      const F = form('F12b-L hcaptcha', NM, 'captcha=1&captcha_provider=hcaptcha');
+      made.push(F);
+      const g = await open(context, pageOf(F.form_id), 'f12b-10-guest');
+      await g.waitForFunction(() => window.__cb && window.__cb.renders.some((r) => r.kind === 'hcaptcha'), null, { timeout: 20000 });
+      const rendered = await g.evaluate(() => (window.__cb.renders.find((r) => r.kind === 'hcaptcha') || {}).opts || {});
+      await type(g, F.ids.nm, 'Ada');
+      await clickFake(g, F.form_id);
+      const res = await sendIn(g, F.form_id);
+      R.check('f12b-10: a form with hCaptcha draws it with the key saved on its screen and its answer is verified and stored', rendered.sitekey === KEYS.hcaptcha[0].site_key && res && res.success === true && entries(F.form_id).length === 1, { sitekey: rendered.sitekey, res });
+
+      // The main Settings window's Save afterwards keeps them.
+      const keep = ctlb('row-keys');
+      await captchas(admin);
+      await admin.fill('#spamRetention_efb', '45');
+      let body = null;
+      const handler = async (route) => { const req = route.request(); if (req.method() !== 'POST' || !(req.postData() || '').includes('action=set_settings_Emsfb')) return route.continue(); const r2 = await route.fetch(); try { body = JSON.parse(await r2.text()); } catch (e) { body = null; } return route.fulfill({ response: r2 }); };
+      await admin.route('**/admin-ajax.php', handler);
+      await admin.click('#save-stng-efb');
+      for (let i = 0; i < 100 && body === null; i++) await sleep(200);
+      await admin.unroute('**/admin-ajax.php', handler);
+      // The page reloads itself after a Save (state=reload-setting): let it finish before going on.
+      await admin.waitForURL(/state=reload-setting/, { timeout: 15000 }).catch(() => {});
+      await admin.waitForLoadState('load').catch(() => {});
+      await sleep(1500);
+      const k2 = ctlb('row-keys');
+      R.check('f12b-10: the main window\'s Save afterwards: success, its change stored, both add-ons\' settings unchanged', !!(body && body.data && body.data.success) && setting('').spam_retention_days === '45' && JSON.stringify(k2.captcha_hcaptcha) === JSON.stringify(keep.captcha_hcaptcha) && JSON.stringify(k2.captcha_turnstile) === JSON.stringify(keep.captcha_turnstile), { ok: body && body.data, hc: k2.captcha_hcaptcha, ts: k2.captcha_turnstile });
+      setting('spam_retention_days=30');
+
+      // fa_IR and ar at 375 px.
+      for (const loc of ['fa_IR', 'ar']) {
+        ctl('locale', loc);
+        try {
+          const m = await adminPage({ viewport: { width: 375, height: 812 }, locale: loc.replace('_', '-') }, 'f12b-10-' + loc);
+          await captchas(m);
+          await m.evaluate(() => { const l = document.querySelector('.efb-cpa-list'); if (l) l.scrollIntoView({ block: 'center' }); });
+          await sleep(400);
+          const li = await rtlCheck(m, '.efb-cpa-list', null, '.efb-cpa-st');
+          const btn = await m.evaluate(() => Array.from(document.querySelectorAll('a.efb-cpa-btn')).map((a) => { const r = a.getBoundingClientRect(); return Math.round(r.height); }));
+          R.check(`f12b-10 (${loc}): the add-ons' list at 375 px — right to left, statuses isolated, nothing off-screen, no horizontal scroll, "Settings" 44 px high`, rtlOk(li) && btn.length === 2 && btn.every((h) => h >= 44), { li, btn });
+          await m.screenshot({ path: SHOT(`f12b-10-list-${loc}-375`), fullPage: false });
+          await m.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_captcha&provider=turnstile', { waitUntil: 'load' });
+          await sleep(500);
+          const sc = await rtlCheck(m, '#efbCaptchaScreen', null, '.efb-cps-help');
+          const sc2 = await m.evaluate(() => ({ dir: getComputedStyle(document.body).direction, key: getComputedStyle(document.getElementById('efbcps_turnstile_site_key')).direction, lab: getComputedStyle(document.querySelector('label[for="efbcps_turnstile_site_key"]')).textAlign }));
+          R.check(`f12b-10 (${loc}): Turnstile's screen at 375 px — right to left, the key fields left to right, labels at the start, help isolated, nothing off-screen, no horizontal scroll`, rtlOk(sc) && sc2.dir === 'rtl' && sc2.key === 'ltr' && (sc2.lab === 'right' || sc2.lab === 'start'), { sc, sc2 });
+          await m.screenshot({ path: SHOT(`f12b-10-screen-${loc}-375`), fullPage: true });
+        } finally { ctl('locale', ''); }
+      }
+    } finally {
+      del(...made);
+      setting('spam_retention_days=30');
       teardown();
     }
   });

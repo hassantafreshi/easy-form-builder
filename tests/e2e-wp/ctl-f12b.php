@@ -12,7 +12,13 @@
  *                              usernameRegisterEFB / emailRegisterEFB / passwordRegisterEFB), saved through the sanitizer
  *   user <login>               a subscriber with password <login>-pass-123 (made or reset); user-del <login>; user-exists <login>
  *   cpv <id> <public JSON> <secret JSON>   an add-on provider's settings through Admin::save() (the screen's path)
- *   cpv-raw <id>               what the option holds: public values, which secrets are set, whether they are encrypted
+ *   cpv-raw <id>               what the add-on's key captcha_<id> of the settings row holds (F12b-L): public values,
+ *                              which secrets are set, whether they are encrypted; whether the old option is still there
+ *   cpv-legacy <id> <public JSON> <secret JSON>   an F12b site: the old option emsfb_cpv_<id> (secrets encrypted), the
+ *                              key removed from the row (null) and the "moved" mark dropped, so the migration runs again
+ *   cpv-migrate                Admin::migrate() now (what init does once); cpv-uninstall <id>  Admin::remove(<id>)
+ *   row-keys                   the settings row's top-level keys, each captcha_<id> with its shape (no value of a secret)
+ *   row-set <k> <JSON>         a top-level key of the settings row through set_setting_Emsfb() (JSON null = null)
  *   rl-reset [scope …]         drop the counters of these Rate_Limit scopes (default rply rplt cptk cpch)
  *   providers                  the registry (id, addon, state, ready) and its registration errors
  *   notice-reset               remove every user's "spam notice dismissed" mark (D2)
@@ -106,11 +112,58 @@ switch ( $efb_b_cmd ) {
 		break;
 
 	case 'cpv-raw':
-		$raw = get_option( \Emsfb\Captcha\Registry::option( isset( $efb_b_rest[0] ) ? $efb_b_rest[0] : '' ), null );
-		$out = array( 'exists' => is_array( $raw ), 'public' => is_array( $raw ) ? ( $raw['public'] ?? array() ) : null, 'secret' => array() );
-		if ( is_array( $raw ) ) foreach ( (array) ( $raw['secret'] ?? array() ) as $k => $v ) $out['secret'][ $k ] = array( 'set' => '' !== $v, 'encrypted' => is_string( $v ) && 0 === strpos( $v, 'enc:v1:' ) );
+		$id = isset( $efb_b_rest[0] ) ? sanitize_key( $efb_b_rest[0] ) : '';
+		\Emsfb\Captcha\Registry::forget( $id );
+		$row = get_setting_Emsfb( 'decoded' );
+		$k = 'captcha_' . $id;
+		$raw = is_object( $row ) && isset( $row->$k ) ? json_decode( wp_json_encode( $row->$k ), true ) : null;
+		$out = array( 'exists' => is_array( $raw ), 'in_row' => is_object( $row ) && property_exists( $row, $k ), 'public' => is_array( $raw ) ? ( $raw['public'] ?? array() ) : null, 'secret' => array() );
+		if ( is_array( $raw ) ) foreach ( (array) ( $raw['secret'] ?? array() ) as $sk => $v ) $out['secret'][ $sk ] = array( 'set' => '' !== $v, 'encrypted' => is_string( $v ) && 0 === strpos( $v, 'enc:v1:' ) );
+		$out['legacy_option'] = null !== get_option( \Emsfb\Captcha\Registry::option( $id ), null );
 		$out['autoload_public'] = get_option( 'emsfb_cpv_public', null );
+		$out['moved'] = (int) get_option( 'emsfb_cpv_moved', 0 );
 		efb_b_out( $out );
+		break;
+
+	case 'cpv-legacy':
+		$id = isset( $efb_b_rest[0] ) ? sanitize_key( $efb_b_rest[0] ) : '';
+		$pub = isset( $efb_b_rest[1] ) ? json_decode( $efb_b_rest[1], true ) : array();
+		$sec = array();
+		foreach ( (array) ( isset( $efb_b_rest[2] ) ? json_decode( $efb_b_rest[2], true ) : array() ) as $sk => $v ) $sec[ $sk ] = \Emsfb\Payments\Secrets::encrypt( (string) $v );
+		update_option( \Emsfb\Captcha\Registry::option( $id ), array( 'v' => 1, 'public' => is_array( $pub ) ? $pub : array(), 'secret' => $sec, 'updated_at' => time() ), false );
+		update_option( 'emsfb_cpv_public', array( $id => is_array( $pub ) ? $pub : array() ), true );
+		get_efbFunction()->set_setting_Emsfb( (object) array( 'captcha_' . $id => null ) );
+		delete_option( 'emsfb_cpv_moved' );
+		\Emsfb\Captcha\Registry::forget( $id );
+		$row = get_setting_Emsfb( 'decoded' );
+		$k = 'captcha_' . $id;
+		// The state right now (any later request, a WP-CLI call included, runs the move on init).
+		efb_b_out( array( 'ok' => true, 'legacy_option' => is_array( get_option( \Emsfb\Captcha\Registry::option( $id ), null ) ), 'exists' => is_object( $row ) && isset( $row->$k ) && is_object( $row->$k ), 'moved' => (int) get_option( 'emsfb_cpv_moved', 0 ) ) );
+		break;
+
+	case 'cpv-migrate':
+		efb_b_out( array( 'done' => \Emsfb\Captcha\Admin::migrate() ) );
+		break;
+
+	case 'cpv-uninstall':
+		efb_b_out( array( 'ok' => \Emsfb\Captcha\Admin::remove( isset( $efb_b_rest[0] ) ? sanitize_key( $efb_b_rest[0] ) : '' ) ) );
+		break;
+
+	case 'row-keys':
+		$row = get_setting_Emsfb( 'decoded' );
+		$out = array();
+		foreach ( is_object( $row ) ? get_object_vars( $row ) : array() as $k => $v ) {
+			if ( 0 !== strpos( $k, 'captcha_' ) ) { $out[ $k ] = is_scalar( $v ) ? 'scalar' : gettype( $v ); continue; }
+			$a = json_decode( wp_json_encode( $v ), true );
+			$out[ $k ] = is_array( $a ) && isset( $a['public'] ) ? array( 'public' => $a['public'], 'secrets' => array_keys( (array) ( $a['secret'] ?? array() ) ), 'encrypted' => ! array_filter( (array) ( $a['secret'] ?? array() ), static function ( $x ) { return ! is_string( $x ) || 0 !== strpos( $x, 'enc:v1:' ); } ) ) : ( is_scalar( $v ) ? $v : $a );
+		}
+		efb_b_out( $out );
+		break;
+
+	case 'row-set':
+		$k = isset( $efb_b_rest[0] ) ? (string) $efb_b_rest[0] : '';
+		$v = isset( $efb_b_rest[1] ) ? json_decode( $efb_b_rest[1] ) : null;
+		efb_b_out( array( 'ok' => '' !== $k && get_efbFunction()->set_setting_Emsfb( (object) array( $k => $v ) ) ) );
 		break;
 
 	case 'rl-reset':

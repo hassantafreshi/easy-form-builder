@@ -45,6 +45,6 @@ t('the script asks for the page language, explicit render, no reCAPTCHA compatib
 $GLOBALS['T']['options'] = array();
 Registry::forget('hcaptcha');
 $GLOBALS['T']['settings'] = array('hcSiteKey' => $k['site_key'], 'hcSecretKey' => $k['secret']);
-t('§6: migrate() moves the F12 keys once and empties them in the row', array(\Emsfb\Captcha\Hcaptcha_Provider::migrate(), \Emsfb\Captcha\Hcaptcha_Provider::migrate(), $GLOBALS['T']['settings']['hcSecretKey'], strpos(get_option('emsfb_cpv_hcaptcha')['secret']['secret'], 'enc:v1:') === 0), array(true, false, '', true));
+t('§6: migrate() moves the F12 keys once and empties them in the row', array(\Emsfb\Captcha\Hcaptcha_Provider::migrate(), \Emsfb\Captcha\Hcaptcha_Provider::migrate(), $GLOBALS['T']['settings']['hcSecretKey'], strpos($GLOBALS['T']['settings']['captcha_hcaptcha']['secret']['secret'] ?? '', 'enc:v1:') === 0), array(true, false, '', true));
 t('the adapter is under 2 KB; text domain efb-hcaptcha with a .pot', array(filesize($D . '/assets/hcaptcha-adapter-efb.js') < 2048, is_file($D . '/languages/efb-hcaptcha.pot')), array(true, true));
 efb_done();

@@ -9,7 +9,7 @@
  *  - no Google keys either: no box, the hidden field and the minimum time are forced on for that form (a bot sending
  *    at once is spam, a person waiting 3 s is stored), forms/{id}/schema says fallback soft_checks;
  *  - plan down to Free (the add-on is Free Plus and Pro): the same fallback; back to Free Plus: Turnstile;
- *  - §6 migration: an F12 site's tsSiteKey / tsSecretKey in the settings row move into the add-on's option (the
+ *  - §6 migration: an F12 site's tsSiteKey / tsSecretKey in the settings row move into the add-on's settings (F12b-L: captcha_turnstile; the
  *    secret encrypted) when the add-on loads, and leave the row; the form works with Turnstile at once;
  *  - an add-on whose contract is older or newer than core's is refused (Captcha\Registry errors) — unit side in
  *    tests/test-captcha-registry.php.
@@ -88,11 +88,11 @@ $H->ctl('plan', '3');
 t('back to Free Plus: Turnstile', $prov($page()), 'turnstile');
 
 echo "--- §6: an F12 site's Turnstile keys move into the add-on ---\n";
-$H->ctl('set-option', 'emsfb_cpv_turnstile', 'del');
+$H->ctlb('row-set', 'captcha_turnstile', 'null'); // F12b-L: the add-on has no settings yet (its key in the row)
 $H->ctl('f12-setting', 'tsSiteKey=1x00000000000000000000AA&tsSecretKey=1x0000000000000000000000000000000AA');
 $b = $page();
 $raw = $H->ctlb('cpv-raw', 'turnstile');
-t('the add-on loaded: its option has the site key and the secret, encrypted', array($raw['exists'], $raw['public']['site_key'] ?? '', $raw['secret']['secret']['encrypted'] ?? false), array(true, '1x00000000000000000000AA', true));
+t('the add-on loaded: its settings (captcha_turnstile of the row) have the site key and the secret, encrypted', array($raw['exists'], $raw['public']['site_key'] ?? '', $raw['secret']['secret']['encrypted'] ?? false), array(true, '1x00000000000000000000AA', true));
 $row = (array) $H->ctlb('settings-redacted');
 t('… and the keys left the settings row (emptied)', array($row['tsSiteKey'] ?? '', $row['tsSecretKey'] ?? ''), array('', ''));
 t('… the form draws Turnstile', $prov($page()), 'turnstile');

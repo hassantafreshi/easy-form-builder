@@ -5927,6 +5927,28 @@ class efbFunction {
 			"secretRemove" => $state && isset($ac->text->secretRemove) ? $ac->text->secretRemove : esc_html__('Remove','easy-form-builder'),
 			/* translators: F12b: settings: help under a secret key */
 			"secretKeep" => $state && isset($ac->text->secretKeep) ? $ac->text->secretKeep : esc_html__('Leave empty to keep the saved key.','easy-form-builder'),
+			/* translators: F12b-L: settings: under the list of the installed CAPTCHA add-ons */
+			"cpAddonsHelp" => $state && isset($ac->text->cpAddonsHelp) ? $ac->text->cpAddonsHelp : esc_html__('Each add-on has its own settings page.','easy-form-builder'),
+			/* translators: F12b-L: settings: status of a CAPTCHA add-on whose keys are set */
+			"cpStatusReady" => $state && isset($ac->text->cpStatusReady) ? $ac->text->cpStatusReady : esc_html__('Ready','easy-form-builder'),
+			/* translators: F12b-L: settings: status of a CAPTCHA add-on whose keys are missing */
+			"cpStatusKeys" => $state && isset($ac->text->cpStatusKeys) ? $ac->text->cpStatusKeys : esc_html__('Needs keys','easy-form-builder'),
+			/* translators: F12b-L: settings: status of a CAPTCHA add-on the site's plan does not include */
+			"cpStatusPlan" => $state && isset($ac->text->cpStatusPlan) ? $ac->text->cpStatusPlan : esc_html__('Off for your plan','easy-form-builder'),
+			/* translators: F12b-L: add-on settings page: before the status of the add-on */
+			"cpStatus" => $state && isset($ac->text->cpStatus) ? $ac->text->cpStatus : esc_html__('Status:','easy-form-builder'),
+			/* translators: F12b-L: add-on settings page title. %s: the CAPTCHA add-on's name */
+			"cpSettingsOf" => $state && isset($ac->text->cpSettingsOf) ? $ac->text->cpSettingsOf : esc_html__('%s settings','easy-form-builder'),
+			/* translators: F12b-L: add-on settings page: link back to Easy Form Builder's Settings */
+			"cpBackToSettings" => $state && isset($ac->text->cpBackToSettings) ? $ac->text->cpBackToSettings : esc_html__('Back to Settings','easy-form-builder'),
+			/* translators: F12b-L: add-on settings page of an add-on that is not there */
+			"cpScreenMissing" => $state && isset($ac->text->cpScreenMissing) ? $ac->text->cpScreenMissing : esc_html__('This CAPTCHA add-on is not installed or not active.','easy-form-builder'),
+			/* translators: F12b-L: add-on settings page: after Save */
+			"cpSettingsSaved" => $state && isset($ac->text->cpSettingsSaved) ? $ac->text->cpSettingsSaved : esc_html__('Settings saved.','easy-form-builder'),
+			/* translators: F12b-L: add-on settings page: under the title */
+			"cpSecretsNote" => $state && isset($ac->text->cpSecretsNote) ? $ac->text->cpSecretsNote : esc_html__('Keys are stored encrypted and never shown again. Leave a key empty to keep the saved one.','easy-form-builder'),
+			/* translators: F12b-L: add-on settings page: checkbox under a saved secret key */
+			"cpRemoveSaved" => $state && isset($ac->text->cpRemoveSaved) ? $ac->text->cpRemoveSaved : esc_html__('Remove the saved key','easy-form-builder'),
 			/* translators: F12b: settings: confirmation before a saved key is removed */
 			"secretRemoveConfirm" => $state && isset($ac->text->secretRemoveConfirm) ? $ac->text->secretRemoveConfirm : esc_html__('Remove the saved key? The forms that use it lose this check until you add a new one.','easy-form-builder'),
 			/* translators: F12b: admin notice button */

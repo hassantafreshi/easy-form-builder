@@ -1,8 +1,14 @@
 <?php
 /**
- * F12b: the admin side of the CAPTCHA layer, loaded only when used: an add-on provider's settings (emsfb_cpv_<id>,
- * secrets encrypted with Payments\Secrets, public values in emsfb_cpv_public), the providers' catalogue (never a
- * secret) and D4, the write-only rule of secrets (redact_settings(), secret_on_save()).
+ * F12b: the admin side of the CAPTCHA layer, loaded only when used: an add-on provider's settings, the providers'
+ * catalogue (never a secret) and D4, the write-only rule of secrets (redact_settings(), secret_on_save()).
+ *
+ * F12b-L (approved by owner 2026-11-15): every CAPTCHA add-on keeps its settings in the settings row (emsfb_setting),
+ * under its own top-level key captcha_<id> = {v, public: {…}, secret: {key: encrypted (Payments\Secrets)}, updated_at},
+ * read with get_setting_Emsfb() and written only through efbFunction::set_setting_Emsfb() with that one key: its wipe
+ * guard keeps every top-level key a caller leaves out, so a save of the main Settings window (which never sends these
+ * keys: without_addon_keys()) keeps them, and one add-on's save never rewrites another's. Each add-on has its own
+ * settings screen (Captcha\Screen). The F12b options emsfb_cpv_<id> are moved here once (migrate()).
  */
 
 namespace Emsfb\Captcha;
@@ -16,12 +22,11 @@ class Admin {
 	/** Settings-row keys that are secrets (D4): never printed into a page, a script, REST or a log. */
 	const SECRET_SETTING_KEYS = array('secretKey', 'rciSecretKey', 'rc3SecretKey', 'hcSecretKey', 'tsSecretKey', 'stripeSKey', 'paypalSKey');
 
-	/** Saves a provider's settings from the settings screen. */
+	/** Saves a provider's settings from its settings screen (public values by schema, secrets encrypted). */
 	public static function save($id, array $public, array $secret) {
 		$p = Registry::get($id);
-		if (!$p || Registry::is_google($id) || !function_exists('update_option')) return array('ok' => false, 'refused' => array());
-		$raw = get_option(Registry::option($id), array());
-		$raw = is_array($raw) ? $raw : array();
+		if (!$p || Registry::is_google($id)) return array('ok' => false, 'refused' => array());
+		$raw = (array) Registry::raw($id);
 		$pub = isset($raw['public']) && is_array($raw['public']) ? $raw['public'] : array();
 		$sec = isset($raw['secret']) && is_array($raw['secret']) ? $raw['secret'] : array();
 		$refused = array();
@@ -41,33 +46,90 @@ class Admin {
 				$pub[$k] = $v;
 			}
 		}
-		update_option(Registry::option($id), array('v' => 1, 'public' => $pub, 'secret' => $sec, 'updated_at' => time()), false);
-		Registry::forget($id);
-		self::sync_public();
-		return array('ok' => true, 'refused' => $refused);
+		$ok = self::write($id, array('v' => 2, 'public' => $pub, 'secret' => $sec, 'updated_at' => time()));
+		return array('ok' => $ok, 'refused' => $refused);
 	}
 
-	/** Moves secrets already known (an F12 site's hcSecretKey, an add-on's generated key) into the option. */
+	/** Settings an add-on already knows (an F12 site's keys, a generated signing key): only when it has none yet. */
 	public static function import($id, array $public, array $secret) {
-		if (!function_exists('get_option') || get_option(Registry::option($id), null) !== null) return false;
+		if (!Registry::valid_id($id) || Registry::raw($id) !== null || !class_exists('\\Emsfb\\Payments\\Secrets')) return false;
 		$sec = array();
-		foreach ($secret as $k => $v) if (is_string($v) && $v !== '' && class_exists('\\Emsfb\\Payments\\Secrets')) $sec[$k] = \Emsfb\Payments\Secrets::encrypt($v);
-		update_option(Registry::option($id), array('v' => 1, 'public' => $public, 'secret' => $sec, 'updated_at' => time()), false);
-		Registry::forget($id);
-		self::sync_public();
-		return true;
+		foreach ($secret as $k => $v) if (is_string($v) && $v !== '') $sec[$k] = \Emsfb\Payments\Secrets::encrypt($v);
+		return self::write($id, array('v' => 2, 'public' => $public, 'secret' => $sec, 'updated_at' => time()));
 	}
 
-	/** emsfb_cpv_public: {id: public settings} of every add-on provider (autoload; the page reads it without a query). */
-	public static function sync_public() {
-		if (!function_exists('update_option')) return;
-		$map = array();
-		foreach (Registry::all() as $id => $p) {
-			if (Registry::is_google($id)) continue;
-			$s = Registry::stored($id);
-			$map[$id] = $s['public'];
+	/** The add-on's uninstall: only its own key goes (null: set_setting_Emsfb() keeps a key that is left out). */
+	public static function remove($id) {
+		if (!Registry::valid_id($id)) return false;
+		if (function_exists('delete_option')) delete_option(Registry::option($id));
+		return Registry::raw($id) === null || self::write($id, null);
+	}
+
+	/** captcha_<id>: the add-on's top-level key in the settings row. */
+	public static function key($id) {
+		return 'captcha_' . preg_replace('/[^a-z0-9_]/', '', (string) $id);
+	}
+
+	/** Whether a top-level settings key is an add-on's (captcha_<id>), not one of core's F12 keys (captcha_provider …). */
+	public static function is_addon_key($k) {
+		return is_string($k) && preg_match('/^captcha_[a-z][a-z0-9_]{2,23}$/', $k) && !(class_exists('\\Emsfb\\Spam') && \Emsfb\Spam::is_setting_key($k));
+	}
+
+	/** The main Settings window's save without the add-ons' keys (array or object): the stored ones stay. */
+	public static function without_addon_keys($m) {
+		if (is_object($m)) { $m = clone $m; foreach (array_keys(get_object_vars($m)) as $k) if (self::is_addon_key($k)) unset($m->$k); }
+		elseif (is_array($m)) { foreach (array_keys($m) as $k) if (self::is_addon_key($k)) unset($m[$k]); }
+		return $m;
+	}
+
+	/** The one write: set_setting_Emsfb() with this add-on's key only (history row, option, transient, caches). */
+	private static function write($id, $value) {
+		$fn = function_exists('get_efbFunction') ? get_efbFunction() : null;
+		if (!Registry::valid_id($id) || !$fn || !method_exists($fn, 'set_setting_Emsfb')) return false;
+		$s = function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null;
+		$ok = (bool) $fn->set_setting_Emsfb((object) array(self::key($id) => $value), is_object($s) && isset($s->emailSupporter) && is_string($s->emailSupporter) ? $s->emailSupporter : '');
+		Registry::forget($id);
+		return $ok;
+	}
+
+	/**
+	 * F12b-L, once (init): every emsfb_cpv_<id> option moves into the settings row. Written, read back from the table,
+	 * and only then deleted; until then Registry::raw() still reads the option, so a form is never without its keys. Idempotent: a
+	 * value already in the row wins and the option is just removed. emsfb_cpv_public (F12b's page map) goes too.
+	 */
+	public static function migrate() {
+		if (!function_exists('get_option') || (int) get_option('emsfb_cpv_moved', 0) >= 1) return false;
+		$left = 0;
+		foreach (array_unique(array_merge(array_values(self::ADDONS), array_keys(Registry::all()))) as $id) {
+			if (Registry::is_google($id) || !Registry::valid_id($id)) continue;
+			$old = get_option(Registry::option($id), null);
+			if (!is_array($old)) continue;
+			$in_row = function () use ($id) { $s = self::table_row(); return isset($s[self::key($id)]) && is_array($s[self::key($id)]); };
+			if (!$in_row()) self::write($id, array('v' => 2, 'public' => isset($old['public']) && is_array($old['public']) ? $old['public'] : array(),
+				'secret' => isset($old['secret']) && is_array($old['secret']) ? $old['secret'] : array(), 'updated_at' => isset($old['updated_at']) ? (int) $old['updated_at'] : time()));
+			if ($in_row()) delete_option(Registry::option($id)); else $left++;
 		}
-		update_option('emsfb_cpv_public', $map, true);
+		delete_option('emsfb_cpv_public');
+		if (!$left) update_option('emsfb_cpv_moved', 1, true);
+		return $left === 0;
+	}
+
+	/**
+	 * The settings table's last row, read (never written) straight from the table: set_setting_Emsfb() updates the
+	 * option and the transient even when the table refused the write, so the migration checks the table itself.
+	 */
+	private static function table_row() {
+		global $wpdb;
+		if (!is_object($wpdb) || !method_exists($wpdb, 'get_var')) return \Emsfb\Captcha::settings();
+		$raw = $wpdb->get_var('SELECT setting FROM `' . $wpdb->prefix . 'emsfb_setting` ORDER BY id DESC LIMIT 1'); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- no input; the table name is built from $wpdb->prefix
+		$d = function_exists('emsfb_json_decode_efb') ? emsfb_json_decode_efb((string) $raw, true) : json_decode((string) $raw, true);
+		return is_array($d) ? $d : array();
+	}
+
+	/** The settings screen of an installed CAPTCHA add-on (Captcha\Screen). */
+	public static function screen_url($id) {
+		$u = 'admin.php?page=Emsfb_captcha&provider=' . rawurlencode((string) $id);
+		return function_exists('admin_url') ? admin_url($u) : $u;
 	}
 
 	public static function secret_keys() {
@@ -83,7 +145,7 @@ class Admin {
 		return strlen($v) >= 16 ? array('set' => true, 'last4' => substr($v, -4)) : array('set' => true);
 	}
 
-	/** The settings row (object, array or JSON string) with every secret replaced by its mask. */
+	/** The settings row (object, array or JSON string) with every secret replaced by its mask, without captcha_<id>. */
 	public static function redact_settings($row) {
 		if (is_string($row)) {
 			$d = json_decode($row, true);
@@ -96,7 +158,8 @@ class Admin {
 		} elseif (is_array($row)) {
 			foreach ($keys as $k) if (array_key_exists($k, $row)) $row[$k] = self::mask($row[$k]);
 		}
-		return $row;
+		// F12b-L: the add-ons' settings belong to their own screens; the main window never gets them.
+		return self::without_addon_keys($row);
 	}
 
 	/** A secret field of the settings save: '' / a mask / not a string = keep the stored value, '__clear__' = remove. */
@@ -122,7 +185,8 @@ class Admin {
 				$sch[] = $f2;
 			}
 			$out[] = array('id' => $id, 'label' => $p->label(), 'plan' => $p->plan(), 'addon' => $p->addon_key(), 'installed' => true, 'available' => $st === null,
-				'state' => $st, 'ready' => $p->ready($row), 'kind' => $p->kind(), 'privacy' => $p->privacy(), 'csp' => $p->csp_hosts(), 'options' => $p->form_options_schema(), 'settings' => $sch);
+				'state' => $st, 'ready' => $p->ready($row), 'kind' => $p->kind(), 'privacy' => $p->privacy(), 'csp' => $p->csp_hosts(), 'options' => $p->form_options_schema(), 'settings' => $sch,
+				'settings_url' => $p->addon_key() !== null ? self::screen_url($id) : null);
 		}
 		$set = $row === null && function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : $row;
 		foreach (self::ADDONS as $code => $id) {
@@ -130,7 +194,7 @@ class Admin {
 			// Above the plan → 'plan' even while not installed (installing would not help); else the catalogue's reason.
 			$st = class_exists('\\Emsfb\\Addon_Catalog') ? (\Emsfb\Addon_Catalog::plan_allows($code) ? \Emsfb\Addon_Catalog::state($code, $set) : 'plan') : 'addon';
 			$out[] = array('id' => $id, 'label' => class_exists('\\Emsfb\\Addon_Catalog') ? \Emsfb\Addon_Catalog::name($code) : $id, 'plan' => 'free_plus', 'addon' => $code,
-				'installed' => false, 'available' => false, 'state' => $st ?: 'addon', 'ready' => false, 'kind' => null, 'privacy' => null, 'csp' => array(), 'options' => array(), 'settings' => array());
+				'installed' => false, 'available' => false, 'state' => $st ?: 'addon', 'ready' => false, 'kind' => null, 'privacy' => null, 'csp' => array(), 'options' => array(), 'settings' => array(), 'settings_url' => null);
 		}
 		return $out;
 	}
@@ -138,7 +202,7 @@ class Admin {
 	/** The CAPTCHA add-ons core knows (code => provider id), for "install the add-on" before it is installed. */
 	const ADDONS = array('AdnCTS' => 'turnstile', 'AdnHCP' => 'hcaptcha', 'AdnALT' => 'altcha', 'AdnQCP' => 'question', 'AdnFRC' => 'friendly');
 
-	/** Settings › Captchas: {id, public: {…}, secret: {key: value | '' (keep) | '__clear__'}}. */
+	/** An add-on's settings over AJAX (the API of the screen's save): {id, public: {…}, secret: {key: value | '' (keep) | '__clear__'}}. */
 	public static function ajax_save() {
 		if (!check_ajax_referer('wp_rest', 'nonce', false) || !current_user_can('manage_options')) wp_send_json_error(array('m' => 'forbidden'), 403);
 		$id = isset($_POST['id']) ? sanitize_key(wp_unslash($_POST['id'])) : '';

@@ -1,9 +1,9 @@
 <?php
 /**
- * F12b §2/§5: the CAPTCHA providers of this site — core's Google modes and every add-on on
- * efb_register_captcha_providers. effective_for(): the form's own, else the site's; an add-on gone / plan / keys →
+ * F12b §2/§5: the CAPTCHA providers — core's Google modes and every add-on on efb_register_captcha_providers.
+ * effective_for(): the form's own, else the site's; an add-on gone / plan / keys →
  * the site's Google mode if ready, else none (soft checks forced, Spam::cfg). verify(): the provider's answer plus
- * hostname, action, age and replay. Add-on settings: emsfb_cpv_<id> (secrets encrypted). Admin side: Captcha\Admin.
+ * hostname, action, age and replay. Add-on settings: captcha_<id> of the settings row (F12b-L). Admin: Captcha\Admin.
  */
 
 namespace Emsfb\Captcha;
@@ -50,7 +50,7 @@ class Registry {
 		$key = $p->addon_key();
 		if (!self::valid_id($id)) return self::err((string) $id, 'bad_id');
 		if ($key === null && !in_array($id, self::CORE_IDS, true)) return self::err($id, 'bad_id');
-		if ($key !== null && strpos($id, 'recaptcha_') === 0) return self::err($id, 'bad_id');
+		if (($key !== null && strpos($id, 'recaptcha_') === 0) || in_array($id, array('login', 'provider'), true)) return self::err($id, 'bad_id');
 		if (isset(self::$list[$id])) return self::err($id, 'duplicate');
 		$api = (int) constant(get_class($p) . '::API');
 		if ($api > Provider::API) return self::err($id, 'core_too_old', $key);
@@ -188,10 +188,15 @@ class Registry {
 		return 'emsfb_cpv_' . preg_replace('/[^a-z0-9_]/', '', (string) $id);
 	}
 
+	/** captcha_<id> of the settings row; the old option until Admin::migrate(). */
+	public static function raw($id) {
+		$v = \Emsfb\Captcha::settings()['captcha_' . $id] ?? null;
+		return is_array($v) ? $v : (function_exists('get_option') && is_array($o = get_option(self::option($id))) ? $o : null);
+	}
+
 	public static function stored($id) {
 		if (isset(self::$stored[$id])) return self::$stored[$id];
-		$raw = function_exists('get_option') ? get_option(self::option($id), array()) : array();
-		$raw = is_array($raw) ? $raw : array();
+		$raw = (array) self::raw($id);
 		$out = array('public' => isset($raw['public']) && is_array($raw['public']) ? $raw['public'] : array(), 'secret' => array(), 'unreadable' => array());
 		foreach (isset($raw['secret']) && is_array($raw['secret']) ? $raw['secret'] : array() as $k => $enc) {
 			$plain = self::decrypt($enc);
@@ -225,7 +230,6 @@ class Registry {
 	public static function register_hooks() {
 		if (!function_exists('add_action')) return;
 		add_action('rest_api_init', array(__CLASS__, 'rest'));
-		add_action('wp_ajax_efb_captcha_provider_save', array(__NAMESPACE__ . '\\Admin', 'ajax_save'));
 	}
 
 	public static function rest() {

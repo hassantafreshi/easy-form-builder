@@ -1,5 +1,5 @@
 /**
- * F12 / F12b: Settings › Captchas — the CAPTCHA service of the site (Google reCAPTCHA in core, every CAPTCHA add-on) and
+ * F12 / F12b: Settings › Captchas — the CAPTCHA service of the site (Google reCAPTCHA in core, the CAPTCHA add-ons) and
  * spam protection without a CAPTCHA (hidden trap field, minimum time, JavaScript, what to do with spam, Akismet,
  * WordPress' disallowed words, how long spam is kept). docs/feature-gaps/F12-spam-core.fa.md.
  *
@@ -8,6 +8,11 @@
  * stored values stay; Admin::set_setting_Emsfb allow-lists every value again). Numbers may be typed in Persian or
  * Arabic-Indic digits. A secret key already saved is not shown: its box stays empty ("Saved. Type a new key to
  * replace it.") and an empty box keeps it; "Remove" empties it.
+ *
+ * F12b-L (approved by owner 2026-11-15): a CAPTCHA add-on's settings are not in this window. While at least one is
+ * installed and active, a short list shows each (name, status: ready / needs keys / off for your plan, "Settings"
+ * → its own screen admin.php?page=Emsfb_captcha&provider=<id>); with none, nothing of the add-ons is drawn. The site's
+ * service select offers Google's modes and the installed, active add-ons only (and the saved choice, kept).
  */
 (function () {
   'use strict';
@@ -73,52 +78,22 @@
       + (KEY_LINKS[prov] ? '<a class="efb d-inline-block mt-1" target="_blank" rel="noopener" href="' + KEY_LINKS[prov] + '">' + esc(T('captchaGetKeys', 'Get the keys')) + '</a>' : '')
       + '</div>';
   }
-  /* F12b: the settings of an add-on provider from its schema, saved with its own button (efb_captcha_provider_save). */
-  function addonSet(e) {
-    var id = e.id;
-    var f = (e.settings || []).map(function (x) {
-      var fid = 'cpv_' + id + '_' + x.key;
-      var lab = '<label class="efb form-label mt-2" for="' + fid + '">' + esc(T(x.label_key, x.label || x.key)) + '</label>';
-      var help = x.help_key || x.help ? '<div class="efb form-text efb-spam-help" dir="auto" style="unicode-bidi:plaintext">' + esc(T(x.help_key, x.help || '')) + '</div>' : '';
-      if (x.type === 'secret') return lab + secretBox(fid, x.saved, ' data-cpv="' + esc(id) + '" data-key="' + esc(x.key) + '"') + help;
-      var v = x.value == null ? '' : String(x.value);
-      var at = ' id="' + fid + '" data-cpv="' + esc(id) + '" data-key="' + esc(x.key) + '"';
-      if (x.type === 'toggle') return '<div class="efb efb-spam-line mt-2"><input class="efb form-check-input efb-spam-check" type="checkbox" role="switch"' + at + (v === '1' ? ' checked' : '') + '><label class="efb efb-spam-lbl" for="' + fid + '">' + esc(T(x.label_key, x.label || x.key)) + '</label></div>' + help;
-      if (x.type === 'select') return lab + '<select class="efb form-select efb-spam-input"' + at + '>' + (x.values || []).map(function (o) { return '<option value="' + esc(o) + '"' + (String(o) === v ? ' selected' : '') + '>' + esc(T('cpv_' + o, o)) + '</option>'; }).join('') + '</select>' + help;
-      if (x.type === 'textarea') return lab + '<textarea class="efb form-control efb-spam-input" rows="4" dir="auto"' + at + '>' + esc(v) + '</textarea>' + help;
-      return lab + '<input type="text" class="efb form-control efb-spam-input" ' + (x.type === 'number' ? 'inputmode="numeric" ' : '') + 'dir="' + (x.type === 'number' || x.public ? 'ltr' : 'auto') + '" autocomplete="off" spellcheck="false" value="' + esc(v) + '"' + at + '>' + help;
-    }).join('');
-    var pv = e.privacy && e.privacy.where ? '<p class="efb form-text efb-spam-help" dir="auto" style="unicode-bidi:plaintext">' + esc(T('cpPrivacyWhere', 'Data goes to: %s').replace('%s', e.privacy.where)) + '</p>' : '';
-    var state = !e.available ? '<p class="efb text-warning-emphasis" role="status">' + esc(e.state === 'plan' ? T('cpPlanNeeded', 'Available on Free Plus and Pro') : T('cpUpdateAddonShort', 'Update or turn on the add-on')) + '</p>' : '';
-    return '<details class="efb efb-cpv mt-2" data-for="' + esc(id) + '"' + (e.ready ? '' : ' open') + '><summary class="efb fs-6 fw-bold">' + esc(e.label) + (e.ready ? '' : ' — ' + esc(T('captchaKeyMissing', 'Keys are not set for this service.'))) + '</summary>'
-      + state + pv + f
-      + '<button type="button" class="efb btn btn-sm btn-pinkEfb mt-2" data-cpv-save="' + esc(id) + '" onclick="efb_cpv_save_efb(this)">' + esc(T('save', 'Save')) + '</button>'
-      + '<span class="efb ms-2 efb-cpv-status" role="status" aria-live="polite" id="cpv_' + esc(id) + '_status"></span></details>';
+  /* F12b-L: the installed and active CAPTCHA add-ons (registered and not switched off). */
+  function addonList() { return catalog().filter(function (e) { return e.installed && e.addon && e.state !== 'addon'; }); }
+  /* ready / keys / plan / off, like Captcha\Screen::status(). */
+  function addonStatus(e) {
+    if (e.state === 'plan') return ['plan', T('cpStatusPlan', 'Off for your plan')];
+    if (e.state) return ['off', T('cpUpdateAddonShort', 'Update or turn on the add-on')];
+    return e.ready ? ['ready', T('cpStatusReady', 'Ready')] : ['keys', T('cpStatusKeys', 'Needs keys')];
   }
-  W.efb_cpv_save_efb = function (btn) {
-    var id = btn.getAttribute('data-cpv-save');
-    var pub = {}, sec = {};
-    Array.prototype.forEach.call(document.querySelectorAll('[data-cpv="' + id + '"]'), function (x) {
-      var k = x.getAttribute('data-key');
-      if (x.getAttribute('data-secret') === '1') sec[k] = W.efb_secret_value_efb(x.id);
-      else pub[k] = x.type === 'checkbox' ? (x.checked ? '1' : '') : x.value;
-    });
-    var st = document.getElementById('cpv_' + id + '_status');
-    var fd = new FormData();
-    fd.append('action', 'efb_captcha_provider_save'); fd.append('id', id); fd.append('public', JSON.stringify(pub)); fd.append('secret', JSON.stringify(sec));
-    fd.append('nonce', (W.efb_var && W.efb_var.nonce) || '');
-    btn.disabled = true;
-    return fetch((W.ajaxurl || (W.efb_var && W.efb_var.ajax_url) || '/wp-admin/admin-ajax.php'), { method: 'POST', body: fd, credentials: 'same-origin' }).then(function (r) { return r.json(); }).then(function (j) {
-      btn.disabled = false;
-      var ok = j && j.success;
-      if (st) st.textContent = ok ? (j.data.refused && j.data.refused.length ? T('cpvRefused', 'Not saved: %s').replace('%s', j.data.refused.join(', ')) : T('saved', 'Saved')) : T('error', 'Error');
-      if (ok && j.data.provider && W.efb_var && Array.isArray(W.efb_var.captcha_providers)) {
-        W.efb_var.captcha_providers = W.efb_var.captcha_providers.map(function (e) { return e.id === id ? j.data.provider : e; });
-        Array.prototype.forEach.call(document.querySelectorAll('[data-cpv="' + id + '"][data-secret="1"]'), function (x) { x.value = ''; x.removeAttribute('data-clear'); });
-      }
-      return ok;
-    }).catch(function () { btn.disabled = false; if (st) st.textContent = T('error', 'Error'); return false; });
-  };
+  /* One row: the name (isolated), its status, "Settings" (a link to the add-on's own screen, described by both). */
+  function addonRow(e) {
+    var id = esc(e.id), st = addonStatus(e);
+    return '<li class="efb efb-cpa-row" data-for="' + id + '"><bdi class="efb efb-cpa-name" id="cpa_' + id + '_name">' + esc(e.label) + '</bdi>'
+      + '<span class="efb efb-cpa-st efb-cpa-st-' + st[0] + '" id="cpa_' + id + '_st" data-status="' + st[0] + '">' + esc(st[1]) + '</span>'
+      + '<a class="efb btn btn-sm btn-outline-secondary efb-cpa-btn" href="' + esc(e.settings_url || '#') + '" aria-describedby="cpa_' + id + '_name cpa_' + id + '_st">' + esc(T('settings', 'Settings')) + '</a></li>';
+  }
+  W.efb_captcha_addon_rows_efb = function () { return addonList().map(function (e) { return e.id; }); };
 
   /** The sections of the Captchas tab. */
   W.efb_spam_settings_html_efb = function (s, cls) {
@@ -126,9 +101,11 @@
     var sp = (W.efb_var && W.efb_var.spam) || {};
     var prov = val(s, 'captcha_provider', 'recaptcha_v2');
     PROVIDERS = providers();
-    var opts = PROVIDERS.map(function (p) { var e = p[3], off = e && (!e.installed || !e.available); return '<option value="' + esc(p[0]) + '"' + (prov === p[0] ? ' selected' : '') + (off && prov !== p[0] ? ' disabled' : '') + '>' + esc(p[1] ? T(p[1], p[2]) : p[2]) + (e && !e.installed ? ' — ' + esc(T('cpNotInstalled', 'Not installed')) : (off ? ' — ' + esc(T('cpPlanNeeded', 'Available on Free Plus and Pro')) : '')) + '</option>'; }).join('');
+    var addons = addonList();
+    // F12b-L: Google's modes and the installed, active add-ons; the saved choice stays listed (a save keeps it).
+    var shown = PROVIDERS.filter(function (p) { var e = p[3]; return !e || !e.addon || addons.indexOf(e) !== -1 || p[0] === prov; });
+    var opts = shown.map(function (p) { var e = p[3], off = e && (!e.installed || !e.available); return '<option value="' + esc(p[0]) + '"' + (prov === p[0] ? ' selected' : '') + (off && prov !== p[0] ? ' disabled' : '') + '>' + esc(p[1] ? T(p[1], p[2]) : p[2]) + (e && !e.installed ? ' — ' + esc(T('cpNotInstalled', 'Not installed')) : (off ? ' — ' + esc(e.state === 'plan' ? T('cpStatusPlan', 'Off for your plan') : T('cpUpdateAddonShort', 'Update or turn on the add-on')) : '')) + '</option>'; }).join('');
     var host = val(s, 'rc_host', 'google.com');
-    var addons = catalog().filter(function (e) { return e.installed && e.addon; });
     var thr = String(val(s, 'rc3Threshold', '0.5'));
     var low = val(s, 'rc3_low_action', 'spam');
     var act = val(s, 'spam_action', 'spam');
@@ -170,7 +147,9 @@
       + '<input type="text" inputmode="numeric" dir="ltr" class="efb form-control efb-spam-input efb-spam-num" id="replyRlIp_efb" value="' + esc(String(val(s, 'reply_rl_ip', '20')) === '0' ? '20' : String(val(s, 'reply_rl_ip', '20'))) + '"' + (String(val(s, 'reply_rl_ip', '20')) === '0' ? ' disabled' : '') + '>'
       + '</fieldset>'
       + '<p class="efb text-danger efb-spam-err" id="efbSpamErr" role="alert" aria-live="polite"></p>'
-      + (addons.length ? '<h6 class="efb mt-3 fw-bold">' + esc(T('cpAddonProviders', 'CAPTCHA add-ons')) + '</h6>' + addons.map(addonSet).join('') : '')
+      + (addons.length ? '<h6 class="efb mt-3 fw-bold" id="efbCpaTitle">' + esc(T('cpAddonProviders', 'CAPTCHA add-ons')) + '</h6>'
+        + '<p class="efb form-text efb-spam-help" id="efbCpaHelp">' + esc(T('cpAddonsHelp', 'Each add-on has its own settings page.')) + '</p>'
+        + '<ul class="efb efb-cpa-list" aria-labelledby="efbCpaTitle" aria-describedby="efbCpaHelp">' + addons.map(addonRow).join('') + '</ul>' : '')
       + '</div>'
       + '<h5 class="efb card-title mt-3 mobile-title"><i class="efb bi-funnel m-3" aria-hidden="true"></i>' + esc(T('antiSpamNoCaptcha', 'Spam protection without CAPTCHA')) + '</h5>'
       + '<div class="efb card-body mx-0 py-1 ' + c + '">'

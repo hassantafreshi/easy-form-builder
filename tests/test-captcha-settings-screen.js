@@ -4,13 +4,15 @@
  *
  *  - Google: the v2 invisible key pair, "Load reCAPTCHA from" (google.com / recaptcha.net), "Also check the CAPTCHA
  *    on login and registration" (on by default), the site's service select from the registry (an add-on that is not
- *    installed is offered disabled with "Not installed");
+ *    installed is not offered);
  *  - D4: a saved secret is never in the page: an empty password box with "Saved (•••• 1234)" (last four only when
  *    the server sent them), "Leave empty to keep the saved key.", Remove asks first and then sends "__clear__"; an
  *    empty box sends "" (keep) and a typed key replaces it;
- *  - an add-on provider's settings from its schema (text, select, toggle, textarea, secret) with its own Save
- *    (efb_captcha_provider_save: public values and secrets apart), labels for every control, RTL (fa) at 375 px
- *    without a horizontal scroll bar.
+ *  - F12b-L (approved by owner 2026-11-15): no add-on's settings in this window. With installed, active add-ons, a
+ *    list: one row each (name in <bdi>, status ready / needs keys / off for your plan, "Settings" → its own screen,
+ *    described by the name and the status); the site's select offers Google and those add-ons only (one not
+ *    installed is not offered, unless it is the saved choice); with no add-on: no heading, no list, nothing;
+ *    labels for every control, RTL (fa) at 375 px without a horizontal scroll bar.
  *
  * Run: node tests/test-captcha-settings-screen.js
  */
@@ -27,15 +29,18 @@ const catalog = [
   { id: 'recaptcha_v2', label: 'Google reCAPTCHA v2', installed: true, available: true, ready: true, addon: null, settings: [] },
   { id: 'recaptcha_v2i', label: 'Google reCAPTCHA v2 (invisible)', installed: true, available: true, ready: false, addon: null, settings: [] },
   { id: 'recaptcha_v3', label: 'Google reCAPTCHA v3', installed: true, available: true, ready: true, addon: null, settings: [] },
-  { id: 'fakecap', label: 'Fake CAPTCHA', installed: true, available: true, ready: true, addon: 'AdnCTS', privacy: { where: 'Example Inc. (EU)' }, settings: [
+  { id: 'fakecap', label: 'Fake CAPTCHA', installed: true, available: true, ready: true, addon: 'AdnCTS', settings_url: 'https://site.test/wp-admin/admin.php?page=Emsfb_captcha&provider=fakecap', privacy: { where: 'Example Inc. (EU)' }, settings: [
     { key: 'site_key', type: 'text', label: 'Site key', public: true, value: 'fake-site' },
     { key: 'secret', type: 'secret', label: 'Secret key', saved: { set: true, last4: 'wxyz' } },
     { key: 'endpoint', type: 'select', label: 'Endpoint', values: ['global', 'eu'], value: 'eu' },
     { key: 'strict', type: 'toggle', label: 'Strict', value: '1' },
     { key: 'questions', type: 'textarea', label: 'Questions', value: 'q = a' },
   ] },
+  { id: 'fakekeys', label: 'كابتشا Keys', installed: true, available: true, state: null, ready: false, addon: 'AdnHCP', settings_url: 'https://site.test/wp-admin/admin.php?page=Emsfb_captcha&provider=fakekeys', settings: [] },
+  { id: 'fakeplan', label: 'Plan CAPTCHA', installed: true, available: false, state: 'plan', ready: true, addon: 'AdnFRC', settings_url: 'https://site.test/wp-admin/admin.php?page=Emsfb_captcha&provider=fakeplan', settings: [] },
   { id: 'altcha', label: 'ALTCHA', installed: false, available: false, state: 'addon', ready: false, addon: 'AdnALT', settings: [] },
 ];
+const googleOnly = catalog.filter((e) => !e.addon).concat([catalog[catalog.length - 1]]);
 const settings = { captcha_provider: 'recaptcha_v3', rc3SiteKey: 'v3-site', rc3SecretKey: { set: true, last4: '1234' }, rciSiteKey: '', rciSecretKey: '', rc_host: 'recaptcha.net' };
 
 (async () => {
@@ -46,6 +51,7 @@ const settings = { captcha_provider: 'recaptcha_v3', rc3SiteKey: 'v3-site', rc3S
     await p.route('**/admin-ajax.php', async (r) => { posts.push(r.request().postData() || ''); await r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: { refused: [], provider: catalog[3] } }) }); });
     await p.setContent(`<!doctype html><html lang="${lang}" dir="${lang === 'fa' ? 'rtl' : 'ltr'}"><head><meta name="viewport" content="width=device-width"></head><body style="margin:0;padding:8px"><div id="root"></div></body></html>`);
     await p.evaluate(({ catalog, rtl }) => { window.efb_var = { rtl: rtl ? 1 : 0, nonce: 'n1', ajax_url: '/wp-admin/admin-ajax.php', captcha_providers: catalog, spam: {}, text: {} }; window.ajaxurl = 'https://site.test/wp-admin/admin-ajax.php'; }, { catalog, rtl: lang === 'fa' });
+    await p.addStyleTag({ path: path.join(ROOT, 'includes/admin/assets/css/style-efb.css') });
     await p.addScriptTag({ content: src });
     await p.evaluate((s) => { document.getElementById('root').innerHTML = efb_spam_settings_html_efb(s, ''); }, settings);
     const v = await p.evaluate(() => {
@@ -58,15 +64,22 @@ const settings = { captcha_provider: 'recaptcha_v3', rc3SiteKey: 'v3-site', rc3S
         host: document.getElementById('rcHost_efb').value,
         login: document.getElementById('captchaLogin_efb').checked,
         v3secret: [document.getElementById('rc3SecretKey_efb').value, document.getElementById('rc3SecretKey_efb').placeholder, document.getElementById('rc3SecretKey_efb').type],
-        addon: !!document.querySelector('details.efb-cpv[data-for="fakecap"]'), addonSecret: document.getElementById('cpv_fakecap_secret').placeholder,
+        rows: Array.from(document.querySelectorAll('.efb-cpa-row')).map((r) => { const n = r.querySelector('bdi.efb-cpa-name'), st = r.querySelector('.efb-cpa-st'), a = r.querySelector('a.efb-cpa-btn'); return [r.getAttribute('data-for'), n && n.textContent, st && st.getAttribute('data-status'), st && st.textContent, a && a.getAttribute('href'), a && a.textContent, a && a.getAttribute('aria-describedby') === n.id + ' ' + st.id]; }),
+        inline: document.querySelectorAll('[data-cpv], details.efb-cpv, #cpv_fakecap_secret').length, head: !!document.getElementById('efbCpaTitle'),
+        btn: (() => { const a = document.querySelector('a.efb-cpa-btn'); if (!a) return null; const r = a.getBoundingClientRect(); return [Math.round(r.height) >= 44, Math.round(r.right) <= document.documentElement.clientWidth, Math.round(r.left) >= 0]; })(),
         unlabeled: labels.map((x) => x.id), noObject: html.indexOf('[object Object]') === -1,
         scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       };
     });
-    t(`${lang}: the site select lists the registry; ALTCHA not installed is disabled`, [v.opts.map((o) => o[0]).join(), v.opts.find((o) => o[0] === 'altcha')[1]], ['recaptcha_v2,recaptcha_v2i,recaptcha_v3,fakecap,altcha', true]);
+    t(`${lang}: the site select: Google and the installed add-ons only (ALTCHA, not installed, is not offered; off for the plan disabled)`, v.opts, [['recaptcha_v2', false], ['recaptcha_v2i', false], ['recaptcha_v3', false], ['fakecap', false], ['fakekeys', false], ['fakeplan', true]]);
     t(`${lang}: v2 invisible keys, recaptcha.net, login check on by default`, [v.v2i, v.host, v.login], [true, 'recaptcha.net', true]);
     t(`${lang}: D4: the saved v3 secret is an empty password box with "Saved (•••• 1234)"`, v.v3secret, ['', 'Saved (•••• 1234)', 'password']);
-    t(`${lang}: the add-on's settings from its schema, its secret masked`, [v.addon, v.addonSecret], [true, 'Saved (•••• wxyz)']);
+    t(`${lang}: F12b-L: one row per installed add-on — name (bdi), status, "Settings" → its own screen, described by both`, v.rows, [
+      ['fakecap', 'Fake CAPTCHA', 'ready', 'Ready', catalog[3].settings_url, 'Settings', true],
+      ['fakekeys', 'كابتشا Keys', 'keys', 'Needs keys', catalog[4].settings_url, 'Settings', true],
+      ['fakeplan', 'Plan CAPTCHA', 'plan', 'Off for your plan', catalog[5].settings_url, 'Settings', true]]);
+    t(`${lang}: no add-on setting is drawn in this window (no field, no secret box); the list has its heading`, [v.inline, v.head], [0, true]);
+    t(`${lang}: the "Settings" button is 44 px high and inside the screen`, v.btn, [true, true, true]);
     t(`${lang}: every control has a label; no "[object Object]"`, [v.unlabeled, v.noObject], [[], true]);
     t(`${lang}: no horizontal scroll at ${w} px`, v.scroll <= 0, true);
     if (lang === 'fa') await p.screenshot({ path: path.join(process.env.EFB_E2E_OUT || require('os').tmpdir(), 'f12b-settings-fa-375.png'), fullPage: true });
@@ -86,15 +99,13 @@ const settings = { captcha_provider: 'recaptcha_v3', rc3SiteKey: 'v3-site', rc3S
     await p.click('#replyRlIpOn_efb');
     const p3 = await p.evaluate(() => efb_spam_settings_patch_efb());
     t('reply box: Persian digits read; the per-address limit Off → "0", its field disabled', [p3.reply_pass_min, p3.reply_rl_track, p3.reply_rl_ip, await p.evaluate(() => document.getElementById('replyRlIp_efb').disabled)], ['45', '5', '0', true]);
-    // add-on save
-    await p.click('details.efb-cpv[data-for="fakecap"] summary'); // a ready add-on's settings are folded
-    await p.fill('#cpv_fakecap_site_key', 'fake-site-2');
-    await p.selectOption('#cpv_fakecap_endpoint', 'global');
-    await p.click('[data-cpv-save="fakecap"]');
-    await p.waitForTimeout(400);
-    const raw = posts[0] || '';
-    t('add-on Save: efb_captcha_provider_save with its id, public values and the secret apart ("" keeps it)', [/name="action"\r\n\r\nefb_captcha_provider_save/.test(raw), /name="id"\r\n\r\nfakecap/.test(raw), /"site_key":"fake-site-2"/.test(raw), /"endpoint":"global"/.test(raw), /"strict":"1"/.test(raw), /name="secret"\r\n\r\n\{"secret":""\}/.test(raw)], [true, true, true, true, true, true]);
-    t('add-on Save: the status says Saved (role=status)', await p.evaluate(() => document.getElementById('cpv_fakecap_status').textContent), 'Saved');
+    // F12b-L: no CAPTCHA add-on installed → nothing of the add-ons.
+    await p.evaluate(({ cat, s }) => { window.efb_var.captcha_providers = cat; document.getElementById('root').innerHTML = efb_spam_settings_html_efb(s, ''); }, { cat: googleOnly, s: Object.assign({}, settings, { captcha_provider: 'recaptcha_v2' }) });
+    const none = await p.evaluate(() => ({ list: document.querySelectorAll('.efb-cpa-list, .efb-cpa-row, #efbCpaTitle, #efbCpaHelp').length, text: /CAPTCHA add-ons|each add-on/i.test(document.body.textContent), opts: Array.from(document.getElementById('captchaProvider_efb').options).map((o) => o.value), rows: efb_captcha_addon_rows_efb() }));
+    t('no add-on installed: no heading, no row, no placeholder; the select has Google\'s modes only', none, { list: 0, text: false, opts: ['recaptcha_v2', 'recaptcha_v2i', 'recaptcha_v3'], rows: [] });
+    await p.evaluate(({ cat, s }) => { document.getElementById('root').innerHTML = efb_spam_settings_html_efb(s, ''); }, { cat: googleOnly, s: Object.assign({}, settings, { captcha_provider: 'altcha' }) });
+    const kept = await p.evaluate(() => { const sel = document.getElementById('captchaProvider_efb'); return [sel.value, sel.options[sel.selectedIndex].textContent, efb_spam_settings_patch_efb().captcha_provider]; });
+    t('the saved choice of an add-on that is gone stays listed and selected ("Not installed"), so a save keeps it', kept, ['altcha', 'ALTCHA — Not installed', 'altcha']);
     await p.close();
   }
   await b.close();

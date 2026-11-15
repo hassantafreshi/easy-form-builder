@@ -36,7 +36,7 @@ require $D . '/routes-efb.php';
 Registry::boot();
 $p = Registry::get('altcha');
 t('registered: endpoint kind, Free Plus, ready without any key', array($p ? $p->kind() : null, $p ? $p->plan() : null, $p ? $p->ready() : null), array('endpoint', 'free_plus', true));
-$raw = get_option('emsfb_cpv_altcha');
+$raw = $GLOBALS['T']['settings']['captcha_altcha'] ?? array(); // F12b-L: the settings row (the first version's option was read once)
 $k = A::key();
 t('boot (the add-on turned on): the signing key exists, 48 characters, encrypted, the same next time', array(strlen($k), strpos($raw['secret']['hmac_key'] ?? '', 'enc:v1:') === 0, strpos(json_encode($raw), $k) === false, A::key() === $k), array(48, true, true, true));
 t('migration: maxnumber 300000 of the first version → complexity high (once, marked)', array($raw['public']['complexity'] ?? null, get_option('emsfb_altcha_v')), array('high', 2));

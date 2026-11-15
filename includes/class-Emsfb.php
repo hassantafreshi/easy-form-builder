@@ -562,6 +562,12 @@ class Emsfb {
             \Emsfb\Spam::register();
             // F12b: the provider registry (Google in core; add-ons on efb_register_captcha_providers), its REST and AJAX.
             if (class_exists('\Emsfb\Captcha\Registry')) \Emsfb\Captcha\Registry::register_hooks();
+            // F12b-L: each CAPTCHA add-on's own settings screen (admin.php?page=Emsfb_captcha&provider=<id>) and its save.
+            if (is_admin() && class_exists('\Emsfb\Captcha\Registry') && $this->require_plugin_file_efb('includes/captcha/class-Emsfb-captcha-screen.php')) \Emsfb\Captcha\Screen::register();
+            // F12b-L: the add-ons' settings move once from their emsfb_cpv_<id> options into the settings row.
+            add_action('init', static function () {
+                if ((int) get_option('emsfb_cpv_moved', 0) < 1 && class_exists('\Emsfb\Captcha\Admin')) \Emsfb\Captcha\Admin::migrate();
+            }, 4);
             // F12b D2 / §5: "turn on spam protection" for a site updated from 4.3.1, forms whose CAPTCHA add-on is gone.
             if (is_admin() && $this->require_plugin_file_efb('includes/class-Emsfb-spam-notice.php')) \Emsfb\Spam_Notice::register();
             $this->require_plugin_file_efb('includes/captcha-functions-efb.php');

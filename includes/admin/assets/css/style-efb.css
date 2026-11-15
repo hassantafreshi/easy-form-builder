@@ -2068,10 +2068,18 @@ body:has(.efb-rc3-notice) .grecaptcha-badge { visibility: hidden; }
 .efb.efb-spam-settings .efb-spam-check { flex: 0 0 auto; margin: 0; float: none; position: static; }
 .efb.efb-spam-settings .efb-spam-lbl { flex: 1 1 auto; margin: 0; unicode-bidi: plaintext; text-align: start; }
 .efb.efb-spam-settings .efb-spam-help { display: block; max-width: 40rem; }
-/* F12b: the CAPTCHA add-ons' settings (folded per service), write-only secrets, the administrator's note above a form. */
-.efb.efb-spam-settings details.efb-cpv { border: 1px solid #dfe3ea; border-radius: 6px; padding: .25rem .75rem .75rem; margin-block: .5rem; max-width: 40rem; }
-.efb.efb-spam-settings details.efb-cpv > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: .25rem; unicode-bidi: plaintext; text-align: start; }
-.efb.efb-spam-settings .efb-cpv-status, .efb.efb-spam-settings legend { unicode-bidi: plaintext; }
+/* F12b-L: the installed CAPTCHA add-ons, one row each (name, status, "Settings" → its own screen); write-only
+   secrets; the administrator's note above a form. */
+.efb.efb-spam-settings .efb-cpa-list { list-style: none; margin: 0 0 .5rem; padding: 0; max-width: 40rem; }
+.efb.efb-spam-settings .efb-cpa-row { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .75rem; padding: .375rem .75rem; margin: 0 0 .5rem; border: 1px solid #dfe3ea; border-radius: 6px; min-height: 44px; }
+.efb.efb-spam-settings .efb-cpa-name { font-weight: 600; flex: 1 1 10rem; min-width: 0; overflow-wrap: anywhere; text-align: start; }
+.efb.efb-spam-settings .efb-cpa-st { unicode-bidi: plaintext; flex: 0 1 auto; }
+.efb.efb-spam-settings .efb-cpa-st-ready { color: #00733b; }
+.efb.efb-spam-settings .efb-cpa-st-keys, .efb.efb-spam-settings .efb-cpa-st-plan, .efb.efb-spam-settings .efb-cpa-st-off { color: #8a4b00; }
+.efb.efb-spam-settings .efb-cpa-btn { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; margin-inline-start: auto; }
+.efb.efb-spam-settings legend { unicode-bidi: plaintext; }
+/* A phone: the name on its own line, then the status at the start and "Settings" at the end. */
+@media (max-width: 600px) { .efb.efb-spam-settings .efb-cpa-name { flex-basis: 100%; } }
 .efb.efb-spam-settings textarea.efb-spam-input { max-width: 40rem; }
 .efb.efb-spam-settings .efb-secret-input { flex: 1 1 12rem; min-width: 0; }
 .efb.efb-spam-settings .efb-spam-prov-site > legend::after { content: " ★"; }

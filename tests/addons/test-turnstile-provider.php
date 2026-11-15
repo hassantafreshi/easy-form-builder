@@ -10,7 +10,8 @@
  *    hostname, action, token age, replay (a retry of the same request passes), timeout and not-JSON fail closed;
  *  - every form option reaches the box's config (theme, size, appearance execute → ex, language, alignment, action,
  *    retry, the form's failure text); the secret never;
- *  - §6: an F12 site's tsSiteKey / tsSecretKey move into the add-on's option (secret encrypted) and leave the row;
+ *  - §6: an F12 site's tsSiteKey / tsSecretKey move into the add-on's settings (F12b-L: captcha_turnstile of the
+ *    settings row, secret encrypted) and leave the row; uninstall() removes only that key;
  *  - the adapter is under 2 KB; the phrases have their own text domain and a .pot.
  *
  * Run: php tests/addons/test-turnstile-provider.php
@@ -36,8 +37,8 @@ $GLOBALS['T']['settings'] = array();
 $k = $p->test_keys();
 t('settings: a key of the wrong shape is refused, the test keys are fine', array($p->sanitize_setting('site_key', 'not a key!'), $p->sanitize_setting('site_key', $k['site_key']), $p->sanitize_setting('secret', $k['secret'])), array(null, $k['site_key'], $k['secret']));
 $r = Admin::save('turnstile', array('site_key' => $k['site_key']), array('secret' => $k['secret']));
-$raw = get_option('emsfb_cpv_turnstile');
-t('Admin::save: the public key as is, the secret encrypted (enc:v1:), the public map updated', array($r['ok'], $raw['public']['site_key'], strpos($raw['secret']['secret'], 'enc:v1:') === 0, strpos(json_encode($raw), $k['secret']) === false, get_option('emsfb_cpv_public')['turnstile']['site_key'] ?? ''), array(true, $k['site_key'], true, true, $k['site_key']));
+$raw = $GLOBALS['T']['settings']['captcha_turnstile'] ?? array();
+t('Admin::save (F12b-L): captcha_turnstile of the settings row — the public key as is, the secret encrypted (enc:v1:); no option', array($r['ok'], $raw['public']['site_key'], strpos($raw['secret']['secret'], 'enc:v1:') === 0, strpos(json_encode($GLOBALS['T']['settings']), $k['secret']) === false, get_option('emsfb_cpv_turnstile', null), get_option('emsfb_cpv_public', null)), array(true, $k['site_key'], true, true, null, null));
 t('ready with both keys', $p->ready(), true);
 
 $v = function ($token, $reply, $ctx = array()) { $GLOBALS['T']['calls'] = array(); $GLOBALS['T']['reply'] = $reply; return Registry::verify('turnstile', $token, $ctx); };
@@ -69,15 +70,16 @@ t('options by schema: an unknown value is dropped', array($p->sanitize_form_opti
 echo "--- §6: an F12 site's keys move in ---\n";
 $GLOBALS['T']['options'] = array();
 Registry::forget('turnstile');
-$GLOBALS['T']['settings'] = array('tsSiteKey' => $k['site_key'], 'tsSecretKey' => $k['secret'], 'emailSupporter' => 'owner@example.test');
+$GLOBALS['T']['settings'] = array('captcha_hcaptcha' => array('v' => 2, 'public' => array('site_key' => 'other-addon-site'), 'secret' => array()), 'tsSiteKey' => $k['site_key'], 'tsSecretKey' => $k['secret'], 'emailSupporter' => 'owner@example.test');
 t('migrate(): true once', array(\Emsfb\Captcha\Turnstile_Provider::migrate(), \Emsfb\Captcha\Turnstile_Provider::migrate()), array(true, false));
-$raw = get_option('emsfb_cpv_turnstile');
-t('… the option has them (secret encrypted), the row has them no more', array($raw['public']['site_key'], strpos($raw['secret']['secret'], 'enc:v1:') === 0, $GLOBALS['T']['settings']['tsSiteKey'], $GLOBALS['T']['settings']['tsSecretKey']), array($k['site_key'], true, '', ''));
+$raw = $GLOBALS['T']['settings']['captcha_turnstile'] ?? array();
+t('… captcha_turnstile has them (secret encrypted), tsSiteKey / tsSecretKey are emptied, the owner\'s e-mail kept', array($raw['public']['site_key'], strpos($raw['secret']['secret'], 'enc:v1:') === 0, $GLOBALS['T']['settings']['tsSiteKey'], $GLOBALS['T']['settings']['tsSecretKey'], $GLOBALS['T']['settings']['emailSupporter']), array($k['site_key'], true, '', '', 'owner@example.test'));
+t('… two writes through set_setting_Emsfb(): its own key, then only tsSiteKey / tsSecretKey (never the whole row read before, which would put back an old copy of its key)', array_slice($GLOBALS['T']['writes'], -2), array(array('captcha_turnstile'), array('tsSiteKey', 'tsSecretKey')));
 Registry::forget('turnstile');
 t('… and the provider is ready with them', $p->ready(), true);
 
 echo "--- files ---\n";
 t('the adapter is under 2 KB', filesize($D . '/assets/turnstile-adapter-efb.js') < 2048, true);
 t('phrases in the text domain efb-turnstile with a .pot; no locale yet (not translated: owner)', array(strpos(file_get_contents($D . '/turnstile-phrases-efb.php'), "'efb-turnstile'") !== false, is_file($D . '/languages/efb-turnstile.pot'), json_decode(file_get_contents($D . '/languages/locales.json'), true)['locales']), array(true, true, array()));
-t('uninstall() removes its settings and its public values', (function () { \Emsfb\Captcha\Turnstile_Provider::uninstall(); return array(get_option('emsfb_cpv_turnstile', null), isset(get_option('emsfb_cpv_public', array())['turnstile'])); })(), array(null, false));
+t('uninstall() removes only its own key (null) — another add-on\'s key and core\'s keys stay', (function () { \Emsfb\Captcha\Turnstile_Provider::uninstall(); Registry::forget('turnstile'); $s = $GLOBALS['T']['settings']; return array(array_key_exists('captcha_turnstile', $s) ? $s['captcha_turnstile'] : 'missing', $s['captcha_hcaptcha']['public']['site_key'] ?? null, $s['emailSupporter'] ?? null, Registry::raw('turnstile'), end($GLOBALS['T']['writes'])); })(), array(null, 'other-addon-site', 'owner@example.test', null, array('captcha_turnstile')));
 efb_done();

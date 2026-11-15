@@ -74,6 +74,8 @@ const ALLOW = [
   // F12b follow-up: too many replies is answered with HTTP 429 + Retry-After (owner decision 2026-11-15); the browser
   // logs every non-2xx response itself. Only that route: the page shows the countdown (checked by f12b-9).
   { re: /^Failed to load resource: the server responded with a status of 429/, src: /\/wp-json\/Emsfb\/v1\/forms\/response\/add/, why: 'the reply limit answers 429 by design' },
+  // F12b-L: the settings screen of a CAPTCHA add-on that is not installed or active answers 404 by design (f12b-10).
+  { re: /^Failed to load resource: the server responded with a status of 404/, src: /\/wp-admin\/admin\.php\?page=Emsfb_captcha&provider=/, why: 'the screen of a missing CAPTCHA add-on is a 404 page by design' },
 ];
 
 function isPluginSource(url, base) {

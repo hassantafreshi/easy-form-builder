@@ -32,7 +32,8 @@ function delete_transient($k) { unset($GLOBALS['T']['transients'][$k]); return t
 function wp_salt($s = '') { return 'unit-test-salt-not-a-real-one'; }
 function register_rest_route($ns, $route, $args) { $GLOBALS['T']['routes'][$ns . '/' . $route] = $args; }
 function get_efbFunction() { return new Efb_Test_Fn(); }
-class Efb_Test_Fn { public function set_setting_Emsfb($s, $e = '') { $GLOBALS['T']['settings'] = json_decode(json_encode($s), true); return true; } }
+/** Like core's set_setting_Emsfb(): the wipe guard keeps every top-level key the caller leaves out (F12b-L). */
+class Efb_Test_Fn { public function set_setting_Emsfb($s, $e = '') { $GLOBALS['T']['writes'][] = array_keys((array) json_decode(json_encode($s), true)); $GLOBALS['T']['settings'] = array_merge((array) $GLOBALS['T']['settings'], (array) json_decode(json_encode($s), true)); return true; } }
 }
 namespace Emsfb {
 /** In-memory counters (Rate_Limit::reserve / hit) like the real table's one-place semantics. */

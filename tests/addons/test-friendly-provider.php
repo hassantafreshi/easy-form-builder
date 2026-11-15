@@ -24,7 +24,7 @@ $p = Registry::get('friendly');
 t('registered: widget, Free Plus, not ready without keys', array($p ? $p->kind() : null, $p->plan(), $p->ready()), array('widget', 'free_plus', false));
 $api = 'A1B2C3D4E5F6placeholderNotReal';
 $r = Admin::save('friendly', array('site_key' => 'FCMPLACEHOLDER0001', 'endpoint' => 'global'), array('api_key' => $api));
-t('saved: the API key encrypted, ready', array($r['ok'], strpos(json_encode(get_option('emsfb_cpv_friendly')), $api) === false, $p->ready()), array(true, true, true));
+t('saved: the API key encrypted, ready', array($r['ok'], strpos(json_encode($GLOBALS['T']['settings']), $api) === false && strpos($GLOBALS['T']['settings']['captcha_friendly']['secret']['api_key'] ?? '', 'enc:v1:') === 0, $p->ready()), array(true, true, true));
 t('a key of the wrong shape is refused', Admin::save('friendly', array('site_key' => 'has spaces!'), array())['refused'], array('site_key'));
 $ok = function ($origin = 'https://www.site.test', $ts = null) { return array('body' => json_encode(array('success' => true, 'data' => array('event_id' => 'ev_1', 'challenge' => array('timestamp' => gmdate('c', $ts ?: time()), 'origin' => $origin))))); };
 $v = function ($token, $reply, $ctx = array()) { $GLOBALS['T']['calls'] = array(); $GLOBALS['T']['reply'] = $reply; return Registry::verify('friendly', $token, $ctx); };
