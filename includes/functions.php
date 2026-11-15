@@ -8787,7 +8787,8 @@ public function addon_add_efb($value) {
 				if (!$is_persian_locale && isset($data->reason) && $data->reason == 'expired') {
 					update_option('emsfb_addons_renew_required', time());
 					set_transient('emsfb_addons_renew_backoff', 1, DAY_IN_SECONDS);
-					$renew_url = isset($data->renew) ? esc_url_raw($data->renew) : $domain . '/checkout?renew=' . urlencode((string) get_option('emsfb_pro_activeCode', ''));
+					// F21 (Bug 2): the server's link, else a link without the activation code.
+					$renew_url = isset($data->renew) ? esc_url_raw($data->renew) : (class_exists('\Emsfb\Renewal_Reminder') ? \Emsfb\Renewal_Reminder::fallback_renew_url($domain) : $domain . '/checkout');
 					$error_message = esc_html__('Your Easy Form Builder Pro subscription has expired, so the Pro add-ons could not be downloaded. The plugin keeps working without them. Renew your subscription to restore all Pro features:', 'easy-form-builder') . ' ' . $renew_url;
 					return array('status' => false, 'message' => $error_message, 'expired' => true);
 				}
@@ -10897,15 +10898,18 @@ public function addon_add_efb($value) {
 			$st->activeCode = $activeCode;
 			$this->setting_version_efb_update($st,1);
 			$this->resume_addon_downloads_efb();
+			$this->license_lapse_cause_efb('');
 			return true;
 		}elseif($state=="active") {
 			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
 			$this->resume_addon_downloads_efb();
+			$this->license_lapse_cause_efb('');
 			return true;
 		}elseif ($state=="deactive") {
 			update_option('emsfb_pro' , 0);
 			delete_option('emsfb_pro_ac_date');
 			update_option('emsfb_pro_activeCode' ,$code);
+			$this->license_lapse_cause_efb('expired');
 			return false;
 		}elseif (in_array($state, array('notExists', 'not_exist', 'invalid_key'), true)) {
 			// The current server says not_exist / invalid_key (HTTP 200): a
@@ -10916,6 +10920,7 @@ public function addon_add_efb($value) {
 			// The key is kept even here so the customer can still see it and
 			// re-activate; only the server's verdict on it is recorded.
 			update_option('emsfb_pro_activeCode', $code);
+			$this->license_lapse_cause_efb('not_found');
 			return false;
 		}
 
@@ -10973,7 +10978,20 @@ public function addon_add_efb($value) {
 		$this->notify_license_suspended_efb($code, $reason, $since, $grace_days);
 
 		update_option('emsfb_pro', 0);
+		$this->license_lapse_cause_efb('outage');
 		return false;
+	}
+
+	/**
+	 * F21 E: why Pro is off, so the card and the add-on gate say the right thing (Bug 1: every emsfb_pro 0 used to
+	 * read "Your activation code has expired!", also for a code of another domain or a long outage).
+	 *
+	 * @param string $cause expired | not_found | domain | outage | '' (Pro on again).
+	 */
+	public function license_lapse_cause_efb($cause) {
+		if (class_exists('\Emsfb\Renewal_Reminder')) {
+			\Emsfb\Renewal_Reminder::set_cause((string) $cause);
+		}
 	}
 
 	/**
@@ -11060,7 +11078,8 @@ public function addon_add_efb($value) {
 		$brand   = get_locale() === 'fa_IR' ? 'https://easyformbuilder.ir' : untrailingslashit(EMSFB_SERVER_URL);
 		$days    = max(1, (int) floor((time() - (int) $since) / DAY_IN_SECONDS));
 		$support = $brand . '/support/';
-		$renew   = $brand . '/checkout?renew=' . rawurlencode((string) $code);
+		// F21 (Bug 2): never the activation code in a link that is e-mailed (forwarded, logged).
+		$renew   = class_exists('\Emsfb\Renewal_Reminder') ? \Emsfb\Renewal_Reminder::fallback_renew_url($brand) : $brand . '/checkout';
 
 		$intro = sprintf(
 			/* translators: 1: number of days, 2: site name. */
@@ -11269,6 +11288,7 @@ public function addon_add_efb($value) {
 			// Local code does not match this domain: stop granting Pro, but keep
 			// the key so the customer can re-activate.
 			update_option('emsfb_pro', 0);
+			$this->license_lapse_cause_efb('domain');
 			if ($this->is_farsi_offline_license_efb()) {
 				$this->emsfb_pro_log('is_efb_pro: farsi site - local activation code INVALID for current domain, pro disabled');
 			}
@@ -11353,17 +11373,23 @@ public function addon_add_efb($value) {
 		$is_expired = ( $pro_status === 0 );
 
 		$buy_url    = EMSFB_SERVER_URL . '/checkout';
-		$ac         = get_option( 'emsfb_pro_activeCode', '' );
-		$renew_url  = $buy_url . '?renew=' . urlencode( $ac );
+		$btn_attrs  = ' target="_blank" rel="noopener noreferrer"';
 
-		if ( $is_expired ) {
-			$title   = esc_html__( 'Your activation code has expired!', 'easy-form-builder' );
-			$message = sprintf(
-				esc_html__( 'Your Easy Form Builder Pro subscription has expired. To continue using the %s add-on and all Pro features, please renew your subscription.', 'easy-form-builder' ),
-				'<strong>' . esc_html( $addon_name ) . '</strong>'
-			);
-			$btn_url  = $renew_url;
-			$btn_text = esc_html__( 'Renew Subscription', 'easy-form-builder' );
+		if ( $is_expired && class_exists( '\Emsfb\Renewal_Reminder' ) ) {
+			// F21 E (Bug 1 and 2): the words follow why Pro is off, and the link never holds the activation code.
+			$lapse     = \Emsfb\Renewal_Reminder::lapse_texts( $addon_name );
+			$title     = esc_html( $lapse['title'] );
+			$message   = preg_replace( '/\x01(.*?)\x02/s', '<bdi>$1</bdi>', esc_html( $lapse['body'] ) );
+			$btn_url   = $lapse['url'];
+			$btn_text  = esc_html( $lapse['button'] );
+			$btn_attrs = $lapse['external'] ? $btn_attrs : '';
+			$icon      = 'bi-exclamation-triangle-fill';
+			$bg_class  = 'bg-dark text-warning';
+		} elseif ( $is_expired ) {
+			$title    = esc_html__( 'Pro features are paused on this site', 'easy-form-builder' );
+			$message  = esc_html__( 'Your Easy Form Builder Pro subscription has ended. Your forms, entries and settings are all still here. Renew and Pro comes back as soon as the renewal is confirmed — no setup needed.', 'easy-form-builder' );
+			$btn_url  = $buy_url;
+			$btn_text = esc_html__( 'Renew Pro', 'easy-form-builder' );
 			$icon     = 'bi-exclamation-triangle-fill';
 			$bg_class = 'bg-dark text-warning';
 		} else {
@@ -11387,7 +11413,7 @@ public function addon_add_efb($value) {
 				<i class="efb <?php echo esc_attr( $icon ); ?>" style="font-size:48px; display:block; margin-bottom:16px;"></i>
 				<h2 style="margin:0 0 12px; font-size:1.4em;"><?php echo $title; ?></h2>
 				<p style="font-size:1.05em; line-height:1.7; margin-bottom:20px;"><?php echo $message; ?></p>
-				<a href="<?php echo esc_url( $btn_url ); ?>" target="_blank" class="efb btn btn-primary btn-lg" style="padding:10px 32px; font-size:1.1em; border-radius:8px; text-decoration:none;">
+				<a href="<?php echo esc_url( $btn_url ); ?>"<?php echo $btn_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed attributes ?> class="efb btn btn-primary btn-lg" style="padding:10px 32px; font-size:1.1em; border-radius:8px; text-decoration:none;">
 					<?php echo $btn_text; ?>
 				</a>
 			</div>
@@ -11397,18 +11423,22 @@ public function addon_add_efb($value) {
 		return true;
 	}
 
+	/**
+	 * The card on the plugin's screens when Pro is off (emsfb_pro 0), shown in place of "Get Pro".
+	 *
+	 * F21 E: its words follow why Pro is off (Renewal_Reminder::lapse_texts(): the subscription ended, with its date
+	 * and "Check again" when the server said so; a code of another domain; a long outage), never "expired" for a
+	 * valid code (Bug 1); the link is the server's renew link or one without the activation code, escaped, with
+	 * rel="noopener noreferrer" (Bug 2). The callers print it with wp_json_encode().
+	 *
+	 * @return string HTML.
+	 */
 	public function noti_expire_efb() {
-
-		$url = EMSFB_SERVER_URL . '/checkout?renew=';
-
-		$msg = esc_html__('Your Easy Form Builder Pro subscription has expired. To continue enjoying all Pro features and keep your forms running, %1$sRenew your subscription now.%2$s', 'easy-form-builder');
-		$ac = get_option('emsfb_pro_activeCode');
-		$renew = '<br><a class="efb alert-link fw-bold text-info" href="'.$url.'' . $ac . '" target="_blank">';
-		$msg = sprintf($msg, $renew, '</a>');
-		$ativ = esc_html__('Your activation code has expired!', 'easy-form-builder');
-		$div_noti = '<div class="efb mx-3  mt-4 mb-3 pd-5  alert alert-light pointer-efb buy-noti  alert-dismissible bg-dark text-warning"><i class="efb bi-exclamation-triangle-fill text-warning mx-1"></i><span class="efb text-warning">'.$ativ.'</span><br>' . $msg . '<button type="button" class="efb btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
-
-		return $div_noti;
+		if (class_exists('\Emsfb\Renewal_Reminder')) {
+			return \Emsfb\Renewal_Reminder::expired_card_html();
+		}
+		$title = esc_html__('Pro features are paused on this site', 'easy-form-builder');
+		return '<div class="efb mx-3 mt-4 mb-3 pd-5 alert alert-light buy-noti alert-dismissible bg-dark text-warning"><strong class="efb text-warning">' . $title . '</strong><br><a class="efb alert-link fw-bold text-info" href="' . esc_url(EMSFB_SERVER_URL . '/checkout') . '" target="_blank" rel="noopener noreferrer">' . esc_html__('Renew Pro', 'easy-form-builder') . '</a><button type="button" class="efb btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
 	}
 
 	public function delete_old_rows_emsfb_stts_() {

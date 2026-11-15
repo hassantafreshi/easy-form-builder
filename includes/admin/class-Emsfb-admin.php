@@ -1151,13 +1151,14 @@ class Admin {
                 if (!$is_persian_locale && isset($data->reason) && $data->reason == 'expired') {
                     update_option('emsfb_addons_renew_required', time());
                     set_transient('emsfb_addons_renew_backoff', 1, DAY_IN_SECONDS);
-                    $renew_url = isset($data->renew) ? esc_url($data->renew) : esc_url($domain . '/checkout?renew=' . urlencode((string) get_option('emsfb_pro_activeCode', '')));
+                    // F21 (Bug 2): the server's link, else a link without the activation code.
+                    $renew_url = isset($data->renew) ? esc_url($data->renew) : esc_url(class_exists('\Emsfb\Renewal_Reminder') ? \Emsfb\Renewal_Reminder::fallback_renew_url($domain) : $domain . '/checkout');
                     $this->addon_install_log_efb('remote_response_subscription_expired', [
                         'requested_addon' => $post_value,
                         'renew_url' => $renew_url,
                     ]);
                     $m = esc_html__('Your Easy Form Builder Pro subscription has expired, so this add-on cannot be downloaded.', 'easy-form-builder')
-                        . ' <a href="' . $renew_url . '" target="_blank">' . esc_html__('Renew Subscription', 'easy-form-builder') . '</a>';
+                        . ' <a href="' . $renew_url . '" target="_blank" rel="noopener noreferrer">' . esc_html__('Renew Subscription', 'easy-form-builder') . '</a>';
                     $response = ['success' => false, 'm' => $m];
                     wp_send_json_error($response, 200);
                     return;

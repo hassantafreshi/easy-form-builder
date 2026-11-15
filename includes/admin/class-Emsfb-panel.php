@@ -55,7 +55,8 @@ class Panel_edit  {
 			$k ="";
 			$noti_pro = intval(get_option('emsfb_pro' ,-1));
 			if ($noti_pro === 0  ){
-				$noti_pro = "<script>const noti_exp_efb='".$efbFunction->noti_expire_efb()."';</script>";
+				// F21 E: a JSON string (an apostrophe in a translation used to end the JS string).
+			$noti_pro = '<script>const noti_exp_efb=' . wp_json_encode($efbFunction->noti_expire_efb(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';</script>';
 
 			}else{
 				$noti_pro = '<script>const noti_exp_efb="";</script>';

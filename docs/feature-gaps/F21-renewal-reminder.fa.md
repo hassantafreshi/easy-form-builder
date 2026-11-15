@@ -452,22 +452,23 @@ Easy Form Builder > Settings.
 پذیرش: هیچ مشتری با کد معتبر پیام «منقضی شد» نمی‌بیند؛ ایمیل `t0` یک بار در هر دوره.
 تست‌ها: `php tests/test-renewal-expired-reconcile.php`.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: `class-Emsfb-renewal-reminder.php` (`lapse_cause()`/`set_cause()` روی گزینهٔ `emsfb_license_lapse_cause` = `expired|not_found|domain|outage`؛ `lapse_texts()`: پایان با تاریخ سرور ⇒ §۱۱.۳ با `<bdi>` و «Check again»، پایان بی تاریخ ⇒ همان متن بی تاریخ، کد دامنهٔ دیگر یا ناشناخته ⇒ «This activation code doesn't match this site» و پیوند تنظیمات در همان زبانه، قطعی طولانی ⇒ «press Save to check again»، علت ثبت‌نشده (سایت قدیمی) ⇒ «paused»، هرگز «expired»؛ `expired_card_html()`: کارت با `role="region"`، پیوند `esc_url` با `target="_blank" rel="noopener noreferrer"` و متن صفحه‌خوان، ناحیهٔ زنده)، `functions.php` (`license_lapse_cause_efb()` در `update_pro_status_efb` (`new`/`active` ⇒ پاک، `deactive` ⇒ `expired`، `notExists` ⇒ `not_found`)، در `handle_license_transport_failure_efb` پس از مهلت ⇒ `outage`، در `is_efb_pro` برای دامنهٔ ناجور ⇒ `domain`؛ `noti_expire_efb()` ⇒ کارت تازه؛ `render_pro_gate_efb()` با همان متن‌ها و پیوند بی کد؛ ایمیل قطعی و پیام دانلود افزودنی با `fallback_renew_url()`)، `class-Emsfb-admin.php` (پیوند تمدید افزودنی بی کد و با `rel`)، `class-Emsfb-panel.php`/`class-Emsfb-create.php`/`class-Emsfb-addon.php` (`noti_exp_efb` با `wp_json_encode(…, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT)`).
+- باگ‌ها: ۱ (برچسب «منقضی شد» برای هر `emsfb_pro = 0`) و ۲ (کد کامل در `?renew=`؛ پیوند بی `esc_url` و `rel`) بسته شدند؛ یافتهٔ تازه: کارت داخل رشتهٔ JS تک‌نقل‌قولی چاپ می‌شد، پس هر ترجمه‌ای با `'` (مثل «doesn't») جاوااسکریپت صفحه را می‌شکست ⇒ `wp_json_encode` (BUGS-FOUND).
+- تست‌ها: تازه `tests/test-renewal-expired-reconcile.php` (22: متن هر علت، JSON در node، هیچ `renew=` ساخته‌شده از کد در `includes/`، سیم‌کشی علت‌ها)؛ `test-admin-notice-cleaner.js` (4)؛ `test-addon-plan-gate.php` (وردپرس) در H روی سایت آزمون.
+- وضعیت ترجمه: عبارت‌های تازهٔ کارت (`This activation code doesn't match this site`، متن دامنه، متن قطعی، `Open Settings`، متن «paused» بی تاریخ)؛ ترجمه نمی‌شود.
+- مورد باز: —
+- اقدام بعدی: F بسته (تصمیم مالک)، سپس G.
 
-### F — کانال ایران (مسدود تا تصمیم مالک)
+### F — کانال ایران (بسته: تصمیم مالک)
 گزینهٔ (ب) §۴.۸: درخواست فقط‌خواندنی با `wp_remote_get` و مهلت ۳ ثانیه به `easyformbuilder.ir`، فقط در cron، هرگز `emsfb_pro` را تغییر نمی‌دهد؛ فقط `lapse_effect = updates_only` پذیرفته می‌شود مگر مالک اعمال پایان را برای کانال ایران تصمیم بگیرد.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (بسته، 2026-11-15 — تصمیم نهایی مالک)**
+- تصمیم مالک: سایت‌های `fa_IR` خرید یک‌باره‌اند؛ F21 روی `fa_IR` هیچ چیز نشان نمی‌دهد و هیچ ایمیلی نمی‌فرستد و `is_farsi_offline_license_efb` هرگز سرور را صدا نمی‌زند. این زیرتسک **ساخته نمی‌شود**.
+- پیاده‌سازی همین تصمیم: `Renewal_Reminder::is_fa()` در `state()`، `needs_daily_check()`، `localize_vars()` و `capability()`؛ پاسخ‌های ساختگی fa_IR نشانهٔ `local` دارند و چیزی ذخیره نمی‌کنند.
+- تست‌ها: بردارهای fa_IR در `test-renewal-reminder-dates.php`، `test-renewal-reminder-idempotent.php`، `test-renewal-notice-render.php`، `test-renewal-ajax.php` و سناریوی e2e `f21-f`.
+- وضعیت ترجمه: پیش‌نویس فارسی §۱۱.۴ فقط برای بازبینی ماند و به هیچ `.po`/`.mo` نرفت.
+- اقدام بعدی: G.
 
 ### G — AutoPilot/SitePilot و مستندات
 فایل‌ها: `class-Emsfb-builder-api.php` (`capabilities().plan.renewal`)، `docs/licensing/*` (بخش «پیش از پایان»).
