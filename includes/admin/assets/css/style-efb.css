@@ -2047,6 +2047,20 @@ body:has(.efb-rc3-notice) .grecaptcha-badge { visibility: hidden; }
 .efb.efb-spam-settings .efb-spam-row { margin-block: .6rem; }
 .efb.efb-spam-settings fieldset { border: 0; padding: 0; margin-block: .75rem; }
 .efb.efb-spam-settings legend { float: none; inline-size: auto; }
+/* Right to left: English titles and help (not translated yet) keep their own direction (unicode-bidi: plaintext) but
+   stay at the start of the line, like the translated labels. */
+.rtl .efb.efb-spam-settings :is(legend, h2, h3, .efb-spam-title, .efb-spam-help, .form-label, .efb-spam-lbl), .rtl .efb-secret-keep { unicode-bidi: plaintext; text-align: right; }
+.rtl .efb.efb-spam-settings legend { inline-size: 100%; }
+/* The spam notices (D2, a CAPTCHA service not available) on a right-to-left screen: text at the start (right), each
+   paragraph in its own direction (an English sentence keeps its full stop at its end). */
+.rtl .efb.efb-spam-notice p, .rtl .efb.efb-cp-notice :is(p, li) { unicode-bidi: plaintext; text-align: right; }
+/* Phones: Settings › Captchas gives its fields the width of the screen (the nested card margins left a 160 px column:
+   keys and "Saved (•••• 1234)" were cut). */
+@media (max-width: 600px) {
+  #nav-google > .efb.m-3 { margin-inline: 0 !important; }
+  #nav-google .efb.card-body.mx-4, .efb.efb-spam-settings .efb.card-body.mx-4 { margin-inline: 0 !important; padding-inline: .5rem; }
+  #nav-google .efb.w-75, .efb.efb-spam-settings .efb-spam-input { inline-size: 100% !important; max-width: 100%; }
+}
 .efb.efb-spam-settings { text-align: start; }
 .efb.efb-spam-settings .card-body, .efb.efb-spam-settings .form-label, .efb.efb-spam-settings .efb-spam-help { text-align: start; }
 .efb.efb-spam-settings .efb-spam-row { display: block; }

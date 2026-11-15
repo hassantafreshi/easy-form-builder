@@ -1,4 +1,7 @@
 .efb {direction: rtl !important;}
+/* A field marked dir="ltr" (keys, secrets, addresses) stays left to right: the line above would flip it and clip its
+   start (a key or "Saved (•••• 1234)" read from the wrong end). */
+.efb[dir="ltr"] {direction: ltr !important; text-align: left;}
 .wp-menu-name {text-align: initial;}
 .search-form-control.efb {    padding-right: 40px!important;padding-left:10px!important;}
 input[type=file].efb {    padding: 3px 14px;}

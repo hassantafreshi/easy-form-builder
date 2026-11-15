@@ -1690,7 +1690,7 @@ function fun_show_setting__emsFormBuilder() {
                             <p class="efb ${mxCSize}"><a target="_blank" href="https://youtu.be/JI7RojBgU_o">${efb_var.text.lmavt.replace('%s',efb_var.text.grecaptcha)}</a></p>
                             <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                 <label class="efb form-label mx-2 fs-6">${efb_var.text.siteKey}</label>
-                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.siteKey}" ${sitekey !== "null" ? `value="${sitekey}"` : ""} data-tab="${efb_var.text.captchas}">
+                                <input type="text" dir="ltr" spellcheck="false" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.siteKey}" ${sitekey !== "null" ? `value="${sitekey}"` : ""} data-tab="${efb_var.text.captchas}">
                                 <span id="sitekey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
                                 <label class="efb  form-label mx-2 col-12  mt-4 fs-6">${efb_var.text.SecreTKey}</label>
                                 <input type="password" autocomplete="new-password" dir="ltr" data-secret="1" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" value="" placeholder="${efb_secret_placeholder_efb(secretkey)}" aria-describedby="secretkey_emsFormBuilder-keep" data-tab="${efb_var.text.captchas}">${efb_secret_tools_efb('secretkey_emsFormBuilder', secretkey)}
@@ -5606,5 +5606,5 @@ function efb_secret_placeholder_efb(v) {
 function efb_secret_tools_efb(id, v) {
   if (!v || typeof v !== 'object') return '';
   const t = (k, fb) => (efb_var && efb_var.text && efb_var.text[k]) || fb;
-  return `<div class="efb d-flex gap-2 align-items-center flex-wrap mt-1"><small class="efb form-text" id="${id}-keep" dir="auto">${t('secretKeep', 'Leave empty to keep the saved key.')}</small><button type="button" class="efb btn btn-sm btn-outline-secondary efb-spam-clear" data-for="${id}" onclick="efb_spam_clear_secret_efb(this)">${t('secretRemove', 'Remove')}</button></div>`;
+  return `<div class="efb d-flex gap-2 align-items-center flex-wrap mt-1"><small class="efb form-text efb-secret-keep" id="${id}-keep" dir="auto" style="unicode-bidi:plaintext">${t('secretKeep', 'Leave empty to keep the saved key.')}</small><button type="button" class="efb btn btn-sm btn-outline-secondary efb-spam-clear" data-for="${id}" onclick="efb_spam_clear_secret_efb(this)">${t('secretRemove', 'Remove')}</button></div>`;
 }

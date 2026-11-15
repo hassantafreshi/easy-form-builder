@@ -66,9 +66,13 @@ switch ( $efb_b_cmd ) {
 		if ( isset( $efb_b_rest[1] ) && '' !== $efb_b_rest[1] ) {
 			foreach ( explode( '&', $efb_b_rest[1] ) as $kv ) { list( $k, $v ) = array_pad( explode( '=', $kv, 2 ), 2, '' ); $row0[ $k ] = urldecode( $v ); }
 		}
+		// label_align (row-0 key here) is the fields' own, as the builder writes it (txt-right on a right-to-left site).
+		$align = isset( $row0['label_align'] ) && in_array( $row0['label_align'], array( 'txt-left', 'txt-right', 'txt-center' ), true ) ? $row0['label_align'] : 'txt-left';
+		unset( $row0['label_align'] );
 		$rows = array( $row0, array( 'id_' => '1', 'type' => 'step', 'dataId' => '1', 'id' => '1', 'name' => 'Step 1', 'step' => 1, 'amount' => 1, 'visible' => 1, 'icon' => 'bi-person', 'EfbVersion' => 2 ) );
 		if ( 'login' === $type ) { $rows[] = $f( 'emaillogin', 'text' ); $rows[] = $f( 'passwordlogin', 'password' ); }
 		else { $rows[] = $f( 'usernameRegisterEFB', 'text' ); $rows[] = $f( 'emailRegisterEFB', 'email' ); $rows[] = $f( 'passwordRegisterEFB', 'password' ); }
+		foreach ( $rows as $i => $r ) if ( $i > 1 ) $rows[ $i ]['label_align'] = $align;
 		$clean = get_efbFunction()->sanitize_obj_msg_efb( $rows );
 		$json = str_replace( '"', '\\"', wp_json_encode( $clean, JSON_UNESCAPED_UNICODE ) );
 		$wpdb->insert( $wpdb->prefix . 'emsfb_form', array( 'form_name' => 'F12b ' . $type, 'form_structer' => $json, 'form_email' => '', 'form_type' => $type, 'form_created_by' => '1', 'form_access_by' => '', 'form_create_date' => current_time( 'mysql' ), 'status' => 1 ) );

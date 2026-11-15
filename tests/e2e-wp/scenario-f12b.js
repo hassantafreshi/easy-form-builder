@@ -22,6 +22,10 @@
  *          resets, one solve good for the session).
  *  f12b-7  F02 send code behind reCAPTCHA v3 (row 19): the browser asks Google for a token with the action efb_otp and
  *          sends it with the code request; a low score is refused and no SMS goes out; a good one sends the SMS.
+ *  f12b-8  fa_IR and ar at 375 px on the real site (full-page screenshots, checked): Settings › Captchas with a saved
+ *          secret shown masked, the D2 notice, login and registration forms with their CAPTCHA, the reply box with its
+ *          CAPTCHA — right to left, labels at the start (right), mixed text isolated (unicode-bidi plaintext), nothing
+ *          off-screen, no horizontal scroll.
  *  f12b-6  D2, D4, fallback, languages (rows 22, 27–30): the notice by keyboard; Settings › Captchas never prints a
  *          secret; an add-on switched off → the fallback, on again → back; ALTCHA by keyboard and its accessibility
  *          tree; fa_IR and ar at 375 px (right to left, no horizontal scroll), screenshots.
@@ -620,6 +624,118 @@ module.exports = function (S) {
       del(...made);
       ctl('f02-wpsms', '0');
       ctl('addon-flag', 'AdnSS', '0');
+      teardown();
+    }
+  });
+
+  /* ================================================================== f12b-8 fa_IR / ar at 375 px on the real site */
+  /** Layout checks of a part of a page at 375 px, right to left. sel: the part; labels: its labels' selector. */
+  const rtlCheck = (p, sel, labels, mixed) => p.evaluate(([sel, labels, mixed]) => {
+    const root = document.querySelector(sel);
+    if (!root) return { missing: sel };
+    const vw = document.documentElement.clientWidth;
+    const vis = (e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== 'hidden'; };
+    const off = Array.from(root.querySelectorAll('*')).filter((e) => vis(e) && !e.closest('.efb-sr-only, .efb-hp, [aria-hidden="true"]')).filter((e) => { const r = e.getBoundingClientRect(); return r.left < -1 || r.right > vw + 1; })
+      .map((e) => (e.id || e.className || e.tagName).toString().slice(0, 40));
+    const lab = labels ? Array.from(root.querySelectorAll(labels)).filter(vis) : [];
+    // At the start (right): an rtl label aligned start / right; a plaintext one (English text keeps its own direction)
+    // only with text-align right, since "start" would follow the English paragraph to the left.
+    const notStart = lab.filter((e) => { const cs = getComputedStyle(e); const al = cs.textAlign; const rtl = cs.direction === 'rtl';
+      return cs.unicodeBidi === 'plaintext' ? al !== 'right' : !(rtl && (al === 'start' || al === 'right')); })
+      .map((e) => (e.textContent || '').trim().slice(0, 30) + ' [' + getComputedStyle(e).direction + '/' + getComputedStyle(e).textAlign + ']');
+    const noIso = mixed ? Array.from(root.querySelectorAll(mixed)).filter(vis).filter((e) => getComputedStyle(e).unicodeBidi !== 'plaintext').map((e) => (e.textContent || '').trim().slice(0, 30)) : [];
+    // A field marked dir="ltr" (a key, a secret) reads left to right, not flipped by the RTL stylesheet.
+    const ltrFlipped = Array.from(root.querySelectorAll('input[dir="ltr"]')).filter(vis).filter((e) => getComputedStyle(e).direction !== 'ltr').map((e) => e.id);
+    return { dir: getComputedStyle(root).direction, scroll: document.documentElement.scrollWidth - vw, off: off.slice(0, 8), notStart: notStart.slice(0, 8), noIso: noIso.slice(0, 8), ltrFlipped };
+  }, [sel, labels, mixed]);
+  const rtlOk = (x) => !!x && !x.missing && x.dir === 'rtl' && x.scroll <= 1 && x.off.length === 0 && x.notStart.length === 0 && x.noIso.length === 0 && x.ltrFlipped.length === 0;
+
+  scenario('f12b-8', 'F12b fa_IR and ar at 375 px on the real site: Settings › Captchas with a masked saved secret, the D2 notice, login and registration with their CAPTCHA, the reply box with its CAPTCHA (RTL, labels at the start, isolated mixed text, nothing off-screen)', async ({ context, adminPage }) => {
+    setup('scaptcha=1');
+    const made = [];
+    const user = 'efb_f12b_rtl_' + Math.random().toString(36).slice(2, 7);
+    try {
+      ctlb('user', user);
+      // As the builder makes them on a right-to-left site: labels txt-right.
+      const L = ctlb('auth-form', 'login', 'label_align=txt-right');
+      const Rg = ctlb('auth-form', 'register', 'captcha_provider=question&label_align=txt-right');
+      made.push(L.form_id, Rg.form_id);
+      const F = form('F12b rtl reply', NM);
+      made.push(F.form_id);
+      const A = form('F12b rtl altcha', [{ key: 'nm', type: 'text', name: 'Name', label_align: 'txt-right' }], 'captcha=1&captcha_provider=altcha');
+      made.push(A.form_id);
+      const seeded = ctl('f14-seed', String(F.form_id), JSON.stringify([{ id_: F.ids.nm, name: 'Name', type: 'text', value: 'متن پیگیری' }]), '');
+      const tp = ctl('f12-page-tracker');
+      for (const loc of ['fa_IR', 'ar']) {
+        ctl('locale', loc);
+        const vp = { viewport: { width: 375, height: 812 }, locale: loc.replace('_', '-') };
+        try {
+          // Settings › Captchas, with the v2 secret saved (shown masked, never its value).
+          ctlb('notice-reset');
+          setting('spam_honeypot=del&spam_min_time=del&spam_action=del&spam_retention_days=del');
+          const a = await adminPage(vp, 'f12b-8-admin-' + loc);
+          await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+          await a.waitForSelector('#efb-spam-notice', { timeout: 15000 });
+          await sleep(800);
+          const n = await rtlCheck(a, '#efb-spam-notice', 'p:not(.efb-spam-notice-actions)', '#efb-spam-notice p:not(.efb-spam-notice-actions)');
+          R.check(`f12b-8 (${loc}): the D2 notice — right to left, its text isolated, nothing off-screen`, rtlOk(n), n);
+          await a.screenshot({ path: SHOT(`f12b-8-notice-${loc}-375`), fullPage: true });
+          setting('spam_honeypot=1&spam_min_time=0&spam_action=spam&spam_retention_days=30');
+          await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb&state=setting&tab=captchas', { waitUntil: 'load' });
+          await a.waitForSelector('#efb-spam-settings', { timeout: 20000 });
+          await sleep(1200);
+          await a.evaluate(() => { const s = document.getElementById('efb-spam-settings'); if (s) s.scrollIntoView({ block: 'start' }); });
+          const masked = await a.evaluate(() => Array.from(document.querySelectorAll('.efb-secret-input[data-saved="1"]')).map((e) => [e.id, e.value, e.getAttribute('placeholder')]));
+          const html = await a.content();
+          R.check(`f12b-8 (${loc}): a saved secret is shown masked ("•••• " and its last four) and empty, never its value`, masked.length >= 1 && masked.every((m) => m[1] === '' && /•••• \S{4}\)/.test(m[2])) && html.indexOf('e2e-v2-secret-placeholder') === -1, masked);
+          const st = await rtlCheck(a, '#efb-spam-settings', '.efb-spam-lbl, label.form-label, legend, h2, h3, .efb-spam-title', '.efb-spam-help, .efb-cp-privacy, .efb-spam-status');
+          const old = await rtlCheck(a, '#secretkey_emsFormBuilder-keep', null, null);
+          const oldIn = await a.evaluate(() => { const e = document.getElementById('secretkey_emsFormBuilder'); const k = document.getElementById('secretkey_emsFormBuilder-keep'); return { input: e ? getComputedStyle(e).direction : null, keep: k ? getComputedStyle(k).unicodeBidi : null }; });
+          R.check(`f12b-8 (${loc}): the reCAPTCHA v2 block — its key fields left to right, "Leave empty to keep …" isolated`, oldIn.input === 'ltr' && oldIn.keep === 'plaintext' && old.ltrFlipped.length === 0, oldIn);
+          R.check(`f12b-8 (${loc}): Settings › Captchas at 375 px — right to left, labels at the start (right), help isolated, nothing off-screen`, rtlOk(st), st);
+          await a.screenshot({ path: SHOT(`f12b-8-settings-${loc}-375`), fullPage: true });
+
+          // Login and registration.
+          const gl = await open(context, pageOf(L.form_id), 'f12b-8-login-' + loc, vp);
+          const ls = await rtlCheck(gl, '#body_efb_' + L.form_id, 'label', '.efb-captcha-msg, .efb-rc3-notice');
+          R.check(`f12b-8 (${loc}): the login form with its CAPTCHA — right to left, labels at the start, nothing off-screen`, rtlOk(ls), ls);
+          await gl.screenshot({ path: SHOT(`f12b-8-login-${loc}-375`), fullPage: true });
+          const gr = await open(context, pageOf(Rg.form_id), 'f12b-8-register-' + loc, vp);
+          await gr.waitForFunction(() => { const q = document.querySelector('.efb-qcp-q'); return q && /\d/.test(q.textContent); }, null, { timeout: 15000 }).catch(() => {});
+          const rs = await rtlCheck(gr, '#body_efb_' + Rg.form_id, 'label', '.efb-qcp-q, .efb-qcp label, .efb-captcha-msg');
+          R.check(`f12b-8 (${loc}): the registration form with the question CAPTCHA — right to left, labels at the start, the question isolated`, rtlOk(rs), rs);
+          await gr.screenshot({ path: SHOT(`f12b-8-register-${loc}-375`), fullPage: true });
+          const ga = await open(context, pageOf(A.form_id), 'f12b-8-altcha-' + loc, vp);
+          await ga.click(`.efb-captcha-box[data-formid="${A.form_id}"] .efb-altcha-cb`).catch(() => {});
+          await ga.waitForFunction(() => { const x = document.querySelector('.efb-altcha'); return x && x.getAttribute('data-state') === 'verified'; }, null, { timeout: 30000 }).catch(() => {});
+          const al = await rtlCheck(ga, '#body_efb_' + A.form_id, 'label', '.efb-altcha-status, .efb-altcha-label');
+          R.check(`f12b-8 (${loc}): an ALTCHA form — right to left, its status at the start and isolated, nothing off-screen`, rtlOk(al), al);
+          await ga.screenshot({ path: SHOT(`f12b-8-altcha-${loc}-375`), fullPage: true });
+
+          // The reply box with its CAPTCHA.
+          ctlb('rl-reset');
+          const gt = await open(context, tp.url, 'f12b-8-reply-' + loc, vp, { sel: '#body_tracker_emsFormBuilder' });
+          await gt.waitForFunction(() => window.__cb && window.__cb.renders.length > 0, null, { timeout: 15000 });
+          await gt.fill('#trackingCodeEfb', seeded.track);
+          await clickFake(gt, -1);
+          const look = gt.waitForResponse((x) => /forms\/response\/get/.test(x.url()), { timeout: 30000 }).catch(() => null);
+          await gt.click('#vaid_check_emsFormBuilder');
+          await look;
+          await gt.waitForSelector('#replayB_emsFormBuilder', { timeout: 15000 });
+          await scrollBoxes(gt);
+          await gt.waitForFunction(() => window.__cb.renders.some((r) => /^reply_/.test(r.ctx || '')), null, { timeout: 15000 }).catch(() => {});
+          const rp = await rtlCheck(gt, '.efb-resp-viewer', '.efb-reply-label', '.efb-captcha-msg, .efb-reply-status');
+          const hasCp = await gt.evaluate(() => !!document.querySelector('.efb-reply-captcha .efb-captcha-box'));
+          R.check(`f12b-8 (${loc}): the reply box with its CAPTCHA — right to left, nothing off-screen`, hasCp && rtlOk(rp), { hasCp, rp });
+          await gt.evaluate(() => { const b = document.querySelector('.efb-reply-captcha'); if (b) b.scrollIntoView({ block: 'center' }); });
+          await gt.screenshot({ path: SHOT(`f12b-8-reply-${loc}-375`), fullPage: true });
+        } finally { ctl('locale', ''); }
+      }
+    } finally {
+      try { ctlb('user-del', user); } catch (e) { /* gone */ }
+      del(...made);
+      setting('spam_honeypot=1&spam_min_time=0&spam_action=spam&spam_retention_days=30');
+      ctlb('notice-reset');
       teardown();
     }
   });
