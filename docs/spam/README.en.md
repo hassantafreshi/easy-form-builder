@@ -83,7 +83,9 @@ PersiaPay routes, the offline add-on's restore — through message/add):
    (`pay_spam` on the payment routes). Payment, registration and login forms always reject. A form that stores no
    entries (F13) keeps nothing for spam and sends nothing.
 
-F02 `verify/send` refuses a filled hidden field (no code is sent). Drafts and partial answers (F11) are not
+F02 `verify/send` refuses a filled hidden field (no code is sent). Since F12b a form behind an invisible CAPTCHA
+(reCAPTCHA v2 invisible or v3) also sends a token for the action `efb_otp` with the code request, checked before any
+SMS or e-mail is sent (`efb_captcha_*`); a visible widget is solved for the form's own send and is not asked for here. Drafts and partial answers (F11) are not
 submissions and are not judged.
 
 ## Spam entries

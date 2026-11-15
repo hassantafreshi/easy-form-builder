@@ -333,7 +333,10 @@
     if (c.send) c.send.disabled = true;
     if (c.status) c.status.textContent = T('vrfSending', 'Sending code…');
     try {
-      const j = await post(c, 'verify/send', { destination: v, channel: c.channel, lang: (root.efb_var && root.efb_var.wp_lan) || '' });
+      // F12b: a form behind an invisible CAPTCHA sends its token for the action efb_otp ('' for a visible widget).
+      let cp = '';
+      try { cp = root.EFBCaptcha && typeof root.EFBCaptcha.otpToken === 'function' ? await root.EFBCaptcha.otpToken(Number(c.fid), 'efb_otp') : ''; } catch (e) { cp = ''; }
+      const j = await post(c, 'verify/send', Object.assign({ destination: v, channel: c.channel, lang: (root.efb_var && root.efb_var.wp_lan) || '' }, cp ? { captcha: cp, request_id: (root.crypto && root.crypto.randomUUID) ? root.crypto.randomUUID() : '' } : {}));
       c.challenge = String(j.challenge_id || '');
       c.sentValue = v;
       c.len = Number(j.code_length) || c.len;

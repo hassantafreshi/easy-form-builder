@@ -190,6 +190,10 @@ window.EFBCaptcha.provider('my_id', {
   scripts itself (https, or this site's own adapter), once per page.
 - `EFBCaptcha.needsWidgetToken(fid)`: the visitor must solve a visible widget first (`kind` widget / endpoint, unless
   the config says `ex: 1`); otherwise `beforeSend()` asks for a token right before sending (10-second limit).
+- `EFBCaptcha.otpToken(fid, action)`: an invisible box's token for another request of the form (the F02 send-code
+  request asks for `efb_otp`; reCAPTCHA v2 invisible is reset after it, so the form's own send gets a fresh one); `''`
+  for a visible widget or no box. The server (`Verification::otp_captcha()`) asks for it only when the form's effective
+  service is invisible (reCAPTCHA v2 invisible, v3): a low v3 score is refused (`efb_captcha_low_score`), never "spam".
 - `EFBCaptcha.challenge(fid)`: the v3 → v2 checkbox in the same box (the server answered `efb_captcha_challenge`; the
   next send carries `captcha_kind=v2`).
 

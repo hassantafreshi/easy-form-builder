@@ -986,6 +986,19 @@ class Verification {
 		return $out;
 	}
 
+	/** F12b: the invisible CAPTCHA of a code request (action efb_otp); true when none is asked, else a WP_Error. */
+	public static function otp_captcha(array $st) {
+		if (!class_exists('\\Emsfb\\Spam') || !class_exists('\\Emsfb\\Captcha\\Registry') || !Captcha::form_on($st['rows'][0])) return true;
+		$eff = Captcha\Registry::effective_for($st['rows'][0]);
+		if (!$eff['provider'] || $eff['provider']->kind() !== 'invisible') return true;
+		$tok = isset($st['j']['captcha']) && is_string($st['j']['captcha']) ? $st['j']['captcha'] : '';
+		$rid = isset($st['j']['request_id']) && is_string($st['j']['request_id']) ? $st['j']['request_id'] : '';
+		$r = Spam::verify_captcha($tok, 'otp', array('form' => $st['rows'][0], 'provider' => $eff['id'], 'action' => 'efb_otp', 'low_score' => 'block', 'request_id' => $rid));
+		if (!empty($r['ok'])) return true;
+		self::trace('verify.captcha', array('form_id' => $st['fid'], 'code' => $r['code']));
+		return self::err('efb_captcha_' . ($r['code'] !== '' ? $r['code'] : 'failed'), Spam::captcha_message($r['code'], $st['rows'][0]), 422);
+	}
+
 	public static function rest_send($r) {
 		$st = self::start($r);
 		if (is_wp_error($st)) return $st;
@@ -1002,6 +1015,11 @@ class Verification {
 				}
 			}
 		}
+		// F12b row 19: a form protected by an invisible CAPTCHA (reCAPTCHA v2 invisible / v3) sends its token with the
+		// code request, for the action efb_otp (a low v3 score is refused); a visible widget is solved for the form's
+		// own send, so it is not asked for here. Checked before anything costs (SMS / e-mail).
+		$cp = self::otp_captcha($st);
+		if (is_wp_error($cp)) return $cp;
 		$ch = $st['spec']['channel'];
 		$s = self::settings();
 		$cs = $s[$ch];

@@ -1507,7 +1507,8 @@ stay; what F12b adds:
   service); `risk: high` as before when the CAPTCHA or the soft checks are switched off.
 - **Submit codes** (new): `efb_captcha_challenge` (v3 low score with the fallback: nothing stored, the page shows the
   checkbox; the next send carries `captcha_kind: 'v2'`), `efb_captcha_replay`; login / register refuse with the same
-  `efb_captcha_*` codes (never "spam"); the reply box `forms/response/add` answers `efb_captcha_*` and `efb_reply_rate`.
+  `efb_captcha_*` codes (never "spam"); the reply box `forms/response/add` answers `efb_captcha_*` and `efb_reply_rate`. F02 `verify/send` of a form behind an invisible
+  CAPTCHA (v2 invisible, v3) needs `captcha` (a token for the action `efb_otp`) and answers `efb_captcha_*` without it.
 - **Form packages (F15).** `captcha_provider` and `cp_*` travel in the package, never a key; importing on a site
   without that add-on reports `captcha_addon_missing` (the form is protected by the fallback).
 - **Tests.** `node tests/test-ap-spam.js` (F12b block), `php tests/test-captcha-registry.php`,

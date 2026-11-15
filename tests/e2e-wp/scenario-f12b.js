@@ -20,6 +20,8 @@
  *  f12b-5  D1 and D3 in the browser (rows 15, 20, 21): login with v2 (no token → refused; solved → signed in),
  *          registration with the question CAPTCHA, the tracking box and the reply box on one page (own contexts, own
  *          resets, one solve good for the session).
+ *  f12b-7  F02 send code behind reCAPTCHA v3 (row 19): the browser asks Google for a token with the action efb_otp and
+ *          sends it with the code request; a low score is refused and no SMS goes out; a good one sends the SMS.
  *  f12b-6  D2, D4, fallback, languages (rows 22, 27–30): the notice by keyboard; Settings › Captchas never prints a
  *          secret; an add-on switched off → the fallback, on again → back; ALTCHA by keyboard and its accessibility
  *          tree; fa_IR and ar at 375 px (right to left, no horizontal scroll), screenshots.
@@ -563,6 +565,61 @@ module.exports = function (S) {
     } finally {
       try { ctlb('user-del', user, reg); } catch (e) { /* gone */ }
       del(...made);
+      teardown();
+    }
+  });
+
+  /* ================================================================== f12b-7 F02 send code behind an invisible CAPTCHA */
+  scenario('f12b-7', 'F12b row 19: the F02 send-code request of a reCAPTCHA v3 form carries a token for the action efb_otp; a low score sends no SMS, a good one does', async ({ context }) => {
+    setup();
+    ctl('f11-mu');
+    ctl('f02-mu');
+    ctl('set-option', 'efb_e2e_f02_plan', '1');
+    ctl('addon-flag', 'AdnSS', '1');
+    ctl('f02-wpsms', '1', 'ok');
+    ctl('f02-settings', JSON.stringify({ sms: { allowed_countries: ['ir'] } }));
+    const made = [];
+    try {
+      const F = form('F12b otp v3', [{ key: 'mob', type: 'mobile', name: 'Mobile', required: 1, otp_enabled: '1' }], 'captcha=1&captcha_provider=recaptcha_v3');
+      made.push(F);
+      ctl('f02-rows', String(F.form_id), 'reset');
+      ctl('f02-sms', 'clear');
+      const g = await open(context, pageOf(F.form_id), 'f12b-7');
+      await g.waitForFunction((i) => !!(document.getElementById(i + '_') && document.getElementById(i + '_').closest('.iti')), F.ids.mob, { timeout: 20000 });
+      await sleep(600);
+      const bodies = [];
+      g.on('request', (r) => { if (/verify\/send/.test(r.url())) { try { bodies.push(JSON.parse(r.postData() || '{}')); } catch (e) { bodies.push({}); } } });
+      const ask = async () => {
+        const resp = g.waitForResponse((x) => /verify\/send/.test(x.url()), { timeout: 20000 }).catch(() => null);
+        await g.click(byId(F.ids.mob + '_vrf-send'));
+        const r = await resp;
+        let j = null; try { j = r ? await r.json() : null; } catch (e) { j = null; }
+        await sleep(600);
+        return j;
+      };
+      await g.click(byId(F.ids.mob + '_'));
+      await g.keyboard.type('+989121234567');
+      await g.press(byId(F.ids.mob + '_'), 'Tab');
+      await sleep(500);
+      await g.evaluate(() => { window.__cbNext = { v3: window.__f12bTok({ score: 0.1, action: 'efb_otp' }) }; });
+      const low = await ask();
+      const c1 = await cap(g);
+      const err = await g.evaluate((i) => { const b = document.getElementById(i + '_') && document.getElementById(i + '_').closest('.efb-vrf, [data-efb-vrf], .col-md-12, div'); const e = document.querySelector('[id^="' + i + '_vrf-err"], [id^="' + i + '_vrf"][role="alert"]'); return e ? e.textContent : ''; }, F.ids.mob);
+      R.check('f12b-7: Send code asks Google for the action efb_otp and sends the token; a low score → refused, no SMS', !!low && low.success === false && low.code === 'efb_captcha_low_score' && c1.v3.some((x) => x.action === 'efb_otp') && /^f12b\./.test(bodies[0] && bodies[0].captcha || '') && (ctl('f02-sms') || []).length === 0, { low, v3: c1.v3, err });
+      await sleep(1500);
+      ctl('f02-rows', String(F.form_id), 'reset');
+      const ok = await g.evaluate(async ([fid, vid]) => {
+        const t = await window.EFBCaptcha.otpToken(fid, 'efb_otp');
+        const rt = await window.EFBRuntime.prepare(Number(fid));
+        const r = await fetch(efb_request_health.rest_url + 'verify/send', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': rt.nonce, sid: rt.sid }, body: JSON.stringify({ form_id: Number(fid), field_id: vid, destination: '+989121234567', channel: 'sms', runtime_token: rt.runtime_token, captcha: t, request_id: crypto.randomUUID(), efb_hp: '' }) });
+        return r.json();
+      }, [F.form_id, F.ids.mob]);
+      const sms = ctl('f02-sms') || [];
+      R.check('f12b-7: a good efb_otp token → the code goes out through the WP SMS bridge (one SMS)', ok && ok.success === true && sms.length === 1, { ok: ok && { success: ok.success, code: ok.code }, sms: sms.length });
+    } finally {
+      del(...made);
+      ctl('f02-wpsms', '0');
+      ctl('addon-flag', 'AdnSS', '0');
       teardown();
     }
   });

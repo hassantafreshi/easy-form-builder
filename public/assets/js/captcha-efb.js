@@ -178,6 +178,14 @@
     try { return await tokenOf(el); } catch (e) { failed(el); return ''; }
   }
 
+  async function otpToken(fid, action) {
+    var el = boxFor(fid), c = el ? conf(el) : null, t = '';
+    if (!c || needs(el)) return t;
+    try { t = c.p === 'recaptcha_v3' ? await v3Token(c.k, 10000, action) : await tokenOf(el); } catch (e) {}
+    if (c.p !== 'recaptcha_v3') reset(fid);
+    return t || '';
+  }
+
   var G = {
     ready: function () { return !!(W.grecaptcha && W.grecaptcha.render); },
     render: function (el, c, cb) {
@@ -206,7 +214,7 @@
   } catch (e) { io = null; }
 
   W.EFBCaptcha = { boot: boot, scan: function () { tries = 0; boot(); }, render: render, reset: reset, beforeSend: beforeSend, challenge: challenge,
-    isInvisible: function (fid) { return !!boxFor(fid) && !needsWidgetToken(fid); }, needsWidgetToken: needsWidgetToken, token: token, v3Token: v3Token,
+    isInvisible: function (fid) { return !!boxFor(fid) && !needsWidgetToken(fid); }, needsWidgetToken: needsWidgetToken, token: token, v3Token: v3Token, otpToken: otpToken,
     message: say, provider: provider, config: conf };
 
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', boot); else boot();

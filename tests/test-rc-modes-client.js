@@ -64,6 +64,20 @@ const core = fs.readFileSync(path.join(__dirname, '..', 'public/assets/js/core-e
     c.t('… and beforeSend marks the request captcha_kind v2 (no new v3 token)', [await P.C.beforeSend(d2, 6), d2.captcha_kind, d2.valid, g.v3.length], [true, 'v2', undefined, 1]);
     c.t('the other v3 form on the page is untouched', [P.C.needsWidgetToken(7), 'hidden' in P.all[1].attrs], [false, true]);
   }
+  /* F12b row 19: otpToken() — the invisible box's token for the F02 send-code request (action efb_otp) */
+  {
+    const g = fakeGoogle();
+    const P = page([{ provider: 'recaptcha_v3', key: 'v3-key', fid: 11, cfg: { action: 'efb_submit' } }, { provider: 'recaptcha_v2i', key: 'v2i-key', fid: 12, kind: 'invisible' }, { provider: 'recaptcha_v2', key: 'v2-key', fid: 13 }], { before: (w) => { w.grecaptcha = g; } });
+    c.t('otpToken (v3): a fresh token for the action efb_otp', [await P.C.otpToken(11, 'efb_otp'), g.v3[g.v3.length - 1]], ['V3-1', ['v3-key', 'efb_otp']]);
+    const pr = P.C.otpToken(12, 'efb_otp');
+    await tick();
+    const w = g.widgets.findIndex((o) => o.sitekey === 'v2i-key');
+    g.widgets[w].callback('V2I-OTP');
+    c.t('otpToken (v2 invisible): executes its widget, answers the token and resets it for the form\'s own send', [await pr, g.execs, g.resets], ['V2I-OTP', [w], [w]]);
+    c.t('otpToken (visible checkbox / no box): nothing asked', [await P.C.otpToken(13, 'efb_otp'), await P.C.otpToken(99, 'efb_otp')], ['', '']);
+  }
+  const vsrc = require('fs').readFileSync(require('path').join(__dirname, '..', 'public/assets/js/verify-efb.js'), 'utf8');
+  c.t('verify-efb.js: the send-code request carries EFBCaptcha.otpToken(form, "efb_otp") with a request id', /otpToken\(Number\(c\.fid\), 'efb_otp'\)[\s\S]{0,400}post\(c, 'verify\/send'[\s\S]{0,200}captcha: cp, request_id/.test(vsrc), true);
   /* core-efb.js wiring */
   const resp = core.slice(core.indexOf('async function response_fill_form_efb('), core.indexOf('async function response_fill_form_efb(') + 2400);
   c.t('core: efb_captcha_challenge → EFBCaptcha.challenge(form), not a reset', /res\.data\.code === 'efb_captcha_challenge' && window\.EFBCaptcha && typeof window\.EFBCaptcha\.challenge === 'function' && window\.EFBCaptcha\.challenge\(form_id\)\) \{[\s\S]{0,800}return;\s*\} else if \(!\(res && res\.data && res\.data\.success == true\) && window\.EFBCaptcha/.test(resp), true);
