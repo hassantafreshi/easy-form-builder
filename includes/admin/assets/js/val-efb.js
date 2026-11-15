@@ -2979,7 +2979,12 @@ const add_option_edit_admin_efb=(price,parentsID,t,idin,tag,id_ob,value,col,s,l_
     return r ;
   }
   const imgRadio = fun_imgRadio();
-  const booking = fun_bookingAttr();
+  // SPLIT §9.2: the booking controls (end date, places) are the Booking add-on's to edit; without it they are read-only.
+  const booking = (function () {
+    const h = fun_bookingAttr();
+    if (h === '<!-efb-->' || window.efbBookingEditable === true) return h;
+    return h.replace(/<input /g, '<input disabled aria-disabled="true" ') + (typeof efb_addon_needed_html_efb === 'function' ? efb_addon_needed_html_efb('AdnBEF') : '');
+  })();
   const s_show_id = document.getElementById('optionListefb') && document.getElementById('optionListefb').dataset.idstate =="true" ? true : false;
   let id_v = `  <div class="efb mx-0 px-0 col-sm-12 elIds ${s_show_id==true ? '' :'d-none'}">
     <label  for="ElIdOptions" class="efb form-label mx-1 my-0 py-0 fs-6 col-sm-2 " >${efb_var.text.id}</label>

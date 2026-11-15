@@ -226,6 +226,10 @@ class Calendar_Rest {
 			'setting:advdate_field_limits' => array('free_plus', array('date_min=field', 'date_max=field'), 'cal_b_lim_field'),
 			'setting:advdate_age'          => array('free_plus', array('age_min', 'age_max'), 'cal_b_g_age'),
 			'setting:advdate_time'         => array('free_plus', array('time_enabled', 'time_format', 'time_step', 'time_min', 'time_max'), 'cal_b_g_time'),
+			// SPLIT §9.3: a range, several dates and times per weekday are core's calendar (not booking); availability is the
+			// Booking add-on's (AdnBEF, Split adds addon). setting:advdate_booking stays an alias until API v2.
+			'setting:advdate_range'        => array('pro', array('date_mode=range', 'date_mode=multiple', 'range_unit', 'range_min_days', 'range_max_days', 'multi_max', 'time_by_weekday'), 'cal_b_g_range'),
+			'setting:advdate_availability' => array('pro', array('availability', 'bk_*'), 'cal_b_g_range'),
 			'setting:advdate_booking'      => array('pro', array('date_mode=range', 'date_mode=multiple', 'range_unit', 'range_min_days', 'range_max_days', 'multi_max', 'time_by_weekday', 'availability'), 'cal_b_g_range'),
 		);
 		foreach ($entries as $key => $e) {
@@ -237,6 +241,7 @@ class Calendar_Rest {
 				'form_keys' => $e[1], 'label_key' => $e[2],
 			);
 		}
+		$out['features']['setting:advdate_booking']['deprecated'] = array('alias_of' => array('setting:advdate_range', 'setting:advdate_availability'), 'until_api' => 2);
 		$rank = $package === null ? Calendar::site_plan_rank() : (Builder_Api::plan_at_least('pro', $package) ? 2 : (Builder_Api::plan_at_least('free_plus', $package) ? 1 : 0));
 		$gated = array();
 		if ($rank < 1) $gated = array_merge($gated, array('cal_allowed', 'cal_switch', 'cal_secondary', 'cal_hijri_adjust', 'disabled_dates', 'enabled_dates', 'holiday_sets', 'holidays_custom', 'date_min=field', 'date_max=field', 'age_min', 'age_max', 'time_enabled'));

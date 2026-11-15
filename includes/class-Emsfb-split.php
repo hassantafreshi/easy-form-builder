@@ -56,8 +56,7 @@ class Split {
 	 */
 	public static function core_contracts($c) {
 		$c = is_array($c) ? $c : array();
-		// The booking editor is still in core (until SPLIT-F).
-		foreach (array('booking') as $id) if (!self::addon_provides($id)) $c[$id]['core'] = 1;
+		// SPLIT-F: every feature that left core is announced by its add-on now (nothing is provided by "core" here).
 		return $c;
 	}
 

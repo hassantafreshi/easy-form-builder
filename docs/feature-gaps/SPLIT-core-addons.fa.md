@@ -583,12 +583,12 @@ e2e روی `tests/e2e-wp` (سناریوی تازهٔ `scenario-split.js`، fa_IR
 ### F — رزرو (`AdnBEF` اسکلت و قرارداد)
 هسته: `efb_choice_option_state` با پیش‌فرض منجمد، دو ورودی رجیستری §۹.۳، حذف `case "reservation"`، کنترل‌های فقط‌خواندنی؛ `vendores-efb/booking`: ویرایش فرم رزرو قدیمی و قالب، اسکلت availability (پیاده‌سازی کامل تسک جدا پس از F20). معیار: `test-split-booking-legacy.php`؛ e2e `f05` (موجودی) بی‌تغییر.
 
-**Checkpoint**
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (انجام شد، 2026-11-15)**
+- فایل‌های تغییرکرده: هسته — `class-Emsfb-public.php` (`choice_option_state_efb()` با پیش‌فرض منجمد و `efb_choice_option_state`؛ سه شاخهٔ `dateExp` از آن می‌گذرند؛ `case "reservation"` حذف)، `admin-efb.js` (بی شاخهٔ خالی `reservation`؛ قالب «Booking» فقط از `efbBookingTemplate` افزونه)، `val-efb.js` (تاریخ پایان و ظرفیت گزینه بی‌افزونه فقط‌خواندنی با پیام Install)، `class-Emsfb-calendar-rest.php` (`setting:advdate_range` و `setting:advdate_availability`؛ `advdate_booking` نام مستعار تا API نسخهٔ ۲)، `class-Emsfb-split.php` (هیچ قرارداد دیگری `core` نیست)، `functions.php` (`newbkForm` به افزونه). افزونهٔ تازه `vendores-efb/booking` (Pro): `routes-efb.php`، `class-Emsfb-booking.php` (قرارداد `booking` v1، `efb_choice_option_state` که قاعدهٔ منجمد را نگه می‌دارد، اسکریپت سازنده)، `assets/js/booking-builder-efb.js` (قالب و باز کردن ویرایش)، `booking-phrases-efb.php`، زیپ.
+- تست‌ها: تازه `test-split-booking-legacy.php` (13). `test-choices-*`، `test-stock-*`، `test-advdate-*`، `test-calendar-*` بی‌تغییر سبز.
+- وضعیت ترجمه: `newbkForm` به `efb-booking`؛ `bkXpM_` و `bkFlM_` در هسته (اجرای منجمد).
+- مورد باز: دسترسی‌پذیری تاریخ (`availability = booking`، `bk_*`، جدول `emsfb_bk_slot_`)، صفحهٔ Bookings و یادآوری = تسک جدا پس از F20 (§۱۹)؛ تا آن زمان `availability = booking` همان `none` است و فهرست فرم‌ها «Needs the Booking add-on» نشان می‌دهد (پرسش ۷).
+- اقدام بعدی: G.
 
 ### G — Data Tools
 پس از انتشار Data Tools ≥ 1.1.0 (درون‌ریز CF7 با آزمون‌هایش): هم‌زیستی §۸، کارت نصب، سپس حذف `includes/importers/` و `test-cf7-*` از هسته؛ خط «منسوخ» در نقشهٔ راه `AdnIEM`. معیار: e2e Data Tools روی همان سایت؛ هسته بی‌خطا وقتی Data Tools نیست.

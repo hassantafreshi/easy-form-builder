@@ -4371,8 +4371,6 @@ public function check_nonce_permission_efb($request) {
 									}
 									exit;
 							break;
-						case "reservation":
-							break;
 						default:
 								$response = array( 'success' => false  ,'m'=>$this->lanText['somethingWentWrongPleaseRefresh']);
 								wp_send_json_success($response, 200);
@@ -7653,6 +7651,21 @@ public function check_nonce_permission_efb($request) {
 		return $item;
 	}
 
+	/**
+	 * SPLIT §9.1-9.2: whether a choice of a booking form can still be picked. Core keeps the frozen rule every live
+	 * booking form relies on (an option whose dateExp has passed is closed, with bkXpM_; its capacity is taken atomically
+	 * by Stock); the Booking add-on may decide instead (efb_choice_option_state). @return array{open: bool, code: string, m: string}
+	 */
+	public function choice_option_state_efb($option, $field) {
+		$st = array('open' => true, 'code' => '', 'm' => '');
+		if (is_array($option) && isset($option['dateExp']) && is_string($option['dateExp']) && $option['dateExp'] !== '' && strtotime($option['dateExp']) !== false && strtotime($option['dateExp']) < strtotime(wp_date('Y-m-d'))) {
+			$m = isset($this->lanText['bkXpM_']) ? $this->lanText['bkXpM_'] : '%s';
+			$st = array('open' => false, 'code' => 'efb_booking_expired', 'm' => str_replace('%s', isset($option['value']) && is_scalar($option['value']) ? (string) $option['value'] : '', $m));
+		}
+		$f = apply_filters('efb_choice_option_state', $st, is_array($option) ? $option : array(), is_array($field) ? $field : array(), array('form_id' => (int) $this->id));
+		return is_array($f) && isset($f['open']) ? array('open' => (bool) $f['open'], 'code' => isset($f['code']) ? (string) $f['code'] : '', 'm' => isset($f['m']) ? (string) $f['m'] : '') : $st;
+	}
+
 	public function string_to_url($string) {
 			$rePage= preg_replace('/(http:@efb@)+/','http://',$string);
 			$rePage= preg_replace('/(https:@efb@)+/','https://',$rePage);
@@ -8992,12 +9005,11 @@ public function check_nonce_permission_efb($request) {
 											$item['sub_value'] = $fr['sub_value'];
 										}
 										if ($form_condition == 'booking') {
-											if (isset($fr['dateExp']) == true) {
-												if (strtotime($fr['dateExp']) < strtotime(wp_date('Y-m-d'))) {
-													$is_valid = 0;
-													$error_message = $this->lanText['bkXpM_'];
-													$error_message = str_replace('%s', $fr['value'], $error_message);
-												}
+											// SPLIT §9.1: the frozen expiry check of a booking choice (efb_choice_option_state: the Booking add-on may decide).
+											$opt_st_efb = $this->choice_option_state_efb($fr, $f);
+											if (!$opt_st_efb['open']) {
+												$is_valid = 0;
+												$error_message = $opt_st_efb['m'];
 											}
 											// F05: the capacity (mlen) is taken atomically in insert_message_db() (\Emsfb\Stock), not counted here.
 										}
@@ -9068,12 +9080,11 @@ public function check_nonce_permission_efb($request) {
 										$item['price'] = $f['price'];
 									}
 									if ($form_condition == 'booking') {
-										if (isset($f['dateExp']) == true) {
-											if (strtotime($f['dateExp']) < strtotime(wp_date('Y-m-d'))) {
-												$is_valid = 0;
-												$error_message = $this->lanText['bkXpM_'];
-												$error_message = str_replace('%s', $f['value'], $error_message);
-											}
+										// SPLIT §9.1: the frozen expiry check (efb_choice_option_state: the Booking add-on may decide).
+										$opt_st_efb = $this->choice_option_state_efb($f, $f);
+										if (!$opt_st_efb['open']) {
+											$is_valid = 0;
+											$error_message = $opt_st_efb['m'];
 										}
 										// F05: the capacity (mlen) is taken atomically in insert_message_db() (\Emsfb\Stock).
 									}
@@ -9181,12 +9192,11 @@ public function check_nonce_permission_efb($request) {
 										$validated_item = $item;
 										$still_processing = false;
 										if ($form_condition == 'booking') {
-											if (isset($fr['dateExp']) == true) {
-												if (strtotime($fr['dateExp']) < strtotime(wp_date('Y-m-d'))) {
-													$is_valid = 0;
-													$error_message = $this->lanText['bkXpM_'];
-													$error_message = str_replace('%s', $fr['value'], $error_message);
-												}
+											// SPLIT §9.1: the frozen expiry check of a booking choice (efb_choice_option_state: the Booking add-on may decide).
+											$opt_st_efb = $this->choice_option_state_efb($fr, $f);
+											if (!$opt_st_efb['open']) {
+												$is_valid = 0;
+												$error_message = $opt_st_efb['m'];
 											}
 											// F05: the capacity (mlen) is taken atomically in insert_message_db() (\Emsfb\Stock).
 										}
