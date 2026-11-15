@@ -55,13 +55,15 @@ function capabilities(pkg, settings) {
     // SPLIT §4.4: the add-on plans are one table (Emsfb\\Addon_Catalog::ADDONS).
     require '${INC}/class-Emsfb-addon-catalog.php';
     $GLOBALS['tiers'] = array(); foreach (\\Emsfb\\Addon_Catalog::ADDONS as $k => $e) $GLOBALS['tiers'][$k] = (int) $e['package'];
-    class F { public function addon_required_package_efb($a) { return isset($GLOBALS['tiers'][$a]) ? $GLOBALS['tiers'][$a] : 1; } }
+    // F12b: the CAPTCHA add-ons' state (plan / addon) in capabilities.spam.providers follows this site's plan.
+    class F { public function addon_required_package_efb($a) { return isset($GLOBALS['tiers'][$a]) ? $GLOBALS['tiers'][$a] : 1; }
+      public function addon_plan_allows_install_efb($a) { $p = ${Number(pkg)}; $n = isset($GLOBALS['tiers'][$a]) ? $GLOBALS['tiers'][$a] : 1; return $n === 0 || $p === 1 || ($p === 3 && $n === 3); } }
     function get_efbFunction() { return new F(); }
     require '${API}';
     $caps = \\Emsfb\\Builder_Api::capabilities(array('package' => ${Number(pkg)}));
     // Every module adds its entries through the efb_capabilities filter, in the plugin's priority order:
     // F11 (20) Form_Gate, F03 (21) Field_Rules, F02 / F06 (22) Verification / Calendar_Rest, F07 (23) Uploads,
-    // F08 (24) Smart_Tags, F05 (25) Choices, F04 (26) Calc, F09 (27) Repeater, F14 (28) Entries, F10 (29) Layout, F12 (30) Spam,
+    // F08 (24) Smart_Tags, F05 (25) Choices, F04 (26) Calc, F09 (27) Repeater, F14 (28) Entries, F10 (29) Layout, F12 / F12b (30) Spam (with the CAPTCHA registry's providers),
     // F15 (31) Builder_Tools, (32) Revisions, (33) Form_Package.
     foreach (array('class-Emsfb-rate-limit.php', 'class-Emsfb-client-ip.php', 'class-Emsfb-form-css.php', 'class-Emsfb-form-gate.php', 'class-Emsfb-masks.php', 'class-Emsfb-field-rules.php', 'verification/interface-provider.php', 'class-Emsfb-verification.php', 'class-Emsfb-calendar.php', 'class-Emsfb-calendar-rest.php', 'class-Emsfb-upload-guard.php', 'class-Emsfb-uploads.php', 'class-Emsfb-smart-tags.php', 'class-Emsfb-choices.php', 'class-Emsfb-stock.php', 'class-Emsfb-repeater.php', 'admin/class-Emsfb-entries.php', 'class-Emsfb-layout.php', 'class-Emsfb-captcha.php', 'class-Emsfb-spam.php', 'class-Emsfb-builder-tools.php', 'class-Emsfb-revisions.php', 'class-Emsfb-form-package.php') as $f) require_once '${INC}/' . $f;
     // SPLIT §6: the Numbers & Calculations add-on (vendor/calc or EFB_CALC_DIR) provides Emsfb\\Calc.

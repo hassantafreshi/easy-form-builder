@@ -4,8 +4,8 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-15",
     "counts": {
-        "active": 4010,
-        "obsolete": 512
+        "active": 4051,
+        "obsolete": 515
     },
     "entries": [
         {
@@ -335,6 +335,21 @@
             "context": null,
             "plural": null,
             "translators": "F14 history: %1$s = person, %2$s = number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s forms use %2$s, which is not available now. They are protected by %3$s.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: admin notice. %1$s: number of forms, %2$s: a CAPTCHA service, %3$s: what protects them now",
             "files": [
                 "includes/functions.php"
             ],
@@ -3510,6 +3525,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Action name",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: the reCAPTCHA v3 action name of a form",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Action needed: Easy Form Builder Pro is paused on %s",
             "context": null,
             "plural": null,
@@ -5001,6 +5031,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Alignment",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: CAPTCHA option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "All",
             "context": null,
             "plural": null,
@@ -5300,6 +5345,21 @@
             "first_seen": "4.3.1",
             "status": "obsolete",
             "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "Also check the CAPTCHA on login and registration",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: Settings > Captchas",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Also delete uploaded files",
@@ -5885,6 +5945,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Appearance",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: CAPTCHA option (when the widget shows)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -6808,7 +6883,7 @@
             "msgid": "Automatic",
             "context": null,
             "plural": null,
-            "translators": "F13: option of the identifying email field: the form's user email field, else any email field translators: F01 builder, mobile keyboard option: chosen from the field format, or the phone default",
+            "translators": "F13: option of the identifying email field: the form's user email field, else any email field translators: F01 builder, mobile keyboard option: chosen from the field format, or the phone default translators: F12b: builder: CAPTCHA option value",
             "files": [
                 "includes/functions.php"
             ],
@@ -6922,6 +6997,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Available on Free Plus and Pro",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder / settings: a CAPTCHA add-on needs a plan",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -7127,6 +7217,21 @@
             "context": null,
             "plural": null,
             "translators": "F19: mobile-only setting of the step background",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Badge position",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: CAPTCHA option (Google's badge)",
             "files": [
                 "includes/functions.php"
             ],
@@ -7860,6 +7965,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Bottom left",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: CAPTCHA option value (badge)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Bottom right",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: CAPTCHA option value (badge)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Bounce",
             "context": null,
             "plural": null,
@@ -8475,6 +8610,21 @@
             "first_seen": "4.3.1",
             "status": "obsolete",
             "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "CAPTCHA add-ons",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: settings: heading of the CAPTCHA add-ons' settings",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "CAPTCHA service",
@@ -9298,7 +9448,7 @@
             "msgid": "Center",
             "context": null,
             "plural": null,
-            "translators": "F19: position of a radial gradient",
+            "translators": "F19: position of a radial gradient translators: F12b: builder: CAPTCHA option value (alignment)",
             "files": [
                 "includes/functions.php"
             ],
@@ -10889,8 +11039,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "Cloudflare showed the visitor a security check instead of sending the form. Open Cloudflare (Security, Events) and look for a challenged request at %s.",
@@ -11294,6 +11444,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Compact",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: CAPTCHA option value (size)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -13433,7 +13598,7 @@
             "msgid": "Dark",
             "context": null,
             "plural": null,
-            "translators": "Dark = name of the dark color preset",
+            "translators": "Dark = name of the dark color preset translators: F12b: builder: CAPTCHA option value (theme)",
             "files": [
                 "includes/functions.php"
             ],
@@ -13451,6 +13616,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Data goes to: %s",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: settings: %s: the company and country a CAPTCHA service sends data to",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -14609,6 +14789,21 @@
             "context": null,
             "plural": null,
             "translators": "F02 visitor: link that shows delivery tips",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Difficulty",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: CAPTCHA option",
             "files": [
                 "includes/functions.php"
             ],
@@ -17967,6 +18162,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "End",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: CAPTCHA option value (alignment: the end of the line)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "End of button gradients",
             "context": null,
             "plural": null,
@@ -21246,8 +21456,9 @@
             "msgid": "Full width",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F12b: builder: CAPTCHA option value (size)",
             "files": [
+                "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
@@ -21876,6 +22087,21 @@
             "obsolete_since": "4.3.1"
         },
         {
+            "msgid": "Google reCAPTCHA v2 (invisible)",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: name of a CAPTCHA service (product name)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Google reCAPTCHA v2 Spam Protection",
             "context": null,
             "plural": null,
@@ -21895,6 +22121,21 @@
             "context": null,
             "plural": null,
             "translators": "F12: CAPTCHA service name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Google requires its notice when the badge is hidden; it is shown under the submit button.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: when Google's badge is hidden",
             "files": [
                 "includes/functions.php"
             ],
@@ -22528,7 +22769,7 @@
             "msgid": "Hidden",
             "context": null,
             "plural": null,
-            "translators": "F08: badge of a hidden value in the response viewer",
+            "translators": "F08: badge of a hidden value in the response viewer translators: F12b: builder: CAPTCHA option value (badge)",
             "files": [
                 "includes/functions.php"
             ],
@@ -24522,6 +24763,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Inline",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: CAPTCHA option value (badge)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Inner Padding",
             "context": null,
             "plural": null,
@@ -24692,7 +24948,7 @@
             "msgid": "Install the add-on",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F12b: builder / settings: link to the Add-ons page",
             "files": [
                 "includes/functions.php"
             ],
@@ -25212,6 +25468,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Invisible",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: CAPTCHA option value (size)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -26361,8 +26632,9 @@
             "msgid": "Language",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F12b: builder: CAPTCHA option (language of the widget)",
             "files": [
+                "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
@@ -26429,6 +26701,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Language of the page",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: CAPTCHA option value (language)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -26781,6 +27068,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Leave empty to keep the saved key.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: settings: help under a secret key",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Leave empty to use default %s",
             "context": null,
             "plural": null,
@@ -27021,6 +27323,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Letters, digits, _ and / only. Shown in your reCAPTCHA admin console.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: help of the action name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Libya",
             "context": null,
             "plural": null,
@@ -27069,7 +27386,7 @@
             "msgid": "Light",
             "context": null,
             "plural": null,
-            "translators": "Light = name of the light color preset",
+            "translators": "Light = name of the light color preset translators: F12b: builder: CAPTCHA option value (theme)",
             "files": [
                 "includes/functions.php"
             ],
@@ -27386,6 +27703,21 @@
             "context": null,
             "plural": null,
             "translators": "F15: undo history entry: the list of states or cities was loaded",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Load reCAPTCHA from",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: Settings > Captchas: where Google's script is loaded from",
             "files": [
                 "includes/functions.php"
             ],
@@ -28914,6 +29246,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Message when the check fails",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: CAPTCHA option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Message when the check is missing",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: CAPTCHA option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Message when the form is full",
             "context": null,
             "plural": null,
@@ -30346,6 +30708,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Needs the reCAPTCHA v2 keys too.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: help of the option above",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Net Promoter Score",
             "context": null,
             "plural": null,
@@ -31751,6 +32128,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Normal",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: CAPTCHA option value (size)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Not Found",
             "context": null,
             "plural": null,
@@ -31946,6 +32338,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Not installed",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder / settings: a CAPTCHA add-on that is not installed",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Not matched",
             "context": null,
             "plural": null,
@@ -31965,6 +32372,21 @@
             "context": null,
             "plural": null,
             "translators": "Link that closes the form builder's email question. translators: F18: closes the upgrade dialog",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Not saved: %s",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: settings: %s: names of the values that were not saved",
             "files": [
                 "includes/functions.php"
             ],
@@ -36545,6 +36967,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please confirm you are not a robot.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: visitor: the score was low, the checkbox is shown",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please confirm your email address with the link we sent you before logging in.",
             "context": null,
             "plural": null,
@@ -40091,7 +40528,7 @@
             "msgid": "Remove",
             "context": null,
             "plural": null,
-            "translators": "F09: button that confirms removing a row",
+            "translators": "F09: button that confirms removing a row translators: F12b: settings: button that removes a saved secret key",
             "files": [
                 "includes/functions.php"
             ],
@@ -40212,6 +40649,21 @@
             "context": null,
             "plural": null,
             "translators": "AutoPilot B4: asked when the admin changes a login or registration form to another type",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Remove the saved key? The forms that use it lose this check until you add a new one.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: settings: confirmation before a saved key is removed",
             "files": [
                 "includes/functions.php"
             ],
@@ -40409,6 +40861,21 @@
             "context": null,
             "plural": null,
             "translators": "F09 builder: palette tile and type name of the repeater group (a set of fields the visitor can repeat)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Replace",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: settings: button",
             "files": [
                 "includes/functions.php"
             ],
@@ -42513,6 +42980,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Saved (%s)",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: settings: a secret key is saved; %s: its last characters as •••• 1234",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Saved answers are kept for (days)",
             "context": null,
             "plural": null,
@@ -43024,6 +43506,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Security check for replies",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: visitor: label of the CAPTCHA of a reply box",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -44935,6 +45432,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Show the checkbox when the score is low",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: reCAPTCHA v3 option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Show the description",
             "context": null,
             "plural": null,
@@ -45418,8 +45930,9 @@
             "msgid": "Size",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F12b: builder: CAPTCHA option",
             "files": [
+                "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-frontend.php"
             ],
             "scope": [
@@ -46046,6 +46559,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Spam protection is on: hidden field, 3 seconds, spam kept 30 days.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: admin notice after the button above",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Spam protection of this form was turned off.",
             "context": null,
             "plural": null,
@@ -46334,16 +46862,16 @@
             "msgid": "Start",
             "context": null,
             "plural": null,
-            "translators": "Start = subscription start date label",
+            "translators": "F12b: builder: CAPTCHA option value (alignment: the start of the line)",
             "files": [
-                "includes/phrases.php"
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.2.0"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Start Recording",
@@ -46410,6 +46938,21 @@
             "context": null,
             "plural": null,
             "translators": "F11: banner button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Start the check",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: CAPTCHA option (when the check starts)",
             "files": [
                 "includes/functions.php"
             ],
@@ -49222,6 +49765,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The CAPTCHA keys of this form are not set. Visitors see the form with basic spam protection.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: shown above a form to a signed-in administrator only",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The CAPTCHA was not carried over as a field. Easy Form Builder has its own Google reCAPTCHA: add your keys in Panel > Settings > Google Keys, then turn on reCAPTCHA in this form’s settings.",
             "context": null,
             "plural": null,
@@ -50912,7 +51470,6 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-public.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -50934,8 +51491,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "The form is successfully built",
@@ -53258,9 +53815,10 @@
             "msgid": "Theme",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F12b: builder: CAPTCHA option",
             "files": [
-                "includes/class-Emsfb-formbuilder.php"
+                "includes/class-Emsfb-formbuilder.php",
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -54669,8 +55227,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "This key is not a %s key.",
@@ -55064,6 +55622,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "This service gets the visitor's IP address from the browser, whatever your IP setting.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: builder: a CAPTCHA service on a form that stores no IP address",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "This site can send emails",
@@ -55852,6 +56425,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Too many replies. Please wait a few minutes.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: visitor: too many replies were sent",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Too many requests from one visitor",
             "context": null,
             "plural": null,
@@ -56448,6 +57036,21 @@
             "context": null,
             "plural": null,
             "translators": "F12: builder form settings (advanced)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Turn on recommended protection",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: admin notice button",
             "files": [
                 "includes/functions.php"
             ],
@@ -57721,6 +58324,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Update or turn on the add-on",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: settings: a CAPTCHA add-on that is off or too old",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Update the %s add-on: it was made for an older version of Easy Form Builder.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: admin notice. %s: add-on name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Updating&hellip;",
             "context": null,
             "plural": null,
@@ -58117,6 +58750,21 @@
             "context": null,
             "plural": null,
             "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Use recaptcha.net where google.com is blocked.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: Settings > Captchas: help",
             "files": [
                 "includes/functions.php"
             ],
@@ -66180,8 +66828,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "hidden, utm, tracking",
@@ -67590,6 +68238,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "the hidden field and the minimum time",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: admin notice: what protects the forms (fills %3$s above)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },

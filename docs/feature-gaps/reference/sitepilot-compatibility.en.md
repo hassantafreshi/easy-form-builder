@@ -165,6 +165,7 @@ REST: `GET /wp-json/Emsfb/v1/admin/manifest`. Cheap, cached per request. Filter 
     "layout":       { "v": 1, "plan": "free", "gated_keys": { "rich_text": "free_plus", "vis_mode": "pro" }, "spec": "F10" },
     "limits":       { "v": 1, "plan": "free", "gated_keys": { "lim_user": "free_plus", "draft_on": "pro", "partial_on": "pro" }, "spec": "F11" },
     "spam_core":    { "v": 1, "plan": "free", "spec": "F12" },
+    "captcha_providers": { "v": 2, "plan": "free", "gated_keys": { "captcha_provider=turnstile|hcaptcha|altcha|question|friendly": "free_plus" }, "addons": { "turnstile": "AdnCTS", "hcaptcha": "AdnHCP", "altcha": "AdnALT", "question": "AdnQCP", "friendly": "AdnFRC" }, "spec": "F12b" },
     "privacy":      { "v": 1, "plan": "free", "spec": "F13" },
     "entries_api":  { "v": 1, "plan": "free", "spec": "F14" },
     "revisions":    { "v": 1, "plan": "free", "spec": "F15" },
@@ -577,8 +578,9 @@ not assign `valj_efb` or call internal builder functions; they will change with 
         "partial_consent": { "enum": ["checkbox", "notice"] }, "partial_need_contact": { "$ref": "#/$defs/flag" },
         "allowed_roles": { "type": "string", "description": "comma list of role slugs" },
         "custom_css": { "type": "string", "pattern": "^$|^b64:[A-Za-z0-9+/=]*$", "x-efb-requires": "unfiltered_html" },
-        "captcha_provider": { "enum": ["", "recaptcha_v2", "recaptcha_v3", "hcaptcha", "turnstile"], "x-efb-spec": "F12" },
-        "rc3_threshold": { "type": ["string", "number"] }, "spam_off": { "$ref": "#/$defs/flag" }, "spam_akismet": { "enum": ["", "0"] },
+        "captcha_provider": { "type": "string", "pattern": "^$|^[a-z][a-z0-9_]{2,23}$", "x-efb-values": "capabilities.spam.providers[].id (recaptcha_v2, recaptcha_v2i, recaptcha_v3, turnstile, hcaptcha, altcha, question, friendly)", "x-efb-spec": "F12b" },
+        "rc3_threshold": { "type": ["string", "number"] }, "rc3_action": { "type": "string", "pattern": "^$|^[A-Za-z0-9_/]{1,40}$" }, "rc3_fallback": { "$ref": "#/$defs/flag" },
+        "cp_*": { "description": "the chosen service's options, schema in capabilities.spam.providers[].options", "x-efb-spec": "F12b" }, "spam_off": { "$ref": "#/$defs/flag" }, "spam_akismet": { "enum": ["", "0"] },
         "prv_nostore": { "$ref": "#/$defs/flag", "x-efb-spec": "F13" }, "prv_ip": { "enum": ["", "store", "anon", "none"] },
         "prv_days": { "type": "string", "pattern": "^$|^[0-9]{1,4}$" }, "prv_id_field": { "type": "string" },
         "val_timing": { "enum": ["change", "blur"], "x-efb-spec": "F16" },
@@ -1148,6 +1150,17 @@ answers `spam_security_change` (`risk: high`) when the CAPTCHA or the spam check
 storage; the entries API row of a spam entry also carries `spam_reasons`. *Not yet:* the API's create (and with it the
 "new form" honeypot / min-time defaults of `efb_form_defaults_efb()`); the site settings are the defaults for now.
 Details: `docs/autopilot-integration.md` (F12), `docs/spam/README.en.md`.
+
+**F12b CAPTCHA providers.** *Shipped (2026-11-15):* Google's three modes in core (`recaptcha_v2`, `recaptcha_v2i`,
+`recaptcha_v3` with `rc3_action` and `rc3_fallback`), Turnstile / hCaptcha / ALTCHA / question / Friendly Captcha as
+add-ons (AdnCTS, AdnHCP, AdnALT, AdnQCP, AdnFRC; Free Plus and Pro; hCaptcha and Turnstile left core). Discovery:
+`capabilities.spam.providers[] = {id, label, plan, addon, installed, available, state, ready, kind, privacy, options}`
+(options = the `cp_*` schema; never a secret). Setting a provider: `setFormSettings({captcha_provider, cp_*})` →
+`addon_required` (+ `addon` code) when the add-on is not installed / off / outdated, `plan_required` on a plan without
+it, accepted with warning `captcha_not_ready` when its keys are missing. Schema: `spam.captcha = {on, provider,
+effective_provider, kind, ready, widget, fallback, why}`. `spam_security_change` with `risk: medium` for a switch to the
+question CAPTCHA. Packages (F15) carry `captcha_provider` and `cp_*`, never a key; an import without the add-on
+reports `captcha_addon_missing`. Details: `docs/autopilot-integration.md` (F12b), `docs/spam/captcha-contract.en.md`.
 
 **F13 privacy and retention.** Create: `prv_nostore`, `prv_ip`, `prv_days`, `prv_id_field`, field
 `prv_pii`. Must add: `emsfb_prv_forms` map updated from `efb_form_saved`/`efb_form_created` (not only

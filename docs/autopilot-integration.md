@@ -1474,6 +1474,45 @@ Spec: `docs/feature-gaps/F12-spam-core.fa.md`; guide `docs/spam/README.en.md`; C
   (`\Emsfb\Spam::verify_captcha()`), `window.EFBCaptcha.token(ctx)` / `reset(-1)`, event `efb:captcha`.
 - **Tests.** `node tests/test-ap-spam.js`, `php tests/test-spam-soft-checks.php`, `php tests/test-captcha-verify.php`.
 
+### F12b. CAPTCHA providers: Google's three modes in core, five CAPTCHA add-ons, the provider contract v2
+
+Spec: `docs/feature-gaps/F12b-captcha-providers.fa.md`; contract `docs/spam/captcha-contract.en.md` (part 2).
+Server: `Emsfb\Captcha\Registry` / `Provider` / `Google` / `Admin` (`includes/captcha/`). F12's keys and codes above
+stay; what F12b adds:
+
+- **Providers.** `recaptcha_v2`, `recaptcha_v2i` (invisible), `recaptcha_v3` (core, Free); `turnstile` (`AdnCTS`),
+  `hcaptcha` (`AdnHCP`), `altcha` (`AdnALT`), `question` (`AdnQCP`), `friendly` (`AdnFRC`) — add-ons on Free Plus and
+  Pro. hCaptcha and Turnstile left core: a form that still asks for them without the add-on is protected by the site's
+  Google mode (or the soft checks) until the add-on is installed.
+- **Discovery.** `efb_var.captcha_providers` on builder pages and `capabilities.spam.providers`: `{id, label, plan,
+  addon, installed, available, state: null | addon | plan | update, ready, kind: widget | invisible | endpoint,
+  privacy, options: [the form options' schema, never a secret]}`. `setting:captcha_provider` lists every id in
+  `values`, `providers` per plan and `option_prefix: 'cp_'`.
+- **Form keys.** `captcha_provider` (any id above), `rc3_threshold`, `rc3_action` (`^[A-Za-z0-9_/]{1,40}$`),
+  `rc3_fallback` ('1': on a low score the v2 checkbox appears in the same box), and the service's options `cp_*` from
+  its schema (enum values, text with `maxlen` / `pattern`, toggles '1' / ''). `EFBSpamCore.sanitizeOption()` is the
+  builder twin of `Registry::sanitize_form_option()`; options of another service are dropped when the service changes.
+- **API answers.** `efbBuilderApi.setFormSettings({captcha_provider: 'altcha'})`:
+  - the add-on is not installed / switched off / needs an update → throws `addon_required` with `e.addon` (the code,
+    e.g. `AdnALT`) — offer the install, as for SPLIT;
+  - the plan does not have it (Free) → `plan_required` (checked first: installing would not help);
+  - installed but its keys are not set → accepted, `warnings: [{code: 'captcha_not_ready'}]` (the form is protected by
+    the fallback until the owner adds the keys);
+  - an option outside the schema → `spam_invalid`; a secret (`rciSecretKey`, an add-on's `secret`, `api_key`,
+    `hmac_key` …) → `spam_secret`; site settings (`rc_host`, `captcha_login`, the keys) → `spam_site_only`.
+- **Schema.** `forms/{id}/schema` → `spam.captcha = {on, provider (asked), effective_provider (protecting now), kind,
+  ready, widget: visible | none, fallback: google | soft_checks | null, why: addon | plan | keys | update | null}`. ALTCHA
+  and the question are visible widgets (kind `endpoint`). The visitor solves the CAPTCHA; an assistant never does.
+- **Save warnings.** `spam_security_change` with `risk: medium` when a form switches to the question CAPTCHA (a weaker
+  service); `risk: high` as before when the CAPTCHA or the soft checks are switched off.
+- **Submit codes** (new): `efb_captcha_challenge` (v3 low score with the fallback: nothing stored, the page shows the
+  checkbox; the next send carries `captcha_kind: 'v2'`), `efb_captcha_replay`; login / register refuse with the same
+  `efb_captcha_*` codes (never "spam"); the reply box `forms/response/add` answers `efb_captcha_*` and `efb_reply_rate`.
+- **Form packages (F15).** `captcha_provider` and `cp_*` travel in the package, never a key; importing on a site
+  without that add-on reports `captcha_addon_missing` (the form is protected by the fallback).
+- **Tests.** `node tests/test-ap-spam.js` (F12b block), `php tests/test-captcha-registry.php`,
+  `node tests/e2e-wp/run.js f12b-1` (AutoPilot on the real builder).
+
 ### PAY01. Mollie gateway field (`mollie`, add-on `AdnMOL`)
 
 Add-on `vendores-efb/mollie` on the PAY00 contract; nothing new in core. For agents:

@@ -139,6 +139,9 @@ const base = (id, type, name, extra) => Object.assign({ id_: id, dataId: id + '-
   c.check('capabilities: setting:captcha_provider and setting:spam_off are Free; spam_off risk high', f['setting:captcha_provider'].package === 'free' && f['setting:spam_off'].package === 'free' && f['setting:spam_off'].risk === 'high' && f['setting:captcha_provider'].form_keys.join().indexOf('captcha,captcha_provider,rc3_threshold') === 0, [f['setting:captcha_provider'], f['setting:spam_off']]);
   c.check('capabilities.spam: form keys, reasons, the order of the checks, the hooks, the P20 functions', caps.spam && caps.spam.form_keys.join() === 'captcha_provider,rc3_threshold,rc3_action,rc3_fallback,spam_off,spam_akismet' && caps.spam.reasons.indexOf('too_fast') !== -1
     && caps.spam.order[0] === 'honeypot' && caps.spam.order[caps.spam.order.length - 1] === 'verdict' && caps.spam.hooks.indexOf('efb_spam_verdict') !== -1 && caps.spam.api.functions.indexOf('efb_captcha_verify') !== -1, caps.spam);
+  const st = (k) => capabilities(k).spam.providers.filter((p) => !p.installed).map((p) => p.id + ':' + p.state).join();
+  c.check('F12b capabilities.spam.providers: Google\'s three installed; the five add-ons "plan" on Free, "addon" (not installed) on Free Plus', caps.spam.providers.filter((p) => p.installed).map((p) => p.id).join() === 'recaptcha_v2,recaptcha_v2i,recaptcha_v3'
+    && st(2) === 'turnstile:plan,hcaptcha:plan,altcha:plan,question:plan,friendly:plan' && st(3) === 'turnstile:addon,hcaptcha:addon,altcha:addon,question:addon,friendly:addon', [st(2), st(3)]);
   c.check('capabilities: no secret key name is offered as a form key', JSON.stringify(caps.features['setting:captcha_provider']).indexOf('Secret') === -1, null);
   c.done();
 })().catch((e) => { console.error(e); process.exit(1); });

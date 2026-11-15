@@ -313,20 +313,27 @@ tracking (spam / trash → "not found"). F11 totals, payments, esign and the fil
 
 ### 10.3 Core anti-spam (F12, no database change)
 
-Spec: `docs/feature-gaps/F12-spam-core.fa.md`; guides `docs/spam/README.en.md`, `docs/spam/captcha-contract.en.md`.
+Spec: `docs/feature-gaps/F12-spam-core.fa.md`, `docs/feature-gaps/F12b-captcha-providers.fa.md`; guides
+`docs/spam/README.en.md`, `docs/spam/captcha-contract.en.md` (public API v1, provider contract v2).
 Code: `includes/class-Emsfb-spam.php` (`\Emsfb\Spam`), `includes/class-Emsfb-captcha.php` (`\Emsfb\Captcha`),
+`includes/captcha/` (`Captcha\Registry`, `Captcha\Provider`, `Captcha\Google`, `Captcha\Admin`),
+`includes/class-Emsfb-spam-notice.php` (D2 and "service not available" notices); add-ons `vendor/turnstile`,
+`vendor/hcaptcha`, `vendor/altcha`, `vendor/question-captcha`, `vendor/friendly-captcha` (AdnCTS, AdnHCP, AdnALT,
+AdnQCP, AdnFRC; contract `captcha_provider` 2),
 `includes/captcha-functions-efb.php`, `public/assets/js/captcha-efb.js` (`window.EFBCaptcha`),
 `includes/admin/assets/js/spam-settings-efb.js` (Settings › Captchas), `includes/admin/assets/js/spam-builder-efb.js`.
 
 | Piece | Where / name |
 |---|---|
 | Storage | a spam answer = `emsfb_msg_.entry_status` 1 (F14) + a history row `action = 'spam'`, `meta` = reasons; the visit's `emsfb_stts_.status` = `spam` (not counted as sent) |
-| Settings (`emsfb_setting`, administrators) | `captcha_provider`, `siteKey`/`secretKey`, `rc3SiteKey`/`rc3SecretKey`, `hcSiteKey`/`hcSecretKey`, `tsSiteKey`/`tsSecretKey`, `rc3Threshold`, `rc3_low_action`, `spam_honeypot`, `spam_min_time`, `spam_require_js`, `spam_action`, `spam_akismet`, `spam_disallowed_keys`, `spam_retention_days`; site keys only in `get_setting_Emsfb('pub')` |
-| Form keys | `captcha`, `captcha_provider`, `rc3_threshold`, `spam_off`, `spam_akismet` |
+| Settings (`emsfb_setting`, administrators) | `captcha_provider`, `siteKey`/`secretKey`, `rciSiteKey`/`rciSecretKey`, `rc3SiteKey`/`rc3SecretKey`, `rc_host`, `captcha_login`, `rc3Threshold`, `rc3_low_action`, `spam_honeypot`, `spam_min_time`, `spam_require_js`, `spam_action`, `spam_akismet`, `spam_disallowed_keys`, `spam_retention_days`; site keys only in `get_setting_Emsfb('pub')` |
+| Add-on settings | option `emsfb_cpv_<id>` (`public`, `secret` encrypted `enc:v1:`), public map `emsfb_cpv_public`; secrets reach screens only as `{set, last4}` (`Captcha\Admin::redact_settings`) |
+| Form keys | `captcha`, `captcha_provider`, `rc3_threshold`, `rc3_action`, `rc3_fallback`, `cp_*` (the service's options), `spam_off`, `spam_akismet` |
 | Order on submit | honeypot (`efb_hp`) → too_fast (runtime token `t0`) → no_js → field checks → CAPTCHA (hard) → v3 score → `efb_submit_bot_decision` → disallowed words → Akismet → `efb_spam_verdict` |
-| Hooks fired | `efb_captcha_failed($context, $provider, $code)` |
-| Filters | `efb_core_spam_checks`, `efb_spam_verdict`, `efb_captcha_verify_result`, `efb_captcha_check_hostname`, `efb_akismet_data`, `efb_akismet_is_test`, `efb_spam_retention_days`, `efb_entries_rows`; uses `efb_shield_allow_side_effect` (prio 1), `efb_entry_status_changed` (Akismet ham / spam), `emsfb_daily_maintenance` (37: spam purge), `efb_form_schema` (22), `efb_capabilities` (30), `efb_admin_localize_vars` (30: `captcha_ready`, `spam`) |
-| Script handles | `efb-recaptcha` (one Google script for v2 and v3), `efb-hcaptcha`, `efb-turnstile` (deferred, excluded from optimizers), `efb-captcha-js` |
+| Hooks fired | `efb_captcha_failed($context, $provider, $code)`, `efb_register_captcha_providers($registry)`, `efb_addon_removed($code)` |
+| Filters | `efb_core_spam_checks`, `efb_spam_verdict`, `efb_captcha_verify_result`, `efb_captcha_check_hostname`, `efb_captcha_providers`, `efb_captcha_active_for_form`, `efb_reply_rate_limits`, `efb_secret_setting_keys`, `efb_akismet_data`, `efb_akismet_is_test`, `efb_spam_retention_days`, `efb_entries_rows`; uses `efb_shield_allow_side_effect` (prio 1), `efb_entry_status_changed` (Akismet ham / spam), `emsfb_daily_maintenance` (37: spam purge), `efb_form_schema` (22), `efb_capabilities` (30), `efb_admin_localize_vars` (30: `captcha_ready`, `captcha_providers`, `spam`) |
+| Script handles | `efb-recaptcha` (one Google script for every Google mode), `efb-cp-<id>` and `efb-cp-<id>-ad` of the add-ons (deferred, excluded from optimizers), `efb-captcha-js` |
+| REST / AJAX | `Emsfb/v1/captcha/altcha/challenge`, `Emsfb/v1/captcha/question/challenge` (add-ons, no-store); AJAX `efb_captcha_provider_save` (Settings › Captchas, `wp_rest` nonce, `manage_options`), `efb_spam_notice` (`enable` · `dismiss` · `dismiss_cp`) |
 
 Tests: `tests/test-entries-*.php`, `tests/test-entry-edit.php`, `tests/test-entry-resend.php`,
 `tests/test-xlsx-writer.php`, `tests/test-export-csv-parity.php`, `tests/test-validate-rows-parity.php`,
