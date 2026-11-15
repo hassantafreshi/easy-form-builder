@@ -3114,13 +3114,28 @@ efb_reset_tracker_captcha_efb=()=>{
   } catch (e) {}
   if (typeof recaptchaExpiredEfb === 'function') recaptchaExpiredEfb(-1);
 }
+/* F12b follow-up: a guest's reply pass for a conversation (sessionStorage, this tab's session): read it, or set its end
+   (seconds; 0 forgets it). While it lasts the reply box's CAPTCHA is hidden; the server decides anyway. */
+efb_reply_pass_efb=(track,until)=>{
+  const k = 'efb_rp_' + String(track || '');
+  try {
+    if (until !== undefined) { if (until > 0) sessionStorage.setItem(k, String(until)); else sessionStorage.removeItem(k); }
+    const end = Number(sessionStorage.getItem(k) || 0), on = end > Date.now() / 1000;
+    const box = document.querySelector('.efb-reply-captcha');
+    if (box) box.hidden = on;
+    return on;
+  } catch (e) { return false; }
+}
 post_api_r_message_efb=async(data,message)=>{
   let runtime;
   // F12b D3: the reply box's CAPTCHA token (a visible one: its last token; an invisible one: asked for now) and its
   // hidden field. The server decides (one solve is good for 10 minutes of this reply session).
   const cpReply = document.querySelector('.efb-captcha[data-formid="-1"][data-ctx^="reply_"]');
   const cpCtx = cpReply ? cpReply.getAttribute('data-ctx') : '';
-  if (cpReply && window.EFBCaptcha && typeof window.EFBCaptcha.token === 'function') { try { data.valid = (await window.EFBCaptcha.token(cpCtx)) || ''; } catch (e) { data.valid = ''; } }
+  // F12b follow-up: within this conversation's pass (30 minutes by default, renewed by each reply) nothing is asked.
+  const cpPass = efb_reply_pass_efb(data.track);
+  if (cpReply && cpPass) data.valid = ''; // never an older token (the lookup's) in its place
+  else if (cpReply && window.EFBCaptcha && typeof window.EFBCaptcha.token === 'function') { try { data.valid = (await window.EFBCaptcha.token(cpCtx)) || ''; } catch (e) { data.valid = ''; } }
   const hpReply = document.getElementById('efb-hp-reply');
   if (hpReply) data.efb_hp = String(hpReply.value || '');
   const cpReset = (r) => { if (cpCtx && window.EFBCaptcha && !(r && r.data && r.data.success === true)) { try { window.EFBCaptcha.reset(-1, cpCtx); } catch (e) {} } };
@@ -3148,6 +3163,12 @@ post_api_r_message_efb=async(data,message)=>{
   };
     efb_fetch_public_request_efb(url, requestOptions, 'reply', data.sid || '', 0)
     .then(async response => {
+      // F12b follow-up: too many replies — an answer, not a failure (429 with Retry-After): the page counts down.
+      if (response.status === 429) {
+        let j = null; try { j = await response.json(); } catch (e) { j = null; }
+        const d = (j && j.data) || {};
+        return { success: true, data: Object.assign({ success: false, code: 'efb_reply_rate', m: '' }, d, { retry_after: Number(response.headers.get('Retry-After')) || Number(d.retry_after) || 60 }) };
+      }
       if (!response.ok) {
         throw await efb_request_error_efb(response);
       }
@@ -3155,7 +3176,10 @@ post_api_r_message_efb=async(data,message)=>{
     })
     .then(responseData => {
       if (window.EFBRuntime && responseData?.data?.success===true) window.EFBRuntime.complete(0,'reply');
-      cpReset(responseData);
+      const rd = (responseData && responseData.data) || {};
+      if (rd.success === true && rd.reply_pass_until) efb_reply_pass_efb(data.track, Number(rd.reply_pass_until));
+      if (rd.success !== true && /^efb_captcha_/.test(String(rd.code || ''))) efb_reply_pass_efb(data.track, 0);
+      if (rd.code !== 'efb_reply_rate') cpReset(responseData);
       response_rMessage_id(responseData, message);
     })
     .catch(async error => {

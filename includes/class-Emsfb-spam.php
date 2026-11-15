@@ -54,6 +54,10 @@ class Spam {
 		'rc3_low_action'       => 'spam',
 		'rc_host'              => 'google.com',
 		'captcha_login'        => '1',
+		// F12b follow-up (owner decision 2026-11-15): the reply box of a tracked entry.
+		'reply_pass_min'       => '30',
+		'reply_rl_track'       => '5',
+		'reply_rl_ip'          => '20',
 	);
 
 	/** A fresh install (Emsfb::get_default_settings_efb()): honeypot and 3 seconds, both "save as spam"; 30 days. */
@@ -126,6 +130,16 @@ class Spam {
 			case 'spam_retention_days':
 				$d = preg_replace('/[^0-9]/', '', self::latin_digits($v));
 				return (string) min(3650, (int) $d);
+			case 'reply_pass_min':
+				$d = (int) preg_replace('/[^0-9]/', '', self::latin_digits($v));
+				return (string) ($d > 0 ? max(5, min(1440, $d)) : 30);
+			case 'reply_rl_track':
+				$d = (int) preg_replace('/[^0-9]/', '', self::latin_digits($v));
+				return (string) ($d > 0 ? min(100, $d) : 5);
+			case 'reply_rl_ip':
+				// 0 = Off (no limit per address).
+				$d = preg_replace('/[^0-9]/', '', self::latin_digits($v));
+				return $d === '' ? '20' : (string) min(1000, (int) $d);
 			case 'spam_action':
 				return $v === 'reject' ? 'reject' : 'spam';
 			case 'rc3_low_action':
@@ -719,6 +733,11 @@ class Spam {
 			'outcomes'    => array('captcha' => 'block', 'silent_captcha' => 'block', 'soft' => 'spam (site setting spam_action: spam | reject); register, login and payment forms: reject'),
 			'site_only'   => array_keys(self::SETTING_DEFAULTS),
 			'secrets'     => 'never settable by an assistant, never in a form or a schema',
+			// F12b follow-up: the reply box of a tracked entry (site settings; read only for an assistant).
+			'reply'       => array('pass_minutes' => (int) self::setting('reply_pass_min'), 'per_track_10min' => (int) self::setting('reply_rl_track'),
+				'per_ip_hour' => (int) self::setting('reply_rl_ip') ?: null, 'pass' => 'sliding, bound to the tracking code and the visitor session (never the IP)',
+				'owner' => 'the signed-in owner of the entry: no CAPTCHA, the limits apply', 'staff' => 'manage_options or Emsfb: no CAPTCHA, no visitor limits',
+				'limited' => 'HTTP 429 with Retry-After; code efb_reply_rate, retry_after (seconds)'),
 			'risk_high'   => array('captcha off', 'spam_off on'),
 			'api'         => array('functions' => array('efb_captcha_verify', 'efb_captcha_widget', 'efb_captcha_api'), 'version' => Captcha::API_VERSION),
 			'hooks'       => array('efb_core_spam_checks', 'efb_spam_verdict', 'efb_captcha_verify_result', 'efb_captcha_failed', 'efb_captcha_check_hostname', 'efb_akismet_data', 'efb_spam_retention_days',

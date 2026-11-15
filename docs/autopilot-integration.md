@@ -1507,7 +1507,10 @@ stay; what F12b adds:
   service); `risk: high` as before when the CAPTCHA or the soft checks are switched off.
 - **Submit codes** (new): `efb_captcha_challenge` (v3 low score with the fallback: nothing stored, the page shows the
   checkbox; the next send carries `captcha_kind: 'v2'`), `efb_captcha_replay`; login / register refuse with the same
-  `efb_captcha_*` codes (never "spam"); the reply box `forms/response/add` answers `efb_captcha_*` and `efb_reply_rate`. F02 `verify/send` of a form behind an invisible
+  `efb_captcha_*` codes (never "spam"); the reply box `forms/response/add` answers `efb_captcha_*` and `efb_reply_rate`
+  (HTTP 429, `Retry-After`, `retry_after` seconds; a guest's success carries `reply_pass_until`). `capabilities.spam.reply`
+  reports the pass minutes and the limits; `reply_pass_min`, `reply_rl_track`, `reply_rl_ip` are site settings
+  (`spam_site_only` for an assistant). F02 `verify/send` of a form behind an invisible
   CAPTCHA (v2 invisible, v3) needs `captcha` (a token for the action `efb_otp`) and answers `efb_captcha_*` without it.
 - **Form packages (F15).** `captcha_provider` and `cp_*` travel in the package, never a key; importing on a site
   without that add-on reports `captcha_addon_missing` (the form is protected by the fallback).

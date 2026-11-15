@@ -5892,6 +5892,22 @@ class efbFunction {
 			"replyCaptchaLabel" => $state && isset($ac->text->replyCaptchaLabel) ? $ac->text->replyCaptchaLabel : esc_html__('Security check for replies','easy-form-builder'),
 			/* translators: F12b: visitor: too many replies were sent */
 			"replyTooMany" => $state && isset($ac->text->replyTooMany) ? $ac->text->replyTooMany : esc_html__('Too many replies. Please wait a few minutes.','easy-form-builder'),
+			/* translators: F12b: visitor: too many replies; %s is the time left, for example "5 minutes" */
+			"replyWaitFor" => $state && isset($ac->text->replyWaitFor) ? $ac->text->replyWaitFor : esc_html__('Too many replies for now. You can send again in %s. Your text is kept.','easy-form-builder'),
+			/* translators: F12b: visitor: the wait after too many replies is over */
+			"replyReady" => $state && isset($ac->text->replyReady) ? $ac->text->replyReady : esc_html__('You can send your reply now.','easy-form-builder'),
+			/* translators: F12b: Settings > Captchas: title of the reply box settings */
+			"replyBoxTitle" => $state && isset($ac->text->replyBoxTitle) ? $ac->text->replyBoxTitle : esc_html__('Reply box','easy-form-builder'),
+			/* translators: F12b: Settings > Captchas */
+			"replyPassMin" => $state && isset($ac->text->replyPassMin) ? $ac->text->replyPassMin : esc_html__('After one solved check, no new check for (minutes)','easy-form-builder'),
+			/* translators: F12b: Settings > Captchas */
+			"replyPassHelp" => $state && isset($ac->text->replyPassHelp) ? $ac->text->replyPassHelp : esc_html__('Each reply renews it. Staff and the signed-in sender of an entry are never asked; staff have no limits.','easy-form-builder'),
+			/* translators: F12b: Settings > Captchas */
+			"replyRlTrack" => $state && isset($ac->text->replyRlTrack) ? $ac->text->replyRlTrack : esc_html__('Replies per conversation in 10 minutes','easy-form-builder'),
+			/* translators: F12b: Settings > Captchas */
+			"replyRlIpOn" => $state && isset($ac->text->replyRlIpOn) ? $ac->text->replyRlIpOn : esc_html__('Limit replies per address','easy-form-builder'),
+			/* translators: F12b: Settings > Captchas */
+			"replyRlIp" => $state && isset($ac->text->replyRlIp) ? $ac->text->replyRlIp : esc_html__('Replies per address in an hour','easy-form-builder'),
 			/* translators: F12b: Settings > Captchas */
 			"loginCaptchaOn" => $state && isset($ac->text->loginCaptchaOn) ? $ac->text->loginCaptchaOn : esc_html__('Also check the CAPTCHA on login and registration','easy-form-builder'),
 			/* translators: F12: Settings: link to the CAPTCHA service's key page */

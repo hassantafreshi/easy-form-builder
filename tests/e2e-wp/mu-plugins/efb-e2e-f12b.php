@@ -47,3 +47,15 @@ if ( get_option( 'efb_e2e_f12b_mock' ) ) {
 		3
 	);
 }
+
+// F12b follow-up: the reply box's per-conversation window shortened for the e2e "limit hit, then recovered" check
+// (efb_e2e_reply_window = seconds), so a test does not wait 10 minutes. Off by default.
+if ( (int) get_option( 'efb_e2e_reply_window' ) > 0 ) {
+	add_filter(
+		'efb_reply_rate_limits',
+		static function ( $l ) {
+			if ( isset( $l['track'][1] ) ) $l['track'][0] = max( 60, (int) get_option( 'efb_e2e_reply_window' ) );
+			return $l;
+		}
+	);
+}

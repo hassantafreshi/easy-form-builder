@@ -27,6 +27,10 @@
  *          secret shown masked, the D2 notice, login and registration forms with their CAPTCHA, the reply box with its
  *          CAPTCHA — right to left, labels at the start (right), mixed text isolated (unicode-bidi plaintext), nothing
  *          off-screen, no horizontal scroll.
+ *  f12b-9  The reply box, no friction for people (owner decision 2026-11-15): a guest solves once and the box goes away
+ *          for the pass (30 minutes, renewed by each reply); a second tab asks once; the pass gone → asked again; too
+ *          many replies → "you can send again in …", Send off with a countdown, the typed text kept, then sent; the
+ *          signed-in owner and staff see no CAPTCHA; fa_IR / ar at 375 px.
  *  f12b-6  D2, D4, fallback, languages (rows 22, 27–30): the notice by keyboard; Settings › Captchas never prints a
  *          secret; an add-on switched off → the fallback, on again → back; ALTCHA by keyboard and its accessibility
  *          tree; fa_IR and ar at 375 px (right to left, no horizontal scroll), screenshots.
@@ -513,7 +517,8 @@ module.exports = function (S) {
       await back(g, L.form_id);
       await clickFake(g, L.form_id);
       const ok = await sendIn(g, L.form_id);
-      R.check('f12b-5 (D1): solved → signed in (the server checked the token)', ok && ok.success === true && await signed(), ok);
+      // The page reloads on a successful login: its answer may be gone before it is read ({}); the cookie decides.
+      R.check('f12b-5 (D1): solved → signed in (the server checked the token)', ok !== null && ok.success !== false && await signed(), ok);
 
       const Rg = ctlb('auth-form', 'register', 'captcha_provider=question');
       made.push(Rg.form_id);
@@ -740,6 +745,147 @@ module.exports = function (S) {
       del(...made);
       setting('spam_honeypot=1&spam_min_time=0&spam_action=spam&spam_retention_days=30');
       ctlb('notice-reset');
+      teardown();
+    }
+  });
+
+  /* ================================================================== f12b-9 the reply box: people not bothered, bots stopped */
+  scenario('f12b-9', 'F12b reply box (owner decision 2026-11-15): a guest solves once (the pass hides the box, renewed by each reply), a second tab asks once, the pass gone asks again, too many replies → countdown with the text kept, then sent; the owner and staff see no CAPTCHA; fa_IR / ar at 375 px', async ({ context, adminPage }) => {
+    setup('scaptcha=1');
+    ctl('set-option', 'efb_e2e_reply_window', 'del');
+    const made = [];
+    const owner = 'efb_f12b_rown_' + Math.random().toString(36).slice(2, 6);
+    const staff = 'efb_f12b_rstf_' + Math.random().toString(36).slice(2, 6);
+    try {
+      const F = form('F12b reply people', NM);
+      made.push(F.form_id);
+      const seed = (v) => ctl('f14-seed', String(F.form_id), JSON.stringify([{ id_: F.ids.nm, name: 'Name', type: 'text', value: v }]), '');
+      const E = seed('Guest ticket');
+      const tp = ctl('f12-page-tracker');
+      const count = (m) => { const r = ctl('replies', String(m)); return Array.isArray(r) ? r.length : -1; };
+      /** Opens the tracking box in a page, solves its check, looks the entry up; the reply box is on the page. */
+      const lookup = async (g, track) => {
+        await g.waitForFunction(() => window.__cb && window.__cb.renders.length > 0, null, { timeout: 15000 });
+        await g.fill('#trackingCodeEfb', track);
+        await clickFake(g, -1);
+        const look = g.waitForResponse((x) => /forms\/response\/get/.test(x.url()), { timeout: 30000 }).catch(() => null);
+        await g.click('#vaid_check_emsFormBuilder');
+        await look;
+        await g.waitForSelector('#replayB_emsFormBuilder', { timeout: 15000 });
+        await sleep(800);
+        await scrollBoxes(g);
+      };
+      const send = async (g, text, keep) => {
+        if (!keep) await g.evaluate(() => { const e = document.getElementById('efb_rich_editor'); if (e) e.innerHTML = ''; });
+        if (text) { await g.click('#efb_rich_editor'); await g.keyboard.type(text); }
+        const resp = g.waitForResponse((x) => /forms\/response\/add/.test(x.url()), { timeout: 15000 }).catch(() => null);
+        await g.click('#replayB_emsFormBuilder');
+        const r = await resp;
+        let j = null; try { j = r ? await r.json() : null; } catch (e) { j = null; }
+        await sleep(1000);
+        return r ? Object.assign({ status: r.status() }, j && j.data ? j.data : (j || {})) : null;
+      };
+      const boxShown = (g) => g.evaluate(() => { const b = document.querySelector('.efb-reply-captcha'); return !!b && !b.hidden && b.getBoundingClientRect().height > 0; });
+      const solveReply = async (g) => { await g.waitForFunction(() => window.__cb.renders.some((r) => /^reply_/.test(r.ctx || '')), null, { timeout: 15000 }); const rp = (await cap(g)).renders.filter((r) => /^reply_/.test(r.ctx || '')).pop(); await g.click(`#${rp.box} .efb-fake-cap`); await sleep(300); };
+
+      // A guest: once, then the pass.
+      const ctx = await context({}, 'f12b-9-guest');
+      await fake(ctx);
+      const g1 = await open(context, tp.url, 'f12b-9-guest', {}, { ctx, sel: '#body_tracker_emsFormBuilder' });
+      await lookup(g1, E.track);
+      const n0 = count(E.msg_id);
+      R.check('f12b-9: a guest sees the reply box\'s check the first time', await boxShown(g1), true);
+      await solveReply(g1);
+      const a1 = await send(g1, 'first reply');
+      R.check('f12b-9: solved once → stored; the answer carries the pass; the check leaves the page', a1 && a1.success === true && a1.reply_pass_until > Date.now() / 1000 + 1700 && count(E.msg_id) === n0 + 1 && !(await boxShown(g1)), { a1, shown: await boxShown(g1) });
+      const before = (await cap(g1)).v3.length + (await cap(g1)).executes.length;
+      const a2 = await send(g1, 'second reply, no check');
+      R.check('f12b-9: the next reply within the pass: nothing asked (no widget, no token), stored', a2 && a2.success === true && count(E.msg_id) === n0 + 2 && (await cap(g1)).v3.length + (await cap(g1)).executes.length === before, a2);
+      // A second tab: its own session, asked once.
+      const g2 = await ctx.newPage();
+      await g2.goto(tp.url, { waitUntil: 'load' });
+      await g2.waitForFunction(() => typeof sendBack_emsFormBuilder_pub !== 'undefined' && window.EFBCaptcha, null, { timeout: 20000 });
+      await scrollBoxes(g2);
+      await lookup(g2, E.track);
+      const t2 = await boxShown(g2);
+      const a3 = await send(g2, 'from tab two');
+      await solveReply(g2);
+      const a4 = await send(g2, 'from tab two', false);
+      R.check('f12b-9: a second tab: the check shown, a reply without it refused, then solved once and stored', t2 === true && a3 && /^efb_captcha_/.test(a3.code || '') && a4 && a4.success === true && count(E.msg_id) === n0 + 3, { t2, a3: a3 && a3.code, a4: a4 && a4.success });
+      // The pass runs out (as after 30 minutes): asked again, the box comes back.
+      ctlb('rl-reset');
+      const a5 = await send(g1, 'after the pass');
+      const back = await boxShown(g1);
+      await solveReply(g1);
+      const a6 = await send(g1, 'after the pass', false);
+      R.check('f12b-9: the pass gone → refused once, the check comes back, solved → stored', a5 && /^efb_captcha_/.test(a5.code || '') && back === true && a6 && a6.success === true, { a5: a5 && a5.code, back, a6: a6 && a6.success });
+
+      // Too many replies: a countdown, the text kept, then sent.
+      ctl('f12-setting', 'reply_rl_track=1');
+      ctl('set-option', 'efb_e2e_reply_window', '60');
+      ctlb('rl-reset');
+      const g3 = await open(context, tp.url, 'f12b-9-limit', {}, { sel: '#body_tracker_emsFormBuilder' });
+      await lookup(g3, E.track);
+      await solveReply(g3);
+      const b1 = await send(g3, 'one reply');
+      const typed = 'my long reply that must not be lost';
+      const b2 = await send(g3, typed);
+      await sleep(400);
+      const w = await g3.evaluate(() => { const st = document.getElementById('replay_state__emsFormBuilder'); const btn = document.getElementById('replayB_emsFormBuilder'); const ed = document.getElementById('efb_rich_editor');
+        return { msg: st.textContent, live: st.getAttribute('aria-live'), role: st.getAttribute('role'), off: btn.disabled, btn: btn.textContent, text: ed ? ed.textContent : '' }; });
+      R.check('f12b-9: the limit (1 per conversation for the test): HTTP 429; "You can send again in …" announced politely; Send off with a countdown; the typed text kept', b1 && b1.success === true && b2 && b2.status === 429 && b2.code === 'efb_reply_rate' && /You can send again in/.test(w.msg) && w.live === 'polite' && w.role === 'status' && w.off === true && /\(\d+:\d\d\)/.test(w.btn) && w.text === typed, { b2: b2 && { s: b2.status, c: b2.code, r: b2.retry_after }, w });
+      await g3.screenshot({ path: SHOT('f12b-9-reply-wait-en'), fullPage: true });
+      await g3.waitForFunction(() => !document.getElementById('replayB_emsFormBuilder').disabled, null, { timeout: 75000 });
+      const ready = await g3.evaluate(() => ({ msg: document.getElementById('replay_state__emsFormBuilder').textContent, text: document.getElementById('efb_rich_editor').textContent }));
+      const b3 = await send(g3, '', true);
+      R.check('f12b-9: after the wait: "You can send your reply now.", the text still there, sent and stored', /send your reply now/.test(ready.msg) && ready.text === typed && b3 && b3.success === true, { ready, b3: b3 && b3.success });
+
+      // fa_IR and ar at 375 px: the wait message and the countdown right to left.
+      for (const loc of ['fa_IR', 'ar']) {
+        ctl('locale', loc);
+        try {
+          ctlb('rl-reset');
+          const gm = await open(context, tp.url, 'f12b-9-' + loc, { viewport: { width: 375, height: 812 }, locale: loc.replace('_', '-') }, { sel: '#body_tracker_emsFormBuilder' });
+          await lookup(gm, E.track);
+          await solveReply(gm);
+          await send(gm, 'یک');
+          await send(gm, 'دو و سه');
+          await sleep(400);
+          const m = await gm.evaluate(() => { const st = document.getElementById('replay_state__emsFormBuilder'); const sp = st.querySelector('span') || st; const r = sp.getBoundingClientRect();
+            return { dir: getComputedStyle(st).direction, ub: getComputedStyle(sp).unicodeBidi, scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth, inside: r.left >= 0 && r.right <= document.documentElement.clientWidth + 1, off: document.getElementById('replayB_emsFormBuilder').disabled }; });
+          R.check(`f12b-9 (${loc}): 375 px — the wait message right to left and isolated, inside the screen, Send off, no horizontal scroll`, m.dir === 'rtl' && m.ub === 'plaintext' && m.inside && m.off && m.scroll <= 1, m);
+          await gm.evaluate(() => { const b = document.getElementById('replay_state__emsFormBuilder'); if (b) b.scrollIntoView({ block: 'center' }); });
+          await gm.screenshot({ path: SHOT(`f12b-9-reply-wait-${loc}-375`), fullPage: true });
+        } finally { ctl('locale', ''); }
+      }
+      ctl('f12-setting', 'reply_rl_track=del');
+      ctl('set-option', 'efb_e2e_reply_window', 'del');
+      ctlb('rl-reset');
+
+      // The signed-in owner and staff: no CAPTCHA.
+      ctlb('user', owner);
+      ctlb('user', staff);
+      ctlb('cap', staff, 'Emsfb', 'editor');
+      const EO = seed('Owner ticket');
+      ctlb('msg-uid', String(EO.msg_id), owner);
+      for (const [who, pass, track, msg] of [['owner', owner + '-pass-123', EO.track, EO.msg_id], ['staff', staff + '-pass-123', E.track, E.msg_id]]) {
+        const u = who === 'owner' ? owner : staff;
+        const pg = await adminPage({}, 'f12b-9-' + who, u, pass);
+        await fake(pg.context());
+        await pg.goto(tp.url, { waitUntil: 'load' });
+        await pg.waitForFunction(() => typeof sendBack_emsFormBuilder_pub !== 'undefined' && window.EFBCaptcha, null, { timeout: 20000 });
+        await scrollBoxes(pg);
+        await lookup(pg, track);
+        const k0 = count(msg);
+        const shown = await pg.evaluate(() => !!document.querySelector('.efb-reply-captcha'));
+        const r = await send(pg, who + ' reply');
+        R.check(`f12b-9: the ${who === 'owner' ? 'signed-in owner of the entry' : 'staff (an editor who answers entries)'}: no reply CAPTCHA on the page; the reply stored without one`, shown === false && r && r.success === true && count(msg) === k0 + 1, { shown, r: r && { s: r.success, c: r.code } });
+      }
+    } finally {
+      try { ctlb('user-del', owner, staff); } catch (e) { /* gone */ }
+      ctl('f12-setting', 'reply_rl_track=del');
+      ctl('set-option', 'efb_e2e_reply_window', 'del');
+      del(...made);
       teardown();
     }
   });

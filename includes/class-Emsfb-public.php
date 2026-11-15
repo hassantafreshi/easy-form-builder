@@ -1354,6 +1354,8 @@ public function check_nonce_permission_efb($request) {
 			'audio_recorder','video_recorder','screen_recorder','recStart','recStop','recPause','recResume','recRedo','recPlay','recReady','recRecording','recPaused','recReadyToSubmit','recUpload','recUploading','recUploaded','recUploadFailed','recUploadOffline','recUploadUnavailable','recNoFile','recFileTooLarge','recInvalidFile','recDurationExceeded',
 			'recQuality','recDuration','recQualityLow','recQualityStandard','recQualityHigh','recQuality480','recQuality720','recQuality1080','recPermissionDenied','recNotSupported','recMaxDurationReached','recWatermark','recTapToStart',
 			'recDownload','recNeedsHttps','recScreenNotSupported',
+			/* F12b follow-up: the reply box's wait after too many replies. */
+			'replyWaitFor','replyReady','replyTooMany',
 			/* text_efb() returns only the keys asked for, so a phrase left out
 			 * here is not missing text - it is text that quietly falls back to
 			 * English on every translated site. These two are the step counter
@@ -4450,6 +4452,9 @@ public function check_nonce_permission_efb($request) {
 		return $token;
 	}
 
+	/** F12b follow-up: the end of a guest's reply pass after the last reply (0: no pass in play). */
+	private $reply_pass_until_efb = 0;
+
 	private function user_can_manage_response_box_efb() {
 		return is_user_logged_in()
 			&& (current_user_can('manage_options') || current_user_can('Emsfb'));
@@ -4524,37 +4529,72 @@ public function check_nonce_permission_efb($request) {
 	 * @return true|string
 	 */
 	/** F12b D3: the gate of a guest's reply: null = go on, else ['code', 'm']. */
-	private function reply_gate_efb($data, $setting, $track, $ip) {
+	/**
+	 * F12b D3 + follow-up (owner decision 2026-11-15): the gate of a reply that is not staff's. null = go on, else
+	 * ['code', 'm', 'retry_after'?]. The hidden field; the visitor limits (per tracking code: reply_rl_track in 10 minutes,
+	 * default 5; per address: reply_rl_ip in an hour, default 20, 0 = Off; filter efb_reply_rate_limits); then, for a
+	 * guest when "CAPTCHA in the response box" is on, the site's CAPTCHA once: the pass lasts reply_pass_min minutes
+	 * (default 30), renews with each reply (sliding) and is bound to the tracking code and the visitor's session (the
+	 * runtime owner), never the IP. The signed-in owner of the entry ($owner) is not asked for a CAPTCHA.
+	 */
+	private function reply_gate_efb($data, $setting, $track, $ip, $owner = false) {
+		$this->reply_pass_until_efb = 0;
 		$hp = isset($data['efb_hp']) ? $data['efb_hp'] : null;
 		if ($hp !== null && (!is_scalar($hp) || trim((string) $hp) !== '')) {
 			$this->efb_trace('submit.blocked', array('gate' => 'reply_honeypot', 'reason' => 'the hidden field of the reply box was filled'));
 			return array('code' => 'efb_spam_honeypot', 'm' => $this->lanText['errorMRobot'] ?? 'Your message was not sent.');
 		}
-		$lim = apply_filters('efb_reply_rate_limits', array('ip' => array(600, 10), 'track' => array(3600, 30)));
+		$sp = class_exists('\\Emsfb\\Spam');
+		$tr_lim = $sp ? (int) \Emsfb\Spam::setting('reply_rl_track', $setting) : 5;
+		$ip_lim = $sp ? (int) \Emsfb\Spam::setting('reply_rl_ip', $setting) : 20;
+		$lim = apply_filters('efb_reply_rate_limits', array('track' => array(600, $tr_lim), 'ip' => array(3600, $ip_lim)));
 		if (class_exists('\\Emsfb\\Rate_Limit') && \Emsfb\Rate_Limit::ready() && is_array($lim)) {
-			$ok = true;
-			if (isset($lim['ip'][0], $lim['ip'][1])) $ok = \Emsfb\Rate_Limit::hit('rply', \Emsfb\Rate_Limit::hash('rply', (string) $ip), (int) $lim['ip'][0], (int) $lim['ip'][1]);
-			if ($ok && isset($lim['track'][0], $lim['track'][1])) $ok = \Emsfb\Rate_Limit::hit('rplt', \Emsfb\Rate_Limit::hash('rplt', (string) $track), (int) $lim['track'][0], (int) $lim['track'][1]);
-			if (!$ok) return array('code' => 'efb_reply_rate', 'm' => $this->lanText['replyTooMany'] ?? 'Too many replies. Please wait a few minutes.');
+			foreach (array('track' => array('rplt', (string) $track), 'ip' => array('rply', (string) $ip)) as $k => $sc) {
+				if (!isset($lim[$k][0], $lim[$k][1]) || (int) $lim[$k][1] <= 0) continue; // 0 = Off
+				$win = max(60, (int) $lim[$k][0]);
+				if (\Emsfb\Rate_Limit::hit($sc[0], \Emsfb\Rate_Limit::hash($sc[0], $sc[1]), $win, (int) $lim[$k][1])) continue;
+				$retry = max(1, $win - (\Emsfb\Rate_Limit::time() % $win));
+				$this->efb_trace('submit.blocked', array('gate' => 'reply_rate_' . $k, 'reason' => 'too many replies', 'retry_after' => $retry));
+				return array('code' => 'efb_reply_rate', 'retry_after' => $retry, 'm' => $this->lanText['replyTooMany'] ?? 'Too many replies. Please wait a few minutes.');
+			}
 		}
+		if ($owner) return null;
 		$on = is_object($setting) ? !empty($setting->scaptcha) : (is_array($setting) && !empty($setting['scaptcha']));
 		if (!$on || !class_exists('\\Emsfb\\Captcha\\Registry')) return null;
 		$eff = \Emsfb\Captcha\Registry::effective_for(array('captcha' => 1), $setting);
 		if ($eff['provider'] === null) return null; // no box on the page either (no keys): the limits above stay
 		$proof = \Emsfb\Form_Runtime::verify(isset($data['runtime_token']) && is_string($data['runtime_token']) ? $data['runtime_token'] : '', 0);
-		$owner = is_array($proof) && isset($proof['owner']) ? (string) $proof['owner'] : '';
-		$pass = $owner !== '' ? 'efb_rpcp_' . substr(hash('sha256', $owner . '|' . $track), 0, 40) : '';
-		if ($pass !== '' && get_transient($pass)) return null;
-		$chk = \Emsfb\Spam::verify_captcha(isset($data['valid']) && is_scalar($data['valid']) ? (string) $data['valid'] : '', 'reply', array(
-			'settings' => $setting, 'provider' => $eff['id'], 'low_score' => 'block',
-			'request_id' => isset($data['request_id']) && is_string($data['request_id']) ? $data['request_id'] : '',
-		));
-		if (empty($chk['ok'])) {
-			$this->efb_trace('submit.blocked', array('gate' => 'captcha_' . $chk['provider'], 'codes' => $chk['code'], 'reason' => 'reply without a valid CAPTCHA token'));
-			return array('code' => 'efb_captcha_' . ($chk['code'] !== '' ? $chk['code'] : 'failed'), 'm' => $chk['code'] === 'expired' && !empty($this->lanText['captchaExpired']) ? $this->lanText['captchaExpired'] : ($this->lanText['errorCaptcha'] ?? 'Please complete the security check.'));
+		$sess = is_array($proof) && isset($proof['owner']) ? (string) $proof['owner'] : '';
+		$pass = $sess !== '' ? 'efb_rpcp_' . substr(hash('sha256', $sess . '|' . $track), 0, 40) : '';
+		$min = $sp ? (int) \Emsfb\Spam::setting('reply_pass_min', $setting) : 30;
+		if ($pass === '' || !get_transient($pass)) {
+			$chk = \Emsfb\Spam::verify_captcha(isset($data['valid']) && is_scalar($data['valid']) ? (string) $data['valid'] : '', 'reply', array(
+				'settings' => $setting, 'provider' => $eff['id'], 'low_score' => 'block',
+				'request_id' => isset($data['request_id']) && is_string($data['request_id']) ? $data['request_id'] : '',
+			));
+			if (empty($chk['ok'])) {
+				$this->efb_trace('submit.blocked', array('gate' => 'captcha_' . $chk['provider'], 'codes' => $chk['code'], 'reason' => 'reply without a valid CAPTCHA token'));
+				return array('code' => 'efb_captcha_' . ($chk['code'] !== '' ? $chk['code'] : 'failed'), 'm' => $chk['code'] === 'expired' && !empty($this->lanText['captchaExpired']) ? $this->lanText['captchaExpired'] : ($this->lanText['errorCaptcha'] ?? 'Please complete the security check.'));
+			}
 		}
-		if ($pass !== '') set_transient($pass, 1, 10 * MINUTE_IN_SECONDS);
+		// Solved now or within the pass: the pass (re)starts — a sliding window, renewed by every reply.
+		if ($pass !== '') {
+			set_transient($pass, 1, $min * MINUTE_IN_SECONDS);
+			$this->reply_pass_until_efb = time() + $min * MINUTE_IN_SECONDS;
+		}
 		return null;
+	}
+
+	/** F12b follow-up: who replies — 'staff' (answers entries in the admin), 'owner' (the signed-in sender), else 'guest'. */
+	private function reply_actor_efb($msg_id, $track) {
+		if ($this->user_can_manage_response_box_efb()) return 'staff';
+		if (!is_user_logged_in()) return 'guest';
+		if (empty($this->db)) { global $wpdb; $this->db = $wpdb; }
+		$t = $this->db->prefix . 'emsfb_msg_';
+		$was = method_exists($this->db, 'suppress_errors') ? $this->db->suppress_errors(true) : null;
+		$uid = (int) $this->db->get_var($this->db->prepare("SELECT uid FROM `$t` WHERE msg_id = %d AND track = %s LIMIT 1", (int) $msg_id, (string) $track)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		if ($was !== null) $this->db->suppress_errors($was);
+		return $uid > 0 && $uid === (int) get_current_user_id() ? 'owner' : 'guest';
 	}
 
 	/** F12b D1: the gate of a password recovery request: null = go on, else ['code', 'm']. */
@@ -4729,7 +4769,8 @@ public function check_nonce_permission_efb($request) {
 				}
 				// F12b D3: the reply box's own CAPTCHA (context reply_{id}) for a visitor, when it is on for the response box.
 				$reply_cp_efb = '';
-				if (!current_user_can('administrator') && class_exists('\\Emsfb\\Spam') && ((is_object($setting) && !empty($setting->scaptcha)) || (is_array($setting) && !empty($setting['scaptcha'])))) {
+				// F12b follow-up: staff and the signed-in owner of the entry are not asked (no box for them).
+				if (!current_user_can('administrator') && $this->reply_actor_efb((int) $this->id, (string) $value[0]->track) === 'guest' && class_exists('\\Emsfb\\Spam') && ((is_object($setting) && !empty($setting->scaptcha)) || (is_array($setting) && !empty($setting['scaptcha'])))) {
 					$reply_cp_efb = \Emsfb\Spam::captcha_widget('reply_' . (int) $this->id, array('settings' => $setting));
 				}
 				$response = array( 'success' => true  , "value" =>$value[0] , "content"=>$content,'nonce_msg'=> $code , 'id'=>$this->id,
@@ -6155,7 +6196,7 @@ public function check_nonce_permission_efb($request) {
 		if (is_wp_error($replay)) wp_send_json_error(array('code'=>$replay->get_error_code(),'m'=>$replay->get_error_message()),$replay->get_error_data()['status']);
 		if ($replay instanceof \WP_REST_Response) wp_send_json($replay->get_data(),$replay->get_status());
 		$this->text_ = empty($this->text_)==false ? $this->text_ = ['error400','hdnBadge','atcfle','tfnapca','clcdetls','vmgs','required','mcplen','mmxplen','mxcplen','mmplen','offlineSend','settingsNfound','error405','error403','videoDownloadLink','downloadViedo','pleaseEnterVaildValue','errorSomthingWrong','nAllowedUseHtml','guest','messageSent','MMessageNSendEr',
-        'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex','msgSndBut','smsWPN','errorCaptcha','captchaExpired','errorMRobot','replyTooMany','cpChallenge']: $this->text_;
+        'youRecivedNewMessage','trackNo','WeRecivedUrM','thankFillForm','msgdml','spprt','newMessageReceived','sxnlex','msgSndBut','smsWPN','errorCaptcha','captchaExpired','errorMRobot','replyTooMany','cpChallenge','replyWaitFor','replyReady']: $this->text_;
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 		$this->lanText= $this->efbFunction->text_efb($this->text_);
 		$rsp_by = isset($data_POST['user_type']) ?  sanitize_text_field($data_POST['user_type']) :'guest';
@@ -6370,10 +6411,18 @@ public function check_nonce_permission_efb($request) {
 				 * hidden field, the rate limits (10 in 10 minutes per address, 30 an hour per conversation; filter
 				 * efb_reply_rate_limits) and, when "CAPTCHA in the response box" is on, the site's CAPTCHA — one
 				 * solve is good for 10 minutes of the same reply session. Refused: nothing stored, nothing sent. */
-				if (!$admin_verified_rsp) {
-					$rp_gate_efb = $this->reply_gate_efb($data_POST, $setting, $track, $raw_ip_efb);
+				$rp_actor_efb = $admin_verified_rsp ? 'staff' : $this->reply_actor_efb($id, $track);
+				if ($rp_actor_efb !== 'staff') {
+					$rp_gate_efb = $this->reply_gate_efb($data_POST, $setting, $track, $raw_ip_efb, $rp_actor_efb === 'owner');
 					if ($rp_gate_efb !== null) {
-						wp_send_json_success(array('success' => false, 'm' => $rp_gate_efb['m'], 'code' => $rp_gate_efb['code']), 200);
+						$rp_out_efb = array('success' => false, 'm' => $rp_gate_efb['m'], 'code' => $rp_gate_efb['code']);
+						if (isset($rp_gate_efb['retry_after'])) {
+							// Too many replies: 429 with Retry-After; the page says when, keeps the text and counts down.
+							$rp_out_efb['retry_after'] = (int) $rp_gate_efb['retry_after'];
+							if (!headers_sent()) header('Retry-After: ' . (int) $rp_gate_efb['retry_after']);
+							wp_send_json_success($rp_out_efb, 429);
+						}
+						wp_send_json_success($rp_out_efb, 200);
 					}
 				}
 
@@ -6550,6 +6599,8 @@ public function check_nonce_permission_efb($request) {
 				'success' => true , "m"=>$this->lanText['messageSent'] , "by"=>$by,
 				'track'=>$track,
 				'nonce_msg'=>wp_create_nonce($track));
+				// F12b follow-up: until when this guest's CAPTCHA pass lasts (the page hides the box until then).
+				if ($this->reply_pass_until_efb > 0) $response['reply_pass_until'] = (int) $this->reply_pass_until_efb;
 				wp_send_json_success($response,200);
 		}else{
 			$m = $this->lanText['settingsNfound'] . '</br>' . $this->lanText['MMessageNSendEr'] ;

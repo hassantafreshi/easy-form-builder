@@ -79,6 +79,13 @@ const settings = { captcha_provider: 'recaptcha_v3', rc3SiteKey: 'v3-site', rc3S
     await p.fill('#rciSecretKey_efb', 'new-v2i-secret-0001');
     const p2 = await p.evaluate(() => efb_spam_settings_patch_efb());
     t('patch: Remove (confirmed) sends "__clear__"; a typed key replaces', [p2.rc3SecretKey, p2.rciSecretKey], ['__clear__', 'new-v2i-secret-0001']);
+    // F12b follow-up: the reply box's settings (defaults 30 minutes, 5 per conversation, 20 per address; Off = 0).
+    const rb = await p.evaluate(() => ({ pm: document.getElementById('replyPassMin_efb').value, tr: document.getElementById('replyRlTrack_efb').value, on: document.getElementById('replyRlIpOn_efb').checked, ip: document.getElementById('replyRlIp_efb').value, lab: !!document.querySelector('label[for="replyRlIp_efb"]') && !!document.querySelector('label[for="replyPassMin_efb"]') }));
+    t('reply box: the pass (30 minutes), 5 per conversation, 20 per address on — labelled', rb, { pm: '30', tr: '5', on: true, ip: '20', lab: true });
+    await p.fill('#replyPassMin_efb', '۴۵');
+    await p.click('#replyRlIpOn_efb');
+    const p3 = await p.evaluate(() => efb_spam_settings_patch_efb());
+    t('reply box: Persian digits read; the per-address limit Off → "0", its field disabled', [p3.reply_pass_min, p3.reply_rl_track, p3.reply_rl_ip, await p.evaluate(() => document.getElementById('replyRlIp_efb').disabled)], ['45', '5', '0', true]);
     // add-on save
     await p.click('details.efb-cpv[data-for="fakecap"] summary'); // a ready add-on's settings are folded
     await p.fill('#cpv_fakecap_site_key', 'fake-site-2');

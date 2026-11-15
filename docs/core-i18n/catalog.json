@@ -4,7 +4,7 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-15",
     "counts": {
-        "active": 4051,
+        "active": 4059,
         "obsolete": 515
     },
     "entries": [
@@ -4742,6 +4742,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "After one solved check, no new check for (minutes)",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: Settings > Captchas",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -16028,6 +16043,21 @@
             "context": null,
             "plural": null,
             "translators": "F14: resend preview, %s = number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Each reply renews it. Staff and the signed-in sender of an entry are never asked; staff have no limits.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: Settings > Captchas",
             "files": [
                 "includes/functions.php"
             ],
@@ -27432,6 +27462,21 @@
             "context": null,
             "plural": null,
             "translators": "F05 builder",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Limit replies per address",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: Settings > Captchas",
             "files": [
                 "includes/functions.php"
             ],
@@ -40962,6 +41007,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Replies per address in an hour",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: Settings > Captchas",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Replies per conversation in 10 minutes",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: Settings > Captchas",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Replies per tracking code/hour",
             "context": null,
             "plural": null,
@@ -40988,6 +41063,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Reply box",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: Settings > Captchas: title of the reply box settings",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -56425,6 +56515,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Too many replies for now. You can send again in %s. Your text is kept.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: visitor: too many replies; %s is the time left, for example \"5 minutes\"",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Too many replies. Please wait a few minutes.",
             "context": null,
             "plural": null,
@@ -63162,6 +63267,21 @@
             "context": null,
             "plural": null,
             "translators": "F11: per-person limit with a period. %s: date and time",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "You can send your reply now.",
+            "context": null,
+            "plural": null,
+            "translators": "F12b: visitor: the wait after too many replies is over",
             "files": [
                 "includes/functions.php"
             ],

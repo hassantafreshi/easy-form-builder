@@ -71,6 +71,9 @@ const ALLOW = [
   { re: /^Failed to load resource: net::ERR_(NAME_NOT_RESOLVED|CONNECTION_REFUSED|INTERNET_DISCONNECTED|TUNNEL_CONNECTION_FAILED|PROXY_CONNECTION_FAILED|CERT_AUTHORITY_INVALID|TIMED_OUT|CONNECTION_RESET)/, external: true, why: 'external host not reachable from the test box' },
   // WordPress core: the block editor / admin bar sometimes logs JQMIGRATE notices (warnings, not errors).
   { re: /^JQMIGRATE:/, why: 'WordPress core jQuery Migrate notice' },
+  // F12b follow-up: too many replies is answered with HTTP 429 + Retry-After (owner decision 2026-11-15); the browser
+  // logs every non-2xx response itself. Only that route: the page shows the countdown (checked by f12b-9).
+  { re: /^Failed to load resource: the server responded with a status of 429/, src: /\/wp-json\/Emsfb\/v1\/forms\/response\/add/, why: 'the reply limit answers 429 by design' },
 ];
 
 function isPluginSource(url, base) {
@@ -86,7 +89,7 @@ function guard(page, sink, label) {
     if (m.type() !== 'error') return;
     const text = m.text();
     const loc = m.location() || {};
-    const allowed = ALLOW.find((a) => a.re.test(text));
+    const allowed = ALLOW.find((a) => a.re.test(text) && (!a.src || a.src.test(loc.url || '')));
     if (allowed) {
       // The external-host allowance only covers resources of other hosts.
       if (!allowed.external || !(loc.url || '').startsWith(CFG.base)) return;

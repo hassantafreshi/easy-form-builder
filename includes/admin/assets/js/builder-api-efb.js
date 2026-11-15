@@ -1619,7 +1619,7 @@
 
   var SPAM_FORM_KEYS = ['captcha_provider', 'rc3_threshold', 'rc3_action', 'rc3_fallback', 'spam_off', 'spam_akismet'];
   var SPAM_SECRETS = ['secretKey', 'rc3SecretKey', 'rciSecretKey', 'hcSecretKey', 'tsSecretKey'];
-  var SPAM_SITE_ONLY = ['siteKey', 'rc3SiteKey', 'rciSiteKey', 'hcSiteKey', 'tsSiteKey', 'rc3Threshold', 'rc3_low_action', 'rc_host', 'captcha_login', 'spam_honeypot', 'spam_min_time', 'spam_require_js', 'spam_action', 'spam_disallowed_keys', 'spam_retention_days'];
+  var SPAM_SITE_ONLY = ['siteKey', 'rc3SiteKey', 'rciSiteKey', 'hcSiteKey', 'tsSiteKey', 'rc3Threshold', 'rc3_low_action', 'rc_host', 'captcha_login', 'spam_honeypot', 'spam_min_time', 'spam_require_js', 'spam_action', 'spam_disallowed_keys', 'spam_retention_days', 'reply_pass_min', 'reply_rl_track', 'reply_rl_ip'];
   /**
    * The F12 / F12b keys of row 0 with the save rules (EFBSpamCore.sanitizeKey = Spam::sanitize_form_key(), sanitizeOption =
    * Captcha\Registry::sanitize_form_option()): captcha_provider a service of the registry ('' = the site's) — not

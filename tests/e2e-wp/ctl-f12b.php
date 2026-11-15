@@ -16,6 +16,7 @@
  *   rl-reset [scope …]         drop the counters of these Rate_Limit scopes (default rply rplt cptk cpch)
  *   providers                  the registry (id, addon, state, ready) and its registration errors
  *   notice-reset               remove every user's "spam notice dismissed" mark (D2)
+ *   msg-uid <msg_id> <login>   the signed-in sender of an entry; cap <login> <cap> [role]; rpcp  seconds left of the reply passes
  *   effective <form_id>        Registry::effective_for() of a stored form
  *   settings-redacted          the settings row as an EFB screen gets it; secret <key> [expected] → {set, equals}
  *
@@ -123,6 +124,27 @@ switch ( $efb_b_cmd ) {
 		$out = array();
 		foreach ( \Emsfb\Captcha\Registry::all() as $id => $p ) $out[ $id ] = array( 'addon' => $p->addon_key(), 'state' => \Emsfb\Captcha\Registry::state( $p ), 'ready' => $p->ready(), 'kind' => $p->kind() );
 		efb_b_out( array( 'providers' => $out, 'errors' => \Emsfb\Captcha\Registry::errors() ) );
+		break;
+
+	case 'msg-uid':
+		// The signed-in sender of an entry: <msg_id> <user login> (emsfb_msg_.uid).
+		$u = get_user_by( 'login', isset( $efb_b_rest[1] ) ? $efb_b_rest[1] : '' );
+		$wpdb->update( $wpdb->prefix . 'emsfb_msg_', array( 'uid' => $u ? (int) $u->ID : 0 ), array( 'msg_id' => (int) ( $efb_b_rest[0] ?? 0 ) ) );
+		efb_b_out( array( 'ok' => (bool) $u, 'uid' => $u ? (int) $u->ID : 0 ) );
+		break;
+
+	case 'cap':
+		// A capability for a user: <login> <cap> [role] (e.g. an editor who answers entries: Emsfb).
+		$u = get_user_by( 'login', isset( $efb_b_rest[0] ) ? $efb_b_rest[0] : '' );
+		if ( $u && ! empty( $efb_b_rest[2] ) ) $u->set_role( sanitize_key( $efb_b_rest[2] ) );
+		if ( $u && ! empty( $efb_b_rest[1] ) ) $u->add_cap( (string) $efb_b_rest[1] );
+		efb_b_out( array( 'ok' => (bool) $u ) );
+		break;
+
+	case 'rpcp':
+		// The reply passes (D3): seconds left of each (never the session or the code).
+		$rows = $wpdb->get_results( "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE '\\_transient\\_timeout\\_efb\\_rpcp\\_%'", ARRAY_A ); // phpcs:ignore
+		efb_b_out( array_map( static function ( $r ) { return (int) $r['option_value'] - time(); }, (array) $rows ) );
 		break;
 
 	case 'notice-reset':

@@ -142,6 +142,7 @@ const base = (id, type, name, extra) => Object.assign({ id_: id, dataId: id + '-
   const st = (k) => capabilities(k).spam.providers.filter((p) => !p.installed).map((p) => p.id + ':' + p.state).join();
   c.check('F12b capabilities.spam.providers: Google\'s three installed; the five add-ons "plan" on Free, "addon" (not installed) on Free Plus', caps.spam.providers.filter((p) => p.installed).map((p) => p.id).join() === 'recaptcha_v2,recaptcha_v2i,recaptcha_v3'
     && st(2) === 'turnstile:plan,hcaptcha:plan,altcha:plan,question:plan,friendly:plan' && st(3) === 'turnstile:addon,hcaptcha:addon,altcha:addon,question:addon,friendly:addon', [st(2), st(3)]);
+  c.check('F12b follow-up: capabilities.spam.reply (pass minutes, per-conversation and per-address limits, staff / owner rules); the reply keys are site-only', !!caps.spam.reply && caps.spam.reply.pass_minutes === 30 && caps.spam.reply.per_track_10min === 5 && caps.spam.reply.per_ip_hour === 20 && ['reply_pass_min', 'reply_rl_track', 'reply_rl_ip'].every((k) => caps.spam.site_only.indexOf(k) !== -1), caps.spam.reply);
   c.check('capabilities: no secret key name is offered as a form key', JSON.stringify(caps.features['setting:captcha_provider']).indexOf('Secret') === -1, null);
   c.done();
 })().catch((e) => { console.error(e); process.exit(1); });

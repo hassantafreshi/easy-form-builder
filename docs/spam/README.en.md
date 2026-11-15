@@ -25,9 +25,14 @@ into the add-ons' settings when the add-on is installed.
 
 Also checked on the server since F12b: login and registration forms (D1; "Also check the CAPTCHA on login and
 registration", `captcha_login`, on by default; a low v3 score is refused, never "spam"; recovery is limited to 5 an hour
-per address), the reply box of a tracked entry (D3; hidden field, 10 replies in 10 minutes per address and 30 an hour
-per conversation, filter `efb_reply_rate_limits`; with "CAPTCHA in the response box" one solve is good for 10 minutes
-of that reply session; administrators are exempt).
+per address), the reply box of a tracked entry (D3, and the owner's decision of 2026-11-15: no friction for people, firm against
+bots): a guest replying with a tracking code solves the CAPTCHA once; the pass lasts 30 minutes (`reply_pass_min`),
+renews with each reply and is bound to the tracking code and the visitor's session, never the IP; invisible services
+solve silently and a visible box is shown only the first time. The signed-in sender of the entry is never asked;
+staff (`manage_options` or the `Emsfb` capability) have neither the CAPTCHA nor the limits. Visitor limits: 5 replies
+per tracking code in 10 minutes (`reply_rl_track`) and 20 per address in an hour (`reply_rl_ip`, 0 = Off; filter
+`efb_reply_rate_limits`); over a limit the route answers HTTP 429 with `Retry-After` and the page says when the
+visitor can send again (aria-live), keeps the typed text and keeps Send off with a countdown.
 
 ## Settings › Captchas (site)
 

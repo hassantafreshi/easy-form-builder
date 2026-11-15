@@ -276,7 +276,7 @@ const EfbResponseViewer = (function () {
               onclick="fun_send_replayMessage_emsFormBuilder(${msgId})">
         <i class="bi bi-reply"></i> ${_t('reply')}
       </button>
-      <p class="efb-reply-status" id="replay_state__emsFormBuilder"></p>
+      <p class="efb-reply-status" id="replay_state__emsFormBuilder" role="status" aria-live="polite" style="unicode-bidi:plaintext"></p>
     </div>
     ${uploadHtml}`;
   }
@@ -336,9 +336,9 @@ const EfbResponseViewer = (function () {
               onclick="fun_send_replayMessage_emsFormBuilder(${msg_id})">
         <i class="bi bi-reply"></i> ${typeof ajax_object_efm !== 'undefined' && ajax_object_efm.text ? ajax_object_efm.text.reply : _t('reply')}
       </button>
-      ${typeof efb_var !== 'undefined' && efb_var && typeof efb_var.reply_captcha === 'string' && efb_var.reply_captcha ? `<div class="efb efb-reply-captcha mx-3">${efb_var.reply_captcha}</div>` : ''}
+      ${typeof efb_var !== 'undefined' && efb_var && typeof efb_var.reply_captcha === 'string' && efb_var.reply_captcha ? `<div class="efb efb-reply-captcha mx-3"${typeof efb_reply_pass_efb === 'function' && efb_reply_pass_efb(sessionStorage.getItem('track')) ? ' hidden' : ''}>${efb_var.reply_captcha}</div>` : ''}
       <div class="efb efb-hp" aria-hidden="true" inert style="position:absolute;inset-inline-start:-10000px;inline-size:1px;block-size:1px;overflow:hidden"><label for="efb-hp-reply">Leave this field empty</label><input type="text" id="efb-hp-reply" name="efb_url_reply" value="" tabindex="-1" autocomplete="off" data-lpignore="true" data-1p-ignore data-bwignore data-form-type="other"></div>
-      <p class="efb-reply-status" id="replay_state__emsFormBuilder"></p>
+      <p class="efb-reply-status" id="replay_state__emsFormBuilder" role="status" aria-live="polite" style="unicode-bidi:plaintext"></p>
     </div>
     ${uploadHtml}`;
 
@@ -2270,10 +2270,44 @@ function response_rMessage_id(res, message) {
     try {
       localStorage.setItem('sendback', JSON.stringify(sendBack_emsFormBuilder_pub));
     } catch (e) {}
+  } else if (res.data && res.data.code === 'efb_reply_rate' && Number(res.data.retry_after) > 0) {
+    efb_reply_wait_efb(Number(res.data.retry_after));
   } else {
     efb_reply_button_state_efb(false);
     document.getElementById('replay_state__emsFormBuilder').innerHTML = `<p class="efb text-danger bg-warning p-2">${res.data.m}</p>`;
+    // F12b follow-up: the CAPTCHA was asked again (the pass ran out): its box comes back.
+    if (res.data && /^efb_captcha_/.test(String(res.data.code || ''))) { const cb = document.querySelector('.efb-reply-captcha'); if (cb) cb.hidden = false; }
   }
+}
+
+/* F12b follow-up: too many replies — say when the visitor can send again (announced once, polite), keep the typed text,
+   and keep Send off with a countdown until then. */
+function efb_reply_wait_efb(sec) {
+  const st = document.getElementById('replay_state__emsFormBuilder');
+  const btn = document.getElementById('replayB_emsFormBuilder');
+  const t = (typeof efb_var !== 'undefined' && efb_var.text) || {};
+  const loc = String((typeof efb_var !== 'undefined' && efb_var.wp_lan) || document.documentElement.lang || 'en').replace('_', '-');
+  const nf = (o) => { try { const x = Object.assign({}, o); if (/^fa\b/i.test(loc)) x.numberingSystem = 'arabext'; else if (/^ar\b/i.test(loc)) x.numberingSystem = 'arab'; return new Intl.NumberFormat(loc, x); } catch (e) { return { format: String }; } };
+  const left = (s) => s >= 60 ? nf({ style: 'unit', unit: 'minute', unitDisplay: 'long' }).format(Math.ceil(s / 60)) : nf({ style: 'unit', unit: 'second', unitDisplay: 'long' }).format(s);
+  const clock = (s) => nf({}).format(Math.floor(s / 60)) + ':' + nf({ minimumIntegerDigits: 2 }).format(s % 60);
+  const label = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm.text && ajax_object_efm.text.reply) || t.reply || 'Reply';
+  const rtl = st ? getComputedStyle(st).direction === 'rtl' : false;
+  // Readable contrast (dark brown on light amber, about 8:1), the time isolated in <bdi>, at the start of the line.
+  if (st) st.innerHTML = `<span class="efb efb-reply-wait p-2 d-block" dir="auto" style="unicode-bidi:plaintext;text-align:${rtl ? 'right' : 'left'};background:#fff3cd;color:#5c3c00;border-radius:.375rem">${String(t.replyWaitFor || 'Too many replies for now. You can send again in %s. Your text is kept.').replace('%s', '<bdi>' + left(sec) + '</bdi>')}</span>`;
+  clearInterval(window.efbReplyWaitTimer);
+  let n = Math.max(1, Math.round(sec));
+  const tick = () => {
+    if (!btn) return;
+    btn.disabled = true; btn.classList.add('disabled'); btn.setAttribute('aria-disabled', 'true');
+    btn.innerHTML = `${label} <span aria-hidden="true" dir="ltr">(${clock(n)})</span>`;
+    if (n-- > 0) return;
+    clearInterval(window.efbReplyWaitTimer);
+    efb_reply_button_state_efb(false);
+    btn.removeAttribute('aria-disabled');
+    if (st) st.textContent = t.replyReady || 'You can send your reply now.';
+  };
+  tick();
+  window.efbReplyWaitTimer = setInterval(tick, 1000);
 }
 
 

@@ -158,6 +158,17 @@
       + radio('rc3Low_efb', 'rc3Low_spam_efb', 'spam', low !== 'block', T('markAsSpam', 'Save as spam'))
       + radio('rc3Low_efb', 'rc3Low_block_efb', 'block', low === 'block', T('blockSubmission', 'Block the submission')) + '</div>'
       + '</fieldset>'
+      // F12b follow-up: the reply box of a tracked entry — one solved check is good for a while, limits for visitors.
+      + '<fieldset class="efb efb-spam-reply"><legend class="efb fs-6 fw-bold">' + esc(T('replyBoxTitle', 'Reply box')) + '</legend>'
+      + '<label class="efb form-label" for="replyPassMin_efb">' + esc(T('replyPassMin', 'After one solved check, no new check for (minutes)')) + '</label>'
+      + '<input type="text" inputmode="numeric" dir="ltr" class="efb form-control efb-spam-input efb-spam-num" id="replyPassMin_efb" value="' + esc(String(val(s, 'reply_pass_min', '30'))) + '" aria-describedby="replyPassMin_efb-help">'
+      + '<div class="efb form-text efb-spam-help" id="replyPassMin_efb-help">' + esc(T('replyPassHelp', 'Each reply renews it. Staff and the signed-in sender of an entry are never asked; staff have no limits.')) + '</div>'
+      + '<label class="efb form-label mt-2" for="replyRlTrack_efb">' + esc(T('replyRlTrack', 'Replies per conversation in 10 minutes')) + '</label>'
+      + '<input type="text" inputmode="numeric" dir="ltr" class="efb form-control efb-spam-input efb-spam-num" id="replyRlTrack_efb" value="' + esc(String(val(s, 'reply_rl_track', '5'))) + '">'
+      + toggle('replyRlIpOn_efb', T('replyRlIpOn', 'Limit replies per address'), String(val(s, 'reply_rl_ip', '20')) !== '0', ' onchange="var n=document.getElementById(\'replyRlIp_efb\');if(n)n.disabled=!this.checked"', '')
+      + '<label class="efb form-label" for="replyRlIp_efb">' + esc(T('replyRlIp', 'Replies per address in an hour')) + '</label>'
+      + '<input type="text" inputmode="numeric" dir="ltr" class="efb form-control efb-spam-input efb-spam-num" id="replyRlIp_efb" value="' + esc(String(val(s, 'reply_rl_ip', '20')) === '0' ? '20' : String(val(s, 'reply_rl_ip', '20'))) + '"' + (String(val(s, 'reply_rl_ip', '20')) === '0' ? ' disabled' : '') + '>'
+      + '</fieldset>'
       + '<p class="efb text-danger efb-spam-err" id="efbSpamErr" role="alert" aria-live="polite"></p>'
       + (addons.length ? '<h6 class="efb mt-3 fw-bold">' + esc(T('cpAddonProviders', 'CAPTCHA add-ons')) + '</h6>' + addons.map(addonSet).join('') : '')
       + '</div>'
@@ -224,6 +235,11 @@
     var ak = g('spamAkismet_efb'); if (ak && !ak.disabled) out.spam_akismet = ak.checked ? '1' : '';
     var dk = g('spamDisallowed_efb'); if (dk) out.spam_disallowed_keys = dk.checked ? '1' : '';
     var rt = g('spamRetention_efb'); if (rt) out.spam_retention_days = String(Math.min(3650, Number(latin(rt.value).replace(/[^0-9]/g, '')) || 0));
+    var num = function (id, d, lo, hi) { var e = g(id); if (!e) return undefined; var n = Number(latin(e.value).replace(/[^0-9]/g, '')); return String(n > 0 ? Math.max(lo, Math.min(hi, n)) : d); };
+    var pm = num('replyPassMin_efb', 30, 5, 1440); if (pm !== undefined) out.reply_pass_min = pm;
+    var tr = num('replyRlTrack_efb', 5, 1, 100); if (tr !== undefined) out.reply_rl_track = tr;
+    var ipOn = g('replyRlIpOn_efb'), ip = num('replyRlIp_efb', 20, 1, 1000);
+    if (ipOn && ip !== undefined) out.reply_rl_ip = ipOn.checked ? ip : '0';
     return out;
   };
 
