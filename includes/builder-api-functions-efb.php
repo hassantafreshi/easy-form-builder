@@ -86,3 +86,13 @@ if (!function_exists('efb_logic_validate_rules')) {
 		return \Emsfb\Builder_Api::logic_validate_rules($form_items, $args);
 	}
 }
+
+if (!function_exists('efb_email_recipient_default_efb')) {
+	/**
+	 * 4.3.2: a NEW form's visitor confirmation e-mail on by default (the first e-mail field is the recipient when
+	 * email_to names none). See \Emsfb\Builder_Api::email_recipient_default(); never for a saved form.
+	 */
+	function efb_email_recipient_default_efb(array $rows) {
+		return class_exists('\\Emsfb\\Builder_Api') ? \Emsfb\Builder_Api::email_recipient_default($rows) : $rows;
+	}
+}

@@ -46,7 +46,10 @@ async function generate() {
           if (r.id_op !== undefined && map[r.id_op]) r.id_op = map[r.id_op];
           delete r.amount; delete r.step; // set by the inserting code (A2 rule)
         });
-        out[id] = { rows, form_patch: rows.formPatch || null };
+        // A form key that names a field (email_to: the visitor's confirmation recipient) gets the same token.
+        const fp = rows.formPatch ? JSON.parse(JSON.stringify(rows.formPatch)) : null;
+        if (fp) Object.keys(fp).forEach((k) => { if (typeof fp[k] === 'string' && map[fp[k]]) fp[k] = map[fp[k]]; });
+        out[id] = { rows, form_patch: fp };
       }
       // The palette's plan flags (fields_efb[].pro in val-efb.js): the source of the field part of the capability registry (B3).
       const palette = {};

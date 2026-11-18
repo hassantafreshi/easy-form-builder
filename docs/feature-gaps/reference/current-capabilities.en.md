@@ -47,7 +47,7 @@ multiselect, tel, range, date, file, url, conturyList, heading, rating, trmCheck
 | `text` | `text` | §1 only | `default:` char length 3376 |
 | `name` | composite → two `text` fields (`elementId` `firstName`/`lastName`, 50% width) | §1 | default |
 | `password` | `password` | §1 (placeholder supported) | default; raw password kept for register (2562); masked in viewer |
-| `email` | `email` | `noti` = send the confirmation email to this address (`SendemailEl`, 2356); sets `valj_efb[0].email_to` | `FILTER_VALIDATE_EMAIL`, length 2785 |
+| `email` | `email` | `noti` = send the confirmation email to this address (`SendemailEl`, 2356); sets `valj_efb[0].email_to`. **On by default since 4.3.2** for the first e-mail field of a form (later ones off; saved forms unchanged) | `FILTER_VALIDATE_EMAIL`, length 2785 |
 | `number` | `number` | min/max **value** | numeric, min/max 3325 |
 | `textarea` | `textarea` | min length only (no max control, `val-efb.js:1516`) | default |
 | `steps` | `step` rows | `name`, `message`, `icon`, `icon_color`, label/description colours (`val-efb.js:1964-1993`); F19 background keys `step_bg_*`, `mobile_step_bg` | – |
@@ -114,7 +114,7 @@ Types with renderer and validator support but **no palette entry**: `paySelect`,
 | `email` | admin notification addresses (comma list, validated) | `adminFormEmailEl` 2192 |
 | `email_sub` | custom email subject (Pro) | 3825 |
 | `email_noti_type` | `msg` = content + link (default), `just_msg` = content only, `cc` = **confirmation code + link** (not carbon copy) | 2611; `functions.php:2673-2840` |
-| `email_to`, `sendEmail` | which email field receives the visitor copy; whether sending is on | 2356-2395 |
+| `email_to`, `sendEmail` | which email field receives the visitor copy; whether sending is on (set by default with the first e-mail field since 4.3.2) | 2356-2395 |
 | `smsnoti` + `sms_msg_*`, `sms_admins_phone_no` | SMS (add-on `AdnSS`). The message texts are stored in the add-on table, not in `form_structer` (`class-Emsfb-admin.php:336-346`) | 2395, 2520 |
 | `telegramnoti` + `telegram_msg_*` | Telegram (add-on `AdnTLG`), stored in the add-on table | 2464 |
 | `thank_you` (`msg`/`rdrct`), `rePage` | thank-you message or **redirect** (Pro). The redirect passes **no field data**: the client does `window.location.href = res.data.m` (`core-efb.js:1889`) | 2791, 2816 |

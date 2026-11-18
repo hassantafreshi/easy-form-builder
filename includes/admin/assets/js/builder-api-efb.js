@@ -502,6 +502,13 @@
     if (blocked || out.length === 0) throw fail('plan_required', 'The builder refused ' + paletteId + ' on this plan.');
     var formPatch = out.__patch;
     delete out.__patch;
+    // 4.3.2: a new e-mail field is the visitor's confirmation recipient only when the open form has none (the scratch
+    // copy above has no field of the live form, so the builder's rule saw none): later e-mail fields stay off.
+    if (typeof efbEmailRecipientOf === 'function' && efbEmailRecipientOf(live) !== '') {
+      out.forEach(function (r) { if (r && r.type === 'email' && Number(r.noti) === 1) delete r.noti; });
+      delete formPatch.email_to;
+      delete formPatch.sendEmail;
+    }
 
     // Fixed option ids (the UK states and cities of a new address) are renamed when
     // the open form already has them, so a second address block can be inserted.

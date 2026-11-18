@@ -316,10 +316,14 @@
      "message_align": "justify-content-start",
      "el_align": "justify-content-start",
      "pro": false,
-     "icon_input": ""
+     "icon_input": "",
+     "noti": 1
     }
    ],
-   "form_patch": null
+   "form_patch": {
+    "email_to": "⟦id:0⟧",
+    "sendEmail": true
+   }
   },
   "number": {
    "rows": [

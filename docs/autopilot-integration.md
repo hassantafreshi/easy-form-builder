@@ -380,6 +380,32 @@ Events on `document`:
   (`efb_var.text[message_key]`), `prompt_state` opens EFB's own dialog (`pro_show_efb(state)`).
   Gateway readiness: `payment_keys.stripe`. Plans are reported, never changed by an agent (F18).
 
+### Visitor confirmation e-mail on by default (4.3.2, owner request)
+
+- **Rule.** An E-mail field's "Enable email notifications" switch (`SendemailEl`: field `noti`, row 0 `email_to` and
+  `sendEmail`) is **on by default**: the visitor gets the confirmation e-mail at the address typed in that field.
+  `email_to` holds one field, so the **first** e-mail field of a form is the recipient and later e-mail fields stay off.
+  A new e-mail field becomes the recipient only when `email_to` names no e-mail field of the form.
+- **Builder / AutoPilot (browser).** `addNewElement('email')` (a palette click, a drop) applies it
+  (`efbEmailRecipientOnAdd()` in `admin-efb.js`); `efbBuilderApi.newItems('email')` returns the row with `noti: 1` and a
+  `formPatch` `{email_to: <its id_>, sendEmail: true}` **only when the open form has no recipient** (else no `noti`, no
+  `email_to` / `sendEmail` in `formPatch`). Templates and quick forms (contact, support, subscribe, survey, …) get it
+  in `create_form_by_type_emsfb()` (`efbEmailRecipientDefault()`).
+- **Server (SitePilot).** `Builder_Api::field_templates('email')` gives `noti: 1` and `form_patch {email_to, sendEmail}`
+  with the row's new id; pass `['recipient' => false]` for a second e-mail field. For a whole new form,
+  `Builder_Api::email_recipient_default($rows)` / `efb_email_recipient_default_efb($rows)` applies the rule (a field
+  already switched on is kept, one switched off `noti: 0` is skipped). `capabilities.email_confirmation` describes it
+  (`default: "on"`, `field_key`, `form_keys`, `rule`).
+- **Off when the user asks.** Set `noti: 0` on the field and, when it was the recipient, `email_to: ""` (and
+  `sendEmail` false unless row 0 `email` holds the owner's address); in the builder the switch does the same and the
+  form is saved with it off.
+- **Saved forms keep their choice.** No migration: opening and saving an old form changes nothing unless an e-mail
+  field is added. Mail delivery not confirmed on the site (`efb_var.smtp` not true) does not refuse the switch any
+  more: the default is applied and the existing delivery question / notice is shown once as a hint.
+- **Visitor side.** An empty optional address or an invalid one sends nothing (the server's `FILTER_VALIDATE_EMAIL`
+  check and the rate limits are unchanged). Tests: `tests/test-email-recipient-default.js`,
+  `tests/test-email-confirm-default-http.php`, e2e `mail-a`.
+
 ### B4. Form type "login" and "register"
 
 - **Before.** `formTypeEl` only changed `valj_efb[0].type`; the register option was disabled; a login

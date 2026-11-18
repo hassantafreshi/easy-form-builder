@@ -1931,6 +1931,10 @@ function create_form_by_type_emsfb(id, s) {
   formName_Efb = form_type_emsFormBuilder
   // F16: a form made from a template gets the keys of a new form too (efb_form_defaults_efb()).
   if (Array.isArray(valj_efb) && valj_efb[0] && valj_efb[0].val_timing === undefined && typeof efbA11yDefaults === 'function') Object.assign(valj_efb[0], efbA11yDefaults(valj_efb[0].steps));
+  // 4.3.2: the visitor's confirmation e-mail is on by default (the first e-mail field of the template).
+  if (Array.isArray(valj_efb) && valj_efb[0]) efbEmailRecipientDefault(valj_efb);
+  // editFormEfb() reads the form back from the session copy: it carries these defaults too.
+  if (Array.isArray(valj_efb) && valj_efb.length > 1 && sessionStorage.getItem('valj_efb')) sessionStorage.setItem('valj_efb', JSON.stringify(valj_efb));
   if (s == "npreview") {
     creator_form_builder_Efb();
 
@@ -2772,45 +2776,23 @@ let change_el_edit_Efb = (el) => {
             valj_efb[indx].showInPublicResults = c;
           }
           break;
-      case "SendemailEl":
-
-        if (efb_var.smtp == "true" || Number(efb_var.smtp) == 1 ) {
-
-          postId= valj_efb[indx].id_;
-          valj_efb[0].email_to = el.dataset.vid;
-          c= el.classList.contains('active')==true ? 1 :0
-
-          valj_efb[indx].hasOwnProperty('noti')==false?  Object.assign(valj_efb[indx],{'noti':c}) : valj_efb[indx].noti = c;
-          clss = false;
-          if(valj_efb[0].email.length<2){
-            for(let v of valj_efb){
-                if(v.hasOwnProperty('noti') && Number(v.noti) ==1){
-                  valj_efb[0].sendEmail=true;
-                   valj_efb[0].email_to=v.id_;
-                  clss=true
-                }else{
-                  if(valj_efb[0].email_to==v.id_){
-                    valj_efb[0].email_to="";
-                  }
-                }
-            }
-          }else{
-            clss=true;
-          }
-          if(clss==false) valj_efb[0].sendEmail=false;
-
-        } else {
-          el.classList.remove('active');
-          if (efb_builder_delivery_needs_question()) {
-            // Asked now, or by the toast when another dialog holds the screen.
-            if (!efb_builder_email_delivery_dialog(el) && !efb_builder_prompt_snoozed()) efb_builder_email_delivery_toast();
-            break;
-          }
-          const msg =  efb_var.text.sMTPNotWork + '' + `<a class="efb alert-link ec-efb" data-eventform="links" data-linkname="EmailNoti"> ${efb_var.text.orClickHere}</a>`;
-          alert_message_efb(efb_var.text.error,msg, 20, "danger")
+      case "SendemailEl": {
+        /* 4.3.2: the switch is on by default (efbEmailRecipientOnAdd()). Off is always allowed and saved as noti 0. On
+           is applied as well when mail delivery is not confirmed yet: the existing delivery question / notice is shown
+           once, as a hint that does not block (it used to refuse the switch). */
+        postId = valj_efb[indx].id_;
+        c = el.classList.contains('active') == true ? 1 : 0;
+        valj_efb[indx].noti = c;
+        const onEmails = valj_efb.filter((v, i) => i > 0 && v && v.type == 'email' && Number(v.noti) == 1);
+        if (c == 1) valj_efb[0].email_to = postId;
+        else if (valj_efb[0].email_to == postId || efbEmailRecipientOf(valj_efb) === '') valj_efb[0].email_to = onEmails.length ? onEmails[0].id_ : '';
+        clss = onEmails.length > 0;
+        valj_efb[0].sendEmail = clss || (typeof valj_efb[0].email === 'string' && valj_efb[0].email.length > 1);
+        if (c == 1 && !(efb_var.smtp == "true" || Number(efb_var.smtp) == 1) && typeof efb_builder_maybe_warn_email_delivery === 'function') {
+          efb_builder_maybe_warn_email_delivery();
         }
-
         break;
+      }
       case "smsEnableEl":
 
        /* SMS is a Pro add-on (AdnSS). One message, then stop (A4): Free, and Free Plus
@@ -5066,11 +5048,54 @@ let sampleElpush_efb = (rndm, elementId) => {
   }
 
   if (elementId == "email") {
+    // The visitor's confirmation e-mail is on by default (4.3.2): the first e-mail field of a form is its recipient.
+    efbEmailRecipientOnAdd(valj_efb, valj_efb[valj_efb.length - 1]);
     setTimeout(() => {
       efb_builder_maybe_warn_email_delivery();
     }, 250);
   }
 
+}
+
+/* ------------------------------------------------------------------ the visitor's confirmation e-mail, on by default */
+/*
+ * Since 4.3.2 an E-mail field's "this e-mail receives the confirmation" switch (field noti, form email_to and sendEmail)
+ * is on by default: a new e-mail field becomes the recipient when the form has none yet; email_to holds one field, so
+ * a later e-mail field stays off. The owner can switch it off (saved as noti 0). Saved forms keep their choice: only
+ * an e-mail field added now, a template or a quick form gets the default. Twin: Emsfb\Builder_Api::email_recipient_default().
+ */
+/** The form's recipient field id: email_to when it names an e-mail field of the form, else ''. */
+function efbEmailRecipientOf(list) {
+  if (!Array.isArray(list) || !list[0]) return '';
+  const to = list[0].email_to;
+  if (typeof to !== 'string' || to === '' || to === 'false') return '';
+  return list.some((r, i) => i > 0 && r && r.type === 'email' && r.id_ === to) ? to : '';
+}
+const efbEmailNotiOff = (r) => r && Object.prototype.hasOwnProperty.call(r, 'noti') && [0, '0', false, 'false'].includes(r.noti);
+/** A new e-mail field (row) of the form (list): the recipient when the form has none; returns whether it became it. */
+function efbEmailRecipientOnAdd(list, row) {
+  if (!Array.isArray(list) || !list[0] || !row || row.type !== 'email' || efbEmailNotiOff(row)) return false;
+  if (efbEmailRecipientOf(list) !== '') return false;
+  row.noti = 1;
+  list[0].email_to = row.id_;
+  list[0].sendEmail = true;
+  return true;
+}
+/** A new form (a template, a quick form): its first e-mail field not switched off becomes the recipient when none is set. */
+function efbEmailRecipientDefault(list) {
+  if (!Array.isArray(list) || !list[0]) return list;
+  const named = efbEmailRecipientOf(list);
+  if (named !== '') {
+    // The template names its recipient without the field's switch: the switch follows it (shown on, sent).
+    const r = list.find((x, i) => i > 0 && x && x.id_ === named);
+    if (r && !Object.prototype.hasOwnProperty.call(r, 'noti')) { r.noti = 1; list[0].sendEmail = true; }
+    return list;
+  }
+  // A field already switched on (the template chose it), else the first one not switched off.
+  const first = list.find((r, i) => i > 0 && r && r.type === 'email' && [1, '1', true, 'true'].includes(r.noti))
+    || list.find((r, i) => i > 0 && r && r.type === 'email' && !efbEmailNotiOff(r));
+  if (first) efbEmailRecipientOnAdd(list, first);
+  return list;
 }
 let optionElpush_efb = async (parent, value, rndm, op, tag) => {
   const u = (url)=>{

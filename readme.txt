@@ -482,6 +482,8 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = Unreleased =
 
+* Changed: a new Email field now sends the visitor a confirmation e-mail to the address they type, by default (the form's first e-mail field; turn it off with the field's "Enable email notifications" switch). Forms you already saved keep their setting. The switch no longer refuses to turn on before mail delivery is confirmed; it shows the delivery check as a hint instead.
+* Fix: forms made from a template lost the accessibility defaults of a new form when the builder reopened them.
 * Fix: the notification e-mail of a reply sent from the customer portal had empty sentences.
 * Fix: PHP warnings on booking forms, on forms made through the builder API, and on account recovery requests.
 * Fix: two settings saved at the same moment (for example a CAPTCHA add-on's page and the plugin's own settings, or an add-on install) no longer undo each other's change.

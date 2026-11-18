@@ -394,6 +394,14 @@ class Builder_Api {
 					'codes' => array('pay_addon_inactive', 'pay_plan', 'pay_not_configured', 'pay_currency', 'pay_amount_limit', 'pay_method_currency', 'pay_option_required', 'pay_option_field_missing', 'pay_multiple_fields', 'pay_form_type', 'pay_calc_plan', 'pay_calc_unavailable', 'pay_gw_*'),
 					'visitor_code' => 'pay_not_ready'));
 		}
+		// 4.3.2: the visitor's confirmation e-mail (an E-mail field's "SendemailEl" switch) is on by default.
+		$out['email_confirmation'] = array(
+			'v' => 1, 'default' => 'on', 'field_key' => 'noti', 'form_keys' => array('email_to', 'sendEmail'),
+			'rule' => 'A new e-mail field becomes the recipient (noti 1, email_to = its id_, sendEmail true) when email_to names no e-mail field of the form; email_to holds one field, later e-mail fields stay off. Off: noti 0 on the field (and email_to "" when it was the recipient). Saved forms keep their choice.',
+			'builder' => 'efbBuilderApi.newItems("email") (formPatch carries email_to / sendEmail only when the form has no recipient)',
+			'server' => 'Builder_Api::field_templates("email") (noti 1 + form_patch; args recipient => false for a second e-mail field), Builder_Api::email_recipient_default($rows) / efb_email_recipient_default_efb($rows) for a new form',
+			'sent_when' => 'the visitor typed a valid address in that field and the site can send e-mail; an empty optional or invalid address sends nothing',
+		);
 		return function_exists('apply_filters') ? apply_filters('efb_capabilities', $out, $args) : $out;
 	}
 
@@ -884,12 +892,60 @@ class Builder_Api {
 			}
 			$one = self::build_template($catalog[$palette_id], $args, $palette_id);
 			if (isset($one['error'])) return class_exists('\WP_Error') ? new \WP_Error($one['error'], $one['error']) : null;
+			// 4.3.2: an e-mail field is the visitor's confirmation recipient by default (noti 1, form_patch email_to and
+			// sendEmail), as in the builder on a form without one. A form that has its recipient asks with recipient => false.
+			if (array_key_exists('recipient', $args) && !$args['recipient']) $one = self::email_template_not_recipient($one);
 			$out = $version + array('palette_id' => $palette_id) + $one;
 		}
 		return function_exists('apply_filters') ? apply_filters('efb_field_templates', $out, $palette_id, $args) : $out;
 	}
 
-	/** Default countries (241, ISO 3166 alpha-2), and the states and cities a new address starts with. */
+	/** An e-mail template that does not become the recipient: no noti, no email_to / sendEmail in its form patch. */
+	private static function email_template_not_recipient(array $one) {
+		if (isset($one['rows']) && is_array($one['rows'])) foreach ($one['rows'] as $i => $r) if (is_array($r) && isset($r['type']) && $r['type'] === 'email') unset($one['rows'][$i]['noti']);
+		if (isset($one['form_patch']) && is_array($one['form_patch'])) {
+			unset($one['form_patch']['email_to'], $one['form_patch']['sendEmail']);
+			if (!$one['form_patch']) $one['form_patch'] = null;
+		}
+		return $one;
+	}
+
+	/**
+	 * 4.3.2: the visitor's confirmation e-mail is on by default. For a NEW form (built on the server, a template): when
+	 * email_to does not name an e-mail field of the form, the first e-mail field whose noti is not switched off (0)
+	 * becomes the recipient (noti 1, email_to, sendEmail true); a field already switched on is preferred. A form whose
+	 * email_to names an e-mail field keeps it (that field gets noti 1 only when it has no noti at all). Never run it on a saved form (saved forms keep the owner's choice).
+	 * Twin of efbEmailRecipientDefault() in admin-efb.js (tests/test-email-recipient-default.js checks both).
+	 *
+	 * @param array $rows The form's rows (row 0 first), arrays.
+	 * @return array
+	 */
+	public static function email_recipient_default(array $rows) {
+		if (!isset($rows[0]) || !is_array($rows[0])) return $rows;
+		$is_email = function ($r) { return is_array($r) && isset($r['type']) && $r['type'] === 'email' && isset($r['id_']); };
+		$off = function ($r) { return array_key_exists('noti', $r) && in_array($r['noti'], array(0, '0', false, 'false'), true); };
+		$on = function ($r) { return array_key_exists('noti', $r) && in_array($r['noti'], array(1, '1', true, 'true'), true); };
+		$to = isset($rows[0]['email_to']) && is_string($rows[0]['email_to']) ? $rows[0]['email_to'] : '';
+		$first = null; $first_on = null;
+		foreach ($rows as $i => $r) {
+			if ($i === 0 || !$is_email($r)) continue;
+			if ($to !== '' && $to !== 'false' && (string) $r['id_'] === $to) {
+				// The recipient is named without the field's switch (a template): the switch follows it.
+				if (!array_key_exists('noti', $r)) { $rows[$i]['noti'] = 1; $rows[0]['sendEmail'] = true; }
+				return $rows;
+			}
+			if ($first_on === null && $on($r)) $first_on = $i;
+			if ($first === null && !$off($r)) $first = $i;
+		}
+		$pick = $first_on !== null ? $first_on : $first;
+		if ($pick === null) return $rows;
+		$rows[$pick]['noti'] = 1;
+		$rows[0]['email_to'] = (string) $rows[$pick]['id_'];
+		$rows[0]['sendEmail'] = true;
+		return $rows;
+	}
+
+	/** Default countries (241, ISO 3166 alpha-2)	/** Default countries (241, ISO 3166 alpha-2), and the states and cities a new address starts with. */
 	public static function geo_defaults(array $args = array()) {
 		$t = self::field_templates('address', $args);
 		$geo = array('countries' => array(), 'default_states' => array(), 'default_cities' => array(), 'default_country' => '', 'default_state' => '');
