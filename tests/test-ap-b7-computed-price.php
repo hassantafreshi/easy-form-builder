@@ -9,7 +9,8 @@
  * the wrong amount (0 without tampering, anything with it). Now the server recomputes the field
  * with the add-on's engine.
  *
- * Runs the real fun_validation_pay_elements_efb() (lifted from class-Emsfb-public.php) with the
+ * Runs the real legacy pricing (core's fun_validation_pay_elements_efb() until PAY-OUT step 3; now the add-ons'
+ * Legacy_Server_Price_V1, tests/payout-price-lib.php) with the
  * real Emsfb_Logic_Validator (vendor/logic, EFB_LOGIC_VALIDATOR, or /home/user/vendores-efb;
  * [SKIP] for those checks without it). The client half (the total shown) is checked by
  * node tests/test-ap-b7-total-display.js.
@@ -33,9 +34,9 @@ foreach (array(getenv('EFB_LOGIC_VALIDATOR') ?: '', __DIR__ . '/../vendor/logic/
 }
 if ($vf) require_once $vf;
 
-$src = file_get_contents(getenv('EFB_PUBLIC_FILE') ?: __DIR__ . '/../includes/class-Emsfb-public.php'); // EFB_PUBLIC_FILE: run against another copy (before/after)
-if (!preg_match('/\tpublic function fun_validation_pay_elements_efb\(.*?\n\t}\n/s', $src, $m)) { fwrite(STDERR, "method not found\n"); exit(1); }
-eval('class B7Fixture { public $id = 9; public $ip = ""; public function get_ip_address() { return "127.0.0.1"; } ' . $m[0] . ' }');
+// PAY-OUT step 3: the pricing moved from core to the Stripe / PayPal add-ons (Legacy_Server_Price_V1), held to the same rules.
+require __DIR__ . '/payout-price-lib.php';
+class B7Fixture extends EfbLegacyPriceFixture { public $id = 9; }
 
 $pass = 0; $fail = 0;
 function b7($label, $ok, $detail = null) {

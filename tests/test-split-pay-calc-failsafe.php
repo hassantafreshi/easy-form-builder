@@ -69,9 +69,9 @@ if (!function_exists('get_bloginfo')) { function get_bloginfo() { return 'Site';
 if (!function_exists('wp_mail')) { function wp_mail() { return true; } }
 class EfbSplitStop extends Exception { public $payload; public function __construct($p) { parent::__construct('json'); $this->payload = $p; } }
 if (!function_exists('wp_send_json_success')) { function wp_send_json_success($d, $c = 200) { throw new EfbSplitStop($d); } }
-$src = file_get_contents(__DIR__ . '/../includes/class-Emsfb-public.php');
-preg_match('/\tpublic function fun_validation_pay_elements_efb\(.*?\n\t}\n/s', $src, $m);
-eval('class SplitPayFixture { public $id = 9; public $ip = ""; public function get_ip_address() { return "127.0.0.1"; } ' . $m[0] . ' }');
+// PAY-OUT step 3: that pricing is the Stripe / PayPal add-ons' now (Legacy_Server_Price_V1), held to the same rules.
+require __DIR__ . '/payout-price-lib.php';
+class SplitPayFixture extends EfbLegacyPriceFixture { public $id = 9; }
 $fx = new SplitPayFixture();
 $legacy = function ($val) use ($fx, &$form) {
 	try { $o = $fx->fun_validation_pay_elements_efb($val, $form); return array('ok', $o['price_total']); }

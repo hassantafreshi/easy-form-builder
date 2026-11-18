@@ -94,11 +94,12 @@ t_xss('esign branch stores the canonical value, not the browser string',
 t_xss('esign branch pins the stored row type to the saved field',
 	strpos($esign_slice, "\$item['type'] = \$f['type'];") !== false);
 
-/* The payment final-submit merge bypasses the validator above; its
- * per-row sanitiser must apply the same signature rule. */
-$merge_start = strpos($public_src, 'private function sanitize_payment_merge_row_efb(');
+/* A row that skips the validator above (a register form's answers) goes through one sanitiser, which must apply
+ * the same signature rule. (Its name was sanitize_payment_merge_row_efb(): PAY-OUT step 3 made the legacy payment's
+ * final submit store the validated rows instead, and the sanitiser kept serving register forms.) */
+$merge_start = strpos($public_src, 'private function sanitize_submitted_row_efb(');
 $merge_slice = $merge_start !== false ? substr($public_src, $merge_start, 1600) : '';
-t_xss('payment merge validates signatures the same way',
+t_xss('the sanitiser of rows that skip the validator validates signatures the same way',
 	strpos($merge_slice, "if (\$type === 'esign')") !== false
 	&& strpos($merge_slice, 'canonical_esign_value_efb($clean[\'value\'])') !== false
 	&& strpos($merge_slice, "if (\$esign_value === '') return null;") !== false);

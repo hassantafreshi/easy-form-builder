@@ -71,10 +71,12 @@ preg_match('/\tpublic function pay_stripe_sub_Emsfb_api\(.*?\n\t}\n/s', $legacy 
 $body = $m[0] ?? '';
 st('pay_stripe_sub_Emsfb_api found (the Stripe add-on\'s legacy-bridge class)', $body !== '');
 st('core no longer has the Stripe intent code (SPLIT §5)', strpos($core, 'function pay_stripe_sub_Emsfb_api') === false && strpos($core, 'paymentIntents->create') === false);
-st('the intent is priced with fun_validation_pay_elements_efb() (core\'s, through the bridge)', strpos($body, '$obj = $this->fun_validation_pay_elements_efb($val_ , $fs_);') !== false && strpos($body, "\$price_f = \$obj['price_total'];") !== false);
+// PAY-OUT step 3: the add-on prices the intent itself (Legacy_Server_Price_V1, was core's fun_validation_pay_elements_efb()).
+st('the intent is priced with the add-on\'s Legacy_Server_Price_V1::price() (PAY-OUT step 3)', strpos($body, '$obj = Legacy_Server_Price_V1::price($val_, $fs_, $this->pub, array(\'form_id\' => (int) $this->id));') !== false && strpos($body, "\$price_f = \$obj['price_total'];") !== false);
 st('the one-time intent and the subscription price use that amount', preg_match("/'amount' => \\\$price_f,/", $body) === 1 && preg_match("/'unit_amount' => \\\$price_f,/", $body) === 1);
 st('core never reads a posted amount/price for Stripe', !preg_match("/\\\$data_POST\\[\\s*'(amount|price|price_total|total)'\\s*\\]/", $body));
-st('fun_validation_pay_elements_efb() runs Builder_Api::apply_server_prices() (B7)', strpos($core, '\Emsfb\Builder_Api::apply_server_prices($val_, $fs_)') !== false);
+$price_src = is_readable($dir . '/legacy-price-efb.php') ? file_get_contents($dir . '/legacy-price-efb.php') : '';
+st('the add-on\'s pricing runs Builder_Api::apply_server_prices() (B7); core has no pricing of its own left', strpos($price_src, '\Emsfb\Builder_Api::apply_server_prices($val_, $fs_)') !== false && strpos($core, 'Builder_Api::apply_server_prices($val_, $fs_)') === false);
 
 // 4. Refunds (admin screen of the add-on) use the stored amount.
 $pay = file_get_contents($dir . '/class-Emsfb-stripe-payment.php');

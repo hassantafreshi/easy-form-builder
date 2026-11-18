@@ -8,6 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once('functions.php');
 class _Public {
+	// PAY-OUT step 3: the deprecated legacy_gateway members (one more release): includes/payments/legacy-gateway-shim-efb.php.
+	use \Emsfb\Payments\Legacy_Gateway_Shim;
 	public $value;
 	public $id;
 	public $ip;
@@ -4012,22 +4014,13 @@ public function check_nonce_permission_efb($request) {
 								if ($form_structure_json[0]['thank_you'] == "rdrct") {
 									$redirect_url = $this->string_to_url($form_structure_json[0]['rePage']);
 								}
-								$validated_items = [];
-								foreach ($form_structure_json as $f) {
-									$it = array_filter($filtered, function ($item) use ($f) {
-										return is_array($f) && isset($f['id_'], $item['id_']) && $f['id_'] == $item['id_'] && ($f['name'] ?? null) == ($item['name'] ?? null);
-									});
-									/* These rows skipped the validator above; see
-									 * sanitize_payment_merge_row_efb(). */
-									$it = array_values(array_filter(array_map(function ($item) use ($f) {
-										$row = $this->sanitize_payment_merge_row_efb($item, $f);
-										// F03: a read-only field keeps its own value here too.
-										if (is_array($row) && class_exists('\Emsfb\Field_Rules') && \Emsfb\Field_Rules::is_readonly($f)) $row['value'] = isset($f['value']) && is_scalar($f['value']) ? (string) $f['value'] : '';
-										return $row;
-									}, $it)));
-									$validated_items = empty($validated_items) ? $it : array_merge($validated_items, $it);
-									if ($payment_gateway == "persiaPay") array_push($validated_items, $result);
-								}
+								/* PAY-OUT step 3: the visitor's other answers are the rows the submit's own checks just validated
+								 * (the field loop, F03, Conditional Logic, smart tags, repeater rows); the priced rows and the payment
+								 * are the ones saved when the payment was created ($saved_payment_content). */
+								$validated_items = array_values(array_filter((array) $validated_items, function ($item) {
+									return is_array($item) && (!isset($item['type']) || !is_string($item['type']) || strpos($item['type'], 'pay') === false);
+								}));
+								if ($payment_gateway == "persiaPay") $validated_items[] = $result;
 								if ($payment_gateway == "paypal") {
 									// error_log('[EFB][PayPal][SUBMIT] Merge data: saved_payment_count=' . (is_array($saved_payment_content) ? count($saved_payment_content) : 0) . ', filtered_submit_count=' . (is_array($filtered) ? count($filtered) : 0) . ', validated_count=' . (is_array($validated_items) ? count($validated_items) : 0));
 								}
@@ -9927,57 +9920,6 @@ public function check_nonce_permission_efb($request) {
 		return ( is_array( $out ) || is_object( $out ) ) ? $out : null;
 	}
 
-	/* Resolve a payment key (stripePKey/stripeSKey/paypalPKey/...) with the
-	 * same fallback chain the PayPal branch used: current $setting object →
-	 * healed decoded settings → emsfb_settings option → latest DB row. The DB
-	 * step also refreshes the option/transient so a stale cache self-heals.
-	 * Returns the key, or the string 'null' (legacy contract) when absent. */
-	public function resolve_payment_key_efb( $setting, $key ) {
-		$value = ( is_object( $setting ) && isset( $setting->$key ) ) ? trim( (string) $setting->$key ) : '';
-		// The settings screen's "could not read this field" marker is never a key.
-		if ( $value === 'NotFoundEl' ) $value = '';
-		if ( strlen( $value ) > 5 && $value !== 'NotFoundEl' ) {
-			return $value;
-		}
-
-		$decoded = get_setting_Emsfb( 'decoded' );
-		if ( is_object( $decoded ) && isset( $decoded->$key ) ) {
-			$value = trim( (string) $decoded->$key );
-			if ( strlen( $value ) > 5 && $value !== 'NotFoundEl' ) {
-				return $value;
-			}
-		}
-
-		$option_settings = $this->decode_settings_json_efb( get_option( 'emsfb_settings', '' ) );
-		if ( is_object( $option_settings ) && isset( $option_settings->$key ) ) {
-			$value = trim( (string) $option_settings->$key );
-			if ( strlen( $value ) > 5 && $value !== 'NotFoundEl' ) {
-				return $value;
-			}
-		}
-
-		if ( empty( $this->db ) ) {
-			global $wpdb;
-			$this->db = $wpdb;
-		}
-		$table_name = $this->db->prefix . 'emsfb_setting';
-		$latest_raw = $this->db->get_var( "SELECT setting FROM `$table_name` ORDER BY id DESC LIMIT 1" );
-		$latest_settings = $this->decode_settings_json_efb( $latest_raw );
-		if ( is_object( $latest_settings ) && isset( $latest_settings->$key ) ) {
-			$value = trim( (string) $latest_settings->$key );
-			if ( strlen( $value ) > 5 && $value !== 'NotFoundEl' ) {
-				$healed_json = wp_json_encode( $latest_settings, JSON_UNESCAPED_UNICODE );
-				if ( ! empty( $healed_json ) ) {
-					update_option( 'emsfb_settings', $healed_json );
-					set_transient( 'emsfb_settings_transient', $healed_json, 1800 );
-					get_setting_Emsfb( '_clear_cache' );
-				}
-				return $value;
-			}
-		}
-
-		return 'null';
-	}
 
 	private function sanitize_value_efb($value, $key) {
 		switch ($key) {
@@ -10321,12 +10263,55 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	/**
+	 * A row that skipped the per-field validator (a register form's answers): string shapes, the field's attribute
+	 * allow-list, a sanitized value (markers for a map, a checked signature) and the saved field's type - never the
+	 * browser's, and never a price on a row that is not a priced kind. (PAY-OUT step 3: the legacy payment's final
+	 * submit no longer needs it; it stores the rows the submit's own checks validated.)
+	 */
+	private function sanitize_submitted_row_efb($item, $field) {
+		if (!is_array($item) || !is_array($field)) return null;
+		$type = isset($field['type']) ? (string) $field['type'] : '';
+		$item = $this->normalize_submitted_row_efb($item, $type);
+		$clean = $this->filter_attributes_by_type_efb($item, $type);
+		if (!is_array($clean)) return null;
+		if ($type === 'esign') {
+			/* Same rule as the main validator: a signature row carries a
+			 * checked, re-encoded PNG data URL or it is not stored at all.
+			 * sanitize_text_field() below would not reject markup-free junk
+			 * such as a quote-laden string, so do not let it reach that. */
+			$esign_value = isset($clean['value']) ? $this->canonical_esign_value_efb($clean['value']) : '';
+			if ($esign_value === '') return null;
+			$clean['value'] = $esign_value;
+			$clean = $this->esign_row_efb($clean, $field);
+		} elseif (isset($clean['value'])) {
+			if (is_array($clean['value'])) {
+				$markers = array();
+				foreach ($clean['value'] as $m) {
+					if (is_array($m) && isset($m['lat'], $m['lng']) && is_scalar($m['lat']) && is_scalar($m['lng']) && is_numeric($m['lat']) && is_numeric($m['lng'])) {
+						$markers[] = array(
+							'lat'     => $m['lat'],
+							'lng'     => $m['lng'],
+							'address' => isset($m['address']) && is_scalar($m['address']) ? sanitize_text_field((string) $m['address']) : '',
+						);
+					}
+				}
+				$clean['value'] = $markers;
+			} else {
+				$clean['value'] = sanitize_text_field((string) $clean['value']);
+			}
+		}
+		if (stripos($type, 'pay') === false) unset($clean['price']);
+		$clean['type'] = $type !== '' ? $type : (isset($clean['type']) ? (string) $clean['type'] : '');
+		return $clean;
+	}
+
+	/**
 	 * Rows of a register submission as they may be stored.
 	 *
 	 * Register forms do not pass through the per-field validator. Keep only
 	 * rows that answer a field of the saved form, never a password field, each
 	 * reduced to that field's attribute allow-list with a sanitized value and
-	 * the saved field's type (the same treatment as the payment merge). Upload
+	 * the saved field's type. Upload
 	 * rows keep their URL only when it is a real upload for that field.
 	 */
 	private function sanitize_account_form_rows_efb($submitted_values, $fields, $page_url) {
@@ -10348,7 +10333,7 @@ public function check_nonce_permission_efb($request) {
 			if ($type === 'password' || in_array($id, array('passwordRegisterEFB', 'repasswordRegisterEFB', 'passwordlogin'), true)) continue;
 			$key = $id . '|' . (isset($item['id_ob']) && is_scalar($item['id_ob']) ? (string) $item['id_ob'] : '');
 			if (isset($seen[$key])) continue;
-			$clean = $this->sanitize_payment_merge_row_efb($item, $field);
+			$clean = $this->sanitize_submitted_row_efb($item, $field);
 			if (!is_array($clean)) continue;
 			if (in_array($type, $upload_types, true) && $type !== 'esign') {
 				$url = isset($clean['url']) ? (string) $clean['url'] : '';
@@ -10394,50 +10379,6 @@ public function check_nonce_permission_efb($request) {
 		return $current;
 	}
 
-	/**
-	 * The final payment submit re-reads the visitor's non-payment rows from the
-	 * raw request and merges them with the rows saved when the intent was
-	 * created, bypassing the per-field validator above. Give each such row the
-	 * same treatment: string shapes, the field's attribute allow-list, a
-	 * sanitized value (markers for a map) and the saved field's type - never
-	 * the browser's, and never a price on a row that is not a priced kind.
-	 */
-	private function sanitize_payment_merge_row_efb($item, $field) {
-		if (!is_array($item) || !is_array($field)) return null;
-		$type = isset($field['type']) ? (string) $field['type'] : '';
-		$item = $this->normalize_submitted_row_efb($item, $type);
-		$clean = $this->filter_attributes_by_type_efb($item, $type);
-		if (!is_array($clean)) return null;
-		if ($type === 'esign') {
-			/* Same rule as the main validator: a signature row carries a
-			 * checked, re-encoded PNG data URL or it is not stored at all.
-			 * sanitize_text_field() below would not reject markup-free junk
-			 * such as a quote-laden string, so do not let it reach that. */
-			$esign_value = isset($clean['value']) ? $this->canonical_esign_value_efb($clean['value']) : '';
-			if ($esign_value === '') return null;
-			$clean['value'] = $esign_value;
-			$clean = $this->esign_row_efb($clean, $field);
-		} elseif (isset($clean['value'])) {
-			if (is_array($clean['value'])) {
-				$markers = array();
-				foreach ($clean['value'] as $m) {
-					if (is_array($m) && isset($m['lat'], $m['lng']) && is_scalar($m['lat']) && is_scalar($m['lng']) && is_numeric($m['lat']) && is_numeric($m['lng'])) {
-						$markers[] = array(
-							'lat'     => $m['lat'],
-							'lng'     => $m['lng'],
-							'address' => isset($m['address']) && is_scalar($m['address']) ? sanitize_text_field((string) $m['address']) : '',
-						);
-					}
-				}
-				$clean['value'] = $markers;
-			} else {
-				$clean['value'] = sanitize_text_field((string) $clean['value']);
-			}
-		}
-		if (stripos($type, 'pay') === false) unset($clean['price']);
-		$clean['type'] = $type !== '' ? $type : (isset($clean['type']) ? (string) $clean['type'] : '');
-		return $clean;
-	}
 
 	private function filter_attributes_by_type_efb($data,$type) {
 		static $allowed_attributes_efb = ['id_' => true, 'name' => true, 'id_ob' => true, 'amount' => true, 'type' => true, 'value' => true, 'session' => true ,'form_id'=>true];
@@ -11532,183 +11473,6 @@ public function check_nonce_permission_efb($request) {
 		return array('ok' => $failed === 0, 'code' => $failed ? 'efb_resend_failed' : '', 'count' => $count, 'failed' => $failed);
 	}
 
-	public function fun_validation_pay_elements_efb($val_ ,$fs_){
-		$price_c =0;
-		$price_f =0;
-		$email ='';
-		$valobj =[];
-		/* The submitted values come straight from the request (the PayPal add-on also
-		 * calls this). A value that is not a list of rows, or a price that is not a
-		 * number, was a TypeError in count()/abs() on PHP 8 - a 500 instead of an answer. */
-		$invalid = static function () {
-			$msg = esc_html__('Invalid payment selection. Please review your choices and try again. If the problem persists, contact the site administrator.', 'easy-form-builder');
-			wp_send_json_success(['success' => false, 'm' => $msg], 200);
-		};
-		if (!is_array($val_) || !is_array($fs_)) {
-			$invalid();
-			return ['price_total' => 0, 'email' => '', 'valobj' => []];
-		}
-		/* B7: a price field that a logic rule computes (calculate, e.g. guests x 5) is
-		 * priced here by the add-on's engine from the submitted answers; what the
-		 * browser sent for it is replaced, so it cannot be lowered. */
-		$tampered_efb = false;
-		if (class_exists('\Emsfb\Builder_Api')) {
-			$before_efb = json_encode($val_);
-			list($val_, $price_error_efb) = \Emsfb\Builder_Api::apply_server_prices($val_, $fs_);
-			if ($price_error_efb !== null) {
-				$invalid();
-				return ['price_total' => 0, 'email' => '', 'valobj' => []];
-			}
-			$tampered_efb = $before_efb !== json_encode($val_) && \Emsfb\Builder_Api::server_price_differs(json_decode($before_efb, true), $val_);
-		}
-		/* F04-G (Pro): a calc field used as the amount is computed here from the submitted answers; the browser's
-		 * calc row must carry the same price (a lowered one is a tampered request), and the amount charged is
-		 * the server's. A negative result or a formula that fails cannot be paid. */
-		/* SPLIT §6.3: the calculation add-on computes it; a form that uses one while no add-on can compute it is
-		 * refused before any gateway call (pay_calc_unavailable), never charged without that part. */
-		$calc_pay_efb = class_exists('\Emsfb\Payments\Pricing') ? \Emsfb\Payments\Pricing::computed_items($fs_, array_values(array_filter($val_, 'is_array')))
-			: (class_exists('\Emsfb\Calc') ? \Emsfb\Calc::price_items($fs_, array_values(array_filter($val_, 'is_array'))) : null);
-		if ($calc_pay_efb !== null) {
-			if (empty($calc_pay_efb['ok']) && ($calc_pay_efb['error'] ?? '') === 'pay_calc_unavailable') {
-				$m_pcu_efb = class_exists('\Emsfb\Payments\Readiness') ? \Emsfb\Payments\Readiness::visitor_text() : __('Online payment for this form is not available right now. Please try again later or contact the site.', 'easy-form-builder');
-				wp_send_json_success(['success' => false, 'code' => 'pay_calc_unavailable', 'm' => esc_html($m_pcu_efb)], 200);
-				return ['price_total' => 0, 'email' => '', 'valobj' => []];
-			}
-			if (empty($calc_pay_efb['ok'])) {
-				$invalid();
-				return ['price_total' => 0, 'email' => '', 'valobj' => []];
-			}
-			foreach ($calc_pay_efb['items'] as $cpi_efb) {
-				$sent_efb = null;
-				foreach ($val_ as $vr_efb) {
-					if (is_array($vr_efb) && ($vr_efb['type'] ?? '') === 'calc' && (string) ($vr_efb['id_'] ?? '') === $cpi_efb['id'] && isset($vr_efb['price']) && is_scalar($vr_efb['price'])) { $sent_efb = (string) $vr_efb['price']; break; }
-				}
-				if ($sent_efb === null || !is_numeric($sent_efb) || abs((float) $sent_efb - (float) $cpi_efb['value']) > 0.000001) {
-					$invalid();
-					return ['price_total' => 0, 'email' => '', 'valobj' => []];
-				}
-				$price_f += (float) $cpi_efb['value'];
-			}
-		}
-		for ($i=0; $i <count($val_) ; $i++) {
-			$a=-1;
-			if(isset($val_[$i]) && is_array($val_[$i]) && isset($val_[$i]['price'])){
-				$row_price = $val_[$i]['price'];
-				if (is_array($row_price) || is_object($row_price) || (is_string($row_price) && $row_price !== '' && !is_numeric($row_price))) {
-					$invalid();
-					return ['price_total' => 0, 'email' => '', 'valobj' => []];
-				}
-				if (isset($val_[$i]['ids']) && !is_string($val_[$i]['ids'])) {
-					$invalid();
-					return ['price_total' => 0, 'email' => '', 'valobj' => []];
-				}
-				if(!isset($val_[$i]['type'])) $val_[$i]['type'] = '';
-				if($row_price ) $price_c += abs($row_price);
-				if($val_[$i]['type']=="email" && isset($val_[$i]['value']) && is_string($val_[$i]['value']) ) $email = $val_[$i]['value'];
-				$iv = $val_[$i];
-				if($iv['type']=="paySelect" || $iv['type']=="payRadio" || $iv['type']=="payCheckbox"){
-					$filtered = array_filter($fs_, function($item) use ($iv) {
-						switch ($iv['type']) {
-							case 'paySelect':
-								if(isset($item['parent']))	return $item['id_'] == $iv['id_ob'] &&  $item['value']==$iv['value'] ? $item['value'] :false ;
-							break;
-							case 'payRadio':
-								if(isset($item['price'])){
-									return $item['id_'] == $iv['id_ob'] &&  $item['value']==$iv['value'] ? $item['value'] :false;
-								}
-							break;
-							case 'payCheckbox':
-								if(isset($item['price']))	return $item['id_'] == $iv['id_ob'] &&  $item['parent']==$iv['id_'] ? $item['value'] :false;
-							break;
-						}
-					});
-					if($filtered==false){
-						$msg = esc_html__('Invalid payment selection. Please review your choices and try again. If the problem persists, contact the site administrator.', 'easy-form-builder');
-						$response = ['success' => false, 'm' => $msg];
-						wp_send_json_success($response, 200);
-					}
-					 $iv = array_keys($filtered);
-					 $a = isset( $iv[0])? $iv[0] :-1;
-				}else if ($iv['type']=="payMultiselect" && isset($iv['price'])  && isset($iv['ids']) ){
-					/* One priced row per id listed in `ids`, and the index has to come
-					 * from the match itself: $a is still -1 at this point, so $fs_[$a]
-					 * read a key that does not exist and every chosen option added
-					 * nothing. The visitor was shown one total and charged a smaller
-					 * one, and the gap then tripped the "invalid value" alert below.
-					 * $iv is left alone as well - it still holds this submitted row,
-					 * and overwriting it inside the loop threw away `ids` and `name`. */
-					$rows = explode( ',', $iv['ids'] );
-					foreach ($rows as $value) {
-						if ($value === '') continue;
-						$filtered = array_filter($fs_, function($item) use ($value) {
-							if(isset($item['id_']))return $item['id_'] == $value ;
-							return false;
-						});
-						$keys = array_keys($filtered);
-						$k = isset($keys[0]) ? $keys[0] : -1;
-						if ($k == -1 || !isset($fs_[$k]['price'])) continue;
-						$price_f += $fs_[$k]['price'];
-						/* Named and retyped the way the single-choice branches below do it,
-						 * so each chosen extra reaches the stored submission and the
-						 * notification email instead of vanishing after being charged. */
-						$fs_[$k]['name'] = $val_[$i]['name'];
-						$fs_[$k]['type'] = "option_payment";
-						array_push($valobj, $fs_[$k]);
-					}
-					$a=-1;
-				}else if($iv['type']=="prcfld" ){
-					   $a=-1;
-					   /* The amount a visitor types (tip, donation). A negative one was
-					    * subtracted from the order: the page showed $34.99 and Stripe
-					    * was asked for $4.99. The owner's Min/Max apply as values. */
-					   $typed_price = (float) $iv['price'];
-					   if ($typed_price < 0) {
-						   $invalid();
-						   return ['price_total' => 0, 'email' => '', 'valobj' => []];
-					   }
-					   foreach ($fs_ as $field_def) {
-						   if (!is_array($field_def) || ($field_def['type'] ?? '') !== 'prcfld' || ($field_def['id_'] ?? null) !== ($iv['id_'] ?? '')) continue;
-						   $min_price = isset($field_def['milen']) && is_numeric($field_def['milen']) ? (float) $field_def['milen'] : null;
-						   $max_price = isset($field_def['mlen']) && is_numeric($field_def['mlen']) && (float) $field_def['mlen'] > 0 ? (float) $field_def['mlen'] : null;
-						   if ((null !== $min_price && $typed_price < $min_price) || (null !== $max_price && $typed_price > $max_price)) {
-							   $invalid();
-							   return ['price_total' => 0, 'email' => '', 'valobj' => []];
-						   }
-					   }
-					   $price_f += $typed_price;
-				}
-				if($a !=-1){
-					if($fs_[$a]['type']!="payMultiselect"){
-						$price_f+=$fs_[$a]['price'];
-					}
-						$fs_[$a]['name'] = $val_[$i]['name'];
-						$fs_[$a]['type'] = "option_payment";
-						array_push($valobj,$fs_[$a]);
-				}
-			}
-		}
-		$ip =$this->get_ip_address();
-		$this->ip = $ip;
-		if($price_c != $price_f || $tampered_efb) {
-			$t=time();
-			$SERVER_NAME = apply_filters('emsfb_get_server_host', 'yourdomain.com');
-			$from =get_bloginfo('name')." <Alert@".$SERVER_NAME.">";
-				$headers = array(
-				   'MIME-Version: 1.0\r\n',
-				   'From:'.$from.'',
-				);
-			$to =get_option('admin_email');
-			$message="This message from Easy Form Builder, This IP:".$this->ip.
-			" try to enter invalid value like fee of the service of the form id:" .$this->id. " at :".date("Y-m-d-h:i:s",$t) ;
-			wp_mail( $to,"Warning Entry[Easy Form Builder]", $message, $headers );
-		}
-		$obj = array(
-			'price_total'=>$price_f,
-			'valobj'=>$valobj,
-			'email'=>$email
-		);
-		return $obj;
-	}
 
 	/**
 	 * A select/multiselect answer matches its saved option. Template options

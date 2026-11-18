@@ -86,7 +86,7 @@ $sdir = $vdir('stripe');
 $t('the Stripe add-on is found', $sdir !== '', true);
 $GLOBALS['routes'] = array();
 require $sdir . '/routes-efb.php';
-$t('the add-on announces legacy_gateway v1 → ready', array(efb_addon_contracts()['legacy_gateway']['providers'], efb_legacy_gateway_ready('stripe')), array(array('AdnSPF' => 1.0), true));
+$t('the add-on announces legacy_gateway 2 (as this core speaks) → ready', array(efb_addon_contracts()['legacy_gateway']['providers'], efb_legacy_gateway_ready('stripe')), array(array('AdnSPF' => 2.0), true));
 $t('…and the admin state is active', \Emsfb\Split::addon_state('AdnSPF'), null);
 do_action('efb_register_payment_rest_routes', $pub);
 $cb = function ($r) { $c = $GLOBALS['routes']['Emsfb/v1/forms/payment/stripe/' . $r]['callback'] ?? null; return is_array($c) ? get_class($c[0]) . '::' . $c[1] : ''; };

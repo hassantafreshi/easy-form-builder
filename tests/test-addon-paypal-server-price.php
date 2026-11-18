@@ -9,8 +9,8 @@
  * use the server total (option prices from the stored form, and a price field a logic rule
  * computes, through core's Builder_Api::apply_server_prices()).
  *
- * Runs the real handler with the real fun_validation_pay_elements_efb() (lifted from
- * class-Emsfb-public.php, as tests/test-ap-b7-computed-price.php does), the real
+ * Runs the real handler with the add-on's own pricing (Legacy_Server_Price_V1, PAY-OUT step 3; it was core's
+ * fun_validation_pay_elements_efb()), the real
  * Builder_Api and, when found, the real Emsfb_Logic_Validator. The PayPal HTTP helper is
  * replaced by a recorder, so nothing leaves the machine.
  *
@@ -56,11 +56,11 @@ foreach (array(getenv('EFB_PAYPAL_DIR') ?: '', __DIR__ . '/../vendor/paypal', '/
 }
 if (!$pp_dir) { echo "[SKIP] the PayPal add-on source was not found\n"; exit(0); }
 
-$src = file_get_contents(__DIR__ . '/../includes/class-Emsfb-public.php');
-if (!preg_match('/\tpublic function fun_validation_pay_elements_efb\(.*?\n\t}\n/s', $src, $m)) { fwrite(STDERR, "fun_validation_pay_elements_efb not found\n"); exit(1); }
+// PAY-OUT step 3: the handler prices the order with the add-on's own Legacy_Server_Price_V1 (was core's
+// fun_validation_pay_elements_efb()); core's public class only stores the entry here.
 eval('namespace Emsfb; class _Public { public $id = 0; public $ip = "127.0.0.1"; public $value = ""; public $name = "";
 	public function get_ip_address() { return "127.0.0.1"; }
-	public function insert_message_db($a, $b) { $GLOBALS["pp"]["stored"] = $this->value; return "TRACK1"; } ' . $m[0] . ' }');
+	public function insert_message_db($a, $b) { $GLOBALS["pp"]["stored"] = $this->value; return "TRACK1"; } }');
 }
 
 namespace Emsfb {

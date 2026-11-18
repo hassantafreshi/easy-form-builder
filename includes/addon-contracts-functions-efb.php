@@ -29,8 +29,10 @@ if (!function_exists('efb_addon_contract_versions')) {
 			'address'         => array('version' => 1, 'min' => 1, 'core' => false),
 			'booking'         => array('version' => 1, 'min' => 1, 'core' => false),
 			// PAY-OUT: 1.1 = the add-on draws its field's builder settings (window.efbFieldPanels); 1.2 = it keeps its keys
-			// on its own screen (a pay_<type> key of the settings row; core's Settings › Payments only links to it).
-			'legacy_gateway'  => array('version' => 1.2, 'min' => 1, 'core' => false),
+			// on its own screen (a pay_<type> key of the settings row; core's Settings › Payments only links to it); 2 = it
+			// prices its orders (efb_legacy_server_price) and resolves its keys itself: an add-on from before (1.x) is
+			// "outdated" (Update …, pay_not_ready) and core's old members answer it through a deprecated shim.
+			'legacy_gateway'  => array('version' => 2, 'min' => 2, 'core' => false),
 			'smart_tags_ext'  => array('version' => 1, 'min' => 1, 'core' => false),
 			'form_package'    => array('version' => $fp, 'min' => 1, 'core' => class_exists('\\Emsfb\\Form_Package')),
 			'payments'        => array('version' => defined('EMSFB_PAYMENTS_API') ? (int) EMSFB_PAYMENTS_API : 1, 'min' => 1, 'core' => class_exists('\\Emsfb\\Payments\\Registry')),
@@ -192,6 +194,22 @@ if (!function_exists('efb_legacy_gateway_ready')) {
 	}
 }
 
+if (!function_exists('efb_addon_pending_work')) {
+	/**
+	 * PAY-OUT step 3: an add-on publishes how much of its work is waiting (e.g. the Stripe add-on: payments to check), so
+	 * core can say so while the add-on cannot run (absent, off, outdated) without reading the add-on's tables.
+	 */
+	function efb_addon_pending_work($code, $count) {
+		if (!is_string($code) || !preg_match('/^Adn[A-Za-z]{2,5}$/', $code) || !function_exists('get_option')) return false;
+		$all = get_option('emsfb_addon_pending_work', array());
+		$all = is_array($all) ? $all : array();
+		$n = max(0, (int) $count);
+		if (isset($all[$code]['count']) && (int) $all[$code]['count'] === $n) return true;
+		$all[$code] = array('count' => $n, 'at' => time());
+		return update_option('emsfb_addon_pending_work', $all, false);
+	}
+}
+
 if (!function_exists('efb_gate_prepare')) {
 	/** F11's form gate for an add-on's own payment endpoint (the same gate and places as the submit). */
 	function efb_gate_prepare($form_id, $request = null) {
@@ -203,12 +221,19 @@ if (!function_exists('efb_gate_prepare')) {
 
 if (!function_exists('efb_legacy_server_price')) {
 	/**
-	 * The amount of a legacy-gateway order computed by the server from the stored form (price fields, priced choices,
-	 * logic prices, calc amounts; a lowered price is refused): fun_validation_pay_elements_efb() of core.
-	 * @return array {price_total, email, valobj} (refusals answer the request themselves, as before).
+	 * PAY-OUT step 3: the amount of a legacy-gateway order computed by the server from the stored form (price fields,
+	 * priced choices, logic prices, calc amounts; a lowered price is refused) — answered by the gateway's add-on on the
+	 * filter efb_legacy_server_price ($result, $rows, $form, $ctx {form_id}); core keeps no gateway pricing. No add-on
+	 * answers (absent, off, older than this core): the request is refused with pay_not_ready before any provider is
+	 * called (nothing is charged). Refusals answer the request themselves, as before.
+	 * @return array {price_total, email, valobj}
 	 */
-	function efb_legacy_server_price($rows, $form) {
-		$pub = class_exists('\\Emsfb\\_Public') ? \Emsfb\_Public::$instance_efb : null;
-		return $pub ? $pub->fun_validation_pay_elements_efb($rows, $form) : array('price_total' => 0, 'email' => '', 'valobj' => array());
+	function efb_legacy_server_price($rows, $form, $ctx = array()) {
+		$r = function_exists('apply_filters') ? apply_filters('efb_legacy_server_price', null, $rows, $form, is_array($ctx) ? $ctx : array()) : null;
+		if (is_array($r) && isset($r['price_total'])) return $r;
+		if (function_exists('wp_send_json_success')) {
+			wp_send_json_success(array('success' => false, 'code' => 'pay_not_ready', 'm' => class_exists('\\Emsfb\\Payments\\Readiness') ? \Emsfb\Payments\Readiness::visitor_text() : 'Online payment for this form is not available right now.'), 200);
+		}
+		return array('price_total' => 0, 'email' => '', 'valobj' => array());
 	}
 }

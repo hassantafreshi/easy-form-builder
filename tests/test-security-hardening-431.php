@@ -42,7 +42,7 @@ class FakeFunctions_Efb { function text_efb($k) { $o = array(); foreach ($k as $
 
 $src = file_get_contents(__DIR__ . '/../includes/class-Emsfb-public.php');
 $body = '';
-foreach (array('is_same_site_url_efb', 'normalize_submitted_row_efb', 'sanitize_payment_merge_row_efb', 'filter_attributes_by_type_efb',
+foreach (array('is_same_site_url_efb', 'normalize_submitted_row_efb', 'sanitize_submitted_row_efb', 'filter_attributes_by_type_efb',
 	'filter_and_sanitize_attributes_efb', 'sanitize_value_efb', 'canonical_esign_value_efb', 'sanitize_account_form_rows_efb',
 	'validate_submitted_upload_url_efb', 'replaceContentMessageEfb', 'email_format_price_efb', 'email_escape_leaf_efb', 'email_get_content_efb',
 	'efb_submitter_email_efb', 'plan_locked_field_types_efb', 'validate_required_fields_present_efb', 'stored_row_name_efb') as $fn) {
@@ -184,8 +184,10 @@ $list_js = file_get_contents(__DIR__ . '/../includes/admin/assets/js/list_form-e
 t_sec('settings reader reads password fields', strpos($list_js, 'el.type == "text" || el.type == "password"') !== false);
 $admin_src = file_get_contents(__DIR__ . '/../includes/admin/class-Emsfb-admin.php');
 t_sec('settings save never stores the NotFoundEl marker as a key', strpos($admin_src, "\$m[\$secret_key_efb] === 'NotFoundEl'") !== false);
-$resolve = substr($src, strpos($src, 'function resolve_payment_key_efb('), 2000); // public since PAY00
-t_sec('payments never use the NotFoundEl marker as a key', substr_count($resolve, "\$value !== 'NotFoundEl'") === 4);
+// PAY-OUT steps 2–3: the keys are the add-ons' (Legacy_Gateway_Keys_V1); core's resolver is a deprecated shim.
+$efb_addons_dir = getenv('EFB_ADDONS_REPO') ?: dirname((string) @readlink(__DIR__ . '/../vendor/stripe'));
+$keys_src = is_readable($efb_addons_dir . '/stripe/legacy-keys-efb.php') ? file_get_contents($efb_addons_dir . '/stripe/legacy-keys-efb.php') : '';
+t_sec('payments never use the NotFoundEl marker as a key (the add-ons\' key reader and their one-time move)', substr_count($keys_src, "\$v !== 'NotFoundEl'") === 2 && strpos($src, 'function resolve_payment_key_efb(') === false);
 
 /* 5. Source wiring */
 $reply = substr($src, strpos($src, 'public function set_rMessage_id_Emsfb_api('), 9000);

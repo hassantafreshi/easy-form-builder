@@ -22,6 +22,8 @@ foreach ( array(
 	'class-Emsfb-payment-pricing.php',
 	'class-Emsfb-payment-service.php',
 	'class-Emsfb-payment-frontend.php',
+	// PAY-OUT step 3: the deprecated members of the legacy_gateway contract (_Public uses the trait; one more release).
+	'legacy-gateway-shim-efb.php',
 ) as $efb_pay_file ) {
 	require_once __DIR__ . '/' . $efb_pay_file;
 }

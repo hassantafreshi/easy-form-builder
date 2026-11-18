@@ -1,8 +1,8 @@
 <?php
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 /**
- * fun_validation_pay_elements_efb() reads the submitted payment rows from the request
- * (Stripe here, and the PayPal add-on calls it too). A value that was not a list of
+ * The legacy pricing (core's fun_validation_pay_elements_efb() until PAY-OUT step 3; now the Stripe / PayPal add-ons'
+ * Legacy_Server_Price_V1) reads the submitted payment rows from the request. A value that was not a list of
  * rows, or a row whose price or ids had the wrong type, was a TypeError in count(),
  * abs() or explode() on PHP 8: an HTTP 500 instead of the readable refusal.
  *
@@ -22,6 +22,11 @@ $check = static function ($ok, $label) use (&$passed, &$failed) {
     $ok ? $passed++ : $failed++;
 };
 
+if (!class_exists('\\Emsfb\\Legacy_Server_Price_V1')) {
+    $efb_price = (getenv('EFB_ADDONS_REPO') ?: dirname((string) @readlink(dirname(__DIR__) . '/vendor/stripe'))) . '/stripe/legacy-price-efb.php';
+    if (!is_readable($efb_price)) { echo "[SKIP] the Stripe add-on's legacy-price-efb.php is not found\nRESULTS: 0 passed, 0 failed\n"; exit(0); }
+    require_once $efb_price;
+}
 $ref = new ReflectionClass('Emsfb\\_Public');
 $public = $ref->newInstanceWithoutConstructor();
 foreach (array('db' => $GLOBALS['wpdb']) as $k => $v) {
@@ -33,7 +38,8 @@ $run = static function ($val, $fs) use ($public) {
     ob_start();
     $out = array('refused' => false, 'body' => null, 'result' => null, 'error' => '');
     try {
-        $out['result'] = $public->fun_validation_pay_elements_efb($val, $fs);
+        // PAY-OUT step 3: the pricing is the Stripe / PayPal add-on's (Legacy_Server_Price_V1), as card/add calls it.
+        $out['result'] = \Emsfb\Legacy_Server_Price_V1::price($val, $fs, $public, array('form_id' => 0));
     } catch (EfbPayValidationEnd $e) {
         $out['refused'] = true;
     } catch (Throwable $e) {

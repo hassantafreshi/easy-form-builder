@@ -7,12 +7,14 @@
  * Combinations (tests/payout-mixed-lib.php): new core + new add-ons, new core + OLD add-ons (5c4051e), OLD core
  * (e890a6db) + new add-ons. The Stripe SDK is answered by the stand-in of mu-plugins/efb-e2e-payout.php.
  *
- *  1  versions: the legacy_gateway contract each core speaks, and whether each add-on can be used (or must be updated);
+ *  1  versions: the legacy_gateway contract each core speaks (step 3: 2, min 2), and whether each add-on can be used or
+ *     must be updated (an add-on from before step 3 prices with core's old code: "update", never half-used);
  *  2  the builder (PAY-OUT §1): new core: efb_var.legacy_gw (type → add-on, state) and the add-on's own settings panel
  *     script (window.efbFieldPanels) — with an old add-on no script, so the panel says "Update …"; old core: its own panel;
  *  3  the visitor's page of a Stripe form: the card box, or the "not available" notice in its place — never a broken page;
- *  4  card/add: the PaymentIntent is created for the server's amount (Adult 25 → 2500 USD minor) even when the request
- *     says 0.01; a choice that is not on the form is refused; or the clear update / not-ready answer, and no intent;
+ *  4  card/add: the PaymentIntent is created for the server's amount (Adult 25 → 2500 USD minor; the add-on prices it
+ *     since step 3) even when the request says 0.01; a choice that is not on the form is refused; an old add-on's
+ *     route (on core's class) answers "Update … to keep using it with this version." (pay_addon_update), no intent;
  *  5  confirm + the final submit: the entry is stored once as paid; the same payment cannot be used twice; a payment the
  *     provider reports as not paid is refused;
  *  K  (step 2) the keys: with the new add-on on the new core they move once to the add-on's own key (encrypted, read
@@ -58,13 +60,17 @@ foreach ($COMBOS as $name => $combo) {
 	/* 1 */
 	$v = $M->ctl('versions');
 	$lg = $v['legacy_gateway'] ?? array();
-	t("$name 1 the core speaks legacy_gateway " . ($newcore ? '1.2' : '1'), (float) ($lg['version'] ?? 0), $newcore ? 1.2 : 1.0);
-	t("$name 1 every legacy add-on can be used (states null)", array_values($v['states'] ?? array()), array(null, null, null));
+	t("$name 1 the core speaks legacy_gateway " . ($newcore ? '2 (min 2)' : '1'), array((float) ($lg['version'] ?? 0), (float) ($lg['min'] ?? 0)), $newcore ? array(2.0, 2.0) : array(1.0, 1.0));
+	$update = $newcore && $oldaddon; // PAY-OUT step 3: an add-on from before (contract 1.x) must be updated
+	t("$name 1 " . ($update ? 'the old add-ons are "update" (outdated), never half-used' : 'every legacy add-on can be used (states null)'), array_values($v['states'] ?? array()), $update ? array('update', 'update', 'update') : array(null, null, null));
+	// An add-on from before step 3 does not load its bridge on a contract-2 core (it registers only its old routes on
+	// core's class, which the shim answers): it announces nothing, so core says "update".
+	t("$name 1 the add-ons announce the contract " . ($update ? '— none (too old: no bridge on a contract-2 core)' : ($newcore ? '2' : '1')), array_values(array_map('floatval', (array) ($lg['providers'] ?? array()))), $update ? array() : ($newcore ? array(2.0, 2.0, 2.0) : array(1.0, 1.0, 1.0)));
 
 	/* 2 */
 	$b = $M->ctl('builder');
 	if ($newcore) {
-		t("$name 2 efb_var.legacy_gw: stripe → AdnSPF, usable", array($b['legacy_gw']['types']['stripe']['code'] ?? '', array_key_exists('state', (array) ($b['legacy_gw']['types']['stripe'] ?? array())) ? $b['legacy_gw']['types']['stripe']['state'] : 'x'), array('AdnSPF', null));
+		t("$name 2 efb_var.legacy_gw: stripe → AdnSPF, " . ($update ? 'update' : 'usable'), array($b['legacy_gw']['types']['stripe']['code'] ?? '', array_key_exists('state', (array) ($b['legacy_gw']['types']['stripe'] ?? array())) ? $b['legacy_gw']['types']['stripe']['state'] : 'x'), array('AdnSPF', $update ? 'update' : null));
 		t("$name 2 the add-ons' settings panels (" . ($oldaddon ? 'old add-ons: none, the panel says Update' : 'window.efbFieldPanels') . ')', array_values($b['scripts'] ?? array()), $oldaddon ? array(false, false, false) : array(true, true, true));
 	} else {
 		t("$name 2 the old core has no legacy_gw (its own panels)", $b['legacy_gw'] ?? null, null);
@@ -111,6 +117,17 @@ foreach ($COMBOS as $name => $combo) {
 	$fid = (int) $F['form_id'];
 	$page = $H->http('GET', $H->page($fid), null, array(), false);
 	$box = (bool) preg_match('/class="efb\s+[^"]*stripe emsFormBuilder_v"/', $page['body']);
+	if ($update) {
+		t("$name 3 an add-on too old for this core: the clear notice in place of the card box (no card box)", array($page['status'], $box, strpos($page['body'], 'data-efb-pay-blocked') !== false), array(200, false, true));
+		$rows = function () use ($F) { return array(array('id_' => $F['email'], 'name' => 'Email', 'type' => 'email', 'value' => 'payer@example.test'), array('id_' => $F['radio'], 'id_ob' => $F['o1'], 'name' => 'Ticket', 'type' => 'payRadio', 'value' => 'Adult', 'price' => '25')); };
+		$H->fresh_jar();
+		$add = EfbF11Http::answer($H->submit($fid, $rows(), array('type' => 'payment', 'name' => 'PAY-OUT ' . $name), null, 'forms/payment/stripe/card/add'));
+		t("$name 4 card/add of the old add-on (its routes on core's class): \"Update … to keep using it with this version.\" (pay_addon_update), no PaymentIntent", array(empty($add['success']), $add['code'] ?? '', (bool) preg_match('/^Update .+ to keep using it with this version\.$/', (string) ($add['m'] ?? '')), count((array) ($M->ctl('stripe')['intents'] ?? array()))), array(true, 'pay_addon_update', true, 0));
+		$H->fresh_jar();
+		$fin = EfbF11Http::answer($H->submit($fid, $rows(), array('type' => 'payment', 'payid' => 'TRACKX12345', 'payment' => 'stripe', 'name' => 'PAY-OUT ' . $name)));
+		t("$name 5 the final submit: pay_not_ready, nothing stored", array(empty($fin['success']), $fin['code'] ?? '', count((array) $H->ctl('entries', (string) $fid))), array(true, 'pay_not_ready', 0));
+		continue;
+	}
 	t("$name 3 the Stripe form's page shows the card box", array($page['status'], $box, strpos($page['body'], 'data-efb-pay-blocked') === false), array(200, true, true));
 
 	/* 4 */

@@ -484,11 +484,12 @@ class Split {
 		if (!function_exists('current_user_can') || !current_user_can('manage_options')) return;
 		$screen = function_exists('get_current_screen') ? get_current_screen() : null;
 		if (!$screen || stripos((string) $screen->id, 'emsfb') === false) return;
-		// SPLIT §5.3: Stripe payments still pending while the Stripe add-on is absent are not checked meanwhile.
-		$pending = self::stripe_pending_without_addon();
-		if ($pending > 0) {
-			/* translators: %d: number of payments */
-			echo '<div class="notice notice-warning efb-split-stripe-pending"><p style="unicode-bidi:plaintext">' . esc_html(sprintf(_n('%d Stripe payment is waiting to be checked; install Stripe to finish it.', '%d Stripe payments are waiting to be checked; install Stripe to finish them.', $pending, 'easy-form-builder'), $pending)) . '</p></div>';
+		// SPLIT §5.3 / PAY-OUT step 3: payments an add-on left waiting to be checked while it cannot run (absent, off, older
+		// than this core). The add-on publishes its count (efb_addon_pending_work()); core never reads its tables.
+		foreach (self::pending_work_without_addon() as $code => $n) {
+			$name = Addon_Catalog::name($code);
+			/* translators: 1: number of payments, 2: name of an Easy Form Builder add-on (a product name) */
+			echo '<div class="notice notice-warning efb-split-pending" data-efb-addon="' . esc_attr($code) . '"><p style="unicode-bidi:plaintext">' . sprintf(esc_html(_n('%1$d payment is waiting to be checked by %2$s; turn on or update the add-on to finish it.', '%1$d payments are waiting to be checked by %2$s; turn on or update the add-on to finish them.', $n, 'easy-form-builder')), (int) $n, '<bdi>' . esc_html($name) . '</bdi>') . '</p></div>';
 		}
 		$forms = self::forms_needing();
 		if (!$forms) return;
@@ -496,15 +497,15 @@ class Split {
 		echo self::admin_notice_html($forms); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above
 	}
 
-	/** Pending Stripe rows of emsfb_pay_ while AdnSPF cannot check them (0 when the add-on is ready or no table). */
-	public static function stripe_pending_without_addon() {
-		if (function_exists('efb_legacy_gateway_ready') && efb_legacy_gateway_ready('stripe')) return 0;
-		global $wpdb;
-		if (!is_object($wpdb)) return 0;
-		$t = $wpdb->prefix . 'emsfb_pay_';
-		if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $t)) !== $t) return 0;
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-		return (int) $wpdb->get_var("SELECT COUNT(*) FROM `{$t}` WHERE gateway = 'stripe' AND status = 'pending'");
+	/** The work each add-on published as waiting (payments to check), for the add-ons that cannot run now. @return array<string,int> */
+	public static function pending_work_without_addon() {
+		$out = array();
+		$all = function_exists('get_option') ? get_option('emsfb_addon_pending_work', array()) : array();
+		foreach (is_array($all) ? $all : array() as $code => $w) {
+			$n = is_array($w) && isset($w['count']) ? (int) $w['count'] : 0;
+			if ($n > 0 && is_string($code) && preg_match('/^Adn[A-Za-z]{2,5}$/', $code) && self::addon_state($code) !== null) $out[$code] = $n;
+		}
+		return $out;
 	}
 
 	/** Whether the free plugin Easy Form Builder Data Tools is active. */
