@@ -1736,11 +1736,22 @@ function efb_expire_stored_answers_efb() {
 /* What was stored before this page wrote anything: the form's own default
  * values are stored while it is built, which replaced the saved answers. */
 let efb_stored_answers_at_load_efb = [];
+/* The same snapshot, kept apart for the return from the bank. Any field with a
+ * default value (a switch, a preset select...) writes the list again while the
+ * form is built, which replaced the answers PersiaPay saved before the
+ * redirect: the visitor came back to an empty form and an empty submission.
+ * fun_offline_Efb() reads this copy once and then drops it. */
+var efb_payment_return_answers_efb = null;
 try {
   efb_scrub_stored_passwords_efb();
   efb_expire_stored_answers_efb();
   const stored_at_load = JSON.parse(localStorage.getItem('sendback') || '[]');
   if (Array.isArray(stored_at_load)) efb_stored_answers_at_load_efb = stored_at_load;
+  // Only on the gateway's own return (ZarinPal adds Authority for OK and NOK);
+  // a stale sessionStorage payId must not make a later visit look like one.
+  if (Array.isArray(stored_at_load) && stored_at_load.length > 0 && /[?&]Authority=/i.test(location.search)) {
+    efb_payment_return_answers_efb = stored_at_load.slice();
+  }
   // Add-ons write the list too; whatever they stored is cleaned when the page is left.
   window.addEventListener('pagehide', efb_scrub_stored_passwords_efb);
 } catch (e) {}
@@ -1772,7 +1783,20 @@ async function efb_restore_offline_answers_efb() {
     const head = structure[0];
     if (!(head.AfLnFrm === true || Number(head.AfLnFrm) === 1) || head.type === 'payment') continue;
     for (const row of rows) {
-      if (!row || typeof row !== 'object' || Number(row.form_id) !== fid || !row.id_ob) continue;
+      if (!row || typeof row !== 'object' || Number(row.form_id) !== fid) continue;
+      /* A switch is a toggle button whose row has no id_ob: it came back
+       * "off" even when the visitor had turned it on. Press it, so its own
+       * handler stores the answer and runs the rules. */
+      if (String(row.type || '') === 'switch') {
+        const body = document.getElementById(`body_efb_${fid}`) || document;
+        const sw = body.querySelector(`.btn-toggle[data-vid="${CSS.escape(String(row.id_ || ''))}"]`);
+        const want_on = row.value == '1' || row.value === 'On' || row.value === true;
+        if (sw && !sw.disabled && sw.classList.contains('active') !== want_on) {
+          try { sw.click(); } catch (e) {}
+        }
+        continue;
+      }
+      if (!row.id_ob) continue;
       // Only fields whose visible state is the control itself. Yes/No, switch,
       // image choices, ratings, phone (intl-tel-input) and the like draw their
       // own UI: checking their hidden input put an answer in the entry that
@@ -2108,8 +2132,18 @@ remove_ttmsg_efb=(id)=>{
   hide_msg_efb(m);
 }
 change_url_back_persia_pay_efb=()=>{
-  const indx = document.URL.indexOf('?');
-  if(indx!=-1)history.pushState({'page_id': 1},`${document.title} !`, document.URL.slice(0,indx));
+  /* Drop only what the gateway added. Cutting the whole query also dropped
+   * ?page_id=... on sites without pretty permalinks, so a reload after the
+   * payment opened the home page instead of the form. */
+  try {
+    const u = new URL(document.URL);
+    let changed = false;
+    ['Authority', 'Status', 'track'].forEach((k) => { if (u.searchParams.has(k)) { u.searchParams.delete(k); changed = true; } });
+    if (changed) history.replaceState(history.state, document.title, u.toString());
+  } catch (e) {
+    const indx = document.URL.indexOf('?');
+    if(indx!=-1)history.replaceState(history.state, document.title, document.URL.slice(0,indx));
+  }
 }
 window.addEventListener("popstate",e=>{
   // A #anchor link (the theme's skip link, say) pops a null or object state.

@@ -740,12 +740,35 @@ async function fun_offline_Efb() {
       }
   };
   let el = '';
-  if(localStorage.hasOwnProperty('sendback')==false) return;
-  const values =   JSON.parse(localStorage.getItem('sendback'))
+  /* On the return from the bank, read the answers as they were when the page
+   * loaded (core-efb.js keeps that copy): building the form stores default
+   * values, which had already replaced localStorage['sendback'] by now. */
+  let values = null;
+  if (typeof efb_payment_return_answers_efb !== 'undefined' && Array.isArray(efb_payment_return_answers_efb)) {
+    values = efb_payment_return_answers_efb;
+    efb_payment_return_answers_efb = null;
+  } else {
+    if(localStorage.hasOwnProperty('sendback')==false) return;
+    try { values = JSON.parse(localStorage.getItem('sendback')); } catch (e) { values = null; }
+  }
+  if (!Array.isArray(values)) return;
+  values = values.filter(v => v && typeof v === 'object');
+  /* The rows already in memory for these forms are only the defaults stored
+   * while the form was built; the saved answers replace them instead of being
+   * added next to them (two rows per field). */
+  const restored_forms = new Set(values.map(v => Number(v.form_id)));
+  if (Array.isArray(sendBack_emsFormBuilder_pub)) {
+    sendBack_emsFormBuilder_pub = sendBack_emsFormBuilder_pub.filter(r => !r || !restored_forms.has(Number(r.form_id)));
+  }
   let temp, id;
   for (let value of values) {
 
     sendBack_emsFormBuilder_pub.push(value);
+    /* Each row on its own: a field that cannot be shown (missing element, a
+     * control drawn differently) used to throw and stop the whole restore, so
+     * the remaining answers and the payment hand-back never ran. Its answer
+     * stays in the submission either way. */
+    try {
     switch (value.type) {
       case 'email':
       case 'text':
@@ -763,8 +786,12 @@ async function fun_offline_Efb() {
 
         el=value.type;
         break;
-      case 'textarea':
-        document.getElementById(value.id_ob).innerHTML = value.value;
+      case 'textarea': {
+        // Stored line breaks are "@n#"; .value (not innerHTML) is what is shown once typed in.
+        const ta_el = document.getElementById(value.id_ob);
+        const ta_value = value.value == null ? '' : String(value.value);
+        ta_el.value = typeof text_nr_efb === 'function' ? text_nr_efb(ta_value, 0) : ta_value.replace(/@n#/g, '\n');
+      }
 
         el=value.type;
         break;
@@ -884,10 +911,23 @@ async function fun_offline_Efb() {
 
         el=value.type;
         break;
-      case 'switch':
-        document.getElementById(value.id_ob).checked = value.value == "On" ? true : false;
+      case 'switch': {
+        /* The switch is a toggle button (fun_switch_efb stores "1"/"0"), not a
+         * checkbox, and its stored row carries no id_ob. */
+        const on = value.value == "1" || value.value == "On" || value.value === true;
+        const scope = document.getElementById(`body_efb_${value.form_id}`) || document;
+        const sw = scope.querySelector(`.btn-toggle[data-vid="${CSS.escape(String(value.id_))}"]`)
+          || (value.id_ob ? document.getElementById(value.id_ob) : null);
+        if (sw && sw.classList.contains('btn-toggle')) {
+          sw.classList.toggle('active', on);
+          sw.setAttribute('aria-pressed', on ? 'true' : 'false');
+          sw.dataset.state = on ? 'on' : 'off';
+        } else if (sw && 'checked' in sw) {
+          sw.checked = on;
+        }
         el=value.type;
         break;
+      }
       case 'rating':
         if (value.value >= 1) document.getElementById(`${value.id_}-star1`).checked = true;
         if (value.value >= 2) document.getElementById(`${value.id_}-star2`).checked = true;
@@ -927,8 +967,23 @@ async function fun_offline_Efb() {
       el=value.type;
       break;
     }
+    } catch (e) {
+      el = value.type;
+      if (typeof console !== 'undefined') console.warn('EFB restore: field not refilled', value.id_, e && e.message);
+    }
   }
-  if(valj_efb[0].type=="payment" && valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string"){
+  /* Keep the restored answers in the browser until the form is sent, as the
+   * rest of the form does. */
+  try {
+    localStorage.setItem('sendback', typeof efb_sendback_for_storage_efb === 'function'
+      ? efb_sendback_for_storage_efb(sendBack_emsFormBuilder_pub)
+      : JSON.stringify(sendBack_emsFormBuilder_pub));
+  } catch (e) {}
+  /* Only a successful return (Status=OK) hands the payment back. On NOK the
+   * gateway still sends an Authority, which added a payment row and
+   * auto-submitted a form that was never paid. */
+  if(valj_efb[0].type=="payment" && valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string"
+    && (typeof get_Status_efb === 'undefined' || get_Status_efb == 'OK')){
     fun_after_bankpay_persia_ui();
   }
 }
