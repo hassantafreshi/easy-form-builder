@@ -64,7 +64,9 @@ t_xss('maps branch still enforces the marker count against the saved field',
  * document that invariant so the maps branch (and any future array-valued
  * type) keeps handling its own nested sanitization explicitly. */
 $filter_start = strpos($public_src, 'function filter_attributes_by_type_efb');
-$filter_slice = $filter_start !== false ? substr($public_src, $filter_start, 2200) : '';
+// The whole function (it grew past a fixed 2,200 characters with F05 / F08 / PAY00 types, which hid the invariant).
+$filter_end = $filter_start !== false ? strpos($public_src, "\n\t}\n", $filter_start) : false;
+$filter_slice = $filter_start !== false ? substr($public_src, $filter_start, ($filter_end !== false ? $filter_end : $filter_start + 2200) - $filter_start) : '';
 t_xss("filter_attributes_by_type_efb still skips 'value' (nested sanitization stays branch-owned)",
 	strpos($filter_slice, "if (\$key !== 'value')") !== false);
 
