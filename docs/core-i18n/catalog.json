@@ -4,7 +4,7 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-18",
     "counts": {
-        "active": 4203,
+        "active": 4220,
         "obsolete": 517
     },
     "entries": [
@@ -410,6 +410,21 @@
             "context": null,
             "plural": null,
             "translators": "F02 SMS text: %1$s = code, %2$s = site name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s is your sign-in code for %2$s.",
+            "context": null,
+            "plural": null,
+            "translators": "F20 customer portal sign-in SMS: %1$s = code, %2$s = site name",
             "files": [
                 "includes/functions.php"
             ],
@@ -2695,6 +2710,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "A customer cancelled the booking %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F20 customer portal: e-mail to the site, %s = confirmation code",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "A customer moved the booking %s to another time.",
+            "context": null,
+            "plural": null,
+            "translators": "F20 customer portal: e-mail to the site, %s = confirmation code",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -9980,6 +10025,21 @@
             "context": null,
             "plural": null,
             "translators": "F14: edit saved",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Changing a booking needs the Booking add-on.",
+            "context": null,
+            "plural": null,
+            "translators": "F20 customer portal",
             "files": [
                 "includes/functions.php"
             ],
@@ -19193,6 +19253,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Enter this code to see your submissions:",
+            "context": null,
+            "plural": null,
+            "translators": "F20 customer portal sign-in e-mail: text before the code",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Enter token or credentials",
             "context": null,
             "plural": null,
@@ -25132,6 +25207,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "If we find submissions for %s, a code is on its way.",
+            "context": null,
+            "plural": null,
+            "translators": "F20 customer portal: %s = the masked address or number",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -36065,6 +36155,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Paid bookings cannot be cancelled here. Please contact us.",
+            "context": null,
+            "plural": null,
+            "translators": "F20 customer portal",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Paid notification score",
@@ -51540,6 +51645,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "That time is no longer available. Please choose another.",
+            "context": null,
+            "plural": null,
+            "translators": "F20 customer portal",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The %1$s field is not in the correct format (example: %2$s).",
             "context": null,
             "plural": null,
@@ -52823,6 +52943,36 @@
             "context": null,
             "plural": null,
             "translators": "F11: after the reset button",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The customer asked for their data (%s) from the customer portal.",
+            "context": null,
+            "plural": null,
+            "translators": "F20 customer portal: note on the entries, %s = export or erase",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The customer portal is not available right now.",
+            "context": null,
+            "plural": null,
+            "translators": "F20 customer portal",
             "files": [
                 "includes/functions.php"
             ],
@@ -56204,6 +56354,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This can no longer be changed. Please contact us.",
+            "context": null,
+            "plural": null,
+            "translators": "F20 customer portal",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This check runs once after plugin activation. Please refresh the page in a few moments.",
             "context": null,
             "plural": null,
@@ -56245,6 +56410,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This conversation is closed. Please send a new form.",
+            "context": null,
+            "plural": null,
+            "translators": "F20 customer portal",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -58537,6 +58717,21 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-formbuilder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Too many requests. Please try again in %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F20 customer portal: %s = wait time",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -62615,6 +62810,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "We could not find this submission.",
+            "context": null,
+            "plural": null,
+            "translators": "F20 customer portal",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "We could not finish the check, so we do not know yet. Notifications are unchanged; try again now, or later from Email Settings.",
             "context": null,
             "plural": null,
@@ -66202,6 +66412,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Your booking was cancelled.",
+            "context": null,
+            "plural": null,
+            "translators": "F20 customer portal: e-mail to the customer",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your booking was moved to another time.",
+            "context": null,
+            "plural": null,
+            "translators": "F20 customer portal: e-mail to the customer",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Your brand color",
             "context": null,
             "plural": null,
@@ -67333,6 +67573,21 @@
             "context": null,
             "plural": null,
             "translators": "F18: error in the upgrade dialog",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your sign-in code for %s",
+            "context": null,
+            "plural": null,
+            "translators": "F20 customer portal sign-in e-mail subject: %s = site name",
             "files": [
                 "includes/functions.php"
             ],
