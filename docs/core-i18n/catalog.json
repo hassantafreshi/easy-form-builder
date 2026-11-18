@@ -1,10 +1,10 @@
 {
     "domain": "easy-form-builder",
     "about": "Every phrase looked up in the easy-form-builder text domain: the core plus add-ons that still use that domain. Maintained by tests/core-i18n/extract.php (agent efb-core-i18n); do not edit by hand.",
-    "plugin_version": "4.3.1",
+    "plugin_version": "4.3.2",
     "updated": "2026-11-18",
     "counts": {
-        "active": 4234,
+        "active": 4241,
         "obsolete": 518
     },
     "entries": [
@@ -16163,6 +16163,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Draft",
+            "context": null,
+            "plural": null,
+            "translators": "the badge of a form that is not shown to visitors yet (the forms list)",
+            "files": [
+                "includes/class-Emsfb-form-status.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Draft: visitors do not see this form yet. Publish it in Easy Form Builder › Forms when it is ready.",
+            "context": null,
+            "plural": null,
+            "translators": "shown above a draft form to the site's administrators only; \"Easy Form Builder › Forms\" is the admin menu",
+            "files": [
+                "includes/class-Emsfb-form-status.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -35724,6 +35754,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Open the forms list",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-form-status.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Open the gateway settings",
             "context": null,
             "plural": null,
@@ -40902,6 +40947,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Publish",
+            "context": null,
+            "plural": null,
+            "translators": "the button that shows a draft form to visitors (the forms list)",
+            "files": [
+                "includes/class-Emsfb-form-status.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Published: visitors see this form now.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-form-status.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -53938,6 +54013,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The form was saved by someone else in the meantime. Read it again and repeat the change.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/admin/class-Emsfb-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The form will appear here on the frontend.",
             "context": null,
             "plural": null,
@@ -62474,6 +62564,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Visitors do not see a draft. Publish it when it is ready.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-form-status.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Visitors see this field once Free Plus or Pro is active.",
             "context": null,
             "plural": null,
@@ -65599,6 +65704,7 @@
             "plural": null,
             "translators": "",
             "files": [
+                "includes/class-Emsfb-form-status.php",
                 "includes/class-Emsfb-public.php"
             ],
             "scope": [

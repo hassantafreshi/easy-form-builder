@@ -102,6 +102,7 @@ class Form_Status {
 		if (!self::is_draft($form_id)) return null;
 		if (!self::viewer_is_admin()) return '';
 		$url = function_exists('admin_url') ? admin_url('admin.php?page=Emsfb') : 'admin.php?page=Emsfb';
+		/* translators: shown above a draft form to the site's administrators only; "Easy Form Builder › Forms" is the admin menu */
 		$t = __('Draft: visitors do not see this form yet. Publish it in Easy Form Builder › Forms when it is ready.', 'easy-form-builder');
 		return '<div class="efb efb-draft-note" role="note" dir="auto" style="margin:0 0 12px;padding:10px 14px;border:1px dashed #c7a600;border-radius:8px;background:#fffbe6;color:#5c4a00;font-size:14px;line-height:1.5">'
 			. esc_html($t) . ' <a href="' . esc_url($url) . '">' . esc_html__('Open the forms list', 'easy-form-builder') . '</a></div>';
@@ -163,7 +164,11 @@ class Form_Status {
 	/** The forms list's phrases (efb_var.form_status). */
 	public static function builder_vars($vars) {
 		if (!is_array($vars)) return $vars;
-		$vars['form_status'] = array('v' => self::VERSION, 'draft' => __('Draft', 'easy-form-builder'), 'publish' => __('Publish', 'easy-form-builder'),
+		$vars['form_status'] = array('v' => self::VERSION,
+			/* translators: the badge of a form that is not shown to visitors yet (the forms list) */
+			'draft' => __('Draft', 'easy-form-builder'),
+			/* translators: the button that shows a draft form to visitors (the forms list) */
+			'publish' => __('Publish', 'easy-form-builder'),
 			'draftTip' => __('Visitors do not see a draft. Publish it when it is ready.', 'easy-form-builder'));
 		return $vars;
 	}
