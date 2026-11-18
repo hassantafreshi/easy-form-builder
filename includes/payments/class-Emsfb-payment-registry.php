@@ -480,9 +480,14 @@ class Readiness {
 				if ( ! efb_legacy_gateway_ready( $r['type'] ) ) {
 					$code = \Emsfb\Split::legacy_types()[ $r['type'] ];
 					$out['has_payment'] = true;
-					$issues[] = array( 'code' => 'pay_addon_inactive', 'level' => 'error', 'field_id' => isset( $r['id_'] ) && is_scalar( $r['id_'] ) ? (string) $r['id_'] : '', 'gateway' => $r['type'], 'addon' => $code,
+					$aname = class_exists( '\\Emsfb\\Addon_Catalog' ) ? \Emsfb\Addon_Catalog::name( $code ) : $code;
+					// PAY-OUT: an add-on that is on but older than this core says "update", not "activate".
+					$upd = \Emsfb\Split::addon_state( $code ) === 'update';
+					$issues[] = array( 'code' => $upd ? 'pay_addon_update' : 'pay_addon_inactive', 'level' => 'error', 'field_id' => isset( $r['id_'] ) && is_scalar( $r['id_'] ) ? (string) $r['id_'] : '', 'gateway' => $r['type'], 'addon' => $code,
+						/* translators: %s: name of an Easy Form Builder add-on (a product name) */
+						'm' => $upd ? sprintf( __( 'Update %s to keep using it with this version.', 'easy-form-builder' ), $aname )
 						/* translators: %s: name of a payment add-on (the gateway's name) */
-						'm' => sprintf( __( 'The %s add-on of this payment field is not active, so visitors cannot pay. Activate it in Easy Form Builder → Add-ons, or remove the payment field.', 'easy-form-builder' ), class_exists( '\\Emsfb\\Addon_Catalog' ) ? \Emsfb\Addon_Catalog::name( $code ) : $code ) );
+						: sprintf( __( 'The %s add-on of this payment field is not active, so visitors cannot pay. Activate it in Easy Form Builder → Add-ons, or remove the payment field.', 'easy-form-builder' ), $aname ) );
 				}
 			} elseif ( in_array( $r['type'], self::catalogue_types(), true ) ) {
 				$out['has_payment'] = true;
@@ -518,6 +523,7 @@ class Readiness {
 			case 'pay_not_configured':
 				return array( 'kind' => 'settings', 'url' => $adm( 'admin.php?page=Emsfb_payments&tab=gateways' ), 'label' => __( 'Open the gateway settings', 'easy-form-builder' ) );
 			case 'pay_addon_inactive':
+			case 'pay_addon_update':
 				return array( 'kind' => 'addons', 'url' => $adm( 'admin.php?page=Emsfb_addon' ), 'label' => __( 'Open Add-ons', 'easy-form-builder' ) );
 			case 'pay_plan':
 				return array( 'kind' => 'plan', 'url' => $adm( 'admin.php?page=Emsfb_addon' ), 'label' => __( 'See the plans', 'easy-form-builder' ) );

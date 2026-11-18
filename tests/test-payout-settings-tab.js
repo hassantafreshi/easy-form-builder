@@ -81,5 +81,12 @@ for (const st of Object.keys(words)) {
 m = row({ form_id: '3"><img src=x>', name: '<script>x</script>', status: '"><b>', can_rollback: true });
 t('5 names, ids and statuses are escaped', !/<script|<img|<b>/.test(m) && /&lt;script&gt;/.test(m), m);
 
+{
+  const ctx = { efb_var: { text: { pmvHelp: 'Moved to the add-on&#039;s new field &amp; kept', cpAddonsHelp: 'Each &quot;add-on&quot;' } } };
+  vm.createContext(ctx);
+  vm.runInContext(fn + '\nout = efb_pay_moves_html_efb("mx-5", "mx-4") + efb_pay_addons_html_efb("mx-5", "mx-4");', ctx);
+  t('5 the server\'s phrases (HTML-escaped) are not escaped twice (no "&amp;#039;")', ctx.out.indexOf('&amp;#039;') === -1 && ctx.out.indexOf('add-on&#39;s new field &amp; kept') !== -1, ctx.out.slice(0, 700));
+}
+
 console.log('\nRESULTS: ' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

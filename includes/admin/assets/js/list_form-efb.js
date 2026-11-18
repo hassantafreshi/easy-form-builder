@@ -1241,7 +1241,7 @@ function fun_show_help__emsFormBuilder() {
    and Settings, a link to that screen. Data: efb_var.legacy_gw (Split::builder_vars(), filter efb_legacy_gateway_screens). */
 function efb_pay_addons_html_efb(mx, mx4) {
   const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const T = (k, fb) => { const t = (typeof efb_var !== 'undefined' && efb_var.text) || {}; return t[k] ? String(t[k]) : fb; };
+  const T = (k, fb) => efb_pay_txt_efb(k, fb);
   const g = (typeof efb_var !== 'undefined' && efb_var.legacy_gw) || {};
   const types = g.types || {};
   const screens = g.screens || {};
@@ -1273,8 +1273,16 @@ function efb_pay_addons_html_efb(mx, mx4) {
 /* PAY-OUT step 5: the forms of the older Stripe / PayPal / Persia Pay fields and their move to the add-ons' new fields
  * (REST Emsfb/v1/payments/legacy-migration, administrators only): one row per form with its status and Move back /
  * Move now. Hidden while there is nothing to show. */
+/* A phrase of efb_var.text as plain text: the server sends them HTML-escaped (esc_html__), and these lists escape what
+ * they write, so the entities are turned back first (an apostrophe would read "&#039;"). */
+function efb_pay_txt_efb(k, fb) {
+  const t = (typeof efb_var !== 'undefined' && efb_var.text) || {};
+  if (!t[k]) return fb;
+  return String(t[k]).replace(/&(#0?39|#x27|quot|lt|gt|amp);/gi, (m, e) => ({ '#039': "'", '#39': "'", '#x27': "'", quot: '"', lt: '<', gt: '>', amp: '&' }[e.toLowerCase()]));
+}
+
 function efb_pay_moves_html_efb(mx, mx4) {
-  const T = (k, fb) => { const t = (typeof efb_var !== 'undefined' && efb_var.text) || {}; return t[k] ? String(t[k]) : fb; };
+  const T = efb_pay_txt_efb;
   const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   return '<section class="efb d-none" id="efbPayMoves" aria-labelledby="efbPayMovesTitle">'
     + '<h5 class="efb card-title mt-3 mobile-title" id="efbPayMovesTitle"><i class="efb bi-arrow-left-right m-3" aria-hidden="true"></i>' + esc(T('pmvTitle', 'Forms moved to the new payment fields')) + '</h5>'
@@ -1285,7 +1293,7 @@ function efb_pay_moves_html_efb(mx, mx4) {
 }
 
 function efb_pay_moves_row_efb(f) {
-  const T = (k, fb) => { const t = (typeof efb_var !== 'undefined' && efb_var.text) || {}; return t[k] ? String(t[k]) : fb; };
+  const T = efb_pay_txt_efb;
   const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const st = {
     migrated: ['ready', T('pmvMoved', 'Moved')],
@@ -1312,7 +1320,7 @@ function efb_pay_moves_load_efb() {
   const ev = (typeof efb_var !== 'undefined' && efb_var) || {};
   const url = ev.legacy_gw && ev.legacy_gw.moves && ev.legacy_gw.moves.rest;
   if (!box || !url || typeof fetch !== 'function') return;
-  const T = (k, fb) => { const t = ev.text || {}; return t[k] ? String(t[k]) : fb; };
+  const T = efb_pay_txt_efb;
   const msg = document.getElementById('efbPayMovesMsg');
   const call = (path, body) => fetch(url + path, { method: body ? 'POST' : 'GET', credentials: 'same-origin', headers: Object.assign({ 'X-WP-Nonce': (typeof _efb_nonce_ !== 'undefined' && _efb_nonce_) || ev.nonce || '' }, body ? { 'Content-Type': 'application/json' } : {}), body: body ? JSON.stringify(body) : undefined })
     .then((r) => r.json().then((j) => { if (!r.ok) throw j; return j; }));

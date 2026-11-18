@@ -2076,9 +2076,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 		if (is_string($html) && $html !== '') return $html;
 		$code = class_exists('\\Emsfb\\Split') ? (\Emsfb\Split::legacy_types()[$type] ?? '') : '';
 		$name = $code !== '' && class_exists('\\Emsfb\\Addon_Catalog') ? \Emsfb\Addon_Catalog::name($code) : $type;
-		$issue = array('code' => 'pay_addon_inactive', 'level' => 'error', 'field_id' => isset($vj->id_) ? (string) $vj->id_ : '', 'gateway' => $type, 'addon' => $code,
+		// PAY-OUT: an add-on that is on but older than this core: the owner reads "update", not "activate".
+		$upd = $code !== '' && class_exists('\\Emsfb\\Split') && \Emsfb\Split::addon_state($code) === 'update';
+		$issue = array('code' => $upd ? 'pay_addon_update' : 'pay_addon_inactive', 'level' => 'error', 'field_id' => isset($vj->id_) ? (string) $vj->id_ : '', 'gateway' => $type, 'addon' => $code,
+			/* translators: %s: name of an Easy Form Builder add-on (a product name) */
+			'm' => $upd ? sprintf(__('Update %s to keep using it with this version.', 'easy-form-builder'), $name)
 			/* translators: %s: name of a payment add-on (the gateway's name) */
-			'm' => sprintf(__('The %s add-on of this payment field is not active, so visitors cannot pay. Activate it in Easy Form Builder → Add-ons, or remove the payment field.', 'easy-form-builder'), $name),
+			: sprintf(__('The %s add-on of this payment field is not active, so visitors cannot pay. Activate it in Easy Form Builder → Add-ons, or remove the payment field.', 'easy-form-builder'), $name),
 			'fix' => array('kind' => 'addons', 'url' => function_exists('admin_url') ? admin_url('admin.php?page=Emsfb_addon') : '', 'label' => __('Add-ons', 'easy-form-builder')));
 		if (class_exists('\\Emsfb\\Payments\\Readiness')) {
 			return '<div class="efb ' . $this->mobile_pos[3] . ' px-0 mx-0" id="' . esc_attr($rndm) . '-f">' . \Emsfb\Payments\Readiness::public_notice(array('issues' => array($issue)), $issue['field_id'], $form_id) . '</div>';

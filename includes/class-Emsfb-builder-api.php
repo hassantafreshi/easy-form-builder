@@ -389,7 +389,7 @@ class Builder_Api {
 				// also carries payment_ready / payment_issues.
 				'readiness' => array('rest' => function_exists('rest_url') ? rest_url('Emsfb/v1/payments/readiness') : '/wp-json/Emsfb/v1/payments/readiness', 'methods' => array('GET', 'POST'),
 					'builder' => 'efbBuilderApi.paymentReadiness', 'save_answer' => array('payment_ready', 'payment_issues'),
-					'codes' => array('pay_addon_inactive', 'pay_plan', 'pay_not_configured', 'pay_currency', 'pay_amount_limit', 'pay_method_currency', 'pay_option_required', 'pay_option_field_missing', 'pay_multiple_fields', 'pay_form_type', 'pay_calc_plan', 'pay_calc_unavailable', 'pay_gw_*'),
+					'codes' => array('pay_addon_inactive', 'pay_addon_update', 'pay_plan', 'pay_not_configured', 'pay_currency', 'pay_amount_limit', 'pay_method_currency', 'pay_option_required', 'pay_option_field_missing', 'pay_multiple_fields', 'pay_form_type', 'pay_calc_plan', 'pay_calc_unavailable', 'pay_gw_*'),
 					'visitor_code' => 'pay_not_ready'));
 		}
 		// PAY-OUT (4.3.2): the older Stripe / PayPal / Persia Pay fields (palette ids stripe, paypal, persiaPay) are their

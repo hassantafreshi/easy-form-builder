@@ -206,7 +206,7 @@ class Split {
 			'moved'     => $moved,
 			'contracts' => $contracts,
 			'addons'    => $addons,
-			'codes'     => array('save' => array('addon_keys_kept', 'addon_keys_dropped'), 'builder' => array('addon_required'), 'payment' => array('pay_calc_unavailable', 'pay_not_ready', 'pay_addon_inactive'),
+			'codes'     => array('save' => array('addon_keys_kept', 'addon_keys_dropped'), 'builder' => array('addon_required'), 'payment' => array('pay_calc_unavailable', 'pay_not_ready', 'pay_addon_inactive', 'pay_addon_update'),
 				'import' => array('addon_inactive'), 'logic' => array('logic_ref_addon_inactive')),
 			'install'   => array('ajax' => 'add_addons_Emsfb', 'page' => function_exists('admin_url') ? admin_url('admin.php?page=Emsfb_addon') : 'admin.php?page=Emsfb_addon', 'human_only' => true),
 			'data_tools' => array('slug' => 'easy-form-builder-data-tools', 'active' => self::data_tools_active(), 'page' => 'tools.php?page=easy-form-builder-data-tools', 'replaces' => array('cf7_importer', 'form_export_import')),
