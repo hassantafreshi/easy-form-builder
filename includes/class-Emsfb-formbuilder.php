@@ -1812,10 +1812,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 				) : '',
 				$formId, $message,
 				$formId,
-				$corner, $vj->button_color, $disabled, $randomId, $randomId,
-				$vj->icon, $vj->icon_color != 'default' ? $vj->icon_color : '',
+				$corner, $vj->button_color ?? '', $disabled, $randomId, $randomId,
+				$vj->icon ?? '', isset($vj->icon_color) && $vj->icon_color != 'default' ? $vj->icon_color : '',
 				$randomId, $randomId,
-				$vj->icon_color, $disabled, $vj->button_single_text
+				$vj->icon_color ?? '', $disabled, $vj->button_single_text ?? ''
 			);
 
 			return $ui;
@@ -1880,13 +1880,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<i class="efb bi-upload mx-2 fs-6"></i>%9$s
 			</div>
 			<div class="efb d-none"><input type="file" hidden=""%14$s data-type="dadfile" data-vid="%3$s" data-id="%3$s" class="efb emsFormBuilder_v %11$s dadfile" id="%3$s_" data-id="%3$s-el" data-formid="%13$s" %12$s %8$s></div>',
-			$vj->icon,
-			$vj->icon_color,
+			$vj->icon ?? 'bi-cloud-arrow-up-fill',
+			$vj->icon_color ?? '',
 			$vj->id_,
 			$drop_text,
 			$name_type_file ,
 			$texts['or'],
-			$vj->button_color,
+			$vj->button_color ?? 'btn-primary',
 			$disabled,
 			$texts['browseFile'],
 			$fileTypeAttr,
@@ -2789,7 +2789,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$valj_efb[0]->type,
 			'btn_send_efb',
 			(strlen($valj_efb[0]->icon) > 3 && $valj_efb[0]->icon != 'bi-undefined' &&  $valj_efb[0]->icon!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->icon, $icon_spacing_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : ''),
-			$valj_efb[0]->el_text_color,
+			$valj_efb[0]->el_text_color ?? '',
 			$valj_efb[0]->button_single_text
 		);
 
@@ -2810,7 +2810,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$valj_efb[0]->type,
 			'prev_efb',
 			$prev_icon,
-			$valj_efb[0]->el_text_color,
+			$valj_efb[0]->el_text_color ?? '',
 			$valj_efb[0]->button_Previous_text,
 			$formId,
 			$dis,
@@ -2820,7 +2820,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$formId,
 			$valj_efb[0]->type,
 			'next_efb',
-			$valj_efb[0]->el_text_color,
+			$valj_efb[0]->el_text_color ?? '',
 			$valj_efb[0]->button_Next_text,
 			$next_icon
 		);

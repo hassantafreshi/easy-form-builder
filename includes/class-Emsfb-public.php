@@ -1606,7 +1606,7 @@ public function check_nonce_permission_efb($request) {
 					$fs = preg_replace('/"email":"[^"]*"/', '"email":""', $fs);
 					$formObj= json_decode($fs,true);
 					$valj_efb = json_decode($fs, false, 512, JSON_UNESCAPED_UNICODE);
-					if(($valj_efb[0]->stateForm==true || $valj_efb[0]->stateForm==1) &&  is_user_logged_in()==false ){
+					if(!empty($valj_efb[0]->stateForm) && ($valj_efb[0]->stateForm==true || $valj_efb[0]->stateForm==1) &&  is_user_logged_in()==false ){
 						$typeOfForm="";
 						$value="";
 						$stng="";
@@ -1708,7 +1708,7 @@ public function check_nonce_permission_efb($request) {
 			   $content="<!--efb-->";
 			   $head ='<!--start head -->';
 			   $form_id = $this->id;
-			   if($valj_efb[0]->stateForm==true  && is_user_logged_in()==false ){
+			   if(!empty($valj_efb[0]->stateForm) && $valj_efb[0]->stateForm==true  && is_user_logged_in()==false ){
 					$content ="
 					".$bootstrap_icons."
 					<div id='body_efb' class='efb row pb-3 efb px-2 v4'> <div class='efb text-center my-5'>

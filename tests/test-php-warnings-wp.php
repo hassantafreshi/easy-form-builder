@@ -59,6 +59,20 @@ try {
 	$t('a form whose radio, checkbox and multiselect lack the builder\'s style keys renders (its options there)', strpos($html, 'wro0001') !== false && strpos($html, 'wco0001') !== false && strpos($html, 'wmsl001') !== false, true);
 	$t('… without a PHP warning ($el_text_size, $minSelect, $maxSelect)', $take(), array());
 
+	/* 1b. (the e2e run's log) A form whose row 0 has only the keys an API or a package gives (no stateForm, el_text_color,
+	   button colours) and a drag-and-drop file field without its button keys. */
+	$rows2 = array(
+		array('type' => 'form', 'steps' => '1', 'formName' => 'Warnings 2', 'email' => '', 'trackingCode' => '1', 'EfbVersion' => '2', 'button_single_text' => 'Send', 'button_color' => 'btn-darkb', 'icon' => 'bi-ui-checks-grid', 'button_state' => 'single', 'show_icon' => '1', 'thank_you' => 'msg'),
+		array('id_' => '1', 'type' => 'step', 'dataId' => '1', 'id' => '1', 'name' => 'Step 1', 'step' => '1', 'amount' => 1, 'visible' => 1, 'icon' => 'bi-ui-checks-grid', 'message' => ''),
+		$f('wdad001', 'dadfile', array('file' => 'image', 'amount' => 2)),
+	);
+	$wpdb->delete($wpdb->prefix . 'emsfb_form', array('form_id' => $fid + 1));
+	$wpdb->insert($wpdb->prefix . 'emsfb_form', array('form_id' => $fid + 1, 'form_name' => 'Warnings 2', 'form_type' => 'form', 'form_structer' => str_replace('"', '\\"', wp_json_encode($rows2, JSON_UNESCAPED_UNICODE)), 'form_email' => '', 'form_created_by' => 1, 'status' => 1));
+	wp_cache_flush();
+	$take();
+	$html2 = do_shortcode('[EMS_Form_Builder id=' . ($fid + 1) . ']');
+	$w2 = $take(); $t('a form with a minimal row 0 (no stateForm, el_text_color) and a file field without its button keys renders without a PHP warning', array(strpos($html2, 'wdad001') !== false, $w2), array(true, array()));
+
 	/* 2. An e-mail sent with only a few phrases loaded (the portal's owner reply). */
 	$pub = \Emsfb\_Public::$instance_efb;
 	if (!$pub) { $pub = new \Emsfb\_Public(); }
@@ -81,6 +95,7 @@ try {
 } finally {
 	restore_error_handler();
 	$wpdb->delete($wpdb->prefix . 'emsfb_form', array('form_id' => $fid));
+	$wpdb->delete($wpdb->prefix . 'emsfb_form', array('form_id' => $fid + 1));
 	if ($plan === false) delete_option('emsfb_pro'); else update_option('emsfb_pro', $plan);
 	wp_cache_flush();
 }
