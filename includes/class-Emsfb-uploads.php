@@ -612,6 +612,15 @@ class Uploads {
 		return add_query_arg(array('f' => rawurlencode($rel), 'exp' => $exp, 'sig' => self::sign($rel, $exp)), $base);
 	}
 
+	/** F20-core P13: the same link valid for $seconds only (60–3600; the customer portal asks for 10 minutes on a click). */
+	public static function signed_url_ttl($url, $seconds = 600) {
+		$rel = self::private_rel($url);
+		if ($rel === '') return '';
+		$exp = time() + max(60, min(3600, (int) $seconds));
+		$base = function_exists('rest_url') ? rest_url('Emsfb/v1/' . self::SIGNED_ROUTE) : '/wp-json/Emsfb/v1/' . self::SIGNED_ROUTE;
+		return add_query_arg(array('f' => rawurlencode($rel), 'exp' => $exp, 'sig' => self::sign($rel, $exp)), $base);
+	}
+
 	public static function verify_signed($rel, $exp, $sig) {
 		if (!self::valid_rel($rel) || !is_scalar($exp) || !preg_match('/^[0-9]{9,11}$/', (string) $exp) || (int) $exp < time()) return false;
 		return is_string($sig) && preg_match('/^[a-f0-9]{40}$/', $sig) && hash_equals(self::sign($rel, (int) $exp), $sig);

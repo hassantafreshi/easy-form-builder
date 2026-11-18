@@ -5290,6 +5290,8 @@ public function check_nonce_permission_efb($request) {
 		$this->claim_uploaded_files_efb($this->value);
 		// F07 §7.4: the files of Media Library fields become private attachments of this entry.
 		if (!empty($this->upload_files_efb) && class_exists('\\Emsfb\\Uploads')) \Emsfb\Uploads::register_media($this->upload_files_efb, (int) $this->id, (string) $uniqid);
+		// F20-core P4: one action per stored entry, whatever the route (submit, payments/create, the legacy gateways, Offline).
+		do_action('efb_entry_stored', $new_msg_id_efb, (int) $this->id, (string) $uniqid, (array) \Emsfb\Privacy::decode_content($this->value));
 		return $uniqid;
 	}
 
@@ -6453,188 +6455,198 @@ public function check_nonce_permission_efb($request) {
 					}
 				}
 
-				$read_s = $admin_verified_rsp ? 1 : 0;
-				$by=$this->lanText['guest'];
-				$table_emsfb_msg_ = $this->db->prefix . "emsfb_msg_";
-
-				$exists = (int) $this->db->get_var(
-					$this->db->prepare(
-						"SELECT EXISTS(SELECT 1 FROM `$table_emsfb_msg_` WHERE msg_id = %d AND track = %s LIMIT 1)",
-						$id,
-						$track
-					)
-				);
-
-				if (!$exists) {
-					wp_send_json_success(
-						array('success' => false, 'm' => esc_html__('Not allowed to respond to this message.' . ' E500', 'easy-form-builder')),
-						200
-					);
-				}
-				$response_attachment_urls = $this->response_attachments_are_reserved_efb($message, $id, $track);
-				if ($response_attachment_urls === false) {
-					wp_send_json_success(array(
-						'success' => false,
-						'm' => esc_html__('The response attachment could not be verified. Please attach the file again.', 'easy-form-builder'),
-					), 200);
-				}
-				if($read_s==1){
-					if($this->efb_uid > 0) {
-						/* Answered with the display name the tracker resolves from
-						   rsp_by on the next load, so the card appended right now
-						   and the reloaded one credit the same person. */
-						$usr_rsp = get_user_by('id',$this->efb_uid);
-						$by = $usr_rsp ? $usr_rsp->display_name : $this->lanText['spprt'];
-					} else {
-						$this->efb_uid = -1;
-						$by = $this->lanText['spprt'];
-					}
-				}
-				$guard=\Emsfb\Form_Runtime::begin('reply',0,$data_POST);
-				if (is_wp_error($guard)) wp_send_json_error(array('code'=>$guard->get_error_code(),'m'=>$guard->get_error_message()),$guard->get_error_data()['status']);
-				if ($guard instanceof \WP_REST_Response) wp_send_json($guard->get_data(),$guard->get_status());
-				$reply_key=$guard;
-				$reply_inserted = $this->db->insert($table_name, array(
-					'ip' => $ip,
-					'content' => $m,
-					'msg_id' => $id,
-					'rsp_by' => $this->efb_uid,
-					'read_' => $read_s,
-					'date'=>wp_date('Y-m-d H:i:s'),
-				));
-				if ($reply_inserted === false) {
-					\Emsfb\Form_Runtime::abort($reply_key);
-					\Emsfb\Request_Health::record('reply',500,'server','storage_failed');
-					wp_send_json_success(array('success' => false, 'm' => $this->lanText['errorSomthingWrong']), 200);
-				}
-				\Emsfb\Request_Health::mark_saved();
-				\Emsfb\Form_Runtime::finish($reply_key,array('success'=>true,'m'=>$this->lanText['messageSent'],'by'=>$by,'track'=>$track,'nonce_msg'=>wp_create_nonce($track)));
-
-				$this->claim_uploaded_files_efb($m);
-				if (!empty($response_attachment_urls)) {
-					\Emsfb\Upload_Guard::release_response_attachment_reservations($response_attachment_urls);
-				}
-
-				$track = isset($value[0]->track) ? $value[0]->track : null;
-				if (empty($track)) {
-					$response = array('success' => false, 'm' => 'Track not found');
-					wp_send_json_success($response, 200);
-				}
-
-				// The entry's state (F14 read_): staff read it (0, 3 → 1); the visitor's reply on a read or closed entry is a new reply (1, 4 → 3), a new one stays 0; a pending payment (2) stays.
-				$table_name = $this->db->prefix . "emsfb_msg_";
-				$this->db->query($this->db->prepare("UPDATE `$table_name` SET read_ = %d WHERE msg_id = %d AND read_ IN " . ($read_s ? '(0,3)' : '(1,4)'), $read_s ? 1 : 3, $id));
-				$email_usr ="";
-				if($this->efb_uid!=0 && $this->efb_uid!==-1){
-					$usr= wp_get_current_user();
-					$by = $usr->display_name;
-					$email_usr = $usr->user_email;
-				}
-
-				$form_id = isset($value[0]->form_id) ? intval($value[0]->form_id) : 0;
-				if (empty($form_id)) {
-					$response = array('success' => false, 'm' => 'Form ID not found');
-					wp_send_json_success($response, 200);
-				}
-				$table_name = $this->db->prefix . "emsfb_form";
-				$vald = $this->db->get_results(
-					$this->db->prepare(
-						"SELECT form_structer ,form_type FROM `$table_name` WHERE form_id = %d",
-						$form_id
-					)
-				);
-				$valb =\emsfb_json_normalize_efb($vald[0]->form_structer);
-				$valn= json_decode($valb,true);
-				$usr;
-				$email_noti_ids=[] ;
-				$users_email =array();
-				$valb=null;
-				$email_to = isset($valn[0]["email_to"]) ? $valn[0]["email_to"] : '';
-				$emailsId = [];
-				if($email_actived){
-						foreach($valn as $key=>$val){
-							if($val['type']=="email" && isset($val['noti']) && in_array($val['noti'] ,[1,'1',true,'true'],true) ){
-								$emailsId[]=$val['id_'];
-							}else if ($val['type']=="email" &&  $val['id_']==$email_to ){
-								$emailsId[]=$val['id_'];
-							}
-						}
-						if(!empty($emailsId)){
-							foreach ($msg_obj as $value) {
-								if(isset($value['id_']) && in_array($value['id_'],$emailsId)){
-									array_push($users_email,$value["value"]);
-								}
-							}
-						}
-
-				}
-				$smsnoti = (isset($valn[0]['smsnoti']) && intval($valn[0]['smsnoti'])==1) ? 1 :0;
-				if($smsnoti){
-					$phone_numbers=[[],[]];
-					if(isset($setting->sms_config) && isset($setting->phnNo) && strlen($setting->phnNo)>5){
-						$phone_numbers[0] =explode(',',$setting->phnNo);
-					}
-					$have_noti_id=[];
-
-					foreach($valn as $val){
-						if($val['type']=="mobile" && isset($val['smsnoti']) && intval($val['smsnoti'])==1){
-							array_push($have_noti_id,$val['id_']);
-						}
-					}
-
-					if(!empty($have_noti_id)){
-						foreach ($msg_obj as $value) {
-							if($value['type']=="mobile" && in_array($value['id_'],$have_noti_id)){
-								array_push($phone_numbers[1],$value['value']);
-							}
-						}
-					}
-				$tt = $rsp_by=='admin' ? 'respadmin' : 'resppa';
-				if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) {
-					// Delivery always goes through WP-SMS for now; ws.team has no gateway implementation yet
-					$smsSendResult = $this->send_optional_sms_efb($form_id, $phone_numbers,$link_w,$tt ,'wpsms' ,$track);
-					// SMS failures are traced by the adapter; continue to reply email.
-				}
-
-				}
-				$user_eamil=[[],[],null];
-				if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
-					$this->email_list_efb($user_eamil , 0 , $setting->emailSupporter ,true);
-				}
-				if(isset($setting->femail)) $user_eamil[2]=$setting->femail;
-				$email_fa = $valn[0]['email'];
-				if (isset($email_fa) && strlen($email_fa)>5){
-					$this->email_list_efb($user_eamil , 0 , $email_fa ,true);
-				}
-				$links=$link_w;
-				$email_status =["",""];
-			    !empty($users_email) ? $user_eamil[1]= $users_email : 0;
-				if($rsp_by=='admin'){
-					$email_status[1]= "newMessage";
-					$email_status[0] ='respRecivedMessage';
-					$user_eamil[0]=[null];
-				}else{
-					$email_status[1]= "respRecivedMessage";
-					$email_status[0] ='newMessage';
-				}
-				if(emsfb_is_email_sending_enabled_efb($setting)) $this->send_email_Emsfb_($user_eamil,$track,$pro,$email_status,$links ,'null','null');
-
-				$reply_event_type = ($rsp_by == 'admin') ? 'admin_reply' : 'received_reply';
-				$this->id = $form_id;
-				$this->efb_intgrate_with_3rd_party_services_efb($track, $valobj ?? [], $valn, $reply_event_type);
-
-				$response = array(
-				'success' => true , "m"=>$this->lanText['messageSent'] , "by"=>$by,
-				'track'=>$track,
-				'nonce_msg'=>wp_create_nonce($track));
-				// F12b follow-up: until when this guest's CAPTCHA pass lasts (the page hides the box until then).
-				if ($this->reply_pass_until_efb > 0) $response['reply_pass_until'] = (int) $this->reply_pass_until_efb;
-				wp_send_json_success($response,200);
+				// F20-core P10: the storage and the notifications of a reply (also efb_entry_add_reply(), the owner's reply).
+				wp_send_json_success($this->entry_reply_store_efb(compact('admin_verified_rsp', 'id', 'track', 'message', 'm', 'ip', 'data_POST', 'value', 'msg_obj', 'link_w', 'setting', 'email_actived', 'pro', 'rsp_by', 'table_name')), 200);
 		}else{
 			$m = $this->lanText['settingsNfound'] . '</br>' . $this->lanText['MMessageNSendEr'] ;
 			$response = array( 'success' => false , "m"=>$m, "by"=>$by);
 			wp_send_json_success($response,200);
 		}
+	}
+
+	/**
+	 * F20-core P10: the second half of a reply (forms/response/add, and efb_entry_add_reply() for the owner of an
+	 * entry in the customer portal): the entry checked, the attachments, the row stored, the entry's state, the
+	 * notifications. $c: admin_verified_rsp, id, track, message (rows), m (stored JSON), ip, data_POST, value (the
+	 * entry), msg_obj, link_w, setting, email_actived, pro, rsp_by, table_name. Returns the answer (never exits but
+	 * through Form_Runtime's own guard, which a call without a runtime token skips).
+	 */
+	public function entry_reply_store_efb(array $c) {
+		extract($c, EXTR_SKIP); // phpcs:ignore WordPress.PHP.DontExtract.extract_extract -- the handler's own locals, by name
+		$read_s = $admin_verified_rsp ? 1 : 0;
+		$by=$this->lanText['guest'];
+		$table_emsfb_msg_ = $this->db->prefix . "emsfb_msg_";
+
+		$exists = (int) $this->db->get_var(
+			$this->db->prepare(
+				"SELECT EXISTS(SELECT 1 FROM `$table_emsfb_msg_` WHERE msg_id = %d AND track = %s LIMIT 1)",
+				$id,
+				$track
+			)
+		);
+
+		if (!$exists) {
+			return array('success' => false, 'm' => esc_html__('Not allowed to respond to this message.' . ' E500', 'easy-form-builder'));
+		}
+		$response_attachment_urls = $this->response_attachments_are_reserved_efb($message, $id, $track);
+		if ($response_attachment_urls === false) {
+			return array(
+				'success' => false,
+				'm' => esc_html__('The response attachment could not be verified. Please attach the file again.', 'easy-form-builder'),
+			);
+		}
+		if($read_s==1){
+			if($this->efb_uid > 0) {
+				/* Answered with the display name the tracker resolves from
+				   rsp_by on the next load, so the card appended right now
+				   and the reloaded one credit the same person. */
+				$usr_rsp = get_user_by('id',$this->efb_uid);
+				$by = $usr_rsp ? $usr_rsp->display_name : $this->lanText['spprt'];
+			} else {
+				$this->efb_uid = -1;
+				$by = $this->lanText['spprt'];
+			}
+		}
+		$guard=\Emsfb\Form_Runtime::begin('reply',0,$data_POST);
+		if (is_wp_error($guard)) wp_send_json_error(array('code'=>$guard->get_error_code(),'m'=>$guard->get_error_message()),$guard->get_error_data()['status']);
+		if ($guard instanceof \WP_REST_Response) wp_send_json($guard->get_data(),$guard->get_status());
+		$reply_key=$guard;
+		$reply_inserted = $this->db->insert($table_name, array(
+			'ip' => $ip,
+			'content' => $m,
+			'msg_id' => $id,
+			'rsp_by' => $this->efb_uid,
+			'read_' => $read_s,
+			'date'=>wp_date('Y-m-d H:i:s'),
+		));
+		if ($reply_inserted === false) {
+			\Emsfb\Form_Runtime::abort($reply_key);
+			\Emsfb\Request_Health::record('reply',500,'server','storage_failed');
+			return array('success' => false, 'm' => $this->lanText['errorSomthingWrong']);
+		}
+		\Emsfb\Request_Health::mark_saved();
+		\Emsfb\Form_Runtime::finish($reply_key,array('success'=>true,'m'=>$this->lanText['messageSent'],'by'=>$by,'track'=>$track,'nonce_msg'=>wp_create_nonce($track)));
+
+		$this->claim_uploaded_files_efb($m);
+		if (!empty($response_attachment_urls)) {
+			\Emsfb\Upload_Guard::release_response_attachment_reservations($response_attachment_urls);
+		}
+
+		$track = isset($value[0]->track) ? $value[0]->track : null;
+		if (empty($track)) {
+			$response = array('success' => false, 'm' => 'Track not found');
+			return $response;
+		}
+
+		// The entry's state (F14 read_): staff read it (0, 3 → 1); the visitor's reply on a read or closed entry is a new reply (1, 4 → 3), a new one stays 0; a pending payment (2) stays.
+		$table_name = $this->db->prefix . "emsfb_msg_";
+		$this->db->query($this->db->prepare("UPDATE `$table_name` SET read_ = %d WHERE msg_id = %d AND read_ IN " . ($read_s ? '(0,3)' : '(1,4)'), $read_s ? 1 : 3, $id));
+		$email_usr ="";
+		if($this->efb_uid!=0 && $this->efb_uid!==-1){
+			$usr= wp_get_current_user();
+			$by = $usr->display_name;
+			$email_usr = $usr->user_email;
+		}
+
+		$form_id = isset($value[0]->form_id) ? intval($value[0]->form_id) : 0;
+		if (empty($form_id)) {
+			$response = array('success' => false, 'm' => 'Form ID not found');
+			return $response;
+		}
+		$table_name = $this->db->prefix . "emsfb_form";
+		$vald = $this->db->get_results(
+			$this->db->prepare(
+				"SELECT form_structer ,form_type FROM `$table_name` WHERE form_id = %d",
+				$form_id
+			)
+		);
+		$valb =\emsfb_json_normalize_efb($vald[0]->form_structer);
+		$valn= json_decode($valb,true);
+		$usr;
+		$email_noti_ids=[] ;
+		$users_email =array();
+		$valb=null;
+		$email_to = isset($valn[0]["email_to"]) ? $valn[0]["email_to"] : '';
+		$emailsId = [];
+		if($email_actived){
+				foreach($valn as $key=>$val){
+					if($val['type']=="email" && isset($val['noti']) && in_array($val['noti'] ,[1,'1',true,'true'],true) ){
+						$emailsId[]=$val['id_'];
+					}else if ($val['type']=="email" &&  $val['id_']==$email_to ){
+						$emailsId[]=$val['id_'];
+					}
+				}
+				if(!empty($emailsId)){
+					foreach ($msg_obj as $value) {
+						if(isset($value['id_']) && in_array($value['id_'],$emailsId)){
+							array_push($users_email,$value["value"]);
+						}
+					}
+				}
+
+		}
+		$smsnoti = (isset($valn[0]['smsnoti']) && intval($valn[0]['smsnoti'])==1) ? 1 :0;
+		if($smsnoti){
+			$phone_numbers=[[],[]];
+			if(isset($setting->sms_config) && isset($setting->phnNo) && strlen($setting->phnNo)>5){
+				$phone_numbers[0] =explode(',',$setting->phnNo);
+			}
+			$have_noti_id=[];
+
+			foreach($valn as $val){
+				if($val['type']=="mobile" && isset($val['smsnoti']) && intval($val['smsnoti'])==1){
+					array_push($have_noti_id,$val['id_']);
+				}
+			}
+
+			if(!empty($have_noti_id)){
+				foreach ($msg_obj as $value) {
+					if($value['type']=="mobile" && in_array($value['id_'],$have_noti_id)){
+						array_push($phone_numbers[1],$value['value']);
+					}
+				}
+			}
+		$tt = $rsp_by=='admin' ? 'respadmin' : 'resppa';
+		if(isset($setting->sms_config) && ($setting->sms_config=="wpsms" || $setting->sms_config=='ws.team') ) {
+			// Delivery always goes through WP-SMS for now; ws.team has no gateway implementation yet
+			$smsSendResult = $this->send_optional_sms_efb($form_id, $phone_numbers,$link_w,$tt ,'wpsms' ,$track);
+			// SMS failures are traced by the adapter; continue to reply email.
+		}
+
+		}
+		$user_eamil=[[],[],null];
+		if (isset($setting->emailSupporter) && strlen($setting->emailSupporter)>5){
+			$this->email_list_efb($user_eamil , 0 , $setting->emailSupporter ,true);
+		}
+		if(isset($setting->femail)) $user_eamil[2]=$setting->femail;
+		$email_fa = $valn[0]['email'];
+		if (isset($email_fa) && strlen($email_fa)>5){
+			$this->email_list_efb($user_eamil , 0 , $email_fa ,true);
+		}
+		$links=$link_w;
+		$email_status =["",""];
+				    !empty($users_email) ? $user_eamil[1]= $users_email : 0;
+		if($rsp_by=='admin'){
+			$email_status[1]= "newMessage";
+			$email_status[0] ='respRecivedMessage';
+			$user_eamil[0]=[null];
+		}else{
+			$email_status[1]= "respRecivedMessage";
+			$email_status[0] ='newMessage';
+		}
+		if(emsfb_is_email_sending_enabled_efb($setting)) $this->send_email_Emsfb_($user_eamil,$track,$pro,$email_status,$links ,'null','null');
+
+		$reply_event_type = ($rsp_by == 'admin') ? 'admin_reply' : 'received_reply';
+		$this->id = $form_id;
+		$this->efb_intgrate_with_3rd_party_services_efb($track, $valobj ?? [], $valn, $reply_event_type);
+
+		$response = array(
+		'success' => true , "m"=>$this->lanText['messageSent'] , "by"=>$by,
+		'track'=>$track,
+		'nonce_msg'=>wp_create_nonce($track));
+		// F12b follow-up: until when this guest's CAPTCHA pass lasts (the page hides the box until then).
+		if ($this->reply_pass_until_efb > 0) $response['reply_pass_until'] = (int) $this->reply_pass_until_efb;
+		return $response;
 	}
 
 	public function get_autofilled_list_efb($data_POST_) {
@@ -7592,6 +7604,7 @@ public function check_nonce_permission_efb($request) {
 			$isRegistrationState = in_array($state[$i], ['newUser', 'register']) || (isset($state[0]) && $state[0] === 'newUser');
 			$trackParam = $isRegistrationState ? '' : urlencode($track);
 			$link_w[$i] = strpos($link,'?')!==false ? $link . ($trackParam ? '&track='.$trackParam : '') : $link . ($trackParam ? '?track='.$trackParam : '');
+			if ($i == 1 && $trackParam) $link_w[1] = apply_filters('efb_entry_view_url', $link_w[1], 0, (string) $track, 'email'); // F20-core P8
 			if($i==0 && !$isRegistrationState){
 				$sc = $this->genrate_sacure_code_admin_email($track);
 				$link_w[$i] .= (strpos($link_w[$i],'?')!==false ? '&' : '?') . 'sc='.$sc;

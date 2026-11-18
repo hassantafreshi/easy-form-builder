@@ -585,6 +585,41 @@ class Drafts {
 		return $out;
 	}
 
+	/**
+	 * F20-core P16: the active "continue later" drafts of a portal identity ([{k, h(, uid)}], Portal_Core): the signed-in
+	 * user's, and those whose identifying answer (Owner_Index::owners_of(), the rule of the entries) hashes to one of
+	 * the identity's. The newest 1000 active drafts are read.
+	 */
+	public static function of_identity(array $identity) {
+		if (!self::ready() || !$identity || !class_exists('\\Emsfb\\Owner_Index')) return array();
+		global $wpdb;
+		$t = self::table();
+		$hashes = array(); $uids = array(0);
+		foreach ($identity as $i) { if (($i['k'] ?? '') === 'u') $uids[] = (int) ($i['uid'] ?? 0); elseif (isset($i['h'])) $hashes[(string) $i['h']] = true; }
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		$cand = (array) $wpdb->get_results($wpdb->prepare("SELECT id, fid, uid, content, progress, updated_at, expires_at FROM `{$t}` WHERE kind = 'resume' AND status = 'active' AND expires_at > %s ORDER BY id DESC LIMIT 1000", self::utc()), ARRAY_A);
+		$out = array();
+		foreach ($cand as $c) {
+			$mine = (int) $c['uid'] > 0 && in_array((int) $c['uid'], $uids, true);
+			if (!$mine && $hashes) {
+				$rows = Privacy::decode_content($c['content']);
+				$form = class_exists('\\Emsfb\\Payments\\Service') ? Payments\Service::form_rows((int) $c['fid']) : null;
+				foreach (Owner_Index::owners_of(is_array($rows) ? $rows : array(), is_array($form) && isset($form[0]) && is_array($form[0]) ? $form[0] : array()) as $o) if (isset($hashes[$o['h']])) { $mine = true; break; }
+			}
+			if ($mine) { unset($c['content']); $out[] = $c; }
+		}
+		return $out;
+	}
+
+	/** F20-core P16: a new link to a draft: the token turns (the earlier link stops working); '' when it cannot. */
+	public static function reissue_link($draft_id, $page = '') {
+		if (!self::ready()) return '';
+		global $wpdb;
+		$token = bin2hex(random_bytes(32));
+		$n = $wpdb->update(self::table(), array('token_hash' => self::token_hash($token), 'updated_at' => self::utc()), array('id' => (int) $draft_id, 'kind' => 'resume', 'status' => 'active'));
+		return (int) $n === 1 ? self::resume_url($page, $token) : '';
+	}
+
 	public static function export($email, $page = 1) {
 		$items = array();
 		if ((int) $page <= 1) {

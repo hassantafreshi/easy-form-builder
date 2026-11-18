@@ -553,6 +553,14 @@ class Emsfb {
             $this->require_plugin_file_efb('includes/name-address-functions-efb.php');
         }
 
+        // F20-core: the customer portal contract (the owner index, sign-in codes without a form, the owner's reads and
+        // writes). Inert without the portal add-on (AdnPRT): docs/portal/portal-core-contract.en.md.
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-owner-index.php') && $this->require_plugin_file_efb('includes/class-Emsfb-portal-core.php')) {
+            \Emsfb\Owner_Index::register();
+            \Emsfb\Portal_Core::register();
+            $this->require_plugin_file_efb('includes/portal-core-functions-efb.php');
+        }
+
         // F14: entries management (list on the server, status, notes and history, edit, resend, export,
         // statistics). Loaded on every request: its cron jobs, the view / submit counts and the entries API
         // run outside wp-admin. Optional: every caller checks class_exists('\Emsfb\Entries').

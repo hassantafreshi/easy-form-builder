@@ -899,6 +899,7 @@ class Entries {
 			'entry_status' => isset($r['entry_status']) ? (int) $r['entry_status'] : 0, 'starred' => isset($r['starred']) ? (int) $r['starred'] : 0,
 			'edited_at' => !empty($r['edited_at']) ? (string) $r['edited_at'] : '', 'edited_at_display' => !empty($r['edited_at']) ? self::display_date((string) $r['edited_at']) : '',
 			'trashed_at' => !empty($r['trashed_at']) ? (string) $r['trashed_at'] : '', 'prv_state' => isset($r['prv_state']) ? (int) $r['prv_state'] : 0,
+			'owner_state' => isset($r['owner_state']) ? (int) $r['owner_state'] : 0, // F20-core P11: 1 = cancelled by its owner
 			'hash' => md5((string) $r['content']),
 		);
 	}
@@ -1599,8 +1600,11 @@ class Entries {
 	 * stay as stored. Concurrency: the UPDATE carries the content read (a change in between = efb_entry_conflict).
 	 * Returns ['ok' => true, 'rows', 'changed'] or ['ok' => false, 'code', 'm', 'field_id', 'ri'].
 	 */
-	public static function update($msg_id, $hash, array $changes, $reason = '') {
+	public static function update($msg_id, $hash, array $changes, $reason = '', array $ctx = array()) {
 		global $wpdb;
+		// F20-core P15: the owner of the entry (the customer portal): the submit's checks (not the administrator's), no file
+		// operation, logged with the actor "owner". Which fields and when: Portal_Core::owner_update().
+		$owner = isset($ctx['actor']) && $ctx['actor'] === 'owner';
 		$msg = $wpdb->prefix . 'emsfb_msg_';
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
 		$e = $wpdb->get_row($wpdb->prepare("SELECT msg_id, form_id, content, read_ FROM `{$msg}` WHERE msg_id = %d", (int) $msg_id), ARRAY_A);
@@ -1631,6 +1635,7 @@ class Entries {
 			$key = $id . '|' . ($ri === null ? '' : $ri);
 			$touched[$key] = array($id, $ri, $def);
 			if ($mode['mode'] === 'file') {
+				if ($owner) return $fail('efb_entry_readonly', self::t('entReadOnly', 'This answer cannot be edited.'), $id, $ri);
 				$url = isset($c['url']) && is_string($c['url']) ? $c['url'] : '';
 				if ($op === 'remove_file') { $remove_files[$key][] = $url; continue; }
 				if ($op === 'add_file') {
@@ -1646,7 +1651,7 @@ class Entries {
 				$new_rows[$key] = array();
 				continue;
 			}
-			$v = $pub->validate_rows_efb($form, $wire, array('admin_edit' => true, 'form_condition' => ''));
+			$v = $pub->validate_rows_efb($form, $wire, array('admin_edit' => !$owner, 'form_condition' => ''));
 			if (!$v['ok']) return $fail('efb_entry_invalid', wp_strip_all_tags((string) $v['m']) !== '' ? (string) $v['m'] : self::t('pleaseEnterVaildValue', 'Please enter a valid value.'), $v['field_id'] !== '' ? $v['field_id'] : $id, $ri);
 			$rows = $v['rows'];
 			if (class_exists('\\Emsfb\\Choices')) $rows = Choices::add_ov($rows, $form);
@@ -1777,7 +1782,7 @@ class Entries {
 			$o = self::field_text($old, $id, $ri);
 			$nw = self::field_text($merged, $id, $ri);
 			if ($o === $nw) continue;
-			self::log((int) $msg_id, 'edit', $id, $o, $nw, function_exists('mb_substr') ? mb_substr((string) $reason, 0, 255, 'UTF-8') : substr((string) $reason, 0, 255));
+			self::log((int) $msg_id, 'edit', $id, $o, $nw, $owner ? 'owner' : (function_exists('mb_substr') ? mb_substr((string) $reason, 0, 255, 'UTF-8') : substr((string) $reason, 0, 255)));
 			$changed++;
 		}
 		if (function_exists('do_action')) do_action('efb_entry_updated', (int) $msg_id, $old, $merged);
@@ -2094,6 +2099,8 @@ class Entries {
 			'date_iso'   => (string) (isset($e['date_iso']) ? $e['date_iso'] : $e['date']),
 			'status'     => isset(self::API_STATUS[(int) $e['entry_status']]) ? self::API_STATUS[(int) $e['entry_status']] : 'active',
 			'read_state' => isset(self::API_READ[(int) $e['read_']]) ? self::API_READ[(int) $e['read_']] : 'read',
+			'ticket'     => (int) $e['read_'] === 4 ? 'closed' : 'open', // F20-core P11
+			'owner_state' => !empty($e['owner_state']) ? 'cancelled' : 'none',
 			'starred'    => (bool) (int) $e['starred'],
 			'edited'     => !empty($e['edited_at']),
 			'fields'     => $fields,

@@ -70,6 +70,8 @@ class Addon_Catalog {
 		'AdnALT' => array('dir' => 'altcha', 'name' => 'ALTCHA', 'package' => 3, 'contract' => 'captcha_provider', 'files' => array('vendor/altcha/routes-efb.php'), 'i18n' => array('vendor/altcha/altcha-phrases-efb.php', 'vendor/altcha/languages/locales.json'), 'loader' => 'routes'),
 		'AdnQCP' => array('dir' => 'question-captcha', 'name' => 'Question CAPTCHA', 'package' => 3, 'contract' => 'captcha_provider', 'files' => array('vendor/question-captcha/routes-efb.php'), 'i18n' => array('vendor/question-captcha/question-captcha-phrases-efb.php', 'vendor/question-captcha/languages/locales.json'), 'loader' => 'routes'),
 		'AdnFRC' => array('dir' => 'friendly-captcha', 'name' => 'Friendly Captcha', 'package' => 3, 'contract' => 'captcha_provider', 'files' => array('vendor/friendly-captcha/routes-efb.php'), 'i18n' => array('vendor/friendly-captcha/friendly-captcha-phrases-efb.php', 'vendor/friendly-captcha/languages/locales.json'), 'loader' => 'routes'),
+		// F20: the customer portal (Pro; its core contract: includes/portal-core-functions-efb.php, contract portal 1).
+		'AdnPRT' => array('dir' => 'portal', 'name' => 'Customer Portal', 'package' => 1, 'contract' => 'portal', 'files' => array('vendor/portal/routes-efb.php'), 'i18n' => array('vendor/portal/portal-phrases-efb.php', 'vendor/portal/languages/locales.json'), 'loader' => 'routes'),
 	);
 
 	/** Features that left core (capabilities.split.moved): registry key => add-on code. */

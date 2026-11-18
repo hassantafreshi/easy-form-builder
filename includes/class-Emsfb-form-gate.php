@@ -376,7 +376,16 @@ class Form_Gate {
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
 			$sql = $wpdb->prepare("SELECT COUNT(*) FROM `{$m}` WHERE form_id = %d", $fid);
 		}
+		// F20-core P14: an entry its owner cancelled does not count (its place was given back).
+		if (self::owner_state_ready()) $sql = preg_replace('/WHERE (m\.)?form_id/', 'WHERE $1owner_state = 0 AND $1form_id', $sql, 1);
 		return (int) $wpdb->get_var($sql);
+	}
+
+	private static $own_col = null;
+	private static function owner_state_ready() {
+		global $wpdb;
+		if (self::$own_col === null) self::$own_col = (bool) $wpdb->get_results($wpdb->prepare("SHOW COLUMNS FROM `{$wpdb->prefix}emsfb_msg_` LIKE %s", 'owner_state'));
+		return self::$own_col;
 	}
 
 	public static function total_bucket($fid) {

@@ -56,7 +56,10 @@ class Cache_Compat {
     public static function contains($content, $seen = array(), $depth = 0) {
         if (!is_string($content) || $depth > 12) return false;
         // efb_wpbakery_form / efb_vc_form: EFB's own WPBakery and Visual Composer elements.
-        foreach (array('EMS_Form_Builder', 'ems_form_builder', 'Easy_Form_Builder_confirmation_code_finder', 'efb_wpbakery_form', 'efb_vc_form') as $tag) {
+        // F20-core P18: an add-on's shortcodes join the list (the customer portal's [efb_portal]).
+        $tags = (array) apply_filters('emsfb_cache_shortcodes', array('EMS_Form_Builder', 'ems_form_builder', 'Easy_Form_Builder_confirmation_code_finder', 'efb_wpbakery_form', 'efb_vc_form'));
+        foreach ($tags as $tag) {
+            if (!is_string($tag) || $tag === '') continue;
             if (has_shortcode($content, $tag)) return true;
         }
         foreach (parse_blocks($content) as $block) {

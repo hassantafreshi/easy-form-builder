@@ -55,8 +55,11 @@ $old_files = array(
 $keys = $fn->get_all_addon_keys_efb();
 t('the old keys keep their order', array_slice($keys, 0, count($old_keys)), $old_keys);
 // F12b: the five CAPTCHA add-ons come after the SPLIT ones (codes approved by owner 2026-11-14).
-t('the SPLIT add-ons are appended (then the F12b CAPTCHA add-ons)', array_slice($keys, count($old_keys)), array('AdnCLC', 'AdnTSG', 'AdnADR', 'AdnGEO', 'AdnCTS', 'AdnHCP', 'AdnALT', 'AdnQCP', 'AdnFRC'));
-t('AdnPRT is not listed before F20 builds it (no key without an add-on)', in_array('AdnPRT', $keys, true), false);
+t('the SPLIT add-ons are appended (then the F12b CAPTCHA add-ons, then F20\'s portal)', array_slice($keys, count($old_keys)), array('AdnCLC', 'AdnTSG', 'AdnADR', 'AdnGEO', 'AdnCTS', 'AdnHCP', 'AdnALT', 'AdnQCP', 'AdnFRC', 'AdnPRT'));
+// F20-core P2 (2026-11-18): core keeps the portal's contract, so it knows the key (loader and plan); no install card
+// is shown until the add-on exists (the builder's catalogue of cards does not list it).
+$prt = \Emsfb\Addon_Catalog::get('AdnPRT');
+t('AdnPRT (F20-core P2): Pro, folder portal, contract portal, loaded by routes-efb.php', array($prt['package'], $prt['dir'], $prt['contract'], $prt['loader'], $fn->addon_required_package_efb('AdnPRT')), array(1, 'portal', 'portal', 'routes', 1));
 $ok = true;
 foreach ($old_keys as $k) { $want = isset($old_tiers[$k]) ? $old_tiers[$k] : 1; if ($fn->addon_required_package_efb($k) !== $want) { $ok = false; echo "  plan of {$k} changed\n"; } }
 t('every old add-on keeps its plan', $ok, true);

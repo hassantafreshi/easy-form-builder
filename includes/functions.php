@@ -4850,6 +4850,40 @@ class efbFunction {
 			"vrfEmailSubject" => $state && isset($ac->text->vrfEmailSubject) ? $ac->text->vrfEmailSubject : esc_html__('Your verification code for %s','easy-form-builder'),
 			/* translators: F02 e-mail text before the code */
 			"vrfEmailBody" => $state && isset($ac->text->vrfEmailBody) ? $ac->text->vrfEmailBody : esc_html__('Enter this code to continue:','easy-form-builder'),
+			/* translators: F20 customer portal sign-in e-mail subject: %s = site name */
+			"prtMailSubject" => $state && isset($ac->text->prtMailSubject) ? $ac->text->prtMailSubject : esc_html__('Your sign-in code for %s','easy-form-builder'),
+			/* translators: F20 customer portal sign-in e-mail: text before the code */
+			"prtMailBody" => $state && isset($ac->text->prtMailBody) ? $ac->text->prtMailBody : esc_html__('Enter this code to see your submissions:','easy-form-builder'),
+			/* translators: F20 customer portal sign-in SMS: %1$s = code, %2$s = site name */
+			"prtSmsSignin" => $state && isset($ac->text->prtSmsSignin) ? $ac->text->prtSmsSignin : esc_html__('%1$s is your sign-in code for %2$s.','easy-form-builder'),
+			/* translators: F20 customer portal: %s = the masked address or number */
+			"prtCodeSent" => $state && isset($ac->text->prtCodeSent) ? $ac->text->prtCodeSent : esc_html__('If we find submissions for %s, a code is on its way.','easy-form-builder'),
+			/* translators: F20 customer portal */
+			"prtNotFound" => $state && isset($ac->text->prtNotFound) ? $ac->text->prtNotFound : esc_html__('We could not find this submission.','easy-form-builder'),
+			/* translators: F20 customer portal */
+			"prtUnavailable" => $state && isset($ac->text->prtUnavailable) ? $ac->text->prtUnavailable : esc_html__('The customer portal is not available right now.','easy-form-builder'),
+			/* translators: F20 customer portal: %s = wait time */
+			"prtTooMany" => $state && isset($ac->text->prtTooMany) ? $ac->text->prtTooMany : esc_html__('Too many requests. Please try again in %s.','easy-form-builder'),
+			/* translators: F20 customer portal */
+			"prtWindowClosed" => $state && isset($ac->text->prtWindowClosed) ? $ac->text->prtWindowClosed : esc_html__('This can no longer be changed. Please contact us.','easy-form-builder'),
+			/* translators: F20 customer portal */
+			"prtPaidLocked" => $state && isset($ac->text->prtPaidLocked) ? $ac->text->prtPaidLocked : esc_html__('Paid bookings cannot be cancelled here. Please contact us.','easy-form-builder'),
+			/* translators: F20 customer portal */
+			"prtSlotTaken" => $state && isset($ac->text->prtSlotTaken) ? $ac->text->prtSlotTaken : esc_html__('That time is no longer available. Please choose another.','easy-form-builder'),
+			/* translators: F20 customer portal */
+			"prtClosedNew" => $state && isset($ac->text->prtClosedNew) ? $ac->text->prtClosedNew : esc_html__('This conversation is closed. Please send a new form.','easy-form-builder'),
+			/* translators: F20 customer portal: e-mail to the customer */
+			"prtCancelled" => $state && isset($ac->text->prtCancelled) ? $ac->text->prtCancelled : esc_html__('Your booking was cancelled.','easy-form-builder'),
+			/* translators: F20 customer portal: e-mail to the customer */
+			"prtRescheduledMail" => $state && isset($ac->text->prtRescheduledMail) ? $ac->text->prtRescheduledMail : esc_html__('Your booking was moved to another time.','easy-form-builder'),
+			/* translators: F20 customer portal */
+			"prtAddonBooking" => $state && isset($ac->text->prtAddonBooking) ? $ac->text->prtAddonBooking : esc_html__('Changing a booking needs the Booking add-on.','easy-form-builder'),
+			/* translators: F20 customer portal: e-mail to the site, %s = confirmation code */
+			"prtAdminCancelled" => $state && isset($ac->text->prtAdminCancelled) ? $ac->text->prtAdminCancelled : esc_html__('A customer cancelled the booking %s.','easy-form-builder'),
+			/* translators: F20 customer portal: e-mail to the site, %s = confirmation code */
+			"prtAdminRescheduled" => $state && isset($ac->text->prtAdminRescheduled) ? $ac->text->prtAdminRescheduled : esc_html__('A customer moved the booking %s to another time.','easy-form-builder'),
+			/* translators: F20 customer portal: note on the entries, %s = export or erase */
+			"prtPrivacyNote" => $state && isset($ac->text->prtPrivacyNote) ? $ac->text->prtPrivacyNote : esc_html__('The customer asked for their data (%s) from the customer portal.','easy-form-builder'),
 			/* translators: F02 e-mail text */
 			"vrfEmailIgnore" => $state && isset($ac->text->vrfEmailIgnore) ? $ac->text->vrfEmailIgnore : esc_html__('If you did not request this, you can ignore this email.','easy-form-builder'),
 			/* translators: F02 e-mail text: %s = minutes */
@@ -6739,7 +6773,7 @@ class efbFunction {
 
 		$user_res = json_decode($response_msg,true);
 		$lst = end($user_res);
-		$link_w = $lst['type']=="w_link" ? $lst['value'].'?track='.$trackingCode : 'null';
+		$link_w = $lst['type']=="w_link" ? apply_filters('efb_entry_view_url', $lst['value'].'?track='.$trackingCode, (int) $msg_id, (string) $trackingCode, 'reply_email') : 'null'; // F20-core P8
 		// sms_ready_for_send_efb appends ?track= itself, so it must get the bare page URL
 		$link_sms = $lst['type']=="w_link" ? $lst['value'] : 'null';
 
@@ -10586,6 +10620,10 @@ public function addon_add_efb($value) {
 		}
 
 		$sent_any = false;
+		// F20-core P8: the visitor's link may go to another page (the customer portal); the administrator's stays.
+		$efb_view_link = $page_url."?track=".$tracking_code;
+		$efb_view = (string) apply_filters('efb_entry_view_url', $efb_view_link, 0, (string) $tracking_code, 'sms');
+		if ($efb_view !== $efb_view_link) { $recived_your_message = str_replace($efb_view_link, $efb_view, (string) $recived_your_message); if ($state === 'respp' || $state === 'respadmin') $news_response = str_replace($efb_view_link, $efb_view, (string) $news_response); }
 		if($state=="fform"){
 			if(!empty($numbers[1]) && $recived_your_message){
 				$resukt_send_message = $smssendefb->send_sms_efb($numbers[1],$recived_your_message,$form_id,$severType);
