@@ -102,19 +102,20 @@ $H->fresh_jar();
 $H->login('efb_f11_da', 'efb_f11_da-pass-123');
 t('user A opens it', $post('forms/draft/load', array('resume_token' => $ta))['status'], 200);
 
-// E-mail.
+// E-mail. A new address each run: the per-address limit (5 a day) would refuse a second run on the same day.
+$me = 'me.' . substr(md5((string) microtime(true)), 0, 6) . '@example.test';
 $H->fresh_jar();
 $H->ctl('mails', 'clear');
 $H->ctl('set-option', 'efb_e2e_mail_bodies', '');
 $pp = $H->prepare($fid);
-$e = $post('forms/draft/email', array('resume_token' => $tok, 'email' => 'me@example.test', 'url' => $H->base . '/f11/'), $pp);
+$e = $post('forms/draft/email', array('resume_token' => $tok, 'email' => $me, 'url' => $H->base . '/f11/'), $pp);
 $bodies = $H->ctl('option', 'efb_e2e_mail_bodies');
 $last = is_array($bodies) && $bodies ? end($bodies) : array();
-t('e-mail: sent to the address, subject "Continue your form: F11 drafts"', array($e['status'], !empty($e['json']['success']), ($last['to'] ?? '') === 'me@example.test' || (is_array($last['to'] ?? null) && in_array('me@example.test', $last['to'], true)), $last['subject'] ?? ''), array(200, true, true, 'Continue your form: F11 drafts'));
+t('e-mail: sent to the address, subject "Continue your form: F11 drafts"', array($e['status'], !empty($e['json']['success']), ($last['to'] ?? '') === $me || (is_array($last['to'] ?? null) && in_array($me, $last['to'], true)), $last['subject'] ?? ''), array(200, true, true, 'Continue your form: F11 drafts'));
 t('e-mail: holds the link, never an answer', array(strpos($last['message'] ?? '', 'efb_resume=' . $tok) !== false, strpos($last['message'] ?? '', 'Draft Person'), strpos($last['message'] ?? '', 'Shiraz')), array(true, false, false));
-$post('forms/draft/email', array('resume_token' => $tok, 'email' => 'me@example.test'), $pp);
-$post('forms/draft/email', array('resume_token' => $tok, 'email' => 'me@example.test'), $pp);
-t('e-mail: 3 per draft per hour, then 429', $post('forms/draft/email', array('resume_token' => $tok, 'email' => 'me@example.test'), $pp)['status'], 429);
+$post('forms/draft/email', array('resume_token' => $tok, 'email' => $me), $pp);
+$post('forms/draft/email', array('resume_token' => $tok, 'email' => $me), $pp);
+t('e-mail: 3 per draft per hour, then 429', $post('forms/draft/email', array('resume_token' => $tok, 'email' => $me), $pp)['status'], 429);
 t('e-mail: an invalid address is refused', $post('forms/draft/email', array('resume_token' => $tok, 'email' => 'not-an-address'), $pp)['status'], 400);
 
 // Submit completes the draft.
