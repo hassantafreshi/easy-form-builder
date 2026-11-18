@@ -1691,7 +1691,7 @@ Address & Postal add-on (`AdnADR`, installable on every plan; its search is Free
   (`code: efb_field_na_format | na_length | na_list | na_name | na_sa_short_or_full`, `field_id`).
 - **Not for assistants:** the address search route (`Emsfb/v1/geo/search`, `AdnADR`) is the visitor's; an agent never
   calls it and never sets the service address (the site owner's screen "Address search").
-- **Tests.** `node tests/test-ap-name-address.js` (19), `php tests/test-address-validate.php`, `node tests/test-address-*.js`,
+- **Tests.** `node tests/test-ap-name-address.js` (17), `php tests/test-address-validate.php`, `node tests/test-address-*.js`,
   `php tests/test-name-address-*.php`; e2e `f17-a` … `f17-f`.
 
 ## Part C: the contract is kept

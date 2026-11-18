@@ -1,9 +1,18 @@
-وضعیت: سند آماده، پیاده‌سازی نشده · اولویت: P2 · تلاش: M · وابستگی: F01 (یکسان‌سازی ارقام و پیش‌تنظیم‌های ماسک کد پستی)؛ اگر F01 هنوز ادغام نشده، جدول قواعد داخلی §۹.۲ جایگزین موقت است
+وضعیت: **A تا E و P22 (F20) پیاده‌سازی و آزموده شد (۲۰۲۶-۱۱-۱۸)**؛ نیمهٔ هسته در هسته، جست‌وجوی نشانی و ماسک‌های پستی در افزونهٔ `AdnADR` (طبق SPLIT)؛ فاز ۲ («همانند نشانی قبلی») ساخته نشد · اولویت: P2 · تلاش: M · وابستگی: F01 (ماسک‌های پستی اکنون در `AdnADR`؛ قاعدهٔ داخلی §۹.۲ در هسته)
 
 # F17 — نام و نشانی محلی: قالب‌های نام، طرح‌های نشانی ایران، عربستان، امارات، مصر و بین‌المللی، جست‌وجوی نشانی
 
 > شاخهٔ مبنا `dev4`، افزونهٔ 4.3.1، بررسی‌شده در 2026-11-11. شماره‌خط‌ها از همین commit است؛ پیش از ویرایش دوباره grep کن.
 > راهنمای اجرا: [IMPLEMENTATION-PLAYBOOK.en.md](IMPLEMENTATION-PLAYBOOK.en.md) («پلی‌بوک §n»). امکانات موجود: [reference/current-capabilities.en.md](reference/current-capabilities.en.md). ماسک‌ها: [reference/masks-catalog.json](reference/masks-catalog.json) و [reference/masks-and-validators.en.md](reference/masks-and-validators.en.md).
+
+
+> **پس از SPLIT و تصمیم‌های پیاده‌سازی (۲۰۲۶-۱۱-۱۸):**
+> - **هسته:** قالب‌های نام، طرح‌های نشانی (ایران، عربستان، امارات، مصر، آمریکا، بریتانیا، کانادا، بین‌المللی، و افزوده‌های **آلمان `de`، ژاپن `jp`، ترکیه `tr`**) با برچسب، ترتیب، عرض، اجباری‌بودن و قاعدهٔ هر جزء، آبشار استان → شهر (داده از همان CDN/افزونهٔ آفلاین، فقط هنگام انتخاب استان)، توکن‌های autocomplete، اعتبارسنجی سرور و مرورگر، نمایش (P22). تعریف یگانه: `includes/data/name-address-efb.json` و کلاس `Emsfb\Address_Schemes` (`includes/class-Emsfb-address-schemes.php`، نه `includes/geo/`).
+> - **`AdnADR`:** جست‌وجوی Nominatim (§۴.۶، §۸)، پرکردن شهر/استان از کد پستی، تنظیمات (`emsfb_adr_lookup` با صفحهٔ «Address search» افزونه، به‌جای `geo_search_*` در تنظیمات اصلی)، و ماسک تایپ کد پستی (پیش‌تنظیم‌های F01 روی جزء پستی وقتی افزونه روشن است). هسته فقط قرارداد می‌دهد: فیلتر `efb_addr_group_extra`، `efb_public_enqueue`، `efb_capabilities`، و API صفحهٔ `EFBNameAddr.fill()` / `parts()`. بی افزونه همه‌چیز هسته کار می‌کند و درخواستی به OpenStreetMap نمی‌رود.
+> - **`elementId` تازه ساخته نشد** (§۵): هر جزء یکی از شناسه‌های موجود را دارد (`firstName`، `lastName`، `text`، `select`، `address_line`، `postalcode`، `stateProvince`، `cityList`، `conturyList`) و نقشش را `name_part`/`addr_part` می‌گوید؛ رندرگرها، تنظیمات و خوانندگان قدیمی دست نخوردند.
+> - کلمات طبقه (`addrFloorWords`) و پیشوندهای نام (`nmPfxDefaults`) داده‌اند (در JSON، برای فارسی، عربی، انگلیسی، آلمانی، ترکی، ژاپنی)، نه عبارت ترجمه‌ای؛ چون ترجمه انجام نمی‌شود (دستور مالک).
+> - خط کامل گروه در پاسخ ذخیره می‌شود (`na_full` روی نخستین ردیف گروه) و ردیف‌ها `grp`، `part`، `cmp`، `sch` دارند (به‌جای `grp`/`part` در §۵)؛ کلید `disp` استفاده نشد چون F04 آن را دارد.
+> - قرارداد نمایش: `docs/name-address/display-contract.en.md` (P22 نسخهٔ ۱).
 
 ---
 
@@ -346,60 +355,60 @@ user meta: `efb_default_addr_scheme`، `efb_default_name_format`.
 - پذیرش: هر شش قالب با برچسب و ترتیب درست در RTL و LTR؛ `autocomplete` در HTML عمومی `given-name`/`family-name` حتی برای فرم‌های قدیمی؛ «علی‌رضا»، «عبد الله»، «O'Neil» و نام با نیم‌فاصله پذیرفته و «Ali2» با `name_strict=1` رد شود؛ فرم قدیمی بدون تغییر ذخیره و ارسال شود.
 - تست‌ها: `php tests/test-name-formats-render.php` (الگوی `tests/test-password-placeholder-render.php`، بررسی autocomplete)؛ `php tests/test-name-part-validate.php` (stub، regex نام)؛ Playwright `tests/name-address-browser.js` (بخش نام).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (۲۰۲۶-۱۱-۱۸)**
+- فایل‌های تغییرکرده: تازه `includes/data/name-address-efb.json`، `includes/class-Emsfb-address-schemes.php`، `includes/admin/assets/js/name-address-builder-efb.js` (پنجرهٔ انتخاب قالب، `efbNaPatch`، بلوک گروه در تنظیمات، «حذف کل گروه»، `efbNaClean`، `efbNaAcFor`)، `public/assets/js/name-address-efb.js`؛ `admin-efb.js` (`fun_efb_add_el`: پنجره و فهرست اجزای قالب؛ کپی یک جزء فیلد عادی می‌شود)، `val-efb.js` (بلوک گروه)، `class-Emsfb-a11y.php` و `a11y-builder-efb.js` (توکن جزء؛ رفع باگ §۱۹)، `class-Emsfb-formbuilder.php` (ویژگی‌های جزء، select عنوان)، `functions.php` (case کلیدها در `sanitize_obj_msg_efb`، ۷۷ عبارت)، `class-Emsfb.php`، `create.php`/`panel.php` (enqueue)، AJAX `efb_na_default` (user meta «همیشه این»).
+- تست‌ها: `test-name-address-render.php` ۳۳، `test-name-address-save-roundtrip.php` ۲۳، `test-address-validate.php|js` (نام‌ها: «علی‌رضا»، «عبد الله»، «O'Neil»، «Ali2»)، e2e `f17-a`، `f17-c`.
+- وضعیت ترجمه: عبارت‌ها افزوده و `catalog.json`/`.pot` تازه شد (۶۲ تازه)؛ ترجمه نشد (دستور مالک).
+- مورد باز: —
+- اقدام بعدی: —
 
 ### B — طرح‌های نشانی در سازنده و رندر
 - فایل‌ها: `val-efb.js` (`efb_address_schemes_efb`)، `includes/geo/class-Emsfb-address-schemes.php` (آینهٔ PHP)، `admin-efb.js`، `class-Emsfb-formbuilder.php`، `pro_els-efb.js` (ساخت گزینه‌های استان برای کشور ثابت)، `functions.php` (case `addr_part`).
 - پذیرش: هر هشت طرح با اجزا، برچسب، autocomplete، inputmode و اجباری‌بودن جدول §۴.۳ ساخته و ذخیره و دوباره باز شود؛ `addr_part` نامعتبر پس از ذخیره حذف شود؛ تعداد تگ‌های بسته در HTML عمومی درست باشد (بلوک lookup داخل wrapper).
 - تست‌ها: `node tests/test-address-schemes-parity.js` (تطبیق تعریف JS با خروجی JSON از `php -r` روی کلاس PHP)؛ `php tests/test-address-render.php`؛ گسترش `php tests/test-conditional-logic-save-roundtrip.php`-مانند برای کلیدهای جدید (مسیر `__DIR__.'/..'`).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (۲۰۲۶-۱۱-۱۸)**
+- فایل‌های تغییرکرده: همان A، به‌اضافهٔ `class-Emsfb-public.php` (fieldset و legend هر گروه، `Address_Schemes::fieldset_runs()`، enqueue `name-address-efb.js` و دادهٔ فقط قالب‌های همان فرم)، `pro_els-efb.js`، `builder-api-efb.js` (`newItems(..., {format|scheme})`).
+- تست‌ها: `test-address-schemes-parity.js` ۸۱ (PHP و JS یک خروجی)، `test-name-address-render.php` (autocomplete، inputmode، dir، شمار تگ‌های بسته)، e2e `f17-b` (یازده طرح، `AdnADR` خاموش و روشن).
+- وضعیت ترجمه: مانند A.
+- مورد باز: فهرست استان کشور ثابت هنگام افزودن از CDN خوانده می‌شود؛ در API سرور (`field_templates`) خالی می‌ماند و `needs_states` آن را می‌گوید.
+- اقدام بعدی: —
 
 ### C — اعتبارسنجی، نرمال‌سازی و آبشار
 - فایل‌ها: `core-efb.js` (شاخهٔ متنی 4052، `fun_validation_efb_v4`)، `pro_els-efb.js` (`efb_addr_cascade_mount_efb`)، `class-Emsfb-public.php` (`default:` 3376، لیست‌ها 3138، قاعدهٔ گروهی، `filter_attributes_by_type_efb` با `grp`/`part`، `$translation_keys`)، `class-Emsfb-address-schemes.php` (`validate_part`).
 - پذیرش: کد پستی «۱۲۳۴۵-۶۷۸۹۰» به `1234567890` ذخیره شود و «۱۲۳۴» رد شود با پیام ترجمه‌شده و `field_id`؛ `٠١٢٣` در پلاک پذیرفته و `0123` ذخیره؛ `RRRD2929` پذیرفته و `rrrd2929` به حروف بزرگ؛ استان جعلی در لیست غیرآبشاری رد؛ آبشار: انتخاب «تهران» شهرهای تهران را بیاورد و در شکست CDN کادر متنی ظاهر شود؛ مقادیر یکسان برای JS و PHP روی بردارهای `examples_valid`/`examples_invalid` کاتالوگ.
 - تست‌ها: `node tests/test-address-validate.js` و `php tests/test-address-validate.php` روی یک fixture مشترک `tests/fixtures/address-part-cases.json` (حداقل ۶۰ مورد، شامل ارقام فارسی، عربی و ترکیبی)؛ `php tests/test-address-submit.php` (WordPress واقعی، الگوی `tests/test-submit-payload-robustness.php`).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (۲۰۲۶-۱۱-۱۸)**
+- فایل‌های تغییرکرده: `class-Emsfb-address-schemes.php` (`check_value`، `check_row`، `prepare_form`، `finish_rows`)، `class-Emsfb-public.php` (دروازهٔ F17 پس از دروازهٔ F03 در `validate_rows_efb`، `prepare_form` پیش از بررسی اجباری، کلیدهای پیام در `$translation_keys` و زیرمجموعهٔ عمومی)، `core-efb.js` (بررسی جزء در `handle_change_event_efb_v4` و `fun_validation_efb_v4`، قاعدهٔ «کد کوتاه یا کامل»)، `pro_els-efb.js` (شهرِ همان گروه، کش `sessionStorage`، `aria-busy`، کادر متنی در شکست)، `class-Emsfb-formbuilder.php` (شهر آبشاری بسته با «اول استان را انتخاب کنید»).
+- تست‌ها: `test-address-validate.php` ۱۰۲ و `.js` ۱۰۰ روی fixture مشترک `tests/fixtures/address-part-cases.json` (۹۸ مورد)، `test-address-submit-rows.php` ۳۰، e2e `f17-b` (کد پستی «۱۲۳۴۵-۶۷۸۹۰» → `1234567890`، «۱۲۳۴» رد در صفحه و سرور، `٠١٢٣` → `0123`، `rrrd2929` → `RRRD2929`، استان جعلی رد، آبشار تهران، شکست CDN → کادر متنی، کد کوتاه به‌تنهایی).
+- وضعیت ترجمه: مانند A.
+- مورد باز: —
+- اقدام بعدی: —
 
 ### D — جست‌وجوی نشانی (OSM)
 - فایل‌ها: `class-Emsfb-public.php` (ثبت مسیرهای `geo/search` و `geo/reverse`، `efb_geo_search_api`، `efb_geo_reverse_api`)، `pro_els-efb.js` (`efb_addr_lookup_efb`، `efb_addr_fill_from_osm_efb`، اصلاح `encodeURIComponent` در 1401 و reverseها)، `list_form-efb.js` و `set_settings_Emsfb` (تنظیمات سراسری)، `val-efb.js` (toggle).
 - پذیرش: هیچ درخواستی هنگام تایپ ارسال نشود (فقط کلیک/Enter)؛ دو جست‌وجوی یکسان یک درخواست بیرونی؛ ۱۱ درخواست در دقیقه از یک IP پاسخ ۴۲۹؛ مسیر برای فرمی بدون `addr_lookup` یا `maps` 404؛ `q` با `&` و `#` درست ارسال شود؛ attribution و متن حریم خصوصی دیده شود؛ انتخاب نتیجه در تهران استان «تهران» را در گزینه‌ها پیدا کند.
 - تست‌ها: `php tests/test-geo-proxy.php` (WordPress واقعی؛ فیلتر `pre_http_request` برای پاسخ ساختگی Nominatim و شمارش درخواست‌ها)؛ `node tests/test-osm-fill-mapping.js` (نگاشت `address` OSM به اجزای هر طرح با نمونه‌های ثابت).
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (۲۰۲۶-۱۱-۱۸)** — در افزونهٔ `AdnADR` (طبق SPLIT §۱۰.۳)
+- فایل‌های تغییرکرده: `vendores-efb/address`: تازه `class-Emsfb-address-lookup.php` (مسیرهای `Emsfb/v1/geo/search`، `geo/reverse`؛ 404 برای فرم بی جست‌وجو، زیر Free Plus، حالت direct/off؛ قفل سراسری ۱ ثانیه، سقف ۱۰ در دقیقه برای هر بازدیدکننده با `Rate_Limit`؛ کش ۷ روزه با هش؛ برش پاسخ؛ User-Agent و Referer سایت؛ صفحهٔ «Address search»)، تازه `assets/js/address-lookup-efb.js` (فقط کلیک/Enter، listbox با صفحه‌کلید، نگاشت OSM به اجزای هر طرح، کد پستی → شهر، حالت direct با فاصلهٔ ۱ ثانیه و کش نشست)، `address-phrases-efb.php` (۲۱ عبارت در `efb-address`)، `.pot`، زیپ. هسته: فیلتر `efb_addr_group_extra` و `EFBNameAddr.fill()`.
+- تست‌ها: `test-address-lookup.php` ۲۲، `test-osm-fill-mapping.js` ۱۱، e2e `f17-e` (افزونه خاموش: نه بلوک نه درخواست؛ روشن: تایپ بی درخواست، `&` و `#` سالم، یک درخواست برای جست‌وجوی تکراری، 404، 429 در یازدهمین، کد پستی → شهر، حالت direct).
+- وضعیت ترجمه: `.pot` افزونه تازه شد؛ ترجمه نشد.
+- مورد باز: «موقعیت من» (`geolocation` → reverse) فقط در API سرور (`geo/reverse`) هست؛ دکمه‌اش در صفحه ساخته نشد.
+- اقدام بعدی: —
 
 ### E — نمایش در پاسخ‌ها و ایمیل
 - فایل‌ها: `response-viewer-efb.js` (خط کامل گروه)، `class-Emsfb-public.php` `email_get_content_efb` (7735)، `class-Emsfb-address-schemes.php` (`format`) و نسخهٔ JS.
 - پذیرش: خط کامل برای هر طرح با جداکننده‌های درست در فارسی («، ») و عربی («، ») و انگلیسی (", ")؛ مقدار خصمانه `<img onerror>` در خیابان escape شود؛ پاسخ‌های قدیمی بدون `grp` فقط ردیف‌های جدا.
 - تست‌ها: گسترش `node tests/test-response-viewer-escaping.js`؛ `php tests/test-address-format.php`.
 
-Checkpoint
-- فایل‌های تغییرکرده:
-- تست‌ها:
-- وضعیت ترجمه:
-- مورد باز:
-- اقدام بعدی:
+**Checkpoint (۲۰۲۶-۱۱-۱۸)**
+- فایل‌های تغییرکرده: تازه `includes/name-address-functions-efb.php` (P22)، `response-viewer-efb.js` (خط «نام کامل» / «نشانی کامل» پیش از اجزا، در `<bdi>`)، `list_form-efb.js` (ستون خط کامل در CSV؛ کد پستی متن می‌ماند)، `class-Emsfb-public.php` (`email_get_content_efb`)، `class-Emsfb-address-schemes.php` (`groups`، `address_text`، `name_text`، `finish_rows` → `na_full`)، `docs/name-address/display-contract.en.md`.
+- تست‌ها: `test-response-viewer-escaping.js` (+۵)، `test-address-schemes-parity.js`، e2e `f17-d` (نمایشگر و کارت PDF، CSV، ایمیل؛ مقدار خصمانه).
+- وضعیت ترجمه: مانند A.
+- مورد باز: توکن `{name:<grp>}` برچسب هوشمند F08 ساخته نشد (پیشنهاد سند، اختیاری).
+- اقدام بعدی: F20 از P22 استفاده کند.
 
 ---
 
@@ -418,6 +427,15 @@ Checkpoint
 ---
 
 ## ۱۸. پرسش‌های باز
+
+**پاسخ‌ها — طبق پیشنهاد سند** (approved by owner (2026-11-14, default to recommendations)):
+1. طرح‌های کویت، عمان، اردن، مراکش، الجزایر، تونس در نسخهٔ ۱ ساخته نشدند (سند پیشنهادی جز «ارزان است» نداشت)؛ به‌جایش آلمان، ژاپن و ترکیه به درخواست brief؛ افزودن طرح = یک بلوک JSON (فیلتر `efb_name_address_data`) — approved by owner (2026-11-14, default to recommendations).
+2. «کد کوتاه یا نشانی کامل» پیش‌فرض خاموش است (`addr_req_mode` اختیاری) و قاعدهٔ کد کوتاه نرم است (نامعتبر رد نمی‌شود، فقط معاف نمی‌کند) — approved by owner (2026-11-14, default to recommendations).
+3. سخت‌گیری عضویت فهرست‌ها فقط برای گروه‌های تازه؛ فرم‌های قدیمی بی‌تغییر (فهرست استان/شهرشان در صفحه از روی کشور عوض می‌شود و مقایسه آن‌ها را می‌شکست)؛ فیلتر `efb_geo_strict_lists` — approved by owner (2026-11-14, default to recommendations).
+4. پراکسی پیش‌فرض (در `AdnADR`)؛ فیلد نقشه همان مسیر قبلی خودش را دارد (در `AdnADR` از SPLIT) — approved by owner (2026-11-14, default to recommendations).
+5. کد پستی در CSV متن است (صفر ابتدایی می‌ماند)، بی ترفند `="…"` — approved by owner (2026-11-14, default to recommendations).
+6. «اسم الجد» در `ar4` اختیاری — approved by owner (2026-11-14, default to recommendations).
+7. داده‌های CDN استان/شهر برای sa/ae/eg بازبینی نشد (دسترسی نبود)؛ اگر فهرست شهر بار نشود، کادر متنی جای آن را می‌گیرد — approved by owner (2026-11-14, default to recommendations).
 
 1. آیا طرح‌های دیگری از بازارهای عربی (کویت، عمان، اردن، مراکش، الجزایر، تونس) با همین الگو در نسخهٔ ۱ لازم‌اند؟ کاتالوگ F01 کد پستی آن‌ها را دارد و افزودنشان ارزان است.
 2. حالت «کد کوتاه یا نشانی کامل» عربستان پیش‌فرض باشد؟ کاتالوگ قاعدهٔ کد کوتاه را «unverified» علامت زده است؛ پیش از فعال‌سازی پیش‌فرض با مستند SPL تطبیق داده شود.
