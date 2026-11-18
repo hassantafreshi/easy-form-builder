@@ -217,6 +217,11 @@ API استفاده کند.
 - کلیدهای فیلد: ساختار پایهٔ آیتم پالت، `size`، `required`، `message`، `smsnoti` روی `mobile`،
   `href` روی `link`، `value` روی `html` (با `@!` و `@efb@nq#`)، `sub_value`/`src` گزینه‌های `imgRadio`،
   `country`/`statePov` روی فهرست‌های جغرافیایی، `lat`/`lng`/`zoom`/`mark` روی `maps`.
+- ایمیل تأیید بازدیدکننده (4.3.2، درخواست مالک): نخستین فیلد ایمیل هر فرم تازه به‌طور پیش‌فرض گیرندهٔ ایمیل تأیید است
+  (`noti: 1` روی فیلد، `email_to` = شناسهٔ آن فیلد و `sendEmail: true` در ردیف ۰)؛ فیلدهای ایمیل بعدی خاموش می‌مانند.
+  `efbBuilderApi.newItems('email')` و `field_templates_efb('email')` همین را با `formPatch` / `form_patch` می‌دهند
+  (`capabilities.email_confirmation`). AI فرم را با همین پیش‌فرض بسازد و فقط وقتی کاربر خواست خاموشش کند: `noti: 0`
+  و اگر همان فیلد گیرنده بود `email_to: ""`. فرم‌های ذخیره‌شده تغییر نمی‌کنند (`docs/autopilot-integration.md`).
 - شناسه‌های ثابت فرم ورود: `emaillogin`، `passwordlogin`.
 - شورت‌کد: `[EMS_Form_Builder id=N]`.
 
