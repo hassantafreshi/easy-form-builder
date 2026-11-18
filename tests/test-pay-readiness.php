@@ -108,7 +108,8 @@ $GLOBALS['opts']['emsfb_pro'] = 3;
 // The payment field of a gateway add-on that is not active (a catalogue folder that registered no gateway).
 $types = Readiness::catalogue_types();
 $off = $types[0];
-$t('the catalogue lists the seven gateway add-ons by field type', count($types), 7);
+// PAY-OUT step 5: plus the framework fields of the Stripe, PayPal and Persia Pay add-ons (loaded by their own routes).
+$t('the catalogue lists the seven gateway add-ons and the three PAY-OUT fields by field type', array(count($types), array_slice($types, -3)), array(10, array('stripecheckout', 'paypalcheckout', 'zarinpalgate')));
 $t('...a catalogue type is a payment type even when its add-on is off', array(\Emsfb\Payments\Registry::has($off), Readiness::is_payment_type($off), Readiness::is_payment_type('text')), array(false, true, false));
 $gone = array(array('type' => 'payment', 'getway' => $off, 'currency' => 'EUR'), array('id_' => 'g1', 'type' => $off, 'name' => 'Pay', 'step' => 1));
 $r = Readiness::of_form($gone, 12);

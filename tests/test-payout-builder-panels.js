@@ -10,7 +10,9 @@
  *  3  new core + an add-on without the hook (an old add-on): the panel says "Update <name> to keep using it with this
  *     version."; the add-on absent, off or above the plan: core's "Needs the … add-on" with Install;
  *  4  old core + new add-on: the old core's switch handles the type before its default branch, so the add-on's hook is
- *     never reached (no double panel).
+ *     never reached (no double panel);
+ *  5  (step 5) the palette: an older tile (stripe, paypal, persiaPay) leaves it once its add-on registered the framework
+ *     field that replaces it (efb_var.legacy_gw.types[type].target, and that tile is in the palette); otherwise it stays.
  */
 'use strict';
 const fs = require('fs');
@@ -72,6 +74,20 @@ if (old) {
   t('4 old core: its own cases come before its default branch (the add-on hook is never reached)', /case 'stripe':/.test(sw) && /case 'paypal':/.test(sw) && /case 'persiaPay':/.test(sw) && !/efbFieldPanels/.test(old));
 } else {
   console.log('[SKIP] 4 the old core is not in this repository');
+}
+
+/* 5 */
+{
+  const a5 = val.indexOf('// PAY-OUT step 5: an older gateway tile');
+  const b5 = val.indexOf('\n  }\n', a5) + 4;
+  const block = a5 > 0 ? val.slice(a5, b5) : '';
+  const vm = require('vm');
+  const run = (types, tiles) => { const ctx = { efb_var: { legacy_gw: { types } }, fields_efb: tiles.map((id) => ({ id })) }; vm.createContext(ctx); vm.runInContext(block, ctx); return ctx.fields_efb.map((x) => x.id); };
+  const tiles = ['text', 'stripe', 'paypal', 'persiaPay', 'stripecheckout', 'paypalcheckout'];
+  t('5 the palette block is there, after the framework tiles are pushed', a5 > val.indexOf('efbPayPaletteEfb(fields_efb)') && block.length > 50, block.slice(0, 120));
+  t('5 a registered target replaces the older tile (Stripe, PayPal); Persia Pay without its target stays', JSON.stringify(run({ stripe: { target: 'stripecheckout' }, paypal: { target: 'paypalcheckout' }, persiaPay: { target: null } }, tiles)) === JSON.stringify(['text', 'persiaPay', 'stripecheckout', 'paypalcheckout']));
+  t('5 a target whose tile is not in the palette (e.g. plan): the older tile stays', JSON.stringify(run({ stripe: { target: 'stripecheckout' } }, ['text', 'stripe'])) === JSON.stringify(['text', 'stripe']));
+  t('5 an older core\'s data (no legacy_gw): nothing changes', (() => { const ctx = { efb_var: {}, fields_efb: [{ id: 'stripe' }] }; vm.createContext(ctx); vm.runInContext(block, ctx); return ctx.fields_efb.length === 1; })());
 }
 
 console.log('\nRESULTS: ' + pass + ' passed, ' + fail + ' failed');

@@ -9,7 +9,10 @@
  *  3  an add-on older than this core (no screen yet; its keys keep working where core kept them): "Update or turn on
  *     the add-on", no Settings link; an add-on that is not on: no row; none at all: the sentence asking for a payment
  *     add-on;
- *  4  every value written into the page is escaped.
+ *  4  every value written into the page is escaped;
+ *  5  (step 5) the forms moved to the add-ons' new fields: a hidden section until the list (REST, administrators) has
+ *     rows; one row per form with its status words, "Move back" on a moved form, "Move now" on one moved back or not
+ *     moved (amount, not ready, keys), none where it stays (subscription) or waits for an add-on update; names escaped.
  */
 'use strict';
 const fs = require('fs');
@@ -58,6 +61,25 @@ t('3 an old core\'s data (no legacy_gw): the same sentence, no error', /efb-pay-
 /* 4 */
 h = draw({ types: { stripe: { code: 'AdnSPF', state: null } }, screens: { stripe: { addon: 'AdnSPF', label: '<img src=x onerror=alert(1)>', url: 'javascript:"><script>', status: 'ready' } } });
 t('4 names and links are escaped', !/<img|<script/.test(h) && /&lt;img src=x onerror=alert\(1\)&gt;/.test(h), h);
+
+/* 5 */
+t('5 the tab draws the moved-forms section after the add-ons, and loads it once the page is drawn', /\$\{efb_pay_addons_html_efb\(mxCSize, mxCSize4\)\}\s*\$\{efb_pay_moves_html_efb\(mxCSize, mxCSize4\)\}/.test(src) && /efb_apply_setting_deeplink\(\);\s*efb_pay_moves_load_efb\(\);/.test(src));
+const mv = (code) => { const ctx = { efb_var: { text: { pmvMoved: 'Moved', pmvBack: 'Moved back', pmvUndo: 'Move back', pmvMove: 'Move now' } } }; vm.createContext(ctx); vm.runInContext(fn + '\nout = ' + code + ';', ctx); return ctx.out; };
+let m = mv('efb_pay_moves_html_efb("mx-5", "mx-4")');
+t('5 the section: hidden until there is something to show, labelled list, Check now hidden, a live message', /^<section class="efb d-none" id="efbPayMoves" aria-labelledby="efbPayMovesTitle">/.test(m) && /<ul class="efb efb-cpa-list" id="efbPayMovesList" aria-labelledby="efbPayMovesTitle" aria-describedby="efbPayMovesHelp"><\/ul>/.test(m) && /id="efbPayMovesRun">Check now</.test(m) && /role="status" aria-live="polite"/.test(m), m);
+const row = (f) => mv('efb_pay_moves_row_efb(' + JSON.stringify(f) + ')');
+m = row({ form_id: 7, name: 'Workshop', status: 'migrated', can_rollback: true, can_migrate: false });
+t('5 a moved form: its name and number in <bdi>, Moved, "Move back" (described by name and status)', /<bdi class="efb efb-cpa-name" id="pmv_7_name">Workshop \(#7\)<\/bdi><span class="efb efb-cpa-st efb-cpa-st-ready" id="pmv_7_st" data-status="migrated">Moved<\/span><button type="button" class="efb btn btn-sm btn-outline-secondary efb-cpa-btn" data-pmv="rollback" data-id="7" aria-describedby="pmv_7_name pmv_7_st">Move back<\/button>/.test(m), m);
+m = row({ form_id: 8, name: 'W', status: 'rolled_back', can_rollback: false, can_migrate: true });
+t('5 moved back: "Moved back" and "Move now"', /data-status="rolled_back">Moved back<\/span><button[^>]*data-pmv="migrate" data-id="8"[^>]*>Move now</.test(m), m);
+const words = { waiting_addon: 'Waiting: update or turn on the add-on', waiting_keys: "Waiting: add the keys in the add-on's settings", recurring: 'Stays on the older field', gateway_unsupported: 'Stays on the older field', amount_differs: 'Not moved: the amount would change', not_ready: 'Not moved yet: fix the form', pending: 'Waiting to be moved' };
+const btn = { waiting_addon: false, waiting_keys: true, recurring: false, gateway_unsupported: false, amount_differs: true, not_ready: true, pending: true };
+for (const st of Object.keys(words)) {
+  m = row({ form_id: 9, name: 'F', status: st, can_rollback: false, can_migrate: true });
+  t('5 ' + st + ': "' + words[st] + '"' + (btn[st] ? ' with Move now' : ', no button'), m.indexOf('>' + words[st].replace(/'/g, '&#39;') + '</span>') !== -1 && /data-pmv="migrate"/.test(m) === btn[st], m);
+}
+m = row({ form_id: '3"><img src=x>', name: '<script>x</script>', status: '"><b>', can_rollback: true });
+t('5 names, ids and statuses are escaped', !/<script|<img|<b>/.test(m) && /&lt;script&gt;/.test(m), m);
 
 console.log('\nRESULTS: ' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

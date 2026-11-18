@@ -412,9 +412,16 @@ class Readiness {
 		return current_user_can( 'manage_options' ) || current_user_can( 'Emsfb_create' ) || current_user_can( 'Emsfb_payments' );
 	}
 
+	/**
+	 * PAY-OUT step 5: the framework fields of the Stripe, PayPal and Persia Pay add-ons (loaded by their own routes, not
+	 * by Registry::load_addons()): add-on key => field type. A moved form keeps saying which add-on it needs when that
+	 * add-on is off (pay_addon_inactive), never an unknown field.
+	 */
+	const LEGACY_ADDON_TYPES = array( 'AdnSPF' => 'stripecheckout', 'AdnPAP' => 'paypalcheckout', 'AdnPPF' => 'zarinpalgate' );
+
 	/** Field types of the gateway add-ons of the catalogue (the folder is the field type), registered or not. */
 	public static function catalogue_types() {
-		return array_values( array_unique( array_map( 'strval', Registry::addons() ) ) );
+		return array_values( array_unique( array_merge( array_map( 'strval', Registry::addons() ), array_values( self::LEGACY_ADDON_TYPES ) ) ) );
 	}
 
 	/** Whether a field type is a payment field of the framework: a registered gateway, or one of the catalogue whose add-on is off. */
@@ -425,7 +432,7 @@ class Readiness {
 
 	/** The add-on key of a catalogue field type ('' when unknown). */
 	public static function addon_of( $type ) {
-		$k = array_search( (string) $type, Registry::addons(), true );
+		$k = array_search( (string) $type, Registry::addons() + self::LEGACY_ADDON_TYPES, true );
 		return is_string( $k ) ? $k : '';
 	}
 

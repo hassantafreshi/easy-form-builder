@@ -59,13 +59,19 @@ class Split {
 	public static function builder_vars($vars) {
 		if (!is_array($vars)) return $vars;
 		$types = array();
+		// PAY-OUT step 5: the add-on's field on the payment framework that replaces this one (registered now), if any.
+		$targets = class_exists('\\Emsfb\\Payments\\Legacy_Migration') ? \Emsfb\Payments\Legacy_Migration::targets() : array();
 		foreach (self::legacy_types() as $type => $code) {
 			$e = class_exists('\\Emsfb\\Addon_Catalog') ? Addon_Catalog::get($code) : null;
-			$types[$type] = array('code' => $code, 'name' => is_array($e) && isset($e['name']) ? $e['name'] : $code, 'state' => self::addon_state($code));
+			$types[$type] = array('code' => $code, 'name' => is_array($e) && isset($e['name']) ? $e['name'] : $code, 'state' => self::addon_state($code), 'target' => isset($targets[$type]) ? $targets[$type] : null);
 		}
 		// PAY-OUT step 2: each add-on's own keys screen (Settings › Payments links to it): type => {addon, label, url, status}.
 		$screens = apply_filters('efb_legacy_gateway_screens', array());
 		$vars['legacy_gw'] = array('types' => $types, 'screens' => is_array($screens) ? $screens : array());
+		// PAY-OUT step 5: Settings › Payments lists the forms of the older fields and their move (administrators).
+		if (class_exists('\\Emsfb\\Payments\\Legacy_Migration') && function_exists('current_user_can') && current_user_can('manage_options')) {
+			$vars['legacy_gw']['moves'] = array('rest' => function_exists('rest_url') ? rest_url('Emsfb/v1/payments/legacy-migration') : '');
+		}
 		return $vars;
 	}
 

@@ -24,6 +24,8 @@ foreach ( array(
 	'class-Emsfb-payment-frontend.php',
 	// PAY-OUT step 3: the deprecated members of the legacy_gateway contract (_Public uses the trait; one more release).
 	'legacy-gateway-shim-efb.php',
+	// PAY-OUT step 5: the forms of the older fields move to the add-ons' framework fields (backup, log, rollback).
+	'class-Emsfb-payment-legacy-migration.php',
 ) as $efb_pay_file ) {
 	require_once __DIR__ . '/' . $efb_pay_file;
 }
@@ -35,6 +37,7 @@ if ( is_admin() && is_readable( __DIR__ . '/class-Emsfb-payment-admin.php' ) ) {
 }
 
 // Core ships no gateway: every gateway is an add-on that registers on efb_register_payment_gateways.
+\Emsfb\Payments\Legacy_Migration::register();
 
 add_action( 'emsfb_pmt_reconcile', array( '\Emsfb\Payments\Service', 'reconcile' ) );
 // PAY00 §9: the webhook through the front door (?efb_pay_webhook=<gateway>) for hosts that block the REST API.

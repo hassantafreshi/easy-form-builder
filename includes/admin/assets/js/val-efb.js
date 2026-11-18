@@ -2593,6 +2593,15 @@ function efb_palette_tiles_html_efb() {
   if (typeof efbPayPaletteEfb === 'function') efbPayPaletteEfb(fields_efb);
   // Pushed once: the palette is redrawn after a plan change.
   if( efb_var.language=='fa_IR' && !fields_efb.some(x => x.id === 'persiaPay')) fields_efb.push( { name: efb_var.text.persiaPayment, icon: 'bi-credit-card-2-front', id: 'persiaPay', pro: true, tag:'payment all' });
+  // PAY-OUT step 5: an older gateway tile (stripe, paypal, persiaPay) leaves the palette once its add-on registered the
+  // field that replaces it on the payment framework (that tile is drawn above); forms that have one keep working.
+  {
+    const lgT = (efb_var.legacy_gw && efb_var.legacy_gw.types) || {};
+    for (let i = fields_efb.length - 1; i >= 0; i--) {
+      const lg = lgT[fields_efb[i].id];
+      if (lg && lg.target && fields_efb.some(x => x.id === lg.target)) fields_efb.splice(i, 1);
+    }
+  }
   for (let ob of fields_efb) {
     let gem = '';
 

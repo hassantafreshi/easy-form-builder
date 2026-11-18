@@ -6062,6 +6062,36 @@ class efbFunction {
 			"cpStatusKeys" => $state && isset($ac->text->cpStatusKeys) ? $ac->text->cpStatusKeys : esc_html__('Needs keys','easy-form-builder'),
 			/* translators: F12b-L: settings: status of a CAPTCHA add-on the site's plan does not include */
 			"cpStatusPlan" => $state && isset($ac->text->cpStatusPlan) ? $ac->text->cpStatusPlan : esc_html__('Off for your plan','easy-form-builder'),
+			/* translators: PAY-OUT: settings › Payments: title of the list of forms moved to the payment add-ons' new fields */
+			"pmvTitle" => $state && isset($ac->text->pmvTitle) ? $ac->text->pmvTitle : esc_html__('Forms moved to the new payment fields','easy-form-builder'),
+			/* translators: PAY-OUT: settings › Payments: help under that title */
+			"pmvHelp" => $state && isset($ac->text->pmvHelp) ? $ac->text->pmvHelp : esc_html__('Forms with the older Stripe, PayPal or Persia Pay field are moved one by one to the add-on\'s new field. They charge the same amounts, and earlier entries and receipts stay as they are. You can move a form back.','easy-form-builder'),
+			/* translators: PAY-OUT: status of a form moved to the new payment field */
+			"pmvMoved" => $state && isset($ac->text->pmvMoved) ? $ac->text->pmvMoved : esc_html__('Moved','easy-form-builder'),
+			/* translators: PAY-OUT: status of a form not looked at yet */
+			"pmvPending" => $state && isset($ac->text->pmvPending) ? $ac->text->pmvPending : esc_html__('Waiting to be moved','easy-form-builder'),
+			/* translators: PAY-OUT: status of a form whose payment add-on is off or older */
+			"pmvWaitAddon" => $state && isset($ac->text->pmvWaitAddon) ? $ac->text->pmvWaitAddon : esc_html__('Waiting: update or turn on the add-on','easy-form-builder'),
+			/* translators: PAY-OUT: status of a form whose gateway has no keys yet */
+			"pmvWaitKeys" => $state && isset($ac->text->pmvWaitKeys) ? $ac->text->pmvWaitKeys : esc_html__('Waiting: add the keys in the add-on\'s settings','easy-form-builder'),
+			/* translators: PAY-OUT: status of a form that keeps the older field (a subscription or another gateway) */
+			"pmvStays" => $state && isset($ac->text->pmvStays) ? $ac->text->pmvStays : esc_html__('Stays on the older field','easy-form-builder'),
+			/* translators: PAY-OUT: status of a form that is not moved because the charged amount would change */
+			"pmvAmount" => $state && isset($ac->text->pmvAmount) ? $ac->text->pmvAmount : esc_html__('Not moved: the amount would change','easy-form-builder'),
+			/* translators: PAY-OUT: status of a form that is not moved because it is not ready to take payments */
+			"pmvNotReady" => $state && isset($ac->text->pmvNotReady) ? $ac->text->pmvNotReady : esc_html__('Not moved yet: fix the form','easy-form-builder'),
+			/* translators: PAY-OUT: status of a form the admin moved back to the older field */
+			"pmvBack" => $state && isset($ac->text->pmvBack) ? $ac->text->pmvBack : esc_html__('Moved back','easy-form-builder'),
+			/* translators: PAY-OUT: button that moves a form back to the older payment field */
+			"pmvUndo" => $state && isset($ac->text->pmvUndo) ? $ac->text->pmvUndo : esc_html__('Move back','easy-form-builder'),
+			/* translators: PAY-OUT: button that moves a form to the new payment field now */
+			"pmvMove" => $state && isset($ac->text->pmvMove) ? $ac->text->pmvMove : esc_html__('Move now','easy-form-builder'),
+			/* translators: PAY-OUT: button that looks at the waiting forms now */
+			"pmvRun" => $state && isset($ac->text->pmvRun) ? $ac->text->pmvRun : esc_html__('Check now','easy-form-builder'),
+			/* translators: PAY-OUT: confirmation before moving a form back */
+			"pmvConfirm" => $state && isset($ac->text->pmvConfirm) ? $ac->text->pmvConfirm : esc_html__('Move this form back to the older payment field? Visitors then pay through the older field again.','easy-form-builder'),
+			/* translators: PAY-OUT: the move or the move back could not be done */
+			"pmvFailed" => $state && isset($ac->text->pmvFailed) ? $ac->text->pmvFailed : esc_html__('That did not work. Please try again.','easy-form-builder'),
 			/* translators: F12b-L: add-on settings page: before the status of the add-on */
 			"cpStatus" => $state && isset($ac->text->cpStatus) ? $ac->text->cpStatus : esc_html__('Status:','easy-form-builder'),
 			/* translators: F12b-L: add-on settings page title. %s: the CAPTCHA add-on's name */

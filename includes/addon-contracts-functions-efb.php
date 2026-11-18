@@ -33,7 +33,12 @@ if (!function_exists('efb_addon_contract_versions')) {
 			// prices its orders (efb_legacy_server_price) and resolves its keys itself: an add-on from before (1.x) is
 			// "outdated" (Update …, pay_not_ready) and core's old members answer it through a deprecated shim.
 			// 2.1 = the add-ons load their payments pages and bootstrap, and own the emsfb_pay_ table (core never drops it).
-			'legacy_gateway'  => array('version' => 2.1, 'min' => 2, 'core' => false),
+			// 2.2 = PAY-OUT step 5: each add-on registers its field on the payment framework (stripecheckout,
+			// paypalcheckout, zarinpalgate) and core moves the forms of the older fields to it (Payments\Legacy_Migration;
+			// filters efb_legacy_gateway_target, efb_legacy_gateway_seed, efb_legacy_gateway_same_amount). The contract is
+			// deprecated from 4.3.2 (core's old members answer through legacy-gateway-shim-efb.php with _doing_it_wrong)
+			// and is removed in the next major version (5.0).
+			'legacy_gateway'  => array('version' => 2.2, 'min' => 2, 'core' => false, 'deprecated' => '4.3.2', 'removal' => '5.0'),
 			'smart_tags_ext'  => array('version' => 1, 'min' => 1, 'core' => false),
 			'form_package'    => array('version' => $fp, 'min' => 1, 'core' => class_exists('\\Emsfb\\Form_Package')),
 			'payments'        => array('version' => defined('EMSFB_PAYMENTS_API') ? (int) EMSFB_PAYMENTS_API : 1, 'min' => 1, 'core' => class_exists('\\Emsfb\\Payments\\Registry')),
@@ -69,6 +74,7 @@ if (!function_exists('efb_addon_contracts')) {
 				'active'         => (bool) $v['core'] || (bool) $ok,
 				'outdated'       => !$v['core'] && $list && !$ok,
 			);
+			if (isset($v['deprecated'])) $out[$id] += array('deprecated' => (string) $v['deprecated'], 'removal' => isset($v['removal']) ? (string) $v['removal'] : '');
 		}
 		return $out;
 	}

@@ -434,7 +434,7 @@
     }
     var naIds = [];
     // PAY00: a framework gateway field exists once its add-on registered the gateway.
-    var payAddon = { mollie: 'AdnMOL', payplug: 'AdnPPG', tappay: 'AdnTAP', omise: 'AdnOMS', paytabs: 'AdnPTB', paymob: 'AdnPMB', xendit: 'AdnXND' }[paletteId];
+    var payAddon = { mollie: 'AdnMOL', payplug: 'AdnPPG', tappay: 'AdnTAP', omise: 'AdnOMS', paytabs: 'AdnPTB', paymob: 'AdnPMB', xendit: 'AdnXND', stripecheckout: 'AdnSPF', paypalcheckout: 'AdnPAP', zarinpalgate: 'AdnPPF' }[paletteId];
     if (payAddon && !(typeof efbPayIsGatewayEfb === 'function' && efbPayIsGatewayEfb(paletteId))) {
       throw fail('addon_required', paletteId + ' needs the ' + payAddon + ' add-on.');
     }

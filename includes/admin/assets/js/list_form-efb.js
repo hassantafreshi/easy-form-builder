@@ -1270,6 +1270,75 @@ function efb_pay_addons_html_efb(mx, mx4) {
     + '<div class="efb card-body mx-0 py-1 ' + mx4 + '"><ul class="efb efb-cpa-list" aria-labelledby="efbPayAddonsTitle" aria-describedby="efbPayAddonsHelp">' + rows.join('') + '</ul></div>';
 }
 
+/* PAY-OUT step 5: the forms of the older Stripe / PayPal / Persia Pay fields and their move to the add-ons' new fields
+ * (REST Emsfb/v1/payments/legacy-migration, administrators only): one row per form with its status and Move back /
+ * Move now. Hidden while there is nothing to show. */
+function efb_pay_moves_html_efb(mx, mx4) {
+  const T = (k, fb) => { const t = (typeof efb_var !== 'undefined' && efb_var.text) || {}; return t[k] ? String(t[k]) : fb; };
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  return '<section class="efb d-none" id="efbPayMoves" aria-labelledby="efbPayMovesTitle">'
+    + '<h5 class="efb card-title mt-3 mobile-title" id="efbPayMovesTitle"><i class="efb bi-arrow-left-right m-3" aria-hidden="true"></i>' + esc(T('pmvTitle', 'Forms moved to the new payment fields')) + '</h5>'
+    + '<p class="efb ' + mx + ' efb-spam-help" id="efbPayMovesHelp">' + esc(T('pmvHelp', "Forms with the older Stripe, PayPal or Persia Pay field are moved one by one to the add-on's new field. They charge the same amounts, and earlier entries and receipts stay as they are. You can move a form back.")) + '</p>'
+    + '<div class="efb card-body mx-0 py-1 ' + mx4 + '"><ul class="efb efb-cpa-list" id="efbPayMovesList" aria-labelledby="efbPayMovesTitle" aria-describedby="efbPayMovesHelp"></ul>'
+    + '<button type="button" class="efb btn btn-sm btn-outline-secondary efb-cpa-btn d-none" id="efbPayMovesRun">' + esc(T('pmvRun', 'Check now')) + '</button>'
+    + '<p class="efb text-danger small mt-1" id="efbPayMovesMsg" role="status" aria-live="polite"></p></div></section>';
+}
+
+function efb_pay_moves_row_efb(f) {
+  const T = (k, fb) => { const t = (typeof efb_var !== 'undefined' && efb_var.text) || {}; return t[k] ? String(t[k]) : fb; };
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const st = {
+    migrated: ['ready', T('pmvMoved', 'Moved')],
+    rolled_back: ['off', T('pmvBack', 'Moved back')],
+    waiting_addon: ['keys', T('pmvWaitAddon', 'Waiting: update or turn on the add-on')],
+    waiting_keys: ['keys', T('pmvWaitKeys', "Waiting: add the keys in the add-on's settings")],
+    recurring: ['plan', T('pmvStays', 'Stays on the older field')],
+    gateway_unsupported: ['plan', T('pmvStays', 'Stays on the older field')],
+    several_gateways: ['plan', T('pmvStays', 'Stays on the older field')],
+    amount_differs: ['plan', T('pmvAmount', 'Not moved: the amount would change')],
+    not_ready: ['keys', T('pmvNotReady', 'Not moved yet: fix the form')],
+  }[f.status] || ['keys', T('pmvPending', 'Waiting to be moved')];
+  const id = 'pmv_' + Number(f.form_id);
+  const name = (f.name || '') + ' (#' + Number(f.form_id) + ')';
+  let btn = '';
+  if (f.can_rollback) btn = '<button type="button" class="efb btn btn-sm btn-outline-secondary efb-cpa-btn" data-pmv="rollback" data-id="' + Number(f.form_id) + '" aria-describedby="' + id + '_name ' + id + '_st">' + esc(T('pmvUndo', 'Move back')) + '</button>';
+  else if (f.can_migrate && ['rolled_back', 'amount_differs', 'not_ready', 'waiting_keys', 'pending', ''].indexOf(f.status || '') !== -1) btn = '<button type="button" class="efb btn btn-sm btn-outline-secondary efb-cpa-btn" data-pmv="migrate" data-id="' + Number(f.form_id) + '" aria-describedby="' + id + '_name ' + id + '_st">' + esc(T('pmvMove', 'Move now')) + '</button>';
+  return '<li class="efb efb-cpa-row" data-form="' + Number(f.form_id) + '" data-status="' + esc(f.status) + '"><bdi class="efb efb-cpa-name" id="' + id + '_name">' + esc(name) + '</bdi>'
+    + '<span class="efb efb-cpa-st efb-cpa-st-' + st[0] + '" id="' + id + '_st" data-status="' + esc(f.status) + '">' + esc(st[1]) + '</span>' + btn + '</li>';
+}
+
+function efb_pay_moves_load_efb() {
+  const box = document.getElementById('efbPayMoves');
+  const ev = (typeof efb_var !== 'undefined' && efb_var) || {};
+  const url = ev.legacy_gw && ev.legacy_gw.moves && ev.legacy_gw.moves.rest;
+  if (!box || !url || typeof fetch !== 'function') return;
+  const T = (k, fb) => { const t = ev.text || {}; return t[k] ? String(t[k]) : fb; };
+  const msg = document.getElementById('efbPayMovesMsg');
+  const call = (path, body) => fetch(url + path, { method: body ? 'POST' : 'GET', credentials: 'same-origin', headers: Object.assign({ 'X-WP-Nonce': (typeof _efb_nonce_ !== 'undefined' && _efb_nonce_) || ev.nonce || '' }, body ? { 'Content-Type': 'application/json' } : {}), body: body ? JSON.stringify(body) : undefined })
+    .then((r) => r.json().then((j) => { if (!r.ok) throw j; return j; }));
+  const draw = (d) => {
+    const forms = (d && d.forms) || [];
+    box.classList.toggle('d-none', forms.length === 0);
+    document.getElementById('efbPayMovesList').innerHTML = forms.map(efb_pay_moves_row_efb).join('');
+    const run = document.getElementById('efbPayMovesRun');
+    if (run) run.classList.toggle('d-none', !forms.some((f) => ['waiting_addon', 'waiting_keys', 'pending', 'not_ready', 'failed'].indexOf(f.status) !== -1));
+  };
+  const busy = (el, on) => { if (el) { el.disabled = on; el.setAttribute('aria-busy', on ? 'true' : 'false'); } };
+  const fail = () => { if (msg) msg.textContent = T('pmvFailed', 'That did not work. Please try again.'); };
+  box.addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b || b.disabled) return;
+    if (msg) msg.textContent = '';
+    if (b.id === 'efbPayMovesRun') { busy(b, true); call('/run', {}).then((j) => draw(j.status)).catch(fail).finally(() => busy(b, false)); return; }
+    const act = b.getAttribute('data-pmv');
+    if (!act) return;
+    if (act === 'rollback' && !window.confirm(T('pmvConfirm', 'Move this form back to the older payment field? Visitors then pay through the older field again.'))) return;
+    busy(b, true);
+    call('/' + act, { form_id: Number(b.getAttribute('data-id')) }).then(() => call('')).then(draw).catch(fail).finally(() => busy(b, false));
+  });
+  call('').then(draw).catch(() => box.classList.add('d-none'));
+}
+
 function fun_show_setting__emsFormBuilder() {
 
   let activeCode = 'null';
@@ -1821,6 +1890,7 @@ function fun_show_setting__emsFormBuilder() {
                                  <i class="efb  bi-credit-card m-3" aria-hidden="true"></i>${efb_var.text.payments}
                                </h5>
                                ${efb_pay_addons_html_efb(mxCSize, mxCSize4)}
+                               ${efb_pay_moves_html_efb(mxCSize, mxCSize4)}
                             </div>
                         </div>
 
@@ -1906,6 +1976,7 @@ function fun_show_setting__emsFormBuilder() {
   }
 
   efb_apply_setting_deeplink();
+  efb_pay_moves_load_efb();
 
 }
 

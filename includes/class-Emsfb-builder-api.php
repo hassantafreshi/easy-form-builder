@@ -392,6 +392,17 @@ class Builder_Api {
 					'codes' => array('pay_addon_inactive', 'pay_plan', 'pay_not_configured', 'pay_currency', 'pay_amount_limit', 'pay_method_currency', 'pay_option_required', 'pay_option_field_missing', 'pay_multiple_fields', 'pay_form_type', 'pay_calc_plan', 'pay_calc_unavailable', 'pay_gw_*'),
 					'visitor_code' => 'pay_not_ready'));
 		}
+		// PAY-OUT (4.3.2): the older Stripe / PayPal / Persia Pay fields (palette ids stripe, paypal, persiaPay) are their
+		// add-ons' and deprecated; each add-on has a field on the payment framework (targets, registered now) and core moves
+		// the older forms to it (backup, log, rollback per form). AutoPilot builds new payment forms with the target type.
+		if (class_exists('\\Emsfb\\Payments\\Legacy_Migration')) {
+			$lc = function_exists('efb_addon_contracts') ? efb_addon_contracts() : array();
+			$out['legacy_gateways'] = array('v' => 1, 'deprecated' => true, 'removal' => '5.0',
+				'contract' => isset($lc['legacy_gateway']['version']) ? $lc['legacy_gateway']['version'] : null,
+				'moved_to_addons' => array('builder_panels', 'keys_screens', 'server_pricing', 'payments_table', 'forms'),
+				'targets' => \Emsfb\Payments\Legacy_Migration::targets(),
+				'migration' => array('rest' => function_exists('rest_url') ? rest_url('Emsfb/v1/payments/legacy-migration') : '/wp-json/Emsfb/v1/payments/legacy-migration', 'per_form' => true, 'rollback' => true, 'backup' => 'original JSON per form'));
+		}
 		// 4.3.2: the visitor's confirmation e-mail (an E-mail field's "SendemailEl" switch) is on by default.
 		$out['email_confirmation'] = array(
 			'v' => 1, 'default' => 'on', 'field_key' => 'noti', 'form_keys' => array('email_to', 'sendEmail'),
@@ -880,7 +891,7 @@ class Builder_Api {
 			$palette_id = (string) $palette_id;
 			// PAY00: a framework gateway field (the builder makes the same row; payment-field-efb.js onAdd).
 			if (!isset($catalog[$palette_id]) && class_exists('\\Emsfb\\Payments\\Registry')) {
-				$pay_addons = array('mollie' => 'AdnMOL', 'payplug' => 'AdnPPG', 'tappay' => 'AdnTAP', 'omise' => 'AdnOMS', 'paytabs' => 'AdnPTB', 'paymob' => 'AdnPMB', 'xendit' => 'AdnXND');
+				$pay_addons = array('mollie' => 'AdnMOL', 'payplug' => 'AdnPPG', 'tappay' => 'AdnTAP', 'omise' => 'AdnOMS', 'paytabs' => 'AdnPTB', 'paymob' => 'AdnPMB', 'xendit' => 'AdnXND', 'stripecheckout' => 'AdnSPF', 'paypalcheckout' => 'AdnPAP', 'zarinpalgate' => 'AdnPPF');
 				$info = \Emsfb\Payments\Registry::public_info($palette_id);
 				if (!$info && isset($pay_addons[$palette_id])) {
 					return class_exists('\WP_Error') ? new \WP_Error('addon_required', $palette_id . ' needs the ' . $pay_addons[$palette_id] . ' add-on.') : null;
