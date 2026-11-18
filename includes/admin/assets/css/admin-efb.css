@@ -1278,6 +1278,12 @@ div#sideBoxEfb {	height: 100vh;
    -moz-box-shadow:  9px 8px 8px rgb(84 131 207 / 36%) !important;
    z-index: 1001;
 }
+/* A phone (WordPress' narrow admin, the admin bar 46 px tall): the field settings panel is fixed without a top, so it
+   took its place in the page's flow - below the canvas and the palette, off the screen (1 000 px down at 375 px). It
+   opens under the admin bar instead and scrolls on its own. */
+@media screen and (max-width: 782px) {
+   div#sideBoxEfb { top: 46px; height: calc(100vh - 46px); overflow-y: auto; }
+}
 
 .contentEfb {	box-sizing: border-box;
    overflow: hidden;
@@ -2713,3 +2719,6 @@ div#Listefb-150 {
 #hostSupportSmtp_emsFormBuilder.active ~ .efb-sending-off-hint {
 	display: none;
 }
+/* F16 rule in the builder's settings panel on a right-to-left site: a help sentence keeps its own direction (an English
+   one, not translated yet, keeps its full stop at its end) and starts on the right. */
+.rtl #sideMenuConEfb .form-text, .rtl #sideMenuConEfb small.text-muted { unicode-bidi: plaintext; text-align: right; }

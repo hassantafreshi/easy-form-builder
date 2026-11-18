@@ -286,9 +286,10 @@ module.exports = function (S) {
           await p.goto(url, { waitUntil: 'load' });
           await p.waitForSelector('[id^="body_efb_"]', { state: 'attached', timeout: 20000 });
           await sleep(900);
-          const pv = await p.evaluate(() => ({ notices: Array.from(document.querySelectorAll('.efb-addon-needed')).map((x) => ({ bdi: (x.querySelector('bdi') || {}).textContent || '', bidi: getComputedStyle(x).unicodeBidi, right: Math.round(x.getBoundingClientRect().right), left: Math.round(x.getBoundingClientRect().left) })), vw: document.documentElement.clientWidth }));
+          const pv = await p.evaluate(() => ({ notices: Array.from(document.querySelectorAll('.efb-addon-needed')).map((x) => ({ bdi: (x.querySelector('bdi') || {}).textContent || '', bidi: getComputedStyle(x).unicodeBidi, align: getComputedStyle(x).textAlign, right: Math.round(x.getBoundingClientRect().right), left: Math.round(x.getBoundingClientRect().left) })), vw: document.documentElement.clientWidth }));
           const pl = await layout(p);
-          R.check(`splitb ${loc}: 375 px public page (owner): right to left, the two notices plaintext with the names in <bdi>, inside the screen, no horizontal scroll`, pl.dir === 'rtl' && pl.scroll <= 1 && pv.notices.length === 2 && pv.notices.every((x) => x.bdi && x.bidi === 'plaintext' && x.left >= -1 && x.right <= pv.vw + 1), { pl, pv });
+          // Final test (g): an English sentence keeps its direction (plaintext) but sits at the page's start, on the right (F16 rule).
+          R.check(`splitb ${loc}: 375 px public page (owner): right to left, the two notices plaintext with the names in <bdi>, aligned right (English too), inside the screen, no horizontal scroll`, pl.dir === 'rtl' && pl.scroll <= 1 && pv.notices.length === 2 && pv.notices.every((x) => x.bdi && x.bidi === 'plaintext' && x.align === 'right' && x.left >= -1 && x.right <= pv.vw + 1), { pl, pv });
           await p.screenshot({ path: SHOT(`splitb-public-${loc}-375`), fullPage: true });
           await p.context().close();
         } finally { ctl('locale', ''); }
@@ -357,7 +358,9 @@ module.exports = function (S) {
       }
       const refused = (c) => c === 'pay_not_ready' || c === 'pay_calc_unavailable';
       R.check('splitc: a hand-made payments/create and submit (forged total 1.00) are refused (pay_not_ready / pay_calc_unavailable); no entry, no payment row; the page sent nothing', refused(ans['payments/create'].code) && refused(ans['forms/message/add'].code) && ctl('entries', String(fid)).length === e0 && ctl('payments', String(fid)).length === 0 && creates === 0, ans);
-      await g.screenshot({ path: SHOT('splitc-visitor') });
+      // The theme's header lists every page of the test site (hundreds): the form itself is brought into view first.
+      const shotForm = async (pg, name) => { await pg.evaluate((id) => { const b = document.getElementById('body_efb_' + id); if (b) b.scrollIntoView({ block: 'start' }); }, fid); await pg.waitForTimeout(300); const inView = await pg.evaluate((id) => { const b = document.getElementById('body_efb_' + id); if (!b) return false; const r = b.getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; }, fid); await pg.screenshot({ path: SHOT(name) }); return inView; };
+      R.check('splitc: the visitor\'s screenshot shows the form (not the page list)', await shotForm(g, 'splitc-visitor'));
       await g.close();
 
       // The owner on the same page: why.
@@ -366,7 +369,7 @@ module.exports = function (S) {
       await a.waitForSelector('[data-efb-pay-blocked="1"]', { timeout: 20000 });
       const ot = await a.evaluate(() => (document.querySelector('[data-efb-pay-blocked="1"]') || {}).textContent || '');
       R.check('splitc: the owner reads that the amount is calculated by an add-on that is not active', /calculated by an add-on that is not active/.test(ot), ot);
-      await a.screenshot({ path: SHOT('splitc-owner') });
+      R.check('splitc: the owner\'s screenshot shows the form (not the page list)', await shotForm(a, 'splitc-owner'));
 
       // On again: the provider is asked for the server's amount.
       ctl('addon-flags', 'AdnCLC', '1');
