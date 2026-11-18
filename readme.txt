@@ -482,6 +482,10 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = Unreleased =
 
+* Fix: a ticket closed in the entries viewer stays closed: a reply, opening the entry again or "Mark as read" no longer reopen it (the Closed tab lists it); a visitor's reply on a read or closed entry shows as a new reply, also in the admin menu's count; a pending payment keeps its state.
+* Fix: a CAPTCHA add-on's settings page shows only its own messages, not the plugin's other notices.
+* Changed: the Address & Postal add-on keeps its "Address search" settings with the plugin's other settings (moved once, automatically).
+
 * New: Localized names. Adding a Name field asks for its format: one field, first and last name, with a title (Mr, Mrs, Dr … in the site's language), with a middle name, or the four- and three-part Arabic names (with father's and grandfather's name). New name fields accept letters of any language, spaces, hyphens, apostrophes and the zero-width non-joiner, and refuse digits ("Letters only", per field).
 * New: Address formats. Adding an Address asks for the country's layout: Iran (province, city, street, alley, plaque, floor, unit, 10-digit postal code), Saudi National Address (building number, street, district, region, city, postal code, additional number, short address; optionally "the short address or the full address"), United Arab Emirates (with Makani and P.O. Box), Egypt, United States, United Kingdom, Canada, Germany, Japan, Türkiye, or International. The site's language suggests one, and "Always use this" remembers your choice.
 * New: In those addresses Persian and Arabic digits are accepted and stored as Latin digits, postal codes are checked and stored in the country's shape (1234567890, SW1A 1AA, K1A 0B1, 20500-0003, 100-0001), the city list follows the chosen province (a text box takes its place if the list cannot load), and every part gets the right browser autofill. The parts of a name or address are announced as one group to screen readers.

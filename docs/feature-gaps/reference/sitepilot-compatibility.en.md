@@ -1225,7 +1225,7 @@ should call it too). `capabilities.features["setting:val_timing|err_summary|warn
 `lastName`, `text`, `select`, `address_line`, `postalcode`, `stateProvince`, `cityList`, `conturyList` — and says its
 role in `name_part` / `addr_part`). `field_templates_efb('name'|'address')` (B2) gives `composite` per format;
 `efbBuilderApi.newItems('address', {scheme})` / `setNameAddress()`; `capabilities.name_address`; schema `group`;
-`addr_lookup` needs `AdnADR` (`addon_required`); the geo search REST is visitor-only. Entry rows carry `grp`, `part`,
+`addr_lookup` needs `AdnADR` (`addon_required`); the geo search REST is visitor-only; the add-on's own settings (service, mode) are the settings-row key `adr_lookup` (F12b-L rule, since 2026-11-18), never in a settings answer. Entry rows carry `grp`, `part`,
 `cmp`, `sch` and the group's first row `na_full`; display through P22 (`efb_address_display()`, `EFBNameAddr`). Names
 unchanged, so sitepilot-ai needs no update (the extra schemes are additions to an enum).
 
