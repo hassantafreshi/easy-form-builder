@@ -1092,6 +1092,8 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType,
    try {
     let result = await efb_fetch_address_json_efb(`json/states/${iso2_country}.json`);
     if(!result || result.s==false){
+      // F17: a fixed country's province list the page loads becomes a text box instead (the form is never stuck).
+      if (window.EFBNameAddr && window.EFBNameAddr.listFailed && window.EFBNameAddr.listFailed(state_el)) return;
       efb_address_fetch_failed_efb(state_el);
       return;
     }
@@ -1101,6 +1103,7 @@ async function callFetchStatesPovEfb(idField,iso2_country, indx_state,fieldType,
 
   return parsing_result_json_smart_address_efb(fieldType,indx_state,idField,result, autofilled);
 } catch (error) {
+  if (window.EFBNameAddr && window.EFBNameAddr.listFailed && window.EFBNameAddr.listFailed(state_el)) return false;
   efb_address_fetch_failed_efb(state_el);
 }
 

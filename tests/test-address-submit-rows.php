@@ -20,6 +20,7 @@ use Emsfb\Address_Schemes as S;
 
 $pass = 0; $fail = 0;
 function t($name, $ok, $info = '') { global $pass, $fail; if ($ok) { $pass++; echo "[PASS] {$name}\n"; } else { $fail++; echo "[FAIL] {$name}" . ($info !== '' ? ": " . $info : '') . "\n"; } }
+if (!function_exists('esc_attr')) { function esc_attr($s) { return htmlspecialchars((string) $s, ENT_QUOTES); } }
 $L = array('addrInvalidX' => '%s is not valid.', 'addrPostalX' => 'Postal code of %s?', 'nmInvalidX' => '%s: letters only.', 'addrSaShortOrFull' => 'Short or full.');
 $f = function ($id, $type, $kind, $set, $part, $x = array()) {
 	return array_merge(array('id_' => $id, 'type' => $type, 'name' => 'F' . $id, 'required' => '0', 'cmp_grp' => 'g', 'cmp_kind' => $kind), $kind === 'name' ? array('name_format' => $set, 'name_part' => $part) : array('addr_scheme' => $set, 'addr_part' => $part), $x);
@@ -52,6 +53,12 @@ $GLOBALS['loose'] = true;
 $r = S::check_row($fields[0], $item('st', 'Atlantis'), $fields, $L);
 t('efb_geo_strict_lists false: the list is not compared', $r['ok']);
 $GLOBALS['loose'] = false;
+// Final test (F17 needs_states): a fixed country's province list the form does not hold (the server templates /
+// AutoPilot leave it for the page to load) refused every answer; it is now checked like the other run-time lists.
+$bare = array($f('sb', 'stateProvince', 'address', 'ir', 'state', array('country' => 'ir')));
+t('a fixed-country province with no stored list: a place name is accepted (the page loaded the list)', S::check_row($bare[0], $item('sb', 'تهران (Tehran)'), $bare, $L)['ok']);
+t('… digits or markup are still refused', !S::check_row($bare[0], $item('sb', 'Tehran 1'), $bare, $L)['ok'] && !S::check_row($bare[0], $item('sb', '<b>x</b>'), $bare, $L)['ok']);
+t('its select tells the page the country (data-country)', strpos(S::list_attrs($bare[0]), 'data-country="ir"') !== false && strpos(S::list_attrs($f('cx', 'cityList', 'address', 'ir', 'city', array('addr_cascade' => '1'))), 'data-country') === false);
 $city = $f('c', 'cityList', 'address', 'ir', 'city', array('addr_cascade' => '1'));
 t('a cascading city: a place name is accepted (the list is the page\'s)', S::check_row($city, $item('c', 'شمیران (Shemiran)'), array(), $L)['ok']);
 t('a cascading city with digits or markup is refused', !S::check_row($city, $item('c', 'City 12'), array(), $L)['ok'] && !S::check_row($city, $item('c', '<b>x</b>'), array(), $L)['ok']);

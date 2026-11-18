@@ -52,6 +52,28 @@ function efb_f17_states( $cc ) {
 }
 
 switch ( $f17_cmd ) {
+	case 'api-form':
+		// Final test (needs_states): an address of the scheme <scheme> made by the server templates as AutoPilot / SitePilot
+		// makes it (Builder_Api::field_templates('address', ['scheme' => …]): a fixed country's province list left empty),
+		// saved through the sanitizer, on a page. Args: <scheme>
+		wp_set_current_user( 1 );
+		global $wpdb;
+		$sch = isset( $f17_rest[0] ) ? (string) $f17_rest[0] : 'ir';
+		$t   = \Emsfb\Builder_Api::field_templates( 'address', array( 'scheme' => $sch ) );
+		$rows = array(
+			array( 'type' => 'form', 'steps' => 1, 'formName' => 'API address ' . $sch, 'email' => '', 'trackingCode' => '1', 'EfbVersion' => 2, 'button_single_text' => 'Send', 'button_color' => 'btn-darkb', 'icon' => 'bi-ui-checks-grid', 'button_state' => 'single', 'show_icon' => '1', 'thank_you' => 'msg', 'stateForm' => 0, 'dShowBg' => '1', 'btns_align' => 'justify-content-center', 'label_text_color' => 'text-labelEfb', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'icon_color' => 'text-white', 'el_height' => 'h-d-efb', 'val_timing' => 'blur', 'err_summary' => '1' ),
+			array( 'id_' => '1', 'type' => 'step', 'dataId' => '1', 'id' => '1', 'name' => 'Step 1', 'step' => 1, 'amount' => 1, 'visible' => 1, 'icon' => 'bi-ui-checks-grid', 'message' => '' ),
+		);
+		$a = 2;
+		foreach ( $t['rows'] as $r ) { $r['amount'] = $a++; $r['step'] = 1; $rows[] = $r; }
+		$rows = get_efbFunction()->sanitize_obj_msg_efb( $rows );
+		$wpdb->insert( $wpdb->prefix . 'emsfb_form', array( 'form_name' => 'API address ' . $sch, 'form_structer' => str_replace( '"', '\\"', wp_json_encode( $rows, JSON_UNESCAPED_UNICODE ) ), 'form_email' => '', 'form_type' => 'form', 'form_created_by' => 1, 'form_access_by' => '', 'form_create_date' => current_time( 'mysql' ), 'status' => 1 ) );
+		$fid = (int) $wpdb->insert_id;
+		$pid = wp_insert_post( array( 'post_title' => 'API address ' . $sch . ' ' . $fid, 'post_type' => 'page', 'post_status' => 'publish', 'post_content' => '[EMS_Form_Builder id=' . $fid . ']' ) );
+		$state = '';
+		foreach ( $rows as $r ) if ( isset( $r['addr_part'] ) && 'state' === $r['addr_part'] ) $state = $r['id_'];
+		efb_f17_out( array( 'form_id' => $fid, 'url' => get_permalink( $pid ), 'needs' => isset( $t['needs_states'] ) ? $t['needs_states'] : array(), 'state' => $state ) );
+		break;
 	case 'form':
 		wp_set_current_user( 1 );
 		global $wpdb;

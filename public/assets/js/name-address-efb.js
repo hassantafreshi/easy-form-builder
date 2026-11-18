@@ -194,6 +194,67 @@
     var lab = document.getElementById(vid + '_labG'); if (lab) lab.setAttribute('for', box.id);
     return true;
   }
+  /**
+   * F17 (needs_states): a fixed country's province list that the form does not hold (made by the server templates,
+   * AutoPilot) is loaded on the page with the plugin's own list loader (pro_els-efb.js callFetchStatesPovEfb()); when it
+   * cannot load, a text box takes its place (listFailed()), as for a city. The server checks such a province like the
+   * other run-time lists (a place name).
+   */
+  function fixedStates(root) {
+    if (typeof document === 'undefined') return 0;
+    var n = 0;
+    Array.prototype.forEach.call((root || document).querySelectorAll('select[data-addr-part="state"][data-country]'), function (sel) {
+      if (sel.dataset.naStates) return;
+      sel.dataset.naStates = '1';
+      var real = Array.prototype.filter.call(sel.options, function (o) { return !o.disabled && o.value !== '' && o.id !== 'efbNotingSelected'; });
+      if (real.length) return;
+      n++;
+      sel.dataset.naFill = '1';
+      var cc = String(sel.dataset.country || ''), fid = sel.dataset.formid, vid = sel.dataset.vid;
+      var go = function () {
+        var list = W.valj_efb;
+        var i = Array.isArray(list) ? list.findIndex(function (r) { return r && r.id_ === vid; }) : -1;
+        if (i < 0 || typeof W.callFetchStatesPovEfb !== 'function') return listFailed(sel);
+        W.callFetchStatesPovEfb(sel.id, cc, i, 'pubSelect').catch(function () { listFailed(sel); });
+      };
+      // The list loader works on the form's own rows (valj_efb), as fun_check_link_state_efb() does.
+      if (typeof W.fun_valj_efb_run === 'function' && (Number(W.form_ID_emsFormBuilder) !== Number(fid) || !Array.isArray(W.valj_efb) || W.valj_efb.length < 1)) {
+        Promise.resolve(W.fun_valj_efb_run(fid)).then(function (rows) { if (Array.isArray(rows)) W.valj_efb = rows; go(); }, function () { listFailed(sel); });
+      } else go();
+    });
+    return n;
+  }
+  /** A list the page fills (a cascading city, a fixed country's province) could not load: a text box takes its place. */
+  function listFailed(select) {
+    if (!select || !select.dataset) return false;
+    if (select.dataset.cascade === '1') return cityFailed(select);
+    if (select.dataset.naFill !== '1' || typeof document === 'undefined') return false;
+    var vid = select.dataset.vid, form_id = select.dataset.formid;
+    select.classList.remove('is-loading');
+    select.removeAttribute('aria-busy');
+    if (document.getElementById(vid + '_')) return true;
+    var box = document.createElement('input');
+    box.type = 'text';
+    box.id = vid + '_';
+    box.className = select.className.replace(/\bform-select\b/, 'form-control input-efb');
+    box.dataset.vid = vid;
+    box.dataset.formid = form_id;
+    box.dataset.grp = select.dataset.grp || '';
+    box.dataset.addrPart = 'state';
+    box.setAttribute('autocomplete', 'address-level1');
+    box.setAttribute('dir', 'auto');
+    box.setAttribute('aria-label', select.getAttribute('aria-label') || '');
+    box.setAttribute('placeholder', select.getAttribute('aria-label') || '');
+    if (select.getAttribute('aria-required')) box.setAttribute('aria-required', select.getAttribute('aria-required'));
+    select.dataset.naManual = '1';
+    select.disabled = true;
+    select.classList.add('d-none');
+    select.setAttribute('aria-hidden', 'true');
+    select.parentNode.insertBefore(box, select.nextSibling);
+    box.addEventListener('change', function () { if (typeof W.handle_change_event_efb_v4 === 'function') W.handle_change_event_efb_v4(box, form_id); });
+    var lab = document.getElementById(vid + '_labG'); if (lab) lab.setAttribute('for', box.id);
+    return true;
+  }
   /** Before a city list loads: busy, and the list stays closed until the province is chosen. */
   function cityLoading(select, busy) {
     if (!select) return;
@@ -242,7 +303,7 @@
     version: 1,
     latinDigits: latin, normalize: normalize, checkValue: checkValue, nameOk: nameOk,
     sep: sep, nameText: nameText, addressText: addressText, groups: groups, groupText: groupText,
-    check: check, notRequired: notRequired, cityFailed: cityFailed, cityLoading: cityLoading, parts: parts, fill: fill,
+    check: check, notRequired: notRequired, cityFailed: cityFailed, listFailed: listFailed, fixedStates: fixedStates, cityLoading: cityLoading, parts: parts, fill: fill,
   };
   W.EFBNameAddr = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

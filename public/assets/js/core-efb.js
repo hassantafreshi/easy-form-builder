@@ -593,6 +593,8 @@ async function createStepsOfPublic() {
   // F05: shuffled order (kept for the session), Other, Select all, the maximum lock, capacities, ranking (choices-efb.js).
   if (window.EfbChoices) { try { window.EfbChoices.initAll(); efb_choices_stock_efb(); } catch (e) { /* the form works without it; the server checks again */ } }
   if (window.EFBRepeater) { try { window.EFBRepeater.ready(); } catch (e) { /* idem */ } }
+  // F17 (needs_states): a fixed country's province list the form does not hold is loaded now (EFBNameAddr.fixedStates()).
+  if (window.EFBNameAddr && typeof window.EFBNameAddr.fixedStates === 'function') { try { window.EFBNameAddr.fixedStates(document); } catch (e) { /* the box stays a list */ } }
   // F10-B: the fields after each section heading go into its region (collapsible; without JS they stay open).
   if (window.EFBLayout) { try { window.EFBLayout.mountSections(document); } catch (e) { /* the fields stay where they are */ } }
   // F16-E: Next / Previous / Send say they are off (aria-disabled) whenever the "disabled" look is on, whoever sets it.

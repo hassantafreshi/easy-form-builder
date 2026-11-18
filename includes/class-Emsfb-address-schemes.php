@@ -217,6 +217,13 @@ class Address_Schemes {
 			// A list the page fills at run time (cities of the chosen province, or of the international format) cannot
 			// be compared with the stored options: a name of a place, no digits or control characters, at most 100.
 			$fixed = $type === 'conturyList' || ($type === 'stateProvince' && !empty($def['cc']));
+			// A fixed country's province list the form does not hold (made by the server templates, needs_states): the page
+			// loads it at run time, so it is checked like the other run-time lists below (it refused every answer).
+			if ($fixed && $type === 'stateProvince') {
+				$has = false;
+				foreach ($fields as $o) { if (is_array($o) && ($o['type'] ?? '') === 'option' && (string) ($o['parent'] ?? '') === (string) $f['id_']) { $has = true; break; } }
+				$fixed = $has;
+			}
 			if ($value !== '' && $strict && $fixed) {
 				$found = false;
 				foreach ($fields as $o) {
@@ -400,6 +407,9 @@ class Address_Schemes {
 		if ($r['cmp_kind'] === 'name') return ' data-grp="' . esc_attr((string) $r['cmp_grp']) . '" data-name-part="' . esc_attr($def['p']) . '"' . (empty($r['autocomplete']) && !empty($def['ac']) ? ' autocomplete="' . esc_attr($def['ac']) . '"' : (!empty($r['autocomplete']) && class_exists('\\Emsfb\\A11y') ? ' autocomplete="' . esc_attr(A11y::token($r['autocomplete'])) . '"' : ''));
 		$a = ' data-grp="' . esc_attr((string) $r['cmp_grp']) . '" data-addr-part="' . esc_attr($def['p']) . '"';
 		if (($r['type'] ?? '') === 'cityList' && isset($r['addr_cascade']) && (string) $r['addr_cascade'] === '1') $a .= ' data-cascade="1"';
+		// A fixed country's province list (Iran, Saudi Arabia …): the page loads it when the form holds none (a form made by
+		// the server templates / AutoPilot: needs_states), EFBNameAddr.fixedStates().
+		if (($r['type'] ?? '') === 'stateProvince' && !empty($def['cc'])) $a .= ' data-country="' . esc_attr(strtolower((string) $def['cc'])) . '"';
 		return $a;
 	}
 
