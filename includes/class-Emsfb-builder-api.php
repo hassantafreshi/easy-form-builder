@@ -377,11 +377,26 @@ class Builder_Api {
 			foreach (\Emsfb\Payments\Registry::slugs() as $slug) {
 				$i = \Emsfb\Payments\Registry::public_info($slug);
 				if (!$i) continue;
-				$out['payment_gateways'][$slug] = array('addon' => $i['addon'], 'installed' => true, 'label' => $i['label'], 'configured' => $i['configured'], 'mode' => $i['mode'],
+				$out['payment_gateways'][$slug] = array('addon' => $i['addon'], 'installed' => true, 'active' => true, 'state' => 'active', 'label' => $i['label'], 'configured' => $i['configured'], 'mode' => $i['mode'],
 					'currencies' => $i['currencies'], 'countries' => $i['countries'], 'methods' => $i['methods'], 'supports' => $i['supports'],
 					// PAY00 optional hooks: the field's gateway options (pgw_*: type, label, allowed values, required) and its defaults.
 					'field_schema' => $i['field_schema'], 'defaults' => $i['defaults']);
 				$out['payment_keys'][$slug] = !empty($i['configured'][$i['mode']]);
+			}
+			// AI-6: every gateway of the catalogue, also while its add-on is off, too old or not installed: installed /
+			// active / plan / addon / state, so an assistant names the add-on and its plan from here (no map of its own).
+			$legacy_of = class_exists('\\Emsfb\\Split') ? array_flip(array_reverse(Split::legacy_types(), true)) : array();
+			$cat = \Emsfb\Payments\Registry::addons() + (class_exists('\\Emsfb\\Payments\\Readiness') ? \Emsfb\Payments\Readiness::LEGACY_ADDON_TYPES : array());
+			foreach ($cat as $code => $slug) {
+				$e = class_exists('\\Emsfb\\Addon_Catalog') ? Addon_Catalog::get($code) : null;
+				$plan = self::normalize_plan($e ? (int) $e['package'] : 3);
+				$extra = array('active' => isset($out['payment_gateways'][$slug]), 'plan' => $plan, 'field_type' => $slug, 'legacy_type' => isset($legacy_of[$code]) ? $legacy_of[$code] : null,
+					'can_install' => class_exists('\\Emsfb\\Addon_Catalog') ? Addon_Catalog::plan_allows($code) : self::plan_at_least($plan, $package));
+				if (isset($out['payment_gateways'][$slug])) { $out['payment_gateways'][$slug] = $extra + $out['payment_gateways'][$slug]; continue; }
+				$st = class_exists('\\Emsfb\\Split') ? Split::addon_state($code) : 'addon';
+				$out['payment_gateways'][$slug] = array('addon' => $code, 'installed' => $installed($code), 'label' => $e ? $e['name'] : $slug,
+					// On but not registered: an add-on older than this core (or its PHP cannot run it) → update.
+					'state' => $st === null ? ($installed($code) ? 'update' : 'addon') : $st, 'configured' => null, 'mode' => null) + $extra;
 			}
 			$out['payments'] = array('api' => defined('EMSFB_PAYMENTS_API') ? EMSFB_PAYMENTS_API : 1, 'plan' => 'free_plus', 'spec' => 'PAY00',
 				// Read-only readiness of a form (computed, never stored): GET ?form_id=N for a saved form,
@@ -889,18 +904,25 @@ class Builder_Api {
 		if ($palette_id === null) {
 			$all = array();
 			foreach (array_keys($catalog) as $id) {
+				// AI-5: an add-on's field whose add-on is not active: no rows, the refusal newItems() gives.
+				$need = self::template_addon($id);
+				if ($need) { $all[$id] = array('rows' => array(), 'form_patch' => array(), 'error' => 'addon_required', 'addon' => $need['addon'], 'm' => $need['m']); continue; }
 				$one = self::build_template($catalog[$id], $args, $id);
 				$all[$id] = array('rows' => $one['rows'], 'form_patch' => $one['form_patch']);
 			}
 			$out = $version + array('templates' => $all);
 		} else {
 			$palette_id = (string) $palette_id;
+			// AI-5: a field of an add-on that is not active here gives no rows: addon_required, as efbBuilderApi.newItems().
+			$need = self::template_addon($palette_id);
+			if ($need) return class_exists('\WP_Error') ? new \WP_Error('addon_required', $need['m'], $need) : null;
 			// PAY00: a framework gateway field (the builder makes the same row; payment-field-efb.js onAdd).
 			if (!isset($catalog[$palette_id]) && class_exists('\\Emsfb\\Payments\\Registry')) {
 				$pay_addons = array('mollie' => 'AdnMOL', 'payplug' => 'AdnPPG', 'tappay' => 'AdnTAP', 'omise' => 'AdnOMS', 'paytabs' => 'AdnPTB', 'paymob' => 'AdnPMB', 'xendit' => 'AdnXND', 'stripecheckout' => 'AdnSPF', 'paypalcheckout' => 'AdnPAP', 'zarinpalgate' => 'AdnPPF');
 				$info = \Emsfb\Payments\Registry::public_info($palette_id);
 				if (!$info && isset($pay_addons[$palette_id])) {
-					return class_exists('\WP_Error') ? new \WP_Error('addon_required', $palette_id . ' needs the ' . $pay_addons[$palette_id] . ' add-on.') : null;
+					$pa = $pay_addons[$palette_id];
+					return class_exists('\WP_Error') ? new \WP_Error('addon_required', $palette_id . ' needs the ' . $pa . ' add-on.', array('addon' => $pa, 'addon_name' => class_exists('\\Emsfb\\Addon_Catalog') ? Addon_Catalog::name($pa) : $pa, 'state' => class_exists('\\Emsfb\\Split') && Split::addon_state($pa) === 'update' ? 'update' : 'addon', 'install' => 'admin.php?page=Emsfb_addon', 'status' => 409)) : null;
 				}
 				if ($info) {
 					$id = self::new_id();
@@ -924,6 +946,27 @@ class Builder_Api {
 			$out = $version + array('palette_id' => $palette_id) + $one;
 		}
 		return function_exists('apply_filters') ? apply_filters('efb_field_templates', $out, $palette_id, $args) : $out;
+	}
+
+	/**
+	 * AI-5: the add-on a palette id needs when it is not usable here (newItems() refuses the same ids the same way:
+	 * maps → AdnADR, calc → AdnCLC, stripe / paypal / persiaPay → their gateway add-ons; the PAY00 gateways are checked
+	 * where their rows are built). null when the add-on is active, the id is not an add-on's, or SPLIT is not loaded.
+	 * @return array{addon: string, addon_name: string, state: string, install: string, m: string, status: int}|null
+	 */
+	public static function template_addon($palette_id) {
+		if (!class_exists('\\Emsfb\\Split') || !class_exists('\\Emsfb\\Addon_Catalog')) return null;
+		$map = array();
+		foreach (Addon_Catalog::MOVED as $key => $code) if (strpos($key, 'field:') === 0) $map[substr($key, 6)] = $code;
+		$map = Split::legacy_types() + $map;
+		if (!isset($map[$palette_id])) return null;
+		$code = $map[$palette_id];
+		$state = Split::addon_state($code);
+		if ($state === null) return null;
+		$name = Addon_Catalog::name($code);
+		$what = array('maps' => 'The map field', 'calc' => 'A calculated field');
+		$m = isset($what[$palette_id]) ? $what[$palette_id] . ' needs the ' . $name . ' add-on (' . $code . ').' : $palette_id . ' needs the ' . $code . ' add-on.';
+		return array('addon' => $code, 'addon_name' => $name, 'state' => $state === 'plan' || $state === 'update' ? $state : 'addon', 'install' => 'admin.php?page=Emsfb_addon', 'm' => $m, 'status' => 409);
 	}
 
 	/** An e-mail template that does not become the recipient: no noti, no email_to / sendEmail in its form patch. */

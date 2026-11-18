@@ -41,6 +41,12 @@
     e.install = 'admin.php?page=Emsfb_addon';
     return e;
   }
+  /** AI-5: a gateway field without its add-on (the message field_templates_efb() gives in PHP, with the add-on's data). */
+  function gatewayFail(paletteId, code) {
+    var e = addonFail(code);
+    e.message = paletteId + ' needs the ' + code + ' add-on.';
+    return e;
+  }
   /** Whether an add-on's contract is active on this page (capabilities.split, else the add-on's own script). */
   function addonActive(code, probe) {
     var caps = (typeof efb_var !== 'undefined' && efb_var && efb_var.capabilities) || null;
@@ -436,7 +442,7 @@
     // PAY00: a framework gateway field exists once its add-on registered the gateway.
     var payAddon = { mollie: 'AdnMOL', payplug: 'AdnPPG', tappay: 'AdnTAP', omise: 'AdnOMS', paytabs: 'AdnPTB', paymob: 'AdnPMB', xendit: 'AdnXND', stripecheckout: 'AdnSPF', paypalcheckout: 'AdnPAP', zarinpalgate: 'AdnPPF' }[paletteId];
     if (payAddon && !(typeof efbPayIsGatewayEfb === 'function' && efbPayIsGatewayEfb(paletteId))) {
-      throw fail('addon_required', paletteId + ' needs the ' + payAddon + ' add-on.');
+      throw gatewayFail(paletteId, payAddon);
     }
     if (typeof efbPayPaletteEfb === 'function' && typeof fields_efb !== 'undefined') efbPayPaletteEfb(fields_efb);
     if (!COMPOSITES[paletteId] && paletteIds().indexOf(paletteId) < 0) throw fail('unknown_palette_id', 'Unknown palette id ' + paletteId + '.');
@@ -444,9 +450,10 @@
     if (paletteId === 'maps' && !addonActive('AdnADR', typeof efbCreateMap === 'function')) throw addonFail('AdnADR', 'The map field');
     if (paletteId === 'calc' && !addonActive('AdnCLC', !!window.EFBCalc)) throw addonFail('AdnCLC', 'A calculated field');
     // The builder draws a gateway only when its add-on is installed (otherwise it shows a notice).
+    // AI-5: the registry's state first (an add-on too old for this core is not active), as field_templates_efb() in PHP.
     var gatewayAddon = { stripe: 'AdnSPF', paypal: 'AdnPAP', persiaPay: 'AdnPPF' }[paletteId];
-    if (gatewayAddon && !(typeof addons_emsFormBuilder === 'object' && addons_emsFormBuilder && Number(addons_emsFormBuilder[gatewayAddon]) === 1)) {
-      throw fail('addon_required', paletteId + ' needs the ' + gatewayAddon + ' add-on.');
+    if (gatewayAddon && !addonActive(gatewayAddon, typeof addons_emsFormBuilder === 'object' && addons_emsFormBuilder && Number(addons_emsFormBuilder[gatewayAddon]) === 1)) {
+      throw gatewayFail(paletteId, gatewayAddon);
     }
 
     var live = rows();
