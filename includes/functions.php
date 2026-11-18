@@ -4607,6 +4607,99 @@ class efbFunction {
 			"a11yAcAuto" => $state && isset($ac->text->a11yAcAuto) ? $ac->text->a11yAcAuto : esc_html__('Automatic','easy-form-builder'),
 			/* translators: F16 form builder: "Browser autofill" option */
 			"a11yAcOff" => $state && isset($ac->text->a11yAcOff) ? $ac->text->a11yAcOff : esc_html__('Off','easy-form-builder'),
+			/* translators: F17: label of the single name field */
+			"nmFull" => $state && isset($ac->text->nmFull) ? $ac->text->nmFull : esc_html__('Full name','easy-form-builder'),
+			/* translators: F17: label of the name title (Mr, Mrs, Dr …) */
+			"nmPrefix" => $state && isset($ac->text->nmPrefix) ? $ac->text->nmPrefix : esc_html__('Title','easy-form-builder'),
+			"nmMiddle" => $state && isset($ac->text->nmMiddle) ? $ac->text->nmMiddle : esc_html__('Middle name','easy-form-builder'),
+			"nmFather" => $state && isset($ac->text->nmFather) ? $ac->text->nmFather : esc_html__('Father\'s name','easy-form-builder'),
+			"nmGrandfather" => $state && isset($ac->text->nmGrandfather) ? $ac->text->nmGrandfather : esc_html__('Grandfather\'s name','easy-form-builder'),
+			"nmFamily" => $state && isset($ac->text->nmFamily) ? $ac->text->nmFamily : esc_html__('Family name','easy-form-builder'),
+			/* translators: F17 form builder: a name format */
+			"nmFmtFull" => $state && isset($ac->text->nmFmtFull) ? $ac->text->nmFmtFull : esc_html__('Single field','easy-form-builder'),
+			"nmFmtFl" => $state && isset($ac->text->nmFmtFl) ? $ac->text->nmFmtFl : esc_html__('First and last name','easy-form-builder'),
+			"nmFmtPfl" => $state && isset($ac->text->nmFmtPfl) ? $ac->text->nmFmtPfl : esc_html__('With title','easy-form-builder'),
+			"nmFmtFml" => $state && isset($ac->text->nmFmtFml) ? $ac->text->nmFmtFml : esc_html__('With middle name','easy-form-builder'),
+			"nmFmtAr4" => $state && isset($ac->text->nmFmtAr4) ? $ac->text->nmFmtAr4 : esc_html__('Four-part Arabic name','easy-form-builder'),
+			"nmFmtAr3" => $state && isset($ac->text->nmFmtAr3) ? $ac->text->nmFmtAr3 : esc_html__('Three-part Arabic name','easy-form-builder'),
+			/* translators: F17 form builder: title of the format chooser */
+			"nmFmtPick" => $state && isset($ac->text->nmFmtPick) ? $ac->text->nmFmtPick : esc_html__('Choose a name format','easy-form-builder'),
+			"addrSchPick" => $state && isset($ac->text->addrSchPick) ? $ac->text->addrSchPick : esc_html__('Choose an address format','easy-form-builder'),
+			/* translators: F17 form builder: badge on the format the site language suggests */
+			"nmSuggested" => $state && isset($ac->text->nmSuggested) ? $ac->text->nmSuggested : esc_html__('Suggested','easy-form-builder'),
+			"cmpAlways" => $state && isset($ac->text->cmpAlways) ? $ac->text->cmpAlways : esc_html__('Always use this','easy-form-builder'),
+			/* translators: F17 form builder: the name / address group block of a part */
+			"cmpGroup" => $state && isset($ac->text->cmpGroup) ? $ac->text->cmpGroup : esc_html__('Group','easy-form-builder'),
+			"cmpPart" => $state && isset($ac->text->cmpPart) ? $ac->text->cmpPart : esc_html__('This part','easy-form-builder'),
+			"cmpDelGroup" => $state && isset($ac->text->cmpDelGroup) ? $ac->text->cmpDelGroup : esc_html__('Delete the whole group','easy-form-builder'),
+			"nmStrict" => $state && isset($ac->text->nmStrict) ? $ac->text->nmStrict : esc_html__('Letters only (no digits)','easy-form-builder'),
+			"addrCascade" => $state && isset($ac->text->addrCascade) ? $ac->text->addrCascade : esc_html__('Cities follow the chosen province','easy-form-builder'),
+			"addrLookupOpt" => $state && isset($ac->text->addrLookupOpt) ? $ac->text->addrLookupOpt : esc_html__('Add an address search button','easy-form-builder'),
+			"addrLookupNeedsAdr" => $state && isset($ac->text->addrLookupNeedsAdr) ? $ac->text->addrLookupNeedsAdr : esc_html__('Address search needs the Address & Postal add-on.','easy-form-builder'),
+			"addrLookupPrivacy" => $state && isset($ac->text->addrLookupPrivacy) ? $ac->text->addrLookupPrivacy : esc_html__('Searching sends the address the visitor types to OpenStreetMap.','easy-form-builder'),
+			"addrReqMode" => $state && isset($ac->text->addrReqMode) ? $ac->text->addrReqMode : esc_html__('Required parts','easy-form-builder'),
+			"addrReqAll" => $state && isset($ac->text->addrReqAll) ? $ac->text->addrReqAll : esc_html__('Every required part','easy-form-builder'),
+			"addrSaShortOrFullOpt" => $state && isset($ac->text->addrSaShortOrFullOpt) ? $ac->text->addrSaShortOrFullOpt : esc_html__('The short address, or the full National Address','easy-form-builder'),
+			/* translators: F17: an address format */
+			"addrSchIntl" => $state && isset($ac->text->addrSchIntl) ? $ac->text->addrSchIntl : esc_html__('International','easy-form-builder'),
+			"addrSchIr" => $state && isset($ac->text->addrSchIr) ? $ac->text->addrSchIr : esc_html__('Iran','easy-form-builder'),
+			"addrSchSa" => $state && isset($ac->text->addrSchSa) ? $ac->text->addrSchSa : esc_html__('Saudi National Address','easy-form-builder'),
+			"addrSchAe" => $state && isset($ac->text->addrSchAe) ? $ac->text->addrSchAe : esc_html__('United Arab Emirates','easy-form-builder'),
+			"addrSchEg" => $state && isset($ac->text->addrSchEg) ? $ac->text->addrSchEg : esc_html__('Egypt','easy-form-builder'),
+			"addrSchUs" => $state && isset($ac->text->addrSchUs) ? $ac->text->addrSchUs : esc_html__('United States','easy-form-builder'),
+			"addrSchUk" => $state && isset($ac->text->addrSchUk) ? $ac->text->addrSchUk : esc_html__('United Kingdom','easy-form-builder'),
+			"addrSchCa" => $state && isset($ac->text->addrSchCa) ? $ac->text->addrSchCa : esc_html__('Canada','easy-form-builder'),
+			"addrSchDe" => $state && isset($ac->text->addrSchDe) ? $ac->text->addrSchDe : esc_html__('Germany','easy-form-builder'),
+			"addrSchJp" => $state && isset($ac->text->addrSchJp) ? $ac->text->addrSchJp : esc_html__('Japan','easy-form-builder'),
+			"addrSchTr" => $state && isset($ac->text->addrSchTr) ? $ac->text->addrSchTr : esc_html__('Türkiye','easy-form-builder'),
+			/* translators: F17: label of an address part */
+			"addrCountry" => $state && isset($ac->text->addrCountry) ? $ac->text->addrCountry : esc_html__('Country','easy-form-builder'),
+			"addrState" => $state && isset($ac->text->addrState) ? $ac->text->addrState : esc_html__('State','easy-form-builder'),
+			"addrProvince" => $state && isset($ac->text->addrProvince) ? $ac->text->addrProvince : esc_html__('Province','easy-form-builder'),
+			"addrRegion" => $state && isset($ac->text->addrRegion) ? $ac->text->addrRegion : esc_html__('Region','easy-form-builder'),
+			"addrEmirate" => $state && isset($ac->text->addrEmirate) ? $ac->text->addrEmirate : esc_html__('Emirate','easy-form-builder'),
+			"addrGovernorate" => $state && isset($ac->text->addrGovernorate) ? $ac->text->addrGovernorate : esc_html__('Governorate','easy-form-builder'),
+			"addrPrefecture" => $state && isset($ac->text->addrPrefecture) ? $ac->text->addrPrefecture : esc_html__('Prefecture','easy-form-builder'),
+			"addrTown" => $state && isset($ac->text->addrTown) ? $ac->text->addrTown : esc_html__('Town or city','easy-form-builder'),
+			"addrCityWard" => $state && isset($ac->text->addrCityWard) ? $ac->text->addrCityWard : esc_html__('City, ward or town','easy-form-builder'),
+			"addrLine1" => $state && isset($ac->text->addrLine1) ? $ac->text->addrLine1 : esc_html__('Address line 1','easy-form-builder'),
+			"addrLine2" => $state && isset($ac->text->addrLine2) ? $ac->text->addrLine2 : esc_html__('Address line 2','easy-form-builder'),
+			"addrStreet" => $state && isset($ac->text->addrStreet) ? $ac->text->addrStreet : esc_html__('Street','easy-form-builder'),
+			"addrStreetNo" => $state && isset($ac->text->addrStreetNo) ? $ac->text->addrStreetNo : esc_html__('Street and house number','easy-form-builder'),
+			"addrMainStreet" => $state && isset($ac->text->addrMainStreet) ? $ac->text->addrMainStreet : esc_html__('Main street or neighbourhood','easy-form-builder'),
+			"addrAlley" => $state && isset($ac->text->addrAlley) ? $ac->text->addrAlley : esc_html__('Side street or alley','easy-form-builder'),
+			"addrPlaque" => $state && isset($ac->text->addrPlaque) ? $ac->text->addrPlaque : esc_html__('Plaque','easy-form-builder'),
+			"addrFloor" => $state && isset($ac->text->addrFloor) ? $ac->text->addrFloor : esc_html__('Floor','easy-form-builder'),
+			"addrUnit" => $state && isset($ac->text->addrUnit) ? $ac->text->addrUnit : esc_html__('Unit','easy-form-builder'),
+			"addrApartment" => $state && isset($ac->text->addrApartment) ? $ac->text->addrApartment : esc_html__('Apartment','easy-form-builder'),
+			"addrBuildingNo" => $state && isset($ac->text->addrBuildingNo) ? $ac->text->addrBuildingNo : esc_html__('Building number','easy-form-builder'),
+			"addrDistrict" => $state && isset($ac->text->addrDistrict) ? $ac->text->addrDistrict : esc_html__('District','easy-form-builder'),
+			"addrNeighbourhood" => $state && isset($ac->text->addrNeighbourhood) ? $ac->text->addrNeighbourhood : esc_html__('Neighbourhood','easy-form-builder'),
+			"addrAdditionalNo" => $state && isset($ac->text->addrAdditionalNo) ? $ac->text->addrAdditionalNo : esc_html__('Additional number','easy-form-builder'),
+			"addrShortCode" => $state && isset($ac->text->addrShortCode) ? $ac->text->addrShortCode : esc_html__('Short address','easy-form-builder'),
+			"addrArea" => $state && isset($ac->text->addrArea) ? $ac->text->addrArea : esc_html__('Area','easy-form-builder'),
+			"addrBuilding" => $state && isset($ac->text->addrBuilding) ? $ac->text->addrBuilding : esc_html__('Building or villa','easy-form-builder'),
+			"addrMakani" => $state && isset($ac->text->addrMakani) ? $ac->text->addrMakani : esc_html__('Makani number','easy-form-builder'),
+			"addrPoBox" => $state && isset($ac->text->addrPoBox) ? $ac->text->addrPoBox : esc_html__('P.O. Box','easy-form-builder'),
+			"addrLandmark" => $state && isset($ac->text->addrLandmark) ? $ac->text->addrLandmark : esc_html__('Landmark','easy-form-builder'),
+			"addrCounty" => $state && isset($ac->text->addrCounty) ? $ac->text->addrCounty : esc_html__('County','easy-form-builder'),
+			"addrPostcode" => $state && isset($ac->text->addrPostcode) ? $ac->text->addrPostcode : esc_html__('Postcode','easy-form-builder'),
+			/* translators: F17: the one-line address in entries and e-mails */
+			"addrFullLine" => $state && isset($ac->text->addrFullLine) ? $ac->text->addrFullLine : esc_html__('Full address','easy-form-builder'),
+			/* translators: F17 form: a city list before its province is chosen */
+			"addrPickStateFirst" => $state && isset($ac->text->addrPickStateFirst) ? $ac->text->addrPickStateFirst : esc_html__('Choose the province first','easy-form-builder'),
+			/* translators: F17 form: the city box when the city list cannot load */
+			"addrCityManual" => $state && isset($ac->text->addrCityManual) ? $ac->text->addrCityManual : esc_html__('Type the city name','easy-form-builder'),
+			/* translators: F17 form: %s is the name of the field */
+			"addrInvalidX" => $state && isset($ac->text->addrInvalidX) ? $ac->text->addrInvalidX : esc_html__('%s is not valid for this address format.','easy-form-builder'),
+			/* translators: F17 form: %s is the name of the field */
+			"addrPostalX" => $state && isset($ac->text->addrPostalX) ? $ac->text->addrPostalX : esc_html__('Enter a valid postal code for %s.','easy-form-builder'),
+			/* translators: F17 form: Saudi National Address */
+			"addrSaShortOrFull" => $state && isset($ac->text->addrSaShortOrFull) ? $ac->text->addrSaShortOrFull : esc_html__('Enter the short address, or fill in the full National Address.','easy-form-builder'),
+			/* translators: F17 form: %s is the name of the field */
+			"nmInvalidX" => $state && isset($ac->text->nmInvalidX) ? $ac->text->nmInvalidX : esc_html__('%s can only have letters, spaces, hyphens, apostrophes and dots.','easy-form-builder'),
+			/* translators: F17 form: help under a four-part Arabic name */
+			"nmAsOnId" => $state && isset($ac->text->nmAsOnId) ? $ac->text->nmAsOnId : esc_html__('As on your national ID','easy-form-builder'),
 			/* translators: F16 form builder: group in the "Browser autofill" list */
 			"a11yAcGrpName" => $state && isset($ac->text->a11yAcGrpName) ? $ac->text->a11yAcGrpName : esc_html__('Name','easy-form-builder'),
 			/* translators: F16 form builder: group in the "Browser autofill" list */
@@ -7086,6 +7179,21 @@ class efbFunction {
 					case 'autocomplete':
 						if (!class_exists('\\Emsfb\\A11y') && is_readable(__DIR__ . '/class-Emsfb-a11y.php')) require_once __DIR__ . '/class-Emsfb-a11y.php';
 						$valp[$key][$k] = class_exists('\\Emsfb\\A11y') && (($k === 'autocomplete') === ($key > 0)) ? \Emsfb\A11y::sanitize_key($k, $v) : '';
+						if ($valp[$key][$k] === '') unset($valp[$key][$k]);
+					break;
+					// F17: the keys of a name / address part (row > 0): allow-lists, Address_Schemes::sanitize_key(); a bad value is dropped.
+					case 'cmp_grp':
+					case 'cmp_kind':
+					case 'name_format':
+					case 'name_part':
+					case 'name_strict':
+					case 'addr_scheme':
+					case 'addr_part':
+					case 'addr_cascade':
+					case 'addr_lookup':
+					case 'addr_req_mode':
+						if (!class_exists('\\Emsfb\\Address_Schemes') && is_readable(__DIR__ . '/class-Emsfb-address-schemes.php')) require_once __DIR__ . '/class-Emsfb-address-schemes.php';
+						$valp[$key][$k] = class_exists('\\Emsfb\\Address_Schemes') && $key > 0 ? \Emsfb\Address_Schemes::sanitize_key($k, $v) : '';
 						if ($valp[$key][$k] === '') unset($valp[$key][$k]);
 					break;
 					// F10 layout keys: one rule set, Layout::sanitize_key() (= EFBLayoutCore.sanitizeKey() in layout-efb.js).

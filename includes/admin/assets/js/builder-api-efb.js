@@ -420,6 +420,19 @@
     paletteId = String(paletteId || '');
     if (typeof addNewElement !== 'function') throw fail('builder_not_ready', 'The form builder is not loaded.');
     var parts = COMPOSITES[paletteId] || [paletteId];
+    // F17: a name / address in a format (opts.format for a name, opts.scheme for an address). AdnADR-only options (lookup) refuse with addon_required while the add-on is absent.
+    var naPlan = null;
+    // Without a format the composite of before F17 (callers written for it keep working).
+    if ((paletteId === 'name' || paletteId === 'address') && typeof efbNaPatch === 'function' && (opts.format || opts.scheme)) {
+      var naCfg = (typeof efb_var !== 'undefined' && efb_var && efb_var.name_address) || {};
+      var naSet = paletteId === 'name' ? (naCfg.name_formats || {}) : (naCfg.schemes || {});
+      var naFmt = String((paletteId === 'name' ? opts.format : (opts.scheme || opts.format)) || '');
+      if (!naSet[naFmt]) throw fail('invalid_setting', 'Unknown ' + (paletteId === 'name' ? 'name format' : 'address scheme') + ' "' + naFmt + '" (' + Object.keys(naSet).join(', ') + ').');
+      if (opts.lookup && !addonActive('AdnADR', !!naCfg.adr)) throw addonFail('AdnADR', 'Address search');
+      naPlan = { kind: paletteId, format: naFmt, lookup: !!opts.lookup, mode: opts.req_mode === 'sa_short_or_full' };
+      parts = naSet[naFmt].parts.map(function (p) { return p.el; });
+    }
+    var naIds = [];
     // PAY00: a framework gateway field exists once its add-on registered the gateway.
     var payAddon = { mollie: 'AdnMOL', payplug: 'AdnPPG', tappay: 'AdnTAP', omise: 'AdnOMS', paytabs: 'AdnPTB', paymob: 'AdnPMB', xendit: 'AdnXND' }[paletteId];
     if (payAddon && !(typeof efbPayIsGatewayEfb === 'function' && efbPayIsGatewayEfb(paletteId))) {
@@ -461,7 +474,8 @@
       if (saved.upg) window.efb_upgrade_prompt_efb = function () { blocked = true; return { shown: false }; };
       window.load_intlTelInput_efb = function () {};
       try {
-        parts.forEach(function (p) { addNewElement(p, randomId(), false, false); });
+        parts.forEach(function (p) { var nid = randomId(); naIds.push(nid); addNewElement(p, nid, false, false); });
+        if (naPlan) efbNaPatch(scratch, naPlan, naIds);
       } catch (e) {
         throw fail('template_failed', 'The builder could not create ' + paletteId + ': ' + (e && e.message));
       }
@@ -851,6 +865,44 @@
     apiChanged('setAutocomplete', [next.id_]);
     if (!opts || opts.refresh !== false) { try { refreshSettingsPanel(); } catch (e) {} }
     return { id: next.id_, autocomplete: v, effective: efbA11yAcFor(next.elementId || next.type, next) };
+  }
+  /**
+   * F17: the options of a name / address group from one of its parts (by id_ or dataId), e.g.
+   * setNameAddress('pc1', {addr_cascade: '1'}), ('n1', {name_strict: '0'}), ('a1', {addr_lookup: '1', addr_req_mode: 'sa_short_or_full'}).
+   * Keys: name_strict (text parts of a name), addr_cascade (a city list), addr_lookup and addr_req_mode (the group's first part;
+   * sa only). addr_lookup "1" needs the Address & Postal add-on (addon_required); a bad value throws invalid_setting.
+   * Returns {id, group, changed: {id_: {key: value}}}.
+   */
+  function setNameAddress(id, keys, opts) {
+    if (typeof efbNaClean !== 'function') throw fail('builder_not_ready', 'The F17 builder rules (name-address-builder-efb.js) are not loaded.');
+    var list = rows();
+    var idx = fieldIndex(list, String(id));
+    if (idx < 0) idx = list.findIndex(function (r, i) { return i > 0 && r && r.dataId === String(id); });
+    if (idx < 1 || !list[idx] || list[idx].type === 'option') throw fail('unknown_field', 'No field with id ' + id + '.');
+    var row = list[idx];
+    if (!row.cmp_grp) throw fail('not_in_group', 'Field ' + id + ' is not a part of a name or address group.');
+    var first = list.find(function (r, i) { return i > 0 && r && r.cmp_grp === row.cmp_grp; });
+    var changed = {};
+    var naCfg = (typeof efb_var !== 'undefined' && efb_var && efb_var.name_address) || {};
+    Object.keys(keys || {}).forEach(function (k) {
+      if (['name_strict', 'addr_cascade', 'addr_lookup', 'addr_req_mode'].indexOf(k) < 0) throw fail('invalid_setting', k + ' is not a name / address option.');
+      var raw = keys[k];
+      var v = efbNaClean(k, raw);
+      if (k === 'addr_req_mode' && raw !== '' && raw != null && v === '') throw fail('invalid_setting', 'addr_req_mode "' + raw + '" (use "" or "sa_short_or_full").');
+      if (k === 'addr_req_mode' && v !== '' && first.addr_scheme !== 'sa') throw fail('invalid_setting', 'addr_req_mode is for the sa scheme only.');
+      if (k === 'addr_lookup' && v === '1' && !addonActive('AdnADR', !!naCfg.adr)) throw addonFail('AdnADR', 'Address search');
+      if (k === 'name_strict' && (row.cmp_kind !== 'name' || row.type !== 'text')) throw fail('invalid_setting', 'name_strict is for the text parts of a name.');
+      if (k === 'addr_cascade' && row.type !== 'cityList') throw fail('invalid_setting', 'addr_cascade is for a city list.');
+      var target = (k === 'addr_lookup' || k === 'addr_req_mode') ? first : row;
+      if (row.cmp_kind !== 'address' && (k === 'addr_lookup' || k === 'addr_req_mode')) throw fail('invalid_setting', k + ' is for an address group.');
+      if (v === '' || (k === 'addr_lookup' && v === '0')) delete target[k]; else target[k] = v;
+      changed[target.id_] = changed[target.id_] || {};
+      changed[target.id_][k] = target[k] === undefined ? '' : target[k];
+    });
+    persist();
+    apiChanged('setNameAddress', Object.keys(changed));
+    if (!opts || opts.refresh !== false) { try { refreshSettingsPanel(); } catch (e) {} }
+    return { id: row.id_, group: row.cmp_grp, changed: changed };
   }
   /**
    * F07: change the upload keys of one file / dadfile field (by id_ or dataId) with the save rules, e.g.
@@ -1797,6 +1849,7 @@
     setVerification: setVerification,
     setUploadConfig: setUploadConfig,
     setAutocomplete: setAutocomplete,
+    setNameAddress: setNameAddress,
     setHiddenField: setHiddenField,
     setPrefill: setPrefill,
     formGate: formGate,

@@ -5084,6 +5084,20 @@ async function handle_change_event_efb_v4(el ,form_id=0){
     efb_reevaluate_logic_after_change_efb(form_id, el);
     return;
   }
+  // F17: a part of a name or address: Persian / Arabic digits made Latin, the national shape (postal code, plaque …),
+  // letters only for a strict name part (EFBNameAddr.check; the server checks the same, Address_Schemes::check_row).
+  if (state !== false && ob && ob.cmp_grp && typeof value === 'string' && value !== '' && window.EFBNameAddr) {
+    const na_efb = window.EFBNameAddr.check(el, ob, value);
+    if (!na_efb.ok) {
+      efb_set_field_error_efb(el, na_efb.msg);
+      sendback_state_handler_efb_v4(id_,false,0,form_id);
+      delete_by_id(id_);
+      updateStepButtonState_efb(form_id);
+      efb_reevaluate_logic_after_change_efb(form_id, el);
+      return;
+    }
+    value = na_efb.value;
+  }
   if(state===false && value.length > 0) {
     sendback_state_handler_efb_v4(id_,false,0,form_id);
   }
@@ -5371,6 +5385,20 @@ async function fun_validation_efb_v4(form_id) {
         }
       }
     }
+    // F17: a part of a name or address with a value is checked again on Next / Send (a default, or a value the browser filled).
+    if (row > 1 && valj_efb[row].cmp_grp && window.EFBNameAddr && current_s_efb == valj_efb[row].step && !fun_el_select_in_efb(valj_efb[row].type)) {
+      const naEl = efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_`);
+      if (naEl && typeof naEl.value === 'string' && naEl.value.trim() !== '') {
+        const naR = window.EFBNameAddr.check(naEl, valj_efb[row], naEl.value);
+        if (!naR.ok) {
+          efb_set_field_error_efb(naEl, naR.msg);
+          if (state == true) { state = false; idi = valj_efb[row].id_; name_field = valj_efb[row].name; }
+          continue;
+        }
+      }
+    }
+    // F17: the Saudi "short address or full address" group: with a valid short code the other parts are optional.
+    if (row > 1 && window.EFBNameAddr && valj_efb[row].cmp_grp && window.EFBNameAddr.notRequired(valj_efb[row], form_id)) continue;
     if (row > 1 && valj_efb[row].required == true && current_s_efb == valj_efb[row].step && valj_efb[row].type != "chlCheckBox") {
       const id = valj_efb[row].type == "yesNo" ? `${valj_efb[row].id_}_yn` : (fun_el_select_in_efb(valj_efb[row].type) == false ? `${valj_efb[row].id_}_` : `${valj_efb[row].id_}_options`);
       let el = efb_get_by_id_in_form_efb(form_id, `${valj_efb[row].id_}_-message`);

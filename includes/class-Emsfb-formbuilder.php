@@ -181,6 +181,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 				} elseif ($mask['attrs'] !== '') {
 					$telPattern = trim($telPattern . ' ' . $mask['attrs']);
 				}
+				// F17: a part of a name or address: its group and role, digits keyboard and left-to-right for numbers, the
+				// part's rule for the page's check (Address_Schemes::input_attrs()). A field without cmp_grp: nothing.
+				if (!empty($vj->cmp_grp) && class_exists('\\Emsfb\\Address_Schemes')) {
+					$na_attrs_efb = \Emsfb\Address_Schemes::input_attrs($vj);
+					if ($mask['masked']) $na_attrs_efb = str_replace(array(' inputmode="numeric"', ' dir="ltr"', ' dir="auto"'), '', $na_attrs_efb);
+					elseif (strpos($na_attrs_efb, 'dir="ltr"') !== false) $classes .= ' efb-ltr-in-rtl';
+					$telPattern = trim($telPattern . $na_attrs_efb);
+				}
 				// F04: a number with the F04 keys (step, decimals, format, digits, affixes, currency) is a box for
 				// typed digits and separators; the limits are values, read by the page from data-numcfg; the
 				// affixes or the form currency sit in the F03 input group; "between min and max" for a screen
@@ -895,6 +903,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 
         $readonly = class_exists('\\Emsfb\\A11y') ? \Emsfb\A11y::ac_attr('conturyList', $vj, isset($this->valj_efb[0]) ? $this->valj_efb[0] : null) : ''; // F16-F: autocomplete rides in the unused readonly slot
+        if (!empty($vj->cmp_grp) && class_exists('\\Emsfb\\Address_Schemes')) $readonly .= \Emsfb\Address_Schemes::list_attrs($vj); // F17
         $ariaRequired = $vj->required == 1 ? 'true' : 'false';
         $ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
         $disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
@@ -970,6 +979,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$readonly = class_exists('\\Emsfb\\A11y') ? \Emsfb\A11y::ac_attr('stateProvince', $vj, isset($this->valj_efb[0]) ? $this->valj_efb[0] : null) : ''; // F16-F: autocomplete rides in the unused readonly slot
+		if (!empty($vj->cmp_grp) && class_exists('\\Emsfb\\Address_Schemes')) $readonly .= \Emsfb\Address_Schemes::list_attrs($vj); // F17
 		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
@@ -1016,6 +1026,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	public function generate_city_list_efb($rndm, $vj, $pos, $formId, $texts, $desc, $label, $ttip, $aire_describedby) {
 		$options = '';
+		// F17: the city of a cascading address has no list of its own: it waits, closed, for the province (pro_els-efb.js loads it).
+		$na_cascade_efb = !empty($vj->cmp_grp) && isset($vj->addr_cascade) && (string) $vj->addr_cascade === '1';
         $optns_obj = array_filter($this->valj_efb, function($obj) use ($rndm) {
             return isset($obj->parent) && $obj->parent === $rndm;
         });
@@ -1042,6 +1054,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
 		$readonly = class_exists('\\Emsfb\\A11y') ? \Emsfb\A11y::ac_attr('cityList', $vj, isset($this->valj_efb[0]) ? $this->valj_efb[0] : null) : ''; // F16-F: autocomplete rides in the unused readonly slot
+		if (!empty($vj->cmp_grp) && class_exists('\\Emsfb\\Address_Schemes')) $readonly .= \Emsfb\Address_Schemes::list_attrs($vj); // F17
 		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
 		$ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
 		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
@@ -1076,9 +1089,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$this->st_aria_efb($vj->name),
 			$ariaDescribedBy,
 			$readonly,
-			$disabled,
+			$na_cascade_efb ? 'disabled' : $disabled,
 			$is_selected ? '' : 'selected',
-			$texts['nothingSelected'],
+			$na_cascade_efb ? esc_html(isset($texts['addrPickStateFirst']) && $texts['addrPickStateFirst'] !== '' ? $texts['addrPickStateFirst'] : 'Choose the province first') : $texts['nothingSelected'],
 			$options,
 			$desc
 		);
@@ -2483,6 +2496,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
         $required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
         $readonly = $previewSate != true ? 'readonly' : '';
+        // F17: the title of a name (honorific-prefix) says its group and part.
+        if (!empty($vj->cmp_grp) && class_exists('\\Emsfb\\Address_Schemes')) $readonly = trim($readonly . \Emsfb\Address_Schemes::list_attrs($vj));
         $ariaRequired = $vj->required == 1 ? 'true' : 'false';
         $ariaDescribedBy = !empty($vj->message) ? 'aria-describedby="' . $vj->id_ . '-des"' : '';
         $disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';

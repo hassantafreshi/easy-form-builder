@@ -3998,6 +3998,29 @@ function efb_csv_repeater_rows_efb(content) {
     return Object.assign({}, r, { name: `${names[r.rg] !== undefined ? names[r.rg] : r.rg} › ${r.name || r.id_} #${Number(r.ri) + 1}` });
   });
 }
+/* F17 / P22: a name or address group gets a column with its full line (EFBNameAddr, the stored line when there is
+   one), placed before its parts; the parts keep their own columns (a postal code stays text: leading zeros kept). */
+function efb_csv_na_rows_efb(content) {
+  if (!Array.isArray(content) || typeof EFBNameAddr === 'undefined') return content;
+  const groups = EFBNameAddr.groups(content).filter((g) => Object.keys(g.parts).length > 1);
+  if (!groups.length) return content;
+  const out = [];
+  const seen = {};
+  const counts = { name: 0, address: 0 };
+  content.forEach((r) => {
+    if (r && r.grp && !seen[r.grp]) {
+      seen[r.grp] = true;
+      const g = groups.find((x) => x.grp === r.grp);
+      if (g) {
+        counts[g.kind] = (counts[g.kind] || 0) + 1;
+        const title = g.kind === 'name' ? ((efb_var.text && efb_var.text.nmFull) || 'Full name') : ((efb_var.text && efb_var.text.addrFullLine) || 'Full address');
+        out.push({ id_: r.grp + '_full', name: counts[g.kind] > 1 ? `${title} ${counts[g.kind]}` : title, type: 'text', value: EFBNameAddr.groupText(g, '', false), amount: r.amount });
+      }
+    }
+    out.push(r);
+  });
+  return out;
+}
 function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
   window.efb_csv_file_cells_efb = {}; // F07: the file cells of this export
   let head = {};
@@ -4011,7 +4034,8 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
   // F09: rows of a repeater group become their own columns (the helper is absent only where this function is used alone).
   const rptRowsEfb = typeof efb_csv_repeater_rows_efb === 'function' ? efb_csv_repeater_rows_efb : (c) => c;
   parsedAllEfb.forEach((pc) => { const rr = rptRowsEfb(pc); (Array.isArray(rr) ? rr : []).forEach((r) => { if (r && r.name !== undefined) colNamesEfb.add(String(r.name)); }); });
-  const colsEfb = Math.max(100, 2 + colNamesEfb.size * 2 + 2);
+  // F17: one more column per name / address group (its full line).
+  const colsEfb = Math.max(100, 2 + colNamesEfb.size * 2 + 2 + 12);
   let rows = Array.from(Array(value.length + 1), () => Array(colsEfb).fill('null@EFB'));
 
   rows[0][0] = 'id';
@@ -4040,7 +4064,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
     // F05: choices as labels or stored values, "Other: text", a ranking "A > B > C".
     const csvModeEfb = window.efb_csv_opt_val_now || (typeof efb_csv_opt_val_efb === 'function' ? efb_csv_opt_val_efb() : 'label');
     const parsedEfb = rptRowsEfb(parsedAllEfb[vIdxEfb]);
-    const content = Array.isArray(parsedEfb) && typeof efb_csv_choice_row_efb === 'function' ? parsedEfb.map((r) => efb_csv_choice_row_efb(r, csvModeEfb)) : parsedEfb;
+    const content = (typeof efb_csv_na_rows_efb === 'function' ? efb_csv_na_rows_efb : (c) => c)(Array.isArray(parsedEfb) && typeof efb_csv_choice_row_efb === 'function' ? parsedEfb.map((r) => efb_csv_choice_row_efb(r, csvModeEfb)) : parsedEfb);
     count += 1;
     i_count += i_count == -1 ? 2 : 1;
     rows[i_count][1] = v.date;

@@ -1028,7 +1028,23 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   const efbRenderRowsEfb = (rowsList, inRowEfb) => {
   let m = '';
   let checboxs = [];
+  /* F17 / P22: a name or address group gets one line in its format's order before its parts (the tree is escaped
+     already: the stored na_full, else EFBNameAddr joins the escaped parts). Old answers have no grp. */
+  const naSeenEfb = {};
   for (const c of rowsList) {
+    if (c && c.grp && !naSeenEfb[c.grp]) {
+      naSeenEfb[c.grp] = true;
+      const naG = rowsList.filter((x) => x && x.grp === c.grp && x.part);
+      let naLine = '';
+      if (naG.length > 1) {
+        const naGrp = typeof EFBNameAddr !== 'undefined' ? EFBNameAddr.groups(naG)[0] : null;
+        naLine = naGrp ? EFBNameAddr.groupText(naGrp, efb_var.wp_lan || '', false) : (naG.find((x) => x.na_full) || {}).na_full || '';
+      }
+      if (naLine) {
+        const naTitle = c.cmp === 'name' ? ((efb_var.text && efb_var.text.nmFull) || 'Full name') : ((efb_var.text && efb_var.text.addrFullLine) || 'Full address');
+        m += `<div class="efb efb-msg-field-row efb-na-full"><span class="efb-msg-field-label" data-csv-key="${naTitle}">${naTitle}:</span> <span class="efb-msg-field-value" data-csv="${naLine}" dir="auto" style="unicode-bidi:plaintext"><bdi>${naLine}</bdi></span></div>`;
+      }
+    }
     if (rptEfb && !inRowEfb && c && c.type === 'repeater' && rptEfb.groups[c.id_]) { m += efbRptViewerBlockEfb(rptEfb.groups[c.id_], c, efbRenderRowsEfb); continue; }
     /* F13: an answer removed by anonymization (stored as @prv@), whatever its type. */
     if (c && c.value === '@prv@') {

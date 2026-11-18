@@ -5623,6 +5623,8 @@ const delete_option_efb = (id) => {
 
 fun_efb_add_el = (t, insertAfterEl) => {
 
+  // F17: a name or address asks for its format first; the chooser calls back with efbNaPendingEfb set.
+  if ((t == "address" || t == "name") && typeof efbNaChooseEfb === 'function' && !window.efbNaPendingEfb) { efbNaChooseEfb(t, insertAfterEl); return; }
   // F15: one undo entry, "Add <field>".
   if (typeof efbHistHintEfb === 'function') { const pf = (typeof fields_efb !== 'undefined' && fields_efb.find(x => x.id == t)) || null; efbHistHintEfb(t == 'steps' ? (efb_var.text.hAddStep || 'Add step') : String(efb_var.text.hAddField || 'Add %s').replace('%s', pf ? pf.name : t), 'add|' + Math.random()); }
   const rndm = Math.random().toString(36).substr(2, 9);
@@ -5662,16 +5664,22 @@ fun_efb_add_el = (t, insertAfterEl) => {
   };
 
   let lastInsertedNode = null;
+  let naRedrawEfb = false; // F17: the canvas is drawn again with the parts; nothing of this drop to select after it
 
   if (t == "address" || t == "name") {
 
-    const olist = [
+    // F17: the parts of the chosen format (efbNaPlanEfb), else the fixed list of before.
+    const naPlan = typeof efbNaPlanEfb === 'function' ? efbNaPlanEfb(t) : null;
+    const naIds = [];
+    const olist = naPlan ? naPlan.parts.map(p => ({ n: t, t: p.el })) : [
       { n: 'name', t: "firstName" }, { n: 'name', t: "lastName" },
       { n: 'address', t: "conturyList" }, { n: 'address', t: "stateProvince" } , { n: 'address', t: "cityList" }, { n: 'address', t: "address_line" }  ,{ n: 'address', t: "postalcode" }
     ]
     for (const ob of olist) {
       if (ob.n == t) {
-        let el = addNewElement(ob.t, Math.random().toString(36).substr(2, 9), false, false);
+        const naId = Math.random().toString(36).substr(2, 9);
+        naIds.push(naId);
+        let el = addNewElement(ob.t, naId, false, false);
         if (insertAfterEl !== undefined && insertAfterEl !== 'APPEND') {
           lastInsertedNode = _insertElHtml(el, insertAfterEl);
           insertAfterEl = lastInsertedNode;
@@ -5680,6 +5688,7 @@ fun_efb_add_el = (t, insertAfterEl) => {
         }
       }
     }
+    if (naPlan && typeof efbNaAfterAddEfb === 'function') { efbNaAfterAddEfb(naPlan, naIds); naRedrawEfb = true; }
 
   } else {
 
@@ -5726,7 +5735,7 @@ fun_efb_add_el = (t, insertAfterEl) => {
       }, 800);
 
   }
-  setTimeout(() => {
+  if (!naRedrawEfb) setTimeout(() => {
     let vl = lastInsertedNode || dropZoneEFB.lastElementChild;
     if (vl && typeof active_element_efb === 'function') active_element_efb(vl);
   }, 80);
@@ -6550,6 +6559,8 @@ function  fun_confirm_dup_emsFormBuilder(id,type) {
     let new_el = {...valj_efb[index]};
     const amount = Number(new_el.amount);
     new_el.name = new_el.name + ' - ' + efb_var.text.copy;
+    // F17: the copy of a part is an ordinary field (two parts of one role in a group would be ambiguous).
+    if (new_el.cmp_grp && typeof efbNaStripKeys === 'function') efbNaStripKeys(new_el);
     new_el.amount =amount + 1;
     new_el.id_ = new_id;
     new_el.dataId= new_id+'-id';

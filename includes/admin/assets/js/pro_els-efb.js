@@ -890,6 +890,12 @@ const fun_check_link_city_efb = async (iso2_country, iso2_statePove, indx, form_
 
   let i = indx;
   const len = valj_efb.length;
+  // F17: a province of a name / address group drives the city of the same group.
+  if (base && base.cmp_grp) {
+    indx_state = valj_efb.findIndex(x => x && x.cmp_grp === base.cmp_grp && (x.type === 'cityList' || x.type === 'city'));
+    if (indx_state !== -1) id_city = valj_efb[indx_state].id_;
+    i = len;
+  }
   while (i < len) {
     const item = valj_efb[i];
     if (efbOrderOf(item) > amount) {
@@ -943,6 +949,7 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
   state_el.innerHTML = "";
   state_el.innerHTML = `<option value="">${efb_var.text.loading}</option>`;
   state_el.classList.add('is-loading');
+  state_el.setAttribute('aria-busy', 'true');
   state_el.disabled=true;
   }
 
@@ -961,6 +968,8 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
    clean_options_select_efb(valj_efb[indx_state].id_);
   let result = await efb_fetch_address_json_efb(`json/cites/${iso2_country.toLowerCase()}/${iso2_statePove.toLowerCase()}.json`);
   if(!result || result.s==false){
+    // F17: the city of a cascading address becomes a text box instead (the form is never stuck).
+    if (window.EFBNameAddr && window.EFBNameAddr.cityFailed(state_el)) return;
     efb_address_fetch_failed_efb(state_el);
     return;
   }
@@ -1024,6 +1033,7 @@ async function callFetchCitiesEfb(idField,iso2_country,iso2_statePove, indx_stat
     state_el.innerHTML='';
     state_el.innerHTML=opt;
     state_el.classList.remove('is-loading');
+    state_el.removeAttribute('aria-busy');
   state_el.disabled = false;
   }else{
     setTimeout(() => {
@@ -1109,6 +1119,9 @@ function efb_offline_local_path_efb(path) {
 }
 
 async function efb_fetch_address_json_efb(path) {
+  // F17: one fetch per list and visit (sessionStorage efb_geo_<path>): a visitor who changes the province back and forth asks once.
+  const key = 'efb_geo_' + path;
+  try { const c = sessionStorage.getItem(key); if (c) { const j = JSON.parse(c); if (j && j.s !== false) return j; } } catch (e) { /* storage blocked */ }
   const cdn = (efb_var.zone_area ?? ajax_object_efm.zone_area) + path;
   const urls = [cdn];
   if (fun_state_check_addon_AdnOF_setting_efb()) {
@@ -1117,7 +1130,7 @@ async function efb_fetch_address_json_efb(path) {
   let result = { s: false };
   for (const url of urls) {
     try { result = await fetch_json_from_url_efb(url); } catch (e) { result = { s: false }; }
-    if (result && result.s !== false) return result;
+    if (result && result.s !== false) { try { sessionStorage.setItem(key, JSON.stringify(result)); } catch (e) { /* full or blocked */ } return result; }
   }
   return result;
 }

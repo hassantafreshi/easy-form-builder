@@ -1342,7 +1342,7 @@ public function check_nonce_permission_efb($request) {
 					return $this->efbFunction->render_addon_recovery_public_error_ui_efb( $retry_after );
 				}
 			}
-			$this->text_ = ["somethingWentWrongPleaseRefresh","hdnBadge","stUnavailable","prvRedacted","prvAnonBadge","atcfle","cpnnc","tfnapca","thisFeatureAvailableFreePlusPro","upgAdminFieldNote","upgAdminFieldLink", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist",
+			$this->text_ = ["addrInvalidX","addrPostalX","addrSaShortOrFull","nmInvalidX","addrPickStateFirst","addrCityManual","somethingWentWrongPleaseRefresh","hdnBadge","stUnavailable","prvRedacted","prvAnonBadge","atcfle","cpnnc","tfnapca","thisFeatureAvailableFreePlusPro","upgAdminFieldNote","upgAdminFieldLink", "icc","cpnts","cpntl","mcplen","mmxplen","mxcplen","clcdetls","vmgs","required","mmplen","offlineSend","amount","allformat","videoDownloadLink","downloadViedo","removeTheFile","pWRedirect","eJQ500","error400","errorCode","remove","minSelect","search","MMessageNSendEr","formNExist",
 			"settingsNfound","formPrivateM","pleaseWaiting","youRecivedNewMessage","WeRecivedUrM","thankFillForm","trackNo","thankRegistering","welcome","thankSubscribing","thankDonePoll","error403","errorSiteKeyM","errorCaptcha","pleaseEnterVaildValue","createAcountDoneM","incorrectUP","sentBy","newPassM","done","surveyComplatedM","error405","errorSettingNFound","errorMRobot",
 			"enterVValue","guest","cCodeNFound","errorFilePer","errorSomthingWrong","nAllowedUseHtml","messageSent","offlineMSend","uploadedFile","interval","dayly","weekly","monthly","yearly","nextBillingD","onetime","proVersion","payment","emptyCartM","transctionId","successPayment","cardNumber","cardExpiry","cardCVC","payNow","payAmount","selectOption","copy","or","document",
 			"error","somethingWentWrongTryAgain","define","loading","trackingCode","enterThePhone","please","pleaseMakeSureAllFields","enterTheEmail","formNotFound","errorV01","enterValidURL","password8Chars","registered","yourInformationRegistered","preview","selectOpetionDisabled","youNotPermissionUploadFile","pleaseUploadA","fileSizeIsTooLarge","documents","image","media",
@@ -1779,6 +1779,15 @@ public function check_nonce_permission_efb($request) {
 			$is_file_element_exist = false;
 			// F09: the fields of a repeater group are drawn by the group (copies in its rows), not here.
 			$rpt_children_efb = class_exists('\\Emsfb\\Repeater') && \Emsfb\Repeater::has_groups($valj_efb) ? \Emsfb\Repeater::child_groups($valj_efb) : array();
+			// F17: name / address groups: their parts in one fieldset (legend for screen readers), EFBNameAddr and the formats used.
+			$na_runs_efb = array(array(), array());
+			if (class_exists('\\Emsfb\\Address_Schemes') && \Emsfb\Address_Schemes::form_has_groups($valj_efb)) {
+				$na_runs_efb = \Emsfb\Address_Schemes::fieldset_runs($valj_efb, is_array($rpt_children_efb) ? $rpt_children_efb : array());
+				$na_js_efb = EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/name-address-efb.js';
+				wp_enqueue_script('efb-name-address-js', EMSFB_PLUGIN_URL . 'public/assets/js/name-address-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime($na_js_efb), true);
+				$na_data_efb = \Emsfb\Address_Schemes::runtime_data($valj_efb);
+				wp_add_inline_script('efb-name-address-js', '(function(d){var o=window.efb_na_data||{schemes:{},names:{},words:[]};Object.assign(o.schemes,d.schemes);Object.assign(o.names,d.names);o.words=d.words;o.v=d.v;window.efb_na_data=o;})(' . wp_json_encode($na_data_efb) . ');', 'before');
+			}
 			$list_pro_elements = ['calc','prcfld','dadfile','ttlprc','table_matrix','smartcr','pointr5','pointr10','booking','heading','zarinPal','persiaPay','stripe','paypal','link','yesNo','html','cityList','city','statePro','stateProvince','country','conturyList','paySelect','rating','esign','switch','trmCheckbox','imgRadio','chlRadio','chlCheckBox','payRadio','payCheckbox','mobile','maps','ardate','pdate'];
 			for( $i=0; $i<$count; $i++){
 				$randomId = wp_unique_id('efb_');
@@ -1911,6 +1920,11 @@ public function check_nonce_permission_efb($request) {
 					}
 
 					if ($rpt_children_efb && isset($valj_efb[$i]->id_) && isset($rpt_children_efb[(string) $valj_efb[$i]->id_])) continue;
+					if (isset($na_runs_efb[0][$i])) {
+						$content .= \Emsfb\Address_Schemes::fieldset_open($na_runs_efb[0][$i], isset($valj_efb[$i]->cmp_kind) ? (string) $valj_efb[$i]->cmp_kind : 'address', is_array($lanText) ? $lanText : array());
+						// F17 contract: what an add-on adds to a group (AdnADR: the address search block), first in the fieldset.
+						$content .= (string) apply_filters('efb_addr_group_extra', '', $valj_efb[$i], $form_id, is_array($lanText) ? $lanText : array());
+					}
 					$r = $efbFormBuilder->addNewElement_efb($i, $randomId, $form_id, $lanText ,$pro);
 					if($pro==true ){
 
@@ -1987,6 +2001,7 @@ public function check_nonce_permission_efb($request) {
 
 					}
 					$content .= $r[0];
+					if (isset($na_runs_efb[1][$i])) $content .= '</fieldset>';
 					$style .= $r[1];
 					$r[2]!='' ? $jss .= $r[2] : 0;
 
@@ -2771,6 +2786,8 @@ public function check_nonce_permission_efb($request) {
 			'otherOpt', 'otherReq', 'minSelM_', 'maxSelM_', 'soldOut', 'rnkReq',
 			/* F04 numbers and calculations (Calc::check_row(), Calc::evaluate_form()). */
 			'numStepM_', 'numDecM_', 'numNanM_', 'calcErr', 'mcplen', 'mxcplen', 'rngOrder',
+			/* F17 name and address parts (Address_Schemes::check_row(), finish_rows()). */
+			'addrInvalidX', 'addrPostalX', 'addrSaShortOrFull', 'nmInvalidX', 'address', 'name',
 			/* F09 repeater group (Repeater::validate()). */
 			'repeater', 'rowN', 'rptMinRowsMsg', 'rptMaxRowsMsg', 'rptCountMismatch', 'rptRowRequired',
 			'cal_err_invalid_format', 'cal_err_invalid_date', 'cal_err_calendar_not_allowed', 'cal_err_before_min', 'cal_err_after_max', 'cal_err_weekday_disabled', 'cal_err_date_disabled', 'cal_err_not_enabled', 'cal_err_holiday', 'cal_err_unavailable', 'cal_err_full', 'cal_err_range_order', 'cal_err_range_too_short', 'cal_err_range_too_long', 'cal_err_range_contains_disabled', 'cal_err_too_many_dates', 'cal_err_time_required', 'cal_err_time_out_of_range', 'cal_err_time_step', 'cal_err_time_closed_weekday', 'cal_err_age_too_young', 'cal_err_age_too_old', 'cal_err_depends_on_empty', 'cal_err_required', 'cal_nights_n', 'cal_days_n'
@@ -3087,6 +3104,8 @@ public function check_nonce_permission_efb($request) {
 			$form_fields_array = json_decode($form_structure_json, true);
 			// SPLIT §4.1: a field an absent add-on draws (the map, a calc result) is shown as a notice: never required.
 			if (is_array($form_fields_array) && class_exists('\\Emsfb\\Split')) $form_fields_array = \Emsfb\Split::unrequire_absent($form_fields_array);
+			// F17: a Saudi address in "short address or full address" mode with a short code sent: its other parts are optional.
+			if (is_array($form_fields_array) && class_exists('\\Emsfb\\Address_Schemes') && is_array($submitted_values ?? null)) $form_fields_array = \Emsfb\Address_Schemes::prepare_form($form_fields_array, $submitted_values);
 			$form_structure_json = null;
 			// F05: choices built from the site (posts, terms, users, CSV), expanded again with the same ids, so a
 			// choice that is gone (deleted, made private) is not accepted and every check below sees the real list.
@@ -7982,9 +8001,21 @@ public function check_nonce_permission_efb($request) {
 				}
 			}
 
+			// F17 / P22: a name or address group gets one line in its format's order before its parts.
+			$na_groups_efb = function_exists('efb_name_address_groups') ? efb_name_address_groups($content) : array();
+			$na_seen_efb = array();
+			$na_title_efb = $na_groups_efb ? $this->efbFunction->text_efb(array('addrFullLine', 'nmFull')) : array();
 			foreach ($content as $c){
 
 				if (!is_array($c)) { continue; }
+				if ($na_groups_efb && isset($c['grp']) && is_scalar($c['grp']) && !isset($na_seen_efb[(string) $c['grp']])) {
+					$na_seen_efb[(string) $c['grp']] = true;
+					foreach ($na_groups_efb as $na_g_efb) {
+						if ($na_g_efb['grp'] !== (string) $c['grp'] || $na_g_efb['text'] === '' || count($na_g_efb['parts']) < 2) continue;
+						$na_t_efb = $na_g_efb['kind'] === 'name' ? ($na_title_efb['nmFull'] ?? 'Full name') : ($na_title_efb['addrFullLine'] ?? 'Full address');
+						$addPair($na_t_efb, '<bdi dir="auto" style="unicode-bidi:plaintext">' . esc_html($na_g_efb['text']) . '</bdi>');
+					}
+				}
 				if ($rpt_groups_efb && isset($c['rg'], $c['ri']) && is_scalar($c['rg']) && isset($rpt_groups_efb[(string) $c['rg']])) { continue; }
 				if ($rpt_groups_efb && ($c['type'] ?? '') === 'repeater' && isset($c['id_']) && isset($rpt_groups_efb[(string) $c['id_']])) {
 					$rpt_rows_efb = $rpt_groups_efb[(string) $c['id_']];
@@ -9756,6 +9787,21 @@ public function check_nonce_permission_efb($request) {
 				}
 			}
 			// End field rules gate.
+			// F17: a part of a name or address (Address_Schemes::check_row()): its shape, digits made Latin, a fixed list's
+			// options; the row gets grp / part / cmp / sch (the stored structure, written here from the saved field).
+			if ($is_valid == 1 && is_array($validated_item) && !empty($f['cmp_grp']) && class_exists('\\Emsfb\\Address_Schemes')
+				&& !(isset($_ignored_set) && isset($_ignored_set[$f['id_'] ?? '']))) {
+				$na_res_efb = \Emsfb\Address_Schemes::check_row($f, $validated_item, $form_fields_array, is_array($this->lanText) ? $this->lanText : array());
+				if (!$na_res_efb['ok']) {
+					$is_valid = 0;
+					$error_message = $na_res_efb['m'];
+					$error_field_id = $f['id_'] ?? '';
+					$this->field_rules_code_efb = $na_res_efb['code'];
+					$validated_item = null;
+				} else {
+					$validated_item = $na_res_efb['item'];
+				}
+			}
 			/* This field came through clean, so drop the provisional error
 			 * text recorded while it was being checked. It was only ever a
 			 * placeholder, and keeping it meant a later failure that sets no
@@ -9774,6 +9820,17 @@ public function check_nonce_permission_efb($request) {
 			};
 		}
 		$this->validate_admin_edit_efb = false;
+		// F17: the group rules (Saudi "short address or full address") and each group's display line (na_full).
+		if ($is_valid == 1 && class_exists('\\Emsfb\\Address_Schemes') && \Emsfb\Address_Schemes::form_has_groups($form_fields_array)) {
+			$na_fin_efb = \Emsfb\Address_Schemes::finish_rows($form_fields_array, $validated_items, is_array($this->lanText) ? $this->lanText : array());
+			if (!$na_fin_efb['ok']) {
+				$is_valid = 0;
+				$error_message = $na_fin_efb['m'];
+				$error_field_id = $na_fin_efb['field_id'];
+				$this->field_rules_code_efb = $na_fin_efb['code'];
+			}
+			$validated_items = $na_fin_efb['rows'];
+		}
 		return array(
 			'is_valid' => $is_valid, 'ok' => $is_valid == 1, 'rows' => $validated_items, 'm' => $error_message, 'field_id' => $error_field_id,
 			'email_recipients' => $email_recipients, 'sms' => $sms_notification_enabled, 'phone_numbers' => $phone_numbers,

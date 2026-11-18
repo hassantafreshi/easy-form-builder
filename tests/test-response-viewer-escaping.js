@@ -176,6 +176,24 @@ console.log('\n=== F09: repeater rows in the viewer ===');
   t('F09: the head carries the CSV key "{group} (count)" and the number of rows', /data-csv-key="&lt;img[^"]*Trip \(count\)"/.test(html9) && html9.indexOf('2 rows') !== -1);
 }
 
+console.log('\n=== F17: the full name / address line of a group (P22) ===');
+{
+  const NA = require(path.join(ROOT, 'public/assets/js/name-address-efb.js'));
+  global.efb_na_data = { schemes: { ir: { disp: [['state', 'city', 'street', '#plaque']] } }, names: { fl: ['first', 'last'] }, words: [] };
+  const rows = escResponseTreeEfb([
+    { id_: 's', name: 'Street', type: 'address_line', value: '<img src=x onerror=alert(1)>', grp: 'g', part: 'street', cmp: 'address', sch: 'ir', na_full: '<img src=x onerror=alert(2)>' },
+    { id_: 'p', name: '<b>Plaque</b>', type: 'address_line', value: '12', grp: 'g', part: 'plaque', cmp: 'address', sch: 'ir' },
+    { id_: 'f', name: 'First', type: 'text', value: '"><svg onload=1>', grp: 'n', part: 'first', cmp: 'name', sch: 'fl' },
+  ]);
+  const g = NA.groups(rows);
+  const stored = NA.groupText(g[0], '', false), built = NA.groupText(g[0], 'en_US', false), name = NA.groupText(g[1], '', false);
+  t('the stored line of a hostile street is escaped', stored.indexOf('<img') === -1 && stored.indexOf('&lt;img') !== -1);
+  t('the built line (street and a hostile label) is escaped', built.indexOf('<') === -1 && built.indexOf('&lt;b&gt;Plaque&lt;/b&gt; 12') !== -1, built);
+  t('a hostile name part is escaped in the full name', name.indexOf('<svg') === -1 && name.indexOf('"') === -1);
+  t('old answers have no group: no line', NA.groups(escResponseTreeEfb([{ id_: 'x', type: 'text', value: 'a' }])).length === 0);
+  t('the viewer draws the line from EFBNameAddr on the escaped tree, inside <bdi> with unicode-bidi plaintext', /naLine = naGrp \? EFBNameAddr\.groupText/.test(src) && /unicode-bidi:plaintext"><bdi>\$\{naLine\}<\/bdi>/.test(src));
+}
+
 console.log('\n========================================');
 console.log(`RESULTS: ${pass} passed, ${fail} failed`);
 console.log('========================================');

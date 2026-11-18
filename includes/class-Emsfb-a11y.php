@@ -87,6 +87,10 @@ class A11y {
 		$r = self::arr($vj);
 		$own = isset($r['autocomplete']) ? self::token($r['autocomplete']) : '';
 		if ($own !== '') return $own;
+		// F17: a part of a name or address has its part's token (address-level1, postal-code, honorific-prefix …).
+		if (!empty($r['cmp_grp']) && class_exists('\\Emsfb\\Address_Schemes')) { $p = Address_Schemes::autocomplete($r); if ($p !== '') return $p; }
+		// F17 §7: first and last name are stored as type text; the palette id says what they are (the page used to get "off").
+		if ($elementId === 'text' && isset($r['elementId']) && ($r['elementId'] === 'firstName' || $r['elementId'] === 'lastName')) $elementId = $r['elementId'];
 		$r0 = self::arr($row0);
 		if ($elementId === 'password' && ((isset($r0['type']) && $r0['type'] === 'register') || (isset($r['pw_confirm']) && in_array($r['pw_confirm'], array(1, '1', true), true)))) return 'new-password';
 		if (isset(self::AUTO[$elementId])) return self::AUTO[$elementId];

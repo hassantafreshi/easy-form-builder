@@ -1,0 +1,746 @@
+{
+ "about": "F17 shared cases: tests/test-address-validate.php and tests/test-address-validate.js run every one with the PHP and the JS rules (Address_Schemes::check_value / name_ok and EFBNameAddr.checkValue / nameOk). k address: set (scheme), part, in, ok, out (the stored value when ok). k name: in, ok (name_strict).",
+ "cases": [
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "postal",
+   "in": "۱۲۳۴۵-۶۷۸۹۰",
+   "ok": true,
+   "out": "1234567890",
+   "note": "Persian digits with the dash"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "postal",
+   "in": "1234567890",
+   "ok": true,
+   "out": "1234567890"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "postal",
+   "in": "12345 67890",
+   "ok": true,
+   "out": "1234567890",
+   "note": "a space"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "postal",
+   "in": "١٢٣٤٥٦٧٨٩٠",
+   "ok": true,
+   "out": "1234567890",
+   "note": "Arabic digits"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "postal",
+   "in": "۱۲۳۴",
+   "ok": false,
+   "note": "4 digits"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "postal",
+   "in": "0000000000",
+   "ok": false,
+   "note": "one digit ten times"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "postal",
+   "in": "12345678901",
+   "ok": false,
+   "note": "11 digits"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "postal",
+   "in": "12345abcde",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "plaque",
+   "in": "٠١٢٣",
+   "ok": true,
+   "out": "0123",
+   "note": "Arabic digits kept as Latin"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "plaque",
+   "in": "۱۲/۳",
+   "ok": true,
+   "out": "12/3"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "plaque",
+   "in": "12-4",
+   "ok": true,
+   "out": "12-4"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "plaque",
+   "in": "12 / 3",
+   "ok": true,
+   "out": "12/3",
+   "note": "spaces dropped"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "plaque",
+   "in": "پلاک ۱۲",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "plaque",
+   "in": "123456",
+   "ok": false,
+   "note": "6 digits"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "floor",
+   "in": "همکف",
+   "ok": true,
+   "out": "همکف",
+   "note": "a floor word"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "floor",
+   "in": "-2",
+   "ok": true,
+   "out": "-2"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "floor",
+   "in": "۳",
+   "ok": true,
+   "out": "3"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "floor",
+   "in": "Ground",
+   "ok": true,
+   "out": "Ground",
+   "note": "word, any case"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "floor",
+   "in": "top",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "unit",
+   "in": "۱۲",
+   "ok": true,
+   "out": "12"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "unit",
+   "in": "12a",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "street",
+   "in": "خیابان ولیعصر",
+   "ok": true,
+   "out": "خیابان ولیعصر"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "street",
+   "in": "x",
+   "ok": false,
+   "note": "shorter than 2"
+  },
+  {
+   "k": "address",
+   "set": "ir",
+   "part": "street",
+   "in": "  خیابان   آزادی ",
+   "ok": true,
+   "out": "خیابان آزادی",
+   "note": "spaces collapsed"
+  },
+  {
+   "k": "address",
+   "set": "sa",
+   "part": "postal",
+   "in": "١٢٣٤٥",
+   "ok": true,
+   "out": "12345"
+  },
+  {
+   "k": "address",
+   "set": "sa",
+   "part": "postal",
+   "in": "1234",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "sa",
+   "part": "building_no",
+   "in": "٢٩٢٩",
+   "ok": true,
+   "out": "2929"
+  },
+  {
+   "k": "address",
+   "set": "sa",
+   "part": "building_no",
+   "in": "292",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "sa",
+   "part": "additional_no",
+   "in": "1234",
+   "ok": true,
+   "out": "1234"
+  },
+  {
+   "k": "address",
+   "set": "sa",
+   "part": "additional_no",
+   "in": "12345",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "sa",
+   "part": "short_code",
+   "in": "RRRD2929",
+   "ok": true,
+   "out": "RRRD2929"
+  },
+  {
+   "k": "address",
+   "set": "sa",
+   "part": "short_code",
+   "in": "rrrd2929",
+   "ok": true,
+   "out": "RRRD2929",
+   "note": "upper case"
+  },
+  {
+   "k": "address",
+   "set": "sa",
+   "part": "short_code",
+   "in": "rrrd ٢٩٢٩",
+   "ok": true,
+   "out": "RRRD2929",
+   "note": "mixed digits and a space"
+  },
+  {
+   "k": "address",
+   "set": "sa",
+   "part": "short_code",
+   "in": "RRR2929",
+   "ok": true,
+   "out": "RRR2929",
+   "note": "unverified rule: a hint, never a refusal"
+  },
+  {
+   "k": "address",
+   "set": "sa",
+   "part": "district",
+   "in": "الملز",
+   "ok": true,
+   "out": "الملز"
+  },
+  {
+   "k": "address",
+   "set": "ae",
+   "part": "makani",
+   "in": "1234567890",
+   "ok": true,
+   "out": "1234567890"
+  },
+  {
+   "k": "address",
+   "set": "ae",
+   "part": "makani",
+   "in": "12345",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "ae",
+   "part": "po_box",
+   "in": "٥٥٥",
+   "ok": true,
+   "out": "555"
+  },
+  {
+   "k": "address",
+   "set": "ae",
+   "part": "po_box",
+   "in": "1234567",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "ae",
+   "part": "unit",
+   "in": "Apt 12B",
+   "ok": true,
+   "out": "Apt 12B"
+  },
+  {
+   "k": "address",
+   "set": "ae",
+   "part": "unit",
+   "in": "xxxxxxxxxxxxxxxxxxxxx",
+   "ok": false,
+   "note": "over 20"
+  },
+  {
+   "k": "address",
+   "set": "eg",
+   "part": "postal",
+   "in": "٢١٥٣١",
+   "ok": true,
+   "out": "21531"
+  },
+  {
+   "k": "address",
+   "set": "eg",
+   "part": "postal",
+   "in": "2153",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "eg",
+   "part": "building_no",
+   "in": "12أ",
+   "ok": true,
+   "out": "12أ",
+   "note": "an Arabic letter after the number"
+  },
+  {
+   "k": "address",
+   "set": "eg",
+   "part": "building_no",
+   "in": "12B",
+   "ok": true,
+   "out": "12B"
+  },
+  {
+   "k": "address",
+   "set": "eg",
+   "part": "building_no",
+   "in": "B12",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "eg",
+   "part": "floor",
+   "in": "أرضي",
+   "ok": true,
+   "out": "أرضي"
+  },
+  {
+   "k": "address",
+   "set": "us",
+   "part": "postal",
+   "in": "20500",
+   "ok": true,
+   "out": "20500"
+  },
+  {
+   "k": "address",
+   "set": "us",
+   "part": "postal",
+   "in": "20500-0003",
+   "ok": true,
+   "out": "20500-0003"
+  },
+  {
+   "k": "address",
+   "set": "us",
+   "part": "postal",
+   "in": "205000003",
+   "ok": true,
+   "out": "20500-0003",
+   "note": "nine digits get the dash"
+  },
+  {
+   "k": "address",
+   "set": "us",
+   "part": "postal",
+   "in": "2050",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "us",
+   "part": "postal",
+   "in": "20500-03",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "us",
+   "part": "postal",
+   "in": "02134",
+   "ok": true,
+   "out": "02134",
+   "note": "a leading zero is kept"
+  },
+  {
+   "k": "address",
+   "set": "uk",
+   "part": "postal",
+   "in": "sw1a1aa",
+   "ok": true,
+   "out": "SW1A 1AA"
+  },
+  {
+   "k": "address",
+   "set": "uk",
+   "part": "postal",
+   "in": "SW1A 1AA",
+   "ok": true,
+   "out": "SW1A 1AA"
+  },
+  {
+   "k": "address",
+   "set": "uk",
+   "part": "postal",
+   "in": "ec1a1bb",
+   "ok": true,
+   "out": "EC1A 1BB"
+  },
+  {
+   "k": "address",
+   "set": "uk",
+   "part": "postal",
+   "in": "M1 1AE",
+   "ok": true,
+   "out": "M1 1AE"
+  },
+  {
+   "k": "address",
+   "set": "uk",
+   "part": "postal",
+   "in": "GIR 0AA",
+   "ok": true,
+   "out": "GIR 0AA"
+  },
+  {
+   "k": "address",
+   "set": "uk",
+   "part": "postal",
+   "in": "QW1 1AA",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "uk",
+   "part": "postal",
+   "in": "SW1A 1CA",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "uk",
+   "part": "postal",
+   "in": "SW1A",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "ca",
+   "part": "postal",
+   "in": "k1a0b1",
+   "ok": true,
+   "out": "K1A 0B1"
+  },
+  {
+   "k": "address",
+   "set": "ca",
+   "part": "postal",
+   "in": "H0H 0H0",
+   "ok": true,
+   "out": "H0H 0H0"
+  },
+  {
+   "k": "address",
+   "set": "ca",
+   "part": "postal",
+   "in": "W1A 1A1",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "ca",
+   "part": "postal",
+   "in": "K1A 0D1",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "de",
+   "part": "postal",
+   "in": "10115",
+   "ok": true,
+   "out": "10115"
+  },
+  {
+   "k": "address",
+   "set": "de",
+   "part": "postal",
+   "in": "01067",
+   "ok": true,
+   "out": "01067"
+  },
+  {
+   "k": "address",
+   "set": "de",
+   "part": "postal",
+   "in": "00123",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "de",
+   "part": "postal",
+   "in": "1011",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "jp",
+   "part": "postal",
+   "in": "1000001",
+   "ok": true,
+   "out": "100-0001"
+  },
+  {
+   "k": "address",
+   "set": "jp",
+   "part": "postal",
+   "in": "100-0001",
+   "ok": true,
+   "out": "100-0001"
+  },
+  {
+   "k": "address",
+   "set": "jp",
+   "part": "postal",
+   "in": "１００",
+   "ok": false,
+   "note": "full-width digits are not Persian / Arabic: refused"
+  },
+  {
+   "k": "address",
+   "set": "jp",
+   "part": "postal",
+   "in": "100-001",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "tr",
+   "part": "postal",
+   "in": "34000",
+   "ok": true,
+   "out": "34000"
+  },
+  {
+   "k": "address",
+   "set": "tr",
+   "part": "postal",
+   "in": "90000",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "tr",
+   "part": "building_no",
+   "in": "12/A",
+   "ok": true,
+   "out": "12/A"
+  },
+  {
+   "k": "address",
+   "set": "tr",
+   "part": "unit",
+   "in": "٧",
+   "ok": true,
+   "out": "7"
+  },
+  {
+   "k": "address",
+   "set": "intl",
+   "part": "postal",
+   "in": "SW1A 1AA",
+   "ok": true,
+   "out": "SW1A 1AA"
+  },
+  {
+   "k": "address",
+   "set": "intl",
+   "part": "postal",
+   "in": "1",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "intl",
+   "part": "postal",
+   "in": "12345-678901234",
+   "ok": false
+  },
+  {
+   "k": "address",
+   "set": "intl",
+   "part": "line1",
+   "in": "12 Main St",
+   "ok": true,
+   "out": "12 Main St"
+  },
+  {
+   "k": "address",
+   "set": "intl",
+   "part": "line1",
+   "in": "a",
+   "ok": false
+  },
+  {
+   "k": "name",
+   "in": "علی‌رضا",
+   "ok": true,
+   "note": "ZWNJ"
+  },
+  {
+   "k": "name",
+   "in": "عبد الله",
+   "ok": true,
+   "note": "a space"
+  },
+  {
+   "k": "name",
+   "in": "O'Neil",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "k": "name",
+   "in": "O’Neil",
+   "ok": true,
+   "note": "typographic apostrophe"
+  },
+  {
+   "k": "name",
+   "in": "Jean-Luc",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "k": "name",
+   "in": "J.",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "k": "name",
+   "in": "Ali2",
+   "ok": false,
+   "note": "a digit"
+  },
+  {
+   "k": "name",
+   "in": "محمد۲",
+   "ok": false,
+   "note": "a Persian digit"
+  },
+  {
+   "k": "name",
+   "in": "<b>x</b>",
+   "ok": false,
+   "note": ""
+  },
+  {
+   "k": "name",
+   "in": "",
+   "ok": true,
+   "note": "empty is for required to say"
+  },
+  {
+   "k": "name",
+   "in": " Anna",
+   "ok": true,
+   "note": "trimmed"
+  },
+  {
+   "k": "name",
+   "in": "-Anna",
+   "ok": false,
+   "note": "starts with a hyphen"
+  },
+  {
+   "k": "name",
+   "in": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "ok": false,
+   "note": "61 letters"
+  },
+  {
+   "k": "name",
+   "in": "Zoë",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "k": "name",
+   "in": "李小龍",
+   "ok": true,
+   "note": ""
+  },
+  {
+   "k": "name",
+   "in": "Ελένη",
+   "ok": true,
+   "note": ""
+  }
+ ]
+}

@@ -32,7 +32,13 @@ const EFB_SPLIT_AFTER_CODE  = 12175102;   // subtask L, without languages
 // F20 P21 page contract: public/assets/js/inline-efb.js (EFBInline), the builder's a11y-builder-efb.js, Emsfb\A11y and
 // its autofill labels, the phrases and the runtime in core-efb.js add about 75 KB of code (12,338,094 → about
 // 12,415,000 bytes without languages); the core stays well under the size before SPLIT.
-const EFB_SPLIT_MIN_GAIN    = 250000;
+// Raised on purpose for F17 (2026-11-18): the gate was already 6,995 bytes over at 68ae5b70 (F12b-L's settings screens,
+// 12,441,727 bytes). F17 is core by the owner's SPLIT decision (name formats, the address formats of eleven countries,
+// their checks and the P22 display contract; search and postal masks are AdnADR's): Emsfb\Address_Schemes, its JSON
+// definition, EFBNameAddr (public), the builder's chooser and group settings, the P22 functions, the hooks in the
+// renderer / submit / viewer / CSV / e-mail and 77 phrases add about 125 KB (→ about 12,567,000 bytes without
+// languages). The core stays more than 100 KB under the size before SPLIT; the moved files stay out (checked below).
+const EFB_SPLIT_MIN_GAIN    = 100000;
 
 $paths = array('includes', 'public', 'languages', 'composer', 'emsfb.php', 'autoload.php', 'index.php', 'readme.txt');
 $files = array();

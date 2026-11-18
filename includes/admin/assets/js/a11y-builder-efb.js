@@ -41,6 +41,9 @@
     row0 = row0 || (typeof valj_efb !== 'undefined' && valj_efb[0]) || {};
     const own = token(row.autocomplete);
     if (own) return own;
+    // F17: a part of a name or address has its part's token; firstName / lastName stored as text keep theirs.
+    if (row.cmp_grp && typeof efbNaAcFor === 'function') { const p = efbNaAcFor(row); if (p) return p; }
+    if (elementId === 'text' && (row.elementId === 'firstName' || row.elementId === 'lastName')) elementId = row.elementId;
     if (elementId === 'password' && (row0.type === 'register' || row.pw_confirm == 1)) return 'new-password';
     if (AUTO[elementId]) return AUTO[elementId];
     return elementId === 'text' && row0.val_timing === undefined ? 'off' : '';

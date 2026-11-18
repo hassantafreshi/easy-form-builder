@@ -2609,6 +2609,8 @@ function show_setting_window_efb(idset, opts) {
       const acHtml = acBox ? efbA11yAutocompleteEls(indx, idset) : '';
       if (acHtml) acBox.insertAdjacentHTML('beforeend', acHtml);
     }
+    // F17: a part of a name or address: its group block (format, strict letters, cascade, address search, delete the group).
+    if (idset !== 'formSet' && typeof efbNaPanelEfb === 'function') { try { efbNaPanelEfb(indx, idset); } catch (e) {} }
     document.querySelectorAll('#childsSideMenuConEfb .btn-toggle').forEach((b) => b.setAttribute('aria-pressed', b.classList.contains('active') ? 'true' : 'false'));
     if (document.getElementById('maskPresetEl') && typeof efb_masks_builder_init_efb === 'function') efb_masks_builder_init_efb(idset, indx);
     // F08: "Insert a smart tag" next to the inputs that take tags, and their live notes.

@@ -1,0 +1,141 @@
+{
+  "v": 1,
+  "about": "F17: name formats and address formats (docs/feature-gaps/F17-localized-name-address.fa.md). The one definition: PHP Emsfb\\Address_Schemes reads it, the builder and the page get it (the page only the formats its form uses). Keys: p part, t stored type, el palette id, lb label phrase, ac autocomplete token, r required by default, sz width (twelfths of 100), n digits (Persian / Arabic digits become Latin, inputmode numeric, dir ltr), ltr left-to-right without the number keyboard, nm normalize (s: drop spaces and dashes, x: drop spaces, w: one space, u: upper case), fmt shape after normalizing (us, uk, ca, jp), rx pattern after normalizing, mn / mx length, w words also accepted, cc fixed country of a state list, cas city list follows the state, mask the postal preset of the Address & Postal add-on (AdnADR) when it is active, opt soft check (a wrong value is a hint, never a refusal).",
+  "name_formats": {
+    "full": {"lb": "nmFmtFull", "parts": [
+      {"p": "full", "t": "text", "el": "text", "lb": "nmFull", "ac": "name", "r": 1, "sz": 100}
+    ]},
+    "fl": {"lb": "nmFmtFl", "parts": [
+      {"p": "first", "t": "text", "el": "firstName", "lb": "firstName", "ac": "given-name", "r": 1, "sz": 50},
+      {"p": "last", "t": "text", "el": "lastName", "lb": "lastName", "ac": "family-name", "r": 1, "sz": 50}
+    ]},
+    "pfl": {"lb": "nmFmtPfl", "parts": [
+      {"p": "prefix", "t": "select", "el": "select", "lb": "nmPrefix", "ac": "honorific-prefix", "r": 0, "sz": 25},
+      {"p": "first", "t": "text", "el": "firstName", "lb": "firstName", "ac": "given-name", "r": 1, "sz": 33},
+      {"p": "last", "t": "text", "el": "lastName", "lb": "lastName", "ac": "family-name", "r": 1, "sz": 42}
+    ]},
+    "fml": {"lb": "nmFmtFml", "parts": [
+      {"p": "first", "t": "text", "el": "firstName", "lb": "firstName", "ac": "given-name", "r": 1, "sz": 33},
+      {"p": "middle", "t": "text", "el": "text", "lb": "nmMiddle", "ac": "additional-name", "r": 0, "sz": 33},
+      {"p": "last", "t": "text", "el": "lastName", "lb": "lastName", "ac": "family-name", "r": 1, "sz": 33}
+    ]},
+    "ar4": {"lb": "nmFmtAr4", "help": "nmAsOnId", "parts": [
+      {"p": "first", "t": "text", "el": "firstName", "lb": "firstName", "ac": "given-name", "r": 1, "sz": 25},
+      {"p": "father", "t": "text", "el": "text", "lb": "nmFather", "ac": "additional-name", "r": 1, "sz": 25},
+      {"p": "grandfather", "t": "text", "el": "text", "lb": "nmGrandfather", "ac": "additional-name", "r": 0, "sz": 25},
+      {"p": "family", "t": "text", "el": "lastName", "lb": "nmFamily", "ac": "family-name", "r": 1, "sz": 25}
+    ]},
+    "ar3": {"lb": "nmFmtAr3", "help": "nmAsOnId", "parts": [
+      {"p": "first", "t": "text", "el": "firstName", "lb": "firstName", "ac": "given-name", "r": 1, "sz": 33},
+      {"p": "father", "t": "text", "el": "text", "lb": "nmFather", "ac": "additional-name", "r": 1, "sz": 33},
+      {"p": "family", "t": "text", "el": "lastName", "lb": "nmFamily", "ac": "family-name", "r": 1, "sz": 33}
+    ]}
+  },
+  "name_rule": {"mn": 1, "mx": 60},
+  "prefixes": {
+    "fa": ["آقا", "خانم", "دکتر", "مهندس"],
+    "ar": ["السيد", "السيدة", "الآنسة", "د.", "م."],
+    "de": ["Herr", "Frau", "Dr."],
+    "tr": ["Bay", "Bayan", "Dr."],
+    "ja": ["様", "殿", "先生"],
+    "en": ["Mr", "Mrs", "Ms", "Mx", "Dr"]
+  },
+  "floor_words": ["ground", "basement", "g", "b", "gf", "lg", "همکف", "زیرزمین", "پیلوت", "أرضي", "ارضي", "قبو", "بدروم", "zemin", "bodrum", "eg", "ug"],
+  "schemes": {
+    "intl": {"lb": "addrSchIntl", "parts": [
+      {"p": "country", "t": "conturyList", "el": "conturyList", "lb": "addrCountry", "ac": "country-name", "r": 1, "sz": 50},
+      {"p": "state", "t": "stateProvince", "el": "stateProvince", "lb": "addrState", "ac": "address-level1", "r": 0, "sz": 50},
+      {"p": "city", "t": "cityList", "el": "cityList", "lb": "city", "ac": "address-level2", "r": 1, "sz": 50},
+      {"p": "line1", "t": "address_line", "el": "address_line", "lb": "addrLine1", "ac": "address-line1", "r": 1, "sz": 100, "mn": 2, "mx": 150},
+      {"p": "line2", "t": "address_line", "el": "address_line", "lb": "addrLine2", "ac": "address-line2", "r": 0, "sz": 100, "mx": 150},
+      {"p": "postal", "t": "postalcode", "el": "postalcode", "lb": "postalcode", "ac": "postal-code", "r": 0, "sz": 50, "ltr": 1, "nm": "w", "rx": "^[A-Za-z0-9][A-Za-z0-9 -]{1,11}$"}
+    ], "disp": [["line1"], ["line2"], ["city", "state+postal"], ["country"]]},
+    "ir": {"lb": "addrSchIr", "cc": "IR", "parts": [
+      {"p": "state", "t": "stateProvince", "el": "stateProvince", "lb": "addrProvince", "ac": "address-level1", "r": 1, "sz": 50, "cc": "ir"},
+      {"p": "city", "t": "cityList", "el": "cityList", "lb": "city", "ac": "address-level2", "r": 1, "sz": 50, "cas": 1},
+      {"p": "street", "t": "address_line", "el": "address_line", "lb": "addrMainStreet", "ac": "address-line1", "r": 1, "sz": 50, "mn": 2, "mx": 150},
+      {"p": "alley", "t": "address_line", "el": "address_line", "lb": "addrAlley", "ac": "address-line2", "r": 0, "sz": 50, "mx": 100},
+      {"p": "plaque", "t": "address_line", "el": "address_line", "lb": "addrPlaque", "ac": "off", "r": 1, "sz": 25, "n": 1, "nm": "x", "rx": "^\\d{1,5}([/-]\\d{1,4})?$"},
+      {"p": "floor", "t": "address_line", "el": "address_line", "lb": "addrFloor", "ac": "off", "r": 0, "sz": 25, "n": 1, "rx": "^-?\\d{1,3}$", "w": 1},
+      {"p": "unit", "t": "address_line", "el": "address_line", "lb": "addrUnit", "ac": "off", "r": 0, "sz": 25, "n": 1, "rx": "^\\d{1,4}$"},
+      {"p": "postal", "t": "postalcode", "el": "postalcode", "lb": "postalcode", "ac": "postal-code", "r": 1, "sz": 25, "n": 1, "nm": "s", "rx": "^(?!(\\d)\\1{9})\\d{10}$", "mask": "ir.postal_code"}
+    ], "disp": [["state", "city", "street", "alley", "#plaque", "#floor", "#unit", "#postal"]]},
+    "sa": {"lb": "addrSchSa", "cc": "SA", "modes": ["", "sa_short_or_full"], "parts": [
+      {"p": "building_no", "t": "address_line", "el": "address_line", "lb": "addrBuildingNo", "ac": "off", "r": 1, "sz": 25, "n": 1, "nm": "s", "rx": "^\\d{4}$"},
+      {"p": "street", "t": "address_line", "el": "address_line", "lb": "addrStreet", "ac": "address-line1", "r": 1, "sz": 75, "mn": 2, "mx": 100},
+      {"p": "district", "t": "address_line", "el": "address_line", "lb": "addrDistrict", "ac": "address-level3", "r": 1, "sz": 50, "mn": 2, "mx": 100},
+      {"p": "state", "t": "stateProvince", "el": "stateProvince", "lb": "addrRegion", "ac": "address-level1", "r": 1, "sz": 50, "cc": "sa"},
+      {"p": "city", "t": "cityList", "el": "cityList", "lb": "city", "ac": "address-level2", "r": 1, "sz": 50, "cas": 1},
+      {"p": "postal", "t": "postalcode", "el": "postalcode", "lb": "postalcode", "ac": "postal-code", "r": 1, "sz": 25, "n": 1, "nm": "s", "rx": "^\\d{5}$", "mask": "sa.postal_code"},
+      {"p": "additional_no", "t": "address_line", "el": "address_line", "lb": "addrAdditionalNo", "ac": "off", "r": 1, "sz": 25, "n": 1, "nm": "s", "rx": "^\\d{4}$"},
+      {"p": "short_code", "t": "address_line", "el": "address_line", "lb": "addrShortCode", "ac": "off", "r": 0, "sz": 50, "ltr": 1, "nm": "su", "rx": "^[A-Z]{4}\\d{4}$", "opt": 1, "mask": "sa.short_address"}
+    ], "disp": [["building_no+street", "district"], ["city", "postal~additional_no"], ["state"], ["#short_code"]]},
+    "ae": {"lb": "addrSchAe", "cc": "AE", "parts": [
+      {"p": "state", "t": "stateProvince", "el": "stateProvince", "lb": "addrEmirate", "ac": "address-level1", "r": 1, "sz": 50, "cc": "ae"},
+      {"p": "area", "t": "address_line", "el": "address_line", "lb": "addrArea", "ac": "address-level2", "r": 1, "sz": 50, "mn": 2, "mx": 100},
+      {"p": "street", "t": "address_line", "el": "address_line", "lb": "addrStreet", "ac": "address-line1", "r": 0, "sz": 50, "mx": 100},
+      {"p": "building", "t": "address_line", "el": "address_line", "lb": "addrBuilding", "ac": "address-line2", "r": 1, "sz": 50, "mx": 100},
+      {"p": "unit", "t": "address_line", "el": "address_line", "lb": "addrApartment", "ac": "off", "r": 0, "sz": 33, "mx": 20},
+      {"p": "makani", "t": "address_line", "el": "address_line", "lb": "addrMakani", "ac": "off", "r": 0, "sz": 33, "n": 1, "nm": "s", "rx": "^\\d{10}$"},
+      {"p": "po_box", "t": "address_line", "el": "address_line", "lb": "addrPoBox", "ac": "off", "r": 0, "sz": 33, "n": 1, "nm": "s", "rx": "^\\d{1,6}$"}
+    ], "disp": [["#unit", "building", "street"], ["area", "state"], ["#makani", "#po_box"]]},
+    "eg": {"lb": "addrSchEg", "cc": "EG", "parts": [
+      {"p": "state", "t": "stateProvince", "el": "stateProvince", "lb": "addrGovernorate", "ac": "address-level1", "r": 1, "sz": 50, "cc": "eg"},
+      {"p": "city", "t": "cityList", "el": "cityList", "lb": "city", "ac": "address-level2", "r": 1, "sz": 50, "cas": 1},
+      {"p": "district", "t": "address_line", "el": "address_line", "lb": "addrDistrict", "ac": "address-level3", "r": 0, "sz": 50, "mx": 100},
+      {"p": "street", "t": "address_line", "el": "address_line", "lb": "addrStreet", "ac": "address-line1", "r": 1, "sz": 50, "mn": 2, "mx": 100},
+      {"p": "building_no", "t": "address_line", "el": "address_line", "lb": "addrBuildingNo", "ac": "off", "r": 1, "sz": 33, "n": 1, "nm": "s", "rx": "^\\d{1,5}[A-Za-z\\x{0621}-\\x{064A}]?$"},
+      {"p": "floor", "t": "address_line", "el": "address_line", "lb": "addrFloor", "ac": "off", "r": 0, "sz": 33, "n": 1, "rx": "^-?\\d{1,3}$", "w": 1},
+      {"p": "unit", "t": "address_line", "el": "address_line", "lb": "addrApartment", "ac": "off", "r": 0, "sz": 33, "n": 1, "rx": "^\\d{1,4}$"},
+      {"p": "landmark", "t": "address_line", "el": "address_line", "lb": "addrLandmark", "ac": "off", "r": 0, "sz": 67, "mx": 150},
+      {"p": "postal", "t": "postalcode", "el": "postalcode", "lb": "postalcode", "ac": "postal-code", "r": 0, "sz": 33, "n": 1, "nm": "s", "rx": "^\\d{5}$", "mask": "eg.postal_code"}
+    ], "disp": [["#building_no", "street", "#floor", "#unit"], ["district", "city", "state", "postal"], ["landmark"]]},
+    "us": {"lb": "addrSchUs", "cc": "US", "parts": [
+      {"p": "line1", "t": "address_line", "el": "address_line", "lb": "addrLine1", "ac": "address-line1", "r": 1, "sz": 100, "mn": 2, "mx": 150},
+      {"p": "line2", "t": "address_line", "el": "address_line", "lb": "addrLine2", "ac": "address-line2", "r": 0, "sz": 100, "mx": 150},
+      {"p": "city_text", "t": "address_line", "el": "address_line", "lb": "city", "ac": "address-level2", "r": 1, "sz": 42, "mn": 2, "mx": 100},
+      {"p": "state", "t": "stateProvince", "el": "stateProvince", "lb": "addrState", "ac": "address-level1", "r": 1, "sz": 33, "cc": "us"},
+      {"p": "postal", "t": "postalcode", "el": "postalcode", "lb": "zip", "ac": "postal-code", "r": 1, "sz": 25, "n": 1, "nm": "s", "fmt": "us", "rx": "^\\d{5}(-\\d{4})?$", "mask": "us.zip"}
+    ], "disp": [["line1"], ["line2"], ["city_text", "state+postal"]]},
+    "uk": {"lb": "addrSchUk", "cc": "GB", "parts": [
+      {"p": "line1", "t": "address_line", "el": "address_line", "lb": "addrLine1", "ac": "address-line1", "r": 1, "sz": 100, "mn": 2, "mx": 150},
+      {"p": "line2", "t": "address_line", "el": "address_line", "lb": "addrLine2", "ac": "address-line2", "r": 0, "sz": 100, "mx": 150},
+      {"p": "city_text", "t": "address_line", "el": "address_line", "lb": "addrTown", "ac": "address-level2", "r": 1, "sz": 50, "mn": 2, "mx": 100},
+      {"p": "county", "t": "address_line", "el": "address_line", "lb": "addrCounty", "ac": "address-level1", "r": 0, "sz": 50, "mx": 100},
+      {"p": "postal", "t": "postalcode", "el": "postalcode", "lb": "addrPostcode", "ac": "postal-code", "r": 1, "sz": 50, "ltr": 1, "nm": "su", "fmt": "uk", "rx": "^(GIR 0AA|([A-PR-UWYZ][0-9]{1,2}|[A-PR-UWYZ][A-HK-Y][0-9]{1,2}|[A-PR-UWYZ][0-9][A-HJKPSTUW]|[A-PR-UWYZ][A-HK-Y][0-9][ABEHMNPRVWXY]) [0-9][ABD-HJLNP-UW-Z]{2})$", "mask": "uk.postcode"}
+    ], "disp": [["line1"], ["line2"], ["city_text"], ["county"], ["postal"]]},
+    "ca": {"lb": "addrSchCa", "cc": "CA", "parts": [
+      {"p": "line1", "t": "address_line", "el": "address_line", "lb": "addrLine1", "ac": "address-line1", "r": 1, "sz": 100, "mn": 2, "mx": 150},
+      {"p": "line2", "t": "address_line", "el": "address_line", "lb": "addrLine2", "ac": "address-line2", "r": 0, "sz": 100, "mx": 150},
+      {"p": "city_text", "t": "address_line", "el": "address_line", "lb": "city", "ac": "address-level2", "r": 1, "sz": 42, "mn": 2, "mx": 100},
+      {"p": "state", "t": "stateProvince", "el": "stateProvince", "lb": "addrProvince", "ac": "address-level1", "r": 1, "sz": 33, "cc": "ca"},
+      {"p": "postal", "t": "postalcode", "el": "postalcode", "lb": "postalcode", "ac": "postal-code", "r": 1, "sz": 25, "ltr": 1, "nm": "su", "fmt": "ca", "rx": "^[ABCEGHJ-NPRSTVXY][0-9][ABCEGHJ-NPRSTV-Z] [0-9][ABCEGHJ-NPRSTV-Z][0-9]$", "mask": "ca.postal_code"}
+    ], "disp": [["line1"], ["line2"], ["city_text", "state+postal"]]},
+    "de": {"lb": "addrSchDe", "cc": "DE", "parts": [
+      {"p": "line1", "t": "address_line", "el": "address_line", "lb": "addrStreetNo", "ac": "address-line1", "r": 1, "sz": 100, "mn": 2, "mx": 150},
+      {"p": "line2", "t": "address_line", "el": "address_line", "lb": "addrLine2", "ac": "address-line2", "r": 0, "sz": 100, "mx": 150},
+      {"p": "postal", "t": "postalcode", "el": "postalcode", "lb": "postalcode", "ac": "postal-code", "r": 1, "sz": 33, "n": 1, "nm": "s", "rx": "^(?!00)\\d{5}$", "mask": "de.plz"},
+      {"p": "city_text", "t": "address_line", "el": "address_line", "lb": "city", "ac": "address-level2", "r": 1, "sz": 67, "mn": 2, "mx": 100}
+    ], "disp": [["line1"], ["line2"], ["postal+city_text"]]},
+    "jp": {"lb": "addrSchJp", "cc": "JP", "parts": [
+      {"p": "postal", "t": "postalcode", "el": "postalcode", "lb": "postalcode", "ac": "postal-code", "r": 1, "sz": 33, "n": 1, "nm": "s", "fmt": "jp", "rx": "^\\d{3}-\\d{4}$"},
+      {"p": "state", "t": "stateProvince", "el": "stateProvince", "lb": "addrPrefecture", "ac": "address-level1", "r": 1, "sz": 33, "cc": "jp"},
+      {"p": "city_text", "t": "address_line", "el": "address_line", "lb": "addrCityWard", "ac": "address-level2", "r": 1, "sz": 33, "mn": 1, "mx": 100},
+      {"p": "line1", "t": "address_line", "el": "address_line", "lb": "addrLine1", "ac": "address-line1", "r": 1, "sz": 100, "mn": 1, "mx": 150},
+      {"p": "line2", "t": "address_line", "el": "address_line", "lb": "addrLine2", "ac": "address-line2", "r": 0, "sz": 100, "mx": 150}
+    ], "disp": [["#postal"], ["state+city_text+line1"], ["line2"]]},
+    "tr": {"lb": "addrSchTr", "cc": "TR", "parts": [
+      {"p": "state", "t": "stateProvince", "el": "stateProvince", "lb": "addrProvince", "ac": "address-level1", "r": 1, "sz": 50, "cc": "tr"},
+      {"p": "city", "t": "cityList", "el": "cityList", "lb": "addrDistrict", "ac": "address-level2", "r": 1, "sz": 50, "cas": 1},
+      {"p": "neighbourhood", "t": "address_line", "el": "address_line", "lb": "addrNeighbourhood", "ac": "address-level3", "r": 1, "sz": 50, "mn": 2, "mx": 100},
+      {"p": "street", "t": "address_line", "el": "address_line", "lb": "addrStreet", "ac": "address-line1", "r": 1, "sz": 50, "mn": 2, "mx": 100},
+      {"p": "building_no", "t": "address_line", "el": "address_line", "lb": "addrBuildingNo", "ac": "off", "r": 1, "sz": 25, "ltr": 1, "nm": "s", "rx": "^\\d{1,5}[A-Za-z]?([/-](\\d{1,4}[A-Za-z]?|[A-Za-z]))?$", "n": 1},
+      {"p": "unit", "t": "address_line", "el": "address_line", "lb": "addrApartment", "ac": "off", "r": 0, "sz": 25, "n": 1, "rx": "^\\d{1,4}$"},
+      {"p": "postal", "t": "postalcode", "el": "postalcode", "lb": "postalcode", "ac": "postal-code", "r": 1, "sz": 50, "n": 1, "nm": "s", "rx": "^(0[1-9]|[1-7][0-9]|8[01])[0-9]{3}$"}
+    ], "disp": [["neighbourhood", "street", "#building_no", "#unit"], ["postal+city", "state"]]}
+  },
+  "locale_defaults": {
+    "name": {"fa": "fl", "ar_SA": "ar4", "ar_EG": "ar3", "ar_JO": "ar3", "ar_SY": "ar3", "ar_LB": "ar3", "ar_IQ": "ar4", "*": "fl"},
+    "address": {"fa": "ir", "ar_SA": "sa", "ar_AE": "ae", "ar_EG": "eg", "ar": "sa", "en_US": "us", "en_GB": "uk", "en_CA": "ca", "fr_CA": "ca", "de_DE": "de", "ja": "jp", "tr": "tr", "*": "intl"}
+  }
+}
