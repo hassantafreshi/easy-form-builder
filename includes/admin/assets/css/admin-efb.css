@@ -1297,6 +1297,14 @@ div#sideBoxEfb {	height: 100vh;
 @media screen and (max-width: 782px) {
    div#sideBoxEfb { top: 46px; height: calc(100vh - 46px); overflow-y: auto; }
 }
+/* AI-8a: on a phone the open panel takes the whole width (it was a 32 % strip, about 120 px at 375 px, narrower than
+   the payment field's inputs, and its head stuck out of the screen). Only while it is open: closed it stays 0 wide. */
+@media screen and (max-width: 600px) {
+   div#sideBoxEfb.side-menu-efb.show { left: 0 !important; right: 0 !important; width: 100% !important; max-width: 100vw; margin: 0 !important; box-sizing: border-box; overflow-x: hidden; }
+   div#sideBoxEfb.show #sideMenuConEfb { width: auto; max-width: none; margin-left: 12px !important; margin-right: 12px !important; }
+   div#sideBoxEfb.show .efb.head.sidemenu { width: 100%; max-width: 100%; box-sizing: border-box; display: flow-root; } /* holds its floated Close / Done: the first notice is no longer under them */
+   div#sideBoxEfb.show input, div#sideBoxEfb.show select, div#sideBoxEfb.show textarea, div#sideBoxEfb.show .dropdown { max-width: 100%; }
+}
 
 .contentEfb {	box-sizing: border-box;
    overflow: hidden;

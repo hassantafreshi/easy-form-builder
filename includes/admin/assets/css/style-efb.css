@@ -2090,6 +2090,20 @@ body:has(.efb-rc3-notice) .grecaptcha-badge { visibility: hidden; }
 .efb.efb-pay-addons .efb-cpa-st-keys, .efb.efb-pay-addons .efb-cpa-st-plan, .efb.efb-pay-addons .efb-cpa-st-off { color: #8a4b00; }
 .efb.efb-pay-addons .efb-cpa-btn { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; margin-inline-start: auto; }
 @media (max-width: 600px) { .efb.efb-pay-addons .efb-cpa-name { flex-basis: 100%; } }
+/* AI-8b: the settings window on a phone gives its content the full width. The window, each section and its help text
+   each kept their desktop margins (about 220 px together), so at 375 px every tab had a column of about 150 px and the
+   "Forms moved" list and the add-on rows wrapped word by word. Only the side spacing changes. */
+@media (max-width: 576px) {
+   .efb.efb-settings-win { padding-left: 0; padding-right: 0; }
+   .efb.efb-settings-win > .crd { margin-left: 0; margin-right: 0; }
+   .efb.efb-settings-win > .crd > .card-body { padding-left: 12px; padding-right: 12px; }
+   .efb.efb-settings-win #nav-tabContent .m-3, .efb.efb-settings-win #nav-tabContent .mx-3, .efb.efb-settings-win #nav-tabContent .mx-4,
+   .efb.efb-settings-win #nav-tabContent .mx-5, .efb.efb-settings-win #nav-tabContent .ms-5, .efb.efb-settings-win #nav-tabContent .me-5 { margin-left: 0 !important; margin-right: 0 !important; }
+   .efb.efb-settings-win #nav-tabContent .card-body { padding-left: 4px; padding-right: 4px; }
+   .efb.efb-settings-win #nav-tabContent .card-title > i.m-3 { margin-left: 8px !important; margin-right: 8px !important; }
+   /* The e-mail template builder's toolbar wraps instead of running off the screen (it did at 375 px before too). */
+   .efb.efb-settings-win .efb-toolbar-left, .efb.efb-settings-win .efb-toolbar-right { flex-wrap: wrap; min-width: 0; }
+}
 [dir="rtl"] .efb.efb-pay-addons .efb-spam-help, .rtl .efb.efb-pay-addons .efb-spam-help { text-align: right; }
 .efb.efb-spam-settings textarea.efb-spam-input { max-width: 40rem; }
 .efb.efb-spam-settings .efb-secret-input { flex: 1 1 12rem; min-width: 0; }

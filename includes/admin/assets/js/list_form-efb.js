@@ -1543,7 +1543,7 @@ function fun_show_setting__emsFormBuilder() {
 
   const planBadgeHtml = getCurrentPlanBadge_efb();
   document.getElementById('content-efb').innerHTML = `
-  <div class="efb container">
+  <div class="efb container efb-settings-win">
             <h4 class="efb title-holder efb fs-4 d-none">
                 <img src="${efb_var.images.title}" class="efb title efb">
                 <i class="efb  bi-gear title-icon mx-1"></i>${efb_var.text.setting}
