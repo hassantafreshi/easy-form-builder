@@ -739,7 +739,7 @@ module.exports = function (S) {
     plan(3);
     ctl('locale', '');
     const sc = ctl('f14-schema');
-    R.check('f14a: DB 1.10 or later — entry_status / starred / trashed_at / edited_at, keys form_status_date and read_, three tables', sc.ready === true && ['1.10', '1.11'].includes(String(sc.db_version))
+    R.check('f14a: DB 1.10 or later — entry_status / starred / trashed_at / edited_at, keys form_status_date and read_, three tables', sc.ready === true && /^1\.(1\d|[2-9]\d)$/.test(String(sc.db_version))
       && ['entry_status', 'starred', 'trashed_at', 'edited_at'].every((c) => sc.columns.includes(c)) && sc.keys.includes('form_status_date') && sc.keys.includes('read_') && Object.values(sc.tables).every(Boolean), sc);
     const F = form('F14 e2e list', [{ key: 'nm', type: 'text', name: 'Name' }, { key: 'pets', type: 'checkbox', name: 'Pets' }, { key: 'p1', type: 'option', parent_key: 'pets', value: 'Cat' }, { key: 'p2', type: 'option', parent_key: 'pets', value: 'Bird' }]);
     const ids = F.ids;
