@@ -482,6 +482,7 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = Unreleased =
 
+* Changed: three files no page used are gone from the plugin package (an old copy of jQuery and two PNG flag images; the phone field uses the WebP flags): about 340 KB smaller.
 * Fix: a ticket closed in the entries viewer stays closed: a reply, opening the entry again or "Mark as read" no longer reopen it (the Closed tab lists it); a visitor's reply on a read or closed entry shows as a new reply, also in the admin menu's count; a pending payment keeps its state.
 * Fix: a CAPTCHA add-on's settings page shows only its own messages, not the plugin's other notices.
 * Changed: the Address & Postal add-on keeps its "Address search" settings with the plugin's other settings (moved once, automatically).
