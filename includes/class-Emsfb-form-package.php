@@ -120,6 +120,9 @@ class Form_Package {
 			'address_line', 'postalcode', 'esign', 'switch', 'chlCheckBox', 'chlRadio', 'heading', 'section', 'color', 'rating', 'yesNo', 'link', 'html', 'pointr5', 'pointr10',
 			'imgRadio', 'pdate', 'ardate', 'trmCheckbox', 'ranking', 'calc', 'repeater', 'hiddenField', 'table_matrix', 'smartcr', 'sample', 'booking', 'steps');
 		if (class_exists('\\Emsfb\\Payments\\Registry')) foreach ((array) Payments\Registry::slugs() as $slug) $t[] = (string) $slug;
+		// The gateway add-ons' field types also while their add-on is off here (PAY00 catalogue; PAY-OUT: stripecheckout,
+		// paypalcheckout, zarinpalgate): the form comes in whole and the payment readiness names the add-on it needs.
+		if (class_exists('\\Emsfb\\Payments\\Readiness')) foreach ((array) Payments\Readiness::catalogue_types() as $slug) if (!in_array($slug, $t, true)) $t[] = (string) $slug;
 		return function_exists('apply_filters') ? (array) apply_filters('efb_form_package_known_types', $t) : $t;
 	}
 

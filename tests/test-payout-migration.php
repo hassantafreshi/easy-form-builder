@@ -242,6 +242,10 @@ $rd = Readiness::of_form($moved, $fid);
 $t('H a moved form whose Stripe add-on is off: pay_addon_inactive naming AdnSPF (never an unknown field)', array($rd['ready'], $rd['issues'][0]['code'], $rd['issues'][0]['addon']), array(false, 'pay_addon_inactive', 'AdnSPF'));
 $t('H Readiness knows the three new fields while their add-ons are off', array(Readiness::is_payment_type('stripecheckout'), Readiness::is_payment_type('paypalcheckout'), Readiness::is_payment_type('zarinpalgate'), Readiness::addon_of('zarinpalgate')), array(true, true, true, 'AdnPPF'));
 
+require_once __DIR__ . '/../includes/class-Emsfb-form-package.php';
+$kt = \Emsfb\Form_Package::known_types();
+$t('H a form package (Data Tools) with a moved form imports whole while the add-on is off (the three types are known)', array(in_array('stripecheckout', $kt, true), in_array('paypalcheckout', $kt, true), in_array('zarinpalgate', $kt, true), in_array('stripe', $kt, true)), array(true, true, true, true));
+
 /* ---------------------------------------------------------------- I */
 echo "\n=== I the contract and REST\n";
 $v = efb_addon_contract_versions()['legacy_gateway'];
