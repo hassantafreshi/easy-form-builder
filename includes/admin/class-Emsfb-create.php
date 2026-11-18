@@ -343,6 +343,8 @@ class Create {
 		wp_enqueue_script('efb-verify-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/verify-builder-efb.js', array('efb-val-js', 'efb-verify-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/verify-builder-efb.js'), true);
 		// F07: the upload rules (twin of Uploads::sanitize_key) and the file / dadfile controls (several files, camera, resizing, storage).
 		wp_enqueue_script('efb-upload-js', EMSFB_PLUGIN_URL . 'public/assets/js/upload-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/upload-efb.js'), true);
+		// F16: the preview runs the published form's inline checks (window.EFBInline, admin-efb.js efb_preview_inline_bind_efb()).
+		if (function_exists('efb_inline_enqueue')) efb_inline_enqueue(true);
 		wp_enqueue_script('efb-a11y-builder-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/a11y-builder-efb.js', array('efb-val-js'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/a11y-builder-efb.js'), true); // F16
 		// F17: localized name and address (the chooser, a part's group settings) and EFBNameAddr (the entries' full line).
 		wp_enqueue_script('efb-name-address-js', EMSFB_PLUGIN_URL . 'public/assets/js/name-address-efb.js', array(), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/name-address-efb.js'), true);

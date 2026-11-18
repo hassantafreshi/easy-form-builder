@@ -9846,6 +9846,8 @@ function handle_navbtn_efb(steps, device) {
         state = false;
         return false;
       }
+      // F16: in the preview Next checks the step's fields as the published form does (the summary, focus).
+      if (preview_efb == true && !efb_preview_inline_step_ok_efb()) return false;
       setTimeout(function () {
         var url = new URL(window.location);
         history.pushState("EFBstep-" + cp, null, url);
@@ -10309,6 +10311,8 @@ function previewFormEfb(state) {
     if (typeof efbRptPreviewInit === 'function') { try { efbRptPreviewInit(document); } catch (e) {} }
     // F10-B: sections open and close in the preview as on the page.
     if (typeof efbLayoutPreviewInit === 'function') { try { efbLayoutPreviewInit(document); } catch (e) {} }
+    // F16: the published form's inline checks in the preview (EFBInline, the form's Check fields / summary settings).
+    try { efb_preview_inline_bind_efb(); } catch (e) { /* the preview works without them */ }
   }
   if (state == 'run') {
     sitekye_emsFormBuilder.length > 1 ? loadCaptcha_efb() : '';
@@ -10388,4 +10392,78 @@ function efb_builder_init_logic_preview_efb() {
   efb_builder_prepare_logic_preview_efb();
   if (typeof runtime.init === 'function') runtime.init(formId);
   if (typeof runtime.evaluate === 'function') runtime.evaluate(formId);
+}
+
+/* ------------------------------------------------------------------ F16 in the builder preview */
+/*
+ * The preview runs the published form's inline checks through the same module (window.EFBInline, inline-efb.js):
+ * the form's "Check fields" timing (val_timing: blur, or on change for older forms), the message under the field with
+ * aria-invalid, the error summary (err_summary) and focus on Next / Send. The rules are the page's: required (or the
+ * field's own required message), e-mail and URL format, minimum and maximum length or value, and F01 masks.
+ * Nothing is sent: the server's own checks are not run here.
+ */
+let efb_preview_inline_ctl_efb = null;
+function efb_preview_root_efb() {
+  const v = document.getElementById('view-efb');
+  return v ? (v.closest('.modal-body') || v.parentElement) : null;
+}
+function efb_preview_row_of_efb(el) {
+  if (!el || !el.id || typeof valj_efb === 'undefined') return null;
+  const vid = el.dataset && el.dataset.vid ? el.dataset.vid : el.id.replace(/_$/, '');
+  let r = valj_efb.find((x) => x.id_ === vid && x.type !== 'option');
+  if (!r) { const o = valj_efb.find((x) => x.id_ === el.id && x.type === 'option'); if (o) r = valj_efb.find((x) => x.id_ === o.parent); }
+  if (!r && el.name) r = valj_efb.find((x) => x.id_ === el.name);
+  return r && r.type !== 'step' && r.type !== 'form' ? r : null;
+}
+function efb_preview_field_msg_efb(el) {
+  const r = efb_preview_row_of_efb(el);
+  if (!r || el.disabled || Number(r.hidden) === 1) return '';
+  const T = (k, fb) => (efb_var.text && typeof efb_var.text[k] === 'string' && efb_var.text[k] !== '' ? efb_var.text[k] : fb);
+  const choice = el.type === 'radio' || el.type === 'checkbox';
+  const box = choice ? (document.getElementById(`${r.id_}_options`) || el.closest('fieldset, .efb')) : null;
+  const val = choice ? (box && box.querySelector('input:checked') ? '1' : '') : String(el.value || '').trim();
+  if (val === '') {
+    if (Number(r.required) !== 1 && r.required !== true) return '';
+    return typeof r.customRequiredMsg === 'string' && r.customRequiredMsg !== '' ? r.customRequiredMsg : T('enterTheValueThisField', 'Please fill in this field.');
+  }
+  if (choice) return '';
+  if (r.type === 'email' && !/^[a-zA-Z0-9._%+'-]+@[a-zA-Z0-9.-]+\.(?:[a-zA-Z]{2,}|xn--[a-zA-Z0-9-]+)$/.test(val)) return T('enterTheEmail', 'Please enter a valid email address.');
+  if (r.type === 'url' && !/^https?:\/\/\S+\.\S+/i.test(val)) return T('enterValidURL', 'Please enter a valid URL.');
+  if (typeof r.mask_preset === 'string' && r.mask_preset !== '' && typeof EfbMasks !== 'undefined') {
+    const fd = efb_mask_preview_fd_efb(el);
+    if (fd) { const m = EfbMasks.fieldCheck(fd, el.value); if (!m.ok) return EfbMasks.fieldMessage(m.code, String(r.name || ''), String(el.getAttribute('placeholder') || ''), efb_var.text); }
+  }
+  const n = (v) => (v === undefined || v === null || String(v).trim() === '' ? NaN : Number(v));
+  if (['number', 'range', 'prcfld'].includes(r.type)) {
+    const x = Number(val), lo = n(r.milen), hi = n(r.mlen);
+    if (!isNaN(lo) && x < lo) return T('mcplen', 'Please enter a number that is greater than or equal to NN.').replace('NN', String(lo));
+    if (!isNaN(hi) && hi > 0 && x > hi) return T('mxcplen', 'Please enter a number that is less than or equal to NN').replace('NN', String(hi));
+  } else if (['text', 'textarea', 'email', 'password', 'tel', 'url', 'mobile'].includes(r.type)) {
+    const lo = n(r.milen), hi = n(r.mlen);
+    if (!isNaN(lo) && lo > 0 && val.length < lo) return T('mmplen', 'Please enter a value that is at least NN characters long.').replace('NN', String(lo));
+    if (!isNaN(hi) && hi > 0 && val.length > hi) return T('mmxplen', 'Please enter a value that is at most NN characters long.').replace('NN', String(hi));
+  }
+  return '';
+}
+function efb_preview_inline_bind_efb() {
+  efb_preview_inline_ctl_efb = null;
+  const root = efb_preview_root_efb();
+  if (!root || typeof window.EFBInline === 'undefined' || typeof valj_efb === 'undefined' || !valj_efb[0]) return null;
+  const blur = valj_efb[0].val_timing === 'blur';
+  const summary = ['1', 'true', true, 1].includes(valj_efb[0].err_summary);
+  efb_preview_inline_ctl_efb = window.EFBInline.attach(root, {
+    timing: blur ? 'blur' : 'change',
+    summary: summary,
+    fields: 'input.emsFormBuilder_v:not([type="hidden"]), select.emsFormBuilder_v, textarea.emsFormBuilder_v, [id$="_options"] input[type="radio"], [id$="_options"] input[type="checkbox"]',
+    validate: efb_preview_field_msg_efb,
+  });
+  // One step: Send checks the form (Next does it on a form with steps, in handle_navbtn_efb()).
+  const send = root.querySelector('#btn_send_efb');
+  if (send) send.addEventListener('click', (e) => { if (!efb_preview_inline_step_ok_efb()) { e.preventDefault(); e.stopImmediatePropagation(); } }, true);
+  return efb_preview_inline_ctl_efb;
+}
+/** The visible step of the preview has no error (EFBInline.check() skips the hidden steps); else the summary / focus. */
+function efb_preview_inline_step_ok_efb() {
+  if (!efb_preview_inline_ctl_efb) return true;
+  return efb_preview_inline_ctl_efb.check().length === 0;
 }

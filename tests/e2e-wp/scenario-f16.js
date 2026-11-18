@@ -128,6 +128,37 @@ module.exports = function (S) {
     const schema = await (await a.request.get(CFG.base + '/wp-json/Emsfb/v1/forms/' + fid + '/schema')).json();
     const sf = (schema.fields || []).reduce((o, f) => { o[f.id] = f.autocomplete; return o; }, {});
     R.check('f16-a: forms/{id}/schema: a11y {blur, 1, 1} and each field\'s effective token', schema.a11y && schema.a11y.val_timing === 'blur' && schema.a11y.warn_unsaved === '1' && sf[em.id_] === 'off' && sf[tx.id_] === 'section-x billing given-name', { a11y: schema.a11y, sf });
+
+    /* Final test (h): the builder's preview runs the published form's inline checks (EFBInline): blur timing, the
+       message under the field with aria-invalid, the error summary and focus on Send; nothing is sent. */
+    await a.evaluate((id) => { valj_efb.find((r) => r.id_ === id).required = 1; }, em.id_);
+    // The Save dialog is still up: closed first, as a person does.
+    if (await a.$('#settingModalEfb.show')) { await a.click('#settingModalEfb-close'); await a.waitForFunction(() => !document.querySelector('#settingModalEfb.show'), null, { timeout: 8000 }).catch(() => {}); await sleep(500); }
+    await a.evaluate(() => previewFormEfb('pc'));
+    await a.waitForSelector('#settingModalEfb-body #view-efb', { timeout: 15000 });
+    await sleep(800);
+    const pv = (id) => a.evaluate((i) => { const e = document.querySelector('#settingModalEfb-body [id="' + i + '_"]'); const m = document.querySelector('#settingModalEfb-body [id="' + i + '_-message"]'); return { inv: e && e.getAttribute('aria-invalid'), db: e && e.getAttribute('aria-describedby'), msg: m && m.style.display !== 'none' ? m.textContent.trim() : '' }; }, id);
+    await a.focus('#settingModalEfb-body [id="' + em.id_ + '_"]');
+    await a.keyboard.press('Tab');
+    await sleep(300);
+    R.check('f16-a: preview: Tab through the required e-mail: no error yet (blur timing)', (await pv(em.id_)).msg === '', await pv(em.id_));
+    await a.click('#settingModalEfb-body #btn_send_efb');
+    await sleep(400);
+    const sm = await a.evaluate(() => { const b = document.querySelector('#settingModalEfb-body .efb-errsum'); return b ? { shown: !b.classList.contains('d-none') && b.offsetParent !== null, links: Array.from(b.querySelectorAll('a')).map((x) => x.textContent.trim()), focus: document.activeElement === b } : null; });
+    R.check('f16-a: preview: Send with the required e-mail empty: the error summary (a link to the field), focus on it', !!sm && sm.shown && sm.links.length === 1 && sm.focus, sm);
+    await a.focus('#settingModalEfb-body [id="' + em.id_ + '_"]');
+    await a.keyboard.type('ana@', { delay: 20 });
+    await a.keyboard.press('Tab');
+    await sleep(300);
+    const e1 = await pv(em.id_);
+    R.check('f16-a: preview: a wrong e-mail, left: the message under it, aria-invalid, the message first in aria-describedby', e1.msg !== '' && e1.inv === 'true' && /^\S+_-message/.test(e1.db || ''), e1);
+    await a.fill('#settingModalEfb-body [id="' + em.id_ + '_"]', 'ana@example.test');
+    await a.keyboard.press('Tab');
+    await sleep(500);
+    const e2 = await pv(em.id_);
+    R.check('f16-a: preview: corrected: the message and aria-invalid go', e2.msg === '' && e2.inv === null, e2);
+    await a.screenshot({ path: SHOT('f16-a-preview-checks') });
+    await a.click('#settingModalEfb-close').catch(() => {});
   });
 
   /* ------------------------------------------------------------------------------------------------ f16-b */
