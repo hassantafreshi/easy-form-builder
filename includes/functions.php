@@ -11078,7 +11078,11 @@ public function addon_add_efb($value) {
 	}
 
 	public function update_pro_status_efb($code) {
-		update_option('emsfb_pro', 1);
+		// Whether Pro is on before this check: the outage grace period keeps an
+		// active licence on, it never turns Pro on. emsfb_pro used to be set to 1
+		// here, before the server was asked, so a site the server had deactivated
+		// was Pro while the request ran and for up to 21 days of any later outage.
+		$was_active = 1 === (int) get_option('emsfb_pro', 2);
 		update_option('emsfb_pro_activeCode', $code);
 		$json = $this->make_post_request_efb($code);
 
@@ -11088,7 +11092,15 @@ public function addon_add_efb($value) {
 		// truncated body - permanently, from a single bad round-trip, on a check
 		// that runs every week.
 		if (isset($json->transport_error) && $json->transport_error) {
-			return $this->handle_license_transport_failure_efb($code, isset($json->reason) ? $json->reason : 'unknown');
+			return $this->handle_license_transport_failure_efb($code, isset($json->reason) ? $json->reason : 'unknown', $was_active);
+		}
+
+		// The licence server was not reached and make_post_request_efb() only
+		// checked the code against this domain: not a verdict either (Farsi
+		// sites excepted, where the local check is the licence by design). It
+		// may keep an active licence on; it must not undo a deactivation.
+		if (!empty($json->local) && !$was_active && !$this->is_farsi_offline_license_efb()) {
+			return $this->handle_license_transport_failure_efb($code, 'probe_failed', false);
 		}
 
 		// Reaching the server clears any accumulated failure streak, including
@@ -11101,7 +11113,7 @@ public function addon_add_efb($value) {
 		$r = isset($json->r) ? $json->r : false;
 		if($r===false && !isset($json->state)) {
 			// Shape we do not recognise - still not a verdict.
-			return $this->handle_license_transport_failure_efb($code, 'missing_state');
+			return $this->handle_license_transport_failure_efb($code, 'missing_state', $was_active);
 		}
 		update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
 		$state = isset($json->state) ? $json->state : '';
@@ -11123,6 +11135,7 @@ public function addon_add_efb($value) {
 			$this->license_lapse_cause_efb('');
 			return true;
 		}elseif($state=="active") {
+			update_option('emsfb_pro', 1);
 			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
 			$this->resume_addon_downloads_efb();
 			$this->license_lapse_cause_efb('');
@@ -11147,7 +11160,7 @@ public function addon_add_efb($value) {
 		}
 
 		// Unknown state string: do not act on it.
-		return $this->handle_license_transport_failure_efb($code, 'unknown_state');
+		return $this->handle_license_transport_failure_efb($code, 'unknown_state', $was_active);
 	}
 
 	/**
@@ -11158,11 +11171,22 @@ public function addon_add_efb($value) {
 	 * grace period does Pro switch off, and even then the key is preserved so a
 	 * single successful check restores everything.
 	 *
-	 * @param string $code   Activation code.
-	 * @param string $reason Diagnostic reason.
+	 * The grace period is for a licence that is on: when Pro was off before
+	 * this check (the server said deactive or notExists, a code of another
+	 * domain, a grace period already used up, or a code never confirmed), an
+	 * outage leaves it off and keeps the cause the last verdict recorded.
+	 *
+	 * @param string $code       Activation code.
+	 * @param string $reason     Diagnostic reason.
+	 * @param bool   $was_active Whether Pro was on before this check.
 	 * @return bool Effective Pro state.
 	 */
-	private function handle_license_transport_failure_efb($code, $reason) {
+	private function handle_license_transport_failure_efb($code, $reason, $was_active = true) {
+		if (!$was_active) {
+			$this->emsfb_pro_log(sprintf('update_pro_status_efb: licence server gave no verdict (%s). Pro was off; it stays off.', $reason));
+			update_option('emsfb_pro_activeCode', $code);
+			return false;
+		}
 		$since = (int) get_option('emsfb_license_failed_since', 0);
 		if (!$since) {
 			$since = time();
