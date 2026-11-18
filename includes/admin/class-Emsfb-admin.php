@@ -1480,7 +1480,8 @@ class Admin {
             $this->db = $wpdb;
         }
         $table_name = $this->db->prefix . "emsfb_msg_";
-        $r          = $this->db->update($table_name, ['read_' => 1, 'read_date' => wp_date('Y-m-d H:i:s')], ['msg_id' => $id]);
+        // Opening takes only a new entry or a new visitor reply (0, 3) to read: never a pending payment (2) or a closed ticket (4).
+        $r          = $this->db->query($this->db->prepare("UPDATE `$table_name` SET read_ = 1, read_date = %s WHERE msg_id = %d AND read_ IN (0,3)", wp_date('Y-m-d H:i:s'), $id));
         $m =   $lang['updated'];
         $response = ['success' => true, 'r' =>"updated"];
         wp_send_json_success($response, 200);
@@ -1823,10 +1824,9 @@ class Admin {
                     $this->db = $wpdb;
                 }
         $table_name = $this->db->prefix . "emsfb_msg_";
-        if(strpos($m , '"type\":\"closed\"')){
-            $r = $this->db->update($table_name, ['read_' => 4], ['msg_id' => $id]);
-        }else if(strpos($m , '"type\":\"opened\"')){
-            $r = $this->db->update($table_name, ['read_' => 1], ['msg_id' => $id]);
+        $ticket_msg = strpos($m , '"type\":\"closed\"') ? 4 : (strpos($m , '"type\":\"opened\"') ? 1 : 0);
+        if($ticket_msg){
+            $r = $this->db->update($table_name, ['read_' => $ticket_msg], ['msg_id' => $id]);
         }
         $table_name = $this->db->prefix . "emsfb_rsp_";
         // F13: the replying administrator's address follows the entry's form setting too.
@@ -1858,8 +1858,10 @@ class Admin {
             \Emsfb\Upload_Guard::release_pending_uploads($response_attachment_urls);
             \Emsfb\Upload_Guard::release_response_attachment_reservations($response_attachment_urls);
         }
-        $table_name = $this->db->prefix . "emsfb_msg_";
-        $this->db->update($table_name,array('read_'=>1), array('msg_id' => $id) );
+        // A reply reads the entry (0, 3 → 1); it does not reopen a closed ticket or end a pending payment. Close / Reopen were written above.
+        if (!$ticket_msg) {
+            $this->db->query($this->db->prepare("UPDATE `{$this->db->prefix}emsfb_msg_` SET read_ = 1 WHERE msg_id = %d AND read_ IN (0,3)", $id));
+        }
         $m        = $lang['messageSent'];
         /*
          * The viewer appends the new reply straight away instead of reloading,
@@ -3674,7 +3676,7 @@ class Admin {
         if ($exists){
             // F14: spam and trash are not counted as new.
             $active = class_exists('\\Emsfb\\Entries') ? \Emsfb\Entries::active_sql() : '';
-            $value      = $this->db->get_results("SELECT msg_id,form_id FROM `$table_name` WHERE read_=0{$active}");
+            $value      = $this->db->get_results("SELECT msg_id,form_id FROM `$table_name` WHERE read_ IN (0,3){$active}"); // 3: a new visitor reply
             $rtrn       = 'null';
             return $value;
         }
@@ -4024,13 +4026,12 @@ class Admin {
             $user_id = get_current_user_id();
             if(!empty($msg_id_list)){
                 $placeholders = implode(',', array_fill(0, count($msg_id_list), '%d'));
+                // Mark as read: 0 / 3 → 1 only (a pending payment and a closed ticket keep their state, as in Entries::apply_op()).
+                $sql = $this->db->prepare("UPDATE `$table_name` SET read_ = 1 WHERE msg_id IN ($placeholders) AND read_ IN (0,3)", ...$msg_id_list);
+                $r = $this->db->query($sql);
+                $table_name = $this->db->prefix . "emsfb_rsp_";
                 $sql = $this->db->prepare("UPDATE `$table_name` SET read_ = 1 WHERE msg_id IN ($placeholders)", ...$msg_id_list);
                 $r = $this->db->query($sql);
-                if($r>0){
-                    $table_name = $this->db->prefix . "emsfb_rsp_";
-                    $sql = $this->db->prepare("UPDATE `$table_name` SET read_ = 1 WHERE msg_id IN ($placeholders)", ...$msg_id_list);
-                    $r = $this->db->query($sql);
-                }
 
         }
         wp_send_json_success($response, 200);

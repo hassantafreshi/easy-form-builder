@@ -31,6 +31,9 @@
  *  f14g  Resend (G): from a row's menu, the dialog shows the owner's and the visitor's address; "Visitor only"
  *        sends one mail and announces it; "Another address" with an invalid address is refused at the field
  *        (aria-invalid, the address named); the history shows the resend; fa_IR at 375 px.
+ *  f14t  Ticket state (F20 §15 bugs): Close in the viewer stays closed in the same request and after
+ *        opening the entry again (the Closed tab lists it); a visitor's reply on the closed ticket makes it a new
+ *        reply (3: the Unread tab, the row's badge); fa_IR and ar at 375 px (the Closed tab, the viewer).
  */
 'use strict';
 
@@ -263,6 +266,95 @@ module.exports = function (S) {
       return r.text();
     }, [fid, track]);
   }
+
+  /* ------------------------------------------------------------------ f14t */
+  /** A visitor's reply through the tracking page's route (forms/response/add), from a guest's page. */
+  const visitorReply = (page, msgId, track, text) => page.evaluate(async ([id, tr, tx]) => {
+    const prep = await (await fetch('/wp-json/Emsfb/v1/forms/session/prepare', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ form_id: 0 }) })).json();
+    const message = JSON.stringify([{ id_: 'message', name: 'message', type: 'text', amount: 0, value: tx, by: '', session: '' }]);
+    const r = await fetch('/wp-json/Emsfb/v1/forms/response/add', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': prep.nonce || '', sid: prep.sid || '', 'form-id': '0' },
+      body: JSON.stringify({ id: String(id), track: tr, message, sid: prep.sid || '', user_type: 'user', sc: '', page_id: 0, valid: '', efb_hp: '', type: 'form' }) });
+    const j = await r.json();
+    return j && j.data ? j.data : j;
+  }, [msgId, track, text]);
+
+  scenario('f14t', 'Ticket state (F20 §15): Close in the viewer stays closed (also after opening it again); a visitor\'s reply on a read or closed entry is a new reply (badge, Unread tab); fa_IR and ar at 375 px', async ({ adminPage, context }) => {
+    plan(3);
+    ctl('locale', '');
+    ctl('f12-setting', 'secretKey=del&siteKey=del&reply_rl_track=100&reply_rl_ip=0');
+    const F = listForm('Tickets e2e', 2);
+    const id = F.msgs[1];
+    const track = (entries(F.form_id).find((e) => Number(e.msg_id) === id) || {}).track;
+    const state = () => Number((entries(F.form_id).find((e) => Number(e.msg_id) === id) || {}).read_);
+    const until = async (fn, ms) => { for (let i = 0; i < (ms || 10000) / 200; i++) { if (fn()) return true; await sleep(200); } return fn(); };
+    try {
+      const admin = await adminPage({}, 'f14t');
+      await openList(admin, F.form_id);
+      await admin.click(`#btn-m-${id}`);
+      await admin.waitForSelector('#respStateEfb', { timeout: 20000 });
+      R.check('f14t: the entry opened in the viewer is read (0 → 1)', await until(() => state() === 1), state());
+      await admin.click('#respStateEfb');
+      await admin.waitForSelector('#modalConfirmBtnEfb', { timeout: 8000 });
+      await admin.click('#modalConfirmBtnEfb');
+      R.check('BUG f14t: Close in the viewer stores "closed" (4) and it stays (the same request wrote 1 after it)', await until(() => state() === 4) && (await sleep(1500), state() === 4), state());
+      await openList(admin, F.form_id);
+      await admin.click(`#btn-m-${id}`);
+      await admin.waitForSelector('#respStateEfb', { timeout: 20000 });
+      await admin.waitForFunction(() => document.getElementById('respStateEfb').dataset.state === '1', null, { timeout: 10000 }).catch(() => {});
+      const vc = await admin.evaluate(() => ({ btn: document.getElementById('respStateEfb').dataset.state, box: !!document.getElementById('efb_rich_editor'), note: (document.getElementById('replay_state__emsFormBuilder') || {}).textContent || '' }));
+      await sleep(1000);
+      R.check('BUG f14t: opening the closed entry again keeps it closed (4); the viewer shows it closed ("Open", no reply box)', state() === 4 && vc.btn === '1' && !vc.box && vc.note.trim() !== '', { vc, state: state() });
+      /* The viewer has no reply box on a closed ticket; the administrator's reply through the same request (and the
+         other administrator paths) keeping it closed: tests/test-ticket-state.php. */
+      await openList(admin, F.form_id);
+      await admin.click('#efbEntTab-closed');
+      await waitIdle(admin);
+      const closed = await listState(admin);
+      R.check('BUG f14t: F14\'s Closed tab lists it with the count 1 (it used to stay empty)', closed.rows.includes(id) && closed.counts.closed === '1', closed);
+      await admin.screenshot({ path: SHOT('f14t-closed-tab-en') });
+
+      const guest = await (await context({}, 'f14t-guest')).newPage();
+      await guest.goto(CFG.base + '/', { waitUntil: 'load' });
+      const a = await visitorReply(guest, id, track, 'I still need help.');
+      R.check('BUG f14t: the visitor\'s reply on the closed ticket is a new reply (4 → 3), not 0', a && a.success === true && await until(() => state() === 3), { a, state: state() });
+      await openList(admin, F.form_id);
+      await admin.click('#efbEntTab-unread');
+      await waitIdle(admin);
+      const un = await listState(admin);
+      const rowNew = await admin.evaluate((i) => { const r = document.querySelector(`.efb-ent-row[data-msgid="${i}"]`); return !!r && r.classList.contains('efb-ent-unread') && document.getElementById(`btn-m-${i}`).classList.contains('efb-has-badge'); }, id);
+      R.check('f14t: the list shows it as new (Unread tab, the row and its envelope badge)', un.rows.includes(id) && rowNew, { un, rowNew });
+      await admin.click(`#btn-m-${id}`);
+      await admin.waitForSelector('#respStateEfb', { timeout: 20000 });
+      R.check('f14t: opening it reads it (3 → 1)', await until(() => state() === 1), state());
+      await admin.close();
+
+      // fa_IR and ar at 375 px: the closed entry in the Closed tab and in the viewer.
+      await (async () => { const p = await adminPage({}, 'f14t-close'); await openList(p, F.form_id); await p.click(`#btn-m-${id}`); await p.waitForSelector('#respStateEfb', { timeout: 20000 }); await p.click('#respStateEfb'); await p.waitForSelector('#modalConfirmBtnEfb', { timeout: 8000 }); await p.click('#modalConfirmBtnEfb'); await until(() => state() === 4); await p.close(); })();
+      for (const loc of ['fa_IR', 'ar']) {
+        ctl('locale', loc);
+        try {
+          const m = await adminPage({ viewport: { width: 375, height: 812 }, locale: loc.replace('_', '-') }, 'f14t-' + loc);
+          await openList(m, F.form_id);
+          await m.click('#efbEntTab-closed');
+          await waitIdle(m);
+          const ls = await listState(m);
+          const lay = await m.evaluate(() => ({ dir: getComputedStyle(document.getElementById('efbEnt')).direction, scroll: document.documentElement.scrollWidth <= window.innerWidth + 1 }));
+          R.check(`f14t (${loc}): at 375 px the Closed tab lists the closed ticket; right to left, local digits in the count, no horizontal scroll`, ls.rows.includes(id) && lay.dir === 'rtl' && lay.scroll && (loc === 'fa_IR' ? /۱/ : /١/).test(ls.counts.closed), { ls, lay });
+          await m.screenshot({ path: SHOT(`f14t-closed-${loc}-375`) });
+          await m.click(`#btn-m-${id}`);
+          await m.waitForSelector('#respStateEfb', { timeout: 20000 });
+          await sleep(500);
+          const vw = await m.evaluate(() => ({ scroll: document.documentElement.scrollWidth <= window.innerWidth + 1, btn: Math.round(document.getElementById('respStateEfb').getBoundingClientRect().height) }));
+          R.check(`f14t (${loc}): the viewer of the closed ticket at 375 px — no horizontal scroll; still closed after opening (4)`, vw.scroll && state() === 4, { vw, state: state() });
+          await m.screenshot({ path: SHOT(`f14t-viewer-${loc}-375`) });
+          await m.close();
+        } finally { ctl('locale', ''); }
+      }
+    } finally {
+      ctl('f12-delete-form', String(F.form_id));
+      ctl('f12-setting', 'reply_rl_track=del&reply_rl_ip=del');
+    }
+  });
 
   /* ------------------------------------------------------------------ f14d */
   scenario('f14d', 'F14 notes and history in the response viewer: add (Ctrl+Enter), HTML refused, star → history, never public, delete with the entry', async ({ adminPage, context }) => {

@@ -6521,8 +6521,9 @@ public function check_nonce_permission_efb($request) {
 					wp_send_json_success($response, 200);
 				}
 
+				// The entry's state (F14 read_): staff read it (0, 3 → 1); the visitor's reply on a read or closed entry is a new reply (1, 4 → 3), a new one stays 0; a pending payment (2) stays.
 				$table_name = $this->db->prefix . "emsfb_msg_";
-				$this->db->update($table_name,array('read_'=>$read_s), array('msg_id' => $id) );
+				$this->db->query($this->db->prepare("UPDATE `$table_name` SET read_ = %d WHERE msg_id = %d AND read_ IN " . ($read_s ? '(0,3)' : '(1,4)'), $read_s ? 1 : 3, $id));
 				$email_usr ="";
 				if($this->efb_uid!=0 && $this->efb_uid!==-1){
 					$usr= wp_get_current_user();

@@ -437,7 +437,7 @@ switch ( $efb_e2e_cmd ) {
 
 	case 'replies':
 		$id = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 0;
-		efb_e2e_out( $wpdb->get_results( $wpdb->prepare( "SELECT rsp_id, msg_id, ip, reader_ip, content FROM {$wpdb->prefix}emsfb_rsp_ WHERE msg_id = %d", $id ), ARRAY_A ) ); // phpcs:ignore
+		efb_e2e_out( $wpdb->get_results( $wpdb->prepare( "SELECT rsp_id, msg_id, ip, reader_ip, content, read_ FROM {$wpdb->prefix}emsfb_rsp_ WHERE msg_id = %d", $id ), ARRAY_A ) ); // phpcs:ignore
 		break;
 
 	case 'file-exists':
