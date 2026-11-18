@@ -127,12 +127,18 @@ saveFormEfb(stated)                         admin-efb.js:3960   (pro check 4027,
         check_ajax_referer('wp_rest','nonce') + user_permission_efb_admin_dashboard()  307
         isScript() refusal                    317
         emsfb_json_normalize_efb + json_decode(true)   322
+  → Emsfb\Admin::save_existing_form_efb($id, $name, $valp, $ctx)   (AI-2, 2026-11-18: everything below; it returns the
+        answer, and Form_Package::update() — form.update — runs the same method; a new check or normalizer goes here once)
         SMS/Telegram message keys are UNSET from valj_efb[0] and stored in addon tables 336-361
         $efbFunction->sanitize_obj_msg_efb($valp)       362   <-- THE KEY SANITIZER
         update emsfb_form, update_form_cache_efb()      371-394
 ```
 Autosave (`stated === -1`) only writes `localStorage` (`store_form_efb()`, `admin-efb.js:5930`). It
 does not call the server.
+
+After a successful save the builder dispatches `efb:form-saved` (`detail {id, created, warnings, payment_ready?,
+payment_issues?}`, AI-1) and the server fires `efb_form_saved` / `efb_form_created` with `$ctx['warnings']`: a new save
+warning reaches AutoPilot without more work when it is added to `$save_warnings_efb`.
 
 ### 1.6 Does a new key survive save? `sanitize_obj_msg_efb()` (`functions.php:3977-4113`)
 

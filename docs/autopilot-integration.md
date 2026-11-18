@@ -332,7 +332,7 @@ Events on `document`:
 - **PHP.** `\Emsfb\Builder_Api::capabilities($args)` = `get_efbFunction()->capabilities_efb()`,
   filter `efb_capabilities`. Answer:
   ```json
-  { "api_version": 1, "efb_version": "4.3.1",
+  { "api_version": 1, "efb_version": "4.3.2",
     "plan": { "package_type": 3, "name": "free_plus" },
     "features": { "setting:thank_you_redirect": { "kind": "setting", "package": "free_plus", "addon": null,
         "available_now": true, "reason": null, "prompt_state": 3, "message_key": "thisFeatureAvailableFreePlusPro",
@@ -1622,7 +1622,8 @@ versions are kept (Free 3, Free Plus 10, Pro 50 earlier versions).
   the PHP API is the contract: `efb_form_package_api()`, `Emsfb\Form_Package::export($id)` / `::validate($pkg)` /
   `::import($pkg)` — [docs/form-package-contract.en.md](form-package-contract.en.md). An import runs the same save
   path as a builder / AutoPilot save (`sanitize_obj_msg_efb()` and the F03 … F13 normalizers), always creates a new
-  form, and answers the payment readiness. Registry: `capabilities.form_package`.
+  form, and answers the payment readiness. Registry: `capabilities.form_package`. Version 1.2 adds `name_policy`, the
+  draft status, `read()` / `update()` of a saved form and `publish()` (see "AI builder core APIs" below).
 - **Tests.** `node tests/test-builder-history.js`, `node tests/test-builder-undo-browser.js` (AutoPilot calls and
   `history.batch`), `php tests/test-form-revisions.php`, `php tests/test-form-revisions-http.php`,
   `php tests/test-form-package.php`, `php tests/test-form-package-http.php`; e2e `f15a` … `f15d`.
@@ -2164,3 +2165,143 @@ The customer portal is a Pro add-on (`AdnPRT`, not built yet); core keeps its co
 - **Tests.** `php tests/test-portal-core-contract.php` (20), `php tests/test-portal-core-http.php` (84, a mock add-on),
   `php tests/test-owner-cancel-http.php`, `php tests/test-owner-index-wp.php`; e2e `f20-a` … `f20-c`.
 
+
+## AI builder core APIs (AI-1 … AI-8, 2026-11-18)
+
+What the AI builder plugin (AI Site Assistant AutoPilot, `wp-sitepilot-ai`) asked core for in its feature coverage
+(`docs/EFB_FEATURE_COVERAGE_FA.md` there, "needs EFB core change" 1–7), and two 375 px fixes. Each one is optional for an
+integration: check the registry entry (or `efb_form_package_api()['version'] >= 1.2`) and keep the older path otherwise.
+
+| # | What | Discover | Contract |
+|---|---|---|---|
+| AI-1 | Save warnings in `efb:form-saved` and the save hooks | `capabilities.save_events` (v1) | `detail = {id, created, warnings[], payment_ready?, payment_issues?}`; `efb_form_saved` / `efb_form_created` context key `warnings` |
+| AI-2 | `form.update`: patches to a saved form with `base_hash` | `capabilities.form_update` (v1); form package 1.2 | `Form_Package::read()` / `::update()`; REST `GET|POST Emsfb/v1/admin/forms/{id}/package|update` |
+| AI-3 | No "… (imported)" rename when asked | form package 1.2 `import_args.name_policy` | `import($pkg, ['name_policy' => 'keep'|'suffix'|'fail'])` |
+| AI-4 | Draft status | `capabilities.form_status` (v1) | `import($pkg, ['status' => 'draft'])`, `Form_Package::publish()`, REST `…/publish`, `…/status`, the forms list's Publish |
+| AI-5 | No rows for an add-on's field without the add-on | — | `field_templates_efb('stripe'|'calc'|'maps'|<gateway>)` → `WP_Error('addon_required')` as `newItems()` |
+| AI-6 | Inactive gateways in the registry | `capabilities.payment_gateways.<slug>` | every catalogue gateway with `installed`, `active`, `plan`, `addon`, `state`, `can_install`, `field_type`, `legacy_type` |
+| AI-7 | One version | `capabilities.efb_version` | 4.3.2 = the plugin header = `EMSFB_PLUGIN_VERSION` |
+| AI-8 | 375 px: the builder's field settings panel and Settings | — | full width on phones (CSS only) |
+
+### AI-1. The save warnings after the owner's own Save
+
+- **Browser.** `document.addEventListener('efb:form-saved', (e) => …)`: `e.detail = {id, created, warnings, payment_ready?,
+  payment_issues?}`. `warnings` is a copy of the save answer's `warnings` (the same objects: `code`, `m` in the site's
+  language, `level`, `field_id`, `addon`, `keys`, …): `addon_keys_kept` / `addon_keys_dropped`, `pay_*` (readiness and
+  the gateway's own checks), `verify_*`, `sms_disabled_addon_missing`, `telegram_disabled_addon_missing`,
+  `sms_admin_phone_invalid`, `sms_field_without_form`, the F06 / F07 / F08 / F10 / F11 / F12 warnings. `[]` when the
+  answer had none (an older server). `payment_ready` / `payment_issues` only for a form with a payment field. A refused
+  save fires nothing. A listener may not change what the builder shows (it gets a copy).
+- **Server.** The context of `do_action('efb_form_saved', $form_id, $rows, $ctx)` (builder save, `Form_Package::update()`)
+  and of `efb_form_created` (a new form of the builder, `Form_Package::import()`) has `warnings` (the same list).
+  `$ctx['source']`: `builder`, `autopilot` (update), `import`.
+- Code: `efb_save_event_detail_efb()` in `admin-efb.js`; `Admin::save_existing_form_efb()`; `Create::add_form_structure()`.
+
+### AI-2. `form.update`: change a saved form
+
+1. **Read**: `Form_Package::read($form_id)` → `{form_id, form_name, form_type, status, base_hash, rows}` (`rows` decoded,
+   as stored). REST `GET Emsfb/v1/admin/forms/{id}/package`.
+2. **Update**: `Form_Package::update($form_id, $patches, ['base_hash' => …, 'name' => …, 'note' => …])` → `{form_id,
+   form_name, form_type, status, base_hash (new), previous_hash, changed (field ids), form_changed, warnings, payment?,
+   shortcode}`. REST `POST Emsfb/v1/admin/forms/{id}/update` with JSON `{base_hash, patches, name?, note?}`.
+3. **Patches**, applied in order on a copy:
+
+   | op | Shape | Notes |
+   |---|---|---|
+   | `form` | `{op:"form", set:{k:v}, unset:[k]}` | row 0; `steps` is counted, never set; `type` one of the row-0 types |
+   | `field` | `{op:"field", id, set:{…}, unset:[…]}` | a field or step row by `id_`; `id_`, `dataId`, `type`, `parent` stay |
+   | `insert` | `{op:"insert", rows:[…], after|before:id | step:n, form_patch?}` | `insertItems()` rules: fields with their option rows; a step alone at the end; `form_patch` of `newItems()` / `field_templates_efb()` |
+   | `remove` | `{op:"remove", ids:[…]}` | fields with their option rows; a repeater with its fields; not steps |
+   | `options` | `{op:"options", id, options:["Label" | {value, price?, opt_value?}]}` | replaces a choice field's option rows (1–500) |
+   | `name` | `{op:"name", value}` | the form's name |
+
+   Fields and steps are renumbered by the A2 rule; repeater children are placed by `Repeater::normalize_rows()`.
+4. **The gate** (the capability registry): what the change brings in must be usable now — a new field's type
+   (`field:<type>`, a gateway of the catalogue that is not registered), a setting value turned on (`setting:*` by its
+   `form_keys`; entries that only list where smart tags are read are not a gate), a key of an add-on that is off
+   (`Addon_Keys`), a step over `limit:steps`. Turning something off is always allowed; what the form already had is not
+   judged (as the builder's Save).
+5. **The save path**: `Admin::save_existing_form_efb()`, the builder's own Save (the F03 pattern check, the F06 date
+   checks, `sanitize_obj_msg_efb()`, Privacy, Form_Gate, Uploads, Layout, Spam, Smart_Tags, `Addon_Keys::keep()` —
+   an absent add-on's stored keys stay, `addon_keys_kept` —, the SMS / Telegram tables, the caches,
+   `efb_form_saved` with source `autopilot`, a version `autopilot` with the note). The write is conditional on the stored
+   text it was made on, so two calls that read the same version cannot both win.
+6. **Refusals** (`WP_Error` / REST error with `data.status`): `package_forbidden` 403 (not a user of the plugin's
+   dashboard: `manage_options` or the `Emsfb` capability), `package_form_missing` 404, `base_hash_missing` 400,
+   `stale_hash` 409 (`data.current_hash`; read again and repeat), `invalid_patch` 400 (`data.patch`), `unknown_field`
+   404 (`data.id`), `unknown_target` 404, `duplicate_id` 409, `orphan_option` 400, `addon_required` 409 (`data.addon`,
+   `addon_name`, `state` addon | update, `feature`, `install`), `plan_required` 403 (`data.package`, `feature`),
+   `html_not_allowed` 400, and the save path's own codes (`pattern_invalid`, `auth_fields_missing`, the F06 date codes,
+   the F11 gate codes). A refusal writes nothing.
+7. **Auth** like the rest of the builder API: the plugin's admins only; over REST a logged-in cookie with `X-WP-Nonce`
+   (`wp_rest`) or an application password (Basic auth). Never public.
+
+```php
+$f = \Emsfb\Form_Package::read($id);
+$r = \Emsfb\Form_Package::update($id, array(
+  array('op' => 'field', 'id' => 'nm1234567', 'set' => array('name' => 'Full name', 'required' => 1)),
+  array('op' => 'insert', 'rows' => get_efbFunction()->field_templates_efb('tel')['rows'], 'after' => 'em1234567'),
+), array('base_hash' => $f['base_hash'], 'note' => 'Copilot: add a phone field'));
+if (is_wp_error($r) && $r->get_error_code() === 'stale_hash') { /* read again, show the owner the new form */ }
+```
+
+### AI-3. Keep the name of an imported form
+
+`Form_Package::import($pkg, ['name_policy' => 'keep'])` keeps a name that exists (no "… (imported)"); `fail` refuses
+with `package_name_exists` (409, `data.name`); `suffix` (the default, as before, for Data Tools) adds "(imported)".
+`import()` also answers `status`, `warnings` (the save path's, apart from `notices`) and `base_hash` (for `update()`).
+
+### AI-4. Draft forms
+
+- `Form_Package::import($pkg, ['status' => 'draft'])` makes a form that is **not shown to visitors**: its shortcode,
+  block and page-builder widgets give them nothing (no markup, no notice), its session prepare answers `efb_form_missing`
+  (404). The plugin's admins see the form with a notice above it ("Draft: visitors do not see this form yet …") so they
+  can try it. The forms list shows a "Draft" badge and a Publish button (admin-ajax `efb_form_publish`, nonce `wp_rest`).
+- Publish: `Form_Package::publish($id)`, REST `POST Emsfb/v1/admin/forms/{id}/publish`; `Form_Package::set_status($id,
+  'draft'|'published')`, REST `POST …/status {status}`. Action `efb_form_status_changed($form_id, $new, $old)`.
+- Stored in the existing column `emsfb_form.status` (every site has it since 3.9.x, `Install::upgrade_schema()`):
+  **2 = draft**, every other value published — 1, `NULL`, and the 0 older versions wrote (which the forms list once hid)
+  — so no form changes and there is no migration or DB version bump. The builder's Save keeps a draft a draft.
+- Registry `capabilities.form_status`: `{v: 1, values: [published, draft], ready, import, publish, set, visitor, admin}`.
+
+### AI-5. `field_templates_efb()` and `newItems()` agree on add-on fields
+
+A field of an add-on that is not active here gives **no rows** on both sides, with `addon_required`, the add-on's
+code, name, state and the Add-ons page: `maps` (`AdnADR`: "The map field needs the Address & Postal add-on (AdnADR)."),
+`calc` (`AdnCLC`: "A calculated field needs the Numbers & Calculations add-on (AdnCLC)."), `stripe` / `paypal` /
+`persiaPay` (their gateway add-ons: "stripe needs the AdnSPF add-on."), and every PAY00 gateway (`mollie` … `xendit`,
+`stripecheckout`, `paypalcheckout`, `zarinpalgate`). PHP: `WP_Error` with `data {addon, addon_name, state, install,
+status 409}`; JS: `e.code`, `e.addon`, `e.addon_name`, `e.install`. An add-on that is on but older than this core
+(`state: update`) is refused too. `field_templates_efb(null)` (every template) lists such a field with `rows: []` and
+`error: addon_required`.
+
+### AI-6. Every gateway in `payment_gateways`
+
+`capabilities.payment_gateways` lists every gateway of the catalogue (`Payments\Registry::addons()` and the three
+PAY-OUT fields), also while its add-on is off or not installed:
+`{addon, installed, active, plan (free_plus | pro: the add-on's install plan), state (active | addon | plan | update),
+can_install, field_type, legacy_type (stripe | paypal | persiaPay for the PAY-OUT fields), label, configured, mode, …}`.
+A registered gateway keeps every key it had (`configured`, `currencies`, `methods`, `field_schema`, …). An assistant
+names the add-on and its plan from here and needs no map of its own.
+
+### AI-7. The version
+
+`EMSFB_PLUGIN_VERSION` = the `Version:` header of `emsfb.php` = **4.3.2**; the registry (`efb_version`), the field
+templates and the form package (`plugin_version`) read the constant. `readme.txt`'s `Stable tag` stays on the released
+4.3.1: it moves with the release (the changelog's "Unreleased" section is this version's), not with development.
+
+### AI-8. 375 px
+
+On a phone (≤ 600 px) the builder's field settings panel takes the whole width (it was a 32 % strip of about 120 px;
+the payment field's inputs were wider) and holds its Close / Done buttons above the first notice; closed it takes no
+room. In Settings (≤ 576 px) the window's content takes the full width on every tab (it was a column of about 150 px);
+the e-mail template builder's toolbar wraps. Desktop is unchanged.
+
+### Tests
+
+| Test | Result |
+|---|---|
+| `php tests/test-ai-core-apis.php` (patches, refusals, hash, the gate, draft rendering rules, the version) | 50 passed |
+| `node tests/test-ai-save-event.js` (the event's detail; `newItems()` parity) | 18 passed |
+| `php tests/test-ai-core-apis-http.php` (real WordPress: AI-1 … AI-7 over admin-ajax, REST with a nonce and with an application password, pages as a visitor and an admin) | 56 passed |
+| e2e `ai-375`, `ai-draft`, `ai-event` (fa_IR / ar 375 px, en 1280) | 28 + 8 + 4 passed |

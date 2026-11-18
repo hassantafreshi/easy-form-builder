@@ -1,4 +1,4 @@
-# Form package contract (stable, version 1.1)
+# Form package contract (stable, version 1.2)
 
 > [Docs index](README.md) · Spec: [F15 §5.5, §9, subtask D](feature-gaps/F15-builder-productivity.fa.md) ·
 > P23 of [F20](feature-gaps/F20-customer-portal.fa.md) · Code: `includes/class-Emsfb-form-package.php`,
@@ -14,8 +14,9 @@ and a new `version`, never a silent change of version 1.
 
 ```php
 $api = function_exists('efb_form_package_api') ? efb_form_package_api() : null;
-// ['version' => 1.1, 'schema' => 1, 'extras_version' => 1, 'class' => 'Emsfb\Form_Package',
-//  'functions' => ['export','validate','import','export_extras','import_extras'],
+// ['version' => 1.2, 'schema' => 1, 'extras_version' => 1, 'class' => 'Emsfb\Form_Package',
+//  'functions' => ['export','validate','import','export_extras','import_extras','delete','import_entries','read','update','publish','set_status'],
+//  'import_args' => ['name','user_id','import_token','name_policy' => ['suffix','keep','fail'],'status' => ['published','draft']],
 //  'filters' => [...], 'actions' => [...], 'limits' => ['bytes' => 8388608, 'depth' => 64, 'rows' => 5000],
 //  'plugin_version' => '4.3.x']
 ```
@@ -59,7 +60,10 @@ $api = function_exists('efb_form_package_api') ? efb_form_package_api() : null;
 |---|---|---|
 | `export(int $form_id, array $args = [])` | envelope, or `WP_Error` (`efb_package_no_form`) | `with_emails` (bool, default false); `context` (`export` default) |
 | `validate(array\|string $package, array $args = [])` | `{ok, errors[], notices[], dropped[], form, extras, id_map}` | writes nothing; `form.form_structer` is what `import()` would store |
-| `import(array\|string $package, array $args = [])` | `{form_id, import_token, form_name, form_type, shortcode, dropped[], notices[], extras_applied[], id_map, payment?}`, or `WP_Error` | always a **new** form; `name` (optional), `user_id`, `import_token` (1.1: pass the token of an earlier import to group a batch under one token; a foreign or unknown token starts a new one) |
+| `import(array\|string $package, array $args = [])` | `{form_id, import_token, form_name, form_type, shortcode, dropped[], notices[], extras_applied[], id_map, payment?, status, warnings[], base_hash}`, or `WP_Error` | always a **new** form; `name` (optional), `user_id`, `import_token` (1.1: pass the token of an earlier import to group a batch under one token; a foreign or unknown token starts a new one); 1.2: `name_policy` (`suffix` default: "… (imported)" when the name exists; `keep`; `fail` → `package_name_exists` 409), `status` (`published` default, or `draft`: not shown to visitors; `status_unavailable` 503 on a site without the column) |
+| `read(int $form_id)` (1.2) | `{form_id, form_name, form_type, status, base_hash, rows}`, or `WP_Error` (`package_forbidden` 403, `package_form_missing` 404) | the stored form and the token `update()` needs; the plugin's admins only |
+| `update(int $form_id, array $patches, array $args)` (1.2) | `{form_id, form_name, form_type, status, base_hash, previous_hash, changed[], form_changed, warnings[], payment?, shortcode}`, or `WP_Error` | **form.update**: `args.base_hash` (required), `name`, `note` (the version's note). Patches `form` / `field` / `insert` / `remove` / `options` / `name`; the capability gate (`addon_required` 409, `plan_required` 403); the builder's own save path (`Admin::save_existing_form_efb()`), a version `autopilot`; `stale_hash` 409 when the form was saved in between. Every code and the patch shapes: [autopilot-integration.md, AI-2](autopilot-integration.md#ai-2-formupdate-change-a-saved-form) |
+| `publish(int $form_id)` / `set_status(int $form_id, 'draft'\|'published')` (1.2) | `true`, or `WP_Error` (`package_forbidden`, `package_form_missing`, `status_invalid`, `status_unavailable`) | a draft (`emsfb_form.status` 2) is hidden from visitors; every other stored value is published; fires `efb_form_status_changed` |
 | `delete(int $form_id, string $import_token)` (1.1) | `true`, or `WP_Error` (`package_forbidden` 403, `package_not_imported` 404, `package_not_deleted` 500) | **undo an import**: deletes only a form the import with that token created, for the user who imported it or an administrator; its entries, versions and caches go with it and `efb_form_deleted` fires (as the builder's delete). Tokens are kept 30 days (option `efb_form_package_imports`, at most 100) |
 | `import_entries(int $form_id, array $rows)` (1.1) | `{imported, skipped[{index, code, m, field_id?}], msg_ids[]}`, or `WP_Error` (`package_forbidden`, `package_form_missing`, `package_unavailable`) | each row `{answers: [{id_, value, …}], date?: "Y-m-d H:i:s", read?: 0-9, track?, entry_status?: 0-9, starred?: 0\|1}` (the last two when the site has the F14 columns); the answers go through the submit's own rules (`_Public::validate_rows_efb`, `admin_edit` as an administrator's edit of an entry) and are stored in core's format; no e-mail, payment or capacity; a row that does not pass is skipped with the submit's code (`package_entry_refused`); fires `efb_entry_imported($msg_id, $form_id)`. Replaces writing `emsfb_msg_` directly |
 | `export_extras(int $form_id, array $ctx)` | blocks | `ctx.context`: `export` (secrets removed) · `duplicate` (whole) · `revision` |
@@ -92,10 +96,10 @@ $api = function_exists('efb_form_package_api') ? efb_form_package_api() : null;
    `Uploads::normalize_rows`, `Layout::normalize_rows`, the smart-tag warnings. Labels with HTML are cleaned there.
 8. Notices that never refuse: `media_other_host`, `redirect_other_host`, `captcha_not_ready`, `logic_addon_inactive`,
    `ids_remapped`, `duplicate_ids`, the save path's warnings.
-9. `import()` stores the form (`form_type` from row 0), names it "… (imported)" when the name exists, fires
-   `efb_form_created` with `source = import` (versions, privacy map, unique values … follow), applies the extras and
-   returns the **payment readiness** of the new form (`Payments\Readiness`): an imported payment form is never
-   trusted to be ready.
+9. `import()` stores the form (`form_type` from row 0; `status` 2 for a draft), names it "… (imported)" when the name
+   exists (`name_policy` `keep` keeps it, `fail` refuses), fires `efb_form_created` with `source = import` and the save
+   path's `warnings` (versions, privacy map, unique values … follow), applies the extras and returns the **payment
+   readiness** of the new form (`Payments\Readiness`): an imported payment form is never trusted to be ready.
 
 ### Version 1.1 (SPLIT-G, 2026-11-15)
 
@@ -105,6 +109,15 @@ Backward compatible: every 1.0 call and answer is unchanged; `import()` adds `im
 out of core (SPLIT) registers its own extras and remap handlers on the same filters; while such an add-on is not active
 on the importing site its form keys are dropped with `dropped[] {code: addon_inactive, reason: addon_inactive, path, key, addon}` (SPLIT §4.2; `code` like
 every other `dropped[]` entry since the final test, `reason` kept).
+
+### Version 1.2 (AI-2 … AI-4, 2026-11-18)
+
+Backward compatible: every 1.1 call and answer is unchanged (the default `name_policy` is `suffix`, the default
+`status` `published`). New: `read()`, `update()` (form.update: patches to a saved form with optimistic concurrency),
+`publish()`, `set_status()`, the `name_policy` and `status` arguments of `import()`, and `status`, `warnings`,
+`base_hash` in its answer. A caller checks `$api['version'] >= 1.2` (or `in_array('update', $api['functions'], true)`).
+REST twins for the plugin's admins (cookie + `X-WP-Nonce`, or an application password): `GET Emsfb/v1/admin/forms/{id}/package`,
+`POST …/update`, `POST …/publish`, `POST …/status`. Registry: `capabilities.form_update`, `capabilities.form_status`.
 
 ## Extras (P23)
 

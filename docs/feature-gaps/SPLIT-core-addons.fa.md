@@ -514,6 +514,11 @@ vendores-efb/<dir>/                 # calc | typed-signature | address | booking
 
 AutoPilot **هرگز کلید را بی‌صدا حذف نمی‌کند** و فرم را «ساده‌تر» ذخیره نمی‌کند. باید: (۱) در پیش‌نمایش بگوید کدام ویژگی کدام افزونه و پلن را لازم دارد (`label_key`، `message_key`)؛ (۲) پیشنهاد نصب بدهد: پیوند `admin.php?page=Emsfb_addon` یا دیالوگ F18 با `efb_upgrade_prompt_efb({feature:'addon:AdnCLC', origin:'sitepilot'})`؛ نصب فقط با کلیک انسان؛ (۳) اگر مدیر بدون افزونه ادامه داد، کلیدها را بنویسد (هسته با §۴.۲ نگه می‌دارد) و هشدارهای `addon_keys_kept` را نشان دهد؛ (۴) فرم پولی که مبلغش از محاسبه است را تا `payment_ready = true` منتشر نکند.
 
+### ۱۵.۳.۱ پس از AI-5 و AI-6 (۲۰۲۶-۱۱-۱۸)
+
+- `field_templates_efb()` در PHP برای فیلد افزونه‌ای که این‌جا فعال نیست (`maps`، `calc`، `stripe`، `paypal`، `persiaPay` و هر درگاه PAY00) **هیچ ردیفی** نمی‌دهد و همان `addon_required` و همان جملهٔ `efbBuilderApi.newItems()` را با `addon`، `addon_name`، `state` و صفحهٔ افزونه‌ها برمی‌گرداند (هم‌ارز PHP/JS؛ افزونهٔ قدیمی‌تر از هسته هم).
+- `capabilities.payment_gateways` همهٔ درگاه‌های کاتالوگ را حتی وقتی افزونه‌شان خاموش یا نصب‌نشده است فهرست می‌کند: `installed`، `active`، `plan`، `addon`، `state`، `can_install`، `field_type`، `legacy_type`. دستیار نام افزونه و پلن را از همین‌جا می‌گیرد و نقشهٔ دستی لازم ندارد.
+
 ### ۱۵.۴ قراردادهای پایدار
 
 `form_package` v1 (F15-D)، `captcha` v1 + رجیستری ارائه‌دهنده v2 (F12b)، `payments` (PAY00، `EMSFB_PAYMENTS_API`)، `calc` v1 (§۶.۲، شامل `efb_payment_computed_items`)، `legacy_gateway` 2.2، منسوخ، حذف در 5.0 (§۵.۲، §۵.۴)، `typed_signature` v1، `booking` v1، `address` v1، `smart_tags_ext` v1، `portal_core` v1 (F20). جزئیات و به‌روزرسانی مستندات: `docs/autopilot-integration.md` بخش «SPLIT»، `reference/sitepilot-compatibility.en.md` §13، و در مخزن `sitepilot-ai` شاخهٔ `dev4`: `ai-site-assistant-autopilot-docs/docs/connectors/README.md`، `adr/0002-easy-form-builder-as-connector.md`، `skills/README.md`، `PROJECT_STATUS_REPORT.md`.
