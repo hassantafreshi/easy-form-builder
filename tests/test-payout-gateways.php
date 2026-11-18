@@ -6,7 +6,8 @@
  *
  *  1  registration (slug, add-on, label, supports, settings schema, api hosts), Test connection (ok, a refused key, a key
  *     of the other mode or none);
- *  2  pay: the provider is asked for the server's amount (whatever the answers say), with an idempotency key; the
+ *  2  pay: the provider is asked for the server's amount (whatever the answers say; ZarinPal in whole rials while the
+ *     payment keeps IRR's ISO minor unit), with an idempotency key; the
  *     visitor comes back, the payment is read from the provider (never from the return URL) and is paid once; the
  *     entry is finalized once (read_ 0) and holds the receipt (status paid, the provider's reference, the method);
  *  3  fail: the provider says not paid → failed with a reason, the entry stays pending payment, nothing finalized;
@@ -60,7 +61,8 @@ $db = po_env();
 $G = array(
 	'stripecheckout' => array('cur' => 'usd', 'p' => array('25', '12.5'), 'minor' => 2500, 'keys' => array('secret_key__test' => $F::stripe_key('test')), 'fake' => 'stripe'),
 	'paypalcheckout' => array('cur' => 'usd', 'p' => array('25', '12.5'), 'minor' => 2500, 'keys' => array('client_id__test' => $F::paypal_id(), 'secret__test' => $F::paypal_secret()), 'fake' => 'paypal'),
-	'zarinpalgate'   => array('cur' => 'irr', 'p' => array('250000', '125000'), 'minor' => 250000, 'keys' => array('merchant_id__test' => $F::zarinpal_merchant()), 'fake' => 'zarinpal'),
+	// IRR keeps its ISO minor unit (2) like on the visitor's page; ZarinPal is sent whole rials (250000).
+	'zarinpalgate'   => array('cur' => 'irr', 'p' => array('250000', '125000'), 'minor' => 25000000, 'keys' => array('merchant_id__test' => $F::zarinpal_merchant()), 'fake' => 'zarinpal'),
 );
 function po_form($slug, $cur, $prices) {
 	return array(

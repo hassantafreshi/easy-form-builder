@@ -25,6 +25,20 @@
  *   pay-table [reset]          whether that table exists, its rows, its version option and the pending count the Stripe
  *                              add-on published; reset drops it first (a site that never opened the payments page)
  *   versions                   core version, the legacy_gateway contract (version, min, providers) and each legacy add-on's state
+ *   gw-fake <0|1>              (step 5) the fake Stripe / PayPal / ZarinPal APIs of the add-ons' framework gateways
+ *                              (tests/payout-fake-providers.php, copied by "mu") on / off; their state reset
+ *   gw-last <stripe|paypal|zarinpal>   the fake's newest payment there (amount, status, return addresses)
+ *   rate-reset                 the payment routes' minute counters cleared (the tests' requests all come from 127.0.0.1)
+ *   dev-mode <0|1>             Easy Form Builder's Development Mode (the PayPal and ZarinPal sandboxes)
+ *   gw-set <gw> <id> <k=v&…>   a fake payment's state (e.g. zarinpal <authority> status=REVERSED)
+ *   gw-down <gw> <0|1>         the fake answers 503 for that provider
+ *   gw-log                     the fake's request log (method, path, idempotency key; no body)
+ *   pgw <slug>                 a framework gateway: registered, mode, configured per mode (never a key)
+ *   migration [reset]          (step 5) Payments\Legacy_Migration::status(); reset forgets the log, the backups and the
+ *                              three gateways' settings first
+ *   migration-run              one batch now (as the cron event)
+ *   readiness <form_id>        the payment readiness of a stored form (codes, the owner's words)
+ *   form-json <form_id>        the form's types (row 0 getway, currency, the gateway field) and the sha256 of its stored text
  *
  * Every command prints one JSON document on its last line. Local test site only.
  */
@@ -64,7 +78,100 @@ switch ( $efb_po_cmd ) {
 		if ( ! is_dir( WPMU_PLUGIN_DIR ) ) wp_mkdir_p( WPMU_PLUGIN_DIR );
 		$src = __DIR__ . '/mu-plugins/efb-e2e-payout.php';
 		$same = is_readable( $dst ) && md5_file( $dst ) === md5_file( $src );
-		efb_po_out( array( 'copied' => $same || copy( $src, $dst ), 'changed' => ! $same ) );
+		// Step 5: the fake provider APIs, in a sub-folder (not loaded by WordPress itself; the mu-plugin requires it).
+		wp_mkdir_p( WPMU_PLUGIN_DIR . '/efb-e2e' );
+		$fsrc = dirname( __DIR__ ) . '/payout-fake-providers.php';
+		$fdst = WPMU_PLUGIN_DIR . '/efb-e2e/payout-fake-providers.php';
+		$fsame = is_readable( $fdst ) && md5_file( $fdst ) === md5_file( $fsrc );
+		efb_po_out( array( 'copied' => ( $same || copy( $src, $dst ) ) && ( $fsame || copy( $fsrc, $fdst ) ), 'changed' => ! $same || ! $fsame ) );
+		break;
+
+	case 'gw-fake':
+		if ( ! class_exists( 'Efb_Test_Payout_Fake', false ) ) require_once dirname( __DIR__ ) . '/payout-fake-providers.php';
+		if ( isset( $efb_po_rest[0] ) && '1' === $efb_po_rest[0] ) Efb_Test_Payout_Fake::reset(); else delete_option( Efb_Test_Payout_Fake::OPTION );
+		efb_po_out( array( 'ok' => true ) );
+		break;
+
+	case 'gw-last':
+		if ( ! class_exists( 'Efb_Test_Payout_Fake', false ) ) require_once dirname( __DIR__ ) . '/payout-fake-providers.php';
+		$gw = isset( $efb_po_rest[0] ) ? $efb_po_rest[0] : 'stripe';
+		$id = Efb_Test_Payout_Fake::last_id( $gw );
+		$c = $id !== '' ? Efb_Test_Payout_Fake::get( $gw, $id ) : null;
+		if ( is_array( $c ) ) unset( $c['request'] );
+		efb_po_out( array( 'id' => $id, 'record' => $c, 'count' => count( Efb_Test_Payout_Fake::state()[ $gw ] ?? array() ) ) );
+		break;
+
+	case 'rate-reset':
+		// The payment routes' per-IP / per-form minute counters (every request of these tests comes from 127.0.0.1).
+		$n = $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s", $wpdb->esc_like( '_transient_efb_pmt_' ) . '%', $wpdb->esc_like( '_transient_timeout_efb_pmt_' ) . '%' ) ); // phpcs:ignore
+		wp_cache_flush();
+		efb_po_out( array( 'deleted' => (int) $n ) );
+		break;
+
+	case 'dev-mode':
+		// Easy Form Builder's Development Mode (PayPal and ZarinPal: their sandboxes).
+		update_option( 'emsfb_dev_mode', isset( $efb_po_rest[0] ) && '1' === $efb_po_rest[0] ? '1' : '0' );
+		efb_po_out( array( 'dev_mode' => get_option( 'emsfb_dev_mode' ) ) );
+		break;
+
+	case 'gw-set':
+		// gw-set <gw> <id> k=v&… : a fake payment's state (e.g. zarinpal … status=REVERSED).
+		if ( ! class_exists( 'Efb_Test_Payout_Fake', false ) ) require_once dirname( __DIR__ ) . '/payout-fake-providers.php';
+		parse_str( (string) ( $efb_po_rest[2] ?? '' ), $kv );
+		efb_po_out( array( 'ok' => Efb_Test_Payout_Fake::update( (string) ( $efb_po_rest[0] ?? '' ), (string) ( $efb_po_rest[1] ?? '' ), (array) $kv ) ) );
+		break;
+
+	case 'gw-down':
+		if ( ! class_exists( 'Efb_Test_Payout_Fake', false ) ) require_once dirname( __DIR__ ) . '/payout-fake-providers.php';
+		$st = Efb_Test_Payout_Fake::state();
+		if ( isset( $efb_po_rest[1] ) && '1' === $efb_po_rest[1] ) $st['down'][ $efb_po_rest[0] ] = 1; else unset( $st['down'][ $efb_po_rest[0] ?? '' ] );
+		Efb_Test_Payout_Fake::save( $st );
+		efb_po_out( array( 'down' => $st['down'] ) );
+		break;
+
+	case 'gw-log':
+		if ( ! class_exists( 'Efb_Test_Payout_Fake', false ) ) require_once dirname( __DIR__ ) . '/payout-fake-providers.php';
+		efb_po_out( array_map( function ( $l ) { return array( 'gw' => $l['gw'], 'method' => $l['method'], 'path' => $l['path'], 'idem' => $l['idem'] !== '' ); }, Efb_Test_Payout_Fake::state()['log'] ) );
+		break;
+
+	case 'pgw':
+		$slug = isset( $efb_po_rest[0] ) ? $efb_po_rest[0] : '';
+		$g = class_exists( '\Emsfb\Payments\Registry' ) ? \Emsfb\Payments\Registry::get( $slug ) : null;
+		$s = $g ? \Emsfb\Payments\Settings::load( $slug ) : null;
+		efb_po_out( array( 'registered' => (bool) $g, 'addon' => $g ? $g->addon_key() : '', 'mode' => $s ? $s->mode() : '', 'configured' => $g ? array( 'test' => $g->is_configured( $s, 'test' ), 'live' => $g->is_configured( $s, 'live' ) ) : null ) );
+		break;
+
+	case 'migration':
+		if ( ! class_exists( '\Emsfb\Payments\Legacy_Migration' ) ) efb_po_out( array( 'error' => 'no migration in this core' ) );
+		if ( isset( $efb_po_rest[0] ) && 'reset' === $efb_po_rest[0] ) {
+			delete_option( \Emsfb\Payments\Legacy_Migration::LOG );
+			delete_transient( \Emsfb\Payments\Legacy_Migration::LOCK );
+			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $wpdb->esc_like( \Emsfb\Payments\Legacy_Migration::BAK ) . '%' ) ); // phpcs:ignore
+			foreach ( array( 'stripecheckout', 'paypalcheckout', 'zarinpalgate' ) as $sl ) delete_option( \Emsfb\Payments\Settings::option_name( $sl ) );
+			wp_clear_scheduled_hook( \Emsfb\Payments\Legacy_Migration::HOOK );
+			wp_cache_flush();
+		}
+		efb_po_out( \Emsfb\Payments\Legacy_Migration::status() );
+		break;
+
+	case 'migration-run':
+		if ( ! class_exists( '\Emsfb\Payments\Legacy_Migration' ) ) efb_po_out( array( 'error' => 'no migration in this core' ) );
+		efb_po_out( \Emsfb\Payments\Legacy_Migration::run_batch( 20, 'cron' ) );
+		break;
+
+	case 'readiness':
+		// The payment readiness of a stored form (codes and the owner's words).
+		$r = class_exists( '\\Emsfb\\Payments\\Readiness' ) ? \Emsfb\Payments\Readiness::for_form_id( (int) ( $efb_po_rest[0] ?? 0 ) ) : null;
+		efb_po_out( is_array( $r ) ? array( 'ready' => $r['ready'], 'issues' => array_map( function ( $i ) { return array( 'code' => $i['code'], 'm' => $i['m'], 'addon' => $i['addon'] ?? '' ); }, $r['issues'] ) ) : null );
+		break;
+
+	case 'form-json':
+		$raw = (string) $wpdb->get_var( $wpdb->prepare( "SELECT form_structer FROM {$wpdb->prefix}emsfb_form WHERE form_id = %d", isset( $efb_po_rest[0] ) ? (int) $efb_po_rest[0] : 0 ) ); // phpcs:ignore
+		$rows = json_decode( str_replace( '\\"', '"', $raw ), true );
+		$types = array();
+		foreach ( (array) $rows as $i => $r ) if ( $i > 0 && is_array( $r ) && isset( $r['type'] ) ) $types[] = $r['type'];
+		efb_po_out( array( 'sha' => hash( 'sha256', $raw ), 'getway' => $rows[0]['getway'] ?? null, 'currency' => $rows[0]['currency'] ?? null, 'type0' => $rows[0]['type'] ?? null, 'types' => $types,
+			'form_type' => $wpdb->get_var( $wpdb->prepare( "SELECT form_type FROM {$wpdb->prefix}emsfb_form WHERE form_id = %d", (int) ( $efb_po_rest[0] ?? 0 ) ) ) ) ); // phpcs:ignore
 		break;
 
 	case 'fake':
@@ -94,7 +201,7 @@ switch ( $efb_po_cmd ) {
 		$em = $rid(); $pf = $rid(); $rad = $rid(); $o1 = $rid(); $o2 = $rid();
 		$persia = 'persiaPay' === $type;
 		$base = array( 'step' => 1, 'amount' => 0, 'size' => 100, 'required' => 0, 'label_text_size' => 'fs-6', 'label_position' => 'up', 'el_text_size' => 'fs-6', 'label_text_color' => 'text-labelEfb', 'el_border_color' => 'border-d', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'el_height' => 'h-d-efb', 'label_align' => 'txt-left', 'message_align' => 'justify-content-start', 'el_align' => 'justify-content-start', 'classes' => '', 'message' => '', 'placeholder' => '', 'value' => '', 'icon_input' => '' );
-		$row0 = array( 'type' => 'payment', 'steps' => 1, 'formName' => $name, 'email' => 'owner@example.test', 'trackingCode' => '1', 'EfbVersion' => 2, 'button_single_text' => 'Send', 'button_color' => 'btn-darkb', 'icon' => 'bi-ui-checks-grid', 'button_state' => 'single', 'email_to' => $em, 'show_icon' => '1', 'captcha' => '', 'sendEmail' => '0', 'stateForm' => 0, 'thank_you' => 'msg', 'thank_you_message' => array( 'icon' => 'bi-hand-thumbs-up', 'thankYou' => 'Thank you', 'done' => 'Done', 'trackingCode' => 'Confirmation Code', 'pleaseFillInRequiredFields' => 'Please fill in all required fields.' ), 'getway' => $type, 'currency' => $persia ? 'irr' : 'usd', 'paymentmethod' => 'charge', 'dShowBg' => '1', 'btns_align' => 'justify-content-center', 'label_text_color' => 'text-labelEfb', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'icon_color' => 'text-white', 'el_height' => 'h-d-efb' );
+		$row0 = array( 'type' => 'payment', 'steps' => 1, 'formName' => $name, 'email' => 'owner@example.test', 'trackingCode' => '1', 'EfbVersion' => 2, 'button_single_text' => 'Send', 'button_color' => 'btn-darkb', 'icon' => 'bi-ui-checks-grid', 'button_Next_text' => 'Next', 'button_Previous_text' => 'Previous', 'button_Next_icon' => 'bi-chevron-right', 'button_Previous_icon' => 'bi-chevron-left', 'button_state' => 'single', 'show_pro_bar' => '1', 'font' => '1', 'email_to' => $em, 'show_icon' => '1', 'captcha' => '', 'sendEmail' => '0', 'stateForm' => 0, 'thank_you' => 'msg', 'thank_you_message' => array( 'icon' => 'bi-hand-thumbs-up', 'thankYou' => 'Thank you', 'done' => 'Done', 'trackingCode' => 'Confirmation Code', 'pleaseFillInRequiredFields' => 'Please fill in all required fields.' ), 'getway' => $type, 'currency' => $persia ? 'irr' : 'usd', 'paymentmethod' => 'charge', 'dShowBg' => '1', 'btns_align' => 'justify-content-center', 'label_text_color' => 'text-labelEfb', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'icon_color' => 'text-white', 'el_height' => 'h-d-efb' );
 		if ( $persia ) $row0['persiaPay'] = 'zarinPal';
 		$rows = array( $row0, array( 'id_' => '1', 'type' => 'step', 'dataId' => '1', 'classes' => '', 'id' => '1', 'name' => 'Step', 'icon' => 'bi-ui-checks-grid', 'step' => 1, 'amount' => 1, 'EfbVersion' => 2, 'message' => '', 'label_text_size' => 'fs-5', 'el_text_size' => 'fs-5', 'label_text_color' => 'text-darkb', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'icon_color' => 'text-darkb', 'visible' => 1 ) );
 		$rows[] = array_merge( $base, array( 'id_' => $em, 'dataId' => $em . '-id', 'type' => 'email', 'elementId' => 'email', 'name' => 'Email', 'amount' => 2, 'required' => 1 ) );
@@ -117,7 +224,10 @@ switch ( $efb_po_cmd ) {
 	case 'keys':
 		$which = isset( $efb_po_rest[0] ) ? $efb_po_rest[0] : 'old';
 		// Shapes of the providers' keys, built here: never a real key.
-		$k = array( 'stripePKey' => 'pk_test_' . str_repeat( 'EfbE2e', 4 ), 'stripeSKey' => 'sk_test_' . str_repeat( 'EfbE2e', 4 ), 'paypalPKey' => 'AE2e' . str_repeat( 'Efb', 8 ), 'paypalSKey' => 'EE2e' . str_repeat( 'Efb', 8 ), 'payToken' => str_repeat( 'a1b2', 9 ) );
+		// PayPal and ZarinPal: the fake providers' own placeholders (step 5 moves these keys to the framework gateways,
+		// whose fake APIs accept only them).
+		if ( ! class_exists( 'Efb_Test_Payout_Fake', false ) ) require_once dirname( __DIR__ ) . '/payout-fake-providers.php';
+		$k = array( 'stripePKey' => 'pk_test_' . str_repeat( 'EfbE2e', 4 ), 'stripeSKey' => 'sk_test_' . str_repeat( 'EfbE2e', 4 ), 'paypalPKey' => Efb_Test_Payout_Fake::paypal_id(), 'paypalSKey' => Efb_Test_Payout_Fake::paypal_secret(), 'payToken' => Efb_Test_Payout_Fake::zarinpal_merchant() );
 		if ( 'clear' === $which ) $k = array_fill_keys( array_keys( $k ), null );
 		// Every run starts from core's old layout: the add-ons' own keys and their "moved" marks are removed first.
 		$reset = efb_po_write( array( 'pay_stripe' => null, 'pay_paypal' => null, 'pay_persiapay' => null ) );

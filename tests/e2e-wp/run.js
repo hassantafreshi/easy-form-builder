@@ -2115,6 +2115,11 @@ require('./scenario-final.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNew
  * tests/e2e-wp/scenario-jump.js. */
 require('./scenario-jump.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT });
 
+/* PAY-OUT (the Stripe, PayPal and Persia Pay code left core for their add-ons): step 5 in the browser (the older forms
+ * moved, each new field pays / fails / pays again with the receipt, refunds, Move back / Move now), each step with mixed
+ * versions, and fa_IR / ar at 375 px of every moved screen beside its old place: tests/e2e-wp/scenario-payout.js. */
+require('./scenario-payout.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, builderReady, canvasDrawn, openField, closePanel });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */

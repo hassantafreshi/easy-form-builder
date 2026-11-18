@@ -19,6 +19,8 @@
  *     provider reports as not paid is refused;
  *  T  (step 4) the emsfb_pay_ table and the Stripe / PayPal payments pages are the add-ons' (created on their first
  *     request, never dropped; core never names the table); the add-on publishes the payments waiting to be checked;
+ *  6  (step 5) the add-ons' framework fields: registered with the new add-ons (also on an old core, whose forms keep the
+ *     older fields: it has no migration); with old add-ons a form of the older field waits for the update, untouched;
  *  K  (step 2) the keys: with the new add-on on the new core they move once to the add-on's own key (encrypted, read
  *     back, the old ones removed; idempotent), its screen shows them masked and saves them write-only, the main Settings
  *     page never holds them, Settings › Payments links to each screen; an old add-on or an old core: nothing moves.
@@ -62,7 +64,7 @@ foreach ($COMBOS as $name => $combo) {
 	/* 1 */
 	$v = $M->ctl('versions');
 	$lg = $v['legacy_gateway'] ?? array();
-	t("$name 1 the core speaks legacy_gateway " . ($newcore ? '2.1 (min 2)' : '1'), array((float) ($lg['version'] ?? 0), (float) ($lg['min'] ?? 0)), $newcore ? array(2.1, 2.0) : array(1.0, 1.0));
+	t("$name 1 the core speaks legacy_gateway " . ($newcore ? '2.2 (min 2), deprecated (removed in 5.0)' : '1'), array((float) ($lg['version'] ?? 0), (float) ($lg['min'] ?? 0), $lg['removal'] ?? null), $newcore ? array(2.2, 2.0, '5.0') : array(1.0, 1.0, null));
 	$update = $newcore && $oldaddon; // PAY-OUT step 3: an add-on from before (contract 1.x) must be updated
 	t("$name 1 " . ($update ? 'the old add-ons are "update" (outdated), never half-used' : 'every legacy add-on can be used (states null)'), array_values($v['states'] ?? array()), $update ? array('update', 'update', 'update') : array(null, null, null));
 	// An add-on from before step 3 does not load its bridge on a contract-2 core (it registers only its old routes on
@@ -76,6 +78,21 @@ foreach ($COMBOS as $name => $combo) {
 		t("$name 2 the add-ons' settings panels (" . ($oldaddon ? 'old add-ons: none, the panel says Update' : 'window.efbFieldPanels') . ')', array_values($b['scripts'] ?? array()), $oldaddon ? array(false, false, false) : array(true, true, true));
 	} else {
 		t("$name 2 the old core has no legacy_gw (its own panels)", $b['legacy_gw'] ?? null, null);
+	}
+
+	/* 6 (step 5): the add-ons' framework fields and the move of the older forms */
+	$pg = $M->ctl('pgw', 'stripecheckout');
+	if ($newcore && !$oldaddon) {
+		t("$name 6 the add-ons register their framework fields (stripecheckout, paypalcheckout, zarinpalgate)", array($pg['registered'], $pg['addon'], $M->ctl('pgw', 'paypalcheckout')['addon'] ?? '', $M->ctl('pgw', 'zarinpalgate')['addon'] ?? ''), array(true, 'AdnSPF', 'AdnPAP', 'AdnPPF'));
+	} elseif ($newcore) {
+		$M->ctl('migration', 'reset');
+		$F6 = $M->ctl('legacy-form', 'stripe', 'PAY-OUT 6 ' . $name);
+		$sha = $M->ctl('form-json', $F6['form_id'])['sha'];
+		$run = $M->ctl('migration-run');
+		t("$name 6 old add-ons: no framework field; a form of the older field waits for the update (waiting_addon), not written", array($pg['registered'], $run['done'][$F6['form_id']] ?? '', $M->ctl('form-json', $F6['form_id'])['sha'] === $sha), array(false, 'waiting_addon', true));
+	} else {
+		$mg = $M->ctl('migration');
+		t("$name 6 an old core has no migration (its forms keep the older fields); the new add-ons' framework fields register on its payment framework", array($mg['error'] ?? '', $pg['registered']), array('no migration in this core', true));
 	}
 
 	/* K (step 2): the keys */
@@ -120,6 +137,8 @@ foreach ($COMBOS as $name => $combo) {
 	$page = $H->http('GET', $H->page($fid), null, array(), false);
 	$box = (bool) preg_match('/class="efb\s+[^"]*stripe emsFormBuilder_v"/', $page['body']);
 	if ($update) {
+		$rd = $M->ctl('readiness', $fid);
+		t("$name 3 the owner's readiness: pay_addon_update \"Update Stripe Payment to keep using it with this version.\" (not \"activate\")", array($rd['ready'] ?? null, $rd['issues'][0]['code'] ?? '', (bool) preg_match('/^Update .+ to keep using it with this version\.$/', $rd['issues'][0]['m'] ?? '')), array(false, 'pay_addon_update', true));
 		t("$name 3 an add-on too old for this core: the clear notice in place of the card box (no card box)", array($page['status'], $box, strpos($page['body'], 'data-efb-pay-blocked') !== false), array(200, false, true));
 		$rows = function () use ($F) { return array(array('id_' => $F['email'], 'name' => 'Email', 'type' => 'email', 'value' => 'payer@example.test'), array('id_' => $F['radio'], 'id_ob' => $F['o1'], 'name' => 'Ticket', 'type' => 'payRadio', 'value' => 'Adult', 'price' => '25')); };
 		$H->fresh_jar();

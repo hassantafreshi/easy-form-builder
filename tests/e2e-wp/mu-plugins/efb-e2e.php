@@ -20,6 +20,18 @@ add_filter(
 );
 
 /*
+ * PAY-OUT step 5: forms of the older Stripe / PayPal / Persia Pay fields are not moved in the background on the test site
+ * (the documented filter efb_legacy_migration_auto), so the tests of those fields keep their forms; the PAY-OUT tests
+ * move them through the admin's REST routes. The option efb_e2e_legacy_auto turns the background move on.
+ */
+add_filter(
+	'efb_legacy_migration_auto',
+	static function ( $on ) {
+		return get_option( 'efb_e2e_legacy_auto' ) ? $on : false;
+	}
+);
+
+/*
  * PAY00 (scenario 9): the test gateway "efbmock" and its fake provider are not part of the plugin;
  * they live in tests/payments-mock and are registered here, like a gateway add-on, only when the
  * suite switches them on (option efb_e2e_payments_mock). E-mails are recorded instead of sent

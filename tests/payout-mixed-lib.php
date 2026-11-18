@@ -33,7 +33,10 @@ class EfbPayoutMixed {
 		$this->H = $H;
 		$this->core_new = dirname(__DIR__);
 		$t = @readlink($this->core_new . '/vendor/stripe');
-		$this->addons_repo = getenv('EFB_ADDONS_REPO') ?: ($t ? dirname($t) : dirname($this->core_new) . '/vendores-efb');
+		$repo = $t ? dirname($t) : '';
+		// While an old add-on is in place the link points into the snapshot: the repository is then the usual sibling.
+		if ($repo === '' || !(is_dir($repo . '/.git') || is_file($repo . '/.git'))) $repo = dirname($this->core_new) . '/vendores-efb';
+		$this->addons_repo = getenv('EFB_ADDONS_REPO') ?: $repo;
 		$this->plugin_link = rtrim((string) $H->site, '/') . '/wp-content/plugins/easy-form-builder';
 		$this->snap = getenv('EFB_PAYOUT_SNAP') ?: sys_get_temp_dir() . '/efb-payout-snap';
 		$this->core_base = getenv('EFB_PAYOUT_CORE_BASE') ?: 'e890a6db';

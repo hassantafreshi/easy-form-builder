@@ -137,16 +137,17 @@ $cases = array(
 	array('paypal', 'twd', array('12.5', '250'), 'amount_differs'), // the older field sent "13", the new one cannot send 12.50 TWD
 	array('paypal', 'eur', array('19.99', '0.5'), 'migrated'),
 	array('persiaPay', 'usd', array('250000', '125000'), 'migrated'),
+	array('persiaPay', 'irr', array('2500.5', '125000'), 'amount_differs'), // ZarinPal never takes half a rial
 );
 foreach ($cases as $c) {
 	$id = $db->add_form(mg_form($c[0], array(), $c[2], $c[1]), 'payment');
 	$raw_c = mg_raw($db, $id);
 	$e = M::migrate_form($id);
 	$t("D {$c[0]} " . strtoupper($c[1]) . " " . implode('/', $c[2]) . ": {$c[3]}" . ($c[3] === 'migrated' ? '' : ' (not written)'), array($e['status'], $c[3] === 'migrated' ? true : mg_raw($db, $id) === $raw_c), array($c[3], true));
-	if ($c[0] === 'persiaPay') {
+	if ($c[0] === 'persiaPay' && $c[3] === 'migrated') {
 		$pr = mg_rows($db, $id);
 		$qq = \Emsfb\Payments\Pricing::quote($pr, array(array('id_' => 'rad', 'id_ob' => 'o1', 'type' => 'payRadio', 'value' => 'Adult')), array('gateway' => 'zarinpalgate', 'field_id' => 'pf'));
-		$t('D Persia Pay: ZarinPal in whole rials (row 0 currency irr, sub-gateway key gone), Adult 250000 as before', array($pr[0]['currency'], isset($pr[0]['persiaPay']), $pr[6]['type'], $qq['total_minor'], $qq['currency']), array('irr', false, 'zarinpalgate', 250000, 'IRR'));
+		$t('D Persia Pay: row 0 currency irr, the sub-gateway key gone; Adult 250000 rials as before (IRR minor units, ZarinPal sent whole rials)', array($pr[0]['currency'], isset($pr[0]['persiaPay']), $pr[6]['type'], $qq['total_minor'], $qq['currency'], \Emsfb\Payments\Zarinpal_Gateway::rials($qq['total_minor'])), array('irr', false, 'zarinpalgate', 25000000, 'IRR', 250000));
 	}
 }
 $id = $db->add_form(mg_form('stripe', array(), array('25', '12.5'), 'usd'), 'payment');

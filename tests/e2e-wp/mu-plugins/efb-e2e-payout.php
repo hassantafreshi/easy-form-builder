@@ -8,6 +8,7 @@
  *              requested amount and currency; their status is the option's "mode", "succeeded" by default), and every
  *              call is logged. Nothing leaves the machine and no real key is used. Self-contained (no file of the
  *              plugin is required), so it works whichever core or add-on version the PAY-OUT tests put in place.
+ *              Step 5: also the fake provider APIs of the add-ons' framework gateways (below).
  */
 
 /* Which core folder this request runs (the mixed-version tests wait for it after they swap a version). */
@@ -16,6 +17,15 @@ add_action( 'rest_api_init', function () {
 		return array( 'dir' => defined( 'EMSFB_PLUGIN_DIRECTORY' ) ? realpath( EMSFB_PLUGIN_DIRECTORY ) : '' );
 	} ) );
 } );
+
+/* PAY-OUT step 5: the fake Stripe / PayPal / ZarinPal APIs of the add-ons' framework gateways (stripecheckout,
+ * paypalcheckout, zarinpalgate) while the option efb_test_payout_fake exists: tests/payout-fake-providers.php, copied next
+ * to this file by "ctl-payout.php mu" (pre_http_request, and its Pay / Fail / Cancel page efb-e2e/v1/payout-checkout). */
+if ( false !== get_option( 'efb_test_payout_fake', false ) && is_readable( __DIR__ . '/efb-e2e/payout-fake-providers.php' ) ) {
+	require_once __DIR__ . '/efb-e2e/payout-fake-providers.php';
+	Efb_Test_Payout_Fake::register();
+	add_action( 'rest_api_init', array( 'Efb_Test_Payout_Fake', 'routes' ) );
+}
 
 if ( ! get_option( 'efb_e2e_payout_fake' ) ) return;
 
