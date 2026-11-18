@@ -7768,10 +7768,10 @@ public function check_nonce_permission_efb($request) {
 		$out = preg_replace('/<!--efb-hdn:0-->.*?<!--\/efb-hdn-->/s', '', $content);
 		return is_string($out) ? $out : $content;
 	}
-	/* SPLIT §5 (legacy gateway bridge v1): the Stripe, PayPal and PersiaPay code that was here (the REST callbacks,
-	 * the emsfb_pay_ table, the Stripe SDK and background reconcile, the order states of the final submit, the ZarinPal
-	 * verification) lives in their add-ons now (vendor/stripe|paypal|persiapay/class-Emsfb-*-legacy.php). Core keeps
-	 * the hooks: efb_legacy_gateway_render / _localize / efb_legacy_payment_state / efb_legacy_payment_verify,
+	/* SPLIT §5 / PAY-OUT: the Stripe, PayPal and PersiaPay code that was here (the REST callbacks, their payments table,
+	 * the Stripe SDK and background reconcile, the order states of the final submit, the ZarinPal verification, the
+	 * server pricing and the keys) lives in their add-ons (vendor/stripe|paypal|persiapay). Core keeps the hooks:
+	 * efb_legacy_gateway_render / _localize / efb_legacy_payment_state / efb_legacy_payment_verify,
 	 * efb_legacy_server_price() and efb_gate_prepare() (includes/addon-contracts-functions-efb.php). */
 
 	/**

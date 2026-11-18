@@ -678,23 +678,8 @@ class Emsfb {
 
             $ac = self::get_setting_Emsfb('decoded');
 
-            $payment_exists = isset($ac->AdnPAP) ? (int) $ac->AdnPAP : 0;
-            if ($payment_exists === 1 && emsfb_is_addon_compatible_efb( 'AdnPAP' )) {
-                $payment_file_path = $this->plugin_path . 'vendor/paypal/class-Emsfb-paypal-payment.php';
-                if (file_exists($payment_file_path)) {
-                    require_once $payment_file_path;
-                    new \Emsfb\PaypalPayment();
-                }
-            }
-
-            $stripe_exists = isset($ac->AdnSPF) ? (int) $ac->AdnSPF : 0;
-            if ($stripe_exists === 1 && emsfb_is_addon_compatible_efb( 'AdnSPF' )) {
-                $stripe_file_path = $this->plugin_path . 'vendor/stripe/class-Emsfb-stripe-payment.php';
-                if (file_exists($stripe_file_path)) {
-                    require_once $stripe_file_path;
-                    new \Emsfb\StripePayment();
-                }
-            }
+            // PAY-OUT step 4: the Stripe and PayPal add-ons load their own payments pages and own the emsfb_pay_ table
+            // (legacy_gateway 2.1; their routes-efb.php, loaded below while they are on). Core never drops that table.
 
             $sms_exists = isset($ac->AdnSS) ? (int) $ac->AdnSS : 0;
             if ($sms_exists === 1 && emsfb_is_addon_compatible_efb( 'AdnSS' )) {
@@ -825,8 +810,7 @@ class Emsfb {
 			}
 
 			if ( ! empty( $ac_routes->AdnPPF ) && emsfb_is_addon_compatible_efb( 'AdnPPF' ) ) {
-				$this->load_persiapay_addon();
-
+				// PAY-OUT step 4: the add-on loads its own script bootstrap from its routes-efb.php (bridge 2.1+).
 				$f = $this->plugin_path . 'vendor/persiapay/routes-efb.php';
 				if ( file_exists( $f ) ) {
 					require_once $f;
@@ -1005,30 +989,6 @@ class Emsfb {
             function emsfb_decode_typographic_entities_efb($data) {
                 return $data;
             }
-        }
-    }
-
-    /**
-     * Load the PersiaPay script bootstrap once the add-on is enabled.
-     *
-     * @return void
-     */
-    private function load_persiapay_addon(): void {
-        // PersiaPay registers its editor/front-end script through this bootstrap
-        // class. Loading only its REST route leaves the add-on installed but
-        // without the hook that exposes its payment UI.
-        if ( ! emsfb_is_addon_compatible_efb( 'AdnPPF' ) ) {
-            return;
-        }
-
-        $persia_bootstrap = $this->plugin_path . 'vendor/persiapay/persiapayefb.php';
-        if ( ! file_exists( $persia_bootstrap ) ) {
-            return;
-        }
-
-        require_once $persia_bootstrap;
-        if ( class_exists( '\\Emsfb\\persiapayEFB', false ) ) {
-            new \Emsfb\persiapayEFB();
         }
     }
 

@@ -22,6 +22,8 @@
  *                              (pay_stripe, pay_paypal, pay_persiapay: public values, secrets as encrypted or not),
  *                              never a secret's value
  *   pay-rows [form_id]         rows of the emsfb_pay_ table (the Stripe / PayPal payments list); table: exists or not
+ *   pay-table [reset]          whether that table exists, its rows, its version option and the pending count the Stripe
+ *                              add-on published; reset drops it first (a site that never opened the payments page)
  *   versions                   core version, the legacy_gateway contract (version, min, providers) and each legacy add-on's state
  *
  * Every command prints one JSON document on its last line. Local test site only.
@@ -163,6 +165,17 @@ switch ( $efb_po_cmd ) {
 		$want = isset( $efb_po_rest[2] ) ? (string) $efb_po_rest[2] : '';
 		$got = $c && class_exists( $c ) ? $c::get( isset( $efb_po_rest[1] ) ? $efb_po_rest[1] : '' ) : null;
 		efb_po_out( array( 'class' => $c && class_exists( $c ), 'same' => null !== $got && hash_equals( $want, (string) $got ), 'empty' => '' === (string) $got ) );
+		break;
+
+	case 'pay-table':
+		// reset: the table and its version option gone (a site that never opened the payments page), or count its rows.
+		$t = $wpdb->prefix . 'emsfb_pay_';
+		if ( isset( $efb_po_rest[0] ) && 'reset' === $efb_po_rest[0] ) {
+			$wpdb->query( "DROP TABLE IF EXISTS `$t`" ); // phpcs:ignore -- test site only
+			delete_option( 'emsfb_pay_table_version' );
+		}
+		$has = (bool) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $t ) );
+		efb_po_out( array( 'table' => $has, 'rows' => $has ? (int) $wpdb->get_var( "SELECT COUNT(*) FROM `$t`" ) : 0, 'version' => get_option( 'emsfb_pay_table_version', null ), 'pending_published' => get_option( 'emsfb_addon_pending_work', null ) ) ); // phpcs:ignore
 		break;
 
 	case 'versions':

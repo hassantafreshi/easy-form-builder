@@ -17,6 +17,8 @@
  *     route (on core's class) answers "Update … to keep using it with this version." (pay_addon_update), no intent;
  *  5  confirm + the final submit: the entry is stored once as paid; the same payment cannot be used twice; a payment the
  *     provider reports as not paid is refused;
+ *  T  (step 4) the emsfb_pay_ table and the Stripe / PayPal payments pages are the add-ons' (created on their first
+ *     request, never dropped; core never names the table); the add-on publishes the payments waiting to be checked;
  *  K  (step 2) the keys: with the new add-on on the new core they move once to the add-on's own key (encrypted, read
  *     back, the old ones removed; idempotent), its screen shows them masked and saves them write-only, the main Settings
  *     page never holds them, Settings › Payments links to each screen; an old add-on or an old core: nothing moves.
@@ -60,7 +62,7 @@ foreach ($COMBOS as $name => $combo) {
 	/* 1 */
 	$v = $M->ctl('versions');
 	$lg = $v['legacy_gateway'] ?? array();
-	t("$name 1 the core speaks legacy_gateway " . ($newcore ? '2 (min 2)' : '1'), array((float) ($lg['version'] ?? 0), (float) ($lg['min'] ?? 0)), $newcore ? array(2.0, 2.0) : array(1.0, 1.0));
+	t("$name 1 the core speaks legacy_gateway " . ($newcore ? '2.1 (min 2)' : '1'), array((float) ($lg['version'] ?? 0), (float) ($lg['min'] ?? 0)), $newcore ? array(2.1, 2.0) : array(1.0, 1.0));
 	$update = $newcore && $oldaddon; // PAY-OUT step 3: an add-on from before (contract 1.x) must be updated
 	t("$name 1 " . ($update ? 'the old add-ons are "update" (outdated), never half-used' : 'every legacy add-on can be used (states null)'), array_values($v['states'] ?? array()), $update ? array('update', 'update', 'update') : array(null, null, null));
 	// An add-on from before step 3 does not load its bridge on a contract-2 core (it registers only its old routes on
@@ -168,6 +170,22 @@ foreach ($COMBOS as $name => $combo) {
 	$f3 = $fin((string) ($add2['id'] ?? ''));
 	t("$name 5 a payment Stripe reports as not paid: refused, not stored", array(empty($f3['success']), count(array_filter((array) $H->ctl('entries', (string) $fid), function ($e) { return (string) $e['read_'] !== '2'; }))), array(true, 1));
 	$M->ctl('mode', 'succeeded');
+
+	/* T (step 4): the payments table is the add-ons' */
+	$pt = $M->ctl('pay-table');
+	t("$name T1 the Stripe payments (one paid, one not) are in the add-ons' table (" . ($newcore ? 'created by the add-on' : 'as before') . ')', array($pt['table'], $pt['rows'] >= 2, $pt['version']), array(true, true, '1.0'));
+	$A = isset($A) ? $A : new EfbF11Http();
+	if (!$A->login('admin', 'admin-pass-123')) $A->login('admin', 'admin-pass-123');
+	$pg = $A->http('GET', '/wp-admin/admin.php?page=Emsfb_stripe_payment', null, array(), false);
+	t("$name T2 the Stripe payments page opens (" . ($newcore ? 'loaded by the add-on' : 'loaded by core') . ')', $pg['status'], 200);
+	if ($newcore && !$oldaddon) {
+		$pub = $M->ctl('pay-table');
+		t("$name T3 the add-on published its waiting payments for core (efb_addon_pending_work)", isset($pub['pending_published']['AdnSPF']['count']), true);
+		$M->ctl('pay-table', 'reset');
+		$H->http('GET', '/wp-json/', null, array(), false);
+		$pt = $M->ctl('pay-table');
+		t("$name T4 a site that never opened the payments page: the table exists after the add-on's first request (BUGS PAY08)", array($pt['table'], $pt['version']), array(true, '1.0'));
+	}
 }
 $M->restore();
 $M->ctl('fake', '0');

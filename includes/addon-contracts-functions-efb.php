@@ -32,7 +32,8 @@ if (!function_exists('efb_addon_contract_versions')) {
 			// on its own screen (a pay_<type> key of the settings row; core's Settings › Payments only links to it); 2 = it
 			// prices its orders (efb_legacy_server_price) and resolves its keys itself: an add-on from before (1.x) is
 			// "outdated" (Update …, pay_not_ready) and core's old members answer it through a deprecated shim.
-			'legacy_gateway'  => array('version' => 2, 'min' => 2, 'core' => false),
+			// 2.1 = the add-ons load their payments pages and bootstrap, and own the emsfb_pay_ table (core never drops it).
+			'legacy_gateway'  => array('version' => 2.1, 'min' => 2, 'core' => false),
 			'smart_tags_ext'  => array('version' => 1, 'min' => 1, 'core' => false),
 			'form_package'    => array('version' => $fp, 'min' => 1, 'core' => class_exists('\\Emsfb\\Form_Package')),
 			'payments'        => array('version' => defined('EMSFB_PAYMENTS_API') ? (int) EMSFB_PAYMENTS_API : 1, 'min' => 1, 'core' => class_exists('\\Emsfb\\Payments\\Registry')),
