@@ -482,6 +482,10 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = Unreleased =
 
+* New: the form builder's preview checks the fields as the published form does (the form's "Check fields" timing, the message under the field, the error summary on Next / Send).
+* Fix: an Iran or Saudi address made by AutoPilot loads its province list on the page (a text box when the list cannot load) and its answer is accepted; such a form could not be sent before.
+* Fix: on right-to-left sites, untranslated English sentences (the "Needs the … add-on" notice, Payments › Gateway settings, the builder's help texts, the "Address search" screen) keep their full stop at the end and start on the right.
+* Fix: on a phone, the form builder's field settings open on screen (they opened far below the page).
 * Changed: a new Email field now sends the visitor a confirmation e-mail to the address they type, by default (the form's first e-mail field; turn it off with the field's "Enable email notifications" switch). Forms you already saved keep their setting. The switch no longer refuses to turn on before mail delivery is confirmed; it shows the delivery check as a hint instead.
 * Fix: forms made from a template lost the accessibility defaults of a new form when the builder reopened them.
 * Fix: the notification e-mail of a reply sent from the customer portal had empty sentences.

@@ -371,7 +371,7 @@ user meta: `efb_default_addr_scheme`، `efb_default_name_format`.
 - فایل‌های تغییرکرده: همان A، به‌اضافهٔ `class-Emsfb-public.php` (fieldset و legend هر گروه، `Address_Schemes::fieldset_runs()`، enqueue `name-address-efb.js` و دادهٔ فقط قالب‌های همان فرم)، `pro_els-efb.js`، `builder-api-efb.js` (`newItems(..., {format|scheme})`).
 - تست‌ها: `test-address-schemes-parity.js` ۸۱ (PHP و JS یک خروجی)، `test-name-address-render.php` (autocomplete، inputmode، dir، شمار تگ‌های بسته)، e2e `f17-b` (یازده طرح، `AdnADR` خاموش و روشن).
 - وضعیت ترجمه: مانند A.
-- مورد باز: فهرست استان کشور ثابت هنگام افزودن از CDN خوانده می‌شود؛ در API سرور (`field_templates`) خالی می‌ماند و `needs_states` آن را می‌گوید.
+- مورد باز: فهرست استان کشور ثابت هنگام افزودن از CDN خوانده می‌شود؛ در API سرور (`field_templates`) خالی می‌ماند و `needs_states` آن را می‌گوید. **آزمون نهایی (۲۰۲۶-۱۱-۱۸):** این فرم‌ها هرگز ارسال نمی‌شدند (صفحه فهرست را بار نمی‌کرد و سرور هر استانی را رد می‌کرد)؛ اکنون select دارای `data-country` است، صفحه فهرست را بار می‌کند (`EFBNameAddr.fixedStates()`، در شکست کادر متنی) و سرور فهرستِ ذخیره‌نشده را مانند فهرست‌های زمان اجرا می‌سنجد؛ e2e `ui-b`.
 - اقدام بعدی: —
 
 ### C — اعتبارسنجی، نرمال‌سازی و آبشار

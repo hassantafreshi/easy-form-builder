@@ -283,7 +283,7 @@ F16 قاعدهٔ اعتبارسنجی تازه‌ای اضافه نمی‌کند
 - فایل‌های تغییرکرده: `public/assets/js/inline-efb.js` (تازه)، `core-efb.js` (`show_msg_efb`/`hide_msg_efb` با ARIA، `efb_set_field_error_efb`، `efb_clear_field_error_efb`، `efb_announce_efb`، `efb_field_target_efb`، حذف شاخه‌های آیکون‌تنها، `textContent`)، `new-efb.js` (`role="alert"` در toast)، `class-Emsfb-formbuilder.php` و `admin-efb.js` (tooltip بی « ! »)، `class-Emsfb-public.php` (live region و جعبهٔ خلاصه، enqueue)، `style-efb.css`.
 - تست‌ها: `node tests/test-a11y-field-errors.js` — ۲۳ پاس؛ `test-core-multiform-validation-scope.js` ۲۷، `test-final-step-loading-reset.js` ۱۷، `test-submit-failure-causes.js` پاس.
 - وضعیت ترجمه: عبارت‌ها افزوده و فهرست/pot تازه شد؛ ترجمه نشد (دستور مالک).
-- مورد باز: پیش‌نمایش سازنده (نسخهٔ `includes/admin/assets/js/core-efb.js`) هنوز کمک‌کننده‌ها را صدا نمی‌زند.
+- مورد باز: ~~پیش‌نمایش سازنده هنوز کمک‌کننده‌ها را صدا نمی‌زند.~~ **انجام شد در آزمون نهایی (۲۰۲۶-۱۱-۱۸)**: پیش‌نمایش (`previewFormEfb`) ماژول `EFBInline` را با تنظیم‌های فرم وصل می‌کند (`efb_preview_inline_bind_efb()` در `admin-efb.js`)؛ e2e `f16-a`.
 - اقدام بعدی: —
 
 ### B. زمان‌بندی Baymard (`val_timing`)

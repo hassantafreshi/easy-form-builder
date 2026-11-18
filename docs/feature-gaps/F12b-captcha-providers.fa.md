@@ -521,6 +521,8 @@ F12 منتشر نشده است (`readme.txt` نسخهٔ پایدار 4.3.1؛ ی�
 
 ---
 
+**آزمون نهایی (۲۰۲۶-۱۱-۱۸):** قاعدهٔ «فقط اعلان‌های خود صفحه» از `Captcha\Screen::own_notices_only()` به تابع عمومی هسته `efb_addon_screen_own_notices($keep_dir)` (`addon-contracts-functions-efb.php`) رفت تا هر صفحهٔ تنظیمات افزونه آن را در `load-{hook}` صدا بزند؛ صفحهٔ کپچا و صفحهٔ «Address search» افزونهٔ AdnADR هر دو از آن استفاده می‌کنند (`tests/test-captcha-screen-notices-http.php`). همهٔ نوشتن‌های ردیف تنظیمات (از جمله `captcha_<id>`) اکنون زیر قفل کوتاه و با ادغام سه‌طرفه در `set_setting_Emsfb()` انجام می‌شوند (`tests/test-settings-race-wp.php`).
+
 ## ماتریس سناریو و تست
 
 نماد ستون «تست»: U = تست واحد مستقل (ارائه‌دهندهٔ mock، بی شبکه)، H = HTTP روی وردپرس واقعی با `pre_http_request`، E = e2e (`tests/e2e-wp`). «همه» یعنی برای گوگل و هر پنج افزونه.
