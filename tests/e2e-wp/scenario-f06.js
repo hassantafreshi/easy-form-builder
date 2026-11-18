@@ -18,7 +18,8 @@
  *        meanwhile, at the field; the stored range and time rows.
  *  f06d  fa_IR and ar at 375 px: right to left, Persian / Arabic-Indic digits in the field, the hint, the
  *        grid and the messages; a mixed-script sentence keeps its order (dir=auto, the date in FSI / PDI);
- *        the label aligns like the other labels; the bottom sheet; no horizontal scroll; screenshots.
+ *        the label aligns like the other labels; the bottom sheet; no horizontal scroll; screenshots. The
+ *        date chosen in the sheet is the next day the form's own rules allow (any day of the week).
  *  f06pay A paid form (test gateway) whose price depends on the date (Conditional Logic date_weekday_is):
  *        a Saturday costs 20, a weekday 10, a lowered browser price is ignored by the server.
  */
@@ -280,6 +281,18 @@ module.exports = function (S) {
         await g.keyboard.press('ArrowLeft');
         const after = await g.evaluate(() => document.activeElement.getAttribute('data-iso'));
         R.check(`f06d: ${lang}: ArrowLeft goes to the next day (right to left)`, after === addDays(before, 1), { before, after });
+        /* The day to choose follows the form's own rules, as stored: the earliest date and the closed weekdays. The
+           next day may be one they refuse (on a Wednesday the sheet starts on Thursday and ArrowLeft reaches Friday,
+           which this form closes), so the same key moves on to the next day they allow. */
+        const fr = ((ctl('form', String(F.form_id)) || {}).form_structer || []).find((r) => r && r.id_ === id) || {};
+        const dm = fr.date_min || {};
+        const minIso = dm.type === 'relative' ? addDays(t0, Number(dm.value) || 0) : (/^\d{4}-\d{2}-\d{2}$/.test(String(dm.value || '')) ? dm.value : t0);
+        const off = (fr.disabled_weekdays || []).map(Number);
+        let pick = after;
+        while (pick < minIso || off.includes(weekday(pick))) pick = addDays(pick, 1);
+        for (let d = after; d < pick; d = addDays(d, 1)) await g.keyboard.press('ArrowLeft');
+        const focus = await g.evaluate(() => ({ iso: document.activeElement.getAttribute('data-iso'), off: document.activeElement.getAttribute('aria-disabled') }));
+        R.check(`f06d: ${lang}: the focus is on the next day the form allows (its closed weekdays and earliest date skipped)`, off.length === 1 && focus.iso === pick && focus.off !== 'true', { after, pick, minIso, off, focus });
         await g.screenshot({ path: SHOT(`f06-${isFa ? 'fa' : 'ar'}-375-sheet`) });
         await g.keyboard.press('Enter');
         await sleep(500);
