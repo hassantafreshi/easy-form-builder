@@ -216,10 +216,16 @@ switch ( $efb_e2e_cmd ) {
 		// Only so a scenario can run on its own; the suite itself changes plans through the UI.
 		$pkg = isset( $efb_e2e_rest[0] ) ? (int) $efb_e2e_rest[0] : 2;
 		update_option( 'emsfb_pro', $pkg );
-		$settings = efb_e2e_decode_json( get_option( 'emsfb_settings' ) );
-		if ( is_array( $settings ) ) {
-			$settings['package_type'] = $pkg;
-			update_option( 'emsfb_settings', wp_json_encode( $settings, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) );
+		// Through set_setting_Emsfb(), so the settings table row says the same: a later settings write syncs emsfb_pro
+		// from that row's package_type, and a plan written only to the option came back on the next write.
+		if ( class_exists( 'efbFunction' ) && method_exists( 'efbFunction', 'set_setting_Emsfb' ) && false !== \efbFunction::set_setting_Emsfb( (object) array( 'package_type' => $pkg ) ) ) {
+			update_option( 'emsfb_pro', $pkg );
+		} else {
+			$settings = efb_e2e_decode_json( get_option( 'emsfb_settings' ) );
+			if ( is_array( $settings ) ) {
+				$settings['package_type'] = $pkg;
+				update_option( 'emsfb_settings', wp_json_encode( $settings, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) );
+			}
 		}
 		efb_e2e_out( array( 'emsfb_pro' => get_option( 'emsfb_pro' ) ) );
 		break;
