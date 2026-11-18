@@ -38,8 +38,9 @@
  *          the add-ons in Settings › Captchas (no heading, no row, Google's modes only in the select) and its screen
  *          is a 404; two add-ons → two rows (name, status, "Settings"); each screen opened from its row by keyboard
  *          and saved (hCaptcha from "Needs keys" to "Ready"); a form with hCaptcha still verifies (mocked); the main
- *          window's Save afterwards keeps both add-ons' settings; fa_IR and ar at 375 px: the list and one screen
- *          (right to left, nothing off-screen, no horizontal scroll), screenshots.
+ *          window's Save afterwards keeps both add-ons' settings; the screen shows only its own notices (the plugin's
+ *          site-wide ones, e.g. payment readiness, stay on its panel); fa_IR and ar at 375 px: the list and one screen
+ *          (right to left, nothing off-screen, no horizontal scroll, no site-wide notice), screenshots.
  */
 'use strict';
 
@@ -665,6 +666,15 @@ module.exports = function (S) {
     return { dir: getComputedStyle(root).direction, scroll: document.documentElement.scrollWidth - vw, off: off.slice(0, 8), notStart: notStart.slice(0, 8), noIso: noIso.slice(0, 8), ltrFlipped };
   }, [sel, labels, mixed]);
   const rtlOk = (x) => !!x && !x.missing && x.dir === 'rtl' && x.scroll <= 1 && x.off.length === 0 && x.notStart.length === 0 && x.noIso.length === 0 && x.ltrFlipped.length === 0;
+  /* The notices of Easy Form Builder and its add-ons on a page (the marks admin-efb.js's notice cleaner keeps: class efb /
+     efb-* / emsfb-*, an id efb* / emsfb*, data-efb-notice), split into those inside the CAPTCHA screen's own box and the
+     others (site-wide ones printed by admin_notices). */
+  const efbNotices = (p) => p.evaluate(() => {
+    const own = (el) => /(^|\s)(efb|efb-[\w-]+|emsfb-[\w-]+)(\s|$)/.test(el.className || '') || /^(efb|emsfb)/i.test(el.id || '') || el.hasAttribute('data-efb-notice');
+    const all = Array.from(document.querySelectorAll('#wpbody-content .notice, #wpbody-content .update-nag')).filter(own);
+    const name = (e) => (e.id || String(e.className).split(/\s+/).filter((c) => /^(efb-|emsfb-)/.test(c))[0] || 'efb');
+    return { inside: all.filter((e) => e.closest('#efbCaptchaScreen')).map(name), outside: all.filter((e) => !e.closest('#efbCaptchaScreen')).map(name) };
+  });
 
   scenario('f12b-8', 'F12b fa_IR and ar at 375 px on the real site: Settings › Captchas with a masked saved secret, the D2 notice, login and registration with their CAPTCHA, the reply box with its CAPTCHA (RTL, labels at the start, isolated mixed text, nothing off-screen)', async ({ context, adminPage }) => {
     setup('scaptcha=1');
@@ -991,7 +1001,7 @@ module.exports = function (S) {
   });
 
   /* ================================================================== f12b-10 F12b-L: each add-on's own settings screen */
-  scenario('f12b-10', 'F12b-L each CAPTCHA add-on\'s own settings screen: no add-on → no add-on UI and a 404 screen; two add-ons → two rows, each screen saves (keyboard), a form with that service still verifies, the main Save keeps them; fa_IR / ar at 375 px', async ({ context, adminPage }) => {
+  scenario('f12b-10', 'F12b-L each CAPTCHA add-on\'s own settings screen: no add-on → no add-on UI and a 404 screen; two add-ons → two rows, each screen saves (keyboard), only its own notices, a form with that service still verifies, the main Save keeps them; fa_IR / ar at 375 px', async ({ context, adminPage }) => {
     plan(3);
     ctl('locale', '');
     ctlb('mu');
@@ -1054,6 +1064,17 @@ module.exports = function (S) {
       R.check('f12b-10: typed by keyboard (Tab from the site key reaches the secret), Enter saves: "Settings saved.", status Ready, the secret box empty with its mask, no secret in the page', onSecret === 'efbcps_hcaptcha_secret' && /Settings saved/.test(hs2.notice || '') && hs2.status === 'Ready' && hs2.secret === '' && /••••/.test(hs2.ph || '') && hs2.html.indexOf(KEYS.hcaptcha[1].secret) === -1 && hs2.html.indexOf('enc:v1:') === -1, { onSecret, notice: hs2.notice, status: hs2.status, ph: hs2.ph });
       await sleep(800); // WordPress' page-to-page view transition ends first
       await admin.screenshot({ path: SHOT('f12b-10-screen-hcaptcha-en'), fullPage: true });
+      /* BUG (F20-core brief): the focused screen showed Easy Form Builder's site-wide notices (the SPLIT add-on notice,
+         "payment setup incomplete") above its form. A payment form without keys brings the payment readiness notice to
+         the plugin's screens; the add-on's screen shows only its own ("Settings saved."). */
+      ctl('pay-mock', '1');
+      ctl('pay-clear-keys');
+      made.push(ctl('pay-form', 'fixed', 'F12b-L notices'));
+      await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+      const onPanel = await efbNotices(admin);
+      await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_captcha&provider=hcaptcha&efb_msg=saved', { waitUntil: 'load' });
+      const onScreen = await efbNotices(admin);
+      R.check('f12b-10: the add-on\'s screen shows only its own notices: the payment readiness notice (and SPLIT\'s, when there) is on the plugin\'s panel, not here; "Settings saved." is', onPanel.outside.includes('efbPayNotReadyNotice') && onScreen.outside.length === 0 && onScreen.inside.length === 1, { onPanel, onScreen });
       // Turnstile's screen: a new site key (Cloudflare's "always passes" test key with another prefix), the secret kept.
       await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_captcha&provider=turnstile', { waitUntil: 'load' });
       await admin.fill('#efbcps_turnstile_site_key', '1x00000000000000000000AA');
@@ -1108,11 +1129,14 @@ module.exports = function (S) {
           const sc = await rtlCheck(m, '#efbCaptchaScreen', null, '.efb-cps-help');
           const sc2 = await m.evaluate(() => ({ dir: getComputedStyle(document.body).direction, key: getComputedStyle(document.getElementById('efbcps_turnstile_site_key')).direction, lab: getComputedStyle(document.querySelector('label[for="efbcps_turnstile_site_key"]')).textAlign }));
           R.check(`f12b-10 (${loc}): Turnstile's screen at 375 px — right to left, the key fields left to right, labels at the start, help isolated, nothing off-screen, no horizontal scroll`, rtlOk(sc) && sc2.dir === 'rtl' && sc2.key === 'ltr' && (sc2.lab === 'right' || sc2.lab === 'start'), { sc, sc2 });
+          const nt = await efbNotices(m);
+          R.check(`f12b-10 (${loc}): no site-wide notice of the plugin above Turnstile's screen`, nt.outside.length === 0, nt);
           await m.screenshot({ path: SHOT(`f12b-10-screen-${loc}-375`), fullPage: true });
         } finally { ctl('locale', ''); }
       }
     } finally {
       del(...made);
+      ctl('pay-keys', 'test'); // the test gateway's keys back (taken away for the notice above)
       setting('spam_retention_days=30');
       teardown();
     }

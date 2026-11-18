@@ -59,6 +59,31 @@ class Screen {
 		$p = self::provider();
 		$GLOBALS['title'] = $p ? sprintf(self::t('cpSettingsOf', '%s settings'), $p->label()) : self::t('notFound', 'Not Found');
 		if (!$p) status_header(404);
+		self::own_notices_only($p);
+	}
+
+	/**
+	 * This focused screen shows only its own notices (printed in page()): the site-wide notices of Easy Form Builder and
+	 * of its other add-ons (SPLIT, payment readiness, renewal, e-mail delivery …) stay on the plugin's other screens.
+	 * Theirs: a callback of the Emsfb namespace or defined in the plugin's folder (add-ons live in its vendor/); the
+	 * folder of this provider's own add-on is kept. Other plugins' and WordPress' notices are left as on any screen.
+	 */
+	private static function own_notices_only($p) {
+		global $wp_filter;
+		if (empty($wp_filter['admin_notices'])) return;
+		$root = defined('EMSFB_PLUGIN_DIRECTORY') ? wp_normalize_path(EMSFB_PLUGIN_DIRECTORY) : "\0";
+		$keep = $p ? wp_normalize_path(dirname((new \ReflectionClass($p))->getFileName())) . '/' : "\0";
+		foreach ($wp_filter['admin_notices']->callbacks as $prio => $cbs) {
+			foreach ($cbs as $cb) {
+				$f = $cb['function'];
+				try {
+					$r = is_array($f) ? new \ReflectionMethod($f[0], $f[1]) : (is_string($f) && strpos($f, '::') ? new \ReflectionMethod($f) : new \ReflectionFunction($f));
+				} catch (\ReflectionException $e) { continue; }
+				$file = wp_normalize_path((string) $r->getFileName());
+				$ns = $r instanceof \ReflectionMethod ? $r->getDeclaringClass()->getName() : $r->getNamespaceName();
+				if ((stripos($ns, 'Emsfb') === 0 || strpos($file, $root) === 0) && strpos($file, $keep) !== 0) remove_action('admin_notices', $f, $prio);
+			}
+		}
 	}
 
 	/** A phrase of core or of an add-on (text_efb: an owner's Localization text first), plain text. */
