@@ -482,6 +482,8 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = Unreleased =
 
+* Fix: the notification e-mail of a reply sent from the customer portal had empty sentences.
+* Fix: PHP warnings on booking forms, on forms made through the builder API, and on account recovery requests.
 * Fix: two settings saved at the same moment (for example a CAPTCHA add-on's page and the plugin's own settings, or an add-on install) no longer undo each other's change.
 * Fix: the Address & Postal add-on's "Address search" page shows only its own messages, like the CAPTCHA add-ons' pages (developers: efb_addon_screen_own_notices() for any add-on settings page).
 * Fix: a message from the server about a field (for example "already used") no longer disappears a moment later when the visitor had just typed in that field.

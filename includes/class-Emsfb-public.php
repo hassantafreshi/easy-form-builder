@@ -3718,7 +3718,8 @@ public function check_nonce_permission_efb($request) {
 						 * id_ob) that the validator never looked at, and its value was
 						 * split on commas into any number of recipients. */
 						$user_email_address = '';
-						foreach ($validated_items as $item) {
+						// Login, register, logout and recovery skip the field checks that make $validated_items.
+						foreach ((isset($validated_items) && is_array($validated_items) ? $validated_items : array()) as $item) {
 							if (is_array($item) && isset($item['id_'], $item['value'], $form_fields_array[0]['email_to'])
 								&& is_string($item['value']) && $item['id_'] == $form_fields_array[0]['email_to']) {
 								$candidate_efb = sanitize_email($item['value']);
@@ -7586,6 +7587,15 @@ public function check_nonce_permission_efb($request) {
     ";
     $default_message = "<h2>%s</h2>" . $modern_button_template;
 
+    /* The phrases of these e-mails, whatever loaded $this->lanText before (the customer portal's owner reply loads
+       only its own few: the e-mail went out with empty sentences and a PHP warning for each). */
+    $mail_keys_efb = array('msgdml', 'thankFillForm', 'trackNo', 'vmgs', 'WeRecivedUrM', 'thankRegistering', 'welcome', 'thankSubscribing', 'thankDonePoll', 'newMessageReceived', 'youRecivedNewMessage');
+    $mail_missing_efb = array_values(array_diff($mail_keys_efb, array_keys(is_array($this->lanText) ? $this->lanText : array())));
+    if ($mail_missing_efb) {
+        if ($this->efbFunction === null) $this->efbFunction = get_efbFunction();
+        $this->lanText = array_merge(is_array($this->lanText) ? $this->lanText : array(), (array) $this->efbFunction->text_efb($mail_missing_efb));
+    }
+
     $dt = str_replace('%s', $track, $this->lanText['msgdml']);
     $thankFillForm = $this->lanText['thankFillForm'];
     $trackNo = $this->lanText['trackNo'];
@@ -9147,7 +9157,7 @@ public function check_nonce_permission_efb($request) {
 								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
 								$item['value'] = sanitize_text_field($item['value']);
 								$radio_parent_efb = (string) $f['id_'];
-								array_filter($form_fields_array, function ($fr, $ki) use (&$item, &$validated_item, &$is_valid, &$form_fields_array, $form_condition, &$error_message, $radio_parent_efb) {
+								array_filter($form_fields_array, function ($fr, $ki) use (&$item, &$validated_item, &$is_valid, &$form_fields_array, $form_condition, &$error_message, $radio_parent_efb, $f) {
 									// F05: the chosen option must be one of this field's own options (an option id of another field was accepted).
 									if (isset($fr['id_']) && isset($item['id_ob']) && $fr['id_'] == $item['id_ob'] && (string) ($fr['parent'] ?? '') === $radio_parent_efb) {
 										$item['value'] = $fr['value'];
@@ -9241,7 +9251,10 @@ public function check_nonce_permission_efb($request) {
 									}
 									if ($form_condition == 'booking') {
 										// SPLIT §9.1: the frozen expiry check (efb_choice_option_state: the Booking add-on may decide).
-										$opt_st_efb = $this->choice_option_state_efb($f, $f);
+										// The option row, and its field (the checkbox the option belongs to), as in the other branches.
+										$opt_parent_efb = array();
+										foreach ($form_fields_array as $pf_efb) { if (is_array($pf_efb) && isset($pf_efb['id_'], $f['parent']) && (string) $pf_efb['id_'] === (string) $f['parent']) { $opt_parent_efb = $pf_efb; break; } }
+										$opt_st_efb = $this->choice_option_state_efb($f, $opt_parent_efb);
 										if (!$opt_st_efb['open']) {
 											$is_valid = 0;
 											$error_message = $opt_st_efb['m'];
@@ -9345,7 +9358,7 @@ public function check_nonce_permission_efb($request) {
 							if (isset($item['value'])) {
 								$item['value'] = sanitize_text_field($item['value']);
 								$item = $this->filter_attributes_by_type_efb($item,$f['type']);
-								array_filter($form_fields_array, function ($fr, $ki) use ($item, &$validated_item, &$is_valid, &$form_fields_array, $form_condition, &$error_message) {
+								array_filter($form_fields_array, function ($fr, $ki) use ($item, &$validated_item, &$is_valid, &$form_fields_array, $form_condition, &$error_message, $f) {
 									if (isset($item['type'])  && $fr['type'] == "option" && isset($fr['value']) && isset($item['value']) && $this->same_option_text_efb($fr['value'], $item['value']) &&  $fr['parent'] == $item['id_']) {
 										$is_valid = 1;
 										$item['value'] = $fr['value'];

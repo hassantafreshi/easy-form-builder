@@ -35,6 +35,15 @@ t('no end date (every other form) is open, nothing else read', $fx->choice_optio
 t('a malformed date never closes a choice', $fx->choice_option_state_efb(array('value' => 'x', 'dateExp' => 'soon'), array())['open'], true);
 add_filter('efb_choice_option_state', function ($st, $opt) { return isset($opt['value']) && $opt['value'] === 'Full' ? array('open' => false, 'code' => 'efb_booking_full', 'm' => 'Full.') : $st; });
 t('the Booking add-on may decide (efb_choice_option_state)', $fx->choice_option_state_efb(array('value' => 'Full'), array()), array('open' => false, 'code' => 'efb_booking_full', 'm' => 'Full.'));
+// Final test: the radio and select branches call it inside an array_filter() closure whose use () list did not hold $f:
+// the field was an undefined variable (a PHP warning on every booking submit) and the add-on got no field.
+$cl = array();
+for ($o = 0; ($o = strpos($src, 'choice_option_state_efb($fr, $f)', $o)) !== false; $o++) {
+	$fn = strrpos(substr($src, 0, $o), 'function ($fr, $ki) use (');
+	$cl[] = $fn === false ? '' : substr($src, $fn, strpos($src, ')', $fn + 26) - $fn);
+}
+t('the closures that pass the field ($f) to choice_option_state_efb() have it in their use () list (2)', array(count($cl), count(array_filter($cl, function ($u) { return (bool) preg_match('/[(,]\s*\$f\s*$/', $u) || (bool) preg_match('/[(,]\s*\$f\s*,/', $u); }))), array(2, 2));
+t('the checkbox branch gives the option\'s own field, not the option twice', array(strpos($src, 'choice_option_state_efb($f, $f)'), strpos($src, 'choice_option_state_efb($f, $opt_parent_efb)') !== false), array(false, true));
 t('every submit branch that read dateExp goes through choice_option_state_efb() (3), none reads it directly', array(substr_count($src, '$this->choice_option_state_efb('), preg_match_all("/strtotime\\(\\\$(fr|f)\\['dateExp'\\]\\)/", $src)), array(3, 0));
 t('the capacity of a choice is still core\'s atomic Stock reservation', strpos(file_get_contents(__DIR__ . '/../includes/class-Emsfb-stock.php'), '$f[\'inv_mode\'] === \'booking\'') !== false, true);
 

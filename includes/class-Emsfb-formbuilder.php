@@ -1204,8 +1204,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$corner,
 			$el_border_color,
 			$rndm,
-			$vj->maxSelect,
-			$vj->minSelect,
+			isset($vj->maxSelect) ? $vj->maxSelect : '',
+			isset($vj->minSelect) ? $vj->minSelect : '',
 			$sl,
 			$rndm,
 			$rndm,
@@ -3515,7 +3515,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								esc_attr($i->id_),
 								$ch_opt_efb['attr'],
 								$pay,
-								$vj->el_text_size,
+								isset($vj->el_text_size) ? $vj->el_text_size : '',
 								$dataTag,
 								$vtype,
 								$element_Id,
@@ -3529,7 +3529,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								$ch_opt_efb['disabled'] && $checked === '' ? 'data-soldout="1" aria-disabled="true"' : '',
 								$ch_opt_efb['disabled'] && $checked === '' ? 'disabled' : $disabled,
 								$checked,
-								($elementId != 'imgRadio' ? sprintf('<label class="efb %s %s %s %s hStyleOpEfb" id="%s_lab" for="%s">%s</label>', isset($vj->pholder_chl_value) ? 'col-8' : '', $vj->el_text_color, $vj->el_height, $vj->label_text_size, esc_attr($i->id_), esc_attr($i->id_), is_string($i->value) && strpos($i->value, '{') !== false ? $this->st_markup_efb($i->value, 'label') : $this->fun_get_links_from_string_Efb($i->value, true)) : $imageRadio) . $ch_opt_efb['suffix'],
+								($elementId != 'imgRadio' ? sprintf('<label class="efb %s %s %s %s hStyleOpEfb" id="%s_lab" for="%s">%s</label>', isset($vj->pholder_chl_value) ? 'col-8' : '', $vj->el_text_color ?? '', $vj->el_height ?? '', $vj->label_text_size ?? '', esc_attr($i->id_), esc_attr($i->id_), is_string($i->value) && strpos($i->value, '{') !== false ? $this->st_markup_efb($i->value, 'label') : $this->fun_get_links_from_string_Efb($i->value, true)) : $imageRadio) . $ch_opt_efb['suffix'],
 								strpos($elementId, 'chl') !== false ? sprintf('<input type="text" class="efb %s %s checklist col-2 hStyleOpEfb emsFormBuilder_v border-d" data-id="%s" data-type="%s"data-formid="%s" data-vid="%s" id="%s_chl"  placeholder="%s" disabled>', $vj->el_text_color, $vj->el_height, $i->id_, $dataTag, $form_id, $i->id_, $i->id_, $vj->pholder_chl_value) : '',
 								strlen($pay) > 2 ? sprintf('<span class="efb col fw-bold text-labelEfb h-d-efb hStyleOpEfb d-flex justify-content-end"><span id="%s-price" class="efb efb-crrncy">%s</span></span>', $i->id_, $prc):''
 							);
