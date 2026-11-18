@@ -173,7 +173,8 @@ $lsrc = file_get_contents(__DIR__ . '/../includes/data/masks-labels-efb.php');
 $asrc = file_get_contents(efb_test_address_dir() . '/address-phrases-efb.php');
 $postal_n = count(Emsfb_Addon_Phrases_Address::preset_labels());
 efbt('labels are literal __() calls: core\'s with the plugin text domain, the add-on\'s 18 with efb-address', preg_match_all("/__\\('[^']+', 'easy-form-builder'\\)/", $lsrc) === count($catIds) - $postal_n + count(\Emsfb\Masks_Labels::groups())
-	&& $postal_n === 18 && preg_match_all("/__\\( '[^']+', 'efb-address' \\)/", $asrc) === 18);
+	// F17: the add-on has more phrases now (its address search); each of the 18 labels is still a literal call.
+	&& $postal_n === 18 && count(array_filter(Emsfb_Addon_Phrases_Address::preset_labels(), function ($l) use ($asrc) { return strpos($asrc, "__( '" . str_replace("'", "\\'", $l) . "', 'efb-address' )") !== false; })) === 18);
 
 // Builder phrases exist in text_efb().
 $fsrc = file_get_contents(__DIR__ . '/../includes/functions.php');
