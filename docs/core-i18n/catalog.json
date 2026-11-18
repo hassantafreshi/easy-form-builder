@@ -2,10 +2,10 @@
     "domain": "easy-form-builder",
     "about": "Every phrase looked up in the easy-form-builder text domain: the core plus add-ons that still use that domain. Maintained by tests/core-i18n/extract.php (agent efb-core-i18n); do not edit by hand.",
     "plugin_version": "4.3.1",
-    "updated": "2026-11-15",
+    "updated": "2026-11-18",
     "counts": {
-        "active": 4140,
-        "obsolete": 518
+        "active": 4203,
+        "obsolete": 517
     },
     "entries": [
         {
@@ -1178,6 +1178,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%s can only have letters, spaces, hyphens, apostrophes and dots.",
+            "context": null,
+            "plural": null,
+            "translators": "F17 form: %s is the name of the field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s cannot be used here.",
             "context": null,
             "plural": null,
@@ -1590,6 +1605,21 @@
             "context": null,
             "plural": null,
             "translators": "F14: %s = the address typed",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s is not valid for this address format.",
+            "context": null,
+            "plural": null,
+            "translators": "F17 form: %s is the name of the field",
             "files": [
                 "includes/functions.php"
             ],
@@ -3965,6 +3995,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Add an address search button",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Add an “Other” choice",
             "context": null,
             "plural": null,
@@ -4507,6 +4552,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Additional number",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Addon Installation Issue",
             "context": null,
             "plural": null,
@@ -4572,7 +4632,8 @@
             "plural": null,
             "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
             "files": [
-                "includes/data/autocomplete-labels-efb.php"
+                "includes/data/autocomplete-labels-efb.php",
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -4587,7 +4648,23 @@
             "plural": null,
             "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
             "files": [
-                "includes/data/autocomplete-labels-efb.php"
+                "includes/data/autocomplete-labels-efb.php",
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Address search needs the Address & Postal add-on.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -5528,6 +5605,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Always use this",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Amount",
             "context": null,
             "plural": null,
@@ -6056,6 +6148,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Apartment",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Appearance",
             "context": null,
             "plural": null,
@@ -6296,6 +6403,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Area",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Area Code",
             "context": null,
             "plural": null,
@@ -6317,6 +6439,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "As on your national ID",
+            "context": null,
+            "plural": null,
+            "translators": "F17 form: help under a four-part Arabic name",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -8432,6 +8569,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Building number",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Building or villa",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Built with %1$sEasy Form Builder%2$s by %3$sWhiteStudio.team%4$s",
             "context": null,
             "plural": null,
@@ -9101,7 +9268,8 @@
             "plural": null,
             "translators": "country group in the form builder's \"Format / mask\" list",
             "files": [
-                "includes/data/masks-labels-efb.php"
+                "includes/data/masks-labels-efb.php",
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -10349,6 +10517,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Choose a name format",
+            "context": null,
+            "plural": null,
+            "translators": "F17 form builder: title of the format chooser",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Choose a number or choice field placed before the group.",
             "context": null,
             "plural": null,
@@ -10390,6 +10573,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Choose an address format",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -10574,6 +10772,21 @@
             "obsolete_since": "4.3.1"
         },
         {
+            "msgid": "Choose the province first",
+            "context": null,
+            "plural": null,
+            "translators": "F17 form: a city list before its province is chosen",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Choose the style for the %s.",
             "context": null,
             "plural": null,
@@ -10634,6 +10847,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Cities follow the chosen province",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "City",
             "context": null,
             "plural": null,
@@ -10646,6 +10874,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "City, ward or town",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -12965,6 +13208,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Country",
+            "context": null,
+            "plural": null,
+            "translators": "F17: label of an address part",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Country calling code",
             "context": null,
             "plural": null,
@@ -13044,6 +13302,21 @@
             "context": null,
             "plural": null,
             "translators": "F14 settings option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "County",
+            "context": null,
+            "plural": null,
+            "translators": "",
             "files": [
                 "includes/functions.php"
             ],
@@ -14641,6 +14914,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Delete the whole group",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Delete this form's entries automatically after (days)",
             "context": null,
             "plural": null,
@@ -15362,6 +15650,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "District",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -17163,7 +17466,8 @@
             "plural": null,
             "translators": "country group in the form builder's \"Format / mask\" list",
             "files": [
-                "includes/data/masks-labels-efb.php"
+                "includes/data/masks-labels-efb.php",
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -18167,6 +18471,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Emirate",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Emirates ID number",
             "context": null,
             "plural": null,
@@ -18694,6 +19013,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Enter a valid postal code for %s.",
+            "context": null,
+            "plural": null,
+            "translators": "F17 form: %s is the name of the field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Enter administrators’ mobile numbers",
             "context": null,
             "plural": null,
@@ -18818,6 +19152,21 @@
             "context": null,
             "plural": null,
             "translators": "F02 visitor: announced when the code box opens",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Enter the short address, or fill in the full National Address.",
+            "context": null,
+            "plural": null,
+            "translators": "F17 form: Saudi National Address",
             "files": [
                 "includes/functions.php"
             ],
@@ -19415,6 +19764,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Every required part",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Everyone",
             "context": null,
             "plural": null,
@@ -19796,6 +20160,36 @@
             "context": null,
             "plural": null,
             "translators": "One-word label next to the delivery score: 40 to 69. translators: F03 password strength level",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Family name",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Father's name",
+            "context": null,
+            "plural": null,
+            "translators": "",
             "files": [
                 "includes/functions.php"
             ],
@@ -20274,6 +20668,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "First and last name",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "First color only",
             "context": null,
             "plural": null,
@@ -20396,6 +20805,21 @@
         },
         {
             "msgid": "Fixed value",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Floor",
             "context": null,
             "plural": null,
             "translators": "",
@@ -21370,6 +21794,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Four-part Arabic name",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "France",
             "context": null,
             "plural": null,
@@ -21911,12 +22350,28 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Full address",
+            "context": null,
+            "plural": null,
+            "translators": "F17: the one-line address in entries and e-mails",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Full name",
             "context": null,
             "plural": null,
-            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in translators: F17: label of the single name field",
             "files": [
-                "includes/data/autocomplete-labels-efb.php"
+                "includes/data/autocomplete-labels-efb.php",
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -22189,7 +22644,8 @@
             "plural": null,
             "translators": "country group in the form builder's \"Format / mask\" list",
             "files": [
-                "includes/data/masks-labels-efb.php"
+                "includes/data/masks-labels-efb.php",
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -22650,6 +23106,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Governorate",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Governorates of Egypt",
             "context": null,
             "plural": null,
@@ -22699,6 +23170,21 @@
             "context": null,
             "plural": null,
             "translators": "F19: name of a locked feature in the upgrade dialog (gradient background per form step)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Grandfather's name",
+            "context": null,
+            "plural": null,
+            "translators": "",
             "files": [
                 "includes/functions.php"
             ],
@@ -22818,7 +23304,7 @@
             "msgid": "Group",
             "context": null,
             "plural": null,
-            "translators": "Group = label for a group of conditions",
+            "translators": "F17 form builder: the name / address group block of a part",
             "files": [
                 "includes/functions.php"
             ],
@@ -22826,8 +23312,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.2.0"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Guest",
@@ -25571,7 +26057,7 @@
             "msgid": "International",
             "context": null,
             "plural": null,
-            "translators": "country group in the form builder's \"Format / mask\" list translators: F01 builder: group name for formats that are not tied to one country (IBAN, card, dates)",
+            "translators": "country group in the form builder's \"Format / mask\" list translators: F01 builder: group name for formats that are not tied to one country (IBAN, card, dates) translators: F17: an address format",
             "files": [
                 "includes/data/masks-labels-efb.php",
                 "includes/functions.php"
@@ -26025,7 +26511,8 @@
             "plural": null,
             "translators": "country group in the form builder's \"Format / mask\" list",
             "files": [
-                "includes/data/masks-labels-efb.php"
+                "includes/data/masks-labels-efb.php",
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -26512,6 +26999,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Japan",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -27181,6 +27683,21 @@
             "context": null,
             "plural": null,
             "translators": "F01 builder, digit grouping option (Indian numbering); keep the example digits",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Landmark",
+            "context": null,
+            "plural": null,
+            "translators": "",
             "files": [
                 "includes/functions.php"
             ],
@@ -27883,6 +28400,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Letters only (no digits)",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -28893,6 +29425,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Main street or neighbourhood",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Mains",
             "context": null,
             "plural": null,
@@ -28904,6 +29451,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Makani number",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -30056,7 +30618,8 @@
             "plural": null,
             "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
             "files": [
-                "includes/data/autocomplete-labels-efb.php"
+                "includes/data/autocomplete-labels-efb.php",
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -31351,6 +31914,21 @@
             "context": null,
             "plural": null,
             "translators": "F12b: builder: help of the option above",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Neighbourhood",
+            "context": null,
+            "plural": null,
+            "translators": "",
             "files": [
                 "includes/functions.php"
             ],
@@ -35275,6 +35853,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "P.O. Box",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "PDF Downloads and CSV Exports",
             "context": null,
             "plural": null,
@@ -37331,6 +37924,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Plaque",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Play",
             "context": null,
             "plural": null,
@@ -38969,6 +39577,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Postcode",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Posts or pages",
             "context": null,
             "plural": null,
@@ -39048,6 +39671,21 @@
             "context": null,
             "plural": null,
             "translators": "F18: preview of the credit Free Plus shows under forms; keep it identical to the public credit text",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Prefecture",
+            "context": null,
+            "plural": null,
+            "translators": "",
             "files": [
                 "includes/functions.php"
             ],
@@ -39944,6 +40582,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Province",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Provinces of Afghanistan",
@@ -41253,6 +41906,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Region",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Regions Drop-Down",
             "context": null,
             "plural": null,
@@ -42245,6 +42913,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Required parts",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -43737,6 +44420,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Saudi National Address",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Saudi National Address short code",
             "context": null,
             "plural": null,
@@ -44384,6 +45082,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Searching sends the address the visitor types to OpenStreetMap.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -46115,6 +46828,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Short address",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Short-lived single-use human token.",
             "context": null,
             "plural": null,
@@ -46734,6 +47462,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Side street or alley",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Sides/Appetizers",
             "context": null,
             "plural": null,
@@ -46850,6 +47593,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Single field",
+            "context": null,
+            "plural": null,
+            "translators": "F17 form builder: a name format",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -48042,6 +48800,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "State",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "State / Province",
             "context": null,
             "plural": null,
@@ -48586,6 +49359,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Street",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Street Address",
             "context": null,
             "plural": null,
@@ -48622,6 +49410,21 @@
             "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
             "files": [
                 "includes/data/autocomplete-labels-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Street and house number",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -49194,6 +49997,21 @@
             "context": null,
             "plural": null,
             "translators": "F03 builder: short text shown after the input box, e.g. kg or .com",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Suggested",
+            "context": null,
+            "plural": null,
+            "translators": "F17 form builder: badge on the format the site language suggests",
             "files": [
                 "includes/functions.php"
             ],
@@ -54275,6 +55093,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The short address, or the full National Address",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The shortest stay is longer than the longest.",
             "context": null,
             "plural": null,
@@ -56579,6 +57412,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This part",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This pattern cannot be used: %s",
             "context": null,
             "plural": null,
@@ -57079,6 +57927,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Three-part Arabic name",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Ticked: it will be imported again as a new copy.",
             "context": null,
             "plural": null,
@@ -57187,7 +58050,7 @@
             "msgid": "Title",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "F17: label of the name title (Mr, Mrs, Dr …)",
             "files": [
                 "includes/functions.php"
             ],
@@ -57867,6 +58730,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Town or city",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Tracker Background",
             "context": null,
             "plural": null,
@@ -58440,6 +59318,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Type the city name",
+            "context": null,
+            "plural": null,
+            "translators": "F17 form: the city box when the city list cannot load",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Type the name only",
             "context": null,
             "plural": null,
@@ -58596,7 +59489,8 @@
             "plural": null,
             "translators": "country group in the form builder's \"Format / mask\" list",
             "files": [
-                "includes/data/masks-labels-efb.php"
+                "includes/data/masks-labels-efb.php",
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -59116,12 +60010,28 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Unit",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "United Arab Emirates",
             "context": null,
             "plural": null,
             "translators": "country group in the form builder's \"Format / mask\" list",
             "files": [
-                "includes/data/masks-labels-efb.php"
+                "includes/data/masks-labels-efb.php",
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -59136,7 +60046,8 @@
             "plural": null,
             "translators": "country group in the form builder's \"Format / mask\" list",
             "files": [
-                "includes/data/masks-labels-efb.php"
+                "includes/data/masks-labels-efb.php",
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -59151,7 +60062,8 @@
             "plural": null,
             "translators": "country group in the form builder's \"Format / mask\" list",
             "files": [
-                "includes/data/masks-labels-efb.php"
+                "includes/data/masks-labels-efb.php",
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -63018,6 +63930,36 @@
             "context": null,
             "plural": null,
             "translators": "F07 builder: help under the camera option",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "With middle name",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "With title",
+            "context": null,
+            "plural": null,
+            "translators": "",
             "files": [
                 "includes/functions.php"
             ],
