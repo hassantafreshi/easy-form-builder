@@ -10263,6 +10263,8 @@ public function addon_add_efb($value) {
 
 		$table_name = $wpdb->prefix . "emsfb_form";
 		$value = $wpdb->get_results( "SELECT form_id,form_name,form_create_date,form_type FROM `$table_name`" );
+		// AI-4: drafts are marked (draft = 1) for the list's badge and Publish button.
+		if ( class_exists( '\\Emsfb\\Form_Status' ) ) $value = \Emsfb\Form_Status::mark_list( $value );
 		$date_format = get_option( 'date_format' );
 		foreach ( $value as $row ) {
 			if ( ! empty( $row->form_create_date ) ) {

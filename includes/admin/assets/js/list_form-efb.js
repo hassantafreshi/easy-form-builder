@@ -250,6 +250,38 @@ function efb_split_badge_efb(fid) {
   }).join('');
 }
 
+/* AI-4: a draft (made by an assistant or an import, not shown to visitors yet): its badge and the Publish button. */
+function efb_draft_badge_efb(i) {
+  if (!i || Number(i.draft) !== 1) return '';
+  const t = (typeof efb_var !== 'undefined' && efb_var.form_status) || {};
+  return ` <span class="efb badge efb-draft-badge ms-1" role="note" title="${sanitize_text_efb(t.draftTip || '')}" style="background:#fff4c2;color:#5c4a00;border:1px dashed #c7a600;white-space:normal"><i class="efb bi-pencil-square" aria-hidden="true"></i> ${sanitize_text_efb(t.draft || 'Draft')}</span>`;
+}
+function efb_publish_btn_efb(i) {
+  if (!i || Number(i.draft) !== 1) return '';
+  const t = (typeof efb_var !== 'undefined' && efb_var.form_status) || {};
+  const l = sanitize_text_efb(t.publish || 'Publish');
+  return `<button type="button" class="efb efb-act-btn efb-act-publish ec-efb" data-id="${Number(i.form_id)}" data-eventform="publish" data-efb-tip="${l}" aria-label="${l}" id="${Number(i.form_id)}-pub-efb"><i class="efb bi-send-check"></i></button>`;
+}
+function efb_publish_form_efb(id) {
+  const fid = Number(id);
+  const btn = document.getElementById(fid + '-pub-efb');
+  if (btn) { btn.disabled = true; btn.innerHTML = typeof svg_loading_efb === 'function' ? svg_loading_efb('text-dark') : '…'; }
+  jQuery.post(ajax_object_efm.ajax_url, { action: 'efb_form_publish', nonce: _efb_core_nonce_, id: fid }, function (res) {
+    const d = res && res.data ? res.data : {};
+    if (d.success === true) {
+      for (const f of valueJson_ws_form) if (Number(f.form_id) === fid) delete f.draft;
+      alert_message_efb(efb_var.text.done, d.m || '', 4, 'success');
+      fun_emsFormBuilder_render_view(Math.max(count_row_emsFormBuilder || 0, valueJson_ws_form.length));
+    } else {
+      alert_message_efb(efb_var.text.error, d.m || efb_var.text.somethingWentWrongPleaseRefresh, 6, 'danger');
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="efb bi-send-check"></i>'; }
+    }
+  }).fail(function () {
+    alert_message_efb(efb_var.text.error, efb_var.text.somethingWentWrongPleaseRefresh, 6, 'danger');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="efb bi-send-check"></i>'; }
+  });
+}
+
 function fun_emsFormBuilder_render_view(x) {
   if (typeof restore_auto_save_efb === 'function') restore_auto_save_efb();
 
@@ -280,10 +312,11 @@ function fun_emsFormBuilder_render_view(x) {
        </button>
      </span>
    </th>
-   <td class="efb emsFormBuilder-tr" data-id="${Number(i.form_id)}" data-label="${efb_var.text.formName}">${sanitize_text_efb(i.form_name)}${efb_pay_badge_efb(fid)}${efb_split_badge_efb(fid)}</td>
+   <td class="efb emsFormBuilder-tr" data-id="${Number(i.form_id)}" data-label="${efb_var.text.formName}">${sanitize_text_efb(i.form_name)}${efb_draft_badge_efb(i)}${efb_pay_badge_efb(fid)}${efb_split_badge_efb(fid)}</td>
    <td class="efb emsFormBuilder-tr" data-id="${Number(i.form_id)}" data-label="${efb_var.text.createDate}">${sanitize_text_efb(i.form_create_date)}</td>
    <td class="efb efb-actions-cell" data-label="${efb_var.text.actions}">
      <div class="efb-actions-group">
+       ${efb_publish_btn_efb(i)}
        <button type="button" class="efb efb-act-btn efb-act-msg ec-efb ${newM ? 'efb-has-badge' : ''}" data-id="${Number(i.form_id)}" data-eventform="message" data-efb-tip="${newM == true ? sanitize_text_efb(efb_var.text.newResponse) : sanitize_text_efb(efb_var.text.read)}" aria-label="${newM == true ? sanitize_text_efb(efb_var.text.newResponse) : sanitize_text_efb(efb_var.text.read)}">
          <i class="efb ${newM ? 'bi-chat-dots-fill' : 'bi-chat'}"></i>
          ${newM ? '<span class="efb-noti-badge" role="status" aria-label="' + sanitize_text_efb(efb_var.text.newResponse) + '"></span>' : ''}

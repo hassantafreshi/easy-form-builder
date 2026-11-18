@@ -1032,6 +1032,21 @@ function efb_apply_save_warnings_efb(warnings) {
   try { sessionStorage.setItem('valj_efb', JSON.stringify(valj_efb)); } catch (e) {}
 }
 
+/* AI-1: efb:form-saved carries the save answer's warnings (the same codes and messages: addon_keys_kept, pay_*,
+   verify_*, …) and its payment readiness, so an assistant can explain them after the owner's own Save. A copy: a
+   listener cannot change what the builder shows. Server twin: the "warnings" key of efb_form_saved / efb_form_created. */
+function efb_save_event_detail_efb(id, created, data) {
+  const d = { id: id, created: created, warnings: [] };
+  try {
+    if (data && Array.isArray(data.warnings)) d.warnings = JSON.parse(JSON.stringify(data.warnings.filter((w) => w && typeof w === 'object' && !Array.isArray(w))));
+    if (data && typeof data.payment_ready === 'boolean') {
+      d.payment_ready = data.payment_ready;
+      d.payment_issues = Array.isArray(data.payment_issues) ? JSON.parse(JSON.stringify(data.payment_issues)) : [];
+    }
+  } catch (e) { /* an answer that cannot be copied: no warnings */ }
+  return d;
+}
+
 async function  actionSendData_emsFormBuilder(saveMode) {
   if (!navigator.onLine) {
     alert_message_efb('',efb_var.text.offlineSend, 17, 'danger')
@@ -1088,7 +1103,7 @@ async function  actionSendData_emsFormBuilder(saveMode) {
           if (!_efb_autosave_in_progress) efb_builder_maybe_warn_email_delivery_after_save();
           if (saveMode === 1) clear_auto_save_efb();
           fun_pr(1);
-          try { document.dispatchEvent(new CustomEvent('efb:form-saved', { detail: { id: form_ID_emsFormBuilder, created: true } })); } catch (e) { /* old browsers */ }
+          try { document.dispatchEvent(new CustomEvent('efb:form-saved', { detail: efb_save_event_detail_efb(form_ID_emsFormBuilder, true, res.data) })); } catch (e) { /* old browsers */ }
         } else {
           alert(res, "error")
           show_message_result_form_set_EFB(0, res.data.value, `${efb_var.text.somethingWentWrongPleaseRefresh}, Code:400-1`)
@@ -1102,7 +1117,7 @@ async function  actionSendData_emsFormBuilder(saveMode) {
 
         sessionStorage.setItem('formId_efb', res.data.value);
         fun_pr(1);
-        try { document.dispatchEvent(new CustomEvent('efb:form-saved', { detail: { id: form_ID_emsFormBuilder, created: false } })); } catch (e) { /* old browsers */ }
+        try { document.dispatchEvent(new CustomEvent('efb:form-saved', { detail: efb_save_event_detail_efb(form_ID_emsFormBuilder, false, res.data) })); } catch (e) { /* old browsers */ }
       } else {
 
         if (res.data.m == null || res.data.m.length > 1) {
@@ -6976,6 +6991,10 @@ function addClickListenerToElementListEFB(element) {
                               temp = sanitize_text_efb(dataset.formname);
                               temp2 = sanitize_text_efb(dataset.id);
                               emsFormBuilder_delete(temp2, 'form', temp);
+                              break;
+                          case 'publish':
+                              // AI-4: the forms list's Publish of a draft.
+                              if (typeof efb_publish_form_efb === 'function') efb_publish_form_efb(sanitize_text_efb(dataset.id));
                               break;
                           case 'duplicate':
                               temp = sanitize_text_efb(dataset.formname);

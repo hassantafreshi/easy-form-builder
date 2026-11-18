@@ -628,7 +628,8 @@ class Create {
 		}
 		if($this->id_ !=0){
 			// Side effects of a new form (F13 emsfb_prv_forms map; SitePilot contract §5.8).
-			do_action('efb_form_created', (int) $this->id_, $valp, array('form_id' => (int) $this->id_, 'source' => 'builder', 'user_id' => get_current_user_id()) + (class_exists('\Emsfb\Revisions') ? \Emsfb\Revisions::request_meta() : array()));
+			// AI-1: the save warnings go with the hook (efb:form-saved carries them in the builder).
+			do_action('efb_form_created', (int) $this->id_, $valp, array('form_id' => (int) $this->id_, 'source' => 'builder', 'user_id' => get_current_user_id(), 'warnings' => isset($save_warnings_efb) && is_array($save_warnings_efb) ? $save_warnings_efb : array()) + (class_exists('\Emsfb\Revisions') ? \Emsfb\Revisions::request_meta() : array()));
 		}
 		if($this->id_ !=0){
 			$response = array( 'success' => true ,'r'=>"insert" , 'value' => "[EMS_Form_Builder id=$this->id_]" , "id"=>$this->id_);

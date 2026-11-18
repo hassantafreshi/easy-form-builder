@@ -597,6 +597,10 @@ class Emsfb {
         if ($this->require_plugin_file_efb('includes/class-Emsfb-form-package.php') && method_exists('\Emsfb\Form_Package', 'register')) {
             \Emsfb\Form_Package::register();
             $this->require_plugin_file_efb('includes/form-package-functions-efb.php');
+            // AI-2 / AI-4: form.update of a saved form (patches + base_hash) and the draft status. Optional: callers check
+            // efb_form_package_api()['version'] >= 1.2 (or capabilities.form_update / form_status).
+            if ($this->require_plugin_file_efb('includes/class-Emsfb-form-update.php')) \Emsfb\Form_Update::register();
+            if ($this->require_plugin_file_efb('includes/class-Emsfb-form-status.php')) \Emsfb\Form_Status::register();
         }
         // F15-C: form versions (kept on every save through efb_form_saved / efb_form_created). Optional.
         if ($this->require_plugin_file_efb('includes/class-Emsfb-revisions.php') && method_exists('\Emsfb\Revisions', 'register')) {

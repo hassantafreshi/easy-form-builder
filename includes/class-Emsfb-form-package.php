@@ -29,8 +29,13 @@ defined('ABSPATH') || exit;
 
 class Form_Package {
 
-	/** 1.1 (SPLIT-G): delete() of a form an import created (import_token) and import_entries(); backward compatible. */
-	const API_VERSION = 1.1;
+	/**
+	 * 1.1 (SPLIT-G): delete() of a form an import created (import_token) and import_entries(); backward compatible.
+	 * 1.2 (AI-2 … AI-4): read() / update() of a saved form (patches + base_hash), import() name_policy and status
+	 * ("draft"), publish() / set_status(), the save warnings in import()'s answer and efb_form_created; backward compatible.
+	 */
+	const API_VERSION = 1.2;
+	const NAME_POLICIES = array('suffix', 'keep', 'fail');
 	const SCHEMA = 1;
 	const EXTRAS_VERSION = 1;
 	const MAX_BYTES = 8388608;
@@ -62,8 +67,10 @@ class Form_Package {
 	public static function api() {
 		$a = array(
 			'version'  => self::API_VERSION, 'schema' => self::SCHEMA, 'extras_version' => self::EXTRAS_VERSION,
-			'class'    => __CLASS__, 'functions' => array('export', 'validate', 'import', 'export_extras', 'import_extras', 'delete', 'import_entries'),
+			'class'    => __CLASS__, 'functions' => array('export', 'validate', 'import', 'export_extras', 'import_extras', 'delete', 'import_entries', 'read', 'update', 'publish', 'set_status'),
 			'import_token' => 'import() returns import_token; delete($form_id, $import_token) removes only a form that import created',
+			'import_args' => array('name', 'user_id', 'import_token', 'name_policy' => self::NAME_POLICIES, 'status' => array('published', 'draft')),
+			'update' => 'read($form_id) → base_hash; update($form_id, $patches, {base_hash}) (capabilities.form_update)',
 			'filters'  => array('efb_form_export_extras', 'efb_form_import_extras', 'efb_form_package_remap_ids', 'efb_form_package_known_types', 'efb_form_package_addon_active'),
 			'actions'  => array('efb_form_created (context source "import" / "duplicate")'),
 			'limits'   => array('bytes' => self::MAX_BYTES, 'depth' => self::MAX_DEPTH, 'rows' => self::MAX_ROWS),
@@ -362,6 +369,8 @@ class Form_Package {
 		}
 		$out['form'] = array('form_name' => isset($form['form_name']) && is_scalar($form['form_name']) ? self::text((string) $form['form_name'], 250) : '', 'form_type' => (string) $p['rows'][0]['type'], 'form_structer' => $p['rows']);
 		$out['notices'] = array_merge($out['notices'], self::import_warnings($p['rows']), $p['warnings']);
+		// 1.2: the save path's warnings apart too (the same codes and messages as a builder save).
+		$out['warnings'] = $p['warnings'];
 		$out['extras'] = isset($package['extras']) && is_array($package['extras']) ? $package['extras'] : array();
 		self::drop_php_objects($out['extras'], 'extras', $out['dropped']);
 		$out['ok'] = true;
@@ -596,8 +605,11 @@ class Form_Package {
 	/* ------------------------------------------------------------------ import */
 
 	/**
-	 * Creates a NEW form from a package. args: name (optional), user_id. Fires efb_form_created (source "import"),
-	 * applies the extras (P23), and returns the payment readiness of the new form.
+	 * Creates a NEW form from a package. args: name (optional), user_id, import_token, name_policy (1.2: what a name
+	 * that exists does — "suffix" "… (imported)", the default; "keep" the same name; "fail" refuses with
+	 * package_name_exists), status (1.2: "published" default, or "draft": made but not shown to visitors, Form_Status).
+	 * Fires efb_form_created (source "import", with the save warnings), applies the extras (P23), and returns the
+	 * payment readiness of the new form.
 	 */
 	public static function import($package, array $args = array()) {
 		$v = self::validate($package, $args);
@@ -610,26 +622,57 @@ class Form_Package {
 		$name = isset($args['name']) && is_scalar($args['name']) && $args['name'] !== '' ? self::text((string) $args['name'], 250) : $v['form']['form_name'];
 		if ($name === '') $name = isset($rows[0]['formName']) && is_scalar($rows[0]['formName']) ? self::text((string) $rows[0]['formName'], 250) : 'Imported form';
 		$t = $wpdb->prefix . 'emsfb_form';
-		if ((int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM `{$t}` WHERE form_name = %s", $name)) > 0) {
+		$policy = isset($args['name_policy']) && in_array($args['name_policy'], self::NAME_POLICIES, true) ? $args['name_policy'] : 'suffix';
+		if ($policy !== 'keep' && (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM `{$t}` WHERE form_name = %s", $name)) > 0) {
+			if ($policy === 'fail') return self::err('package_name_exists', 'A form with this name exists.', array('status' => 409, 'name' => $name));
 			$name = self::text(sprintf(function_exists('__') ? __('%s (imported)', 'easy-form-builder') : '%s (imported)', $name), 250);
 		}
+		$draft = isset($args['status']) && $args['status'] === 'draft';
+		if ($draft && (!class_exists('\\Emsfb\\Form_Status') || !Form_Status::column_ready())) return self::err('status_unavailable', 'This site cannot keep a form as a draft.', array('status' => 503));
 		$type = in_array($rows[0]['type'], self::ROW0_TYPES, true) ? $rows[0]['type'] : 'form';
 		$json = function_exists('wp_json_encode') ? wp_json_encode($rows, JSON_UNESCAPED_UNICODE) : json_encode($rows, JSON_UNESCAPED_UNICODE);
 		$uid = isset($args['user_id']) ? (int) $args['user_id'] : (function_exists('get_current_user_id') ? (int) get_current_user_id() : 0);
-		$ok = $wpdb->insert($t, array('form_name' => $name, 'form_structer' => str_replace('"', '\\"', $json), 'form_email' => '', 'form_created_by' => $uid, 'form_type' => $type, 'form_create_date' => function_exists('wp_date') ? wp_date('Y-m-d H:i:s') : gmdate('Y-m-d H:i:s')));
+		$rec = array('form_name' => $name, 'form_structer' => str_replace('"', '\\"', $json), 'form_email' => '', 'form_created_by' => $uid, 'form_type' => $type, 'form_create_date' => function_exists('wp_date') ? wp_date('Y-m-d H:i:s') : gmdate('Y-m-d H:i:s'));
+		if ($draft) $rec['status'] = Form_Status::DRAFT; // never published for a moment
+		$ok = $wpdb->insert($t, $rec);
 		if ($ok === false) return self::err('package_not_saved', 'The form could not be saved.', array('status' => 500));
 		$fid = (int) $wpdb->insert_id;
+		if ($draft) Form_Status::flush();
 		if ($type === 'login' || $type === 'register') do_action('create_temporary_links_table_Emsfb');
-		do_action('efb_form_created', $fid, $rows, array('form_id' => $fid, 'source' => 'import', 'user_id' => $uid));
+		do_action('efb_form_created', $fid, $rows, array('form_id' => $fid, 'source' => 'import', 'user_id' => $uid, 'warnings' => isset($v['warnings']) ? $v['warnings'] : array()));
 		$x = self::import_extras($fid, $v['extras'], array('context' => 'import', 'id_map' => $v['id_map']));
 		$token = self::remember_import($fid, isset($args['import_token']) ? (string) $args['import_token'] : '', $uid);
 		$res = array('form_id' => $fid, 'import_token' => $token, 'form_name' => $name, 'form_type' => $type, 'shortcode' => '[EMS_Form_Builder id=' . $fid . ']', 'dropped' => $v['dropped'],
-			'notices' => array_merge($v['notices'], $x['notices']), 'extras_applied' => $x['applied'], 'id_map' => $v['id_map']);
+			'notices' => array_merge($v['notices'], $x['notices']), 'extras_applied' => $x['applied'], 'id_map' => $v['id_map'],
+			'status' => $draft ? 'draft' : 'published', 'warnings' => isset($v['warnings']) ? $v['warnings'] : array());
+		if (class_exists('\\Emsfb\\Form_Update') && is_array($st = Form_Update::stored($fid))) $res['base_hash'] = Form_Update::hash_of($st['rows'], $st['form_name']);
 		if (class_exists('\\Emsfb\\Payments\\Readiness')) {
 			$a = Payments\Readiness::save_answer(array(), $rows, $fid);
 			if (isset($a['payment_ready'])) $res['payment'] = array('ready' => (bool) $a['payment_ready'], 'issues' => isset($a['payment_issues']) ? $a['payment_issues'] : array());
 		}
 		return $res;
+	}
+
+	/* ------------------------------------------------------------------ 1.2: a saved form (AI-2), draft status (AI-4) */
+
+	/** The stored rows of a form and the base_hash update() needs. @return array|\WP_Error */
+	public static function read($form_id) {
+		return class_exists('\\Emsfb\\Form_Update') ? Form_Update::read($form_id) : self::err('package_unavailable', 'Not available.', array('status' => 503));
+	}
+
+	/** form.update: patches to a saved form through the builder's save path (Form_Update). @return array|\WP_Error */
+	public static function update($form_id, $patches, array $args = array()) {
+		return class_exists('\\Emsfb\\Form_Update') ? Form_Update::update($form_id, $patches, $args) : self::err('package_unavailable', 'Not available.', array('status' => 503));
+	}
+
+	/** Publish a draft (Form_Status). @return true|\WP_Error */
+	public static function publish($form_id) {
+		return class_exists('\\Emsfb\\Form_Status') ? Form_Status::publish($form_id) : self::err('package_unavailable', 'Not available.', array('status' => 503));
+	}
+
+	/** "draft" | "published" (Form_Status). @return true|\WP_Error */
+	public static function set_status($form_id, $status) {
+		return class_exists('\\Emsfb\\Form_Status') ? Form_Status::set($form_id, $status) : self::err('package_unavailable', 'Not available.', array('status' => 503));
 	}
 
 	/* ------------------------------------------------------------------ registry */
@@ -639,7 +682,7 @@ class Form_Package {
 		$a = self::api();
 		$out['form_package'] = array(
 			'v' => self::API_VERSION, 'spec' => 'F15-D / F20 P23', 'schema' => self::SCHEMA, 'php' => 'efb_form_package_api(); Emsfb\\Form_Package::export / validate / import',
-			'filters' => $a['filters'], 'limits' => $a['limits'], 'rules' => array('import always creates a new form', 'ids kept unless invalid or duplicated (then remapped through efb_form_package_remap_ids)', 'the builder / AutoPilot save path runs on every import', 'secrets and site-only keys never exported', 'an add-on block is dropped with a notice when its add-on is not active'),
+			'filters' => $a['filters'], 'limits' => $a['limits'], 'functions' => $a['functions'], 'import_args' => $a['import_args'], 'rules' => array('import always creates a new form (name_policy suffix | keep | fail, status published | draft)', 'update() changes a saved form: patches + base_hash (capabilities.form_update)', 'ids kept unless invalid or duplicated (then remapped through efb_form_package_remap_ids)', 'the builder / AutoPilot save path runs on every import', 'secrets and site-only keys never exported', 'an add-on block is dropped with a notice when its add-on is not active'),
 			'ui' => 'none in core (the plugin Easy Form Builder Data Tools)', 'plan' => 'free',
 		);
 		return $out;

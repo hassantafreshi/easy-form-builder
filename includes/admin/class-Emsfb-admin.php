@@ -364,6 +364,21 @@ class Admin {
         }
         $valp =\emsfb_json_normalize_efb($post_value);
 		$valp = json_decode($valp,true);
+        // AI-2: the save itself is save_existing_form_efb(); form.update of the form package (Form_Package::update()) runs it too.
+        wp_send_json_success($this->save_existing_form_efb($id, $name, $valp, array('lang' => $lang)), 200);
+    }
+
+    /**
+     * The save of an existing form (the builder's Save, and form.update of the form package): the checks, the sanitizer,
+     * the normalizers, the write, the add-ons' tables, the hooks. Returns the answer the builder reads (never sends it).
+     * $ctx: lang (text_efb phrases), source (efb_form_saved context, default "builder"), rev (rev_source / rev_note of
+     * the version; default the request's), expected_raw (form.update: the stored text the change was made on; another
+     * save in between answers stale_hash and writes nothing).
+     */
+    public function save_existing_form_efb($id, $name, $valp, array $ctx = array()) {
+        $efbFunction = get_efbFunction();
+        $lang = isset($ctx['lang']) && is_array($ctx['lang']) ? $ctx['lang'] : $efbFunction->text_efb(["sms_noti","msg_adons","error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM","somethingWentWrongPleaseRefresh","smsOffAddonMissing","telegramOffAddonMissing","authFieldsMissing","login","register","smsAdminPhoneInvalid","smsFieldWithoutForm"]);
+        $id = (int) $id;
 		$sms_msg_new_noti="";
 		$sms_msg_responsed_noti="";
 		$sms_msg_recived_user="";
@@ -395,7 +410,7 @@ class Admin {
             if (!empty($auth_missing_efb)) {
                 $type_label_efb = isset($lang[$valp[0]['type']]) ? $lang[$valp[0]['type']] : $valp[0]['type'];
                 $m = str_replace(array('%1$s', '%2$s'), array($type_label_efb, implode(', ', $auth_missing_efb)), isset($lang['authFieldsMissing']) ? $lang['authFieldsMissing'] : 'A %1$s form needs these fields: %2$s.');
-                wp_send_json_success(['success' => false, 'm' => $m, 'code' => 'auth_fields_missing', 'missing' => $auth_missing_efb], 200);
+                return ['success' => false, 'm' => $m, 'code' => 'auth_fields_missing', 'missing' => $auth_missing_efb];
             }
         }
 
@@ -437,11 +452,11 @@ class Admin {
         // F03: a pattern the sanitizer would silently empty is refused with its path (API clients, AutoPilot).
         if (is_array($valp) && class_exists('\Emsfb\Field_Rules')) {
             $rules_err_efb = \Emsfb\Field_Rules::validate_rows($valp);
-            if ($rules_err_efb) wp_send_json_success(['success' => false, 'm' => sprintf(__('This pattern cannot be used: %s', 'easy-form-builder'), $rules_err_efb[0]['reason']), 'code' => 'pattern_invalid', 'path' => $rules_err_efb[0]['path'], 'errors' => $rules_err_efb], 200);
+            if ($rules_err_efb) return ['success' => false, 'm' => sprintf(__('This pattern cannot be used: %s', 'easy-form-builder'), $rules_err_efb[0]['reason']), 'code' => 'pattern_invalid', 'path' => $rules_err_efb[0]['path'], 'errors' => $rules_err_efb];
         }
         // F06: advanced date limits that contradict each other refuse the save (builder, AutoPilot, API clients).
         $date_chk_efb = class_exists('\\Emsfb\\Calendar') && is_array($valp) ? \Emsfb\Calendar::validate_rows($valp) : array('errors' => array(), 'warnings' => array());
-        if ($date_chk_efb['errors']) wp_send_json_success(['success' => false, 'm' => $date_chk_efb['errors'][0]['m'], 'code' => $date_chk_efb['errors'][0]['code'], 'path' => $date_chk_efb['errors'][0]['path'], 'errors' => $date_chk_efb['errors']], 200);
+        if ($date_chk_efb['errors']) return ['success' => false, 'm' => $date_chk_efb['errors'][0]['m'], 'code' => $date_chk_efb['errors'][0]['code'], 'path' => $date_chk_efb['errors'][0]['path'], 'errors' => $date_chk_efb['errors']];
         if (!empty($date_chk_efb['warnings'])) $save_warnings_efb = array_merge(isset($save_warnings_efb) ? $save_warnings_efb : array(), $date_chk_efb['warnings']);
         $valp = $efbFunction->sanitize_obj_msg_efb($valp);
         // F13: privacy keys follow the server rules (allow-lists, form type, existing email field).
@@ -461,7 +476,7 @@ class Admin {
             $valp = \Emsfb\Form_Gate::normalize_form_settings($valp, $old_rows_efb);
             $gate_checks_efb = \Emsfb\Form_Gate::save_checks($valp, $id);
             if (!empty($gate_checks_efb['errors'])) {
-                wp_send_json_success(['success' => false, 'm' => $gate_checks_efb['errors'][0]['m'], 'code' => $gate_checks_efb['errors'][0]['code']], 200);
+                return ['success' => false, 'm' => $gate_checks_efb['errors'][0]['m'], 'code' => $gate_checks_efb['errors'][0]['code']];
             }
             $save_warnings_efb = array_merge($save_warnings_efb, $gate_checks_efb['warnings']);
         }
@@ -507,7 +522,16 @@ class Admin {
             $this->db = $wpdb;
         }
         $table_name = $this->db->prefix . "emsfb_form";
-        $r = $this->db->update($table_name, ['form_structer' => $value_, 'form_name' => $name ,'form_type'=>$form_type ], ['form_id' => $id]);
+        // AI-2 form.update: written only when the stored form is still the one the change was made on (optimistic concurrency).
+        $where_efb = ['form_id' => $id];
+        if (isset($ctx['expected_raw']) && is_string($ctx['expected_raw'])) $where_efb['form_structer'] = $ctx['expected_raw'];
+        $r = $this->db->update($table_name, ['form_structer' => $value_, 'form_name' => $name ,'form_type'=>$form_type ], $where_efb);
+        if (false !== $r && 0 === (int) $r && isset($where_efb['form_structer'])) {
+            $now_efb = $this->db->get_var($this->db->prepare("SELECT form_structer FROM `{$table_name}` WHERE form_id = %d", $id));
+            if (is_string($now_efb) && $now_efb !== $value_ && $now_efb !== $ctx['expected_raw']) {
+                return ['success' => false, 'r' => 'not_saved', 'code' => 'stale_hash', 'm' => __('The form was saved by someone else in the meantime. Read it again and repeat the change.', 'easy-form-builder')];
+            }
+        }
 
         // The database refused the change (a value the column cannot hold, a
         // lost connection), or the form no longer exists. This used to answer
@@ -520,7 +544,7 @@ class Admin {
         if (false === $r || !$form_exists) {
             $m = isset($lang['somethingWentWrongPleaseRefresh']) ? $lang['somethingWentWrongPleaseRefresh'] : '';
             $response = ['success' => false, 'm' => $m, 'r' => 'not_saved'];
-            wp_send_json_success($response, 200);
+            return $response;
         }
 
         if ($r !== false) {
@@ -544,7 +568,7 @@ class Admin {
             if(!$sms_exists || !$smf_file_exist) {
                $m = str_replace('NN', '<b>' . $lang['sms_noti'] . '</b>', $lang['msg_adons']);
                 $response = ['success' => false, 'm' => $m];
-                wp_send_json_success($response, 200);
+                return $response;
             }
 
 			require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/smssended/smsefb.php' );
@@ -565,7 +589,7 @@ class Admin {
             if(!$telegram_exists || !$telegram_file_exist) {
                 $m = str_replace('NN', '<b>Telegram Notification</b>', $lang['msg_adons']);
                 $response = ['success' => false, 'm' => $m];
-                wp_send_json_success($response, 200);
+                return $response;
             }
 
             require_once( EMSFB_PLUGIN_DIRECTORY . '/vendor/telegram/telegram-new-efb.php' );
@@ -587,17 +611,18 @@ class Admin {
         // Side effects of a save (F13 emsfb_prv_forms map; SitePilot contract §5.8).
         // F15: rev_source / rev_note of the builder (a restored version, AutoPilot) and the state this save replaced
         // (kept as the "initial" version when the form has none yet) for Revisions::on_saved().
-        $rev_ctx_efb = class_exists('\Emsfb\Revisions') ? \Emsfb\Revisions::request_meta() : array();
+        $rev_ctx_efb = isset($ctx['rev']) && is_array($ctx['rev']) ? $ctx['rev'] : (class_exists('\Emsfb\Revisions') ? \Emsfb\Revisions::request_meta() : array());
         if (isset($old_rows_efb) && is_array($old_rows_efb)) $rev_ctx_efb['old_rows'] = $old_rows_efb;
         // F15-D / P23: a restored version brings back the add-ons' settings it kept (before the new version is written).
         if (!empty($rev_ctx_efb['rev_extras'])) \Emsfb\Revisions::apply_extras($id, $rev_ctx_efb['rev_extras']);
-        do_action('efb_form_saved', $id, $valp, array('form_id' => $id, 'source' => 'builder', 'user_id' => get_current_user_id()) + $rev_ctx_efb);
+        // AI-1: the save warnings (the codes and messages of the answer) go with the hook, as with efb:form-saved in the builder.
+        do_action('efb_form_saved', $id, $valp, array('form_id' => $id, 'source' => isset($ctx['source']) ? (string) $ctx['source'] : 'builder', 'user_id' => get_current_user_id(), 'warnings' => $save_warnings_efb) + $rev_ctx_efb);
         $m = $lang['updated'];
         $response = ['success' => true, 'r' =>"updated", 'value' => "[EMS_Form_Builder id=$id]"];
         if (!empty($save_warnings_efb)) $response['warnings'] = $save_warnings_efb;
         // PAY00 readiness (computed, never stored): whether visitors can pay with this form as saved, and why not.
         if (is_array($valp) && class_exists('\\Emsfb\\Payments\\Readiness')) $response = \Emsfb\Payments\Readiness::save_answer($response, $valp, (int) $id);
-        wp_send_json_success($response, 200);
+        return $response;
     }
     /**
      * Write verbose add-on install diagnostics to the PHP error log.

@@ -403,6 +403,12 @@ class Builder_Api {
 				'targets' => \Emsfb\Payments\Legacy_Migration::targets(),
 				'migration' => array('rest' => function_exists('rest_url') ? rest_url('Emsfb/v1/payments/legacy-migration') : '/wp-json/Emsfb/v1/payments/legacy-migration', 'per_form' => true, 'rollback' => true, 'backup' => 'original JSON per form'));
 		}
+		// AI-1: what an assistant reads after the owner's own Save: the builder's event and the server hooks carry the save
+		// answer's warnings (the same codes and messages: addon_keys_kept, pay_*, verify_*, sms_*, …).
+		$out['save_events'] = array('v' => 1, 'spec' => 'AI-1',
+			'browser' => array('event' => 'efb:form-saved', 'target' => 'document', 'detail' => array('id', 'created', 'warnings', 'payment_ready', 'payment_issues')),
+			'server' => array('actions' => array('efb_form_saved', 'efb_form_created'), 'context' => array('form_id', 'source', 'user_id', 'warnings')),
+			'warning' => array('code', 'm', 'level', 'field_id', 'addon', 'keys'), 'same_as' => 'the warnings of the save answer (update_form_Emsfb / add_form_Emsfb, Form_Package::import() / update())');
 		// 4.3.2: the visitor's confirmation e-mail (an E-mail field's "SendemailEl" switch) is on by default.
 		$out['email_confirmation'] = array(
 			'v' => 1, 'default' => 'on', 'field_key' => 'noti', 'form_keys' => array('email_to', 'sendEmail'),

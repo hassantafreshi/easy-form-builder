@@ -175,7 +175,7 @@ t('efb_form_package_addon_active can say an add-on is off', P::addon_active('Adn
 
 /* Discovery and registry */
 $api = efb_form_package_api();
-t('efb_form_package_api(): version, schema, the functions, the hooks and limits', array($api['version'], $api['schema'], $api['functions'], in_array('efb_form_package_remap_ids', $api['filters'], true), $api['limits']['depth']), array(1.1, 1, array('export', 'validate', 'import', 'export_extras', 'import_extras', 'delete', 'import_entries'), true, 64)); // 1.1 (SPLIT-G): delete, import_entries
+t('efb_form_package_api(): version, schema, the functions, the hooks and limits', array($api['version'], $api['schema'], $api['functions'], in_array('efb_form_package_remap_ids', $api['filters'], true), $api['limits']['depth']), array(1.2, 1, array('export', 'validate', 'import', 'export_extras', 'import_extras', 'delete', 'import_entries', 'read', 'update', 'publish', 'set_status'), true, 64)); // 1.1 (SPLIT-G): delete, import_entries; 1.2 (AI-2 … AI-4): read, update, publish, set_status
 $caps = P::capabilities(array());
 t('registry: form_package (free, no UI in core)', array($caps['form_package']['plan'], $caps['form_package']['schema'], strpos($caps['form_package']['ui'], 'Data Tools') !== false), array('free', 1, true));
 

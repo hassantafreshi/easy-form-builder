@@ -678,6 +678,19 @@ body.mobile.modal-open #wpwrap {	position: relative !important;
    box-shadow: 0 2px 8px rgba(6,182,212,0.35) !important;
    transform: translateY(-1px);
 }
+/* AI-4: Publish a draft (green, like the list's other actions). */
+.efb-act-publish {
+   background: #fef2f22e !important;
+   color: #16a34a !important;
+}
+.efb-act-publish:hover {
+   background: #16a34a !important;
+   color: #fff !important;
+   box-shadow: 0 2px 8px rgba(22,163,74,0.35) !important;
+   transform: translateY(-1px);
+}
+.efb-draft-badge { font-size: .75em; font-weight: 600; vertical-align: middle; }
+.efb-draft-badge i { font-size: inherit !important; }
 .efb-noti-badge {
    position: absolute;
    top: -3px;

@@ -287,7 +287,7 @@ public function check_nonce_permission_efb($request) {
 		$gate_s0 = null;
 		if ($fid > 0) {
 			$form = $this->get_form_data_efb($fid);
-			if (!$form) return new \WP_Error('efb_form_missing',__('Form not found.', 'easy-form-builder'),array('status'=>404));
+			if (!$form || (class_exists('\\Emsfb\\Form_Status') && \Emsfb\Form_Status::hidden_for_viewer($fid))) return new \WP_Error('efb_form_missing',__('Form not found.', 'easy-form-builder'),array('status'=>404)); // AI-4: a draft
 			$structure = \emsfb_json_decode_efb($form->form_structer,true);
 			if (in_array($structure[0]['stateForm'] ?? false,array(true,1,'1'),true) && !is_user_logged_in()) return new \WP_Error('efb_login_required',__('Please log in to use this form.', 'easy-form-builder'),array('status'=>403));
 			if (is_array($structure) && isset($structure[0]) && is_array($structure[0])) $gate_s0 = $structure[0];
@@ -798,6 +798,9 @@ public function check_nonce_permission_efb($request) {
 	}
 
 	public function render_form_shortcode_efb( $atts = array(), $content = null, $tag = '' ) {
+		// AI-4: a draft form shows nothing to visitors; the plugin's admins see it with a notice (Form_Status::render_note()).
+		$draft_note = class_exists( '\\Emsfb\\Form_Status' ) ? \Emsfb\Form_Status::render_note( (int) self::form_id_from_atts_efb( $atts ) ) : null;
+		if ( '' === $draft_note ) return '';
 		$markup = $this->EFB_Form_Builder( $atts );
 		// F11-H: [EMS_Form_Builder id=5 popup="1" popup_label="…" popup_style="button|link" popup_delay="0"] (Free Plus).
 		$popup = self::popup_atts_efb( $atts );
@@ -813,6 +816,7 @@ public function check_nonce_permission_efb($request) {
 			$markup = self::popup_markup_efb( $markup, $fid, $popup, $name, isset( $l['popupClose'] ) ? $l['popupClose'] : 'Close', '' !== $name ? $name : ( isset( $l['popupOpen'] ) ? $l['popupOpen'] : 'Open the form' ) );
 			self::enqueue_access_css_efb();
 		}
+		if ( is_string( $draft_note ) && is_string( $markup ) ) $markup = $draft_note . $markup;
 		$markup = emsfb_autop_safe_markup_efb( $markup );
 
 		if ( ! is_string( $markup ) || '' === $markup || ! $this->content_filter_is_running_efb() ) {
