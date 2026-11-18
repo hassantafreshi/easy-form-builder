@@ -103,7 +103,8 @@ Backward compatible: every 1.0 call and answer is unchanged; `import()` adds `im
 `import_entries()` are new (`efb_form_package_api()['functions']` lists them). A caller checks
 `$api['version'] >= 1.1` (or `in_array('delete', $api['functions'], true)`) before using them. An add-on that moved
 out of core (SPLIT) registers its own extras and remap handlers on the same filters; while such an add-on is not active
-on the importing site its form keys are dropped with `dropped[] {reason: addon_inactive, addon}` (SPLIT §4.2).
+on the importing site its form keys are dropped with `dropped[] {code: addon_inactive, reason: addon_inactive, path, key, addon}` (SPLIT §4.2; `code` like
+every other `dropped[]` entry since the final test, `reason` kept).
 
 ## Extras (P23)
 

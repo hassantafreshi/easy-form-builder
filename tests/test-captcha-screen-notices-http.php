@@ -11,6 +11,10 @@
  *    notice (WordPress' convention for every admin screen);
  *  - the not-found screen of an add-on that is not on shows only its own message too.
  *
+ * Final test (c): the same rule for any add-on settings screen through core's efb_addon_screen_own_notices(): the
+ * Address & Postal add-on's "Address search" screen (admin.php?page=Emsfb_adr_lookup) showed the SPLIT notice and
+ * "payment setup incomplete" above its form.
+ *
  * Run (the e2e site, under the e2e lock): php tests/test-captcha-screen-notices-http.php
  */
 require __DIR__ . '/f12b-http-lib.php';
@@ -60,6 +64,18 @@ try {
 	$r = $get('page=Emsfb_captcha&provider=hcaptcha');
 	$nf = $notices($r['body']);
 	t('the screen of an add-on that is not on (404): only its own "not installed or not active"', array($r['status'], array_values(array_filter($nf['outside'], function ($n) { return $n !== 'other-plugin-probe'; })), count($nf['inside'])), array(404, array(), 1));
+
+	// The Address & Postal add-on's "Address search" screen (another add-on's settings screen, its own folder).
+	$c17 = function (...$a) use ($H) {
+		$parts = array_merge(preg_split('/\s+/', trim($H->wpcli)), array('eval-file', $H->root . '/tests/e2e-wp/ctl-f17.php'), array_map('strval', $a), array('--path=' . $H->site, '--allow-root'));
+		shell_exec(implode(' ', array_map('escapeshellarg', $parts)) . ' 2>/dev/null');
+	};
+	$c17('adr', '1');
+	$r = $get('page=Emsfb_adr_lookup');
+	$ad = $notices($r['body']);
+	t('the "Address search" screen of the Address & Postal add-on (200, its form): no site-wide notice of Easy Form Builder or of another of its add-ons', array($r['status'], strpos($r['body'], 'id="efbAdrForm"') !== false, array_values(array_filter($ad['outside'], function ($n) { return $n !== 'other-plugin-probe'; }))), array(200, true, array()));
+	t('… another plugin\'s notice stays there too', in_array('other-plugin-probe', $ad['outside'], true), true);
+	t('core\'s helper is one function the CAPTCHA screen and the add-on both call', array(strpos(file_get_contents($H->root . '/includes/captcha/class-Emsfb-captcha-screen.php'), 'efb_addon_screen_own_notices(') !== false, function_exists('efb_addon_screen_own_notices') || strpos(file_get_contents($H->root . '/includes/addon-contracts-functions-efb.php'), "function efb_addon_screen_own_notices(") !== false), array(true, true));
 
 	$panel2 = $notices($get('page=Emsfb')['body']);
 	t('the panel afterwards still shows them (nothing removed for good)', in_array('efbPayNotReadyNotice', $panel2['outside'], true) && in_array('efb-addon-probe', $panel2['outside'], true), true);

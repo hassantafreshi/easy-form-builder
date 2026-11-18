@@ -112,6 +112,8 @@ t('import without AdnCLC: formula / num_* / option calc dropped with reason addo
 	array_key_exists('formula', $imp[3]), array_key_exists('num_step', $imp[2]), array_key_exists('calc', $imp[5]),
 	count(array_filter($dropped, function ($d) { return $d['reason'] === 'addon_inactive' && $d['addon'] === 'AdnCLC'; })) >= 7,
 ), array(false, false, false, true));
+// Final test: every dropped[] entry of a package names its code, as the other drops do (Data Tools showed "Unknown problem.").
+t('… each entry has code addon_inactive (like every other dropped[] entry) and keeps reason', count(array_filter($dropped, function ($d) { return ($d['code'] ?? '') === 'addon_inactive' && $d['reason'] === 'addon_inactive'; })) === count($dropped) && count($dropped) > 0, true);
 
 // Who uses what.
 Addon_Keys::set_override(null);

@@ -69,6 +69,41 @@ if (!function_exists('efb_addon_contracts')) {
 	}
 }
 
+if (!function_exists('efb_addon_screen_own_notices')) {
+	/**
+	 * A focused add-on settings screen shows only its own notices: call it on the screen's load-{$hook}. The site-wide
+	 * notices of Easy Form Builder and of its other add-ons (SPLIT, payment readiness, renewal, e-mail delivery …) stay
+	 * on the plugin's other screens. Theirs: a callback of the Emsfb namespace or defined in the plugin's folder (add-ons
+	 * live in its vendor/); a callback defined in $keep_dir (the add-on's own folder) is kept. Other plugins' and
+	 * WordPress' notices are left as on any screen.
+	 *
+	 * @param string $keep_dir The add-on's folder ('' keeps none of the plugin's own).
+	 * @return int How many notices were taken off this screen.
+	 */
+	function efb_addon_screen_own_notices($keep_dir = '') {
+		global $wp_filter;
+		if (empty($wp_filter['admin_notices']) || !is_object($wp_filter['admin_notices'])) return 0;
+		$root = defined('EMSFB_PLUGIN_DIRECTORY') ? wp_normalize_path(EMSFB_PLUGIN_DIRECTORY) : "\0";
+		$keep = is_string($keep_dir) && $keep_dir !== '' ? rtrim(wp_normalize_path($keep_dir), '/') . '/' : "\0";
+		$n = 0;
+		foreach ($wp_filter['admin_notices']->callbacks as $prio => $cbs) {
+			foreach ($cbs as $cb) {
+				$f = $cb['function'];
+				try {
+					$r = is_array($f) ? new \ReflectionMethod($f[0], $f[1]) : (is_string($f) && strpos($f, '::') ? new \ReflectionMethod($f) : new \ReflectionFunction($f));
+				} catch (\ReflectionException $e) { continue; }
+				$file = wp_normalize_path((string) $r->getFileName());
+				$ns = $r instanceof \ReflectionMethod ? $r->getDeclaringClass()->getName() : $r->getNamespaceName();
+				if ((stripos($ns, 'Emsfb') === 0 || strpos($file, $root) === 0) && strpos($file, $keep) !== 0) {
+					remove_action('admin_notices', $f, $prio);
+					$n++;
+				}
+			}
+		}
+		return $n;
+	}
+}
+
 if (!function_exists('efb_addon_contract_active')) {
 	/** Whether a contract has a usable implementation now (core's own, or an add-on with a compatible version). */
 	function efb_addon_contract_active($id) {

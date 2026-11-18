@@ -239,7 +239,8 @@ class Addon_Keys {
 
 	/**
 	 * A form package import (a new form, nothing stored): the keys of absent add-ons are taken out and reported.
-	 * @return array{0: array, 1: array} rows, dropped [{path, key, reason: addon_inactive, addon}].
+	 * @return array{0: array, 1: array} rows, dropped [{code: addon_inactive, path, key, reason: addon_inactive, addon}]
+	 *         (code like every other dropped[] entry of Form_Package; reason kept for callers of contract 1.1).
 	 */
 	public static function drop_for_import(array $rows) {
 		$absent = self::absent();
@@ -250,7 +251,7 @@ class Addon_Keys {
 			foreach ($absent as $code => $e) {
 				foreach (self::owned_keys($r, $e, $i === 0) as $k) {
 					unset($rows[$i][$k]);
-					$dropped[] = array('path' => $i . '.' . $k, 'key' => $k, 'reason' => 'addon_inactive', 'addon' => $code);
+					$dropped[] = array('code' => 'addon_inactive', 'path' => $i . '.' . $k, 'key' => $k, 'reason' => 'addon_inactive', 'addon' => $code);
 				}
 			}
 		}

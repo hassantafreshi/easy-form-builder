@@ -69,20 +69,8 @@ class Screen {
 	 * folder of this provider's own add-on is kept. Other plugins' and WordPress' notices are left as on any screen.
 	 */
 	private static function own_notices_only($p) {
-		global $wp_filter;
-		if (empty($wp_filter['admin_notices'])) return;
-		$root = defined('EMSFB_PLUGIN_DIRECTORY') ? wp_normalize_path(EMSFB_PLUGIN_DIRECTORY) : "\0";
-		$keep = $p ? wp_normalize_path(dirname((new \ReflectionClass($p))->getFileName())) . '/' : "\0";
-		foreach ($wp_filter['admin_notices']->callbacks as $prio => $cbs) {
-			foreach ($cbs as $cb) {
-				$f = $cb['function'];
-				try {
-					$r = is_array($f) ? new \ReflectionMethod($f[0], $f[1]) : (is_string($f) && strpos($f, '::') ? new \ReflectionMethod($f) : new \ReflectionFunction($f));
-				} catch (\ReflectionException $e) { continue; }
-				$file = wp_normalize_path((string) $r->getFileName());
-				$ns = $r instanceof \ReflectionMethod ? $r->getDeclaringClass()->getName() : $r->getNamespaceName();
-				if ((stripos($ns, 'Emsfb') === 0 || strpos($file, $root) === 0) && strpos($file, $keep) !== 0) remove_action('admin_notices', $f, $prio);
-			}
+		if (function_exists('efb_addon_screen_own_notices')) {
+			efb_addon_screen_own_notices($p ? dirname((new \ReflectionClass($p))->getFileName()) : '');
 		}
 	}
 

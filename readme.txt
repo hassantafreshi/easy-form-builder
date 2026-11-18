@@ -482,6 +482,10 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = Unreleased =
 
+* Fix: two settings saved at the same moment (for example a CAPTCHA add-on's page and the plugin's own settings, or an add-on install) no longer undo each other's change.
+* Fix: the Address & Postal add-on's "Address search" page shows only its own messages, like the CAPTCHA add-ons' pages (developers: efb_addon_screen_own_notices() for any add-on settings page).
+* Fix: a message from the server about a field (for example "already used") no longer disappears a moment later when the visitor had just typed in that field.
+* Developers: a form package's dropped[] entry for a setting of an add-on that is not active now has code addon_inactive like the other entries (reason is kept).
 * Fix: a site whose licence the server ended (or does not know) no longer gets Pro back while the licence server cannot be reached; the outage grace period only keeps an active licence on.
 * Changed: three files no page used are gone from the plugin package (an old copy of jQuery and two PNG flag images; the phone field uses the WebP flags): about 340 KB smaller.
 * Fix: a ticket closed in the entries viewer stays closed: a reply, opening the entry again or "Mark as read" no longer reopen it (the Closed tab lists it); a visitor's reply on a read or closed entry shows as a new reply, also in the admin menu's count; a pending payment keeps its state.
