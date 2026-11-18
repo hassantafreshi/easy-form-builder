@@ -430,6 +430,10 @@ module.exports = function (S) {
     R.check('f17-e: the route answers 404 for a form without address search (never a public proxy)', (await req.get(CFG.base + '/wp-json/Emsfb/v1/geo/search?q=Tehran&fid=' + NOF.form_id)).status() === 404, null);
     R.check('f17-e: a query shorter than 3 letters is refused (400)', (await req.get(CFG.base + '/wp-json/Emsfb/v1/geo/search?q=ab&fid=' + F.form_id)).status() === 400, null);
     c17('geo', 'clear');
+    /* The quota is a fixed one-minute window (Rate_Limit::hit(): floor(time / 60)); the 11 requests take about 13 s, so
+       they start at the beginning of a minute, never across two windows (the full run once split them: 11 × 200). */
+    const secs = new Date().getUTCSeconds();
+    if (secs > 40) await sleep((61 - secs) * 1000);
     const st = [];
     for (let i = 0; i < 11; i++) { st.push((await req.get(CFG.base + '/wp-json/Emsfb/v1/geo/search?cc=gb&q=' + encodeURIComponent('Downing ' + (i % 2)) + '&fid=' + F.form_id)).status()); await sleep(1100); }
     R.check('f17-e: 10 searches a minute per visitor, the 11th answers 429; two different queries, two requests (the rest cached)', st.slice(0, 10).every((x) => x === 200) && st[10] === 429 && c17('geo').calls.length === 2, { st, calls: c17('geo').calls.length });

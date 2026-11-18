@@ -105,7 +105,18 @@ module.exports = function (S) {
     await admin.waitForSelector('#efbPfPanelEl', { timeout: 8000 });
     R.check('paymob/builder: the payment panel offers the Paymob option "Mobile number (needed by Paymob)" (field_schema)', /Mobile number \(needed by Paymob\)/.test(await admin.textContent('#efbPfPanelEl')));
     // Error scenarios: the panel says what Paymob needs before anything is chosen (core's live checks).
-    const pw = await admin.evaluate(() => Array.from(document.querySelectorAll('#efbPfWarnEl li')).map((l) => ({ code: l.getAttribute('data-code'), level: l.getAttribute('data-level'), m: l.textContent })));
+    const warnsOf = () => admin.evaluate(() => Array.from(document.querySelectorAll('#efbPfWarnEl li')).map((l) => ({ code: l.getAttribute('data-code'), level: l.getAttribute('data-level'), m: l.textContent })));
+    // 4.3.2: the form's Email field is its confirmation recipient by default (email_to), and the payer e-mail follows it.
+    const pw0 = await warnsOf();
+    R.check('paymob/errors: builder, nothing chosen yet, the Email field is the confirmation recipient (4.3.2 default) → the payer e-mail follows it (only "mark it Required", info), Mobile wallet still needs its number (warning)', !pw0.some((w) => w.level === 'error') && pw0.some((w) => w.code === 'pay_option_not_required' && /Email/.test(w.m)) && pw0.some((w) => w.code === 'pay_option_required' && w.level === 'warning' && /to pay with Mobile wallet/.test(w.m)), pw0);
+    // The owner switches the confirmation off: nothing names the payer e-mail any more.
+    await closePanel(admin);
+    await admin.evaluate(async (e) => { const f = efbBuilderApi.getForm(); f[0].email_to = ''; f.find((x) => x.id_ === e).noti = 0; await efbBuilderApi.setForm(f); }, em.id_);
+    await sleep(400);
+    await admin.click(`#dropZoneEFB [data-id="${pf.dataId}"] .efb-pf-label`);
+    await admin.waitForSelector('#efbPfPanelEl', { timeout: 8000 });
+    await sleep(400);
+    const pw = await warnsOf();
     const req = pw.filter((w) => w.code === 'pay_option_required');
     R.check('paymob/errors: builder, nothing chosen yet → "Paymob requires "Payer e-mail …" (error, red) and "… "Mobile number (needed by Paymob)" to pay with Mobile wallet" (warning), naming the field to add and the option', req.length === 2 && req.some((w) => w.level === 'error' && /Payer e-mail/.test(w.m)) && req.some((w) => w.level === 'warning' && /to pay with Mobile wallet/.test(w.m) && /phone number field/.test(w.m)) && await admin.isVisible('#efbPfWarnEl.alert-danger'), pw);
     await admin.fill('#efbPfFixedEl', '600');
