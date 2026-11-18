@@ -4,8 +4,8 @@
     "plugin_version": "4.3.1",
     "updated": "2026-11-18",
     "counts": {
-        "active": 4220,
-        "obsolete": 517
+        "active": 4234,
+        "obsolete": 518
     },
     "entries": [
         {
@@ -51,6 +51,21 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$d payment is waiting to be checked by %2$s; turn on or update the add-on to finish it.",
+            "context": null,
+            "plural": "%1$d payments are waiting to be checked by %2$s; turn on or update the add-on to finish them.",
+            "translators": "1: number of payments, 2: name of an Easy Form Builder add-on (a product name)",
+            "files": [
+                "includes/class-Emsfb-split.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
             "status": "active",
             "obsolete_since": null
         },
@@ -874,8 +889,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.1"
         },
         {
             "msgid": "%d form",
@@ -10249,7 +10264,7 @@
             "msgid": "Check now",
             "context": null,
             "plural": null,
-            "translators": "Button that starts the email delivery check. Keep it short.",
+            "translators": "Button that starts the email delivery check. Keep it short. translators: PAY-OUT: button that looks at the waiting forms now",
             "files": [
                 "includes/functions.php"
             ],
@@ -21809,6 +21824,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Forms moved to the new payment fields",
+            "context": null,
+            "plural": null,
+            "translators": "PAY-OUT: settings › Payments: title of the list of forms moved to the payment add-ons' new fields",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Forms with the older Stripe, PayPal or Persia Pay field are moved one by one to the add-on's new field. They charge the same amounts, and earlier entries and receipts stay as they are. You can move a form back.",
+            "context": null,
+            "plural": null,
+            "translators": "PAY-OUT: settings › Payments: help under that title",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Formula",
             "context": null,
             "plural": null,
@@ -26375,10 +26420,13 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-public.php",
-                "includes/payments/class-Emsfb-payment-service.php"
+                "includes/payments/class-Emsfb-payment-service.php",
+                "vendor/paypal/legacy-price-efb.php",
+                "vendor/stripe/legacy-price-efb.php"
             ],
             "scope": [
+                "addon:paypal",
+                "addon:stripe",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -31529,6 +31577,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Move back",
+            "context": null,
+            "plural": null,
+            "translators": "PAY-OUT: button that moves a form back to the older payment field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Move down",
             "context": null,
             "plural": null,
@@ -31549,6 +31612,21 @@
             "context": null,
             "plural": null,
             "translators": "F09 builder: field toolbar button that moves the field into a repeater group",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Move now",
+            "context": null,
+            "plural": null,
+            "translators": "PAY-OUT: button that moves a form to the new payment field now",
             "files": [
                 "includes/functions.php"
             ],
@@ -31590,6 +31668,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Move this form back to the older payment field? Visitors then pay through the older field again.",
+            "context": null,
+            "plural": null,
+            "translators": "PAY-OUT: confirmation before moving a form back",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Move to trash",
             "context": null,
             "plural": null,
@@ -31612,6 +31705,36 @@
             "files": [
                 "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Moved",
+            "context": null,
+            "plural": null,
+            "translators": "PAY-OUT: status of a form moved to the new payment field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Moved back",
+            "context": null,
+            "plural": null,
+            "translators": "PAY-OUT: status of a form the admin moved back to the older field",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -33720,6 +33843,36 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Not moved yet: fix the form",
+            "context": null,
+            "plural": null,
+            "translators": "PAY-OUT: status of a form that is not moved because it is not ready to take payments",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Not moved: the amount would change",
+            "context": null,
+            "plural": null,
+            "translators": "PAY-OUT: status of a form that is not moved because the charged amount would change",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Not now",
             "context": null,
             "plural": null,
@@ -34897,9 +35050,13 @@
             "files": [
                 "includes/class-Emsfb-formbuilder.php",
                 "includes/class-Emsfb-public.php",
-                "includes/payments/class-Emsfb-payment-registry.php"
+                "includes/payments/class-Emsfb-payment-registry.php",
+                "vendor/paypal/legacy-price-efb.php",
+                "vendor/stripe/legacy-price-efb.php"
             ],
             "scope": [
+                "addon:paypal",
+                "addon:stripe",
                 "core"
             ],
             "first_seen": "4.3.1",
@@ -49044,6 +49201,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Stays on the older field",
+            "context": null,
+            "plural": null,
+            "translators": "PAY-OUT: status of a form that keeps the older field (a subscription or another gateway)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Step",
             "context": null,
             "plural": null,
@@ -51604,6 +51776,21 @@
             "context": null,
             "plural": null,
             "translators": "F02 visitor: %s = attempts left",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "That did not work. Please try again.",
+            "context": null,
+            "plural": null,
+            "translators": "PAY-OUT: the move or the move back could not be done",
             "files": [
                 "includes/functions.php"
             ],
@@ -60648,8 +60835,11 @@
             "plural": null,
             "translators": "%s: name of an Easy Form Builder add-on (a product name)",
             "files": [
+                "includes/class-Emsfb-formbuilder.php",
                 "includes/class-Emsfb-split.php",
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-registry.php",
+                "includes/payments/legacy-gateway-shim-efb.php"
             ],
             "scope": [
                 "core"
@@ -62530,6 +62720,51 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Waiting to be moved",
+            "context": null,
+            "plural": null,
+            "translators": "PAY-OUT: status of a form not looked at yet",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Waiting: add the keys in the add-on's settings",
+            "context": null,
+            "plural": null,
+            "translators": "PAY-OUT: status of a form whose gateway has no keys yet",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Waiting: update or turn on the add-on",
+            "context": null,
+            "plural": null,
+            "translators": "PAY-OUT: status of a form whose payment add-on is off or older",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
