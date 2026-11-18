@@ -4004,6 +4004,9 @@ public function check_nonce_permission_efb($request) {
 										}
 										return $row;
 									}, $it)));
+									/* One answer per matrix row: a crafted request could send the
+									 * same row twice with different scores. Keep the last. */
+									if (($f['type'] ?? '') === 'r_matrix' && count($it) > 1) $it = array(end($it));
 									$validated_items = empty($validated_items) ? $it : array_merge($validated_items, $it);
 									if ($payment_gateway == "persiaPay") array_push($validated_items, $result);
 								}

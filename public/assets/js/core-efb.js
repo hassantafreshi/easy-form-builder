@@ -567,8 +567,19 @@ window.addEventListener('pageshow', function (e) {
     if (typeof sendBack_emsFormBuilder_pub === 'undefined' || typeof valj_efb === 'undefined') return;
     document.querySelectorAll('.emsFormBuilder_v').forEach(function (el) {
       if (!['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName) || !el.dataset.vid || !el.value) return;
-      if (['hidden', 'file', 'submit', 'button', 'checkbox', 'radio', 'password', 'range', 'color'].includes(el.type)) return;
       const form_id = el.dataset.formid || 0;
+      /* Choices the browser re-ticked too. Coming back from the bank page with
+       * Back, the plan stayed ticked but was not in the answers: the total read
+       * 0 and the Pay button stayed disabled until it was chosen again. */
+      if (el.type === 'radio' || el.type === 'checkbox') {
+        if (!el.checked || el.id.endsWith('_chl')) return;
+        const has_row = sendBack_emsFormBuilder_pub.some(function (r) {
+          return r && Number(r.form_id) === Number(form_id) && (r.id_ob === el.id || (el.type === 'radio' && r.id_ === el.dataset.vid));
+        });
+        if (!has_row) handle_change_event_efb_v4(el, form_id);
+        return;
+      }
+      if (['hidden', 'file', 'submit', 'button', 'password', 'range', 'color'].includes(el.type)) return;
       if (get_row_sendback_by_id_efb_v4(el.dataset.vid, form_id) !== -1) return;
       handle_change_event_efb_v4(el, form_id);
     });
@@ -1749,7 +1760,14 @@ try {
   if (Array.isArray(stored_at_load)) efb_stored_answers_at_load_efb = stored_at_load;
   // Only on the gateway's own return (ZarinPal adds Authority for OK and NOK);
   // a stale sessionStorage payId must not make a later visit look like one.
-  if (Array.isArray(stored_at_load) && stored_at_load.length > 0 && /[?&]Authority=/i.test(location.search)) {
+  // Same test as the PersiaPay return handler (persia_pay-efb.js): a
+  // well-formed Authority and a Status. Anything else is not a return from
+  // the bank, and a copy nobody reads would be restored later by mistake.
+  const efb_ret_q = new URLSearchParams(location.search);
+  const efb_ret_status = efb_ret_q.get('Status');
+  if (Array.isArray(stored_at_load) && stored_at_load.length > 0
+    && /^[A-Za-z0-9]{6,64}$/.test(efb_ret_q.get('Authority') || '')
+    && (efb_ret_status === 'OK' || efb_ret_status === 'NOK')) {
     efb_payment_return_answers_efb = stored_at_load.slice();
   }
   // Add-ons write the list too; whatever they stored is cleaned when the page is left.
@@ -1768,7 +1786,8 @@ function efb_offline_addon_active_efb() {
  * visitor can press Send once online. Only plain fields are filled, through
  * the normal change handler so every check and rule runs. Payment forms keep
  * their own return path. */
-const EFB_WIDGET_RESTORE_TYPES = ['postalcode', 'address_line', 'mobile', 'multiselect', 'chlCheckBox', 'chlRadio', 'trmCheckbox', 'imgRadio', 'yesNo', 'rating', 'esign', 'r_matrix', 'pointr5', 'pointr10'];
+const EFB_WIDGET_RESTORE_TYPES = ['postalcode', 'address_line', 'mobile', 'multiselect', 'chlCheckBox', 'chlRadio', 'trmCheckbox', 'imgRadio', 'yesNo', 'rating', 'esign', 'r_matrix', 'pointr5', 'pointr10',
+  'conturyList', 'country', 'stateProvince', 'statePro', 'cityList', 'city', 'maps', 'file', 'dadfile'];
 const EFB_RESTORABLE_FIELD_TYPES = ['text', 'email', 'url', 'number', 'date', 'color', 'range', 'textarea', 'firstName', 'lastName', 'tel', 'radio', 'checkbox', 'select', 'pdate', 'ardate'];
 async function efb_restore_offline_answers_efb() {
   const rows = efb_stored_answers_at_load_efb;
@@ -1788,7 +1807,7 @@ async function efb_restore_offline_answers_efb() {
     const widget_rows = [];
     for (const row of rows) {
       if (!row || typeof row !== 'object' || Number(row.form_id) !== fid) continue;
-      if (EFB_WIDGET_RESTORE_TYPES.indexOf(String(row.type || '')) !== -1) { widget_rows.push(row); continue; }
+      if (EFB_WIDGET_RESTORE_TYPES.indexOf(String(row.type || '')) !== -1 || (row.value === '@file@' && row.url)) { widget_rows.push(row); continue; }
       /* A switch is a toggle button whose row has no id_ob: it came back
        * "off" even when the visitor had turned it on. Press it, so its own
        * handler stores the answer and runs the rules. */
@@ -1796,8 +1815,16 @@ async function efb_restore_offline_answers_efb() {
         const body = document.getElementById(`body_efb_${fid}`) || document;
         const sw = body.querySelector(`.btn-toggle[data-vid="${CSS.escape(String(row.id_ || ''))}"]`);
         const want_on = row.value == '1' || row.value === 'On' || row.value === true;
-        if (sw && !sw.disabled && sw.classList.contains('active') !== want_on) {
-          try { sw.click(); } catch (e) {}
+        const sw_field = structure.find(x => x && x.id_ == row.id_);
+        if (sw && !sw.disabled && sw_field) {
+          /* Set it here rather than clicking it: fun_switch_efb() reads the
+           * page-wide valj_efb, which may hold another form's fields. */
+          sw.classList.toggle('active', want_on);
+          sw.setAttribute('aria-pressed', want_on ? 'true' : 'false');
+          sw.dataset.state = want_on ? 'on' : 'off';
+          try {
+            await fun_sendBack_emsFormBuilder({ id_: sw_field.id_, name: sw_field.name, amount: sw_field.amount, type: sw_field.type, value: want_on ? '1' : '0', session: sessionPub_emsFormBuilder, form_id: fid });
+          } catch (e) {}
         }
         continue;
       }
@@ -1836,11 +1863,12 @@ async function efb_restore_offline_answers_efb() {
         await fun_offline_Efb(widget_rows);
         localStorage.setItem('sendback', efb_sendback_for_storage_efb(sendBack_emsFormBuilder_pub));
       } catch (e) {} finally { valj_efb = prev_valj; }
-      try {
-        if (window.efb_logic_runtime && typeof window.efb_logic_runtime.evaluate === 'function') window.efb_logic_runtime.evaluate(fid);
-      } catch (e) {}
-      if (typeof updateStepButtonState_efb === 'function') { try { updateStepButtonState_efb(fid); } catch (e) {} }
     }
+    // Rules and step buttons see every restored answer, switches included.
+    try {
+      if (window.efb_logic_runtime && typeof window.efb_logic_runtime.evaluate === 'function') window.efb_logic_runtime.evaluate(fid);
+    } catch (e) {}
+    if (typeof updateStepButtonState_efb === 'function') { try { updateStepButtonState_efb(fid); } catch (e) {} }
   }
 }
 function efb_get_error_panel_efb() {
@@ -1874,6 +1902,14 @@ async function response_fill_form_efb(res ,form_id=0) {
        (by id_, or by id_ob for chlCheckBox-style fields) so the rest of the
        already-filled-in form data survives and doesn't have to be re-entered. */
     remove_sendback_rows_by_field_id_efb(res.data.field_id, form_id);
+  }
+  /* The server turned the entry down for a reason that is not one field (for a
+   * payment form: the gateway did not confirm the payment). A payment add-on
+   * can reopen its payment step here, so the visitor can pay again instead of
+   * facing locked prices and a "paid" box. */
+  if (res.data.success != true && !(res.data && (res.data.field_id || res.data.efb_ajax_submission_error))
+    && typeof efb_payment_submit_failed_efb === 'function') {
+    try { efb_payment_submit_failed_efb(form_id, res); } catch (e) {}
   }
   let btn_prev ='';
   const t = valj_efb_new.find(x => x.id == form_id);
@@ -4749,6 +4785,10 @@ const check_form_payment_filled_efb = (form_id=0) =>{
       btn_navigate_handle_efb(form_id , 'payment' , 'btn_send_efb' , btn_el);
 
     }else{
+      /* Back from the bank the visitor is on step 1; marking the last step
+       * current without showing it left step 1 on screen above the thank-you
+       * message. Show the last step first, then send from there. */
+      if (typeof efb_go_to_step_direct === 'function') { try { efb_go_to_step_direct(form_id, steps); } catch (e) {} }
       bdy.dataset.currentstep = steps;
       current_s_efb = steps;
       const btn_el =bdy.querySelector('#next_efb');

@@ -764,15 +764,16 @@ async function fun_offline_Efb(rows_only = null) {
    * added next to them (two rows per field). */
   const restored_forms = new Set(values.map(v => Number(v.form_id)));
   if (!Array.isArray(sendBack_emsFormBuilder_pub)) sendBack_emsFormBuilder_pub = [];
-  if (partial) {
-    // Same field (and, for a matrix/choice row, same row) only.
-    const key = r => `${Number(r.form_id)}|${r.id_}|${r.type === 'r_matrix' ? r.id_ob : ''}`;
-    const keys = new Set(values.map(key));
-    sendBack_emsFormBuilder_pub = sendBack_emsFormBuilder_pub.filter(r => !r || !keys.has(key(r)));
-  } else {
-    sendBack_emsFormBuilder_pub = sendBack_emsFormBuilder_pub.filter(r => !r || !restored_forms.has(Number(r.form_id)));
-  }
+  /* Replace only the rows of the same fields (a matrix row by its own row).
+   * Dropping every row of the form also dropped answers the visitor had just
+   * typed when the Auto-Populate add-on calls this with its server result. A
+   * field's default stored while the form was drawn has the same key as the
+   * saved answer, so it is still replaced. */
+  const row_key = r => `${Number(r.form_id)}|${r.id_}|${r.type === 'r_matrix' ? r.id_ob : ''}`;
+  const restored_keys = new Set(values.map(row_key));
+  sendBack_emsFormBuilder_pub = sendBack_emsFormBuilder_pub.filter(r => !r || !restored_keys.has(row_key(r)));
   let temp, id;
+  const loc_restore = {}; // per form: the country / province just restored, for the lists below them
   for (let value of values) {
 
     sendBack_emsFormBuilder_pub.push(value);
@@ -781,7 +782,10 @@ async function fun_offline_Efb(rows_only = null) {
      * the remaining answers and the payment hand-back never ran. Its answer
      * stays in the submission either way. */
     try {
-    switch (value.type) {
+    /* An uploaded file's row carries the file's MIME type ("image/png") in
+     * type, not the field type; it is recognised by its "@file@" value. */
+    const restore_type = (value.value === '@file@' && value.url) ? 'file' : value.type;
+    switch (restore_type) {
       case 'email':
       case 'text':
       case 'password':
@@ -872,33 +876,44 @@ async function fun_offline_Efb(rows_only = null) {
         break;
       }
       case 'stateProvince':
-        if(el=='contury' ||el=='conturyList' ){
-            el = valj_efb.findIndex(x => x.id_ == value.id_);
-            id= valj_efb[el].id_;
-            await callFetchStatesPovEfb(id+'_options', temp, el, 'pubSelect',true);
+      case 'statePro':
+      case 'cityList':
+      case 'city': {
+        /* The old code re-fetched the list with an undefined country (or a
+         * fixed GB/ENG) and never selected the answer, so the province and
+         * city came back empty. Load the list the way choosing the country /
+         * province does, then select the stored answer. */
+        const sel = document.getElementById(`${value.id_}_options`) || (value.id_ob ? document.getElementById(value.id_ob) : null);
+        const fid = Number(value.form_id) || 0;
+        const is_state = value.type === 'stateProvince' || value.type === 'statePro';
+        const prev = loc_restore[fid] || {};
+        const idx = valj_efb.findIndex(x => x.id_ == value.id_);
+        const has = () => sel && Array.prototype.some.call(sel.options, o => o.value === String(value.value));
+        if (sel && !has() && idx > -1) {
+          try {
+            if (is_state && prev.country_idx > -1 && prev.country_iso && typeof fun_check_link_state_efb === 'function') {
+              await fun_check_link_state_efb(prev.country_iso, prev.country_idx, fid);
+            } else if (!is_state && prev.state_idx > -1 && prev.state_iso && prev.state_isoc && typeof fun_check_link_city_efb === 'function') {
+              await fun_check_link_city_efb(prev.state_isoc, prev.state_iso, prev.state_idx, fid);
+            }
+          } catch (e) {}
+        }
+        if (sel) {
+          if (!has() && value.value != null && String(value.value) !== '') {
+            // The list could not be loaded (offline, CDN down): still show the answer.
+            const o = document.createElement('option');
+            o.value = String(value.value); o.textContent = String(value.value);
+            sel.appendChild(o);
           }
-
+          sel.value = String(value.value);
+          const opt = sel.options[sel.selectedIndex];
+          if (is_state && opt) {
+            loc_restore[fid] = Object.assign(prev, { state_idx: idx, state_iso: opt.dataset.iso, state_isoc: opt.dataset.isoc || prev.country_iso });
+          }
+        }
         el=value.type;
         break;
-      case 'cityList':
-      case 'city':
-        if(el=='stateProvince' ||el=='stateProvinceList' ){
-            el = valj_efb.findIndex(x => x.id_ == value.id_);
-            id= valj_efb[el].id_;
-            let iso2_country ='GB';
-            let iso2_statePove = 'ENG';
-
-            if(typeof autofilled_search_value_efb!== 'undefined'){
-              temp = sendBack_emsFormBuilder_pub.find(x => x.id_ == id);
-              iso2_country = temp.cont_;
-              iso2_statePove = temp.statePrev_;
-            }
-            await callFetchCitiesEfb(id+'_options',iso2_country,iso2_statePove, el,'pubSelect',true);
-
-          }
-
-       el = value.type
-       break;
+      }
       case 'paySelect':
       case 'select':
 
@@ -912,30 +927,66 @@ async function fun_offline_Efb(rows_only = null) {
           el = find_by_value(value.value);
           temp = el.id_op
 
-          valj_efb[id].hasOwnProperty('contury') ? valj_efb[id].country = temp : Object.assign(valj_efb[id], { country: temp });
-          document.getElementById(value.id_ob).value = value.value;
+          if (id > -1) valj_efb[id].hasOwnProperty('contury') ? valj_efb[id].country = temp : Object.assign(valj_efb[id], { country: temp });
+          {
+            const csel = document.getElementById(value.id_ob) || document.getElementById(`${value.id_}_options`);
+            if (csel) {
+              csel.value = value.value;
+              const copt = csel.options[csel.selectedIndex];
+              loc_restore[Number(value.form_id) || 0] = { country_idx: id, country_iso: copt ? (copt.dataset.iso || temp) : temp };
+            }
+          }
           el=value.type;
         break;
-      case 'multiselect':
-      case 'payMultiselect':
-
-        const op = document.getElementById(`${value.id_}_options`)
-        op.innerHTML = value.value.replaceAll('@efb!', ',');
-        const vs = value.value.split('@efb!');
-        for (let v of vs) {
-          el = document.querySelector(`.efblist  [data-name="${v}"]`)
-          if (el) {
-            el.className += ` border-info`;
-            el.innerHTML = `
-                <th scope="row" class="bi-check-square text-info efb"></th>
-                <td class="efb  ms">${v}</td>
-                `
-            op.dataset.select = `${el.dataset.row} @efb!`
-          }
+      case 'maps': {
+        /* The map is drawn a moment after the page (efbCreateMap), so wait
+         * for it, then put the saved markers back. Passing the saved address
+         * keeps efbAddMarker() from looking it up and storing the row again. */
+        const markers = Array.isArray(value.value) ? value.value.filter(m => m && isFinite(Number(m.lat)) && isFinite(Number(m.lng))) : [];
+        const field = valj_efb.find(x => x.id_ == value.id_);
+        const box = document.getElementById(`${value.id_}-f`);
+        if (markers.length && field && box && typeof efbAddMarker === 'function') {
+          let tries = 0;
+          const put_markers = () => {
+            const mid = Object.keys(maps_efb || {}).find(k => maps_efb[k] && maps_efb[k].map && box.contains(maps_efb[k].map.getContainer()));
+            if (mid === undefined) { if (++tries < 60) setTimeout(put_markers, 150); return; }
+            if (maps_efb[mid].markers.length > 0) return;
+            markers.forEach((m, i) => {
+              try { efbAddMarker(Number(m.lat), Number(m.lng), mid, true, field, value.form_id, String(m.address || `${m.lat}, ${m.lng}`).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')); } catch (e) {}
+            });
+            try { maps_efb[mid].map.setView([Number(markers[0].lat), Number(markers[0].lng)]); } catch (e) {}
+          };
+          put_markers();
         }
-
         el=value.type;
         break;
+      }
+      case 'multiselect':
+      case 'payMultiselect': {
+        /* Mirror what choosing the options does (bootstrap-select-efb): the
+         * box lists the names, data-select keeps every chosen row (it kept
+         * only the last one), and only this form's list is marked. Text is
+         * written as text, not markup. */
+        const op = document.getElementById(`${value.id_}_options`);
+        if (!op) { el = value.type; break; }
+        const scope = document.getElementById(`body_efb_${value.form_id}`) || document;
+        const vs = String(value.value || '').split('@efb!').filter(v => v !== '');
+        let shown = '', chosen = '';
+        for (let v of vs) {
+          const row = Array.prototype.find.call(scope.querySelectorAll(`.efblist[data-id="${CSS.escape(String(value.id_))}"][data-name]`), r => r.dataset.name === v);
+          shown += v + ',';
+          if (row) {
+            if (!row.classList.contains('border-info')) row.classList.add('border-info');
+            const th = row.querySelector('th');
+            if (th) th.className = 'bi-check-square text-info efb';
+            chosen += `${row.dataset.row} @efb!`;
+          }
+        }
+        op.textContent = shown || op.textContent;
+        if (chosen) { op.dataset.select = chosen; op.classList.add('border-success'); }
+        el=value.type;
+        break;
+      }
       case 'esign':
         el = document.getElementById(`${value.id_}_`);
         let ctx = el.getContext("2d");
@@ -983,15 +1034,25 @@ async function fun_offline_Efb(rows_only = null) {
         el=value.type;
         break;
       case 'document':
-        let s = value.url.split('/');
-        s = s.pop();
-        el = document.getElementById(`${value.id_}_-message`);
-        el.className = `efb text-success efb fs-7 fw-bolder`;
-        el.innerHTML = `${efb_var.text.uploadedFile}: ${s}`;
-        if(!el.classList.contains('show'))el.classList.add('show');
-
+      case 'file':
+      case 'dadfile':
+      case 'audio_recorder':
+      case 'video_recorder':
+      case 'screen_recorder': {
+        /* A browser cannot put a file back into a file input, but the file is
+         * already on the server (value "@file@", its url kept): say so next
+         * to the field instead of showing it empty. Text only. */
+        const file_name = String(value.url || '').split('/').pop();
+        const msg = document.getElementById(`${value.id_}_-message`);
+        if (msg && file_name) {
+          msg.className = `efb text-success efb fs-7 fw-bolder`;
+          msg.textContent = `${(efb_var.text && efb_var.text.uploadedFile) || 'Uploaded file'}: ${file_name}`;
+          msg.style.display = 'block';
+          if(!msg.classList.contains('show'))msg.classList.add('show');
+        }
         el=value.type;
         break;
+      }
       case 'stripe':
       break;
       case 'persiaPay':
@@ -1050,6 +1111,16 @@ async function fun_offline_Efb(rows_only = null) {
    * gateway still sends an Authority, which added a payment row and
    * auto-submitted a form that was never paid. */
   if (partial) return;
+  /* The rules were run when the form was drawn, with no answers yet: a field
+   * a rule shows (or a step it opens) stayed hidden with its answer inside.
+   * Run them again on the restored answers, and refresh the step buttons. */
+  for (const fid of restored_forms) {
+    if (!(fid > 0)) continue;
+    try {
+      if (window.efb_logic_runtime && typeof window.efb_logic_runtime.evaluate === 'function') window.efb_logic_runtime.evaluate(fid);
+    } catch (e) {}
+    if (typeof updateStepButtonState_efb === 'function') { try { updateStepButtonState_efb(fid); } catch (e) {} }
+  }
   if(valj_efb[0].type=="payment" && valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string"
     && (typeof get_Status_efb === 'undefined' || get_Status_efb == 'OK')){
     fun_after_bankpay_persia_ui();
@@ -2082,6 +2153,27 @@ fun_disabled_all_pay_efb = () => {
         }
       } else {
         lock_pay_el_efb(document.querySelector(`[data-vid="${o.id_}"]`));
+      }
+    }
+  }
+}
+/* The reverse of fun_disabled_all_pay_efb(): reopen the priced fields when a
+ * payment was not confirmed and has to be made again. */
+fun_enabled_all_pay_efb = (scope) => {
+  const root = scope || document;
+  const open_pay_el_efb = (ov) => {
+    if (!ov) return;
+    if (ov.tagName === 'INPUT' && (ov.type === 'radio' || ov.type === 'checkbox')) ov.classList.add('payefb');
+    ov.classList.remove('disabled');
+    ov.disabled = false;
+  };
+  for (let o of valj_efb) {
+    if (o.hasOwnProperty('price') == true || (o.hasOwnProperty('type') && o.type == 'prcfld')) {
+      if (o.hasOwnProperty('parent')) {
+        open_pay_el_efb(root.querySelector(`[data-vid="${CSS.escape(String(o.parent))}"]`));
+        open_pay_el_efb(root.querySelector(`#${CSS.escape(String(o.id_))}`));
+      } else {
+        open_pay_el_efb(root.querySelector(`[data-vid="${CSS.escape(String(o.id_))}"]`));
       }
     }
   }
