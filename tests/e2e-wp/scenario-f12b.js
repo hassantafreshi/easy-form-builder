@@ -1015,13 +1015,15 @@ module.exports = function (S) {
        … Page already revealed" in Chromium (WordPress core, not the plugin). These admin pages navigate quickly
        (Save → redirect, keyboard Enter), so they run with reduced motion, as many administrators do. */
     const RM = { reducedMotion: 'reduce' };
+    // The CAPTCHA add-ons' list of the Captchas tab (Settings › Payments draws the payment add-ons and the moved forms
+    // with the same components since PAY-OUT, so every query is scoped to #efb-spam-settings).
     const captchas = async (p) => {
       await p.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb&state=setting&tab=captchas', { waitUntil: 'load' });
       await p.waitForSelector('#efb-spam-settings', { state: 'attached', timeout: 30000 });
       await sleep(900);
       return p.evaluate(() => ({
-        head: !!document.getElementById('efbCpaTitle'), list: document.querySelectorAll('.efb-cpa-list').length,
-        rows: Array.from(document.querySelectorAll('.efb-cpa-row')).map((r) => [r.getAttribute('data-for'), r.querySelector('bdi.efb-cpa-name').textContent, r.querySelector('.efb-cpa-st').getAttribute('data-status'), r.querySelector('a.efb-cpa-btn').textContent.trim()]),
+        head: !!document.getElementById('efbCpaTitle'), list: document.querySelectorAll('#efb-spam-settings .efb-cpa-list').length,
+        rows: Array.from(document.querySelectorAll('#efb-spam-settings .efb-cpa-row')).map((r) => [r.getAttribute('data-for'), r.querySelector('bdi.efb-cpa-name').textContent, r.querySelector('.efb-cpa-st').getAttribute('data-status'), r.querySelector('a.efb-cpa-btn').textContent.trim()]),
         inline: document.querySelectorAll('[data-cpv], details.efb-cpv').length,
         text: /CAPTCHA add-ons/.test(document.getElementById('efb-spam-settings').textContent),
         opts: Array.from(document.getElementById('captchaProvider_efb').options).map((o) => o.value),
@@ -1045,7 +1047,7 @@ module.exports = function (S) {
       const before = ctlb('row-keys');
 
       // hCaptcha's screen, by keyboard from its row.
-      await admin.focus('.efb-cpa-row[data-for="hcaptcha"] a.efb-cpa-btn');
+      await admin.focus('#efb-spam-settings .efb-cpa-row[data-for="hcaptcha"] a.efb-cpa-btn');
       const nav = admin.waitForNavigation({ waitUntil: 'load' });
       await admin.keyboard.press('Enter');
       await nav;
@@ -1118,10 +1120,10 @@ module.exports = function (S) {
         try {
           const m = await adminPage(Object.assign({ viewport: { width: 375, height: 812 }, locale: loc.replace('_', '-') }, RM), 'f12b-10-' + loc);
           await captchas(m);
-          await m.evaluate(() => { const l = document.querySelector('.efb-cpa-list'); if (l) l.scrollIntoView({ block: 'center' }); });
+          await m.evaluate(() => { const l = document.querySelector('#efb-spam-settings .efb-cpa-list'); if (l) l.scrollIntoView({ block: 'center' }); });
           await sleep(400);
-          const li = await rtlCheck(m, '.efb-cpa-list', null, '.efb-cpa-st');
-          const btn = await m.evaluate(() => Array.from(document.querySelectorAll('a.efb-cpa-btn')).map((a) => { const r = a.getBoundingClientRect(); return Math.round(r.height); }));
+          const li = await rtlCheck(m, '#efb-spam-settings .efb-cpa-list', null, '.efb-cpa-st');
+          const btn = await m.evaluate(() => Array.from(document.querySelectorAll('#efb-spam-settings a.efb-cpa-btn')).map((a) => { const r = a.getBoundingClientRect(); return Math.round(r.height); }));
           R.check(`f12b-10 (${loc}): the add-ons' list at 375 px — right to left, statuses isolated, nothing off-screen, no horizontal scroll, "Settings" 44 px high`, rtlOk(li) && btn.length === 2 && btn.every((h) => h >= 44), { li, btn });
           await m.screenshot({ path: SHOT(`f12b-10-list-${loc}-375`), fullPage: false });
           await m.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_captcha&provider=turnstile', { waitUntil: 'load' });
