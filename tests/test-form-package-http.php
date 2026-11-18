@@ -31,10 +31,10 @@ $H->ctl('plan', 3);
 /* every form of the site */
 $all = $H->ctl('f15-pkg-roundtrip-all');
 t("every form of the site ({$all['forms']}) exported and imported again: none refused", is_array($all) && $all['forms'] > 10 && !$all['refused'], $all['refused'] ?? $all);
-t('forms imported without a drop or a new id are stored exactly as the original (' . ($all['identical'] ?? 0) . ' identical)', is_array($all) && !$all['different'] && $all['identical'] > 10, array('different' => $all['different'] ?? null, 'dropped' => $all['dropped'] ?? null, 'remapped' => $all['remapped'] ?? null));
+t('forms imported without a drop or a new id are stored exactly as the original, or as the original saved again when it was stored past the save path (' . ($all['identical'] ?? 0) . ' identical, ' . count((array) ($all['resaved'] ?? array())) . ' of them resaved)', is_array($all) && !$all['different'] && $all['identical'] > 10, array('different' => $all['different'] ?? null, 'dropped' => $all['dropped'] ?? null, 'remapped' => $all['remapped'] ?? null));
 $okDrops = true;
-foreach ((array) ($all['dropped'] ?? array()) as $fid => $codes) foreach ($codes as $c) if (!in_array($c, array('unknown_type', 'orphan_option', 'row_without_type', 'not_an_array', 'step_added'), true)) $okDrops = false;
-t('drops on the site\'s forms are only types this site does not know (a gateway add-on switched off) and legacy shapes; a form saved without its step row gets one (' . count((array) ($all['repaired'] ?? array())) . ')', $okDrops, array($all['dropped'] ?? null, $all['repaired'] ?? null));
+foreach ((array) ($all['dropped'] ?? array()) as $fid => $codes) foreach ($codes as $c) if (!in_array($c, array('unknown_type', 'orphan_option', 'row_without_type', 'not_an_array', 'step_added', 'addon_inactive'), true)) $okDrops = false;
+t('drops on the site\'s forms are only types this site does not know (a gateway add-on switched off), the keys of an add-on switched off (addon_inactive, SPLIT §4.2) and legacy shapes; a form saved without its step row gets one (' . count((array) ($all['repaired'] ?? array())) . ')', $okDrops, array($all['dropped'] ?? null, $all['repaired'] ?? null));
 
 /* the fixture */
 $F = $H->ctl('f03-form', 'F15 pkg source', json_encode(array(

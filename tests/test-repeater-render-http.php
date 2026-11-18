@@ -12,6 +12,13 @@ if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
  * (php tests/test-repeater-render-http.php --write with the site's plugin pointing at a checkout of 98274f93). Volatile parts (the form
  * id, nonces, session ids, wp_unique_id counters, asset versions) are normalized before comparing.
  *
+ * Re-baselined in the final test (2026-11-18, --write on the e2e site): the fixture still held the pre-F16 markup and
+ * the check failed since F16 changed every form on purpose. Every difference was reviewed and is F16's (spec §4,
+ * F16-E rows): the live region and the hidden error summary after body_efb, aria-label on the progress bar, a step's
+ * <fieldset tabindex="-1"> with its visually hidden <legend>, the required asterisk aria-hidden (was role="none"), the
+ * " ! " text gone from the hidden messages, a choice group's label without a for="" that pointed at nothing and its
+ * radiogroup with aria-required, the textarea without the invalid value="". Nothing of the repeater; nothing else.
+ *
  * Needs the e2e site: EFB_WP_LOAD=/path/wp-load.php, or EFB_E2E_SITE_DIR (tests/e2e-wp/README.md);
  * [SKIP] otherwise. Run: php tests/test-repeater-render-http.php [--write]
  */

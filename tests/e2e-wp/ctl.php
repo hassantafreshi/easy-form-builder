@@ -949,10 +949,14 @@ switch ( $efb_e2e_cmd ) {
 
 	case 'f14-form-key':
 		// One key of row 0 of a stored form set to a JSON value (notification rules and the like): <form_id> <key> <json>.
+		// Saved as a builder save would (the sanitizer): a form stored past the save path held rules in a shape the
+		// save never writes (no cc / bcc), and the F15 package round trip of every form of the site read it as a change.
+		wp_set_current_user( 1 );
 		$fid = (int) $efb_e2e_rest[0];
 		$raw = $wpdb->get_var( $wpdb->prepare( "SELECT form_structer FROM {$wpdb->prefix}emsfb_form WHERE form_id = %d", $fid ) ); // phpcs:ignore
-		$rows = json_decode( str_replace( '\\"', '"', (string) $raw ), true );
+		$rows = efb_e2e_decode_json( $raw );
 		$rows[0][ preg_replace( '/[^A-Za-z0-9_]/', '', (string) $efb_e2e_rest[1] ) ] = json_decode( (string) $efb_e2e_rest[2], true );
+		$rows = get_efbFunction()->sanitize_obj_msg_efb( $rows );
 		$wpdb->update( $wpdb->prefix . 'emsfb_form', array( 'form_structer' => str_replace( '"', '\\"', wp_json_encode( $rows, JSON_UNESCAPED_UNICODE ) ) ), array( 'form_id' => $fid ) );
 		if ( function_exists( 'wp_cache_flush' ) ) wp_cache_flush();
 		efb_e2e_out( array( 'ok' => true ) );
@@ -1178,7 +1182,7 @@ switch ( $efb_e2e_cmd ) {
 		// F15-D: every form of the site exported and imported again; the imported copies are deleted. Prints a summary:
 		// forms, refused (code), with drops / remapped ids, identical (stored JSON equal but the keys an export never keeps).
 		wp_set_current_user( 1 );
-		$sum = array( 'forms' => 0, 'refused' => array(), 'dropped' => array(), 'remapped' => array(), 'repaired' => array(), 'identical' => 0, 'different' => array() );
+		$sum = array( 'forms' => 0, 'refused' => array(), 'dropped' => array(), 'remapped' => array(), 'repaired' => array(), 'identical' => 0, 'resaved' => array(), 'different' => array() );
 		$norm = function ( $rows ) {
 			foreach ( (array) $rows as $i => $r ) {
 				if ( ! is_array( $r ) ) continue;
@@ -1203,6 +1207,9 @@ switch ( $efb_e2e_cmd ) {
 			$b = efb_e2e_decode_json( $wpdb->get_var( $wpdb->prepare( "SELECT form_structer FROM {$wpdb->prefix}emsfb_form WHERE form_id = %d", $new ) ) ); // phpcs:ignore
 			if ( ! $res['dropped'] && ! $res['id_map'] ) {
 				if ( $norm( $a ) === $norm( $b ) ) $sum['identical']++;
+				// A form stored past the save path (an older version, a test shortcut) in a shape the save never writes:
+				// the import equals the original saved again (the same sanitizer), counted apart.
+				elseif ( $norm( get_efbFunction()->sanitize_obj_msg_efb( $a ) ) === $norm( $b ) ) { $sum['identical']++; $sum['resaved'][] = $fid; }
 				else {
 					$diff = array();
 					foreach ( (array) $a as $i => $r ) { if ( ! isset( $b[ $i ] ) || wp_json_encode( $r ) !== wp_json_encode( $b[ $i ] ) ) { foreach ( array_unique( array_merge( array_keys( (array) $r ), array_keys( (array) ( $b[ $i ] ?? array() ) ) ) ) as $k ) { if ( wp_json_encode( $r[ $k ] ?? null ) !== wp_json_encode( $b[ $i ][ $k ] ?? null ) ) $diff[] = $i . '.' . $k; } } }
