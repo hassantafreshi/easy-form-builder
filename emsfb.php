@@ -44,7 +44,9 @@ if (!defined("EMSFB_DB_VERSION")) {
     // form_status_date, read_ (one ALTER); emsfb_msg_notes_, emsfb_msg_log_, emsfb_stats_. A string: as a
     // number 1.10 would be 1.1, below 1.9 (version_compare() reads "1.10" as after "1.9").
     // 1.11 (F15 builder productivity): emsfb_form_rev_ (the versions of each form).
-    define("EMSFB_DB_VERSION", '1.11');
+    // 1.12 (F20-core, the customer portal contract): emsfb_msg_own_ (owner index), KEY uid and owner_state /
+    // owner_state_at on emsfb_msg_.
+    define("EMSFB_DB_VERSION", '1.12');
 }
 if (!defined("EMSFB_API_VERSION")) {
     // Version of the integration API (efbBuilderApi, efb_var.capabilities, field templates,

@@ -45,6 +45,66 @@ class Install {
 		dbDelta( $sql );
 	}
 
+	/**
+	 * F20-core P3: an add-on's own table, the way core makes its tables: created only when missing (a dbDelta CREATE
+	 * TABLE), never altered here — an add-on keeps a version of its tables and makes each later change itself.
+	 *
+	 * @param string $sql A full CREATE TABLE statement in dbDelta's format.
+	 * @return bool Whether the table exists afterwards.
+	 */
+	public static function addon_table( $sql ) {
+		global $wpdb;
+		if ( ! is_string( $sql ) || ! preg_match( '/^\s*CREATE TABLE\s+`?(' . preg_quote( $wpdb->prefix, '/' ) . '[A-Za-z0-9_]+)`?\s*\(/i', $sql, $m ) ) {
+			return false;
+		}
+		if ( ! function_exists( 'dbDelta' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		}
+		self::create_table_if_absent( $sql );
+		return $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $m[1] ) ) === $m[1];
+	}
+
+	/**
+	 * F20-core, DB version 1.12: the owner index (emsfb_msg_own_), and on emsfb_msg_ the key uid and the columns
+	 * owner_state (0 none, 1 cancelled by its owner) / owner_state_at — one ALTER, each part checked first. Placed before
+	 * the emsfb_stts_ early return.
+	 */
+	public static function upgrade_f20_schema() {
+		global $wpdb;
+		$applied = array();
+		$msg = $wpdb->prefix . 'emsfb_msg_';
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $msg ) ) !== $msg ) {
+			return $applied;
+		}
+		$clauses = array();
+		foreach ( array( 'owner_state' => 'TINYINT NOT NULL DEFAULT 0', 'owner_state_at' => 'DATETIME NULL DEFAULT NULL' ) as $col => $def ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+			if ( ! $wpdb->get_results( $wpdb->prepare( "SHOW COLUMNS FROM `{$msg}` LIKE %s", $col ) ) ) $clauses[ "ADD COLUMN {$col}" ] = "ADD COLUMN `{$col}` {$def}";
+		}
+		$keys = array();
+		foreach ( (array) $wpdb->get_results( "SHOW INDEX FROM `{$msg}`", ARRAY_A ) as $row ) $keys[ $row['Key_name'] ] = true; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		if ( ! isset( $keys['uid'] ) && $wpdb->get_results( $wpdb->prepare( "SHOW COLUMNS FROM `{$msg}` LIKE %s", 'uid' ) ) ) $clauses['ADD KEY uid'] = 'ADD KEY `uid` (`uid`)'; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		if ( $clauses ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, clauses from the literal maps above
+			if ( count( $clauses ) > 1 && false !== $wpdb->query( "ALTER TABLE `{$msg}` " . implode( ', ', $clauses ) ) ) {
+				foreach ( array_keys( $clauses ) as $c ) $applied[] = "emsfb_msg_: {$c}";
+			} else {
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- as above
+				foreach ( $clauses as $label => $c ) if ( false !== $wpdb->query( "ALTER TABLE `{$msg}` {$c}" ) ) $applied[] = "emsfb_msg_: {$label}";
+			}
+		}
+		if ( ! class_exists( '\\Emsfb\\Owner_Index' ) && is_readable( __DIR__ . '/class-Emsfb-owner-index.php' ) ) {
+			require_once __DIR__ . '/class-Emsfb-owner-index.php';
+		}
+		if ( class_exists( '\\Emsfb\\Owner_Index' ) && ! \Emsfb\Owner_Index::ready() ) {
+			$collate = method_exists( $wpdb, 'get_charset_collate' ) ? $wpdb->get_charset_collate() : '';
+			\Emsfb\Owner_Index::reset_ready();
+			if ( self::addon_table( \Emsfb\Owner_Index::ddl( $wpdb->prefix, $collate ) ) ) $applied[] = 'emsfb_msg_own_: CREATE TABLE';
+			\Emsfb\Owner_Index::reset_ready();
+		}
+		return $applied;
+	}
+
 	static function install() {
 		global $wpdb;
 		$state="gi";
@@ -349,6 +409,8 @@ class Install {
 		$applied = array_merge( $applied, self::upgrade_f14_schema() );
 		// F15 (builder productivity), DB version 1.11: the form versions table. Idempotent, before the early return.
 		$applied = array_merge( $applied, self::upgrade_f15_schema() );
+		// F20-core (customer portal contract), DB version 1.12: the owner index, emsfb_msg_.uid's key, owner_state.
+		$applied = array_merge( $applied, self::upgrade_f20_schema() );
 
 		$table   = $wpdb->prefix . 'emsfb_stts_';
 

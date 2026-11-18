@@ -3,7 +3,7 @@
  * F15-C: the DB 1.11 migration (Install::upgrade_f15_schema(): the form versions table emsfb_form_rev_) on the SQLite
  * stand-in.
  *
- *  - EMSFB_DB_VERSION is the string '1.11' (compared with version_compare: newer than '1.10' and '1.9');
+ *  - EMSFB_DB_VERSION is the string '1.11' or later (F20-core: '1.12'; compared with version_compare: newer than '1.10' and '1.9');
  *  - the F15 step runs after F14's and before the emsfb_stts_ early return of upgrade_schema(); install() creates the
  *    table on a fresh site;
  *  - a 1.10 site WITHOUT emsfb_stts_ (the early return) still gets emsfb_form_rev_ from the whole upgrade_schema(),
@@ -45,7 +45,7 @@ class EfbRevSchemaDb extends EfbF11TestDb {
 	public function get_charset_collate() { return ''; }
 }
 $main = file_get_contents(__DIR__ . '/../emsfb.php');
-t('EMSFB_DB_VERSION is the string \'1.11\'', (bool) preg_match('/define\("EMSFB_DB_VERSION",\s*\'1\.11\'\)/', $main), true);
+t('EMSFB_DB_VERSION is a string, \'1.11\' or later (F20-core: \'1.12\')', (bool) preg_match('/define\("EMSFB_DB_VERSION",\s*\'(1\.\d\d)\'\)/', $main, $vm) && version_compare($vm[1], '1.11', '>='), true);
 t('version_compare: 1.11 is newer than 1.10 and 1.9', array(version_compare('1.11', '1.10', '>'), version_compare('1.11', '1.9', '>')), array(true, true));
 define('EMSFB_DB_VERSION', '1.11');
 $GLOBALS['opts'] = array();

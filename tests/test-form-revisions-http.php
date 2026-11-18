@@ -21,7 +21,7 @@ $H = new EfbF11Http();
 if ($why = $H->unavailable()) { echo "[SKIP] {$why}\nRESULTS: 0 passed, 0 failed\n"; exit(0); }
 
 $sc = $H->ctl('f15-schema', 'drop');
-t('DB 1.11: the versions table dropped, the upgrade creates it; a second run applies nothing', is_array($sc) && in_array('emsfb_form_rev_: CREATE TABLE', $sc['first'], true) && !in_array('emsfb_form_rev_: CREATE TABLE', $sc['second'], true) && (string) $sc['const'] === '1.11' && (string) $sc['db_version'] === '1.11' && (bool) $sc['table'], $sc);
+t('DB 1.11: the versions table dropped, the upgrade creates it; a second run applies nothing', is_array($sc) && in_array('emsfb_form_rev_: CREATE TABLE', $sc['first'], true) && !in_array('emsfb_form_rev_: CREATE TABLE', $sc['second'], true) && version_compare((string) $sc['const'], '1.11', '>=') && (string) $sc['db_version'] === (string) $sc['const'] && (bool) $sc['table'], $sc);
 
 $H->ctl('plan', 3);
 $H->ctl('f15-setting', 'del');
