@@ -63,7 +63,9 @@ class Split {
 			$e = class_exists('\\Emsfb\\Addon_Catalog') ? Addon_Catalog::get($code) : null;
 			$types[$type] = array('code' => $code, 'name' => is_array($e) && isset($e['name']) ? $e['name'] : $code, 'state' => self::addon_state($code));
 		}
-		$vars['legacy_gw'] = array('types' => $types);
+		// PAY-OUT step 2: each add-on's own keys screen (Settings › Payments links to it): type => {addon, label, url, status}.
+		$screens = apply_filters('efb_legacy_gateway_screens', array());
+		$vars['legacy_gw'] = array('types' => $types, 'screens' => is_array($screens) ? $screens : array());
 		return $vars;
 	}
 

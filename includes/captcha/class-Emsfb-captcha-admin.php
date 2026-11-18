@@ -78,6 +78,8 @@ class Admin {
 	public static function is_addon_key($k) {
 		if (!is_string($k)) return false;
 		if (in_array($k, function_exists('apply_filters') ? (array) apply_filters('efb_addon_setting_keys', array('adr_lookup')) : array('adr_lookup'), true)) return true;
+		// PAY-OUT step 2: pay_<type> is a payment add-on's key (its own screen), loaded or not.
+		if (preg_match('/^pay_[a-z][a-z0-9_]{1,23}$/', $k)) return true;
 		return preg_match('/^captcha_[a-z][a-z0-9_]{2,23}$/', $k) && !(class_exists('\\Emsfb\\Spam') && \Emsfb\Spam::is_setting_key($k));
 	}
 

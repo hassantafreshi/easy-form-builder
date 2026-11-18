@@ -14,7 +14,10 @@
  *  4  card/add: the PaymentIntent is created for the server's amount (Adult 25 → 2500 USD minor) even when the request
  *     says 0.01; a choice that is not on the form is refused; or the clear update / not-ready answer, and no intent;
  *  5  confirm + the final submit: the entry is stored once as paid; the same payment cannot be used twice; a payment the
- *     provider reports as not paid is refused.
+ *     provider reports as not paid is refused;
+ *  K  (step 2) the keys: with the new add-on on the new core they move once to the add-on's own key (encrypted, read
+ *     back, the old ones removed; idempotent), its screen shows them masked and saves them write-only, the main Settings
+ *     page never holds them, Settings › Payments links to each screen; an old add-on or an old core: nothing moves.
  *
  * Run (under the e2e lock): source the e2e env; php tests/test-payout-mixed-http.php [combo …]
  */
@@ -55,7 +58,7 @@ foreach ($COMBOS as $name => $combo) {
 	/* 1 */
 	$v = $M->ctl('versions');
 	$lg = $v['legacy_gateway'] ?? array();
-	t("$name 1 the core speaks legacy_gateway " . ($newcore ? '1.1' : '1'), (float) ($lg['version'] ?? 0), $newcore ? 1.1 : 1.0);
+	t("$name 1 the core speaks legacy_gateway " . ($newcore ? '1.2' : '1'), (float) ($lg['version'] ?? 0), $newcore ? 1.2 : 1.0);
 	t("$name 1 every legacy add-on can be used (states null)", array_values($v['states'] ?? array()), array(null, null, null));
 
 	/* 2 */
@@ -65,6 +68,42 @@ foreach ($COMBOS as $name => $combo) {
 		t("$name 2 the add-ons' settings panels (" . ($oldaddon ? 'old add-ons: none, the panel says Update' : 'window.efbFieldPanels') . ')', array_values($b['scripts'] ?? array()), $oldaddon ? array(false, false, false) : array(true, true, true));
 	} else {
 		t("$name 2 the old core has no legacy_gw (its own panels)", $b['legacy_gw'] ?? null, null);
+	}
+
+	/* K (step 2): the keys */
+	$own = $newcore && !$oldaddon;
+	$w = $M->ctl('where');
+	$sk = 'sk_test_' . str_repeat('EfbE2e', 4);
+	if ($own) {
+		t("$name K1 the keys moved once to the add-ons' own keys (secrets encrypted), the old row keys removed", array(
+			$w['own']['pay_stripe']['secret']['skey'] ?? null, isset($w['own']['pay_stripe']['public']['pkey']), $w['own']['pay_paypal']['secret']['secret'] ?? null, isset($w['own']['pay_paypal']['public']['client_id']),
+			$w['own']['pay_persiapay']['secret']['merchant'] ?? null, array_values(array_filter($w['old'])), array_values($w['moved'])),
+			array('encrypted', true, 'encrypted', true, 'encrypted', array(), array('1', '1', '1')));
+		t("$name K2 the Stripe secret resolves to the same key after the move", ($M->ctl('key-value', 'stripe', 'skey', $sk)['same'] ?? false), true);
+		$w2 = $M->ctl('where');
+		t("$name K3 the move runs once (idempotent: a second request changes nothing)", $w2, $w);
+		$A = new EfbF11Http();
+		$A->login('admin', 'admin-pass-123');
+		$scr = $A->http('GET', '/wp-admin/admin.php?page=Emsfb_stripe_keys', null, array(), false);
+		t("$name K4 the Stripe screen: the saved key masked (•••• bE2e), never the key or its ciphertext", array($scr['status'], strpos($scr['body'], '•••• bE2e') !== false, strpos($scr['body'], $sk) === false, strpos($scr['body'], 'enc:v1:') === false, strpos($scr['body'], 'pk_test_EfbE2e') !== false), array(200, true, true, true, true));
+		preg_match('/name="_wpnonce" value="([^"]+)"/', $scr['body'], $nm);
+		$post = function (array $fields) use ($A, $nm) {
+			return $A->http('POST', '/wp-admin/admin-post.php', http_build_query(array_merge(array('action' => 'efb_stripe_keys', '_wpnonce' => $nm[1] ?? '', '_wp_http_referer' => '/wp-admin/admin.php?page=Emsfb_stripe_keys'), $fields)), array('Content-Type' => 'application/x-www-form-urlencoded'), false);
+		};
+		$r = $post(array('pub' => array('pkey' => 'pk_test_' . str_repeat('NewPk', 4)), 'sec' => array('skey' => '')));
+		t("$name K5 Save with an empty secret box keeps the saved secret (public key changed)", array($r['status'], (bool) preg_match('/efb_msg=saved/', $r['headers']), $M->ctl('key-value', 'stripe', 'skey', $sk)['same'] ?? false, $M->ctl('key-value', 'stripe', 'pkey', 'pk_test_' . str_repeat('NewPk', 4))['same'] ?? false), array(302, true, true, true));
+		$r = $post(array('pub' => array('pkey' => 'pk_test_' . str_repeat('NewPk', 4)), 'sec' => array('skey' => 'bad key with spaces')));
+		t("$name K5 a malformed secret is refused (the saved one stays)", array((bool) preg_match('/refused=skey/', $r['headers']), $M->ctl('key-value', 'stripe', 'skey', $sk)['same'] ?? false), array(true, true));
+		$st = $A->http('GET', '/wp-admin/admin.php?page=Emsfb&state=setting', null, array(), false);
+		t("$name K6 the main Settings page never holds the keys (no secret, no ciphertext, no pay_* key)", array($st['status'], strpos($st['body'], $sk) === false, strpos($st['body'], 'enc:v1:') === false, strpos($st['body'], '"pay_stripe"') === false), array(200, true, true, true));
+		$b2 = $M->ctl('builder');
+		t("$name K6 Settings › Payments lists the three add-ons' screens (ready)", array($b2['legacy_gw']['screens']['stripe']['status'] ?? '', $b2['legacy_gw']['screens']['paypal']['status'] ?? '', $b2['legacy_gw']['screens']['persiaPay']['status'] ?? '', (bool) preg_match('/page=Emsfb_stripe_keys/', $b2['legacy_gw']['screens']['stripe']['url'] ?? '')), array('ready', 'ready', 'ready', true));
+	} else {
+		t("$name K1 no move (" . ($newcore ? 'an old add-on keeps reading core\'s keys' : 'an old core keeps its own Payments tab') . ')', array(array_values($w['old']), array_values($w['own'])), array(array(true, true, true, true, true), array(null, null, null)));
+		if ($newcore) {
+			$b2 = $M->ctl('builder');
+			t("$name K6 Settings › Payments: no screen of an old add-on (its row says Update or turn on the add-on)", $b2['legacy_gw']['screens'] ?? null, array());
+		}
 	}
 
 	/* 3 */

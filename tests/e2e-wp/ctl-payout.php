@@ -15,7 +15,9 @@
  *                              saved through the builder's sanitizer; row-0 overrides as k=v&…
  *   keys <old|clear>           placeholder keys (built here, never a real key) in the settings row the way core's
  *                              Settings › Payments tab saved them (stripePKey, stripeSKey, paypalPKey, paypalSKey,
- *                              payToken); clear removes them there
+ *                              payToken); clear removes them there. Both remove the add-ons' own keys (pay_*) and
+ *                              their "moved" marks first
+ *   key-value <addon> <key> <expected>  whether an add-on's key resolves to <expected> (never prints a key)
  *   where                      where the keys are now: the old row keys (set or not), the add-ons' own keys
  *                              (pay_stripe, pay_paypal, pay_persiapay: public values, secrets as encrypted or not),
  *                              never a secret's value
@@ -115,7 +117,10 @@ switch ( $efb_po_cmd ) {
 		// Shapes of the providers' keys, built here: never a real key.
 		$k = array( 'stripePKey' => 'pk_test_' . str_repeat( 'EfbE2e', 4 ), 'stripeSKey' => 'sk_test_' . str_repeat( 'EfbE2e', 4 ), 'paypalPKey' => 'AE2e' . str_repeat( 'Efb', 8 ), 'paypalSKey' => 'EE2e' . str_repeat( 'Efb', 8 ), 'payToken' => str_repeat( 'a1b2', 9 ) );
 		if ( 'clear' === $which ) $k = array_fill_keys( array_keys( $k ), null );
-		efb_po_out( array( 'ok' => efb_po_write( $k ) ) );
+		// Every run starts from core's old layout: the add-ons' own keys and their "moved" marks are removed first.
+		$reset = efb_po_write( array( 'pay_stripe' => null, 'pay_paypal' => null, 'pay_persiapay' => null ) );
+		foreach ( array( 'stripe', 'paypal', 'persiapay' ) as $t ) delete_option( 'emsfb_pay_' . $t . '_moved' );
+		efb_po_out( array( 'ok' => $reset && efb_po_write( $k ), 'stripe_secret_tail' => substr( (string) ( $k['stripeSKey'] ?? '' ), -4 ) ) );
 		break;
 
 	case 'where':
@@ -125,10 +130,11 @@ switch ( $efb_po_cmd ) {
 		foreach ( array( 'pay_stripe', 'pay_paypal', 'pay_persiapay' ) as $k ) {
 			if ( ! isset( $row[ $k ] ) || ! is_array( $row[ $k ] ) ) { $out['own'][ $k ] = null; continue; }
 			$sec = array();
-			foreach ( (array) ( $row[ $k ]['secret'] ?? array() ) as $sk => $sv ) $sec[ $sk ] = is_array( $sv ) && isset( $sv['ct'] ) ? 'encrypted' : ( is_array( $sv ) ? 'array' : 'plain' );
+			foreach ( (array) ( $row[ $k ]['secret'] ?? array() ) as $sk => $sv ) $sec[ $sk ] = is_string( $sv ) && 0 === strpos( $sv, 'enc:v1:' ) ? 'encrypted' : 'plain';
 			$out['own'][ $k ] = array( 'public' => (array) ( $row[ $k ]['public'] ?? array() ), 'secret' => $sec, 'v' => $row[ $k ]['v'] ?? null );
 		}
-		$out['moved'] = array( 'stripe' => get_option( 'emsfb_pay_stripe_moved', null ), 'paypal' => get_option( 'emsfb_pay_paypal_moved', null ), 'persiapay' => get_option( 'emsfb_pay_persiapay_moved', null ) );
+		$out['moved'] = array();
+		foreach ( array( 'stripe', 'paypal', 'persiapay' ) as $t ) { $mv = get_option( 'emsfb_pay_' . $t . '_moved', null ); $out['moved'][ $t ] = null === $mv ? null : (string) $mv; }
 		efb_po_out( $out );
 		break;
 
@@ -148,6 +154,15 @@ switch ( $efb_po_cmd ) {
 		$js = array();
 		foreach ( array( 'stripe' => 'efb-stripe-builder-js', 'paypal' => 'efb-paypal-builder-js', 'persiapay' => 'efb-persiapay-builder-js' ) as $a => $h ) $js[ $a ] = wp_script_is( $h, 'enqueued' );
 		efb_po_out( array( 'legacy_gw' => $vars['legacy_gw'] ?? null, 'scripts' => $js ) );
+		break;
+
+	case 'key-value':
+		// Which value a key of the add-on resolves to now (for the tests: compared with the placeholder they set, never printed).
+		$cls = array( 'stripe' => '\\Emsfb\\Stripe_Keys_Efb', 'paypal' => '\\Emsfb\\Paypal_Keys_Efb', 'persiapay' => '\\Emsfb\\PersiaPay_Keys_Efb' );
+		$c = isset( $efb_po_rest[0], $cls[ $efb_po_rest[0] ] ) ? $cls[ $efb_po_rest[0] ] : '';
+		$want = isset( $efb_po_rest[2] ) ? (string) $efb_po_rest[2] : '';
+		$got = $c && class_exists( $c ) ? $c::get( isset( $efb_po_rest[1] ) ? $efb_po_rest[1] : '' ) : null;
+		efb_po_out( array( 'class' => $c && class_exists( $c ), 'same' => null !== $got && hash_equals( $want, (string) $got ), 'empty' => '' === (string) $got ) );
 		break;
 
 	case 'versions':

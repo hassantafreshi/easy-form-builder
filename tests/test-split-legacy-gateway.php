@@ -96,6 +96,8 @@ $r = \Emsfb\Payments\Readiness::of_form($stripe_form, 3);
 $t('readiness: the add-on\'s own flow decides (not a framework payment)', array($r['has_payment'], $r['ready']), array(false, true));
 $html = $ui->invoke($fb, 'stripe', (object) array('id_' => 'pp', 'type' => 'stripe'), 'rnd1', '7', $texts);
 $t('field with the add-on: the card box (the markup core had)', array(strpos($html, 'id="stripeCardSectionEfb"') !== false, strpos($html, 'id="btnStripeEfb" data-formid="7"') !== false, strpos($html, 'data-efb-pay-blocked') === false), array(true, true, true));
+// PAY-OUT step 2: the add-on resolves its own keys (its pay_stripe key, else the stripePKey core's tab kept in the row).
+$GLOBALS['settings_efb'] = (object) array_merge((array) $GLOBALS['settings_efb'], array('stripePKey' => 'pk_test_PLACEHOLDER'));
 $ar = apply_filters('efb_legacy_gateway_localize', array('a' => 1), 'stripe', (object) array(), 7);
 $t('localize: Stripe.js and the add-on\'s stripe_pay-efb.js, the publishable key', array($ar['paymentGateway'], $ar['paymentKey'], $GLOBALS['scripts']['stripe-js'], $GLOBALS['scripts']['stripe_js']), array('stripe', 'pk_test_PLACEHOLDER', 'https://js.stripe.com/v3/', EMSFB_PLUGIN_URL . 'vendor/stripe/assets/js/stripe_pay-efb.js'));
 $t('the order state is the add-on\'s (Stripe_Legacy_Efb::payment_state on efb_legacy_payment_state; it leaves other gateways alone)',

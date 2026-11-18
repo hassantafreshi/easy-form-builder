@@ -2080,6 +2080,17 @@ body:has(.efb-rc3-notice) .grecaptcha-badge { visibility: hidden; }
 .efb.efb-spam-settings legend { unicode-bidi: plaintext; }
 /* A phone: the name on its own line, then the status at the start and "Settings" at the end. */
 @media (max-width: 600px) { .efb.efb-spam-settings .efb-cpa-name { flex-basis: 100%; } }
+/* PAY-OUT step 2: Settings › Payments lists the payment add-ons the same way (name, status, Settings → its own screen). */
+.efb.efb-pay-addons .efb-spam-help { display: block; max-width: 40rem; unicode-bidi: plaintext; text-align: start; }
+.efb.efb-pay-addons .efb-cpa-list { list-style: none; margin: 0 0 .5rem; padding: 0; max-width: 40rem; }
+.efb.efb-pay-addons .efb-cpa-row { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .75rem; padding: .375rem .75rem; margin: 0 0 .5rem; border: 1px solid #dfe3ea; border-radius: 6px; min-height: 44px; }
+.efb.efb-pay-addons .efb-cpa-name { font-weight: 600; flex: 1 1 10rem; min-width: 0; overflow-wrap: anywhere; text-align: start; }
+.efb.efb-pay-addons .efb-cpa-st { unicode-bidi: plaintext; flex: 0 1 auto; }
+.efb.efb-pay-addons .efb-cpa-st-ready { color: #00733b; }
+.efb.efb-pay-addons .efb-cpa-st-keys, .efb.efb-pay-addons .efb-cpa-st-plan, .efb.efb-pay-addons .efb-cpa-st-off { color: #8a4b00; }
+.efb.efb-pay-addons .efb-cpa-btn { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; margin-inline-start: auto; }
+@media (max-width: 600px) { .efb.efb-pay-addons .efb-cpa-name { flex-basis: 100%; } }
+[dir="rtl"] .efb.efb-pay-addons .efb-spam-help, .rtl .efb.efb-pay-addons .efb-spam-help { text-align: right; }
 .efb.efb-spam-settings textarea.efb-spam-input { max-width: 40rem; }
 .efb.efb-spam-settings .efb-secret-input { flex: 1 1 12rem; min-width: 0; }
 .efb.efb-spam-settings .efb-spam-prov-site > legend::after { content: " ★"; }

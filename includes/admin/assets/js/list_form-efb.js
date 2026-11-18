@@ -1235,15 +1235,46 @@ function fun_show_help__emsFormBuilder() {
  `;
 }
 
+/* PAY-OUT step 2: Settings › Payments. The keys of Stripe, PayPal and Persia Pay are on each add-on's own screen (the
+   CAPTCHA add-on pattern): one row per installed, active add-on — its name (isolated), its status (ready, needs keys,
+   off for the plan, or update the add-on when it is older than this core and has no screen yet; its keys keep working)
+   and Settings, a link to that screen. Data: efb_var.legacy_gw (Split::builder_vars(), filter efb_legacy_gateway_screens). */
+function efb_pay_addons_html_efb(mx, mx4) {
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const T = (k, fb) => { const t = (typeof efb_var !== 'undefined' && efb_var.text) || {}; return t[k] ? String(t[k]) : fb; };
+  const g = (typeof efb_var !== 'undefined' && efb_var.legacy_gw) || {};
+  const types = g.types || {};
+  const screens = g.screens || {};
+  const seen = {};
+  const rows = [];
+  Object.keys(types).forEach((type) => {
+    const tp = types[type] || {};
+    const code = String(tp.code || '');
+    if (!code || seen[code] || tp.state === 'addon') return;
+    seen[code] = true;
+    const sc = screens[type] || Object.values(screens).find((x) => x && x.addon === code) || null;
+    const name = sc && sc.label ? sc.label : (tp.name || code);
+    let st;
+    if (tp.state === 'plan') st = ['plan', T('cpStatusPlan', 'Off for your plan')];
+    else if (!sc) st = ['off', T('cpUpdateAddonShort', 'Update or turn on the add-on')];
+    else if (sc.status === 'plan') st = ['plan', T('cpStatusPlan', 'Off for your plan')];
+    else st = sc.status === 'ready' ? ['ready', T('cpStatusReady', 'Ready')] : ['keys', T('cpStatusKeys', 'Needs keys')];
+    const id = esc(code);
+    rows.push('<li class="efb efb-cpa-row" data-for="' + id + '"><bdi class="efb efb-cpa-name" id="pga_' + id + '_name">' + esc(name) + '</bdi>'
+      + '<span class="efb efb-cpa-st efb-cpa-st-' + st[0] + '" id="pga_' + id + '_st" data-status="' + st[0] + '">' + esc(st[1]) + '</span>'
+      + (sc && sc.url ? '<a class="efb btn btn-sm btn-outline-secondary efb-cpa-btn" href="' + esc(sc.url) + '" aria-describedby="pga_' + id + '_name pga_' + id + '_st">' + esc(T('settings', 'Settings')) + '</a>' : '')
+      + '</li>');
+  });
+  if (!rows.length) return '<p class="efb ' + mx + ' efb-pay-addons-none">' + esc(T('IMAddonP', 'To create a payment form to collect online payments, you must first install a payment add-on such as the Stripe Add-on.')) + '</p>';
+  return '<p class="efb ' + mx + ' efb-spam-help" id="efbPayAddonsHelp">' + esc(T('cpAddonsHelp', 'Each add-on has its own settings page.')) + '</p>'
+    + '<div class="efb card-body mx-0 py-1 ' + mx4 + '"><ul class="efb efb-cpa-list" aria-labelledby="efbPayAddonsTitle" aria-describedby="efbPayAddonsHelp">' + rows.join('') + '</ul></div>';
+}
+
 function fun_show_setting__emsFormBuilder() {
 
   let activeCode = 'null';
   let sitekey = 'null';
   let secretkey = 'null';
-  let stripeSKey = 'null';
-  let stripePKey = 'null';
-  let paypalSKey = 'null';
-  let paypalPKey = 'null';
   let email = 'null';
   let trackingcode = 'null';
   let apiKeyMap = 'null';
@@ -1256,7 +1287,6 @@ function fun_show_setting__emsFormBuilder() {
   let textList = "<!--list EFB -->";
   let bootstrap = false;
   let emailTemp = "null"
-  let payToken="null";
   let sessionDuration = 1;
   let trackCodeStyle = 'date_en_mix';
   let calAdminDisplayEfb = 'site'; // F06
@@ -1310,12 +1340,6 @@ function fun_show_setting__emsFormBuilder() {
     femail = femail=='null' ? demail : femail;
     trackingcode = f(`trackingCode`);
     apiKeyMap = f(`apiKeyMap`);
-    stripeSKey = f(`stripeSKey`);
-    stripePKey = f(`stripePKey`);
-    paypalSKey =  f(`paypalSKey`);
-    paypalSKey = paypalSKey == 'null' ? '' : paypalSKey;
-    paypalPKey = f(`paypalPKey`);
-    paypalPKey = paypalPKey == 'null' ? '' : paypalPKey;
     smtp = f('smtp') == 'null' ? false : Boolean(f('smtp'));
     const weeklyEmailReportSetting = f('weeklyEmailReport');
     weeklyEmailReport = weeklyEmailReportSetting == 'null'
@@ -1363,29 +1387,11 @@ function fun_show_setting__emsFormBuilder() {
     emailBtnBgColor = f('emailBtnBgColor') == 'null' ? '#202a8d' : f('emailBtnBgColor');
     emailBtnTextColor = f('emailBtnTextColor') == 'null' ? '#ffffff' : f('emailBtnTextColor');
 
-    payToken = f('payToken');
     act_local_efb = f('act_local_efb');
     // F13: privacy settings ('null' = absent = the default, today's behaviour).
     for (const k of Object.keys(prvSettings)) { if (f(k) !== 'null') prvSettings[k] = String(f(k)); }
 
     act_local_efb= act_local_efb =='null'  || act_local_efb==false ? false :true
-  }
-
-  let persianPayToken = () => {
-    const visible = efb_var.language == "fa_IR" ? "style='display:block'" : "style='display:none'";
-      return `
-      <div ${visible}>
-      <h5 class="efb  card-title mt-3 mobile-title"> <i class="efb bi-credit-card-2-front m-3"></i>درگاه پرداخت</h5>
-      <p class="efb mx-5">توکن: <a class="efb  pointer-efb ec-efb" data-eventform="links" data-linkname="AdnPPF">توکن دریافتی از درگاه پرداخت خود را در زیر وارد کنید</a></p>
-      <div class="efb mx-3 my-2">
-        <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-          <label class="efb form-label mx-2 fs-6">توکن</label>
-          <input type="text" class="efb form-control w-75 h-d-efb border-d  efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''} " id="payToken_emsFormBuilder"placeholder="توکن" ${payToken !== "null" ? `value="${payToken}"` : ""} data-tab="${efb_var.text.payment}">
-        </div>
-      </div>
-      </div>
-    `
-
   }
 
   Object.entries(text).forEach(([key, value]) => {
@@ -1399,8 +1405,6 @@ function fun_show_setting__emsFormBuilder() {
   /* F18: a locked key field opens the dialog on the first click or key press (it used to ask only after
      the whole key was typed). readonly until the plan opens it; a plan change in the page unlocks it. */
   const lockedInput = (key, id) => is_pro ? '' : `readonly data-efb-lock="${key}" data-efb-unlock="attrs" data-efb-unlock-attrs="onclick,onkeydown" data-efb-unlock-readonly="1" onclick="efb_upgrade_prompt_efb({feature:'${key}', fallback:'free_plus', origin:'panel_settings', resume:{kind:'focus', id:'${id}'}, opener:this})" onkeydown="if(event.key.length===1||event.key==='Enter'){event.preventDefault();this.click();}"`;
-  const stripemessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.stripe);
-  const paypalmessage = efb_var.text.ufinyf.replace('%1$s', efb_var.text.payment.toLowerCase()).replace('%2$s', efb_var.text.paypal);
   const package_type = efb_var.setting.hasOwnProperty('package_type') ? Number(efb_var.setting.package_type) : Number(efb_var.pro) ;
   const weeklyEmailReportAllowed = [1, 3].includes(package_type);
   const emailStatsReportAllowed = package_type === 1;
@@ -1812,40 +1816,11 @@ function fun_show_setting__emsFormBuilder() {
                             </div>
                         </div>
                         <div class="efb tab-pane fade" id="nav-stripe" role="tabpanel" aria-labelledby="nav-stripe-tab">
-                            <div class="efb mx-3 my-2">
-                            <!-- Text Section -->
-                               <h5 class="efb  card-title mt-3 mobile-title">
-                                 <i class="efb  bi-stripe m-3"></i>${efb_var.text.stripe}
+                            <div class="efb mx-3 my-2 efb-pay-addons" id="efbPayAddons">
+                               <h5 class="efb  card-title mt-3 mobile-title" id="efbPayAddonsTitle">
+                                 <i class="efb  bi-credit-card m-3" aria-hidden="true"></i>${efb_var.text.payments}
                                </h5>
-                               <!-- 3.8.6 start -->
-                               <p class="efb ${mxCSize}">${stripemessage} <a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="stripe" >${efb_var.text.lrnmrs.replace('%s', '')}</a></p>
-                                <!-- 3.8.6 end -->
-                                <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                  <label class="efb form-label mx-2 fs-6">${efb_var.text.publicKey}</label>
-                                  <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="stripePKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" ${stripePKey !== "null" ? `value="${stripePKey}"` : ""} ${lockedInput('setting:payment_keys', 'stripePKey_emsFormBuilder')} data-tab="${efb_var.text.payment}">
-                                  <span id="stripePKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
-                                  <label class="efb  form-label mx-2 fs-6 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                  <input type="password" autocomplete="new-password" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="stripeSKey_emsFormBuilder" data-secret="1" dir="ltr" value="" placeholder="${efb_secret_placeholder_efb(stripeSKey)}" aria-describedby="stripeSKey_emsFormBuilder-keep" ${lockedInput('setting:payment_keys', 'stripeSKey_emsFormBuilder')} data-tab="${efb_var.text.payment}">${efb_secret_tools_efb('stripeSKey_emsFormBuilder', stripeSKey)}
-                                  <span id="stripeSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
-
-                              </div>
-                              <div class="efb ${efb_var.addons.hasOwnProperty('AdnPAP') && efb_var.addons.AdnPAP == 1 ? '' : 'd-none'}">
-                                  <h5 class="efb  card-title mt-3 mobile-title">
-                                  <i class="efb  bi-paypal m-3"></i>${efb_var.text.paypal}
-                                </h5>
-                                <p class="efb ${mxCSize}">${paypalmessage} <a class="efb  pointer-efb" onclick="Link_emsFormBuilder('paypal')" >${efb_var.text.lrnmrs.replace('%s', '')}</a></p>
-                                  <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                    <label class="efb form-label mx-2 fs-6">${efb_var.text.publicKey}</label>
-                                    <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="paypalPKey_emsFormBuilder" placeholder="${efb_var.text.publicKey}" value="${paypalPKey}" ${lockedInput('setting:payment_keys', 'paypalPKey_emsFormBuilder')} data-tab="${efb_var.text.payment}">
-                                    <span id="paypalPKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
-                                    <label class="efb  form-label mx-2 fs-6 col-12  mt-4">${efb_var.text.SecreTKey}</label>
-                                    <input type="password" autocomplete="new-password" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="paypalSKey_emsFormBuilder" data-secret="1" dir="ltr" value="" placeholder="${efb_secret_placeholder_efb(paypalSKey)}" aria-describedby="paypalSKey_emsFormBuilder-keep" ${lockedInput('setting:payment_keys', 'paypalSKey_emsFormBuilder')} data-tab="${efb_var.text.payment}">${efb_secret_tools_efb('paypalSKey_emsFormBuilder', paypalSKey)}
-                                    <span id="paypalSKey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
-                                  </div>
-                              </div>
-                              ${persianPayToken()}
-
-                                <!-- END payment Section -->
+                               ${efb_pay_addons_html_efb(mxCSize, mxCSize4)}
                             </div>
                         </div>
 
@@ -3522,7 +3497,7 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
     }
     return true;
   }
-  const ids = ['paypalSKey_emsFormBuilder', 'paypalPKey_emsFormBuilder', 'stripeSKey_emsFormBuilder', 'stripePKey_emsFormBuilder', 'smtp_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder', 'emailTemp_emsFirmBuilder', 'pno_emsFormBuilder','femail_emsFormBuilder','osLocationPicker_emsFormBuilder', 'sessionDuration_emsFormBuilder'];
+  const ids = ['smtp_emsFormBuilder', 'apikey_map_emsFormBuilder', 'sitekey_emsFormBuilder', 'secretkey_emsFormBuilder', 'email_emsFormBuilder', 'activeCode_emsFormBuilder', 'emailTemp_emsFirmBuilder', 'pno_emsFormBuilder','femail_emsFormBuilder','osLocationPicker_emsFormBuilder', 'sessionDuration_emsFormBuilder'];
   let state = true
 
   for (let id of ids) {
@@ -3537,10 +3512,6 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
     const activeCode = f('activeCode_emsFormBuilder');
     const sitekey = f(`sitekey_emsFormBuilder`);
     const secretkey = f(`secretkey_emsFormBuilder`);
-    const stripeSKey = f(`stripeSKey_emsFormBuilder`);
-    const stripePKey = f(`stripePKey_emsFormBuilder`);
-    const paypalSKey = f(`paypalSKey_emsFormBuilder`);
-    const paypalPKey = f(`paypalPKey_emsFormBuilder`);
     const email = f(`email_emsFormBuilder`);
     let femail = f(`femail_emsFormBuilder`);
     if(femail.length<6){ femail = 'no-reply@'+window.location.hostname;}
@@ -3582,7 +3553,6 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
       }
    }
 
-    const payToken = f('payToken_emsFormBuilder');
     let temp = f('pno_emsFormBuilder');
     const phoneNumbers = temp.length<5 ? 'null' : temp;
     let AdnSPF=AdnOF=AdnPPF=AdnATC=AdnSS=AdnCPF=AdnESZ=AdnSE=
@@ -3642,13 +3612,6 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
           emailBtnBgColor: emailBtnBgColor,
           emailBtnTextColor: emailBtnTextColor,
 
-          paypalPKey: paypalPKey,
-          paypalSKey: paypalSKey,
-
-          stripePKey: stripePKey,
-          stripeSKey: stripeSKey,
-
-          payToken: payToken,
           act_local_efb: act_local_efb,
 
           scaptcha: scaptcha,

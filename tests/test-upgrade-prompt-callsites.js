@@ -114,7 +114,8 @@ const expect = [
   ['admin-efb.js', "feature: 'form:locked_fields'"],
   ['list_form-efb.js', "efb_gate_efb('setting:bulk_read'"],
   ['list_form-efb.js', "lockedInput('setting:map_key'"],
-  ['list_form-efb.js', "lockedInput('setting:payment_keys', 'stripeSKey_emsFormBuilder')"],
+  // PAY-OUT step 2: the Stripe / PayPal keys left Settings › Payments for each add-on's own screen, which shows the
+  // plan notice itself (Legacy_Gateway_Keys_V1, status "plan"); the main window keeps no payment_keys site.
   ['list_form-efb.js', "efb_gate_efb('setting:response_colors'"],
   ['list_form-efb.js', "lockedInput('setting:sender_email'"],
   ['list_form-efb.js', "feature:'setting:weekly_report'"],

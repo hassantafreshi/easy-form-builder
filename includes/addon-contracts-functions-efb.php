@@ -28,8 +28,9 @@ if (!function_exists('efb_addon_contract_versions')) {
 			'typed_signature' => array('version' => 1, 'min' => 1, 'core' => false),
 			'address'         => array('version' => 1, 'min' => 1, 'core' => false),
 			'booking'         => array('version' => 1, 'min' => 1, 'core' => false),
-			// PAY-OUT: 1.1 = the add-on draws its field's builder settings (window.efbFieldPanels).
-			'legacy_gateway'  => array('version' => 1.1, 'min' => 1, 'core' => false),
+			// PAY-OUT: 1.1 = the add-on draws its field's builder settings (window.efbFieldPanels); 1.2 = it keeps its keys
+			// on its own screen (a pay_<type> key of the settings row; core's Settings › Payments only links to it).
+			'legacy_gateway'  => array('version' => 1.2, 'min' => 1, 'core' => false),
 			'smart_tags_ext'  => array('version' => 1, 'min' => 1, 'core' => false),
 			'form_package'    => array('version' => $fp, 'min' => 1, 'core' => class_exists('\\Emsfb\\Form_Package')),
 			'payments'        => array('version' => defined('EMSFB_PAYMENTS_API') ? (int) EMSFB_PAYMENTS_API : 1, 'min' => 1, 'core' => class_exists('\\Emsfb\\Payments\\Registry')),

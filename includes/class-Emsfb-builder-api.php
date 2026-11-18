@@ -363,10 +363,8 @@ class Builder_Api {
 			'features'     => $features,
 			'addons'       => $addons,
 			// Presence only, never the keys (brief rule 4).
-			'payment_keys' => array(
-				'stripe' => $key_set('stripeSKey') && $key_set('stripePKey'),
-				'paypal' => $key_set('paypalSKey') && $key_set('paypalPKey'),
-			),
+			// PAY-OUT step 2: an add-on that keeps its keys on its own screen answers for them (efb_legacy_gateway_keys_set).
+			'payment_keys' => self::payment_keys_set($key_set),
 		);
 		// F21: the licence's end as the licence server told this site (read-only; no renew link, no code). Only for
 		// the site's own plan (not when an integration asks about another package).
@@ -413,6 +411,17 @@ class Builder_Api {
 		// F18: the upgrade dialog shows "ask an administrator" (S7) when this is false.
 		$vars['can_change_plan'] = function_exists('efb_can_change_plan_efb') ? efb_can_change_plan_efb() : true;
 		return $vars;
+	}
+
+	/**
+	 * Presence of the Stripe and PayPal keys (never a key). PAY-OUT step 2: an add-on that keeps its keys on its own
+	 * screen answers for them (efb_legacy_gateway_keys_set); otherwise the keys of the settings row.
+	 */
+	private static function payment_keys_set($key_set) {
+		$set = array('stripe' => $key_set('stripeSKey') && $key_set('stripePKey'), 'paypal' => $key_set('paypalSKey') && $key_set('paypalPKey'));
+		$f = function_exists('apply_filters') ? apply_filters('efb_legacy_gateway_keys_set', $set) : $set;
+		foreach ($set as $k => $v) $set[$k] = is_array($f) && isset($f[$k]) ? (bool) $f[$k] : $v;
+		return $set;
 	}
 
 	/* ---------------------------------------------------------------- B8 */
