@@ -49,7 +49,10 @@ const html = JSON.parse(execFileSync('php', [path.join(__dirname, 'repeater-rend
   page.on('pageerror', (e) => errors.push(e.message));
   await page.route('**/*', (r) => r.fulfill({ status: 200, contentType: 'text/html', body: `<!doctype html><html><head><meta charset="utf-8"></head><body><div id="body_efb_11" data-formid="11" data-currentstep="1" data-steps="1">${html}</div></body></html>` }));
   await page.goto('http://site.test/f/');
-  await page.addScriptTag({ content: `var efb_var = { text: {}, rtl: 0, id: 11, wp_lan: 'en_US', language: 'en_US' }; var ajax_object_efm = { text: {}, form_setting: {}, ajax_value_forms: [], wp_lan: 'en_US' }; ` });
+  /* createStepsOfPublic() makes efb_var = ajax_object_efm, as on a real page, whose ajax_object_efm always has language:
+     without it new-efb.js's 50 ms start timer, when it fires late (a loaded machine), read efb_var.language.slice → a
+     page error ("no page error" failed once under the parallel suite). */
+  await page.addScriptTag({ content: `var efb_var = { text: {}, rtl: 0, id: 11, wp_lan: 'en_US', language: 'en_US' }; var ajax_object_efm = { text: {}, form_setting: {}, ajax_value_forms: [], wp_lan: 'en_US', language: 'en_US' }; ` });
   for (const js of ['includes/admin/assets/js/jquery.min-efb.js', 'includes/admin/assets/js/new-efb.js', 'vendor/calc/assets/js/calc-efb.js', 'public/assets/js/repeater-efb.js', 'public/assets/js/core-efb.js']) await page.addScriptTag({ path: path.join(ROOT, js) });
   await page.evaluate((rows) => {
     valj_efb_new = [{ id: 11, form_structer: [{ type: 'form', steps: 1 }, { id_: '1', type: 'step', step: 1 }].concat(rows) }];
@@ -57,7 +60,12 @@ const html = JSON.parse(execFileSync('php', [path.join(__dirname, 'repeater-rend
   }, FORM);
   const set = async (id, v) => { await page.fill(`[id="${id}_"]`, v); await page.dispatchEvent(`[id="${id}_"]`, 'change'); };
   const out = (id) => page.evaluate((i) => (document.getElementById(i + '_out') || {}).textContent || '', id);
-  const settle = () => page.waitForTimeout(700); // EFBCalc recomputes 100 ms after a change; slack for a loaded machine
+  // EFBCalc recomputes 100 ms after a change: wait for the outputs to stop changing (never a fixed time alone).
+  const settle = async () => {
+    const snap = () => page.evaluate(() => Array.from(document.querySelectorAll('[id$="_out"]')).map((e) => e.id + '=' + e.textContent).join('|'));
+    let prev = null;
+    for (let i = 0; i < 50; i++) { await page.waitForTimeout(150); const now = await snap(); if (now === prev) return; prev = now; }
+  };
   await set('price_r0', '10'); await set('qty_r0', '2'); await set('price_r1', '5.5'); await set('qty_r1', '3');
   await settle();
   check('each row computes its own line (20.00, 16.50)', [await out('line_r0'), await out('line_r1')].join('|') === '20.00|16.50', [await out('line_r0'), await out('line_r1')]);

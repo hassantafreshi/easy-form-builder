@@ -323,6 +323,9 @@
         if (!visible(el) || el.disabled) return;
         const key = el.type === 'radio' ? 'r:' + el.name : el;
         if (typeof key === 'string') { if (seen[key]) return; seen[key] = 1; }
+        // Checked now: a re-check still waiting from typing would later clear what the server answers for this field.
+        clearTimeout(timers.get(el));
+        timers.delete(el);
         const msg = run(el, false);
         if (msg) items.push({ id: idOf(el), label: labelOf(form, idOf(el)), message: msg });
       });

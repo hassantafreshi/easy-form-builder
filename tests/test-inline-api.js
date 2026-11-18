@@ -71,15 +71,16 @@ const page_html = (dir, lang) => `<!doctype html><html dir="${dir}" lang="${lang
   await page.keyboard.press('Tab');
   let s = await st('em');
   check('P2 left changed and wrong: the error, aria-invalid, the message first in aria-describedby', s.msg === 'Enter your e-mail' && s.inv === 'true' && s.db === 'em_-message em-help', s);
-  await page.waitForTimeout(80);
+  // Waits for the state itself, never a fixed time (the suite runs 4 files at once; timers fire late under load).
+  await page.waitForFunction(() => { const r = document.querySelector('#pf [data-efb-live]'); return r && r.textContent !== ''; }, null, { timeout: 5000 }).catch(() => {});
   check('P2 said once in a polite live region of the form', await page.evaluate(() => { const r = document.querySelector('#pf [data-efb-live]'); return r && r.getAttribute('aria-live') === 'polite' && r.textContent === 'Email: Enter your e-mail'; }), null);
   await page.focus('#em_');
   await page.keyboard.type('x.io');
-  await page.waitForTimeout(400);
+  await page.waitForFunction(() => document.getElementById('em_-message').style.display === 'none', null, { timeout: 5000 }).catch(() => {});
   s = await st('em');
   check('P3 typed right: cleared without leaving, the help kept', s.msg === '' && s.inv === null && s.db === 'em-help', s);
   await page.click('#go');
-  await page.waitForTimeout(200);
+  await page.waitForFunction(() => { const b = document.querySelector('#pf .efb-errsum'); return b && document.activeElement === b; }, null, { timeout: 5000 }).catch(() => {});
   const sum = await page.evaluate(() => { const b = document.querySelector('#pf .efb-errsum'); return { title: b.querySelector('h2').textContent, links: Array.from(b.querySelectorAll('a')).map((a) => a.textContent), focus: document.activeElement === b, valid: window.valid }; });
   check('P4 Submit: the summary (2 problems, the radio pair as one), focus on it, nothing sent', sum.title === '2 problems need your attention' && JSON.stringify(sum.links) === JSON.stringify(['Code: At least 4 characters', 'Plan: Choose a plan']) && sum.focus && sum.valid === 0, sum);
   await page.click('#pf .efb-errsum a[data-efb-field="pl"]');
@@ -88,7 +89,7 @@ const page_html = (dir, lang) => `<!doctype html><html dir="${dir}" lang="${lang
   await page.check('#p2');
   await page.fill('#cd_', '1234');
   await page.click('#go'); // at once: the code's box closes after the click, Send stays under the pointer
-  await page.waitForTimeout(200);
+  await page.waitForFunction(() => window.valid === 1, null, { timeout: 5000 }).catch(() => {});
   const p5 = await page.evaluate(() => ({ valid: window.valid, hidden: document.querySelector('#pf .efb-errsum').classList.contains('d-none'), msgs: Array.from(document.querySelectorAll('#pf small[id$="-message"]')).map((m) => m.style.display + ':' + m.textContent) }));
   check('P5 all right: onValid ran, the summary hidden', p5.valid === 1 && p5.hidden, p5);
   const n = await page.evaluate((one) => EFBInline.applyServer(document.getElementById('pf'), one.data), { data: php.one });
@@ -96,6 +97,10 @@ const page_html = (dir, lang) => `<!doctype html><html dir="${dir}" lang="${lang
   check('P6 applyServer({field_id, m}): the field shows the sentence as text (no <b>), the summary lists it', n === 1 && s.msg === 'The value of Email is already used.' && s.inv === 'true' && (await page.evaluate(() => !document.querySelector('#em_-message b') && document.querySelectorAll('#pf .efb-errsum li').length === 1)), s);
   const m2 = await page.evaluate((many) => EFBInline.applyServer(document.getElementById('pf'), { errors: [{ field_id: 'em', m: 'Bad e-mail' }, { field_id: 'cd', m: 'Wrong code <img src=x onerror=window.bad=1>' }] }), php.many);
   check('P6 applyServer({errors: [...]}) marks each field; markup is never run', m2 === 2 && (await st('cd')).msg === 'Wrong code ' && (await page.evaluate(() => !window.bad)), await st('cd'));
+  // The re-check that typing the code scheduled (250 ms) must not clear the server's message afterwards: Submit checked
+  // every field, so nothing is pending any more (it did, under load: "P6 … {inv: null, msg: ''}").
+  await page.waitForTimeout(400);
+  check('P6 the server\'s messages stay: no re-check left from typing clears them', (await st('cd')).msg === 'Wrong code ' && (await st('cd')).inv === 'true', await st('cd'));
   const intl = await page.evaluate(() => ({ fa: EFBInline.num(12, 'fa_IR'), ar: EFBInline.num(12, 'ar_EG'), lfa: EFBInline.list(['الف', 'ب', 'ج'], 'fa_IR'), lar: EFBInline.list(['أ', 'ب'], 'ar'), len: EFBInline.list(['Bot score', 'Akismet'], 'en') }));
   check('P7 num(): ۱۲ in fa, ١٢ in ar_EG (the locale\'s own digits, from the browser\'s CLDR)', intl.fa === '۱۲' && intl.ar === '١٢', intl);
   check('P7 list(): the language\'s own join (fa "و" and its comma; en "and")', intl.lfa.indexOf('،') !== -1 && intl.lfa.indexOf(',') === -1 && intl.lfa.indexOf(' و ') !== -1 && intl.lar.indexOf('و') !== -1 && intl.len === 'Bot score and Akismet', intl);
