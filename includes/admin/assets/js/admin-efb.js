@@ -790,6 +790,17 @@ function link_url_emsFormBuilder(state) {
       case 'paypal':
         link += `s/how-to-setup-paypal-payment-in-easy-form-builder/`;
       break;
+      // Add-on cards (Add-ons page, "Link_emsFormBuilder('${i.name}')"): the guide of each add-on on
+      // the site of the admin's language (whitestudio.team, de. or ar.), same path on all three.
+      case 'AdnPAP':
+        link += `/how-to-setup-paypal-payment-in-easy-form-builder/`;
+        break;
+      case 'AdnATF':
+        link = `https://${lan}whitestudio.team/advanced-addons/wordpress-easy-form-builder-auto-populate/`;
+        break;
+      case 'AdnTLG':
+        link = `https://${lan}whitestudio.team/document/wordpress-form-telegram-notifications/`;
+        break;
 
     }
   }else{
@@ -866,6 +877,16 @@ function link_url_emsFormBuilder(state) {
       case 'paypal':
         link = `https://whitestudio.team/documents/how-to-setup-paypal-payment-in-easy-form-builder/`;
       break;
+      // No Persian guide yet: the English one, like 'paypal' above.
+      case 'AdnPAP':
+        link = `https://whitestudio.team/document/how-to-setup-paypal-payment-in-easy-form-builder/`;
+        break;
+      case 'AdnATF':
+        link = `https://whitestudio.team/advanced-addons/wordpress-easy-form-builder-auto-populate/`;
+        break;
+      case 'AdnTLG':
+        link = `https://whitestudio.team/document/wordpress-form-telegram-notifications/`;
+        break;
       case 'translateWP':
         link = 'https://translate.wordpress.org/projects/wp-plugins/easy-form-builder/';
         break;
