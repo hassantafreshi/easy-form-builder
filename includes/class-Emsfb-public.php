@@ -1612,7 +1612,7 @@ public function check_nonce_permission_efb($request) {
 						$stng="";
 						$fs= "";
 					}
-					if($valj_efb[0]->thank_you=="rdrct"){
+					if(isset($valj_efb[0]->thank_you) && $valj_efb[0]->thank_you=="rdrct"){
 						$valj_efb[0]->rePage="";
 						$val_ = json_encode($valj_efb,JSON_UNESCAPED_UNICODE);
 						$value = str_replace('"', '\\"', $val_);
@@ -3442,7 +3442,7 @@ public function check_nonce_permission_efb($request) {
 					}
 				}
 				$this->id = $submission_type == "payment" ? (isset($request_data['payid']) ? sanitize_text_field($request_data['payid']) : '') : $this->id;
-				$skip_captcha = $submission_type != "payment" ? $form_fields_array[0]['captcha'] : "";
+				$skip_captcha = $submission_type != "payment" ? ($form_fields_array[0]['captcha'] ?? '') : "";
 				if ($is_valid == 0) {
 					$response = ['success' => false, 'm' => $error_message, 'field_id' => $error_field_id];
 					// F09: an error on a field of a repeater row names the field's own id and the row (row_index from 0).

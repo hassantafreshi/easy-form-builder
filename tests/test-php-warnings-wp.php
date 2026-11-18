@@ -62,7 +62,7 @@ try {
 	/* 1b. (the e2e run's log) A form whose row 0 has only the keys an API or a package gives (no stateForm, el_text_color,
 	   button colours) and a drag-and-drop file field without its button keys. */
 	$rows2 = array(
-		array('type' => 'form', 'steps' => '1', 'formName' => 'Warnings 2', 'email' => '', 'trackingCode' => '1', 'EfbVersion' => '2', 'button_single_text' => 'Send', 'button_color' => 'btn-darkb', 'icon' => 'bi-ui-checks-grid', 'button_state' => 'single', 'show_icon' => '1', 'thank_you' => 'msg'),
+		array('type' => 'form', 'steps' => '1', 'formName' => 'Warnings 2', 'email' => '', 'trackingCode' => '1', 'EfbVersion' => '2', 'button_single_text' => 'Send', 'button_color' => 'btn-darkb', 'icon' => 'bi-ui-checks-grid', 'button_state' => 'single', 'show_icon' => '1'),
 		array('id_' => '1', 'type' => 'step', 'dataId' => '1', 'id' => '1', 'name' => 'Step 1', 'step' => '1', 'amount' => 1, 'visible' => 1, 'icon' => 'bi-ui-checks-grid', 'message' => ''),
 		$f('wdad001', 'dadfile', array('file' => 'image', 'amount' => 2)),
 	);
@@ -71,7 +71,7 @@ try {
 	wp_cache_flush();
 	$take();
 	$html2 = do_shortcode('[EMS_Form_Builder id=' . ($fid + 1) . ']');
-	$w2 = $take(); $t('a form with a minimal row 0 (no stateForm, el_text_color) and a file field without its button keys renders without a PHP warning', array(strpos($html2, 'wdad001') !== false, $w2), array(true, array()));
+	$w2 = $take(); $t('a form with a minimal row 0 (no stateForm, el_text_color, thank_you) and a file field without its button keys renders without a PHP warning', array(strpos($html2, 'wdad001') !== false, $w2), array(true, array()));
 
 	/* 2. An e-mail sent with only a few phrases loaded (the portal's owner reply). */
 	$pub = \Emsfb\_Public::$instance_efb;
