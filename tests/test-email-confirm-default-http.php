@@ -56,6 +56,8 @@ $rowsOf = function ($F, $email, $email2 = null) {
 	return $r;
 };
 $to = function ($mails) { $o = array(); foreach ((array) $mails as $m) foreach ((array) $m['to'] as $x) $o[] = strtolower((string) $x); sort($o); return $o; };
+/* The site's own addresses (the form's address, the site's support address) are the owner's copies; anything else is a visitor's. */
+$visitors = function ($list) { return array_values(array_filter($list, function ($a) { return !in_array($a, array('owner@example.test', 'admin@example.test'), true); })); };
 $made = array();
 $smtp0 = $H->ctl('setting', 'smtp');
 try {
@@ -74,7 +76,7 @@ try {
 	$H->ctl('mails', 'clear');
 	$a = EfbF11Http::answer($H->submit($F['form_id'], $rowsOf($F, null)));
 	$m = $H->ctl('mails');
-	t('the optional e-mail left empty: stored, no e-mail to a visitor (only the owner\'s), nothing errors', array(!empty($a['success']), $to($m)), array(true, array('owner@example.test')));
+	t('the optional e-mail left empty: stored, no e-mail to a visitor (only the owner\'s), nothing errors', array(!empty($a['success']), $visitors($to($m)), in_array('owner@example.test', $to($m), true)), array(true, array(), true));
 
 	$H->ctl('mails', 'clear');
 	$a = EfbF11Http::answer($H->submit($F['form_id'], $rowsOf($F, 'not-an-address')));
@@ -95,7 +97,8 @@ try {
 	t('an old form keeps its choice (no noti, email_to false): nothing switched on', array($O['noti'], $O['row0']['email_to']), array(array(null), ''));
 	$H->ctl('mails', 'clear');
 	$a = EfbF11Http::answer($H->submit($O['form_id'], $rowsOf($O, 'old.visitor@example.test')));
-	t('… a visitor sends it: no e-mail to the visitor (only the owner\'s)', array(!empty($a['success']), $to($H->ctl('mails'))), array(true, array('owner@example.test')));
+	$om = $to($H->ctl('mails'));
+	t('… a visitor sends it: no e-mail to the visitor (only the owner\'s)', array(!empty($a['success']), $visitors($om), in_array('owner@example.test', $om, true)), array(true, array(), true));
 } finally {
 	foreach ($made as $f) $H->ctl('f12-delete-form', (string) $f);
 	$H->ctl('f12-setting', 'smtp=' . ($smtp0 === null ? 'del' : rawurlencode((string) $smtp0)));
