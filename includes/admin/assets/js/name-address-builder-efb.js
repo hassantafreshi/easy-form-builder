@@ -103,7 +103,7 @@
       } else {
         r.addr_scheme = plan.format; r.addr_part = p.p;
         if (p.t === 'address_line' || p.t === 'postalcode') { r.placeholder = ''; if (p.mx) r.mlen = String(p.mx); }
-        if (p.cas) { r.addr_cascade = '1'; r.statePov = ''; }
+        if (p.cas) { r.addr_cascade = '1'; r.statePov = ''; if (set.cc) r.country = set.cc.toUpperCase(); }
         if (p.cc) { r.country = p.cc.toUpperCase(); r.statePov = ''; }
         if ((p.cas || p.cc) && p.t !== 'conturyList') for (let j = list.length - 1; j >= 0; j--) if (list[j] && list[j].type === 'option' && list[j].parent === r.id_) list.splice(j, 1);
         if (p.t === 'cityList' && !p.cas) r.addr_cascade = '0';

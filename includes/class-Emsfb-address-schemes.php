@@ -567,7 +567,7 @@ class Address_Schemes {
 			} else {
 				$field['addr_scheme'] = $fmt; $field['addr_part'] = $p['p'];
 				if ($p['t'] === 'address_line' || $p['t'] === 'postalcode') { $field['placeholder'] = ''; if (!empty($p['mx'])) $field['mlen'] = (string) $p['mx']; }
-				if (!empty($p['cas'])) { $field['addr_cascade'] = '1'; $field['statePov'] = ''; $opts = array(); }
+				if (!empty($p['cas'])) { $field['addr_cascade'] = '1'; $field['statePov'] = ''; $opts = array(); if (!empty($set[$fmt]['cc'])) $field['country'] = strtoupper($set[$fmt]['cc']); }
 				if (!empty($p['cc'])) { $field['country'] = strtoupper($p['cc']); $field['statePov'] = ''; $opts = array(); $needs[] = $field['id_']; }
 				if ($p['t'] === 'cityList' && empty($p['cas'])) $field['addr_cascade'] = '0';
 				if (!empty($p['mask']) && self::adr_active()) $field['mask_preset'] = $p['mask'];

@@ -767,7 +767,7 @@ not assign `valj_efb` or call internal builder functions; they will change with 
       "cmp_grp": { "$ref": "#/$defs/id", "x-efb-spec": "F17" }, "cmp_kind": { "enum": ["name", "address"] },
       "name_format": { "enum": ["full", "fl", "pfl", "fml", "ar4", "ar3"] },
       "name_part": { "enum": ["prefix", "first", "middle", "last", "father", "grandfather", "family", "full"] },
-      "name_strict": { "$ref": "#/$defs/flag" }, "addr_scheme": { "enum": ["intl", "ir", "sa", "ae", "eg", "us", "uk", "ca"] },
+      "name_strict": { "$ref": "#/$defs/flag" }, "addr_scheme": { "enum": ["intl", "ir", "sa", "ae", "eg", "us", "uk", "ca", "de", "jp", "tr"] },
       "addr_part": { "type": "string" }, "addr_cascade": { "$ref": "#/$defs/flag" }, "addr_lookup": { "$ref": "#/$defs/flag" },
       "addr_req_mode": { "enum": ["", "sa_short_or_full"] }, "country": { "type": "string" }, "statePov": { "type": "string" },
       "stylish": { "enum": ["1", "2", "3", 1, 2, 3] } } }
@@ -1219,11 +1219,15 @@ should call it too). `capabilities.features["setting:val_timing|err_summary|warn
 `efb:submit-result {form_id, ok, code, field_id}`; the page module `window.EFBInline` v1 (P21,
 `docs/a11y/inline-validation-contract.en.md`). Names unchanged, so sitepilot-ai needs no update.
 
-**F17 localized name and address.** Create: `cmp_grp`, `cmp_kind`, `name_format`, `name_part`,
-`name_strict`, `addr_scheme`, `addr_part`, `addr_cascade`, `addr_lookup`, `addr_req_mode`, new
-`elementId`s. Must add: `field_types` lists the composites per scheme (`composite` arrays) so the
-agent emits all parts with one `cmp_grp`; validate checks a group is complete; geo search REST is
-visitor-only (not for agents).
+**F17 localized name and address.** **Built (2026-11-18).** Keys with these names: `cmp_grp`, `cmp_kind`,
+`name_format`, `name_part`, `name_strict`, `addr_scheme` (+ `de`, `jp`, `tr`), `addr_part`, `addr_cascade`,
+`addr_lookup`, `addr_req_mode`. No new `elementId` (decision: a part keeps an existing palette id — `firstName`,
+`lastName`, `text`, `select`, `address_line`, `postalcode`, `stateProvince`, `cityList`, `conturyList` — and says its
+role in `name_part` / `addr_part`). `field_templates_efb('name'|'address')` (B2) gives `composite` per format;
+`efbBuilderApi.newItems('address', {scheme})` / `setNameAddress()`; `capabilities.name_address`; schema `group`;
+`addr_lookup` needs `AdnADR` (`addon_required`); the geo search REST is visitor-only. Entry rows carry `grp`, `part`,
+`cmp`, `sch` and the group's first row `na_full`; display through P22 (`efb_address_display()`, `EFBNameAddr`). Names
+unchanged, so sitepilot-ai needs no update (the extra schemes are additions to an enum).
 
 **F18 upgrade prompt.** See §4.4. The feature registry is shipped as the capability registry
 (`efb_var.capabilities`, `capabilities_efb()`, keys `field:*`, `setting:*`, `addon:*`, `limit:*`,

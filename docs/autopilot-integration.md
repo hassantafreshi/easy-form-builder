@@ -1652,6 +1652,48 @@ Spec: [F16](feature-gaps/F16-a11y-inline-validation.fa.md); page contract (F20 P
 - **Tests.** `node tests/test-ap-a11y.js` (13), `node tests/test-inline-api.js` (18), `node tests/test-a11y-*.js`,
   `php tests/test-a11y-render.php`, `php tests/test-a11y-save-roundtrip.php`; e2e `f16-a` … `f16-g`.
 
+### F17. Localized name and address (`cmp_grp` groups, `efbBuilderApi.newItems('name'|'address', {format|scheme})`, `setNameAddress`, `window.EFBNameAddr`, P22)
+
+Spec: [F17](feature-gaps/F17-localized-name-address.fa.md); display contract (F20 P22):
+[name-address/display-contract.en.md](name-address/display-contract.en.md). Name formats are free; the address formats
+are at the level of the address field (Free Plus and Pro); the address search and the postal typing masks need the
+Address & Postal add-on (`AdnADR`, installable on every plan; its search is Free Plus).
+
+- **Model.** A name or address is a group of ordinary rows: every part carries `cmp_grp` (the `id_` of the first part),
+  `cmp_kind` (`name` | `address`), `name_format` + `name_part` or `addr_scheme` + `addr_part`. Formats: names `full`,
+  `fl`, `pfl`, `fml`, `ar4`, `ar3`; addresses `intl`, `ir`, `sa`, `ae`, `eg`, `us`, `uk`, `ca`, `de`, `jp`, `tr`. Part keys:
+  `name_strict` (`"1"`: letters only, the default of new name parts), `addr_cascade` (`"1"` on a city list: its cities
+  follow the group's province), `addr_lookup` (`"1"` on the first part: address search, `AdnADR`), `addr_req_mode`
+  (`"sa_short_or_full"` on the first part of an `sa` group). Unknown values are dropped on save; no `name` / `address`
+  type is ever stored. The parts' stored types are the old ones (`text`, `select`, `address_line`, `postalcode`,
+  `stateProvince`, `cityList`, `conturyList`), so every older reader still works.
+- **Builder.** `efbBuilderApi.newItems('address', {scheme: 'ir'})`, `('name', {format: 'ar4'})` → the rows the chooser
+  makes (labels, widths, required flags, the title's choices, a fixed country's province list loaded by the builder from
+  the list service when the person adds it; through the API the list is empty until you call `render()` and open the
+  part, or set the options yourself). `{lookup: true}` / `{req_mode: 'sa_short_or_full'}` as on the chooser; `lookup`
+  without `AdnADR` throws `addon_required` (`e.addon = 'AdnADR'`); an unknown format `invalid_setting`. Without
+  `format` / `scheme`, `newItems('name' | 'address')` returns the composites of before F17 (unchanged).
+  `efbBuilderApi.setNameAddress(id, {name_strict | addr_cascade | addr_lookup | addr_req_mode})` → `{id, group,
+  changed}`; the group keys go to the first part; `invalid_setting`, `not_in_group`, `unknown_field`, `addon_required`.
+- **Server templates (B2).** `Builder_Api::field_templates('address', ['scheme' => 'sa'])` (`get_efbFunction()->field_templates_efb()`):
+  the same rows, `needs_states` = the province lists to fill; every answer for `name` / `address` has `composite` (the
+  parts of every format in order: `part`, `type`, `elementId`, `required`, `autocomplete`, `country`, `cascade`).
+- **Registry.** `capabilities.features["setting:name_format"]` (free), `["setting:addr_scheme"]` (free_plus),
+  `["setting:addr_lookup"]` (`addon: "AdnADR"`, `reason: "addon"` while it is off, `mode` when on);
+  `capabilities.name_address`: `v`, `field_keys`, `name_formats`, `address_schemes`, `addr_parts`, `name_parts`,
+  `req_modes`, `composites`, `needs_addon`, `adr_active`.
+- **`forms/{id}/schema`.** A part has `group: {id, kind, format, part}` (+ `lookup`, `cascade`, `req_mode`) and its
+  `autocomplete` token (given-name, address-level1, postal-code …). A visitor assistant fills parts by their token; for a
+  cascading city set the province first, then the city once its list has loaded (`aria-busy` goes away).
+- **Page.** `window.EFBNameAddr` (v1): `fill(form_id, grp, {part: value})` (selects matched by the native or English
+  name; waits for the city list), `parts(form_id, grp)`, `check()`, the display helpers. Values an assistant types go
+  through the same checks (Persian / Arabic digits made Latin, the national shapes) and the server checks them again
+  (`code: efb_field_na_format | na_length | na_list | na_name | na_sa_short_or_full`, `field_id`).
+- **Not for assistants:** the address search route (`Emsfb/v1/geo/search`, `AdnADR`) is the visitor's; an agent never
+  calls it and never sets the service address (the site owner's screen "Address search").
+- **Tests.** `node tests/test-ap-name-address.js` (19), `php tests/test-address-validate.php`, `node tests/test-address-*.js`,
+  `php tests/test-name-address-*.php`; e2e `f17-a` … `f17-f`.
+
 ## Part C: the contract is kept
 
 Everything Part C of the brief lists still works as before (`node tests/test-ap-contract.js`, 16
