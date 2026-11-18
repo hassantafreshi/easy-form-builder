@@ -84,6 +84,9 @@ $WP language core install ar --path="$SITE"         # scenario tappay-lang (Tap 
 
 # Serve it:
 nohup php -S 127.0.0.1:8088 > ../server.log 2>&1 &
+# The PAY-OUT mixed-version tests (tests/test-payout-*-http.php, tests/payout-mixed-lib.php) swap the plugin folder
+# and the legacy add-ons' vendor/<dir> links between versions: serve with links re-read at once instead:
+# PHP_CLI_SERVER_WORKERS=8 nohup php -d realpath_cache_ttl=1 -d opcache.revalidate_path=1 -S 127.0.0.1:8088 > ../server.log 2>&1 &
 ```
 
 The plugin's own Persian files (`languages/easy-form-builder-fa_IR.*`) are used directly from the

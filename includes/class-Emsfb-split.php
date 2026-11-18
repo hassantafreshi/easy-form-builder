@@ -48,6 +48,23 @@ class Split {
 		add_action('wp_ajax_efb_split_dismiss', array(__CLASS__, 'ajax_dismiss'));
 		add_action('admin_notices', array(__CLASS__, 'data_tools_card'));
 		add_action('wp_ajax_efb_split_dt_dismiss', array(__CLASS__, 'ajax_dt_dismiss'));
+		add_filter('efb_admin_localize_vars', array(__CLASS__, 'builder_vars'));
+	}
+
+	/**
+	 * PAY-OUT §1: the builder's efb_var.legacy_gw — each Stripe / PayPal / Persia Pay field type, its add-on and why it
+	 * cannot be used now (null, addon, plan, update). The add-on draws the field's settings (window.efbFieldPanels);
+	 * without it the panel shows the add-on notice (val-efb.js efbLegacyGatewayPanelEfb()).
+	 */
+	public static function builder_vars($vars) {
+		if (!is_array($vars)) return $vars;
+		$types = array();
+		foreach (self::legacy_types() as $type => $code) {
+			$e = class_exists('\\Emsfb\\Addon_Catalog') ? Addon_Catalog::get($code) : null;
+			$types[$type] = array('code' => $code, 'name' => is_array($e) && isset($e['name']) ? $e['name'] : $code, 'state' => self::addon_state($code));
+		}
+		$vars['legacy_gw'] = array('types' => $types);
+		return $vars;
 	}
 
 	/* ------------------------------------------------------------------------- contracts core still has */

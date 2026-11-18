@@ -134,7 +134,6 @@ const efbMobileProControlEfb = (html) => {
 };
 
 const currency_efb = ["USD (United State dollar)","AED (United Arab Emirates dirham, درهم إماراتي)","AFN (Afghan afghani)","ALL (Albania Lek)","AMD (Armenian dram, Հայկական Դրామ)","ANG (Netherlands Antillean guilder, Antilliaanse gulden)","AOA (Angolan kwanza)","ARS (Argentine peso,Peso argentino)","AUD (Australian dollar)","AWG (Aruban florin, Arubaanse florin)","AZN (Azerbaijani manat, Azərbaycan manatı)","BAM (Bosnia and Herzegovina convertible mark, Конвертибилна марка)","BBD (Barbadian dollar)","BDT (Bangladeshi taka, টাকা)","BGN (Bulgarian lev, Български лев)","BIF (franc burundais)","BMD (Bermudian dollar)","BND (Brunei dollar, ringgit Brunei)","BOB  (Bolivian boliviano, boliviano)","BRL  (Brazilian real, Real brasileiro)","BSD (Bahamian dollar)","BWP (Botswana pula)","BYN (Belarusian ruble, беларускі рубель)","BZD (Belize dollar)","CAD (Canadian dollar, dollar canadien)","CDF (Congolese franc, franc congolais)","CHF (Swiss franc)","CLP  (Chilean peso, Peso chileno)","CNY (Renminbi, 人民币)","COP  (Colombian peso, peso colombiano)","CRC  (Costa Rican colón, colón costarricense)","CVE  (Cape Verdean escudo, escudo cabo-verdiano)","CZK (Czech koruna, koruna česká)","DJF  (Djiboutian franc, الفرنك الجيبوتي)","DKK (Danish krone, dansk krone)","DOP (Dominican peso, peso dominicano)","DZD (Algerian dinar, دينار جزائري)","EGP (Egyptian pound, جنيه مصرى)","ETB (Ethiopian birr)","EUR (Euro)","FJD (Fijian dollar)","FKP  (Falkland Islands pound)","GBP (Pound sterling)","GEL (Georgian lari,  ქართული ლარი)","GIP (Gibraltar pound)","GMD (Gambian dalasi)","GNF  (Guinean franc, franc guinéen)","GTQ  (Guatemalan quetzal,  quetzal guatemalteco)","GYD (Guyanese dollar)","HKD (Hong Kong dollar, 港元)","HNL  (Honduran lempira, lempira hondureño)","HRK (Croatian kuna, hrvatska kuna)","HTG (Haitian gourde, gourde haïtienne)","HUF (Hungarian forint, Magyar forint)","IDR (Indonesian rupiah)","ILS (Israeli new shekel, שקל חדש)","INR (Indian rupee)","ISK (Icelandic krona, króna)","JMD (Jamaican dollar)","JPY (Japanese yen, 日本円)","KES (Kenyan shilling, Kenyan shilling)","KGS (Kyrgyzstani som, Кыргыз сому)","KHR (Cambodian riel, រៀលកម្ពុជា/រៀលខ្មែរ)","KMF (Comorian franc)","KRW (South Korean won, 대한민국 원)","KYD (Cayman Islands dollar)","KZT (Kazakhstani tenge, Қазақстан теңгесі)","LAK (Lao kip,ເງີນກີບລາວ)","LBP (Lebanese pound, Livre libanaise)","LKR (Sri Lankan rupee, ශ්‍රී ලංකා රුපියල්)","LRD (Liberian dollar)","LSL (Lesotho loti)","MAD (Moroccan dirham, ⴰⴷⵔⵀⵎ ⵏ ⵍⵎⵖⵔⵉⴱ)","MDL (Moldovan leu, leu moldovenesc)","MGA (Malagasy ariary,ariary malgache)","MKD (Macedonian denar,денар)","MMK (Myanmar kyat)","MNT (Mongolian tögrög, Монгол төгрөг)","MOP (Macanese pataca)","MRO (Mauritanian ouguiya, أوقية موريتانية)","MUR (Mauritian rupee, Roupie mauricienne)","MVR (Maldivian rufiyaa)","MWK (Malawian kwacha)","MXN (Mexican peso, Peso Mexicano)","MYR (Malaysian ringgit, Ringgit Malaysia)","MZN (Mozambican metical, Metical moçambicano)","NAD (Namibian dollar)","NGN (Nigerian naira)","NIO (Nicaraguan córdoba, córdoba nicaragüense)","NOK (Norwegian krone, norsk krone)","NPR (Nepalese rupee, रुपैयाँ)","NZD (New Zealand dollar)","PAB (Panamanian balboa, Balboa panameño)","PEN (Peruvian sol, sol peruano)","PGK (Papua New Guinean kina)","PHP (Philippine peso, Piso ng Pilipinas)","PKR (Pakistani rupee)","PLN (Polish złoty, Polski złoty)","PYG (Paraguayan guaraní, Guaraní paraguayo)","QAR (Qatari riyal, ريال قطري)","RON (Romanian leu, Leu românesc)","RSD (Serbian dinar, Cрпски динар)","RUB (Russian ruble, Российский рубль)","RWF (Rwandan franc, franc rwandais)","SAR (Saudi riyalSaudi riyal, ريال سعودي)","SBD (Solomon Islands dollar)","SCR (Seychellois rupee, roupie seychelloise)","SEK (Swedish krona, svensk krona )","SGD (Singapore dollar, Dolar Singapura)","SHP (Saint Helena pound)","SLL (Sierra Leonean leone)","SOS (Somali shilling, Shilin Soomaali)","SRD (Surinamese, Surinamese )","STD (São Tomé and Príncipe dobra, dobra são-tomense)","SZL (Swazi lilangeni)","THB (Thai baht, บาทไทย)","TJS (Tajikistani somoni, Сомонӣ)","TOP (Tonga Pa'anga)","TRY (Turkish New Lira)","TTD (Trinidad/Tobago Dollar)","TWD (Taiwan Dollar)","TZS (Tanzania Shilling)","UAH (Ukraine Hryvnia)","UGX (Uganda Shilling)","UYU (Uruguay Peso)","UZS (Uzbekistani soʻm, Oʻzbek soʻmi)","VND (Vietnam Dong)","VUV (Vanuatu Vatu)","WST (Samoa Tala)","XAF (CFA Franc BEAC)","XCD (East Caribbean Dollar)","XOF (CFA Franc BCEAO)","XPF (CFP Franc)","YER (Yemen Rial)","ZAR (South Africa Rand)","ZMW (Zambian kwacha)"];
-const currency_paypal_efb = ["USD (United State dollar)","AUD (Australian dollar)","BRL  (Brazilian real, Real brasileiro)","CAD (Canadian dollar, dollar canadien)","CHF (Swiss franc)","CNY (Renminbi, 人民币)","CZK (Czech koruna, koruna česká)","DKK (Danish krone, dansk krone)","EUR (Euro)","GBP (Pound sterling)","HKD (Hong Kong dollar, 港元)","HUF (Hungarian forint, Magyar forint)","ILS (Israeli new shekel, שקל חדש)","JPY (Japanese yen, 日本円)","MXN (Mexican peso, Peso Mexicano)","MYR (Malaysian ringgit, Ringgit Malaysia)","NOK (Norwegian krone, norsk krone)","NZD (New Zealand dollar)","PHP (Philippine peso, Piso ng Pilipinas)","PLN (Polish złoty, Polski złoty)","SEK (Swedish krona, svensk krona )","SGD (Singapore dollar, Dolar Singapura)","THB (Thai baht, บาทไทย)","TWD (Taiwan Dollar)"];
 const lan_con_efb = {af:"ZA",ak:"AK",sq:"AL",hy:"AM",rup_MK:"en",as:"as",az_TR:"AZ",ba:"RU",eu:"ES",bel:"BY",bn_BD:"BD",bs_BA:"BA",my_MM:"MM",ca:"ES",bal:"ES",co:"FR",hr:"HR",dv:"MV",nl_NL:"NL",eo:"EO",fo:"FO",fr_BE:"FR",fy:"NL",fuc:"CM",gl_ES:"ES",ka_GE:"GE",gn:"BO",gu_IN:"IN",haw_US:"US",haz:"AF",is_IS:"IS",ido:"FI",jv_ID:"ID",kn:"IN",km:"KH",kin:"RW",ky_KY:"KG",ckb:"IQ",lo:"LA",li:"BE",lin:"CG",lb_LU:"LU",mk_MK:"MK",mg_MG:"MG",ml_IN:"IN",mr:"IN",xmf:"GA",mn:"MN",me_ME:"ME",ne_NP:"NP",nn_NO:"NO",ory:"IN",os:"IR",ps:"PK",fa_AF:"AF",pa_IN:"IN",rhg:"BD",ro_RO:"RO",ru_UA:"UA",rue:"SK",sah:"RU",sa_IN:"IN",srd:"IT",gd:"GB",sr_RS:"CS",sd_PK:"IN",si_LK:"LK ",sl_SI:"SI ",so_SO:"SO",azb:"IR",es_AR:"AR",es_CL:"CL",es_CO:"CO",es_MX:"MX",es_PE:"PE",es_PR:"PR ",es_ES:"ES",es_VE:"VE",su_ID:"SD",sw:"KE",sv_SE:"SE",gsw:"CH",tl:"PH",tg:"TJ ",tzm:"MA",ta_IN:"IN",ta_LK:"LK",tt_RU:"RU",te:"IN",th:"TH",bo:"CH",tir:"ET",tr_TR:"TR",tuk:"TM",ug_CN:"CN",uk:"UA",ur:"PK",uz_UZ:"UZ",vi:"VN",wa:"BE",cy:"GB ",yor:"NG",en_AU:"AU",en_CA:"CA",en_GB:"GB",en_NZ:"NZ",en_US:"US",en_ZA:"ZA",cs_CZ:"CZ",da_DK:"DK",de_AT:"AT",de_CH_informal:"CH",de_DE:"DE",ar:"SA",fa_IR:"IR",ja:"JA",zh_CN:"CN",zh_HK:"HK",zh_SG:"SG",zh_TW:"TW",pl_PL:"PL",pt_AO:"AO",pt_BR:"BR",pt_PT:"PT",ro_RO:"RO",ru_RU:"RU",sk_SK:"SK",ms_MY:"MY",nb_NO:"NO",nl_BE:"BE",ko_KR:"KR",he_IL:"IL",hi_IN:"IN",hu_HU:"HU",id_ID:"ID",it_IT:"IT",fi:"fi",fr_CA:"CA",fr_FR:"FR"};
 // F09: the field types a repeater row may hold (spec §5.4). Twin of Emsfb\Repeater::CHILD_TYPES (PHP) and
 // EFBRepeaterCore.CHILD_TYPES (public/assets/js/repeater-efb.js); tests/test-repeater-model.php compares them.
@@ -213,18 +212,6 @@ const fields_efb = [
 
 ]
 
-const paymentMethodEls =(idset)=>{
-
-  return`<label for="paymentMethodEl" class="efb mt-3 efb"><i class="efb bi-wallet2 fs-7 ${iconMarginGlobal}"></i>${efb_var.text.methodPayment}</label>
-  <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="paymentMethodEl"  data-tag="${valj_efb[0].type}">
-  <option value="charge" ${valj_efb[0].paymentmethod=='charge' ? 'selected' :''}>${efb_var.text.onetime}</option>
-  <option value="day" ${valj_efb[0].paymentmethod=='day' ? 'selected' :''}>${efb_var.text.dayly}</option>
-  <option value="week" ${valj_efb[0].paymentmethod=='week' ? 'selected' :''}>${efb_var.text.weekly}</option>
-  <option value="month" ${valj_efb[0].paymentmethod=='month' ? 'selected' :''}>${efb_var.text.monthly}</option>
-  <option value="year" ${valj_efb[0].paymentmethod=='year' ? 'selected' :''}>${efb_var.text.yearly}</option>
-
-  </select>`;
-}
 const formTypeEls =()=>{
 
   return`<span class="efb"><label for="formTypeEl" class="efb mt-3 mx-2 efb">${efb_var.text.frmtype}</label>
@@ -532,29 +519,24 @@ const currencyTypeEls=(idset)=>{
 
 }
 
-const currencyPaypalTypeEls=(idset)=>{
-  let op = `<-- options -->`;
-  for(let i of currency_paypal_efb){
-    op += `<option value="${i.toLowerCase()}" ${valj_efb[0].currency.toUpperCase()==i.slice(0, 3) ? 'selected' :''}>${i}</option>`
+/* PAY-OUT §1: the settings of a Stripe / PayPal / Persia Pay field are drawn by its add-on (window.efbFieldPanels).
+   Without it the panel says why, with the builder's own add-on notice: "Needs the X add-on" (absent, off, plan) and
+   Install, or "Update X to keep using it with this version." (an add-on older than this core). */
+const efbLegacyGatewayPanelEfb = (type) => {
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const t = ((efb_var.legacy_gw || {}).types || {})[type] || {};
+  const code = String(t.code || '');
+  const cat = (efb_var.addon_catalog && efb_var.addon_catalog[code]) || {};
+  const name = cat.name || t.name || type;
+  let box = '';
+  if (t.state === 'addon' || t.state === 'plan') {
+    box = typeof efb_addon_needed_html_efb === 'function' ? efb_addon_needed_html_efb(code) : '';
+  } else {
+    const msg = esc(efb_var.text.addonUpdateNeeded || 'Update %s to keep using it with this version.').replace('%s', `<bdi>${esc(name)}</bdi>`);
+    box = `<div class="efb alert alert-warning efb-addon-needed my-1 d-flex flex-wrap align-items-center gap-2" role="note" data-efb-addon="${esc(code)}" style="unicode-bidi:plaintext"><i class="efb bi-puzzle" aria-hidden="true"></i><span class="efb">${msg}</span></div>`;
   }
-  return `
-  <label for="currencyTypeEl" class="efb mt-3 efb"><i class="efb bi-cash fs-7 ${iconMarginGlobal}"></i>${efb_var.text.currency}</label>
-                    <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="currencyTypeEl"  data-tag="${valj_efb[0].currency}">
-                       ${op}
-                    </select>
-  `
-
-}
-
-const paymentPersianPayEls =(idset)=>{
-
-  return`<label for="paymentPersianPayEl" class="efb mt-3 efb"><i class="efb bi-wallet2 fs-7 ${iconMarginGlobal}"></i>درگاه</label>
-  <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="paymentPersianPayEl"  data-tag="${valj_efb[0].type}">
-  <option value="zarinPal" ${valj_efb[0].persiaPay=='zarinPal' ? 'selected' :''}>زرین پال</option>
-  <option disabled value="efb" ${valj_efb[0].persiaPay=='efb' ? 'selected' :''}>وایت استادیو</option>
-  <option disabled value="efb" ${valj_efb[0].persiaPay=='melt' ? 'selected' :''}>ملت</option>
-  </select>`;
-}
+  return `<div class="efb mb-3" data-efb-legacy-panel="${esc(type)}"><h2 class="efb text-muted">${esc(name)}</h2>${box}<div class="efb clearfix"></div></div>`;
+};
 
 const ElementAlignEls = (side ,indx ,idset) => {
   const _isDesktopField = (side === 'label' || side === 'description');
@@ -1190,15 +1172,6 @@ function show_setting_window_efb(idset, opts) {
     ${pro_efb==true ?"":funProEfb('setting:thank_you_redirect', { fallback: 'free_plus', resume: { kind: 'focus', id: 'thankYouredirectEl' } })}
     <label for="thankYouredirectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.redirectPage} <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('redirectPage')"> </i></label>
     <input type="url" data-id="thankYouredirectEl" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.url}" id="thankYouredirectEl" required value="${ valj_efb[0].hasOwnProperty('rePage') ? efb_url_from_storage_efb(valj_efb[0].rePage) : ''}"></div>`
-    const paymentGetWayEls =()=>{
-      return`<label for="paymentGetWayEl" class="efb mt-3 efb"><i class="efb bi-wallet-fill fs-7 ${iconMarginGlobal}"></i>${efb_var.text.paymentGateway}</label>
-      <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="paymentGetWayEl"  data-tag="${valj_efb[0].type}">
-          <option value="stripe" selected>${efb_var.text.stripe}</option>
-      </select>`;
-    }
-
-     const currencyPersianPayEls= `<p for="currencyTypeEl" class="efb text-labelEfb fs-5 mt-3 efb"><i class="efb bi-cash fs-7 ${iconMarginGlobal}"></i>${efb_var.text.currency}: تومان</p>
-      `;
 
     const labelPostionEls = `<div class="efb efb-desktop-settings-efb ${deskHideEfb}">
     <div class="efb row efb">
@@ -2445,37 +2418,6 @@ function show_setting_window_efb(idset, opts) {
 
           `
         break;
-      case 'stripe':
-
-        body = `<div class="efb  mb-3">
-        <!--  not   advanced-->
-          <h2 class="efb  text-muted">${efb_var.text.stripe}</h2>
-          ${valj_efb[0].type=="payment" ? currencyTypeEls(idset) :''}
-          ${valj_efb[0].type=="payment" ? paymentMethodEls(idset) :''}
-        <div class="efb  clearfix"></div>
-        </div>`
-
-        break;
-        case 'paypal':
-
-          body = `<div class="efb  mb-3">
-          <!--  not   advanced-->
-            <h2 class="efb  text-muted">${efb_var.text.paypal}</h2>
-            ${valj_efb[0].type=="payment" ? currencyPaypalTypeEls(idset) :''}
-            ${valj_efb[0].type=="payment" ? paymentMethodEls(idset) :''}
-          <div class="efb  clearfix"></div>
-          </div>`
-
-        break;
-        case 'persiaPay':
-          body = `<div class="efb  mb-3">
-          <h2 class="efb  text-muted">${efb_var.text.paymentGateway}</h2>
-          <!--  not   advanced-->
-                ${valj_efb[0].type=="payment" ? currencyPersianPayEls :''}
-            ${valj_efb[0].type=="payment" ? paymentPersianPayEls(idset) :''}
-          <div class="efb  clearfix"></div>
-          </div>`
-        break;
         case "table_matrix":
           const obj_r_matrix = valj_efb.filter(obj => {
             return obj.parent === el.id
@@ -2583,9 +2525,14 @@ function show_setting_window_efb(idset, opts) {
                         `
               break;
       default:
+        // PAY-OUT §1: a field kind whose settings an add-on draws (window.efbFieldPanels[type], e.g. Stripe, PayPal, Persia Pay).
+        if (typeof window.efbFieldPanels === 'object' && window.efbFieldPanels && typeof window.efbFieldPanels[el.dataset.tag] === 'function') {
+          body = window.efbFieldPanels[el.dataset.tag](indx, idset, el);
         // PAY00: the settings of a framework gateway field (payment-field-efb.js).
-        if (typeof efbPayIsGatewayEfb === 'function' && efbPayIsGatewayEfb(el.dataset.tag)) {
+        } else if (typeof efbPayIsGatewayEfb === 'function' && efbPayIsGatewayEfb(el.dataset.tag)) {
           body = efbPayPanelEfb(indx);
+        } else if (efb_var.legacy_gw && efb_var.legacy_gw.types && efb_var.legacy_gw.types[el.dataset.tag]) {
+          body = efbLegacyGatewayPanelEfb(el.dataset.tag);
         }
         break;
 
