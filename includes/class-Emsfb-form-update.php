@@ -21,7 +21,8 @@
  *   {op:"field", id, set:{…}, unset:[…]}                one field or step row (id_, dataId, type, parent stay)
  *   {op:"insert", rows:[…], after|before:id | step:n}   fields with their option rows (efbBuilderApi.insertItems rules)
  *   {op:"remove", ids:[…]}                              fields with their option rows (a repeater with its fields)
- *   {op:"options", id, options:["Label" | {value, price?, opt_value?}]}   replaces a choice field's option rows
+ *   {op:"options", id, options:["Label" | {value, price?, opt_value?, id_?}]}   replaces a choice field's option rows
+ *                                                       (a choice with its id_ keeps it)
  *   {op:"name", value}                                  the form's name
  * Refusals: package_forbidden 403, package_form_missing 404, base_hash_missing 400, stale_hash 409, invalid_patch 400,
  * unknown_field 404, duplicate_id 409, orphan_option 400, unknown_target 404, addon_required 409, plan_required 403,
@@ -264,7 +265,9 @@ class Form_Update {
 				foreach ($list as $o) {
 					$label = is_scalar($o) ? (string) $o : (is_array($o) && isset($o['value']) && is_scalar($o['value']) ? (string) $o['value'] : '');
 					if (trim($label) === '') return $bad('every choice needs a label', 'invalid_patch');
-					do { $oid = substr(str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 9); } while (isset($used[$oid]));
+					// A choice that names its id_ keeps it (references to it stay: logic, calculations, stock); new ones get one.
+					$oid = is_array($o) && isset($o['id_']) && is_string($o['id_']) && preg_match('/^[A-Za-z0-9_-]{1,40}$/D', $o['id_']) && !isset($used[$o['id_']]) ? $o['id_'] : '';
+					while ($oid === '' || isset($used[$oid])) $oid = substr(str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 9);
 					$used[$oid] = 1;
 					$row = array('id_' => $oid, 'dataId' => $oid . '-id', 'parent' => $id, 'type' => 'option', 'value' => $label, 'id_op' => $oid, 'step' => $rows[$i]['step'] ?? 1, 'amount' => $rows[$i]['amount'] ?? 1);
 					if (strpos((string) $rows[$i]['type'], 'pay') === 0) $row['price'] = is_array($o) && isset($o['price']) && is_numeric($o['price']) ? (string) $o['price'] : '0';
@@ -368,6 +371,8 @@ class Form_Update {
 			if (!$keys) continue;
 			foreach ($keys as $k => $v) {
 				if (!self::on($v)) continue;
+				// A phone twin that only repeats the desktop value (mobile_size = size, as a new row carries it) is no layout.
+				if (strncmp($k, 'mobile_', 7) === 0 && is_scalar($v) && isset($r[substr($k, 7)]) && is_scalar($r[substr($k, 7)]) && (string) $r[substr($k, 7)] === (string) $v) continue;
 				$key = $judge($setting_of($k, $v));
 				if ($key !== null) return self::refusal($key, $f[$key], 'The setting ' . $k);
 			}

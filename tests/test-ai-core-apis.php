@@ -3,12 +3,12 @@
  * The AI builder core APIs without WordPress (stubs): docs/autopilot-integration.md "AI builder core APIs".
  *
  *  AI-2  Form_Update::apply(): every op (form, field, insert after / before / at a step / a step, remove with options
- *        and a repeater's fields, options, name), the A2 numbering, and every refusal (invalid_patch, unknown_field,
- *        duplicate_id, orphan_option, unknown_target); hash_of() is stable and changes with the rows and the name;
- *        Form_Update::gate() against a registry: a new field type of an add-on that is off (addon_required) or above the
- *        plan (plan_required), a Free Plus setting turned on (plan_required), turned off (allowed), a key several
- *        gateways share (not judged), what the form already had (not judged), an absent add-on's key (Addon_Keys),
- *        a step over the plan's limit;
+ *        and a repeater's fields, options (a choice's own id_ kept), name), the A2 numbering, and every refusal
+ *        (invalid_patch, unknown_field, duplicate_id, orphan_option, unknown_target); hash_of() is stable and changes
+ *        with the rows and the name; Form_Update::gate() against a registry: a new field type of an add-on that is off
+ *        (addon_required) or above the plan (plan_required), a Free Plus setting turned on (plan_required), turned off
+ *        (allowed), a key several gateways share (not judged), what the form already had (not judged), a phone twin
+ *        equal to the desktop value (not judged), an absent add-on's key (Addon_Keys), a step over the plan's limit;
  *  AI-4  Form_Status: the stored value 2 is a draft, every other value published; render_note() for a visitor ('')
  *        and an admin (the notice), null for a published form;
  *  AI-7  the plugin header and EMSFB_PLUGIN_VERSION are the same version; no hard-coded version in the registry.
@@ -81,6 +81,9 @@ $pt = array(
 list($r) = U::apply(array_merge($form(), array(array('id_' => 'pr', 'type' => 'payRadio', 'name' => 'P', 'step' => 1, 'amount' => 5))), $pt, 'F');
 $opt = array_values(array_filter($r, function ($x) { return ($x['type'] ?? '') === 'option'; }));
 t('options: the old option rows replaced, new ones in the builder\'s shape (id_op, parent, step, amount, opt_value), price on a pay field', count($opt) === 3 && $opt[0]['value'] === 'X' && $opt[0]['parent'] === 'ch' && $opt[0]['id_op'] === $opt[0]['id_'] && $opt[1]['opt_value'] === 'y' && $opt[2]['price'] === '9.5' && $opt[2]['parent'] === 'pr' && !isset($opt[0]['price']), $opt);
+list($r) = U::apply($form(), array(array('op' => 'options', 'id' => 'ch', 'options' => array(array('value' => 'A2', 'id_' => 'o1'), 'New', array('value' => 'Bad', 'id_' => 'no spaces!'), array('value' => 'Twin', 'id_' => 'o1'), array('value' => 'Clash', 'id_' => 'nm')))), 'F');
+$opt = array_values(array_filter($r, function ($x) { return ($x['type'] ?? '') === 'option'; }));
+t('options: a choice that names its id_ keeps it (logic, calculations and stock still point at it); a new, invalid, repeated or taken id gets a fresh one', count($opt) === 5 && $opt[0]['id_'] === 'o1' && $opt[0]['id_op'] === 'o1' && $opt[0]['value'] === 'A2' && $opt[0]['parent'] === 'ch' && preg_match('/^[a-z0-9]{9}$/', $opt[1]['id_']) && preg_match('/^[a-z0-9]{9}$/', $opt[2]['id_']) && preg_match('/^[a-z0-9]{9}$/', $opt[3]['id_']) && preg_match('/^[a-z0-9]{9}$/', $opt[4]['id_']) && count(array_unique(array_column($r, 'id_'))) === count(array_column($r, 'id_')), $opt);
 list(, $name) = U::apply($form(), array(array('op' => 'name', 'value' => 'New name')), 'F');
 t('name: the form\'s name', $name === 'New name');
 foreach (array(
@@ -142,6 +145,10 @@ $r = $g(array(array('op' => 'form', 'set' => array('getway' => 'stripe'))));
 t('gate: getway=stripe while the Stripe add-on is off → addon_required AdnSPF', $code($r) === 'addon_required' && $r->get_error_data()['addon'] === 'AdnSPF', $r);
 $r = $g(array(array('op' => 'field', 'id' => 'nm', 'set' => array('mobile_el_height' => 'h-l-efb'))));
 t('gate: a key under a prefix (mobile_*) on Free → plan_required pro', $code($r) === 'plan_required' && $r->get_error_data()['package'] === 'pro', $r);
+$r = $g(array(array('op' => 'insert', 'rows' => array(array('id_' => 'n3', 'type' => 'text', 'name' => 'T', 'size' => '50', 'mobile_size' => '50')))));
+t('gate: a phone twin that only repeats the desktop value (mobile_size = size, as a new row carries it) is no layout: allowed on Free', $r === null, $r);
+$r = $g(array(array('op' => 'insert', 'rows' => array(array('id_' => 'n3', 'type' => 'text', 'name' => 'T', 'size' => '50', 'mobile_size' => '100')))));
+t('gate: a phone value that differs from the desktop one is the mobile layout → plan_required pro', $code($r) === 'plan_required' && $r->get_error_data()['package'] === 'pro', $r);
 $had = $form(); $had[] = array('id_' => 'old', 'type' => 'ranking', 'step' => 1, 'amount' => 5, 'mobile_x' => '1');
 t('gate: what the form already had (a Free Plus field, a Pro key) is not judged when another field changes', $g(array(array('op' => 'field', 'id' => 'nm', 'set' => array('name' => 'x'))), $had) === null);
 $sig = $form(); $sig[] = array('id_' => 'sg', 'type' => 'esign', 'step' => 1, 'amount' => 5, 'esign_mode' => 'type');

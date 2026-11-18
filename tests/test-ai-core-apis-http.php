@@ -152,6 +152,13 @@ try {
 	$r = $rest('POST', '/admin/forms/' . $fid . '/update', array('base_hash' => $h, 'patches' => array(array('op' => 'form', 'set' => array('email_sub' => '')))));
 	t('AI-2 turning a Free Plus setting off is allowed on Free', $r['status'] === 200, array($r['status'], $r['json']));
 	$h = $r['json']['base_hash'] ?? $h;
+	$r = $rest('POST', '/admin/forms/' . $fid . '/update', array('base_hash' => $h, 'patches' => array(
+		array('op' => 'insert', 'rows' => array(array('id_' => 'aicity001', 'type' => 'text', 'name' => 'City', 'size' => '50', 'mobile_size' => '50')), 'after' => 'aiphone01'),
+		array('op' => 'options', 'id' => 'aisize001', 'options' => array(array('value' => 'Small (S)', 'id_' => $opts[0]['id_'] ?? ''), 'Medium')),
+	)));
+	$o2 = array_values(array_filter($H->ctl('form', (string) $fid)['form_structer'], function ($x) { return ($x['type'] ?? '') === 'option' && ($x['parent'] ?? '') === 'aisize001'; }));
+	t('AI-2 on Free: a new field whose phone size only repeats its size is no mobile layout (saved); a choice that gives its id_ keeps it, renamed', $r['status'] === 200 && count($o2) === 2 && ($o2[0]['id_'] ?? '') === ($opts[0]['id_'] ?? '-') && $o2[0]['value'] === 'Small (S)' && $o2[1]['id_'] !== ($opts[1]['id_'] ?? '') && $o2[1]['value'] === 'Medium', array($r['status'], $r['json'], $o2));
+	$h = $r['json']['base_hash'] ?? $h;
 	$H->ctl('plan', 3);
 	$H->ctl('user', 'efb_ai_sub', 'subscriber');
 	$sjar = sys_get_temp_dir() . '/efb-ai-sub-' . getmypid();

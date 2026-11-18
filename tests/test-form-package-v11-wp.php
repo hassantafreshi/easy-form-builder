@@ -22,7 +22,7 @@ global $wpdb;
 $admin = get_users(array('role' => 'administrator', 'number' => 1, 'fields' => 'ID'));
 wp_set_current_user((int) $admin[0]);
 $api = efb_form_package_api();
-t('efb_form_package_api(): version 1.1 with delete and import_entries', array($api['version'], in_array('delete', $api['functions'], true), in_array('import_entries', $api['functions'], true)), array(1.1, true, true));
+t('efb_form_package_api(): version 1.1 or later (1.2 since AI-2/AI-4) with delete and import_entries', array(version_compare((string) $api['version'], '1.1', '>='), in_array('delete', $api['functions'], true), in_array('import_entries', $api['functions'], true)), array(true, true, true));
 $pkg = array('format' => 'efb-form-package', 'schema' => 1, 'form' => array('form_name' => 'SPLIT-G entries', 'form_structer' => array(
 	array('type' => 'form', 'steps' => 1, 'formName' => 'SPLIT-G entries'), array('id_' => '1', 'type' => 'step', 'step' => '1', 'name' => 'S', 'amount' => 0),
 	array('id_' => 'nm', 'dataId' => 'nm-id', 'type' => 'text', 'name' => 'Name', 'step' => '1', 'amount' => 1, 'required' => 1),

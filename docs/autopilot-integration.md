@@ -2212,7 +2212,7 @@ integration: check the registry entry (or `efb_form_package_api()['version'] >= 
    | `field` | `{op:"field", id, set:{…}, unset:[…]}` | a field or step row by `id_`; `id_`, `dataId`, `type`, `parent` stay |
    | `insert` | `{op:"insert", rows:[…], after|before:id | step:n, form_patch?}` | `insertItems()` rules: fields with their option rows; a step alone at the end; `form_patch` of `newItems()` / `field_templates_efb()` |
    | `remove` | `{op:"remove", ids:[…]}` | fields with their option rows; a repeater with its fields; not steps |
-   | `options` | `{op:"options", id, options:["Label" | {value, price?, opt_value?}]}` | replaces a choice field's option rows (1–500) |
+   | `options` | `{op:"options", id, options:["Label" | {value, price?, opt_value?, id_?}]}` | replaces a choice field's option rows (1–500); a choice that gives its `id_` keeps it (logic, calculations and stock still point at it), a new, repeated or taken id gets a fresh one |
    | `name` | `{op:"name", value}` | the form's name |
 
    Fields and steps are renumbered by the A2 rule; repeater children are placed by `Repeater::normalize_rows()`.
@@ -2220,7 +2220,8 @@ integration: check the registry entry (or `efb_form_package_api()['version'] >= 
    (`field:<type>`, a gateway of the catalogue that is not registered), a setting value turned on (`setting:*` by its
    `form_keys`; entries that only list where smart tags are read are not a gate), a key of an add-on that is off
    (`Addon_Keys`), a step over `limit:steps`. Turning something off is always allowed; what the form already had is not
-   judged (as the builder's Save).
+   judged (as the builder's Save), nor is a phone twin that only repeats the desktop value (`mobile_size` = `size`, as
+   every new row carries it).
 5. **The save path**: `Admin::save_existing_form_efb()`, the builder's own Save (the F03 pattern check, the F06 date
    checks, `sanitize_obj_msg_efb()`, Privacy, Form_Gate, Uploads, Layout, Spam, Smart_Tags, `Addon_Keys::keep()` —
    an absent add-on's stored keys stay, `addon_keys_kept` —, the SMS / Telegram tables, the caches,
