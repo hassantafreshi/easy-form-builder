@@ -15,6 +15,11 @@
  *   mu                                copy mu-plugins/efb-e2e-f17.php (the Nominatim stand-in) into the site
  *   geo [clear]                       the stand-in's calls; clear also empties the search cache and the lock
  *   adr <0|1> [mode] [url]            the Address & Postal add-on off / on (settings flag AdnADR) and its search settings
+ *                                     (adr_lookup of the settings row, the F12b-L rule; the answer also shows the old option)
+ *   adr-old <mode> [url]              a site from before the move: the settings in the old option emsfb_adr_lookup, none in
+ *                                     the row, the move not done (emsfb_adr_moved removed)
+ *   adr-row                           the settings row as stored (decoded; a test site only: it may hold keys)
+ *   caps                              the AutoPilot capabilities (Builder_Api::capabilities(), as administrator)
  */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 1 );
@@ -163,9 +168,38 @@ switch ( $f17_cmd ) {
 		$s = get_setting_Emsfb( 'decoded' );
 		$s = is_object( $s ) ? $s : new stdClass();
 		$s->AdnADR = $on ? 1 : 0;
+		if ( isset( $f17_rest[1] ) ) $s->adr_lookup = array( 'mode' => $f17_rest[1], 'url' => isset( $f17_rest[2] ) ? $f17_rest[2] : '' );
 		\efbFunction::set_setting_Emsfb( $s );
-		if ( isset( $f17_rest[1] ) ) update_option( 'emsfb_adr_lookup', array( 'mode' => $f17_rest[1], 'url' => isset( $f17_rest[2] ) ? $f17_rest[2] : '' ), false );
-		efb_f17_out( array( 'AdnADR' => $on, 'lookup' => get_option( 'emsfb_adr_lookup' ) ) );
+		$s = get_setting_Emsfb( 'decoded' );
+		efb_f17_out( array( 'AdnADR' => $on, 'lookup' => is_object( $s ) && isset( $s->adr_lookup ) ? $s->adr_lookup : null, 'old' => get_option( 'emsfb_adr_lookup', null ), 'moved' => get_option( 'emsfb_adr_moved', null ) ) );
+		break;
+	case 'adr-row':
+		global $wpdb;
+		efb_f17_out( emsfb_json_decode_efb( (string) $wpdb->get_var( "SELECT setting FROM {$wpdb->prefix}emsfb_setting ORDER BY id DESC LIMIT 1" ), true ) ); // phpcs:ignore
+		break;
+	case 'caps':
+		wp_set_current_user( 1 );
+		efb_f17_out( \Emsfb\Builder_Api::capabilities() );
+		break;
+	case 'adr-old':
+		// The row is written straight to the table (set_setting_Emsfb() keeps a key that is left out).
+		global $wpdb;
+		$row = $wpdb->get_row( "SELECT id, setting FROM {$wpdb->prefix}emsfb_setting ORDER BY id DESC LIMIT 1", ARRAY_A ); // phpcs:ignore
+		$escaped = $row && strpos( (string) $row['setting'], '\\"' ) !== false;
+		$d = $row ? emsfb_json_decode_efb( (string) $row['setting'], true ) : null;
+		if ( is_array( $d ) ) {
+			unset( $d['adr_lookup'] );
+			$json = wp_json_encode( $d, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
+			$wpdb->update( $wpdb->prefix . 'emsfb_setting', array( 'setting' => $escaped ? str_replace( '"', '\\"', $json ) : $json ), array( 'id' => (int) $row['id'] ) );
+		}
+		update_option( 'emsfb_adr_lookup', array( 'mode' => isset( $f17_rest[0] ) ? $f17_rest[0] : 'proxy', 'url' => isset( $f17_rest[1] ) ? $f17_rest[1] : '' ), false );
+		delete_option( 'emsfb_adr_moved' );
+		delete_option( 'emsfb_settings' );
+		delete_transient( 'emsfb_settings_transient' );
+		if ( function_exists( 'wp_cache_flush' ) ) wp_cache_flush();
+		get_setting_Emsfb( '_clear_cache' );
+		$s = get_setting_Emsfb( 'decoded' );
+		efb_f17_out( array( 'in_row' => is_object( $s ) && isset( $s->adr_lookup ), 'old' => get_option( 'emsfb_adr_lookup', null ), 'moved' => get_option( 'emsfb_adr_moved', null ) ) );
 		break;
 	default:
 		efb_f17_out( array( 'error' => 'unknown command ' . $f17_cmd ) );

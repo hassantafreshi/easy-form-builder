@@ -70,9 +70,15 @@ class Admin {
 		return 'captcha_' . preg_replace('/[^a-z0-9_]/', '', (string) $id);
 	}
 
-	/** Whether a top-level settings key is an add-on's (captcha_<id>), not one of core's F12 keys (captcha_provider …). */
+	/**
+	 * Whether a top-level settings key is an add-on's: a CAPTCHA add-on's captcha_<id> (not one of core's F12 keys,
+	 * captcha_provider …), or another add-on's key under the same rule (efb_addon_setting_keys; the Address & Postal
+	 * add-on's adr_lookup): saved by the add-on's own screen only, never sent to or from the main Settings window.
+	 */
 	public static function is_addon_key($k) {
-		return is_string($k) && preg_match('/^captcha_[a-z][a-z0-9_]{2,23}$/', $k) && !(class_exists('\\Emsfb\\Spam') && \Emsfb\Spam::is_setting_key($k));
+		if (!is_string($k)) return false;
+		if (in_array($k, function_exists('apply_filters') ? (array) apply_filters('efb_addon_setting_keys', array('adr_lookup')) : array('adr_lookup'), true)) return true;
+		return preg_match('/^captcha_[a-z][a-z0-9_]{2,23}$/', $k) && !(class_exists('\\Emsfb\\Spam') && \Emsfb\Spam::is_setting_key($k));
 	}
 
 	/** The main Settings window's save without the add-ons' keys (array or object): the stored ones stay. */
