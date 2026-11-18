@@ -56,6 +56,8 @@ const CHECKS = {
   ignored:     r => list(r.ignored_fields),
   hiddenSteps: r => list(r.hidden_steps),
   shownSteps:  r => list(r.shown_steps),
+  skippedSteps: r => list(r.skipped_steps),
+  skipped:     r => list(r.skipped_fields),
   cleared:     r => list(r.cleared_fields),
   jumps:       r => list((r.jumps || []).map(j => j.target)),
   messages:    r => list((r.messages || []).map(m => m.target + '=' + m.value)),

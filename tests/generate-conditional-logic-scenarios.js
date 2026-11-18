@@ -668,9 +668,122 @@ add('steps/jump', 'a jump to the next step skips nothing',
   [rule('r', WHEN, [{ type: 'jump_to_step', target: '3' }])], baseRows(),
   { matched: ['r'], jumps: ['3'], optional: [] });
 
-add('steps/jump', 'set_required still wins on a skipped step',
+/* Owner rule (2026-11-18): a field on a step the jump passes over is skipped, its required rules included —
+   the visitor never sees that step, so a set_required on it could only block the form. (This scenario used to
+   say "set_required still wins on a skipped step"; the owner decided the opposite.) */
+add('steps/jump', 'a skipped step wins over set_required (owner rule)',
   [rule('r', WHEN, [{ type: 'jump_to_step', target: '2' }, { type: 'set_required', target: 's2_opt' }])], baseRows(),
-  { matched: ['r'], optional: ['s2_req'], required: ['s2_opt'] });
+  { matched: ['r'], optional: ['s2_opt', 's2_req'], required: [], skippedSteps: ['3'], skipped: ['s2_opt', 's2_req'] });
+
+add('steps/jump', 'a forward jump names the skipped step and its fields',
+  [rule('r', WHEN, [{ type: 'jump_to_step', target: '2' }])], baseRows(),
+  { skippedSteps: ['3'], skipped: ['s2_opt', 's2_req'], hiddenSteps: [], ignored: [] });
+
+add('steps/jump', 'a jump to the next step skips no field',
+  [rule('r', WHEN, [{ type: 'jump_to_step', target: '3' }])], baseRows(),
+  { skippedSteps: [], skipped: [] });
+
+// A backward jump: the trigger lives on position 3 (s3_opt), the target is step id '10' (position 1).
+add('steps/jump', 'a backward jump skips nothing',
+  [rule('r', group('AND', [cond('s3_opt', 'is', 'again')]), [{ type: 'jump_to_step', target: '10' }])],
+  baseRows([{ id_: 's3_opt', type: 'textarea', value: 'again' }]),
+  { matched: ['r'], jumps: ['10'], optional: [], skippedSteps: [], skipped: [] });
+
+add('steps/jump', 'a jump is taken from the step of its trigger field, not the first step',
+  [rule('r', group('AND', [cond('s2_opt', 'is', 'go')]), [{ type: 'jump_to_step', target: '2' }])],
+  baseRows([{ id_: 's2_opt', type: 'text', value: 'go' }]),
+  { matched: ['r'], jumps: ['2'], skippedSteps: [], skipped: [], optional: [] });
+
+add('steps/jump', 'a jump to a hidden step skips nothing',
+  [rule('r', WHEN, [{ type: 'hide_step', target: '2' }, { type: 'jump_to_step', target: '2' }])], baseRows(),
+  { matched: ['r'], hiddenSteps: ['2'], skippedSteps: [], skipped: [] });
+
+add('steps/jump', 'a jump to an unknown step skips nothing',
+  [rule('r', WHEN, [{ type: 'jump_to_step', target: '99' }])], baseRows(),
+  { matched: ['r'], skippedSteps: [], skipped: [] });
+
+add('steps/jump', 'a rule without a field condition jumps from the first step',
+  [rule('r', group('AND', [{ type: 'condition', source: 'query_param', field_id: 'ref', param: 'ref', compare: 'is', value: 'vip' }]),
+    [{ type: 'jump_to_step', target: '2' }])], baseRows(),
+  { matched: ['r'], skippedSteps: ['3'], skipped: ['s2_opt', 's2_req'] },
+  { query: { ref: 'vip' }, user: { logged_in: false, roles: [] }, current_step: 1 });
+
+// Nested jumps on a five-step form: 1 → 3 skips 2, then 3 → 5 skips 4.
+const FIVE = [
+  step('20', 4, 'Four'), step('21', 5, 'Five'),
+  field('s4_req', 'text', 4, { required: '1' }), field('s4_opt', 'text', 4),
+  field('s5_req', 'text', 5, { required: '1' }),
+];
+add('steps/jump', 'nested jumps add up (1 → 3 skips 2, 3 → 5 skips 4)',
+  [rule('a', WHEN, [{ type: 'jump_to_step', target: '2' }]),
+   rule('b', group('AND', [cond('s3_opt', 'is', 'on')]), [{ type: 'jump_to_step', target: '21' }])],
+  baseRows([{ id_: 's3_opt', type: 'textarea', value: 'on' }]),
+  { matched: ['a', 'b'], skippedSteps: ['3', '20'], skipped: ['s2_opt', 's2_req', 's4_opt', 's4_req'],
+    optional: ['s2_opt', 's2_req', 's4_opt', 's4_req'] }, null, FIVE);
+add('steps/jump', 'a jump from a skipped step never runs',
+  [rule('a', WHEN, [{ type: 'jump_to_step', target: '20' }]),
+   rule('b', group('AND', [cond('s2_opt', 'is', 'stale')]), [{ type: 'jump_to_step', target: '21' }])],
+  baseRows([{ id_: 's2_opt', type: 'text', value: 'stale' }]),
+  { matched: ['a', 'b'], skippedSteps: ['3', '2'], skipped: ['s2_opt', 's2_req', 's3_opt', 's3_req'] }, null, FIVE);
+add('steps/jump', 'from one step the last jump wins',
+  [rule('a', WHEN, [{ type: 'jump_to_step', target: '21' }], { priority: 1 }),
+   rule('b', WHEN, [{ type: 'jump_to_step', target: '2' }], { priority: 2 })],
+  baseRows(), { matched: ['a', 'b'], skippedSteps: ['3'], skipped: ['s2_opt', 's2_req'] }, null, FIVE);
+add('validation', 'nested jumps: only the reached steps are demanded',
+  [rule('a', WHEN, [{ type: 'jump_to_step', target: '2' }]),
+   rule('b', group('AND', [cond('s3_opt', 'is', 'on')]), [{ type: 'jump_to_step', target: '21' }])],
+  baseRows([{ id_: 's3_opt', type: 'textarea', value: 'on' }, { id_: 's3_req', type: 'text', value: 'B' }]),
+  { validate: { valid: false, missing: 's5_req' } }, null, FIVE);
+add('rows', 'nested jumps: the skipped steps store nothing',
+  [rule('a', WHEN, [{ type: 'jump_to_step', target: '2' }]),
+   rule('b', group('AND', [cond('s3_opt', 'is', 'on')]), [{ type: 'jump_to_step', target: '21' }])],
+  baseRows([{ id_: 's3_opt', type: 'textarea', value: 'on' }, { id_: 's2_opt', type: 'text', value: 'X' },
+    { id_: 's4_opt', type: 'text', value: 'Y' }, { id_: 's5_req', type: 'text', value: 'Z' }]),
+  { keptRows: { has: ['s3_opt', 's5_req', 't_text'], hasNot: ['s2_opt', 's4_opt'] } }, null, FIVE);
+
+// A priced choice and a gateway field on the skipped step: no price, no charge.
+const PAY_ON_TWO = [
+  field('s2_extra', 'payCheckbox', 2, { required: '1' }),
+  Object.assign(option('px_a', 's2_extra', 'Insurance', 2), { price: '40' }),
+  Object.assign(option('px_b', 's2_extra', 'Breakfast', 2), { price: '15' }),
+  field('s2_gw', 'payment', 2, { required: '1' }),
+];
+add('steps/jump', 'a jump over a payment field skips it',
+  [rule('r', WHEN, [{ type: 'jump_to_step', target: '2' }])], baseRows(),
+  { skipped: ['s2_extra', 's2_gw', 's2_opt', 's2_req'], optional: ['s2_extra', 's2_gw', 's2_opt', 's2_req'] }, null, PAY_ON_TWO);
+add('rows', 'a jump over a payment field: its priced rows are not kept (no charge)',
+  [rule('r', WHEN, [{ type: 'jump_to_step', target: '2' }])],
+  baseRows([{ id_: 's2_extra', type: 'payCheckbox', id_ob: 'px_a', value: 'Insurance', price: '40' },
+    { id_: 's2_extra', type: 'payCheckbox', id_ob: 'px_b', value: 'Breakfast', price: '15' },
+    { id_: 's3_req', type: 'text', value: 'B' }]),
+  { keptRows: { has: ['t_text', 's3_req'], hasNot: ['s2_extra'] } }, null, PAY_ON_TWO);
+add('validation', 'a jump over a required payment field does not demand it',
+  [rule('r', WHEN, [{ type: 'jump_to_step', target: '2' }])],
+  baseRows([{ id_: 's3_req', type: 'text', value: 'B' }]), { validate: { valid: true, missing: null } }, null, PAY_ON_TWO);
+
+// A required file field on the skipped step.
+const FILE_ON_TWO = [field('s2_file', 'dadfile', 2, { required: '1' })];
+add('validation', 'a jump over a required file field does not demand it',
+  [rule('r', WHEN, [{ type: 'jump_to_step', target: '2' }])],
+  baseRows([{ id_: 's3_req', type: 'text', value: 'B' }]), { validate: { valid: true, missing: null } }, null, FILE_ON_TWO);
+add('rows', 'a jump over a file field drops a file sent for it',
+  [rule('r', WHEN, [{ type: 'jump_to_step', target: '2' }])],
+  baseRows([{ id_: 's2_file', type: 'dadfile', value: 'https://example.com/wp-content/uploads/a.pdf', url: 'https://example.com/wp-content/uploads/a.pdf' },
+    { id_: 's3_req', type: 'text', value: 'B' }]),
+  { keptRows: { has: ['s3_req'], hasNot: ['s2_file'] } }, null, FILE_ON_TWO);
+
+// The visitor went back and chose differently: the jump no longer matches, so step 2 is demanded again.
+const CHOICE_JUMP = [rule('r', group('AND', [cond('t_sel', 'is', 'so_b')]), [{ type: 'jump_to_step', target: '2' }])];
+add('steps/jump', 'going back and choosing differently: no jump, nothing skipped',
+  CHOICE_JUMP, selRows('Alpha'), { matched: [], jumps: [], skippedSteps: [], skipped: [], optional: [] });
+add('steps/jump', 'choosing the jump option again skips step 2 again',
+  CHOICE_JUMP, selRows('Beta'), { matched: ['r'], skippedSteps: ['3'], skipped: ['s2_opt', 's2_req'] });
+add('validation', 'going back and choosing differently: step 2 is demanded again',
+  CHOICE_JUMP, selRows('Alpha').concat([{ id_: 's3_req', type: 'text', value: 'B' }]),
+  { validate: { valid: false, missing: 's2_req' } });
+add('rows', 'going back and choosing the jump: answers left on step 2 are not stored',
+  CHOICE_JUMP, selRows('Beta').concat([{ id_: 's2_req', type: 'text', value: 'typed before' }, { id_: 's3_req', type: 'text', value: 'B' }]),
+  { keptRows: { has: ['s3_req', 't_sel'], hasNot: ['s2_req'] } });
 
 // a three-way branch driven by one select — the shape of the reported form
 const BRANCH = [

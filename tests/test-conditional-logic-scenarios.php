@@ -83,6 +83,8 @@ foreach ($catalog['scenarios'] as $scenario) {
         'ignored'       => cl_list($result['ignored_fields']),
         'hiddenSteps'   => cl_list($result['hidden_steps']),
         'shownSteps'    => cl_list($result['shown_steps']),
+        'skippedSteps'  => cl_list(isset($result['skipped_steps']) ? $result['skipped_steps'] : null),
+        'skipped'       => cl_list(isset($result['skipped_fields']) ? $result['skipped_fields'] : null),
         'cleared'       => cl_list($result['cleared_fields']),
         'jumps'         => cl_list(cl_pluck($result['jumps'], 'target')),
         'focus'         => cl_list(cl_pluck($result['focus_fields'], 'target')),

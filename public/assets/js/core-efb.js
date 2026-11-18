@@ -1376,6 +1376,13 @@ async function actionSendData_emsFormBuilder(form_id=0) {
     if (window.EFBVerify && typeof window.EFBVerify.addToRequest === 'function') window.EFBVerify.addToRequest(data, form_id);
     // F12: the hidden trap field's value beside the answers (every branch: form, payment, payments/create).
     efb_spam_add_to_request_efb(data, form_id);
+    /* Owner rule (Conditional Logic forward jump): every gateway field is on a step the visitor's answers jumped
+       over: no payment; the form is sent as an ordinary entry (the server computes the same jump). */
+    if (vj.type == "payment" && efb_pay_fields_skipped_efb(form_id)) {
+      delete data.payid;
+      post_api_forms_efb(data, form_id);
+      return;
+    }
     /* PAY00: the field of a gateway add-on (payment framework) sends the form to
        payments/create: the server validates it, stores it as "pending payment" and starts the payment. */
     if (vj.type == "payment" && window.EFBPay && typeof window.EFBPay.isGateway === 'function') {
@@ -1388,6 +1395,16 @@ async function actionSendData_emsFormBuilder(form_id=0) {
       }
     }
     post_api_forms_efb(data,form_id);
+}
+/* Owner rule (Conditional Logic forward jump): true when every gateway field of the form sits on a step a jump
+   passed over (data-logic-skipped="1", set by the Conditional Logic add-on). */
+function efb_pay_fields_skipped_efb(form_id, rows) {
+  const body = document.getElementById('body_efb_' + form_id);
+  if (!rows) { try { rows = get_structure_by_form_id_efb(form_id); } catch (e) { rows = valj_efb; } }
+  const isGw = (t) => ['paypal', 'stripe', 'persiapay', 'zarinpal'].includes(String(t).toLowerCase()) || !!(window.EFBPay && typeof window.EFBPay.isGateway === 'function' && window.EFBPay.isGateway(String(t)));
+  const gw = (Array.isArray(rows) ? rows : []).filter(x => x && x.type !== 'option' && isGw(x.type) && x.hasOwnProperty('step'));
+  if (!body || !gw.length) return false;
+  return gw.every(x => { const fs = body.querySelector('[data-step="step-' + x.step + '-efb"]'); return !!fs && fs.dataset.logicSkipped === '1'; });
 }
 /**
  * F10: the amount of a payment-framework form for the review page, from the server (payments/quote): the same
@@ -3959,7 +3976,7 @@ async function btn_navigate_handle_efb(form_id , form_type , btn_state,el){
        in any case - this guard is only there to say "pay first" sooner. */
     const payment_method = ['paypal','stripe','persiapay','zarinpal'];
     const payment_rows = (valj_efb ?? []).filter(x => x && payment_method.includes(String(x.type).toLowerCase()) && x.hasOwnProperty('step'));
-    if (payment_rows.length > 0) {
+    if (payment_rows.length > 0 && !efb_pay_fields_skipped_efb(form_id, payment_rows)) {
       step_payment_exists = Number(payment_rows[0].step);
       const paid = Array.isArray(sendBack_emsFormBuilder_pub) && sendBack_emsFormBuilder_pub.some(x => {
         if (!x || x.id_ !== 'payment') return false;

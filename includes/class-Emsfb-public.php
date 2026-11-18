@@ -3772,6 +3772,17 @@ public function check_nonce_permission_efb($request) {
 						}
 					}
 					$is_spam_efb = class_exists('\\Emsfb\\Spam') && \Emsfb\Spam::is_spam();
+					/* Owner rule (Conditional Logic forward jump): every gateway field of the form is on a step the
+					 * visitor's answers jumped over (the add-on's skipped_fields, computed here from the answers): no
+					 * payment is taken; the entry is stored as an ordinary one. payments/create for such a field is refused. */
+					if ($submission_type === 'payment' && !empty($efb_logic_result['skipped_fields'])) {
+						$pay_skip_efb = array_flip(array_map('strval', (array) $efb_logic_result['skipped_fields']));
+						$gw_efb = array_filter($form_fields_array, function ($f) { return is_array($f) && isset($f['id_'], $f['type']) && is_string($f['type']) && (in_array(strtolower($f['type']), array('stripe', 'paypal', 'persiapay', 'zarinpal'), true) || (class_exists('\\Emsfb\\Payments\\Readiness') && \Emsfb\Payments\Readiness::is_payment_type($f['type']))); });
+						if ($gw_efb && !array_diff_key(array_flip(array_map(function ($f) { return (string) $f['id_']; }, $gw_efb)), $pay_skip_efb)) {
+							if ($this->pay_create_efb !== null) wp_send_json_success(array('success' => false, 'code' => 'pay_field_skipped', 'm' => esc_html($this->lanText['pleaseEnterVaildValue'] ?? 'Please enter valid values')), 200);
+							$submission_type = 'form';
+						}
+					}
 
 					switch ($submission_type) {
 						case "form":

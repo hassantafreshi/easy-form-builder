@@ -557,6 +557,60 @@ switch ( $efb_e2e_cmd ) {
 		efb_e2e_out( array( 'form_id' => $fid, 'email' => $em, 'pf' => $pf, 'radio' => $rad, 'o1' => $o1, 'o2' => $o2, 'guests' => $num, 'total' => $tot, 'file' => $fl, 'line' => isset( $line ) ? $line : '' ) );
 		break;
 
+	case 'jump-form':
+		// Owner rule (Conditional Logic forward jump): three steps; "Plan" on step 1 = Express jumps to step 3 (id 3), so
+		// step 2 (a required text, a required file, and in "pay": a priced choice and the payment field) is skipped.
+		// Args: [form|pay|nested] [name]. "nested": five steps, Express 1 → 3 and "Rush" on step 3 → 5 (step 4 skipped).
+		$kind = isset( $efb_e2e_rest[0] ) && '' !== $efb_e2e_rest[0] ? $efb_e2e_rest[0] : 'form';
+		$name = isset( $efb_e2e_rest[1] ) && '' !== $efb_e2e_rest[1] ? $efb_e2e_rest[1] : 'Jump ' . $kind;
+		$rid  = function () { return substr( str_shuffle( 'abcdefghijklmnopqrstuvwxyz0123456789' ), 0, 9 ); };
+		$I = array();
+		foreach ( array( 'em', 'plan', 'full', 'express', 'det', 'doc', 'ext', 'x1', 'x2', 'pf', 'last', 'rush', 'r1', 'r2', 'four', 'five' ) as $k ) $I[ $k ] = $rid();
+		$steps = 'nested' === $kind ? 5 : 3;
+		$base = array( 'amount' => 0, 'size' => 100, 'required' => 0, 'label_text_size' => 'fs-6', 'label_position' => 'up', 'el_text_size' => 'fs-6', 'label_text_color' => 'text-labelEfb', 'el_border_color' => 'border-d', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'el_height' => 'h-d-efb', 'label_align' => 'txt-left', 'message_align' => 'justify-content-start', 'el_align' => 'justify-content-start', 'classes' => '', 'message' => '', 'placeholder' => '', 'value' => '', 'icon_input' => '' );
+		$f = function ( $id, $type, $label, $step, $extra = array() ) use ( $base ) { return array_merge( $base, array( 'id_' => $id, 'dataId' => $id . '-id', 'type' => $type, 'elementId' => $type, 'name' => $label, 'step' => $step, 'amount' => $step * 10 ), $extra ); };
+		$o = function ( $id, $parent, $value, $step, $extra = array() ) { return array_merge( array( 'id_' => $id, 'dataId' => $id . '-id', 'parent' => $parent, 'type' => 'option', 'value' => $value, 'id_op' => $id, 'step' => $step, 'amount' => $step * 10 ), $extra ); };
+		$step = function ( $n ) { return array( 'id_' => (string) $n, 'type' => 'step', 'dataId' => (string) $n, 'classes' => '', 'id' => (string) $n, 'name' => 'Step ' . $n, 'icon' => 'bi-ui-checks-grid', 'step' => $n, 'amount' => $n * 10 - 5, 'EfbVersion' => 2, 'message' => '', 'label_text_size' => 'fs-5', 'el_text_size' => 'fs-5', 'label_text_color' => 'text-darkb', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'icon_color' => 'text-darkb', 'visible' => 1 ); };
+		$ftype = 'pay' === $kind ? 'payment' : 'form';
+		$cond = function ( $field, $opt ) { return array( 'type' => 'group', 'operator' => 'AND', 'items' => array( array( 'type' => 'condition', 'source' => 'field', 'field_id' => $field, 'compare' => 'is', 'value' => $opt ) ) ); };
+		$row0 = array( 'type' => $ftype, 'steps' => $steps, 'formName' => $name, 'email' => 'owner@example.test', 'trackingCode' => '1', 'EfbVersion' => 2, 'button_single_text' => 'Send', 'button_Next_text' => 'Next', 'button_Previous_text' => 'Previous', 'button_Next_icon' => 'bi-chevron-right', 'button_Previous_icon' => 'bi-chevron-left', 'button_color' => 'btn-darkb', 'icon' => 'bi-ui-checks-grid', 'button_state' => 'multi', 'email_to' => $I['em'], 'show_icon' => '1', 'captcha' => '', 'sendEmail' => '0', 'stateForm' => 0, 'thank_you' => 'msg', 'thank_you_message' => array( 'icon' => 'bi-hand-thumbs-up', 'thankYou' => 'Thank you', 'done' => 'Done', 'trackingCode' => 'Confirmation Code', 'pleaseFillInRequiredFields' => 'Please fill in all required fields.' ), 'dShowBg' => '1', 'btns_align' => 'justify-content-center', 'label_text_color' => 'text-labelEfb', 'el_text_color' => 'text-labelEfb', 'message_text_color' => 'text-muted', 'icon_color' => 'text-white', 'el_height' => 'h-d-efb', 'logic' => '1' );
+		$row0['logic_rules'] = array( array( 'id' => 'express', 'name' => 'Express skips step 2', 'scope' => 'field', 'enabled' => true, 'priority' => 10, 'stop_processing' => false, 'conditions' => $cond( $I['plan'], $I['express'] ), 'actions' => array( array( 'type' => 'jump_to_step', 'target' => '3' ) ) ) );
+		if ( 'pay' === $kind ) { $row0['getway'] = 'efbmock'; $row0['currency'] = 'EUR'; $row0['paymentmethod'] = 'charge'; }
+		$rows = array( $row0, $step( 1 ) );
+		$rows[] = $f( $I['em'], 'email', 'Email', 1, array( 'required' => 1 ) );
+		$rows[] = $f( $I['plan'], 'select', 'Plan', 1, array( 'required' => 1 ) );
+		$rows[] = $o( $I['full'], $I['plan'], 'Full', 1 );
+		$rows[] = $o( $I['express'], $I['plan'], 'Express', 1 );
+		$rows[] = $step( 2 );
+		$rows[] = $f( $I['det'], 'text', 'Details', 2, array( 'required' => 1 ) );
+		$rows[] = $f( $I['doc'], 'dadfile', 'Document', 2, array( 'required' => 1, 'file' => 'allformat', 'value' => 'allformat', 'max_fsize' => '2' ) );
+		if ( 'pay' === $kind ) {
+			$rows[] = $f( $I['ext'], 'payCheckbox', 'Extras', 2 );
+			$rows[] = $o( $I['x1'], $I['ext'], 'Insurance', 2, array( 'price' => '40' ) );
+			$rows[] = $o( $I['x2'], $I['ext'], 'Breakfast', 2, array( 'price' => '15' ) );
+			$rows[] = $f( $I['pf'], 'efbmock', 'Payment', 2, array( 'pf_fixed' => '2', 'pf_fixed_label' => 'Booking fee' ) );
+		}
+		$rows[] = $step( 3 );
+		$rows[] = $f( $I['last'], 'text', 'Last', 3, array( 'required' => 1 ) );
+		if ( 'nested' === $kind ) {
+			$rows[] = $f( $I['rush'], 'radio', 'Speed', 3 );
+			$rows[] = $o( $I['r1'], $I['rush'], 'Normal', 3 );
+			$rows[] = $o( $I['r2'], $I['rush'], 'Rush', 3 );
+			$rows[] = $step( 4 );
+			$rows[] = $f( $I['four'], 'text', 'Four', 4, array( 'required' => 1 ) );
+			$rows[] = $step( 5 );
+			$rows[] = $f( $I['five'], 'text', 'Five', 5, array( 'required' => 1 ) );
+			$rows[0]['logic_rules'][] = array( 'id' => 'rush', 'name' => 'Rush skips step 4', 'scope' => 'field', 'enabled' => true, 'priority' => 11, 'stop_processing' => false, 'conditions' => $cond( $I['rush'], $I['r2'] ), 'actions' => array( array( 'type' => 'jump_to_step', 'target' => '5' ) ) );
+		}
+		$fn = get_efbFunction();
+		$clean = $fn->sanitize_obj_msg_efb( $rows );
+		$json = str_replace( '"', '\\"', wp_json_encode( $clean, JSON_UNESCAPED_UNICODE ) );
+		$wpdb->insert( $wpdb->prefix . 'emsfb_form', array( 'form_name' => $name, 'form_structer' => $json, 'form_email' => '', 'form_type' => $ftype, 'form_created_by' => '1', 'form_access_by' => '', 'form_create_date' => current_time( 'mysql' ), 'status' => 1 ) );
+		$fid = (int) $wpdb->insert_id;
+		do_action( 'efb_form_created', $fid, $clean, array( 'form_id' => $fid, 'source' => 'e2e', 'user_id' => 1 ) );
+		efb_e2e_out( array_merge( array( 'form_id' => $fid ), $I ) );
+		break;
+
 	case 'f11-form':
 		wp_set_current_user( 1 ); // custom_css is kept only for a user who may write unfiltered HTML
 		// F11: a plain form (email, name, optionally a password and a second step) saved through the

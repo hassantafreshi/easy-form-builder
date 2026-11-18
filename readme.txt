@@ -482,6 +482,7 @@ Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Vis
 
 = Unreleased =
 
+* Changed (Conditional Logic): a jump that moves the visitor forward (for example from step 2 to step 4) because of their answers skips the steps in between: their fields are no longer required, checked, priced or stored, and Previous goes back over them. If the visitor goes back and chooses differently, those steps are asked again. A payment form whose payment field is on a skipped step takes no payment. The server applies the same rule to the answers it receives.
 * New: the form builder's preview checks the fields as the published form does (the form's "Check fields" timing, the message under the field, the error summary on Next / Send).
 * Fix: an Iran or Saudi address made by AutoPilot loads its province list on the page (a text box when the list cannot load) and its answer is accepted; such a form could not be sent before.
 * Fix: on right-to-left sites, untranslated English sentences (the "Needs the … add-on" notice, Payments › Gateway settings, the builder's help texts, the "Address search" screen) keep their full stop at the end and start on the right.

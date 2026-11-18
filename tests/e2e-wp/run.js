@@ -2111,6 +2111,10 @@ require('./scenario-f20.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT });
  * tests/e2e-wp/scenario-final.js. */
 require('./scenario-final.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
 
+/* The owner's rule for a Conditional Logic forward jump (skipped steps, going back, a skipped payment field):
+ * tests/e2e-wp/scenario-jump.js. */
+require('./scenario-jump.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */

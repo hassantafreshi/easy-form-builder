@@ -98,7 +98,7 @@ nested groups are not counted).
 | `set_required` / `set_optional` | field id | – | overrides the field's `required` for this submit |
 | `enable_field` / `disable_field` | field id | – | a disabled field is ignored on submit |
 | `show_step` / `hide_step` | step `id_` | – | a hidden step ignores its fields |
-| `jump_to_step` | step `id_` | – | browser navigation |
+| `jump_to_step` | step `id_` | – | browser navigation; a **forward** jump skips the steps it passes over (below) |
 | `set_value` | field id | `value`; `value_type`: `static` (default) or `autofill_key` (value names an `autofill_conditions[].source`) | the server writes the value into the submission |
 | `copy_value` | field id | `value` = the **source field id** (must exist) | copies the source's value |
 | `calculate` (**Pro**) | field id | `value` = formula; `decimals` 0–6 (optional) | the server computes it again (§5) |
@@ -108,6 +108,20 @@ nested groups are not counted).
 | `focus_field`, `scroll_to_field` | field id | – | UI only |
 | `block_submit` | – (no target) | `value` = message | the server refuses the submit with this message |
 | `end_form` | – (no target) | `value` = message | the server refuses the submit and shows the message as the end of the form ("custom submit message") |
+
+**Forward jump (owner rule, 2026-11-18).** A matched `jump_to_step` is evaluated from the step that holds its
+triggering field: the latest step of a field its conditions read (a `current_step is N` condition counts as step N;
+a rule that reads no field runs from step 1). A jump from step *o* to the step at position *t* > *o* + 1 skips
+positions *o*+1 … *t*−1: those steps become optional and every field on them (sub-fields, repeater rows, groups) is
+skipped — no required rule (a `set_required` on it included), no F16/F03 check, no price or capacity, and no stored
+value. From one step the last jump in rule order wins; a jump from a step that is itself skipped or hidden never
+runs; nested jumps add up; a backward jump, or one to a hidden or unknown step, skips nothing. The result carries
+`skipped_steps` (step ids) and `skipped_fields`, the skipped fields are also in `optional_fields`, and the server's
+`prepare_submission()` drops their rows and lists them in `ignored_fields` (so an older core applies the rule too).
+The page marks a skipped step `data-logic-skipped="1"` (and `data-logic-hidden="1"`, so Next, Back and the review page
+leave it out) and clears its answers. The server computes the same jump from the submitted answers (PHP/JS parity:
+`tests/test-conditional-logic-scenarios.{js,php}`, family `steps/jump`). A payment form whose every gateway field is
+skipped takes no payment and stores an ordinary entry; `payments/create` for such a field answers `pay_field_skipped`.
 
 Value actions (`set_value`, `copy_value`, `calculate`, `clear_value`) run in a fixed-point loop
 (at most 25 passes). A chain that never settles (`{qty} = {qty} + 1`) publishes no value and the
