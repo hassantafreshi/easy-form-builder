@@ -60,10 +60,13 @@
 ### ۲.۱ باگ‌ها و کمبودهایی که هنگام نوشتن پیدا شد (به `BUGS-FOUND.fa.md` اضافه شود)
 
 1. `emsfb_pay_.amount` از نوع `decimal(12,2)` است؛ هر درگاهی با KWD، BHD، OMR یا JOD (سه رقم اعشار) مبلغ را گرد می‌کند. (`stripe/class-Emsfb-stripe-payment.php:71`)
-2. جدول `emsfb_pay_` را هسته نمی‌سازد؛ سایتی که صفحهٔ Stripe را هرگز باز نکرده جدول ندارد و هسته به راه‌حل جایگزین (`find_stripe_charge_stub_efb`) تکیه می‌کند. (`class-Emsfb-public.php:7149-7165`)
+2. جدول `emsfb_pay_` را هسته نمی‌سازد؛ سایتی که صفحهٔ Stripe را هرگز باز نکرده جدول ندارد و هسته به راه‌حل جایگزین (`find_stripe_charge_stub_efb`) تکیه می‌کند. (`class-Emsfb-public.php:7149-7165`) **رفع شد (PAY-OUT گام ۴): افزونه‌های Stripe و PayPal جدول را در نخستین درخواست خود می‌سازند.**
 3. نمایشگر پاسخ فقط `stripe` و `paypal` را با جزئیات پرداخت نشان می‌دهد؛ `persiaPay` و هر درگاه آینده بی‌جزئیات می‌ماند. (`response-viewer-efb.js:1074`)
 4. `fun_validation_pay_elements_efb()` در خطا خودش پاسخ JSON می‌فرستد؛ برای webhook و cron که پاسخ HTTP دیگری دارند قابل استفاده نیست. (`class-Emsfb-public.php:9916-9946`)
-5. Persia Pay `date_default_timezone_set('Iran')` را در وسط درخواست صدا می‌زند و منطقهٔ زمانی کل PHP را عوض می‌کند. (`class-Emsfb-public.php:3992`)
+5. Persia Pay `date_default_timezone_set('Iran')` را در وسط درخواست صدا می‌زند و منطقهٔ زمانی کل PHP را عوض می‌کند. (`class-Emsfb-public.php:3992`) **رفع شد (PAY-OUT گام ۴).**
+
+PAY-OUT (۲۰۲۶-۱۱-۱۸): Stripe، PayPal و Persia Pay هر کدام فیلدی روی همین چارچوب دارند (`stripecheckout`، `paypalcheckout`، `zarinpalgate`، در افزونهٔ خودشان) و هسته فرم‌های فیلد قدیمی را به آن‌ها منتقل می‌کند (`Payments\Legacy_Migration`، [SPLIT §۵.۴](../feature-gaps/SPLIT-core-addons.fa.md)). قرارداد `legacy_gateway` منسوخ است و در 5.0 حذف می‌شود.
+
 
 ## ۳. پژوهش
 

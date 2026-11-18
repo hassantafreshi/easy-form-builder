@@ -2103,7 +2103,7 @@ never a hand-kept list.
 
 `form_package` v1 (F15-D), `captcha` v1 and the provider registry v2 (F12b), `payments` (PAY00,
 `EMSFB_PAYMENTS_API`), `calc` v1 (`efb_payment_computed_items` is the server recompute of a calc amount),
-`legacy_gateway` v1 (Stripe / PayPal / PersiaPay bridge until they move to PAY00), `typed_signature` v1,
+`legacy_gateway` 2.2 (Stripe / PayPal / PersiaPay; deprecated since 4.3.2, removed in 5.0: see "PAY-OUT" below), `typed_signature` v1,
 `address` v1, `booking` v1 (F06 hooks `efb_date_availability*`, `efb_date_before_commit`), `smart_tags_ext` v1
 (`efb_smart_tag_namespaces`, `efb_smart_tag_value`, `efb_hidden_field_note`), `portal` v1 (F20-core, built 2026-11-18:
 `capabilities.portal_core`, below).
@@ -2112,6 +2112,38 @@ $import_token)` undoes an import, `Form_Package::import_entries($form_id, $rows)
 rules (docs/form-package-contract.en.md). Generic hooks an add-on uses: `efb_addon_catalog`, `efb_addon_keys`,
 `efb_public_enqueue`, `efb_admin_enqueue_builder`, `efb_render_field` (`maps`), `efb_esign_parts`, `efb_esign_row`,
 `efb_choice_option_state`, `efb_legacy_gateway_*`, `efb_maps_assets`.
+
+## PAY-OUT: Stripe, PayPal and Persia Pay are add-ons; their forms move to the payment framework (2026-11-18)
+
+Owner rule: payment gateways are always add-ons. What an integration reads and does now:
+
+- **Capability flag** `capabilities.legacy_gateways` (`efb_var.capabilities`, `capabilities_efb()`):
+  ```json
+  { "v": 1, "deprecated": true, "removal": "5.0", "contract": 2.2,
+    "moved_to_addons": ["builder_panels", "keys_screens", "server_pricing", "payments_table", "forms"],
+    "targets": { "stripe": "stripecheckout", "paypal": "paypalcheckout", "persiaPay": "zarinpalgate", "zarinPal": "zarinpalgate", "persiapay": "zarinpalgate" },
+    "migration": { "rest": ".../wp-json/Emsfb/v1/payments/legacy-migration", "per_form": true, "rollback": true, "backup": "original JSON per form" } }
+  ```
+  `targets` lists only the framework fields registered now (the add-on is on and recent). **Build new payment forms
+  with the target palette id** (`efbBuilderApi.newItems('stripecheckout')`, `Builder_Api::field_templates('paypalcheckout')`,
+  …); they are ordinary PAY00 gateways (`capabilities.payment_gateways.<slug>`, `payment_keys.<slug>`, readiness).
+  The older palette ids `stripe`, `paypal`, `persiaPay` still build (deprecated) and their tiles leave the builder's
+  palette once the target is registered. Without the add-on the builder API answers `addon_required` for the new ids
+  (`AdnSPF`, `AdnPAP`, `AdnPPF`).
+- **Readiness**: a form of an older field whose add-on is on but older than this core reports `pay_addon_update`
+  ("Update … to keep using it with this version."); absent or off stays `pay_addon_inactive`. A moved form whose
+  add-on is off reports `pay_addon_inactive` with the add-on's code (the three new types are in the catalogue).
+- **Migration** (administrators, cookie + `X-WP-Nonce`): `GET payments/legacy-migration` → `{forms: [{form_id, name,
+  status, reason, from, to, at, by, events, can_rollback, can_migrate}], counts, targets, runs, last_run, queued}`;
+  `POST …/run` (one batch of 20), `POST …/rollback {form_id}`, `POST …/migrate {form_id}`. Statuses: `pending`,
+  `migrated`, `rolled_back`, `waiting_addon`, `waiting_keys`, `recurring`, `gateway_unsupported`, `several_gateways`,
+  `amount_differs`, `not_ready`, `failed`. An agent never moves or rolls back a form on its own: it reports the list
+  and links to Settings › Payments.
+- **Keys**: each add-on keeps its keys on its own screen (`admin.php?page=Emsfb_stripe_keys`, `…_paypal_keys`,
+  `…_persiapay_keys`); `payment_keys.stripe|paypal` still say only whether they are set (filter
+  `efb_legacy_gateway_keys_set`). No key or ciphertext is ever returned.
+- Tests: `tests/test-payout-*.php|js`, `tests/test-payout-migrate-http.php`, `tests/test-payout-mixed-http.php`, e2e
+  `payout`, `payout-mixed`, `payout-shots`.
 
 ## F20-core: the customer portal's core contract (2026-11-18)
 
