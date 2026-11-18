@@ -2107,6 +2107,10 @@ require('./scenario-f17.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewFo
  * seen in F14: tests/e2e-wp/scenario-f20.js. */
 require('./scenario-f20.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT });
 
+/* The final test before release: the confirmation e-mail on by default (4.3.2) and the UI review at 375 px (fa_IR, ar):
+ * tests/e2e-wp/scenario-final.js. */
+require('./scenario-final.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */
