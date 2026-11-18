@@ -1768,6 +1768,7 @@ function efb_offline_addon_active_efb() {
  * visitor can press Send once online. Only plain fields are filled, through
  * the normal change handler so every check and rule runs. Payment forms keep
  * their own return path. */
+const EFB_WIDGET_RESTORE_TYPES = ['postalcode', 'address_line', 'mobile', 'multiselect', 'chlCheckBox', 'chlRadio', 'trmCheckbox', 'imgRadio', 'yesNo', 'rating', 'esign', 'r_matrix', 'pointr5', 'pointr10'];
 const EFB_RESTORABLE_FIELD_TYPES = ['text', 'email', 'url', 'number', 'date', 'color', 'range', 'textarea', 'firstName', 'lastName', 'tel', 'radio', 'checkbox', 'select', 'pdate', 'ardate'];
 async function efb_restore_offline_answers_efb() {
   const rows = efb_stored_answers_at_load_efb;
@@ -1782,8 +1783,12 @@ async function efb_restore_offline_answers_efb() {
     if (!Array.isArray(structure) || !structure[0]) continue;
     const head = structure[0];
     if (!(head.AfLnFrm === true || Number(head.AfLnFrm) === 1) || head.type === 'payment') continue;
+    // Fields drawn by their own widget (signature, rating, multiselect, mobile...)
+    // are refilled by fun_offline_Efb(), which also restores the bank return.
+    const widget_rows = [];
     for (const row of rows) {
       if (!row || typeof row !== 'object' || Number(row.form_id) !== fid) continue;
+      if (EFB_WIDGET_RESTORE_TYPES.indexOf(String(row.type || '')) !== -1) { widget_rows.push(row); continue; }
       /* A switch is a toggle button whose row has no id_ob: it came back
        * "off" even when the visitor had turned it on. Press it, so its own
        * handler stores the answer and runs the rules. */
@@ -1823,6 +1828,18 @@ async function efb_restore_offline_answers_efb() {
         continue;
       }
       try { await handle_change_event_efb_v4(el, fid); } catch (e) {}
+    }
+    if (widget_rows.length > 0 && typeof fun_offline_Efb === 'function') {
+      const prev_valj = valj_efb;
+      try {
+        valj_efb = structure;
+        await fun_offline_Efb(widget_rows);
+        localStorage.setItem('sendback', efb_sendback_for_storage_efb(sendBack_emsFormBuilder_pub));
+      } catch (e) {} finally { valj_efb = prev_valj; }
+      try {
+        if (window.efb_logic_runtime && typeof window.efb_logic_runtime.evaluate === 'function') window.efb_logic_runtime.evaluate(fid);
+      } catch (e) {}
+      if (typeof updateStepButtonState_efb === 'function') { try { updateStepButtonState_efb(fid); } catch (e) {} }
     }
   }
 }

@@ -857,6 +857,15 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
    * neutralises hostile values for all of them without any render branch below
    * having to remember to escape. Escaping happens exactly once — callers pass
    * raw parsed content and never pre-escape — so there is no double-encoding. */
+  /* Payment entries saved up to 4.3.1 are a JSON object with numbered keys
+   * ({"0":..,"2":..}) instead of a list, and opening one threw. Read them as
+   * the list they are, in order. */
+  if (content && typeof content === 'object' && !Array.isArray(content)) {
+    content = Object.keys(content).sort((a, b) => Number(a) - Number(b)).map(k => content[k]);
+  }
+  if (!Array.isArray(content)) content = [];
+  content = content.filter(row => row && typeof row === 'object');
+  if (content.length === 0) content.push({ type: 'w_link', value: '' });
   content = escResponseTreeEfb(content);
   /* The stored double-quote token, now that the tree is escaped: &quot; is
      right in element text and in attributes alike. */

@@ -507,7 +507,9 @@ function escapeContentPreviewText_efb(value) {
 
 function getContentPreview_efb(contentStr) {
   try {
-    const parsed = efbParseJson(replaceContentMessageEfb(contentStr, true));
+    let parsed = efbParseJson(replaceContentMessageEfb(contentStr, true));
+    // Payment entries up to 4.3.1 were saved as an object with numbered keys.
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) parsed = Object.keys(parsed).sort((a, b) => Number(a) - Number(b)).map(k => parsed[k]);
     if (!Array.isArray(parsed)) return { short: '—', full: '' };
     const parts = [];
     for (const c of parsed) {

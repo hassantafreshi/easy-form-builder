@@ -3973,12 +3973,36 @@ public function check_nonce_permission_efb($request) {
 								$validated_items = [];
 								foreach ($form_structure_json as $f) {
 									$it = array_filter($filtered, function ($item) use ($f) {
-										return is_array($f) && isset($f['id_'], $item['id_']) && $f['id_'] == $item['id_'] && ($f['name'] ?? null) == ($item['name'] ?? null);
+										if (!is_array($f) || !is_array($item) || !isset($f['id_'], $item['id_'])) return false;
+										/* A matrix answer carries its table's id in id_ and its own
+										 * row in id_ob, and its name is the row's label: it never
+										 * matched a field by id_ and name, so every table matrix
+										 * answer of a payment form was dropped. Match it to its row. */
+										$item_is_matrix = ($item['type'] ?? '') === 'r_matrix';
+										if (($f['type'] ?? '') === 'r_matrix') {
+											return $item_is_matrix && isset($item['id_ob'], $f['parent'])
+												&& (string) $f['id_'] === (string) $item['id_ob'] && (string) $f['parent'] === (string) $item['id_'];
+										}
+										if ($item_is_matrix) return false;
+										return $f['id_'] == $item['id_'] && ($f['name'] ?? null) == ($item['name'] ?? null);
 									});
 									/* These rows skipped the validator above; see
 									 * sanitize_payment_merge_row_efb(). */
-									$it = array_values(array_filter(array_map(function ($item) use ($f) {
-										return $this->sanitize_payment_merge_row_efb($item, $f);
+									$it = array_values(array_filter(array_map(function ($item) use ($f, $form_structure_json) {
+										$row = $this->sanitize_payment_merge_row_efb($item, $f);
+										/* Same labels as the main validator: the row's own text and
+										 * its table's name, both from the saved form. */
+										if (is_array($row) && ($f['type'] ?? '') === 'r_matrix') {
+											$row['name'] = isset($f['value']) && is_scalar($f['value']) ? sanitize_text_field((string) $f['value']) : '';
+											$row['label'] = '';
+											foreach ((array) $form_structure_json as $parent) {
+												if (is_array($parent) && ($parent['type'] ?? '') === 'table_matrix' && isset($parent['id_'], $f['parent']) && (string) $parent['id_'] === (string) $f['parent']) {
+													$row['label'] = isset($parent['name']) && is_scalar($parent['name']) ? sanitize_text_field((string) $parent['name']) : '';
+													break;
+												}
+											}
+										}
+										return $row;
 									}, $it)));
 									$validated_items = empty($validated_items) ? $it : array_merge($validated_items, $it);
 									if ($payment_gateway == "persiaPay") array_push($validated_items, $result);
@@ -3995,7 +4019,10 @@ public function check_nonce_permission_efb($request) {
 									'saved_payment_rows'     => $this->efb_trace_rows($saved_payment_content),
 									'validated_rows'         => $this->efb_trace_rows($validated_items),
 								]);
-								$filtered = array_unique(array_merge($validated_items, $saved_payment_content), SORT_REGULAR);
+								/* array_unique() keeps the keys of the rows it leaves, so the
+								 * list had gaps and was stored as a JSON object ({"0":..,"2":..});
+								 * the response viewer reads a list and could not open the entry. */
+								$filtered = array_values(array_unique(array_merge($validated_items, $saved_payment_content), SORT_REGULAR));
 								$filtered[] = array('type' => 'w_link', 'id_' => 'w_link', 'id' => 'w_link', 'value' => $url, 'amount' => -1);
 								/* What the notification email must describe is the record that
 								 * was just stored, not the leftovers of the final request.
@@ -9076,6 +9103,14 @@ public function check_nonce_permission_efb($request) {
 			} else {
 				$clean['value'] = sanitize_text_field((string) $clean['value']);
 			}
+		}
+		/* A matrix row is a 1-5 score, as in the main validator. */
+		if ($type === 'r_matrix' && (!isset($clean['value']) || !is_string($clean['value']) || preg_match('/^[1-5]$/', trim($clean['value'])) !== 1)) return null;
+		/* A switch is stored as the field's On/Off text, as the main validator
+		 * does; the payment path stored the raw "1"/"0". */
+		if ($type === 'switch' && isset($clean['value']) && is_scalar($clean['value'])) {
+			$label = (string) $clean['value'] === '1' ? ($field['on'] ?? null) : ($field['off'] ?? null);
+			if (is_scalar($label) && (string) $label !== '') $clean['value'] = sanitize_text_field((string) $label);
 		}
 		if (stripos($type, 'pay') === false) unset($clean['price']);
 		$clean['type'] = $type !== '' ? $type : (isset($clean['type']) ? (string) $clean['type'] : '');

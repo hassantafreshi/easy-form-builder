@@ -730,7 +730,10 @@ function type_validate_efb(type) {
   return type == "select" || type == "multiselect" || type == "text" || type == "password" || type == "email" || type == "conturyList" || type == "stateProvince" || type == "file" || type == "url" || type == "color" || type == "date" || type == "textarea" || type == "tel" || type == "number" || type == "yesNo" ? true : false;
 }
 
-async function fun_offline_Efb() {
+/* rows_only: restore just these rows (the offline-form restore passes the
+ * fields its change-handler path cannot fill) and leave every other answer of
+ * the form as it is. Without it, the whole stored list is restored. */
+async function fun_offline_Efb(rows_only = null) {
   const find_by_value = (val) => {
       const index = valj_efb.findIndex(row => row.value === val);
       if (index > -1) {
@@ -744,7 +747,10 @@ async function fun_offline_Efb() {
    * loaded (core-efb.js keeps that copy): building the form stores default
    * values, which had already replaced localStorage['sendback'] by now. */
   let values = null;
-  if (typeof efb_payment_return_answers_efb !== 'undefined' && Array.isArray(efb_payment_return_answers_efb)) {
+  const partial = Array.isArray(rows_only);
+  if (partial) {
+    values = rows_only;
+  } else if (typeof efb_payment_return_answers_efb !== 'undefined' && Array.isArray(efb_payment_return_answers_efb)) {
     values = efb_payment_return_answers_efb;
     efb_payment_return_answers_efb = null;
   } else {
@@ -757,7 +763,13 @@ async function fun_offline_Efb() {
    * while the form was built; the saved answers replace them instead of being
    * added next to them (two rows per field). */
   const restored_forms = new Set(values.map(v => Number(v.form_id)));
-  if (Array.isArray(sendBack_emsFormBuilder_pub)) {
+  if (!Array.isArray(sendBack_emsFormBuilder_pub)) sendBack_emsFormBuilder_pub = [];
+  if (partial) {
+    // Same field (and, for a matrix/choice row, same row) only.
+    const key = r => `${Number(r.form_id)}|${r.id_}|${r.type === 'r_matrix' ? r.id_ob : ''}`;
+    const keys = new Set(values.map(key));
+    sendBack_emsFormBuilder_pub = sendBack_emsFormBuilder_pub.filter(r => !r || !keys.has(key(r)));
+  } else {
     sendBack_emsFormBuilder_pub = sendBack_emsFormBuilder_pub.filter(r => !r || !restored_forms.has(Number(r.form_id)));
   }
   let temp, id;
@@ -782,6 +794,8 @@ async function fun_offline_Efb() {
       case 'firstName':
       case 'lastName':
       case 'prcfld':
+      case 'postalcode':
+      case 'address_line':
         document.getElementById(value.id_ob).value = value.value;
 
         el=value.type;
@@ -820,11 +834,43 @@ async function fun_offline_Efb() {
       case 'radio':
       case 'payCheckbox':
       case 'payRadio':
-      case 'payRadio':
+      case 'chlCheckBox':
+      case 'chlRadio':
+      case 'trmCheckbox':
+      case 'imgRadio':
         document.getElementById(value.id_ob).checked = true;
+        if (value.type === 'chlCheckBox' || value.type === 'chlRadio') {
+          // The quantity box next to a checklist option opens once it is ticked.
+          const qty_el = document.getElementById(`${value.id_ob}_chl`);
+          if (qty_el) {
+            qty_el.disabled = false;
+            if (value.qty != null && value.qty !== '') qty_el.value = value.qty;
+          }
+        }
 
         el=value.type;
         break;
+      case 'r_matrix':
+      case 'pointr5':
+      case 'pointr10': {
+        /* Star and NPS rows are buttons, not inputs: light them the way
+         * fun_point_rating()/fun_nps_rating() do, without storing again. A
+         * matrix row is keyed by its own id (id_ob), the others by id_. */
+        const pid = value.type === 'r_matrix' ? value.id_ob : value.id_;
+        const point = Number(value.value);
+        const nps = value.type === 'pointr10';
+        const on = typeof pub_bg_button_color_efb !== 'undefined' ? pub_bg_button_color_efb : 'btn-primary';
+        const off = nps ? 'btn-outline-secondary' : 'btn-secondary';
+        const scope = document.getElementById(`body_efb_${value.form_id}`) || document;
+        for (const b of scope.querySelectorAll(`[data-id="${CSS.escape(String(pid))}"][data-point]`)) {
+          const lit = nps ? Number(b.dataset.point) === point : Number(b.dataset.point) <= point;
+          b.className = typeof btnChangerEfb === 'function' ? btnChangerEfb(b.className, lit ? on : off) : b.className;
+        }
+        const hidden = document.getElementById(`${pid}-${nps ? 'nps' : 'point'}-rating`);
+        if (hidden) hidden.value = value.value;
+        el=value.type;
+        break;
+      }
       case 'stateProvince':
         if(el=='contury' ||el=='conturyList' ){
             el = valj_efb.findIndex(x => x.id_ == value.id_);
@@ -957,12 +1003,33 @@ async function fun_offline_Efb() {
         if(v.length==3){
           storedPhoneNumber ='+'+ v[2];
         }
-        const country =efb_var.wp_lan.split('_')[1].toUpperCase();
-        const iti = window.intlTelInput(el, {
-            initialCountry: country,
-            loadUtils: () => import(efb_var.images.utilsJs)
-        });
-        iti.setNumber(storedPhoneNumber);
+        /* The form already set the phone widget up; a second instance on the
+         * same input drew a second country picker. */
+        const existing_iti = window.intlTelInput && typeof window.intlTelInput.getInstance === 'function'
+          ? window.intlTelInput.getInstance(el) : null;
+        /* setNumber() before the widget has finished starting (country data,
+         * utils) loses the country; wait for its promise when it has one. */
+        const set_phone = (inst) => {
+          if (inst.promise && typeof inst.promise.then === 'function') inst.promise.then(() => inst.setNumber(storedPhoneNumber)).catch(() => {});
+          else inst.setNumber(storedPhoneNumber);
+        };
+        if (el) {
+          /* The widget can be set up after this runs, and the page may set it
+           * up a second time, which replaces the first instance and its
+           * number. Show the number now and give it to each instance that
+           * appears during the next few seconds. */
+          if (!existing_iti) el.value = storedPhoneNumber;
+          const phone_el = el;
+          let last_iti = null;
+          let tries = 0;
+          const follow_iti = () => {
+            const inst = window.intlTelInput && typeof window.intlTelInput.getInstance === 'function'
+              ? window.intlTelInput.getInstance(phone_el) : null;
+            if (inst && inst !== last_iti) { last_iti = inst; set_phone(inst); }
+            if (++tries < 40) setTimeout(follow_iti, 150);
+          };
+          follow_iti();
+        }
 
       el=value.type;
       break;
@@ -982,6 +1049,7 @@ async function fun_offline_Efb() {
   /* Only a successful return (Status=OK) hands the payment back. On NOK the
    * gateway still sends an Authority, which added a payment row and
    * auto-submitted a form that was never paid. */
+  if (partial) return;
   if(valj_efb[0].type=="payment" && valj_efb[0].getway=="persiaPay" && typeof get_authority_efb =="string"
     && (typeof get_Status_efb === 'undefined' || get_Status_efb == 'OK')){
     fun_after_bankpay_persia_ui();
