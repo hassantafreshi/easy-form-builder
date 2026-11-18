@@ -2097,6 +2097,11 @@ require('./scenario-f21.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT });
  * tests/e2e-wp/scenario-f16.js. */
 require('./scenario-f16.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
 
+/* F17 localized name and address: the format chooser and AutoPilot, every format in core with the Address & Postal
+ * add-on off and on, names, display (viewer, CSV, e-mail), the add-on's address search (Nominatim stand-in), fa_IR / ar
+ * at 375 and 1280 with axe-core: tests/e2e-wp/scenario-f17.js. */
+require('./scenario-f17.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */
