@@ -7,6 +7,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once('functions.php');
+// The trait below (payments-efb.php loads it with the payment framework; a bare include of this class gets it here).
+if (!trait_exists('\\Emsfb\\Payments\\Legacy_Gateway_Shim', false)) require_once __DIR__ . '/payments/legacy-gateway-shim-efb.php';
 class _Public {
 	// PAY-OUT step 3: the deprecated legacy_gateway members (one more release): includes/payments/legacy-gateway-shim-efb.php.
 	use \Emsfb\Payments\Legacy_Gateway_Shim;
