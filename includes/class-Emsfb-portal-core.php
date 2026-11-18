@@ -433,8 +433,9 @@ class Portal_Core {
 		if ($type === 'esign') { $out['value'] = Privacy::readable_value(array_diff_key($r, array('value' => 1)), $l); return $out; }
 		if ($type === 'advdate') { $out['value'] = isset($r['disp']) ? (string) $r['disp'] : (string) ($r['value'] ?? ''); $out['iso'] = (string) ($r['value'] ?? ''); return $out; }
 		if (isset($r['url']) && is_string($r['url']) && $r['url'] !== '' && ($r['value'] ?? '') === '@file@') {
-			$out['file'] = array('name' => isset($r['fnm']) && is_string($r['fnm']) && $r['fnm'] !== '' ? $r['fnm'] : basename((string) parse_url($r['url'], PHP_URL_PATH)), 'private' => class_exists('\\Emsfb\\Uploads') && Uploads::is_private_url($r['url']));
-			if (!$out['file']['private']) $out['file']['url'] = esc_url_raw($r['url']);
+			$priv = class_exists('\\Emsfb\\Uploads') && Uploads::is_private_url($r['url']);
+			$out['file'] = array('name' => isset($r['fnm']) && is_string($r['fnm']) && $r['fnm'] !== '' ? $r['fnm'] : basename((string) parse_url($r['url'], PHP_URL_PATH)), 'private' => $priv);
+			if (!$priv) $out['file']['url'] = esc_url_raw($r['url']);
 			$out['value'] = $out['file']['name'];
 			return $out;
 		}

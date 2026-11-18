@@ -179,6 +179,8 @@ function get_current_user_id() { return 7; }
 function get_setting_Emsfb() { return new stdClass(); }
 require_once __DIR__ . '/../includes/class-Emsfb-privacy.php'; // insert_message_db() shapes the IP through it
 function wp_create_nonce($x) { return 'n'; }
+$GLOBALS['efb_actions'] = array();
+function do_action($h, ...$a) { $GLOBALS['efb_actions'][] = $h; } // F20-core P4: efb_entry_stored after each stored entry
 function __($s) { return $s; }
 function wp_send_json_error($d) { throw new Exception('json_error'); }
 class InsertDb {
@@ -202,6 +204,7 @@ $fx = new InsertFixture();
 $fx->db = new InsertDb(true);
 $fx->insert_message_db(0, false);
 t('uid of the logged-in sender is stored', isset($fx->db->rows[0]['uid']) ? $fx->db->rows[0]['uid'] : null, 7);
+t('efb_entry_stored fires once for the stored entry', $GLOBALS['efb_actions'], array('efb_entry_stored'));
 $fx2 = new InsertFixture();
 $fx2->db = new InsertDb(false);
 $code = $fx2->insert_message_db(0, false);

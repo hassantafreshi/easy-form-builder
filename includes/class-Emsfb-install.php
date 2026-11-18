@@ -57,10 +57,10 @@ class Install {
 		if ( ! is_string( $sql ) || ! preg_match( '/^\s*CREATE TABLE\s+`?(' . preg_quote( $wpdb->prefix, '/' ) . '[A-Za-z0-9_]+)`?\s*\(/i', $sql, $m ) ) {
 			return false;
 		}
-		if ( ! function_exists( 'dbDelta' ) ) {
+		if ( ! function_exists( 'dbDelta' ) && defined( 'ABSPATH' ) && is_readable( ABSPATH . 'wp-admin/includes/upgrade.php' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		}
-		self::create_table_if_absent( $sql );
+		if ( function_exists( 'dbDelta' ) ) self::create_table_if_absent( $sql );
 		return $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $m[1] ) ) === $m[1];
 	}
 
