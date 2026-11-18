@@ -1360,7 +1360,7 @@ Status: **built** (2026-11-15). Spec: [`SPLIT-core-addons.fa.md`](../SPLIT-core-
 | `AdnADR` | 18 postal mask presets, `maps` field, F17 address search, postcode → city | every plan, inner gates as today |
 | `AdnGEO` | `{geo:country}` / `{geo:country_name}` and the "Visitor country" preset, with the site admin's own ipinfo.io / ip-api.com key, server-side at submit only, fail-open | Free Plus and Pro |
 | `AdnBEF` | booking: older booking-form editing, `advdate` availability, slots, bookings screen | Pro (editing and the template now; availability later) |
-| `AdnPRT` | customer portal (F20; joins the catalogue through `efb_addon_catalog` when built) | Pro |
+| `AdnPRT` | customer portal (F20; in the catalogue since F20-core, 2026-11-18, for its loader and plan; no install card until the add-on exists) | Pro |
 | `AdnSPF` / `AdnPAP` / `AdnPPF` | the gateway code that was in core (legacy gateway bridge v1; an add-on from before SPLIT reads as `state: update`) | as today |
 | Data Tools plugin | export / import UI and every importer (CF7 included) | free |
 
@@ -1370,3 +1370,17 @@ worked around by dropping keys (`efbBuilderApi` refuses them: `addon_required` w
 whose amount comes from a calc field is not published until `payment_ready`; an agent never stores an add-on's API
 key (gateways, `AdnGEO`). §4.3 (mask catalog): postal presets appear only when `AdnADR` is on. §9 F04, F08, F10,
 F17 rows: read with this section.
+
+## 14. F20-core: the customer portal's core contract (2026-11-18)
+
+Core keeps the contract of the customer portal add-on (`AdnPRT`, Pro, not built yet): docs/portal/portal-core-contract.en.md.
+
+- `capabilities.portal_core` = `{version: 1, features, addon: 'AdnPRT', package: 'pro', ready, reason, index}`;
+  `ready` is false until the add-on is on. The add-on contract `portal` v1 is in `efb_addon_contracts()`.
+- Entry rows of the entries API carry `ticket` (`open` | `closed`) and `owner_state` (`none` | `cancelled`).
+- Checklist for SitePilot (F20): the portal's settings stay outside the form JSON (a key of the settings row, the
+  F12b-L rule; per form through `efb_portal_form_policy`); the visitor assistant gets no new access — it only links to
+  the portal page; an agent never handles a sign-in code or reads an owner's entries; the owner index (hashes) is never
+  exposed; changes of the portal's sign-in methods or allowed actions belong in `security_changes` when the add-on's
+  settings API exists.
+

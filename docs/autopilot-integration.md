@@ -2079,9 +2079,30 @@ never a hand-kept list.
 `EMSFB_PAYMENTS_API`), `calc` v1 (`efb_payment_computed_items` is the server recompute of a calc amount),
 `legacy_gateway` v1 (Stripe / PayPal / PersiaPay bridge until they move to PAY00), `typed_signature` v1,
 `address` v1, `booking` v1 (F06 hooks `efb_date_availability*`, `efb_date_before_commit`), `smart_tags_ext` v1
-(`efb_smart_tag_namespaces`, `efb_smart_tag_value`, `efb_hidden_field_note`), `portal_core` v1 (F20, later).
+(`efb_smart_tag_namespaces`, `efb_smart_tag_value`, `efb_hidden_field_note`), `portal` v1 (F20-core, built 2026-11-18:
+`capabilities.portal_core`, below).
 `form_package` is **1.1** since SPLIT-G: `import()` returns `import_token`, `Form_Package::delete($form_id,
 $import_token)` undoes an import, `Form_Package::import_entries($form_id, $rows)` stores entries through the submit's
 rules (docs/form-package-contract.en.md). Generic hooks an add-on uses: `efb_addon_catalog`, `efb_addon_keys`,
 `efb_public_enqueue`, `efb_admin_enqueue_builder`, `efb_render_field` (`maps`), `efb_esign_parts`, `efb_esign_row`,
 `efb_choice_option_state`, `efb_legacy_gateway_*`, `efb_maps_assets`.
+
+## F20-core: the customer portal's core contract (2026-11-18)
+
+The customer portal is a Pro add-on (`AdnPRT`, not built yet); core keeps its contract, version 1
+(`EMSFB_PORTAL_API`, `efb_portal_core_api()`, the add-on contract `portal`; docs/portal/portal-core-contract.en.md).
+
+- **Registry.** `capabilities.portal_core`: `{version: 1, features, addon: 'AdnPRT', package: 'pro', ready, reason:
+  null | 'plan' | 'addon' | 'index', index: off | building | ready | stale, never}`. `ready` stays **false** until the
+  portal add-on is on (on a Pro site, with the owner index built). `addon:AdnPRT` is in the add-on catalogue (Pro).
+- **Entries API.** `efb_api_entries_query` / `efb_api_entry_get` rows gain `ticket` (`open` | `closed`) and
+  `owner_state` (`none` | `cancelled`). The owner index and its hashes are never in an answer.
+- **Not for assistants.** An assistant may link to the portal page only. It never asks for, enters or reads a sign-in
+  code, never calls the `efb_portal_*` functions for a visitor and never reads an owner's entries; the visitor
+  assistant gets no new access. Codes it may meet in answers: `efb_portal_*` (§6 of the contract) and F02's
+  `efb_verify_*` for sign-in.
+- **Settings.** The portal's settings will be the add-on's key of the settings row (the F12b-L rule), outside the form
+  JSON; core reads a form's policy from the add-on (`efb_portal_form_policy`).
+- **Tests.** `php tests/test-portal-core-contract.php` (20), `php tests/test-portal-core-http.php` (84, a mock add-on),
+  `php tests/test-owner-cancel-http.php`, `php tests/test-owner-index-wp.php`; e2e `f20-a` … `f20-c`.
+

@@ -1,4 +1,4 @@
-وضعیت: سند آماده؛ **F20-core (بخش اول، C1 تا C6) ساخته نشد** (۲۰۲۶-۱۱-۱۸): بودجهٔ اندازهٔ هسته جا ندارد، بخش «وضعیت F20-core» پایین؛ اشکال‌های §۱۵ رفع شدند؛ افزونه (بخش دوم) ساخته نشده (افزونهٔ جدا، فقط Pro؛ ساخت پس از قبولی آزمون نهایی F01 تا F19) · اولویت: P1 · تلاش: M (پیش‌نیازهای هسته، «F20-core») + L (افزونه) · وابستگی: F02، F05، F06، F07، F11، F13، F14 (پیاده‌شده)؛ F12، F15، F16، F17 (هر کدام یک بند کوچک از §۵)؛ PAY00
+وضعیت: **F20-core (بخش اول، C1 تا C6) ساخته شد** (۲۰۲۶-۱۱-۱۸، پس از تصمیم مالک دربارهٔ اندازه؛ بخش «وضعیت F20-core»)؛ اشکال‌های §۱۵ رفع شدند؛ افزونه (بخش دوم، A تا H) ساخته نشده (افزونهٔ جدا، فقط Pro؛ ساخت پس از قبولی آزمون نهایی F01 تا F19) · اولویت: P1 · تلاش: M (پیش‌نیازهای هسته، «F20-core») + L (افزونه) · وابستگی: F02، F05، F06، F07، F11، F13، F14 (پیاده‌شده)؛ F12، F15، F16، F17 (هر کدام یک بند کوچک از §۵)؛ PAY00
 
 # F20 — افزونهٔ پرتال مشتری: داشبورد عمومی تیکت و پشتیبانی، رزروها و پاسخ‌ها
 
@@ -14,30 +14,32 @@
 5. **نشست پرتال** کوکی HttpOnly با توکن تصادفی ۲۵۶ بیتی است که فقط HMAC آن ذخیره می‌شود. عمر بیکاری ۳۰ دقیقه و عمر مطلق ۱۲ ساعت است. خروج، فهرست دستگاه‌ها و لغو دستگاه دارد.
 6. **صفحهٔ پرتال هرگز کش نمی‌شود:** همان `Cache_Compat::bypass()` و پاسخ‌های REST با `no-store`.
 
-## وضعیت F20-core (۲۰۲۶-۱۱-۱۸، شاخهٔ `dev4` از `325f9b54`)
+## وضعیت F20-core (۲۰۲۶-۱۱-۱۸، شاخهٔ `dev4`)
 
-**ساخته نشد؛ کار طبق دستور توقف شد و عددها گزارش شد.** دستور: «آزمون اندازهٔ هستهٔ SPLIT باید سبز بماند (بودجه اکنون ۱۰۰٬۰۰۰ بایت؛ پایین‌تر نیاید)؛ اگر F20-core جا نمی‌شود، توقف و گزارش عددها».
+**ساخته شد.** قرارداد نسخهٔ ۱ (`EMSFB_PORTAL_API = 1`) با مستند انگلیسی [`docs/portal/portal-core-contract.en.md`](../portal/portal-core-contract.en.md) (امضاها، رویدادها، کدهای خطا، نمونه؛ کافی برای ساخت افزونه بدون خواندن هسته). بدون افزونه بی‌اثر است: همهٔ تابع‌ها تا وقتی افزونه روی فیلتر `efb_portal_active` بله نگوید (روی سایت Pro) `efb_portal_unavailable` می‌دهند و هسته هیچ صفحه، مسیر یا صفحهٔ مدیریتی تازه‌ای ندارد.
 
-| اندازه (روش `tests/test-split-core-size.php`: فایل‌های git در `includes`، `public`، `composer`، `emsfb.php`، `autoload.php`، `index.php`، `readme.txt`، بی `languages`) | بایت |
+**اندازه (روش `tests/test-split-core-size.php`، بی `languages`).** در گزارش نخست جای خالی ۱۵٬۳۵۷ بایت بود و کار متوقف شد. **تصمیم مالک (۲۰۲۶-۱۱-۱۸): راه ۱** — سه فایل بی‌ارجاع حذف شدند (`112d5957`، ۳۴۱٬۰۵۹ بایت)؛ بودجهٔ ۱۰۰٬۰۰۰ بایت دست نخورد.
+
+| اندازه | بایت |
 |---|---|
-| پیش از SPLIT (`ff8f21ad`) | 12,684,732 |
 | سقف مجاز (پیش از SPLIT منهای ۱۰۰٬۰۰۰) | 12,584,732 |
-| `325f9b54` (پیش از این کار) | 12,569,375 → **جای خالی ۱۵٬۳۵۷** |
-| پس از رفع اشکال‌های فهرست‌شده (`33fa8872` تا `78ff0e44`، با سطرهای readme) | 12,572,540 → **جای خالی ۱۲٬۱۹۲** |
-| کلاس عمومی (`class-Emsfb-public.php`، سقف ۱٬۰۰۰٬۰۰۰) | 993,548 → جای خالی ۶٬۴۵۲ |
+| پس از حذف سه فایل (`112d5957`) | 12,231,658 |
+| پس از F20-core (`e6cd47b2`) | 12,331,301 (F20-core: +99,643؛ جای خالی ۲۵۳٬۴۳۱) |
+| کلاس عمومی (`class-Emsfb-public.php`، سقف ۱٬۰۰۰٬۰۰۰) | 994,552 (کد تازه در فایل‌های تازهٔ `includes/`) |
 
-برآورد F20-core (کد فشرده، بی مستند و تست که شمرده نمی‌شوند): C1 قرارداد، بارگذار `efb_addon_loaders`، ثبت `AdnPRT` در پنج فهرست، `Install::addon_table()`، `efb_entry_stored`، فیلتر کش، رجیستری ≈ ۱۲ KB؛ C2 نمایهٔ مالک (جدول، ستون‌ها، مهاجرت، پرکردن اولیه با cron، hookها) ≈ ۱۵ KB؛ C3 کد ورود بی فرم (ارسال و بررسی، قالب ایمیل و پیامک، سقف‌ها) ≈ ۱۲ KB؛ C4 خواندن برای صاحب پاسخ، پرداخت و رسید، `signed_url_ttl` ≈ ۱۵ KB؛ C5 استخراج پاسخ (خالص کوچک)، وضعیت تیکت، فیلتر پیوند در چهار سازنده ≈ ۸ KB؛ C6 لغو و تغییر زمان (قرارداد AdnBEF)، ویرایش صاحب پاسخ در `Entries::update()`، پیش‌نویس، حریم خصوصی ≈ ۱۵ KB؛ عبارت‌ها و readme ≈ ۵ KB. **جمع ≈ ۸۰ KB (بازهٔ ۶۰ تا ۱۰۰ KB)**، یعنی ۵ تا ۸ برابر جای خالی.
+**کامیت‌ها:** `688e60e3` (C2، نمایه و DB 1.12)، `8002fda6` (C1، C3 تا C6)، vendores-efb `475719b` (قرارداد رزرو در AdnBEF)، `f25a2596` (e2e و رفع جهت ایمیل کد)، `e6cd47b2` (فهرست عبارت‌ها)، و رفع اشکال‌های §۱۵ پیش از آن.
 
-راه‌هایی که تصمیمش با مالک است:
-1. حذف فایل‌های بی‌ارجاع بستهٔ هسته (BUGS-FOUND، F20-core): `includes/admin/assets/js/jquery-1-efb.js` (۹۵٬۸۳۳ بایت؛ چیزی آن را بار نمی‌کند)، `includes/admin/assets/image/flags.png` و `flags@2x.png` (۷۰٬۸۵۷ و ۱۷۴٬۳۶۹ بایت؛ CSS فقط webp می‌خواهد). جمع ≈ ۳۴۱ KB: برای F20-core کافی است و بودجه پایین نمی‌آید.
-2. کوتاه کردن changelog در `readme.txt` (بخش Changelog اکنون ≈ ۶۴ KB؛ نسخه‌های قدیمی در فایل جدا).
-3. بالا بردن عمدی بودجه با دلیل (دستور فعلی: نه).
+**تصمیم‌ها (به‌جای برنامهٔ اولیه):**
+- P2: `AdnPRT` در کاتالوگ افزونه‌ها (Pro، بارگذار `routes`، قرارداد `portal`)؛ کارت نصب در صفحهٔ افزونه‌ها با خود افزونه می‌آید (هنوز چیزی برای دانلود نیست). «بارگذار عمومی» همان `Addon_Catalog::load()` SPLIT است.
+- P7: `portal_send`/`portal_check` در `Emsfb\Portal_Core` (`class-Emsfb-portal-core.php`) روی قطعه‌های عمومی `Verification` ساخته شد، نه داخل `class-Emsfb-verification.php`.
+- P9: پنهان‌سازی F08 با همان قاعدهٔ `smart_public_content_efb()` در `Portal_Core` (بی تغییر دادن کلاس عمومی).
+- P10: نیمهٔ دوم پاسخ به `_Public::entry_reply_store_efb()` منتقل شد و `forms/response/add` همان را صدا می‌زند (پاسخ REST بی‌تغییر؛ تست‌های پاسخ سبز)؛ `efb_entry_add_reply()` صاحب پاسخ را از همان مسیر می‌برد.
+- P14: لغو و تغییر زمان قراردادی است که افزونهٔ رزرو (`AdnBEF`) پیاده می‌کند (`efb_portal_booking_api = 1`، شنیدن `efb_entry_cancelled` و `efb_date_released`)؛ بی آن `addon_required`. سیاست هر فرم (پنجره‌ها، شمار تغییر زمان، پرداخت‌شده) از افزونهٔ پرتال با `efb_portal_form_policy` می‌آید.
+- P15: ویرایش صاحب پاسخ از `Entries::update()` با `actor=owner` (بررسی‌های submit، F03، F05، F04)؛ تاریخ‌های F06 از مسیر تغییر زمان (`efb_date_before_commit`) دوباره رزرو می‌شوند؛ فیلدهای زیر منطق شرطی، پنهان، غیرفعال، گذرواژه و قیمت هرگز.
+- P19: برون‌بر جدول نشست افزونه را خود افزونه با فیلتر وردپرس `wp_privacy_personal_data_exporters` ثبت می‌کند؛ هسته فیلتر جدا (`efb_privacy_exporters_extra`) نساخت. نمایه با حذف و ناشناس‌سازی F13 پاک می‌شود.
+- فیلتر `efb_portal_plan_ok` (مثل `efb_verify_plan` F02) برای سایت آزمون که Pro بی مجوز را Free Plus می‌خواند.
 
-**تصمیم مالک (۲۰۲۶-۱۱-۱۸): راه ۱.** سه فایل بی‌ارجاع حذف شدند (۳۴۱٬۰۵۹ بایت) و F20-core در همین جا ساخته می‌شود؛ بودجهٔ ۱۰۰٬۰۰۰ بایت دست نمی‌خورد و کد تازه در فایل‌های تازهٔ `includes/` است، نه در `class-Emsfb-public.php`.
-
-آزمون‌ها پس از رفع اشکال‌ها: واحد ۵۲۲ فایل، ۲۵٬۷۲۳ پاس، ۷ شکست (همان ۶ شکست پایهٔ `325f9b54` و یک بار ناپایداری `test-inline-api.js` که تنها ۱۸ از ۱۸ است)؛ تست‌های وردپرس واقعی ۴۵ فایل، ۹۵۷ پاس، ۳ شکست (همان شکست‌های `325f9b54`: `test-form-package-http.php`، `test-repeater-render-http.php`)؛ e2e کامل ۱۳۹ سناریو، ۱٬۷۸۰ پاس، ۱ شکست (سناریوی 2: صفحهٔ پنل یک بار بی CSS و JS آمد، اجرای دوبارهٔ 1 و 2: ۴۰ از ۴۰).
-
-کارهای انجام‌شده در همین تسک (اشکال‌های فهرست‌شده): §۱۵ پایین؛ BUGS-FOUND بخش «F20-core»؛ در `vendores-efb`: `de4ace7` (پیامک)، `7f93422` (نشانی).
+**آزمون‌ها:** واحد `test-portal-core-contract.php` (۲۰)؛ وردپرس واقعی `test-portal-core-http.php` (۸۴، افزونهٔ نمایشی `tests/e2e-wp/mu-plugins/efb-e2e-f20.php` که منتشر نمی‌شود: ورود با کد ایمیل و پیامک از جانشین WP SMS، فهرست، جزئیات، گفتگو، پاسخ، بستن و بازگشایی، پرداخت و رسید، پیوند امضاشدهٔ فایل، لغو و تغییر زمان با AdnBEF روشن و خاموش، ویرایش با ظرفیت F05 و تاریخ F06، پیش‌نویس، حریم خصوصی، حساب وردپرس، و همهٔ مسیرهای رد)، `test-owner-cancel-http.php` (۲۰ درخواست هم‌زمان روی آخرین جا)، `test-owner-index-wp.php` (۲۰٬۰۰۰ پاسخ در پرکردن اولیه، جست‌وجو میان ۲۰۰٬۰۰۰ ردیف: میانهٔ ۰٫۷ میلی‌ثانیه)؛ e2e `f20-a` تا `f20-c` (fa_IR و ar در ۳۷۵).
 
 ### تغییر برنامه از زمان نوشتن سند (برای ساخت بعدی F20-core)
 سند پیش از SPLIT، F12b، F16، F17 و F21 نوشته شد. از آن پس:
@@ -386,11 +388,11 @@ CREATE TABLE {p}emsfb_prt_sess_ (
 - تست: `php tests/test-portal-core-contract.php`، `php tests/test-entry-stored-hook.php` (WP، `[SKIP]` بدون سایت e2e).
 
 > **Checkpoint** (۲۰۲۶-۱۱-۱۸)
-> فایل‌های تغییرکرده: — (ساخته نشد)
-> تست‌ها: —
-> وضعیت ترجمه: —
-> مورد باز: بودجهٔ اندازهٔ هسته جا ندارد (جای خالی ۱۲٬۱۹۲ بایت در برابر برآورد ≈ ۸۰ KB)؛ بخش «وضعیت F20-core».
-> اقدام بعدی: تصمیم مالک دربارهٔ جا (حذف فایل‌های بی‌ارجاع، کوتاه کردن changelog، یا بودجه)، سپس C1 تا C6.
+> فایل‌های تغییرکرده: `includes/portal-core-functions-efb.php`، `class-Emsfb-portal-core.php` (ثبت و رجیستری)، `class-Emsfb-addon-catalog.php`، `addon-contracts-functions-efb.php`، `class-Emsfb-public.php` (`efb_entry_stored`)، `class-Emsfb-cache-compat.php`، `class-Emsfb.php`
+> تست‌ها: `test-portal-core-contract.php` (۲۰)، `test-portal-core-http.php` (بخش‌های بی‌اثر بودن و P4)
+> وضعیت ترجمه: عبارت‌های انگلیسی فقط در فهرست (`catalog.json`، `.pot`)؛ ترجمه نشد (دستور مالک).
+> مورد باز: —
+> اقدام بعدی: بخش دوم (افزونهٔ `AdnPRT`) پس از آزمون نهایی F01 تا F19.
 
 #### C2. نمایهٔ مالک (P5، P6)
 - فایل‌ها: `includes/class-Emsfb-owner-index.php` (تازه، `\Emsfb\Owner_Index`)، `class-Emsfb-install.php`، `emsfb.php` (نسخهٔ پایگاه داده)، `docs/migrations/`.
@@ -398,11 +400,11 @@ CREATE TABLE {p}emsfb_prt_sess_ (
 - تست: `php tests/test-owner-index.php`، `php tests/test-owner-index-wp.php` (seed ‏`tests/seed-entries-bulk.php`).
 
 > **Checkpoint** (۲۰۲۶-۱۱-۱۸)
-> فایل‌های تغییرکرده: — (ساخته نشد)
-> تست‌ها: —
-> وضعیت ترجمه: —
-> مورد باز: بودجهٔ اندازهٔ هسته جا ندارد (جای خالی ۱۲٬۱۹۲ بایت در برابر برآورد ≈ ۸۰ KB)؛ بخش «وضعیت F20-core».
-> اقدام بعدی: تصمیم مالک دربارهٔ جا (حذف فایل‌های بی‌ارجاع، کوتاه کردن changelog، یا بودجه)، سپس C1 تا C6.
+> فایل‌های تغییرکرده: `includes/class-Emsfb-owner-index.php`، `class-Emsfb-install.php` (`addon_table`، `upgrade_f20_schema`)، `emsfb.php` (DB 1.12)
+> تست‌ها: `test-owner-index-wp.php`، `test-portal-core-contract.php`، `test-portal-core-http.php` (P5)
+> وضعیت ترجمه: عبارت‌های انگلیسی فقط در فهرست (`catalog.json`، `.pot`)؛ ترجمه نشد (دستور مالک).
+> مورد باز: —
+> اقدام بعدی: بخش دوم (افزونهٔ `AdnPRT`) پس از آزمون نهایی F01 تا F19.
 
 #### C3. کد ورود بدون فرم (P7)
 - فایل‌ها: `class-Emsfb-verification.php` (`portal_send`، `portal_check`، متن‌های ایمیل و پیامک ورود)، همان جدول و `Rate_Limit`.
@@ -410,11 +412,11 @@ CREATE TABLE {p}emsfb_prt_sess_ (
 - تست: `php tests/test-portal-otp.php` (فرستندهٔ آزمایشی مثل `tests/test-addon-smssended-verify.php`)، `php tests/test-portal-otp-antifraud.php`.
 
 > **Checkpoint** (۲۰۲۶-۱۱-۱۸)
-> فایل‌های تغییرکرده: — (ساخته نشد)
-> تست‌ها: —
-> وضعیت ترجمه: —
-> مورد باز: بودجهٔ اندازهٔ هسته جا ندارد (جای خالی ۱۲٬۱۹۲ بایت در برابر برآورد ≈ ۸۰ KB)؛ بخش «وضعیت F20-core».
-> اقدام بعدی: تصمیم مالک دربارهٔ جا (حذف فایل‌های بی‌ارجاع، کوتاه کردن changelog، یا بودجه)، سپس C1 تا C6.
+> فایل‌های تغییرکرده: `class-Emsfb-portal-core.php` (`send_code`، `check_code`، اثبات‌ها)، `class-Emsfb-verification.php` (`dir=auto` در ایمیل کد)، `functions.php` (عبارت‌ها)
+> تست‌ها: `test-portal-core-http.php` (P7)، e2e `f20-a`، `f20-b`
+> وضعیت ترجمه: عبارت‌های انگلیسی فقط در فهرست (`catalog.json`، `.pot`)؛ ترجمه نشد (دستور مالک).
+> مورد باز: —
+> اقدام بعدی: بخش دوم (افزونهٔ `AdnPRT`) پس از آزمون نهایی F01 تا F19.
 
 #### C4. خواندن برای صاحب پاسخ (P9، P12، P13)
 - فایل‌ها: `portal-core-functions-efb.php`، `class-Emsfb-public.php` (`smart_public_content_efb` قابل‌صدا)، `class-Emsfb-payment-store.php` (`by_msg`)، `class-Emsfb-uploads.php` (`signed_url_ttl`).
@@ -422,11 +424,11 @@ CREATE TABLE {p}emsfb_prt_sess_ (
 - تست: `php tests/test-portal-read.php` (شامل fixture خصمانه)، `node tests/test-portal-display.js`.
 
 > **Checkpoint** (۲۰۲۶-۱۱-۱۸)
-> فایل‌های تغییرکرده: — (ساخته نشد)
-> تست‌ها: —
-> وضعیت ترجمه: —
-> مورد باز: بودجهٔ اندازهٔ هسته جا ندارد (جای خالی ۱۲٬۱۹۲ بایت در برابر برآورد ≈ ۸۰ KB)؛ بخش «وضعیت F20-core».
-> اقدام بعدی: تصمیم مالک دربارهٔ جا (حذف فایل‌های بی‌ارجاع، کوتاه کردن changelog، یا بودجه)، سپس C1 تا C6.
+> فایل‌های تغییرکرده: `class-Emsfb-portal-core.php`، `class-Emsfb-uploads.php` (`signed_url_ttl`)
+> تست‌ها: `test-portal-core-http.php` (P9، P12، P13)
+> وضعیت ترجمه: عبارت‌های انگلیسی فقط در فهرست (`catalog.json`، `.pot`)؛ ترجمه نشد (دستور مالک).
+> مورد باز: —
+> اقدام بعدی: بخش دوم (افزونهٔ `AdnPRT`) پس از آزمون نهایی F01 تا F19.
 
 #### C5. گفتگو و وضعیت تیکت (P10، P11، P8)
 - فایل‌ها: `class-Emsfb-public.php` (استخراج `add_visitor_reply_efb` از `set_rMessage_id_Emsfb_api`، و `read_=3`)، `class-Emsfb-admin.php` (رفع 1794/1829)، `class-email-handler.php` و `functions.php` (فیلتر پیوند).
@@ -434,11 +436,11 @@ CREATE TABLE {p}emsfb_prt_sess_ (
 - تست: `php tests/test-entry-reply-extract.php`، `php tests/test-ticket-state.php`، تست‌های موجود پاسخ و `tests/test-response-viewer-escaping.js`.
 
 > **Checkpoint** (۲۰۲۶-۱۱-۱۸)
-> فایل‌های تغییرکرده: فقط رفع اشکال‌های §۱۵ (بی P10 و P8): `class-Emsfb-admin.php`، `class-Emsfb-public.php` (`33fa8872`).
-> تست‌ها: `tests/test-ticket-state.php` (۲۶ بررسی روی وردپرس واقعی)، e2e `f14t` (۱۲ بررسی، fa_IR و ar در ۳۷۵ پیکسل).
-> وضعیت ترجمه: عبارت تازه‌ای ندارد.
-> مورد باز: `efb_entry_add_reply`، `efb_entry_set_ticket_state`، ستون `owner_state` و فیلتر `efb_entry_view_url` ساخته نشدند (بودجهٔ اندازه).
-> اقدام بعدی: با بقیهٔ F20-core.
+> فایل‌های تغییرکرده: `class-Emsfb-public.php` (`entry_reply_store_efb`، P8)، `functions.php` (P8 در ایمیل پاسخ و پیامک)، `class-Emsfb-portal-core.php`؛ رفع اشکال‌های §۱۵ در `33fa8872`
+> تست‌ها: `test-portal-core-http.php` (P10، P11، P8)، `test-ticket-state.php`، `test-reply-captcha-http.php`، e2e `f14t`، `f20-c`
+> وضعیت ترجمه: عبارت‌های انگلیسی فقط در فهرست (`catalog.json`، `.pot`)؛ ترجمه نشد (دستور مالک).
+> مورد باز: —
+> اقدام بعدی: بخش دوم (افزونهٔ `AdnPRT`) پس از آزمون نهایی F01 تا F19.
 
 #### C6. کارهای صاحب پاسخ (P14، P15، P16، P19)
 - فایل‌ها: `class-Emsfb-entries.php` (`update` با `actor`)، `class-Emsfb-stock.php`، `class-Emsfb-form-gate.php`، `class-Emsfb-drafts.php`، `portal-core-functions-efb.php`.
@@ -446,11 +448,11 @@ CREATE TABLE {p}emsfb_prt_sess_ (
 - تست: `php tests/test-owner-cancel.php` (۲۰ فرایند هم‌زمان)، `php tests/test-owner-edit.php`، `php tests/test-drafts-reissue.php`.
 
 > **Checkpoint** (۲۰۲۶-۱۱-۱۸)
-> فایل‌های تغییرکرده: — (ساخته نشد)
-> تست‌ها: —
-> وضعیت ترجمه: —
-> مورد باز: بودجهٔ اندازهٔ هسته جا ندارد (جای خالی ۱۲٬۱۹۲ بایت در برابر برآورد ≈ ۸۰ KB)؛ بخش «وضعیت F20-core».
-> اقدام بعدی: تصمیم مالک دربارهٔ جا (حذف فایل‌های بی‌ارجاع، کوتاه کردن changelog، یا بودجه)، سپس C1 تا C6.
+> فایل‌های تغییرکرده: `class-Emsfb-portal-core.php`، `admin/class-Emsfb-entries.php` (`update` با `actor`)، `class-Emsfb-form-gate.php` (لغوشده شمرده نمی‌شود)، `class-Emsfb-drafts.php` (`of_identity`، `reissue_link`)؛ vendores-efb `booking`
+> تست‌ها: `test-portal-core-http.php` (P14، P15، P16، حریم خصوصی)، `test-owner-cancel-http.php`
+> وضعیت ترجمه: عبارت‌های انگلیسی فقط در فهرست (`catalog.json`، `.pot`)؛ ترجمه نشد (دستور مالک).
+> مورد باز: —
+> اقدام بعدی: بخش دوم (افزونهٔ `AdnPRT`) پس از آزمون نهایی F01 تا F19.
 
 ### بخش دوم: افزونه (`vendores-efb/portal`، پس از قبولی آزمون نهایی F01 تا F19)
 
