@@ -68,8 +68,8 @@ $GLOBALS['wpdb'] = new EfbTestDb();
 
 // The real efbFunction::set_setting_Emsfb(), taken from includes/functions.php as it is.
 $src = file_get_contents(dirname(__DIR__) . '/includes/functions.php');
-$a = strpos($src, 'public static function set_setting_Emsfb');
-$b = strpos($src, "\n    }\n", $a);
+$a = strpos($src, '/** Whether this request holds the settings lock');  // the lock helper, then the method
+$b = strpos($src, "\n    }\n", strpos($src, 'public static function set_setting_Emsfb'));
 if ($a === false || $b === false) { echo "[FAIL] set_setting_Emsfb() not found in includes/functions.php\n\nRESULTS: 0 passed, 1 failed\n"; exit(1); }
 $method = substr($src, $a, $b - $a + 6);
 // A failed database write: the stub refuses, and the real method still caches what it was given; the test reads the table.

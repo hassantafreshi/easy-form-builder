@@ -1360,6 +1360,27 @@ class Emsfb {
         delete_option('emsfb_server_host_cache');
     }
 
+    /** The settings JSON this request read first (see settings_base_efb()). */
+    private static $settings_base_raw_efb = null;
+
+    /**
+     * The settings as this request read them, for efbFunction::set_setting_Emsfb(): a key the caller hands back
+     * unchanged from this copy while another request has changed it in the row since is not written back (a whole
+     * settings object read, one key changed and saved used to undo another request's save of another key).
+     *
+     * @param string|null $raw Set it (after a write: what was written); null reads it.
+     * @return object|null The decoded copy, or null when this request has not read the settings.
+     */
+    public static function settings_base_efb($raw = null) {
+        if ($raw !== null) {
+            self::$settings_base_raw_efb = is_string($raw) && $raw !== '' ? $raw : null;
+            return null;
+        }
+        if (self::$settings_base_raw_efb === null) return null;
+        $d = function_exists('emsfb_json_decode_efb') ? emsfb_json_decode_efb(self::$settings_base_raw_efb) : json_decode(self::$settings_base_raw_efb);
+        return is_object($d) ? $d : null;
+    }
+
     public static function get_setting_Emsfb($mode = 'decoded')
     {
 
@@ -1377,6 +1398,9 @@ class Emsfb {
         $cacheKey = 'settings:' . $mode;
         $cached = wp_cache_get($cacheKey, 'emsfb');
         if ($cached !== false && !empty($cached)) {
+            if (self::$settings_base_raw_efb === null && is_object($cached)) {
+                self::$settings_base_raw_efb = wp_json_encode($cached, JSON_UNESCAPED_UNICODE);
+            }
             $staticCache[$mode] = $cached;
             return $cached;
         }
@@ -1414,6 +1438,9 @@ class Emsfb {
             $raw = $transient;
         }
 
+        if (self::$settings_base_raw_efb === null) {
+            self::$settings_base_raw_efb = $raw;
+        }
         $original_raw = $raw;
         $raw = self::clean_raw_json_efb($raw);
         if ($raw !== $original_raw && json_decode($raw) !== null) {
@@ -1428,7 +1455,8 @@ class Emsfb {
                 // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
                 $latest_id = $wpdb->get_var( "SELECT id FROM `{$table_name}` ORDER BY id DESC LIMIT 1" );
                 if ($latest_id) {
-                    $wpdb->update($table_name, ['setting' => $cleanJson], ['id' => $latest_id], ['%s'], ['%d']);
+                    // Only over the very value it repaired: a save that landed meanwhile is never undone by a repair.
+                    $wpdb->update($table_name, ['setting' => $cleanJson], ['id' => $latest_id, 'setting' => $original_raw], ['%s'], ['%d', '%s']);
                 }
             }
         }
@@ -1461,7 +1489,8 @@ class Emsfb {
                 // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
                 $latest_id = $wpdb->get_var( "SELECT id FROM `{$table_name}` ORDER BY id DESC LIMIT 1" );
                 if ($latest_id) {
-                    $wpdb->update($table_name, ['setting' => $cleanJson], ['id' => $latest_id], ['%s'], ['%d']);
+                    // Only over the very value it repaired: a save that landed meanwhile is never undone by a repair.
+                    $wpdb->update($table_name, ['setting' => $cleanJson], ['id' => $latest_id, 'setting' => $original_raw], ['%s'], ['%d', '%s']);
                 }
             }
         }
@@ -2111,7 +2140,7 @@ class Emsfb {
 
                 if ($cleaned !== $raw) {
                     $cleanJson = json_encode(json_decode($cleaned), JSON_UNESCAPED_UNICODE);
-                    $wpdb->update($table_name, ['setting' => $cleanJson], ['id' => $row->id], ['%s'], ['%d']);
+                    $wpdb->update($table_name, ['setting' => $cleanJson], ['id' => $row->id, 'setting' => $raw], ['%s'], ['%d', '%s']);
                     $repaired++;
                 }
                 continue;
@@ -2136,9 +2165,9 @@ class Emsfb {
             $wpdb->update(
                 $table_name,
                 ['setting' => $cleanJson],
-                ['id' => $row->id],
+                ['id' => $row->id, 'setting' => $row->setting],
                 ['%s'],
-                ['%d']
+                ['%d', '%s']
             );
             $repaired++;
         }

@@ -56,8 +56,8 @@ class EfbSetDb {
 $GLOBALS['wpdb'] = new EfbSetDb();
 
 $src = file_get_contents(dirname(__DIR__) . '/includes/functions.php');
-$a = strpos($src, 'public static function set_setting_Emsfb');
-$b = strpos($src, "\n    }\n", $a);
+$a = strpos($src, '/** Whether this request holds the settings lock');  // the lock helper, then the method
+$b = strpos($src, "\n    }\n", strpos($src, 'public static function set_setting_Emsfb'));
 if ($a === false || $b === false) { echo "[FAIL] set_setting_Emsfb() not found\n\nRESULTS: 0 passed, 1 failed\n"; exit(1); }
 $method = substr($src, $a, $b - $a + 6);
 eval('class EfbFnSet { ' . $method . ' }');

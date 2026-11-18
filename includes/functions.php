@@ -12111,6 +12111,53 @@ public function addon_add_efb($value) {
 		return false;
 	}
 
+	/** Whether this request holds the settings lock (set_setting_Emsfb()). */
+	private static $settings_lock_held_efb = false;
+
+	/**
+	 * The settings lock: one row in wp_options made with INSERT IGNORE (the way WordPress' own WP_Upgrader::create_lock()
+	 * does it), so only one request at a time reads, merges and writes the settings row. A lock older than 15 seconds
+	 * is a request that died holding it and is taken over. When it cannot be had within 5 seconds the write goes on
+	 * without it (as before) rather than losing the save.
+	 *
+	 * @param bool $acquire true takes it, false lets it go.
+	 * @return bool Whether this request holds it (acquire) / true (release).
+	 */
+	public static function settings_lock_efb($acquire) {
+		global $wpdb;
+		if (!is_object($wpdb) || empty($wpdb->options)) {
+			return false;
+		}
+		$name = 'emsfb_setting_lock';
+		if (!$acquire) {
+			if (self::$settings_lock_held_efb) {
+				$wpdb->query($wpdb->prepare("DELETE FROM `{$wpdb->options}` WHERE option_name = %s", $name));
+				self::$settings_lock_held_efb = false;
+			}
+			return true;
+		}
+		if (self::$settings_lock_held_efb) {
+			return true;
+		}
+		$deadline = microtime(true) + 5;
+		$suppress = $wpdb->suppress_errors(true);
+		do {
+			$got = $wpdb->query($wpdb->prepare("INSERT IGNORE INTO `{$wpdb->options}` (`option_name`, `option_value`, `autoload`) VALUES (%s, %s, 'no') /* LOCK */", $name, (string) time()));
+			if ($got) {
+				self::$settings_lock_held_efb = true;
+				break;
+			}
+			$since = (int) $wpdb->get_var($wpdb->prepare("SELECT option_value FROM `{$wpdb->options}` WHERE option_name = %s", $name));
+			if ($since > 0 && $since < time() - 15) {
+				$wpdb->query($wpdb->prepare("DELETE FROM `{$wpdb->options}` WHERE option_name = %s AND option_value = %s", $name, (string) $since));
+				continue;
+			}
+			usleep(25000);
+		} while (microtime(true) < $deadline);
+		$wpdb->suppress_errors($suppress);
+		return self::$settings_lock_held_efb;
+	}
+
 	public static function set_setting_Emsfb ($newSettings, $email = '')
     {
         if (empty($newSettings)) {
@@ -12157,21 +12204,37 @@ public function addon_add_efb($value) {
         global $wpdb;
         $table_name = $wpdb->prefix . "emsfb_setting";
 
+        /* One settings write at a time (a short lock, released on every way out): the stored row is read, merged
+         * and written, and the option and transient copies are set, before the next writer reads the row. */
+        self::settings_lock_efb(true);
+        try {
+
         /* Wipe guard: version bumps and cache-heal paths sometimes rebuild the
          * settings from a stale copy that silently lost fields (payment keys,
          * SMTP, captcha...). A deliberate change always sends the property
          * (possibly empty); a property that is entirely absent from the new
          * payload but exists in the stored row means the caller never saw it —
-         * keep the stored value instead of dropping it. */
+         * keep the stored value instead of dropping it.
+         *
+         * Whole-row writers (read the settings, change one key, hand the whole
+         * object back) race: a property the caller hands back exactly as this
+         * request read it (settings_base_efb()) while another request has changed
+         * it in the row since is that request's change, not this caller's, so the
+         * stored value is kept (a three-way merge per property). */
         $new_decoded = json_decode($json);
         if (is_object($new_decoded)) {
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name is built from $wpdb->prefix
             $existing_raw = $wpdb->get_var("SELECT setting FROM `{$table_name}` ORDER BY id DESC LIMIT 1");
             $existing = emsfb_json_decode_efb($existing_raw);
             if (is_object($existing)) {
+                $base = class_exists('\Emsfb') && method_exists('\Emsfb', 'settings_base_efb') ? \Emsfb::settings_base_efb() : null;
+                $same = function ($a, $b) { return wp_json_encode($a) === wp_json_encode($b); };
                 $merged = false;
                 foreach (get_object_vars($existing) as $k => $v) {
                     if (!property_exists($new_decoded, $k)) {
+                        $new_decoded->$k = $v;
+                        $merged = true;
+                    } elseif (is_object($base) && property_exists($base, $k) && $same($new_decoded->$k, $base->$k) && !$same($v, $base->$k)) {
                         $new_decoded->$k = $v;
                         $merged = true;
                     }
@@ -12224,6 +12287,14 @@ public function addon_add_efb($value) {
 
         update_option('emsfb_settings', $json);
         set_transient('emsfb_settings_transient', $json, 1800);
+        // What this request now holds: a later write in the same request merges against it.
+        if (class_exists('\Emsfb') && method_exists('\Emsfb', 'settings_base_efb')) {
+            \Emsfb::settings_base_efb($json);
+        }
+
+        } finally {
+            self::settings_lock_efb(false);
+        }
 
         $decoded_for_sync = json_decode($json);
         if ($decoded_for_sync !== null && isset($decoded_for_sync->package_type)) {
