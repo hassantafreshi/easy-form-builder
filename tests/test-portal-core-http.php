@@ -420,6 +420,22 @@ try {
 	$forged = $c20('call', 'efb_portal_entries', json_encode(array(array(array('k' => 'u', 'h' => str_repeat('b', 64), 'uid' => (int) $u['id'])))));
 	t('a "u" identity with a hash core did not make is ignored (no entries)', $forged['total'] ?? -1, 0);
 	$H->ctlb('user-del', $login);
+
+	echo "--- P8: the visitor's link in the confirmation e-mail ---\n";
+	$pg = $c20('page', 'Portal page ' . $run);
+	$L = $H->ctl('f03-form', 'Portal link ' . $run, json_encode(array(array('key' => 'em', 'type' => 'email', 'name' => 'Email'))), 'email_to=@@em@@&sendEmail=1', '1');
+	$H->ctl('set-option', 'efb_e2e_mail_bodies', 'del');
+	$lm = "link.{$run}@example.test";
+	EfbF11Http::answer($H->submit((int) $L['form_id'], array(array('id_' => $L['ids']['em'], 'name' => 'Email', 'type' => 'email', 'value' => $lm))));
+	$to_me = array_values(array_filter($mails(), function ($m) use ($lm) { return strpos(json_encode($m['to']), $lm) !== false; }));
+	$to_site = array_values(array_filter($mails(), function ($m) use ($lm) { return strpos(json_encode($m['to']), $lm) === false; }));
+	t('with efb_entry_view_url (the add-on\'s portal page): the visitor\'s e-mail links to the portal; the site\'s e-mail keeps the tracking page link', array(count($to_me) > 0, strpos($to_me[0]['message'] ?? '', 'efb_portal_track=') !== false, strpos(implode('', array_column($to_site, 'message')), 'efb_portal_track=')), array(true, true, false));
+	$c20('on', '0');
+	$H->ctl('set-option', 'efb_e2e_mail_bodies', 'del');
+	EfbF11Http::answer($H->submit((int) $L['form_id'], array(array('id_' => $L['ids']['em'], 'name' => 'Email', 'type' => 'email', 'value' => $lm))));
+	$to_me = array_values(array_filter($mails(), function ($m) use ($lm) { return strpos(json_encode($m['to']), $lm) !== false; }));
+	t('without the add-on: the link is unchanged (?track=)', array(strpos($to_me[0]['message'] ?? '', 'efb_portal_track='), strpos($to_me[0]['message'] ?? '', 'track=') !== false), array(false, true));
+	$c20('on', '1');
 } finally {
 	// The site as it was for the other tests: the mock off, the stand-ins off.
 	$c20('on', '0'); $c20('bef', '0'); $c20('limits', '');

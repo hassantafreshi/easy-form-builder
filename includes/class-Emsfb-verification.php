@@ -1204,14 +1204,15 @@ class Verification {
 			$parts = explode('[otp_code]', esc_html(str_replace('[website_name]', $site, $own)));
 			$html = '';
 			foreach ($parts as $i => $p) {
-				$html .= ($p !== '' ? '<p>' . nl2br(trim($p)) . '</p>' : '') . ($i < count($parts) - 1 ? $code_html : '');
+				$html .= ($p !== '' ? '<p dir="auto">' . nl2br(trim($p)) . '</p>' : '') . ($i < count($parts) - 1 ? $code_html : '');
 			}
 		} else {
-			$html = '<p>' . esc_html(self::t('vrfEmailBody')) . '</p>' . $code_html;
+			$html = '<p dir="auto">' . esc_html(self::t('vrfEmailBody')) . '</p>' . $code_html;
 		}
-		$html .= '<p>' . esc_html(sprintf(self::t('vrfEmailExpires'), $min)) . '</p>'
-			. '<p style="color:#6b7280;font-size:13px">' . esc_html(self::t('vrfEmailIgnore')) . '</p>'
-			. '<p style="color:#6b7280;font-size:13px">' . esc_html($site) . '</p>';
+		// dir="auto": a sentence in another script than the page (an English phrase on a Persian site) keeps its order.
+		$html .= '<p dir="auto">' . esc_html(sprintf(self::t('vrfEmailExpires'), $min)) . '</p>'
+			. '<p dir="auto" style="color:#6b7280;font-size:13px">' . esc_html(self::t('vrfEmailIgnore')) . '</p>'
+			. '<p dir="auto" style="color:#6b7280;font-size:13px">' . esc_html($site) . '</p>';
 		return $html;
 	}
 

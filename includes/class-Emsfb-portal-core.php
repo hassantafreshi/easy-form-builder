@@ -415,7 +415,7 @@ class Portal_Core {
 
 	public static function date_text($mysql, $with_time = true) {
 		$ts = strtotime((string) $mysql . ' ' . wp_timezone_string());
-		return $ts ? wp_date(get_option('date_format') . ($with_time ? ' ' . get_option('time_format') : ''), $ts) : '';
+		return $ts ? Form_Gate::locale_digits(wp_date(get_option('date_format') . ($with_time ? ' ' . get_option('time_format') : ''), $ts)) : '';
 	}
 
 	/** P9: one answer row as text to show; null when the owner must not see it. */

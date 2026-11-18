@@ -2102,6 +2102,11 @@ require('./scenario-f16.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewFo
  * at 375 and 1280 with axe-core: tests/e2e-wp/scenario-f17.js. */
 require('./scenario-f17.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
 
+/* F20-core the customer portal's core contract, through a mock of the portal add-on (efb-e2e-f20.php, never shipped):
+ * sign-in by e-mail code by keyboard (en 1280), fa_IR / ar at 375 px and the code e-mail at 375 px, the owner's Close
+ * seen in F14: tests/e2e-wp/scenario-f20.js. */
+require('./scenario-f20.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */

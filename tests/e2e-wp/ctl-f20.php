@@ -30,6 +30,7 @@
  *   bulk-own <n>|clear         synthetic owner rows (form -1) for a lookup on a large index
  *   bf-batch [size]            one backfill batch now (the cron event's work) and its time
  *   purge <msg id> [anon]      F13's delete (or anonymize) of one entry
+ *   tpl clear|restore          the site's own e-mail template put aside / back (core's default template meanwhile)
  *   limits <json>              lower portal limits for a test ({scope: n}; '' = none)
  *   raw-content <msg id> <json rows>  an entry's answers replaced (stored as the plugin stores them; no hook)
  */
@@ -227,6 +228,20 @@ switch ( $f20_cmd ) {
 		$t0 = microtime( true );
 		$st = \Emsfb\Owner_Index::run_backfill( isset( $f20_rest[0] ) ? (int) $f20_rest[0] : 500, 20 );
 		efb_f20_out( array( 'st' => $st, 'seconds' => round( microtime( true ) - $t0, 2 ), 'next' => (bool) wp_next_scheduled( \Emsfb\Owner_Index::BF_HOOK ) ) );
+		break;
+	case 'tpl':
+		// clear | restore: the site's own e-mail template (emailTemp) put aside, so a mail is drawn with core's default
+		// template (its direction from the language), and put back exactly as it was.
+		$s = get_setting_Emsfb( 'decoded' );
+		if ( isset( $f20_rest[0] ) && 'clear' === $f20_rest[0] ) {
+			if ( null === get_option( 'efb_e2e_f20_tpl', null ) ) update_option( 'efb_e2e_f20_tpl', array( 'v' => is_object( $s ) && isset( $s->emailTemp ) ? $s->emailTemp : null ), false );
+			\efbFunction::set_setting_Emsfb( (object) array( 'emailTemp' => '' ) );
+		} else {
+			$o = get_option( 'efb_e2e_f20_tpl', null );
+			if ( is_array( $o ) ) { \efbFunction::set_setting_Emsfb( (object) array( 'emailTemp' => null === $o['v'] ? '' : $o['v'] ) ); delete_option( 'efb_e2e_f20_tpl' ); }
+		}
+		$s = get_setting_Emsfb( 'decoded' );
+		efb_f20_out( array( 'len' => is_object( $s ) && isset( $s->emailTemp ) ? strlen( (string) $s->emailTemp ) : 0 ) );
 		break;
 	case 'stored':
 		if ( isset( $f20_rest[0] ) && 'clear' === $f20_rest[0] ) update_option( 'efb_e2e_f20_stored', array(), false );
