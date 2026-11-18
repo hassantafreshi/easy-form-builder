@@ -40,7 +40,7 @@ function wp_get_referer() { return 'https://site.test/f?utm=news&n=9'; }
 function is_user_logged_in() { return true; }
 function wp_get_current_user() { return (object) array('roles' => array('editor')); }
 
-$EFB = 'c:/xampp/htdocs/wp/wp-content/plugins/easy-form-builder';
+$EFB = dirname(__DIR__);
 require $EFB . '/vendor/logic/logic/class-Emsfb-logic-validator.php';
 require $EFB . '/includes/class-Emsfb-public.php';
 

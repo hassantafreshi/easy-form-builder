@@ -49,7 +49,7 @@ foreach (array('is_same_site_url_efb', 'normalize_submitted_row_efb', 'sanitize_
 	if (!preg_match('/\t(?:public|private)(?: static)? function ' . $fn . '\(.*?\n\t\}\n/s', $src, $m)) { echo "[FAIL] $fn() not found\n"; exit(1); }
 	$body .= str_replace('private function', 'public function', $m[0]);
 }
-if (preg_match('/\tpublic function get_ip_address\(\) \{.*?\n    \}\n/s', $src, $m)) $body .= $m[0];
+if (preg_match('/\tpublic function get_ip_address\(\) \{.*?\n\t\}\n/s', $src, $m)) $body .= $m[0]; // F13 made it one call to Privacy::client_ip(), which ends with a tab
 preg_match('/\tprivate static function upload_row_types_efb\(\) \{.*?\n\t\}\n/s', $src, $m);
 $body .= $m[0];
 eval('namespace Emsfb; class Harness_Efb { public $id = 1; public $setting; public $efbFunction; function __construct() { $this->efbFunction = new FakeFunctions_Efb(); } ' . $body . '}');
@@ -143,9 +143,13 @@ t_sec('email: a quote token cannot open markup', strpos($out, '<img src=x') === 
 $rows = array(array('id_' => 'friend', 'type' => 'email', 'value' => 'friend@example.com'), array('id_' => 'me', 'type' => 'email', 'value' => 'me@example.com'));
 t_sec('Reply-To uses the form\'s visitor-email field', $h->efb_submitter_email_efb($rows, 'me') === 'me@example.com');
 t_sec('Reply-To falls back to the first valid email field', $h->efb_submitter_email_efb($rows, '') === 'friend@example.com' && $h->efb_submitter_email_efb($rows, 'missing') === 'friend@example.com');
-foreach (array(array('203.0.113.5:54321', '203.0.113.5'), array('[2001:db8::1]:443', '2001:db8::1'), array('203.0.113.5, 10.0.0.1', '203.0.113.5'), array('<script>', '198.51.100.9')) as $c) {
+/* F13 (Privacy::client_ip(), tests/test-client-ip.php): a forwarded header is read only from a trusted proxy; from any
+   other address the connection's own address is the visitor's, so a header a visitor sends can never choose it. */
+if (!defined('ABSPATH')) define('ABSPATH', __DIR__ . '/');
+require_once __DIR__ . '/../includes/class-Emsfb-privacy.php';
+foreach (array(array('203.0.113.5:54321', '198.51.100.9'), array('[2001:db8::1]:443', '198.51.100.9'), array('203.0.113.5, 10.0.0.1', '198.51.100.9'), array('<script>', '198.51.100.9')) as $c) {
 	$_SERVER['HTTP_CLIENT_IP'] = ''; $_SERVER['HTTP_X_FORWARDED_FOR'] = $c[0]; $_SERVER['REMOTE_ADDR'] = '198.51.100.9';
-	t_sec('visitor IP from "' . $c[0] . '"', $h->get_ip_address() === $c[1]);
+	t_sec('visitor IP with X-Forwarded-For "' . $c[0] . '" from an untrusted address: the connection\'s address', $h->get_ip_address() === $c[1]);
 }
 $req_fields = array(array('type' => 'form'), array('id_' => 'n', 'type' => 'text', 'required' => 1, 'name' => 'Name'),
 	array('id_' => 'sig', 'type' => 'esign', 'required' => 1, 'name' => 'Sign'), array('id_' => 'm', 'type' => 'mobile', 'required' => true, 'name' => 'Mobile'));
@@ -169,7 +173,9 @@ t_sec('payment catch-all keeps its own name', $h->stored_row_name_efb(array('id_
 t_sec('the form path stores that label', strpos($src, "\$validated_item['name'] = \$this->stored_row_name_efb(\$validated_item, \$f, \$form_fields_array);") !== false);
 $rh_src = file_get_contents(__DIR__ . '/../public/assets/js/request-health-efb.js');
 t_sec('runtime prepare maps the confirmation page\'s -1 to form 0', strpos($rh_src, 'if (fid<0) fid=0;') !== false);
-t_sec('tracker reCAPTCHA is drawn only with a site key (PHP render)', strpos($src, "if (!empty(\$valstng->siteKey) && is_string(\$valstng->siteKey) && isset(\$valstng->scaptcha) && \$valstng->scaptcha==true ){") !== false);
+// F12 / F12b: the tracker's CAPTCHA is the site's provider widget (Spam::captcha_widget('tracker')), drawn only when it has
+// something to draw (no site key: '' and nothing is printed).
+t_sec('tracker CAPTCHA is drawn only when the provider has a widget (PHP render)', strpos($src, "\$tracker_widget_efb = \Emsfb\Spam::captcha_widget('tracker');") !== false && strpos($src, "if (\$tracker_widget_efb !== '') \$script_call_captcha =") !== false);
 
 /* Payment secrets are saved as typed (found on the live staging run: the
  * settings reader skipped type="password", so Save stored "NotFoundEl" as the
@@ -178,7 +184,7 @@ $list_js = file_get_contents(__DIR__ . '/../includes/admin/assets/js/list_form-e
 t_sec('settings reader reads password fields', strpos($list_js, 'el.type == "text" || el.type == "password"') !== false);
 $admin_src = file_get_contents(__DIR__ . '/../includes/admin/class-Emsfb-admin.php');
 t_sec('settings save never stores the NotFoundEl marker as a key', strpos($admin_src, "\$m[\$secret_key_efb] === 'NotFoundEl'") !== false);
-$resolve = substr($src, strpos($src, 'private function resolve_payment_key_efb('), 2000);
+$resolve = substr($src, strpos($src, 'function resolve_payment_key_efb('), 2000); // public since PAY00
 t_sec('payments never use the NotFoundEl marker as a key', substr_count($resolve, "\$value !== 'NotFoundEl'") === 4);
 
 /* 5. Source wiring */
@@ -187,7 +193,7 @@ t_sec('reply rows are rebuilt from an allow-list', strpos($reply, "'type'    => 
 t_sec('reply attachments must be same-site uploads', strpos($reply, '$this->is_same_site_url_efb($row_url_efb)') !== false);
 t_sec('form emails are built from the validated rows', strpos($src, '$this->email_get_content_efb($validated_items, $track_code)') !== false
 	&& substr_count($src, 'email_status_efb($form_fields_array,$validated_items,$track_code)') === 3);
-t_sec('visitor recipient comes from a validated email row', strpos($src, 'foreach ($validated_items as $item) {') !== false && strpos($src, 'is_email($candidate_efb)') !== false);
+t_sec('visitor recipient comes from a validated email row', strpos($src, 'foreach ((isset($validated_items) && is_array($validated_items) ? $validated_items : array()) as $item) {') !== false && strpos($src, 'is_email($candidate_efb)') !== false);
 t_sec('register entry is rebuilt before it is stored', strpos($src, '$this->sanitize_account_form_rows_efb($submitted_values, $form_fields_array, $url)') !== false);
 
 echo "\n========================================\nRESULTS: $pass passed, $fail failed\n========================================\n";

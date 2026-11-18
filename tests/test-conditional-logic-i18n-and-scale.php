@@ -17,7 +17,7 @@
 mpp\php\php.exe tests/test-conditional-logic-i18n-and-scale.php
  */
 define('ABSPATH', __DIR__ . '/');
-define('EMSFB_PLUGIN_DIRECTORY', 'c:/xampp/htdocs/wp/wp-content/plugins/easy-form-builder');
+define('EMSFB_PLUGIN_DIRECTORY', dirname(__DIR__));
 define('EMSFB_PLUGIN_VERSION', '4.1.3');
 define('EMSFB_PLUGIN_URL', 'http://127.0.0.1/wp/wp-content/plugins/easy-form-builder/');
 
@@ -40,8 +40,8 @@ function update_option() { return true; }
 function absint($v) { return abs(intval($v)); }
 function wp_json_encode($v) { return json_encode($v, JSON_UNESCAPED_UNICODE); }
 
-require 'c:/xampp/htdocs/wp/wp-content/plugins/easy-form-builder/vendor/logic/logic/class-Emsfb-logic-validator.php';
-require 'c:/xampp/htdocs/wp/wp-content/plugins/easy-form-builder/includes/functions.php';
+require dirname(__DIR__) . '/vendor/logic/logic/class-Emsfb-logic-validator.php';
+require dirname(__DIR__) . '/includes/functions.php';
 
 $pass = 0; $fail = 0;
 function t($label, $actual, $expected) {

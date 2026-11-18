@@ -7,11 +7,11 @@
  * reach the same verdict.
  */
 define('ABSPATH', __DIR__ . '/');
-define('EMSFB_PLUGIN_DIRECTORY', 'c:/xampp/htdocs/wp/wp-content/plugins/easy-form-builder');
+define('EMSFB_PLUGIN_DIRECTORY', dirname(__DIR__));
 define('EMSFB_PLUGIN_VERSION', '4.1.3');
 define('EMSFB_PLUGIN_URL', 'http://127.0.0.1/wp/wp-content/plugins/easy-form-builder/');
 
-$EFB = 'c:/xampp/htdocs/wp/wp-content/plugins/easy-form-builder';
+$EFB = dirname(__DIR__);
 
 require $EFB . '/tests/../vendor/logic/logic/class-Emsfb-logic-validator.php';
 
