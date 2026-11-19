@@ -410,7 +410,7 @@ if ($is_valid == 1 && is_array($validated_item) && class_exists('\Emsfb\Field_Ru
 - فایل‌های تغییرکرده: `Field_Rules` (`pw_score` و `common_passwords`، قواعد `mismatch` و `strength` روی رمز خام با `hash_equals`، caseهای `pw_*`)، `includes/data/common-passwords-efb.txt` (تازه، ۲۰۰ مورد)، `field-rules-efb.js` (`pwScore` و `COMMON_PASSWORDS` همزاد)، `class-Emsfb-public.php` (`raw_passwords_efb` مقدار تایپ‌شدهٔ هر ردیف رمز را با کلید `f:<id_>` نگه می‌دارد؛ عبارت‌های عمومی)، `class-Emsfb-formbuilder.php` (`autocomplete="new-password"`، جعبهٔ دوم با برچسب خودش و بدون `emsFormBuilder_v`، دکمهٔ نمایش با `aria-pressed`، نوار قدرت با واژه در `aria-live`)، `core-efb.js` (`password_confirms` کنار پاسخ‌ها در هر دو مسیر ارسال و `payments/create`، پیام عدم تطابق در جعبهٔ دوم، دکمهٔ نمایش با حفظ caret، نوار قدرت)، `field-rules-efb.css`، `field-rules-builder-efb.js` (کنترل‌های رمز؛ حداقل قدرت Free Plus).
 - تست‌ها: `node tests/test-field-rules-password.js` (۱۲۱: ۱۰۱ بردار مشترک `tests/fixtures/pw-score-vectors.json` در JS و PHP برابر، فهرست رایج یکسان)، `php tests/test-field-rules-password.php` (۱۱۵)، `test-field-rules-save-roundtrip.php` (۸۰)، e2e `f03h` (۱۱: مقدار دومی که فقط در درخواست بود پس از آن در فایل‌های پایگاه دادهٔ سایت و لاگ سرور پیدا نمی‌شود؛ fa_IR در ۳۷۵ پیکسل).
 - وضعیت ترجمه: انگلیسی (دستور مالک).
-- مورد باز: پرسش باز ۱ (ذخیرهٔ رمز در `emsfb_msg_` به‌صورت متن ساده): تغییر داده نشد؛ تصمیم مالک لازم است (پیشنهاد: برای فیلد دارای `pw_confirm`/`pw_meter` «ذخیره نکن» یا «فقط هش»). تأیید رمز در هر پلن رایگان است و حداقل قدرت Free Plus. مقدار دوم هرگز ردیف پاسخ نیست، پس در پیش‌نویس‌ها/پاسخ‌های نیمه‌کارهٔ F11 و localStorage هم نیست.
+- ~~مورد باز: پرسش باز ۱ (ذخیرهٔ رمز در `emsfb_msg_` به‌صورت متن ساده)~~ **بسته شد (B5 / SEC-04):** رمز هرگز ذخیره نمی‌شود (پایین، پاسخ ۱). تأیید رمز در هر پلن رایگان است و حداقل قدرت Free Plus. مقدار دوم هرگز ردیف پاسخ نیست، پس در پیش‌نویس‌ها/پاسخ‌های نیمه‌کارهٔ F11 و localStorage هم نیست.
 - اقدام بعدی: مستندات AutoPilot و SitePilot، فهرست عبارت‌ها و e2e کامل.
 
 ## ۱۷. گسترش‌های فاز ۲ مرتبط
@@ -493,6 +493,7 @@ if ($is_valid == 1 && is_array($validated_item) && class_exists('\Emsfb\Field_Ru
 ### پاسخ‌ها و تصمیم‌های پیاده‌سازی (۲۰۲۶-۱۱-۱۳)
 
 1. ذخیرهٔ رمز در `emsfb_msg_`: تغییری داده نشد (رفتار فرم‌های قدیمی و جدید همان است)؛ تصمیم مالک لازم است. مقدار تأیید رمز هرگز ذخیره نمی‌شود.
+   **تصمیم مالک (۲۰۲۶-۱۱-۱۹، B5 / SEC-04):** رمز هرگز ذخیره نمی‌شود. `validate_rows_efb()` پس از همهٔ بررسی‌ها (اجباری، طول، قدرت و تأیید F03 با `raw_passwords`) مقدار ردیف `password` را با `_Public::PASSWORD_MASK_EFB` (`••••`) جایگزین می‌کند؛ پس پاسخ ذخیره‌شده، ایمیل، CSV/XLSX، integrationها و لاگ‌ها رمز را ندارند و ردیف نشان می‌دهد که فیلد پر شده است. ایمیل پاسخ‌های پیش از 4.3.2 هم ماسک می‌شود؛ نمایشگر از قبل ستاره نشان می‌داد. فرم‌های ثبت‌نام و ورود مسیر خودشان را دارند و تغییری نکردند. هش (`wp_hash_password`) ساخته نشد. تست `tests/test-password-never-stored-http.php`.
 2. `KEY form_id` لازم نشد: `form_date (form_id, date)` از F13 با `form_id` شروع می‌شود.
 3. پرداخت در انتظار مقدار unique را قفل می‌کند؛ ناموفق/لغو/منقضی آزاد می‌کند (اگر تلاش زندهٔ دیگری نباشد)، «Try again» دوباره می‌گیرد یا `efb_field_unique` می‌دهد، و پرداختِ دیر مقدار را اگر آزاد باشد دوباره می‌گیرد. همان قاعدهٔ جای F11.
 4. `unique_case` ساخته نشد؛ مقایسه بدون حساسیت به حروف است.

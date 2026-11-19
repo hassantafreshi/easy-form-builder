@@ -12,6 +12,8 @@ if (!trait_exists('\\Emsfb\\Payments\\Legacy_Gateway_Shim', false)) require_once
 class _Public {
 	// PAY-OUT step 3: the deprecated legacy_gateway members (one more release): includes/payments/legacy-gateway-shim-efb.php.
 	use \Emsfb\Payments\Legacy_Gateway_Shim;
+	/** SEC-04: what is stored, e-mailed and exported for a password field's answer: never the password (owner decision 6). */
+	const PASSWORD_MASK_EFB = "\u{2022}\u{2022}\u{2022}\u{2022}";
 	public $value;
 	public $id;
 	public $ip;
@@ -7949,6 +7951,8 @@ public function check_nonce_permission_efb($request) {
 			foreach ($content as $c){
 
 				if (!is_array($c)) { continue; }
+				// SEC-04: an entry saved before 4.3.2 (resent, or a reply's copy) may still hold a password as typed.
+				if (isset($c['value']) && (($c['type'] ?? '') === 'password' || in_array($c['id_'] ?? '', array('passwordRegisterEFB', 'repasswordRegisterEFB', 'passwordlogin'), true))) $c['value'] = self::PASSWORD_MASK_EFB;
 				if ($na_groups_efb && isset($c['grp']) && is_scalar($c['grp']) && !isset($na_seen_efb[(string) $c['grp']])) {
 					$na_seen_efb[(string) $c['grp']] = true;
 					foreach ($na_groups_efb as $na_g_efb) {
@@ -9764,6 +9768,14 @@ public function check_nonce_permission_efb($request) {
 			};
 		}
 		$this->validate_admin_edit_efb = false;
+		/* SEC-04 (owner decision 6, BUGS-FOUND 21): a password field's answer served its checks above (required, length,
+		 * F03 strength and confirmation through raw_passwords) and goes no further: the stored row, the e-mails, the
+		 * exports, the integrations and the logs get the mask, never the password. Register and login forms do not
+		 * come here (their own branch). */
+		foreach ($validated_items as &$pw_row_efb) {
+			if (is_array($pw_row_efb) && ($pw_row_efb['type'] ?? '') === 'password' && isset($pw_row_efb['value']) && $pw_row_efb['value'] !== '') $pw_row_efb['value'] = self::PASSWORD_MASK_EFB;
+		}
+		unset($pw_row_efb);
 		// F17: the group rules (Saudi "short address or full address") and each group's display line (na_full).
 		if ($is_valid == 1 && class_exists('\\Emsfb\\Address_Schemes') && \Emsfb\Address_Schemes::form_has_groups($form_fields_array)) {
 			$na_fin_efb = \Emsfb\Address_Schemes::finish_rows($form_fields_array, $validated_items, is_array($this->lanText) ? $this->lanText : array());
