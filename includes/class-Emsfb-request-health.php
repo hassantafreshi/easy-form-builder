@@ -287,7 +287,8 @@ class Request_Health {
         if (!self::efb_screen()) {
             echo ' <a href="' . esc_url(admin_url('admin.php?page=Emsfb')) . '">' . esc_html__('View the details in Easy Form Builder', 'easy-form-builder') . '</a></p>';
         } else {
-            echo '</p><details><summary>' . esc_html__('View diagnostic details (last 7 days)', 'easy-form-builder') . '</summary><p>';
+            // A11Y-01: a 24 px target on every screen (admin-efb.css is not loaded outside the plugin's screens).
+            echo '</p><details><summary style="min-height:24px;line-height:24px;cursor:pointer">' . esc_html__('View diagnostic details (last 7 days)', 'easy-form-builder') . '</summary><p>';
             echo esc_html__('A form, response box or upload request encountered an error. Some requests may have recovered automatically; counts are not lost submissions. Browser reports are unverified; a 403 alone does not prove a cache or firewall problem. Submission status may be unknown.', 'easy-form-builder') . '</p><ul>';
             foreach ($rows as $row) {
                 $attention = self::needs_attention($row);

@@ -1,7 +1,7 @@
 <?php
 /**
  * B4 (admin UX): one notice manager for Easy Form Builder (UX-01), and the phrases of the admin screens' shared parts
- * that admin-efb.js draws (efb_var.text: the builder's field settings panel, BLD-01).
+ * that admin-efb.js draws (efb_var.text: the builder's field settings panel, BLD-01; names for screen readers, A11Y-01).
  *
  * UX-01. Ten admin_notices sources stacked four notices on every EFB screen (a whole phone screen of them), one could not
  * be dismissed and users learned to ignore them all. Now:
@@ -279,6 +279,12 @@ class Notices {
 		return array(
 			/* translators: BLD-01: the description of the "Done" button of the form builder's field settings panel (read by screen readers and shown as a tooltip) */
 			'sbDoneTip' => __('Closes the settings. Your changes are already in the form; Save in the toolbar stores it.', 'easy-form-builder'),
+			/* translators: A11Y-01: the name screen readers give the person icon in the Easy Form Builder header (a link to the account on whitestudio.team) */
+			'a11yAccount' => __('Your WhiteStudio account', 'easy-form-builder'),
+			/* translators: A11Y-01: the name screen readers give the document icon in the Easy Form Builder header (a link to the documentation) */
+			'a11yDocs'  => __('Easy Form Builder documentation', 'easy-form-builder'),
+			/* translators: A11Y-01: the name screen readers give the arrow button under the forms list that loads more forms */
+			'a11yMore'  => __('Show more', 'easy-form-builder'),
 			/* translators: UX-01: the button in the Easy Form Builder header that opens the list of the plugin's other notices (a number follows it) */
 			'nmNotices' => __('Notices', 'easy-form-builder'),
 			/* translators: UX-01: a button under an Easy Form Builder notice; %s: a number of days (7) */

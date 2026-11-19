@@ -97,7 +97,7 @@
 }
 
 .efb-tone-neutral {
-	--efb-dlg-tone: #8a90a8;
+	--efb-dlg-tone: #646a85; /* A11Y-01 (BUGS-FOUND 106): #8a90a8 was 3.2:1 with white, as text or under white text; 5.3:1 */
 	--efb-dlg-tone-2: #5f6784;
 	--efb-dlg-tone-shadow: rgba(90, 97, 128, 0.22);
 }

@@ -1465,7 +1465,7 @@ div#sideBoxEfb .efb-sb-head a.efb.close.sidemenu.efb-sb-close:focus-visible { ou
 .btn-select-form.efb {	height: 120px;
    width: 100%;
    background-color: white !important;
-   color: #a2b0d5 !important;
+   color: #5a6a9a !important; /* A11Y-01: was #a2b0d5, 2.2:1 on white; now 5.3:1 */
    box-shadow: 0px 2px 30px rgb(84 131 207 / 15%) !important;
    border-radius: 20px !important;
    transition: 0.5s !important;
@@ -1686,7 +1686,7 @@ div#sideBoxEfb .efb-sb-head a.efb.close.sidemenu.efb-sb-close:focus-visible { ou
 }
 .efb-header-subtitle.efb {
 	font-size: 0.85rem;
-	color: #7c83b8;
+	color: #555b96; /* A11Y-01: was #7c83b8, 3.17:1 on #f0f0f0; now 5.5:1 */
 	font-weight: 500;
 	margin: 0;
 }
@@ -1833,7 +1833,7 @@ div#sideBoxEfb .efb-sb-head a.efb.close.sidemenu.efb-sb-close:focus-visible { ou
 a.navbar-brand.efb,a.nav-link.efb {	text-decoration: none !important;
 }
 .nav-link.efb {	padding: .3rem 0.5rem !important;
-   color: #898aa9 !important;
+   color: #5f6283 !important; /* A11Y-01: was #898aa9, 2.93:1 on #f0f0f0; now 5.2:1 */
 }
 .nav-link.efb:hover {	color: #6637bb !important;
 }
@@ -2002,7 +2002,7 @@ svg.efb.h3 {
 }
 
 #wpwrap h3.efb , .modal-content .h3.efb {	font-size: 25px !important;
-   color: #a2b0d5;
+   color: #5a6a9a; /* A11Y-01: was #a2b0d5 */
 }
 div#optionListefb {	max-height: 280px;
    overflow: auto;
@@ -2020,7 +2020,7 @@ div#optionListeHeadfb {	z-index: 1040;
    box-shadow: 0px 2px 30px rgba(84, 131, 207, 0.15) !important;
 }
 .SelectItem.efb .btn-light.efb {	background-color: white;
-   color: #a2b0d5;
+   color: #5a6a9a; /* A11Y-01: was #a2b0d5 */
    box-shadow: 0px 2px 30px rgba(84, 131, 207, 0.15) !important;
    border-radius: 20px;
    transition: 0.5s;
@@ -2095,13 +2095,13 @@ div#optionListeHeadfb {	z-index: 1040;
 }
 .modal-dialog.save-efb {	max-width: 70% !important;
 }
-.btn-outline-pink.efb {	color: #ff4b93 !important;
+.btn-outline-pink.efb {	color: #c2185b !important; /* A11Y-01: the brand pink #ff4b93 is 2.8:1 as text on #f0f0f0; its border keeps it */
    border: 2px solid #ff4b93 !important;
    border-radius: 100px !important;
    transition: 0.5s;
 }
 .btn-outline-pink.efb:hover {	color: white !important;
-   background-color: #ff4b93;
+   background-color: #c2185b; /* A11Y-01: white on #ff4b93 is 3.1:1 */
    border: 2px solid #ff4b93 !important;
    border-radius: 100px !important;
    transition: 0.5s;
@@ -2301,7 +2301,7 @@ div#dropZoneEFB.captcha{
 
 }
 .efb.text-pink{
-        color: #ff4b93 !important;
+        color: #c2185b !important; /* A11Y-01: was #ff4b93 */
 }
 #floating-panel .input-efb {	color: #bb2d3b !important;
 }
@@ -2796,3 +2796,22 @@ div#Listefb-150 {
 #wpbody-content .efb-nm-bell .efb-nm-toggle { width: 40px; min-height: 40px; height: 40px; padding: 0; justify-content: center; border: 0 !important; border-radius: 50% !important; background: transparent !important; color: #4c5085 !important; }
 .efb-nm-bell .efb-nm-label { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .efb-nm-bell .efb-nm-count { position: absolute; top: -4px; inset-inline-end: -6px; }
+
+/* A11Y-01: the rest of the admin screens' text to WCAG 2.1 AA (4.5:1), on these screens only (style-efb.css, the
+   entries screen and Bootstrap draw the public form too). Muted purple-grey #5f6283 (5.2:1 on #f0f0f0, 4.8:1 on
+   #e6e7ea), grey #50575e, link blue #0a58ca, pink text #c2185b. */
+#wpbody-content .card-text.efb { color: #5f6283; }
+#wpbody-content .efb.table-striped > tbody > tr.efb, #wpbody-content .efb.table-striped > tbody > tr.efb > td, #wpbody-content .efb.table-striped > tbody > tr.efb > th { color: #5f6283 !important; }
+#wpbody-content code.efb.text-muted, #wpbody-content .efb code, #wpbody-content .efb code .efb, #wpbody-content .efb-ent code b { color: #50575e !important; }
+#wpbody-content .efb .btn-outline-secondary { color: #50575e; border-color: #50575e; }
+#wpbody-content .efb .btn-outline-secondary:hover { color: #fff; background-color: #50575e; }
+#wpbody-content .efb .btn-link, #wpbody-content a.efb.nounderline { color: #0a58ca; }
+#wpbody-content .efb-ent { --efb-ent-muted: #4b5563; }
+#wpbody-content .efb-ent label.efb, #wpbody-content .efb-ent .efb-ent-showing { color: #4b5563; }
+#wpbody-content .efb-ent .efb-ent-tab:not(.active), #wpbody-content .efb-ent .efb-ent-sort { color: #334155 !important; }
+#wpbody-content .efb-ent .efb-ent-tab.active { color: #4636f1 !important; }
+#wpbody-content #clrUnfileEfbText, #wpbody-content .efb .text-pinkEfb { color: #c2185b !important; }
+/* A11Y-01: a line under a list of tabs drawn by the list (it was an <hr> inside the <ul>: only <li> may be there). */
+#listCardTitleEfb, #listCatEfb.efb-list-rule { border-bottom: 1px solid #e3e3ef; padding-bottom: 4px; }
+/* A11Y-01: the notice's "View diagnostic details" disclosure is a 24 px target (WCAG 2.2 2.5.8). */
+.efb-request-health-notice summary { min-height: 24px; line-height: 24px; cursor: pointer; }

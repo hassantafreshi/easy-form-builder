@@ -17,6 +17,10 @@
  *            the list); payment readiness is a summary on Payments, never a notice; "error" only for a payment request
  *            failing on the server (then first); the dashboard shows the request failure as before, with the snooze;
  *            fa_IR and ar at 375 px: one notice, the bell on the screen beside the menu button, no sideways scroll.
+ *  b4-a11y   A11Y-01: axe-core (WCAG 2.0/2.1 A and AA, and 2.2 AA) on the forms list, Settings, Create, a new form in the
+ *            builder, a form in the builder, its entries, Add-ons and Payments, in en at 1280 px and fa_IR and ar at
+ *            375 px: no serious or critical violation in the plugin's part of the screen (#wpbody-content); and the
+ *            fixed nodes themselves (the header's logo and icon links, the lists without <hr>, the muted text's colour).
  */
 'use strict';
 const path = require('path');
@@ -260,6 +264,63 @@ module.exports = function (S) {
       bctl('snooze', 'clear');
       actl('delete', String(P.form_id));
       try { ctl('pay-keys', 'test'); } catch (e) { /* mock gateway off */ }
+    }
+  });
+  /* ================================================================== b4-a11y */
+  async function axeRun(p) {
+    await p.addScriptTag({ path: path.join(__dirname, '..', '..', 'node_modules', 'axe-core', 'axe.min.js') });
+    return p.evaluate(async () => {
+      const res = await axe.run(document.getElementById('wpbody-content') || document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] }, resultTypes: ['violations'] });
+      // Other plugins' notices are not the plugin's (the plugin's screens remove them anyway).
+      const own = (n) => { try { const e = document.querySelector(n.target[0]); return !!e && !e.closest('.notice:not([data-efb-nm]):not(.efb):not([class*="efb-"])'); } catch (x) { return true; } };
+      return res.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => ({ id: v.id, impact: v.impact, nodes: v.nodes.filter(own).map((n) => n.target.join(' ') + ' :: ' + (n.failureSummary || '').split('\n')[1]).slice(0, 4), n: v.nodes.filter(own).length })).filter((v) => v.n > 0);
+    });
+  }
+  scenario('b4-a11y', 'A11Y-01: axe (WCAG 2.1 AA) finds no serious or critical issue on the plugin\'s admin screens, en 1280 and fa_IR / ar 375; the fixed nodes', async ({ adminPage }) => {
+    ctl('plan', '3');
+    const F = ctl('f11-form', 'B4 a11y form', '', '1');
+    ctl('f13-seed', String(F.form_id), '1');
+    try {
+      for (const [loc, w] of [['', 1280], ['fa_IR', 375], ['ar', 375]]) {
+        if (loc) ctl('locale', loc);
+        try {
+          const p = await adminPage({ viewport: { width: w, height: w < 600 ? 812 : 900 }, locale: loc ? loc.replace('_', '-') : 'en-US' }, 'b4-a11y-' + (loc || 'en'));
+          const tag = `${loc || 'en'} ${w}`;
+          const screens = [
+            ['forms', '/wp-admin/admin.php?page=Emsfb', async () => { await p.waitForFunction(() => typeof fun_get_form_by_id === 'function', null, { timeout: 20000 }); await sleep(800); }],
+            ['settings', '/wp-admin/admin.php?page=Emsfb&state=setting', async () => { await p.waitForSelector('#nav-tabContent', { timeout: 20000 }); await sleep(800); }],
+            ['create', '/wp-admin/admin.php?page=Emsfb_create', async () => { await p.waitForSelector('#listFormCardsEFB', { timeout: 20000 }); await sleep(800); }],
+            ['builder-new', '/wp-admin/admin.php?page=Emsfb_create', async () => { await p.waitForFunction(() => typeof create_form_by_type_emsfb === 'function', null, { timeout: 20000 }); await p.evaluate(() => create_form_by_type_emsfb('form', 'npreview')); await p.waitForSelector('#dropZoneEFB', { timeout: 20000 }); await sleep(1200); }],
+            ['builder-edit', '/wp-admin/admin.php?page=Emsfb', async () => { await p.waitForFunction(() => typeof fun_get_form_by_id === 'function', null, { timeout: 20000 }); await p.evaluate((id) => fun_get_form_by_id(Number(id)), F.form_id); await builderReady(p); await sleep(1200); }],
+            ['entries', '/wp-admin/admin.php?page=Emsfb', async () => { await p.waitForFunction(() => typeof fun_get_messages_by_id === 'function', null, { timeout: 20000 }); await p.evaluate((id) => { form_type_emsFormBuilder = 'form'; fun_get_messages_by_id(Number(id)); }, F.form_id); await p.waitForSelector('.efb-ent-table, .efb-ent-row', { timeout: 20000 }); await sleep(800); }],
+            ['addons', '/wp-admin/admin.php?page=Emsfb_addon', async () => { await p.waitForSelector('a.addons', { timeout: 30000 }); await sleep(600); }],
+            ['payments', '/wp-admin/admin.php?page=Emsfb_payments', async () => { await sleep(600); }],
+          ];
+          for (const [name, url, ready] of screens) {
+            await p.goto(CFG.base + url, { waitUntil: 'load' });
+            await ready();
+            const v = await axeRun(p);
+            R.check(`b4-a11y (${tag}, ${name}): no serious or critical axe violation in the plugin's part of the screen`, v.length === 0, v);
+            if (name === 'forms' || name === 'builder-new') await p.screenshot({ path: SHOT(`b4-a11y-${name}-${loc || 'en'}-${w}`) });
+            if (name === 'forms') {
+              const f = await p.evaluate(() => {
+                const logo = document.querySelector('#navbar img.logo');
+                const icons = Array.from(document.querySelectorAll('#navbar a[href*="whitestudio.team"]')).map((a) => a.getAttribute('aria-label') || '');
+                const nav = document.querySelector('#efb-nav-setting');
+                return { logoAlt: logo ? logo.getAttribute('alt') : null, icons, navColor: nav ? getComputedStyle(nav).color : '', more: (document.getElementById('more_emsFormBuilder') || { getAttribute: () => 'absent' }).getAttribute('aria-label') };
+              });
+              R.check(`b4-a11y (${tag}): the header's logo is decorative (alt=""), its icon links are named (opens in a new tab), the "more forms" button is named, the nav's muted text is #5f6283 (5.2:1, was #898aa9 2.9:1)`, f.logoAlt === '' && f.icons.length === 2 && f.icons.every((x) => x.length > 8) && !!f.more && f.navColor === 'rgb(95, 98, 131)', f);
+            }
+            if (name === 'builder-new' || name === 'create') {
+              const lists = await p.evaluate(() => Array.from(document.querySelectorAll('ul > hr, ol > hr')).filter((h) => h.closest('#wpbody-content')).length);
+              R.check(`b4-a11y (${tag}, ${name}): no <hr> right inside a list (the tab lists draw their line)`, lists === 0, lists);
+            }
+          }
+          await p.context().close();
+        } finally { if (loc) ctl('locale', ''); }
+      }
+    } finally {
+      actl('delete', String(F.form_id));
     }
   });
 };

@@ -1474,7 +1474,6 @@ function add_dasboard_emsFormBuilder() {
 
  cardtitles = `
     <ul class="efb mt-4 mb-3 p-0 justify-content-center row d-none d-md-flex" id="listCardTitleEfb">${cardtitles}
-    <hr class="efb hr">
     </ul>
     `
 
@@ -1482,7 +1481,7 @@ function add_dasboard_emsFormBuilder() {
 
           ${head_introduce_efb('create')}
           <section id="content-efb">
-          ${!mobile_view_efb ? `<img src="${efb_var.images.title}" class="efb ${efb_var.rtl == 1 ? "right_circle-efb" : "left_circle-efb"}"><h4 class="efb title-holder efb fs-4"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-arrow-down-circle title-icon mx-1 fs-4"></i>${efb_var.text.forms}</h4>` : ''}
+          ${!mobile_view_efb ? `<img src="${efb_var.images.title}" alt="" class="efb ${efb_var.rtl == 1 ? "right_circle-efb" : "left_circle-efb"}"><h4 class="efb title-holder efb fs-4"><img src="${efb_var.images.title}" alt="" class="efb title efb create"><i class="efb  bi-arrow-down-circle title-icon mx-1 fs-4"></i>${efb_var.text.forms}</h4>` : ''}
           <div class="efb d-flex justify-content-center ">
             <input type="text" placeholder="${efb_var.text.search}" id="findCardFormEFB" class="efb fs-6 search-form-control rounded-4 efb mx-2"> <a class="efb btn efb btn-outline-pink mx-1" onclick="FunfindCardFormEFB()" >${efb_var.text.search}</a>
 
@@ -1597,7 +1596,6 @@ function add_addons_emsFormBuilder() {
 
  cardtitles = `
     <ul class="efb mt-4 mb-3 p-0 d-flex justify-content-center row" id="listCardTitleEfb">${cardtitles}
-    <hr class="efb hr">
     </ul>
     `
 
@@ -1605,7 +1603,7 @@ function add_addons_emsFormBuilder() {
 
           ${head_introduce_efb('create')}
           <section id="content-efb">
-          ${!mobile_view_efb ? `<h4 class="efb  mb-0 title-holder fs-4 efb"><img src="${efb_var.images.title}" class="efb title efb create"><i class="efb  bi-plus-circle title-icon fs-4 mx-1"></i>${efb_var.text.addons}</h4>` : ''}
+          ${!mobile_view_efb ? `<h4 class="efb  mb-0 title-holder fs-4 efb"><img src="${efb_var.images.title}" alt="" class="efb title efb create"><i class="efb  bi-plus-circle title-icon fs-4 mx-1"></i>${efb_var.text.addons}</h4>` : ''}
 
           <div class="efb d-flex justify-content-center align-items-center flex-wrap my-3 gap-2" id="addonSearchWrapEFB">
             <input type="text" placeholder="${efb_var.text.search} &hellip;" id="findCardAddonEFB" autocomplete="off" aria-label="${efb_var.text.search}"
@@ -1987,7 +1985,7 @@ function head_introduce_efb(state) {
   <div class="efb row ${mobile_view_efb ? 'mx-2' : 'mx-5'} align-items-center">
               <div class="efb col-lg-7 mt-2 pd-5 col-md-12">
                   <div class="efb efb-header-brand">
-                    <img src="${efb_var.images.logo}" class="efb efb-header-logo ${mobile_view_efb ? 'm-1' : ''} efb">
+                    <img src="${efb_var.images.logo}" alt="" class="efb efb-header-logo ${mobile_view_efb ? 'm-1' : ''} efb">
                     <div class="efb efb-header-brand-text">
                       <h1 class="efb pointer-efb mb-0 efb-header-title ${mobile_view_efb ? 'fs-6' : ''} ec-efb" data-eventform="links" data-linkname="efb">${efb_var.text.easyFormBuilder}</h1>
                       <p class="efb pointer-efb efb-header-subtitle ${mobile_view_efb ? 'fs-7' : 'fs-6'} ec-efb" data-eventform="links" data-linkname="ws">${efb_var.text.byWhiteStudioTeam}</p>
@@ -1997,7 +1995,7 @@ function head_introduce_efb(state) {
 
               </div>
               ${state == "create" && (efb_var.pro==false || efb_var.pro =='false') ? vType : ''}
-              ${(state != "create") ? `<div class="efb col-lg-5 col-md-12 efb-header-img-wrap"> <img src="${efb_var.images.head}" class="efb img-fluid efb-header-img"></div>` : ''}
+              ${(state != "create") ? `<div class="efb col-lg-5 col-md-12 efb-header-img-wrap"> <img src="${efb_var.images.head}" alt="" class="efb img-fluid efb-header-img"></div>` : ''}
     </div>
   </section> `
 }
@@ -7026,6 +7024,48 @@ function efbNoticeCenterEfb() {
 efbNoticeCenterEfb();
 document.addEventListener('DOMContentLoaded', efbNoticeCenterEfb);
 
+/* A11Y-01: names and text alternatives for markup the screens' PHP and the other scripts print, bridged here until it is
+   fixed where it is printed (class-Emsfb-panel.php: the header's logo and its two icon links, the "more forms" button;
+   val-efb.js: the <hr> in the palette's category list; the entries screen's buttons whose words hide on a phone):
+   - an image of the plugin without alt is decorative (each sits beside its own words): alt="";
+   - an icon-only link or button gets a name: the words it hides, its title, or the header icon's own name (+ "(opens in a
+     new tab)" for a link that does);
+   - an <hr> right inside a list leaves it (only <li> may be there); the list draws the line itself (efb-list-rule).
+   Idempotent; on load and whenever the screen draws (debounced). */
+function efbA11yRepairEfb() {
+  const root = document.getElementById('wpbody-content');
+  if (!root) return;
+  for (const im of root.querySelectorAll('img:not([alt])')) {
+    if (im.closest('.efb') || /\/easy-form-builder\//.test(im.getAttribute('src') || '')) im.setAttribute('alt', '');
+  }
+  for (const hr of root.querySelectorAll('ul.efb > hr, ol.efb > hr')) { hr.parentNode.classList.add('efb-list-rule'); hr.remove(); }
+  const newTab = efbSbTextEfb('upgNewTab', '(opens in a new tab)');
+  const known = [
+    ['a[href*="whitestudio.team/login"]', efbSbTextEfb('a11yAccount', 'Your WhiteStudio account')],
+    ['a[href*="whitestudio.team/documents"]', efbSbTextEfb('a11yDocs', 'Easy Form Builder documentation')],
+    ['#more_emsFormBuilder', efbSbTextEfb('a11yMore', 'Show more')],
+  ];
+  for (const el of root.querySelectorAll('.efb a[href], a.efb[href], .efb button, button.efb')) {
+    if (el.hasAttribute('aria-label') || el.hasAttribute('aria-labelledby')) continue;
+    if ((el.innerText || '').trim() !== '' || el.querySelector('img[alt]:not([alt=""])')) continue;
+    let name = (el.getAttribute('title') || el.getAttribute('data-efb-tip') || '').trim();
+    if (!name) name = (el.textContent || '').replace(/\s+/g, ' ').trim(); // words a narrow screen hides
+    if (!name) { const k = known.find((x) => el.matches(x[0])); if (k) name = k[1]; }
+    if (!name) continue;
+    if (el.tagName === 'A' && /^_?blank$/.test(el.getAttribute('target') || '') && name.indexOf(newTab) === -1) name += ' ' + newTab;
+    el.setAttribute('aria-label', name);
+  }
+}
+let efbA11yTimerEfb = 0;
+function efbA11yWatchEfb() {
+  efbA11yRepairEfb();
+  const root = document.getElementById('wpbody-content');
+  if (!root || !window.MutationObserver || root.getAttribute('data-efb-a11y') === '1') return;
+  root.setAttribute('data-efb-a11y', '1');
+  new MutationObserver(() => { clearTimeout(efbA11yTimerEfb); efbA11yTimerEfb = setTimeout(efbA11yRepairEfb, 250); }).observe(root, { childList: true, subtree: true });
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', efbA11yWatchEfb); else efbA11yWatchEfb();
+
 /* EFB screens hide other plugins' notices (update nags, ads). A notice of Easy Form Builder or of one of its add-ons
    stays: class efb or efb-notice (any class or id starting with efb / emsfb) or data-efb-notice. */
 efb_is_own_notice_efb=(el)=>{
@@ -7078,7 +7118,7 @@ efbLoadingCard = (bgColor,size=0)=>{
   const w = size<4 ? 'w-50' : 'w-25';
   return `<div class='efb row justify-content-center card-body text-center efb mt-5 pt-3'>
   <div class='efb col-12 col-md-4 col-sm-7 mx-0 my-1 d-flex flex-column align-items-center ${bgColor}'>
-      <img class='efb ${w}' src='${efb_var.images.logoGif}'>
+      <img class='efb ${w}' src='${efb_var.images.logoGif}' alt=''>
       <p class='efb fs-${size} text-darkb mb-0'>${efb_var.text.easyFormBuilder}</h4>
       <p class='efb fs-${size+1} text-dark'>${efb_var.text.pleaseWaiting}</h4>
   </div>
@@ -9952,7 +9992,7 @@ fun_captcha_load_efb = ()=>{
             <div id="step-1-efb-msg"></div>`;
   return ` ${sitekye_emsFormBuilder.length > 1 ? `<div class="efb row mx-0"><div id="gRecaptcha" class="efb g-recaptcha my-2 mx-0 px-0" data-sitekey="${sitekye_emsFormBuilder}" data-callback="verifyCaptcha" style="transform:scale(0.88);-webkit-transform:scale(0.88);transform-origin:0 0;-webkit-transform-origin:0 0;"></div><small class="efb text-danger" id="recaptcha-message"></small></div>` : ``}
             <!-- fieldset1 -->
-            ${state_efb == "view" && valj_efb[0].captcha == true ? `<div class="efb col-12 mb-2 mx-0 mt-3 efb" id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" id="img_recaptcha_perview_efb"></div>` : ''}
+            ${state_efb == "view" && valj_efb[0].captcha == true ? `<div class="efb col-12 mb-2 mx-0 mt-3 efb" id="recaptcha_efb"><img src="${efb_var.images.recaptcha}" alt="reCAPTCHA" id="img_recaptcha_perview_efb"></div>` : ''}
             <div id="step-1-efb-msg"></div>`
  }
 
