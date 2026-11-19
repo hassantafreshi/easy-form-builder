@@ -9,6 +9,23 @@ brand tokens in the plugin admin CSS and the `simple-ws-theme` stylesheet. The t
 Sizing facts that drive the numbers: the article column is **760 CSS px wide** (theme `.article {max-width:760px}`); images are
 `width:100%` with a 14 px radius and a 1 px border added by the theme; `.wp-block-image.small` caps at 360 px.
 
+
+## 0. Owner rule (2026-11-19): every screenshot is annotated, like a professional guide — MANDATORY
+
+A plain screenshot is not allowed in any article. Each image must show the reader exactly **where to click, what to type and what to look at**, the way WPForms' docs do. An image that breaks a rule below fails QA gate D1b and the article is **not published** until it is fixed.
+
+1. **Every action has a mark.** Each control the step text tells the reader to click, choose, toggle or type into carries a mark (section 4.1): an **arrow** to the button/link/menu item to click; a **box** around the field to type into or the panel/region to check; **numbered badges 1-3** when the step does several things on the same screen in order; a **magnifier** + arrow when the control is small (under ~24 px at the 760 px column width).
+2. **Image and text match.** The step text names the same controls in the same order; when badges are used the text uses the same numbers ("1 … 2 … 3"). No mark without a matching sentence, no clickable label in the text without a mark in that step's image(s).
+3. **Show the input, not an empty form.** Fields to fill are shown filled with the example value from the text (secrets masked), toggles in the state the text asks for, the chosen option selected.
+4. **One screen state per image; split when needed.** If a step changes the screen (click → dialog opens, save → success message) or needs more than 3 marks, use two or more images in order (before → after). Max 3 marks per image (section 4.2).
+5. **Crop to the action.** Crop so the marked target is large and readable in the 760 px column (UI text >= ~13 px displayed); keep enough surrounding UI (menu, tab, heading) for the reader to recognise where they are. No full-screen shots with a tiny target.
+6. **Result images are marked too.** The "it worked" image boxes the proof (status "Completed", success message, saved toast, the new row).
+7. **RTL.** On Arabic screenshots badges sit on the target's top-right corner and arrows come from the reading-end side; the tool mirrors this (section 4.2).
+8. **Locale.** Each language gets its own annotated screenshots from the UI in that language (section 12); marks are drawn on the real localized UI, never copied from EN.
+9. **Self-check before upload.** Open every annotated image at display size (760 px wide) and confirm: the mark points at the right control, nothing important is covered, the marked label is readable, the text matches. Record the check in the run report.
+
+Tooling: `tools/capture` (raw 2x captures + DOM boxes of the targets) → `tools/annotate/annotate.py` (spec per image: arrow/box/badges/magnifier at the DOM box) → WebP. Worked example: R47 Stripe (`tools/capture/flows/stripe-shots.mjs` + `stripe-shots-images.py`).
+
 ## 1. Image types
 
 | type | when | frame | annotation |

@@ -136,6 +136,8 @@ keyword-list H2s that land in the TOC and is content written for crawlers, not r
 
 ## Rules that are easy to get wrong
 
+* **No plain screenshots (owner rule 2026-11-19).** Every step image is annotated per `templates/images/IMAGE-STYLE-GUIDE.md` §0 (arrow to the click target, box on the field to type into or the result to check, numbered badges 1-3 for ordered actions, magnifier for small controls) and the step text names the same controls and numbers. A step that changes the screen gets a before and an after image (`STEP_N_EXTRA`).
+
 * **Escape every shortcode shown as an example.** WordPress executes `[EMS_Form_Builder id=4]` even inside `<code>` and renders a live form in the article (happened on R47, 2026-11-14). Write `&#91;EMS_Form_Builder id=4&#93;`; the reader still sees the brackets. `verify_live.py` must find the shortcode as text and no form markup.
 
 * **Block comments are part of the format.** Without any `<!-- wp:... -->` comment WordPress runs `wpautop` over the HTML and the image
