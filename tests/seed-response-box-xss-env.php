@@ -98,8 +98,15 @@ switch ( $mode ) {
 		$page_id = wp_insert_post( array( 'post_title' => 'EFB code finder xss probe', 'post_name' => 'efb-code-finder-xss-probe',
 			'post_content' => '[Easy_Form_Builder_confirmation_code_finder]', 'post_status' => 'publish', 'post_type' => 'page' ) );
 
+		/* The public box draws a stored map only where Leaflet is on the page: on the code finder that is the site's
+		   OpenStreetMap location picker setting (as on the owner's site). On for the run, through EFB's settings
+		   function; the site's own value is put back at teardown. */
+		$osl = get_setting_Emsfb( 'decoded' );
+		$osl_was = is_object( $osl ) && isset( $osl->osLocationPicker ) ? $osl->osLocationPicker : null;
+		if ( empty( $osl_was ) ) { \efbFunction::set_setting_Emsfb( (object) array( 'osLocationPicker' => true ) ); }
+
 		$state = array( 'form_id' => $fid, 'page_id' => (int) $page_id, 'url' => get_permalink( $page_id ), 'sid' => $sid,
-			'track_a' => $track_a, 'msg_a' => $msg_a, 'track_b' => $track_b, 'msg_b' => $msg_b );
+			'track_a' => $track_a, 'msg_a' => $msg_a, 'track_b' => $track_b, 'msg_b' => $msg_b, 'osl_was' => $osl_was );
 		update_option( $marker, $state, false );
 		echo json_encode( array_merge( array( 'ok' => $msg_a > 0 && $msg_b > 0, 'resp' => is_wp_error( $res ) ? $res->get_error_message() : substr( wp_remote_retrieve_body( $res ), 0, 300 ) ), $state ) );
 		break;
@@ -119,6 +126,9 @@ switch ( $mode ) {
 			$wpdb->delete( $form_table, array( 'form_id' => (int) $s['form_id'] ) );
 			if ( ! empty( $s['sid'] ) ) { $wpdb->delete( $stts_table, array( 'sid' => $s['sid'] ) ); }
 			if ( ! empty( $s['page_id'] ) ) { wp_delete_post( (int) $s['page_id'], true ); }
+			if ( array_key_exists( 'osl_was', $s ) && empty( $s['osl_was'] ) ) {
+				\efbFunction::set_setting_Emsfb( (object) array( 'osLocationPicker' => null === $s['osl_was'] ? false : $s['osl_was'] ) );
+			}
 			delete_option( $marker );
 		}
 		echo json_encode( array( 'ok' => true, 'restored' => is_array( $s ) ) );

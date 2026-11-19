@@ -134,7 +134,9 @@ const read = () => (seed('read').settings || {});
   const page = await context.newPage();
   const jsErrors = [];
   page.on('pageerror', (e) => jsErrors.push(e.message));
-  page.on('console', (m) => { if (m.type() === 'error') jsErrors.push(m.text()); });
+  // The browser's own favicon request is not the page's: PHP's built-in server answers it 404 (Apache hands it to
+  // WordPress), and it is not a script error.
+  page.on('console', (m) => { if (m.type() === 'error' && !/\/favicon\.ico(\?|$)/.test((m.location() || {}).url || '')) jsErrors.push(m.text()); });
 
   try {
     if (!t('admin login', await login(page))) throw new Error('login failed');

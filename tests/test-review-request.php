@@ -30,6 +30,10 @@ require_once $wp_load;
 
 // set_current_screen() ships with the admin, which wp-load does not pull in.
 require_once ABSPATH . 'wp-admin/includes/screen.php';
+// The WP_Screen class itself is a file of its own (loaded by wp-admin/includes/admin.php), not pulled in by screen.php.
+if ( ! class_exists( 'WP_Screen', false ) && is_readable( ABSPATH . 'wp-admin/includes/class-wp-screen.php' ) ) {
+	require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+}
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 $pass     = 0;
@@ -158,9 +162,14 @@ $has_forms   = ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $forms_t
 	&& (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$forms_table}" ) > 0;
 
 if ( $has_forms ) {
+	// A form a month old (removed right after), so the check does not depend on when this site's forms were made: on a
+	// test site that is reset often every form can be minutes old, and "backdated" could not be told from "today".
+	$old_form_id = $wpdb->insert( $forms_table, array( 'form_name' => 'review-request C3 old form', 'form_structer' => '[]', 'form_email' => '',
+		'form_type' => 'form', 'form_created_by' => 1, 'form_create_date' => wp_date( 'Y-m-d H:i:s', time() - 30 * DAY_IN_SECONDS ) ) ) ? (int) $wpdb->insert_id : 0;
 	delete_option( 'emsfb_install_date' );
 	$request->seed_install_date_efb();
 	$oldest_form = $wpdb->get_var( "SELECT MIN(form_create_date) FROM {$forms_table}" );
+	if ( $old_form_id ) $wpdb->delete( $forms_table, array( 'form_id' => $old_form_id ) );
 	efb_t(
 		'C3 an existing site is backdated to its oldest form, not to today',
 		(int) get_option( 'emsfb_install_date' ) <= time() - HOUR_IN_SECONDS,

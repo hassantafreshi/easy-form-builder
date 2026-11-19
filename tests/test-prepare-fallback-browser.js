@@ -24,8 +24,16 @@ const { chromium } = require('playwright');
 const wpEnv = require('./wp-env');
 
 const BASE = wpEnv.url();
-const FORM = process.env.EFB_FORM_PATH || '/';
-const TRACKER = process.env.EFB_TRACKER_PATH || '';
+let FORM = process.env.EFB_FORM_PATH || '';
+let TRACKER = process.env.EFB_TRACKER_PATH || '';
+if (!FORM) {
+  // No page named: the simple guest form and the code finder are seeded (tests/seed-prepare-fallback-form.php,
+  // idempotent) on the WordPress of tests/wp-env.js.
+  wpEnv.skipWithoutWp('the prepare fallback browser test');
+  const seeded = JSON.parse(wpEnv.phpScript('seed-prepare-fallback-form.php').trim().split('\n').pop());
+  FORM = seeded.form;
+  TRACKER = TRACKER || seeded.tracker;
+}
 const USER = process.env.EFB_USER || '', PASS = process.env.EFB_PASS || '';
 const reply = (status, body) => ({ status, contentType: 'application/json', body: JSON.stringify(body) });
 const MODES = {
@@ -91,7 +99,7 @@ async function submit(browser, mode, user) {
   const text = await page.evaluate(() => document.body.innerText);
   await context.close();
   const s = submits[0] || {};
-  return { submits: submits.length, prepares, status: s.status, success: s.success, runtime: s.runtime, request_id: s.request_id, pageNonce: s.nonce === page_state.nonce, pageSid: s.sid === page_state.sid, shown: !!(s.track && text.includes(s.track)), track: s.track, errors, text: text.replace(/\s+/g, ' ').slice(0, 160) };
+  return { submits: submits.length, prepares, status: s.status, success: s.success, runtime: s.runtime, request_id: s.request_id, pageNonce: s.nonce === page_state.nonce, pageSid: s.sid === page_state.sid, shown: !!(s.track && text.includes(s.track)), track: s.track, errors, text: text.replace(/\s+/g, ' ').slice(0, 160), full: text.replace(/\s+/g, ' ') };
 }
 
 (async () => {
@@ -101,19 +109,20 @@ async function submit(browser, mode, user) {
   for (const user of USER ? ['', USER] : ['']) {
     const who = user ? 'logged-in' : 'guest';
     let r = await submit(browser, 'normal', user);
-    check(r.status === 200 && r.success && r.runtime && r.request_id && r.shown && !r.errors.length, `${who}: live runtime submission`, r);
+    check(r.status === 200 && r.success && r.runtime && r.request_id && r.shown && !r.errors.length, `${who}: live runtime submission`, { ...r, full: undefined });
     track = track || r.track;
     for (const mode of ['offline', 'r429', 'waf403', 'noroute', 'rest401', 'origin', 's503', 'malformed']) {
       r = await submit(browser, mode, user);
       check(r.status === 200 && r.success && r.pageNonce && r.pageSid && r.runtime === false && r.request_id === false && r.shown && r.prepares === 1 && !r.errors.length,
-        `${who}: prepare ${mode} -> legacy request, saved, confirmation shown, one prepare call`, r);
+        `${who}: prepare ${mode} -> legacy request, saved, confirmation shown, one prepare call`, { ...r, full: undefined });
     }
     // An expired context now tells the visitor to send again ("The form expired while this page was
     // open...", or the site's translation); the first words are checked so a translated site passes
     // with EFB_EXPIRED_TEXT set to its translation.
     for (const [mode, message] of [['login', 'Please log in to use this form.'], ['expired', process.env.EFB_EXPIRED_TEXT || 'The form expired']]) {
       r = await submit(browser, mode, user);
-      check(r.submits === 0 && r.text.includes(message) && !r.errors.length, `${who}: prepare ${mode} still stops with its message`, r);
+      // The whole page text: a theme's menu can push the message past the first 160 characters kept for the report.
+      check(r.submits === 0 && r.full.includes(message) && !r.errors.length, `${who}: prepare ${mode} still stops with its message`, { ...r, full: undefined });
     }
   }
   if (TRACKER && track) {
