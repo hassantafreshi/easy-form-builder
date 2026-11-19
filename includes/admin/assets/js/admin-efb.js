@@ -795,8 +795,15 @@ function link_url_emsFormBuilder(state) {
         link = 'https://translate.wordpress.org/projects/wp-plugins/easy-form-builder/';
         break;
       case 'paypal':
-        link += `s/how-to-setup-paypal-payment-in-easy-form-builder/`;
-      break;
+      case 'AdnPAP':
+        link = `https://${lan}whitestudio.team/document/how-to-setup-paypal-payment-in-easy-form-builder/`;
+        break;
+      case 'AdnTLG':
+        link = `https://${lan}whitestudio.team/document/wordpress-form-telegram-notifications/`;
+        break;
+      case 'AdnATF':
+        link = `https://${lan}whitestudio.team/advanced-addons/wordpress-easy-form-builder-auto-populate/`;
+        break;
 
     }
   }else{
@@ -868,11 +875,18 @@ function link_url_emsFormBuilder(state) {
         link += `چگونه-مکانیاب-انتخاب-گر-نقشه-فرم-افزون/`;
         break;
       case 'cachePlugin':
-        link + `جلوگیری-از-کش-شدن-فرم-ساخته-توسط-فرم-ساز/`
+        link += `جلوگیری-از-کش-شدن-فرم-ساخته-توسط-فرم-ساز/`;
         break;
       case 'paypal':
-        link = `https://whitestudio.team/documents/how-to-setup-paypal-payment-in-easy-form-builder/`;
-      break;
+      case 'AdnPAP':
+        link = `https://whitestudio.team/document/how-to-setup-paypal-payment-in-easy-form-builder/`;
+        break;
+      case 'AdnTLG':
+        link = `https://whitestudio.team/document/wordpress-form-telegram-notifications/`;
+        break;
+      case 'AdnATF':
+        link = `https://whitestudio.team/advanced-addons/wordpress-easy-form-builder-auto-populate/`;
+        break;
       case 'translateWP':
         link = 'https://translate.wordpress.org/projects/wp-plugins/easy-form-builder/';
         break;
