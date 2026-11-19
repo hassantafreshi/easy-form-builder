@@ -496,9 +496,9 @@ function fun_clear_esign_efb(id) {
     var w = canvas.width;
     canvas.width = 1;
     canvas.width = w;
-    c2d.lineWidth = 5;
-    c2d.strokeStyle = "#000000";
-    c2d.save();
+    // BUG-01: the next stroke sizes the blank canvas to its box again (efb_esign_fit_efb) and sets the pen.
+    canvas._efbInk = false;
+    efb_esign_pen_efb(c2d, 1);
     const o = [{ id_: id }];
     const indx = get_row_sendback_by_id_efb(id);
     if (indx != -1) sendBack_emsFormBuilder_pub.splice(indx, 1)
@@ -1228,15 +1228,50 @@ fun_remove_row_sendback_efb=(id)=>{
   }
 }
 
+/**
+ * BUG-01 (BUGS-FOUND 400): a drawn signature was saved stretched. The canvas kept its default 300 × 150 pixels and the
+ * CSS stretched it to the field's box (240 px high, the column wide), so what the visitor drew was squeezed into the
+ * saved image. Its pixels now follow its size on the page, at most twice the CSS pixels (as the typed signature's
+ * EFBSign.fit does), set when the visitor starts on a blank canvas: a canvas on a step not shown yet has no size, and
+ * resizing a canvas wipes it. Answers saved before keep their image. Returns the pixel ratio used.
+ */
+function efb_esign_fit_efb(canvas) {
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  if (!w || !h) return 1;
+  const k = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+  const W = Math.round(w * k), H = Math.round(h * k);
+  if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+  return k;
+}
+/** The pen (3 CSS pixels wide, whatever the canvas's pixel ratio); a resize resets it. */
+function efb_esign_pen_efb(ctx, k) {
+  ctx.lineWidth = 3 * (k || 1);
+  ctx.strokeStyle = "#000000";
+  ctx.fillStyle = "#000000";
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+}
+
 fun_event_esign_efb=(id,form_id,disabled,v)=>{
   const canvas = document.getElementById(id+'_');
-  c2d_contex_efb = canvas.getContext("2d");
-  c2d_contex_efb.lineWidth = 5;
-  c2d_contex_efb.strokeStyle = "#000000";
-  c2d_contex_efb.lineCap = "round";
-  c2d_contex_efb.lineJoin = "round";
+  if (!canvas) return;
+  // Each signature field draws on its own canvas (two on one page shared the last one's context).
+  const ctx = canvas.getContext("2d");
+  c2d_contex_efb = ctx;
+  let ratio = 1;
+  efb_esign_pen_efb(ctx, ratio);
 
   if(disabled) return;
+
+  // On the first stroke of a blank canvas: pixels to the box on the page, then the pen again.
+  function beginInk() {
+    if (!canvas._efbInk) {
+      ratio = efb_esign_fit_efb(canvas);
+      canvas._efbInk = true;
+    }
+    efb_esign_pen_efb(ctx, ratio); // also after the typed-signature add-on wiped the canvas
+    c2d_contex_efb = ctx;
+  }
 
   function getCanvasCoordinates(canvas, event) {
     const rect = canvas.getBoundingClientRect();
@@ -1259,17 +1294,14 @@ fun_event_esign_efb=(id,form_id,disabled,v)=>{
   }
 
   canvas.addEventListener("mousedown", (e) => {
+    beginInk();
     draw_mouse_efb = true;
     canvas_id_efb = id;
     lastMousePostion_efb = getCanvasCoordinates(canvas, e);
 
-    c2d_contex_efb.beginPath();
-    c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
-
-    c2d_contex_efb.fillStyle = "#000000";
-    c2d_contex_efb.beginPath();
-    c2d_contex_efb.arc(lastMousePostion_efb.x, lastMousePostion_efb.y, 2, 0, 2 * Math.PI);
-    c2d_contex_efb.fill();
+    ctx.beginPath();
+    ctx.arc(lastMousePostion_efb.x, lastMousePostion_efb.y, 1.5 * ratio, 0, 2 * Math.PI);
+    ctx.fill();
   }, false);
 
   canvas.addEventListener("mouseup", (e) => {
@@ -1290,12 +1322,13 @@ fun_event_esign_efb=(id,form_id,disabled,v)=>{
   canvas.addEventListener("mousemove", (e) => {
     if (!draw_mouse_efb) return;
 
+    if (canvas_id_efb !== id) return;
     const currentPos = getCanvasCoordinates(canvas, e);
 
-    c2d_contex_efb.beginPath();
-    c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
-    c2d_contex_efb.lineTo(currentPos.x, currentPos.y);
-    c2d_contex_efb.stroke();
+    ctx.beginPath();
+    ctx.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
+    ctx.lineTo(currentPos.x, currentPos.y);
+    ctx.stroke();
 
     lastMousePostion_efb = currentPos;
   }, false);
@@ -1303,17 +1336,14 @@ fun_event_esign_efb=(id,form_id,disabled,v)=>{
   canvas.addEventListener("touchstart", (e) => {
     e.preventDefault();
     document.body.style.overflow = 'hidden';
+    beginInk();
     draw_mouse_efb = true;
     canvas_id_efb = id;
     lastMousePostion_efb = getCanvasCoordinates(canvas, e);
 
-    c2d_contex_efb.beginPath();
-    c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
-
-    c2d_contex_efb.fillStyle = "#000000";
-    c2d_contex_efb.beginPath();
-    c2d_contex_efb.arc(lastMousePostion_efb.x, lastMousePostion_efb.y, 2, 0, 2 * Math.PI);
-    c2d_contex_efb.fill();
+    ctx.beginPath();
+    ctx.arc(lastMousePostion_efb.x, lastMousePostion_efb.y, 1.5 * ratio, 0, 2 * Math.PI);
+    ctx.fill();
   }, false);
 
   canvas.addEventListener("touchmove", (e) => {
@@ -1321,12 +1351,13 @@ fun_event_esign_efb=(id,form_id,disabled,v)=>{
     document.body.style.overflow = 'hidden';
     if (!draw_mouse_efb) return;
 
+    if (canvas_id_efb !== id) return;
     const currentPos = getCanvasCoordinates(canvas, e);
 
-    c2d_contex_efb.beginPath();
-    c2d_contex_efb.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
-    c2d_contex_efb.lineTo(currentPos.x, currentPos.y);
-    c2d_contex_efb.stroke();
+    ctx.beginPath();
+    ctx.moveTo(lastMousePostion_efb.x, lastMousePostion_efb.y);
+    ctx.lineTo(currentPos.x, currentPos.y);
+    ctx.stroke();
 
     lastMousePostion_efb = currentPos;
   }, false);
