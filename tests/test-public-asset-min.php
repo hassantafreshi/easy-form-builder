@@ -54,6 +54,13 @@ $r = $run('public/assets/js/x.min.js');
 t('a .min.js is not looked up as .min.min.js', $r[0] === EMSFB_PLUGIN_URL . 'public/assets/js/x.min.js');
 $r = $run('public/assets/js/missing-efb.js');
 t('a missing file: its address and the plugin version', $r[0] === EMSFB_PLUGIN_URL . 'public/assets/js/missing-efb.js' && $r[1] === '4.3.2');
+/* No warning for a twin that is not there (the usual case): an error handler (WP_DEBUG tools, tests/test-php-warnings-wp.php)
+   sees a filemtime() warning even behind @. */
+$warn = array();
+set_error_handler(function ($no, $msg) use (&$warn) { $warn[] = $msg; return true; });
+$run('public/assets/js/core-efb.js'); $run('includes/admin/assets/css/bootstrap.min-efb.css'); $run('public/assets/js/missing-efb.js');
+restore_error_handler();
+t('no PHP warning for a missing twin or file', !$warn, implode(' | ', $warn));
 
 /* The page's own scripts go through it. */
 foreach (array('public/assets/js/core-efb.js', 'includes/admin/assets/js/new-efb.js', 'public/assets/js/inline-efb.js', 'includes/admin/assets/js/pro_els-efb.js', 'includes/admin/assets/js/response-viewer-efb.js', 'includes/admin/assets/css/style-efb.css', 'public/assets/js/upload-efb.js', 'public/assets/js/field-rules-efb.js') as $rel) {

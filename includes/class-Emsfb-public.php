@@ -2506,9 +2506,11 @@ public function check_nonce_permission_efb($request) {
 		$rel = ltrim((string) $rel, '/');
 		if (isset($memo[$rel])) return $memo[$rel];
 		$use = $rel;
-		$src_t = (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . $rel);
+		// is_file() first: a missing twin is the usual case, and filemtime() warns (an error handler sees it despite @).
+		$mtime = function ($p) { return is_file($p) ? (int) filemtime($p) : 0; };
+		$src_t = $mtime(EMSFB_PLUGIN_DIRECTORY . $rel);
 		if (!(defined('SCRIPT_DEBUG') && SCRIPT_DEBUG) && preg_match('/^(.+)(?<!\.min)\.(js|css)$/', $rel, $m)) {
-			$min_t = (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . $m[1] . '.min.' . $m[2]);
+			$min_t = $mtime(EMSFB_PLUGIN_DIRECTORY . $m[1] . '.min.' . $m[2]);
 			if ($min_t > 0 && $min_t >= $src_t) { $use = $m[1] . '.min.' . $m[2]; $src_t = $min_t; }
 		}
 		return $memo[$rel] = array(EMSFB_PLUGIN_URL . $use, $src_t > 0 ? EMSFB_PLUGIN_VERSION . '.' . $src_t : EMSFB_PLUGIN_VERSION);
