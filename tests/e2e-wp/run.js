@@ -2132,6 +2132,11 @@ require('./scenario-ai.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, builderRea
  * the notice manager (b4-notices) and admin accessibility (b4-a11y): tests/e2e-wp/scenario-b4.js. */
 require('./scenario-b4.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, builderReady, canvasDrawn, closePanel });
 
+/* Batch B5 of the 4.3.2 backlog (the public runtime): logic rules without the flag, the Send label's contrast, no response
+ * viewer and the form JSON once on a form page, fonts and province lists from the plugin (no CDN):
+ * tests/e2e-wp/scenario-b5.js. */
+require('./scenario-b5.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */
