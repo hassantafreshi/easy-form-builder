@@ -191,7 +191,7 @@ async function openPublic(page, url, track) {
       .catch(async () => { await page.screenshot({ path: path.join(SHOTS, 'admin-panel-no-list.png'), fullPage: true }); });
     await page.waitForTimeout(1500);
     await page.evaluate((fid) => emsFormBuilder_messages(fid), env.form_id);
-    await page.waitForSelector('.efb-act-open[data-eventform="openMessage"]', { timeout: 20000 });
+    await page.waitForSelector('.efb-act-open[data-eventform="openMessage"], .efb-act-open[data-ent="open"]', { timeout: 20000 });
     await page.waitForTimeout(600);
     const list = await page.evaluate(() => ({
       imgX: document.querySelectorAll('#emsFormBuilder-list img[src="x"], #content-efb img[src="x"]').length,
@@ -244,7 +244,7 @@ async function openPublic(page, url, track) {
       await page.waitForFunction(() => { const m = document.getElementById('settingModalEfb'); return !m || !m.classList.contains('show'); }, null, { timeout: 10000 }).catch(() => {});
       await page.waitForTimeout(800);
       await page.evaluate((fid) => emsFormBuilder_messages(fid), env.form_id);
-      await page.waitForSelector('.efb-act-open[data-eventform="openMessage"]', { timeout: 20000 });
+      await page.waitForSelector('.efb-act-open[data-eventform="openMessage"], .efb-act-open[data-ent="open"]', { timeout: 20000 });
       await page.waitForTimeout(600);
     }
 

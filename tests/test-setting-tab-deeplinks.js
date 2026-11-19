@@ -192,9 +192,11 @@ async function run() {
     // ── 8. The Email Settings deep link the form builder emits still works ──
     await page.goto(`${SETTING}&tab=email`);
     await waitForSettings(page);
+    // 4.3.2 (e-mail on by default, the delivery hint): the link highlights the whole Email server box, which holds
+    // the "Check Email Server" button, the notification switch and the hint that says to use both.
     const highlighted = await page.evaluate(() => {
-      const box = document.getElementById('hostSupportSmtp_box_efb');
-      return box ? box.classList.contains('efb-highlight-setting') : null;
+      const box = document.getElementById('emailServerBox_efb');
+      return box ? box.classList.contains('efb-highlight-setting') && !!box.querySelector('#hostSupportSmtp_emsFormBuilder') : null;
     });
     check(highlighted === true, 'tab=email still highlights the notification switch', `highlighted=${highlighted}`);
 

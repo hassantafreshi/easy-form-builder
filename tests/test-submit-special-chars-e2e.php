@@ -13,8 +13,8 @@
  * each awkward value:
  *   - submits it through the live REST route the browser uses;
  *   - asserts the submission is accepted (not the false "form is empty");
- *   - re-reads the stored entry the way every reader does (strip all
- *     backslashes, then json_decode) and asserts it still decodes;
+ *   - re-reads the stored entry the way every reader does
+ *     (emsfb_json_decode_efb) and asserts it still decodes;
  *   - asserts the value round-trips, with " carried as the @efb@dq# marker and
  *     the backslash preserved in the decoded payload.
  *
@@ -79,12 +79,19 @@ $structure[0]['smsnoti']      = '0';
 $text_id = '';
 foreach ( $structure as $i => $field ) {
 	if ( 0 === $i || ! is_array( $field ) ) { continue; }
+	// EFB's own key is "required" ("require" is kept for older forms): every field optional, as described above.
 	if ( isset( $field['require'] ) ) { $structure[$i]['require'] = '0'; }
+	if ( isset( $field['required'] ) ) { $structure[$i]['required'] = '0'; }
 	if ( isset( $field['noti'] ) ) { $structure[$i]['noti'] = '0'; }
 	if ( isset( $field['smsnoti'] ) ) { $structure[$i]['smsnoti'] = '0'; }
 	if ( '' === $text_id && isset( $field['type'], $field['id_'] ) && in_array( $field['type'], array( 'text', 'textarea' ), true ) ) {
 		$text_id   = (string) $field['id_'];
 		$text_name = isset( $field['name'] ) ? (string) $field['name'] : 'Text';
+		/* F01: a text field can carry an input mask or a validator (a mobile number, a postcode ...) that rightly refuses
+		   free text; the field this test types into is a plain text field. */
+		foreach ( array_keys( $field ) as $k ) {
+			if ( 0 === strpos( (string) $k, 'mask_' ) || 'validator' === $k ) { unset( $structure[$i][ $k ] ); }
+		}
 	}
 }
 if ( '' === $text_id ) { echo "[SKIP] the sample form has no text/textarea field\n"; exit( 0 ); }
@@ -102,45 +109,40 @@ $form_id = (int) $wpdb->insert_id;
 if ( ! $form_id ) { echo "[SKIP] could not create the throwaway form\n"; exit( 0 ); }
 
 /**
- * Submit one value for the text field in-process and return [status, body].
+ * Submit one value for the text field through the live REST route, over HTTP, and return [status, body].
  *
- * The value is encoded the way the browser does (JSON_UNESCAPED_SLASHES, so a
- * double quote travels as the single escape \" the server must cope with).
+ * Over HTTP because a successful submission answers early (efb_send_json_and_continue(): it ends every output
+ * buffer and keeps running the notifications), so an in-process request cannot read its answer. The session is
+ * made in-process like the page's; the value is encoded the way the browser does (JSON_UNESCAPED_SLASHES, so a
+ * double quote travels as the single escape \" the server must cope with). The site address: tests/wp-env.php.
  */
 function efb_submit_text( $value, $form_id, $text_id, $text_name, $fn, $url ) {
 	global $wpdb;
-	$sid = $fn->efb_code_validate_create( $form_id, 0, 'visit', 0 );
-	$_SERVER['HTTP_X_WP_NONCE'] = wp_create_nonce( 'wp_rest' );
-	$_SERVER['HTTP_SID']        = $sid;
-	$_SERVER['HTTP_FORM_ID']    = (string) $form_id;
-
+	$sid  = $fn->efb_code_validate_create( $form_id, 0, 'visit', 0 );
 	$rows = array( array( 'id_' => $text_id, 'name' => $text_name, 'value' => $value, 'type' => 'text' ) );
-	$req  = new WP_REST_Request( 'POST', '/Emsfb/v1/forms/message/add' );
-	$req->set_header( 'content-type', 'application/json' );
-	$req->set_header( 'sid', $sid );
-	$req->set_header( 'form-id', (string) $form_id );
-	$req->set_body( wp_json_encode( array(
+	// The page's own payload (core-efb.js): it always carries the form name; the server refuses a body without it.
+	$body = wp_json_encode( array(
+		'action' => 'get_form_Emsfb', 'name' => 'submit special chars e2e',
 		'id' => (string) $form_id, 'sid' => $sid, 'page_id' => '0',
 		'url' => home_url( '/' ),
 		'value' => json_encode( $rows, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ),
 		'type' => 'form',
-	) ) );
-
-	$status = 200;
-	$body   = null;
-	ob_start();
-	try {
-		rest_do_request( $req );
-	} catch ( Efb_Submit_Json_Sent $e ) {
-		// wp_send_json fired.
-	} catch ( Throwable $e ) {
-		$status = 500;
-		$body   = array( 'fatal' => get_class( $e ) . ': ' . $e->getMessage() . ' @ ' . basename( $e->getFile() ) . ':' . $e->getLine() );
-	}
-	$raw = (string) ob_get_clean();
-	if ( null === $body ) { $body = json_decode( $raw, true ); }
+	) );
+	$base = efb_test_wp_url();
+	$ch   = curl_init( $base . '/wp-json/Emsfb/v1/forms/message/add' );
+	curl_setopt_array( $ch, array(
+		CURLOPT_POST => true, CURLOPT_POSTFIELDS => $body, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 60,
+		CURLOPT_HTTPHEADER => array( 'Content-Type: application/json', 'X-WP-Nonce: ' . wp_create_nonce( 'wp_rest' ), 'sid: ' . $sid,
+			'form-id: ' . $form_id, 'Origin: ' . $base, 'Referer: ' . $base . '/' ),
+	) );
+	$raw    = curl_exec( $ch );
+	$status = (int) curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+	$error  = curl_error( $ch );
+	curl_close( $ch );
+	$data = false === $raw ? array( 'fatal' => 'HTTP request failed: ' . $error ) : json_decode( (string) $raw, true );
+	if ( null === $data ) { $data = array( 'fatal' => 'not JSON: ' . substr( (string) $raw, 0, 200 ) ); }
 	$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->prefix}emsfb_stts_ WHERE sid = %s", $sid ) );
-	return array( $status, $body );
+	return array( $status, $data );
 }
 
 /** The value stored for the text field in the newest entry, decoded as readers do. */
@@ -148,7 +150,9 @@ function efb_stored_text_value( $form_id, $text_id ) {
 	global $wpdb;
 	$content = $wpdb->get_var( $wpdb->prepare( "SELECT content FROM {$wpdb->prefix}emsfb_msg_ WHERE form_id = %d ORDER BY msg_id DESC LIMIT 1", $form_id ) );
 	if ( null === $content ) { return array( 'decoded' => false, 'value' => null ); }
-	$rows = json_decode( str_replace( '\\', '', $content ), true );
+	// The way EFB's readers decode an entry now (includes/json-efb.php: only the legacy quote-escaping layer is undone,
+	// escapes inside values are kept); stripping every backslash, as readers once did, loses the typed backslashes.
+	$rows = emsfb_json_decode_efb( $content, true );
 	if ( ! is_array( $rows ) ) { return array( 'decoded' => false, 'value' => null ); }
 	foreach ( $rows as $r ) {
 		if ( is_array( $r ) && isset( $r['id_'] ) && $r['id_'] === $text_id ) {

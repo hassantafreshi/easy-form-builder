@@ -155,7 +155,9 @@ function rh_no_markup( $stored ) {
 
 /* --------------------------------------------------------------- fixture */
 
-$esign_ok = 'data:image/png;base64,' . base64_encode( hex2bin( '89504e470d0a1a0a0000000d49484452' ) );
+// A complete 1x1 PNG: the server keeps only a signature whose bytes are a whole, valid PNG
+// (canonical_esign_value_efb(): IHDR first, every chunk CRC, IEND last); the PNG header alone is refused.
+$esign_ok = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
 $fid = null;
 {
@@ -589,8 +591,19 @@ $pay_track = '2609' . strtoupper( wp_generate_password( 7, false, false ) );
 $intent_rows = array(
 	array( 'id_' => 'pc1', 'name' => 'Plan', 'type' => 'payCheckbox', 'value' => 'Gold', 'id_ob' => 'pc1o1', 'price' => '10' ),
 	array( 'id_' => 'payment', 'name' => 'payment', 'amount' => 0, 'total' => 10, 'type' => 'payment', 'paymentGateway' => 'stripe',
-		'paymentIntent' => 'pi_test_' . $pay_track, 'paymentmethod' => 'charge', 'paymentCreated' => current_time( 'mysql' ), 'paymentcurrency' => 'usd' ),
+		'paymentIntent' => 'pi_EfbRowHard' . $pay_track, 'paymentmethod' => 'charge', 'paymentCreated' => current_time( 'mysql' ), 'paymentcurrency' => 'usd' ),
 );
+/* The final submit of a Stripe charge now asks whether it was paid (efb_legacy_payment_state, the Stripe add-on since
+   PAY-OUT): an intent id is pi_ and letters/digits, and the payments table's row of a confirmed charge says completed.
+   That row stands for the confirmed charge here (removed right after); this test is about the rows, not the charge. */
+$pay_table = $wpdb->prefix . 'emsfb_pay_';
+$pay_paid_id = 0;
+if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $pay_table ) ) === $pay_table ) {
+	$wpdb->insert( $pay_table, array( 'form_id' => $pay_fid, 'track' => $pay_track, 'gateway' => 'stripe', 'payment_type' => 'one-time',
+		'transaction_id' => 'pi_EfbRowHard' . $pay_track, 'capture_id' => 'pi_EfbRowHard' . $pay_track, 'amount' => 10, 'currency' => 'USD', 'status' => 'completed',
+		'created_at' => current_time( 'mysql' ), 'updated_at' => current_time( 'mysql' ) ) );
+	$pay_paid_id = (int) $wpdb->insert_id;
+}
 $wpdb->insert( $msg_table, array(
 	'form_id' => $pay_fid, 'track' => $pay_track, 'ip' => '127.0.0.1', 'form_title_x' => 'Payment',
 	'content' => str_replace( '"', '\\"', wp_json_encode( $intent_rows, JSON_UNESCAPED_UNICODE ) ),
@@ -616,6 +629,7 @@ $row = rh_row( $pay_stored, 'pc1', 'pc1o1' );
 t( '[payment] intent-time priced row kept with the saved price (browser price ignored)', $row && (string) $row['price'] === '10', wp_json_encode( $row ) );
 $row = rh_row( $pay_stored, 'payment' );
 t( '[payment] payment row kept', $row && ( $row['paymentGateway'] ?? '' ) === 'stripe' );
+if ( $pay_paid_id ) $wpdb->delete( $pay_table, array( 'id' => $pay_paid_id ) );
 
 echo "\n========================================\n";
 echo "RESULTS: {$pass} passed, {$fail} failed\n";

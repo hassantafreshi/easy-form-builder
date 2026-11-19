@@ -156,6 +156,11 @@ $texts = array(
 	'long text'            => str_repeat( 'long "quoted" line ', 200 ),
 );
 
+/* F12b follow-up (owner decision 2026-11-15): a visitor sends at most 5 replies per tracking code in 10 minutes
+   (and 20 an hour per address). This test sends 13 in a row to check characters, not limits, so the limits are off
+   for this process only, through their own filter (0 = Off); tests/test-reply-captcha-http.php checks the limits. */
+add_filter( 'efb_reply_rate_limits', static function () { return array( 'track' => array( 600, 0 ), 'ip' => array( 3600, 0 ) ); } );
+
 foreach ( array( 'administrator' => $admin_id, 'visitor' => 0 ) as $who => $uid ) {
 	echo "\n=== {$who} replies ===\n";
 	foreach ( $texts as $label => $text ) {

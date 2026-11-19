@@ -8,11 +8,33 @@
 const { chromium } = require('playwright');
 const wpEnv = require('./wp-env');
 
+const path = require('path');
 const BASE = wpEnv.url();
+const BASE_PATH = new URL(BASE).pathname.replace(/\/$/, ''); // '' on a site at the root, '/wp' on the owner's XAMPP
 const ADMIN = `${BASE}/wp-admin`;
-const FORM_PAGE = `${BASE}/?p=209`; // Local test post containing form id 134.
+// The guest form and its page, and the add-on on: tests/seed-human-shield-live-env.php (put back at the end). On the
+// owner's site these were post 209 with form 134; EFB_HS_FORM_PAGE / EFB_HS_FORM_ID still name a page prepared by hand.
+let FORM_PAGE = process.env.EFB_HS_FORM_PAGE || '';
+let FORM_ID = Number(process.env.EFB_HS_FORM_ID || 134);
+let seeded = false;
+if (!FORM_PAGE) {
+  wpEnv.skipWithoutWp('the Human Shield live test');
+  const env = JSON.parse(wpEnv.phpScript(path.join(__dirname, 'seed-human-shield-live-env.php'), ['setup']).trim().split('\n').pop());
+  if (env.skip) { console.log(`[SKIP] ${env.error}`); console.log('RESULTS: 0 passed, 0 failed'); process.exit(0); }
+  if (!env.ok) { console.log(`FAIL the test environment could not be set up — ${JSON.stringify(env)}`); process.exit(1); }
+  FORM_PAGE = env.url; FORM_ID = env.form_id; seeded = true;
+  process.on('exit', () => {
+    try { const td = JSON.parse(wpEnv.phpScript(path.join(__dirname, 'seed-human-shield-live-env.php'), ['teardown']).trim().split('\n').pop()); if (!td.ok) console.log('FAIL the test environment was not put back'); }
+    catch (e) { console.log('FAIL the test environment was not put back — ' + e.message); }
+  });
+}
 const PROTECTED = '/wp-json/Emsfb/v1/forms/message/add';
 const SHIELD = '/wp-json/EmsfbShield/v1';
+
+/* The request reached core's own nonce gate (it passed Human Shield): 403 with core's code. Core names a missing
+   nonce efb_nonce_missing (and an old one efb_nonce_expired) for its request diagnostics (class-Emsfb-request-health.php);
+   before that it was WordPress's rest_forbidden. */
+const coreGate = (r) => !!r && r.status === 403 && !!r.json && ['efb_nonce_missing', 'efb_nonce_expired', 'rest_forbidden'].includes(r.json.code);
 
 let passed = 0;
 let failed = 0;
@@ -153,7 +175,8 @@ async function patchViaAdminAjax(page, patch) {
   const adminPage = await adminContext.newPage();
   const browserErrors = [];
   adminPage.on('console', (message) => {
-    if (message.type() === 'error') browserErrors.push(message.text());
+    // The browser's own favicon request is not the page's (PHP's built-in server answers it 404).
+    if (message.type() === 'error' && !/\/favicon\.ico(\?|$)/.test((message.location() || {}).url || '')) browserErrors.push(message.text());
   });
   adminPage.on('pageerror', (error) => browserErrors.push(error.message));
 
@@ -178,7 +201,7 @@ async function patchViaAdminAjax(page, patch) {
     // This is a real UI activation test, not a direct database change.
     await setViaUi(adminPage, { enabled: 1, mode: 'soft_block', submit_ip_per_minute: 10 });
     const challengeProbe = await rawPost(`${SHIELD}/challenge`, {
-      formId: 134,
+      formId: FORM_ID,
       route: '/Emsfb/v1/forms/message/add',
       sid: 'runtime-probe',
     });
@@ -209,16 +232,16 @@ async function patchViaAdminAjax(page, patch) {
       await editable.nth(i).fill(`Human test ${i + 1}`);
     }
     await guestPage.waitForTimeout(5200); // form has four fields, dynamic minimum is five seconds.
-    const guestResponse = await guestPage.evaluate(async () => {
+    const guestResponse = await guestPage.evaluate(async ({ basePath, FORM_ID }) => {
       const nonce = window.ajax_object_efm && (window.ajax_object_efm.nonce || window.ajax_object_efm._wpnonce);
       const sid = window.ajax_object_efm?.sid || window.efb_var?.sid || '';
-      const response = await fetch('/wp/wp-json/Emsfb/v1/forms/message/add', {
+      const response = await fetch(basePath + '/wp-json/Emsfb/v1/forms/message/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(nonce ? { 'X-WP-Nonce': nonce } : {}) },
-        body: JSON.stringify({ id: 134, value: [], name: 'Safe Human Test', sid }),
+        body: JSON.stringify({ id: FORM_ID, value: [], name: 'Safe Human Test', sid }),
       });
       return { status: response.status, body: await response.text(), sid };
-    });
+    }, { basePath: BASE_PATH, FORM_ID });
     check(guestRequests.some((r) => r.url.includes('/EmsfbShield/v1/challenge')),
       'Real guest flow requests a challenge');
     check(guestRequests.some((r) => r.url.includes('/EmsfbShield/v1/attest')),
@@ -231,7 +254,7 @@ async function patchViaAdminAjax(page, patch) {
 
     // Soft-block mode: no token must stop at Human Shield, before core's nonce
     // permission callback is reached.
-    const missing = await rawPost(PROTECTED, { id: 134, sid: 'no-token' });
+    const missing = await rawPost(PROTECTED, { id: FORM_ID, sid: 'no-token' });
     check(missing.status === 200 && missing.json && missing.json.data && missing.json.data.code === 'efb_human_shield_blocked',
       'Soft block rejects a missing token before core endpoint');
 
@@ -250,15 +273,15 @@ async function patchViaAdminAjax(page, patch) {
     await wafPage.goto(FORM_PAGE);
     await wafPage.waitForLoadState('networkidle');
     await wafPage.waitForFunction(() => Boolean(window.EFBHumanShield));
-    const wafBlocked = await wafPage.evaluate(async () => {
+    const wafBlocked = await wafPage.evaluate(async ({ basePath, FORM_ID }) => {
       const sid = window.ajax_object_efm?.sid || window.efb_var?.sid || '';
-      const response = await fetch('/wp/wp-json/Emsfb/v1/forms/message/add', {
+      const response = await fetch(basePath + '/wp-json/Emsfb/v1/forms/message/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: 134, value: [], name: 'WAF compatibility test', sid }),
+        body: JSON.stringify({ id: FORM_ID, value: [], name: 'WAF compatibility test', sid }),
       });
       return { status: response.status, json: await response.json() };
-    });
+    }, { basePath: BASE_PATH, FORM_ID });
     check(wafBlocked.status === 200 && wafBlocked.json?.data?.code === 'efb_human_shield_blocked',
       'A WAF-blocked attestation fails safely through the server guard');
     await wafContext.close();
@@ -269,8 +292,8 @@ async function patchViaAdminAjax(page, patch) {
     check(forged.challenge.json?.code === 'session_invalid' && !forged.attest,
       'Synthetic metrics without a live session cannot mint a token');
 
-    const uaBound = await mintToken(134, guestResponse.sid, humanMetrics(), 'Bound-Agent-A');
-    const uaMismatch = await rawPost(PROTECTED, { id: 134, sid: guestResponse.sid }, {
+    const uaBound = await mintToken(FORM_ID, guestResponse.sid, humanMetrics(), 'Bound-Agent-A');
+    const uaMismatch = await rawPost(PROTECTED, { id: FORM_ID, sid: guestResponse.sid }, {
       'X-EFB-Human-Token': uaBound.attest?.json?.token || '',
       'User-Agent': 'Bound-Agent-B',
     });
@@ -279,10 +302,10 @@ async function patchViaAdminAjax(page, patch) {
 
     // A signed hard-fail flag must win even if other metrics score above the
     // quarantine threshold.
-    const honey = await mintToken(134, guestResponse.sid, humanMetrics({ honeypotFilled: true }), 'Honeypot-Agent');
+    const honey = await mintToken(FORM_ID, guestResponse.sid, humanMetrics({ honeypotFilled: true }), 'Honeypot-Agent');
     check(honey.attest && honey.attest.json && honey.attest.json.success && honey.attest.json.score === 47,
       'Filled honeypot token is issued for a guard-side hard-fail check', honey.attest && honey.attest.json ? String(honey.attest.json.score) : 'no token');
-    const honeyUse = await rawPost(PROTECTED, { id: 134, sid: guestResponse.sid }, {
+    const honeyUse = await rawPost(PROTECTED, { id: FORM_ID, sid: guestResponse.sid }, {
       'X-EFB-Human-Token': honey.attest.json.token,
       'User-Agent': 'Honeypot-Agent',
     });
@@ -291,24 +314,24 @@ async function patchViaAdminAjax(page, patch) {
 
     // Race/replay is a positive control: only the first request can pass the
     // conditional UPDATE that marks the signed token used.
-    const replay = await mintToken(134, guestResponse.sid, humanMetrics(), 'Replay-Agent');
+    const replay = await mintToken(FORM_ID, guestResponse.sid, humanMetrics(), 'Replay-Agent');
     const [replayOne, replayTwo] = await Promise.all([
-      rawPost(PROTECTED, { id: 134, sid: guestResponse.sid }, { 'X-EFB-Human-Token': replay.attest.json.token, 'User-Agent': 'Replay-Agent' }),
-      rawPost(PROTECTED, { id: 134, sid: guestResponse.sid }, { 'X-EFB-Human-Token': replay.attest.json.token, 'User-Agent': 'Replay-Agent' }),
+      rawPost(PROTECTED, { id: FORM_ID, sid: guestResponse.sid }, { 'X-EFB-Human-Token': replay.attest.json.token, 'User-Agent': 'Replay-Agent' }),
+      rawPost(PROTECTED, { id: FORM_ID, sid: guestResponse.sid }, { 'X-EFB-Human-Token': replay.attest.json.token, 'User-Agent': 'Replay-Agent' }),
     ]);
     const replayStatuses = [replayOne, replayTwo];
-    check(replayStatuses.some((r) => r.status === 403 && r.json && r.json.code === 'rest_forbidden') &&
+    check(replayStatuses.some(coreGate) &&
       replayStatuses.some((r) => r.status === 200 && r.json && r.json.data && r.json.data.code === 'efb_human_shield_blocked'),
       'Concurrent replay allows once and blocks the duplicate');
 
-    // Route-specific response-add rate cap is 2/min by default. No-token calls
-    // are sufficient and do not create a response or send notifications.
+    // Route-specific response-add rate cap is 2/min by default. The tracking box's routes are rate-limited only, with
+    // no attestation (class-Emsfb-human-shield-rest.php: there is no live form session to bind a token to), so the
+    // first two no-token calls reach core's nonce gate and the third is stopped by the limit. No response is created.
     const responseAttempts = [];
     for (let i = 0; i < 3; i += 1) {
       responseAttempts.push(await rawPost('/wp-json/Emsfb/v1/forms/response/add', { id: 137, track: 'rate-test' }));
     }
-    check(responseAttempts[0].json?.data?.code === 'efb_human_shield_blocked' &&
-      responseAttempts[1].json?.data?.code === 'efb_human_shield_blocked' &&
+    check(coreGate(responseAttempts[0]) && coreGate(responseAttempts[1]) &&
       responseAttempts[2].json?.data?.code === 'efb_human_shield_blocked' &&
       /Too many requests/i.test(responseAttempts[2].json?.data?.m || ''),
       'Response-add route is rate-limited after two requests');
@@ -338,7 +361,7 @@ async function patchViaAdminAjax(page, patch) {
     const trustedProxyIp = await rawPost(PROTECTED, { id: 141, sid: 'trusted-proxy-ip' }, {
       'CF-Connecting-IP': '203.0.113.7',
     });
-    check(trustedProxyIp.status === 403 && trustedProxyIp.json?.code === 'rest_forbidden',
+    check(coreGate(trustedProxyIp),
       'Configured proxy peer may forward CF-Connecting-IP to the allowlist');
 
     // Strict mode returns an HTTP signal suitable for a WAF/CDN.
@@ -351,7 +374,7 @@ async function patchViaAdminAjax(page, patch) {
     // WordPress nonce gate and gets its core rest_forbidden response.
     await setViaUi(adminPage, { enabled: 1, mode: 'monitor' });
     const monitored = await rawPost(PROTECTED, { id: 140, sid: 'monitor-no-token' });
-    check(monitored.status === 403 && monitored.json?.code === 'rest_forbidden',
+    check(coreGate(monitored),
       'Monitor mode records missing token without replacing the core response');
 
     check(browserErrors.length === 0, 'Admin browser run has no console/page errors', browserErrors.join(' | '));

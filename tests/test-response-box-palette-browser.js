@@ -117,7 +117,9 @@ async function clearFloatingWidgets(page) {
   const page = await context.newPage();
   const jsErrors = [];
   page.on('pageerror', (e) => jsErrors.push(e.message));
-  page.on('console', (m) => { if (m.type() === 'error') jsErrors.push(m.text()); });
+  // The browser's own favicon request is not the page's: PHP's built-in server answers it 404 (Apache hands it to
+  // WordPress), and it is not a script error.
+  page.on('console', (m) => { if (m.type() === 'error' && !/\/favicon\.ico(\?|$)/.test((m.location() || {}).url || '')) jsErrors.push(m.text()); });
 
   try {
     await page.goto(env.url, { waitUntil: 'networkidle' });
@@ -144,6 +146,9 @@ async function clearFloatingWidgets(page) {
         doubled: !!style && /:root:root\s*\{/.test(style.textContent),
         hasSheet: !!link,
         order,
+        // A block theme renders the content before wp_head, so a stylesheet enqueued while the shortcode renders is
+        // printed in <head>; a classic theme prints it in the footer, after the content's override.
+        blockTheme: !!document.querySelector('.wp-site-blocks'),
       };
     });
 
@@ -152,7 +157,8 @@ async function clearFloatingWidgets(page) {
     /* If this ever reports sheet-before-style the doubled selector is no longer
        load-bearing - but it still costs nothing, and a caching plugin can put
        the sheet back after the content at any time. */
-    t('the stylesheet really does come after the override', cascade.order === 'sheet-after-style', cascade.order);
+    t(cascade.blockTheme ? 'the stylesheet is in <head>, before the override (block theme)' : 'the stylesheet really does come after the override',
+      cascade.order === (cascade.blockTheme ? 'sheet-before-style' : 'sheet-after-style'), cascade.order);
     t('the override is written at :root:root so order cannot decide it', cascade.doubled);
 
     /* ---------------------------------------------------------------- *
@@ -322,9 +328,9 @@ async function clearFloatingWidgets(page) {
       /* The panel's show-messages URL reloads to the dashboard, so the inbox
          is opened the way a click opens it. */
       await page.evaluate((formId) => emsFormBuilder_messages(formId), env.form_id);
-      await page.waitForSelector('.efb-act-open[data-eventform="openMessage"]', { timeout: 20000 });
+      await page.waitForSelector('.efb-act-open[data-eventform="openMessage"], .efb-act-open[data-ent="open"]', { timeout: 20000 });
       await page.waitForTimeout(600);
-      await page.locator('.efb-act-open[data-eventform="openMessage"]').first().click();
+      await page.locator('.efb-act-open[data-eventform="openMessage"], .efb-act-open[data-ent="open"]').first().click();
       await page.waitForSelector('.efb-resp-viewer', { timeout: 25000 });
       await page.waitForTimeout(1500);
 
