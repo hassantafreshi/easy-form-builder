@@ -26,8 +26,15 @@ class Spam_Notice {
 
 	public static function register() {
 		if (!function_exists('add_action')) return;
-		add_action('admin_notices', array(__CLASS__, 'render'));
 		add_action('wp_ajax_efb_spam_notice', array(__CLASS__, 'ajax'));
+		// UX-01: through the notice manager (one notice at a time on the plugin's screens).
+		if (!class_exists('\\Emsfb\\Notices') && is_readable(__DIR__ . '/class-Emsfb-notices.php')) require_once __DIR__ . '/class-Emsfb-notices.php';
+		if (class_exists('\\Emsfb\\Notices')) {
+			Notices::add('captcha_unavailable', array('render' => array(__CLASS__, 'render_cp'), 'priority' => 55, 'severity' => 'warning', 'screens' => 'efb'));
+			Notices::add('spam_suggest', array('render' => array(__CLASS__, 'render_suggest'), 'priority' => 30, 'severity' => 'info', 'screens' => 'efb'));
+		} else {
+			add_action('admin_notices', array(__CLASS__, 'render'));
+		}
 	}
 
 	private static function on_efb_screen() {
@@ -67,43 +74,48 @@ class Spam_Notice {
 		return is_array($t) && !empty($t[$k]) ? html_entity_decode((string) $t[$k], ENT_QUOTES, 'UTF-8') : $fb;
 	}
 
+	/** Both notices (the sources registered with the notice manager, UX-01). */
 	public static function render() {
+		self::render_suggest();
+		self::render_cp();
+	}
+
+	/** D2: "Turn on recommended protection" (a site updated from 4.3.1; dismissed per user). */
+	public static function render_suggest() {
 		if (!current_user_can('manage_options') || !self::on_efb_screen()) return;
-		$uid = get_current_user_id();
-		$nonce = wp_create_nonce('wp_rest');
-		$shown = false;
-		if (self::needed() && !get_user_meta($uid, self::META, true)) {
-			$shown = true;
-			printf(
-				'<div class="notice notice-info is-dismissible efb efb-spam-notice" id="efb-spam-notice" data-efb-notice="spam" dir="auto"><p style="unicode-bidi:plaintext">%1$s</p><p class="efb-spam-notice-actions"><button type="button" class="button button-primary" data-efb-spam-do="enable">%2$s</button> <a class="button" href="%3$s">%4$s</a></p><p class="efb-spam-notice-status" role="status" aria-live="polite" style="unicode-bidi:plaintext"></p></div>',
-				esc_html(self::t('spamSuggestNotice', 'Easy Form Builder can now catch spam without a CAPTCHA: a hidden trap field and a minimum time to fill. Turn them on in Settings › Captchas.')),
-				esc_html(self::t('spamTurnOnRecommended', 'Turn on recommended protection')),
-				esc_url(admin_url('admin.php?page=Emsfb&state=setting&tab=captchas')),
-				esc_html(self::t('captchas', 'Captchas'))
-			);
-		}
+		if (!self::needed() || get_user_meta(get_current_user_id(), self::META, true)) return;
+		echo '<div class="notice notice-info is-dismissible efb efb-spam-notice" id="efb-spam-notice" data-efb-notice="spam" dir="auto"><p style="unicode-bidi:plaintext">'
+			. esc_html(self::t('spamSuggestNotice', 'Easy Form Builder can now catch spam without a CAPTCHA: a hidden trap field and a minimum time to fill. Turn them on in Settings › Captchas.'))
+			. '</p><p class="efb-spam-notice-actions"><button type="button" class="button button-primary" data-efb-spam-do="enable">' . esc_html(self::t('spamTurnOnRecommended', 'Turn on recommended protection')) . '</button> <a class="button" href="'
+			. esc_url(admin_url('admin.php?page=Emsfb&state=setting&tab=captchas')) . '">' . esc_html(self::t('captchas', 'Captchas'))
+			. '</a></p><p class="efb-spam-notice-status" role="status" aria-live="polite" style="unicode-bidi:plaintext"></p></div>';
+		self::script();
+	}
+
+	/** §5: forms whose CAPTCHA service cannot be used now (dismissed per user until the list changes). */
+	public static function render_cp() {
+		if (!current_user_can('manage_options') || !self::on_efb_screen()) return;
 		$un = self::unavailable_forms();
 		$sig = md5(wp_json_encode($un));
-		if ($un && get_user_meta($uid, self::META_CP, true) !== $sig) {
-			$shown = true;
-			$lines = array();
-			foreach ($un as $want => $e) {
-				$code = array_search($want, Captcha\Admin::ADDONS, true);
-				$name = $code !== false && class_exists('\\Emsfb\\Addon_Catalog') ? Addon_Catalog::name($code) : $want;
-				$by = $e['by'] ? (Captcha\Registry::get($e['by']) ? Captcha\Registry::get($e['by'])->label() : $e['by']) : self::t('cpFallbackSoft', 'the hidden field and the minimum time');
-				$txt = sprintf(self::t('cpUnavailableNotice', '%1$s forms use %2$s, which is not available now. They are protected by %3$s.'), '<bdi>' . count($e['ids']) . '</bdi>', '<bdi>' . esc_html($name) . '</bdi>', '<bdi>' . esc_html($by) . '</bdi>');
-				$lines[] = '<li style="unicode-bidi:plaintext">' . wp_kses($txt, array('bdi' => array())) . ' <span class="efb-cp-ids">(' . esc_html(implode(', ', array_slice($e['ids'], 0, 10))) . ')</span></li>';
-			}
-			printf(
-				'<div class="notice notice-warning is-dismissible efb efb-cp-notice" id="efb-cp-notice" data-efb-notice="cp" data-sig="%1$s" dir="auto"><ul>%2$s</ul><p><a class="button button-primary" href="%3$s">%4$s</a></p></div>',
-				esc_attr($sig), implode('', $lines), esc_url(admin_url('admin.php?page=Emsfb_addon')), esc_html(self::t('cpInstallAddon', 'Install the add-on'))
-			);
+		if (!$un || get_user_meta(get_current_user_id(), self::META_CP, true) === $sig) return;
+		echo '<div class="notice notice-warning is-dismissible efb efb-cp-notice" id="efb-cp-notice" data-efb-notice="cp" data-sig="' . esc_attr($sig) . '" dir="auto"><ul>';
+		foreach ($un as $want => $e) {
+			$code = array_search($want, Captcha\Admin::ADDONS, true);
+			$name = $code !== false && class_exists('\\Emsfb\\Addon_Catalog') ? Addon_Catalog::name($code) : $want;
+			$by = $e['by'] ? (Captcha\Registry::get($e['by']) ? Captcha\Registry::get($e['by'])->label() : $e['by']) : self::t('cpFallbackSoft', 'the hidden field and the minimum time');
+			$txt = sprintf(esc_html(self::t('cpUnavailableNotice', '%1$s forms use %2$s, which is not available now. They are protected by %3$s.')), '<bdi>' . esc_html(number_format_i18n(count($e['ids']))) . '</bdi>', '<bdi>' . esc_html($name) . '</bdi>', '<bdi>' . esc_html($by) . '</bdi>');
+			echo '<li style="unicode-bidi:plaintext">' . wp_kses($txt, array('bdi' => array())) . ' <span class="efb-cp-ids">(<bdi>' . esc_html(implode(', ', array_slice($e['ids'], 0, 10))) . '</bdi>)</span></li>';
 		}
-		if (!$shown) return;
+		echo '</ul><p><a class="button button-primary" href="' . esc_url(admin_url('admin.php?page=Emsfb_addon')) . '">' . esc_html(self::t('cpInstallAddon', 'Install the add-on')) . '</a></p></div>';
+		self::script();
+	}
+
+	/** The notices' buttons ("Turn on", dismiss); bound once per page whichever notice prints it. */
+	private static function script() {
 		$on = esc_js(self::t('spamTurnedOn', 'Spam protection is on: hidden field, 3 seconds, spam kept 30 days.'));
 		$url = esc_url_raw(admin_url('admin-ajax.php'));
-		echo "<script>(function(){function go(d,x){var f=new FormData();f.append('action','efb_spam_notice');f.append('do',d);f.append('nonce','" . esc_js($nonce) . "');if(x)f.append('sig',x);return fetch('" . esc_js($url) . "',{method:'POST',body:f,credentials:'same-origin'}).then(function(r){return r.json();});}"
-			. "document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-efb-spam-do=\"enable\"]');if(b){b.disabled=true;go('enable').then(function(j){var n=document.getElementById('efb-spam-notice');if(!n)return;var s=n.querySelector('.efb-spam-notice-status');if(j&&j.success){s.textContent='" . $on . "';n.className='notice notice-success efb efb-spam-notice';var a=n.querySelector('.efb-spam-notice-actions');if(a)a.remove();}else{b.disabled=false;}});return;}"
+		echo "<script>(function(){if(window.efbSpamNoticeJs)return;window.efbSpamNoticeJs=1;function go(d,x){var f=new FormData();f.append('action','efb_spam_notice');f.append('do',d);f.append('nonce','" . esc_js(wp_create_nonce('wp_rest')) . "');if(x)f.append('sig',x);return fetch('" . esc_js($url) . "',{method:'POST',body:f,credentials:'same-origin'}).then(function(r){return r.json();});}"
+			. "document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-efb-spam-do=\"enable\"]');if(b){b.disabled=true;go('enable').then(function(j){var n=document.getElementById('efb-spam-notice');if(!n)return;var s=n.querySelector('.efb-spam-notice-status');if(j&&j.success){s.textContent='" . $on . "';n.classList.remove('notice-info');n.classList.add('notice-success');var a=n.querySelector('.efb-spam-notice-actions');if(a)a.remove();}else{b.disabled=false;}});return;}"
 			. "var x=e.target.closest&&e.target.closest('.notice-dismiss');if(!x)return;var n=x.closest('[data-efb-notice]');if(!n)return;go(n.getAttribute('data-efb-notice')==='cp'?'dismiss_cp':'dismiss',n.getAttribute('data-sig'));});})();</script>";
 	}
 

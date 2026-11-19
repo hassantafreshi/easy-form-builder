@@ -75,8 +75,11 @@ module.exports = function (S) {
     return j && (j.data || j);
   }
   const layout = (page) => page.evaluate(() => ({ dir: getComputedStyle(document.querySelector('[id^="body_efb_"]') || document.body).direction, scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth }));
+  /* UX-01 (B4): one notice at a time on the plugin's screens; the others wait in the notice list behind "Notices". A
+     person opens the list to see one of them: so do the checks below. */
+  const openNoticeList = (page, sel) => page.evaluate((s) => { const n = document.querySelector(s); const l = document.getElementById('efbNmList'); if (n && l && l.contains(n) && l.hidden) { const t = document.querySelector('.efb-nm-toggle'); if (t) t.click(); } }, sel);
   /** The admin notice of SPLIT on the forms panel. */
-  const notice = (page) => page.evaluate(() => {
+  const notice = async (page) => { await openNoticeList(page, '#efbSplitNotice'); return page.evaluate(() => {
     const n = document.getElementById('efbSplitNotice');
     if (!n) return null;
     const cs = (el) => (el ? getComputedStyle(el).unicodeBidi : '');
@@ -85,7 +88,7 @@ module.exports = function (S) {
       role: n.getAttribute('role'), label: n.getAttribute('aria-label'), retry: !!n.querySelector('.efb-split-retry'), dir: getComputedStyle(n).direction,
       right: Math.round(n.getBoundingClientRect().right), vw: document.documentElement.clientWidth,
     };
-  });
+  }); };
   async function panel(adminPage, opts, label) {
     const a = await adminPage(opts || {}, label || 'admin');
     await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
@@ -297,6 +300,7 @@ module.exports = function (S) {
 
       // "Dismiss" hides the notice until the list changes.
       const d = await panel(adminPage);
+      await openNoticeList(d, '#efbSplitNotice');
       await d.click('#efbSplitNotice .notice-dismiss').catch(() => null);
       await sleep(1500);
       await d.reload({ waitUntil: 'load' });

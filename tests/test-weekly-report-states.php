@@ -191,9 +191,12 @@ t( 'C13 direction is set on the containers', false !== strpos( $rtl_probe, 'dir=
 echo "\n--- Dashboard notice gating ---\n";
 // __CLASS__ has no leading backslash, and WordPress builds the callback id from
 // the class-name string verbatim - so the hook must be looked up in that form.
-t( 'D1 notice callback is registered',
-	false !== has_action( 'admin_notices', [ 'Emsfb\Email_Monitor', 'render_delivery_failure_notice' ] ),
-	'priority: ' . var_export( has_action( 'admin_notices', [ 'Emsfb\Email_Monitor', 'render_delivery_failure_notice' ] ), true ) );
+// UX-01 (B4): the notice is a source of the notice manager (one notice at a time on the plugin's screens), which prints
+// it on every admin screen it was printed on before.
+$efb_nm_sources = class_exists( '\Emsfb\Notices' ) ? \Emsfb\Notices::sources() : [];
+t( 'D1 notice callback is registered (with the notice manager, every screen)',
+	isset( $efb_nm_sources['email_delivery'] ) && $efb_nm_sources['email_delivery']['render'] === [ 'Emsfb\Email_Monitor', 'render_delivery_failure_notice' ] && $efb_nm_sources['email_delivery']['screens'] === 'admin' && false !== has_action( 'admin_notices', [ 'Emsfb\Notices', 'render' ] ),
+	'sources: ' . var_export( array_keys( $efb_nm_sources ), true ) );
 
 $snapshot = get_option( 'emsfb_email_monitor_last_status', null );
 // The notice weighs the monitor's run against the last check run from the

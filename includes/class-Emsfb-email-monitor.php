@@ -32,7 +32,13 @@ class Email_Monitor {
         add_action(self::LIFECYCLE_HOOK, [__CLASS__, 'run_lifecycle_test'], 10, 1);
         add_action(self::POLL_HOOK, [__CLASS__, 'poll_test'], 10, 1);
         add_action('init', [__CLASS__, 'ensure_schedule']);
-        add_action('admin_notices', [__CLASS__, 'render_delivery_failure_notice']);
+        // UX-01: through the notice manager (one notice at a time on the plugin's screens; every screen as before).
+        if (!class_exists('\\Emsfb\\Notices') && is_readable(__DIR__ . '/class-Emsfb-notices.php')) require_once __DIR__ . '/class-Emsfb-notices.php';
+        if (class_exists('\\Emsfb\\Notices')) {
+            Notices::add('email_delivery', ['render' => [__CLASS__, 'render_delivery_failure_notice'], 'priority' => 75, 'severity' => 'warning', 'screens' => 'admin']);
+        } else {
+            add_action('admin_notices', [__CLASS__, 'render_delivery_failure_notice']);
+        }
         add_action('wp_ajax_emsfb_dismiss_delivery_notice', [__CLASS__, 'ajax_dismiss_delivery_notice']);
         // Every writer of the owner's status record goes through these, so the
         // last verdict survives a later check that only started, or ended
@@ -172,7 +178,8 @@ class Email_Monitor {
         $guide_url = self::get_smtp_guide_url();
         $logo_url  = EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo.png';
         ?>
-        <div class="efb notice notice-error is-dismissible efb-delivery-notice" data-efb-fingerprint="<?php echo esc_attr($fingerprint); ?>" style="display:flex;align-items:flex-start;gap:14px;padding:14px 18px;">
+        <?php // UX-01: a warning (an error notice is kept for payments that fail now); the logo is decorative. ?>
+        <div class="efb notice notice-warning is-dismissible efb-delivery-notice" data-efb-fingerprint="<?php echo esc_attr($fingerprint); ?>" style="display:flex;align-items:flex-start;gap:14px;padding:14px 18px;">
             <img src="<?php echo esc_url($logo_url); ?>" alt="" style="width:42px;height:auto;margin-top:2px;flex-shrink:0;" />
             <div style="flex:1;min-width:0;">
                 <p style="margin:0 0 6px;font-size:14px;">

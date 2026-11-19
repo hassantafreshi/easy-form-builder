@@ -50,7 +50,14 @@ class Renewal_Reminder {
 
 	public static function register() {
 		if (!function_exists('add_action')) return;
-		add_action('admin_notices', array(__CLASS__, 'render_notice'));
+		// UX-01: through the notice manager (one notice at a time on the plugin's screens; the dashboard as before). It has
+		// its own "Remind me later", so no second one; the last day before the end comes first.
+		if (!class_exists('\\Emsfb\\Notices') && is_readable(__DIR__ . '/class-Emsfb-notices.php')) require_once __DIR__ . '/class-Emsfb-notices.php';
+		if (class_exists('\\Emsfb\\Notices')) {
+			Notices::add('renewal', array('render' => array(__CLASS__, 'render_notice'), 'priority' => array(__CLASS__, 'notice_priority'), 'snooze' => false, 'screens' => 'admin'));
+		} else {
+			add_action('admin_notices', array(__CLASS__, 'render_notice'));
+		}
 		add_action('wp_ajax_efb_renew_dismiss', array(__CLASS__, 'ajax_dismiss'));
 		add_action('wp_ajax_efb_license_recheck', array(__CLASS__, 'ajax_recheck'));
 		add_action('emsfb_daily_maintenance', array(__CLASS__, 'cleanup_locks'));
@@ -696,6 +703,12 @@ class Renewal_Reminder {
 		$dismissed = (string) get_user_meta(get_current_user_id(), self::META, true);
 		if ($dismissed === $st['period'] . ':' . $st['stage']) return;
 		echo self::notice_html($st) . $js; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped parts
+	}
+
+	/** UX-01: the notice's place among the plugin's notices: Pro paused (t0) 70, its last day (t1) 65, a week before (t7) 40. */
+	public static function notice_priority() {
+		$st = self::state();
+		return $st['stage'] === 't0' ? 70 : ($st['stage'] === 't1' ? 65 : 40);
 	}
 
 	/** Cron backup: an administrator's page view inside the window asks for a check soon when the last one is old. */

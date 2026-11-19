@@ -669,6 +669,12 @@ module.exports = function (S) {
   /* The notices of Easy Form Builder and its add-ons on a page (the marks admin-efb.js's notice cleaner keeps: class efb /
      efb-* / emsfb-*, an id efb* / emsfb*, data-efb-notice), split into those inside the CAPTCHA screen's own box and the
      others (site-wide ones printed by admin_notices). */
+  /* UX-01 (B4): one notice at a time on the plugin's screens; the others wait in the notice list behind "Notices". A
+     person opens the list to reach one of them: so do the checks below. */
+  const openNoticeList = async (page, sel) => {
+    await page.waitForSelector(sel, { state: 'attached', timeout: 15000 });
+    await page.evaluate((s) => { const n = document.querySelector(s); const l = document.getElementById('efbNmList'); if (n && l && l.contains(n) && l.hidden) { const t = document.querySelector('.efb-nm-toggle'); if (t) t.click(); } }, sel);
+  };
   const efbNotices = (p) => p.evaluate(() => {
     const own = (el) => /(^|\s)(efb|efb-[\w-]+|emsfb-[\w-]+)(\s|$)/.test(el.className || '') || /^(efb|emsfb)/i.test(el.id || '') || el.hasAttribute('data-efb-notice');
     const all = Array.from(document.querySelectorAll('#wpbody-content .notice, #wpbody-content .update-nag')).filter(own);
@@ -701,6 +707,7 @@ module.exports = function (S) {
           setting('spam_honeypot=del&spam_min_time=del&spam_action=del&spam_retention_days=del');
           const a = await adminPage(vp, 'f12b-8-admin-' + loc);
           await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+          await openNoticeList(a, '#efb-spam-notice');
           await a.waitForSelector('#efb-spam-notice', { timeout: 15000 });
           await sleep(800);
           const n = await rtlCheck(a, '#efb-spam-notice', 'p:not(.efb-spam-notice-actions)', '#efb-spam-notice p:not(.efb-spam-notice-actions)');
@@ -916,6 +923,7 @@ module.exports = function (S) {
       setting('spam_honeypot=del&spam_min_time=del&spam_require_js=del&spam_action=del&spam_akismet=del&spam_disallowed_keys=del&spam_retention_days=del');
       const admin = await adminPage({}, 'f12b-6-admin');
       await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+      await openNoticeList(admin, '#efb-spam-notice');
       await admin.waitForSelector('#efb-spam-notice', { timeout: 15000 });
       await admin.focus('#efb-spam-notice [data-efb-spam-do="enable"]');
       const done = admin.waitForResponse((x) => /admin-ajax\.php/.test(x.url()) && /efb_spam_notice/.test(x.request().postData() || ''), { timeout: 15000 }).catch(() => null);

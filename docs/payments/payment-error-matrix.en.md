@@ -114,7 +114,7 @@ script-filled request) and answers with the same code and `field_id`.
 
 | Situation | Gateways | Code | Where | Owner message |
 |---|---|---|---|---|
-| A form visitors cannot pay with (readiness) | all | the §1 blockers, `pay_addon_inactive`, `pay_plan` | forms list badge; notice on every Easy Form Builder screen (Payments too); the form's own page for a logged-in owner; the "Saved" dialog | "Payment setup incomplete" / "Payment setup incomplete: visitors cannot pay with these forms yet." + form, first issue, link / "Saved, but visitors cannot pay yet:" + each issue and its fix |
+| A form visitors cannot pay with (readiness) | all | the §1 blockers, `pay_addon_inactive`, `pay_plan` | forms list badge; the Payments screen's summary (UX-01: no longer a notice on every Easy Form Builder screen); the form's own page for a logged-in owner; the "Saved" dialog | "Payment setup incomplete" / "N forms cannot take payments yet" + form, first issue, link / "Saved, but visitors cannot pay yet:" + each issue and its fix |
 | No keys for the current mode | all | `pay_keys_missing` | S (error) | "No keys for Live mode: visitors cannot pay. Enter the keys and press Test connection." |
 | Test mode | all | `pay_test_mode` | S (info) | "Test mode: no real payments are taken." |
 | Keys of the wrong mode (a Test key in the Live field) | Mollie, Payplug, Tap, Omise, Xendit (by key prefix); PayTabs, Paymob (by the answer) | gateway `test_connection()` | S (Test connection) | "This is a Test key; the Live field needs a Live key." (the add-on's words) |

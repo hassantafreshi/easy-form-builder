@@ -9,6 +9,14 @@
  *            right RTL); its head has a labelled "Done" button and a Close with a name; Esc and Done close it and the
  *            focus goes back to the field; closed, nothing of it is in the tab order. 375 px (fa_IR, ar): a sheet of the
  *            whole width (AI-8 kept).
+ *  b4-notices UX-01: the notice manager on the real site: on the forms screen one Easy Form Builder notice above the
+ *            header (the most important: a request failure before the forms that need add-ons), the others behind the
+ *            header's "Notices" bell with their count (keyboard: Enter opens the list and moves into it, Esc closes it and
+ *            returns to the bell); "Remind me in 7 days" hides a notice for this user (user meta ≈ 7 days) and the next
+ *            one takes its place; a form open in the builder and the Create screen show none above the canvas (all in
+ *            the list); payment readiness is a summary on Payments, never a notice; "error" only for a payment request
+ *            failing on the server (then first); the dashboard shows the request failure as before, with the snooze;
+ *            fa_IR and ar at 375 px: one notice, the bell on the screen beside the menu button, no sideways scroll.
  */
 'use strict';
 const path = require('path');
@@ -17,6 +25,10 @@ module.exports = function (S) {
   const { scenario, R, ctl, wp, CFG, sleep, SHOT, builderReady, canvasDrawn, closePanel } = S;
   const actl = (...args) => {
     const out = wp('eval-file', path.join(__dirname, 'ctl-ai.php'), ...args).trim().split('\n');
+    return JSON.parse(out[out.length - 1]);
+  };
+  const bctl = (...args) => {
+    const out = wp('eval-file', path.join(__dirname, 'ctl-b4.php'), ...args).trim().split('\n');
     return JSON.parse(out[out.length - 1]);
   };
 
@@ -131,6 +143,123 @@ module.exports = function (S) {
       }
     } finally {
       actl('delete', String(L.form_id));
+    }
+  });
+  /* ================================================================== b4-notices */
+  /** The notice center: what is shown above the screen, what is in the list, the bell, the count. */
+  const nm = (a) => a.evaluate(() => {
+    const vis = (e) => !!e && e.getClientRects().length > 0 && getComputedStyle(e).visibility !== 'hidden';
+    const list = document.getElementById('efbNmList');
+    const shown = Array.from(document.querySelectorAll('#wpbody-content .notice')).filter(vis).filter((n) => !list || !list.contains(n));
+    const efbShown = shown.filter((n) => n.hasAttribute('data-efb-nm'));
+    const bell = document.querySelector('.efb-nm-bell') || document.querySelector('.efb-nm-bar');
+    const toggle = document.querySelector('.efb-nm-toggle');
+    const b = toggle ? toggle.getBoundingClientRect() : null;
+    const header = document.getElementById('navbar');
+    return {
+      shown: efbShown.map((n) => n.getAttribute('data-efb-nm')), classes: efbShown.map((n) => n.className),
+      listIds: list ? Array.from(new Set(Array.from(list.querySelectorAll('[data-efb-nm]')).map((n) => n.getAttribute('data-efb-nm')))) : [],
+      listHidden: list ? list.hidden : null, count: (document.querySelector('.efb-nm-count') || {}).textContent || null,
+      bellInHeader: !!(header && toggle && header.contains(toggle)), bellVisible: !!toggle && vis(toggle) && b.top >= 0 && b.bottom <= window.innerHeight && b.left >= 0 && b.right <= document.documentElement.clientWidth,
+      expanded: toggle ? toggle.getAttribute('aria-expanded') : null, name: toggle ? toggle.textContent.replace(/\s+/g, ' ').trim() : '',
+      aboveHeader: efbShown.every((n) => !header || (n.compareDocumentPosition(header) & Node.DOCUMENT_POSITION_FOLLOWING)),
+      readinessNotice: !!document.querySelector('#efbPayNotReadyNotice, .efb-pay-notready-notice'),
+      snoozeButtons: efbShown.map((n) => !!n.querySelector('[data-efb-nm-snooze]')),
+      scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      focus: document.activeElement ? (document.activeElement.getAttribute('data-efb-nm-snooze') ? 'snooze' : (document.activeElement.closest && document.activeElement.closest('#efbNmList') ? 'list' : (document.activeElement.classList.contains('efb-nm-toggle') ? 'bell' : document.activeElement.tagName))) : null,
+    };
+  });
+  scenario('b4-notices', 'UX-01: one notice at a time on the plugin\'s screens, the rest behind the header\'s "Notices" bell; "Remind me in 7 days"; none above the builder; readiness on Payments; "error" only for failing payments; fa_IR and ar at 375 px', async ({ adminPage }) => {
+    ctl('plan', '3');
+    bctl('snooze', 'clear');
+    const seed = bctl('rh-seed', 'form');
+    let seedPay = null;
+    ctl('pay-mock', '1');
+    ctl('pay-clear-keys');
+    const P = ctl('pay-form', 'fixed', 'B4 notices not ready');
+    try {
+      const a = await adminPage({ viewport: { width: 1280, height: 900 } }, 'b4-notices-en');
+      await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+      await a.waitForFunction(() => typeof fun_get_form_by_id === 'function', null, { timeout: 20000 });
+      await sleep(800);
+      let s = await nm(a);
+      R.check('b4-notices (forms, en 1280): one Easy Form Builder notice above the header — the request failure (priority over the forms that need add-ons)', s.shown.length === 1 && s.shown[0] === 'request_health' && s.aboveHeader, s);
+      R.check('b4-notices: the others are behind the header\'s "Notices" bell with their count, the list closed; no payment readiness notice', s.bellInHeader && s.bellVisible && Number(s.count) === s.listIds.length && s.listIds.length >= 1 && s.listHidden === true && s.expanded === 'false' && /Notices/.test(s.name) && !s.readinessNotice, s);
+      R.check('b4-notices: a warning, not an error (no payment is failing), with "Remind me in 7 days"', /notice-warning/.test(s.classes[0]) && !/notice-error/.test(s.classes[0]) && s.snoozeButtons[0] === true, s);
+      await a.screenshot({ path: SHOT('b4-notices-forms-en-1280') });
+      // The keyboard: the bell opens the list and moves into it; Esc closes it and returns to the bell.
+      await a.focus('.efb-nm-toggle');
+      await a.keyboard.press('Enter');
+      await sleep(300);
+      s = await nm(a);
+      R.check('b4-notices: Enter on the bell opens the list (aria-expanded true) and the focus moves into it', s.listHidden === false && s.expanded === 'true' && s.focus === 'list', s);
+      await a.screenshot({ path: SHOT('b4-notices-list-en-1280') });
+      await a.keyboard.press('Escape');
+      await sleep(200);
+      s = await nm(a);
+      R.check('b4-notices: Esc closes the list and the focus is the bell again', s.listHidden === true && s.expanded === 'false' && s.focus === 'bell', s);
+      // Snooze the shown notice: gone, the next one takes its place after a reload, the user meta says 7 days.
+      const before = s.listIds.slice();
+      await a.click('.efb-nm-top [data-efb-nm-snooze="request_health"]');
+      await a.waitForFunction(() => !document.querySelector('.efb-nm-top [data-efb-nm="request_health"]'), null, { timeout: 8000 });
+      const sz = bctl('snooze');
+      const days = sz.snooze.request_health ? (sz.snooze.request_health - sz.now) / 86400 : 0;
+      R.check(`b4-notices: "Remind me in 7 days" hides it for this user (${days.toFixed(2)} days)`, days > 6.9 && days <= 7, sz);
+      await a.reload({ waitUntil: 'load' });
+      await sleep(800);
+      s = await nm(a);
+      R.check('b4-notices: after a reload the snoozed notice is nowhere, the next most important is shown alone', !s.shown.includes('request_health') && !s.listIds.includes('request_health') && s.shown.length === 1 && s.shown[0] === before[0] && Number(s.count) === before.length - 1, { s, before });
+      bctl('snooze', 'clear');
+      // A form open in the builder: no notice above it (all in the list).
+      await a.reload({ waitUntil: 'load' });
+      await a.waitForFunction(() => typeof fun_get_form_by_id === 'function', null, { timeout: 20000 });
+      await a.evaluate((id) => fun_get_form_by_id(Number(id)), P.form_id);
+      await builderReady(a);
+      await sleep(800);
+      s = await nm(a);
+      R.check('b4-notices (builder in the panel): no notice above the builder; the request failure joined the list, the count says so', s.shown.length === 0 && s.listIds[0] === 'request_health' && Number(s.count) === s.listIds.length, s);
+      // The Create screen: none above it either.
+      await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_create', { waitUntil: 'load' });
+      await sleep(1500);
+      s = await nm(a);
+      R.check('b4-notices (Create screen): no notice above the builder, every one behind "Notices" with its count', s.shown.length === 0 && s.listIds.includes('request_health') && Number(s.count) === s.listIds.length && s.bellVisible, s);
+      // Payments: the readiness summary names the form that cannot take payments; it is not a notice.
+      await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments', { waitUntil: 'load' });
+      await sleep(800);
+      const pay = await a.evaluate((id) => { const sec = document.getElementById('efbPayReady'); const li = sec ? sec.querySelector(`li[data-form="${id}"]`) : null; return { sec: !!sec, title: sec ? sec.querySelector('h2').textContent.trim() : '', label: sec ? sec.getAttribute('aria-labelledby') : '', link: li && li.querySelector('a') ? li.querySelector('a').getAttribute('href') : '', text: li ? li.textContent.replace(/\s+/g, ' ').trim() : '', notice: !!document.querySelector('#efbPayNotReadyNotice, .efb-pay-notready-notice') }; }, P.form_id);
+      R.check('b4-notices (Payments): "… cannot take payments yet" summary names the form with its problem and links to it in the builder; no readiness notice', pay.sec && /cannot take payments yet/.test(pay.title) && pay.label === 'efbPayReadyH' && /B4 notices not ready/.test(pay.text) && new RegExp('state=edit-form&id=' + P.form_id).test(pay.link) && !pay.notice, pay);
+      await a.screenshot({ path: SHOT('b4-notices-payments-en-1280') });
+      // The dashboard: as before (the request failure, with the snooze).
+      await a.goto(CFG.base + '/wp-admin/index.php', { waitUntil: 'load' });
+      await sleep(600);
+      s = await nm(a);
+      R.check('b4-notices (dashboard): the request failure shows as before, with "Remind me in 7 days"', s.shown.includes('request_health') && s.snoozeButtons[s.shown.indexOf('request_health')] === true, s);
+      // A payment request failing on the server: the one "error", shown first.
+      seedPay = bctl('rh-seed', 'payment');
+      await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+      await sleep(800);
+      s = await nm(a);
+      R.check('b4-notices: a payment request failing on the server makes the notice an error, and it comes first', s.shown[0] === 'request_health' && /notice-error/.test(s.classes[0]), s);
+      await a.context().close();
+      // Right to left at 375 px.
+      for (const loc of ['fa_IR', 'ar']) {
+        ctl('locale', loc);
+        try {
+          const m = await adminPage({ viewport: { width: 375, height: 812 }, locale: loc.replace('_', '-') }, 'b4-notices-' + loc);
+          await m.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+          await sleep(1200);
+          const r = await nm(m);
+          R.check(`b4-notices (${loc} 375): one notice above the header, the bell on the screen beside the menu button with the count, no sideways scroll`, r.shown.length === 1 && r.bellInHeader && r.bellVisible && Number(r.count) === r.listIds.length && r.scroll <= 1, r);
+          await m.screenshot({ path: SHOT(`b4-notices-${loc}-375`) });
+          await m.context().close();
+        } finally { ctl('locale', ''); }
+      }
+    } finally {
+      bctl('rh-clear', seed.key);
+      if (seedPay) bctl('rh-clear', seedPay.key);
+      bctl('snooze', 'clear');
+      actl('delete', String(P.form_id));
+      try { ctl('pay-keys', 'test'); } catch (e) { /* mock gateway off */ }
     }
   });
 };

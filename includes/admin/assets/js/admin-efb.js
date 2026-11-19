@@ -6986,6 +6986,46 @@ function report_problem_efb(state ,value){
   });
 }
 
+/* UX-01: the notice center (Emsfb\Notices prints it above the screen: the most important notice, then a "Notices" button
+   with the others). Where the screen has the EFB header (the panel's navbar) the button becomes a bell there, its list
+   right under the header; when the form builder opens in the panel, the notice above it joins the list (no notice above
+   the canvas; the Create screen already prints none). */
+function efbNoticeCenterEfb() {
+  const c = document.getElementById('efbNoticeCenter');
+  if (!c || c.getAttribute('data-efb-nm-ready') === '1') return;
+  c.setAttribute('data-efb-nm-ready', '1');
+  const list = document.getElementById('efbNmList');
+  const bar = c.querySelector('.efb-nm-bar');
+  // After the header's collapsible part: at its end on a desktop, beside the menu button on a phone (always visible).
+  const head = document.querySelector('#navbar > .container');
+  const btn = bar ? bar.querySelector('.efb-nm-toggle') : null;
+  if (head && btn && list) {
+    const bell = document.createElement('div');
+    bell.className = 'efb nav-icon efb-nm-bell mx-2';
+    bell.hidden = bar.hidden;
+    bell.appendChild(btn);
+    head.appendChild(bell);
+    bar.remove();
+    const navbar = document.getElementById('navbar');
+    navbar.parentNode.insertBefore(list, navbar.nextSibling);
+  }
+  const intoList = () => {
+    const top = c.querySelector('.efb-nm-top');
+    if (!top || !list || !document.getElementById('pCreatorEfb')) return false;
+    list.prepend(...Array.from(top.childNodes));
+    top.remove();
+    if (typeof window.efbNoticeCountEfb === 'function') window.efbNoticeCountEfb();
+    return true;
+  };
+  if (!intoList() && c.querySelector('.efb-nm-top') && window.MutationObserver) {
+    const root = document.getElementById('wpbody-content') || document.body;
+    const mo = new MutationObserver(() => { if (intoList()) mo.disconnect(); });
+    mo.observe(root, { childList: true, subtree: true });
+  }
+}
+efbNoticeCenterEfb();
+document.addEventListener('DOMContentLoaded', efbNoticeCenterEfb);
+
 /* EFB screens hide other plugins' notices (update nags, ads). A notice of Easy Form Builder or of one of its add-ons
    stays: class efb or efb-notice (any class or id starting with efb / emsfb) or data-efb-notice. */
 efb_is_own_notice_efb=(el)=>{

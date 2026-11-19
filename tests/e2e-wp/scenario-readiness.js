@@ -8,7 +8,8 @@
  *     answered pay_not_ready and stores nothing;
  *  b  the owner, logged in, on the same page: "Only you see this …" with the issue and the link to the
  *     gateway settings;
- *  c  the forms list: the badge "Payment setup incomplete"; the admin notice names the form;
+ *  c  the forms list: the badge "Payment setup incomplete"; the Payments screen's summary names the form (UX-01: no
+ *     readiness notice on the plugin's screens any more);
  *  d  AutoPilot: GET Emsfb/v1/payments/readiness?form_id (capabilities.payments.readiness), the builder's
  *     efbBuilderApi.paymentReadiness(), the save answer's payment_ready / payment_issues and the "Saved"
  *     dialog "Saved, but visitors cannot pay yet:" with the fix link;
@@ -89,8 +90,14 @@ module.exports = function (S) {
         return { badge: b ? b.textContent.trim() : '', title: b ? b.getAttribute('title') : '', notice: n ? n.textContent : '', link: n && n.querySelector(`li[data-form="${id}"] a`) ? n.querySelector(`li[data-form="${id}"] a`).getAttribute('href') : '' };
       }, fid);
       R.check('readiness/c: the forms list shows "Payment setup incomplete" on the form (its title says what is missing)', list.badge === 'Payment setup incomplete' && /no keys/.test(list.title), list);
-      R.check('readiness/c: the admin notice "Payment setup incomplete: visitors cannot pay with these forms yet." names the form and links to it in the builder', /Payment setup incomplete: visitors cannot pay with these forms yet\./.test(list.notice) && /Readiness e2e form/.test(list.notice) && new RegExp('state=edit-form&id=' + fid).test(list.link), list);
       await admin.screenshot({ path: SHOT('readiness-forms-list') });
+      // UX-01 (B4): no readiness notice on the plugin's screens any more (it was a red notice on every one of them, with no
+      // dismiss); the Payments screen has the summary, the forms list the badge.
+      await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments', { waitUntil: 'load' });
+      const sum = await admin.evaluate((id) => { const sec = document.getElementById('efbPayReady'); const li = sec ? sec.querySelector(`li[data-form="${id}"]`) : null; return { sec: !!sec, text: sec ? sec.textContent.replace(/\s+/g, ' ') : '', link: li && li.querySelector('a') ? li.querySelector('a').getAttribute('href') : '', notice: !!document.getElementById('efbPayNotReadyNotice') }; }, fid);
+      R.check('readiness/c: no "Payment setup incomplete" notice on the forms screen; the Payments screen\'s summary ("… cannot take payments yet") names the form and links to it in the builder', list.notice === '' && !sum.notice && sum.sec && /cannot take payments yet/.test(sum.text) && /Readiness e2e form/.test(sum.text) && new RegExp('state=edit-form&id=' + fid).test(sum.link), { list, sum });
+      await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+      await admin.waitForSelector('#emsFormBuilder-list', { timeout: 20000 });
 
       /* d: AutoPilot */
       const rest = await admin.evaluate(async (id) => {

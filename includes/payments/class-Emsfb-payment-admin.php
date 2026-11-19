@@ -24,7 +24,17 @@ class Admin {
 		add_action( 'admin_menu', array( __CLASS__, 'menu' ), 20 );
 		add_action( 'admin_post_efb_pay_settings', array( __CLASS__, 'save_settings' ) );
 		add_action( 'wp_ajax_efb_pay_action', array( __CLASS__, 'ajax' ) );
-		add_action( 'admin_notices', array( __CLASS__, 'notices' ) );
+		// UX-01: through the notice manager (one notice at a time on the plugin's screens). Payment readiness is no longer a
+		// notice: a badge per form in the forms list and a summary on Payments (readiness_summary()).
+		$nf = dirname( __DIR__ ) . '/class-Emsfb-notices.php';
+		if ( ! class_exists( '\\Emsfb\\Notices' ) && is_readable( $nf ) ) require_once $nf;
+		if ( class_exists( '\\Emsfb\\Notices' ) ) {
+			// An add-on made for another framework version cannot load: its payments fail now (the one "error").
+			\Emsfb\Notices::add( 'payment_addon_version', array( 'render' => array( __CLASS__, 'version_notice' ), 'priority' => 95, 'severity' => 'error', 'screens' => 'admin' ) );
+			\Emsfb\Notices::add( 'payment_cron', array( 'render' => array( __CLASS__, 'cron_notice' ), 'priority' => 85, 'severity' => 'warning', 'screens' => 'efb' ) );
+		} else {
+			add_action( 'admin_notices', array( __CLASS__, 'notices' ) );
+		}
 	}
 
 	public static function can() {
@@ -41,27 +51,64 @@ class Admin {
 		add_submenu_page( 'Emsfb', esc_html__( 'Payments', 'easy-form-builder' ), esc_html__( 'Payments', 'easy-form-builder' ), current_user_can( 'Emsfb_payments' ) ? 'Emsfb_payments' : 'manage_options', self::SLUG, array( __CLASS__, 'page' ) );
 	}
 
-	/** Problems of the registry (an add-on for another framework version) and a disabled WP-Cron. */
+	/** Problems of the registry (an add-on for another framework version) and a disabled WP-Cron (both notices). */
 	public static function notices() {
+		self::version_notice();
+		self::cron_notice();
+	}
+
+	/** A payment add-on made for another version of the framework: it is not loaded, so its payments fail now. */
+	public static function version_notice() {
 		if ( ! self::can() ) return;
 		foreach ( Registry::errors() as $e ) {
 			if ( $e['code'] === 'api_version' ) {
 				/* translators: %s: add-on key */
-				echo '<div class="notice notice-warning efb-notice"><p>' . esc_html( sprintf( __( 'The payment add-on %s was made for another version of Easy Form Builder. Please update the add-on and Easy Form Builder.', 'easy-form-builder' ), $e['addon'] !== '' ? $e['addon'] : $e['slug'] ) ) . '</p></div>';
+				echo '<div class="notice notice-error efb-notice efb-pay-version-notice"><p style="unicode-bidi:plaintext">' . esc_html( sprintf( __( 'The payment add-on %s was made for another version of Easy Form Builder. Please update the add-on and Easy Form Builder.', 'easy-form-builder' ), $e['addon'] !== '' ? $e['addon'] : $e['slug'] ) ) . '</p></div>';
 			}
 		}
+	}
+
+	/** On Payments: WP-Cron is off and pending payments are not being checked. */
+	public static function cron_notice() {
+		if ( ! self::can() ) return;
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-		// PAY00 readiness: on Easy Form Builder's screens, the forms visitors cannot pay with now (computed
-		// on every load, so a form drops out once its keys are added or its payment field is fixed).
-		if ( $screen && stripos( (string) $screen->id, 'emsfb' ) !== false ) {
-			echo Readiness::admin_notice_html( Readiness::not_ready_forms() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in admin_notice_html()
-		}
 		if ( $screen && strpos( (string) $screen->id, self::SLUG ) !== false && defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) {
 			$last = (int) get_option( 'emsfb_pmt_reconcile_last', 0 );
 			if ( Store::ready() && $last < time() - 2 * HOUR_IN_SECONDS && Store::stats()['pending'] > 0 ) {
 				echo '<div class="notice notice-warning efb-notice"><p>' . esc_html__( 'WP-Cron is disabled and pending payments are not being checked.', 'easy-form-builder' ) . '</p></div>';
 			}
 		}
+	}
+
+	/**
+	 * UX-01: on Payments, the forms visitors cannot pay with now (PAY00 readiness, computed on every load: a form drops out
+	 * once its keys are added or its payment field is fixed), each with its first problem and a link to it in the builder.
+	 * It was a red notice on every screen of the plugin, without a dismiss; the forms list marks each form too.
+	 */
+	public static function readiness_summary() {
+		$forms = Readiness::not_ready_forms();
+		if ( ! $forms ) return;
+		$n = count( $forms );
+		echo '<section class="efb-pay-ready" id="efbPayReady" aria-labelledby="efbPayReadyH"><h2 id="efbPayReadyH">'
+			/* translators: %s: number of forms */
+			. esc_html( sprintf( _n( '%s form cannot take payments yet', '%s forms cannot take payments yet', $n, 'easy-form-builder' ), number_format_i18n( $n ) ) ) . '</h2>'
+			. '<p>' . esc_html__( 'Visitors cannot pay with these forms until their problem is fixed. The forms list marks them too.', 'easy-form-builder' ) . '</p><ul>';
+		$i = 0;
+		foreach ( $forms as $id => $f ) {
+			if ( ++$i === 11 ) {
+				/* translators: %s: number of further forms */
+				echo '</ul><details><summary>' . esc_html( sprintf( _n( 'Show %s more form', 'Show %s more forms', $n - 10, 'easy-form-builder' ), number_format_i18n( $n - 10 ) ) ) . '</summary><ul>';
+			}
+			$first = isset( $f['issues'][0]['m'] ) ? (string) $f['issues'][0]['m'] : '';
+			$url = admin_url( 'admin.php?page=Emsfb&state=edit-form&id=' . (int) $id );
+			echo '<li data-form="' . (int) $id . '"><bdi><a href="' . esc_url( $url ) . '">' . esc_html( $f['name'] !== '' ? $f['name'] : '#' . (int) $id ) . '</a></bdi>: ' . esc_html( $first );
+			if ( count( $f['issues'] ) > 1 ) {
+				/* translators: %d: number of further problems */
+				echo ' ' . esc_html( sprintf( _n( '(and %d more problem)', '(and %d more problems)', count( $f['issues'] ) - 1, 'easy-form-builder' ), count( $f['issues'] ) - 1 ) );
+			}
+			echo '</li>';
+		}
+		echo $i > 10 ? '</ul></details></section>' : '</ul></section>';
 	}
 
 	private static function status_label( $s ) {
@@ -108,6 +155,7 @@ class Admin {
 			echo '<p>' . esc_html__( 'The payment tables are being created. Please reload this page in a moment.', 'easy-form-builder' ) . '</p></div>';
 			return;
 		}
+		self::readiness_summary();
 		if ( $tab === 'gateways' ) self::gateways_tab();
 		elseif ( $id ) self::details( $id );
 		else self::list_tab();
@@ -484,6 +532,8 @@ class Admin {
 
 	private static function style() {
 		echo '<style>.efb-pay-admin .efb-pay-stats{display:flex;gap:1rem;flex-wrap:wrap;margin:1rem 0}.efb-pay-stat{background:#fff;border:1px solid #dcdcde;border-radius:6px;padding:.6rem 1rem;display:flex;flex-direction:column}.efb-pay-filters{display:flex;flex-wrap:wrap;gap:.5rem;align-items:end;margin:.5rem 0 1rem}.efb-pay-badge{display:inline-block;padding:.1rem .5rem;border-radius:999px;font-size:12px;font-weight:600;background:#e9ecef;color:#1d2327}.efb-pay-success{background:#d1e7dd;color:#0a3622}.efb-pay-warning{background:#fff3cd;color:#664d03}.efb-pay-danger{background:#f8d7da;color:#58151c}.efb-pay-info{background:#cff4fc;color:#055160}.efb-pay-dark{background:#495057;color:#fff}.efb-pay-test{background:#fff3cd;color:#664d03;padding:0 .4rem;border-radius:4px;font-weight:700}.efb-pay-card{background:#fff;border:1px solid #dcdcde;border-radius:8px;padding:0 1rem 1rem;margin:1rem 0;max-width:60rem}.efb-pay-kv th{width:14rem}.efb-pay-err{color:#b32d2e}.efb-pay-events pre{white-space:pre-wrap;max-height:16rem;overflow:auto}.efb-pay-pages{margin:1rem 0}'
+			// UX-01: the readiness summary (a card, not a notice: it is about these screens' work).
+			. '.efb-pay-ready{background:#fcf9e8;border:1px solid #dcdcde;border-inline-start:4px solid #dba617;border-radius:6px;padding:.25rem 1rem .5rem;margin:1rem 0;max-width:60rem}.efb-pay-ready h2{font-size:1.1em;margin:.75rem 0 .25rem}.efb-pay-ready ul{list-style:disc;padding-inline-start:1.25rem;margin-inline-start:0}.efb-pay-ready summary{cursor:pointer;color:#2271b1;min-height:24px}'
 			// F16 rule on a right-to-left screen: a sentence keeps its own direction (English, not translated yet: its full stop
 			// stays at its end) and starts at the screen's start.
 			. '.efb-pay-admin :is(p,.notice p,.description,li,label,.efb-pay-msg){unicode-bidi:plaintext}.rtl .efb-pay-admin :is(p,.notice p,.description,li,.efb-pay-msg){text-align:right}</style>';

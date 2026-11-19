@@ -81,6 +81,10 @@ owner-specific lock prevents competing log writes; busy diagnostics may be
 dropped. Counts describe sampled failed requests, not lost submissions or
 unique visitors. Administrators with manage_options see a conspicuous notice
 with operation/status/source/reason/count/time and investigation guidance.
+Since 4.3.2 (UX-01) it goes through the notice manager (`Emsfb\Notices`, source
+`request_health`, priority 80): on the plugin's screens it waits its turn with the
+other notices (one shown, the rest behind "Notices"); it is a warning, and an error
+only while a payment request fails on the server (`Request_Health::payments_failing()`).
 A 403 alone never proves caching or a particular firewall caused the problem.
 No diagnostic email, external transmission or WAF reconfiguration is performed.
 

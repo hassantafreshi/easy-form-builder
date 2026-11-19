@@ -62,7 +62,10 @@ class Request_Health {
         add_action('wp_print_footer_scripts', array(__CLASS__, 'enqueue'), 1);
         add_action('admin_print_footer_scripts', array(__CLASS__, 'enqueue'), 1);
         add_action('check_ajax_referer', array(__CLASS__, 'observe_ajax_nonce'), 10, 2);
-        add_action('admin_notices', array(__CLASS__, 'notice'));
+        // UX-01: one notice at a time on the plugin's screens (Emsfb\Notices); on other screens as before.
+        if (!class_exists('\\Emsfb\\Notices') && is_readable(__DIR__ . '/class-Emsfb-notices.php')) require_once __DIR__ . '/class-Emsfb-notices.php';
+        if (class_exists('\\Emsfb\\Notices')) Notices::add('request_health', array('render' => array(__CLASS__, 'notice'), 'priority' => 80, 'screens' => 'admin'));
+        else add_action('admin_notices', array(__CLASS__, 'notice'));
     }
 
     private static function script_patterns() {
@@ -258,6 +261,14 @@ class Request_Health {
         return $newest;
     }
 
+    /** UX-01: a payment request failing on the server (not a browser report) is the one case of an error notice. */
+    public static function payments_failing() {
+        foreach (self::recent_rows() as $row) {
+            if (self::needs_attention($row) && (($row['operation'] ?? '') === 'payment' || strpos((string) ($row['reason'] ?? ''), 'gateway_') === 0)) return true;
+        }
+        return false;
+    }
+
     private static function efb_screen() {
         $screen = function_exists('get_current_screen') ? get_current_screen() : null;
         return $screen && isset($screen->id) && stripos((string) $screen->id, 'emsfb') !== false;
@@ -269,8 +280,9 @@ class Request_Health {
         $newest = self::newest_attention();
         // Dismissed per user and per site; only a newer qualifying failure shows it again.
         if (!$newest || $newest <= (int) get_user_option(self::ACK)) return;
-        // The 'efb' class keeps EFB screens (admin-efb.js removes foreign notices) from deleting it.
-        echo '<div class="efb notice notice-warning is-dismissible efb-request-health-notice" data-last="' . esc_attr($newest) . '" data-nonce="' . esc_attr(wp_create_nonce(self::DISMISS)) . '"><p><strong>' . esc_html__('Easy Form Builder: request failures detected', 'easy-form-builder') . '</strong></p><p>';
+        // The 'efb' class keeps EFB screens (admin-efb.js removes foreign notices) from deleting it. UX-01: "error" only
+        // while payment requests fail on the server; any other failure is a warning.
+        echo '<div class="efb notice ' . (self::payments_failing() ? 'notice-error' : 'notice-warning') . ' is-dismissible efb-request-health-notice" data-last="' . esc_attr($newest) . '" data-nonce="' . esc_attr(wp_create_nonce(self::DISMISS)) . '"><p><strong>' . esc_html__('Easy Form Builder: request failures detected', 'easy-form-builder') . '</strong></p><p>';
         echo esc_html__('The server recorded an error that may have affected a form submission, reply, upload or payment. Compare recent entries and payments with the time of the error.', 'easy-form-builder');
         if (!self::efb_screen()) {
             echo ' <a href="' . esc_url(admin_url('admin.php?page=Emsfb')) . '">' . esc_html__('View the details in Easy Form Builder', 'easy-form-builder') . '</a></p>';
@@ -278,8 +290,9 @@ class Request_Health {
             echo '</p><details><summary>' . esc_html__('View diagnostic details (last 7 days)', 'easy-form-builder') . '</summary><p>';
             echo esc_html__('A form, response box or upload request encountered an error. Some requests may have recovered automatically; counts are not lost submissions. Browser reports are unverified; a 403 alone does not prove a cache or firewall problem. Submission status may be unknown.', 'easy-form-builder') . '</p><ul>';
             foreach ($rows as $row) {
-                $line = esc_html(sprintf('%s | HTTP %d | %s | %s | %d | %s', $row['operation'] ?? '', (int) ($row['status'] ?? 0), $row['source'] ?? '', $row['reason'] ?? '', (int) ($row['count'] ?? 0), wp_date('Y-m-d H:i:s', (int) $row['last'])));
-                echo '<li>' . (self::needs_attention($row) ? '<strong>' . $line . '</strong>' : $line) . '</li>';
+                $attention = self::needs_attention($row);
+                // A diagnostic line (codes, an HTTP status, a date): left to right in every language.
+                echo '<li dir="ltr">' . ($attention ? '<strong>' : '') . esc_html(sprintf('%s | HTTP %d | %s | %s | %d | %s', $row['operation'] ?? '', (int) ($row['status'] ?? 0), $row['source'] ?? '', $row['reason'] ?? '', (int) ($row['count'] ?? 0), wp_date('Y-m-d H:i:s', (int) $row['last']))) . ($attention ? '</strong>' : '') . '</li>';
             }
             echo '</ul><p>' . esc_html__('For nonce errors, check whether token refresh is reachable. For unconfirmed 403 responses, correlate the timestamp with security/CDN logs. Do not disable security protections based only on a browser report.', 'easy-form-builder') . '</p></details>';
         }

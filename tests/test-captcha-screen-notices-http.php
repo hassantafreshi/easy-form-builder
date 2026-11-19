@@ -5,7 +5,7 @@
  *
  * BUG (F20-core brief): Easy Form Builder's site-wide notices — the SPLIT add-on notice, "payment setup incomplete"
  * (PAY00 readiness), the Data Tools card … — were printed above the focused screen's form. Now:
- *  - the plugin's panel still shows them (a payment form without keys brings the readiness notice);
+ *  - the plugin's panel still shows them (UX-01: through the notice center, the add-on's notice taken in);
  *  - the screen shows none of them, nor a notice of another Easy Form Builder add-on (a closure of the Emsfb namespace,
  *    as the Human Shield add-on hooks it), but keeps its own ("Settings saved.", in its box), and another plugin's
  *    notice (WordPress' convention for every admin screen);
@@ -52,8 +52,11 @@ try {
 		return $out;
 	};
 
-	$panel = $notices($get('page=Emsfb')['body']);
-	t('the plugin\'s panel: the payment readiness notice, the add-on\'s notice and the other plugin\'s notice', array(in_array('efbPayNotReadyNotice', $panel['outside'], true), in_array('efb-addon-probe', $panel['outside'], true), in_array('other-plugin-probe', $panel['outside'], true)), array(true, true, true));
+	// UX-01 (B4): on the panel the plugin's notices go through the notice center (one shown, the others in its list; the
+	// add-on's notice, printed straight on admin_notices, is taken in too); payment readiness is on Payments, not a notice.
+	$pbody = $get('page=Emsfb')['body'];
+	$panel = $notices($pbody);
+	t('the plugin\'s panel: the notice center with the add-on\'s notice in it, and the other plugin\'s notice', array(strpos($pbody, 'id="efbNoticeCenter"') !== false, in_array('efb-addon-probe', $panel['outside'], true), (bool) preg_match('/data-efb-nm="x_[a-f0-9]{10}" class="notice notice-info efb-notice efb-addon-probe inline"/', $pbody), in_array('other-plugin-probe', $panel['outside'], true)), array(true, true, true, true));
 
 	$r = $get('page=Emsfb_captcha&provider=turnstile&efb_msg=saved');
 	$sc = $notices($r['body']);
@@ -77,8 +80,9 @@ try {
 	t('… another plugin\'s notice stays there too', in_array('other-plugin-probe', $ad['outside'], true), true);
 	t('core\'s helper is one function the CAPTCHA screen and the add-on both call', array(strpos(file_get_contents($H->root . '/includes/captcha/class-Emsfb-captcha-screen.php'), 'efb_addon_screen_own_notices(') !== false, function_exists('efb_addon_screen_own_notices') || strpos(file_get_contents($H->root . '/includes/addon-contracts-functions-efb.php'), "function efb_addon_screen_own_notices(") !== false), array(true, true));
 
-	$panel2 = $notices($get('page=Emsfb')['body']);
-	t('the panel afterwards still shows them (nothing removed for good)', in_array('efbPayNotReadyNotice', $panel2['outside'], true) && in_array('efb-addon-probe', $panel2['outside'], true), true);
+	$pbody2 = $get('page=Emsfb')['body'];
+	$panel2 = $notices($pbody2);
+	t('the panel afterwards still shows them (nothing removed for good)', strpos($pbody2, 'id="efbNoticeCenter"') !== false && in_array('efb-addon-probe', $panel2['outside'], true), true);
 } finally {
 	@unlink($mu);
 	foreach ($made as $f) $H->ctl('f12-delete-form', (string) ($f['form_id'] ?? 0));

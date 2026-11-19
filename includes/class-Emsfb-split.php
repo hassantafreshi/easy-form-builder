@@ -43,10 +43,19 @@ class Split {
 		add_filter('efb_form_schema_field', array(__CLASS__, 'schema_field'), 40, 3);
 		add_action(self::EVENT, array(__CLASS__, 'run_scan_event'));
 		add_action('admin_init', array(__CLASS__, 'maybe_schedule_scan'));
-		add_action('admin_notices', array(__CLASS__, 'admin_notices'));
 		add_action('wp_ajax_efb_split_retry', array(__CLASS__, 'ajax_retry'));
 		add_action('wp_ajax_efb_split_dismiss', array(__CLASS__, 'ajax_dismiss'));
-		add_action('admin_notices', array(__CLASS__, 'data_tools_card'));
+		// UX-01: through the notice manager (one notice at a time on the plugin's screens): payments waiting for an add-on
+		// first, then the forms that need an add-on; the Data Tools card last (a suggestion).
+		if (!class_exists('\\Emsfb\\Notices') && is_readable(__DIR__ . '/class-Emsfb-notices.php')) require_once __DIR__ . '/class-Emsfb-notices.php';
+		if (class_exists('\\Emsfb\\Notices')) {
+			Notices::add('split_pending', array('render' => array(__CLASS__, 'pending_notice'), 'priority' => 85, 'severity' => 'warning', 'screens' => 'efb'));
+			Notices::add('split_addons', array('render' => array(__CLASS__, 'addons_notice'), 'priority' => 60, 'severity' => 'warning', 'screens' => 'efb'));
+			Notices::add('data_tools', array('render' => array(__CLASS__, 'data_tools_card'), 'priority' => 10, 'severity' => 'info', 'screens' => 'efb'));
+		} else {
+			add_action('admin_notices', array(__CLASS__, 'admin_notices'));
+			add_action('admin_notices', array(__CLASS__, 'data_tools_card'));
+		}
 		add_action('wp_ajax_efb_split_dt_dismiss', array(__CLASS__, 'ajax_dt_dismiss'));
 		add_filter('efb_admin_localize_vars', array(__CLASS__, 'builder_vars'));
 	}
@@ -485,18 +494,33 @@ class Split {
 		return $h;
 	}
 
-	/** admin_notices on Easy Form Builder screens (manage_options only; dismissed until the list changes). */
+	/** admin_notices on Easy Form Builder screens (manage_options only; dismissed until the list changes): both notices. */
 	public static function admin_notices() {
-		if (!function_exists('current_user_can') || !current_user_can('manage_options')) return;
+		self::pending_notice();
+		self::addons_notice();
+	}
+
+	/** Whether the current screen is one of the plugin's, for an administrator. */
+	private static function admin_on_efb_screen() {
+		if (!function_exists('current_user_can') || !current_user_can('manage_options')) return false;
 		$screen = function_exists('get_current_screen') ? get_current_screen() : null;
-		if (!$screen || stripos((string) $screen->id, 'emsfb') === false) return;
-		// SPLIT §5.3 / PAY-OUT step 3: payments an add-on left waiting to be checked while it cannot run (absent, off, older
-		// than this core). The add-on publishes its count (efb_addon_pending_work()); core never reads its tables.
+		return $screen && stripos((string) $screen->id, 'emsfb') !== false;
+	}
+
+	/** SPLIT §5.3 / PAY-OUT step 3: payments an add-on left waiting to be checked while it cannot run (absent, off, older
+	 *  than this core). The add-on publishes its count (efb_addon_pending_work()); core never reads its tables. */
+	public static function pending_notice() {
+		if (!self::admin_on_efb_screen()) return;
 		foreach (self::pending_work_without_addon() as $code => $n) {
 			$name = Addon_Catalog::name($code);
 			/* translators: 1: number of payments, 2: name of an Easy Form Builder add-on (a product name) */
 			echo '<div class="notice notice-warning efb-split-pending" data-efb-addon="' . esc_attr($code) . '"><p style="unicode-bidi:plaintext">' . sprintf(esc_html(_n('%1$d payment is waiting to be checked by %2$s; turn on or update the add-on to finish it.', '%1$d payments are waiting to be checked by %2$s; turn on or update the add-on to finish them.', $n, 'easy-form-builder')), (int) $n, '<bdi>' . esc_html($name) . '</bdi>') . '</p></div>';
 		}
+	}
+
+	/** The forms that use a feature whose add-on is not usable now (dismissed until the list changes). */
+	public static function addons_notice() {
+		if (!self::admin_on_efb_screen()) return;
 		$forms = self::forms_needing();
 		if (!$forms) return;
 		if (get_user_meta(get_current_user_id(), 'efb_split_notice_dismissed', true) === md5(wp_json_encode($forms))) return;
@@ -530,6 +554,8 @@ class Split {
 		$id = $screen ? (string) $screen->id : '';
 		if ($id !== 'toplevel_page_Emsfb' && strpos($id, 'Emsfb_create') === false) return;
 		if (get_user_meta(get_current_user_id(), 'efb_dt_card_dismissed', true)) return;
+		// FR-01: not on a fresh install: the card waits until the site has a form (nothing to import or export before).
+		if (!self::has_forms()) return;
 		$t = function_exists('get_efbFunction') ? get_efbFunction()->text_efb(array('dataToolsCard')) : array();
 		$text = isset($t['dataToolsCard']) ? $t['dataToolsCard'] : __('Import and export forms with Easy Form Builder Data Tools (free).', 'easy-form-builder');
 		if (self::data_tools_active()) {
@@ -545,6 +571,16 @@ class Split {
 			. '<span class="dashicons dashicons-database-import" aria-hidden="true"></span> ' . esc_html(wp_strip_all_tags($text)) . ' '
 			. '<a class="button button-primary" style="min-height:44px;line-height:42px" href="' . esc_url($url) . '">' . esc_html($btn) . '</a></p></div>'
 			. '<script>(function(){var n=document.getElementById("efbDataToolsCard");if(!n||!window.fetch)return;n.addEventListener("click",function(e){if(!e.target.classList.contains("notice-dismiss"))return;var b=new FormData();b.append("action","efb_split_dt_dismiss");b.append("nonce",n.getAttribute("data-nonce"));fetch(window.ajaxurl||"' . esc_url(admin_url('admin-ajax.php')) . '",{method:"POST",credentials:"same-origin",body:b});});})();</script>';
+	}
+
+	/** Whether the site has at least one form (FR-01: the Data Tools card waits for it). */
+	public static function has_forms() {
+		global $wpdb;
+		if (!is_object($wpdb)) return false;
+		$t = $wpdb->prefix . 'emsfb_form';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- the plugin's own table, from $wpdb->prefix
+		$id = $wpdb->get_var("SELECT form_id FROM `{$t}` LIMIT 1");
+		return !empty($id);
 	}
 
 	public static function ajax_dt_dismiss() {
