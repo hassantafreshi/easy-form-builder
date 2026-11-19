@@ -4,6 +4,19 @@
 > Related: [`script-template.md`](script-template.md) (beats), [`storyboard-template.md`](storyboard-template.md) (data the compositions read), [`subtitles-spec.md`](subtitles-spec.md) (captions are separate SRT files: **no burned-in subtitles in the 16:9 master**).
 > Values marked **[WPForms]** were measured or observed on their frames (approximate; from low-resolution auto frames). Everything else is a design decision that can be changed by the owner.
 
+## Owner rule (2026-11-19, decision 16): every action in a video is marked — MANDATORY
+
+The same "professional guide" standard as the article screenshots (`../images/IMAGE-STYLE-GUIDE.md` §0) applies to every video. The viewer must always see where the click happens, what is typed and what the result is. A video that breaks a rule below fails QA gate D3b and is not delivered.
+
+1. **Every click is announced before it happens.** About 0.4-0.6 s before each click the `Callout` marks the real target (focus ring + numbered badge in the step, from the capture's DOM box), the cursor travels to it, and the click ripple plays on it. The mark stays until the click's result is visible.
+2. **Every typing action is boxed.** The field gets a box while the value appears in it; the value is legible (zoom so UI text is >= ~28 px tall in the 1080p frame, max 2.4x). Secrets are always masked.
+3. **Small targets are zoomed.** A control under ~24 px in the 1080p capture is zoomed in (camera) before the click; zoom out again before the next screen change.
+4. **Results are marked.** Success message, saved toast, "Completed" status, the new row or the published form get a box or a short result pill and are held >= 1.5 s.
+5. **Narration and marks are in sync.** The narration names the same control at the moment it is marked (<= 0.5 s apart), using the exact on-screen label; numbered badges follow the order the narration gives.
+6. **Marks never hide the target.** Badge and label sit beside the target, inside the safe area, never over the control being clicked or the field being filled; at most 2 marks visible at once; the step label stays top-left.
+7. **Every step of the article appears.** The video shows each step of its article in the same order, with the same UI labels, so the article screenshots and the video teach the same path.
+8. **Check before delivery.** Extract a frame at every click time and at every result (storyboard chapter times) and look at each: the mark points at the right control, nothing important is covered, text is sharp. Record "video annotation check: pass" in the run report.
+
 ## 0. Summary of the look
 
 | Property | Decision |
