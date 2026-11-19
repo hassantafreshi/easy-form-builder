@@ -31,10 +31,10 @@ class Portal_Core {
 
 	const API = 1;
 	/** The contract's minor version (docs/portal/portal-core-contract.en.md "Versions"): 1.1 every plan. */
-	const API_MINOR = 3;
+	const API_MINOR = 4;
 	const FEATURES = array('index', 'otp', 'read', 'thread', 'reply', 'ticket', 'payments', 'files', 'cancel', 'reschedule', 'edit', 'drafts', 'privacy');
 	/** Features added by the minor versions (efb_portal_core_api()['features'] lists them after v1.0's). */
-	const FEATURES_MINOR = array('any_plan', 'channels', 'forms');
+	const FEATURES_MINOR = array('any_plan', 'channels', 'forms', 'draft_pages');
 	/** The plugin that uses this contract (a separate, free plugin; not an add-on). */
 	const PLUGIN_SLUG = 'efb-customer-portal';
 	const PLUGIN_FILE = 'efb-customer-portal/efb-customer-portal.php';
@@ -1061,27 +1061,65 @@ class Portal_Core {
 
 	/* ================================================================ P16: drafts, P19: privacy */
 
-	/** P16: the identity's unfinished forms (F11 "save and continue later") of forms in the portal with drafts on. */
+	/**
+	 * P16: the identity's unfinished forms (F11 "save and continue later") of forms in the portal with drafts on.
+	 * 1.4: each with the form's name (form) and the page to continue on (page, page_title): the page the draft was saved
+	 * on, else (older drafts) the first page that shows the form (efb_portal_forms()'s pages), else ''.
+	 */
 	public static function drafts($identity) {
 		if (!self::active() || !class_exists('\\Emsfb\\Drafts') || !Drafts::ready()) return array();
 		$identity = self::clean_identity($identity);
 		$out = array();
+		$list = array();
 		foreach (Drafts::of_identity($identity) as $d) {
 			$p = self::policy((int) $d['fid']);
-			if (!$p['on'] || !$p['drafts']) continue;
-			$out[] = array('id' => (int) $d['id'], 'form_id' => (int) $d['fid'], 'progress' => (int) $d['progress'], 'updated' => (string) $d['updated_at'], 'expires' => (string) $d['expires_at'], 'expires_text' => Drafts::expiry_text($d['expires_at']));
+			if ($p['on'] && $p['drafts']) $list[] = $d;
+		}
+		$names = self::form_names(array_map(function ($d) { return (int) $d['fid']; }, $list));
+		foreach ($list as $d) {
+			$page = self::draft_page($d);
+			$out[] = array('id' => (int) $d['id'], 'form_id' => (int) $d['fid'], 'form' => isset($names[(int) $d['fid']]) ? $names[(int) $d['fid']] : '', 'progress' => (int) $d['progress'],
+				'updated' => (string) $d['updated_at'], 'expires' => (string) $d['expires_at'], 'expires_text' => Drafts::expiry_text($d['expires_at']), 'page' => $page['url'], 'page_title' => $page['title']);
 		}
 		return $out;
 	}
 
-	/** P16: a new link to continue a draft: the token turns (the earlier link stops working). $page = the form's page. */
+	/** Form id => name (as the forms list shows it). */
+	private static function form_names(array $ids) {
+		$ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+		if (!$ids) return array();
+		global $wpdb;
+		$in = implode(',', array_fill(0, count($ids), '%d'));
+		$out = array();
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, placeholders built above
+		foreach ((array) $wpdb->get_results($wpdb->prepare("SELECT form_id, form_name FROM `{$wpdb->prefix}emsfb_form` WHERE form_id IN ({$in})", $ids), ARRAY_A) as $r) $out[(int) $r['form_id']] = wp_strip_all_tags(str_replace('@efb@dq#', '"', (string) $r['form_name']));
+		return $out;
+	}
+
+	/** 1.4: the page of a draft: the one it was saved on, else the form's first page, else none. ['url', 'title', 'source' => saved|form|''] */
+	private static function draft_page(array $d) {
+		$url = isset($d['page_url']) ? (string) $d['page_url'] : '';
+		if ($url !== '') {
+			$pid = function_exists('url_to_postid') ? (int) url_to_postid($url) : 0;
+			return array('url' => $url, 'title' => $pid > 0 ? wp_strip_all_tags(html_entity_decode(get_the_title($pid), ENT_QUOTES, 'UTF-8')) : '', 'source' => 'saved');
+		}
+		$pages = self::form_pages();
+		$fid = (int) $d['fid'];
+		if (!empty($pages[$fid][0]['url'])) return array('url' => $pages[$fid][0]['url'], 'title' => (string) $pages[$fid][0]['title'], 'source' => 'form');
+		return array('url' => '', 'title' => '', 'source' => '');
+	}
+
+	/**
+	 * P16: a new link to continue a draft: the token turns (the earlier link stops working). $page = the page to open it
+	 * on; '' (1.4) = the page the draft was saved on, else the form's page (efb_portal_forms()), else the home page.
+	 */
 	public static function draft_link($draft_id, $identity, $page = '') {
 		if (!self::active() || !class_exists('\\Emsfb\\Drafts')) return self::err('efb_portal_unavailable');
 		$identity = self::clean_identity($identity);
 		$ok = $identity ? self::limit('prd', $identity, 3600, 20) : self::err('efb_portal_not_found');
 		if (is_wp_error($ok)) return $ok;
 		foreach (self::drafts($identity) as $d) if ($d['id'] === (int) $draft_id) {
-			$u = Drafts::reissue_link((int) $draft_id, $page);
+			$u = Drafts::reissue_link((int) $draft_id, (string) $page !== '' ? (string) $page : $d['page']);
 			return $u !== '' ? $u : self::err('efb_portal_not_found');
 		}
 		return self::err('efb_portal_not_found');

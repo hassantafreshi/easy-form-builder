@@ -66,7 +66,9 @@ $dump = json_encode($d);
 t('one draft row (kind resume, step 2)', array(count($d), $d[0]['kind'] ?? '', (int) ($d[0]['step'] ?? 0)), array(1, 'resume', 2));
 t('stored: email, name, city', strpos($dump, 'draft.person@example.test') !== false && strpos($dump, 'Draft Person') !== false && strpos($dump, 'Shiraz') !== false, true);
 t('not stored: the password, the upload field, an unknown field, the payment row', array(strpos($dump, 'hunter2'), strpos($dump, 'evil.test'), strpos($dump, 'should not be kept'), strpos($dump, 'tok_123')), array(false, false, false, false));
-t('not stored: the token itself (only its HMAC) and no raw IP', array(strpos($dump, $tok), (bool) preg_match('/^[a-f0-9]{64}$/', $d[0]['token_hash']), strpos($dump, '127.0.0.1')), array(false, true, false));
+$noip = json_encode(array_map(function ($x) { unset($x['page_url']); return $x; }, (array) $d)); // the page is this site's address (127.0.0.1 on the test site)
+t('not stored: the token itself (only its HMAC) and no raw IP', array(strpos($dump, $tok), (bool) preg_match('/^[a-f0-9]{64}$/', $d[0]['token_hash']), strpos($noip, '127.0.0.1')), array(false, true, false));
+t('portal contract 1.4 (DB 1.13): the page it was saved on, without the resume token', $d[0]['page_url'] ?? null, $H->base . '/f11/?a=1');
 $r2 = $post('forms/draft/save', array('rows' => array_slice($rows, 0, 2), 'step' => 1, 'resume_token' => $tok, 'url' => $H->base . '/f11/'), $prep);
 t('saving again in the same tab updates the same draft', array($r2['status'], $r2['json']['resume_token'] ?? '', count($H->ctl('f11-drafts', (string) $fid))), array(200, $tok, 1));
 $post('forms/draft/save', array('rows' => $rows, 'step' => 2, 'resume_token' => $tok, 'url' => $H->base . '/f11/'), $prep);

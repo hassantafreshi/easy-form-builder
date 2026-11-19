@@ -73,7 +73,7 @@ $db->pdo->exec('CREATE INDEX wp_emsfb_msg__form_date ON wp_emsfb_msg_ (form_id, 
 $first = \Emsfb\Install::upgrade_f11_schema();
 t('first run creates both tables', $first, array('emsfb_vrfy_rl_: CREATE TABLE', 'emsfb_draft_: CREATE TABLE'));
 t('emsfb_vrfy_rl_ exists', $db->get_var("SHOW TABLES LIKE 'wp_emsfb_vrfy_rl_'"), 'wp_emsfb_vrfy_rl_');
-t('emsfb_draft_ exists with its columns', count($db->pdo->query("PRAGMA table_info('wp_emsfb_draft_')")->fetchAll()), 16);
+t('emsfb_draft_ exists with its columns (17 since DB 1.13: page_url)', count($db->pdo->query("PRAGMA table_info('wp_emsfb_draft_')")->fetchAll()), 17);
 t('form_date already serves form_id: no extra key', count(array_filter($db->alters, function ($q) { return strpos($q, 'emsfb_msg_') !== false; })), 0);
 $db->alters = array();
 $second = \Emsfb\Install::upgrade_f11_schema();

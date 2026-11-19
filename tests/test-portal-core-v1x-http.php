@@ -16,6 +16,10 @@
  *    payment, portal flag and the published pages that show it (shortcode, block, WPBakery, Elementor, a blog post; not a
  *    draft); a page deleted leaves the list; a subscriber or a visitor: efb_portal_forbidden; the plugin off: unavailable.
  *
+ *  - 1.4 drafts: DB 1.13 (emsfb_draft_.page_url); a draft saved through forms/draft/save keeps its page (never another
+ *    site's, never the resume token); efb_portal_drafts() gives the form's name and that page; an older draft falls back
+ *    to the form's page (1.3's pages), else none; efb_portal_draft_link(…, '') opens on that page; an explicit page wins.
+ *
  * Run (the e2e site, under the e2e lock): php tests/test-portal-core-v1x-http.php
  */
 require __DIR__ . '/portal-http-lib.php';
@@ -140,9 +144,54 @@ try {
 	$X->c20('on', '1');
 	$X->c20('policy', $fid, json_encode(array('on' => true, 'reply' => true)));
 	foreach ($placed as $k => $pl) if ($k !== 'block') $X->c20('unplace', $pl['id']);
+
+	echo "--- 1.4: drafts ---\n";
+	$H->ctl('set-option', 'efb_e2e_f11_plan', '1');
+	$H->ctl('f11-mu');
+	$D = $H->ctl('f11-form', 'Portal v1x drafts ' . $run, 'draft_on=1&draft_days=30', '1');
+	$did_form = (int) $D['form_id'];
+	$X->c20('policy', $did_form, json_encode(array('on' => true, 'drafts' => true)));
+	$mail_d = "draft.{$run}@example.test";
+	$sd = EfbF11Http::answer($H->submit($did_form, array(array('id_' => $D['email'], 'name' => 'Email', 'type' => 'email', 'value' => $mail_d), array('id_' => $D['name'], 'name' => 'Name', 'type' => 'text', 'value' => 'Dee'))));
+	$pg = $X->c20('place', $did_form, 'shortcode');
+	$ip = '198.51.' . mt_rand(1, 250) . '.' . mt_rand(1, 250);
+	$save = function ($url, $token = '') use ($H, $did_form, $D, $mail_d, $ip) {
+		$prep = $H->prepare($did_form); $p = (array) $prep['json'];
+		$body = array('form_id' => $did_form, 'runtime_token' => $p['runtime_token'] ?? '', 'rows' => array(array('id_' => $D['email'], 'id_ob' => $D['email'] . '_', 'name' => 'Email', 'type' => 'email', 'value' => $mail_d)), 'step' => 1, 'url' => $url);
+		if ($token !== '') $body['resume_token'] = $token;
+		return $H->http('POST', '/wp-json/Emsfb/v1/forms/draft/save', $body, array('X-WP-Nonce' => $p['nonce'] ?? '', 'sid' => $p['sid'] ?? '', 'X-Forwarded-For' => $ip));
+	};
+	$sv = $save($pg['url'] . '?utm=x&efb_resume=' . str_repeat('a', 64));
+	t('DB 1.13: the upgrade ran (emsfb_draft_.page_url)', array($H->ctl('option', 'Emsfb_db_version'), $sv['status']), array('1.13', 200));
+	$X->c20('reset');
+	$Q = new EfbPortalHttpClient($H);
+	$sq = $X->signin($Q, $mail_d);
+	$dl = $Q->op('drafts');
+	$mine = array_values(array_filter((array) ($dl['data'] ?? array()), function ($d) use ($did_form) { return $d['form_id'] === $did_form; }));
+	t('a saved draft: the form\'s name and the page it was saved on (without the resume token), with its title', array(!empty($sd['success']), !empty($sq['verify']['success']), count($mine), $mine[0]['form'] ?? '', $mine[0]['page'] ?? '', $mine[0]['page_title'] ?? ''), array(true, true, 1, 'Portal v1x drafts ' . $run, $pg['url'] . '?utm=x', 'Portal place shortcode ' . $did_form));
+	$lk = $Q->op('draft_link', array('id' => $mine[0]['id'] ?? 0, 'page' => ''));
+	t('efb_portal_draft_link(…, \'\'): a new link on that page (not the home page)', strpos((string) ($lk['data'] ?? ''), $pg['url'] . '?utm=x&efb_resume=') === 0, true);
+	$lk2 = $Q->op('draft_link', array('id' => $mine[0]['id'] ?? 0, 'page' => $H->base . '/other-page/'));
+	t('… an explicit page still wins (1.0 callers)', strpos((string) ($lk2['data'] ?? ''), $H->base . '/other-page/?efb_resume=') === 0, true);
+	$cur = preg_match('/efb_resume=([a-f0-9]{64})/', (string) ($lk2['data'] ?? ''), $mm) ? $mm[1] : ''; // the token turned with each new link
+	$foreign = $save('https://evil.example/steal', $cur);
+	$row = $X->c20('draft-row', $mine[0]['id'] ?? 0);
+	t('the same draft saved again from a page of another site: that page is never kept (the stored page stays)', array($foreign['status'], $foreign['json']['resume_token'] ?? '', $row['page_url'] ?? ''), array(200, $cur, $pg['url'] . '?utm=x'));
+	$old = $X->c20('draft', $did_form, $mail_d);
+	$dl = $Q->op('drafts');
+	$o = array_values(array_filter((array) ($dl['data'] ?? array()), function ($d) use ($old) { return $d['id'] === (int) $old['id']; }));
+	t('an older draft (no page kept): the form\'s page (efb_portal_forms()\'s first page)', array($o[0]['page'] ?? '', $o[0]['form'] ?? ''), array($pg['url'], 'Portal v1x drafts ' . $run));
+	$lk3 = $Q->op('draft_link', array('id' => (int) $old['id'], 'page' => ''));
+	t('… and its link opens there', strpos((string) ($lk3['data'] ?? ''), $pg['url'] . '?efb_resume=') === 0, true);
+	$X->c20('unplace', $pg['id']);
+	$dl = $Q->op('drafts');
+	$o = array_values(array_filter((array) ($dl['data'] ?? array()), function ($d) use ($old) { return $d['id'] === (int) $old['id']; }));
+	$lk4 = $Q->op('draft_link', array('id' => (int) $old['id'], 'page' => ''));
+	t('the form on no page any more: no page; its link opens on the home page', array($o[0]['page'] ?? 'x', strpos((string) ($lk4['data'] ?? ''), $H->base . '/?efb_resume=') === 0), array('', true));
 } finally {
 	$X->c20('on', '0'); $X->c20('bef', '0'); $X->c20('limits', '');
 	$H->ctl('addon-flag', 'AdnSS', '0'); $H->ctl('f02-wpsms', '0');
+	$H->ctl('set-option', 'efb_e2e_f11_plan', 'del');
 	$H->ctl('plan', (string) ($plan0 === null ? 3 : $plan0));
 	$H->ctl('f12-setting', 'smtp=' . ($smtp0 === null ? 'del' : rawurlencode((string) $smtp0)));
 }

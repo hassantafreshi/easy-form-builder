@@ -49,7 +49,8 @@ if (!defined("EMSFB_DB_VERSION")) {
     // 1.11 (F15 builder productivity): emsfb_form_rev_ (the versions of each form).
     // 1.12 (F20-core, the customer portal contract): emsfb_msg_own_ (owner index), KEY uid and owner_state /
     // owner_state_at on emsfb_msg_.
-    define("EMSFB_DB_VERSION", '1.12');
+    // 1.13 (portal contract 1.4): emsfb_draft_.page_url (the page a "continue later" draft was saved on).
+    define("EMSFB_DB_VERSION", '1.13');
 }
 if (!defined("EMSFB_API_VERSION")) {
     // Version of the integration API (efbBuilderApi, efb_var.capabilities, field templates,

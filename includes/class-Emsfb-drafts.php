@@ -66,6 +66,7 @@ class Drafts {
   `updated_at` datetime NOT NULL,
   `expires_at` datetime NOT NULL,
   `completed_msg_id` int(11) NULL DEFAULT NULL,
+  `page_url` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY  (id),
   KEY token (token_hash),
   KEY owner (fid,kind,owner_hash),
@@ -231,6 +232,27 @@ class Drafts {
 		return $out;
 	}
 
+	/**
+	 * The page a draft was saved on (portal contract 1.4, kept in page_url): the page that sent it, on this site, without
+	 * a resume token; '' when it is not one of this site's addresses.
+	 */
+	public static function page_of($url) {
+		$url = is_string($url) ? esc_url_raw($url) : '';
+		if ($url === '' || (string) wp_validate_redirect($url, '') === '') return '';
+		$url = remove_query_arg(array('efb_resume'), $url);
+		return strlen($url) <= 255 ? $url : '';
+	}
+
+	/** Whether the table has page_url (DB 1.13); false until the upgrade ran. */
+	private static function has_page_col() {
+		static $has = null;
+		if ($has !== null) return $has;
+		global $wpdb;
+		$t = self::table();
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		return $has = (bool) $wpdb->get_results($wpdb->prepare("SHOW COLUMNS FROM `{$t}` LIKE %s", 'page_url'));
+	}
+
 	/** The page to come back to: the page that sent it, on this site, with ?efb_resume=<token>. */
 	private static function resume_url($url, $token) {
 		$url = is_string($url) ? esc_url_raw($url) : '';
@@ -268,14 +290,16 @@ class Drafts {
 			if ($row && (int) $row['uid'] !== $uid) $row = null;
 		}
 		$token = '';
+		// Portal contract 1.4: the page it was saved on (its "Continue" link in the customer portal leads back there).
+		$page = self::has_page_col() ? array('page_url' => self::page_of(isset($s['j']['url']) ? $s['j']['url'] : '')) : array();
 		if ($row) {
-			$wpdb->update($t, array('content' => $content, 'step' => $step, 'updated_at' => self::utc(), 'expires_at' => $expires), array('id' => (int) $row['id']));
+			$wpdb->update($t, array('content' => $content, 'step' => $step, 'updated_at' => self::utc(), 'expires_at' => $expires) + ($page && $page['page_url'] !== '' ? $page : array()), array('id' => (int) $row['id']));
 			$token = $given;
 		} else {
 			$token = bin2hex(random_bytes(32));
 			$ok = $wpdb->insert($t, array('kind' => 'resume', 'fid' => $s['fid'], 'token_hash' => self::token_hash($token), 'owner_hash' => self::owner_hash($s['proof']), 'uid' => $uid,
 				'content' => $content, 'step' => $step, 'progress' => self::progress($rows, $s['rows']), 'contact_mask' => '', 'ip_hash' => self::ip_hash($ip, $s['fid']), 'status' => 'active',
-				'created_at' => self::utc(), 'updated_at' => self::utc(), 'expires_at' => $expires));
+				'created_at' => self::utc(), 'updated_at' => self::utc(), 'expires_at' => $expires) + $page);
 			if ($ok === false) return self::err('efb_draft_failed', self::texts(array('draftFailed'))['draftFailed'], 500);
 		}
 		$out = array('success' => true, 'expires_at' => gmdate('c', strtotime($expires . ' UTC')), 'expires_text' => self::expiry_text($expires), 'url' => self::resume_url(isset($s['j']['url']) ? $s['j']['url'] : '', $token), 'saved' => count($rows));
@@ -596,8 +620,9 @@ class Drafts {
 		$t = self::table();
 		$hashes = array(); $uids = array(0);
 		foreach ($identity as $i) { if (($i['k'] ?? '') === 'u') $uids[] = (int) ($i['uid'] ?? 0); elseif (isset($i['h'])) $hashes[(string) $i['h']] = true; }
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
-		$cand = (array) $wpdb->get_results($wpdb->prepare("SELECT id, fid, uid, content, progress, updated_at, expires_at FROM `{$t}` WHERE kind = 'resume' AND status = 'active' AND expires_at > %s ORDER BY id DESC LIMIT 1000", self::utc()), ARRAY_A);
+		$cols = 'id, fid, uid, content, progress, updated_at, expires_at' . (self::has_page_col() ? ', page_url' : '');
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, columns from the literal list above
+		$cand = (array) $wpdb->get_results($wpdb->prepare("SELECT {$cols} FROM `{$t}` WHERE kind = 'resume' AND status = 'active' AND expires_at > %s ORDER BY id DESC LIMIT 1000", self::utc()), ARRAY_A);
 		$out = array();
 		foreach ($cand as $c) {
 			$mine = (int) $c['uid'] > 0 && in_array((int) $c['uid'], $uids, true);

@@ -61,9 +61,9 @@ if (!function_exists('efb_portal_core_api')) {
 	function efb_entry_owner_editable($msg_id, array $identity) { return \Emsfb\Portal_Core::owner_editable((int) $msg_id, $identity); }
 	/** P15: the owner's edit; $changes = [{id_, value}]. */
 	function efb_entry_owner_update($msg_id, array $identity, $hash, array $changes) { return \Emsfb\Portal_Core::owner_update((int) $msg_id, $identity, (string) $hash, $changes); }
-	/** P16: the identity's unfinished forms. */
+	/** P16: the identity's unfinished forms (1.4: with the form's name and the page to continue on). */
 	function efb_portal_drafts(array $identity) { return \Emsfb\Portal_Core::drafts($identity); }
-	/** P16: a new link to a draft (the earlier one stops working); $page = the form's page URL. */
+	/** P16: a new link to a draft (the earlier one stops working); $page '' (1.4) = the page it was saved on, else the form's. */
 	function efb_portal_draft_link($draft_id, array $identity, $page = '') { return \Emsfb\Portal_Core::draft_link((int) $draft_id, $identity, (string) $page); }
 	/** 1.3: every form with its type, booking, payment and the pages that show it — administrators only. */
 	function efb_portal_forms() { return \Emsfb\Portal_Core::forms(); }

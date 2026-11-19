@@ -1,16 +1,16 @@
-# Customer portal — the core contract (F20-core, v1.3)
+# Customer portal — the core contract (F20-core, v1.4)
 
 The customer portal (F20, `docs/feature-gaps/F20-customer-portal.fa.md`) lets a visitor see and act on their own
 submissions without a WordPress account. It is **EFB Customer Portal**, a separate, free WordPress plugin (slug
 `efb-customer-portal`, file `efb-customer-portal/efb-customer-portal.php`; freemium: free to use, paid only for
 customisation) — not an Easy Form Builder add-on, so it has no add-on code, no catalogue entry and no plan gate. This
-document is the contract core gives that plugin: **version 1.3** (`EMSFB_PORTAL_API = 1`, `EMSFB_PORTAL_API_MINOR`,
+document is the contract core gives that plugin: **version 1.4** (`EMSFB_PORTAL_API = 1`, `EMSFB_PORTAL_API_MINOR`,
 the add-on contract id `portal`). It works on **every plan** (Free, Free Plus, Pro). It is enough to build the plugin
 without reading core. §10 lists what each minor version adds; a 1.0 caller keeps working unchanged.
 
 Files: `includes/portal-core-functions-efb.php` (the functions), `includes/class-Emsfb-portal-core.php`
 (`Emsfb\Portal_Core`), `includes/class-Emsfb-owner-index.php` (`Emsfb\Owner_Index`), the schema step
-`Install::upgrade_f20_schema()` (DB version 1.12). Tests: `tests/test-portal-core-contract.php`,
+`Install::upgrade_f20_schema()` (DB version 1.12; 1.13 adds `emsfb_draft_.page_url`, contract 1.4). Tests: `tests/test-portal-core-contract.php`,
 `tests/test-portal-core-http.php` (a mock portal, `tests/e2e-wp/mu-plugins/efb-e2e-f20.php`, calls every function end
 to end), `tests/test-portal-core-v1x-http.php` (the minor versions, §10), `tests/test-owner-cancel-http.php`,
 `tests/test-owner-index-wp.php`, e2e `f20-a` … `f20-c`.
@@ -41,7 +41,7 @@ to end), `tests/test-portal-core-v1x-http.php` (the minor versions, §10), `test
 ```php
 if (!function_exists('efb_portal_core_api')) { /* core too old: show "Update Easy Form Builder" */ return; }
 $api = efb_portal_core_api();
-// ['version' => 1, 'minor' => 3, 'contract' => '1.3',
+// ['version' => 1, 'minor' => 4, 'contract' => '1.4',
 //  'features' => ['index','otp','read','thread','reply','ticket','payments','files','cancel', 'reschedule','edit',
 //   'drafts','privacy', …the minor versions' features (§10)], 'errors' => [...], 'policy_keys' => [...],
 //  'index' => ['state' => 'off'|'building'|'ready'|'stale', ...], 'active' => bool, 'hooks' => [...],
@@ -167,9 +167,13 @@ efb_entry_owner_update(int $msg_id, array $identity, string $hash, array $change
 // $changes [['id_', 'value']] → ['ok' => true, 'hash']. F14's edit with the submit's checks, F03 unique values, F05
 // places taken again, F04 calculations, F06 dates reserved again; prices, payments, passwords, hidden, disabled and
 // logic-controlled fields never; only within edit_hours and before support answered.
-efb_portal_drafts(array $identity): array                             // [[id, form_id, progress, updated, expires, expires_text]]
+efb_portal_drafts(array $identity): array                             // [[id, form_id, progress, updated, expires, expires_text,
+//   form, page, page_title]]  (1.4: form = the form's name; page = the page the draft was saved on — kept by
+//   forms/draft/save, this site's addresses only, without the resume token — else, for an older draft, the first page
+//   that shows the form (efb_portal_forms()'s pages), else ''; page_title = that page's title when it is a post)
 efb_portal_draft_link(int $draft_id, array $identity, string $page = ''): string|WP_Error
-// a new "continue" link on $page (the form's page): the token turns, the earlier link stops working.
+// a new "continue" link on $page: the token turns, the earlier link stops working. 1.4: $page '' = the draft's page
+// above, else the home page (an explicit $page still wins). Pass '' instead of searching for the form's page yourself.
 efb_portal_privacy_request(array $identity, string $email, string $type): array|WP_Error
 // 'export' | 'erase'. An address the identity owns: WordPress' own request (wp_create_user_request + its e-mail
 // confirmation; F13 / F02 / F11 exporters and erasers then run) → ['sent' => 'email']. A mobile-only identity
@@ -265,3 +269,4 @@ older one keeps working; check `efb_portal_core_api()['features']` (or `minor`) 
 | 1.1 | `any_plan` | every plan (Free, Free Plus, Pro): `efb_portal_plan_ok` defaults to `true`; the sign-in codes skip F02's plan of a form's code; `capabilities.portal_core` describes the plugin (`plugin`, `plans`, `minor`, `contract`; no `addon`, no `package`; `reason` `plugin` instead of `addon`); `AdnPRT` left the add-on catalogue |
 | 1.2 | `channels` | `efb_portal_core_api()['channels']`: `{email, sms}` → `{ready, reason}`, whether a code can be sent now (§2) |
 | 1.3 | `forms` | `efb_portal_forms()` (administrators): each form's name, type, booking, payment, portal flag and the pages that show it |
+| 1.4 | `draft_pages` | a draft keeps the page it was saved on (DB 1.13, `emsfb_draft_.page_url`); `efb_portal_drafts()` adds `form`, `page`, `page_title` (an older draft: the form's page from 1.3); `efb_portal_draft_link($id, $identity, '')` opens there instead of the home page |

@@ -55,7 +55,7 @@ t('1.1: AdnPRT is no longer in the add-on catalogue (the portal is the free plug
 $api = efb_portal_core_api();
 t('1.1: efb_portal_core_api(): version 1 (v1 callers keep working), a minor version, the contract "1.x", v1.0\'s features first', array($api['version'], is_int($api['minor']) && $api['minor'] >= 1, $api['contract'] === '1.' . $api['minor'], array_slice($api['features'], 0, 13) === P::FEATURES, in_array('any_plan', $api['features'], true)), array(1, true, true, true, true));
 $inst = file_get_contents($root . '/includes/class-Emsfb-install.php');
-t('P3: Install::addon_table($sql) is public; DB 1.12 adds the owner table, owner_state and KEY uid', array((bool) preg_match('/public static function addon_table\( \$sql \)/', $inst), strpos($inst, 'upgrade_f20_schema()') !== false, strpos(file_get_contents($root . '/emsfb.php'), "define(\"EMSFB_DB_VERSION\", '1.12')") !== false), array(true, true, true));
+t('P3: Install::addon_table($sql) is public; DB 1.12 adds the owner table, owner_state and KEY uid; 1.13 (contract 1.4) emsfb_draft_.page_url', array((bool) preg_match('/public static function addon_table\( \$sql \)/', $inst), strpos($inst, 'upgrade_f20_schema()') !== false, strpos(file_get_contents($root . '/emsfb.php'), "define(\"EMSFB_DB_VERSION\", '1.13')") !== false, strpos($inst, "ADD COLUMN `page_url` varchar(255) NOT NULL DEFAULT ''") !== false), array(true, true, true, true));
 $cc = file_get_contents($root . '/includes/class-Emsfb-cache-compat.php');
 t('P18: Cache_Compat::contains() reads its shortcodes through emsfb_cache_shortcodes', strpos($cc, "apply_filters('emsfb_cache_shortcodes'") !== false, true);
 $pub = file_get_contents($root . '/includes/class-Emsfb-public.php');

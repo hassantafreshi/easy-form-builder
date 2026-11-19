@@ -66,8 +66,8 @@ class Install {
 
 	/**
 	 * F20-core, DB version 1.12: the owner index (emsfb_msg_own_), and on emsfb_msg_ the key uid and the columns
-	 * owner_state (0 none, 1 cancelled by its owner) / owner_state_at — one ALTER, each part checked first. Placed before
-	 * the emsfb_stts_ early return.
+	 * owner_state (0 none, 1 cancelled by its owner) / owner_state_at — one ALTER, each part checked first; DB 1.13
+	 * (portal contract 1.4): emsfb_draft_.page_url. Placed before the emsfb_stts_ early return.
 	 */
 	public static function upgrade_f20_schema() {
 		global $wpdb;
@@ -95,6 +95,13 @@ class Install {
 		}
 		if ( ! class_exists( '\\Emsfb\\Owner_Index' ) && is_readable( __DIR__ . '/class-Emsfb-owner-index.php' ) ) {
 			require_once __DIR__ . '/class-Emsfb-owner-index.php';
+		}
+		// DB 1.13 (portal contract 1.4): the page a draft was saved on (emsfb_draft_.page_url), checked first.
+		$draft = $wpdb->prefix . 'emsfb_draft_';
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $draft ) ) === $draft && ! $wpdb->get_results( $wpdb->prepare( "SHOW COLUMNS FROM `{$draft}` LIKE %s", 'page_url' ) ) ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, literal clause
+			if ( false !== $wpdb->query( "ALTER TABLE `{$draft}` ADD COLUMN `page_url` varchar(255) NOT NULL DEFAULT ''" ) ) $applied[] = 'emsfb_draft_: ADD COLUMN page_url';
 		}
 		if ( class_exists( '\\Emsfb\\Owner_Index' ) && ! \Emsfb\Owner_Index::ready() ) {
 			$collate = method_exists( $wpdb, 'get_charset_collate' ) ? $wpdb->get_charset_collate() : '';
@@ -409,7 +416,8 @@ class Install {
 		$applied = array_merge( $applied, self::upgrade_f14_schema() );
 		// F15 (builder productivity), DB version 1.11: the form versions table. Idempotent, before the early return.
 		$applied = array_merge( $applied, self::upgrade_f15_schema() );
-		// F20-core (customer portal contract), DB version 1.12: the owner index, emsfb_msg_.uid's key, owner_state.
+		// F20-core (customer portal contract), DB version 1.12: the owner index, emsfb_msg_.uid's key, owner_state;
+		// 1.13 (portal contract 1.4): emsfb_draft_.page_url.
 		$applied = array_merge( $applied, self::upgrade_f20_schema() );
 
 		$table   = $wpdb->prefix . 'emsfb_stts_';

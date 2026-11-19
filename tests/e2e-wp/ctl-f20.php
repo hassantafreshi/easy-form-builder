@@ -21,7 +21,8 @@
  *   pmt <msg id> <status> [legacy]  a payment row of an entry (emsfb_pmt_, the test gateway, a reference and a
  *                              payer address that must never come out); "legacy" adds a payment row in the answers
  *   private-file <name>        a file in the private uploads folder (F07); its address
- *   draft <form id> <email>    an active "continue later" draft of the form holding the address; its token
+ *   draft <form id> <email> [page url]  an active "continue later" draft of the form holding the address (an older
+ *                              draft: no page_url, unless one is given); its token
  *   draft-load <form id> <token>  whether a draft token still opens
  *   stored [clear]             the efb_entry_stored calls the mock recorded
  *   chal <challenge id>        a sign-in challenge (fid, field_id, sid length, status) and whether a form's lookup of the
@@ -36,6 +37,7 @@
  *   place <form id> <kind> [status]  a post showing the form: shortcode | block | wpbakery | elementor | post (a blog post
  *                              with the shortcode) | draft (an unpublished page); its id and URL
  *   unplace <post id>          deletes that post
+ *   draft-row <draft id>       a draft's fid, status and page_url
  *   raw-content <msg id> <json rows>  an entry's answers replaced (stored as the plugin stores them; no hook)
  */
 if ( ! defined( 'ABSPATH' ) ) {
@@ -187,7 +189,7 @@ switch ( $f20_cmd ) {
 		$now = gmdate( 'Y-m-d H:i:s' );
 		$wpdb->insert( \Emsfb\Drafts::table(), array( 'kind' => 'resume', 'fid' => (int) $f20_rest[0], 'token_hash' => \Emsfb\Drafts::token_hash( $tok ), 'owner_hash' => str_repeat( 'a', 64 ), 'uid' => 0,
 			'content' => \Emsfb\Privacy::encode_content( array( array( 'id_' => $em, 'name' => 'Email', 'type' => 'email', 'value' => (string) $f20_rest[1] ) ) ), 'step' => 1, 'progress' => 40, 'status' => 'active',
-			'created_at' => $now, 'updated_at' => $now, 'expires_at' => gmdate( 'Y-m-d H:i:s', time() + 7 * 86400 ) ) );
+			'created_at' => $now, 'updated_at' => $now, 'expires_at' => gmdate( 'Y-m-d H:i:s', time() + 7 * 86400 ) ) + ( isset( $f20_rest[2] ) ? array( 'page_url' => (string) $f20_rest[2] ) : array() ) );
 		efb_f20_out( array( 'id' => (int) $wpdb->insert_id, 'token' => $tok ) );
 		break;
 	case 'draft-load':
@@ -221,6 +223,9 @@ switch ( $f20_cmd ) {
 			'post_content' => isset( $content[ $kind ] ) ? $content[ $kind ] : '', 'meta_input' => array( '_efb_e2e' => 1 ) ) );
 		if ( 'elementor' === $kind ) update_post_meta( $id, '_elementor_data', wp_slash( wp_json_encode( array( array( 'elType' => 'section', 'elements' => array( array( 'elType' => 'widget', 'widgetType' => 'emsfb_form', 'settings' => array( 'form_id' => (string) $fid ) ) ) ) ) ) ) );
 		efb_f20_out( array( 'id' => (int) $id, 'url' => get_permalink( $id ) ) );
+		break;
+	case 'draft-row':
+		efb_f20_out( $wpdb->get_row( $wpdb->prepare( 'SELECT fid, status, page_url FROM `' . \Emsfb\Drafts::table() . '` WHERE id = %d', (int) $f20_rest[0] ), ARRAY_A ) ); // phpcs:ignore
 		break;
 	case 'unplace':
 		efb_f20_out( array( 'deleted' => (bool) wp_delete_post( (int) $f20_rest[0], true ) ) );
