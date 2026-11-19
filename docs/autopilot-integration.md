@@ -67,6 +67,9 @@ node tests/test-ap-contract.js
   sort). Forms are normalized when they are loaded: in the builder in `editFormEfb()` (every load
   path, template and restore ends there) and on the public page in `public/assets/js/core-efb.js`
   for every entry of `ajax_value_forms`. The stored JSON format does not change.
+  Since 4.3.2 (PERF-01) the page prints each form's JSON once, in `ajax_value_forms`: `ajax_value` is
+  `"@vf"` there and `core-efb.js` fills it with the last form's JSON before anything reads it; one
+  `ajax_object_efm` carries every form of the page.
 - **The numbering rule (unchanged, now documented in the helper).** Fields and steps are numbered
   one after another in form order. An option row (`type: 'option'`) or matrix row
   (`type: 'r_matrix'`) carries the `amount` of its parent field. This is what `addNewElement()`
@@ -898,6 +901,11 @@ Save rules: `Emsfb\Field_Rules::sanitize_key()` = `EfbRules.sanitizeKey()` (pari
   another entry took meanwhile answers `efb_field_unique` from `payments/retry`.
 - **Password confirmation** travels as the request key `password_confirms: {<id_>: value}`, never as
   an answer row; an assistant filling a form for a visitor sends it the same way.
+- **Password answers are never stored (4.3.2, owner decision, SEC-04).** The answer to a `password`
+  field of an ordinary form is checked (required, length, strength, confirmation) and then replaced by
+  `••••` (`_Public::PASSWORD_MASK_EFB`) in the stored row: entries, e-mails, exports, integrations and
+  logs never carry it, and the row still shows the field was answered. Register and login forms are
+  unchanged. Do not build a flow that needs to read a password back.
 - **Registry.** `setting:field_text_limits`, `setting:field_readonly`, `setting:field_affix_help`,
   `setting:field_password_ux` (Free); `setting:field_unique`, `setting:field_pattern`,
   `setting:field_email_domains`, `setting:field_password_strength`, `setting:field_rule_messages`
