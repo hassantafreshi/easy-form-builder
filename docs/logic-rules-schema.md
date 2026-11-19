@@ -39,6 +39,10 @@ Adding an action, an operator or an optional key does not.
 Note (KB §7.4, verified): notification / confirmation / webhook rules are evaluated by core whether
 the add-on is on or off; only `logic_rules` stop when it is off.
 
+The browser runtime of `logic_rules` loads on the public page when row 0 has the `logic` flag (`"1"`, `1` or
+`true`) **or** `logic_rules` holds at least one rule (4.3.2; before, a form written without the builder needed
+`logic:"1"` or its rules ran on the server only). A writer does not have to set the flag.
+
 ## 2. Common rule keys
 
 ```json

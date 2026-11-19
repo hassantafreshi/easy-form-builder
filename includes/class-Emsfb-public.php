@@ -1579,9 +1579,7 @@ public function check_nonce_permission_efb($request) {
 					}
 				}
 					$_efb_logic_addon_active = emsfb_is_addon_active_efb( $rp[1] ?? [], 'AdnSMF' );
-					$_efb_form_has_logic = strpos($value , '\"logic\":\"1\"') !== false
-						|| strpos($value , '"logic":"1"') !== false
-						|| strpos($value , '"logic_rules"') !== false;
+					$_efb_form_has_logic = self::form_json_has_logic_efb($value);
 					if ( $_efb_logic_addon_active && $_efb_form_has_logic ) {
 						wp_register_script(
 							'efb-conditional-logic-public',
@@ -11053,6 +11051,16 @@ public function check_nonce_permission_efb($request) {
 			return null;
 		}
 		return sprintf('%04d-%02d-%02d', (int) $m[1], $month, $day);
+	}
+
+	/**
+	 * PUB-02 (BUGS-FOUND 143): whether the stored form JSON asks for the Conditional Logic runtime in the browser:
+	 * row 0's `logic` flag ("1", 1 or true), or at least one rule in `logic_rules` (a form from AutoPilot, an import or
+	 * form.update may carry rules without the flag). The stored JSON is slash-escaped (`\"logic_rules\"`), a decoded
+	 * copy is not, so both spellings match.
+	 */
+	public static function form_json_has_logic_efb($json) {
+		return is_string($json) && preg_match('/\\\\?"logic\\\\?"\s*:\s*(?:\\\\?"1\\\\?"|true\b|1\b)|\\\\?"logic_rules\\\\?"\s*:\s*\[\s*\{/', $json) === 1;
 	}
 
 	public static function normalize_email_input_efb($value) {
