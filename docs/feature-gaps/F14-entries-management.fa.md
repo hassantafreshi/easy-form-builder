@@ -228,6 +228,7 @@ CREATE TABLE {p}emsfb_stats_ (
 
 ### ۸.۷ آمار
 - `Entries::bump($form_id, $col)` با `ON DUPLICATE KEY`. فراخوانی‌ها: `views` در `class-Emsfb-public.php:244` و 1120 فقط وقتی `fid>0` و نشست **تازه** ساخته شده است (نه `efb_code_touch_session`). این شمارش «نشست فرم» است و ممکن است در صفحهٔ کش‌شده کمی کمتر از بازدید واقعی باشد (سؤال باز). `submits` در `insert_message_db` (4684 به بعد، پس از insert موفق) و در مسیر بدون ذخیرهٔ F13. `spam` در عملیات گروهی.
+- **پرسمان‌های صفحهٔ فرم (B5 / PERF-02، ۲۰۲۶-۱۱-۱۹):** شمارندهٔ بازدید عمداً همان ماند: هر نشست تازهٔ فرم ۳ نوشتن دارد (ردیف `emsfb_stts_` و `INSERT IGNORE` + `UPDATE` روی `emsfb_stats_`)، به‌علاوهٔ `SHOW TABLES LIKE` در `Entries::bump()` (کش آن در `emsfb_tables_ok` با B6). گزینه‌های غیر autoload صفحه (`emsfb_addon_<code>` هر افزونه، `emsfb_prv_forms`، `emsfb_sms_db`، `emsfb_addon_recovery_cron_cleanup`) با `_Public::prime_page_options_efb()` در یک پرسمان خوانده می‌شوند؛ صفحهٔ فرم ساده روی سایت e2e بدون object cache ۱۲ پرسمان افزونه دارد (پیش‌تر حدود ۳۳). تست `tests/test-public-query-count-wp.php`.
 - `efb_form_stats_Emsfb`: ورودی `form_id` و `days` (7/30/90)؛ خروجی سری روزانه و جمع‌ها. ویجت داشبورد: پارامتر تازهٔ `top=5` در `ajax_get_stats()` (147) که از `emsfb_stats_` می‌خواند. داده‌های فعلی ویجت دست نمی‌خورند.
 
 ## ۹. اعتبارسنجی مرورگر و سرور

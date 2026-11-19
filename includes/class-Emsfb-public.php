@@ -799,7 +799,37 @@ public function check_nonce_permission_efb($request) {
 		}
 	}
 
+	/** PERF-02: the add-on codes whose emsfb_addon_<code> option get_setting_Emsfb('pub') reads (Emsfb::get_addons_list_efb()). */
+	const PUB_ADDON_CODES_EFB = array('AdnSS', 'AdnATF', 'AdnGoS', 'AdnTLG', 'AdnPAP', 'AdnSPF', 'AdnPPF', 'AdnOF', 'AdnATC', 'AdnCPF', 'AdnESZ', 'AdnSE', 'AdnWHS', 'AdnWSP', 'AdnSMF', 'AdnPLF', 'AdnMSF', 'AdnBEF', 'AdnPDP', 'AdnADP', 'AdnHSH');
+
+	/**
+	 * PERF-02: a form page read about twenty options that are not autoloaded, most of them absent (an add-on that is not
+	 * installed has no emsfb_addon_<code>): one query each on a site without an object cache. They are loaded in one
+	 * query (wp_prime_option_caches(), WordPress 6.4; the same by hand before), the absent ones remembered as absent.
+	 * Once per request; the readers keep calling get_option() as before.
+	 */
+	public static function prime_page_options_efb() {
+		static $done = false;
+		if ($done || !function_exists('get_option')) return;
+		$done = true;
+		$names = array('emsfb_addon_recovery_cron_cleanup', 'emsfb_prv_forms', 'emsfb_sms_db');
+		foreach (self::PUB_ADDON_CODES_EFB as $code) $names[] = 'emsfb_addon_' . $code;
+		if (function_exists('wp_prime_option_caches')) { wp_prime_option_caches($names); return; }
+		global $wpdb;
+		$alloptions = wp_load_alloptions();
+		$names = array_values(array_filter($names, function ($n) use ($alloptions) { return !isset($alloptions[$n]) && false === wp_cache_get($n, 'options'); }));
+		if (!$names) return;
+		$rows = $wpdb->get_results($wpdb->prepare("SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name IN (" . implode(',', array_fill(0, count($names), '%s')) . ')', $names)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- placeholders built for each name
+		$found = array();
+		foreach ((array) $rows as $r) { $found[$r->option_name] = true; wp_cache_add($r->option_name, $r->option_value, 'options'); }
+		$not = wp_cache_get('notoptions', 'options');
+		$not = is_array($not) ? $not : array();
+		foreach ($names as $n) if (!isset($found[$n])) $not[$n] = true;
+		wp_cache_set('notoptions', $not, 'options');
+	}
+
 	public function render_form_shortcode_efb( $atts = array(), $content = null, $tag = '' ) {
+		self::prime_page_options_efb();
 		// AI-4: a draft form shows nothing to visitors; the plugin's admins see it with a notice (Form_Status::render_note()).
 		$draft_note = class_exists( '\\Emsfb\\Form_Status' ) ? \Emsfb\Form_Status::render_note( (int) self::form_id_from_atts_efb( $atts ) ) : null;
 		if ( '' === $draft_note ) return '';
