@@ -92,6 +92,7 @@ for ( $i = 1; $i <= 3; $i++ ) {
 }
 efb_tg_log_assert( 'fixture: three rows in the activity table', (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$table}`" ), 3 );
 
+efb_test_require_addon_dir( 'telegram' );
 $addon = EMSFB_PLUGIN_DIRECTORY . 'vendor/telegram/';
 require_once $addon . 'class-Emsfb-telegram.php';
 

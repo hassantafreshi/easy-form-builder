@@ -97,6 +97,65 @@ if ( ! function_exists( 'efb_test_wp_root' ) ) {
 		return array( $user, $pass );
 	}
 
+	/**
+	 * A test that needs some add-ons on (or off) when Easy Form Builder boots — EFB loads its add-ons once per request,
+	 * from its own settings. Call it right after wp-load.php. When the site's switches already match, it returns and
+	 * the test runs as it is. Otherwise it writes the switches through EFB's own settings function
+	 * (efbFunction::set_setting_Emsfb, never the option itself), runs this same test again in a new PHP process (which
+	 * boots with them), puts the site's own switches back the same way, and ends with that process's exit code.
+	 *
+	 * @param array<string,int> $addons add-on flag => 1 on, 0 off, e.g. array( 'AdnSMF' => 1 )
+	 */
+	function efb_test_require_addons( array $addons ) {
+		if ( getenv( 'EFB_TEST_ADDONS_CHILD' ) ) return;
+		if ( ! function_exists( 'get_setting_Emsfb' ) || ! class_exists( 'efbFunction' ) ) return;
+		$read = static function () {
+			get_setting_Emsfb( '_clear_cache' );
+			foreach ( array( 'decoded', 'pub', 'raw' ) as $k ) wp_cache_delete( 'settings:' . $k, 'emsfb' );
+			$s = get_setting_Emsfb( 'decoded' );
+			return is_object( $s ) ? $s : new stdClass();
+		};
+		$s    = $read();
+		$own  = array();
+		$diff = false;
+		foreach ( $addons as $code => $on ) {
+			$own[ $code ] = isset( $s->$code ) ? $s->$code : null;
+			$diff         = $diff || (int) ( $s->$code ?? 0 ) !== (int) $on;
+		}
+		if ( ! $diff ) return;
+		$write = static function ( array $flags ) use ( $read ) {
+			$s = $read();
+			foreach ( $flags as $code => $v ) $s->$code = $v === null ? 0 : $v;
+			return false !== \efbFunction::set_setting_Emsfb( $s );
+		};
+		echo '[setup] add-ons for this test (EFB settings, restored afterwards): ' . json_encode( $addons ) . "\n";
+		$code = 1;
+		if ( $write( $addons ) ) {
+			global $argv;
+			$cmd = 'EFB_TEST_ADDONS_CHILD=1 ' . escapeshellarg( efb_test_php_bin() );
+			foreach ( (array) $argv as $a ) $cmd .= ' ' . escapeshellarg( (string) $a );
+			passthru( $cmd, $code );
+		} else {
+			echo "[FAIL] the add-on switches could not be written through set_setting_Emsfb\n";
+		}
+		if ( ! $write( $own ) ) {
+			echo "[FAIL] the site's own add-on switches could not be put back: " . json_encode( $own ) . "\n";
+			$code = 1;
+		}
+		exit( (int) $code );
+	}
+
+	/**
+	 * A test of an add-on's own code: [SKIP] when that add-on is not installed in vendor/<dir> (the add-ons repository
+	 * installs it there, or a link to it).
+	 */
+	function efb_test_require_addon_dir( $dir ) {
+		if ( is_dir( dirname( __DIR__ ) . '/vendor/' . $dir ) ) return;
+		echo "[SKIP] the add-on in vendor/{$dir} is not installed: install it (or link it from the add-ons repository) to run this test\n";
+		echo "RESULTS: 0 passed, 0 failed\n";
+		exit( 0 );
+	}
+
 	/** The PHP binary for child processes: EFB_PHP, else the one running this test. */
 	function efb_test_php_bin() {
 		$v = getenv( 'EFB_PHP' );

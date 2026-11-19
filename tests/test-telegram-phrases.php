@@ -41,6 +41,7 @@ function efb_tg_assert( $name, $actual, $expected ) {
 }
 
 // Production order (class-Emsfb.php ~411): the admin class first, then the sender.
+efb_test_require_addon_dir( 'telegram' );
 $addon = EMSFB_PLUGIN_DIRECTORY . 'vendor/telegram/';
 require_once $addon . 'class-Emsfb-telegram.php';
 require_once $addon . 'telegram-new-efb.php';

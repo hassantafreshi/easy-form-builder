@@ -24,6 +24,7 @@ require $wp_load;
 
 global $wpdb;
 
+efb_test_require_addon_dir( 'human-shield' );
 $vendor = dirname( __DIR__ ) . '/vendor/human-shield/';
 require_once $vendor . 'class-Emsfb-human-shield.php';
 require_once $vendor . 'class-Emsfb-human-shield-rate-limiter.php';

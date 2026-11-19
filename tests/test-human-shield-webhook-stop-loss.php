@@ -28,6 +28,7 @@ if ( ! is_readable( $wp_load ) ) {
 }
 
 require_once $wp_load;
+efb_test_require_addon_dir( 'human-shield' );
 require_once dirname( __DIR__ ) . '/vendor/human-shield/human-shield-efb.php';
 
 // Load the add-on classes without creating the Telegram sender (its constructor

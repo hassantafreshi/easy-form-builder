@@ -91,6 +91,19 @@ async function submit(page, planLabel, email, po) {
 }
 
 (async function () {
+  // The fixture form and its page (idempotent seed), the Conditional Logic add-on on and, when the site has no mail
+  // capture of its own, a temporary one into MAIL_DIR; unless EFB_SCOPES_E2E_URL points at a page prepared by hand.
+  // Everything is put back at the end.
+  if (!process.env.EFB_SCOPES_E2E_URL) {
+    wpEnv.skipWithoutWp('the conditional-logic scopes browser test');
+    wpEnv.phpScript('seed-conditional-scopes-e2e-form.php');
+    const restore = wpEnv.siteState({ addons: { AdnSMF: 1 } });
+    const uncapture = wpEnv.captureMail(MAIL_DIR);
+    process.on('exit', () => {
+      uncapture();
+      try { wpEnv.siteState({ addons: restore.addons }); } catch (e) { console.log('[FAIL] the Conditional Logic add-on switch could not be put back'); }
+    });
+  }
   const browser = await wpEnv.launch();
   const page = await browser.newPage();
   const pageErrors = [];

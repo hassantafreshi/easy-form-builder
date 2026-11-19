@@ -18,9 +18,19 @@ const path = require('path');
 const { chromium } = require(path.join(__dirname, '../node_modules/playwright'));
 const wpEnv = require('./wp-env');
 
-const URL = process.env.EFB_MULTIFORM_URL || wpEnv.url() + '/efb-two-logic-forms/';
-const A = 216;   // Contact us — select drives which step opens
-const B = 218;   // action fixture — its own select drives everything
+// The page and its two forms: seeded (tests/seed-conditional-logic-multiform-page.php, idempotent) unless
+// EFB_MULTIFORM_URL points at a page prepared by hand (then EFB_MULTIFORM_A / _B, the owner's 216 and 218 by default).
+let URL = process.env.EFB_MULTIFORM_URL || '';
+let A = Number(process.env.EFB_MULTIFORM_A || 216);   // Contact us — select drives which step opens
+let B = Number(process.env.EFB_MULTIFORM_B || 218);   // action fixture — its own select drives everything
+if (!URL) {
+  wpEnv.skipWithoutWp('the two-logic-forms browser test');
+  const seeded = JSON.parse(wpEnv.phpScript('seed-conditional-logic-multiform-page.php').trim().split('\n').pop());
+  URL = seeded.url; A = seeded.a; B = seeded.b;
+  // The Conditional Logic add-on on for the run (put back at the end).
+  const restore = wpEnv.siteState({ addons: { AdnSMF: 1 } });
+  process.on('exit', () => { try { wpEnv.siteState({ addons: restore.addons }); } catch (e) { console.log('[FAIL] the Conditional Logic add-on switch could not be put back'); } });
+}
 
 let pass = 0, fail = 0;
 function test(label, actual, expected) {

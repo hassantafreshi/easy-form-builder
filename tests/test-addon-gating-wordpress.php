@@ -173,7 +173,13 @@ function efb_gating_probe() {
 }
 
 // Forms-table integrity: nothing about toggling the addon may touch form data.
-$forms_checksum_before = $wpdb->get_row( "CHECKSUM TABLE `$forms_table`", ARRAY_A );
+// Every row and column of the forms table, hashed in PHP: MySQL's CHECKSUM TABLE does not exist on other databases
+// (SQLite answers it with nothing), and this compares the same thing on all of them.
+$forms_digest = static function () use ( $wpdb, $forms_table ) {
+	$rows = $wpdb->get_results( "SELECT * FROM `$forms_table` ORDER BY form_id", ARRAY_A );
+	return is_array( $rows ) ? array( 'Checksum' => md5( serialize( $rows ) ), 'rows' => count( $rows ) ) : null;
+};
+$forms_checksum_before = $forms_digest();
 $rule_forms_before = $wpdb->get_results(
 	"SELECT form_id, MD5(form_structer) AS h FROM `$forms_table` WHERE form_structer LIKE '%logic_rules%'",
 	ARRAY_A
@@ -233,7 +239,7 @@ try {
 	}
 
 	// ── Data integrity across the whole toggle cycle ─────────────────────────
-	$forms_checksum_after = $wpdb->get_row( "CHECKSUM TABLE `$forms_table`", ARRAY_A );
+	$forms_checksum_after = $forms_digest();
 	check(
 		'Toggle cycle left the forms table byte-identical (rules NOT deleted)',
 		isset( $forms_checksum_before['Checksum'], $forms_checksum_after['Checksum'] )

@@ -112,6 +112,15 @@ async function choose(page, label) {
 }
 
 (async function () {
+  // The fixture form and its page (idempotent seed) and the Conditional Logic add-on on, unless EFB_ACTIONS_URL
+  // points at a page prepared by hand; the add-on switch is put back at the end.
+  let restore = null;
+  if (!process.env.EFB_ACTIONS_URL) {
+    wpEnv.skipWithoutWp('the conditional-logic actions browser test');
+    wpEnv.phpScript('seed-conditional-logic-actions-form.php');
+    restore = wpEnv.siteState({ addons: { AdnSMF: 1 } });
+    process.on('exit', () => { try { wpEnv.siteState({ addons: restore.addons }); } catch (e) { console.log('[FAIL] the Conditional Logic add-on switch could not be put back'); } });
+  }
   const browser = await wpEnv.launch();
   const page = await browser.newPage();
   const pageErrors = [];

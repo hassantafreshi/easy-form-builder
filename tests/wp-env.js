@@ -74,6 +74,54 @@ function phpScript(file, args = [], opts = {}) {
   });
 }
 
+/**
+ * Puts EFB add-on switches and the plan the way a test needs them, through EFB's own settings function
+ * (efbFunction::set_setting_Emsfb; the plan also in emsfb_pro, as tests/e2e-wp/ctl.php does). Returns what they
+ * were, to hand back to siteState() in the test's finally. want = { addons: { AdnSMF: 1 }, plan: 1 } (1 Pro,
+ * 3 Free Plus, 2 Free).
+ */
+function siteState(want) {
+  const code = `$w=json_decode(${JSON.stringify(JSON.stringify(want || {}))},true);`
+    + 'get_setting_Emsfb("_clear_cache");$s=get_setting_Emsfb("decoded");if(!is_object($s))$s=new stdClass();'
+    + '$was=array("addons"=>array(),"plan"=>(int)get_option("emsfb_pro",2));'
+    + 'foreach((array)($w["addons"]??array()) as $k=>$v){$k=preg_replace("/[^A-Za-z]/","",$k);$was["addons"][$k]=(int)($s->$k??0);$s->$k=(int)$v?1:0;}'
+    + 'if(isset($w["plan"]))$s->package_type=(int)$w["plan"];'
+    + 'if(!empty($w["addons"])||isset($w["plan"])){if(false===efbFunction::set_setting_Emsfb($s)){echo "{\\"error\\":1}";return;}}'
+    + 'if(isset($w["plan"]))update_option("emsfb_pro",(int)$w["plan"]);'
+    + 'echo json_encode($was);';
+  const out = wpEval(code).trim().split('\n').pop();
+  const was = JSON.parse(out);
+  if (was.error) throw new Error('the EFB settings could not be written');
+  return was;
+}
+
+/**
+ * Mail capture for a test that reads the messages as files (dir/*.html), as the owner's dev site does
+ * (wp-content/efb-mail-capture). When dir already exists the site has its own capture and nothing is installed;
+ * otherwise a temporary mu-plugin writes every wp_mail() there instead of sending it. Returns a function that
+ * removes what was installed.
+ */
+function captureMail(dir) {
+  if (fs.existsSync(dir)) return () => {};
+  const mu = path.join(root(), 'wp-content', 'mu-plugins');
+  const file = path.join(mu, 'efb-test-mail-capture.php');
+  fs.mkdirSync(mu, { recursive: true });
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(file, `<?php
+/* TEST ONLY (tests/wp-env.js captureMail): every wp_mail() is written to ${dir} instead of being sent. Removed by the test. */
+add_filter('pre_wp_mail', static function ($pre, $a) {
+\t$to = implode(', ', (array) $a['to']);
+\t$body = '<p>To: ' . esc_html($to) . '</p><p>Subject: ' . esc_html((string) $a['subject']) . '</p>' . (string) $a['message'];
+\t@file_put_contents(${JSON.stringify(dir)} . '/' . gmdate('Ymd-His') . '-' . wp_generate_password(6, false) . '.html', $body);
+\treturn true;
+}, 1, 2);
+`);
+  return () => {
+    try { fs.unlinkSync(file); } catch (e) { /* gone */ }
+    try { for (const f of fs.readdirSync(dir)) fs.unlinkSync(path.join(dir, f)); fs.rmdirSync(dir); } catch (e) { /* gone */ }
+  };
+}
+
 /** Prints the skip line the test runners read and ends the run (no WordPress here). */
 function skipWithoutWp(name) {
   if (available()) return false;
@@ -104,4 +152,4 @@ async function launch(options = {}) {
   throw tried[0] || new Error('no Chromium found (set EFB_CHROMIUM)');
 }
 
-module.exports = { site, root, available, wpLoad, url, admin, php, boot, wpEval, phpScript, skipWithoutWp, launch, E2E_SITE };
+module.exports = { site, root, available, wpLoad, url, admin, php, boot, wpEval, phpScript, siteState, captureMail, skipWithoutWp, launch, E2E_SITE };

@@ -17,6 +17,7 @@ require_once __DIR__ . '/wp-env.php';
 $wp_load = efb_test_wp_load_or_skip();
 require $wp_load;
 
+efb_test_require_addon_dir( 'human-shield' );
 $vendor = dirname( __DIR__ ) . '/vendor/human-shield/';
 require_once $vendor . 'class-Emsfb-human-shield.php';
 require_once $vendor . 'class-Emsfb-human-shield-detector.php';
@@ -24,7 +25,9 @@ require_once $vendor . 'class-Emsfb-human-shield-detector.php';
 $shield   = Emsfb\Emsfb_Human_Shield::instance();
 $detector = new Emsfb\Emsfb_Human_Shield_Detector( $shield );
 
-$settings = get_option( 'emsfb_human_shield_settings' );
+// The thresholds the add-on itself applies (its saved settings over its defaults): a site that never saved the
+// Human Shield screen has no option row, and the raw option then read as 0 / 0.
+$settings = $shield->get_settings();
 $block    = (int) $settings['block_score_below'];
 $quar     = (int) $settings['quarantine_score_below'];
 

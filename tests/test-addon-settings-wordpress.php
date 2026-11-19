@@ -12,6 +12,8 @@ if ( ! is_readable( $wp_load ) ) {
 }
 
 require_once $wp_load;
+// The Conditional Logic add-on (AdnSMF) on when EFB boots, as on the owner's site; restored afterwards.
+efb_test_require_addons( array( 'AdnSMF' => 1 ) );
 
 get_setting_Emsfb( '_clear_cache' );
 wp_cache_delete( 'settings:decoded', 'emsfb' );

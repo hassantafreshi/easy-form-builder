@@ -16,6 +16,8 @@ $_SERVER['HTTP_HOST'] = '127.0.0.1';
 $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
 
 require_once $wp_load;
+// The Conditional Logic add-on (AdnSMF) on when EFB boots, as on the owner's site; restored afterwards.
+efb_test_require_addons( array( 'AdnSMF' => 1 ) );
 
 global $wpdb;
 $table = $wpdb->prefix . 'emsfb_form';

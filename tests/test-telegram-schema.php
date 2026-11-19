@@ -66,6 +66,7 @@ function efb_tg_schema_drop() {
 register_shutdown_function( 'efb_tg_schema_drop' );
 efb_tg_schema_drop();
 
+efb_test_require_addon_dir( 'telegram' );
 $addon = EMSFB_PLUGIN_DIRECTORY . 'vendor/telegram/';
 // wp-admin order: class-Emsfb.php requires the admin class first (class-Emsfb.php ~411), then the sender.
 require_once $addon . 'class-Emsfb-telegram.php';
