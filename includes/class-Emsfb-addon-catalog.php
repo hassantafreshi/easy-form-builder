@@ -50,7 +50,9 @@ class Addon_Catalog {
 		'AdnATF' => array('dir' => 'autofill', 'name' => 'Auto-Populate', 'package' => 1, 'contract' => null, 'files' => array('vendor/autofill/autofillefb.php'), 'loader' => 'manual'),
 		'AdnTLG' => array('dir' => 'telegram', 'name' => 'Telegram Notifications', 'package' => 1, 'contract' => null, 'files' => array('vendor/telegram/telegram-new-efb.php'), 'loader' => 'manual'),
 		'AdnGoS' => array('dir' => 'googlesheet', 'name' => 'Google Sheets', 'package' => 1, 'contract' => null, 'files' => array('vendor/googlesheet/class-Emsfb-googlesheet.php'), 'loader' => 'manual'),
-		'AdnHSH' => array('dir' => 'human-shield', 'name' => 'Form Security & Spam Protection', 'package' => 1, 'contract' => null, 'files' => array('vendor/human-shield/human-shield-efb.php'), 'loader' => 'manual'),
+		'AdnHSH' => array('dir' => 'human-shield', 'name' => 'Human Shield', 'package' => 1, 'contract' => null, 'files' => array('vendor/human-shield/human-shield-efb.php'), 'loader' => 'manual'),
+		// SET-01 phase 1: AdnHSH is "Human Shield" (its menu and screen too; "Form Security & Spam Protection" overlapped
+		// core's Captchas and spam settings by name).
 		// PAY00 gateway add-ons: Payments\Registry::load_addons() loads them (efb_register_payment_gateways).
 		'AdnMOL' => array('dir' => 'mollie', 'name' => 'Mollie', 'package' => 3, 'contract' => 'payments', 'files' => array('vendor/mollie/routes-efb.php'), 'loader' => 'payments'),
 		'AdnPPG' => array('dir' => 'payplug', 'name' => 'Payplug', 'package' => 3, 'contract' => 'payments', 'files' => array('vendor/payplug/routes-efb.php'), 'loader' => 'payments'),
@@ -99,6 +101,15 @@ class Addon_Catalog {
 	const HELP_TOPICS = array(
 		'condi'        => 'AdnSMF',
 		'pickupByUser' => array('en' => 'https://{lang}whitestudio.team/document/how-to-install-and-use-the-location-picker-geolocation-with-easy-form-builder/', 'fa' => 'https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d9%85%da%a9%d8%a7%d9%86%db%8c%d8%a7%d8%a8-%d8%a7%d9%86%d8%aa%d8%ae%d8%a7%d8%a8-%da%af%d8%b1-%d9%86%d9%82%d8%b4%d9%87-%d9%81%d8%b1%d9%85-%d8%a7%d9%81%d8%b2%d9%88%d9%86/'),
+	);
+
+	/**
+	 * SET-01 phase 1: the add-on settings screens core links to (add-on code => its admin page slug under Easy Form
+	 * Builder's menu). efb_var.addon_catalog[code].screen is that screen's address while the add-on registered it (it is
+	 * installed and on), else ''. Settings › Captchas links to Human Shield's screen this way.
+	 */
+	const SCREENS = array(
+		'AdnHSH' => 'Emsfb_human_shield_efb',
 	);
 
 	/** Features that left core (capabilities.split.moved): registry key => add-on code. */
@@ -331,8 +342,92 @@ class Addon_Catalog {
 	public static function js_mirror($locale = null) {
 		$out = array();
 		$locale = $locale === null ? self::locale() : (string) $locale;
-		foreach (self::all() as $code => $e) $out[$code] = array('package' => (int) $e['package'], 'name' => $e['name'], 'contract' => $e['contract'], 'help' => empty($e['help']) ? '' : self::resolve_help($e['help'], $locale));
+		foreach (self::all() as $code => $e) $out[$code] = array('package' => (int) $e['package'], 'name' => $e['name'], 'contract' => $e['contract'], 'help' => empty($e['help']) ? '' : self::resolve_help($e['help'], $locale), 'screen' => self::screen_url($code));
 		return $out;
+	}
+
+	/** SET-01: the address of an add-on's own settings screen while it is registered (the add-on is on), else ''. */
+	public static function screen_url($code) {
+		if (!isset(self::SCREENS[$code]) || !function_exists('admin_url')) return '';
+		global $submenu;
+		foreach (isset($submenu['Emsfb']) && is_array($submenu['Emsfb']) ? $submenu['Emsfb'] : array() as $item) {
+			if (isset($item[2]) && $item[2] === self::SCREENS[$code]) return admin_url('admin.php?page=' . self::SCREENS[$code]);
+		}
+		return '';
+	}
+
+	/* ------------------------------------------------------------------ SET-01: the add-on screens' shared parts */
+
+	private static $screen_css = false;
+
+	/** The shared parts' look, printed once (an add-on screen does not always load the plugin's stylesheets). */
+	private static function screen_css() {
+		if (self::$screen_css) return '';
+		self::$screen_css = true;
+		return '<style id="efb-addon-screen-css">'
+			. '.efb-addon-screen .efb-addon-back{margin:8px 0 0}.efb-addon-screen .efb-addon-back a{min-height:44px;display:inline-flex;align-items:center;gap:4px;text-decoration:none}'
+			. '.efb-addon-screen .efb-addon-back a:hover,.efb-addon-screen .efb-addon-back a:focus{text-decoration:underline}'
+			. '.efb-addon-screen h1,.efb-addon-screen .efb-addon-desc{unicode-bidi:plaintext;text-align:start}.efb-addon-screen .efb-addon-desc{max-width:52rem;margin-block:4px 16px}'
+			. '.efb-addon-screen .page-title-action{min-height:30px;display:inline-flex;align-items:center;gap:4px}'
+			. '.efb-addon-savebar{position:sticky;bottom:0;z-index:5;display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:12px;margin-block:16px 0;padding:12px 16px;background:#fff;border:1px solid #c3c4c7;border-radius:4px;box-shadow:0 -2px 8px rgba(0,0,0,.06)}'
+			. '.efb-addon-savebar .button-primary{min-height:36px}.efb-addon-savebar-note{unicode-bidi:plaintext;color:#50575e}'
+			. '@media (max-width:782px){.efb-addon-savebar .button-primary{min-height:44px}}'
+			. '</style>';
+	}
+
+	/**
+	 * SET-01 phase 1 (ADD-01 uses it): the header of an add-on's settings screen in Easy Form Builder's screen form, the
+	 * WordPress one core's Payments and CAPTCHA screens have: a link back, the title (h1 + wp-header-end, so WordPress puts
+	 * notices under it), its actions (page-title-action), Help (the add-on's own page from HELP; none when it has none)
+	 * and one line on what the screen does. Open it inside the screen's <div class="wrap efb-addon-screen">.
+	 *
+	 * args: title (required), code (add-on code: Help), back_url, back_label, desc, actions (array of {url, label, attrs}).
+	 * @return string escaped HTML
+	 */
+	public static function screen_header(array $a) {
+		$t = function ($s) { return function_exists('esc_html') ? esc_html($s) : htmlspecialchars((string) $s, ENT_QUOTES); };
+		$u = function ($s) { return function_exists('esc_url') ? esc_url($s) : htmlspecialchars((string) $s, ENT_QUOTES); };
+		$h = self::screen_css();
+		if (!empty($a['back_url'])) {
+			$back = isset($a['back_label']) && $a['back_label'] !== '' ? $a['back_label'] : (function_exists('__') ? __('Back to Settings', 'easy-form-builder') : 'Back to Settings');
+			$h .= '<p class="efb-addon-back"><a href="' . $u($a['back_url']) . '"><span aria-hidden="true">' . (function_exists('is_rtl') && is_rtl() ? '&rarr;' : '&larr;') . '</span> ' . $t($back) . '</a></p>';
+		}
+		$h .= '<h1 class="wp-heading-inline">' . $t(isset($a['title']) ? $a['title'] : '') . '</h1>';
+		foreach (isset($a['actions']) && is_array($a['actions']) ? $a['actions'] : array() as $act) {
+			if (empty($act['url']) || !isset($act['label'])) continue;
+			$h .= ' <a class="page-title-action" href="' . $u($act['url']) . '">' . $t($act['label']) . '</a>';
+		}
+		$help = !empty($a['code']) ? self::help_url($a['code']) : '';
+		if ($help !== '') {
+			/* translators: SET-01: the Help link in the header of an add-on's settings screen */
+			$label = function_exists('__') ? __('Help', 'easy-form-builder') : 'Help';
+			/* translators: SET-01: for screen readers, after a link that opens a new tab */
+			$tab = function_exists('__') ? __('(opens in a new tab)', 'easy-form-builder') : '(opens in a new tab)';
+			$h .= ' <a class="page-title-action efb-addon-help" href="' . $u($help) . '" target="_blank" rel="noopener noreferrer">' . $t($label) . '<span class="screen-reader-text"> ' . $t($tab) . '</span></a>';
+		}
+		$h .= '<hr class="wp-header-end">';
+		if (!empty($a['desc'])) $h .= '<p class="description efb-addon-desc">' . $t($a['desc']) . '</p>';
+		return $h;
+	}
+
+	/**
+	 * SET-01 phase 1: the save bar of an add-on's settings screen: WordPress' primary button, sticky at the bottom of
+	 * the screen while the form is longer than the window (Save stays in sight), and a status line (role status) for
+	 * the screen's own script ("Saved", an error). Put it inside the screen's <form>.
+	 *
+	 * args: label (default "Save Changes"), name / value of the button, id, note (a line beside it).
+	 * @return string escaped HTML
+	 */
+	public static function save_bar(array $a = array()) {
+		$t = function ($s) { return function_exists('esc_html') ? esc_html($s) : htmlspecialchars((string) $s, ENT_QUOTES); };
+		$at = function ($s) { return function_exists('esc_attr') ? esc_attr($s) : htmlspecialchars((string) $s, ENT_QUOTES); };
+		/* translators: SET-01: the save button at the bottom of an add-on's settings screen */
+		$label = isset($a['label']) && $a['label'] !== '' ? $a['label'] : (function_exists('__') ? __('Save Changes', 'easy-form-builder') : 'Save Changes');
+		$id = isset($a['id']) && $a['id'] !== '' ? $a['id'] : 'efb-addon-save';
+		$h = self::screen_css() . '<div class="efb-addon-savebar">';
+		$h .= '<button type="submit" class="button button-primary" id="' . $at($id) . '"' . (!empty($a['name']) ? ' name="' . $at($a['name']) . '" value="' . $at(isset($a['value']) ? $a['value'] : '1') . '"' : '') . '>' . $t($label) . '</button>';
+		$h .= '<span class="efb-addon-savebar-note" id="' . $at($id) . '-status" role="status" aria-live="polite">' . (isset($a['note']) ? $t($a['note']) : '') . '</span>';
+		return $h . '</div>';
 	}
 
 	public static function register() {

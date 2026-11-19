@@ -7056,13 +7056,33 @@ function efbA11yRepairEfb() {
     el.setAttribute('aria-label', name);
   }
 }
+/* SET-01 phase 1: Settings › Captchas links to Human Shield, the security add-on's own screen, while it is on
+   (efb_var.addon_catalog.AdnHSH.screen); that screen links back to Settings › Captchas. After the sentence that tells it
+   apart from the Shield Security plugin. */
+function efbCaptchasHumanShieldEfb() {
+  const sec = document.getElementById('efb-spam-settings');
+  if (!sec || sec.querySelector('.efb-hs-link')) return;
+  const c = typeof efb_var !== 'undefined' && efb_var.addon_catalog && efb_var.addon_catalog.AdnHSH;
+  if (!c || !c.screen) return;
+  const p = document.createElement('p');
+  p.className = 'efb form-text efb-spam-help efb-hs-link';
+  const a = document.createElement('a');
+  a.className = 'efb';
+  a.href = c.screen;
+  a.textContent = efbSbTextEfb('setHsLink', 'Open the Human Shield settings');
+  p.appendChild(a);
+  const helps = sec.querySelectorAll('.efb-spam-help');
+  const last = helps.length ? helps[helps.length - 1] : null;
+  if (last && last.parentNode) last.parentNode.insertBefore(p, last.nextSibling); else sec.appendChild(p);
+}
 let efbA11yTimerEfb = 0;
 function efbA11yWatchEfb() {
   efbA11yRepairEfb();
+  efbCaptchasHumanShieldEfb();
   const root = document.getElementById('wpbody-content');
   if (!root || !window.MutationObserver || root.getAttribute('data-efb-a11y') === '1') return;
   root.setAttribute('data-efb-a11y', '1');
-  new MutationObserver(() => { clearTimeout(efbA11yTimerEfb); efbA11yTimerEfb = setTimeout(efbA11yRepairEfb, 250); }).observe(root, { childList: true, subtree: true });
+  new MutationObserver(() => { clearTimeout(efbA11yTimerEfb); efbA11yTimerEfb = setTimeout(() => { efbA11yRepairEfb(); efbCaptchasHumanShieldEfb(); }, 250); }).observe(root, { childList: true, subtree: true });
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', efbA11yWatchEfb); else efbA11yWatchEfb();
 

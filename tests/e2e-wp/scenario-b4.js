@@ -17,6 +17,9 @@
  *            the list); payment readiness is a summary on Payments, never a notice; "error" only for a payment request
  *            failing on the server (then first); the dashboard shows the request failure as before, with the snooze;
  *            fa_IR and ar at 375 px: one notice, the bell on the screen beside the menu button, no sideways scroll.
+ *  b4-help   HELP-01: the Add-ons page shows Help only on the add-ons that have a page, each a real link to it (new tab,
+ *            noopener, one tab); the builder's Conditional Logic "?" opens its guide (not the documents index); SET-01:
+ *            Settings › Captchas links to the Human Shield screen while that add-on is on.
  *  b4-a11y   A11Y-01: axe-core (WCAG 2.0/2.1 A and AA, and 2.2 AA) on the forms list, Settings, Create, a new form in the
  *            builder, a form in the builder, its entries, Add-ons and Payments, in en at 1280 px and fa_IR and ar at
  *            375 px: no serious or critical violation in the plugin's part of the screen (#wpbody-content); and the
@@ -266,6 +269,41 @@ module.exports = function (S) {
       try { ctl('pay-keys', 'test'); } catch (e) { /* mock gateway off */ }
     }
   });
+  /* ================================================================== b4-help */
+  scenario('b4-help', 'HELP-01: Help only where an add-on has a page (a real link, one tab); the builder\'s Conditional Logic help opens its guide; SET-01: Settings › Captchas links to Human Shield', async ({ adminPage }) => {
+    ctl('plan', '3');
+    const a = await adminPage({ viewport: { width: 1280, height: 900 } }, 'b4-help');
+    await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_addon', { waitUntil: 'load' });
+    await a.waitForSelector('a.addons', { timeout: 30000 });
+    await sleep(500);
+    const cards = await a.evaluate(() => Array.from(document.querySelectorAll('a.addons')).map((b) => {
+      const card = b.closest('.card');
+      const h = card ? card.querySelector('.efb-addon-help') : null;
+      const cat = (efb_var.addon_catalog || {})[b.id] || {};
+      return { code: b.id, page: cat.help || '', href: h ? h.getAttribute('href') : null, target: h ? h.getAttribute('target') : null, rel: h ? h.getAttribute('rel') : null, sr: h ? (h.querySelector('.visually-hidden') || {}).textContent || '' : '', old: !!(card && card.querySelector('[data-linkname="' + b.id + '"], [onclick*="Link_emsFormBuilder"]')) };
+    }));
+    const bad = cards.filter((c) => (c.page ? c.href !== c.page || c.target !== '_blank' || !/noopener/.test(c.rel || '') || !/new tab/.test(c.sr) : c.href !== null) || c.old);
+    R.check(`b4-help: ${cards.length} add-on cards: Help only on the ${cards.filter((c) => c.page).length} with a page, each a link to it (new tab, noopener, named for screen readers); none to an index`, cards.length >= 8 && cards.filter((c) => c.page).length >= 3 && bad.length === 0 && cards.every((c) => !c.href || !/\/(document|documents)\/?$/.test(c.href)), { bad, cards });
+    // One tab per click (it opened two: its onclick and the page's "links" handler).
+    const withPage = cards.find((c) => c.page);
+    let pages = 0;
+    a.context().on('page', (pg) => { pages++; pg.close().catch(() => {}); });
+    await a.click(`.efb-addon-help[data-addon="${withPage.code}"]`);
+    await sleep(1500);
+    R.check('b4-help: a click on Help opens one tab', pages === 1, { pages });
+    await a.screenshot({ path: SHOT('b4-help-addons-en-1280') });
+    // The builder's Conditional Logic help ("?" beside the switch): its guide.
+    const opened = await a.evaluate(() => { const o = []; const w = window.open; window.open = (u) => { o.push(u); return null; }; try { Link_emsFormBuilder('condi'); Link_emsFormBuilder('pickupByUser'); Link_emsFormBuilder('AdnGoS'); } finally { window.open = w; } return o; });
+    R.check('b4-help: Conditional Logic and the map\'s points open their guides; an add-on without a page opens nothing', opened.length === 2 && /conditional-logic/.test(opened[0]) && /location-picker/.test(opened[1]), opened);
+    // SET-01: Settings › Captchas links to the Human Shield screen while the add-on is on.
+    await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb&state=setting&tab=captchas', { waitUntil: 'load' });
+    await a.waitForSelector('#efb-spam-settings', { timeout: 20000 });
+    await sleep(800);
+    const hs = await a.evaluate(() => { const l = document.querySelector('#efb-spam-settings .efb-hs-link a'); const c = (efb_var.addon_catalog || {}).AdnHSH || {}; return { on: !!c.screen, href: l ? l.getAttribute('href') : null, text: l ? l.textContent.trim() : '' }; });
+    R.check('b4-help (SET-01): Settings › Captchas links to the Human Shield screen (the add-on is on here), or shows no link while it is off', hs.on ? /page=Emsfb_human_shield_efb/.test(hs.href || '') && hs.text.length > 5 : hs.href === null, hs);
+    await a.context().close();
+  });
+
   /* ================================================================== b4-a11y */
   async function axeRun(p) {
     await p.addScriptTag({ path: path.join(__dirname, '..', '..', 'node_modules', 'axe-core', 'axe.min.js') });

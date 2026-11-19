@@ -285,6 +285,8 @@ class Notices {
 			'a11yDocs'  => __('Easy Form Builder documentation', 'easy-form-builder'),
 			/* translators: A11Y-01: the name screen readers give the arrow button under the forms list that loads more forms */
 			'a11yMore'  => __('Show more', 'easy-form-builder'),
+			/* translators: SET-01: a link in Settings › Captchas to the screen of the Human Shield add-on (a product name) */
+			'setHsLink' => __('Open the Human Shield settings', 'easy-form-builder'),
 			/* translators: UX-01: the button in the Easy Form Builder header that opens the list of the plugin's other notices (a number follows it) */
 			'nmNotices' => __('Notices', 'easy-form-builder'),
 			/* translators: UX-01: a button under an Easy Form Builder notice; %s: a number of days (7) */
