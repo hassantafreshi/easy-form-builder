@@ -1297,6 +1297,17 @@ div#sideBoxEfb {	height: 100vh;
 @media screen and (max-width: 782px) {
    div#sideBoxEfb { top: 46px; height: calc(100vh - 46px); overflow-y: auto; }
 }
+/* The same on a desktop (WordPress' admin bar 32 px tall): without a top the fixed panel kept its place in the flow,
+   about 540 px down at 1280 × 900 with its lower part off the screen (a 900 px panel). It opens under the admin bar,
+   whole on the screen, and scrolls on its own (its Close / Done stay on top: .sidemenu.head is sticky). Only the
+   vertical place changes; its side, width and look are as before. */
+@media screen and (min-width: 783px) {
+   div#sideBoxEfb { top: 0; height: 100vh; overflow-y: auto; }
+   .admin-bar div#sideBoxEfb { top: 32px; height: calc(100vh - 32px); }
+   /* Its head holds the floated Close / Done (as on a phone, AI-8a): now on the screen, a first notice of the panel
+      (the payment field's "Test mode") no longer runs under them. */
+   div#sideBoxEfb.show .efb.head.sidemenu { display: flow-root; }
+}
 /* AI-8a: on a phone the open panel takes the whole width (it was a 32 % strip, about 120 px at 375 px, narrower than
    the payment field's inputs, and its head stuck out of the screen). Only while it is open: closed it stays 0 wide. */
 @media screen and (max-width: 600px) {

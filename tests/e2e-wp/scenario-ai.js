@@ -11,6 +11,11 @@
  *            sees nothing until the click on Publish, then the form; the admin's page shows the draft notice before.
  *  ai-event  AI-1: the owner's own Save in the builder while Typed Signature is off: efb:form-saved carries the answer's
  *            warnings (addon_keys_kept, the same code and message) for a listener such as AutoPilot.
+ *  ai-panel  The builder's field settings panel on a desktop (en 1280 × 900 and 1440 × 900): it opened where the page
+ *            put it (about 640 px down at 1280 × 900, its lower part off the screen); now it opens under the admin bar,
+ *            whole on the screen, its Close / Done on top and its own scroll for a long panel (Stripe Checkout), also for
+ *            a field low on the page, the panel's first notice below its Close / Done (not under them); fa_IR at 1280 px
+ *            the same, right to left; fa_IR and ar at 375 px keep AI-8 (full width, 46 px down, no sideways scroll).
  *  ai-bare   A form imported with a row 0 and a step 1 that have none of the keys the builder draws with (button
  *            texts and icons, colours, sizes, classes, thank-you texts): the builder draws it and opens its panels with
  *            a new form's values (efbFillBuilderDefaultsEfb() in editFormEfb()); settings and the step's id and name
@@ -117,11 +122,8 @@ module.exports = function (S) {
       R.check('ai-375 (en 1280): the panel stays a side panel (a third of the screen), every input inside it', pd.width < pd.vw / 2 && pd.width > 250 && pd.out.length === 0, pd);
       const gd = await gwLink(d);
       R.check('ai-375 (en 1280): "Gateway settings and keys" has a line of its own, above the Label field\'s label', gd.own === true, gd);
-      // The desktop panel is fixed where the page put it, partly below a 900 px window: a taller window shows its top.
-      await d.setViewportSize({ width: 1280, height: 1600 });
-      await sleep(400);
+      // The desktop panel opens under the admin bar, whole on a 900 px window (ai-panel).
       await d.screenshot({ path: SHOT('ai375-builder-panel-en-1280') });
-      await d.setViewportSize({ width: 1280, height: 900 });
       await d.goto(settingsUrl('payments'), { waitUntil: 'load' });
       await d.waitForSelector('#nav-tabContent > .tab-pane.active', { timeout: 20000 });
       await sleep(1200);
@@ -130,6 +132,83 @@ module.exports = function (S) {
       await d.screenshot({ path: SHOT('ai375-settings-payments-en-1280'), fullPage: true });
     } finally {
       actl('delete', String(F.form_id));
+    }
+  });
+
+  /* ================================================================== ai-panel */
+  /** The open panel against the window: top, bottom, Close / Done, the first input, its own scroll. */
+  const panelFit = (a) => a.evaluate(() => {
+    const box = document.getElementById('sideBoxEfb');
+    const b = box.getBoundingClientRect();
+    const head = box.querySelector('.head.sidemenu').getBoundingClientRect();
+    const first = Array.from(box.querySelectorAll('#sideMenuConEfb input, #sideMenuConEfb select, #sideMenuConEfb textarea')).find((e) => e.getBoundingClientRect().height > 0);
+    const f = first ? first.getBoundingClientRect() : null;
+    const bar = document.getElementById('wpadminbar');
+    const vh = window.innerHeight; const vw = document.documentElement.clientWidth;
+    const btns = Array.from(box.querySelectorAll('.head.sidemenu a.BtnSideEfb')).map((e) => e.getBoundingClientRect());
+    // The topmost thing of the panel's body a person sees: a control, or an element with its own text.
+    const seen = Array.from(box.querySelectorAll('#sideMenuConEfb *')).filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== 'hidden' && (/^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(e.tagName) || Array.from(e.childNodes).some((n) => n.nodeType === 3 && n.textContent.trim() !== '')); });
+    const bodyTop = seen.length ? Math.round(Math.min.apply(null, seen.map((e) => e.getBoundingClientRect().top))) : null;
+    const btnBottom = btns.length ? Math.round(Math.max.apply(null, btns.map((r) => r.bottom))) : null;
+    const before = box.scrollTop; box.scrollTop = box.scrollHeight; const last = box.querySelector('#sideMenuConEfb').lastElementChild; const l = last ? last.getBoundingClientRect() : null; box.scrollTop = before;
+    return { top: Math.round(b.top), bottom: Math.round(b.bottom), left: Math.round(b.left), width: Math.round(b.width), vh, vw, bar: bar ? Math.round(bar.getBoundingClientRect().bottom) : 0,
+      head: [Math.round(head.top), Math.round(head.bottom)], first: f ? [Math.round(f.top), Math.round(f.bottom)] : null, lastBottom: l ? Math.round(l.bottom) : null,
+      bodyTop, btnBottom, under: bodyTop !== null && btnBottom !== null && bodyTop >= btnBottom - 1, ownScroll: box.scrollHeight > box.clientHeight + 1 ? getComputedStyle(box).overflowY : 'fits', page: Math.round(window.scrollY), scroll: document.documentElement.scrollWidth - vw, dir: getComputedStyle(box.querySelector('#sideMenuConEfb')).direction };
+  });
+  scenario('ai-panel', 'The builder\'s field settings panel opens whole on the screen at 1280 and 1440 px (under the admin bar, its own scroll), also for a field low on the page; fa_IR and ar at 375 px keep AI-8', async ({ adminPage }) => {
+    ctl('plan', '3');
+    ctl('addon-flag', 'AdnSPF', '1');
+    const P = actl('pay-form', 'stripecheckout', 'AI panel Stripe Checkout');
+    const L = ctl('f11-form', 'AI panel long form', '', '2');
+    R.check('ai-panel: a form with a long panel (Stripe Checkout) and a two-step form', P.form_id > 0 && P.ids.pay && L.form_id > 0, [P, L]);
+    try {
+      for (const vp of [{ width: 1280, height: 900 }, { width: 1440, height: 900 }]) {
+        const tag = 'en-' + vp.width;
+        const d = await adminPage({ viewport: vp }, 'ai-panel-' + tag);
+        await openForm(d, P.form_id);
+        await openPanel(d, P.ids.pay);
+        const p = await panelFit(d);
+        R.check(`ai-panel (${tag}): the long payment panel opens under the admin bar (top ${p.top}, bar ${p.bar}), whole on the screen (bottom ${p.bottom} of ${p.vh})`, Math.abs(p.top - p.bar) <= 2 && p.bottom <= p.vh + 1, p);
+        R.check(`ai-panel (${tag}): Close / Done and the first input are on the screen at once; the rest scrolls inside the panel (${p.ownScroll}), the last control reachable`, p.head[0] >= p.bar - 1 && p.first && p.first[1] <= p.vh && (p.ownScroll === 'auto' || p.ownScroll === 'fits') && p.lastBottom !== null && p.lastBottom <= p.vh + 1, p);
+        R.check(`ai-panel (${tag}): still a side panel, as before (a third of the screen, no sideways scroll)`, p.width < p.vw / 2 && p.width > 250 && p.scroll <= 1, p);
+        R.check(`ai-panel (${tag}): the panel's first notice starts below Close / Done, not under them`, p.under === true, p);
+        await d.screenshot({ path: SHOT(`ai-panel-after-${tag}-payment`) });
+        await openForm(d, L.form_id);
+        await openPanel(d, L.notes);
+        const q = await panelFit(d);
+        R.check(`ai-panel (${tag}): a field low on the page (the page scrolled ${q.page} px): the panel is still whole on the screen under the admin bar`, Math.abs(q.top - q.bar) <= 2 && q.bottom <= q.vh + 1 && q.head[0] >= q.bar - 1 && q.first && q.first[1] <= q.vh, q);
+        await d.screenshot({ path: SHOT(`ai-panel-after-${tag}-low-field`) });
+        await closePanel(d);
+        const c = await d.evaluate(() => Math.round(document.getElementById('sideBoxEfb').getBoundingClientRect().width));
+        R.check(`ai-panel (${tag}): closed, it takes no room`, c <= 2, c);
+        await d.context().close();
+      }
+      // Right to left on a desktop: the same place under the admin bar.
+      ctl('locale', 'fa_IR');
+      try {
+        const r = await adminPage({ viewport: { width: 1280, height: 900 }, locale: 'fa-IR' }, 'ai-panel-fa-1280');
+        await openForm(r, P.form_id);
+        await openPanel(r, P.ids.pay);
+        const p = await panelFit(r);
+        R.check(`ai-panel (fa_IR 1280): right to left, under the admin bar, whole on the screen, a side panel, the first notice below Close / Done`, Math.abs(p.top - p.bar) <= 2 && p.bottom <= p.vh + 1 && p.dir === 'rtl' && p.width < p.vw / 2 && p.scroll <= 1 && p.under === true, p);
+        await r.screenshot({ path: SHOT('ai-panel-after-fa_IR-1280-payment') });
+        await r.context().close();
+      } finally { ctl('locale', ''); }
+      for (const loc of ['fa_IR', 'ar']) {
+        ctl('locale', loc);
+        try {
+          const a = await adminPage({ viewport: { width: 375, height: 812 }, locale: loc.replace('_', '-') }, 'ai-panel-' + loc);
+          await openForm(a, P.form_id);
+          await openPanel(a, P.ids.pay);
+          const p = await panelFit(a);
+          // On a phone WordPress' admin bar (46 px) scrolls away with the page; the panel keeps its place under it (AI-8).
+          R.check(`ai-panel (${loc} 375): AI-8 kept — the whole width, 46 px down (${p.top}), whole on the screen, Close / Done and the first input visible, right to left, no sideways scroll`, p.left <= 1 && p.width >= p.vw - 2 && p.top === 46 && p.bottom <= p.vh + 1 && p.head[0] >= 46 && p.first && p.first[1] <= p.vh && p.under === true && p.dir === 'rtl' && p.scroll <= 1, p);
+          await a.screenshot({ path: SHOT(`ai-panel-after-${loc}-375`) });
+          await a.context().close();
+        } finally { ctl('locale', ''); }
+      }
+    } finally {
+      actl('delete', String(P.form_id) + ',' + String(L.form_id));
     }
   });
 

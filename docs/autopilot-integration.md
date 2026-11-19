@@ -2303,6 +2303,11 @@ the payment field's inputs were wider) and holds its Close / Done buttons above 
 room. In Settings (≤ 576 px) the window's content takes the full width on every tab (it was a column of about 150 px);
 the e-mail template builder's toolbar wraps. Desktop is unchanged.
 
+On a desktop (≥ 783 px) the panel had no top either, so it opened where the page put it: about 540 px down at
+1280 × 900, its lower part off the screen. It now opens under the admin bar (32 px), whole on the screen, and scrolls
+on its own; its Close / Done head holds its floats, so the first notice of a panel starts below them. Its side, width
+and look are as before (e2e `ai-panel`: en 1280 and 1440, fa_IR 1280, fa_IR and ar 375).
+
 ### Tests
 
 | Test | Result |
