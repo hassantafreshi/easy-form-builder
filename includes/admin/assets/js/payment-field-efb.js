@@ -315,8 +315,9 @@
       var curList = (g.currencies && g.currencies.length ? g.currencies : CURRENCIES).map(function (c) { return [c, c]; });
       var cur = String(f0.currency || '').toUpperCase();
       var eea = EEA.indexOf(cur) !== -1;
+      // The settings link has a line of its own, like the state above it (inline, it sat beside the next label).
       var gw = '<p class="efb mb-1"><strong>' + esc(g.label) + '</strong> · <span class="efb ' + (conf ? 'text-success' : 'text-danger') + '">' + esc(state) + '</span></p>' +
-         '<a class="efb small" href="' + esc(P().settings || '#') + '" target="_blank" rel="noopener">' + esc(L('settings', 'Gateway settings and keys')) + '</a>' +
+         '<p class="efb mb-1"><a class="efb small" href="' + esc(P().settings || '#') + '" target="_blank" rel="noopener">' + esc(L('settings', 'Gateway settings and keys')) + '</a></p>' +
          inputRow('efbPfNameEl', '_name', L('label', 'Label'), row.name || '', 'maxlength="120"') +
          selectRow('efbPfCurrencyEl', '_currency', L('currency', 'Currency'), cur, curList) +
          methodsHtml(row);

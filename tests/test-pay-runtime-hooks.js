@@ -10,7 +10,8 @@
  * 11 the page keeps polling until the server's poll_until;
  *  2/4/6 builder panel: the gateway's options (field pickers that list the form's own fields of the
  *    allowed types, select), the methods' choice and order (pf_methods), the gateway's defaults in
- *    the canvas, and the live warnings (currency, required option).
+ *    the canvas, and the live warnings (currency, required option); the "Gateway settings and keys"
+ *    link has a line of its own (it sat beside the next field's label in ar at 375 px).
  *
  * Run: node tests/test-pay-runtime-hooks.js   (EFB_CHROMIUM picks a browser build)
  */
@@ -173,6 +174,22 @@ const ORIGIN = 'https://site.example';
   await bp.addScriptTag({ content: JS('public/assets/js/payment-core-efb.js') });
   await bp.addScriptTag({ content: JS('includes/admin/assets/js/payment-field-efb.js') });
   await bp.evaluate(() => { document.body.innerHTML = window.efbPayPanelEfb(3) + '<div id="canvas">' + window.efbPayFieldHtmlEfb(window.valj_efb[3], 1) + '</div>'; });
+  // The link to the gateway's settings ends above the Label field's label, at 375 px right to left and on a wide screen.
+  const linkLine = () => bp.evaluate(() => {
+    const link = document.querySelector('#efbPfSecGw a[target="_blank"]');
+    const lab = document.querySelector('#efbPfSecGw label[for="efbPfNameEl"]');
+    const l = link.getBoundingClientRect();
+    const b = lab.getBoundingClientRect();
+    return { own: l.bottom <= b.top + 1, link: [l.top, l.bottom], label: [b.top, b.bottom], parent: link.parentElement.tagName, text: link.textContent };
+  });
+  await bp.setViewportSize({ width: 375, height: 800 });
+  await bp.evaluate(() => { document.documentElement.dir = 'rtl'; });
+  const gl = await linkLine();
+  t('panel: "Gateway settings and keys" has a line of its own above the Label field (375 px, right to left)', gl.own && gl.text === 'Gateway settings and keys', gl);
+  await bp.evaluate(() => { document.documentElement.dir = ''; });
+  await bp.setViewportSize({ width: 1280, height: 720 });
+  const gw = await linkLine();
+  t('panel: the link has its own line on a wide screen too', gw.own, gw);
   const canvas = await bp.innerHTML('#canvas');
   t('4: the canvas uses the gateway\'s defaults (grid methods, its button text)', /data-style="grid"/.test(canvas) && /Show the QR/.test(canvas), canvas.slice(0, 300));
   const warn = await bp.textContent('#efbPfWarnEl');

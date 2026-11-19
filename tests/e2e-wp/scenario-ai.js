@@ -3,9 +3,10 @@
  * (docs/autopilot-integration.md "AI builder core APIs"), in a real browser on the real WordPress.
  *
  *  ai-375    AI-8, fa_IR and ar at 375 px: the builder's field settings panel of a payment field (Stripe Checkout, core's
- *            payment-field panel) takes the whole width with every input inside it and no sideways scroll; Settings:
+ *            payment-field panel) takes the whole width with every input inside it and no sideways scroll, and its
+ *            "Gateway settings and keys" link has a line of its own (not beside the next field's label); Settings:
  *            every tab's content has the full width (no column of 150 px), nothing off the screen; en at 1280 px: the
- *            panel is still a side panel and Settings is as before.
+ *            panel is still a side panel (the link on its own line too) and Settings is as before.
  *  ai-draft  AI-4: a form imported as a draft: the forms list shows "Draft" and Publish (fa_IR 375, en 1280); a visitor
  *            sees nothing until the click on Publish, then the form; the admin's page shows the draft notice before.
  *  ai-event  AI-1: the owner's own Save in the builder while Typed Signature is off: efb:form-saved carries the answer's
@@ -46,6 +47,16 @@ module.exports = function (S) {
     const out = Array.from(root.querySelectorAll('input, select, textarea, button, label, a, .efb-pf-panel *')).filter(vis).filter((e) => { const r = e.getBoundingClientRect(); return r.left < box.left - 1 || r.right > box.right + 1; }).map((e) => (e.id || e.className || e.tagName).toString().slice(0, 40));
     return { left: Math.round(box.left), width: Math.round(box.width), vw, scroll: document.documentElement.scrollWidth - vw, out: out.slice(0, 6), dir: getComputedStyle(root).direction, text: root.innerText.replace(/\s+/g, ' ').slice(0, 80) };
   });
+  /** The payment panel's "Gateway settings and keys" link and the Label field's label after it: the link has a line of
+   *  its own when it ends above the label's top (it sat beside the label, on the same line, in ar at 375 px). */
+  const gwLink = (a) => a.evaluate(() => {
+    const link = document.querySelector('#efbPfSecGw a[target="_blank"]');
+    const lab = document.querySelector('#efbPfSecGw label[for="efbPfNameEl"]');
+    if (!link || !lab) return { missing: !link ? 'link' : 'label' };
+    const l = link.getBoundingClientRect();
+    const b = lab.getBoundingClientRect();
+    return { own: l.bottom <= b.top + 1, link: [Math.round(l.top), Math.round(l.bottom)], label: [Math.round(b.top), Math.round(b.bottom)], parent: link.parentElement.tagName + '/' + getComputedStyle(link.parentElement).display, text: link.innerText.trim() };
+  });
   /** A settings tab: the content's width and what sticks out of the settings window or the screen. */
   const settingsBox = (a) => a.evaluate(() => {
     const vw = document.documentElement.clientWidth;
@@ -73,6 +84,8 @@ module.exports = function (S) {
           await openPanel(a, F.ids.pay);
           const p = await panelBox(a);
           R.check(`ai-375 (${loc}): the payment field's panel takes the whole width (${p.width} of ${p.vw} px), every input inside it, right to left, no sideways scroll`, p.left <= 1 && p.width >= p.vw - 2 && p.out.length === 0 && p.scroll <= 1 && p.dir === 'rtl' && /Stripe/.test(p.text), p);
+          const gl = await gwLink(a);
+          R.check(`ai-375 (${loc}): "Gateway settings and keys" has a line of its own, above the Label field's label (not beside it)`, gl.own === true, gl);
           await a.screenshot({ path: SHOT(`ai375-builder-panel-${loc}-375`) });
           await closePanel(a);
           const closed = await a.evaluate(() => { const r = document.getElementById('sideBoxEfb').getBoundingClientRect(); return { width: Math.round(r.width), scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth }; });
@@ -94,6 +107,13 @@ module.exports = function (S) {
       await openPanel(d, F.ids.pay);
       const pd = await panelBox(d);
       R.check('ai-375 (en 1280): the panel stays a side panel (a third of the screen), every input inside it', pd.width < pd.vw / 2 && pd.width > 250 && pd.out.length === 0, pd);
+      const gd = await gwLink(d);
+      R.check('ai-375 (en 1280): "Gateway settings and keys" has a line of its own, above the Label field\'s label', gd.own === true, gd);
+      // The desktop panel is fixed where the page put it, partly below a 900 px window: a taller window shows its top.
+      await d.setViewportSize({ width: 1280, height: 1600 });
+      await sleep(400);
+      await d.screenshot({ path: SHOT('ai375-builder-panel-en-1280') });
+      await d.setViewportSize({ width: 1280, height: 900 });
       await d.goto(settingsUrl('payments'), { waitUntil: 'load' });
       await d.waitForSelector('#nav-tabContent > .tab-pane.active', { timeout: 20000 });
       await sleep(1200);
