@@ -22,8 +22,10 @@ $mode = isset( $argv[1] ) ? $argv[1] : '';
 
 define( 'WP_USE_THEMES', false );
 
-$WP_DIR   = 'c:/xampp/htdocs/wp';
-$WS_DIR   = 'c:/xampp/htdocs/ws';
+require_once __DIR__ . '/wp-env.php';
+$WP_DIR   = efb_test_wp_root();
+// The White Studio service install (ws-widgets, payefb); owner-only: EFB_WS_ROOT, else the owner's XAMPP folder.
+$WS_DIR   = rtrim( getenv( 'EFB_WS_ROOT' ) ?: 'c:/xampp/htdocs/ws', '/' );
 $MAILBOX  = $WS_DIR . '/wp-content/uploads/efb-e2e-mail';
 $WP_MU    = $WP_DIR . '/wp-content/mu-plugins/efb-e2e-review-endpoint.php';
 $WS_MU    = $WS_DIR . '/wp-content/mu-plugins/efb-e2e-mail-capture.php';
@@ -42,7 +44,7 @@ function efb_e2e_endpoint_mu() {
  * instead of whitestudio.team. Removed by tests/e2e-review-reward-env.php.
  */
 add_filter( 'emsfb_review_reward_endpoint_efb', function () {
-	return 'http://127.0.0.1/ws/wp-json/payefb/v1/review-reward';
+	return 'http://127.0.0.1/ws/wp-json/payefb/v1/review-reward'; // EFB_WS_URL in the test; this mu-plugin keeps the owner's
 } );
 PHP;
 }

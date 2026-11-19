@@ -68,6 +68,13 @@ async function shot(page, name) {
   console.log('\n=== Deactivation feedback modal (browser) ===\n');
 
   console.log('[0] Environment');
+  // Owner-only: the White Studio feedback service (WS Feedback Hub, ws-efb-feedback) is not part of these repositories.
+  const hub = wpEnv.root() + '/wp-content/plugins/ws-efb-feedback/ws-efb-feedback.php';
+  if (wpEnv.available() && !require('fs').existsSync(hub)) {
+    console.log(`[SKIP] The WS Feedback Hub plugin (the White Studio feedback service) is not installed at ${hub}: owner-only test, run it on the site that has it`);
+    console.log('RESULTS: 0 passed, 0 failed');
+    process.exit(0);
+  }
   const setup = seed('setup');
   t('the feedback service is switched on for the run', setup.ok && setup.service_active, JSON.stringify(setup));
   if (!setup.ok) {

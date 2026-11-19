@@ -19,7 +19,7 @@
  */
 
 define( 'WP_USE_THEMES', false );
-require 'c:/xampp/htdocs/ws/wp-load.php';
+require rtrim( getenv( 'EFB_WS_ROOT' ) ?: 'c:/xampp/htdocs/ws', '/' ) . '/wp-load.php'; // the White Studio service install (owner-only)
 require_once WP_PLUGIN_DIR . '/payEfb/includes/services/class-review-reward-service.php';
 
 global $wpdb;

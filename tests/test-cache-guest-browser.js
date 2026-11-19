@@ -1,8 +1,14 @@
 /* Real UI in new unauthenticated contexts. Input/output orchestration stays in memory. */
+/* Owner-only: driven by the owner's matrix runners (temp/run-cache-provider-matrix.py, temp/run-hostinger-guest-matrix.py,
+   see docs/tasks/T05-cache-validation.fa.md), which pipe the JSON config in: a hosted site with cache plugins
+   (LiteSpeed, Autoptimize, WP Super Cache, Cache Enabler) and Stripe sandbox keys. Without that config it prints [SKIP]. */
 const {chromium}=require('playwright');
-let input='';process.stdin.on('data',c=>input+=c);process.stdin.on('end',()=>run(JSON.parse(input)));
+const wpEnv=require('./wp-env');
+let input='';
+if(process.stdin.isTTY){skip();}else{process.stdin.on('data',c=>input+=c);process.stdin.on('end',()=>input.trim()?run(JSON.parse(input)):skip());}
+function skip(){console.log('[SKIP] no matrix config on stdin: owner-only test, run by the owner\'s cache matrix runner against a hosted site with cache plugins and Stripe sandbox keys');console.log('RESULTS: 0 passed, 0 failed');process.exit(0);}
 async function run(config){
- const browser=await chromium.launch({channel:'chrome',headless:true,proxy:config.proxy?{server:config.proxy}:undefined});
+ const browser=await wpEnv.launch({headless:true,proxy:config.proxy?{server:config.proxy}:undefined});
  const results=[],operations=[],uploads=[],tracks={};
  const base=new URL(config.pages.control.url).origin;
  const check=(ok,label)=>{if(!ok)throw new Error(label);};

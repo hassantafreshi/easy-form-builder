@@ -115,6 +115,15 @@ function lastReport() {
   }
 }
 
+// Owner-only: the White Studio service install (ws-widgets with its cached WordPress.org reviews, payefb) and Stripe
+// test keys on it are not part of these repositories. EFB_WS_ROOT names that install (default: the owner's XAMPP folder).
+const WS_ROOT = (process.env.EFB_WS_ROOT || 'c:/xampp/htdocs/ws').replace(/\/+$/, '');
+if (!fs.existsSync(path.join(WS_ROOT, 'wp-load.php'))) {
+  console.log(`[SKIP] the White Studio service install is not at ${WS_ROOT} (EFB_WS_ROOT): owner-only test, it needs that service, its cached reviews and Stripe test keys`);
+  console.log('RESULTS: 0 passed, 0 failed');
+  process.exit(0);
+}
+
 (async () => {
   const browser = await wpEnv.launch();
   const context = await browser.newContext({ viewport: { width: 1440, height: 980 } });

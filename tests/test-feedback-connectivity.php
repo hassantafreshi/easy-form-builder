@@ -82,6 +82,12 @@ function efbc_call( $object, $method, $args = array() ) {
 	return $ref->invokeArgs( $object, $args );
 }
 
+// Owner-only: the White Studio feedback service (WS Feedback Hub, ws-efb-feedback) is not part of these repositories.
+if ( ! is_readable( WP_PLUGIN_DIR . '/' . $service ) ) {
+	echo "[SKIP] The WS Feedback Hub plugin (the White Studio feedback service) is not installed at " . WP_PLUGIN_DIR . "/{$service}: owner-only test, run it on the site that has it\n";
+	echo "RESULTS: 0 passed, 0 failed\n";
+	exit( 0 );
+}
 if ( ! is_plugin_active( $service ) ) {
 	echo "The feedback service is not active on this site.\n";
 	echo "Run: php tests/seed-deactivation-feedback-env.php setup\n";
