@@ -37,7 +37,7 @@ if (!function_exists('efb_portal_core_api')) {
 	function efb_portal_check_code($cid, $code, array $ctx) { return \Emsfb\Portal_Core::check_code((string) $cid, (string) $code, $ctx); }
 	/** P6: the identity of verified proofs, plus the signed-in user ($uid) and its account e-mail ($wp_email). */
 	function efb_portal_identity_from_proof(array $proofs, $uid = 0, $wp_email = true) { return \Emsfb\Portal_Core::identity_from_proof($proofs, (int) $uid, (bool) $wp_email); }
-	/** P9: ['rows', 'total', 'page', 'per_page']. */
+	/** P9: ['rows', 'total', 'page', 'per_page'] (1.5: per_page up to 100, each row's payment flag). */
 	function efb_portal_entries(array $identity, array $q = array()) { return \Emsfb\Portal_Core::entries($identity, $q); }
 	/** P9: one entry as text to show, its payments, booking and what may be done. */
 	function efb_portal_entry($msg_id, array $identity) { return \Emsfb\Portal_Core::entry((int) $msg_id, $identity); }
@@ -49,6 +49,8 @@ if (!function_exists('efb_portal_core_api')) {
 	function efb_portal_reply_upload_token($msg_id, array $identity) { return \Emsfb\Portal_Core::reply_upload_token((int) $msg_id, $identity); }
 	/** P11: 'closed' | 'open'; actor ['kind' => 'owner', 'identity' => …] or ['kind' => 'admin']. */
 	function efb_entry_set_ticket_state($msg_id, $state, array $actor) { return \Emsfb\Portal_Core::set_ticket_state((int) $msg_id, (string) $state, $actor); }
+	/** 1.5: paid, due and refunded totals per currency across the identity's entries, in one call. */
+	function efb_portal_payments_summary(array $identity, array $q = array()) { return \Emsfb\Portal_Core::payments_summary($identity, $q); }
 	/** P12: the payments of an entry (no gateway reference, no payer address). */
 	function efb_portal_payments($msg_id, array $identity) { return \Emsfb\Portal_Core::payments((int) $msg_id, $identity); }
 	/** P13: a link to the n-th file of an entry, signed for 10 minutes when private. */

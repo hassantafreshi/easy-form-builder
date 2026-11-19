@@ -119,6 +119,15 @@ $r = P::forms();
 t('… the plugin off → efb_portal_unavailable', is_object($r) ? $r->get_error_code() : $r, 'efb_portal_unavailable');
 add_filter('efb_portal_active', function () { return true; });
 
+echo "--- 1.5: the money of an entry ---\n";
+$pe = new ReflectionMethod('\\Emsfb\\Portal_Core', 'payment_of_entry'); $pe->setAccessible(true);
+$po = function ($pmts, $rows, $st) use ($pe) { return $pe->invoke(null, $pmts, $rows, $st); };
+$row = function ($st, $amt, $ref = 0, $cur = 'eur') { return array('status' => $st, 'amount_minor' => $amt, 'currency' => $cur, 'refunded_minor' => $ref, 'created_at' => ''); };
+t('a failed attempt then a paid one: paid, the amount once, nothing due', $po(array($row('failed', 1000), $row('paid', 1000)), array(), 'received'), array('flag' => 'paid', 'currency' => 'EUR', 'paid' => 1000, 'due' => 0, 'refunded' => 0));
+t('refunded in part / in full: paid less the refund; the flag says which', array($po(array($row('partially_refunded', 1000, 400)), array(), 'received')['flag'], $po(array($row('partially_refunded', 1000, 400)), array(), 'received')['paid'], $po(array($row('refunded', 1000, 1000)), array(), 'received')), array('partially_refunded', 600, array('flag' => 'refunded', 'currency' => 'EUR', 'paid' => 0, 'due' => 0, 'refunded' => 1000)));
+t('two attempts of an entry waiting for its payment: due = the latest attempt\'s amount, once; not waiting any more (cancelled): nothing due', array($po(array($row('failed', 900), $row('pending', 1000)), array(), 'pending_payment')['due'], $po(array($row('pending', 1000)), array(), 'cancelled')['flag']), array(1000, null));
+t('no framework row: the older gateway\'s payment row (30 USD) is paid, or due while the entry waits; nothing without one', array(function_exists('efb_portal_payments_summary'), $po(array(), array(array('type' => 'payment', 'total' => '30', 'currency' => 'usd')), 'pending_payment')['flag'], $po(array(), array(array('type' => 'text', 'value' => 'x')), 'received')['flag']), array(true, 'due', null));
+
 echo "\nRESULTS: {$pass} passed, {$fail} failed\n";
 exit($fail ? 1 : 0);
 }

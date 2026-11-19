@@ -114,6 +114,7 @@ add_action( 'rest_api_init', static function () {
 			case 'entry': $res = efb_portal_entry( (int) $a( 'id' ), $id ); break;
 			case 'thread': $res = efb_portal_thread( (int) $a( 'id' ), $id ); break;
 			case 'payments': $res = efb_portal_payments( (int) $a( 'id' ), $id ); break;
+			case 'summary': $res = efb_portal_payments_summary( $id, (array) $a( 'q', array() ) ); break; // 1.5
 			case 'file': $res = efb_portal_file_link( (int) $a( 'id' ), $id, (int) $a( 'n', 0 ) ); break;
 			case 'reply': $res = efb_entry_add_reply( (int) $a( 'id' ), (array) $a( 'rows', array() ), array( 'kind' => 'owner', 'identity' => $id ) ); break;
 			case 'upload_token': $res = efb_portal_reply_upload_token( (int) $a( 'id' ), $id ); break;

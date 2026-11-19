@@ -20,6 +20,10 @@
  *    site's, never the resume token); efb_portal_drafts() gives the form's name and that page; an older draft falls back
  *    to the form's page (1.3's pages), else none; efb_portal_draft_link(…, '') opens on that page; an explicit page wins.
  *
+ *  - 1.5 payments: efb_portal_payments_summary() — paid (less refunds), due (the latest attempt of an entry waiting for
+ *    it), refunded, per currency, the older gateways' payments, in one call (one read of the limit); each entry row's
+ *    payment flag; per_page up to 100 (paging kept; 1.0's 10 / 20 unchanged).
+ *
  * Run (the e2e site, under the e2e lock): php tests/test-portal-core-v1x-http.php
  */
 require __DIR__ . '/portal-http-lib.php';
@@ -188,6 +192,43 @@ try {
 	$o = array_values(array_filter((array) ($dl['data'] ?? array()), function ($d) use ($old) { return $d['id'] === (int) $old['id']; }));
 	$lk4 = $Q->op('draft_link', array('id' => (int) $old['id'], 'page' => ''));
 	t('the form on no page any more: no page; its link opens on the home page', array($o[0]['page'] ?? 'x', strpos((string) ($lk4['data'] ?? ''), $H->base . '/?efb_resume=') === 0), array('', true));
+
+	echo "--- 1.5: payments ---\n";
+	$mail_p = "pay.{$run}@example.test";
+	$E = array();
+	foreach (array('paid', 'refund', 'due', 'legacy', 'none', 'usd') as $k) $E[$k] = $sub('Pay ' . $k, $mail_p);
+	$byname = array();
+	foreach ((array) $H->ctl('f14-entries', $fid) as $e) foreach ((array) $e['content'] as $row) if (is_array($row) && ($row['id_'] ?? '') === $i['nm']) $byname[$row['value']] = (int) $e['msg_id'];
+	$X->c20('pmt', $byname['Pay paid'], 'paid');
+	$X->c20('pmt', $byname['Pay refund'], 'refunded');
+	$X->c20('pmt', $byname['Pay due'], 'failed'); $X->c20('pmt', $byname['Pay due'], 'pending');
+	$H->ctl('f14-set', (string) $byname['Pay due'], 'read_=2');
+	$X->c20('legacy-pmt', $byname['Pay legacy']);
+	$X->c20('raw-pmt-currency', $byname['Pay usd'], 'USD', '990');
+	$X->c20('reset');
+	$R = new EfbPortalHttpClient($H);
+	$X->signin($R, $mail_p);
+	$sm = $R->op('summary');
+	$cur = $sm['data']['currencies'] ?? array();
+	t('one call, EUR: paid 1250 (a refunded payment counts as refunded, not paid), due 1250 (only the latest attempt of the waiting entry), refunded 1250, 3 entries', array($cur['EUR']['paid'] ?? null, $cur['EUR']['due'] ?? null, $cur['EUR']['refunded'] ?? null, $cur['EUR']['entries'] ?? null), array(1250, 1250, 1250, 3));
+	t('… the older gateway\'s payment (30 USD in the answers) and a framework payment in USD (9.90) are in USD; main = EUR (most entries); due names the waiting entry', array($cur['USD']['paid'] ?? null, $cur['USD']['entries'] ?? null, $sm['data']['main'] ?? '', $sm['data']['due'] ?? array(), $sm['data']['entries'] ?? 0), array(3990, 2, 'EUR', array($byname['Pay due']), 5));
+	$er = $R->op('entries', array('q' => array('per_page' => 100)));
+	$flags = array(); foreach ((array) ($er['data']['rows'] ?? array()) as $r) $flags[$r['msg_id']] = $r['payment'];
+	t('entry rows carry the payment flag: paid, refunded, due, paid (older gateway), none', array($flags[$byname['Pay paid']] ?? 'x', $flags[$byname['Pay refund']] ?? 'x', $flags[$byname['Pay due']] ?? 'x', $flags[$byname['Pay legacy']] ?? 'x', array_key_exists($byname['Pay none'], $flags) ? $flags[$byname['Pay none']] : 'x'), array('paid', 'refunded', 'due', 'paid', null));
+	$X->c20('seed-bulk', $fid, 130, $mail_p, 'all');
+	$X->c20('index', 'restart');
+	$p1 = $R->op('entries', array('q' => array('per_page' => 100, 'page' => 1)));
+	$p2 = $R->op('entries', array('q' => array('per_page' => 100, 'page' => 2)));
+	$p9 = $R->op('entries', array('q' => array('per_page' => 500)));
+	$o1 = $R->op('entries', array('q' => array('per_page' => 20)));
+	$o0 = $R->op('entries', array('q' => array()));
+	t('per_page 100: 100 rows, then the rest on page 2 (paging kept); 500 is clamped to 100; 1.0\'s 20 and default 10 unchanged', array(count($p1['data']['rows'] ?? array()), $p1['data']['per_page'] ?? 0, count($p2['data']['rows'] ?? array()) === max(0, ($p1['data']['total'] ?? 0) - 100), $p9['data']['per_page'] ?? 0, count($o1['data']['rows'] ?? array()), count($o0['data']['rows'] ?? array())), array(100, 100, true, 100, 20, 10));
+	$X->c20('limits', json_encode(array('prr' => 2)));
+	$X->c20('reset');
+	$s1 = $R->op('summary'); $s2 = $R->op('summary'); $s3 = $R->op('summary');
+	t('the summary is one read of the identity\'s read limit', array(!empty($s1['success']), !empty($s2['success']), $s3['code'] ?? ''), array(true, true, 'efb_portal_rate_limited'));
+	$X->c20('limits', '');
+	$X->c20('reset');
 } finally {
 	$X->c20('on', '0'); $X->c20('bef', '0'); $X->c20('limits', '');
 	$H->ctl('addon-flag', 'AdnSS', '0'); $H->ctl('f02-wpsms', '0');

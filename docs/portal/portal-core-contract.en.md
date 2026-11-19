@@ -1,10 +1,10 @@
-# Customer portal — the core contract (F20-core, v1.4)
+# Customer portal — the core contract (F20-core, v1.5)
 
 The customer portal (F20, `docs/feature-gaps/F20-customer-portal.fa.md`) lets a visitor see and act on their own
 submissions without a WordPress account. It is **EFB Customer Portal**, a separate, free WordPress plugin (slug
 `efb-customer-portal`, file `efb-customer-portal/efb-customer-portal.php`; freemium: free to use, paid only for
 customisation) — not an Easy Form Builder add-on, so it has no add-on code, no catalogue entry and no plan gate. This
-document is the contract core gives that plugin: **version 1.4** (`EMSFB_PORTAL_API = 1`, `EMSFB_PORTAL_API_MINOR`,
+document is the contract core gives that plugin: **version 1.5** (`EMSFB_PORTAL_API = 1`, `EMSFB_PORTAL_API_MINOR`,
 the add-on contract id `portal`). It works on **every plan** (Free, Free Plus, Pro). It is enough to build the plugin
 without reading core. §10 lists what each minor version adds; a 1.0 caller keeps working unchanged.
 
@@ -41,7 +41,7 @@ to end), `tests/test-portal-core-v1x-http.php` (the minor versions, §10), `test
 ```php
 if (!function_exists('efb_portal_core_api')) { /* core too old: show "Update Easy Form Builder" */ return; }
 $api = efb_portal_core_api();
-// ['version' => 1, 'minor' => 4, 'contract' => '1.4',
+// ['version' => 1, 'minor' => 5, 'contract' => '1.5',
 //  'features' => ['index','otp','read','thread','reply','ticket','payments','files','cancel', 'reschedule','edit',
 //   'drafts','privacy', …the minor versions' features (§10)], 'errors' => [...], 'policy_keys' => [...],
 //  'index' => ['state' => 'off'|'building'|'ready'|'stale', ...], 'active' => bool, 'hooks' => [...],
@@ -122,8 +122,16 @@ then merge the lists; turn your session token on every sign-in.
 ```php
 efb_portal_entries(array $identity, array $q = []): array|WP_Error
 // $q: form, status, from / to ('Y-m-d'), search (tracking code or answer text; server side, within these entries),
-//     page, per_page (10 | 20) → ['rows' => [[msg_id, form_id, form, track, date, date_text, status, new_reply,
-//     last_activity, booking (null|upcoming|past|cancelled)]], 'total', 'page', 'per_page']
+//     page, per_page (10 | 20; 1.5: 1–100, larger is clamped) → ['rows' => [[msg_id, form_id, form, track, date,
+//     date_text, status, new_reply, last_activity, booking (null|upcoming|past|cancelled),
+//     payment (1.5: null|due|paid|partially_refunded|refunded)]], 'total', 'page', 'per_page']
+efb_portal_payments_summary(array $identity, array $q = []): array|WP_Error                          // 1.5
+// all the identity's entries in one call (q: form) → ['currencies' => [code => [paid, due, refunded, entries]],
+//   'main' => the currency of most entries, 'due' => [msg_id …] (waiting for a payment, newest first), 'entries' => n]
+// minor units. paid = the paid attempts less their refunds; refunded = the refunds; due = the latest attempt's amount of
+// an entry still waiting for its payment (pending_payment) without a paid attempt. The older gateways' payment rows (in
+// the answers) count as paid, or due while the entry waits. One read of the read limit (prr). Use it for the totals
+// instead of one efb_portal_payments() per entry.
 efb_portal_entry(int $msg_id, array $identity): array|WP_Error
 // → [msg_id, form_id, form, track, date, date_text, edited, status, answers, payments, booking, can, edit_until]
 //   answers: [[id, type, label, value(, file: {name, private, url?}, iso, rg, ri, grp, part)]] — never a hidden
@@ -270,3 +278,4 @@ older one keeps working; check `efb_portal_core_api()['features']` (or `minor`) 
 | 1.2 | `channels` | `efb_portal_core_api()['channels']`: `{email, sms}` → `{ready, reason}`, whether a code can be sent now (§2) |
 | 1.3 | `forms` | `efb_portal_forms()` (administrators): each form's name, type, booking, payment, portal flag and the pages that show it |
 | 1.4 | `draft_pages` | a draft keeps the page it was saved on (DB 1.13, `emsfb_draft_.page_url`); `efb_portal_drafts()` adds `form`, `page`, `page_title` (an older draft: the form's page from 1.3); `efb_portal_draft_link($id, $identity, '')` opens there instead of the home page |
+| 1.5 | `payments_summary` | `efb_portal_payments_summary()` (paid / due / refunded per currency in one call); entry rows' `payment` flag; `per_page` up to 100 |

@@ -15,7 +15,8 @@
  *   stock <form id>            the used places of the form's choices (emsfb_stock_)
  *   hold-date <iso>            a date the Booking stand-in refuses (efb_date_before_commit), '' = none
  *   log <msg id>               F14's history rows of an entry
- *   seed-bulk <form id> <n> <email>   n entries of the form at once (n-1 of other addresses, the last of <email>)
+ *   seed-bulk <form id> <n> <email> [all]   n entries of the form at once (n-1 of other addresses, the last of <email>;
+ *                              "all": every one of <email>)
  *   time-lookup <email>        milliseconds of one owner lookup (P5) and the number found
  *   call <function> <json args>   a contract function called directly (WP_Error → {error, data})
  *   pmt <msg id> <status> [legacy]  a payment row of an entry (emsfb_pmt_, the test gateway, a reference and a
@@ -38,6 +39,8 @@
  *                              with the shortcode) | draft (an unpublished page); its id and URL
  *   unplace <post id>          deletes that post
  *   draft-row <draft id>       a draft's fid, status and page_url
+ *   raw-pmt-currency <msg id> <currency> <minor>  a paid payment row of the test gateway in another currency
+ *   legacy-pmt <msg id>        only a payment row of the older gateways in the answers (30 USD, Stripe)
  *   raw-content <msg id> <json rows>  an entry's answers replaced (stored as the plugin stores them; no hook)
  */
 if ( ! defined( 'ABSPATH' ) ) {
@@ -139,7 +142,7 @@ switch ( $f20_cmd ) {
 		for ( $k = 0; $k < $n; $k += 500 ) {
 			$vals = array();
 			for ( $q = $k; $q < min( $n, $k + 500 ); $q++ ) {
-				$mail = $q === $n - 1 ? (string) $f20_rest[2] : 'bulk' . $q . '@example.test';
+				$mail = $q === $n - 1 || ( isset( $f20_rest[3] ) && 'all' === $f20_rest[3] ) ? (string) $f20_rest[2] : 'bulk' . $q . '@example.test';
 				$c = str_replace( '"', '\\"', wp_json_encode( array( array( 'id_' => $em, 'name' => 'Email', 'type' => 'email', 'value' => $mail ) ) ) );
 				$vals[] = $wpdb->prepare( '(%d, %s, %s, %s, %s, 0)', $fid, 'BLK' . $q . wp_generate_password( 6, false, false ), $c, current_time( 'mysql' ), 'bulk' );
 			}
@@ -223,6 +226,19 @@ switch ( $f20_cmd ) {
 			'post_content' => isset( $content[ $kind ] ) ? $content[ $kind ] : '', 'meta_input' => array( '_efb_e2e' => 1 ) ) );
 		if ( 'elementor' === $kind ) update_post_meta( $id, '_elementor_data', wp_slash( wp_json_encode( array( array( 'elType' => 'section', 'elements' => array( array( 'elType' => 'widget', 'widgetType' => 'emsfb_form', 'settings' => array( 'form_id' => (string) $fid ) ) ) ) ) ) ) );
 		efb_f20_out( array( 'id' => (int) $id, 'url' => get_permalink( $id ) ) );
+		break;
+	case 'legacy-pmt':
+		$rows = \Emsfb\Privacy::decode_content( (string) $wpdb->get_var( $wpdb->prepare( "SELECT content FROM {$wpdb->prefix}emsfb_msg_ WHERE msg_id = %d", (int) $f20_rest[0] ) ) ); // phpcs:ignore
+		$rows[] = array( 'id_' => 'payment', 'type' => 'payment', 'paymentGateway' => 'stripe', 'paymentIntent' => 'pi_SECRETINTENT', 'total' => '30', 'currency' => 'usd', 'paymentmethod' => 'card', 'paymentCreated' => '2026-11-01', 'amount' => -2 );
+		efb_f20_out( array( 'updated' => $wpdb->update( $wpdb->prefix . 'emsfb_msg_', array( 'content' => \Emsfb\Privacy::encode_content( $rows ) ), array( 'msg_id' => (int) $f20_rest[0] ) ) ) );
+		break;
+	case 'raw-pmt-currency':
+		$e = $wpdb->get_row( $wpdb->prepare( "SELECT form_id, track FROM {$wpdb->prefix}emsfb_msg_ WHERE msg_id = %d", (int) $f20_rest[0] ), ARRAY_A ); // phpcs:ignore
+		$now = gmdate( 'Y-m-d H:i:s' );
+		$wpdb->insert( $wpdb->prefix . 'emsfb_pmt_', array( 'uid' => substr( bin2hex( random_bytes( 11 ) ), 0, 22 ), 'form_id' => (int) $e['form_id'], 'msg_id' => (int) $f20_rest[0], 'track' => $e['track'], 'gateway' => 'efbmock', 'status' => 'paid',
+			'amount_minor' => (int) $f20_rest[2], 'currency' => (string) $f20_rest[1], 'refunded_minor' => 0, 'attempt_key' => wp_generate_uuid4(), 'idem_key' => hash( 'sha256', wp_generate_uuid4() ), 'gateway_ref' => 'tr_X', 'method' => 'card',
+			'payer_email' => '', 'paid_at' => $now, 'finalized_at' => $now, 'created_at' => $now, 'updated_at' => $now ) );
+		efb_f20_out( array( 'id' => (int) $wpdb->insert_id ) );
 		break;
 	case 'draft-row':
 		efb_f20_out( $wpdb->get_row( $wpdb->prepare( 'SELECT fid, status, page_url FROM `' . \Emsfb\Drafts::table() . '` WHERE id = %d', (int) $f20_rest[0] ), ARRAY_A ) ); // phpcs:ignore

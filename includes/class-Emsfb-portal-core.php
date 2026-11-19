@@ -31,10 +31,10 @@ class Portal_Core {
 
 	const API = 1;
 	/** The contract's minor version (docs/portal/portal-core-contract.en.md "Versions"): 1.1 every plan. */
-	const API_MINOR = 4;
+	const API_MINOR = 5;
 	const FEATURES = array('index', 'otp', 'read', 'thread', 'reply', 'ticket', 'payments', 'files', 'cancel', 'reschedule', 'edit', 'drafts', 'privacy');
 	/** Features added by the minor versions (efb_portal_core_api()['features'] lists them after v1.0's). */
-	const FEATURES_MINOR = array('any_plan', 'channels', 'forms', 'draft_pages');
+	const FEATURES_MINOR = array('any_plan', 'channels', 'forms', 'draft_pages', 'payments_summary');
 	/** The plugin that uses this contract (a separate, free plugin; not an add-on). */
 	const PLUGIN_SLUG = 'efb-customer-portal';
 	const PLUGIN_FILE = 'efb-customer-portal/efb-customer-portal.php';
@@ -431,7 +431,8 @@ class Portal_Core {
 
 	/**
 	 * P9: the identity's entries. q: form (id), status, from / to (Y-m-d), search (tracking code or answer text, within
-	 * these entries, on the server), page, per_page (10 or 20).
+	 * these entries, on the server), page, per_page (1–100 since 1.5; default 10). 1.5: each row has payment
+	 * (null | due | paid | partially_refunded | refunded).
 	 * @return array ['rows', 'total', 'page', 'per_page'] or WP_Error
 	 */
 	public static function entries($identity, array $q = array()) {
@@ -441,7 +442,7 @@ class Portal_Core {
 		$ok = self::limit('prr', $identity, 60, 120);
 		if (is_wp_error($ok)) return $ok;
 		$ids = self::owned_ids($identity);
-		$per = isset($q['per_page']) && (int) $q['per_page'] === 20 ? 20 : 10;
+		$per = isset($q['per_page']) && (int) $q['per_page'] > 0 ? min(100, (int) $q['per_page']) : 10;
 		$page = max(1, isset($q['page']) ? (int) $q['page'] : 1);
 		if (!empty($q['form'])) $ids = array_filter($ids, function ($f) use ($q) { return $f === (int) $q['form']; });
 		$rows = array();
@@ -456,15 +457,18 @@ class Portal_Core {
 			if ($search !== '') { $where .= ' AND (m.track = %s OR m.content LIKE %s)'; $args[] = $search; $args[] = '%' . $wpdb->esc_like(str_replace('"', '@efb@dq#', $search)) . '%'; }
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- tables from $wpdb->prefix, placeholders and clauses built above
 			$list = (array) $wpdb->get_results($wpdb->prepare("SELECT m.msg_id, m.form_id, m.track, m.date, m.read_, m.content, m.owner_state, f.form_name, (SELECT MAX(r.date) FROM `{$wpdb->prefix}emsfb_rsp_` r WHERE r.msg_id = m.msg_id) AS last_at FROM `{$wpdb->prefix}emsfb_msg_` m LEFT JOIN `{$wpdb->prefix}emsfb_form` f ON f.form_id = m.form_id WHERE m.msg_id IN ({$in}){$where} ORDER BY m.msg_id DESC", $args), ARRAY_A);
+			$pmts = self::payment_rows(array_map(function ($r) { return (int) $r['msg_id']; }, $list));
 			foreach ($list as $r) {
 				$content = Privacy::decode_content($r['content']);
 				$bt = self::booking_time(is_array($content) ? $content : array());
 				$last = self::last_reply((int) $r['msg_id']);
 				$st = self::status($r['read_'], $r['owner_state'], $last['by']);
 				if (!empty($q['status']) && $q['status'] !== $st && !($bt !== null && $q['status'] === ($bt > time() ? 'upcoming' : 'past'))) continue;
+				$pf = self::payment_of_entry(isset($pmts[(int) $r['msg_id']]) ? $pmts[(int) $r['msg_id']] : array(), is_array($content) ? $content : array(), $st);
 				$rows[] = array('msg_id' => (int) $r['msg_id'], 'form_id' => (int) $r['form_id'], 'form' => (string) $r['form_name'], 'track' => (string) $r['track'],
 					'date' => (string) $r['date'], 'date_text' => self::date_text($r['date']), 'status' => $st, 'new_reply' => $last['by'] === 'support' && (int) $r['read_'] !== 4,
-					'last_activity' => (string) ($r['last_at'] ?: $r['date']), 'booking' => $bt === null ? null : ($st === 'cancelled' ? 'cancelled' : ($bt > time() ? 'upcoming' : 'past')));
+					'last_activity' => (string) ($r['last_at'] ?: $r['date']), 'booking' => $bt === null ? null : ($st === 'cancelled' ? 'cancelled' : ($bt > time() ? 'upcoming' : 'past')),
+					'payment' => $pf['flag']);
 			}
 		}
 		return array('rows' => array_slice($rows, ($page - 1) * $per, $per), 'total' => count($rows), 'page' => $page, 'per_page' => $per);
@@ -585,6 +589,103 @@ class Portal_Core {
 				'currency' => isset($r['currency']) && is_scalar($r['currency']) ? strtoupper((string) $r['currency']) : '', 'gateway' => ucfirst((string) ($r['paymentGateway'] ?? '')),
 				'method' => (string) ($r['paymentmethod'] ?? ''), 'paid_at' => isset($r['paymentCreated']) && is_scalar($r['paymentCreated']) ? (string) $r['paymentCreated'] : null, 'can_retry' => false, 'receipt' => (int) $e['read_'] !== 2, 'legacy' => true);
 		}
+		return $out;
+	}
+
+	/** The payment framework's rows of these entries: msg_id => [[status, amount_minor, currency, refunded_minor, created_at]] (oldest first). */
+	private static function payment_rows(array $ids) {
+		$out = array();
+		$ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+		if (!$ids || !class_exists('\\Emsfb\\Payments\\Store') || !Payments\Store::ready()) return $out;
+		global $wpdb;
+		$t = Payments\Store::table('emsfb_pmt_');
+		foreach (array_chunk($ids, 500) as $chunk) {
+			$in = implode(',', array_fill(0, count($chunk), '%d'));
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, placeholders built above
+			foreach ((array) $wpdb->get_results($wpdb->prepare("SELECT msg_id, status, amount_minor, currency, refunded_minor, created_at FROM `{$t}` WHERE msg_id IN ({$in}) ORDER BY id", $chunk), ARRAY_A) as $p) $out[(int) $p['msg_id']][] = $p;
+		}
+		return $out;
+	}
+
+	/**
+	 * 1.5: the money of one entry: ['flag' => null|due|paid|partially_refunded|refunded, 'currency', 'paid', 'due',
+	 * 'refunded'] in minor units. Paid = the paid attempts less their refunds; due = the latest attempt's amount of an entry
+	 * still waiting for its payment (status pending_payment) without a paid attempt; a payment of the older gateways (a
+	 * payment row in the answers) is paid, or due while the entry waits for it.
+	 */
+	private static function payment_of_entry(array $pmts, array $rows, $status) {
+		$o = array('flag' => null, 'currency' => '', 'paid' => 0, 'due' => 0, 'refunded' => 0);
+		$paid = false; $last = null; $amount = 0;
+		foreach ($pmts as $p) {
+			$last = $p;
+			if (in_array($p['status'], array('paid', 'partially_refunded', 'refunded'), true)) {
+				$paid = true;
+				$o['currency'] = strtoupper((string) $p['currency']);
+				$amount += (int) $p['amount_minor'];
+				$o['paid'] += max(0, (int) $p['amount_minor'] - (int) $p['refunded_minor']);
+				$o['refunded'] += (int) $p['refunded_minor'];
+			}
+		}
+		if ($paid) {
+			$o['flag'] = $o['refunded'] <= 0 ? 'paid' : ($o['refunded'] >= $amount ? 'refunded' : 'partially_refunded');
+			return $o;
+		}
+		if ($last !== null) {
+			$o['currency'] = strtoupper((string) $last['currency']);
+			if ($status === 'pending_payment') { $o['due'] = (int) $last['amount_minor']; $o['flag'] = 'due'; }
+			return $o;
+		}
+		foreach ($rows as $r) {
+			if (!is_array($r) || ($r['type'] ?? '') !== 'payment') continue; // the older gateways (inside the answers)
+			$cur = isset($r['currency']) && is_scalar($r['currency']) ? strtoupper((string) $r['currency']) : '';
+			$minor = class_exists('\\Emsfb\\Payments\\Money') && isset($r['total']) && is_scalar($r['total']) ? (int) Payments\Money::from_decimal((string) $r['total'], $cur) : 0;
+			$o['currency'] = $cur;
+			if ($status === 'pending_payment') { $o['due'] = $minor; $o['flag'] = 'due'; }
+			elseif ($status !== 'cancelled') { $o['paid'] = $minor; $o['flag'] = 'paid'; }
+			return $o;
+		}
+		return $o;
+	}
+
+	/**
+	 * 1.5: the money of all the identity's entries in one call: ['currencies' => [code => ['paid', 'due', 'refunded'
+	 * (minor units), 'entries' (with a payment)]], 'main' (the currency of most entries), 'due' => [msg_id …] (entries
+	 * waiting for a payment, newest first), 'entries' => n]. q: form (id). One read of the identity's read limit.
+	 */
+	public static function payments_summary($identity, array $q = array()) {
+		if (!self::active()) return self::err('efb_portal_unavailable');
+		$identity = self::clean_identity($identity);
+		$out = array('currencies' => array(), 'main' => '', 'due' => array(), 'entries' => 0);
+		if (!$identity) return $out;
+		$ok = self::limit('prr', $identity, 60, 120);
+		if (is_wp_error($ok)) return $ok;
+		$ids = self::owned_ids($identity);
+		if (!empty($q['form'])) $ids = array_filter($ids, function ($f) use ($q) { return $f === (int) $q['form']; });
+		if (!$ids) return $out;
+		$pmts = self::payment_rows(array_keys($ids));
+		global $wpdb;
+		$n = array();
+		foreach (array_chunk(array_keys($ids), 500) as $chunk) {
+			$in = implode(',', array_fill(0, count($chunk), '%d'));
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, placeholders built above
+			foreach ((array) $wpdb->get_results($wpdb->prepare("SELECT msg_id, read_, owner_state, content FROM `{$wpdb->prefix}emsfb_msg_` WHERE msg_id IN ({$in}) ORDER BY msg_id DESC", $chunk), ARRAY_A) as $r) {
+				$id = (int) $r['msg_id'];
+				$legacy = strpos((string) $r['content'], 'paymentGateway') !== false;
+				if (!isset($pmts[$id]) && !$legacy) continue;
+				$rows = $legacy ? Privacy::decode_content($r['content']) : array();
+				$m = self::payment_of_entry(isset($pmts[$id]) ? $pmts[$id] : array(), is_array($rows) ? $rows : array(), self::status($r['read_'], $r['owner_state'], ''));
+				if ($m['flag'] === null && $m['paid'] === 0) continue;
+				$c = $m['currency'] !== '' ? $m['currency'] : '-';
+				if (!isset($out['currencies'][$c])) $out['currencies'][$c] = array('paid' => 0, 'due' => 0, 'refunded' => 0, 'entries' => 0);
+				foreach (array('paid', 'due', 'refunded') as $k) $out['currencies'][$c][$k] += $m[$k];
+				$out['currencies'][$c]['entries']++;
+				$n[$c] = (isset($n[$c]) ? $n[$c] : 0) + 1;
+				if ($m['flag'] === 'due') $out['due'][] = $id;
+				$out['entries']++;
+			}
+		}
+		rsort($out['due']);
+		if ($n) { arsort($n); $out['main'] = (string) key($n); }
 		return $out;
 	}
 
