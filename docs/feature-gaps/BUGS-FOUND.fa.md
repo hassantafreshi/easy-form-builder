@@ -272,7 +272,7 @@
 | شدت | مشکل | محل | وضعیت |
 |---|---|---|---|
 | متوسط | شناسهٔ فرم در شورت‌کد با `end($atts)` خوانده می‌شد (بالا، «نمایش فرم و رندر»). | `class-Emsfb-public.php` | **رفع شد (F11-H)** |
-| کم | در `send_email_state_new()` وقتی `$state` رشته است، `$state[2]` یک حرف از نام state است (مثلاً `'c'` برای `recovery`) و به‌عنوان «نوع محتوای ایمیل» خوانده می‌شود. state تازهٔ `resumeLink` به همین دلیل صریحاً از بخش «پیگیری» مستثنا شد. | `includes/class-email-handler.php` (ابتدای `send_email_state_new`) | **باز** (رفتار stateهای قدیمی تغییر داده نشد) |
+| کم | در `send_email_state_new()` وقتی `$state` رشته است، `$state[2]` یک حرف از نام state است (مثلاً `'c'` برای `recovery`) و به‌عنوان «نوع محتوای ایمیل» خوانده می‌شود. state تازهٔ `resumeLink` به همین دلیل صریحاً از بخش «پیگیری» مستثنا شد. | `includes/class-email-handler.php` (ابتدای `send_email_state_new`) | **رفع شد (B5 / BUG-03)**: نوع محتوا از `EmsfbEmailHandler::content_type_for_state()` می‌آید: آرگومان هشتم صریح `send_email_state_new(…, $content_type)`، وگرنه خانهٔ سوم آرایهٔ state، وگرنه `traking_link`. state رشته‌ای دیگر یک حرفِ نامش نیست (رفتار ارسال همان ماند: هیچ حرفی برابر `just_message`/`message_link` نبود). تست `tests/test-email-content-type.php` |
 | کم | تست `test-pay-store.php` نسخهٔ پایگاه داده را دقیقاً `1.5` می‌خواست و با هر مهاجرت بعدی می‌شکست. | `tests/test-pay-store.php` | **رفع شد**: «۱.۵ یا بالاتر» مثل `test-privacy-schema.php` |
 | کم | راهنمای پیاده‌سازی (Recipe C بند ۷) پیشنهاد می‌کند `formsClosed` برای زمان‌بندی استفاده شود؛ آن عبارت یعنی «سایت فرم نمی‌پذیرد». | `docs/feature-gaps/IMPLEMENTATION-PLAYBOOK.en.md` §4 | **رفع شد در F11**: عبارت‌های تازهٔ `schedPendingM` و `schedClosedM` |
 

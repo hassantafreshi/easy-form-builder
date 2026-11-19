@@ -125,9 +125,19 @@ class EmsfbEmailHandler {
         return $b;
     }
 
-    public function send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st = "null") {
+    /**
+     * BUG-03 (BUGS-FOUND 275): the e-mail's content type (traking_link, message_link or just_message). Explicit when the
+     * caller passes one; else the third item of a paired state array([owner state, visitor state, content type, …]);
+     * else traking_link. A string state is a name, not an array: 'recovery'[2] used to be read as the type 'c'.
+     */
+    public static function content_type_for_state($state, $explicit = null) {
+        if (is_string($explicit) && $explicit !== '') return $explicit;
+        return is_array($state) && isset($state[2]) && is_string($state[2]) && $state[2] !== '' ? $state[2] : 'traking_link';
+    }
 
-        $email_content_type = isset($state[2]) ? $state[2] : 'traking_link';
+    public function send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st = "null", $content_type = null) {
+
+        $email_content_type = self::content_type_for_state($state, $content_type);
 
         add_filter('wp_mail_content_type', [$this, 'wpdocs_set_html_mail_content_type']);
 
