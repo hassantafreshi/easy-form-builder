@@ -80,7 +80,7 @@ add_action( 'rest_api_init', static function () {
 		$j = is_array( $j ) ? $j : array();
 		$sess = efb_e2e_prt_session();
 		$writes = array( 'reply', 'upload_token', 'state', 'cancel', 'reschedule', 'update', 'draft_link', 'privacy', 'signout' );
-		$open = array( 'start', 'verify', 'wp', 'api' );
+		$open = array( 'start', 'verify', 'wp', 'api', 'forms' );
 		if ( ! in_array( $op, $open, true ) && ! $sess ) return new WP_REST_Response( array( 'success' => false, 'code' => 'session' ), 401 );
 		if ( in_array( $op, $writes, true ) && ( ! hash_equals( $sess['csrf'], (string) $r->get_header( 'X-EFB-Portal-CSRF' ) ) || ( class_exists( '\Emsfb\Request_Health' ) && ! \Emsfb\Request_Health::same_origin() ) ) ) {
 			return new WP_REST_Response( array( 'success' => false, 'code' => 'csrf' ), 403 );
@@ -89,6 +89,7 @@ add_action( 'rest_api_init', static function () {
 		$a = static function ( $k, $d = null ) use ( $j ) { return array_key_exists( $k, $j ) ? $j[ $k ] : $d; };
 		switch ( $op ) {
 			case 'api': $res = efb_portal_core_api(); break;
+			case 'forms': $res = function_exists( 'efb_portal_forms' ) ? efb_portal_forms() : new WP_Error( 'op', 'old core', array( 'status' => 404 ) ); break; // 1.3, an administrator's screen
 			case 'start':
 				$ctx = array( 'psid' => efb_e2e_prt_psid(), 'lang' => (string) $a( 'lang', '' ) );
 				if ( null !== $a( 'captcha' ) ) $ctx['captcha'] = (string) $a( 'captcha' );

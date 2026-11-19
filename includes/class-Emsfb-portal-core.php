@@ -31,16 +31,20 @@ class Portal_Core {
 
 	const API = 1;
 	/** The contract's minor version (docs/portal/portal-core-contract.en.md "Versions"): 1.1 every plan. */
-	const API_MINOR = 2;
+	const API_MINOR = 3;
 	const FEATURES = array('index', 'otp', 'read', 'thread', 'reply', 'ticket', 'payments', 'files', 'cancel', 'reschedule', 'edit', 'drafts', 'privacy');
 	/** Features added by the minor versions (efb_portal_core_api()['features'] lists them after v1.0's). */
-	const FEATURES_MINOR = array('any_plan', 'channels');
+	const FEATURES_MINOR = array('any_plan', 'channels', 'forms');
 	/** The plugin that uses this contract (a separate, free plugin; not an add-on). */
 	const PLUGIN_SLUG = 'efb-customer-portal';
 	const PLUGIN_FILE = 'efb-customer-portal/efb-customer-portal.php';
 	const ERRORS = array('efb_portal_not_found' => 404, 'efb_portal_forbidden' => 403, 'efb_portal_rate_limited' => 429, 'efb_portal_window_closed' => 403,
 		'efb_portal_capacity' => 409, 'efb_portal_paid_locked' => 403, 'efb_portal_closed' => 403, 'efb_portal_unavailable' => 503, 'efb_portal_invalid' => 400,
 		'efb_portal_conflict' => 409, 'addon_required' => 409);
+	/** 1.3: the transient of the forms' pages (form id => pages), forgotten when a post is saved, trashed or deleted. */
+	const PAGES_CACHE = 'efb_portal_form_pages';
+	/** Field types of the payment gateways from before the payment framework (still on older forms). */
+	const LEGACY_PAY_TYPES = array('stripe', 'paypal', 'persiaPay');
 	/** A form's portal policy (the add-on's settings, §6.3 forms.{id}); core's defaults keep everything off. */
 	const POLICY = array('on' => false, 'fields' => 'all', 'match' => 'id_field', 'reply' => false, 'attach' => false, 'close' => false, 'reopen_days' => 14,
 		'cancel' => false, 'cancel_hours' => 24, 'paid_cancel' => false, 'reschedule' => false, 'reschedule_hours' => 24, 'reschedule_max' => 1,
@@ -53,6 +57,7 @@ class Portal_Core {
 
 	public static function register() {
 		add_filter('efb_capabilities', array(__CLASS__, 'capabilities'), 40, 2);
+		foreach (array('save_post', 'deleted_post', 'trashed_post', 'untrashed_post') as $h) add_action($h, array(__CLASS__, 'forget_pages'));
 	}
 
 	/**
@@ -948,6 +953,110 @@ class Portal_Core {
 		if ($dates) { $rows = self::date_commit($e['msg_id'], $dates, 'edit'); if (is_wp_error($rows)) return $rows; }
 		self::reset_cache();
 		return array('ok' => true, 'hash' => md5((string) Entries::entry($e['msg_id'])['content']));
+	}
+
+	/* ================================================================ 1.3: the forms (administrators) */
+
+	/**
+	 * 1.3: every form for the portal's settings screen — administrators only (manage_options, filter
+	 * efb_portal_forms_capability): [[id, name, type, has_booking (an advanced date: the portal's booking time),
+	 * has_payment (a payment field), portal (the plugin's policy puts it in the portal), pages: [[id, url, title]]]].
+	 * pages: published posts of any public type that show the form (its shortcode, block, or a page builder's widget).
+	 * A user without the capability: efb_portal_forbidden; the plugin off: efb_portal_unavailable.
+	 */
+	public static function forms() {
+		$on = function_exists('apply_filters') && apply_filters('efb_portal_active', false) === true;
+		if (!$on || !self::plan_ok()) return self::err('efb_portal_unavailable');
+		$cap = (string) apply_filters('efb_portal_forms_capability', 'manage_options');
+		if (!function_exists('current_user_can') || !current_user_can($cap)) return self::err('efb_portal_forbidden');
+		global $wpdb;
+		$list = (array) $wpdb->get_results("SELECT form_id, form_name, form_type, form_structer FROM `{$wpdb->prefix}emsfb_form` ORDER BY form_id", ARRAY_A); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		$pages = self::form_pages();
+		$out = array();
+		foreach ($list as $f) {
+			$id = (int) $f['form_id'];
+			$rows = self::decode_form((string) $f['form_structer']);
+			$booking = false; $pay = false;
+			foreach ($rows as $i => $r) {
+				if ($i < 1 || !is_array($r)) continue;
+				$t = isset($r['type']) ? (string) $r['type'] : '';
+				if ($t === 'advdate') $booking = true;
+				if (in_array($t, self::LEGACY_PAY_TYPES, true) || (class_exists('\\Emsfb\\Payments\\Readiness') && Payments\Readiness::is_payment_type($t))) $pay = true;
+			}
+			$out[] = array('id' => $id, 'name' => wp_strip_all_tags(str_replace('@efb@dq#', '"', (string) $f['form_name'])), 'type' => (string) ($f['form_type'] ?: 'form'),
+				'has_booking' => $booking, 'has_payment' => $pay, 'portal' => self::policy($id)['on'], 'pages' => isset($pages[$id]) ? $pages[$id] : array());
+		}
+		return $out;
+	}
+
+	/** The rows of a stored form (form_structer), or []. */
+	private static function decode_form($raw) {
+		if ($raw === '') return array();
+		$json = function_exists('emsfb_json_normalize_efb') ? emsfb_json_normalize_efb($raw) : str_replace('\\"', '"', $raw);
+		$rows = function_exists('emsfb_json_decode_efb') ? emsfb_json_decode_efb($json, true) : json_decode($json, true);
+		return is_array($rows) ? $rows : array();
+	}
+
+	/**
+	 * The published pages that show each form: form id => [[id, url, title]] (at most 20 a form). Read from WordPress'
+	 * posts (the shortcodes EMS_Form_Builder / ems_form_builder / efb_wpbakery_form / efb_vc_form, the block
+	 * easy-form-builder/form, Elementor's widget emsfb_form); kept in a transient until a post changes.
+	 */
+	public static function form_pages() {
+		$map = function_exists('get_transient') ? get_transient(self::PAGES_CACHE) : false;
+		if (is_array($map)) return $map;
+		global $wpdb;
+		$map = array();
+		$types = function_exists('get_post_types') ? array_values(array_diff(get_post_types(array('public' => true)), array('attachment'))) : array('page', 'post');
+		if (!$types) $types = array('page', 'post');
+		$in = implode(',', array_fill(0, count($types), '%s'));
+		$like = array('%EMS_Form_Builder%', '%ems_form_builder%', '%wp:easy-form-builder/form%', '%efb_wpbakery_form%', '%efb_vc_form%');
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, placeholders built above
+		$posts = (array) $wpdb->get_results($wpdb->prepare("SELECT ID, post_content FROM `{$wpdb->posts}` WHERE post_status = 'publish' AND post_type IN ({$in}) AND (post_content LIKE %s OR post_content LIKE %s OR post_content LIKE %s OR post_content LIKE %s OR post_content LIKE %s) ORDER BY ID LIMIT 1000", array_merge($types, $like)), ARRAY_A);
+		$found = array();
+		foreach ($posts as $p) foreach (self::form_ids_in((string) $p['post_content']) as $fid) $found[] = array($fid, (int) $p['ID']);
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- tables from $wpdb, placeholders built above
+		$el = (array) $wpdb->get_results($wpdb->prepare("SELECT m.post_id, m.meta_value FROM `{$wpdb->postmeta}` m JOIN `{$wpdb->posts}` p ON p.ID = m.post_id WHERE m.meta_key = '_elementor_data' AND p.post_status = 'publish' AND p.post_type IN ({$in}) AND m.meta_value LIKE %s ORDER BY m.post_id LIMIT 500", array_merge($types, array('%emsfb_form%'))), ARRAY_A);
+		foreach ($el as $m) foreach (self::elementor_form_ids((string) $m['meta_value']) as $fid) $found[] = array($fid, (int) $m['post_id']);
+		foreach ($found as $x) {
+			list($fid, $pid) = $x;
+			if (isset($map[$fid]) && (count($map[$fid]) >= 20 || in_array($pid, array_column($map[$fid], 'id'), true))) continue;
+			$url = function_exists('get_permalink') ? (string) get_permalink($pid) : '';
+			if ($url === '') continue;
+			$map[$fid][] = array('id' => $pid, 'url' => $url, 'title' => function_exists('get_the_title') ? wp_strip_all_tags(html_entity_decode(get_the_title($pid), ENT_QUOTES, 'UTF-8')) : '');
+		}
+		if (function_exists('set_transient')) set_transient(self::PAGES_CACHE, $map, DAY_IN_SECONDS);
+		return $map;
+	}
+
+	/** Forgets the forms' pages (a post was saved, trashed or deleted). */
+	public static function forget_pages() {
+		if (function_exists('delete_transient')) delete_transient(self::PAGES_CACHE);
+	}
+
+	/** The form ids a post's content shows: the shortcodes and the block. */
+	public static function form_ids_in($content) {
+		$ids = array();
+		if (preg_match_all('/\[(?:EMS_Form_Builder|ems_form_builder)\b[^\]]*?\bid\s*=\s*["\']?(\d+)/i', $content, $m)) $ids = array_merge($ids, $m[1]);
+		if (preg_match_all('/\[(?:efb_wpbakery_form|efb_vc_form)\b[^\]]*?\bform_id\s*=\s*["\']?(\d+)/i', $content, $m)) $ids = array_merge($ids, $m[1]);
+		if (preg_match_all('/<!--\s*wp:easy-form-builder\/form\s+(\{.*?\})\s*\/?-->/s', $content, $m)) {
+			foreach ($m[1] as $json) { $a = json_decode($json, true); if (is_array($a) && isset($a['formId']) && is_scalar($a['formId'])) $ids[] = $a['formId']; }
+		}
+		return array_values(array_unique(array_filter(array_map('intval', $ids), function ($i) { return $i > 0; })));
+	}
+
+	/** The form ids of Elementor's Easy Form Builder widgets (emsfb_form) in a page's _elementor_data. */
+	public static function elementor_form_ids($json) {
+		$ids = array();
+		$walk = function ($els) use (&$walk, &$ids) {
+			foreach (is_array($els) ? $els : array() as $e) {
+				if (!is_array($e)) continue;
+				if (($e['widgetType'] ?? '') === 'emsfb_form' && isset($e['settings']['form_id']) && is_scalar($e['settings']['form_id'])) $ids[] = (int) $e['settings']['form_id'];
+				if (isset($e['elements'])) $walk($e['elements']);
+			}
+		};
+		$walk(json_decode($json, true));
+		return array_values(array_unique(array_filter($ids, function ($i) { return $i > 0; })));
 	}
 
 	/* ================================================================ P16: drafts, P19: privacy */

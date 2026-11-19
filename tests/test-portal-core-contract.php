@@ -106,6 +106,19 @@ echo "--- status, booking time ---\n";
 t('statuses: cancelled > pending payment > closed > awaiting you > awaiting support > received', array(P::status(1, 1, ''), P::status(2, 0, ''), P::status(4, 0, 'support'), P::status(1, 0, 'support'), P::status(3, 0, 'owner'), P::status(1, 0, '')), array('cancelled', 'pending_payment', 'closed', 'awaiting_you', 'awaiting_support', 'received'));
 t('the booking time: the first advanced date\'s utc, else its day; none without one', array(P::booking_time(array(array('type' => 'advdate', 'value' => '2030-05-06T10:00', 'utc' => '2030-05-06T08:00:00Z'))), P::booking_time(array(array('type' => 'advdate', 'value' => '2030-05-06'))), P::booking_time(array(array('type' => 'text', 'value' => 'x')))), array(strtotime('2030-05-06T08:00:00Z'), strtotime('2030-05-06 00:00:00 UTC'), null));
 
+echo "--- 1.3: the forms' pages ---\n";
+t('form ids in a post: both shortcodes (quoted or not, other attributes), the block (formId as text or number), WPBakery and Visual Composer; not a tracking finder or a text', P::form_ids_in('[EMS_Form_Builder id=3] x [ems_form_builder  id="12" mode=popup] <!-- wp:easy-form-builder/form {"formId":"7","formName":"A"} /--> <!-- wp:easy-form-builder/form {"formId":9} /--> [efb_wpbakery_form form_id="15"] [efb_vc_form form_id=16] [EMS_Form_Builder id=3] [Easy_Form_Builder_confirmation_code_finder] see form id=99'), array(3, 12, 15, 16, 7, 9));
+t('Elementor: the emsfb_form widgets at any depth, nothing else', P::elementor_form_ids(json_encode(array(array('elType' => 'section', 'elements' => array(array('elType' => 'column', 'elements' => array(array('widgetType' => 'emsfb_form', 'settings' => array('form_id' => '21')), array('widgetType' => 'heading', 'settings' => array('form_id' => '22')))))), array('widgetType' => 'emsfb_form', 'settings' => array('form_id' => 'tracking'))))), array(21));
+$GLOBALS['CAN'] = false;
+function current_user_can($c) { return $GLOBALS['CAN']; }
+if (!class_exists('WP_Error')) { class WP_Error { private $c; private $m; private $d; public function __construct($c = '', $m = '', $d = null) { $this->c = $c; $this->m = $m; $this->d = $d; } public function get_error_code() { return $this->c; } public function get_error_data() { return $this->d; } public function get_error_message() { return $this->m; } } }
+$r = P::forms();
+t('efb_portal_forms(): not an administrator → efb_portal_forbidden (403)', array(is_object($r) ? $r->get_error_code() : $r, is_object($r) ? $r->get_error_data()['status'] : 0), array('efb_portal_forbidden', 403));
+unset($GLOBALS['F']['efb_portal_active']);
+$r = P::forms();
+t('… the plugin off → efb_portal_unavailable', is_object($r) ? $r->get_error_code() : $r, 'efb_portal_unavailable');
+add_filter('efb_portal_active', function () { return true; });
+
 echo "\nRESULTS: {$pass} passed, {$fail} failed\n";
 exit($fail ? 1 : 0);
 }

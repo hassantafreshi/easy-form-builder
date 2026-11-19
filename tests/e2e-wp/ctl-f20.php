@@ -33,6 +33,9 @@
  *   tpl clear|restore          the site's own e-mail template put aside / back (core's default template meanwhile)
  *   limits <json>              lower portal limits for a test ({scope: n}; '' = none)
  *   caps                       the registry's capabilities.portal_core, and whether AdnPRT is anywhere in the add-on registry
+ *   place <form id> <kind> [status]  a post showing the form: shortcode | block | wpbakery | elementor | post (a blog post
+ *                              with the shortcode) | draft (an unpublished page); its id and URL
+ *   unplace <post id>          deletes that post
  *   raw-content <msg id> <json rows>  an entry's answers replaced (stored as the plugin stores them; no hook)
  */
 if ( ! defined( 'ABSPATH' ) ) {
@@ -208,6 +211,19 @@ switch ( $f20_cmd ) {
 		$all = \Emsfb\Builder_Api::capabilities();
 		efb_f20_out( array( 'portal_core' => isset( $all['portal_core'] ) ? $all['portal_core'] : null, 'addon_feature' => isset( $all['features']['addon:AdnPRT'] ), 'catalog' => null !== \Emsfb\Addon_Catalog::get( 'AdnPRT' ),
 			'split_addon' => isset( $all['split']['addons']['AdnPRT'] ), 'plan' => \Emsfb\Builder_Api::plan() ) );
+		break;
+	case 'place':
+		$fid  = (int) $f20_rest[0];
+		$kind = isset( $f20_rest[1] ) ? (string) $f20_rest[1] : 'shortcode';
+		$content = array( 'shortcode' => '[EMS_Form_Builder id=' . $fid . ']', 'post' => '[EMS_Form_Builder id="' . $fid . '"]', 'draft' => '[EMS_Form_Builder id=' . $fid . ']',
+			'block' => '<!-- wp:easy-form-builder/form {"formId":"' . $fid . '","formName":"x"} /-->', 'wpbakery' => '[vc_row][efb_wpbakery_form form_id="' . $fid . '"][/vc_row]', 'elementor' => '' );
+		$id = wp_insert_post( array( 'post_type' => 'post' === $kind ? 'post' : 'page', 'post_status' => 'draft' === $kind ? 'draft' : 'publish', 'post_title' => 'Portal place ' . $kind . ' ' . $fid,
+			'post_content' => isset( $content[ $kind ] ) ? $content[ $kind ] : '', 'meta_input' => array( '_efb_e2e' => 1 ) ) );
+		if ( 'elementor' === $kind ) update_post_meta( $id, '_elementor_data', wp_slash( wp_json_encode( array( array( 'elType' => 'section', 'elements' => array( array( 'elType' => 'widget', 'widgetType' => 'emsfb_form', 'settings' => array( 'form_id' => (string) $fid ) ) ) ) ) ) ) );
+		efb_f20_out( array( 'id' => (int) $id, 'url' => get_permalink( $id ) ) );
+		break;
+	case 'unplace':
+		efb_f20_out( array( 'deleted' => (bool) wp_delete_post( (int) $f20_rest[0], true ) ) );
 		break;
 	case 'limits':
 		$l = json_decode( isset( $f20_rest[0] ) ? (string) $f20_rest[0] : '', true );

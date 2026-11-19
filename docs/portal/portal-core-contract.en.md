@@ -1,10 +1,10 @@
-# Customer portal — the core contract (F20-core, v1.2)
+# Customer portal — the core contract (F20-core, v1.3)
 
 The customer portal (F20, `docs/feature-gaps/F20-customer-portal.fa.md`) lets a visitor see and act on their own
 submissions without a WordPress account. It is **EFB Customer Portal**, a separate, free WordPress plugin (slug
 `efb-customer-portal`, file `efb-customer-portal/efb-customer-portal.php`; freemium: free to use, paid only for
 customisation) — not an Easy Form Builder add-on, so it has no add-on code, no catalogue entry and no plan gate. This
-document is the contract core gives that plugin: **version 1.2** (`EMSFB_PORTAL_API = 1`, `EMSFB_PORTAL_API_MINOR`,
+document is the contract core gives that plugin: **version 1.3** (`EMSFB_PORTAL_API = 1`, `EMSFB_PORTAL_API_MINOR`,
 the add-on contract id `portal`). It works on **every plan** (Free, Free Plus, Pro). It is enough to build the plugin
 without reading core. §10 lists what each minor version adds; a 1.0 caller keeps working unchanged.
 
@@ -41,7 +41,7 @@ to end), `tests/test-portal-core-v1x-http.php` (the minor versions, §10), `test
 ```php
 if (!function_exists('efb_portal_core_api')) { /* core too old: show "Update Easy Form Builder" */ return; }
 $api = efb_portal_core_api();
-// ['version' => 1, 'minor' => 2, 'contract' => '1.2',
+// ['version' => 1, 'minor' => 3, 'contract' => '1.3',
 //  'features' => ['index','otp','read','thread','reply','ticket','payments','files','cancel', 'reschedule','edit',
 //   'drafts','privacy', …the minor versions' features (§10)], 'errors' => [...], 'policy_keys' => [...],
 //  'index' => ['state' => 'off'|'building'|'ready'|'stale', ...], 'active' => bool, 'hooks' => [...],
@@ -177,6 +177,21 @@ efb_portal_privacy_request(array $identity, string $email, string $type): array|
 efb_portal_reindex(bool $restart = false): bool                       // switch the index on, (re)build in the background
 ```
 
+### The forms, for the plugin's settings screen (1.3)
+
+```php
+efb_portal_forms(): array|WP_Error
+// administrators only (current_user_can('manage_options'), filter efb_portal_forms_capability) → every form:
+// [[id, name, type ('form', 'payment', …), has_booking (an advanced date: the portal's booking time), has_payment (a
+//   payment field, the framework's or an older gateway's), portal (your policy puts it in the portal),
+//   pages: [[id, url, title]]]]
+// pages: the published posts of any public type that show the form — the shortcodes EMS_Form_Builder /
+// ems_form_builder / efb_wpbakery_form / efb_vc_form, the block easy-form-builder/form, Elementor's widget emsfb_form;
+// at most 20 a form; kept until a post is saved, trashed or deleted. Not an administrator: efb_portal_forbidden.
+```
+
+Use it instead of searching posts yourself (names for your per-form settings, "Book again" and a draft's page).
+
 Booking (P14) is a contract the **Booking add-on (AdnBEF)** implements: it returns 1 on `efb_portal_booking_api` and
 frees its own reservations on `efb_entry_cancelled($msg_id, $form_id, $rows)` and
 `efb_date_released($rows, $form_id, $track, $ctx)`. Without it, cancel and reschedule answer `addon_required`
@@ -187,7 +202,7 @@ frees its own reservations on `efb_entry_cancelled($msg_id, $form_id, $rows)` an
 | Code | Status | When |
 |---|---|---|
 | `efb_portal_not_found` | 404 | not owned, not active, not in the portal, not stored, does not exist |
-| `efb_portal_forbidden` | 403 | the policy does not allow it, or a field that may not be edited |
+| `efb_portal_forbidden` | 403 | the policy does not allow it, or a field that may not be edited; `efb_portal_forms()` for a user who is not an administrator |
 | `efb_portal_rate_limited` | 429 | a limit (`retry_after` seconds) |
 | `efb_portal_window_closed` | 403 | too late (cancel / reschedule / edit / reopen) or too many reschedules |
 | `efb_portal_capacity` | 409 | a choice or a date is full |
@@ -249,3 +264,4 @@ older one keeps working; check `efb_portal_core_api()['features']` (or `minor`) 
 | 1.0 | `index` … `privacy` | §2–§9 |
 | 1.1 | `any_plan` | every plan (Free, Free Plus, Pro): `efb_portal_plan_ok` defaults to `true`; the sign-in codes skip F02's plan of a form's code; `capabilities.portal_core` describes the plugin (`plugin`, `plans`, `minor`, `contract`; no `addon`, no `package`; `reason` `plugin` instead of `addon`); `AdnPRT` left the add-on catalogue |
 | 1.2 | `channels` | `efb_portal_core_api()['channels']`: `{email, sms}` → `{ready, reason}`, whether a code can be sent now (§2) |
+| 1.3 | `forms` | `efb_portal_forms()` (administrators): each form's name, type, booking, payment, portal flag and the pages that show it |

@@ -65,6 +65,8 @@ if (!function_exists('efb_portal_core_api')) {
 	function efb_portal_drafts(array $identity) { return \Emsfb\Portal_Core::drafts($identity); }
 	/** P16: a new link to a draft (the earlier one stops working); $page = the form's page URL. */
 	function efb_portal_draft_link($draft_id, array $identity, $page = '') { return \Emsfb\Portal_Core::draft_link((int) $draft_id, $identity, (string) $page); }
+	/** 1.3: every form with its type, booking, payment and the pages that show it — administrators only. */
+	function efb_portal_forms() { return \Emsfb\Portal_Core::forms(); }
 	/** §4.10: export | erase request (WordPress' own e-mail confirmation), or a note to the site for a mobile-only identity. */
 	function efb_portal_privacy_request(array $identity, $email, $type) { return \Emsfb\Portal_Core::privacy_request($identity, (string) $email, (string) $type); }
 }
