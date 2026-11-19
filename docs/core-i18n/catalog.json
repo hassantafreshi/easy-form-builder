@@ -4,8 +4,8 @@
     "plugin_version": "4.3.2",
     "updated": "2026-11-19",
     "counts": {
-        "active": 4249,
-        "obsolete": 511
+        "active": 4259,
+        "obsolete": 512
     },
     "entries": [
         {
@@ -1538,6 +1538,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%s form cannot take payments yet",
+            "context": null,
+            "plural": "%s forms cannot take payments yet",
+            "translators": "%s: number of forms",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s has no keys for Live mode yet, so visitors cannot pay. Add them in Payments → Gateways.",
             "context": null,
             "plural": null,
@@ -2178,6 +2193,7 @@
             "plural": "(and %d more problems)",
             "translators": "%d: number of further problems",
             "files": [
+                "includes/payments/class-Emsfb-payment-admin.php",
                 "includes/payments/class-Emsfb-payment-registry.php"
             ],
             "scope": [
@@ -2251,8 +2267,9 @@
             "msgid": "(opens in a new tab)",
             "context": null,
             "plural": null,
-            "translators": "F18: for screen readers, after a link that opens a new tab",
+            "translators": "SET-01: for screen readers, after a link that opens a new tab translators: F18: for screen readers, after a link that opens a new tab",
             "files": [
+                "includes/class-Emsfb-addon-catalog.php",
                 "includes/class-Emsfb-renewal-reminder.php",
                 "includes/functions.php"
             ],
@@ -7400,6 +7417,7 @@
             "plural": null,
             "translators": "F12b-L: add-on settings page: link back to Easy Form Builder's Settings",
             "files": [
+                "includes/class-Emsfb-addon-catalog.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -17115,6 +17133,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Easy Form Builder documentation",
+            "context": null,
+            "plural": null,
+            "translators": "A11Y-01: the name screen readers give the document icon in the Easy Form Builder header (a link to the documentation)",
+            "files": [
+                "includes/class-Emsfb-notices.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Easy Form Builder entries",
             "context": null,
             "plural": null,
@@ -21326,11 +21359,9 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php",
-                "vendor/human-shield/class-Emsfb-human-shield-admin.php"
+                "includes/functions.php"
             ],
             "scope": [
-                "addon:human-shield",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -23790,8 +23821,9 @@
             "msgid": "Help",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "SET-01: the Help link in the header of an add-on's settings screen",
             "files": [
+                "includes/class-Emsfb-addon-catalog.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -24008,6 +24040,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Hidden for %s day.",
+            "context": null,
+            "plural": "Hidden for %s days.",
+            "translators": "UX-01: said to screen-reader users after \"Remind me in 7 days\"; %s: a number of days (7)",
+            "files": [
+                "includes/class-Emsfb-notices.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -34192,6 +34239,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Notices",
+            "context": null,
+            "plural": null,
+            "translators": "UX-01: the button in the Easy Form Builder header that opens the list of the plugin's other notices (a number follows it)",
+            "files": [
+                "includes/class-Emsfb-notices.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Notification emails are turned off",
             "context": null,
             "plural": null,
@@ -35754,6 +35816,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Open the Human Shield settings",
+            "context": null,
+            "plural": null,
+            "translators": "SET-01: a link in Settings › Captchas to the screen of the Human Shield add-on (a product name)",
+            "files": [
+                "includes/class-Emsfb-notices.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -42429,6 +42506,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Remind me in %s day",
+            "context": null,
+            "plural": "Remind me in %s days",
+            "translators": "UX-01: a button under an Easy Form Builder notice; %s: a number of days (7)",
+            "files": [
+                "includes/class-Emsfb-notices.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Remind me later",
             "context": null,
             "plural": null,
@@ -44900,6 +44992,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Save Changes",
+            "context": null,
+            "plural": null,
+            "translators": "SET-01: the save button at the bottom of an add-on's settings screen",
+            "files": [
+                "includes/class-Emsfb-addon-catalog.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Save Settings",
             "context": null,
             "plural": null,
@@ -45530,8 +45637,8 @@
                 "addon:human-shield"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Security & Spam Protection tabs",
@@ -47320,6 +47427,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Show %s more form",
+            "context": null,
+            "plural": "Show %s more forms",
+            "translators": "%s: number of further forms",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Show Confirmation Code",
             "context": null,
             "plural": null,
@@ -47469,6 +47591,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Show more",
+            "context": null,
+            "plural": null,
+            "translators": "A11Y-01: the name screen readers give the arrow button under the forms list that loads more forms",
+            "files": [
+                "includes/class-Emsfb-notices.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -62538,6 +62675,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Visitors cannot pay with these forms until their problem is fixed. The forms list marks them too.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Visitors cannot pay with this form yet. Open it to see what is missing.",
             "context": null,
             "plural": null,
@@ -66618,6 +66770,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your WhiteStudio account",
+            "context": null,
+            "plural": null,
+            "translators": "A11Y-01: the name screen readers give the person icon in the Easy Form Builder header (a link to the account on whitestudio.team)",
+            "files": [
+                "includes/class-Emsfb-notices.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
