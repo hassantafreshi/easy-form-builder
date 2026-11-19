@@ -22,11 +22,11 @@ if (!defined('EMSFB_PORTAL_API')) define('EMSFB_PORTAL_API', 1);
 if (!defined('EMSFB_PORTAL_API_MINOR')) define('EMSFB_PORTAL_API_MINOR', \Emsfb\Portal_Core::API_MINOR);
 
 if (!function_exists('efb_portal_core_api')) {
-	/** P1: the contract version (major, minor), its features and refusal codes, and the state of the owner index. */
+	/** P1: the contract version (major, minor), its features and refusal codes, the owner index's state; 1.2: channels. */
 	function efb_portal_core_api() {
 		$st = class_exists('\\Emsfb\\Owner_Index') ? \Emsfb\Owner_Index::state() : array('state' => 'off');
 		return array('version' => EMSFB_PORTAL_API, 'minor' => EMSFB_PORTAL_API_MINOR, 'contract' => EMSFB_PORTAL_API . '.' . EMSFB_PORTAL_API_MINOR, 'features' => \Emsfb\Portal_Core::features(), 'errors' => array_keys(\Emsfb\Portal_Core::ERRORS),
-			'policy_keys' => array_keys(\Emsfb\Portal_Core::POLICY), 'index' => $st, 'active' => \Emsfb\Portal_Core::active(),
+			'policy_keys' => array_keys(\Emsfb\Portal_Core::POLICY), 'index' => $st, 'active' => \Emsfb\Portal_Core::active(), 'channels' => \Emsfb\Portal_Core::channels(),
 			'hooks' => array('efb_portal_active', 'efb_portal_form_policy', 'efb_portal_booking_api', 'efb_entry_stored', 'efb_entry_reply_added', 'efb_entry_ticket_state', 'efb_entry_cancelled', 'efb_date_released', 'efb_entry_view_url', 'emsfb_cache_shortcodes', 'efb_portal_entry_row', 'efb_addon_setting_keys'));
 	}
 	/** P5: switches the owner index on and (re)builds it in the background (the add-on on activation, "Rebuild the index"). */

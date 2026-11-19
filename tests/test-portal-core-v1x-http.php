@@ -8,6 +8,10 @@
  *    capabilities.portal_core names the plugin (efb-customer-portal), never an add-on or a package; no AdnPRT in the
  *    add-on registry; without the plugin: reason "plugin", every function efb_portal_unavailable; v1 callers unchanged.
  *
+ *  - 1.2 channels: efb_portal_core_api()['channels'] says whether an e-mail and an SMS code can be sent now: SMS only
+ *    with the SMS add-on (no_provider) and the WP SMS plugin (sender_not_ready) and allowed countries; e-mail off
+ *    (email_off); today's budget used up (budget).
+ *
  * Run (the e2e site, under the e2e lock): php tests/test-portal-core-v1x-http.php
  */
 require __DIR__ . '/portal-http-lib.php';
@@ -60,8 +64,37 @@ try {
 		$l = $P->op('entries');
 		t("plan {$pkg} (" . ($c['plan'] ?? '') . '): active, the same list', array($c['portal_core']['ready'] ?? null, array_column($l['data']['rows'] ?? array(), 'track')), array(true, array($a1['track'] ?? '')));
 	}
+
+	echo "--- 1.2: channels ---\n";
+	$H->ctl('plan', '3');
+	$f02 = $H->ctl('f02-settings', '');
+	$H->ctl('addon-flag', 'AdnSS', '0'); $H->ctl('f02-wpsms', '0');
+	$ch = $X->c20('call', 'efb_portal_core_api', '[]')['channels'] ?? array();
+	t('no SMS add-on: e-mail ready, SMS not (no_provider)', array($ch['email'] ?? null, $ch['sms'] ?? null), array(array('ready' => true, 'reason' => ''), array('ready' => false, 'reason' => 'no_provider')));
+	$H->ctl('addon-flag', 'AdnSS', '1');
+	$ch = $X->c20('call', 'efb_portal_core_api', '[]')['channels'] ?? array();
+	t('the SMS add-on without the WP SMS plugin: SMS not ready (sender_not_ready)', $ch['sms'] ?? null, array('ready' => false, 'reason' => 'sender_not_ready'));
+	$H->ctl('f02-wpsms', '1', 'ok');
+	$H->ctl('f02-settings', json_encode(array('sms' => array('allowed_countries' => array('DE')))));
+	$ch = $X->c20('call', 'efb_portal_core_api', '[]')['channels'] ?? array();
+	t('… with the WP SMS plugin (the bridge) and an allowed country: SMS ready', $ch['sms'] ?? null, array('ready' => true, 'reason' => ''));
+	$api = $P->op('api');
+	t('… the same answer through the portal\'s own route (what the plugin shows: the SMS tab)', $api['data']['channels']['sms']['ready'] ?? null, true);
+	$H->ctl('f12-setting', 'smtp=0');
+	$ch = $X->c20('call', 'efb_portal_core_api', '[]')['channels'] ?? array();
+	t('the site sends no e-mail: e-mail not ready (email_off)', $ch['email'] ?? null, array('ready' => false, 'reason' => 'email_off'));
+	$H->ctl('f12-setting', 'smtp=1');
+	$X->c20('reset');
+	$H->ctl('f02-settings', json_encode(array('email' => array('daily_budget' => 1))));
+	$X->signin(new EfbPortalHttpClient($H), $mail_a);
+	$ch = $X->c20('call', 'efb_portal_core_api', '[]')['channels'] ?? array();
+	t('today\'s budget of e-mail codes used up: e-mail not ready (budget)', $ch['email'] ?? null, array('ready' => false, 'reason' => 'budget'));
+	$H->ctl('f02-settings', json_encode($f02['settings']));
+	$X->c20('reset');
+	$H->ctl('addon-flag', 'AdnSS', '0'); $H->ctl('f02-wpsms', '0');
 } finally {
 	$X->c20('on', '0'); $X->c20('bef', '0'); $X->c20('limits', '');
+	$H->ctl('addon-flag', 'AdnSS', '0'); $H->ctl('f02-wpsms', '0');
 	$H->ctl('plan', (string) ($plan0 === null ? 3 : $plan0));
 	$H->ctl('f12-setting', 'smtp=' . ($smtp0 === null ? 'del' : rawurlencode((string) $smtp0)));
 }

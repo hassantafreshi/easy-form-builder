@@ -31,10 +31,10 @@ class Portal_Core {
 
 	const API = 1;
 	/** The contract's minor version (docs/portal/portal-core-contract.en.md "Versions"): 1.1 every plan. */
-	const API_MINOR = 1;
+	const API_MINOR = 2;
 	const FEATURES = array('index', 'otp', 'read', 'thread', 'reply', 'ticket', 'payments', 'files', 'cancel', 'reschedule', 'edit', 'drafts', 'privacy');
 	/** Features added by the minor versions (efb_portal_core_api()['features'] lists them after v1.0's). */
-	const FEATURES_MINOR = array('any_plan');
+	const FEATURES_MINOR = array('any_plan', 'channels');
 	/** The plugin that uses this contract (a separate, free plugin; not an add-on). */
 	const PLUGIN_SLUG = 'efb-customer-portal';
 	const PLUGIN_FILE = 'efb-customer-portal/efb-customer-portal.php';
@@ -80,6 +80,28 @@ class Portal_Core {
 		$active = defined('EFBCP_VERSION') || (function_exists('is_plugin_active') && is_plugin_active(self::PLUGIN_FILE));
 		return array('slug' => self::PLUGIN_SLUG, 'file' => self::PLUGIN_FILE, 'name' => 'EFB Customer Portal', 'installed' => $installed || $active, 'active' => $active,
 			'version' => defined('EFBCP_VERSION') ? (string) EFBCP_VERSION : null, 'plan' => 'free');
+	}
+
+	/**
+	 * 1.2: whether a sign-in code can be sent now on each channel: ['email' => ['ready', 'reason'], 'sms' => …]. reason
+	 * '' | 'tables' (F02's table is missing) | 'email_off' (the site sends no e-mail) | 'no_provider' (no SMS sender: the
+	 * SMS add-on is off) | 'sender_not_ready' (the WP SMS plugin is not active) | 'no_countries' | 'budget' (today's
+	 * budget of codes is used up). SMS only ever goes through the WP SMS bridge; every plan (1.1).
+	 */
+	public static function channels() {
+		$out = array();
+		$tables = isset($GLOBALS['wpdb']) && is_object($GLOBALS['wpdb']) && Verification::ready();
+		foreach (Verification::CHANNELS as $ch) {
+			if (!$tables) { $out[$ch] = array('ready' => false, 'reason' => 'tables'); continue; }
+			$st = Verification::channel_state($ch, false);
+			if (!empty($st['ready'])) {
+				$s = Verification::settings();
+				$used = Verification::count_of('v' . ($ch === 'sms' ? 's' : 'e') . 'bd', 'site', 86400);
+				if ($used >= max(1, Verification::limit('daily_budget_' . $ch, $s[$ch]['daily_budget'], array('channel' => $ch)))) $st = array('ready' => false, 'reason' => 'budget');
+			}
+			$out[$ch] = array('ready' => !empty($st['ready']), 'reason' => (string) $st['reason']);
+		}
+		return $out;
 	}
 
 	/** The features of this contract version (v1.0's list, then each minor version's). */

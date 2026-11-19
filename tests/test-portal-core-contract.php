@@ -62,6 +62,8 @@ $pub = file_get_contents($root . '/includes/class-Emsfb-public.php');
 t('P4: efb_entry_stored once in insert_message_db(), after the insert succeeded (the not-stored path has none)', array(substr_count($pub, "do_action('efb_entry_stored'"), strpos($pub, "do_action('efb_entry_stored'") > strpos($pub, '$new_msg_id_efb = isset($this->db->insert_id)')), array(1, true));
 t('the public class stays under 1,000,000 bytes (F20-core lives in new files)', filesize($root . '/includes/class-Emsfb-public.php') < 1000000, true);
 
+t('1.2: efb_portal_core_api() reports the channels (without F02\'s table: neither can send, reason "tables")', array($api['channels']['email'] ?? null, $api['channels']['sms'] ?? null, in_array('channels', $api['features'], true)), array(array('ready' => false, 'reason' => 'tables'), array('ready' => false, 'reason' => 'tables'), true));
+
 echo "--- inert, every plan ---\n";
 t('without the plugin: not active', P::active(), false);
 $cap = P::capabilities(array());

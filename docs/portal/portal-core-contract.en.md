@@ -1,10 +1,10 @@
-# Customer portal — the core contract (F20-core, v1.1)
+# Customer portal — the core contract (F20-core, v1.2)
 
 The customer portal (F20, `docs/feature-gaps/F20-customer-portal.fa.md`) lets a visitor see and act on their own
 submissions without a WordPress account. It is **EFB Customer Portal**, a separate, free WordPress plugin (slug
 `efb-customer-portal`, file `efb-customer-portal/efb-customer-portal.php`; freemium: free to use, paid only for
 customisation) — not an Easy Form Builder add-on, so it has no add-on code, no catalogue entry and no plan gate. This
-document is the contract core gives that plugin: **version 1.1** (`EMSFB_PORTAL_API = 1`, `EMSFB_PORTAL_API_MINOR`,
+document is the contract core gives that plugin: **version 1.2** (`EMSFB_PORTAL_API = 1`, `EMSFB_PORTAL_API_MINOR`,
 the add-on contract id `portal`). It works on **every plan** (Free, Free Plus, Pro). It is enough to build the plugin
 without reading core. §10 lists what each minor version adds; a 1.0 caller keeps working unchanged.
 
@@ -41,15 +41,22 @@ to end), `tests/test-portal-core-v1x-http.php` (the minor versions, §10), `test
 ```php
 if (!function_exists('efb_portal_core_api')) { /* core too old: show "Update Easy Form Builder" */ return; }
 $api = efb_portal_core_api();
-// ['version' => 1, 'minor' => 1, 'contract' => '1.1',
+// ['version' => 1, 'minor' => 2, 'contract' => '1.2',
 //  'features' => ['index','otp','read','thread','reply','ticket','payments','files','cancel', 'reschedule','edit',
 //   'drafts','privacy', …the minor versions' features (§10)], 'errors' => [...], 'policy_keys' => [...],
-//  'index' => ['state' => 'off'|'building'|'ready'|'stale', ...], 'active' => bool, 'hooks' => [...]]
+//  'index' => ['state' => 'off'|'building'|'ready'|'stale', ...], 'active' => bool, 'hooks' => [...],
+//  'channels' => ['email' => ['ready' => bool, 'reason' => ''], 'sms' => ['ready' => bool, 'reason' => '']]]  // 1.2
 if ($api['version'] < 1) return;
 $has = function ($f) use ($api) { return in_array($f, $api['features'], true); }; // a 1.x feature: check it, keep the 1.0 path otherwise
 ```
 
 `version` stays 1 (the major version: nothing of 1.0 changes); `minor` and `features` say what a newer core adds.
+`channels` (1.2) says whether a sign-in code can be sent **now** on each channel — offer only those (hide the SMS tab
+when `sms.ready` is false). `reason`: `''`, `tables` (F02's table is missing), `email_off` (the site sends no e-mail),
+`no_provider` (no SMS sender: the SMS add-on is off), `sender_not_ready` (the WP SMS plugin is not active),
+`no_countries` (no country allowed for SMS codes), `budget` (today's budget of codes is used up). SMS only ever goes
+through the WP SMS bridge (the SMS add-on plus the WP SMS plugin); never call an SMS service yourself.
+
 `efb_addon_contracts()['portal']` reports the major version. AutoPilot sees `capabilities.portal_core`:
 `{version: 1, minor, contract: '1.x', features, plugin: {slug: 'efb-customer-portal', file:
 'efb-customer-portal/efb-customer-portal.php', name, installed, active, version, plan: 'free'}, plans: ['free',
@@ -241,3 +248,4 @@ older one keeps working; check `efb_portal_core_api()['features']` (or `minor`) 
 |---|---|---|
 | 1.0 | `index` … `privacy` | §2–§9 |
 | 1.1 | `any_plan` | every plan (Free, Free Plus, Pro): `efb_portal_plan_ok` defaults to `true`; the sign-in codes skip F02's plan of a form's code; `capabilities.portal_core` describes the plugin (`plugin`, `plans`, `minor`, `contract`; no `addon`, no `package`; `reason` `plugin` instead of `addon`); `AdnPRT` left the add-on catalogue |
+| 1.2 | `channels` | `efb_portal_core_api()['channels']`: `{email, sms}` → `{ready, reason}`, whether a code can be sent now (§2) |
