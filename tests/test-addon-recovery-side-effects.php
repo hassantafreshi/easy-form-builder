@@ -231,6 +231,12 @@ switch ( $scenario ) {
 		check( 'a configured autofill needs Auto-Populate', array( 'AdnATF' ) === $needs( '[{"type":"form","autofill_id":"4"}]' ) );
 		check( 'an autofill API needs Auto-Populate', array( 'AdnATF' ) === $needs( '[{"type":"form","autofill_api":true,"autofill_api_id":"x"}]' ) );
 		check( 'an autofill API switched off needs nothing', array() === $needs( '[{"type":"form","autofill_api":false}]' ) );
+		// What the Auto-Populate add-on leaves when autofill is taken off a form, and what a form package carries to
+		// another site (Form_Package::SITE_ROW0): the form does not use the add-on and must not wait for it.
+		check( 'autofill taken off (autofill_id "0" alone) needs nothing', array() === $needs( $escaped( '[{"type":"form","autofill_id":"0"}]' ) ) );
+		check( 'an imported form (autofill_id "") needs nothing', array() === $needs( '[{"type":"form","autofill_id":""}]' ) );
+		check( 'the previous-entries autofill (auto_fill 1, autofill_id 0) needs Auto-Populate', array( 'AdnATF' ) === $needs( '[{"type":"form","auto_fill":"1","autofill_id":"0"}]' ) );
+		check( 'the renderer asks the same question before it waits for the add-on', false !== strpos( (string) file_get_contents( dirname( __DIR__ ) . '/includes/class-Emsfb-public.php' ), 'isset($valj_efb[0]->autofill_id) && \\efbFunction::form_uses_autofill_efb($valj_efb[0])' ) );
 		check( 'a field type that only starts like a paid one does not count', array() === $needs( '[{"type":"form"},{"type":"stripeText"},{"type":"cityName"}]' ) );
 		check( 'notification and security settings never hide a form', array() === $needs( '[{"type":"form","smsnoti":"1","telegram":"1","googleSheet":"1","sendEmail":true}]' ) );
 		check(

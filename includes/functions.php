@@ -8363,11 +8363,41 @@ class efbFunction {
 		if ( $has_type( array( 'country', 'conturyList', 'statePro', 'stateProvince', 'cityList', 'city' ) ) ) {
 			$required[] = 'AdnOF';
 		}
-		if ( false !== strpos( $structure, '"autofill_id":' ) || preg_match( '/"autofill_api":"?(true|1)"?[,}]/', $structure ) ) {
+		// Auto-Populate only when the form uses it (form_uses_autofill_efb()): its add-on leaves "autofill_id":"0" in row 0
+		// when autofill is taken off a form, and an exported form carries "autofill_id":"" (Form_Package::SITE_ROW0).
+		$rows = emsfb_json_decode_efb( $structure, true );
+		if ( is_array( $rows ) && isset( $rows[0] ) && is_array( $rows[0] ) ) {
+			if ( self::form_uses_autofill_efb( $rows[0] ) ) {
+				$required[] = 'AdnATF';
+			}
+		} elseif ( false !== strpos( $structure, '"autofill_id":' ) || preg_match( '/"autofill_api":"?(true|1)"?[,}]/', $structure ) ) {
 			$required[] = 'AdnATF';
 		}
 
 		return $required;
+	}
+
+	/**
+	 * Whether a form uses the Auto-Populate add-on (AdnATF), from its row 0 (array or object): a dataset
+	 * (autofill_id > 0), the previous-entries mode (auto_fill 1 with autofill_id 0) or the autofill API switched on.
+	 * "autofill_id" alone, 0 or empty, is not a use: the add-on leaves it behind when autofill is taken off a form, and a
+	 * form package clears it for another site. Such a form must render without the add-on.
+	 *
+	 * @param array|object $row0 The form's settings row.
+	 * @return bool
+	 */
+	public static function form_uses_autofill_efb( $row0 ) {
+		$r = is_object( $row0 ) ? get_object_vars( $row0 ) : ( is_array( $row0 ) ? $row0 : array() );
+		$on = static function ( $v ) {
+			return true === $v || 1 === $v || '1' === $v || 'true' === $v;
+		};
+		if ( isset( $r['autofill_id'] ) && is_numeric( $r['autofill_id'] ) && (int) $r['autofill_id'] > 0 ) {
+			return true;
+		}
+		if ( array_key_exists( 'autofill_id', $r ) && isset( $r['auto_fill'] ) && $on( $r['auto_fill'] ) ) {
+			return true;
+		}
+		return isset( $r['autofill_api'] ) && $on( $r['autofill_api'] );
 	}
 
 	/**

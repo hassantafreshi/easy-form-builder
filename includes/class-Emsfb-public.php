@@ -1936,7 +1936,8 @@ public function check_nonce_permission_efb($request) {
 					$r = $efbFormBuilder->addNewElement_efb($i, $randomId, $form_id, $lanText ,$pro);
 					if($pro==true ){
 
-						if($auto_filled == false &&  isset($valj_efb[0]->autofill_id) ){
+						// Only a form that uses Auto-Populate waits for its add-on ("autofill_id":"0" / "" alone is not a use).
+						if($auto_filled == false &&  isset($valj_efb[0]->autofill_id) && \efbFunction::form_uses_autofill_efb($valj_efb[0]) ){
 							$autofill_id = intval($valj_efb[0]->autofill_id);
 
 							if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/autofill")) {
