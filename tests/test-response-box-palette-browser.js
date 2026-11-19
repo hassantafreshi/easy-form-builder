@@ -380,15 +380,24 @@ async function clearFloatingWidgets(page) {
     const font = await page.evaluate(() => ({
       rootFamily: getComputedStyle(document.documentElement).getPropertyValue('--efb-resp-font-family').trim(),
       titleFamily: getComputedStyle(document.querySelector('.efb-tracker-title')).fontFamily,
-      linked: [...document.querySelectorAll('link[rel="stylesheet"]')].some((l) => /fonts\.googleapis\.com\/css2\?family=Inter/.test(l.href)),
+      // SEC-02 (4.3.2): the plugin's own copy of the font (bundled by the release build), never Google Fonts.
+      linked: [...document.querySelectorAll('link[rel="stylesheet"]')].some((l) => /\/public\/assets\/fonts\/inter\/font\.css/.test(l.href)),
+      cdn: [...document.querySelectorAll('link[rel="stylesheet"]')].some((l) => /fonts\.googleapis\.com|cdn\.jsdelivr\.net/.test(l.href)),
       loaded: document.fonts ? [...document.fonts].some((f) => /Inter/i.test(f.family)) : false,
     }));
+    const interBundled = fs.existsSync(path.join(__dirname, '..', 'public', 'assets', 'fonts', 'inter', 'font.css'));
 
     t('the chosen family reaches the custom property', font.rootFamily === "'Inter', sans-serif", font.rootFamily);
     t('the code finder actually renders in it', /Inter/.test(font.titleFamily), font.titleFamily);
-    /* Choosing a family is useless without the stylesheet that carries it. */
-    t('its webfont stylesheet is linked on the public page', font.linked);
-    t('the browser really loaded the face', font.loaded);
+    /* Choosing a family is useless without the stylesheet that carries it: the plugin's bundled copy (bin/fetch-public-assets.sh);
+       a checkout without the bundle shows the fallback font and asks no font CDN. */
+    t('no font CDN is asked (Google Fonts, jsDelivr)', !font.cdn);
+    if (interBundled) {
+      t('its webfont stylesheet (the plugin\'s copy) is linked on the public page', font.linked);
+      t('the browser really loaded the face', font.loaded);
+    } else {
+      t('without the bundled fonts no font stylesheet is linked (the fallback font is used)', !font.linked);
+    }
 
     const withCustom = seed('customfont');
     t('a custom font was saved', withCustom.ok, withCustom.name);

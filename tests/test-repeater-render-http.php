@@ -19,6 +19,10 @@ if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
  * " ! " text gone from the hidden messages, a choice group's label without a for="" that pointed at nothing and its
  * radiogroup with aria-required, the textarea without the invalid value="". Nothing of the repeater; nothing else.
  *
+ * Re-baselined for B5 / PUB-01 (2026-11-19, --write on the e2e site): the only difference is the Send / Next / Previous
+ * label's class on these btn-darkb forms, text-labelEfb → text-white (the label read 1.4:1 on its button; see
+ * tests/test-button-text-contrast.php). Nothing else changed.
+ *
  * Needs the e2e site: EFB_WP_LOAD=/path/wp-load.php, or EFB_E2E_SITE_DIR (tests/e2e-wp/README.md);
  * [SKIP] otherwise. Run: php tests/test-repeater-render-http.php [--write]
  */
