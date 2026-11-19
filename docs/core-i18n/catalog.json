@@ -2,10 +2,10 @@
     "domain": "easy-form-builder",
     "about": "Every phrase looked up in the easy-form-builder text domain: the core plus add-ons that still use that domain. Maintained by tests/core-i18n/extract.php (agent efb-core-i18n); do not edit by hand.",
     "plugin_version": "4.3.2",
-    "updated": "2026-11-18",
+    "updated": "2026-11-19",
     "counts": {
-        "active": 4241,
-        "obsolete": 518
+        "active": 4249,
+        "obsolete": 511
     },
     "entries": [
         {
@@ -8662,7 +8662,7 @@
             "msgid": "Built with %1$sEasy Form Builder%2$s by %3$sWhiteStudio.team%4$s",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%1$s and %2$s: the start and end of a link to the plugin's page, %3$s and %4$s: the start and end of a link to the developer's site.",
             "files": [
                 "includes/class-email-handler.php"
             ],
@@ -8685,8 +8685,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Built-in advanced features",
@@ -11541,6 +11541,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Closes the settings. Your changes are already in the form; Save in the toolbar stores it.",
+            "context": null,
+            "plural": null,
+            "translators": "BLD-01: the description of the \"Done\" button of the form builder's field settings panel (read by screen readers and shown as a tooltip)",
+            "files": [
+                "includes/class-Emsfb-notices.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -21311,9 +21326,11 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "vendor/human-shield/class-Emsfb-human-shield-admin.php"
             ],
             "scope": [
+                "addon:human-shield",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -21332,8 +21349,8 @@
                 "addon:human-shield"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Form Security & Spam Protection could not load.",
@@ -21347,8 +21364,8 @@
                 "addon:human-shield"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Form Security & Spam Protection is disabled.",
@@ -25484,7 +25501,7 @@
             "msgid": "If your emails are not being delivered, try using an SMTP plugin. For more information, %1$s click here %2$s or contact our %3$s support team %4$s.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%1$s and %2$s: the start and end of a link to the SMTP guide, %3$s and %4$s: the start and end of a link to support.",
             "files": [
                 "includes/class-email-handler.php"
             ],
@@ -26270,6 +26287,7 @@
             "plural": null,
             "translators": "Confirmation Code is a unique identifier and after filling the form, users receive this code to track their submission. this message is shown when the confirmation code is not found in the search box",
             "files": [
+                "includes/class-Emsfb-public.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -26285,6 +26303,7 @@
             "plural": null,
             "translators": "",
             "files": [
+                "includes/class-Emsfb-public.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -26550,8 +26569,8 @@
                 "addon:human-shield"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Invalid sender email",
@@ -29079,8 +29098,8 @@
                 "addon:human-shield"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Loading formats…",
@@ -33719,8 +33738,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Not available",
@@ -37762,8 +37781,8 @@
                 "addon:human-shield"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Permission to access your microphone/camera/screen was denied.",
@@ -39947,7 +39966,7 @@
             "msgid": "Powered by %1$sEasy Form Builder%2$s, the %3$sbest form plugin for WordPress%4$s.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%1$s: opening link tag to plugin page, %2$s: closing link tag, %3$s: opening link tag to developer website, %4$s: closing link tag",
             "files": [
                 "includes/class-Emsfb-formbuilder.php"
             ],
@@ -45511,8 +45530,8 @@
                 "addon:human-shield"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Security & Spam Protection tabs",
@@ -48382,8 +48401,8 @@
                 "addon:human-shield"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Some forms use Google reCAPTCHA to tell people from automated programs; Google's privacy policy applies to it.",
@@ -52459,8 +52478,8 @@
                 "addon:human-shield"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "The Stripe add-on for Easy Form Builder enables you to integrate your WordPress site with Stripe for payment processing, donations, and online orders.",
@@ -58673,7 +58692,7 @@
             "msgid": "To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %1$s documentation %2$s .",
             "context": null,
             "plural": null,
-            "translators": "%1$s and %2$s are opening and closing link tags for documentation",
+            "translators": "%1$s and %2$s: the start and end of a link to the documentation. translators: %1$s and %2$s are opening and closing link tags for documentation",
             "files": [
                 "includes/class-email-handler.php",
                 "includes/functions.php"
@@ -61033,7 +61052,7 @@
             "msgid": "Upgrade to Pro for just %1$s%2$s%3$s/year and get access to powerful features, including advanced form fields, payment integrations, conditional logic, multi-step forms, file uploads, Security & Spam Protection, and priority support.%4$sView Pro Features%5$s",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%1$s, %2$s and %3$s: the price (the start of its emphasis, the amount, the end), %4$s and %5$s: the start and end of the link to the Pro features.",
             "files": [
                 "includes/class-email-handler.php",
                 "includes/functions.php"
@@ -66026,8 +66045,8 @@
                 "addon:human-shield"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "You do not have permission to change Development Mode.",
