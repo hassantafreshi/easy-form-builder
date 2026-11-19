@@ -2308,6 +2308,20 @@ On a desktop (≥ 783 px) the panel had no top either, so it opened where the pa
 on its own; its Close / Done head holds its floats, so the first notice of a panel starts below them. Its side, width
 and look are as before (e2e `ai-panel`: en 1280 and 1440, fa_IR 1280, fa_IR and ar 375).
 
+**BLD-01 (4.3.2, batch B4).** Under the admin bar the panel covered the toolbar's left part (Save hidden). From 992 px
+it is now docked **below the builder's toolbar**, in the palette's column (left to right on the left, right to left on
+the right): the toolbar stays on the screen while the panel is open (sticky under the admin bar; the page is scrolled so
+the toolbar is at the top when the panel opens), its top is the toolbar's bottom, and the canvas is never covered (it
+narrows when the panel is wider than the palette, minimum 300 px). Below 992 px it is a sheet over the content area
+(the whole width on a phone). Its head is a region title ("Edit Field" / "Form Settings"), a **Done** button (closes the
+panel; the changes are already in `valj_efb`, the toolbar's Save stores the form) and a Close link with a name (still
+`#sideBoxEfb a.BtnSideEfb.text-danger`); the old unlabelled ✓ (`sideMenuEfb(2)`) is gone from the head but
+`sideMenuEfb(2)` still works. Esc in the panel closes it and the focus goes back to the field it was opened for;
+closed, the panel is `visibility: hidden` (nothing of it in the tab order). `efbBuilderApi.openSettings()` /
+`closeSettings()` and `sideMenuEfb(0|1)` are unchanged; `body.efb-sb-docked` and `#sideBoxEfb.efb-sb-dock` /
+`.efb-sb-sheet` say which layout is on. e2e `b4-panel` (`tests/e2e-wp/scenario-b4.js`): en and fa_IR at 1280, 1440 and
+1920 px — `elementFromPoint` at Save's centre is Save, also after scrolling; fa_IR and ar 375.
+
 ### Tests
 
 | Test | Result |

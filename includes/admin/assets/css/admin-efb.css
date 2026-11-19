@@ -1299,22 +1299,44 @@ div#sideBoxEfb {	height: 100vh;
 }
 /* The same on a desktop (WordPress' admin bar 32 px tall): without a top the fixed panel kept its place in the flow,
    about 540 px down at 1280 × 900 with its lower part off the screen (a 900 px panel). It opens under the admin bar,
-   whole on the screen, and scrolls on its own (its Close / Done stay on top: .sidemenu.head is sticky). Only the
-   vertical place changes; its side, width and look are as before. */
+   whole on the screen, and scrolls on its own. From 992 px (BLD-01, below) it is docked under the builder's toolbar. */
 @media screen and (min-width: 783px) {
    div#sideBoxEfb { top: 0; height: 100vh; overflow-y: auto; }
    .admin-bar div#sideBoxEfb { top: 32px; height: calc(100vh - 32px); }
-   /* Its head holds the floated Close / Done (as on a phone, AI-8a): now on the screen, a first notice of the panel
-      (the payment field's "Test mode") no longer runs under them. */
-   div#sideBoxEfb.show .efb.head.sidemenu { display: flow-root; }
 }
-/* AI-8a: on a phone the open panel takes the whole width (it was a 32 % strip, about 120 px at 375 px, narrower than
-   the payment field's inputs, and its head stuck out of the screen). Only while it is open: closed it stays 0 wide. */
-@media screen and (max-width: 600px) {
-   div#sideBoxEfb.side-menu-efb.show { left: 0 !important; right: 0 !important; width: 100% !important; max-width: 100vw; margin: 0 !important; box-sizing: border-box; overflow-x: hidden; }
+/* BLD-01 (≥ 992 px): the panel covered the toolbar's left part (Save hidden, "Settings" read "ngs"). It is docked below
+   the builder's toolbar, in the palette's column (efbSbLayoutEfb() in admin-efb.js gives its top, side and width): the
+   toolbar stays on the screen while it is open (sticky under the admin bar), so Save, Undo and Preview stay visible,
+   and the canvas is not covered (it narrows by --efb-sb-over when the panel is wider than the palette). Right to left
+   the palette, and so the panel, is on the right. */
+@media screen and (min-width: 992px) {
+   div#sideBoxEfb.side-menu-efb.efb-sb-dock.show { top: var(--efb-sb-top, 32px) !important; left: var(--efb-sb-left, 0px) !important; right: auto !important; width: var(--efb-sb-w, 32%) !important; max-width: 100vw; height: calc(100vh - var(--efb-sb-top, 32px)) !important; margin: 0 !important; box-sizing: border-box; overflow-x: hidden; overflow-y: auto; border-top: 0 !important; }
+   body.efb-sb-docked #panel_efb > nav { position: sticky; top: 0; z-index: 1002; }
+   body.admin-bar.efb-sb-docked #panel_efb > nav { top: 32px; }
+   body.efb-sb-docked .body-dpz-efb { padding-inline-start: calc(var(--bs-gutter-x, 1.5rem) * .5 + var(--efb-sb-over, 0px)); }
+}
+/* AI-8a, BLD-01: below 992 px the open panel is a sheet over the content area beside WordPress' menu (all the width on a
+   phone; it was a 32 % strip, about 120 px at 375 px, narrower than the payment field's inputs, and its head stuck out
+   of the screen). Only while it is open: closed it stays 0 wide. */
+@media screen and (max-width: 991.98px) {
+   div#sideBoxEfb.side-menu-efb.show { left: var(--efb-sb-left, 0px) !important; right: auto !important; width: var(--efb-sb-w, 100%) !important; max-width: 100vw; margin: 0 !important; box-sizing: border-box; overflow-x: hidden; }
    div#sideBoxEfb.show #sideMenuConEfb { width: auto; max-width: none; margin-left: 12px !important; margin-right: 12px !important; }
-   div#sideBoxEfb.show .efb.head.sidemenu { width: 100%; max-width: 100%; box-sizing: border-box; display: flow-root; } /* holds its floated Close / Done: the first notice is no longer under them */
    div#sideBoxEfb.show input, div#sideBoxEfb.show select, div#sideBoxEfb.show textarea, div#sideBoxEfb.show .dropdown { max-width: 100%; }
+}
+/* BLD-01: closed (0 px wide), the panel kept its controls in the keyboard's tab order and in screen readers. */
+div#sideBoxEfb:not(.show) { visibility: hidden; }
+/* BLD-01: the panel's head: what it edits, a labelled "Done" and a named Close (they were an unlabelled ✓ and ×, floated
+   over the panel's first notice). It stays on top while the panel scrolls. */
+div#sideBoxEfb .efb.head.sidemenu.efb-sb-head { display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 51; width: 100%; box-sizing: border-box; margin: 0 0 8px; padding: 8px 12px; background: #f8f9fa; border-bottom: 1px solid #dfe3f0; }
+div#sideBoxEfb .efb-sb-title { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1rem; font-weight: 600; color: #202a8d; unicode-bidi: plaintext; text-align: start; }
+div#sideBoxEfb .efb.btn.efb-sb-done { flex: 0 0 auto; display: inline-flex; align-items: center; min-height: 40px; min-width: 44px; padding: 6px 16px; border: 0; border-radius: 20px; background: #202a8d; color: #fff !important; font-size: .95rem; font-weight: 600; line-height: 1.2; }
+div#sideBoxEfb .efb.btn.efb-sb-done:hover { background: #263a8d; }
+div#sideBoxEfb .efb.btn.efb-sb-done:focus-visible { outline: 3px solid #ff4b93; outline-offset: 2px; box-shadow: none; }
+div#sideBoxEfb .efb-sb-head a.efb.close.sidemenu.efb-sb-close { flex: 0 0 auto; float: none; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; margin: 0; border-radius: 50%; font-size: 20px; color: #b3263a !important; transition: background-color .2s; }
+div#sideBoxEfb .efb-sb-head a.efb.close.sidemenu.efb-sb-close:hover { background: rgba(179, 38, 58, .1); }
+div#sideBoxEfb .efb-sb-head a.efb.close.sidemenu.efb-sb-close:focus-visible { outline: 3px solid #ff4b93; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+   div#sideBoxEfb, .side-menu-efb, div#sideBoxEfb .efb-sb-head a.efb.close.sidemenu.efb-sb-close { transition: none !important; }
 }
 
 .contentEfb {	box-sizing: border-box;

@@ -227,3 +227,7 @@ code.efb, .efb code {direction: ltr !important; unicode-bidi: isolate !important
    ".efb {direction: rtl !important}" rule above shows +98 912 as "912 98+" and the caret
    jumps between bidi runs. The field still lines up with the RTL form on the right. */
 input.efb.efb-ltr-in-rtl, input.efb[data-mask-preset], input.efb[data-mask] {direction: ltr !important; text-align: right;}
+
+/* BLD-01: right to left the field settings panel is docked on the right (the palette's side): its shadow falls on the
+   canvas side, the left. */
+.rtl div#sideBoxEfb { -webkit-box-shadow: -9px 8px 8px rgb(84 131 207 / 36%) !important; box-shadow: -9px 8px 8px rgb(84 131 207 / 36%) !important; }

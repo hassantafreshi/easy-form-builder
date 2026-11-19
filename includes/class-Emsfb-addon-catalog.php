@@ -338,5 +338,9 @@ class Addon_Catalog {
 	public static function register() {
 		if (!function_exists('add_filter')) return;
 		add_filter('efb_admin_localize_vars', array(__CLASS__, 'localize_vars'), 9, 2);
+		// B4: the admin screens' shared parts (Emsfb\Notices: phrases of the builder panel, the notice manager). Loaded
+		// from here because this file is always loaded, whatever the order of class-Emsfb.php.
+		if (!class_exists('\\Emsfb\\Notices') && is_readable(__DIR__ . '/class-Emsfb-notices.php')) require_once __DIR__ . '/class-Emsfb-notices.php';
+		if (class_exists('\\Emsfb\\Notices')) Notices::register();
 	}
 }

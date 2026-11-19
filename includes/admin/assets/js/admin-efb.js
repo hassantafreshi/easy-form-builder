@@ -2078,6 +2078,154 @@ addColorTolistEfb = (color) => {
   if (!is_color) { ObColors.innerHTML += `<option name="addUser" value="${color}">` }
 }
 
+/* BLD-01: the field settings panel (#sideBoxEfb).
+   - Its head: a labelled "Done" (closes the panel: every change is already in the form, the toolbar's Save stores it)
+     and a Close icon with a name; the panel is a region named after what it edits ("Edit Field" / "Form Settings").
+   - From 992 px it is docked below the builder's toolbar, in the palette's column (the palette is not needed while a
+     field is edited, the Elementor pattern): its top is the toolbar's bottom and the toolbar stays on the screen
+     (sticky), so Save, Undo and Preview stay visible; the canvas is never covered (it narrows when the panel is wider
+     than the palette). Right to left the palette is on the right, and so is the panel.
+   - Below 992 px it is a sheet over the content area, under the admin bar (the full width on a phone, AI-8).
+   - Esc closes it, and the focus goes back to the field it was opened for (when the focus was in the panel).
+   - Closed, it is hidden from the keyboard and screen readers (it kept its controls in the tab order at 0 px wide). */
+const EFB_SB_DOCK_MIN = 992;
+const EFB_SB_MIN_W = 300;
+function efbSbTextEfb(k, fb) {
+  try {
+    const t = efb_var && efb_var.text && efb_var.text[k];
+    if (t) { const d = document.createElement('textarea'); d.innerHTML = String(t); return d.value; }
+  } catch (e) { /* no phrases */ }
+  return fb;
+}
+function efbSbEscEfb(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+/* The head: the region's title, Done and Close (replaces the unlabelled ✓ / × of the page's markup; idempotent). */
+function efbSbHeadEfb() {
+  const box = document.getElementById('sideBoxEfb');
+  if (!box) return null;
+  // The pages (class-Emsfb-create.php, class-Emsfb-panel.php) print the head; a page without one gets none.
+  const head = box.querySelector('.head.sidemenu');
+  if (!head) return null;
+  if (head.getAttribute('data-efb-sb-head') !== '1') {
+    head.setAttribute('data-efb-sb-head', '1');
+    head.className = 'efb head sidemenu efb-sb-head bg-light';
+    const tip = efbSbTextEfb('sbDoneTip', 'Closes the settings. Your changes are already in the form; Save in the toolbar stores it.');
+    const close = efbSbTextEfb('close', 'Close');
+    head.innerHTML = `<span class="efb efb-sb-title" id="efbSbTitle"></span>`
+      + `<button type="button" class="efb btn efb-sb-done" data-efb-sb="done" aria-describedby="efbSbDoneTip" title="${efbSbEscEfb(tip)}"><i class="efb bi-check2 mx-1" aria-hidden="true"></i>${efbSbEscEfb(efbSbTextEfb('done', 'Done'))}</button>`
+      + `<span class="efb visually-hidden" id="efbSbDoneTip">${efbSbEscEfb(tip)}</span>`
+      // Still an <a class="BtnSideEfb … text-danger"> (what tests and add-ons click), now with a name and the keyboard.
+      + `<a class="efb BtnSideEfb close sidemenu text-danger efb-sb-close" data-efb-sb="close" role="button" tabindex="0" title="${efbSbEscEfb(close)}" aria-label="${efbSbEscEfb(close)}"><i class="efb bi-x-lg" aria-hidden="true"></i></a>`;
+    head.addEventListener('click', (ev) => {
+      const b = ev.target && ev.target.closest ? ev.target.closest('[data-efb-sb]') : null;
+      if (!b) return;
+      ev.preventDefault();
+      efbSbCloseEfb();
+    });
+    head.addEventListener('keydown', (ev) => {
+      const b = ev.target && ev.target.closest ? ev.target.closest('a[data-efb-sb]') : null;
+      if (b && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); efbSbCloseEfb(); }
+    });
+  }
+  if (box.getAttribute('data-efb-sb') !== '1') {
+    box.setAttribute('data-efb-sb', '1');
+    box.setAttribute('role', 'region');
+    box.setAttribute('aria-labelledby', 'efbSbTitle');
+    box.addEventListener('keydown', (ev) => {
+      if (ev.key !== 'Escape' || ev.isComposing || ev.defaultPrevented || !box.classList.contains('show')) return;
+      // A menu open where the focus is (a dropdown, a picker, a list box) closes first; a dialog handles its own Esc.
+      const t = ev.target;
+      if (t && t.closest && (t.closest('.dropdown-menu.show, .dropdown.show, .bootstrap-select.show, [role="listbox"], [role="menu"]') || (t.getAttribute && t.getAttribute('aria-expanded') === 'true'))) return;
+      if (document.querySelector('.modal.show') || document.body.classList.contains('efb-dlg-open')) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      efbSbCloseEfb();
+    });
+  }
+  return head;
+}
+/* The field (or toolbar button) the panel was opened for: the focus goes back there when the panel closes. */
+function efbSbOwnerEfb(id) {
+  if (!id) return null;
+  if (id === 'formSet') return document.querySelector('#NavBtnEFB-2 a, #NavBtnEFB-2 button');
+  const sel = String(id).replace(/["\\]/g, '');
+  return document.querySelector(`#dropZoneEFB [data-id="${sel}"]`) || document.querySelector(`[data-id="${sel}"]`) || document.getElementById('dropZoneEFB');
+}
+/* Done, Close and Esc. */
+function efbSbCloseEfb() {
+  const box = document.getElementById('sideBoxEfb');
+  if (!box || !box.classList.contains('show')) return;
+  const owner = efbSbOwnerEfb(window.efbOpenSettingIdEfb);
+  const hadFocus = box.contains(document.activeElement);
+  sideMenuEfb(0);
+  if (hadFocus) {
+    // Leaving the box commits a changed text box (its change event), as a click elsewhere does.
+    if (owner) {
+      if (!owner.matches('a[href], button, input, select, textarea, [tabindex]')) owner.setAttribute('tabindex', '-1');
+      try { owner.focus({ preventScroll: false }); } catch (e) { owner.focus(); }
+    } else if (document.activeElement && box.contains(document.activeElement)) {
+      try { document.activeElement.blur(); } catch (e) { /* gone */ }
+    }
+  }
+}
+/* Where the panel is: docked under the toolbar (≥ 992 px) or a sheet. Kept up to date on scroll and resize. */
+function efbSbLayoutEfb() {
+  const box = document.getElementById('sideBoxEfb');
+  if (!box) return;
+  const open = box.classList.contains('show');
+  const nav = document.querySelector('#panel_efb > nav');
+  const pal = document.getElementById('listElEfb');
+  const docked = open && window.innerWidth >= EFB_SB_DOCK_MIN && !!nav && !!pal && pal.getClientRects().length > 0;
+  document.body.classList.toggle('efb-sb-docked', docked);
+  box.classList.toggle('efb-sb-dock', docked);
+  box.classList.toggle('efb-sb-sheet', open && !docked);
+  if (!open) { document.body.style.removeProperty('--efb-sb-over'); return; }
+  const bar = document.getElementById('wpadminbar');
+  const barBottom = bar && getComputedStyle(bar).position === 'fixed' ? Math.max(0, Math.round(bar.getBoundingClientRect().bottom)) : 0;
+  if (docked) {
+    const n = nav.getBoundingClientRect();
+    const p = pal.getBoundingClientRect();
+    const w = Math.max(Math.round(p.width), EFB_SB_MIN_W);
+    const rtl = getComputedStyle(pal.parentElement || pal).direction === 'rtl';
+    box.style.setProperty('--efb-sb-top', Math.max(Math.round(n.bottom), barBottom) + 'px');
+    box.style.setProperty('--efb-sb-left', Math.round(rtl ? p.right - w : p.left) + 'px');
+    box.style.setProperty('--efb-sb-w', w + 'px');
+    document.body.style.setProperty('--efb-sb-over', Math.max(0, w - Math.round(p.width)) + 'px');
+  } else {
+    // The content area beside WordPress' menu (all the width on a phone, where the menu is not beside it).
+    const c = window.innerWidth > 782 && document.getElementById('wpcontent') ? document.getElementById('wpcontent').getBoundingClientRect() : { left: 0, width: document.documentElement.clientWidth };
+    box.style.setProperty('--efb-sb-left', Math.round(c.left) + 'px');
+    box.style.setProperty('--efb-sb-w', Math.round(c.width) + 'px');
+    document.body.style.removeProperty('--efb-sb-over');
+  }
+}
+let efbSbRafEfb = 0;
+function efbSbScheduleEfb() {
+  if (efbSbRafEfb) return;
+  efbSbRafEfb = requestAnimationFrame(() => { efbSbRafEfb = 0; const b = document.getElementById('sideBoxEfb'); if (b && b.classList.contains('show')) efbSbLayoutEfb(); });
+}
+/* The panel has just opened: its head and name, and (docked) the toolbar brought to the top of the screen so the panel
+   has the window's height below it; the field that was clicked moves up with the page and stays in view. */
+function efbSbOpenedEfb(wasOpen) {
+  const box = document.getElementById('sideBoxEfb');
+  efbSbHeadEfb();
+  const t = document.getElementById('efbSbTitle');
+  if (t) t.textContent = window.efbOpenSettingIdEfb === 'formSet' ? efbSbTextEfb('formSetting', 'Form Settings') : efbSbTextEfb('editField', 'Edit Field');
+  if (box) box.removeAttribute('aria-hidden');
+  if (!window.efbSbListenEfb) {
+    window.efbSbListenEfb = true;
+    window.addEventListener('scroll', efbSbScheduleEfb, { passive: true });
+    window.addEventListener('resize', efbSbScheduleEfb, { passive: true });
+  }
+  efbSbLayoutEfb();
+  const nav = document.querySelector('#panel_efb > nav');
+  if (!wasOpen && box && box.classList.contains('efb-sb-dock') && nav) {
+    const bar = document.getElementById('wpadminbar');
+    const barBottom = bar && getComputedStyle(bar).position === 'fixed' ? Math.round(bar.getBoundingClientRect().bottom) : 0;
+    const gap = Math.round(nav.getBoundingClientRect().top) - barBottom;
+    if (gap > 1) { window.scrollBy(0, gap); efbSbLayoutEfb(); }
+  }
+}
+
 function sideMenuEfb(s) {
   let el = document.getElementById('sideBoxEfb');
   side_hide =(el)=>{
@@ -2090,16 +2238,20 @@ function sideMenuEfb(s) {
     if (ch) ch.classList.add('d-none');
     document.getElementById('sideMenuFEfb').classList.add('efbDW-0');
     el.classList.add('efbDW-0');
+    el.setAttribute('aria-hidden', 'true');
+    efbSbLayoutEfb(); // BLD-01: undocked, the toolbar is no longer pinned
     // Nothing is on screen any more, so the next request must open, never toggle shut.
     window.efbOpenSettingIdEfb = null;
   }
 
   side_show =(el)=>{
+    const wasOpen = el.classList.contains('show');
     el.classList.remove('efbDW-0');
     document.getElementById('sideMenuFEfb').classList.remove('efbDW-0');
     const ch = document.getElementById('childsSideMenuConEfb');
     if(ch)ch.classList.add('d-none');
     el.classList.add('show');
+    efbSbOpenedEfb(wasOpen);
   }
   // A save that lands within these 2 s clears the auto-save; storing after it
   // brought back a "restore the auto-saved version?" prompt for saved work.

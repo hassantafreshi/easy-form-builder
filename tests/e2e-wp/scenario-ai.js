@@ -12,7 +12,8 @@
  *  ai-event  AI-1: the owner's own Save in the builder while Typed Signature is off: efb:form-saved carries the answer's
  *            warnings (addon_keys_kept, the same code and message) for a listener such as AutoPilot.
  *  ai-panel  The builder's field settings panel on a desktop (en 1280 × 900 and 1440 × 900): it opened where the page
- *            put it (about 640 px down at 1280 × 900, its lower part off the screen); now it opens under the admin bar,
+ *            put it (about 640 px down at 1280 × 900, its lower part off the screen); now it opens under the builder's
+ *            toolbar (BLD-01: docked, the toolbar on the screen; it was under the admin bar, over the toolbar's Save),
  *            whole on the screen, its Close / Done on top and its own scroll for a long panel (Stripe Checkout), also for
  *            a field low on the page, the panel's first notice below its Close / Done (not under them); fa_IR at 1280 px
  *            the same, right to left; fa_IR and ar at 375 px keep AI-8 (full width, 46 px down, no sideways scroll).
@@ -151,7 +152,12 @@ module.exports = function (S) {
     const bodyTop = seen.length ? Math.round(Math.min.apply(null, seen.map((e) => e.getBoundingClientRect().top))) : null;
     const btnBottom = btns.length ? Math.round(Math.max.apply(null, btns.map((r) => r.bottom))) : null;
     const before = box.scrollTop; box.scrollTop = box.scrollHeight; const last = box.querySelector('#sideMenuConEfb').lastElementChild; const l = last ? last.getBoundingClientRect() : null; box.scrollTop = before;
-    return { top: Math.round(b.top), bottom: Math.round(b.bottom), left: Math.round(b.left), width: Math.round(b.width), vh, vw, bar: bar ? Math.round(bar.getBoundingClientRect().bottom) : 0,
+    // BLD-01: from 992 px the panel is docked below the builder's toolbar (which stays on the screen): its top is the
+    // toolbar's bottom (dock), never above it; below 992 px the admin bar's bottom as before.
+    const tb = document.querySelector('#panel_efb > nav');
+    const barB = bar ? Math.round(bar.getBoundingClientRect().bottom) : 0;
+    const dockTop = window.innerWidth >= 992 && tb ? Math.max(Math.round(tb.getBoundingClientRect().bottom), barB) : barB;
+    return { top: Math.round(b.top), bottom: Math.round(b.bottom), left: Math.round(b.left), width: Math.round(b.width), vh, vw, bar: barB, dock: dockTop,
       head: [Math.round(head.top), Math.round(head.bottom)], first: f ? [Math.round(f.top), Math.round(f.bottom)] : null, lastBottom: l ? Math.round(l.bottom) : null,
       bodyTop, btnBottom, under: bodyTop !== null && btnBottom !== null && bodyTop >= btnBottom - 1, ownScroll: box.scrollHeight > box.clientHeight + 1 ? getComputedStyle(box).overflowY : 'fits', page: Math.round(window.scrollY), scroll: document.documentElement.scrollWidth - vw, dir: getComputedStyle(box.querySelector('#sideMenuConEfb')).direction };
   });
@@ -168,7 +174,7 @@ module.exports = function (S) {
         await openForm(d, P.form_id);
         await openPanel(d, P.ids.pay);
         const p = await panelFit(d);
-        R.check(`ai-panel (${tag}): the long payment panel opens under the admin bar (top ${p.top}, bar ${p.bar}), whole on the screen (bottom ${p.bottom} of ${p.vh})`, Math.abs(p.top - p.bar) <= 2 && p.bottom <= p.vh + 1, p);
+        R.check(`ai-panel (${tag}): the long payment panel opens under the builder's toolbar (BLD-01; top ${p.top}, toolbar ${p.dock}), whole on the screen (bottom ${p.bottom} of ${p.vh})`, Math.abs(p.top - p.dock) <= 2 && p.bottom <= p.vh + 1, p);
         R.check(`ai-panel (${tag}): Close / Done and the first input are on the screen at once; the rest scrolls inside the panel (${p.ownScroll}), the last control reachable`, p.head[0] >= p.bar - 1 && p.first && p.first[1] <= p.vh && (p.ownScroll === 'auto' || p.ownScroll === 'fits') && p.lastBottom !== null && p.lastBottom <= p.vh + 1, p);
         R.check(`ai-panel (${tag}): still a side panel, as before (a third of the screen, no sideways scroll)`, p.width < p.vw / 2 && p.width > 250 && p.scroll <= 1, p);
         R.check(`ai-panel (${tag}): the panel's first notice starts below Close / Done, not under them`, p.under === true, p);
@@ -176,7 +182,7 @@ module.exports = function (S) {
         await openForm(d, L.form_id);
         await openPanel(d, L.notes);
         const q = await panelFit(d);
-        R.check(`ai-panel (${tag}): a field low on the page (the page scrolled ${q.page} px): the panel is still whole on the screen under the admin bar`, Math.abs(q.top - q.bar) <= 2 && q.bottom <= q.vh + 1 && q.head[0] >= q.bar - 1 && q.first && q.first[1] <= q.vh, q);
+        R.check(`ai-panel (${tag}): a field low on the page (the page scrolled ${q.page} px): the panel is still whole on the screen under the toolbar`, Math.abs(q.top - q.dock) <= 2 && q.bottom <= q.vh + 1 && q.head[0] >= q.bar - 1 && q.first && q.first[1] <= q.vh, q);
         await d.screenshot({ path: SHOT(`ai-panel-after-${tag}-low-field`) });
         await closePanel(d);
         const c = await d.evaluate(() => Math.round(document.getElementById('sideBoxEfb').getBoundingClientRect().width));
@@ -190,7 +196,7 @@ module.exports = function (S) {
         await openForm(r, P.form_id);
         await openPanel(r, P.ids.pay);
         const p = await panelFit(r);
-        R.check(`ai-panel (fa_IR 1280): right to left, under the admin bar, whole on the screen, a side panel, the first notice below Close / Done`, Math.abs(p.top - p.bar) <= 2 && p.bottom <= p.vh + 1 && p.dir === 'rtl' && p.width < p.vw / 2 && p.scroll <= 1 && p.under === true, p);
+        R.check(`ai-panel (fa_IR 1280): right to left, under the toolbar, whole on the screen, a side panel, the first notice below Close / Done`, Math.abs(p.top - p.dock) <= 2 && p.bottom <= p.vh + 1 && p.dir === 'rtl' && p.width < p.vw / 2 && p.scroll <= 1 && p.under === true, p);
         await r.screenshot({ path: SHOT('ai-panel-after-fa_IR-1280-payment') });
         await r.context().close();
       } finally { ctl('locale', ''); }
