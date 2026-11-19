@@ -1010,12 +1010,14 @@ function funTnxEfb(val, title, message, ov) {
   const messageStyleTnx = safeHexTnx(ov.message_color) ? ` style="color:${safeHexTnx(ov.message_color)}"` : '';
   const trackLabelTnx = ov.tracking_label ? escTnx(ov.tracking_label) : (valj_efb[0].thank_you_message.trackingCode || efb_var.text.trackingCode);
   const show_track = valj_efb[0].trackingCode == true && valj_efb[0].type != "survey" ? true : false;
+  // PUB-01: the copy button's label reads on its button (efb_btn_text_class_efb).
+  const trackBtnTxt = typeof efb_btn_text_class_efb === 'function' ? efb_btn_text_class_efb(valj_efb[0].button_color, valj_efb[0].el_text_color) : valj_efb[0].el_text_color;
   const trckCd = `
   <div class="efb fs-4"><h5 class="efb mt-3 efb fs-4 ${clr_doneMessageEfb} text-center" id="doneTrackEfb">${trackLabelTnx}: <strong>${val}</strong></h5>
                <input type="text" class="efb hide-input efb d-none " value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
-           <button type="button" class="efb btn  ${corner} efb ${valj_efb[0].button_color}  ${efb_btn_text_class_efb(valj_efb[0].button_color, valj_efb[0].el_text_color)}  ${show_track ? 'd-block mx-auto' : 'd-none mx-auto'} efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb' ,'trackingCodeEfb2')">
-                   <i class="efb fs-5 bi-clipboard-check mx-1  ${efb_btn_text_class_efb(valj_efb[0].button_color, valj_efb[0].el_text_color)}"></i><span id="trackingCodeEfb2">${efb_var.text.copy}</span>
+           <button type="button" class="efb btn  ${corner} efb ${valj_efb[0].button_color}  ${trackBtnTxt}  ${show_track ? 'd-block mx-auto' : 'd-none mx-auto'} efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb' ,'trackingCodeEfb2')">
+                   <i class="efb fs-5 bi-clipboard-check mx-1  ${trackBtnTxt}"></i><span id="trackingCodeEfb2">${efb_var.text.copy}</span>
                </button></div>`
   return `
                     <h4 class="efb  my-1 fs-2 ${doneTrackEfb} text-center" id="doneTitleEfb"${titleStyleTnx}>

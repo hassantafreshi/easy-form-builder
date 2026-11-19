@@ -4190,7 +4190,7 @@ public function check_nonce_permission_efb($request) {
 									'admin_recipients' => $email_recipients[0] ?? [],
 									'user_recipients'  => $email_recipients[1] ?? [],
 									'content_len'      => is_string($status_email['content']) ? strlen($status_email['content']) : gettype($status_email['content']),
-									'content_preview'  => is_string($status_email['content']) ? mb_substr(trim(wp_strip_all_tags($status_email['content'])), 0, 300) : '',
+									'content_preview'  => is_string($status_email['content']) ? mb_substr(trim(self::strip_tags_efb($status_email['content'])), 0, 300) : '',
 								]);
 								$this->send_email_Emsfb_( $email_recipients,$payment_track_id ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 							}
@@ -6832,7 +6832,7 @@ public function check_nonce_permission_efb($request) {
 		if (is_array($this->efb_request_query_efb)) {
 			$env['query'] = $this->efb_request_query_efb;
 		} elseif (is_string($referer) && $referer !== '') {
-			$query_string = (string) wp_parse_url($referer, PHP_URL_QUERY);
+			$query_string = (string) (function_exists('wp_parse_url') ? wp_parse_url($referer, PHP_URL_QUERY) : parse_url($referer, PHP_URL_QUERY)); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- outside WordPress only
 			if ($query_string !== '') parse_str($query_string, $env['query']);
 		}
 		if (function_exists('is_user_logged_in') && is_user_logged_in()) {
@@ -7398,7 +7398,7 @@ public function check_nonce_permission_efb($request) {
 				'recipient' => $recipient,
 				'cc_bcc' => $copy_recipients,
 				'subject' => $subject,
-				'content_preview' => $content === 'null' ? '(default template)' : mb_substr(trim(wp_strip_all_tags((string)$content)), 0, 200),
+				'content_preview' => $content === 'null' ? '(default template)' : mb_substr(trim(self::strip_tags_efb((string)$content)), 0, 200),
 			]);
 			$this->send_email_Emsfb_([$recipient, ''], $track_code, $is_pro, ['newMessage', 'newMessage', $type], $url, $content, $subject);
 			foreach ($copy_recipients as $copy_email) {
@@ -7675,7 +7675,7 @@ public function check_nonce_permission_efb($request) {
         'state' => $state,
         'subject' => $subject,
         'has_custom_content' => $content !== 'null',
-        'content_preview' => $content === 'null' ? '(state template)' : mb_substr(trim(wp_strip_all_tags((string)$content)), 0, 200),
+        'content_preview' => $content === 'null' ? '(state template)' : mb_substr(trim(self::strip_tags_efb((string)$content)), 0, 200),
     ]);
     // The owner answers the visitor straight from their inbox.
     $reply_to = is_string($this->owner_reply_to_efb) ? $this->owner_reply_to_efb : '';
@@ -9037,7 +9037,7 @@ public function check_nonce_permission_efb($request) {
 								if (count($v) == 3 && checkdate($v[1], $v[2], $v[0])) {
 									$is_valid = 1;
 									$validated_item = $item;
-									$current_date = wp_date('Y-m-d'); // the site's today (Formbuilder's min date says the same)
+									$current_date = function_exists('wp_date') ? wp_date('Y-m-d') : gmdate('Y-m-d'); // the site's today (Formbuilder's min date says the same)
 									if (isset($f['milen']) && $f['milen'] != '') {
 										$f['milen'] = intval($f['milen']) == 1 ? $current_date : $f['milen'];
 										if ($f['milen'] != '' && (strtotime($f['milen']) > strtotime($item['value']) || strtotime($f['milen']) > strtotime($item['value']))) {
@@ -10199,7 +10199,7 @@ public function check_nonce_permission_efb($request) {
 	 */
 	private function is_same_site_url_efb($url) {
 		if (!is_string($url) || $url === '' || preg_match('/[\x00-\x20\\\\]/', $url)) return false;
-		$parts = wp_parse_url($url);
+		$parts = function_exists('wp_parse_url') ? wp_parse_url($url) : parse_url($url); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- outside WordPress only
 		if (!is_array($parts) || empty($parts['host']) || empty($parts['scheme'])) return false;
 		$scheme = strtolower($parts['scheme']);
 		if ($scheme !== 'http' && $scheme !== 'https') return false;
@@ -10230,7 +10230,7 @@ public function check_nonce_permission_efb($request) {
 		};
 		if (isset($_SERVER['HTTP_HOST'])) $add(sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])));
 		if (function_exists('home_url')) {
-			$home = wp_parse_url(home_url());
+			$home = function_exists('wp_parse_url') ? wp_parse_url(home_url()) : parse_url(home_url()); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- outside WordPress only
 			if (is_array($home) && !empty($home['host'])) {
 				$add($home['host'] . (isset($home['port']) ? ':' . $home['port'] : ''));
 			}
@@ -11050,6 +11050,11 @@ public function check_nonce_permission_efb($request) {
 		return is_string($json) && preg_match('/\\\\?"logic\\\\?"\s*:\s*(?:\\\\?"1\\\\?"|true\b|1\b)|\\\\?"logic_rules\\\\?"\s*:\s*\[\s*\{/', $json) === 1;
 	}
 
+	/** wp_strip_all_tags(), and PHP's own outside WordPress (the unit tests load this class alone). */
+	public static function strip_tags_efb($s) {
+		return function_exists('wp_strip_all_tags') ? wp_strip_all_tags((string) $s) : strip_tags((string) $s); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags -- outside WordPress only
+	}
+
 	public static function normalize_email_input_efb($value) {
 		if (!is_string($value) || '' === $value) {
 			return $value;
@@ -11146,7 +11151,7 @@ public function check_nonce_permission_efb($request) {
 				'rows_in'     => is_array($valobj) ? count($valobj) : gettype($valobj),
 				'msg_type'    => $msg_type,
 				'content_len' => is_string($msg_content) ? strlen($msg_content) : gettype($msg_content),
-				'content_text'=> is_string($msg_content) && $msg_content !== 'null' ? mb_substr(trim(wp_strip_all_tags($msg_content)), 0, 300) : '',
+				'content_text'=> is_string($msg_content) && $msg_content !== 'null' ? mb_substr(trim(self::strip_tags_efb($msg_content)), 0, 300) : '',
 			]);
 			return ['subject'=>$msg_sub,'content'=>$msg_content,'type'=>$msg_type,'visitor_type'=>$visitor_type];
 	}

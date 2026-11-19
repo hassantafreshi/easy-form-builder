@@ -351,7 +351,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	private function generateLengthAttributes_efb($elementId, $vj) {
 		$maxlen = '';
 		$minlen = '';
-		$today = wp_date('Y-m-d'); // the site's today (the submit checks the same)
+		$today = function_exists('wp_date') ? wp_date('Y-m-d') : gmdate('Y-m-d'); // the site's today (the submit checks the same)
 
 		if ($elementId != 'date') {
 			$maxlen = isset($vj->mlen) && $vj->mlen > 0 ? sprintf('maxlength="%d"', $vj->mlen) : '';
@@ -2482,7 +2482,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 foreach (\Emsfb\Smart_Tags::tags($i->value) as $opt_t_efb) if ($opt_t_efb['ns'] === 'field') $opt_pipes_efb = true;
                 if (!$opt_pipes_efb || !isset($this->st_ctx['piping']) || $this->st_ctx['piping']) $selected .= ' data-st-text="' . esc_attr($i->value) . '"';
             }
-            $ch_note_efb = $ch_opt_efb['suffix'] !== '' ? ' (' . wp_strip_all_tags($ch_opt_efb['suffix']) . ')' : '';
+            $ch_note_efb = $ch_opt_efb['suffix'] !== '' ? ' (' . self::strip_tags_efb($ch_opt_efb['suffix']) . ')' : '';
             $options .= sprintf(
                 '<option class="efb %s emsFormBuilder_v efb" data-id="%s" data-op="%s" value="%s" %s%s%s%s>%s</option>',
                 $vj->el_text_color,
@@ -2493,7 +2493,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 $ch_opt_efb['attr'],
                 $ch_opt_efb['disabled'] && $selected === '' ? ' disabled' . ($ch_opt_efb['hidden'] ? ' hidden' : '') : '',
                 // F05: the label without the "N left" note, for choices-efb.js (only when a note is added).
-                $ch_note_efb !== '' ? ' data-label="' . esc_attr(wp_strip_all_tags((string) $opt_text_efb)) . '"' : '',
+                $ch_note_efb !== '' ? ' data-label="' . esc_attr(self::strip_tags_efb((string) $opt_text_efb)) . '"' : '',
                 (isset($opt_text_efb) && $opt_text_efb !== $i->value ? $opt_text_efb : esc_html($i->value)) . esc_html($ch_note_efb)
             );
         }
@@ -2674,6 +2674,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 			if($lang == 'fa') add_action('wp_footer',  [$this, 'efb_output_schema_free_plus'], 20);
 		}
 		return '<!--efb-->';
+	}
+
+	/** wp_strip_all_tags(), and PHP's own outside WordPress (the render tests load this class alone). */
+	public static function strip_tags_efb($s) {
+		return function_exists('wp_strip_all_tags') ? wp_strip_all_tags((string) $s) : strip_tags((string) $s); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags -- outside WordPress only
 	}
 
 	/**

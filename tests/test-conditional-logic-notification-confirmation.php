@@ -365,11 +365,19 @@ testTrue('D1.9 content preview shows submitted data (tags stripped)',
     strpos($logText, 'Budget: 1500') !== false && strpos($logText, '<p>') === false);
 
 // Handler-level full-content log (class-email-handler.php log_email_debug):
-// summary goes to error_log, full HTML goes to WP_CONTENT_DIR/efb-email-debug.log.
+// a masked summary goes to error_log, the full HTML to the private uploads folder (SEC-06, 4.3.2: it was
+// WP_CONTENT_DIR/efb-email-debug.log, public on most servers): uploads/efb-private/logs/efb-email-debug-<salted>.log.
 define('WP_CONTENT_DIR', sys_get_temp_dir() . '/efb-email-debug-content-' . getmypid());
-@mkdir(WP_CONTENT_DIR);
-@unlink(WP_CONTENT_DIR . '/efb-email-debug.log');
+@mkdir(WP_CONTENT_DIR . '/uploads', 0777, true);
 function wp_date($format) { return date($format); }
+// Declared here, not at the top (a plain declaration is hoisted; the groups above run without them).
+if (!function_exists('wp_upload_dir')) { function wp_upload_dir($t = null, $c = true) { return array('basedir' => WP_CONTENT_DIR . '/uploads', 'baseurl' => 'https://example.test/wp-content/uploads', 'error' => false); } }
+if (!function_exists('trailingslashit')) { function trailingslashit($s) { return rtrim($s, '/\\') . '/'; } }
+if (!function_exists('wp_normalize_path')) { function wp_normalize_path($p) { return str_replace('\\', '/', $p); } }
+if (!function_exists('apply_filters')) { function apply_filters($h, $v) { return $v; } }
+if (!function_exists('wp_mkdir_p')) { function wp_mkdir_p($d) { return is_dir($d) || mkdir($d, 0777, true); } }
+if (!function_exists('wp_hash')) { function wp_hash($d) { return hash_hmac('md5', $d, 'test-salt'); } }
+if (!function_exists('wp_delete_file')) { function wp_delete_file($f) { @unlink($f); } }
 /*
  * The email handler guards optional PHP functions against php.ini's
  * disable_functions through this helper. It normally arrives with
@@ -391,14 +399,14 @@ $logDebug->setAccessible(true);
 $logDebug->invoke($handlerObj, 'newMessage', 'sales@example.com', 'Sales lead [TRK-LOG-9]',
     '<html><body><h2>New message</h2><p>Budget: 1500</p></body></html>', 'https://example.test/x', 'msg');
 
-$contentLog = WP_CONTENT_DIR . '/efb-email-debug.log';
-testTrue('D2.2 full HTML written to efb-email-debug.log', file_exists($contentLog));
+$contentLog = (string) EmsfbEmailHandler::email_debug_log_file();
+testTrue('D2.2 full HTML written to the private log (uploads/efb-private/logs/), nothing in wp-content', $contentLog !== '' && strpos($contentLog, '/uploads/efb-private/logs/efb-email-debug-') !== false && file_exists($contentLog) && !file_exists(WP_CONTENT_DIR . '/efb-email-debug.log'));
 $contentLogText = file_exists($contentLog) ? file_get_contents($contentLog) : '';
 testTrue('D2.3 content log contains the email HTML', strpos($contentLogText, '<p>Budget: 1500</p>') !== false);
 testTrue('D2.4 content log identifies recipient', strpos($contentLogText, 'sales@example.com') !== false);
 $logText = implode("\n", efb_debug_log_lines());
-testTrue('D2.5 handler summary line in error log points to the content log',
-    strpos($logText, 'See full HTML in') !== false && strpos($logText, 'Sales lead [TRK-LOG-9]') !== false);
+testTrue('D2.5 handler summary line in error log points to the private log, the recipient masked, no subject',
+    strpos($logText, 'Full HTML in the private uploads folder: efb-private/logs/') !== false && strpos($logText, 's***@example.com') !== false && strpos($logText, 'Sales lead [TRK-LOG-9]') === false);
 
 // wp_mail result lines (log_email_success / log_email_failure)
 function get_option($k, $d = false) { return $d; }
@@ -406,8 +414,8 @@ function update_option() { return true; }
 EmsfbEmailHandler::log_email_success('sales@example.com', 'Sales lead [TRK-LOG-9]');
 EmsfbEmailHandler::log_email_failure('vip@example.com', 'VIP lead', null);
 $logText = implode("\n", efb_debug_log_lines());
-testTrue('D2.6 success result logged', strpos($logText, '"success":true') !== false && strpos($logText, '"to":"sales@example.com"') !== false);
-testTrue('D2.7 failure result logged', strpos($logText, '"success":false') !== false && strpos($logText, '"to":"vip@example.com"') !== false);
+testTrue('D2.6 success result logged (recipient masked)', strpos($logText, '"success":true') !== false && strpos($logText, '"to":"s***@example.com"') !== false);
+testTrue('D2.7 failure result logged (recipient masked)', strpos($logText, '"success":false') !== false && strpos($logText, '"to":"v***@example.com"') !== false);
 
 // ── GROUP R: regression — "Cannot redeclare Emsfb\g()" fatal ─────────────────
 // The default admin email plus a conditional department email in the SAME

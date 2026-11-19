@@ -87,7 +87,7 @@ if (!preg_match('/\nfunction efb_btn_text_class_efb\(btn, text\) \{.*?\n\}\n/s',
 	t('JS and PHP choose the same label class for all ' . count($pairs) . ' pairs', is_array($out) && $has && !$diff, implode('; ', array_slice($diff, 0, 5)));
 	$addz = substr($js, strpos($js, 'let add_buttons_zone_efb = (state, id) => {'), 6000);
 	t('the page buttons use it (add_buttons_zone_efb), the builder canvas keeps the chosen colour', strpos($addz, 'const btnTextEfb = id == "dropZoneEFB" ? valj_efb[0].el_text_color : efb_btn_text_class_efb(valj_efb[0].button_color, valj_efb[0].el_text_color);') !== false && substr_count($addz, '${btnTextEfb}') === 3);
-	t('the Next label redrawn on a step change and the copy-code button use it', substr_count($js, 'efb_btn_text_class_efb(valj_efb[0].button_color, valj_efb[0].el_text_color)') >= 5);
+	t('the Next label redrawn on a step change and the copy-code button use it', substr_count($js, 'efb_btn_text_class_efb(valj_efb[0].button_color, valj_efb[0].el_text_color)') >= 4 && substr_count($js, '${trackBtnTxt}') === 2);
 }
 
 echo "\nRESULTS: $pass passed, $fail failed\n";
