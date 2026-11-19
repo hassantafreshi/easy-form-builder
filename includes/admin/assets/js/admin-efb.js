@@ -9050,28 +9050,32 @@ function efbRptMobilePreviewScriptsEfb() {
   return `${css && /^https?:\/\//.test(css) ? `<link rel="stylesheet" href="${css.replace(/"/g, '%22')}">` : ''}<script src="${js.replace(/"/g, '%22')}"></script>`
     + `<script>try{EFBRepeater.isolate(${Number(fid)},${rows});EFBRepeater.init();EFBRepeater.ready();}catch(e){}</script>`;
 }
+/* BUG-03 row 370 (B4): the mobile preview's frame had no stylesheet at all (the form drew unstyled), printed the text
+   "handle_navbtn_efb(…)" in its page (a script with no opening tag) and had no viewport, direction or language. It is a
+   whole page now: the form's stylesheets of this screen (the plugin's own <link>s and the form's <style>s), a phone's
+   viewport, the screen's direction and language. (No control of the builder opens it today: its Mobile button shows
+   the canvas in a phone's width.) */
+function efbMobilePreviewDocEfb(content, btns) {
+  const esc = (v) => String(v).replace(/"/g, '%22');
+  const links = Array.from(document.querySelectorAll('link[rel="stylesheet"][href]')).map((l) => l.href).filter((u) => /\/easy-form-builder\//.test(u) && /^https?:\/\//.test(u));
+  const styles = Array.from(document.querySelectorAll('style')).filter((st) => /\befb\b|efb-|emsfb/i.test(st.id || '') || /\.efb\b/.test(st.textContent || '')).map((st) => st.outerHTML);
+  const rtl = Number(efb_var && efb_var.rtl) === 1;
+  const lang = String((efb_var && efb_var.language) || 'en_US').replace('_', '-');
+  return `<!doctype html><html lang="${esc(lang)}" dir="${rtl ? 'rtl' : 'ltr'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">`
+    + links.map((u) => `<link rel="stylesheet" href="${esc(u)}">`).join('') + styles.join('')
+    + `<script>var valj_efb = ${JSON.stringify(valj_efb).replace(/</g, '\\u003c')};</script></head>`
+    + `<body class="efb${rtl ? ' rtl' : ''}">${content}${btns}${efbRptMobilePreviewScriptsEfb()}</body></html>`;
+}
 function ReadyElForViewEfb(content) {
   setTimeout(() => {
     const t = valj_efb[0].steps == 1 ? 0 : 1;
     const btns = add_buttons_zone_efb(t, 'preview')
-    const html = `
-    <head>
-    <script>
-    valj_efb = ${JSON.stringify(valj_efb)};
-    </script>
-  </head>
-    <body>
-    ${content}
-    ${btns}
-    handle_navbtn_efb(${valj_efb[0].steps},'mobile')
-    </script>
-    ${efbRptMobilePreviewScriptsEfb()}
-    </body>
-    `
+    const html = efbMobilePreviewDocEfb(content, btns);
     let iframe = document.createElement('iframe');
     iframe.id = `efbMobileView`;
-    // encodeURIComponent: a "#" in the form (a colour, an anchor) no longer ends the page as a URL fragment.
-    iframe.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(html);
+    iframe.title = efbSbTextEfb('mobilePreview', 'Mobile Preview');
+    // srcdoc: the page's address is this screen's, so its stylesheets load (a data: URL kept no "#" problem either).
+    iframe.srcdoc = html;
     document.getElementById('parentMobileView-efb').innerHTML = "";
     document.getElementById('parentMobileView-efb').appendChild(iframe)
   }, 1000)
@@ -10225,7 +10229,8 @@ function previewFormEfb(state) {
     if (state == "new") {
       preview_form_new_efb();
       return;
-    }else if (state == "pc"){
+    }else if (state == "pc" || state == "mobile"){
+      // BUG-03 row 370: the mobile preview opened its dialog's content without the dialog (it stayed hidden).
       show_modal_efb(efbLoadingCard('',4), efb_var.text.previewForm, '', 'saveBox', { flow: 'preview' })
       state_modal_show_efb(1)
     }

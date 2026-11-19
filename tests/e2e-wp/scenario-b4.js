@@ -24,6 +24,9 @@
  *            builder, a form in the builder, its entries, Add-ons and Payments, in en at 1280 px and fa_IR and ar at
  *            375 px: no serious or critical violation in the plugin's part of the screen (#wpbody-content); and the
  *            fixed nodes themselves (the header's logo and icon links, the lists without <hr>, the muted text's colour).
+ *  b4-mobile-preview  BUG-03 row 370: the builder's mobile preview frame (previewFormEfb('mobile'); no control opens it
+ *            today) is a whole page: the screen's stylesheets (the form is styled: Bootstrap's grid and the plugin's
+ *            button), a phone's viewport, the screen's direction, no stray script text; en and fa_IR.
  */
 'use strict';
 const path = require('path');
@@ -355,6 +358,45 @@ module.exports = function (S) {
             }
           }
           await p.context().close();
+        } finally { if (loc) ctl('locale', ''); }
+      }
+    } finally {
+      actl('delete', String(F.form_id));
+    }
+  });
+  /* ================================================================== b4-mobile-preview */
+  scenario('b4-mobile-preview', 'BUG-03 row 370: the builder\'s mobile preview frame has the form\'s stylesheets, a viewport and the direction; no stray script text', async ({ adminPage }) => {
+    ctl('plan', '3');
+    const F = ctl('f11-form', 'B4 mobile preview', '', '2');
+    try {
+      for (const loc of ['', 'fa_IR']) {
+        if (loc) ctl('locale', loc);
+        try {
+          const a = await adminPage({ viewport: { width: 1280, height: 900 }, locale: loc ? 'fa-IR' : 'en-US' }, 'b4-mobile-' + (loc || 'en'));
+          await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+          await a.waitForFunction(() => typeof fun_get_form_by_id === 'function', null, { timeout: 20000 });
+          await a.evaluate((id) => fun_get_form_by_id(Number(id)), F.form_id);
+          await builderReady(a);
+          await canvasDrawn(a);
+          await a.evaluate(() => previewFormEfb('mobile'));
+          await a.waitForSelector('#efbMobileView', { timeout: 15000 });
+          const box = await a.evaluate(() => { const r = document.getElementById('efbMobileView').getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height) }; });
+          R.check(`b4-mobile-preview (${loc || 'en'}): the dialog shows the phone frame with the page in it (it stayed hidden)`, box.w >= 340 && box.h >= 600, box);
+          const frame = await (await a.$('#efbMobileView')).contentFrame();
+          await frame.waitForLoadState('load');
+          await sleep(800);
+          const r = await frame.evaluate(() => {
+            const sheets = Array.from(document.styleSheets).length;
+            const links = Array.from(document.querySelectorAll('link[rel="stylesheet"]')).map((l) => l.getAttribute('href').replace(/^.*\/(?=[^/]+$)/, '').replace(/\?.*$/, ''));
+            const btn = document.querySelector('#btn_send_efb, #next_efb, .efb.btn');
+            const row = document.querySelector('.efb.row, .row');
+            return { doctype: !!document.doctype, dir: document.documentElement.getAttribute('dir'), viewport: !!document.querySelector('meta[name="viewport"]'), sheets, links, stray: /handle_navbtn_efb\(/.test(document.body.innerText), btnRadius: btn ? getComputedStyle(btn).borderRadius : null, rowDisplay: row ? getComputedStyle(row).display : null, labels: document.querySelectorAll('label').length };
+          });
+          const tag = loc || 'en';
+          R.check(`b4-mobile-preview (${tag}): a whole page (doctype, viewport, ${loc ? 'right to left' : 'left to right'}) with the screen's stylesheets (Bootstrap, style-efb.css)`, r.doctype && r.viewport && r.dir === (loc ? 'rtl' : 'ltr') && r.sheets >= 3 && r.links.includes('style-efb.css') && r.links.includes('bootstrap.min-efb.css'), r);
+          R.check(`b4-mobile-preview (${tag}): the form is styled (Bootstrap's grid row is flex, the button is rounded) and no stray script text`, r.rowDisplay === 'flex' && r.btnRadius && r.btnRadius !== '0px' && !r.stray && r.labels >= 2, r);
+          await a.screenshot({ path: SHOT(`b4-mobile-preview-${tag}`) });
+          await a.context().close();
         } finally { if (loc) ctl('locale', ''); }
       }
     } finally {
