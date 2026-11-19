@@ -18,12 +18,17 @@ namespace Stripe {
 }
 namespace {
     define('DOING_AJAX',true);
-    require dirname(__DIR__,4).'/wp-load.php';
+    require_once __DIR__ . '/wp-env.php';
+    require efb_test_wp_load_or_skip();
     require_once dirname(__DIR__).'/vendor/stripe/class-Emsfb-stripe-payment.php';
     class EfbStripeVerificationEnd extends Exception {}
     add_filter('wp_die_ajax_handler',static function(){return static function(){throw new EfbStripeVerificationEnd();};});
+    // PAY-OUT (docs/feature-gaps/SPLIT-core-addons.fa.md §5.4, steps 3-4): the Stripe handlers left core's public class
+    // for the Stripe add-on's Stripe_Legacy_Efb (vendor/stripe/class-Emsfb-stripe-legacy.php), which reaches core's
+    // members through ->pub; core keeps a shim that only answers "update the add-on".
+    if(!class_exists('Emsfb\\Stripe_Legacy_Efb')){echo "[SKIP] the Stripe add-on (AdnSPF) is not active on this site: its handlers are what this test checks\nRESULTS: 0 passed, 0 failed\n";exit(0);}
     $ref=new ReflectionClass('Emsfb\\_Public');
-    $public=$ref->newInstanceWithoutConstructor();
+    $public=\Emsfb\Stripe_Legacy_Efb::instance($ref->newInstanceWithoutConstructor());
     $original_health=get_option(\Emsfb\Request_Health::OPTION,null);
     $original_event=wp_next_scheduled('emsfb_stripe_reconcile_efb'); // the outage check queues a background re-check
     $rows=array(); $passed=0;

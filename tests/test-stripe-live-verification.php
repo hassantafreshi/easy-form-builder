@@ -1,18 +1,29 @@
 <?php
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
-/** Actual Stripe test-mode transactions; no live keys, receipts or production records. */
+/**
+ * Actual Stripe test-mode transactions; no live keys, receipts or production records.
+ *
+ * Owner-only: it needs a real Stripe test-mode secret key (sk_test_...) saved on the site's Stripe add-on screen
+ * (Easy Form Builder > Stripe keys) and network access to api.stripe.com. Elsewhere it prints [SKIP]: no key, or the
+ * repository's own placeholder keys (tests/e2e-wp fixtures), which Stripe answers with HTTP 401.
+ * Run: EFB_WP_ROOT=/path/to/wordpress php tests/test-stripe-live-verification.php (on XAMPP: php tests/...).
+ */
 define('DOING_AJAX', true);
-require dirname(__DIR__, 4) . '/wp-load.php';
+require_once __DIR__ . '/wp-env.php';
+require efb_test_wp_load_or_skip();
 require_once dirname(__DIR__) . '/vendor/stripe/class-Emsfb-stripe-payment.php';
-if (!class_exists('Stripe\\StripeClient')) require dirname(__DIR__) . '/vendor/autoload.php';
+if (!class_exists('Stripe\\StripeClient')) require is_readable(dirname(__DIR__) . '/vendor/stripe/stripe-php/init.php') ? dirname(__DIR__) . '/vendor/stripe/stripe-php/init.php' : dirname(__DIR__) . '/vendor/autoload.php';
 class EfbStripeTestEnd extends Exception {}
 add_filter('wp_die_ajax_handler', static function () { return static function () { throw new EfbStripeTestEnd(); }; });
-$ref = new ReflectionClass('Emsfb\\_Public');
-$public = $ref->newInstanceWithoutConstructor();
-$resolver = $ref->getMethod('resolve_payment_key_efb');
-$resolver->setAccessible(true);
-$key = $resolver->invoke($public, get_setting_Emsfb('decoded'), 'stripeSKey');
+// PAY-OUT (docs/feature-gaps/SPLIT-core-addons.fa.md §5.4, steps 2-4): the Stripe keys and handlers left core's public
+// class for the Stripe add-on (Stripe_Keys_Efb, Stripe_Legacy_Efb over core's members); core keeps only a shim.
+if (!class_exists('Emsfb\\Stripe_Legacy_Efb')) { echo "[SKIP] the Stripe add-on (AdnSPF) is not active on this site: its handlers are what this test checks\nRESULTS: 0 passed, 0 failed\n"; exit(0); }
+$public = \Emsfb\Stripe_Legacy_Efb::instance((new ReflectionClass('Emsfb\\_Public'))->newInstanceWithoutConstructor());
+$key = $public->resolve_payment_key_efb(get_setting_Emsfb('decoded'), 'stripeSKey');
+if ($key === 'null' || $key === '') { echo "[SKIP] no Stripe secret key is saved on this site: owner-only test, needs a real Stripe test-mode key (see the header)\nRESULTS: 0 passed, 0 failed\n"; exit(0); }
 if (strpos($key, 'sk_test_') !== 0) { fwrite(STDERR, "REFUSED: configured Stripe key is not a test key.\n"); exit(1); }
+// The placeholders the repository's own fixtures save (tests/e2e-wp/ctl-payout.php, the reconcile and guard tests).
+if (preg_match('/EfbE2e|efbreconcile|efbguards/i', $key)) { echo "[SKIP] the site's Stripe key is a placeholder of the test fixtures: owner-only test, needs a real Stripe test-mode key (see the header)\nRESULTS: 0 passed, 0 failed\n"; exit(0); }
 $stripe = new \Stripe\StripeClient($key);
 \Stripe\Stripe::setMaxNetworkRetries(0);
 $intents = array(); $rows = array(); $passed = 0;

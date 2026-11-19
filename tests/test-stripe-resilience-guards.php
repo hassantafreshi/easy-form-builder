@@ -71,13 +71,15 @@ namespace {
             $total += (int) $m[1];
         }
         if ($failed) exit(1);
+        if ($total === 0) { echo "[SKIP] no scenario ran (see the SKIP lines above)\n"; exit(0); }
         echo "$total Stripe guard checks passed (stubbed client, missing table, missing SDK; real WordPress/database).\n";
         exit(0);
     }
 
     define('DOING_AJAX', true);
     ob_start(); // keep headers unsent so the handlers' HTTP status reaches the status_header filter
-    require dirname(__DIR__, 4) . '/wp-load.php';
+    require_once __DIR__ . '/wp-env.php';
+    require efb_test_wp_load_or_skip();
 
     $plugin_dir = dirname(__DIR__) . '/';
     // A fatal error must surface as a failed scenario, whatever WP_DEBUG_DISPLAY says.
@@ -90,7 +92,8 @@ namespace {
     // Any notice or warning raised by the handlers under test fails the scenario (PHP 8.x hygiene).
     $php_notices = array();
     set_error_handler(static function ($type, $message, $file, $line) use (&$php_notices) {
-        if (strpos(str_replace('\\', '/', $file), '/includes/class-Emsfb-public.php') !== false) {
+        $file = str_replace('\\', '/', $file);
+        if (strpos($file, '/includes/class-Emsfb-public.php') !== false || strpos($file, '/class-Emsfb-stripe-legacy.php') !== false) {
             $php_notices[] = $message . ' @' . $line;
         }
         return false;
@@ -102,8 +105,15 @@ namespace {
     global $wpdb, $EZSQL_ERROR;
     $table     = $wpdb->prefix . 'emsfb_pay_';
     $msg_table = $wpdb->prefix . 'emsfb_msg_';
-    $ref       = new ReflectionClass('Emsfb\\_Public');
-    $public    = $ref->newInstanceWithoutConstructor();
+    // PAY-OUT (docs/feature-gaps/SPLIT-core-addons.fa.md §5.4, steps 3-4): the Stripe handlers left core's public class
+    // for the Stripe add-on's Stripe_Legacy_Efb (vendor/stripe/class-Emsfb-stripe-legacy.php), which reaches core's
+    // members through ->pub; core keeps a shim that only answers "update the add-on".
+    if (!class_exists('Emsfb\\Stripe_Legacy_Efb')) {
+        fwrite(STDOUT, "SKIP $scenario: the Stripe add-on (AdnSPF) is not active on this site: its handlers are what this test checks\nSCENARIO_OK $scenario 0\n");
+        exit(0);
+    }
+    $public    = \Emsfb\Stripe_Legacy_Efb::instance((new ReflectionClass('Emsfb\\_Public'))->newInstanceWithoutConstructor());
+    $ref       = new ReflectionClass($public);
     $private   = static function ($name) use ($ref) { $m = $ref->getMethod($name); $m->setAccessible(true); return $m; };
     $passed    = 0;
     $check     = static function ($ok, $label) use (&$passed) { if (!$ok) throw new RuntimeException('FAIL: ' . $label); $passed++; fwrite(STDOUT, "PASS $label\n"); };
@@ -132,6 +142,7 @@ namespace {
         $decoded->stripeSKey = 'sk_test_efbguards0000000000';
         get_setting_Emsfb('_clear_cache');
         wp_cache_set('settings:decoded', $decoded, 'emsfb');
+        if (class_exists('Emsfb\\Stripe_Keys_Efb')) \Emsfb\Stripe_Keys_Efb::forget(); // the add-on reads its key again
         $settings_injected = true;
     }
 

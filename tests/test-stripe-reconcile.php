@@ -10,7 +10,8 @@ if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 define('DOING_AJAX', true);
 ob_start(); // keep headers unsent so the handlers' HTTP status reaches the status_header filter
-require dirname(__DIR__, 4) . '/wp-load.php';
+require_once __DIR__ . '/wp-env.php';
+require efb_test_wp_load_or_skip();
 $init = dirname(__DIR__) . '/vendor/stripe/stripe-php/init.php';
 if (!class_exists('\Stripe\StripeClient')) {
     if (!is_readable($init)) { fwrite(STDERR, "SKIP: Stripe add-on (vendor/stripe) not installed.\n"); exit(0); }
@@ -48,8 +49,12 @@ $http = new EfbFakeStripeHttp();
 global $wpdb;
 $table = $wpdb->prefix . 'emsfb_pay_';
 $msg_table = $wpdb->prefix . 'emsfb_msg_';
-$ref = new ReflectionClass('Emsfb\\_Public');
-$public = $ref->newInstanceWithoutConstructor();
+// PAY-OUT (docs/feature-gaps/SPLIT-core-addons.fa.md §5.4, steps 3-4): the Stripe handlers left core's public class for
+// the Stripe add-on's Stripe_Legacy_Efb (vendor/stripe/class-Emsfb-stripe-legacy.php), which reaches core's members
+// through ->pub; core keeps a shim that only answers "update the add-on".
+if (!class_exists('Emsfb\\Stripe_Legacy_Efb')) { fwrite(STDOUT, "[SKIP] the Stripe add-on (AdnSPF) is not active on this site: its handlers are what this test checks\n"); exit(0); }
+$public = \Emsfb\Stripe_Legacy_Efb::instance((new ReflectionClass('Emsfb\\_Public'))->newInstanceWithoutConstructor());
+$ref = new ReflectionClass($public);
 $private = static function ($name) use ($ref) { $m = $ref->getMethod($name); $m->setAccessible(true); return $m; };
 // The handlers need a Stripe secret key. Use the site's when one is set; otherwise a
 // placeholder for this process only (object cache, never saved). The local HTTP client
@@ -61,6 +66,7 @@ if ($private('resolve_payment_key_efb')->invoke($public, get_setting_Emsfb('deco
     $decoded->stripeSKey = 'sk_test_efbreconcile00000000';
     get_setting_Emsfb('_clear_cache');
     wp_cache_set('settings:decoded', $decoded, 'emsfb');
+    if (class_exists('Emsfb\\Stripe_Keys_Efb')) \Emsfb\Stripe_Keys_Efb::forget(); // the add-on reads its key again
     $settings_injected = true;
 }
 $original_health = get_option(\Emsfb\Request_Health::OPTION, null);
