@@ -211,11 +211,17 @@ t( 'an empty code leaves a Free site blocked',
 echo "\n=== what each plan keeps on a downgrade ===\n";
 $keeps_free_plus = $fn->addon_keys_allowed_by_package_efb( 3 );
 sort( $keeps_free_plus );
-t( 'Free Plus keeps exactly Offline Forms, Conditional Logic, Stripe and PayPal',
-	array( 'AdnOF', 'AdnPAP', 'AdnSMF', 'AdnSPF' ) === $keeps_free_plus, implode( ', ', $keeps_free_plus ) );
+// Free Plus: Offline Forms, Conditional Logic, Stripe and PayPal (14c9b119), the add-ons that left core with SPLIT
+// (Calculations AdnCLC, Typed signature AdnTSG, Geo AdnGEO; Address AdnADR is on every plan), the CAPTCHA add-ons of
+// F12b (AdnCTS, AdnHCP, AdnALT, AdnQCP, AdnFRC) and the PAY01-07 gateways (AdnMOL, AdnPPG, AdnTAP, AdnOMS, AdnPTB,
+// AdnPMB, AdnXND) — docs/feature-gaps/SPLIT-core-addons.fa.md (Addon_Catalog), F12b-captcha, docs/payments/PAY0*.
+$free_plus_expected = array( 'AdnADR', 'AdnALT', 'AdnCLC', 'AdnCTS', 'AdnFRC', 'AdnGEO', 'AdnHCP', 'AdnMOL', 'AdnOF', 'AdnOMS', 'AdnPAP', 'AdnPMB', 'AdnPPG', 'AdnPTB', 'AdnQCP', 'AdnSMF', 'AdnSPF', 'AdnTAP', 'AdnTSG', 'AdnXND' );
+t( 'Free Plus keeps exactly the Free and Free Plus add-ons of the catalogue (Offline Forms, Conditional Logic, Stripe, PayPal, the SPLIT, CAPTCHA and PAY00 add-ons)',
+	$free_plus_expected === $keeps_free_plus, implode( ', ', $keeps_free_plus ) );
 
 $keeps_free = $fn->addon_keys_allowed_by_package_efb( 2 );
-t( 'Free keeps only Offline Forms', array( 'AdnOF' ) === array_values( $keeps_free ), implode( ', ', $keeps_free ) );
+sort( $keeps_free );
+t( 'Free keeps only Offline Forms and Address & Postal (SPLIT: on every plan)', array( 'AdnADR', 'AdnOF' ) === array_values( $keeps_free ), implode( ', ', $keeps_free ) );
 
 $keeps_pro = $fn->addon_keys_allowed_by_package_efb( 1 );
 t( 'Pro keeps every add-on', count( $keeps_pro ) === count( $fn->get_all_addon_keys_efb() ), count( $keeps_pro ) . ' keys' );
@@ -247,8 +253,12 @@ t( 'the JS declares the same tiers',
 	&& strpos( $js, "if (name === 'AdnSMF') return 3;" ) !== false );
 t( 'the card and the click share one gate',
 	substr_count( $js, 'efb_addon_can_install_efb(' ) >= 3 );
+// F18-E (a527b24b): every lock opens the upgrade prompt that names its feature instead of pro_show_efb().
+$prompt = "efb_upgrade_prompt_efb({ feature: 'addon:' + val, fallback: efb_addon_required_package_efb(val) === 3 ? 'free_plus' : 'pro', origin: 'addons' });";
+$click  = strpos( $js, $prompt );
 t( 'the click refuses a locked add-on instead of posting the install',
-	strpos( $js, 'pro_show_efb(efb_addon_required_package_efb(val) === 3 ? 3 : 1);' ) !== false );
+	$click !== false && preg_match( '/^\s*return;/', substr( $js, $click + strlen( $prompt ), 40 ) ) === 1
+	&& strpos( $js, 'actionSendAddons_efb(val);', $click ) > $click );
 t( 'a locked card no longer offers the word Install',
 	strpos( $js, "nameNtn = requiredPackage === 3" ) !== false );
 t( 'the old special case is gone',

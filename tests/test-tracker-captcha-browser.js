@@ -17,6 +17,7 @@
  */
 'use strict';
 const { chromium } = require('playwright');
+const wpEnv = require('./wp-env');
 const fs = require('fs');
 const path = require('path');
 const JS = path.join(__dirname, '..', 'includes', 'admin', 'assets', 'js');
@@ -30,7 +31,8 @@ const pieces = [
   lift(core, /efb_reset_tracker_captcha_efb=\(\)=>\{[\s\S]*?\n}\n/, 'efb_reset_tracker_captcha_efb'),
   lift(core, /recaptchaExpiredEfb = \(formId\)=>\{[\s\S]*?\n}\n/, 'recaptchaExpiredEfb'),
   lift(core, /recaptchaSuccessEfb = \(token, formid\) => \{[\s\S]*?\n}\n/, 'recaptchaSuccessEfb'),
-  lift(core, /function loadCaptcha_efb\(timer = 20\) \{[\s\S]*?\n};\n/, 'loadCaptcha_efb'),
+  // F12b-C: loadCaptcha_efb() hands every CAPTCHA box to EFBCaptcha (public/assets/js/captcha-efb.js, loaded below).
+  lift(core, /function loadCaptcha_efb\(\) \{[\s\S]*?\n}\n/, 'loadCaptcha_efb'),
 ].join('\n');
 
 let failures = 0;
@@ -67,6 +69,7 @@ async function page(browser, captchaOn) {
     }
     window.grecaptcha = { widgets: [], render(el, o){ this.widgets.push(o); return this.widgets.length - 1; }, reset(id){ window.resets.push(id); } };
   ` + pieces });
+  await p.addScriptTag({ path: path.join(__dirname, '..', 'public', 'assets', 'js', 'captcha-efb.js') });
   await p.addScriptTag({ path: path.join(JS, 'response-viewer-efb.js') });
   /* Record every result; a refused lookup still goes through the shipped
      handler, which swaps in the error card. */
@@ -87,7 +90,7 @@ async function page(browser, captchaOn) {
 }
 
 (async () => {
-  const browser = await chromium.launch(process.env.EFB_CHROMIUM ? { executablePath: process.env.EFB_CHROMIUM } : {});
+  const browser = await wpEnv.launch();
   const errors = [];
 
   // reCAPTCHA on

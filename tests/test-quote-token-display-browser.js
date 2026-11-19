@@ -18,6 +18,7 @@
  */
 'use strict';
 const { chromium } = require('playwright');
+const wpEnv = require('./wp-env');
 const fs = require('fs');
 const path = require('path');
 const JS = path.join(__dirname, '..', 'includes', 'admin', 'assets', 'js');
@@ -30,13 +31,14 @@ let failures = 0;
 const check = (label, ok, detail) => { console.log((ok ? '[PASS] ' : '[FAIL] ') + label + (ok || detail === undefined ? '' : ' ' + JSON.stringify(detail))); if (!ok) failures++; };
 
 (async () => {
-  const browser = await chromium.launch(process.env.EFB_CHROMIUM ? { executablePath: process.env.EFB_CHROMIUM } : {});
+  const browser = await wpEnv.launch();
   const p = await browser.newPage();
   let dialogs = 0; p.on('dialog', d => { dialogs++; d.dismiss(); });
   const errors = []; p.on('pageerror', e => errors.push(e.message));
   await p.setContent('<div id="box"></div>');
   await p.addScriptTag({ content: 'var efb_var={rtl:0,images:{head:"https://site.test/h.png"},text:new Proxy({esign:"Signature"},{get:(t,k)=>typeof k==="string"?(t[k]||k):undefined})};var lan_name_emsFormBuilder="en";'
-    + lift(newEfb, 'replaceContentMessageEfb') + lift(newEfb, 'text_nr_efb') + lift(newEfb, 'efbParseJson') + imgRadio
+    // efbOrderOf: every position compare of the viewer goes through new-efb.js's helper (A2, numeric order).
+    + lift(newEfb, 'efbOrderOf') + lift(newEfb, 'replaceContentMessageEfb') + lift(newEfb, 'text_nr_efb') + lift(newEfb, 'efbParseJson') + imgRadio
     + lift(list, 'escapeContentPreviewText_efb') + lift(list, 'getContentPreview_efb') + lift(list, 'convertToCSV_emsFormBuilder') });
   await p.addScriptTag({ path: path.join(JS, 'response-viewer-efb.js') });
 

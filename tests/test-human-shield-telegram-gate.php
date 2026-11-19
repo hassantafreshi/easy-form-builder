@@ -16,6 +16,7 @@ if ( ! is_readable( $wp_load ) ) {
 }
 
 require_once $wp_load;
+efb_test_require_addon_dir( 'human-shield' );
 require_once dirname( __DIR__ ) . '/vendor/human-shield/human-shield-efb.php';
 
 $passed = 0;
@@ -56,7 +57,9 @@ try {
 	efb_hs_telegram_check( 'Low-score Telegram notification is vetoed by the real filter', $allowed, false );
 
 	$public_source = file_get_contents( dirname( __DIR__ ) . '/includes/class-Emsfb-public.php' );
-	$telegram_guard_pattern = "/apply_filters\\(\\s*'efb_shield_allow_side_effect'.*?'channel'\\s*=>\\s*'telegram'.*?\\)\\s*\\)\\s*\\{\\s*do_action\\(\\s*'efb_3rd_party_telegram_notify'/s";
+	// The dispatch runs inside run_optional_notification_efb() ("optional notification channels must not interrupt
+	// primary form processing"): the gate must still sit directly in front of it.
+	$telegram_guard_pattern = "/apply_filters\\(\\s*'efb_shield_allow_side_effect'.*?'channel'\\s*=>\\s*'telegram'.*?\\)\\s*\\)\\s*\\{\\s*(?:\\\$this->run_optional_notification_efb\\(\\s*'telegram'\\s*,\\s*function\\s*\\(\\)\\s*use\\s*\\(\\s*\\\$context\\s*\\)\\s*\\{\\s*)?do_action\\(\\s*'efb_3rd_party_telegram_notify'/s";
 	efb_hs_telegram_check( 'Telegram dispatch is behind the shared side-effect gate', 1 === preg_match( $telegram_guard_pattern, $public_source ) );
 } finally {
 	if ( false === $original ) {
