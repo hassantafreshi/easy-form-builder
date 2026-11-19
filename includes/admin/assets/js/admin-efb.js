@@ -703,10 +703,25 @@ donwload_event_icon_efb =(color)=>{
 </div>
 `
 }
+/* HELP-01: the help page of an add-on (efb_var.addon_catalog[code].help) or of a builder topic (efb_var.help_topics),
+   both from the add-on catalogue (Emsfb\Addon_Catalog::HELP) in this site's language. '' when it has no page: its Help
+   is hidden and nothing opens (owner decision 8), never the documentation index. undefined: not a catalogue topic. */
+function efb_help_url_efb(state) {
+  const ev = (typeof efb_var !== 'undefined' && efb_var) || {};
+  const c = ev.addon_catalog && Object.prototype.hasOwnProperty.call(ev.addon_catalog, state) ? ev.addon_catalog[state] : null;
+  if (c && typeof c.help === 'string') return c.help;
+  if (ev.help_topics && Object.prototype.hasOwnProperty.call(ev.help_topics, state) && typeof ev.help_topics[state] === 'string') return ev.help_topics[state];
+  // An add-on code the page knows nothing about (a page cached before the catalogue had help) has no page either.
+  if (/^Adn[A-Za-z]{2,5}$/.test(String(state || ''))) return '';
+  return undefined;
+}
+
 // The guide URL for a help topic, without opening it. Code that only needs
 // the address (a link in rendered markup) calls this; Link_emsFormBuilder()
-// opens it and belongs in click handlers.
+// opens it and belongs in click handlers. '' = no page (see efb_help_url_efb).
 function link_url_emsFormBuilder(state) {
+  const help = efb_help_url_efb(state);
+  if (help !== undefined) return help;
   const lan =lan_subdomain_wsteam_efb();
   let link = `https://${lan}whitestudio.team/document`
   const github = 'https://github.com/hassantafreshi/easy-form-builder/wiki/'
@@ -717,7 +732,8 @@ function link_url_emsFormBuilder(state) {
         break;
       case 'createSampleForm':
       case 'tutorial':
-        link += valj_efb.length < 1 || valj_efb[0].type != "s/payment" ? "s/how-to-create-your-first-form-with-easy-form-builde" : "How-to-Create-a-Payment-Form-in-Easy-Form-Builder";
+        // (A payment form used to compare its type with "s/payment", never true, and its address had no "/".)
+        link += "s/how-to-create-your-first-form-with-easy-form-builde";
         break;
       case 'stripe':
         link = `https://${lan}whitestudio.team/documents/how-to-setup-and-use-the-stripe-on-easy-form-builder`;
@@ -743,35 +759,11 @@ function link_url_emsFormBuilder(state) {
       case 'redirectPage':
         link += "s/how-to-edit-a-redirect-pagethank-you-page-of-forms-on-easy-form-builder";
       break;
-      case 'AdnSPF':
-        link += 's/how-to-setup-and-use-the-stripe-on-easy-form-builder/';
-        break;
-        case 'AdnOF':
-          link += "s/offline-forms-addon/";
-
-        break;
-        case 'AdnADP':
-          link += "s/how-to-install-islamic-date-in-easy-form-builder-plugin/";
-
-        break;
       case 'wpbakery':
         link += 's/wpbakery-easy-form-builder-v34/';
         break;
-      case 'AdnPPF':
-        link = `https://${lan}whitestudio.team`;
-        break;
-      case 'AdnATC':
-        break;
-      case 'AdnSS':
       case 'smsconfig':
         link += "/settingup-sms-notifications-wordpress-easy-form-builder/";
-        break;
-      case 'AdnCPF':
-       break;
-      case 'AdnESZ':
-       break;
-      case 'AdnSE':
-        link = 'https://whitestudio.team/addons';
         break;
       case 'wpsmss':
         link ='https://wordpress.org/plugins/wp-sms/';
@@ -795,16 +787,8 @@ function link_url_emsFormBuilder(state) {
         link = 'https://translate.wordpress.org/projects/wp-plugins/easy-form-builder/';
         break;
       case 'paypal':
-      case 'AdnPAP':
         link = `https://${lan}whitestudio.team/document/how-to-setup-paypal-payment-in-easy-form-builder/`;
         break;
-      case 'AdnTLG':
-        link = `https://${lan}whitestudio.team/document/wordpress-form-telegram-notifications/`;
-        break;
-      case 'AdnATF':
-        link = `https://${lan}whitestudio.team/advanced-addons/wordpress-easy-form-builder-auto-populate/`;
-        break;
-
     }
   }else{
     link =`https://easyformbuilder.ir/داکیومنت/`;
@@ -840,28 +824,12 @@ function link_url_emsFormBuilder(state) {
       case 'redirectPage':
         link += "نحوه-ساخت-یک-صفحه-تشکر-در-افزونه-فرم-ساز/";
       break;
-      case 'AdnSPF':
-        link = 'https://easyformbuilder.ir/documents/';
-        break;
-      case 'AdnOF':
-        link += '%d9%81%d8%b9%d8%a7%d9%84-%da%a9%d8%b1%d8%af%d9%86-%d8%ad%d8%a7%d9%84%d8%aa-%d8%a2%d9%81%d9%84%d8%a7%db%8c%d9%86-%d9%81%d8%b1%d9%85/';
-        break;
-      case 'AdnPPF':
-        link += "%da%86%da%af%d9%88%d9%86%d9%87-%d8%af%d8%b1%da%af%d8%a7%d9%87-%d9%be%d8%b1%d8%af%d8%a7%d8%ae%d8%aa-%d8%a7%db%8c%d8%b1%d8%a7%d9%86%db%8c-%d8%b1%d8%a7-%d8%a8%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2/";
-        break;
         case 'wpbakery':
           link += '%da%86%da%af%d9%88%d9%86%d9%87-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2-%d8%a2%d8%b3%d8%a7%d9%86-%d8%af%d8%b1-%d9%88%d8%b1%d8%af%d9%be%d8%b1%d8%b3-%d8%a8%db%8c%da%a9%d8%b1%db%8c-%d8%a7%d8%b3%d8%aa%d9%81/';
           break;
-      case 'AdnATC':
-      case 'AdnSS':
       case 'smsconfig':
         link +=`تنظیم-اطلاع-رسانی-پیامک-وردپرس-فرم-ساز/`;
          break;
-      case 'AdnCPF':
-      case 'AdnESZ':
-      case 'AdnSE':
-        link = 'https://easyformbuilder.ir/';
-        break;
       case 'file_size':
         link += "/ایجاد-فرم-آپلود-فایل-پیشرفته-وردپرس";
         break;
@@ -878,14 +846,7 @@ function link_url_emsFormBuilder(state) {
         link += `جلوگیری-از-کش-شدن-فرم-ساخته-توسط-فرم-ساز/`;
         break;
       case 'paypal':
-      case 'AdnPAP':
         link = `https://whitestudio.team/document/how-to-setup-paypal-payment-in-easy-form-builder/`;
-        break;
-      case 'AdnTLG':
-        link = `https://whitestudio.team/document/wordpress-form-telegram-notifications/`;
-        break;
-      case 'AdnATF':
-        link = `https://whitestudio.team/advanced-addons/wordpress-easy-form-builder-auto-populate/`;
         break;
       case 'translateWP':
         link = 'https://translate.wordpress.org/projects/wp-plugins/easy-form-builder/';
@@ -897,7 +858,9 @@ function link_url_emsFormBuilder(state) {
 }
 
 function Link_emsFormBuilder(state) {
-  window.open(link_url_emsFormBuilder(state), "_blank");
+  const url = link_url_emsFormBuilder(state);
+  if (!url) return null; // HELP-01: no page for this topic (its Help is hidden)
+  return window.open(url, "_blank", "noopener");
 }
 
 function show_message_result_form_set_EFB(state, m) {
@@ -1414,10 +1377,19 @@ createCardAddoneEfb = (i) => {
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  </p></div>
   ${i.name === 'AdnPDP' || i.name === 'AdnADP' ? `<p class="efb fs-7 text-muted efb-addon-replaced" data-addon="${i.name}"><i class="efb bi-info-circle mx-1" aria-hidden="true"></i>${efb_var.text.cal_addon_replaced || 'Replaced by the Date (advanced) field, which has every calendar without this add-on. Fields that use it keep working.'}</p>` : ''}
   <a id="${i.name}" data-vrequired="${i.v_required}" class="efb float-end btn addons mb-1 efb ${colorNtn} btn-lg float-end btn-r" onClick="${funNtn}"><i class="efb ${iconNtn} mx-1"></i>${nameNtn}</b></a>
-  <!-- 3.8.6 start -->
-  <a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger ec-efb" onClick="Link_emsFormBuilder('${i.name}')" data-eventform="links" data-linkname="${i.name}"><i class="efb  bi-question-circle mx-1"></i>${efb_var.text.help}</a>
-  <!-- 3.8.6 end -->
+  ${efb_addon_help_link_efb(i)}
   </div></div></div>`
+}
+/* HELP-01: the Help link of an add-on card: the add-on's own page (efb_var.addon_catalog[code].help) in a new tab, or
+   nothing at all when it has none (owner decision 8: no documentation index). A real link: it opened two tabs before (its
+   onclick and the page's ec-efb "links" handler), and screen readers hear which add-on and that a tab opens. */
+function efb_addon_help_link_efb(i) {
+  const url = i && i.name ? efb_help_url_efb(i.name) : '';
+  if (!url) return '';
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const dec = (v) => { const d = document.createElement('textarea'); d.innerHTML = String(v == null ? '' : v); return d.value; };
+  const t = (typeof efb_var !== 'undefined' && efb_var.text) || {};
+  return `<a class="efb float-end btn mx-1 efb rounded-pill border-danger text-danger efb-addon-help" href="${esc(url)}" target="_blank" rel="noopener noreferrer" data-addon="${esc(i.name)}"><i class="efb bi-question-circle mx-1" aria-hidden="true"></i>${esc(dec(t.help || 'Help'))}<span class="efb visually-hidden"> ${esc(dec(i.title || ''))} ${esc(dec(t.upgNewTab || '(opens in a new tab)'))}</span></a>`;
 }
 /* F18: the gem of a locked control. feature: a registry key ('setting:email_sub', 'addon:AdnSS', …);
    the dialog it opens names that feature and its plan. opts: fallback (level without the registry),

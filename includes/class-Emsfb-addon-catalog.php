@@ -74,6 +74,33 @@ class Addon_Catalog {
 		// on every plan (portal contract 1.1; capabilities.portal_core.plugin describes it). No catalogue entry, no plan gate.
 	);
 
+	/**
+	 * HELP-01: the help page of each add-on (help_url). 'en' is the page on whitestudio.team, where {lang} becomes the
+	 * site's language subdomain (de. on German sites, ar. on Arabic ones, nothing otherwise; the same rule as
+	 * lan_subdomain_wsteam_efb() in admin-efb.js); 'fa' is the page on easyformbuilder.ir for fa_IR sites, which get the
+	 * English page when there is none. An add-on missing here has no page yet: its Help button is hidden (owner decision
+	 * 8, 2026-11-19), never the documentation index. Every address was checked to answer 200 with its own page
+	 * (tests/release-help-links.js checks them again before a release).
+	 */
+	const HELP = array(
+		'AdnSPF' => array('en' => 'https://{lang}whitestudio.team/document/how-to-setup-and-use-the-stripe-on-easy-form-builder/'),
+		'AdnOF'  => array('en' => 'https://{lang}whitestudio.team/advanced-addons/offline-forms-addon/', 'fa' => 'https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%d9%81%d8%b9%d8%a7%d9%84-%da%a9%d8%b1%d8%af%d9%86-%d8%ad%d8%a7%d9%84%d8%aa-%d8%a2%d9%81%d9%84%d8%a7%db%8c%d9%86-%d9%81%d8%b1%d9%85/'),
+		// Persia Payment works with Iranian gateways only: a Persian page and no English one.
+		'AdnPPF' => array('fa' => 'https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%d8%b3%d8%a7%d8%ae%d8%aa-%d9%81%d8%b1%d9%85-%d9%be%d8%b1%d8%af%d8%a7%d8%ae%d8%aa-%d8%a7%d8%aa%d8%b5%d8%a7%d9%84-%d8%af%d8%b1%da%af%d8%a7%d9%87-%d8%af%d8%b1-%d9%88%d8%b1%d8%af%d9%be%d8%b1%d8%b3/'),
+		'AdnSS'  => array('en' => 'https://{lang}whitestudio.team/document/settingup-sms-notifications-wordpress-easy-form-builder/', 'fa' => 'https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%d8%aa%d9%86%d8%b8%db%8c%d9%85-%d8%a7%d8%b7%d9%84%d8%a7%d8%b9-%d8%b1%d8%b3%d8%a7%d9%86%db%8c-%d9%be%db%8c%d8%a7%d9%85%da%a9-%d9%88%d8%b1%d8%af%d9%be%d8%b1%d8%b3-%d9%81%d8%b1%d9%85-%d8%b3%d8%a7%d8%b2/'),
+		'AdnPAP' => array('en' => 'https://{lang}whitestudio.team/document/how-to-setup-paypal-payment-in-easy-form-builder/'),
+		'AdnSMF' => array('en' => 'https://{lang}whitestudio.team/advanced-addons/easy-form-builder-conditional-logic-complete-guide/'),
+		'AdnADP' => array('en' => 'https://{lang}whitestudio.team/advanced-addons/how-to-install-islamic-date-in-easy-form-builder-plugin/'),
+		'AdnATF' => array('en' => 'https://{lang}whitestudio.team/advanced-addons/wordpress-easy-form-builder-auto-populate/'),
+		'AdnTLG' => array('en' => 'https://{lang}whitestudio.team/document/wordpress-form-telegram-notifications/'),
+	);
+
+	/** HELP-01: help topics of the builder that are not an add-on: topic => add-on code (its page) or a page of its own. */
+	const HELP_TOPICS = array(
+		'condi'        => 'AdnSMF',
+		'pickupByUser' => array('en' => 'https://{lang}whitestudio.team/document/how-to-install-and-use-the-location-picker-geolocation-with-easy-form-builder/', 'fa' => 'https://easyformbuilder.ir/%d8%af%d8%a7%da%a9%db%8c%d9%88%d9%85%d9%86%d8%aa/%da%86%da%af%d9%88%d9%86%d9%87-%d9%85%da%a9%d8%a7%d9%86%db%8c%d8%a7%d8%a8-%d8%a7%d9%86%d8%aa%d8%ae%d8%a7%d8%a8-%da%af%d8%b1-%d9%86%d9%82%d8%b4%d9%87-%d9%81%d8%b1%d9%85-%d8%a7%d9%81%d8%b2%d9%88%d9%86/'),
+	);
+
 	/** Features that left core (capabilities.split.moved): registry key => add-on code. */
 	const MOVED = array(
 		'field:calc' => 'AdnCLC', 'setting:number_format' => 'AdnCLC', 'setting:range_dual' => 'AdnCLC', 'setting:calc_option' => 'AdnCLC', 'setting:calc_price' => 'AdnCLC',
@@ -103,14 +130,66 @@ class Addon_Catalog {
 						'files'    => self::paths(isset($e['files']) ? $e['files'] : array()),
 						'i18n'     => self::paths(isset($e['i18n']) ? $e['i18n'] : array()),
 						'loader'   => isset($e['loader']) && in_array($e['loader'], array('manual', 'payments', 'routes'), true) ? $e['loader'] : 'manual',
+						'help'     => self::help_map(isset($e['help']) ? $e['help'] : (isset(self::HELP[$code]) ? self::HELP[$code] : array())),
 					);
 				}
 			}
 		}
 		foreach ($map as $code => $e) {
 			if (!isset($map[$code]['i18n'])) $map[$code]['i18n'] = array();
+			if (!isset($map[$code]['help'])) $map[$code]['help'] = isset(self::HELP[$code]) ? self::HELP[$code] : array();
 		}
 		return $map;
+	}
+
+	/** HELP-01: a help entry of the filter kept only as https addresses on the two documentation sites ({lang} allowed). */
+	private static function help_map($h) {
+		$out = array();
+		if (is_string($h)) $h = array('en' => $h);
+		if (!is_array($h)) return $out;
+		foreach (array('en', 'fa') as $k) {
+			if (isset($h[$k]) && is_string($h[$k]) && preg_match('#^https://(\{lang\})?(whitestudio\.team|easyformbuilder\.ir)/[A-Za-z0-9%_./?=&\#-]*$#D', $h[$k])) $out[$k] = $h[$k];
+		}
+		return $out;
+	}
+
+	/** The language subdomain of whitestudio.team for a locale (lan_subdomain_wsteam_efb() in admin-efb.js). */
+	private static function lang_subdomain($locale) {
+		if (in_array($locale, array('de_DE', 'de_AT'), true)) return 'de.';
+		if (in_array($locale, array('ar', 'ary', 'arq'), true)) return 'ar.';
+		return '';
+	}
+
+	/** The site's locale (efb_var.language is get_locale() too). */
+	private static function locale() {
+		return function_exists('get_locale') ? (string) get_locale() : 'en_US';
+	}
+
+	/** HELP-01: the address of a help entry for a locale: fa_IR → the Persian page, else (or without one) the English page. */
+	private static function resolve_help(array $h, $locale) {
+		if ($locale === 'fa_IR' && !empty($h['fa'])) return $h['fa'];
+		if (empty($h['en'])) return '';
+		return str_replace('{lang}', $locale === 'fa_IR' ? '' : self::lang_subdomain($locale), $h['en']);
+	}
+
+	/**
+	 * HELP-01: the help page of an add-on for this site's language (or $locale), '' when it has none (Help is hidden then).
+	 * @return string
+	 */
+	public static function help_url($code, $locale = null) {
+		$e = self::get($code);
+		if (!$e || empty($e['help'])) return '';
+		return self::resolve_help($e['help'], $locale === null ? self::locale() : (string) $locale);
+	}
+
+	/** HELP-01: the builder's help topics that are not add-ons (efb_var.help_topics): topic => address ('' when none). */
+	public static function help_topics($locale = null) {
+		$locale = $locale === null ? self::locale() : (string) $locale;
+		$out = array();
+		foreach (self::HELP_TOPICS as $topic => $t) {
+			$out[$topic] = is_string($t) ? self::help_url($t, $locale) : self::resolve_help(self::help_map($t), $locale);
+		}
+		return $out;
 	}
 
 	/** vendor/ paths only (no "..", no absolute path). */
@@ -241,15 +320,18 @@ class Addon_Catalog {
 	public static function localize_vars($vars, $context = '') {
 		if (!is_array($vars)) return $vars;
 		$vars['addon_catalog'] = self::js_mirror();
+		// HELP-01: link_url_emsFormBuilder() reads the help pages from here (an add-on without one has help '').
+		$vars['help_topics'] = self::help_topics();
 		// SPLIT §4.2: the keys each add-on owns (efbBuilderApi refuses them with addon_required while it is absent).
 		if (class_exists('\\Emsfb\\Addon_Keys')) $vars['addon_keys'] = Addon_Keys::manifest();
 		return $vars;
 	}
 
-	/** code => {package, name, contract} for the builder and the Add-ons page. */
-	public static function js_mirror() {
+	/** code => {package, name, contract, help} for the builder and the Add-ons page (help: this site's language, '' = none). */
+	public static function js_mirror($locale = null) {
 		$out = array();
-		foreach (self::all() as $code => $e) $out[$code] = array('package' => (int) $e['package'], 'name' => $e['name'], 'contract' => $e['contract']);
+		$locale = $locale === null ? self::locale() : (string) $locale;
+		foreach (self::all() as $code => $e) $out[$code] = array('package' => (int) $e['package'], 'name' => $e['name'], 'contract' => $e['contract'], 'help' => empty($e['help']) ? '' : self::resolve_help($e['help'], $locale));
 		return $out;
 	}
 
