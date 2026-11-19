@@ -5382,99 +5382,6 @@ public function check_nonce_permission_efb($request) {
 		if (!class_exists('\\Emsfb\\Privacy')) require_once __DIR__ . '/class-Emsfb-privacy.php';
 		return \Emsfb\Privacy::client_ip();
 	}
-	public function file_upload_public(){
-        $_POST['id']=intval( wp_unslash( $_POST['id'] ) );
-        $_POST['pl']=sanitize_text_field($_POST['pl']);
-        $_POST['nonce_msg']=sanitize_text_field($_POST['nonce_msg']);
-		$page_id = sanitize_text_field($_POST['page_id']);
-        $vl=null;
-
-		if(empty($this->db)){
-            global $wpdb;
-            $this->db = $wpdb;
-        }
-        if($_POST['pl']!="msg"){
-            $vl ='efb'. $_POST['id'];
-        }else{
-            $id = $_POST['id'];
-            $vl_data = $this->get_form_data_efb($id, array('form_structer'));
-            $vl = isset($vl_data->form_structer) ? $vl_data->form_structer : null;
-            if($vl!=null){
-                if(strpos($vl , '\"type\":\"dadfile\"') !== false || strpos($vl , '\"type\":\"file\"') !== false){
-                    $vl ='efb'.$id;
-                }
-            }
-        }
-		if (check_ajax_referer('public-nonce','nonce')!=1 && check_ajax_referer($vl,"nonce_msg")!=1){
-			$response = array( 'success' => false  , 'm'=>$this->lanText['error403']);
-			wp_send_json_success($response, 200);
-			die();
-		}
-		$this->text_ = empty($this->text_)==false ? $this->text_ :['error403',"errorMRobot","errorFilePer"];
-		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
-		$this->lanText= $this->efbFunction->text_efb($this->text_);
-
-		/* Legacy endpoint kept for older cached bundles; shares the REST
-		 * handler's policy so the two cannot drift apart. */
-		if (!isset($_FILES['file'])) {
-			$response = array( 'success' => false, 'error' => esc_html__('No file was received. Please choose a file and try again.','easy-form-builder'));
-			wp_send_json_success($response, 200);
-		}
-
-		$file_type = isset($_FILES['file']['type']) ? sanitize_text_field( wp_unslash( $_FILES['file']['type'] ) ) : '';
-
-		$upload_context = array(
-			'source'  => 'form',
-			'form_id' => isset($_POST['id']) ? absint( wp_unslash( $_POST['id'] ) ) : 0,
-			'fields'  => 1,
-			'nonce'   => isset($_POST['nonce_msg']) ? sanitize_text_field( wp_unslash( $_POST['nonce_msg'] ) ) : '',
-			'sid'     => '',
-			'ip'      => $this->get_ip_address(),
-		);
-
-		if (!\Emsfb\Upload_Guard::quota_allows($upload_context)) {
-			wp_send_json_success(
-				$this->upload_rejected_response_efb(\Emsfb\Upload_Guard::quota_message($upload_context)),
-				200
-			);
-		}
-
-		$validation = \Emsfb\Upload_Guard::validate_file($_FILES['file'], $upload_context);
-		if ($validation !== true) {
-			wp_send_json_success($this->upload_rejected_response_efb($validation), 200);
-		}
-
-		$file_name_raw = isset($_FILES['file']['name']) ? sanitize_file_name( wp_unslash( $_FILES['file']['name'] ) ) : '';
-		$file_tmp = isset($_FILES['file']['tmp_name']) ? $_FILES['file']['tmp_name'] : '';
-
-		$name = 'efb-PLG-'. wp_date("ymd"). '-'.wp_generate_password(12, false, false).'.'.pathinfo($file_name_raw, PATHINFO_EXTENSION) ;
-
-		if (\Emsfb\Upload_Guard::is_blocked_extension(\Emsfb\Upload_Guard::extension_of($name))) {
-			wp_send_json_success($this->upload_rejected_response_efb(\Emsfb\Upload_Guard::type_message()), 200);
-		}
-
-		$file_contents = emsfb_read_file_efb($file_tmp);
-		if ($file_contents === false) {
-			$response = array( 'success' => false, 'error' => $this->lanText['errorFilePer']);
-			wp_send_json_success($response, 200);
-		}
-		$upload = wp_upload_bits($name, null, $file_contents);
-		if (!is_array($upload) || !empty($upload['error']) || empty($upload['url'])) {
-			wp_send_json_success($this->upload_rejected_response_efb(\Emsfb\Upload_Guard::type_message()), 200);
-		}
-		if(is_ssl()==true){
-			$upload['url'] = str_replace('http://', 'https://', $upload['url']);
-		}
-
-		\Emsfb\Upload_Guard::quota_consume($upload_context);
-		if (!empty($upload['file'])) {
-			\Emsfb\Upload_Guard::track_pending_upload($upload['file']);
-		}
-
-		$response = array( 'success' => true  ,'ID'=>"id" , "file"=>$upload ,"name"=>$name ,'type'=>$file_type);
-		wp_send_json_success($response, 200);
-	}
-
 	private function get_form_data_efb($form_id, $fields = array('form_structer', 'form_type')) {
 		$form_id = intval($form_id);
 		$cache_key = $form_id . '_' . md5(implode('_', $fields));
@@ -5855,7 +5762,7 @@ public function check_nonce_permission_efb($request) {
 			$url = isset($item['url']) && is_string($item['url']) ? $item['url'] : '';
 			if (strlen($url) <= 5) return $fail($name_msg);
 			$same_host = false;
-			foreach (array('http://wwww.' . $host, 'https://wwww.' . $host, 'http://' . $host, 'https://' . $host) as $prefix) {
+			foreach (array('http://www.' . $host, 'https://www.' . $host, 'http://' . $host, 'https://' . $host) as $prefix) {
 				if ($host !== '' && strpos($url, $prefix) === 0) { $same_host = true; break; }
 			}
 			$check = $same_host ? $this->validate_submitted_upload_url_efb($url, $f) : false;
@@ -9000,7 +8907,7 @@ public function check_nonce_permission_efb($request) {
 					&& $item_value_len > 1
 				) {
 					$is_valid = 0;
-					$still_processing == false;
+					$still_processing = false;
 					// Name the field, so the visitor is not shown an empty error.
 					if (isset($f['name']) && isset($this->lanText['mnvvXXX_'])) {
 						$error_message = str_replace('%s', "<b>" . esc_html($f['name']) . "</b>", $this->lanText['mnvvXXX_']);
@@ -9460,7 +9367,7 @@ public function check_nonce_permission_efb($request) {
 							$item['type'] = $f['type'];
 							if (isset($item['url']) && strlen($item['url']) > 5) {
 								$is_valid = 0;
-								$ar = ['http://wwww.' . $d, 'https://wwww.' . $d, 'http://' . $d, 'https://' . $d];
+								$ar = ['http://www.' . $d, 'https://www.' . $d, 'http://' . $d, 'https://' . $d];
 								$s = 0;
 								foreach ($ar as  $r) {
 									$c = strpos($item['url'], $r);

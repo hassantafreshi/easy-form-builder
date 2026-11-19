@@ -2547,62 +2547,6 @@ if ( ! defined( 'ABSPATH' ) ) {
         return $ui;
     }
 
-	private function sanitize_value_efb($value, $key) {
-		switch ($key) {
-			case 'email':
-				return sanitize_email($value);
-			case 'url':
-				return sanitize_url($value);
-			default:
-				return sanitize_text_field($value) ;
-		}
-	}
-
-	private function filter_and_sanitize_attributes_efb($item, $allowed_attributes_efb) {
-		return array_filter($item, function($key) use ($allowed_attributes_efb) {
-			return isset($allowed_attributes_efb[$key]);
-		}, ARRAY_FILTER_USE_KEY);
-	}
-
-	private function filter_attributes_by_type_efb($data,$type) {
-		static $allowed_attributes_efb = ['id_' => true, 'name' => true, 'id_ob' => true, 'amount' => true, 'type' => true, 'value' => true, 'session' => true ,'form_id'=>true];
-		static $attribute_map_efb = [
-			'email' => true, 'date' => true, 'url' => true, 'mobile' => true, 'radio' => true,
-			'payRadio' => ['price' => true], 'chlRadio' => ['src' => true, 'sub_value' => true],
-			'chlCheckBox'=>['qty'=>true],
-			'imgRadio' => ['src' => true, 'sub_value' => true], 'switch' => true,
-			'option' => ['price' => true,'qty'=>true], 'r_matrix' => ['label' => true],'postalcode'=>true,
-			'multiselect' => true, 'select' => true, 'paySelect' => true,
-			'stateProvince' => true, 'statePro' => true, 'conturyList' => true,
-			'country' => true, 'city' => true, 'cityList' => true, 'sample' => true,
-			'persiapay' => ['amount' => true],'ardate'=>true,'pdate'=>true ,'textarea'=>true,
-			/* F06: the server recomputes every key but cal (the calendar used) and tz (a visitor-zone field). */
-			'advdate' => ['cal' => true, 'local' => true, 'disp' => true, 'tz' => true, 'mode' => true, 'v' => true, 'time' => true, 'utc' => true, 'approx' => true, 'iso' => true],
-			'payment' => ['amount' => true], 'file' => ['url' => true, 'fsz' => true, 'fnm' => true], 'address_line'=>true,
-			'dadfile' => ['url' => true, 'fsz' => true, 'fnm' => true], 'esign' => true, 'maps' => true,
-			'color' => true, 'range' => true, 'number' => true, 'prcfld' => true,
-			'checkbox' => true, 'table_matrix' => true, 'trmCheckbox' => true,
-			'ttlprc' => true, 'smartcr' => true, 'pointr5' => true,'tel'=>true,
-			'pointr10' => true, 'zarinPal' => true, 'stripe' => ['amount' => true],
-			'yesNo' => true, 'payMultiselect' => true, 'rating' => true, 'text'=>true, 'password'=>true,
-			'hiddenField' => true // F08
-		];
-
-			if (isset($attribute_map_efb[$type])) {
-				$allowed_attributes_efb_type = is_array($attribute_map_efb[$type]) ?  array_replace($allowed_attributes_efb, $attribute_map_efb[$type]) :$allowed_attributes_efb;
-
-				$sanitized_item = $this->filter_and_sanitize_attributes_efb($data, $allowed_attributes_efb_type);
-				foreach ($sanitized_item as $key => $value) {
-					if ($key !== 'value') {
-						$sanitized_item[$key] = $this->sanitize_value_efb($value, $key);
-					}
-				}
-				return $sanitized_item;
-			}
-
-		return false;
-	}
-
 	public function fun_imgRadio_efb($id, $link, $row, $state , $text) {
 
 		$process_url = function($url) {
