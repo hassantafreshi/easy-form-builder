@@ -834,7 +834,7 @@ define('EMSFB_EMAIL_DEBUG', true);
 
 ```powershell
 Remove-Item C:\xampp\htdocs\wp\wp-content\debug.log -ErrorAction SilentlyContinue
-Remove-Item C:\xampp\htdocs\wp\wp-content\efb-email-debug.log -ErrorAction SilentlyContinue
+Remove-Item C:\xampp\htdocs\wp\wp-content\uploads\efb-private\logs\efb-email-debug-*.log -ErrorAction SilentlyContinue
 ```
 
 3. فرم سناریوی M را (در صورت نبود) با `C:\xampp\php\php.exe tests/seed-scenario-m-form.php` بسازید و صفحه تست آن را باز کنید.
@@ -852,7 +852,7 @@ Remove-Item C:\xampp\htdocs\wp\wp-content\efb-email-debug.log -ErrorAction Silen
 
 ```powershell
 Select-String -Path C:\xampp\htdocs\wp\wp-content\debug.log -Pattern "\[EFB Email Debug\]" | Select-Object -Last 20
-Get-Content C:\xampp\htdocs\wp\wp-content\efb-email-debug.log -Tail 120
+Get-Content (Get-Item C:\xampp\htdocs\wp\wp-content\uploads\efb-private\logs\efb-email-debug-*.log) -Tail 120
 ```
 
 #### رویدادهای لاگ (debug.log)
@@ -861,7 +861,7 @@ Get-Content C:\xampp\htdocs\wp\wp-content\efb-email-debug.log -Tail 120
 - `[EFB Email Debug][rule-matched-send]` — رول match شده: rule id، priority، گیرنده، subject و `content_preview`.
 - `[EFB Email Debug][rule-not-matched]` / `[rule-skipped]` — رول‌های رد شده با دلیل (مثلاً `invalid_recipient`).
 - `[EFB Email Debug][dispatch]` — هر ارسال از مسیر `send_email_Emsfb_` (شامل ایمیل پیش‌فرض ادمین و ایمیل کاربر): to، state، subject نهایی و پیش‌نمایش محتوا.
-- `[EFB Email Debug]` (خلاصه handler) — به ازای هر ایمیل compose شده؛ HTML کامل در `wp-content/efb-email-debug.log`.
+- `[EFB Email Debug]` (خلاصه handler) — به ازای هر ایمیل compose شده؛ HTML کامل در `wp-content/uploads/efb-private/logs/efb-email-debug-<hash>.log` (از 4.3.2؛ پوشهٔ خصوصی، نامِ وابسته به salt سایت؛ در debug.log نشانی‌ها پوشیده‌اند).
 - `[EFB Email Debug][result]` — نتیجه `wp_mail` به ازای هر گیرنده (`success=true/false` + متن خطا در صورت شکست).
 
 مثلاً برای L1 باید ببینید: `notification-rules` با `active_rules=3`، دو `rule-matched-send` برای `nr1_sales` و `nr2_vip`، یک `rule-not-matched` برای `nr3_support`، `admin-email-suppressed`، `dispatch` برای دو ایمیل دپارتمان (و ایمیل کاربر اگر فعال است)، و `result` موفق برای هر گیرنده.
@@ -872,7 +872,7 @@ Get-Content C:\xampp\htdocs\wp\wp-content\efb-email-debug.log -Tail 120
 - [ ] در L1 تا L3 خط `admin-email-suppressed` (با `reason=notification_rule_matched`) ثبت شده و `dispatch` ایمیل ادمین ندارد؛ در L4 خط `admin-email-fallback` (با `reason=no_notification_rule_matched`) و `dispatch` ایمیل پیش‌فرض ادمین ثبت شده است.
 - [ ] مقدار `track` در همه رویدادهای یک submit یکسان است و subject همان الگوی `[confirmation_code]` قابل تشخیص را دارد.
 - [ ] `content_preview` داده‌های submit شده را نشان می‌دهد (وقتی محتوای ایمیل روی «content فرم» تنظیم است).
-- [ ] `wp-content/efb-email-debug.log` HTML کامل ایمیل را دارد و مقدار فیلدها و کد پیگیری در آن قابل بررسی است.
+- [ ] `wp-content/uploads/efb-private/logs/efb-email-debug-<hash>.log` HTML کامل ایمیل را دارد و مقدار فیلدها و کد پیگیری در آن قابل بررسی است.
 - [ ] `result` برای هر گیرنده ثبت شده؛ در صورت `success=false`، فیلد `error` دلیل شکست (مثلاً SMTP) را نشان می‌دهد.
 - [ ] با حذف `EMSFB_EMAIL_DEBUG` از wp-config، هیچ خط `[EFB Email Debug]` جدیدی ثبت نمی‌شود (لاگ opt-in است).
 

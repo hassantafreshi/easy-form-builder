@@ -1142,12 +1142,36 @@ class EmsfbEmailHandler {
         }
     }
 
+    /**
+     * SEC-06: where the full e-mail debug log goes. Never wp-content/ (public on most servers): the private uploads
+     * folder (uploads/efb-private/logs/, deny-all .htaccess and index.php, or wherever emsfb_private_upload_dir puts
+     * it), under a name derived from the site's salts, so it cannot be guessed. '' when that folder cannot be made:
+     * then only the redacted summary reaches debug.log.
+     */
+    public static function email_debug_log_file() {
+        if (!class_exists('\\Emsfb\\Uploads') && is_readable(__DIR__ . '/class-Emsfb-uploads.php')) require_once __DIR__ . '/class-Emsfb-uploads.php';
+        $dir = class_exists('\\Emsfb\\Uploads') ? \Emsfb\Uploads::ensure_private_dir('logs') : '';
+        if ($dir === '' || !function_exists('wp_hash')) return '';
+        return $dir . 'efb-email-debug-' . substr(wp_hash('efb_email_debug_log'), 0, 20) . '.log';
+    }
+
+    /** SEC-06: e-mail addresses in a debug.log line are masked ("j***@example.com"). */
+    public static function mask_email_addresses($value) {
+        $value = is_array($value) ? implode(', ', $value) : (string) $value;
+        return (string) preg_replace_callback('/([^\s@,;<>"\']+)@([^\s@,;<>"\']+)/', function ($m) { return substr($m[1], 0, 1) . '***@' . $m[2]; }, $value);
+    }
+
     private function log_email_debug($state, $to, $subject, $message, $link, $email_content_type) {
         if (!self::email_debug_enabled()) {
             return;
         }
 
-        $log_file = WP_CONTENT_DIR . '/efb-email-debug.log';
+        // Before 4.3.2 the log was wp-content/efb-email-debug.log, readable by anyone: removed on the next debug write.
+        if (defined('WP_CONTENT_DIR') && file_exists(WP_CONTENT_DIR . '/efb-email-debug.log')) {
+            function_exists('wp_delete_file') ? wp_delete_file(WP_CONTENT_DIR . '/efb-email-debug.log') : @unlink(WP_CONTENT_DIR . '/efb-email-debug.log');
+        }
+        $log_file = self::email_debug_log_file();
+        $state = is_scalar($state) ? (string) $state : wp_json_encode($state);
         $timestamp = wp_date('Y-m-d H:i:s');
 
         $log_content = "\n";
@@ -1168,14 +1192,14 @@ class EmsfbEmailHandler {
         $log_content .= "END OF EMAIL\n";
         $log_content .= "═══════════════════════════════════════════════════════════════════════════════\n\n";
 
-        // Write to custom log file only when the host permits PHP filesystem
+        // Write to the private log file only when the host permits PHP filesystem
         // writes. Debug logging must never interrupt email delivery.
-        if (emsfb_is_php_function_available_efb('file_put_contents')) {
+        if ($log_file !== '' && emsfb_is_php_function_available_efb('file_put_contents')) {
             @file_put_contents($log_file, $log_content, FILE_APPEND | LOCK_EX);
         }
 
-        // Also log summary to WordPress debug.log
-        self::safe_error_log("[EFB Email Debug] State: {$state} | To: " . (is_array($to) ? implode(', ', $to) : $to) . " | Subject: {$subject} | See full HTML in: {$log_file}");
+        // A summary in WordPress debug.log: addresses masked, no subject (it may carry answers), no HTML.
+        self::safe_error_log('[EFB Email Debug] State: ' . $state . ' | To: ' . self::mask_email_addresses($to) . ($log_file !== '' ? ' | Full HTML in the private uploads folder: efb-private/logs/' . basename($log_file) : ' | Full HTML not written (no private uploads folder)'));
     }
 
     private function generate_html_email_template($title, $message, $footer, $disclaimer, $direction, $align, $config = []) {
@@ -2204,8 +2228,7 @@ table { border-collapse: collapse !important; }
         if (self::email_debug_enabled()) {
             self::safe_error_log('[EFB Email Debug][result] ' . json_encode([
                 'success' => false,
-                'to' => is_array($to) ? implode(', ', $to) : $to,
-                'subject' => self::safe_substr((string)$subject, 0, 120),
+                'to' => self::mask_email_addresses($to),
                 'error' => $error_message,
             ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         }
@@ -2236,8 +2259,7 @@ table { border-collapse: collapse !important; }
         if (self::email_debug_enabled()) {
             self::safe_error_log('[EFB Email Debug][result] ' . json_encode([
                 'success' => true,
-                'to' => is_array($to) ? implode(', ', $to) : $to,
-                'subject' => self::safe_substr((string)$subject, 0, 120),
+                'to' => self::mask_email_addresses($to),
             ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         }
 
