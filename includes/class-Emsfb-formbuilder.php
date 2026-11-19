@@ -2678,6 +2678,51 @@ if ( ! defined( 'ABSPATH' ) ) {
 		return '<!--efb-->';
 	}
 
+	/**
+	 * PUB-01: the class of the buttons' label (Send, Next, Previous, the copy button of the confirmation code). Row 0's
+	 * `el_text_color` is that label's colour, chosen apart from `button_color`: a form could end up with
+	 * text-labelEfb on btn-darkb (#657096 on #202a8d, 1.4:1). When the chosen colour has less than 4.5:1 against the
+	 * button (against both ends of a gradient), the label is drawn white or near-black, whichever reads better; the
+	 * stored form keeps its value. Unknown classes are left as they are. Twin: efb_btn_text_class_efb() (new-efb.js).
+	 */
+	public static function button_text_class_efb($btn, $text) {
+		static $bgs = array(
+			'primary' => array('#3644d2'), 'darkb' => array('#202a8d', '#4757e7'), 'pinkEfb' => array('#ff4b93', '#ce0051'),
+			'danger' => array('#e91a26', '#ec5560'), 'info' => array('#31d2f2', '#a5fbff'), 'warning' => array('#e9c31a', '#ecdd55'),
+			'success' => array('#0fda31', '#77f5a7'), 'default' => array('#2c3c91', '#eb5892'), 'muted' => array('#6e6e6e', '#4c4c4c'),
+			'labelEfb' => array('#657096'), 'secondary' => array('#6c757d'), 'light' => array('#f8f9fa'), 'dark' => array('#212529'), 'white' => array('#ffffff'),
+		);
+		static $texts = array(
+			'labelEfb' => '#657096', 'darkb' => '#202a8d', 'pinkEfb' => '#ff4b93', 'white' => '#ffffff', 'dark' => '#212529', 'muted' => '#6c757d',
+			'light' => '#f8f9fa', 'primary' => '#0d6efd', 'success' => '#3fd18b', 'danger' => '#ff455f', 'warning' => '#ffc107', 'info' => '#0dcaf0',
+			'secondary' => '#6c757d', 'default' => '#35103f', 'd' => '#83859f',
+		);
+		$text = is_string($text) ? trim($text) : '';
+		$hex = function ($cls, $pre, $map) {
+			if (!is_string($cls) || !preg_match('/^' . $pre . '-([A-Za-z0-9]+)(?:-([0-9a-fA-F]{6}))?$/', trim($cls), $m)) return null;
+			if ($m[1] === 'colorDEfb' && !empty($m[2])) return array('#' . $m[2]);
+			return isset($map[$m[1]]) ? (array) $map[$m[1]] : null;
+		};
+		$bg = $hex($btn, 'btn', $bgs);
+		$tc = $hex($text, 'text', $texts);
+		if (!$bg || !$tc) return $text;
+		$lum = function ($h) {
+			$c = array_map(function ($i) use ($h) { $v = hexdec(substr($h, $i, 2)) / 255; return $v <= 0.03928 ? $v / 12.92 : pow(($v + 0.055) / 1.055, 2.4); }, array(1, 3, 5));
+			return 0.2126 * $c[0] + 0.7152 * $c[1] + 0.0722 * $c[2];
+		};
+		$min = function ($fg) use ($bg, $lum) {
+			$r = 21;
+			foreach ($bg as $b) { $a = $lum($fg); $c = $lum($b); $r = min($r, (max($a, $c) + 0.05) / (min($a, $c) + 0.05)); }
+			return $r;
+		};
+		$cur = $min($tc[0]);
+		if ($cur >= 4.5) return $text;
+		$w = $min('#ffffff');
+		$d = $min('#212529');
+		$best = $w >= $d ? array('text-white', $w) : array('text-dark', $d);
+		return $best[1] > $cur ? $best[0] : $text;
+	}
+
 	function add_buttons_zone_efb($state, $id, $valj_efb, $efb_var, $formId) {
 
 		/* A form saved by an older builder, or imported, can lack keys the
@@ -2719,6 +2764,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$prev_icon = strlen($valj_efb[0]->button_Previous_icon) > 3 && $valj_efb[0]->button_Previous_icon != 'bi-undefined' &&  $valj_efb[0]->button_Previous_icon!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Previous_icon, $icon_spacing_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
 		$next_icon = strlen($valj_efb[0]->button_Next_icon) > 3 && $valj_efb[0]->button_Next_icon != 'bi-undefined' && $valj_efb[0]->button_Next_icon!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->button_Next_icon, $icon_spacing_next_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : '';
 		$class_disabled = '';
+		$btn_text_efb = self::button_text_class_efb($valj_efb[0]->button_color, $valj_efb[0]->el_text_color ?? '');
 
 		$s = sprintf(
 			'<div class="efb d-flex %s %s text-center efb mx-3" id="f_btn_send_efb" data-tag="buttonNav" data-formid="%s">
@@ -2737,7 +2783,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$valj_efb[0]->type,
 			'btn_send_efb',
 			(strlen($valj_efb[0]->icon) > 3 && $valj_efb[0]->icon != 'bi-undefined' &&  $valj_efb[0]->icon!='bXXX' ? sprintf('<i class="efb %s %s %s %s" id="button_group_icon"></i>', $valj_efb[0]->icon, $icon_spacing_class, $valj_efb[0]->icon_color, $valj_efb[0]->el_height) : ''),
-			$valj_efb[0]->el_text_color ?? '',
+			$btn_text_efb,
 			$valj_efb[0]->button_single_text
 		);
 
@@ -2758,7 +2804,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$valj_efb[0]->type,
 			'prev_efb',
 			$prev_icon,
-			$valj_efb[0]->el_text_color ?? '',
+			$btn_text_efb,
 			$valj_efb[0]->button_Previous_text,
 			$formId,
 			$dis,
@@ -2768,7 +2814,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$formId,
 			$valj_efb[0]->type,
 			'next_efb',
-			$valj_efb[0]->el_text_color ?? '',
+			$btn_text_efb,
 			$valj_efb[0]->button_Next_text,
 			$next_icon
 		);

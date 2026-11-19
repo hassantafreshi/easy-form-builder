@@ -416,6 +416,36 @@ const efb_modal_paint_efb = (body, title, icon, type, opts) => {
   }
 }
 
+/**
+ * PUB-01: the class of the buttons' label (Send, Next, Previous, the copy button of the confirmation code). Row 0's
+ * el_text_color is that label's colour, chosen apart from button_color (text-labelEfb on btn-darkb read 1.4:1). Below
+ * 4.5:1 against the button (both ends of a gradient) the label is white or near-black, whichever reads better; the
+ * form keeps its value; unknown classes stay. Twin of Formbuilder::button_text_class_efb() (PHP).
+ */
+function efb_btn_text_class_efb(btn, text) {
+  const bgs = { primary: ['#3644d2'], darkb: ['#202a8d', '#4757e7'], pinkEfb: ['#ff4b93', '#ce0051'], danger: ['#e91a26', '#ec5560'],
+    info: ['#31d2f2', '#a5fbff'], warning: ['#e9c31a', '#ecdd55'], success: ['#0fda31', '#77f5a7'], default: ['#2c3c91', '#eb5892'],
+    muted: ['#6e6e6e', '#4c4c4c'], labelEfb: ['#657096'], secondary: ['#6c757d'], light: ['#f8f9fa'], dark: ['#212529'], white: ['#ffffff'] };
+  const texts = { labelEfb: '#657096', darkb: '#202a8d', pinkEfb: '#ff4b93', white: '#ffffff', dark: '#212529', muted: '#6c757d', light: '#f8f9fa',
+    primary: '#0d6efd', success: '#3fd18b', danger: '#ff455f', warning: '#ffc107', info: '#0dcaf0', secondary: '#6c757d', default: '#35103f', d: '#83859f' };
+  text = typeof text === 'string' ? text.trim() : '';
+  const hex = (cls, pre, map) => {
+    const m = typeof cls === 'string' ? cls.trim().match(new RegExp('^' + pre + '-([A-Za-z0-9]+)(?:-([0-9a-fA-F]{6}))?$')) : null;
+    if (!m) return null;
+    if (m[1] === 'colorDEfb' && m[2]) return ['#' + m[2]];
+    return Object.prototype.hasOwnProperty.call(map, m[1]) ? [].concat(map[m[1]]) : null;
+  };
+  const bg = hex(btn, 'btn', bgs), tc = hex(text, 'text', texts);
+  if (!bg || !tc) return text;
+  const lum = (h) => { const c = [1, 3, 5].map((i) => { const v = parseInt(h.substr(i, 2), 16) / 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+  const min = (fg) => bg.reduce((r, b) => { const a = lum(fg), c = lum(b); return Math.min(r, (Math.max(a, c) + 0.05) / (Math.min(a, c) + 0.05)); }, 21);
+  const cur = min(tc[0]);
+  if (cur >= 4.5) return text;
+  const w = min('#ffffff'), d = min('#212529');
+  const best = w >= d ? ['text-white', w] : ['text-dark', d];
+  return best[1] > cur ? best[0] : text;
+}
+
 let add_buttons_zone_efb = (state, id) => {
   const stng = `  <div class="efb col-sm-10 efb">
   <div class="efb  BtnSideEfb btn-edit-holder d-none efb" id="btnSetting-button_group">
@@ -437,16 +467,18 @@ let add_buttons_zone_efb = (state, id) => {
     dis = (valj_efb[0].type == "payment" )&& (valj_efb[0].steps == 1 && t == 1) && preview_efb != true ? 'disabled' : '';
   }
   const corner = valj_efb[0].hasOwnProperty('corner') ? valj_efb[0].corner: 'rounded-3';
+  // The builder's own canvas shows the colour as chosen (its colour controls change it in place); the page and the preview are made readable.
+  const btnTextEfb = id == "dropZoneEFB" ? valj_efb[0].el_text_color : efb_btn_text_class_efb(valj_efb[0].button_color, valj_efb[0].el_text_color);
   const btns_align = valj_efb[0].hasOwnProperty('btns_align') ? valj_efb[0].btns_align + ' mx-3':'justify-content-center';
   const  row = Number(valj_efb[0].steps)==1 ? '' : 'row';
   const s = `
   <div class="efb d-flex ${btns_align} ${state == 0 ? 'd-block' : 'd-none'} ${btnPos} efb " id="f_btn_send_efb" data-tag="buttonNav">
-    <a id="btn_send_efb" role="button" tabindex="0" class="efb text-decoration-none mx-0 btn p-2 ${dis} ${valj_efb[0].button_color}  ${corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length > 3 && valj_efb[0].icon != 'bi-undefined' && valj_efb[0].icon != 'bXXX' ? `<i class="efb   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` : `<i class="efb d-none   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>`}<span id="button_group_button_single_text" class="efb  ${valj_efb[0].el_text_color} ">${valj_efb[0].button_single_text}</span></a>
+    <a id="btn_send_efb" role="button" tabindex="0" class="efb text-decoration-none mx-0 btn p-2 ${dis} ${valj_efb[0].button_color}  ${corner} ${valj_efb[0].el_height}  efb-btn-lg ${floatEnd}"> ${valj_efb[0].icon.length > 3 && valj_efb[0].icon != 'bi-undefined' && valj_efb[0].icon != 'bXXX' ? `<i class="efb   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>` : `<i class="efb d-none   ${valj_efb[0].icon} mx-2  ${valj_efb[0].icon_color}   ${valj_efb[0].el_height}" id="button_group_icon"> </i>`}<span id="button_group_button_single_text" class="efb  ${btnTextEfb} ">${valj_efb[0].button_single_text}</span></a>
   </div>`
   const d = `
   <div class="efb d-flex ${btns_align} ${state == 1 ? 'd-block' : 'd-none'} ${btnPos} ${efb_var.rtl == 1 ?'flex-row-reverse' :''} efb" id="f_button_form_np">
-  <a id="prev_efb" role="button" tabindex="0" class="efb text-decoration-none btn  p-2  ${valj_efb[0].button_color}    ${corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length > 2 ? `<i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} ${valj_efb[0].el_height}" id="button_group_Previous_icon"></i>` : ``} <span id="button_group_Previous_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Previous_icon != 'bi-undefined' ? 'mx-2' : ''}">${valj_efb[0].button_Previous_text}</span></a>
-  <a id="next_efb" role="button" tabindex="0" class="efb text-decoration-none btn  ${dis} p-2 ${valj_efb[0].button_color}    ${corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb  ${valj_efb[0].el_text_color} ${valj_efb[0].button_Next_text != 'bi-undefined' ? ' mx-2' : ''}">${valj_efb[0].button_Next_text}</span> ${valj_efb[0].button_Next_icon.length > 3 ? ` <i class="efb  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  ${valj_efb[0].el_height}" id="button_group_Next_icon"></i>` : ``}</a>
+  <a id="prev_efb" role="button" tabindex="0" class="efb text-decoration-none btn  p-2  ${valj_efb[0].button_color}    ${corner}   ${valj_efb[0].el_height}   efb-btn-lg ${floatEnd} m-1">${valj_efb[0].button_Previous_icon.length > 2 ? `<i class="efb  ${valj_efb[0].button_Previous_icon} ${valj_efb[0].icon_color} ${valj_efb[0].el_height}" id="button_group_Previous_icon"></i>` : ``} <span id="button_group_Previous_button_text" class="efb  ${btnTextEfb} ${valj_efb[0].button_Previous_icon != 'bi-undefined' ? 'mx-2' : ''}">${valj_efb[0].button_Previous_text}</span></a>
+  <a id="next_efb" role="button" tabindex="0" class="efb text-decoration-none btn  ${dis} p-2 ${valj_efb[0].button_color}    ${corner}  ${valj_efb[0].el_height}    efb-btn-lg ${floatEnd} m-1"><span id="button_group_Next_button_text" class="efb  ${btnTextEfb} ${valj_efb[0].button_Next_text != 'bi-undefined' ? ' mx-2' : ''}">${valj_efb[0].button_Next_text}</span> ${valj_efb[0].button_Next_icon.length > 3 ? ` <i class="efb  ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}  ${valj_efb[0].el_height}" id="button_group_Next_icon"></i>` : ``}</a>
   </div>
   `
   let c = `<div class="efb footer-test efb">`
@@ -562,11 +594,11 @@ let steps_len_efb
 function prev_btn_efb() {
   var cs = current_s_efb;
   if (cs == 2) {
-    var val = `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].el_height} ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}" id="button_group_Next_icon"></i>`;
+    var val = `<span id="button_group_Next_button_text" class="efb ${efb_btn_text_class_efb(valj_efb[0].button_color, valj_efb[0].el_text_color)} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].el_height} ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}" id="button_group_Next_icon"></i>`;
     document.getElementById("next_efb").innerHTML = val;
     document.getElementById("next_efb").classList.toggle("d-none");
   } else if (cs == valj_efb[0].steps) {
-    var val = `<span id="button_group_Next_button_text" class="efb ${valj_efb[0].el_text_color} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].el_height} ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}" id="button_group_Next_icon"></i>`;
+    var val = `<span id="button_group_Next_button_text" class="efb ${efb_btn_text_class_efb(valj_efb[0].button_color, valj_efb[0].el_text_color)} mx-2">${valj_efb[0].button_Next_text}</span><i class="efb ${valj_efb[0].el_height} ${valj_efb[0].button_Next_icon} ${valj_efb[0].icon_color}" id="button_group_Next_icon"></i>`;
     document.getElementById("next_efb").innerHTML = val;
      if (sitekye_emsFormBuilder.length > 1 && (valj_efb[0].captcha == 1 || valj_efb[0].captcha == "1" ||  valj_efb[0].captcha == 'true')) {
       document.getElementById("next_efb").classList.remove("disabled");
@@ -980,8 +1012,8 @@ function funTnxEfb(val, title, message, ov) {
   <div class="efb fs-4"><h5 class="efb mt-3 efb fs-4 ${clr_doneMessageEfb} text-center" id="doneTrackEfb">${trackLabelTnx}: <strong>${val}</strong></h5>
                <input type="text" class="efb hide-input efb d-none " value="${val}" id="trackingCodeEfb">
                <div id="alert"></div>
-           <button type="button" class="efb btn  ${corner} efb ${valj_efb[0].button_color}  ${valj_efb[0].el_text_color}  ${show_track ? 'd-block mx-auto' : 'd-none mx-auto'} efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb' ,'trackingCodeEfb2')">
-                   <i class="efb fs-5 bi-clipboard-check mx-1  ${valj_efb[0].el_text_color}"></i><span id="trackingCodeEfb2">${efb_var.text.copy}</span>
+           <button type="button" class="efb btn  ${corner} efb ${valj_efb[0].button_color}  ${efb_btn_text_class_efb(valj_efb[0].button_color, valj_efb[0].el_text_color)}  ${show_track ? 'd-block mx-auto' : 'd-none mx-auto'} efb-btn-lg my-3 fs-5" onclick="copyCodeEfb('trackingCodeEfb' ,'trackingCodeEfb2')">
+                   <i class="efb fs-5 bi-clipboard-check mx-1  ${efb_btn_text_class_efb(valj_efb[0].button_color, valj_efb[0].el_text_color)}"></i><span id="trackingCodeEfb2">${efb_var.text.copy}</span>
                </button></div>`
   return `
                     <h4 class="efb  my-1 fs-2 ${doneTrackEfb} text-center" id="doneTitleEfb"${titleStyleTnx}>
