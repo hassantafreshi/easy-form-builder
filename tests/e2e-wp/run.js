@@ -365,7 +365,9 @@ scenario('2', 'Builder: masked text fields, country/state/city, redirect, save a
 
   // ---- reload + reopen from the panel ----------------------------------------------------------
   await page.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
-  await page.waitForSelector(`.efb-act-edit[data-id="${formId}"]`, { timeout: 20000 });
+  // The forms list shows the first 25 forms (oldest first): on a site with many forms the new one is further on, so it
+  // is opened the way its Edit button opens it (fun_get_form_by_id) when the button is not drawn.
+  await page.waitForFunction(() => typeof fun_get_form_by_id === 'function' && document.querySelector('.efb-act-edit'), null, { timeout: 20000 });
   const reloaded = await page.evaluate(() => ({ pkg: Number(efb_var.setting.package_type), pro: String(efb_var.pro) }));
   R.check('4a: after a reload the plan is still Free Plus (efb_var package_type 3)', reloaded.pkg === 3 && reloaded.pro === '1', reloaded);
   // The visible plan badge (panel settings) after the reload.
@@ -374,7 +376,7 @@ scenario('2', 'Builder: masked text fields, country/state/city, redirect, save a
   const badgeTxt = await setPage.waitForSelector('#efbCurrentPlanBadge', { timeout: 20000 }).then((h) => h.innerText()).catch(() => null);
   R.check('4a: the plan badge in the panel settings says Free Plus after the reload', /Free Plus/i.test(badgeTxt || ''), badgeTxt);
   await setPage.close();
-  await page.click(`.efb-act-edit[data-id="${formId}"]`);
+  await page.evaluate((id) => { const b = document.querySelector(`.efb-act-edit[data-id="${id}"]`); if (b) b.click(); else fun_get_form_by_id(Number(id)); }, formId);
   await builderReady(page);
   await canvasDrawn(page);
   const back = await page.evaluate((f) => {
