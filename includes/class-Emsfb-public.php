@@ -1450,7 +1450,8 @@ public function check_nonce_permission_efb($request) {
 				\Emsfb\Cache_Compat::render_bypass( $this->id, $page_session ? 'session' : 'render' );
 			}
 
-			$this->public_scripts_and_css_head('', isset($value_form_data->form_structer) ? $value_form_data->form_structer : null);
+			// PERF-01: 'track' (the code finder, or a form page opened with ?track=…) is the only page that opens a response.
+			$this->public_scripts_and_css_head($is_track !== null ? 'track' : '', isset($value_form_data->form_structer) ? $value_form_data->form_structer : null);
 
 			$state="";
 
@@ -1942,7 +1943,7 @@ public function check_nonce_permission_efb($request) {
 					// Their scripts live in pro_els-efb.js; the fields that became
 					// free in 4.3.1 need it on every plan.
 					if(in_array($valj_efb[$i]->type, $list_pro_elements) && $pro_element_exists == false && ($pro == true || in_array($valj_efb[$i]->type, emsfb_free_element_types_efb(), true))){
-						wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/pro_els-efb.js'));
+						wp_enqueue_script('efb-pro-els', self::asset_efb('includes/admin/assets/js/pro_els-efb.js')[0], array('jquery'), self::asset_efb('includes/admin/assets/js/pro_els-efb.js')[1]);
 						$pro_element_exists = true;
 					}
 					if(in_array($valj_efb[$i]->type, ["option","r_matrix"])) {continue;
@@ -2402,7 +2403,7 @@ public function check_nonce_permission_efb($request) {
 
 		$this->comper_version_efb($pl[1]['version']);
 		if($pro==true){
-			wp_enqueue_script('efb-pro-els', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/pro_els-efb.js', array('jquery'), EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/js/pro_els-efb.js'));
+			wp_enqueue_script('efb-pro-els', self::asset_efb('includes/admin/assets/js/pro_els-efb.js')[0], array('jquery'), self::asset_efb('includes/admin/assets/js/pro_els-efb.js')[1]);
 		}
 
 		$location = '';
@@ -2491,16 +2492,35 @@ public function check_nonce_permission_efb($request) {
 		return ( $show_steps && 'classic' !== $steps_style ) || ( $show_progress && 'classic' !== $progress_style );
 	}
 
+	/**
+	 * PERF-01: the address and version of a plugin asset ($rel from the plugin folder): its minified twin (x.min.js,
+	 * x.min.css; made by the release build next to the source) when it exists, is not older than the source and
+	 * SCRIPT_DEBUG is off; else the source itself. The version is the file's time, so no browser or CDN keeps a copy of
+	 * an older release. @return array{0: string, 1: string} url, version
+	 */
+	public static function asset_efb($rel) {
+		static $memo = array();
+		$rel = ltrim((string) $rel, '/');
+		if (isset($memo[$rel])) return $memo[$rel];
+		$use = $rel;
+		$src_t = (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . $rel);
+		if (!(defined('SCRIPT_DEBUG') && SCRIPT_DEBUG) && preg_match('/^(.+)(?<!\.min)\.(js|css)$/', $rel, $m)) {
+			$min_t = (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . $m[1] . '.min.' . $m[2]);
+			if ($min_t > 0 && $min_t >= $src_t) { $use = $m[1] . '.min.' . $m[2]; $src_t = $min_t; }
+		}
+		return $memo[$rel] = array(EMSFB_PLUGIN_URL . $use, $src_t > 0 ? EMSFB_PLUGIN_VERSION . '.' . $src_t : EMSFB_PLUGIN_VERSION);
+	}
+
 	function public_scripts_and_css_head($state='', $form_structure_json = null){
 
-		wp_register_style('Emsfb-style-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/style-efb.css', true,EMSFB_PLUGIN_VERSION);
+		wp_register_style('Emsfb-style-css', self::asset_efb('includes/admin/assets/css/style-efb.css')[0], true, self::asset_efb('includes/admin/assets/css/style-efb.css')[1]);
 		wp_enqueue_style('Emsfb-style-css');
 
 		if(is_rtl()){
 			/* Direction only: the form takes the theme's font. The file used to
 			 * force Roboto (with !important) on every RTL front end. Versioned by
 			 * file time so a cached copy with that rule is not kept. */
-			wp_register_style('Emsfb-css-rtl', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/admin-rtl-efb.css', true ,EMSFB_PLUGIN_VERSION . '.' . (int) @filemtime(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/assets/css/admin-rtl-efb.css'));
+			wp_register_style('Emsfb-css-rtl', self::asset_efb('includes/admin/assets/css/admin-rtl-efb.css')[0], true, self::asset_efb('includes/admin/assets/css/admin-rtl-efb.css')[1]);
 			wp_enqueue_style('Emsfb-css-rtl');
 		}
 		$googleCaptcha=false;
@@ -2522,28 +2542,24 @@ public function check_nonce_permission_efb($request) {
 			$path = EMSFB_PLUGIN_DIRECTORY . ltrim($relative_path, '/');
 			return is_readable($path) ? (string) filemtime($path) : EMSFB_PLUGIN_VERSION;
 		};
-		$main_js_version = $asset_version('includes/admin/assets/js/new-efb.js');
-		$core_js_version = $asset_version('public/assets/js/core-efb.js');
-		$response_viewer_js_version = $asset_version('includes/admin/assets/js/response-viewer-efb.js');
-		$core_deps = array('jquery', 'efb-main-js', 'efb-response-viewer-js');
+		$core_deps = array('jquery', 'efb-main-js');
 		$main_deps = array('jquery');
 		$steps_runtime_needed_efb = $this->efb_form_needs_steps_runtime_efb($form_structure_json);
 		if ( ! empty( $steps_runtime_needed_efb ) ) {
-			$steps_runtime_js_version = $asset_version('includes/admin/assets/js/steps-progress-runtime-efb.js');
 			wp_register_script(
 				'efb-steps-progress-runtime-public',
-				EMSFB_PLUGIN_URL . 'includes/admin/assets/js/steps-progress-runtime-efb.js',
+				self::asset_efb('includes/admin/assets/js/steps-progress-runtime-efb.js')[0],
 				array(),
-				$steps_runtime_js_version,
+				self::asset_efb('includes/admin/assets/js/steps-progress-runtime-efb.js')[1],
 				true
 			);
 			wp_enqueue_script('efb-steps-progress-runtime-public');
 			$core_deps[] = 'efb-steps-progress-runtime-public';
 		}
 		if ($has_recorder_field) {
-			wp_register_script('efb-recorder-js', plugins_url('../public/assets/js/recorder-efb.js',__FILE__), array('jquery'), $asset_version('public/assets/js/recorder-efb.js'), true);
+			wp_register_script('efb-recorder-js', self::asset_efb('public/assets/js/recorder-efb.js')[0], array('jquery'), self::asset_efb('public/assets/js/recorder-efb.js')[1], true);
 			wp_enqueue_script('efb-recorder-js');
-			wp_register_style('efb-recorder-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/recorder-efb.css', array(), $asset_version('includes/admin/assets/css/recorder-efb.css'));
+			wp_register_style('efb-recorder-css', self::asset_efb('includes/admin/assets/css/recorder-efb.css')[0], array(), self::asset_efb('includes/admin/assets/css/recorder-efb.css')[1]);
 			wp_enqueue_style('efb-recorder-css');
 			// Recorder controls use icons that are created client-side (pause, stop,
 			// play and re-record), so they are not present in the saved form JSON.
@@ -2557,44 +2573,44 @@ public function check_nonce_permission_efb($request) {
 
 		// F01: the mask engine only on pages with a masked field (a preset id or "custom").
 		if (is_string($form_structure_json) && preg_match('/mask_preset\\\\?"\s*:\s*\\\\?"[a-z]/', $form_structure_json)) {
-			wp_register_script('efb-masks-js', EMSFB_PLUGIN_URL . 'public/assets/js/masks-efb.js', array(), $asset_version('public/assets/js/masks-efb.js'), true);
+			wp_register_script('efb-masks-js', self::asset_efb('public/assets/js/masks-efb.js')[0], array(), self::asset_efb('public/assets/js/masks-efb.js')[1], true);
 			wp_enqueue_script('efb-masks-js');
 			$core_deps[] = 'efb-masks-js';
 		}
 		// F03: the field-rule engine only on pages with a field that has one of its keys.
 		if (is_string($form_structure_json) && preg_match('/\\\\?"(?:unique|wmin|wmax|counter|pattern_b64|email_domain_mode|readonly|prefix|suffix|message_place|pw_confirm|pw_meter|pw_toggle|pw_strength_min|msg_[a-z]+)\\\\?"\s*:/', $form_structure_json)) {
-			wp_register_script('efb-field-rules-js', EMSFB_PLUGIN_URL . 'public/assets/js/field-rules-efb.js', array(), $asset_version('public/assets/js/field-rules-efb.js'), true);
+			wp_register_script('efb-field-rules-js', self::asset_efb('public/assets/js/field-rules-efb.js')[0], array(), self::asset_efb('public/assets/js/field-rules-efb.js')[1], true);
 			wp_enqueue_script('efb-field-rules-js');
-			wp_enqueue_style('efb-field-rules-css', EMSFB_PLUGIN_URL . 'public/assets/css/field-rules-efb.css', array(), $asset_version('public/assets/css/field-rules-efb.css'));
+			wp_enqueue_style('efb-field-rules-css', self::asset_efb('public/assets/css/field-rules-efb.css')[0], array(), self::asset_efb('public/assets/css/field-rules-efb.css')[1]);
 			$core_deps[] = 'efb-field-rules-js';
 			$this->field_rules_page_efb = true;
 		}
 		// F02: the one-time code runtime only on pages with a field that asks for a code or a second e-mail copy.
 		if (class_exists('\\Emsfb\\Verification') && \Emsfb\Verification::json_has_verification($form_structure_json)) {
-			wp_register_script('efb-verify-js', EMSFB_PLUGIN_URL . 'public/assets/js/verify-efb.js', array(), $asset_version('public/assets/js/verify-efb.js'), true);
+			wp_register_script('efb-verify-js', self::asset_efb('public/assets/js/verify-efb.js')[0], array(), self::asset_efb('public/assets/js/verify-efb.js')[1], true);
 			wp_enqueue_script('efb-verify-js');
-			wp_enqueue_style('efb-verify-css', EMSFB_PLUGIN_URL . 'public/assets/css/verify-efb.css', array(), $asset_version('public/assets/css/verify-efb.css'));
+			wp_enqueue_style('efb-verify-css', self::asset_efb('public/assets/css/verify-efb.css')[0], array(), self::asset_efb('public/assets/css/verify-efb.css')[1]);
 			$core_deps[] = 'efb-verify-js';
 			$this->verify_page_efb = true;
 		}
 		// F07: the file list of upload fields that take several files (and the resize / camera options).
 		if (is_string($form_structure_json) && preg_match('/type\\\\?"\s*:\s*\\\\?"(?:file|dadfile)\\\\?"/', $form_structure_json)) {
-			wp_register_script('efb-upload-js', EMSFB_PLUGIN_URL . 'public/assets/js/upload-efb.js', array(), $asset_version('public/assets/js/upload-efb.js'), true);
+			wp_register_script('efb-upload-js', self::asset_efb('public/assets/js/upload-efb.js')[0], array(), self::asset_efb('public/assets/js/upload-efb.js')[1], true);
 			wp_enqueue_script('efb-upload-js');
-			wp_enqueue_style('efb-upload-css', EMSFB_PLUGIN_URL . 'public/assets/css/upload-efb.css', array(), $asset_version('public/assets/css/upload-efb.css'));
+			wp_enqueue_style('efb-upload-css', self::asset_efb('public/assets/css/upload-efb.css')[0], array(), self::asset_efb('public/assets/css/upload-efb.css')[1]);
 			$core_deps[] = 'efb-upload-js';
 		}
 		// F08: hidden fields, smart tags, answer piping and URL prefill (only on a form that uses one of them).
 		if (is_string($form_structure_json) && preg_match('/\\\\?"(?:st_uses|prefill_key)\\\\?"\s*:\s*\\\\?"[A-Za-z0-9_-]|type\\\\?"\s*:\s*\\\\?"hiddenField\\\\?"/', $form_structure_json)) {
-			wp_register_script('efb-smart-tags-js', EMSFB_PLUGIN_URL . 'public/assets/js/smart-tags-efb.js', array(), $asset_version('public/assets/js/smart-tags-efb.js'), true);
+			wp_register_script('efb-smart-tags-js', self::asset_efb('public/assets/js/smart-tags-efb.js')[0], array(), self::asset_efb('public/assets/js/smart-tags-efb.js')[1], true);
 			wp_enqueue_script('efb-smart-tags-js');
 			$core_deps[] = 'efb-smart-tags-js';
 		}
 		// F05: shuffled order, Other, Select all, the maximum lock, capacities and the ranking widget (only on a form that uses one).
 		if (is_string($form_structure_json) && preg_match('/\\\\?"(?:op_random|op_other|op_select_all|maxSelect|minSelect|inv_on|booking|dyn_src)\\\\?"\s*:\s*(?:\\\\?")?[1-9a-z]|type\\\\?"\s*:\s*\\\\?"ranking\\\\?"/', $form_structure_json)) {
-			wp_register_script('efb-choices-js', EMSFB_PLUGIN_URL . 'public/assets/js/choices-efb.js', array(), $asset_version('public/assets/js/choices-efb.js'), true);
+			wp_register_script('efb-choices-js', self::asset_efb('public/assets/js/choices-efb.js')[0], array(), self::asset_efb('public/assets/js/choices-efb.js')[1], true);
 			wp_enqueue_script('efb-choices-js');
-			wp_enqueue_style('efb-choices-css', EMSFB_PLUGIN_URL . 'public/assets/css/choices-efb.css', array(), $asset_version('public/assets/css/choices-efb.css'));
+			wp_enqueue_style('efb-choices-css', self::asset_efb('public/assets/css/choices-efb.css')[0], array(), self::asset_efb('public/assets/css/choices-efb.css')[1]);
 			$core_deps[] = 'efb-choices-js';
 		}
 		// F04: numbers with the F04 keys, calc fields, choice calc values and two-handle sliders (only on a form that uses one).
@@ -2609,16 +2625,16 @@ public function check_nonce_permission_efb($request) {
 		}
 		// F09: the repeater group's rows (add / remove, min / max, collapsible, rows_from), only on a form with one.
 		if (is_string($form_structure_json) && preg_match('/type\\\\?"\s*:\s*\\\\?"repeater\\\\?"/', $form_structure_json)) {
-			wp_register_script('efb-repeater-js', EMSFB_PLUGIN_URL . 'public/assets/js/repeater-efb.js', array(), $asset_version('public/assets/js/repeater-efb.js'), true);
+			wp_register_script('efb-repeater-js', self::asset_efb('public/assets/js/repeater-efb.js')[0], array(), self::asset_efb('public/assets/js/repeater-efb.js')[1], true);
 			wp_enqueue_script('efb-repeater-js');
-			wp_enqueue_style('efb-repeater-css', EMSFB_PLUGIN_URL . 'public/assets/css/repeater-efb.css', array(), $asset_version('public/assets/css/repeater-efb.css'));
+			wp_enqueue_style('efb-repeater-css', self::asset_efb('public/assets/css/repeater-efb.css')[0], array(), self::asset_efb('public/assets/css/repeater-efb.css')[1]);
 			$core_deps[] = 'efb-repeater-js';
 		}
 		// F10: the review page, sections, rich text and the typed signature (only on a form that uses one of them).
 		if (class_exists('\\Emsfb\\Layout') && \Emsfb\Layout::json_needs_runtime($form_structure_json)) {
-			wp_register_script('efb-layout-js', EMSFB_PLUGIN_URL . 'public/assets/js/layout-efb.js', array(), $asset_version('public/assets/js/layout-efb.js'), true);
+			wp_register_script('efb-layout-js', self::asset_efb('public/assets/js/layout-efb.js')[0], array(), self::asset_efb('public/assets/js/layout-efb.js')[1], true);
 			wp_enqueue_script('efb-layout-js');
-			wp_enqueue_style('efb-layout-css', EMSFB_PLUGIN_URL . 'public/assets/css/layout-efb.css', array(), $asset_version('public/assets/css/layout-efb.css'));
+			wp_enqueue_style('efb-layout-css', self::asset_efb('public/assets/css/layout-efb.css')[0], array(), self::asset_efb('public/assets/css/layout-efb.css')[1]);
 			$core_deps[] = 'efb-layout-js';
 		}
 		// SPLIT: a SPLIT add-on (Typed Signature, Address & Postal, Visitor Country, …) enqueues what this form needs and
@@ -2626,9 +2642,9 @@ public function check_nonce_permission_efb($request) {
 		$core_deps = (array) apply_filters('efb_public_enqueue', $core_deps, $form_structure_json, $asset_version);
 		// F10-C: the visitor's rich text editor, only on a form with a rich textarea.
 		if (class_exists('\\Emsfb\\Layout') && \Emsfb\Layout::json_has_rich($form_structure_json)) {
-			wp_register_script('efb-rich-text-js', EMSFB_PLUGIN_URL . 'public/assets/js/rich-text-efb.js', array(), $asset_version('public/assets/js/rich-text-efb.js'), true);
+			wp_register_script('efb-rich-text-js', self::asset_efb('public/assets/js/rich-text-efb.js')[0], array(), self::asset_efb('public/assets/js/rich-text-efb.js')[1], true);
 			wp_enqueue_script('efb-rich-text-js');
-			wp_enqueue_style('efb-rich-text-css', EMSFB_PLUGIN_URL . 'public/assets/css/rich-text-efb.css', array(), $asset_version('public/assets/css/rich-text-efb.css'));
+			wp_enqueue_style('efb-rich-text-css', self::asset_efb('public/assets/css/rich-text-efb.css')[0], array(), self::asset_efb('public/assets/css/rich-text-efb.css')[1]);
 			$core_deps[] = 'efb-rich-text-js';
 			$main_deps[] = 'efb-rich-text-js';
 		}
@@ -2644,15 +2660,21 @@ public function check_nonce_permission_efb($request) {
 			wp_enqueue_script('intlTelInput-js');
 			$core_deps[] = 'intlTelInput-js';
 		}
-		wp_register_style('Emsfb-response-viewer-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/response-viewer-efb.css', true, EMSFB_PLUGIN_VERSION);
+		/* The palette of the code finder, the tracker card, the recovery card and the login notice (CSS custom properties). */
+		wp_register_style('Emsfb-response-viewer-css', self::asset_efb('includes/admin/assets/css/response-viewer-efb.css')[0], true, self::asset_efb('includes/admin/assets/css/response-viewer-efb.css')[1]);
 		wp_enqueue_style('Emsfb-response-viewer-css');
-		wp_register_script('efb-response-viewer-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/response-viewer-efb.js', array('efb-main-js'), $response_viewer_js_version, true);
-		wp_enqueue_script('efb-response-viewer-js');
+		/* PERF-01: the response viewer (124 KB: the conversation, replies, PDF and CSV) only where a response is opened:
+		 * the confirmation code finder and a form page opened with ?track=… ($state 'track'). A form page never calls it. */
+		if ($state === 'track') {
+			wp_register_script('efb-response-viewer-js', self::asset_efb('includes/admin/assets/js/response-viewer-efb.js')[0], array('efb-main-js'), self::asset_efb('includes/admin/assets/js/response-viewer-efb.js')[1], true);
+			wp_enqueue_script('efb-response-viewer-js');
+			$core_deps[] = 'efb-response-viewer-js';
+		}
 		// F16 / P21: field errors, the error summary, focus and the leave warning (EFBInline).
-		wp_register_script('efb-inline-js', EMSFB_PLUGIN_URL . 'public/assets/js/inline-efb.js', array(), $asset_version('public/assets/js/inline-efb.js'), true);
+		wp_register_script('efb-inline-js', self::asset_efb('public/assets/js/inline-efb.js')[0], array(), self::asset_efb('public/assets/js/inline-efb.js')[1], true);
 		$core_deps[] = 'efb-inline-js';
-		wp_enqueue_script('efb-main-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/new-efb.js', $main_deps, $main_js_version, true);
-		wp_register_script('Emsfb-core_js', plugins_url('../public/assets/js/core-efb.js',__FILE__), $core_deps, $core_js_version, true);
+		wp_enqueue_script('efb-main-js', self::asset_efb('includes/admin/assets/js/new-efb.js')[0], $main_deps, self::asset_efb('includes/admin/assets/js/new-efb.js')[1], true);
+		wp_register_script('Emsfb-core_js', self::asset_efb('public/assets/js/core-efb.js')[0], $core_deps, self::asset_efb('public/assets/js/core-efb.js')[1], true);
 		wp_enqueue_script('Emsfb-core_js');
 
 		$ar_core = array(
@@ -10754,6 +10776,10 @@ public function check_nonce_permission_efb($request) {
 		$json_settings= get_setting_Emsfb('pub')[0];
 		$pub_settings = get_setting_Emsfb('pub')[1];
 		$values =  preg_replace('/"email":"[^"]*"/', '"email":""', $values);
+		/* PERF-01: the form's JSON is printed once. ajax_value_forms carries every form of the page; ajax_value (the last
+		 * one, read for its CAPTCHA flag) names it with '@vf' and core-efb.js takes it from there. */
+		$last_vf_efb = $this->value_forms ? end($this->value_forms) : null;
+		if (is_array($last_vf_efb) && (int) ($last_vf_efb['id'] ?? 0) === (int) $this->id && is_string($last_vf_efb['form_structer'] ?? null) && $last_vf_efb['form_structer'] !== '') $values = '@vf';
 		$ar_core = array_merge($ar_core , array(
 			'ajax_value_forms' =>$this->value_forms,
 			'ajax_value' =>$values,
@@ -10852,6 +10878,12 @@ public function check_nonce_permission_efb($request) {
 			if ($security_plugins !== '0' && !empty($security_plugins)) {
 				$ar_core['security_plugins'] = $security_plugins;
 			}
+		}
+		/* PERF-01: each form of the page called this, and wp_localize_script() appends: the page printed one
+		 * ajax_object_efm per form, each with every form so far. The one before is dropped; the last holds them all. */
+		$scripts_efb = function_exists('wp_scripts') ? wp_scripts() : null;
+		if ($scripts_efb && is_string($data_efb = $scripts_efb->get_data('Emsfb-core_js', 'data')) && strpos($data_efb, 'var ajax_object_efm = ') !== false) {
+			$scripts_efb->add_data('Emsfb-core_js', 'data', implode("\n", array_filter(explode("\n", $data_efb), function ($l) { return strpos($l, 'var ajax_object_efm = ') !== 0; })));
 		}
 		wp_localize_script( 'Emsfb-core_js', 'ajax_object_efm',$ar_core);
 	}

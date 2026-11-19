@@ -412,6 +412,10 @@ let form_ID_emsFormBuilder = 0;
 if (window.React || window.react) {
   reactJs_active_efb = true;
 }
+/* PERF-01: the page prints each form's JSON once, in ajax_value_forms; ajax_value '@vf' is the last of them. */
+if (typeof ajax_object_efm == 'object' && ajax_object_efm && ajax_object_efm.ajax_value === '@vf' && Array.isArray(ajax_object_efm.ajax_value_forms) && ajax_object_efm.ajax_value_forms.length) {
+  ajax_object_efm.ajax_value = ajax_object_efm.ajax_value_forms[ajax_object_efm.ajax_value_forms.length - 1].form_structer;
+}
 if (typeof(ajax_object_efm)=='object' && ajax_object_efm.hasOwnProperty('ajax_value') && typeof ajax_object_efm.ajax_value == "string") {
   g_timeout_efb = (g_timeout_efb, ajax_object_efm.ajax_value.match(/id_/g) || []).length;
   g_timeout_efb = g_timeout_efb * calPLenEfb(g_timeout_efb);
