@@ -49,8 +49,11 @@ class EmsfbEmailHandler {
 
     private function get_fallback_text($key) {
         $fallbacks = [
+            /* translators: %1$s and %2$s: the start and end of a link to the documentation. */
             'msgdml' => __('To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %1$s documentation %2$s .', 'easy-form-builder'),
+            /* translators: %1$s and %2$s: the start and end of a link to the SMTP guide, %3$s and %4$s: the start and end of a link to support. */
             'mlntip' => __('If your emails are not being delivered, try using an SMTP plugin. For more information, %1$s click here %2$s or contact our %3$s support team %4$s.', 'easy-form-builder'),
+            /* translators: %1$s and %2$s: the start and end of a link to the documentation. */
             'msgnml' => __('To explore the full functionality and settings of Easy Form Builder, including email configurations, form creation options, and other features, simply delve into our %1$s documentation %2$s .', 'easy-form-builder'),
             'serverEmailAble' => __('Email Server Status', 'easy-form-builder'),
             'vmgs' => __('View Messages', 'easy-form-builder'),
@@ -62,6 +65,7 @@ class EmsfbEmailHandler {
             'createdBy' => __('Created by', 'easy-form-builder'),
             'newMessageReceived' => __('New message received', 'easy-form-builder'),
             'goodJob' => __('Good Job', 'easy-form-builder'),
+            /* translators: %1$s, %2$s and %3$s: the price (the start of its emphasis, the amount, the end), %4$s and %5$s: the start and end of the link to the Pro features. */
             'yFreeVEnPro' => __('Upgrade to Pro for just %1$s%2$s%3$s/year and get access to powerful features, including advanced form fields, payment integrations, conditional logic, multi-step forms, file uploads, Security & Spam Protection, and priority support.%4$sView Pro Features%5$s', 'easy-form-builder'),
             'WeRecivedUrM' => __('We received your message', 'easy-form-builder'),
         ];
@@ -450,6 +454,7 @@ class EmsfbEmailHandler {
                 $footer = "<div style='text-align:center;'>
                     " . $footer . "<br>
                     <p>" . sprintf(
+                        /* translators: %1$s and %2$s: the start and end of a link to the plugin's page, %3$s and %4$s: the start and end of a link to the developer's site. */
                         __('Built with %1$sEasy Form Builder%2$s by %3$sWhiteStudio.team%4$s', 'easy-form-builder'),
                         "<a href='https://wordpress.org/plugins/easy-form-builder/' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
                         "</a>",
@@ -462,6 +467,7 @@ class EmsfbEmailHandler {
                 $footer = "<div style='text-align:center;'>
                         " . $footer . "<br>
                         <p>" . sprintf(
+                            /* translators: %1$s and %2$s: the start and end of a link to the plugin's page, %3$s and %4$s: the start and end of a link to the developer's site. */
                             __('Built with %1$sEasy Form Builder%2$s by %3$sWhiteStudio.team%4$s', 'easy-form-builder'),
                             "<a href='https://wordpress.org/plugins/easy-form-builder/' target='_blank' class='subtle-link' style='color:#888;text-decoration:none;'>",
                             "</a>",

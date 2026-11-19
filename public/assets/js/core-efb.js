@@ -2536,8 +2536,8 @@ async function response_fill_form_efb(res ,form_id=0) {
             `
             window.location.href = res.data.redirect_url;
           }else{
-            const m = form_type_emsFormBuilder !='recovery' ? registerThankYou : ajax_object_efm.text.checkYourEmail;
-            efb_final_step.innerHTML = funTnxEfb('','',m );
+            // PUB-03: this is the register case; the recovery branch here (and the phrase key it read, which never existed) was dead.
+            efb_final_step.innerHTML = funTnxEfb('','',registerThankYou );
             efb_smart_fill_done_efb(efb_final_step, form_id, res);
           }
           break;

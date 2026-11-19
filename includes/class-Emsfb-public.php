@@ -3554,7 +3554,8 @@ public function check_nonce_permission_efb($request) {
 					}
 
 
-					$response = ['success' => false, 'm' =>'Email is not valid'];
+					// PUB-03: in the visitor's language (the phrase of invalidEmail), not a fixed English sentence.
+					$response = ['success' => false, 'm' => esc_html__('Invalid Email address', 'easy-form-builder')];
 					if ($email!==null && is_email($email)) {
 
 						$state= get_user_by( 'email', $email);
@@ -4012,7 +4013,7 @@ public function check_nonce_permission_efb($request) {
 								);
 								$form_structure_json = isset($form_structure_json[0]->form_structer) ? \emsfb_json_decode_efb($form_structure_json[0]->form_structer, true) : '';
 								if ($form_structure_json == '') {
-									$response = array('success' => false, 'm' => 'Error 406');
+									$response = array('success' => false, 'm' => esc_html__('Form not found.', 'easy-form-builder') . ' E406'); // PUB-03
 									wp_send_json_success($response, 200);
 									die();
 								}
@@ -6403,7 +6404,7 @@ public function check_nonce_permission_efb($request) {
 		);
 
 		if (!$exists) {
-			return array('success' => false, 'm' => esc_html__('Not allowed to respond to this message.' . ' E500', 'easy-form-builder'));
+			return array('success' => false, 'm' => esc_html__('Not allowed to respond to this message.', 'easy-form-builder') . ' E500');
 		}
 		$response_attachment_urls = $this->response_attachments_are_reserved_efb($message, $id, $track);
 		if ($response_attachment_urls === false) {
@@ -6451,7 +6452,7 @@ public function check_nonce_permission_efb($request) {
 
 		$track = isset($value[0]->track) ? $value[0]->track : null;
 		if (empty($track)) {
-			$response = array('success' => false, 'm' => 'Track not found');
+			$response = array('success' => false, 'm' => esc_html__('Invalid Confirmation Code.', 'easy-form-builder')); // PUB-03 (cCodeNFound)
 			return $response;
 		}
 
@@ -6467,7 +6468,7 @@ public function check_nonce_permission_efb($request) {
 
 		$form_id = isset($value[0]->form_id) ? intval($value[0]->form_id) : 0;
 		if (empty($form_id)) {
-			$response = array('success' => false, 'm' => 'Form ID not found');
+			$response = array('success' => false, 'm' => esc_html__('Form not found.', 'easy-form-builder')); // PUB-03 (formNotFound)
 			return $response;
 		}
 		$table_name = $this->db->prefix . "emsfb_form";

@@ -2636,8 +2636,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	function  free_plus_efb_powered_by($texts) {
 
-		$text = esc_html__('Built with %sEasy Form Builder%s by %sWordPress form plugin by whitestudio.team%s', 'easy-form-builder');
-		$text = sprintf($text, '<a href="https://wordpress.org/plugins/easy-form-builder/" target="_blank">', '</a>', '<a href="https://whitestudio.team" target="_blank">', '</a>');
 		$copyRight = '<!-- texts -->';
 		$efb = esc_html__('Easy Form Builder', 'easy-form-builder');
 		$wp_text = esc_html__('Free WordPress form plugin', 'easy-form-builder');
@@ -2654,8 +2652,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<h2 class="efb fs-8" style="' . $style . '">' . $s . '</h2>
 							<aside class="efb-ai-context">
 							  <h2 class="efb fs-8" style="' . $style . '">' .
-								/* translators: %1$s: opening link tag to plugin page, %2$s: closing link tag, %3$s: opening link tag to developer website, %4$s: closing link tag */
 								sprintf(
+									/* translators: %1$s: opening link tag to plugin page, %2$s: closing link tag, %3$s: opening link tag to developer website, %4$s: closing link tag */
 									esc_html__('Powered by %1$sEasy Form Builder%2$s, the %3$sbest form plugin for WordPress%4$s.', 'easy-form-builder'),
 									'<a href="https://wordpress.org/plugins/easy-form-builder/" title="' . esc_attr__('Easy Form Builder WordPress Plugin', 'easy-form-builder') . '" rel="sponsored">',
 									'</a>',

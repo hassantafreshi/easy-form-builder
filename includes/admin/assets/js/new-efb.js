@@ -59,7 +59,9 @@ function efb_var_waitng(time) {
       return;
     } else {
       time += 50;
-      time != 30000 ? efb_var_waitng(time) : alert_message_efb(efb_var.text.error, "Please Hard Refresh", 60)
+      // PUB-03: efb_var never came; its phrases may be missing too.
+      const tx = typeof efb_var !== 'undefined' && efb_var && efb_var.text ? efb_var.text : {};
+      time != 30000 ? efb_var_waitng(time) : alert_message_efb(tx.error || '', tx.somethingWentWrongPleaseRefresh || tx.errorSomthingWrong || 'Please refresh the page.', 60)
     }
   }, time)
 }
@@ -1228,7 +1230,7 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid,option
       .catch((error) => {
         const el = document.getElementById(idB);
 
-        var errorMessage = 'Network error or upload failed';
+        var errorMessage = ''; // PUB-03: the translated fileUploadNetworkError below says it; a cause is added when there is one
         if (typeof error === 'string') {
           errorMessage = error;
         } else if (error.message) {
@@ -1361,7 +1363,7 @@ function fetch_uploadFile(file, id, pl, nonce_msg,page_id ,fid ,sid,options) {
         resolve(response);
       } catch (parseError) {
         if (window.EFBRequestHealth) window.EFBRequestHealth.report('upload', 0);
-        reject('Invalid JSON response from server. Check console for details.');
+        reject((efb_var.text && (efb_var.text.errorSomthingWrong || efb_var.text.somethingWentWrongPleaseRefresh)) || 'Something went wrong. Please refresh the page and try again.'); // PUB-03
       }
     } else {
       /* Security plugins may deliberately return 403/429 with a useful JSON
