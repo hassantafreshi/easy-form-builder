@@ -11,6 +11,11 @@
  *            sees nothing until the click on Publish, then the form; the admin's page shows the draft notice before.
  *  ai-event  AI-1: the owner's own Save in the builder while Typed Signature is off: efb:form-saved carries the answer's
  *            warnings (addon_keys_kept, the same code and message) for a listener such as AutoPilot.
+ *  ai-bare   A form imported with a row 0 and a step 1 that have none of the keys the builder draws with (button
+ *            texts and icons, colours, sizes, classes, thank-you texts): the builder draws it and opens its panels with
+ *            a new form's values (efbFillBuilderDefaultsEfb() in editFormEfb()); settings and the step's id and name
+ *            are not filled; nothing stored changes until the owner's Save, which stores those keys; the saved form
+ *            opens like any other.
  */
 'use strict';
 const path = require('path');
@@ -24,12 +29,15 @@ module.exports = function (S) {
   const settingsUrl = (tab) => CFG.base + '/wp-admin/admin.php?page=Emsfb&state=setting&tab=' + tab;
   const TABS = ['general', 'responses', 'captchas', 'email', 'email-template', 'localization', 'payments', 'sms', 'privacy', 'verify'];
 
-  async function openForm(a, fid) {
+  /** Opens a form in the builder; soft: answers whether the canvas was drawn instead of throwing. */
+  async function openForm(a, fid, soft) {
     await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
     await a.waitForFunction(() => typeof fun_get_form_by_id === 'function', null, { timeout: 20000 });
     await a.evaluate((id) => { const b = document.querySelector(`.efb-act-edit[data-id="${id}"]`); if (b) b.click(); else fun_get_form_by_id(Number(id)); }, fid);
     await builderReady(a);
+    if (soft) return canvasDrawn(a).then(() => true, () => false);
     await canvasDrawn(a);
+    return true;
   }
   async function openPanel(a, row) {
     await closePanel(a).catch(() => {});
@@ -199,6 +207,69 @@ module.exports = function (S) {
       R.check('ai-event: the stored signature keeps its typed mode (the save path kept the absent add-on\'s keys)', (rows.find((r) => r.type === 'esign') || {}).esign_mode === 'type', rows.find((r) => r.type === 'esign'));
     } finally {
       ctl('addon-flag', 'AdnTSG', '1');
+      actl('delete', String(F.form_id));
+    }
+  });
+
+  /* ================================================================== ai-bare */
+  scenario('ai-bare', 'An imported form whose row 0 and step 1 lack the keys the builder draws with: the builder draws it with a new form\'s values; nothing stored changes until the owner saves', async ({ adminPage }) => {
+    ctl('plan', '3');
+    const F = actl('bare-form', 'AI bare e2e');
+    const stored = () => ctl('form', String(F.form_id)) || {};
+    const s0 = stored();
+    const rows0 = s0.form_structer || [];
+    R.check('ai-bare: the stored row 0 and step 1 have none of the keys the builder draws with (button texts and icons, colours, sizes, classes, thank-you texts)', F.form_id > 0 && rows0.length === 4 && ['button_single_text', 'button_Next_icon', 'button_Previous_icon', 'icon', 'el_height', 'button_color', 'thank_you_message'].every((k) => !(k in rows0[0])) && ['classes', 'label_text_size', 'icon', 'message'].every((k) => !(k in rows0[1])), rows0.slice(0, 2));
+    // What a new form's row 0 has besides the keys the builder draws with (switches the owner sets): never filled.
+    const SETTINGS = ['captcha', 'show_icon', 'show_pro_bar', 'private', 'font', 'dShowBg', 'sendEmail', 'email_to', 'email_temp'];
+    /** The canvas and the builder's copy of the form, beside a new form's row 0 and step (the defaults). */
+    const canvas = (a) => a.evaluate(() => {
+      const z = document.getElementById('dropZoneEFB');
+      const send = document.getElementById('btn_send_efb');
+      const btns = document.getElementById('button_group_efb');
+      const step = z.querySelector('section[data-tag="steps"][data-id="1"]');
+      return {
+        fields: valj_efb.filter((r, i) => i > 0 && r.type !== 'option').map((r) => r.type + ':' + !!z.querySelector('[data-id="' + r.dataId + '"]')),
+        send: send ? send.innerText.trim() : null,
+        undef: [btns ? btns.innerHTML : 'none', step ? step.innerHTML : 'none'].some((h) => /undefined/.test(h)),
+        row0: JSON.parse(JSON.stringify(valj_efb[0])), step: JSON.parse(JSON.stringify(valj_efb[1])),
+        fresh0: typeof efb_new_form_row0_efb === 'function' ? efb_new_form_row0_efb() : null,
+        freshStep: typeof efb_new_step_row_efb === 'function' ? efb_new_step_row_efb(1, 1) : null,
+        keys0: typeof EFB_ROW0_BUILDER_KEYS_EFB !== 'undefined' ? EFB_ROW0_BUILDER_KEYS_EFB.slice() : null,
+        keysStep: typeof EFB_STEP_BUILDER_KEYS_EFB !== 'undefined' ? EFB_STEP_BUILDER_KEYS_EFB.slice() : null,
+      };
+    });
+    const same = (row, fresh, keys) => !!(fresh && keys && keys.length) && keys.every((k) => JSON.stringify(row[k]) === JSON.stringify(fresh[k]));
+    try {
+      const a = await adminPage({}, 'ai-bare');
+      const drawn = await openForm(a, F.form_id, true);
+      const c = await canvas(a);
+      R.check('ai-bare: the builder draws the form: the step, both fields and the Send button are on the canvas', drawn && c.fields.length === 3 && c.fields.every((f) => /:true$/.test(f)) && !!c.send, { drawn, fields: c.fields, send: c.send });
+      await a.evaluate(() => document.getElementById('dropZoneEFB').scrollIntoView({ block: 'start' }));
+      await sleep(300);
+      await a.screenshot({ path: SHOT('ai-bare-builder-en-1280') });
+      R.check('ai-bare: the builder\'s copy has a new form\'s values on row 0 (buttons, colours, thank-you texts) and on the step (the values of efb_new_form_row0_efb() / efb_new_step_row_efb()); no "undefined" in the buttons or the step heading', same(c.row0, c.fresh0, c.keys0) && same(c.step, c.freshStep, c.keysStep) && !c.undef && !!c.fresh0 && c.send === c.fresh0.button_single_text, { row0: c.row0, step: c.step, keys0: c.keys0, keysStep: c.keysStep, undef: c.undef, send: c.send });
+      R.check('ai-bare: settings are not filled (tracking code as stored; no CAPTCHA, icon, progress bar or e-mail keys added); the step keeps its id, order and name', c.row0.trackingCode === '1' && SETTINGS.every((k) => !(k in c.row0)) && c.step.id_ === '1' && Number(c.step.amount) === 1 && c.step.name === 'Step', { row0: c.row0, step: c.step });
+      R.check('ai-bare: opening the form in the builder changes nothing stored', stored().raw === s0.raw);
+      await a.click(`#dropZoneEFB [data-id="${F.ids.text}-id"]`, { position: { x: 20, y: 10 } });
+      const panel = await a.waitForFunction(() => document.getElementById('sideBoxEfb').classList.contains('show') && document.getElementById('labelEl'), null, { timeout: 8000 }).then(() => true, () => false);
+      R.check('ai-bare: a field of that form opens its settings panel', panel && await a.evaluate(() => document.getElementById('labelEl').value) === 'Full name');
+      await closePanel(a);
+      const saved = a.waitForResponse((r) => r.url().includes('admin-ajax.php') && /action=update_form_Emsfb/.test(r.request().postData() || ''), { timeout: 20000 }).catch(() => null);
+      await a.click("a[onclick=\"saveFormEfb(1)\"]");
+      const sr = await saved;
+      const ans = sr ? await sr.json().catch(() => null) : null;
+      const rows1 = stored().form_structer || [];
+      const r0 = rows1[0] || {};
+      const st = rows1[1] || {};
+      // The save keeps the thank-you texts it knows (icon, thankYou, done, trackingCode, pleaseFillInRequiredFields).
+      const val = (a, b) => (a && typeof a === 'object' ? !!b && typeof b === 'object' && Object.keys(a).length > 0 && Object.keys(a).every((k) => String(a[k]) === String(b[k])) : String(a) === String(b));
+      const str = (row, fresh, keys) => !!(fresh && keys) && keys.every((k) => val(row[k], fresh[k]));
+      R.check('ai-bare: the owner\'s Save stores those keys on row 0 and the step (a new form\'s values, thank-you texts included)', !!(ans && ans.success) && str(r0, c.fresh0, c.keys0) && str(st, c.freshStep, c.keysStep), { ans: ans && ans.success, r0, st });
+      R.check('ai-bare: after the Save the settings are still the stored ones (tracking code on, none of a new form\'s switches added)', String(r0.trackingCode) === '1' && SETTINGS.every((k) => !(k in r0)) && st.name === 'Step', r0);
+      await a.context().close();
+      const b = await adminPage({}, 'ai-bare-2');
+      R.check('ai-bare: the saved form opens and draws like any other', await openForm(b, F.form_id, true));
+    } finally {
       actl('delete', String(F.form_id));
     }
   });

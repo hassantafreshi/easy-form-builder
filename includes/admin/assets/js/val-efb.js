@@ -2664,22 +2664,28 @@ function efb_palette_tiles_html_efb() {
   return els;
 }
 
+/* Row 0 of a new form (creator_form_builder_Efb()). editFormEfb() also gives a form made elsewhere the keys of this
+   row the builder draws with that it lacks (efbFillBuilderDefaultsEfb() in new-efb.js). */
+function efb_new_form_row0_efb() {
+  const btn_pois = Number(efb_var.rtl) == 1 ? 'justify-content-center' : 'justify-content-center';
+  /* Deprecated keys, still written so old readers see the shape they know, but read by
+     nothing in EFB (B9): `private` (a private form is `stateForm`) and `email_temp` (the
+     email template is the global setting emailTemp). Do not remove them from old forms. */
+  return {
+    type: form_type_emsFormBuilder, steps: 1, formName: efb_var.text.form, email: '', trackingCode: true, EfbVersion: 2,
+    button_single_text: efb_var.text.submit, button_color: pub_bg_button_color_efb, icon: 'bi-ui-checks-grid', button_Next_text: efb_var.text.next, button_Previous_text: efb_var.text.previous,
+    button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single',  label_text_color: pub_label_text_color_efb,
+    el_text_color: pub_txt_button_color_efb, message_text_color: pub_message_text_color_efb, icon_color: pub_txt_button_color_efb, el_height: 'h-d-efb', email_to: false, show_icon: true,
+    show_pro_bar: true, captcha: false, private: false, sendEmail: false, font: true, stateForm: 0,dShowBg:true, btns_align: btn_pois,
+    thank_you: 'msg',
+    thank_you_message: { icon: 'bi-hand-thumbs-up', thankYou: efb_var.text.thanksFillingOutform, done: efb_var.text.yad, trackingCode: efb_var.text.trackingCode, error: efb_var.text.error, pleaseFillInRequiredFields: efb_var.text.pleaseFillInRequiredFields }, email_temp: '',
+  };
+}
+
 function creator_form_builder_Efb() {
   if (valj_efb.length < 2) {
-    const btn_pois = Number(efb_var.rtl) == 1 ? 'justify-content-center' : 'justify-content-center';
     step_el_efb = 1;
-    /* Deprecated keys, still written so old readers see the shape they know, but read by
-       nothing in EFB (B9): `private` (a private form is `stateForm`) and `email_temp` (the
-       email template is the global setting emailTemp). Do not remove them from old forms. */
-    valj_efb.push({
-      type: form_type_emsFormBuilder, steps: 1, formName: efb_var.text.form, email: '', trackingCode: true, EfbVersion: 2,
-      button_single_text: efb_var.text.submit, button_color: pub_bg_button_color_efb, icon: 'bi-ui-checks-grid', button_Next_text: efb_var.text.next, button_Previous_text: efb_var.text.previous,
-      button_Next_icon: 'bi-chevron-right', button_Previous_icon: 'bi-chevron-left', button_state: 'single',  label_text_color: pub_label_text_color_efb,
-      el_text_color: pub_txt_button_color_efb, message_text_color: pub_message_text_color_efb, icon_color: pub_txt_button_color_efb, el_height: 'h-d-efb', email_to: false, show_icon: true,
-      show_pro_bar: true, captcha: false, private: false, sendEmail: false, font: true, stateForm: 0,dShowBg:true, btns_align: btn_pois,
-      thank_you: 'msg',
-      thank_you_message: { icon: 'bi-hand-thumbs-up', thankYou: efb_var.text.thanksFillingOutform, done: efb_var.text.yad, trackingCode: efb_var.text.trackingCode, error: efb_var.text.error, pleaseFillInRequiredFields: efb_var.text.pleaseFillInRequiredFields }, email_temp: '', font: true,
-    });
+    valj_efb.push(efb_new_form_row0_efb());
 
     if (form_type_emsFormBuilder == "payment") {
       Object.assign(valj_efb[0], { getway: 'stripe', currency: 'usd', paymentmethod: 'charge' })

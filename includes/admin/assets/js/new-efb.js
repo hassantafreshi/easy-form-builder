@@ -2071,6 +2071,34 @@ function efbNormalizeOrderEfb(rows) {
 }
 /* efbOrderOf:end */
 
+/* efbBuilderDefaults:start */
+/* The keys the builder draws a form with: on row 0 the button texts, icons and colours and the thank-you texts, on a
+   step its classes, icon, sizes, colours and description. The builder writes them on every new form; a form made
+   elsewhere (an import, a form package, an assistant, an old copy) can come without them, and then the canvas is not
+   drawn (add_buttons_zone_efb() reads the length of row 0's icons, a step heading its classes) and no settings panel
+   opens (show_setting_window_efb() reads row 0's thank-you texts). efbFillBuilderDefaultsEfb(rows, row0, step) gives
+   row 0 and every step row each of these keys they lack (absent or null) the value of row0 / step, which
+   editFormEfb() takes from a new form (efb_new_form_row0_efb(), efb_new_step_row_efb()). Only the builder's copy
+   changes: the stored form gets the keys when the owner saves. A key that is there is kept; settings (tracking code,
+   e-mails, CAPTCHA, ...), ids, order and names are never filled. */
+const EFB_ROW0_BUILDER_KEYS_EFB = ['button_single_text', 'button_color', 'icon', 'button_Next_text', 'button_Previous_text', 'button_Next_icon', 'button_Previous_icon', 'button_state', 'label_text_color', 'el_text_color', 'message_text_color', 'icon_color', 'el_height', 'btns_align', 'thank_you_message'];
+const EFB_STEP_BUILDER_KEYS_EFB = ['classes', 'icon', 'message', 'label_text_size', 'el_text_size', 'label_text_color', 'el_text_color', 'message_text_color', 'icon_color'];
+function efbFillBuilderDefaultsEfb(rows, row0, step) {
+  if (!Array.isArray(rows) || !rows[0] || typeof rows[0] !== 'object') return rows;
+  const fill = (row, keys, def) => {
+    if (!def || typeof def !== 'object') return;
+    for (const k of keys) {
+      if ((row[k] === undefined || row[k] === null) && def[k] !== undefined) row[k] = def[k];
+    }
+  };
+  fill(rows[0], EFB_ROW0_BUILDER_KEYS_EFB, row0);
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i] && typeof rows[i] === 'object' && rows[i].type === 'step') fill(rows[i], EFB_STEP_BUILDER_KEYS_EFB, step);
+  }
+  return rows;
+}
+/* efbBuilderDefaults:end */
+
 /* efbUrlCodec:start */
 /* A URL stored in the form JSON (rePage, imgRadio src) writes "/" as @efb@:
    "https://example.com/thanks" is stored as "https:@efb@example.com@efb@thanks".

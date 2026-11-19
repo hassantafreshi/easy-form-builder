@@ -2121,8 +2121,8 @@ require('./scenario-jump.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT });
 require('./scenario-payout.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, builderReady, canvasDrawn, openField, closePanel });
 
 /* The core changes the AI builder plugin needs (AI-1, AI-4, AI-8): the builder's payment panel and Settings at 375 px
- * (fa_IR, ar) and en 1280, a draft in the forms list and on the page, efb:form-saved with the save warnings:
- * tests/e2e-wp/scenario-ai.js. */
+ * (fa_IR, ar) and en 1280, a draft in the forms list and on the page, efb:form-saved with the save warnings, an imported
+ * form without the keys the builder draws with, drawn and saved (ai-bare): tests/e2e-wp/scenario-ai.js. */
 require('./scenario-ai.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, builderReady, canvasDrawn, closePanel });
 
 /* ---------------------------------------------------------------------------------------------

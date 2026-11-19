@@ -4788,6 +4788,9 @@ let editFormEfb =async () => {
   if (sessionStorage.getItem('valj_efb')) { valj_efb = JSON.parse(sessionStorage.getItem('valj_efb')); }
   // A saved form has every amount/step as a string; the builder compares them as numbers (A2).
   if (typeof efbNormalizeOrderEfb === 'function') efbNormalizeOrderEfb(valj_efb);
+  // A form made elsewhere may lack the keys the builder draws with (row 0's button icons and thank-you texts, a step's
+  // classes, ...): they get a new form's values here, in the builder's copy only; the owner's Save stores them.
+  if (typeof efbFillBuilderDefaultsEfb === 'function' && typeof efb_new_form_row0_efb === 'function') efbFillBuilderDefaultsEfb(valj_efb, efb_new_form_row0_efb(), efb_new_step_row_efb(1, 1));
   let p = calPLenEfb(valj_efb.length)
   const len = (valj_efb.length) * p || 10;
 
@@ -4875,6 +4878,17 @@ function efb_first_step_name_efb() {
   const t = (typeof efb_var === 'object' && efb_var && efb_var.text) || {};
   const name = t[formName_Efb] || (typeof form_type_emsFormBuilder !== 'undefined' && t[form_type_emsFormBuilder]) || t.form || '';
   return String(name).toUpperCase();
+}
+
+/* The step row a new form gets with its first field (addNewElement()). editFormEfb() also gives a step made
+   elsewhere the keys of this row the builder draws with that it lacks (efbFillBuilderDefaultsEfb() in new-efb.js). */
+function efb_new_step_row_efb(step, amount) {
+  return {
+    id_: `${step}`, type: 'step', dataId: `${step}`, classes: '',
+    id: `${step}`, name: efb_first_step_name_efb(), icon: 'bi-ui-checks-grid', step: step, amount: amount, EfbVersion: 2, message: "",
+    label_text_size: 'fs-5', el_text_size: 'fs-5', label_text_color: 'text-darkb',
+    el_text_color: 'text-labelEfb', message_text_color: pub_message_text_color_efb, icon_color: pub_icon_color_efb, visible: 1
+  };
 }
 
 let sampleElpush_efb = (rndm, elementId) => {
@@ -7549,12 +7563,7 @@ function addNewElement(elementId, rndm, editState, previewSate) {
     }
     if (elementId != 'steps') {
       if (editState == false && valj_efb.length < 2) {
-        valj_efb.push({
-          id_: `${step_el_efb}`, type: 'step', dataId: `${step_el_efb}`, classes: '',
-          id: `${step_el_efb}`, name: efb_first_step_name_efb(), icon: '', step: step_el_efb, amount: amount_el_efb, EfbVersion: 2, message: "",
-          label_text_size: 'fs-5', el_text_size: 'fs-5', label_text_color: 'text-darkb',
-          el_text_color: 'text-labelEfb', message_text_color:pub_message_text_color_efb, icon_color: pub_icon_color_efb, icon: 'bi-ui-checks-grid', visible: 1
-        });
+        valj_efb.push(efb_new_step_row_efb(step_el_efb, amount_el_efb));
         indexVJ = valj_efb.length - 1;
         const sort = indexVJ<=1 ? 'unsortable'  : 'sortable';
         newElement = `

@@ -21,6 +21,9 @@
  *   pay-form <slug> <name> [draft]   a payment form (an e-mail field and the gateway's field from field_templates_efb())
  *                              imported as user 1 (name_policy keep); "draft" makes it a draft
  *   esign-form <name>          a form with a text field and a typed signature (esign_mode type), saved by import
+ *   bare-form <name>           a form whose row 0 and step 1 have none of the keys the builder draws with (buttons,
+ *                              icons, colours, sizes, classes, thank-you texts), with an e-mail and a text field,
+ *                              saved by import
  *
  * Every command prints one JSON document on its last line. Local test site only.
  */
@@ -171,6 +174,26 @@ switch ( $ai_cmd ) {
 		}
 		foreach ( $rows as $i => $r ) if ( $i > 0 ) { $rows[ $i ]['amount'] = $i; $rows[ $i ]['step'] = 1; }
 		$r = \Emsfb\Form_Package::import( array( 'schema' => 1, 'form' => array( 'form_name' => $name, 'form_structer' => $rows ) ), array( 'name_policy' => 'keep', 'status' => in_array( 'draft', $ai_rest, true ) ? 'draft' : 'published' ) );
+		efb_ai_out( is_wp_error( $r ) ? efb_ai_err( $r ) : array( 'form_id' => $r['form_id'], 'ids' => $ids, 'status' => $r['status'] ) );
+		break;
+
+	case 'bare-form':
+		// Row 0 and step 1 as a writer that knows only the settings makes them: no button texts or icons, no colours,
+		// sizes, classes or thank-you texts (BUGS-FOUND: the builder did not draw such a form). Full template fields.
+		wp_set_current_user( 1 );
+		$fn = get_efbFunction();
+		$name = isset( $ai_rest[0] ) ? $ai_rest[0] : 'AI bare e2e';
+		$rows = array( array( 'type' => 'form', 'steps' => 1, 'formName' => $name, 'email' => '', 'trackingCode' => '1', 'EfbVersion' => 2, 'stateForm' => 0, 'thank_you' => 'msg' ),
+			array( 'id_' => '1', 'type' => 'step', 'dataId' => '1', 'id' => '1', 'name' => 'Step', 'step' => 1, 'amount' => 1, 'EfbVersion' => 2, 'visible' => 1 ) );
+		$ids = array();
+		foreach ( array( 'email' => array(), 'text' => array( 'label' => 'Full name' ) ) as $pid => $extra ) {
+			$t = $fn->field_templates_efb( $pid, $extra );
+			if ( is_wp_error( $t ) ) efb_ai_out( efb_ai_err( $t ) );
+			foreach ( $t['rows'] as $r ) $rows[] = $r;
+			$ids[ $pid ] = $t['rows'][0]['id_'];
+		}
+		foreach ( $rows as $i => $r ) if ( $i > 1 ) { $rows[ $i ]['amount'] = $i; $rows[ $i ]['step'] = 1; }
+		$r = \Emsfb\Form_Package::import( array( 'schema' => 1, 'form' => array( 'form_name' => $name, 'form_structer' => $rows ) ), array( 'name_policy' => 'keep' ) );
 		efb_ai_out( is_wp_error( $r ) ? efb_ai_err( $r ) : array( 'form_id' => $r['form_id'], 'ids' => $ids, 'status' => $r['status'] ) );
 		break;
 
