@@ -145,3 +145,9 @@ docs/language-packs/screenshots/W2-3-panel-in-russian.png
 docs/language-packs/screenshots/W3-1-installing.png
 docs/language-packs/screenshots/W3-2-installed-reloading.png
 docs/language-packs/screenshots/W3-3-panel-in-russian.png
+
+# SEC-02: third-party fonts, country lists and Chart.js, fetched at a pinned version by bin/fetch-public-assets.sh when a release is built
+public/assets/fonts/
+public/assets/json/geo/
+public/assets/js/vendor/
+public/assets/fetched-assets.sha256

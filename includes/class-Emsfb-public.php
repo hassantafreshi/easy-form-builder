@@ -2033,10 +2033,12 @@ public function check_nonce_permission_efb($request) {
 
 					if($typeOfForm=="survey" ){
 
-						wp_register_script('poll-chart-efb-js', EMSFB_PLUGIN_URL . 'public/assets/js/poll-chart-efb.js',array('jquery'), EMSFB_PLUGIN_VERSION, true);
+						wp_register_script('poll-chart-efb-js', self::asset_efb('public/assets/js/poll-chart-efb.js')[0], array('jquery'), self::asset_efb('public/assets/js/poll-chart-efb.js')[1], true);
 						wp_enqueue_script('poll-chart-efb-js');
 						wp_localize_script('poll-chart-efb-js', 'efbPollChart', array(
 							'text' => $this->efbFunction->text_efb(array('pcResponses','pcAverage','pcMin','pcMax','pcAvgLength')),
+							// SEC-02: Chart.js bundled by the release build (bin/fetch-public-assets.sh); '' = not bundled.
+							'chartjs' => is_readable(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/vendor/chart.umd.min.js') ? self::asset_efb('public/assets/js/vendor/chart.umd.min.js')[0] : '',
 						));
 
 					}
@@ -2266,6 +2268,29 @@ public function check_nonce_permission_efb($request) {
 
 	}
 
+	/** SEC-02: the response box's font families (as Settings stores them) and their folder in public/assets/fonts. */
+	const RESP_FONTS_EFB = array(
+		'Vazirmatn, Tahoma, sans-serif' => 'vazirmatn', 'Vazir, Tahoma, sans-serif' => 'vazir', 'Sahel, Tahoma, sans-serif' => 'sahel',
+		'Samim, Tahoma, sans-serif' => 'samim', "'Shabnam', Tahoma, sans-serif" => 'shabnam', 'Parastoo, Tahoma, sans-serif' => 'parastoo',
+		'Gandom, Tahoma, sans-serif' => 'gandom', 'Lalezar, Tahoma, sans-serif' => 'lalezar', 'Cairo, Tahoma, sans-serif' => 'cairo',
+		'Tajawal, Tahoma, sans-serif' => 'tajawal', "'Noto Sans Arabic', Tahoma, sans-serif" => 'noto-sans-arabic',
+		"'IBM Plex Sans Arabic', Tahoma, sans-serif" => 'ibm-plex-sans-arabic', 'Amiri, Tahoma, serif' => 'amiri',
+		"'Noto Kufi Arabic', Tahoma, sans-serif" => 'noto-kufi-arabic', "'Inter', sans-serif" => 'inter', "'Roboto', sans-serif" => 'roboto',
+		"'Open Sans', sans-serif" => 'open-sans',
+	);
+
+	/** SEC-02: [url, version] of a response box font's local @font-face file, or null when it is not bundled. */
+	public static function local_font_css_efb($family) {
+		$slug = is_string($family) && isset(self::RESP_FONTS_EFB[$family]) ? self::RESP_FONTS_EFB[$family] : '';
+		if ($slug === '' || !is_readable(EMSFB_PLUGIN_DIRECTORY . 'public/assets/fonts/' . $slug . '/font.css')) return null;
+		return self::asset_efb('public/assets/fonts/' . $slug . '/font.css');
+	}
+
+	/** SEC-02: where the country / province / city lists are read: the plugin's copy when the build bundled it, else the CDN. */
+	public static function geo_base_url_efb() {
+		return is_readable(EMSFB_PLUGIN_DIRECTORY . 'public/assets/json/geo/json/states/ir.json') ? EMSFB_PLUGIN_URL . 'public/assets/json/geo/' : CDN_ZONE_AREA;
+	}
+
 	private function efb_build_inline_style_overrides($ps = null) {
 		if ($ps === null) {
 			$pl = get_setting_Emsfb('pub');
@@ -2333,38 +2358,16 @@ public function check_nonce_permission_efb($request) {
 		 */
 		$inline_style = $css_overrides !== '' ? '<style>:root:root{' . $css_overrides . '}</style>' : '';
 
+		/* SEC-02 (owner decision 9): the response box's font comes from the plugin (public/assets/fonts, bundled by the
+		 * release build: bin/fetch-public-assets.sh), never from Google Fonts or jsDelivr; without its files the box keeps
+		 * its fallback (Tahoma / the theme's). A custom font URL is the administrator's own choice. Both are enqueued
+		 * styles (printed in the footer when the shortcode runs after wp_head), no <link> in the post content. */
 		$font_link = '';
-
-		if (!empty($ps['respCustomFont'])) {
-			$cf = json_decode($ps['respCustomFont'], true);
-			if (is_array($cf) && !empty($cf['url'])) {
-				$font_link = '<link rel="stylesheet" href="' . esc_url($cf['url']) . '">';
-			}
-		}
-
-		if (empty($font_link) && !empty($ps['respFontFamily']) && $ps['respFontFamily'] !== 'inherit') {
-			$font_css_map = [
-				"Vazirmatn, Tahoma, sans-serif"                     => "https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap",
-				"Vazir, Tahoma, sans-serif"                          => "https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@latest/dist/font-face.css",
-				"Sahel, Tahoma, sans-serif"                          => "https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@latest/dist/font-face.css",
-				"Samim, Tahoma, sans-serif"                          => "https://cdn.jsdelivr.net/gh/rastikerdar/samim-font@latest/dist/font-face.css",
-				"'Shabnam', Tahoma, sans-serif"                      => "https://cdn.jsdelivr.net/gh/rastikerdar/shabnam-font@latest/dist/font-face.css",
-				"Parastoo, Tahoma, sans-serif"                       => "https://cdn.jsdelivr.net/gh/rastikerdar/parastoo-font@latest/dist/font-face.css",
-				"Gandom, Tahoma, sans-serif"                         => "https://cdn.jsdelivr.net/gh/rastikerdar/gandom-font@latest/dist/font-face.css",
-				"Lalezar, Tahoma, sans-serif"                        => "https://fonts.googleapis.com/css2?family=Lalezar&display=swap",
-				"Cairo, Tahoma, sans-serif"                          => "https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap",
-				"Tajawal, Tahoma, sans-serif"                        => "https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap",
-				"'Noto Sans Arabic', Tahoma, sans-serif"             => "https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100..900&display=swap",
-				"'IBM Plex Sans Arabic', Tahoma, sans-serif"         => "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap",
-				"Amiri, Tahoma, serif"                               => "https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap",
-				"'Noto Kufi Arabic', Tahoma, sans-serif"             => "https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100..900&display=swap",
-				"'Inter', sans-serif"                                => "https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap",
-				"'Roboto', sans-serif"                               => "https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap",
-				"'Open Sans', sans-serif"                            => "https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap",
-			];
-			if (isset($font_css_map[$ps['respFontFamily']])) {
-				$font_link = '<link rel="stylesheet" href="' . esc_url($font_css_map[$ps['respFontFamily']]) . '">';
-			}
+		$cf = !empty($ps['respCustomFont']) ? json_decode($ps['respCustomFont'], true) : null;
+		if (is_array($cf) && !empty($cf['url']) && is_string($cf['url']) && preg_match('#^https?://#i', $cf['url'])) {
+			wp_enqueue_style('efb-resp-custom-font', esc_url_raw($cf['url']), array(), null); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- the administrator's own font address
+		} elseif (!empty($ps['respFontFamily']) && $ps['respFontFamily'] !== 'inherit' && ($local_font_efb = self::local_font_css_efb($ps['respFontFamily']))) {
+			wp_enqueue_style('efb-resp-font', $local_font_efb[0], array(), $local_font_efb[1]);
 		}
 
 		return ['inline_style' => $inline_style, 'font_link' => $font_link];
@@ -2748,7 +2751,7 @@ public function check_nonce_permission_efb($request) {
 		header('Pragma: no-cache');
 		header('Expires: 0');
 
-		echo $output;
+		echo $output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- a JSON body made by wp_json_encode()
 
 		if (ob_get_level() > 0) {
 			ob_end_flush();
@@ -2779,7 +2782,7 @@ public function check_nonce_permission_efb($request) {
 			ob_start();
 		}
 
-		echo str_repeat(' ', 4096);
+		echo str_repeat(' ', 4096); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- padding spaces that flush the buffer
 
 		if (ob_get_level() > 0) {
 			ob_end_flush();
@@ -3989,7 +3992,7 @@ public function check_nonce_permission_efb($request) {
 							}
 							$id = isset($request_data['payid']) ? sanitize_text_field($request_data['payid']) : '';
 							$table_name_ = $this->db->prefix . "emsfb_msg_";
-							$currentDateTime = date('Y-m-d H');
+							$currentDateTime = gmdate('Y-m-d H'); // UTC, as date() is under WordPress
 							$payment_gateway = isset($request_data['payment']) ? sanitize_text_field($request_data['payment']) : 'stripe';
 							if ($payment_gateway == "paypal") {
 								// error_log('[EFB][PayPal][SUBMIT] Final payment submit received: payid=' . ($id ?: '(empty)') . ', form_id=' . (isset($request_data['id']) ? sanitize_text_field($request_data['id']) : '(empty)') . ', submitted_count=' . (is_array($submitted_values) ? count($submitted_values) : 0));
@@ -4187,7 +4190,7 @@ public function check_nonce_permission_efb($request) {
 									'admin_recipients' => $email_recipients[0] ?? [],
 									'user_recipients'  => $email_recipients[1] ?? [],
 									'content_len'      => is_string($status_email['content']) ? strlen($status_email['content']) : gettype($status_email['content']),
-									'content_preview'  => is_string($status_email['content']) ? mb_substr(trim(strip_tags($status_email['content'])), 0, 300) : '',
+									'content_preview'  => is_string($status_email['content']) ? mb_substr(trim(wp_strip_all_tags($status_email['content'])), 0, 300) : '',
 								]);
 								$this->send_email_Emsfb_( $email_recipients,$payment_track_id ,$is_pro,$state_of_email,$url,$status_email['content'],$status_email['subject'] );
 							}
@@ -6829,7 +6832,7 @@ public function check_nonce_permission_efb($request) {
 		if (is_array($this->efb_request_query_efb)) {
 			$env['query'] = $this->efb_request_query_efb;
 		} elseif (is_string($referer) && $referer !== '') {
-			$query_string = (string) parse_url($referer, PHP_URL_QUERY);
+			$query_string = (string) wp_parse_url($referer, PHP_URL_QUERY);
 			if ($query_string !== '') parse_str($query_string, $env['query']);
 		}
 		if (function_exists('is_user_logged_in') && is_user_logged_in()) {
@@ -7395,7 +7398,7 @@ public function check_nonce_permission_efb($request) {
 				'recipient' => $recipient,
 				'cc_bcc' => $copy_recipients,
 				'subject' => $subject,
-				'content_preview' => $content === 'null' ? '(default template)' : mb_substr(trim(strip_tags((string)$content)), 0, 200),
+				'content_preview' => $content === 'null' ? '(default template)' : mb_substr(trim(wp_strip_all_tags((string)$content)), 0, 200),
 			]);
 			$this->send_email_Emsfb_([$recipient, ''], $track_code, $is_pro, ['newMessage', 'newMessage', $type], $url, $content, $subject);
 			foreach ($copy_recipients as $copy_email) {
@@ -7672,7 +7675,7 @@ public function check_nonce_permission_efb($request) {
         'state' => $state,
         'subject' => $subject,
         'has_custom_content' => $content !== 'null',
-        'content_preview' => $content === 'null' ? '(state template)' : mb_substr(trim(strip_tags((string)$content)), 0, 200),
+        'content_preview' => $content === 'null' ? '(state template)' : mb_substr(trim(wp_strip_all_tags((string)$content)), 0, 200),
     ]);
     // The owner answers the visitor straight from their inbox.
     $reply_to = is_string($this->owner_reply_to_efb) ? $this->owner_reply_to_efb : '';
@@ -9034,7 +9037,7 @@ public function check_nonce_permission_efb($request) {
 								if (count($v) == 3 && checkdate($v[1], $v[2], $v[0])) {
 									$is_valid = 1;
 									$validated_item = $item;
-									$current_date = date('Y-m-d');
+									$current_date = wp_date('Y-m-d'); // the site's today (Formbuilder's min date says the same)
 									if (isset($f['milen']) && $f['milen'] != '') {
 										$f['milen'] = intval($f['milen']) == 1 ? $current_date : $f['milen'];
 										if ($f['milen'] != '' && (strtotime($f['milen']) > strtotime($item['value']) || strtotime($f['milen']) > strtotime($item['value']))) {
@@ -10196,7 +10199,7 @@ public function check_nonce_permission_efb($request) {
 	 */
 	private function is_same_site_url_efb($url) {
 		if (!is_string($url) || $url === '' || preg_match('/[\x00-\x20\\\\]/', $url)) return false;
-		$parts = function_exists('wp_parse_url') ? wp_parse_url($url) : parse_url($url);
+		$parts = wp_parse_url($url);
 		if (!is_array($parts) || empty($parts['host']) || empty($parts['scheme'])) return false;
 		$scheme = strtolower($parts['scheme']);
 		if ($scheme !== 'http' && $scheme !== 'https') return false;
@@ -10227,7 +10230,7 @@ public function check_nonce_permission_efb($request) {
 		};
 		if (isset($_SERVER['HTTP_HOST'])) $add(sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])));
 		if (function_exists('home_url')) {
-			$home = function_exists('wp_parse_url') ? wp_parse_url(home_url()) : parse_url(home_url());
+			$home = wp_parse_url(home_url());
 			if (is_array($home) && !empty($home['host'])) {
 				$add($home['host'] . (isset($home['port']) ? ':' . $home['port'] : ''));
 			}
@@ -10801,7 +10804,9 @@ public function check_nonce_permission_efb($request) {
 			'v_efb'=>EMSFB_PLUGIN_VERSION,
 
 			'images' => $img,
-			'zone_area'=>CDN_ZONE_AREA,
+			'zone_area'=>self::geo_base_url_efb(), // SEC-02: the bundled lists when the release has them
+			// SEC-02: the response box font for the response viewer's own redraw ('' = none or not bundled).
+			'resp_font_css' => (($lf_efb = self::local_font_css_efb($pub_settings['respFontFamily'] ?? '')) ? $lf_efb[0] . '?ver=' . $lf_efb[1] : ''),
 			'root_url'=>home_url('/'),
 			'rest_url'=>get_rest_url(null),
 			'page_id'=> $page_id,
@@ -11141,7 +11146,7 @@ public function check_nonce_permission_efb($request) {
 				'rows_in'     => is_array($valobj) ? count($valobj) : gettype($valobj),
 				'msg_type'    => $msg_type,
 				'content_len' => is_string($msg_content) ? strlen($msg_content) : gettype($msg_content),
-				'content_text'=> is_string($msg_content) && $msg_content !== 'null' ? mb_substr(trim(strip_tags($msg_content)), 0, 300) : '',
+				'content_text'=> is_string($msg_content) && $msg_content !== 'null' ? mb_substr(trim(wp_strip_all_tags($msg_content)), 0, 300) : '',
 			]);
 			return ['subject'=>$msg_sub,'content'=>$msg_content,'type'=>$msg_type,'visitor_type'=>$visitor_type];
 	}
@@ -11649,13 +11654,11 @@ public function check_nonce_permission_efb($request) {
 		}
 
 		$table_name = $wpdb->prefix . 'emsfb_msg_';
-		$query = $wpdb->prepare(
-			// F14: spam and trash do not count in the results.
-			"SELECT content FROM $table_name WHERE form_id = %d" . (class_exists('\\Emsfb\\Entries') ? \Emsfb\Entries::active_sql() : ''),
-			$form_id
-		);
+		// F14: spam and trash do not count in the results. The table is $wpdb->prefix's; active_sql() is a fixed clause.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$query = $wpdb->prepare("SELECT content FROM $table_name WHERE form_id = %d" . (class_exists('\\Emsfb\\Entries') ? \Emsfb\Entries::active_sql() : ''), $form_id);
 
-		$messages = $wpdb->get_results($query);
+		$messages = $wpdb->get_results($query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- prepared just above
 
 		if ($wpdb->last_error) {
 		}

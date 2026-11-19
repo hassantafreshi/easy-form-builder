@@ -237,7 +237,10 @@ function loadChartJS(callback) {
     return;
   }
   const script = document.createElement('script');
-  script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+  /* SEC-02: the plugin's copy of Chart.js (bundled by the release build); the pinned CDN file only on a copy of the
+     plugin without it (a development checkout). */
+  const local = typeof efbPollChart === 'object' && efbPollChart && typeof efbPollChart.chartjs === 'string' ? efbPollChart.chartjs : '';
+  script.src = local || 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
   script.onload = callback;
   document.head.appendChild(script);
 }

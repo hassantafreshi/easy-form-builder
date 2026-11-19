@@ -380,10 +380,11 @@ class EmsfbEmailHandler {
 
         $errno = 0;
         $errstr = '';
-        $connection = @fsockopen($smtp_host, $smtp_port, $errno, $errstr, 0.5);
+        // A half-second socket probe of php.ini's SMTP host before mail(), not a file: WP_Filesystem does not apply.
+        $connection = @fsockopen($smtp_host, $smtp_port, $errno, $errstr, 0.5); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fsockopen
         if (is_resource($connection)) {
             if (emsfb_is_php_function_available_efb('fclose')) {
-                fclose($connection);
+                fclose($connection); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- the probe's socket
             }
             return '';
         }
@@ -1184,7 +1185,7 @@ class EmsfbEmailHandler {
 
         // Before 4.3.2 the log was wp-content/efb-email-debug.log, readable by anyone: removed on the next debug write.
         if (defined('WP_CONTENT_DIR') && file_exists(WP_CONTENT_DIR . '/efb-email-debug.log')) {
-            function_exists('wp_delete_file') ? wp_delete_file(WP_CONTENT_DIR . '/efb-email-debug.log') : @unlink(WP_CONTENT_DIR . '/efb-email-debug.log');
+            wp_delete_file(WP_CONTENT_DIR . '/efb-email-debug.log');
         }
         $log_file = self::email_debug_log_file();
         $state = is_scalar($state) ? (string) $state : wp_json_encode($state);

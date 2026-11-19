@@ -836,25 +836,22 @@ function efb_apply_resp_colors() {
 
   const fontFamilyVal = s.respFontFamily || '';
   if (fontFamilyVal && fontFamilyVal !== 'inherit' && !customFontRaw) {
-    const builtinFontCssMap = {
-      "Vazirmatn, Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap",
-      "Vazir, Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@latest/dist/font-face.css",
-      "Sahel, Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@latest/dist/font-face.css",
-      "Samim, Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/samim-font@latest/dist/font-face.css",
-      "'Shabnam', Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/shabnam-font@latest/dist/font-face.css",
-      "Parastoo, Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/parastoo-font@latest/dist/font-face.css",
-      "Gandom, Tahoma, sans-serif": "https://cdn.jsdelivr.net/gh/rastikerdar/gandom-font@latest/dist/font-face.css",
-      "Lalezar, Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Lalezar&display=swap",
-      "Cairo, Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap",
-      "Tajawal, Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap",
-      "'Noto Sans Arabic', Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100..900&display=swap",
-      "'IBM Plex Sans Arabic', Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap",
-      "Amiri, Tahoma, serif": "https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap",
-      "'Noto Kufi Arabic', Tahoma, sans-serif": "https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100..900&display=swap",
-      "'Inter', sans-serif": "https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap",
-      "'Roboto', sans-serif": "https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap",
-      "'Open Sans', sans-serif": "https://fonts.googleapis.com/css2?family=Open+Sans:wght@300..800&display=swap",
+    /* SEC-02 (owner decision 9): the fonts are the plugin's own files (public/assets/fonts, bundled by the release
+       build), never Google Fonts or jsDelivr. A form page gets the address from the server (resp_font_css: '' when the
+       font is not bundled); an admin screen asks for the bundled file by its folder. */
+    const builtinFontDirs = {
+      "Vazirmatn, Tahoma, sans-serif": 'vazirmatn', "Vazir, Tahoma, sans-serif": 'vazir', "Sahel, Tahoma, sans-serif": 'sahel',
+      "Samim, Tahoma, sans-serif": 'samim', "'Shabnam', Tahoma, sans-serif": 'shabnam', "Parastoo, Tahoma, sans-serif": 'parastoo',
+      "Gandom, Tahoma, sans-serif": 'gandom', "Lalezar, Tahoma, sans-serif": 'lalezar', "Cairo, Tahoma, sans-serif": 'cairo',
+      "Tajawal, Tahoma, sans-serif": 'tajawal', "'Noto Sans Arabic', Tahoma, sans-serif": 'noto-sans-arabic',
+      "'IBM Plex Sans Arabic', Tahoma, sans-serif": 'ibm-plex-sans-arabic', "Amiri, Tahoma, serif": 'amiri',
+      "'Noto Kufi Arabic', Tahoma, sans-serif": 'noto-kufi-arabic', "'Inter', sans-serif": 'inter', "'Roboto', sans-serif": 'roboto',
+      "'Open Sans', sans-serif": 'open-sans',
     };
+    const pluginUrl = (efb_var.images && efb_var.images.plugin_url) || efb_var.plugin_url || '';
+    const builtinFontCssMap = {};
+    if (typeof efb_var.resp_font_css === 'string') builtinFontCssMap[fontFamilyVal] = efb_var.resp_font_css;
+    else if (builtinFontDirs[fontFamilyVal] && pluginUrl) builtinFontCssMap[fontFamilyVal] = String(pluginUrl).replace(/\/?$/, '/') + 'public/assets/fonts/' + builtinFontDirs[fontFamilyVal] + '/font.css';
     const builtinUrl = builtinFontCssMap[fontFamilyVal];
     if (builtinUrl) {
       let bLink = document.getElementById('efbBuiltinFontLink');
@@ -1364,30 +1361,6 @@ function checkBrowserSupport_efb() {
   };
 }
 
-function checkGoogleFontsAccess_efb(callback) {
-  var testLink = document.createElement('link');
-  testLink.rel = 'stylesheet';
-  testLink.href = 'https://fonts.googleapis.com/css2?family=Open+Sans&display=swap';
-  testLink.style.position = 'absolute';
-  testLink.style.left = '-9999px';
-
-  var timeoutId = setTimeout(function() {
-    callback(false);
-  }, 3000);
-
-  testLink.onload = function() {
-    clearTimeout(timeoutId);
-    callback(true);
-  };
-
-  testLink.onerror = function() {
-    clearTimeout(timeoutId);
-    callback(false);
-  };
-
-  document.head.appendChild(testLink);
-}
-
 function getFallbackFont_efb(locale) {
   var fallbackFonts = {
     'am': 'serif',
@@ -1513,9 +1486,7 @@ function generatePDF_EFB(id, opts)
   }
 
   function buildPrintCSS_efb(useGoogleFonts, fontName, fallbackFont) {
-    var googleFontLink = useGoogleFonts
-      ? '<link href="https://fonts.googleapis.com/css2?family=' + fontName.replace(/ /g, '+') + ':wght@400;600;700&display=swap" rel="stylesheet">'
-      : '';
+    var googleFontLink = '';
     var fontFamily = useGoogleFonts
       ? "'" + fontName + "', " + fallbackFont
       : fallbackFont;
@@ -1751,10 +1722,9 @@ function generatePDF_EFB(id, opts)
     }
   }
 
-  checkGoogleFontsAccess_efb(function(hasGoogleFontsAccess) {
-    var content = generatePDFContent_efb(hasGoogleFontsAccess);
-    openPrintWindow_efb(content);
-  });
+  /* SEC-02: the PDF is printed with the fonts of the visitor's own system (the locale's fallback stack); no request to
+     Google Fonts (it used to load one, after a test request, on every PDF). */
+  openPrintWindow_efb(generatePDFContent_efb(false));
 }
 
 /* ---- Download dropdown – portal pattern, appended to <body>, position:fixed ---- */

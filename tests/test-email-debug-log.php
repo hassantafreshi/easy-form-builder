@@ -57,7 +57,7 @@ t('debug.log does not print the server path of the log', strpos($dl, $tmp) === f
 /* The send result lines (log_email_success / log_email_failure) mask the recipients too. */
 $src = file_get_contents(__DIR__ . '/../includes/class-email-handler.php');
 t('the result lines mask the recipients and drop the subject', substr_count($src, "'to' => self::mask_email_addresses(\$to),") === 2 && strpos($src, "'subject' => self::safe_substr((string)\$subject, 0, 120)") === false);
-t("no write under WP_CONTENT_DIR remains (only the old file's removal)", preg_match_all("/WP_CONTENT_DIR \. '\/efb-email-debug\.log'/", $src) === 3 && strpos($src, "\$log_file = WP_CONTENT_DIR") === false);
+t("no write under WP_CONTENT_DIR remains (only the old file's removal)", preg_match_all("/WP_CONTENT_DIR \. '\/efb-email-debug\.log'/", $src) === 2 && strpos($src, "\$log_file = WP_CONTENT_DIR") === false);
 t('mask_email_addresses() keeps the domain', EmsfbEmailHandler::mask_email_addresses('a.b@x.io, c@y.io') === 'a***@x.io, c***@y.io');
 
 /* Without EMSFB_EMAIL_DEBUG nothing is written: the switch is checked first (source). */
