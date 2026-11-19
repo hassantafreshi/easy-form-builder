@@ -32,6 +32,7 @@
  *   purge <msg id> [anon]      F13's delete (or anonymize) of one entry
  *   tpl clear|restore          the site's own e-mail template put aside / back (core's default template meanwhile)
  *   limits <json>              lower portal limits for a test ({scope: n}; '' = none)
+ *   caps                       the registry's capabilities.portal_core, and whether AdnPRT is anywhere in the add-on registry
  *   raw-content <msg id> <json rows>  an entry's answers replaced (stored as the plugin stores them; no hook)
  */
 if ( ! defined( 'ABSPATH' ) ) {
@@ -202,6 +203,11 @@ switch ( $f20_cmd ) {
 		break;
 	case 'raw-content':
 		efb_f20_out( array( 'updated' => $wpdb->update( $wpdb->prefix . 'emsfb_msg_', array( 'content' => \Emsfb\Privacy::encode_content( (array) json_decode( (string) $f20_rest[1], true ) ) ), array( 'msg_id' => (int) $f20_rest[0] ) ) ) );
+		break;
+	case 'caps':
+		$all = \Emsfb\Builder_Api::capabilities();
+		efb_f20_out( array( 'portal_core' => isset( $all['portal_core'] ) ? $all['portal_core'] : null, 'addon_feature' => isset( $all['features']['addon:AdnPRT'] ), 'catalog' => null !== \Emsfb\Addon_Catalog::get( 'AdnPRT' ),
+			'split_addon' => isset( $all['split']['addons']['AdnPRT'] ), 'plan' => \Emsfb\Builder_Api::plan() ) );
 		break;
 	case 'limits':
 		$l = json_decode( isset( $f20_rest[0] ) ? (string) $f20_rest[0] : '', true );

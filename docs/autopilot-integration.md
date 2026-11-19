@@ -2055,7 +2055,7 @@ never a hand-kept list.
 | `mask_preset` = one of the 18 postal presets (`ir.postal_code`, `us.zip`, `uk.postcode`, …) | `AdnADR` | every plan | free |
 | `setting:smart_geo`: `{geo:country}`, `{geo:country_name}`, hidden-field "Visitor country" preset, `geo_on`, `geo_notice` | `AdnGEO` Visitor Country | **Free Plus and Pro** (owner) | the site admin enters their own ipinfo.io or ip-api.com key |
 | `setting:advdate_availability` (`availability`, `bk_*`), the older booking form (`booking`, option `dateExp`) | `AdnBEF` Booking | Pro | editing and the template; availability is a later task (SPLIT §19) |
-| "My submissions", cancel / reschedule (F20) | `AdnPRT` Customer Portal (registered by F20 through `efb_addon_catalog` when it is built; not in the catalogue before) | Pro | — |
+| "My submissions", cancel / reschedule (F20) | the separate, free plugin EFB Customer Portal (`efb-customer-portal`; not an add-on, no catalogue entry; `capabilities.portal_core.plugin`) | every plan | — |
 | `field:stripe`, `field:paypal`, `field:persiaPay` | `AdnSPF`, `AdnPAP`, `AdnPPF` | Free Plus, Free Plus, Pro | — |
 | `field:<slug>` of the PAY00 gateways | `AdnMOL` … `AdnXND` | Free Plus | — |
 | Form export / import screens, bulk, preview, Contact Form 7 and other importers | the separate free plugin *Easy Form Builder Data Tools* | free | — |
@@ -2146,14 +2146,18 @@ Owner rule: payment gateways are always add-ons. What an integration reads and d
 - Tests: `tests/test-payout-*.php|js`, `tests/test-payout-migrate-http.php`, `tests/test-payout-mixed-http.php`, e2e
   `payout`, `payout-mixed`, `payout-shots`.
 
-## F20-core: the customer portal's core contract (2026-11-18)
+## F20-core: the customer portal's core contract (2026-11-18; 1.1 on 2026-11-19)
 
-The customer portal is a Pro add-on (`AdnPRT`, not built yet); core keeps its contract, version 1
-(`EMSFB_PORTAL_API`, `efb_portal_core_api()`, the add-on contract `portal`; docs/portal/portal-core-contract.en.md).
+The customer portal is **EFB Customer Portal**, a separate, free plugin (slug `efb-customer-portal`), not an add-on;
+core keeps its contract, version 1.x (`EMSFB_PORTAL_API`, `EMSFB_PORTAL_API_MINOR`, `efb_portal_core_api()`, the add-on
+contract `portal`; docs/portal/portal-core-contract.en.md, §10 for the minor versions). It works on every plan.
 
-- **Registry.** `capabilities.portal_core`: `{version: 1, features, addon: 'AdnPRT', package: 'pro', ready, reason:
-  null | 'plan' | 'addon' | 'index', index: off | building | ready | stale, never}`. `ready` stays **false** until the
-  portal add-on is on (on a Pro site, with the owner index built). `addon:AdnPRT` is in the add-on catalogue (Pro).
+- **Registry.** `capabilities.portal_core`: `{version: 1, minor, contract: '1.x', features, plugin: {slug:
+  'efb-customer-portal', file, name, installed, active, version, plan: 'free'}, plans: ['free', 'free_plus', 'pro'],
+  ready, reason: null | 'plugin' | 'plan' | 'index', index: off | building | ready | stale, never}`. `ready` stays
+  **false** until the plugin is on (with the owner index built). `reason: 'plugin'`: suggest installing the free
+  plugin (never "upgrade to Pro"); `plan` only when the site itself switched the contract off (`efb_portal_plan_ok`).
+  There is no `addon:AdnPRT` (the add-on catalogue has no portal entry since 1.1).
 - **Entries API.** `efb_api_entries_query` / `efb_api_entry_get` rows gain `ticket` (`open` | `closed`) and
   `owner_state` (`none` | `cancelled`). The owner index and its hashes are never in an answer.
 - **Not for assistants.** An assistant may link to the portal page only. It never asks for, enters or reads a sign-in
@@ -2162,7 +2166,8 @@ The customer portal is a Pro add-on (`AdnPRT`, not built yet); core keeps its co
   `efb_verify_*` for sign-in.
 - **Settings.** The portal's settings will be the add-on's key of the settings row (the F12b-L rule), outside the form
   JSON; core reads a form's policy from the add-on (`efb_portal_form_policy`).
-- **Tests.** `php tests/test-portal-core-contract.php` (20), `php tests/test-portal-core-http.php` (84, a mock add-on),
+- **Tests.** `php tests/test-portal-core-contract.php`, `php tests/test-portal-core-http.php` (84, a mock portal),
+  `php tests/test-portal-core-v1x-http.php` (the minor versions),
   `php tests/test-owner-cancel-http.php`, `php tests/test-owner-index-wp.php`; e2e `f20-a` … `f20-c`.
 
 

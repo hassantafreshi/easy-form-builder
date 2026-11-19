@@ -3,9 +3,10 @@
  * F20-core C1 (P1, P2, P3, P18) and the pure parts of P5 / P6 / P9, without WordPress (functions stubbed):
  *  - the contract: EMSFB_PORTAL_API 1, efb_portal_core_api() and every function of spec §5.1 defined, the English
  *    contract document names each function, filter and refusal code; the add-on contract "portal" in
- *    efb_addon_contract_versions(); AdnPRT in the add-on catalogue (Pro, loader routes, contract portal);
+ *    efb_addon_contract_versions(); contract 1.1: no AdnPRT in the add-on catalogue (the portal is the free plugin
+ *    EFB Customer Portal), every plan, capabilities.portal_core describes the plugin;
  *    Install::addon_table() public; the cache filter emsfb_cache_shortcodes; efb_entry_stored in insert_message_db();
- *  - inert: Portal_Core::active() is false without efb_portal_active, and on a site below Pro;
+ *  - inert: Portal_Core::active() is false without efb_portal_active; on (contract 1.1) on Free, Free Plus and Pro;
  *  - the policy: core's defaults keep every action off; values are clamped, unknown keys dropped;
  *  - the owner hash: the same person (capitals, Persian / Arabic digits, spaces, 00 for +) gets the same hash; the
  *    owners of an entry follow the identifying field, mobile numbers and tel only with + / 00; a text answer that
@@ -50,7 +51,9 @@ t('the refusal codes of spec §5.1 are all there (plus invalid, conflict, addon_
 $v = efb_addon_contract_versions();
 t('the add-on contract "portal" version 1 (core side present)', array($v['portal']['version'] ?? null, $v['portal']['core'] ?? null), array(1, true));
 $cat = file_get_contents($root . '/includes/class-Emsfb-addon-catalog.php');
-t('AdnPRT in the add-on catalogue: Pro (package 1), folder portal, contract portal, loader routes', (bool) preg_match("/'AdnPRT' => array\('dir' => 'portal', 'name' => 'Customer Portal', 'package' => 1, 'contract' => 'portal', 'files' => array\('vendor\/portal\/routes-efb.php'\).*'loader' => 'routes'\)/", $cat), true);
+t('1.1: AdnPRT is no longer in the add-on catalogue (the portal is the free plugin EFB Customer Portal, no plan gate)', strpos($cat, "'AdnPRT' =>"), false);
+$api = efb_portal_core_api();
+t('1.1: efb_portal_core_api(): version 1 (v1 callers keep working), a minor version, the contract "1.x", v1.0\'s features first', array($api['version'], is_int($api['minor']) && $api['minor'] >= 1, $api['contract'] === '1.' . $api['minor'], array_slice($api['features'], 0, 13) === P::FEATURES, in_array('any_plan', $api['features'], true)), array(1, true, true, true, true));
 $inst = file_get_contents($root . '/includes/class-Emsfb-install.php');
 t('P3: Install::addon_table($sql) is public; DB 1.12 adds the owner table, owner_state and KEY uid', array((bool) preg_match('/public static function addon_table\( \$sql \)/', $inst), strpos($inst, 'upgrade_f20_schema()') !== false, strpos(file_get_contents($root . '/emsfb.php'), "define(\"EMSFB_DB_VERSION\", '1.12')") !== false), array(true, true, true));
 $cc = file_get_contents($root . '/includes/class-Emsfb-cache-compat.php');
@@ -59,11 +62,17 @@ $pub = file_get_contents($root . '/includes/class-Emsfb-public.php');
 t('P4: efb_entry_stored once in insert_message_db(), after the insert succeeded (the not-stored path has none)', array(substr_count($pub, "do_action('efb_entry_stored'"), strpos($pub, "do_action('efb_entry_stored'") > strpos($pub, '$new_msg_id_efb = isset($this->db->insert_id)')), array(1, true));
 t('the public class stays under 1,000,000 bytes (F20-core lives in new files)', filesize($root . '/includes/class-Emsfb-public.php') < 1000000, true);
 
-echo "--- inert ---\n";
-t('without the add-on: not active', P::active(), false);
+echo "--- inert, every plan ---\n";
+t('without the plugin: not active', P::active(), false);
+$cap = P::capabilities(array());
+t('capabilities without the plugin: not ready, reason "plugin"; the block names no add-on and no package', array($cap['portal_core']['ready'], $cap['portal_core']['reason'], isset($cap['portal_core']['addon']), isset($cap['portal_core']['package'])), array(false, 'plugin', false, false));
+t('capabilities.portal_core.plugin: the free plugin efb-customer-portal (slug, file, not installed here), every plan', array($cap['portal_core']['plugin']['slug'], $cap['portal_core']['plugin']['file'], $cap['portal_core']['plugin']['installed'], $cap['portal_core']['plugin']['active'], $cap['portal_core']['plugin']['plan'], $cap['portal_core']['plans'], $cap['portal_core']['contract']), array('efb-customer-portal', 'efb-customer-portal/efb-customer-portal.php', false, false, 'free', array('free', 'free_plus', 'pro'), '1.' . P::API_MINOR));
 add_filter('efb_portal_active', function () { return true; });
 $GLOBALS['PLAN'] = false;
-t('the add-on on but the site below Pro: not active', P::active(), false);
+t('1.1: the plugin on and the site on Free (below Pro): plan_ok (the contract answers on every plan)', P::plan_ok(), true);
+add_filter('efb_portal_plan_ok', function ($ok) { return false; });
+t('… a site may still switch it off with efb_portal_plan_ok: then not active, reason "plan"', array(P::active(), P::capabilities(array())['portal_core']['reason']), array(false, 'plan'));
+unset($GLOBALS['F']['efb_portal_plan_ok']);
 $GLOBALS['PLAN'] = true;
 
 echo "--- the policy ---\n";

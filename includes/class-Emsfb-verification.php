@@ -586,11 +586,12 @@ class Verification {
 	/**
 	 * Whether a channel can deliver now: array('ready' => bool, 'reason' => '' | 'plan' | 'no_provider'
 	 * (the SMS add-on is off: nothing registered a sender) | 'sender_not_ready' (WP SMS is not installed
-	 * or not active) | 'no_countries' | 'email_off'). Never names a provider to visitors.
+	 * or not active) | 'no_countries' | 'email_off'). Never names a provider to visitors. $plan false leaves out F02's
+	 * plan of a form's code (the customer portal's sign-in codes answer on every plan: portal contract 1.1).
 	 */
-	public static function channel_state($channel) {
+	public static function channel_state($channel, $plan = true) {
 		if (!in_array($channel, self::CHANNELS, true)) return array('ready' => false, 'reason' => 'channel');
-		if (!self::plan_ok($channel)) return array('ready' => false, 'reason' => 'plan');
+		if ($plan && !self::plan_ok($channel)) return array('ready' => false, 'reason' => 'plan');
 		if ($channel === 'email') {
 			$st = function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null;
 			$on = function_exists('emsfb_is_email_sending_enabled_efb') ? (bool) emsfb_is_email_sending_enabled_efb($st) : true;

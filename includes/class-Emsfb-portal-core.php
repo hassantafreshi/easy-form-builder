@@ -1,10 +1,10 @@
 <?php
 /**
  * F20-core (docs/feature-gaps/F20-customer-portal.fa.md §5, part one C1–C6; the contract an add-on builds on:
- * docs/portal/portal-core-contract.en.md). The customer portal itself is the Pro add-on AdnPRT; core only answers it,
- * and stays inert without it: every entry point refuses with efb_portal_unavailable until the add-on says it is on
- * (filter efb_portal_active) on a Pro site, and a form is in the portal only when the add-on's policy says so
- * (filter efb_portal_form_policy, default off).
+ * docs/portal/portal-core-contract.en.md). The customer portal itself is the separate, free plugin EFB Customer Portal
+ * (efb-customer-portal); core only answers it, on every plan, and stays inert without it: every entry point refuses
+ * with efb_portal_unavailable until the plugin says it is on (filter efb_portal_active), and a form is in the portal
+ * only when the plugin's policy says so (filter efb_portal_form_policy, default off).
  *
  *  - P7 sign-in codes without a form (emsfb_vrfy_ with fid 0, field_id 'portal', sid = the add-on's pre-session id):
  *    F02's limits, budget, locks, Human Shield, the site's CAPTCHA when asked (Spam::verify_captcha(…, 'portal_signin'),
@@ -30,7 +30,14 @@ if (!defined('ABSPATH')) {
 class Portal_Core {
 
 	const API = 1;
+	/** The contract's minor version (docs/portal/portal-core-contract.en.md "Versions"): 1.1 every plan. */
+	const API_MINOR = 1;
 	const FEATURES = array('index', 'otp', 'read', 'thread', 'reply', 'ticket', 'payments', 'files', 'cancel', 'reschedule', 'edit', 'drafts', 'privacy');
+	/** Features added by the minor versions (efb_portal_core_api()['features'] lists them after v1.0's). */
+	const FEATURES_MINOR = array('any_plan');
+	/** The plugin that uses this contract (a separate, free plugin; not an add-on). */
+	const PLUGIN_SLUG = 'efb-customer-portal';
+	const PLUGIN_FILE = 'efb-customer-portal/efb-customer-portal.php';
 	const ERRORS = array('efb_portal_not_found' => 404, 'efb_portal_forbidden' => 403, 'efb_portal_rate_limited' => 429, 'efb_portal_window_closed' => 403,
 		'efb_portal_capacity' => 409, 'efb_portal_paid_locked' => 403, 'efb_portal_closed' => 403, 'efb_portal_unavailable' => 503, 'efb_portal_invalid' => 400,
 		'efb_portal_conflict' => 409, 'addon_required' => 409);
@@ -48,29 +55,52 @@ class Portal_Core {
 		add_filter('efb_capabilities', array(__CLASS__, 'capabilities'), 40, 2);
 	}
 
-	/** AutoPilot / SitePilot: capabilities.portal_core (the contract; ready only while the portal add-on is on). */
+	/**
+	 * AutoPilot / SitePilot: capabilities.portal_core — the contract and the plugin that uses it. The customer portal is
+	 * the separate, free plugin "EFB Customer Portal" (slug efb-customer-portal), not an add-on, and the contract works on
+	 * every plan: {version, minor, contract, features, plugin: {slug, file, name, installed, active, version}, plans,
+	 * ready, reason: null | 'plugin' (not installed or not active) | 'plan' (a site's own efb_portal_plan_ok) | 'index', index, never}.
+	 */
 	public static function capabilities($out, $args = array()) {
 		if (!is_array($out)) return $out;
 		$on = function_exists('apply_filters') && apply_filters('efb_portal_active', false) === true;
-		$pro = self::plan_ok();
-		$out['portal_core'] = array('version' => self::API, 'features' => self::FEATURES, 'addon' => 'AdnPRT', 'package' => 'pro', 'ready' => self::active(),
-			'reason' => self::active() ? null : (!$pro ? 'plan' : (!$on ? 'addon' : 'index')), 'index' => Owner_Index::state()['state'],
+		$plugin = self::plugin_state();
+		$ready = self::active();
+		$out['portal_core'] = array('version' => self::API, 'minor' => self::API_MINOR, 'contract' => self::API . '.' . self::API_MINOR, 'features' => self::features(),
+			'plugin' => $plugin, 'plans' => array('free', 'free_plus', 'pro'), 'ready' => $ready,
+			'reason' => $ready ? null : (!$on ? 'plugin' : (!self::plan_ok() ? 'plan' : 'index')), 'index' => Owner_Index::state()['state'],
 			'never' => 'an assistant links to the portal page only; it never asks for or enters a sign-in code and never reads an owner\'s entries');
 		return $out;
 	}
 
+	/** The plugin that uses this contract (EFB Customer Portal): where it is and whether it is installed and active. */
+	public static function plugin_state() {
+		$dir = defined('WP_PLUGIN_DIR') ? WP_PLUGIN_DIR : '';
+		$installed = $dir !== '' && is_readable($dir . '/' . self::PLUGIN_FILE);
+		$active = defined('EFBCP_VERSION') || (function_exists('is_plugin_active') && is_plugin_active(self::PLUGIN_FILE));
+		return array('slug' => self::PLUGIN_SLUG, 'file' => self::PLUGIN_FILE, 'name' => 'EFB Customer Portal', 'installed' => $installed || $active, 'active' => $active,
+			'version' => defined('EFBCP_VERSION') ? (string) EFBCP_VERSION : null, 'plan' => 'free');
+	}
+
+	/** The features of this contract version (v1.0's list, then each minor version's). */
+	public static function features() {
+		return array_values(array_merge(self::FEATURES, self::FEATURES_MINOR));
+	}
+
 	/* ================================================================ guard, policy, errors */
 
-	/** Whether the portal add-on is on (it answers true on efb_portal_active) on a Pro site with the tables. */
+	/** Whether the portal plugin is on (it answers true on efb_portal_active) and the owner index's table is there. */
 	public static function active() {
 		$on = function_exists('apply_filters') && apply_filters('efb_portal_active', false) === true;
 		return $on && self::plan_ok() && Owner_Index::ready();
 	}
 
-	/** Pro (§9; filter efb_portal_plan_ok, as efb_verify_plan for F02's codes). */
+	/**
+	 * Every plan (contract 1.1: the customer portal is a free plugin, so the contract answers on Free, Free Plus and
+	 * Pro). The filter efb_portal_plan_ok stays: a site may still switch the contract off with it.
+	 */
 	public static function plan_ok() {
-		$ok = !function_exists('efb_plan_at_least_efb') || efb_plan_at_least_efb('pro');
-		return (bool) (function_exists('apply_filters') ? apply_filters('efb_portal_plan_ok', $ok) : $ok);
+		return (bool) (function_exists('apply_filters') ? apply_filters('efb_portal_plan_ok', true) : true);
 	}
 
 	public static function err($code, $msg = '', array $data = array()) {
@@ -135,7 +165,7 @@ class Portal_Core {
 			$c = Spam::verify_captcha(is_string($ctx['captcha']) ? $ctx['captcha'] : '', 'portal_signin');
 			if (empty($c['ok'])) return new \WP_Error('efb_captcha_' . ($c['code'] !== '' ? $c['code'] : 'failed'), Spam::captcha_message($c['code'], array()), array('status' => 422));
 		}
-		$st = Verification::channel_state($channel);
+		$st = Verification::channel_state($channel, false); // every plan (1.1); SMS only through the WP SMS bridge
 		if (!$st['ready']) return new \WP_Error('efb_verify_unavailable', Verification::t('vrfUnavailable'), array('status' => 503));
 		$s = Verification::settings();
 		$cs = $s[$channel];

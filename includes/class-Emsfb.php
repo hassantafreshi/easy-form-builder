@@ -554,7 +554,7 @@ class Emsfb {
         }
 
         // F20-core: the customer portal contract (the owner index, sign-in codes without a form, the owner's reads and
-        // writes). Inert without the portal add-on (AdnPRT): docs/portal/portal-core-contract.en.md.
+        // writes). Inert without the EFB Customer Portal plugin (every plan): docs/portal/portal-core-contract.en.md.
         if ($this->require_plugin_file_efb('includes/class-Emsfb-owner-index.php') && $this->require_plugin_file_efb('includes/class-Emsfb-portal-core.php')) {
             \Emsfb\Owner_Index::register();
             \Emsfb\Portal_Core::register();

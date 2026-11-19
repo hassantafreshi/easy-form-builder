@@ -45,7 +45,7 @@ if (!function_exists('efb_addon_contract_versions')) {
 			'captcha'         => array('version' => 1, 'min' => 1, 'core' => function_exists('efb_captcha_api')),
 			// F12b: an add-on CAPTCHA provider (Emsfb\Captcha\Provider::API); core keeps Google itself.
 			'captcha_provider' => array('version' => 2, 'min' => 2, 'core' => false),
-			// F20-core: the customer portal (EMSFB_PORTAL_API, efb_portal_core_api()); the add-on AdnPRT builds on it.
+			// F20-core: the customer portal (EMSFB_PORTAL_API, efb_portal_core_api()); the free plugin EFB Customer Portal builds on it.
 			'portal'          => array('version' => defined('EMSFB_PORTAL_API') ? (int) EMSFB_PORTAL_API : 1, 'min' => 1, 'core' => function_exists('efb_portal_core_api')),
 		);
 	}

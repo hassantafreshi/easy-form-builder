@@ -3,7 +3,7 @@
  * SPLIT §4.4: one table of every add-on core knows (code, folder, name, plan, contract, the files that prove it
  * is installed). get_all_addon_keys_efb(), addon_required_package_efb(), get_addon_required_files_efb(),
  * Emsfb_Addon_Compatibility::addon_requirements() and the builder's JS mirror (efb_var.addon_catalog) all read
- * it, so the five lists cannot drift. Filter efb_addon_catalog adds an entry (F20 AdnPRT, F12b CAPTCHA add-ons).
+ * it, so the five lists cannot drift. Filter efb_addon_catalog adds an entry (F12b CAPTCHA add-ons).
  *
  * Add-ons with loader "routes" (the SPLIT add-ons) are loaded here, the way Payments\Registry::load_addons()
  * loads the PAY00 gateways: vendor/<dir>/routes-efb.php of every add-on whose flag is on, that is compatible
@@ -70,8 +70,8 @@ class Addon_Catalog {
 		'AdnALT' => array('dir' => 'altcha', 'name' => 'ALTCHA', 'package' => 3, 'contract' => 'captcha_provider', 'files' => array('vendor/altcha/routes-efb.php'), 'i18n' => array('vendor/altcha/altcha-phrases-efb.php', 'vendor/altcha/languages/locales.json'), 'loader' => 'routes'),
 		'AdnQCP' => array('dir' => 'question-captcha', 'name' => 'Question CAPTCHA', 'package' => 3, 'contract' => 'captcha_provider', 'files' => array('vendor/question-captcha/routes-efb.php'), 'i18n' => array('vendor/question-captcha/question-captcha-phrases-efb.php', 'vendor/question-captcha/languages/locales.json'), 'loader' => 'routes'),
 		'AdnFRC' => array('dir' => 'friendly-captcha', 'name' => 'Friendly Captcha', 'package' => 3, 'contract' => 'captcha_provider', 'files' => array('vendor/friendly-captcha/routes-efb.php'), 'i18n' => array('vendor/friendly-captcha/friendly-captcha-phrases-efb.php', 'vendor/friendly-captcha/languages/locales.json'), 'loader' => 'routes'),
-		// F20: the customer portal (Pro; its core contract: includes/portal-core-functions-efb.php, contract portal 1).
-		'AdnPRT' => array('dir' => 'portal', 'name' => 'Customer Portal', 'package' => 1, 'contract' => 'portal', 'files' => array('vendor/portal/routes-efb.php'), 'i18n' => array('vendor/portal/portal-phrases-efb.php', 'vendor/portal/languages/locales.json'), 'loader' => 'routes'),
+		// F20: the customer portal is not an add-on: it is the separate, free plugin EFB Customer Portal (efb-customer-portal),
+		// on every plan (portal contract 1.1; capabilities.portal_core.plugin describes it). No catalogue entry, no plan gate.
 	);
 
 	/** Features that left core (capabilities.split.moved): registry key => add-on code. */

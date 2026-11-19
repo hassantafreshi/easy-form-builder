@@ -1,22 +1,27 @@
-# Customer portal — the core contract (F20-core, v1)
+# Customer portal — the core contract (F20-core, v1.1)
 
-F20 (`docs/feature-gaps/F20-customer-portal.fa.md`) is a Pro add-on, **AdnPRT** (folder `vendor/portal`, loaded by
-`Addon_Catalog::load()` through `vendor/portal/routes-efb.php`), that lets a visitor see and act on their own
-submissions without a WordPress account. This document is the contract core gives that add-on: **version 1**
-(`EMSFB_PORTAL_API = 1`, the add-on contract id `portal`). It is enough to build the add-on without reading core.
+The customer portal (F20, `docs/feature-gaps/F20-customer-portal.fa.md`) lets a visitor see and act on their own
+submissions without a WordPress account. It is **EFB Customer Portal**, a separate, free WordPress plugin (slug
+`efb-customer-portal`, file `efb-customer-portal/efb-customer-portal.php`; freemium: free to use, paid only for
+customisation) — not an Easy Form Builder add-on, so it has no add-on code, no catalogue entry and no plan gate. This
+document is the contract core gives that plugin: **version 1.1** (`EMSFB_PORTAL_API = 1`, `EMSFB_PORTAL_API_MINOR`,
+the add-on contract id `portal`). It works on **every plan** (Free, Free Plus, Pro). It is enough to build the plugin
+without reading core. §10 lists what each minor version adds; a 1.0 caller keeps working unchanged.
 
 Files: `includes/portal-core-functions-efb.php` (the functions), `includes/class-Emsfb-portal-core.php`
 (`Emsfb\Portal_Core`), `includes/class-Emsfb-owner-index.php` (`Emsfb\Owner_Index`), the schema step
 `Install::upgrade_f20_schema()` (DB version 1.12). Tests: `tests/test-portal-core-contract.php`,
-`tests/test-portal-core-http.php` (a mock add-on, `tests/e2e-wp/mu-plugins/efb-e2e-f20.php`, calls every function end
-to end), `tests/test-owner-cancel-http.php`, `tests/test-owner-index-wp.php`, e2e `f20-a` … `f20-c`.
+`tests/test-portal-core-http.php` (a mock portal, `tests/e2e-wp/mu-plugins/efb-e2e-f20.php`, calls every function end
+to end), `tests/test-portal-core-v1x-http.php` (the minor versions, §10), `tests/test-owner-cancel-http.php`,
+`tests/test-owner-index-wp.php`, e2e `f20-a` … `f20-c`.
 
 ## 1. Principles
 
-- **Inert without the add-on.** Core adds no page, no route, no screen and no shortcode. Every function answers
-  `efb_portal_unavailable` until the add-on returns `true` on the filter `efb_portal_active` (when it is on) and the
-  site is Pro (`efb_plan_at_least_efb('pro')`, filter `efb_portal_plan_ok`). The owner index writes nothing until
-  `efb_portal_reindex()` switches it on. Without the add-on a site pays nothing.
+- **Inert without the plugin.** Core adds no page, no route, no screen and no shortcode. Every function answers
+  `efb_portal_unavailable` until the plugin returns `true` on the filter `efb_portal_active` (when it is on). Every
+  plan (1.1): the filter `efb_portal_plan_ok` (default `true`) stays only so a site can switch the contract off. The
+  portal's sign-in codes do not need F02's plan of a form's code (e-mail Free Plus, SMS Pro): they answer on every plan.
+  The owner index writes nothing until `efb_portal_reindex()` switches it on. Without the plugin a site pays nothing.
 - **Identity is proven, never told.** An identity is a list `[['k' => 'e'|'p'|'u', 'h' => <64 hex>(, 'uid' => n)], …]`
   (e-mail, phone, WordPress user) made **only** by `efb_portal_identity_from_proof()`. It holds hashes, never an
   address or a number. Keep it in your session as it is; core checks it again on every call.
@@ -36,21 +41,28 @@ to end), `tests/test-owner-cancel-http.php`, `tests/test-owner-index-wp.php`, e2
 ```php
 if (!function_exists('efb_portal_core_api')) { /* core too old: show "Update Easy Form Builder" */ return; }
 $api = efb_portal_core_api();
-// ['version' => 1, 'features' => ['index','otp','read','thread','reply','ticket','payments','files','cancel',
-//   'reschedule','edit','drafts','privacy'], 'errors' => [...], 'policy_keys' => [...],
+// ['version' => 1, 'minor' => 1, 'contract' => '1.1',
+//  'features' => ['index','otp','read','thread','reply','ticket','payments','files','cancel', 'reschedule','edit',
+//   'drafts','privacy', …the minor versions' features (§10)], 'errors' => [...], 'policy_keys' => [...],
 //  'index' => ['state' => 'off'|'building'|'ready'|'stale', ...], 'active' => bool, 'hooks' => [...]]
 if ($api['version'] < 1) return;
+$has = function ($f) use ($api) { return in_array($f, $api['features'], true); }; // a 1.x feature: check it, keep the 1.0 path otherwise
 ```
 
-`efb_addon_contracts()['portal']` reports the same version. AutoPilot sees `capabilities.portal_core`:
-`{version, features, addon: 'AdnPRT', package: 'pro', ready, reason: null|'plan'|'addon'|'index', index}` —
-`ready` is false until your add-on is on.
+`version` stays 1 (the major version: nothing of 1.0 changes); `minor` and `features` say what a newer core adds.
+`efb_addon_contracts()['portal']` reports the major version. AutoPilot sees `capabilities.portal_core`:
+`{version: 1, minor, contract: '1.x', features, plugin: {slug: 'efb-customer-portal', file:
+'efb-customer-portal/efb-customer-portal.php', name, installed, active, version, plan: 'free'}, plans: ['free',
+'free_plus', 'pro'], ready, reason: null|'plugin'|'plan'|'index', index, never}` — `ready` is false until the plugin
+is on; `reason` `plugin` = not installed or not active (an assistant may suggest installing it; it is free), `plan` =
+the site's own `efb_portal_plan_ok` switched it off. It never names an add-on or a package.
 
-## 3. What the add-on gives core (filters)
+## 3. What the plugin gives core (filters)
 
 | Filter | Return |
 |---|---|
-| `efb_portal_active` (`false`) | `true` while the add-on is on |
+| `efb_portal_active` (`false`) | `true` while the plugin is on |
+| `efb_portal_plan_ok` (`true`) | `false` switches the contract off on this site (since 1.1 every plan answers) |
 | `efb_portal_form_policy` (`[]`, `$form_id`) | the form's policy (§4); core's defaults keep everything off |
 | `efb_portal_limit` (`$n`, `$scope`) | a per-identity limit (`prr` reads 120/min, `prp` replies 10/h, `pru` uploads 20/h, `prf` file links 60/h, `prc` cancel + reschedule 5/day, `pre` edits 10/h, `prd` draft links 20/h, `prq` privacy 3/day) |
 | `efb_entry_view_url` (`$url`, `$msg_id`, `$track`, `$context`) | the visitor's link in the confirmation e-mail (`email`, msg id 0), the support-reply e-mail (`reply_email`) and the SMS `[link_response]` (`sms`); the administrator's links never change |
@@ -176,7 +188,7 @@ frees its own reservations on `efb_entry_cancelled($msg_id, $form_id, $rows)` an
 | `efb_portal_closed` | 403 | a closed conversation past its reopen window |
 | `efb_portal_conflict` | 409 | already cancelled; the entry changed meanwhile (edit) |
 | `efb_portal_invalid` | 400 | a value the checks refuse (`field_id`, `reason` = core's code) |
-| `efb_portal_unavailable` | 503 | the add-on is off, the plan is not Pro, the tables are missing |
+| `efb_portal_unavailable` | 503 | the plugin is off, `efb_portal_plan_ok` is false, the tables are missing |
 | `addon_required` | 409 | cancel / reschedule without the Booking add-on |
 
 Answer them with HTTP 200 and `{success: false, code, message, status, retry_after?}` (F02's envelope,
@@ -219,3 +231,13 @@ if (!is_wp_error($v)) my_session_start(efb_portal_identity_from_proof(array($v['
 $list  = efb_portal_entries(my_session_identity(), array('page' => 1));
 $reply = efb_entry_add_reply($msg_id, array(array('id_' => 'message', 'value' => $text)), array('kind' => 'owner', 'identity' => my_session_identity()));
 ```
+
+## 10. Versions
+
+Each minor version only adds: a new key in an answer, a new function or a new feature name. A caller built on an
+older one keeps working; check `efb_portal_core_api()['features']` (or `minor`) before using an addition.
+
+| Version | Feature | What it adds |
+|---|---|---|
+| 1.0 | `index` … `privacy` | §2–§9 |
+| 1.1 | `any_plan` | every plan (Free, Free Plus, Pro): `efb_portal_plan_ok` defaults to `true`; the sign-in codes skip F02's plan of a form's code; `capabilities.portal_core` describes the plugin (`plugin`, `plans`, `minor`, `contract`; no `addon`, no `package`; `reason` `plugin` instead of `addon`); `AdnPRT` left the add-on catalogue |

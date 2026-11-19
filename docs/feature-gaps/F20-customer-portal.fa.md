@@ -2,6 +2,8 @@
 
 # F20 — افزونهٔ پرتال مشتری: داشبورد عمومی تیکت و پشتیبانی، رزروها و پاسخ‌ها
 
+> **تصمیم مالک (۲۰۲۶-۱۱-۱۹)، جایگزین §۰ بند ۱ و §۹:** پرتال مشتری افزونهٔ EFB نیست؛ افزونهٔ وردپرسی جدا و رایگان **EFB Customer Portal** (`efb-customer-portal`) است (فریمیوم: رایگان، سفارشی‌سازی پولی). قرارداد هسته روی **همهٔ پلن‌ها** (Free، Free Plus، Pro) کار می‌کند: قرارداد ۱٫۱، `capabilities.portal_core.plugin` به‌جای `addon: AdnPRT` و `package: pro`، و `AdnPRT` از کاتالوگ افزونه‌ها برداشته شد. نسخه‌های فرعی بعدی (۱٫۲ به بعد) در [قرارداد انگلیسی](../portal/portal-core-contract.en.md) §10 آمده‌اند.
+
 > شاخهٔ `dev4`، commit `7013e6a6`، `EMSFB_DB_VERSION = '1.10'`. ارجاع‌ها در ۲۰۲۶-۱۱-۱۴ با خواندن کد بررسی شدند. در همین زمان F10 روی `class-Emsfb-public.php` کار می‌کند، پس شماره‌خط‌های این فایل از نسخهٔ commit‌شده (`git show HEAD:`) آمده‌اند. پیش از هر ویرایش دوباره grep کن.
 > مرجع‌ها: [راهنما](IMPLEMENTATION-PLAYBOOK.en.md) §1.6، §1.7، §2.8، §5.1، §5.2، §6، §7، §8، §9؛ [امکانات فعلی](reference/current-capabilities.en.md)؛ [F02](F02-verification-otp.fa.md)، [F11](F11-form-limits-resume.fa.md)، [F13](F13-privacy-retention.fa.md)، [F14](F14-entries-management.fa.md)؛ [سازگاری SitePilot](reference/sitepilot-compatibility.en.md).
 

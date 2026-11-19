@@ -1,12 +1,13 @@
 <?php
 /**
- * F20-core: the customer portal contract, version 1 (docs/portal/portal-core-contract.en.md). The portal is the Pro
- * add-on AdnPRT; these functions are what it builds on. All of them are inert on a site without it: they answer
- * efb_portal_unavailable until the add-on answers true on the filter efb_portal_active (on a Pro site).
+ * F20-core: the customer portal contract, version 1.x (docs/portal/portal-core-contract.en.md). The portal is the
+ * separate, free plugin EFB Customer Portal (efb-customer-portal); these functions are what it builds on, on every plan.
+ * All of them are inert on a site without it: they answer efb_portal_unavailable until the plugin answers true on the
+ * filter efb_portal_active.
  *
  * Identities ([['k' => 'e'|'p'|'u', 'h' => hash], …]) come only from efb_portal_identity_from_proof(); every read and
  * write checks that the entry belongs to the identity (the owner index), is active (not spam / trash), of a form the
- * add-on's policy puts in the portal (efb_portal_form_policy) and not one that stores nothing (F13 prv_nostore).
+ * plugin's policy puts in the portal (efb_portal_form_policy) and not one that stores nothing (F13 prv_nostore).
  * Refusals are WP_Error with a stable code and data['status'] (efb_portal_not_found for anything not owned).
  *
  * @package Emsfb
@@ -17,12 +18,14 @@ if (!defined('ABSPATH')) {
 }
 
 if (!defined('EMSFB_PORTAL_API')) define('EMSFB_PORTAL_API', 1);
+/** The contract's minor version (1.x): what each one adds is in the contract's "Versions" section. */
+if (!defined('EMSFB_PORTAL_API_MINOR')) define('EMSFB_PORTAL_API_MINOR', \Emsfb\Portal_Core::API_MINOR);
 
 if (!function_exists('efb_portal_core_api')) {
-	/** P1: the contract version, its features and refusal codes, and the state of the owner index. */
+	/** P1: the contract version (major, minor), its features and refusal codes, and the state of the owner index. */
 	function efb_portal_core_api() {
 		$st = class_exists('\\Emsfb\\Owner_Index') ? \Emsfb\Owner_Index::state() : array('state' => 'off');
-		return array('version' => EMSFB_PORTAL_API, 'features' => \Emsfb\Portal_Core::FEATURES, 'errors' => array_keys(\Emsfb\Portal_Core::ERRORS),
+		return array('version' => EMSFB_PORTAL_API, 'minor' => EMSFB_PORTAL_API_MINOR, 'contract' => EMSFB_PORTAL_API . '.' . EMSFB_PORTAL_API_MINOR, 'features' => \Emsfb\Portal_Core::features(), 'errors' => array_keys(\Emsfb\Portal_Core::ERRORS),
 			'policy_keys' => array_keys(\Emsfb\Portal_Core::POLICY), 'index' => $st, 'active' => \Emsfb\Portal_Core::active(),
 			'hooks' => array('efb_portal_active', 'efb_portal_form_policy', 'efb_portal_booking_api', 'efb_entry_stored', 'efb_entry_reply_added', 'efb_entry_ticket_state', 'efb_entry_cancelled', 'efb_date_released', 'efb_entry_view_url', 'emsfb_cache_shortcodes', 'efb_portal_entry_row', 'efb_addon_setting_keys'));
 	}

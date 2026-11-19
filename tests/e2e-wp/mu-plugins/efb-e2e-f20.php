@@ -4,8 +4,8 @@
  * Description: A stand-in of the customer portal add-on (AdnPRT) that calls core's F20-core contract end to end, for
  * tests/test-portal-core-http.php and tests/e2e-wp/scenario-f20.js. Copied by `ctl-f20.php mu`. Active only while
  * the option efb_e2e_f20_on is set (other scenarios see nothing):
- *  - efb_portal_active true, efb_portal_plan_ok true (this site's Pro falls back to Free Plus without a licence),
- *    efb_portal_form_policy from the option efb_e2e_f20_policy ({form_id: policy});
+ *  - efb_portal_active true (the contract answers on every plan since 1.1: no plan filter), efb_portal_form_policy
+ *    from the option efb_e2e_f20_policy ({form_id: policy});
  *  - a session as the real add-on keeps it (§4.3, simplified): an HttpOnly cookie efb_e2e_prt with a random token, only
  *    its hash stored (option efb_e2e_prt_<hash> = the identity core made); a pre-session cookie efb_e2e_pre (the psid);
  *    writes need the header X-EFB-Portal-CSRF (HMAC of the token) and the same origin;
@@ -25,7 +25,6 @@ if ( ! get_option( 'efb_e2e_f20_on' ) ) {
 // Lower limits for the tests (efb_portal_limit), from the option efb_e2e_f20_limits {scope: n}.
 add_filter( 'efb_portal_limit', static function ( $n, $scope ) { $l = get_option( 'efb_e2e_f20_limits', array() ); return is_array( $l ) && isset( $l[ $scope ] ) ? (int) $l[ $scope ] : $n; }, 10, 2 );
 add_filter( 'efb_portal_active', '__return_true' );
-add_filter( 'efb_portal_plan_ok', '__return_true' );
 add_filter( 'efb_verify_plan', static function ( $need, $part ) { return 'sms' === $part ? 'free_plus' : $need; }, 10, 2 );
 add_filter( 'efb_portal_form_policy', static function ( $p, $fid ) {
 	$all = get_option( 'efb_e2e_f20_policy', array() );

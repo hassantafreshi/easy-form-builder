@@ -1360,7 +1360,7 @@ Status: **built** (2026-11-15). Spec: [`SPLIT-core-addons.fa.md`](../SPLIT-core-
 | `AdnADR` | 18 postal mask presets, `maps` field, F17 address search, postcode → city | every plan, inner gates as today |
 | `AdnGEO` | `{geo:country}` / `{geo:country_name}` and the "Visitor country" preset, with the site admin's own ipinfo.io / ip-api.com key, server-side at submit only, fail-open | Free Plus and Pro |
 | `AdnBEF` | booking: older booking-form editing, `advdate` availability, slots, bookings screen | Pro (editing and the template now; availability later) |
-| `AdnPRT` | customer portal (F20; in the catalogue since F20-core, 2026-11-18, for its loader and plan; no install card until the add-on exists) | Pro |
+| — | customer portal (F20): the separate, free plugin EFB Customer Portal (`efb-customer-portal`), not an add-on; `AdnPRT` left the catalogue with portal contract 1.1 (2026-11-19) | every plan |
 | `AdnSPF` / `AdnPAP` / `AdnPPF` | the gateway code that was in core (legacy gateway bridge v1; an add-on from before SPLIT reads as `state: update`) | as today |
 | Data Tools plugin | export / import UI and every importer (CF7 included) | free |
 
@@ -1371,12 +1371,15 @@ whose amount comes from a calc field is not published until `payment_ready`; an 
 key (gateways, `AdnGEO`). §4.3 (mask catalog): postal presets appear only when `AdnADR` is on. §9 F04, F08, F10,
 F17 rows: read with this section.
 
-## 14. F20-core: the customer portal's core contract (2026-11-18)
+## 14. F20-core: the customer portal's core contract (2026-11-18; 1.1 on 2026-11-19)
 
-Core keeps the contract of the customer portal add-on (`AdnPRT`, Pro, not built yet): docs/portal/portal-core-contract.en.md.
+Core keeps the contract of the customer portal, the separate free plugin **EFB Customer Portal** (`efb-customer-portal`,
+every plan): docs/portal/portal-core-contract.en.md (§10: the minor versions).
 
-- `capabilities.portal_core` = `{version: 1, features, addon: 'AdnPRT', package: 'pro', ready, reason, index}`;
-  `ready` is false until the add-on is on. The add-on contract `portal` v1 is in `efb_addon_contracts()`.
+- `capabilities.portal_core` = `{version: 1, minor, contract, features, plugin: {slug, file, name, installed, active,
+  version, plan}, plans, ready, reason: null | 'plugin' | 'plan' | 'index', index}`; `ready` is false until the plugin
+  is on; there is no `addon` or `package` key and no `addon:AdnPRT`. The add-on contract `portal` v1 is in
+  `efb_addon_contracts()`.
 - Entry rows of the entries API carry `ticket` (`open` | `closed`) and `owner_state` (`none` | `cancelled`).
 - Checklist for SitePilot (F20): the portal's settings stay outside the form JSON (a key of the settings row, the
   F12b-L rule; per form through `efb_portal_form_policy`); the visitor assistant gets no new access — it only links to
