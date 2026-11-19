@@ -24,7 +24,8 @@
  */
 
 define( 'WP_USE_THEMES', false );
-require dirname( __DIR__, 4 ) . '/wp-load.php';
+require_once __DIR__ . '/wp-env.php';
+require efb_test_wp_load_or_skip();
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 global $wpdb;

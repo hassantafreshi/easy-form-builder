@@ -16,8 +16,9 @@
 
 const path = require('path');
 const { chromium } = require(path.join(__dirname, '../node_modules/playwright'));
+const wpEnv = require('./wp-env');
 
-const URL = process.env.EFB_MULTIFORM_URL || 'http://127.0.0.1/wp/efb-two-logic-forms/';
+const URL = process.env.EFB_MULTIFORM_URL || wpEnv.url() + '/efb-two-logic-forms/';
 const A = 216;   // Contact us — select drives which step opens
 const B = 218;   // action fixture — its own select drives everything
 
@@ -66,7 +67,7 @@ function rowOwners(page) {
 }
 
 (async function () {
-  const browser = await chromium.launch();
+  const browser = await wpEnv.launch();
   const page = await browser.newPage();
   const pageErrors = [];
   page.on('pageerror', e => pageErrors.push(e.message));

@@ -1,7 +1,8 @@
 <?php
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 /** Real WordPress publishing and content classification, isolated temporary posts. */
-require (getenv('EFB_WP_LOAD') ?: (getenv('EFB_E2E_SITE_DIR') ? rtrim(getenv('EFB_E2E_SITE_DIR'), '/') . '/wp-load.php' : dirname(__DIR__, 4) . '/wp-load.php'));
+require_once __DIR__ . '/wp-env.php';
+require efb_test_wp_load_or_skip();
 use Emsfb\Cache_Compat;
 if (($argv[1] ?? '') === '--bootstrap') {
     echo 'BOOT_OK';

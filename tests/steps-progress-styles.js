@@ -17,11 +17,12 @@
  */
 
 const { chromium } = require('playwright');
+const wpEnv = require('./wp-env');
 const path = require('path');
 const fs = require('fs');
 const { execFileSync } = require('child_process');
 
-const PHP = process.env.EFB_PHP || 'C:\\xampp\\php\\php.exe';
+const PHP = wpEnv.php();
 const SHOTS = path.join(__dirname, 'screenshots', 'steps-progress');
 const args = process.argv.slice(2);
 const WANT_SHOTS = args.includes('--shots');
@@ -199,7 +200,7 @@ async function run() {
   const { cases, pair } = seed();
   if (WANT_SHOTS && !fs.existsSync(SHOTS)) fs.mkdirSync(SHOTS, { recursive: true });
 
-  const browser = await chromium.launch();
+  const browser = await wpEnv.launch();
   const directions = LTR_ONLY ? ['ltr'] : RTL_ONLY ? ['rtl'] : ['ltr', 'rtl'];
   const originalLocale = setLocale(null);
 

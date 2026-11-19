@@ -21,11 +21,12 @@
  */
 
 const { chromium } = require('playwright');
+const wpEnv = require('./wp-env');
 const path = require('path');
 const fs   = require('fs');
 const { execFileSync } = require('child_process');
 
-const PHP       = process.env.EFB_PHP || 'C:\\xampp\\php\\php.exe';
+const PHP       = wpEnv.php();
 const SHOTS     = path.join(__dirname, 'screenshots', 'layout');
 const SNAPSHOTS = path.join(__dirname, 'snapshots');
 const TOLERANCE = 1.5; // px - sub-pixel rounding only
@@ -278,7 +279,7 @@ function compare(label, before, after) {
   const targets = seed();
   console.log('targets:', JSON.stringify(targets));
 
-  const browser = await chromium.launch();
+  const browser = await wpEnv.launch();
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 
   /* Headless Chrome refuses the storage-access permission on every page it

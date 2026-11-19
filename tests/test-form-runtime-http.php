@@ -1,7 +1,8 @@
 <?php
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 /** Actual local REST requests and entries; removes every test row in finally. */
-require_once dirname(__DIR__,4).'/wp-load.php';
+require_once __DIR__ . '/wp-env.php';
+require_once efb_test_wp_load_or_skip();
 global $wpdb;
 $fid=0; $sid=''; $key=''; $passed=0;
 $health=get_option(Emsfb\Request_Health::OPTION,null);

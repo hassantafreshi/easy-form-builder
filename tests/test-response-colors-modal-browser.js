@@ -17,15 +17,16 @@
  * Run: node tests/test-response-colors-modal-browser.js
  */
 const { chromium } = require('playwright');
+const wpEnv = require('./wp-env');
 const { execFileSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-const BASE = 'http://127.0.0.1/wp';
+const BASE = wpEnv.url();
 const ADMIN = BASE + '/wp-admin';
 const PANEL = ADMIN + '/admin.php?page=Emsfb';
 const SHOTS = path.join(__dirname, 'screenshots');
-const PHP = 'C:\\xampp\\php\\php.exe';
+const PHP = wpEnv.php();
 const SEED = path.join(__dirname, 'seed-response-colors-env.php');
 
 if (!fs.existsSync(SHOTS)) fs.mkdirSync(SHOTS, { recursive: true });
@@ -58,8 +59,8 @@ function seed(mode) {
 async function login(page) {
   await page.goto(ADMIN + '/index.php', { waitUntil: 'domcontentloaded' });
   if (await page.locator('#user_login').count()) {
-    await page.fill('#user_login', 'admin');
-    await page.fill('#user_pass', 'admin');
+    await page.fill('#user_login', wpEnv.admin().user);
+    await page.fill('#user_pass', wpEnv.admin().pass);
     await page.click('#wp-submit');
     await page.waitForLoadState('domcontentloaded');
   }
@@ -128,7 +129,7 @@ const read = () => (seed('read').settings || {});
     process.exit(1);
   }
 
-  const browser = await chromium.launch();
+  const browser = await wpEnv.launch();
   const context = await browser.newContext({ viewport: { width: 1500, height: 1000 } });
   const page = await context.newPage();
   const jsErrors = [];

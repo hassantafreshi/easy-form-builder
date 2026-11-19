@@ -1,7 +1,8 @@
 <?php
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 /** Compares genuine server cache headers on temporary control and response-box pages. */
-require dirname(__DIR__, 4) . '/wp-load.php';
+require_once __DIR__ . '/wp-env.php';
+require efb_test_wp_load_or_skip();
 $ids = array(); $failed = false; $fid=0;
 global $wpdb;
 try {

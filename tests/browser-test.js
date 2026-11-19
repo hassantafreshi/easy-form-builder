@@ -3,10 +3,11 @@
  * Run: node tests/browser-test.js
  */
 const { chromium } = require('playwright');
+const wpEnv = require('./wp-env');
 const path = require('path');
 const fs   = require('fs');
 
-const BASE   = 'http://127.0.0.1/wp';
+const BASE   = wpEnv.url();
 const ADMIN  = BASE + '/wp-admin';
 const SHOTS  = path.join(__dirname, 'screenshots');
 
@@ -32,11 +33,8 @@ async function shot(page, name) {
 }
 
 (async () => {
-  const browser = await chromium.launch({
-    headless: false,
-    slowMo: 100,
-    executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-  });
+  // A watched run on a desktop (EFB_HEADED=1); headless elsewhere.
+  const browser = await wpEnv.launch(process.env.EFB_HEADED ? { headless: false, slowMo: 100 } : {});
   const ctx  = await browser.newContext({ viewport: { width: 1400, height: 900 } });
   const page = await ctx.newPage();
 
@@ -49,8 +47,8 @@ async function shot(page, name) {
 
   // ── STEP 1: Login ─────────────────────────────────────────────────────────
   await page.goto(ADMIN + '/');
-  await page.fill('#user_login', 'admin');
-  await page.fill('#user_pass',  'admin');
+  await page.fill('#user_login', wpEnv.admin().user);
+  await page.fill('#user_pass', wpEnv.admin().pass);
   await page.click('#wp-submit');
   await page.waitForURL('**/wp-admin/**', { timeout: 10000 });
   const dashTitle = await page.title();

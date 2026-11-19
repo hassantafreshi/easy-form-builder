@@ -11,7 +11,8 @@ if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
  *
  *   cd wp-content/plugins/easy-form-builder && php tests/test-legacy-custom-text-fallback.php
  */
-require (getenv('EFB_WP_LOAD') ?: (getenv('EFB_E2E_SITE_DIR') ? rtrim(getenv('EFB_E2E_SITE_DIR'), '/') . '/wp-load.php' : dirname(__DIR__, 4) . '/wp-load.php'));
+require_once __DIR__ . '/wp-env.php';
+require efb_test_wp_load_or_skip();
 
 $passed = 0; $failed = 0;
 $check = static function ($ok, $label) use (&$passed, &$failed) {

@@ -4,7 +4,8 @@
  * Run: php tests/test-addon-render-wordpress.php
  */
 
-$wp_load = dirname( __DIR__, 4 ) . '/wp-load.php';
+require_once __DIR__ . '/wp-env.php';
+$wp_load = efb_test_wp_load();
 if ( ! is_readable( $wp_load ) ) {
 	echo "[SKIP] WordPress bootstrap was not found at {$wp_load}\n";
 	exit( 0 );

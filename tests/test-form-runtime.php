@@ -1,7 +1,8 @@
 <?php
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 /** Real WordPress ledger and signed-context integration; creates no submissions. */
-require_once dirname(__DIR__,4).'/wp-load.php';
+require_once __DIR__ . '/wp-env.php';
+require_once efb_test_wp_load_or_skip();
 use Emsfb\Form_Runtime;
 if (($argv[1] ?? '')==='--claim') {
     wp_set_current_user(0);

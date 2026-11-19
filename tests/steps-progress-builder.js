@@ -12,12 +12,13 @@
  */
 
 const { chromium } = require('playwright');
+const wpEnv = require('./wp-env');
 const path = require('path');
 const fs = require('fs');
 const { execFileSync } = require('child_process');
 
-const PHP = process.env.EFB_PHP || 'C:\\xampp\\php\\php.exe';
-const BASE = process.env.EFB_BASE || 'http://127.0.0.1/wp';
+const PHP = wpEnv.php();
+const BASE = wpEnv.url();
 const ADMIN = BASE + '/wp-admin';
 const SHOTS = path.join(__dirname, 'screenshots', 'steps-progress-builder');
 const WANT_SHOTS = process.argv.includes('--shots');
@@ -36,8 +37,8 @@ function seed() {
 async function login(page) {
   await page.goto(ADMIN + '/index.php', { waitUntil: 'domcontentloaded' });
   if (await page.locator('#user_login').count()) {
-    await page.fill('#user_login', 'admin');
-    await page.fill('#user_pass', 'admin');
+    await page.fill('#user_login', wpEnv.admin().user);
+    await page.fill('#user_pass', wpEnv.admin().pass);
     await page.click('#wp-submit');
     await page.waitForLoadState('domcontentloaded');
   }
@@ -83,7 +84,7 @@ async function run() {
   const { cases } = seed();
   if (WANT_SHOTS && !fs.existsSync(SHOTS)) fs.mkdirSync(SHOTS, { recursive: true });
 
-  const browser = await chromium.launch();
+  const browser = await wpEnv.launch();
   const ctx = await browser.newContext({ viewport: { width: 1500, height: 1000 } });
   const page = await ctx.newPage();
   const consoleErrors = [];

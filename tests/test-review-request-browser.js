@@ -11,16 +11,17 @@
  * Run: node tests/test-review-request-browser.js
  */
 const { chromium } = require('playwright');
+const wpEnv = require('./wp-env');
 const { execFileSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-const BASE = 'http://127.0.0.1/wp';
+const BASE = wpEnv.url();
 const ADMIN = BASE + '/wp-admin';
 const PANEL = ADMIN + '/admin.php?page=Emsfb';
 const PREVIEW = PANEL + '&efb_review_preview=1';
 const SHOTS = path.join(__dirname, 'screenshots', 'rating');
-const PHP = 'C:\\xampp\\php\\php.exe';
+const PHP = wpEnv.php();
 const SEED = path.join(__dirname, 'seed-review-request-env.php');
 
 if (!fs.existsSync(SHOTS)) fs.mkdirSync(SHOTS, { recursive: true });
@@ -53,8 +54,8 @@ function seed(mode) {
 async function login(page) {
   await page.goto(ADMIN + '/index.php', { waitUntil: 'domcontentloaded' });
   if (await page.locator('#user_login').count()) {
-    await page.fill('#user_login', 'admin');
-    await page.fill('#user_pass', 'admin');
+    await page.fill('#user_login', wpEnv.admin().user);
+    await page.fill('#user_pass', wpEnv.admin().pass);
     await page.click('#wp-submit');
     await page.waitForLoadState('domcontentloaded');
   }
@@ -103,7 +104,7 @@ async function fitsInShell(page) {
 }
 
 (async () => {
-  const browser = await chromium.launch();
+  const browser = await wpEnv.launch();
   const context = await browser.newContext({ viewport: { width: 1440, height: 980 } });
   const page = await context.newPage();
 
@@ -115,7 +116,7 @@ async function fitsInShell(page) {
   try {
     console.log('\n[0] Setup');
     restoreLang = execFileSync(PHP, ['-r',
-      'define("WP_USE_THEMES",false);require "c:/xampp/htdocs/wp/wp-load.php";echo get_option("WPLANG","");'
+      wpEnv.boot() + 'echo get_option("WPLANG","");'
     ], { encoding: 'utf8' }).trim();
 
     t('logged in to wp-admin', await login(page));
@@ -304,7 +305,7 @@ async function fitsInShell(page) {
     console.log('\n[6] RTL');
 
     execFileSync(PHP, ['-r',
-      'define("WP_USE_THEMES",false);require "c:/xampp/htdocs/wp/wp-load.php";update_option("WPLANG","fa_IR",false);'
+      wpEnv.boot() + 'update_option("WPLANG","fa_IR",false);'
     ], { encoding: 'utf8' });
 
     await open(page);
@@ -379,7 +380,7 @@ async function fitsInShell(page) {
     await phone.screenshot({ path: path.join(SHOTS, 'mobile-rtl-02-praise.png') });
 
     execFileSync(PHP, ['-r',
-      'define("WP_USE_THEMES",false);require "c:/xampp/htdocs/wp/wp-load.php";update_option("WPLANG","",false);'
+      wpEnv.boot() + 'update_option("WPLANG","",false);'
     ], { encoding: 'utf8' });
 
     await phone.goto(PREVIEW, { waitUntil: 'domcontentloaded' });
@@ -393,7 +394,7 @@ async function fitsInShell(page) {
     console.log('\n[8] A preview spends nothing');
 
     const before = execFileSync(PHP, ['-r',
-      'define("WP_USE_THEMES",false);require "c:/xampp/htdocs/wp/wp-load.php";echo wp_json_encode(get_option("emsfb_review_state"));'
+      wpEnv.boot() + 'echo wp_json_encode(get_option("emsfb_review_state"));'
     ], { encoding: 'utf8' }).trim();
 
     await open(page);
@@ -403,7 +404,7 @@ async function fitsInShell(page) {
     await page.waitForTimeout(700);
 
     const after = execFileSync(PHP, ['-r',
-      'define("WP_USE_THEMES",false);require "c:/xampp/htdocs/wp/wp-load.php";echo wp_json_encode(get_option("emsfb_review_state"));'
+      wpEnv.boot() + 'echo wp_json_encode(get_option("emsfb_review_state"));'
     ], { encoding: 'utf8' }).trim();
 
     t('walking the preview records no answer', before === after, `${before} -> ${after}`);
@@ -422,7 +423,7 @@ async function fitsInShell(page) {
     console.log('\n[10] Teardown');
     try {
       execFileSync(PHP, ['-r',
-        'define("WP_USE_THEMES",false);require "c:/xampp/htdocs/wp/wp-load.php";update_option("WPLANG",' +
+        wpEnv.boot() + 'update_option("WPLANG",' +
         JSON.stringify(restoreLang || '') + ',false);'
       ], { encoding: 'utf8' });
       seed('teardown');

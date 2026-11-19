@@ -27,12 +27,13 @@
  * Run: node tests/test-modal-queue-browser.js
  */
 const { chromium } = require('playwright');
+const wpEnv = require('./wp-env');
 const { execFileSync } = require('child_process');
 
-const BASE = 'http://127.0.0.1/wp';
+const BASE = wpEnv.url();
 const ADMIN = BASE + '/wp-admin';
 const PANEL = ADMIN + '/admin.php?page=Emsfb';
-const PHP = 'C:\\xampp\\php\\php.exe';
+const PHP = wpEnv.php();
 
 let pass = 0;
 let fail = 0;
@@ -53,8 +54,8 @@ function t(label, condition, detail) {
 async function login(page) {
   await page.goto(ADMIN + '/index.php', { waitUntil: 'domcontentloaded' });
   if (await page.locator('#user_login').count()) {
-    await page.fill('#user_login', 'admin');
-    await page.fill('#user_pass', 'admin');
+    await page.fill('#user_login', wpEnv.admin().user);
+    await page.fill('#user_pass', wpEnv.admin().pass);
     await page.click('#wp-submit');
     await page.waitForLoadState('domcontentloaded');
   }
@@ -113,7 +114,7 @@ async function closeShell(page) {
 }
 
 (async () => {
-  const browser = await chromium.launch();
+  const browser = await wpEnv.launch();
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
 
@@ -125,7 +126,7 @@ async function closeShell(page) {
     // The review invitation is a dialog of its own and would compete for the
     // screen these assertions are about.
     execFileSync(PHP, ['-r',
-      'define("WP_USE_THEMES",false);require "c:/xampp/htdocs/wp/wp-load.php";' +
+      wpEnv.boot() + '' +
       'update_option("emsfb_review_state",["status"=>"dismissed"],false);'
     ], { encoding: 'utf8' });
 

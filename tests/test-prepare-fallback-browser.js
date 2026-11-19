@@ -21,8 +21,9 @@
  *      [EFB_CHROMIUM=/path/to/chromium] node tests/test-prepare-fallback-browser.js
  */
 const { chromium } = require('playwright');
+const wpEnv = require('./wp-env');
 
-const BASE = (process.env.EFB_BASE || 'http://127.0.0.1/wp').replace(/\/$/, '');
+const BASE = wpEnv.url();
 const FORM = process.env.EFB_FORM_PATH || '/';
 const TRACKER = process.env.EFB_TRACKER_PATH || '';
 const USER = process.env.EFB_USER || '', PASS = process.env.EFB_PASS || '';
@@ -94,8 +95,8 @@ async function submit(browser, mode, user) {
 }
 
 (async () => {
-  // EFB_CHROMIUM points at a system Chromium when Playwright's bundled browser is not installed.
-  const browser = await chromium.launch(process.env.EFB_CHROMIUM ? { headless: true, executablePath: process.env.EFB_CHROMIUM } : { headless: true });
+  // EFB_CHROMIUM points at a system Chromium when Playwright's bundled browser is not installed (tests/wp-env.js).
+  const browser = await wpEnv.launch();
   let track = '';
   for (const user of USER ? ['', USER] : ['']) {
     const who = user ? 'logged-in' : 'guest';

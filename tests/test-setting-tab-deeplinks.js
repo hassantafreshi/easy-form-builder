@@ -12,8 +12,9 @@
  * Run: node tests/test-setting-tab-deeplinks.js
  */
 const { chromium } = require('playwright');
+const wpEnv = require('./wp-env');
 
-const BASE = 'http://127.0.0.1/wp';
+const BASE = wpEnv.url();
 const ADMIN = `${BASE}/wp-admin`;
 const SETTING = `${ADMIN}/admin.php?page=Emsfb&state=setting`;
 
@@ -94,7 +95,7 @@ async function expectTab(page, tab, label, expectedSearch) {
 }
 
 async function run() {
-  const browser = await chromium.launch();
+  const browser = await wpEnv.launch();
   const context = await browser.newContext({ viewport: { width: 1500, height: 950 } });
   const page = await context.newPage();
 
@@ -105,8 +106,8 @@ async function run() {
   try {
     await page.goto(`${ADMIN}/`);
     if (await page.locator('#user_login').count()) {
-      await page.fill('#user_login', 'admin');
-      await page.fill('#user_pass', 'admin');
+      await page.fill('#user_login', wpEnv.admin().user);
+      await page.fill('#user_pass', wpEnv.admin().pass);
       await page.click('#wp-submit');
       await page.waitForURL('**/wp-admin/**');
     }

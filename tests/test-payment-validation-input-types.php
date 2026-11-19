@@ -11,7 +11,8 @@ if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
  *   cd wp-content/plugins/easy-form-builder && php tests/test-payment-validation-input-types.php
  */
 define('DOING_AJAX', true);
-require (getenv('EFB_WP_LOAD') ?: (getenv('EFB_E2E_SITE_DIR') ? rtrim(getenv('EFB_E2E_SITE_DIR'), '/') . '/wp-load.php' : dirname(__DIR__, 4) . '/wp-load.php'));
+require_once __DIR__ . '/wp-env.php';
+require efb_test_wp_load_or_skip();
 
 class EfbPayValidationEnd extends Exception {}
 add_filter('wp_die_ajax_handler', static function () { return static function () { throw new EfbPayValidationEnd(); }; });

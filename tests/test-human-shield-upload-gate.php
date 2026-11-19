@@ -18,7 +18,8 @@ define( 'WP_USE_THEMES', false );
 // Exercise the real runtime for this CLI request without changing the site's master toggle.
 define( 'EFB_HUMAN_SHIELD_RUNTIME', true );
 
-$wp_load = getenv( 'EFB_WP_LOAD' ) ?: 'c:/xampp/htdocs/wp/wp-load.php';
+require_once __DIR__ . '/wp-env.php';
+$wp_load = efb_test_wp_load_or_skip();
 require $wp_load;
 
 global $wpdb;

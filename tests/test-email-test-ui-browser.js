@@ -15,18 +15,19 @@
  * Run: node tests/test-email-test-ui-browser.js
  */
 const { chromium } = require('playwright');
+const wpEnv = require('./wp-env');
 const { execFileSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-const BASE = process.env.EFB_BASE || 'http://127.0.0.1/wp';
+const BASE = wpEnv.url();
 const ADMIN = BASE + '/wp-admin';
 const PANEL = ADMIN + '/admin.php?page=Emsfb';
 const SHOTS = path.join(__dirname, 'screenshots', 'email-test');
-const PHP = process.env.EFB_PHP || 'C:\\xampp\\php\\php.exe';
-const WP_LOAD = process.env.EFB_WP_LOAD || 'c:/xampp/htdocs/wp/wp-load.php';
-const ADMIN_USER = process.env.EFB_ADMIN_USER || 'admin';
-const ADMIN_PASS = process.env.EFB_ADMIN_PASS || 'admin';
+const PHP = wpEnv.php();
+const WP_LOAD = wpEnv.wpLoad();
+const ADMIN_USER = wpEnv.admin().user;
+const ADMIN_PASS = wpEnv.admin().pass;
 
 if (!fs.existsSync(SHOTS)) fs.mkdirSync(SHOTS, { recursive: true });
 
@@ -135,7 +136,7 @@ const EXPECTED_PHASE = {
 const TONE_CLASS = { run: 'efb-est--blue', done: 'efb-est--green', warn: 'efb-est--amber', fail: 'efb-est--red' };
 
 (async () => {
-  const browser = await chromium.launch();
+  const browser = await wpEnv.launch();
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
 

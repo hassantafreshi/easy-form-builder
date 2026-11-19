@@ -30,18 +30,19 @@
  * Run: node tests/test-resp-close-confirm-browser.js
  */
 const { chromium } = require('playwright');
+const wpEnv = require('./wp-env');
 const { execFileSync } = require('child_process');
 
 /* The dev site by default. EFB_BASE/EFB_USER/EFB_PASS/EFB_WP_LOAD point the
    run at another local install - the upgrade lab, say - when the dev site's
    own database is down. */
-const BASE = process.env.EFB_BASE || 'http://127.0.0.1/wp';
+const BASE = wpEnv.url();
 const ADMIN = BASE + '/wp-admin';
 const PANEL = ADMIN + '/admin.php?page=Emsfb';
-const USER = process.env.EFB_USER || 'admin';
-const PASS = process.env.EFB_PASS || 'admin';
-const WP_LOAD = process.env.EFB_WP_LOAD || 'c:/xampp/htdocs/wp/wp-load.php';
-const PHP = 'C:\\xampp\\php\\php.exe';
+const USER = wpEnv.admin().user;
+const PASS = wpEnv.admin().pass;
+const WP_LOAD = wpEnv.wpLoad();
+const PHP = wpEnv.php();
 
 let pass = 0;
 let fail = 0;
@@ -94,7 +95,7 @@ const shellShowing = (page) => page.evaluate(() =>
 const parkedCount = (page) => page.evaluate(() => window._efb_modal_parked_efb.length);
 
 (async () => {
-  const browser = await chromium.launch();
+  const browser = await wpEnv.launch();
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
 

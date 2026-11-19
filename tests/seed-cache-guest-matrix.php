@@ -1,6 +1,7 @@
 <?php
 if(PHP_SAPI!=='cli'){http_response_code(404);exit;}
-require dirname(__DIR__,4).'/wp-load.php';
+require_once __DIR__ . '/wp-env.php';
+require efb_test_wp_load_or_skip();
 if(home_url()!=='https://lightgoldenrodyellow-coyote-155974.hostingersite.com')throw new RuntimeException('Unexpected test site');
 global $wpdb;
 $mode=$argv[1]??'';$run=$argv[2]??'';

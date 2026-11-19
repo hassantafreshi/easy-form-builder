@@ -14,15 +14,16 @@
  * Run: node tests/test-modal-system-browser.js
  */
 const { chromium } = require('playwright');
+const wpEnv = require('./wp-env');
 const { execFileSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-const BASE = 'http://127.0.0.1/wp';
+const BASE = wpEnv.url();
 const ADMIN = BASE + '/wp-admin';
 const PANEL = ADMIN + '/admin.php?page=Emsfb';
 const SHOTS = path.join(__dirname, 'screenshots');
-const PHP = 'C:\\xampp\\php\\php.exe';
+const PHP = wpEnv.php();
 const SEED = path.join(__dirname, 'seed-review-request-env.php');
 
 if (!fs.existsSync(SHOTS)) fs.mkdirSync(SHOTS, { recursive: true });
@@ -55,8 +56,8 @@ function seed(mode) {
 async function login(page) {
   await page.goto(ADMIN + '/index.php', { waitUntil: 'domcontentloaded' });
   if (await page.locator('#user_login').count()) {
-    await page.fill('#user_login', 'admin');
-    await page.fill('#user_pass', 'admin');
+    await page.fill('#user_login', wpEnv.admin().user);
+    await page.fill('#user_pass', wpEnv.admin().pass);
     await page.click('#wp-submit');
     await page.waitForLoadState('domcontentloaded');
   }
@@ -90,7 +91,7 @@ async function closeShared(page) {
 }
 
 (async () => {
-  const browser = await chromium.launch();
+  const browser = await wpEnv.launch();
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await context.newPage();
 
@@ -102,7 +103,7 @@ async function closeShared(page) {
     // Keep the review invitation out of the way of these screenshots.
     seed('setup');
     execFileSync(PHP, ['-r',
-      'define("WP_USE_THEMES",false);require "c:/xampp/htdocs/wp/wp-load.php";' +
+      wpEnv.boot() + '' +
       'update_option("emsfb_review_state",["status"=>"dismissed"],false);'
     ], { encoding: 'utf8' });
 
@@ -236,7 +237,7 @@ async function closeShared(page) {
     // seed('rtl') clears the review state, which would put the invitation back
     // on top of the dialogs this file is here to photograph.
     execFileSync(PHP, ['-r',
-      'define("WP_USE_THEMES",false);require "c:/xampp/htdocs/wp/wp-load.php";' +
+      wpEnv.boot() + '' +
       'update_option("emsfb_review_state",["status"=>"dismissed"],false);'
     ], { encoding: 'utf8' });
 

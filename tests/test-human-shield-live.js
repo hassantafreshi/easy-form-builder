@@ -6,8 +6,9 @@
  * exact previous settings in finally(). No successful form is submitted.
  */
 const { chromium } = require('playwright');
+const wpEnv = require('./wp-env');
 
-const BASE = 'http://127.0.0.1/wp';
+const BASE = wpEnv.url();
 const ADMIN = `${BASE}/wp-admin`;
 const FORM_PAGE = `${BASE}/?p=209`; // Local test post containing form id 134.
 const PROTECTED = '/wp-json/Emsfb/v1/forms/message/add';
@@ -147,10 +148,7 @@ async function patchViaAdminAjax(page, patch) {
 }
 
 (async () => {
-  const browser = await chromium.launch({
-    headless: true,
-    executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-  });
+  const browser = await wpEnv.launch();
   const adminContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   const adminPage = await adminContext.newPage();
   const browserErrors = [];
@@ -163,8 +161,8 @@ async function patchViaAdminAjax(page, patch) {
   try {
     await adminPage.goto(`${ADMIN}/`);
     if (await adminPage.locator('#user_login').count()) {
-      await adminPage.fill('#user_login', 'admin');
-      await adminPage.fill('#user_pass', 'admin');
+      await adminPage.fill('#user_login', wpEnv.admin().user);
+      await adminPage.fill('#user_pass', wpEnv.admin().pass);
       await adminPage.click('#wp-submit');
       await adminPage.waitForURL('**/wp-admin/**');
     }

@@ -23,15 +23,16 @@
  * Stop after Stripe verification: set EFB_E2E_STOP_AFTER_STRIPE=1 first.
  */
 const { chromium } = require('playwright');
+const wpEnv = require('./wp-env');
 const { execFileSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-const WP = 'http://127.0.0.1/wp';
+const WP = wpEnv.url();
 const ADMIN = WP + '/wp-admin';
 const PANEL = ADMIN + '/admin.php?page=Emsfb';
 const SHOTS = path.join(__dirname, 'screenshots', 'e2e');
-const PHP = 'C:\\xampp\\php\\php.exe';
+const PHP = wpEnv.php();
 const ENV = path.join(__dirname, 'e2e-review-reward-env.php');
 const INSPECT = path.join(__dirname, 'e2e-review-reward-inspect.php');
 const STOP_AFTER_STRIPE = process.env.EFB_E2E_STOP_AFTER_STRIPE === '1';
@@ -69,8 +70,8 @@ const ws = (mode, arg) => php(INSPECT, mode, arg || '');
 async function login(page) {
   await page.goto(ADMIN + '/index.php', { waitUntil: 'domcontentloaded' });
   if (await page.locator('#user_login').count()) {
-    await page.fill('#user_login', 'admin');
-    await page.fill('#user_pass', 'admin');
+    await page.fill('#user_login', wpEnv.admin().user);
+    await page.fill('#user_pass', wpEnv.admin().pass);
     await page.click('#wp-submit');
     await page.waitForLoadState('domcontentloaded');
   }
@@ -89,7 +90,7 @@ let feedbackSeeded = false;
 function reportCount() {
   try {
     const out = execFileSync(PHP, ['-r',
-      'define("WP_USE_THEMES",false);require "c:/xampp/htdocs/wp/wp-load.php";global $wpdb;' +
+      wpEnv.boot() + 'global $wpdb;' +
       '$t=$wpdb->prefix."ws_efb_reports";' +
       'echo wp_json_encode(["all"=>(int)$wpdb->get_var("SELECT COUNT(*) FROM $t"),' +
       '"rating"=>(int)$wpdb->get_var("SELECT COUNT(*) FROM $t WHERE reason=\'rating_feedback\'")]);'
@@ -104,7 +105,7 @@ function reportCount() {
 function lastReport() {
   try {
     const out = execFileSync(PHP, ['-r',
-      'define("WP_USE_THEMES",false);require "c:/xampp/htdocs/wp/wp-load.php";global $wpdb;' +
+      wpEnv.boot() + 'global $wpdb;' +
       '$t=$wpdb->prefix."ws_efb_reports";' +
       'echo wp_json_encode($wpdb->get_row("SELECT reason,details,email,contact_ok FROM $t ORDER BY id DESC LIMIT 1",ARRAY_A) ?: []);'
     ], { encoding: 'utf8' });
@@ -115,7 +116,7 @@ function lastReport() {
 }
 
 (async () => {
-  const browser = await chromium.launch();
+  const browser = await wpEnv.launch();
   const context = await browser.newContext({ viewport: { width: 1440, height: 980 } });
   const page = await context.newPage();
 

@@ -18,8 +18,9 @@
 
 const path = require('path');
 const { chromium } = require(path.join(__dirname, '../node_modules/playwright'));
+const wpEnv = require('./wp-env');
 
-const URL = process.env.EFB_ACTIONS_URL || 'http://127.0.0.1/wp/efb-conditional-logic-actions/';
+const URL = process.env.EFB_ACTIONS_URL || wpEnv.url() + '/efb-conditional-logic-actions/';
 
 let pass = 0, fail = 0;
 function test(label, actual, expected) {
@@ -111,7 +112,7 @@ async function choose(page, label) {
 }
 
 (async function () {
-  const browser = await chromium.launch();
+  const browser = await wpEnv.launch();
   const page = await browser.newPage();
   const pageErrors = [];
   page.on('pageerror', function (e) { pageErrors.push(e.message); });

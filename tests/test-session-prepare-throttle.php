@@ -2,7 +2,8 @@
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 /** In-process REST checks for the prepare/status quotas. Removes its session rows and counters. */
-require_once dirname(__DIR__, 4) . '/wp-load.php';
+require_once __DIR__ . '/wp-env.php';
+require_once efb_test_wp_load_or_skip();
 global $wpdb;
 $passed = 0;
 $ip = '192.0.2.238';

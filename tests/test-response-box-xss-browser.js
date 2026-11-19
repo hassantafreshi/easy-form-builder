@@ -14,15 +14,16 @@
  * Run: node tests/test-response-box-xss-browser.js
  */
 const { chromium } = require('playwright');
+const wpEnv = require('./wp-env');
 const { execFileSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-const BASE = 'http://127.0.0.1/wp';
+const BASE = wpEnv.url();
 const ADMIN = BASE + '/wp-admin';
 const PANEL = ADMIN + '/admin.php?page=Emsfb';
 const SHOTS = path.join(__dirname, 'screenshots', 'xss');
-const PHP = 'C:\\xampp\\php\\php.exe';
+const PHP = wpEnv.php();
 const SEED = path.join(__dirname, 'seed-response-box-xss-env.php');
 /* The dev site limits failed logins, and a suite that signs in on every run
    eventually locks the account out for 15 minutes - which looks exactly like
@@ -103,7 +104,7 @@ async function openPublic(page, url, track) {
   if (!env.ok) { console.log('  [FAIL] environment — ' + (env.error || JSON.stringify(env))); process.exit(1); }
   console.log(`  page: ${env.url}\n  form: ${env.form_id}  A(track ${env.track_a}, msg ${env.msg_a})  B(track ${env.track_b}, msg ${env.msg_b})\n`);
 
-  const browser = await chromium.launch();
+  const browser = await wpEnv.launch();
   const contextOptions = { viewport: { width: 1200, height: 1000 }, acceptDownloads: true };
   if (fs.existsSync(AUTH_FILE)) contextOptions.storageState = AUTH_FILE;
   const context = await browser.newContext(contextOptions);
@@ -172,7 +173,7 @@ async function openPublic(page, url, track) {
     console.log('\n-- wp-admin Response viewer --');
     await page.goto(ADMIN + '/index.php', { waitUntil: 'domcontentloaded' });
     if (await page.locator('#user_login').count()) {
-      await page.fill('#user_login', 'admin'); await page.fill('#user_pass', 'admin'); await page.click('#wp-submit');
+      await page.fill('#user_login', wpEnv.admin().user); await page.fill('#user_pass', wpEnv.admin().pass); await page.click('#wp-submit');
       await page.waitForLoadState('domcontentloaded');
       if (!(await page.locator('#user_login').count())) await context.storageState({ path: AUTH_FILE });
     }

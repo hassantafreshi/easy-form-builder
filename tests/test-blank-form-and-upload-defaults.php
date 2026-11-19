@@ -24,7 +24,8 @@
  */
 
 // The plugin inside a site (wp-content/plugins/…), or the site named by EFB_WP_LOAD / EFB_E2E_SITE_DIR (the e2e site).
-$wp_load = getenv( 'EFB_WP_LOAD' ) ?: ( getenv( 'EFB_E2E_SITE_DIR' ) ? rtrim( getenv( 'EFB_E2E_SITE_DIR' ), '/' ) . '/wp-load.php' : dirname( __DIR__, 4 ) . '/wp-load.php' );
+require_once __DIR__ . '/wp-env.php';
+$wp_load = efb_test_wp_load();
 if ( ! is_readable( $wp_load ) ) {
 	echo "[SKIP] WordPress bootstrap was not found at {$wp_load}\n";
 	exit( 0 );

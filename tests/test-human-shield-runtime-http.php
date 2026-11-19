@@ -1,7 +1,8 @@
 <?php
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 /** Actual HTTP with Human Shield enabled; restores options and removes all fixture entries. */
-require dirname(__DIR__,4).'/wp-load.php';
+require_once __DIR__ . '/wp-env.php';
+require efb_test_wp_load_or_skip();
 global $wpdb;
 $fid=0; $ledger=''; $passed=0;
 $settings_option=get_option('emsfb_settings',null);

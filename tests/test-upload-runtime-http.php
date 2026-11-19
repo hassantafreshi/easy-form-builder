@@ -1,7 +1,8 @@
 <?php
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
 /** Real multipart upload, live-context renewal and final form save; isolated fixtures. */
-require dirname(__DIR__,4).'/wp-load.php';
+require_once __DIR__ . '/wp-env.php';
+require efb_test_wp_load_or_skip();
 global $wpdb;
 $fid=0;$files=array();$urls=array();$ledger='';$passed=0;
 $health=get_option(\Emsfb\Request_Health::OPTION,null);

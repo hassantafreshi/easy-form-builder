@@ -13,10 +13,11 @@
  */
 
 const { chromium } = require('playwright');
+const wpEnv = require('./wp-env');
 const path = require('path');
 const { execFileSync } = require('child_process');
 
-const PHP = process.env.EFB_PHP || 'C:\\xampp\\php\\php.exe';
+const PHP = wpEnv.php();
 
 let pass = 0, fail = 0;
 const ok  = (l, d = '') => { pass++; console.log(`  PASS  ${l}${d ? ' - ' + d : ''}`); };
@@ -30,7 +31,7 @@ const targets = JSON.parse(
 );
 
 (async () => {
-  const browser = await chromium.launch();
+  const browser = await wpEnv.launch();
   // Since 4.3.1 the Error Monitor is printed for administrators only. With
   // EFB_ADMIN_STATE (a Playwright storageState file of a logged-in admin) the
   // panel checks run as that admin; without it the page is checked as a guest,
