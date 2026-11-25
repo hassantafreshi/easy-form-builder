@@ -703,7 +703,8 @@ class Admin {
 		$log = Legacy_Migration::log_all();
 		foreach ( $ids as $id ) {
 			$name = isset( $log['forms'][ $id ]['name'] ) ? wp_strip_all_tags( str_replace( '@efb@dq#', '"', (string) $log['forms'][ $id ]['name'] ) ) : '';
-			echo '<li><bdi><a href="' . esc_url( admin_url( 'admin.php?page=Emsfb&state=edit-form&id=' . (int) $id ) ) . '">' . esc_html( ( $name !== '' ? $name : __( 'Form', 'easy-form-builder' ) ) . ' (#' . (int) $id . ')' ) . '</a></bdi></li>';
+			// The name isolated on its own (a Persian name keeps "(#237)" after it on a left-to-right screen).
+			echo '<li><a href="' . esc_url( admin_url( 'admin.php?page=Emsfb&state=edit-form&id=' . (int) $id ) ) . '"><bdi>' . esc_html( $name !== '' ? $name : __( 'Form', 'easy-form-builder' ) ) . '</bdi> <bdi>(#' . (int) $id . ')</bdi></a></li>';
 		}
 		echo '</ul><form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
 		wp_nonce_field( 'efb_pay_legacy_rollback_all' );

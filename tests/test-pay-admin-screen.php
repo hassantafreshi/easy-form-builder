@@ -129,7 +129,7 @@ echo "\n=== QA4-003 Moved forms\n";
 $GLOBALS['opts']['emsfb_pay_legacy_migration'] = array('forms' => array(5 => array('status' => 'migrated', 'reason' => '', 'from' => 'paypal', 'to' => 'paypalcheckout', 'name' => 'Tickets', 'at' => '', 'by' => 'cron', 'events' => array())));
 $nav = $page(array('page' => 'Emsfb_payments'));
 $mv = $page(array('page' => 'Emsfb_payments', 'tab' => 'downgrade'));
-$t('QA4-003 a moved form: the "Moved forms" tab, the warning for older versions, the form, "Move every form back" (nonce, admin-post)', array(strpos($nav, 'tab=downgrade') !== false, strpos($mv, 'Before going back to an older version') !== false, strpos($mv, 'Tickets (#5)') !== false, strpos($mv, 'Move every form back') !== false, strpos($mv, 'value="efb_pay_legacy_rollback_all"') !== false, strpos($mv, '_wpnonce') !== false), array(true, true, true, true, true, true));
+$t('QA4-003 a moved form: the "Moved forms" tab, the warning for older versions, the form, "Move every form back" (nonce, admin-post)', array(strpos($nav, 'tab=downgrade') !== false, strpos($mv, 'Before going back to an older version') !== false, strpos($mv, '<bdi>Tickets</bdi> <bdi>(#5)</bdi>') !== false, strpos($mv, 'Move every form back') !== false, strpos($mv, 'value="efb_pay_legacy_rollback_all"') !== false, strpos($mv, '_wpnonce') !== false), array(true, true, true, true, true, true));
 $GLOBALS['opts']['emsfb_pay_legacy_migration'] = array('forms' => array());
 $t('QA4-003 nothing moved: no tab in the menu bar', strpos($page(array('page' => 'Emsfb_payments')), 'tab=downgrade') === false, true);
 
