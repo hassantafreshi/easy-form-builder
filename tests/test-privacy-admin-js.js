@@ -41,7 +41,7 @@ function makeDoc(nodes) {
   };
 }
 const fns = [
-  'efb_prv_t_efb', 'efb_prv_can_manage_efb', 'efb_prv_digits_efb', 'efb_prv_number_efb', 'efb_privacy_days_input_efb',
+  'efb_prv_t_efb', 'efb_prv_can_manage_efb', 'efb_prv_digits_efb', 'efb_prv_number_efb', 'efb_num_setting_value_efb', 'efb_privacy_days_input_efb',
   'efb_privacy_patch_efb', 'efb_privacy_save_needs_check_efb', 'efb_privacy_last_run_text_efb',
   'escapeContentPreviewText_efb', 'getContentPreview_efb', 'convertToCSV_emsFormBuilder',
 ].map((n) => grab(LIST, n)).join('\n');
@@ -51,7 +51,7 @@ const sandbox = (env) => new Function('env', `
   const efbParseJson = (s) => JSON.parse(s); const replaceContentMessageEfb = (s) => s;
   const efb_privacy_preview_efb = (d) => { env.previews.push(d); };
   ${fns}
-  return { efb_privacy_days_input_efb, efb_privacy_patch_efb, efb_privacy_save_needs_check_efb, efb_privacy_last_run_text_efb, getContentPreview_efb, convertToCSV_emsFormBuilder };
+  return { efb_num_setting_value_efb, efb_privacy_days_input_efb, efb_privacy_patch_efb, efb_privacy_save_needs_check_efb, efb_privacy_last_run_text_efb, getContentPreview_efb, convertToCSV_emsFormBuilder };
 `)(env);
 
 const text = { prvRedacted: 'Removed for privacy', prvLastRun: 'Last run: %1$s, %2$s entries removed', prvNeverRun: 'Not yet.' };
@@ -60,32 +60,42 @@ function env(can, nodes, stored) {
   return { document: makeDoc(nodes), window: {}, efb_var: { text, wp_lan: 'en_US', privacy: { can_manage: can } }, stored: stored || {}, timers: [], previews: [] };
 }
 
-// Day field
-let e = env(true, { prvDays_efb: { value: '' } });
+// Day field (QA1-010: the box is never rewritten; a wrong value is refused by the Save, not clamped)
+const inp = (value, range) => ({ value, getAttribute: (k) => (k === 'data-efb-num' ? (range || '0,3650') : null) });
+let e = env(true, { prvDays_efb: inp('') });
 let F = sandbox(e);
-const day = { value: '۹۰' };
+const day = inp('۹۰');
 F.efb_privacy_days_input_efb(day);
-t('Persian digits in the day field become 90', day.value === '90', day.value);
+e.timers.forEach((f) => f()); e.timers.length = 0;
+t('Persian digits in the day field are read as 90 (the box keeps what was typed)', day.value === '۹۰' && e.previews[e.previews.length - 1] === '90', { v: day.value, p: e.previews });
 day.value = '٣٦٥٠٠';
 F.efb_privacy_days_input_efb(day);
-t('Arabic-Indic digits, capped at 3650', day.value === '3650', day.value);
-day.value = '12abc';
+e.timers.forEach((f) => f()); e.timers.length = 0;
+t('Arabic-Indic 36500 is out of range: not turned into 3650, no preview', day.value === '٣٦٥٠٠' && e.previews[e.previews.length - 1] === '0', { v: day.value, p: e.previews });
+day.value = '-5';
 F.efb_privacy_days_input_efb(day);
-t('letters dropped', day.value === '12', day.value);
+e.timers.forEach((f) => f()); e.timers.length = 0;
+t('"-5" is not turned into 5 days (QA1-010)', day.value === '-5' && e.previews[e.previews.length - 1] === '0', { v: day.value, p: e.previews });
+day.value = '12';
+F.efb_privacy_days_input_efb(day);
 e.timers.forEach((f) => f());
 t('the preview follows the field (debounced)', e.previews.length >= 1 && e.previews[e.previews.length - 1] === '12', e.previews);
+const num = (v, r) => F.efb_num_setting_value_efb(inp(v, r));
+t('the range check: whole numbers within min..max, Persian digits; a sign, letters, empty, out of range refused',
+  num('۳۰').ok && num('0').ok && num('3650').ok && !num('-1').ok && !num('abc').ok && !num('').ok && !num('3651').ok && !num('1.5').ok, [num('-1'), num('abc')]);
+t('a decimal range (",dec") takes 0.5 and ۰٫۷, refuses 2 and -0.1', num('0.5', '0,1,dec').ok && num('۰٫۷', '0,1,dec').ok && !num('2', '0,1,dec').ok && !num('-0.1', '0,1,dec').ok);
 
 // Save patch
-const nodes = Object.assign({ 'efb-privacy-settings': {}, prvDays_efb: { value: '۳۰' }, prvFiles_efb: { checked: false } },
+const nodes = Object.assign({ 'efb-privacy-settings': {}, prvDays_efb: inp('۳۰'), prvFiles_efb: { checked: false } },
   radios('prvIpMode_efb', ['store', 'anon', 'none'], 'anon'), radios('prvAction_efb', ['delete', 'anon'], 'anon'));
 F = sandbox(env(true, nodes, { prv_days: '0' }));
 t('Save sends the four privacy keys from the screen', JSON.stringify(F.efb_privacy_patch_efb()) === JSON.stringify({ prv_ip_mode: 'anon', prv_days: '30', prv_action: 'anon', prv_files: '' }), F.efb_privacy_patch_efb());
 t('Save asks first when automatic deletion is turned on', F.efb_privacy_save_needs_check_efb() === true);
-F = sandbox(env(true, Object.assign({}, nodes, { prvDays_efb: { value: '30' } }), { prv_days: '30' }));
+F = sandbox(env(true, Object.assign({}, nodes, { prvDays_efb: inp('30') }), { prv_days: '30' }));
 t('...not when the days did not change', F.efb_privacy_save_needs_check_efb() === false);
-F = sandbox(env(true, Object.assign({}, nodes, { prvDays_efb: { value: '10' } }), { prv_days: '30' }));
+F = sandbox(env(true, Object.assign({}, nodes, { prvDays_efb: inp('10') }), { prv_days: '30' }));
 t('...and again when they get shorter', F.efb_privacy_save_needs_check_efb() === true);
-F = sandbox(env(true, Object.assign({}, nodes, { prvDays_efb: { value: '0' } }), { prv_days: '30' }));
+F = sandbox(env(true, Object.assign({}, nodes, { prvDays_efb: inp('0') }), { prv_days: '30' }));
 t('...never when turning it off', F.efb_privacy_save_needs_check_efb() === false);
 F = sandbox(env(false, nodes, {}));
 t('a user without manage_options sends no privacy key (stored values kept)', JSON.stringify(F.efb_privacy_patch_efb()) === '{}' && F.efb_privacy_save_needs_check_efb() === false);

@@ -2821,3 +2821,8 @@ div#Listefb-150 {
 /* B5 hand-off: the Buttons panel's note when the label colour reads under 4.5:1 on the button colour. */
 #sideMenuConEfb .efb-btn-contrast { margin: 6px 0 4px; padding: 6px 10px; border-inline-start: 3px solid #dba617; background: #fcf9e8; color: #5c4400; font-size: .85rem; line-height: 1.5; unicode-bidi: plaintext; text-align: start; }
 #sideMenuConEfb .efb-btn-contrast[hidden] { display: none; }
+
+/* QA1-010: a settings number out of its range (list_form-efb.js efb_num_setting_check_efb): a red border on the box
+   (no background icon, which covered the digits in RTL) and the reason under it in red #b02a37 (6.3:1 on white). */
+#wpbody-content .efb .efb-num-invalid, #wpbody-content .efb .efb-num-invalid:focus { border-color: #b02a37 !important; box-shadow: 0 0 0 .2rem rgba(176, 42, 55, .2) !important; }
+#wpbody-content .efb .efb-num-err { color: #b02a37; unicode-bidi: plaintext; text-align: start; }

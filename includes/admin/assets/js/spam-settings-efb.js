@@ -129,7 +129,7 @@
       + '<fieldset class="efb efb-spam-prov" data-for="recaptcha_v3"><legend class="efb fs-6 fw-bold">' + esc(T('reCAPTCHAv3', 'Google reCAPTCHA v3')) + '</legend>'
       + keyPair('recaptcha_v3', s, 'rc3SiteKey', 'rc3SecretKey')
       + '<label class="efb form-label mt-2" for="rc3Threshold_efb">' + esc(T('rc3Threshold', 'Minimum score')) + '</label>'
-      + '<input type="text" inputmode="decimal" dir="ltr" class="efb form-control efb-spam-input efb-spam-num" id="rc3Threshold_efb" value="' + esc(thr) + '" aria-describedby="rc3Threshold_efb-help">'
+      + '<input type="text" inputmode="decimal" dir="ltr" class="efb form-control efb-spam-input efb-spam-num" id="rc3Threshold_efb" data-efb-num="0,1,dec" value="' + esc(thr) + '" aria-describedby="rc3Threshold_efb-help">'
       + '<div class="efb form-text efb-spam-help" id="rc3Threshold_efb-help">' + esc(T('rc3ThresholdHelp', 'Scores run from 0.0 (likely a bot) to 1.0 (likely a person). 0.5 suits most sites.')) + '</div>'
       + '<div class="efb mt-2" role="radiogroup" aria-labelledby="rc3Low_efb-lbl"><span class="efb form-label d-block" id="rc3Low_efb-lbl">' + esc(T('rc3LowAction', 'Low score')) + '</span>'
       + radio('rc3Low_efb', 'rc3Low_spam_efb', 'spam', low !== 'block', T('markAsSpam', 'Save as spam'))
@@ -138,13 +138,13 @@
       // F12b follow-up: the reply box of a tracked entry — one solved check is good for a while, limits for visitors.
       + '<fieldset class="efb efb-spam-reply"><legend class="efb fs-6 fw-bold">' + esc(T('replyBoxTitle', 'Reply box')) + '</legend>'
       + '<label class="efb form-label" for="replyPassMin_efb">' + esc(T('replyPassMin', 'After one solved check, no new check for (minutes)')) + '</label>'
-      + '<input type="text" inputmode="numeric" dir="ltr" class="efb form-control efb-spam-input efb-spam-num" id="replyPassMin_efb" value="' + esc(String(val(s, 'reply_pass_min', '30'))) + '" aria-describedby="replyPassMin_efb-help">'
+      + '<input type="text" inputmode="numeric" dir="ltr" class="efb form-control efb-spam-input efb-spam-num" id="replyPassMin_efb" data-efb-num="5,1440" value="' + esc(String(val(s, 'reply_pass_min', '30'))) + '" aria-describedby="replyPassMin_efb-help">'
       + '<div class="efb form-text efb-spam-help" id="replyPassMin_efb-help">' + esc(T('replyPassHelp', 'Each reply renews it. Staff and the signed-in sender of an entry are never asked; staff have no limits.')) + '</div>'
       + '<label class="efb form-label mt-2" for="replyRlTrack_efb">' + esc(T('replyRlTrack', 'Replies per conversation in 10 minutes')) + '</label>'
-      + '<input type="text" inputmode="numeric" dir="ltr" class="efb form-control efb-spam-input efb-spam-num" id="replyRlTrack_efb" value="' + esc(String(val(s, 'reply_rl_track', '5'))) + '">'
+      + '<input type="text" inputmode="numeric" dir="ltr" class="efb form-control efb-spam-input efb-spam-num" id="replyRlTrack_efb" data-efb-num="1,100" value="' + esc(String(val(s, 'reply_rl_track', '5'))) + '">'
       + toggle('replyRlIpOn_efb', T('replyRlIpOn', 'Limit replies per address'), String(val(s, 'reply_rl_ip', '20')) !== '0', ' onchange="var n=document.getElementById(\'replyRlIp_efb\');if(n)n.disabled=!this.checked"', '')
       + '<label class="efb form-label" for="replyRlIp_efb">' + esc(T('replyRlIp', 'Replies per address in an hour')) + '</label>'
-      + '<input type="text" inputmode="numeric" dir="ltr" class="efb form-control efb-spam-input efb-spam-num" id="replyRlIp_efb" value="' + esc(String(val(s, 'reply_rl_ip', '20')) === '0' ? '20' : String(val(s, 'reply_rl_ip', '20'))) + '"' + (String(val(s, 'reply_rl_ip', '20')) === '0' ? ' disabled' : '') + '>'
+      + '<input type="text" inputmode="numeric" dir="ltr" class="efb form-control efb-spam-input efb-spam-num" id="replyRlIp_efb" data-efb-num="1,1000" value="' + esc(String(val(s, 'reply_rl_ip', '20')) === '0' ? '20' : String(val(s, 'reply_rl_ip', '20'))) + '"' + (String(val(s, 'reply_rl_ip', '20')) === '0' ? ' disabled' : '') + '>'
       + '</fieldset>'
       + '<p class="efb text-danger efb-spam-err" id="efbSpamErr" role="alert" aria-live="polite"></p>'
       + (addons.length ? '<h6 class="efb mt-3 fw-bold" id="efbCpaTitle">' + esc(T('cpAddonProviders', 'CAPTCHA add-ons')) + '</h6>'
@@ -155,7 +155,7 @@
       + '<div class="efb card-body mx-0 py-1 ' + c + '">'
       + toggle('spamHoneypot_efb', T('spamHoneypot', 'Hidden trap field (honeypot)'), on(val(s, 'spam_honeypot', '')), '', esc(T('spamHoneypotHelp', 'A field visitors never see or reach. Bots that fill every field are caught; people are not asked anything.')))
       + '<label class="efb form-label mt-2" for="spamMinTime_efb">' + esc(T('spamMinTime', 'Minimum time to fill (seconds)')) + '</label>'
-      + '<input type="text" inputmode="numeric" dir="ltr" class="efb form-control efb-spam-input efb-spam-num" id="spamMinTime_efb" value="' + esc(minT) + '" aria-describedby="spamMinTime_efb-help">'
+      + '<input type="text" inputmode="numeric" dir="ltr" class="efb form-control efb-spam-input efb-spam-num" id="spamMinTime_efb" data-efb-num="0,60" value="' + esc(minT) + '" aria-describedby="spamMinTime_efb-help">'
       + '<div class="efb form-text efb-spam-help" id="spamMinTime_efb-help">' + esc(T('spamMinTimeHelp', 'An answer sent sooner after the visitor starts the form is treated as spam. 0 turns this off.')) + '</div>'
       + toggle('spamRequireJs_efb', T('spamRequireJs', 'Require JavaScript'), on(val(s, 'spam_require_js', '')), '', '<span class="efb text-warning-emphasis">' + esc(T('spamRequireJsWarn', 'Only after checking Request Health: visitors whose firewall blocks the plugin\'s REST route, and pages cached before this version, would be treated as spam.')) + '</span>')
       + '<div class="efb mt-2" role="radiogroup" aria-labelledby="spamAction_efb-lbl" aria-describedby="spamAction_efb-help"><span class="efb form-label d-block" id="spamAction_efb-lbl">' + esc(T('spamAction', 'What to do with spam')) + '</span>'
@@ -165,7 +165,7 @@
       + toggle('spamAkismet_efb', T('spamAkismet', 'Check answers with Akismet'), akOk && on(val(s, 'spam_akismet', '')), akOk ? '' : ' disabled aria-disabled="true"', esc(akOk ? T('spamAkismetPrivacy', 'Akismet sends the answers to Automattic to check them.') : T('spamAkismetMissing', 'Akismet is not installed or active.')))
       + toggle('spamDisallowed_efb', T('spamDisallowed', 'Check WordPress\' disallowed words'), on(val(s, 'spam_disallowed_keys', '')), '', sp.discussion_url ? '<a href="' + esc(sp.discussion_url) + '#disallowed_keys">' + esc(T('spamDisallowedHelp', 'Uses the list in Settings › Discussion › Disallowed Comment Keys.')) + '</a>' : esc(T('spamDisallowedHelp', 'Uses the list in Settings › Discussion › Disallowed Comment Keys.')))
       + '<label class="efb form-label mt-2" for="spamRetention_efb">' + esc(T('spamRetention', 'Delete spam after (days)')) + '</label>'
-      + '<input type="text" inputmode="numeric" dir="ltr" class="efb form-control efb-spam-input efb-spam-num" id="spamRetention_efb" value="' + esc(ret) + '" aria-describedby="spamRetention_efb-help">'
+      + '<input type="text" inputmode="numeric" dir="ltr" class="efb form-control efb-spam-input efb-spam-num" id="spamRetention_efb" data-efb-num="0,3650" value="' + esc(ret) + '" aria-describedby="spamRetention_efb-help">'
       + '<div class="efb form-text efb-spam-help" id="spamRetention_efb-help">' + esc(T('spamRetentionHelp', '0 keeps spam until you delete it.')) + '</div>'
       + '<p class="efb form-text efb-spam-help mt-3">' + esc(T('shieldVsHuman', 'Shield Security is a separate plugin; Human Shield is the security add-on of Easy Form Builder.')) + '</p>'
       + '</div></section>';

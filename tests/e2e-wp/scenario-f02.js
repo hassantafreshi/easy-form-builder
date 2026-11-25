@@ -434,8 +434,9 @@ module.exports = function (S) {
     R.check('f02e: tab "Verification": e-mail ready, SMS not available; "WP SMS is not installed or not active." with the install link', s0.states.join(',') === '1,0' && s0.missing && /plugin-install\.php\?s=wp-sms/.test(s0.link) && /through the WP SMS plugin/.test(s0.via), s0);
     await admin.screenshot({ path: SHOT('f02-settings-tab') });
     await admin.fill('#vrfs-CountriesSet', 'IR, ae');
-    await admin.click('#vrfs-SaveBtn');
-    await admin.waitForFunction(() => /saved/.test((document.getElementById('vrfs-SaveMsg') || {}).textContent || ''), null, { timeout: 10000 });
+    // QA1-001: the page's own Save stores the Verification tab (the tab has no Save of its own).
+    // The Save reloads the page (replaceState, then a new document): wait for that document's load event.
+    await Promise.all([admin.waitForEvent('load', { timeout: 30000 }), admin.click('#save-stng-efb')]);
     { const v_ = ctl('f02-settings').settings.sms.allowed_countries; R.check('f02e: Save keeps the countries as ISO codes', JSON.stringify(v_) === JSON.stringify(['ir', 'ae']), v_); }
     // AutoPilot.
     await openNewForm(admin);

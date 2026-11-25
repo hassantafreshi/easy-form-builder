@@ -2191,6 +2191,10 @@ require('./scenario-b7.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT });
  * plugin (no Google Charts, no CDN): tests/e2e-wp/scenario-b6.js. */
 require('./scenario-b6.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, builderReady, canvasDrawn, closePanel });
 
+/* FX-ADMIN (4.3.2): the fixes of the QA-1 report (settings, Verification, entries, the block editor, first run):
+ * tests/e2e-wp/scenario-qa1.js. */
+require('./scenario-qa1.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */

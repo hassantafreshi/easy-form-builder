@@ -173,6 +173,35 @@ class Verification {
 		return array_values(array_unique($out));
 	}
 
+	/** The ranges of the numbers an administrator types (min, max), as clamp() keeps them. */
+	public static function number_ranges() {
+		$ch = array('code_length' => array(6, 8), 'ttl' => array(120, 600), 'max_sends_dest_hour' => array(1, 20), 'max_sends_dest_day' => array(1, 50), 'max_attempts' => array(1, 10), 'daily_budget' => array(1, 100000));
+		$r = array();
+		foreach (array('sms', 'email') as $c) {
+			foreach ($ch as $k => $mm) $r[$c . '.' . $k] = $mm;
+		}
+		foreach (array_keys(self::defaults()['limits']) as $k) $r['limits.' . $k] = array(1, 10000);
+		$r['token_ttl'] = array(300, 7200);
+		return $r;
+	}
+
+	/**
+	 * QA1-010: the first number of a settings save that is not a whole number in its range, as
+	 * array(key, min, max) ('sms.ttl', 'limits.ip_hour_sms'), or null. A value sent is never clamped into range
+	 * here: the save is refused (invalid_<key>) and the stored value stays.
+	 */
+	public static function invalid_number($in) {
+		if (!is_array($in)) return null;
+		foreach (self::number_ranges() as $key => $mm) {
+			$p = explode('.', $key);
+			$v = count($p) === 2 ? (isset($in[$p[0]]) && is_array($in[$p[0]]) && array_key_exists($p[1], $in[$p[0]]) ? $in[$p[0]][$p[1]] : null) : (array_key_exists($key, $in) ? $in[$key] : null);
+			if ($v === null) continue;
+			$t = is_int($v) ? (string) $v : (is_string($v) ? trim(self::ascii_digits($v)) : '');
+			if (!preg_match('/^[0-9]{1,9}$/', $t) || (int) $t < $mm[0] || (int) $t > $mm[1]) return array($key, $mm[0], $mm[1]);
+		}
+		return null;
+	}
+
 	/** Every value clamped to its range (spec §4.2); unknown keys are dropped. */
 	public static function clamp($in) {
 		$d = self::defaults();
@@ -1568,6 +1597,17 @@ class Verification {
 		if ($op === 'save') {
 			$raw = isset($_POST['settings']) ? json_decode(wp_unslash((string) $_POST['settings']), true) : null;
 			if (!is_array($raw)) wp_send_json_success(array('success' => false, 'm' => __('Invalid request.', 'easy-form-builder')), 200);
+			$bad = self::invalid_number($raw);
+			if ($bad !== null) {
+				$fmt = function ($n) { return function_exists('number_format_i18n') ? number_format_i18n($n) : (string) $n; };
+				wp_send_json_success(array(
+					'success' => false,
+					'code'    => 'invalid_' . str_replace('.', '_', $bad[0]),
+					'key'     => $bad[0],
+					/* translators: %1$s: the smallest number allowed, %2$s: the largest. */
+					'm'       => sprintf(__('Enter a whole number from %1$s to %2$s.', 'easy-form-builder'), $fmt($bad[1]), $fmt($bad[2])),
+				), 200);
+			}
 			$cur = self::settings();
 			$merged = array_replace_recursive($cur, $raw);
 			// Lists replace (not merge) the stored ones.

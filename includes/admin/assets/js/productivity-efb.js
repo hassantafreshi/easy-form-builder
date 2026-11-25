@@ -820,7 +820,7 @@
     var esc = function (x) { return String(x).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
     return '<div class="efb card-body ' + esc(cls || '') + ' py-1 mt-3" data-f15="revisions">'
       + '<label class="efb form-label fw-bold fs-6 mb-1" for="formRevKeep_efb">' + esc(T('revKeep', 'Number of earlier versions to keep per form')) + '</label>'
-      + '<input type="text" inputmode="numeric" maxlength="2" autocomplete="off" class="efb form-control w-25 h-d-efb border-d efb-rounded" id="formRevKeep_efb" value="' + esc(v) + '" aria-describedby="formRevKeepHelp_efb">'
+      + '<input type="text" inputmode="numeric" maxlength="2" autocomplete="off" class="efb form-control w-25 h-d-efb border-d efb-rounded" id="formRevKeep_efb" data-efb-num="0,50" value="' + esc(v) + '" aria-describedby="formRevKeepHelp_efb">'
       + '<small class="efb text-muted d-block mt-1 fs-7 efb-pd-sentx" id="formRevKeepHelp_efb">' + esc(String(T('revKeepHelp', '0 turns versions off. Your plan keeps up to %s.')).replace('%s', String(cfg.cap || 10))) + '</small></div>';
   };
   W.efb_revisions_settings_patch_efb = function () {

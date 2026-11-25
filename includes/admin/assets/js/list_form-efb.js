@@ -2072,6 +2072,74 @@ function efb_prv_digits_efb(v) {
 function efb_prv_number_efb(n) {
   try { return Number(n).toLocaleString(String((efb_var && efb_var.wp_lan) || 'en').replace('_', '-')); } catch (e) { return String(n); }
 }
+/* QA1-010: every number of the settings screen says its range: data-efb-num="min,max" (",dec" allows a decimal
+   point). Persian and Arabic-Indic digits are read; a sign, a letter, an empty box or a number out of range is
+   refused with its reason (aria-invalid, a message tied with aria-describedby) and Save stores nothing, so the
+   saved value stays. Never clamped silently. */
+function efb_num_setting_value_efb(el) {
+  const spec = String(el.getAttribute('data-efb-num') || '').split(',');
+  const min = Number(spec[0]), max = Number(spec[1]), dec = spec[2] === 'dec';
+  const raw = efb_prv_digits_efb(el.value).replace(/٫/g, '.').trim();
+  const ok = dec ? /^\d+(?:[.,]\d+)?$/.test(raw) : /^\d+$/.test(raw);
+  const n = ok ? Number(raw.replace(',', '.')) : NaN;
+  return { ok: ok && n >= min && n <= max, n: n, min: min, max: max, dec: dec };
+}
+function efb_num_setting_check_efb(el) {
+  if (!el || el.disabled || !el.hasAttribute('data-efb-num')) return true;
+  const r = efb_num_setting_value_efb(el);
+  const mid = el.id + '-numErr';
+  let msg = document.getElementById(mid);
+  const desc = String(el.getAttribute('aria-describedby') || '').split(/\s+/).filter((x) => x && x !== mid);
+  if (r.ok) {
+    el.removeAttribute('aria-invalid');
+    el.classList.remove('efb-num-invalid');
+    if (msg) msg.remove();
+    if (desc.length) el.setAttribute('aria-describedby', desc.join(' ')); else el.removeAttribute('aria-describedby');
+    return true;
+  }
+  const fmt = (x) => efb_prv_number_efb(x);
+  const text = (r.dec ? efb_prv_t_efb('numRangeDec', 'Enter a number from %1$s to %2$s.') : efb_prv_t_efb('numRangeInt', 'Enter a whole number from %1$s to %2$s.'))
+    .replace('%1$s', fmt(r.min)).replace('%2$s', fmt(r.max));
+  if (!msg) {
+    msg = document.createElement('span');
+    msg.id = mid;
+    msg.className = 'efb d-block fs-7 mt-1 efb-num-err';
+    msg.setAttribute('dir', 'auto');
+    el.insertAdjacentElement('afterend', msg);
+  }
+  msg.textContent = text;
+  el.setAttribute('aria-invalid', 'true');
+  el.classList.add('efb-num-invalid');
+  el.setAttribute('aria-describedby', desc.concat([mid]).join(' '));
+  return false;
+}
+/* The first refused number of the screen (its tab opened, focused), or null when every number is fine. */
+function efb_num_settings_first_invalid_efb(root) {
+  const box = root || document.getElementById('content-efb') || document;
+  let first = null;
+  box.querySelectorAll('[data-efb-num]').forEach((el) => { if (!efb_num_setting_check_efb(el) && !first) first = el; });
+  if (first) {
+    const pane = first.closest('.tab-pane');
+    const tab = pane ? document.querySelector(`#nav-tab [data-bs-target="#${pane.id}"]`) : null;
+    if (tab && !tab.classList.contains('active')) tab.click();
+    // The tab fades in: the box can take the focus once its pane is shown.
+    let tries = 0;
+    const focusIt = () => {
+      if (pane && !(pane.classList.contains('active') && pane.classList.contains('show')) && tries++ < 30) {
+        // A tab change still running (Bootstrap's fade) can swallow the click: ask again.
+        if (tab && tries % 6 === 0 && !tab.classList.contains('active')) tab.click();
+        setTimeout(focusIt, 50);
+        return;
+      }
+      try { first.focus(); first.scrollIntoView({ block: 'center' }); } catch (e) { /* ignore */ }
+    };
+    setTimeout(focusIt, 0);
+  }
+  return first;
+}
+if (typeof document !== 'undefined') {
+  document.addEventListener('change', (e) => { if (e.target && e.target.hasAttribute && e.target.hasAttribute('data-efb-num')) efb_num_setting_check_efb(e.target); }, true);
+}
 function efb_privacy_tab_efb(prv, mx) {
   const can = efb_prv_can_manage_efb();
   const dis = can ? '' : 'disabled';
@@ -2139,7 +2207,7 @@ function efb_entries_settings_html_efb(mx, dis) {
       <fieldset class="efb card-body ${mx} py-1 mt-3 border-0" id="entSettings_efb">
         <legend class="efb fs-6 fw-bold mb-1">${efb_prv_t_efb('entSettingsTitle', 'Entries')}</legend>
         <label class="efb form-label" for="entTrashDays_efb">${efb_prv_t_efb('entTrashDays', 'Empty the trash after (days, 0 = never)')}</label>
-        <input type="text" inputmode="numeric" class="efb form-control w-auto" id="entTrashDays_efb" value="${efb_prv_number_efb(Number(days))}" maxlength="5" ${dis}>
+        <input type="text" inputmode="numeric" class="efb form-control w-auto" id="entTrashDays_efb" value="${efb_prv_number_efb(Number(days))}" maxlength="5" data-efb-num="0,3650" ${dis}>
         <div class="efb fw-bold mt-3 mb-1" id="entAiLbl_efb">${efb_prv_t_efb('entAiAccess', 'AI assistants: access to entries')}</div>
         <div role="radiogroup" aria-labelledby="entAiLbl_efb">
         ${radio('off', 'entAiOff', 'No access')}
@@ -2180,7 +2248,7 @@ function efb_privacy_retention_html_efb(prv, mx, dis) {
   return `
       <div class="efb card-body ${mx} py-1 mt-3" data-prv-section="retention">
         <label class="efb form-label fw-bold fs-6 mb-1" for="prvDays_efb">${efb_prv_t_efb('prvDays', 'Delete entries automatically after (days)')}</label>
-        <input type="text" inputmode="numeric" autocomplete="off" maxlength="4" class="efb form-control w-25 h-d-efb border-d efb-rounded" id="prvDays_efb" value="${efb_prv_digits_efb(prv.prv_days)}" ${dis} aria-describedby="prvDaysHelp_efb prvPreview_efb" oninput="efb_privacy_days_input_efb(this)">
+        <input type="text" inputmode="numeric" autocomplete="off" maxlength="4" class="efb form-control w-25 h-d-efb border-d efb-rounded" id="prvDays_efb" value="${efb_prv_digits_efb(prv.prv_days)}" data-efb-num="0,3650" ${dis} aria-describedby="prvDaysHelp_efb prvPreview_efb" oninput="efb_privacy_days_input_efb(this)">
         <small class="efb text-muted d-block mt-1 fs-7" id="prvDaysHelp_efb">${efb_prv_t_efb('prvDaysHelp', '0 = never. Counted from the last activity (entry or reply).')}</small>
         <span class="efb d-block mt-1 text-danger" id="prvPreview_efb" aria-live="polite"></span>
       </div>
@@ -2197,11 +2265,11 @@ function efb_privacy_retention_html_efb(prv, mx, dis) {
       </div>
       <div class="efb card-body ${mx} py-1">
         <label class="efb form-label fs-6 mb-1" for="prvFileLinkDays_efb">${efb_prv_t_efb('prvFileLinkDays', 'Download links to private files work for (days)')}</label>
-        <input type="text" inputmode="numeric" autocomplete="off" maxlength="2" class="efb form-control w-25 h-d-efb border-d efb-rounded" id="prvFileLinkDays_efb" value="${efb_prv_digits_efb(prv.prv_file_link_days || '7')}" ${dis}>
+        <input type="text" inputmode="numeric" autocomplete="off" maxlength="2" class="efb form-control w-25 h-d-efb border-d efb-rounded" id="prvFileLinkDays_efb" value="${efb_prv_digits_efb(prv.prv_file_link_days || '7')}" data-efb-num="1,90" ${dis}>
       </div>
       <div class="efb card-body ${mx} py-1">
         <label class="efb form-label fs-6 mb-1" for="prvNoStoreFileDays_efb">${efb_prv_t_efb('prvNoStoreFileDays', 'Keep the files of entries that are not stored for (days)')}</label>
-        <input type="text" inputmode="numeric" autocomplete="off" maxlength="3" class="efb form-control w-25 h-d-efb border-d efb-rounded" id="prvNoStoreFileDays_efb" value="${efb_prv_digits_efb(prv.prv_nostore_file_days)}" ${dis}>
+        <input type="text" inputmode="numeric" autocomplete="off" maxlength="3" class="efb form-control w-25 h-d-efb border-d efb-rounded" id="prvNoStoreFileDays_efb" value="${efb_prv_digits_efb(prv.prv_nostore_file_days)}" data-efb-num="1,365" ${dis}>
       </div>
       <div class="efb card-body ${mx} py-1">
         <span class="efb text-muted" id="prvLastRun_efb" aria-live="polite">${efb_privacy_last_run_text_efb(efb_var.privacy && efb_var.privacy.last_run)}</span>
@@ -2215,13 +2283,12 @@ function efb_privacy_last_run_text_efb(r) {
   const n = (Number(r.deleted) || 0) + (Number(r.anonymized) || 0);
   return efb_prv_t_efb('prvLastRun', 'Last run: %1$s, %2$s entries removed').replace('%1$s', when).replace('%2$s', efb_prv_number_efb(n));
 }
-/* The day field: Persian/Arabic digits become Latin, 0-3650; the preview follows (debounced). */
+/* The day field: Persian/Arabic digits are read as they are typed; the preview follows (debounced) for a valid
+   number only. The box is never rewritten (QA1-010: "-5" was turned into 5 days). */
 function efb_privacy_days_input_efb(el) {
-  const raw = efb_prv_digits_efb(el.value).replace(/[^0-9]/g, '').slice(0, 4);
-  const v = raw === '' ? '' : String(Math.min(3650, Number(raw)));
-  if (el.value !== v) el.value = v;
+  const r = efb_num_setting_value_efb(el);
   clearTimeout(window.efb_prv_preview_timer_efb);
-  window.efb_prv_preview_timer_efb = setTimeout(() => efb_privacy_preview_efb(v), 400);
+  window.efb_prv_preview_timer_efb = setTimeout(() => efb_privacy_preview_efb(r.ok ? String(r.n) : '0'), 400);
 }
 async function efb_privacy_preview_efb(days) {
   const out = document.getElementById('prvPreview_efb');
@@ -2247,7 +2314,9 @@ async function efb_privacy_run_now_efb(btn) {
 function efb_privacy_save_needs_check_efb() {
   const el = document.getElementById('prvDays_efb');
   if (!el || !efb_prv_can_manage_efb()) return false;
-  const d = Number(efb_prv_digits_efb(el.value)) || 0;
+  const r = efb_num_setting_value_efb(el);
+  if (!r.ok) return false;
+  const d = r.n;
   const stored = Number((typeof valueJson_ws_setting === 'object' && valueJson_ws_setting && valueJson_ws_setting.prv_days) || 0) || 0;
   return d > 0 && (stored === 0 || d < stored);
 }
@@ -3440,6 +3509,13 @@ function fun_switch_saveSetting(i, id) {
  *                              see.
  */
 function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
+  /* QA1-010: a number out of its range is refused with its reason before anything is sent (stored values stay). */
+  const badNum = typeof efb_num_settings_first_invalid_efb === 'function' ? efb_num_settings_first_invalid_efb() : null;
+  if (badNum) {
+    const why = (document.getElementById(badNum.id + '-numErr') || {}).textContent || efb_var.text.pleaseEnterVaildValue;
+    if (state_auto == 1) { if (typeof done === 'function') done(false, why); return; }
+    return;
+  }
   /* F13: turning on automatic deletion asks first, with the number of entries it removes. */
   if (state_auto == 0 && !window.efb_prv_save_confirmed_efb && typeof efb_privacy_save_needs_check_efb === 'function' && efb_privacy_save_needs_check_efb()) {
     efb_privacy_confirm_save_efb().then((ok) => {
@@ -3825,7 +3901,18 @@ function fun_set_setting_emsFormBuilder(state_auto = 0, done) {
         };
 
         setting = efb_merge_setting_patch_efb(setting, patch);
-    fun_send_setting_emsFormBuilder( setting , state_auto, done);
+    /* QA1-001: one Save for every tab. The Verification tab keeps its own store (efb_verify_settings_Emsfb):
+       it is saved first, and the rest only when it was accepted, so "Saved" never hides a dropped change. */
+    if (typeof efbVerifySettingsSave !== 'function') { fun_send_setting_emsFormBuilder(setting, state_auto, done); return; }
+    efbVerifySettingsSave().then((r) => {
+      if (r && r.ok) { fun_send_setting_emsFormBuilder(setting, state_auto, done); return; }
+      const m = (r && r.m) || efb_var.text.error;
+      if (state_auto == 1) { if (typeof done === 'function') done(false, m); return; }
+      fun_State_btn_set_setting_emsFormBuilder(true);
+      const vt = document.getElementById('nav-verify-tab');
+      if (vt && !vt.classList.contains('active')) vt.click();
+      alert_message_efb(efb_var.text.error, m, 15, 'danger');
+    });
   }
 
 }
