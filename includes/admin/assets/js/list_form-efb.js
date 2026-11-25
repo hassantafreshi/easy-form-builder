@@ -1666,14 +1666,14 @@ function fun_show_setting__emsFormBuilder() {
                             <!--response-->
                             <div class="efb m-3">
 
-                              <h5 class="efb  card-title mt-3 mobile-title">
-                                <i class="efb  bi-search m-3"></i>${efb_var.text.trackingCodeFinder}
+                              <h5 class="efb  card-title mt-3 mobile-title" id="shortCode_emsFormBuilder-title">
+                                <i class="efb  bi-search m-3" aria-hidden="true"></i>${efb_var.text.trackingCodeFinder}
                               </h5>
                               <p class="efb ${mxCSize}">${efb_var.text.copyAndPasteBelowShortCodeTrackingCodeFinder}</p>
                               <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                       <div class="efb row efb col-12">
                                           <div class="efb  col-md-8">
-                                            <input type="text"  class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="shortCode_emsFormBuilder" value="[Easy_Form_Builder_confirmation_code_finder]" readonly>
+                                            <input type="text"  class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="shortCode_emsFormBuilder" value="[Easy_Form_Builder_confirmation_code_finder]" readonly dir="ltr" aria-labelledby="shortCode_emsFormBuilder-title">
                                             <span id="shortCode_emsFormBuilder-message" class="efb text-danger"></span>
                                           </div>
                                             <button type="button" class="efb btn col-md-4 efb btn-r h-d-efb btn-outline-pink my-1" onclick="copyCodeEfb('shortCode_emsFormBuilder','copyshortCodeEfb')">
@@ -1682,14 +1682,14 @@ function fun_show_setting__emsFormBuilder() {
                                         </div>
                               </div>
 
-                              <h5 class="efb  card-title mt-3 mobile-title">
-                                <i class="efb  bi-clock m-3"></i>${efb_var.text.sessionDuration}
+                              <h5 class="efb  card-title mt-3 mobile-title" id="sessionDuration_emsFormBuilder-title">
+                                <i class="efb  bi-clock m-3" aria-hidden="true"></i>${efb_var.text.sessionDuration}
                               </h5>
                               <p class="efb ${mxCSize}">${efb_var.text.sessionDurationDesc}</p>
                               <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                       <div class="efb row efb col-12">
                                           <div class="efb  col-md-8">
-                                            <select class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="sessionDuration_emsFormBuilder" data-tab="${efb_var.text.rspcon}">
+                                            <select class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="sessionDuration_emsFormBuilder" data-tab="${efb_var.text.rspcon}" aria-labelledby="sessionDuration_emsFormBuilder-title">
                                                 <option value="">${efb_var.text.selectDuration}</option>
                                                 <option value="1" ${sessionDuration == 1 ? 'selected' : ''}>${efb_var.text.sessionDurationDay.replace('%s', '1')}</option>
                                                 <option value="2" ${sessionDuration == 2 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '2')}</option>
@@ -1704,14 +1704,14 @@ function fun_show_setting__emsFormBuilder() {
                                         </div>
                               </div>
 
-                              <h5 class="efb  card-title mt-3 mobile-title">
-                                <i class="efb  bi-hash m-3"></i>${efb_var.text.trackNo}
+                              <h5 class="efb  card-title mt-3 mobile-title" id="trackCodeStyle_emsFormBuilder-title">
+                                <i class="efb  bi-hash m-3" aria-hidden="true"></i>${efb_var.text.trackNo}
                               </h5>
                               <p class="efb ${mxCSize}">${efb_var.text.trackCodeStyleDesc.replace('%s', efb_var.text.trackNo)}</p>
                               <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                       <div class="efb row efb col-12">
                                           <div class="efb  col-md-8">
-                                            <select class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="trackCodeStyle_emsFormBuilder" data-tab="${efb_var.text.rspcon}" onchange="efb_preview_track_code(this.value)">
+                                            <select class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="trackCodeStyle_emsFormBuilder" data-tab="${efb_var.text.rspcon}" aria-labelledby="trackCodeStyle_emsFormBuilder-title" onchange="efb_preview_track_code(this.value)">
                                                 ${efb_build_track_options(trackCodeStyle)}
                                             </select>
                                             <span id="trackCodeStyle_emsFormBuilder-message" class="efb text-danger"></span>
@@ -1829,7 +1829,7 @@ function fun_show_setting__emsFormBuilder() {
                             </h5>
                             <p class="efb ${mxCSize}">${efb_var.text.shieldSilentCaptchaDesc}</p>
                             <p class="efb ${mxCSize}"><a target="_blank" href="https://clk.shldscrty.com/silentcaptchaintegrationhelp"  rel="nofollow noopener" >${efb_var.text.lmavt.replace('%s','Shield silentCAPTCHA')}</a></p>
-                            ${shieldAvailable ? '' : `<p class="efb ${mxCSize} text-warning">${efb_var.text.shieldNotDetected}</p>`}
+                            ${shieldAvailable ? '' : `<p class="efb ${mxCSize} efb-text-warn">${efb_var.text.shieldNotDetected}</p>`}
                             <div class="efb card-body mx-0 py-1 ${mxCSize4}">
                                 <button type="button" id="shieldSilentCaptcha_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${shieldSilentCaptcha == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off" ${shieldAvailable ? '' : 'disabled aria-disabled="true"'}>
                                 <div class="efb handle"></div>

@@ -504,7 +504,7 @@
       label: t_efb('ebProfessional', 'Professional'),
       icon: 'bi-briefcase',
       blocks: [
-        { type: 'header', data: { bgColor: '#667eea', padding: '40px 30px 30px 30px' },
+        { type: 'header', data: { bgColor: '#4c51bf', padding: '40px 30px 30px 30px' },
           children: [
             { type: 'logo', data: { width: '120', align: 'center' } },
             { type: 'title', data: { text: 'shortcode_title', color: '#ffffff', fontSize: '28', fontWeight: '600', align: 'center' } }
@@ -564,8 +564,8 @@
         { type: 'message', data: { padding: '40px 40px', bgColor: '#ffffff', color: '#475569', fontSize: '15' } },
         { type: 'button', data: { text: t_efb('ebViewWebsite', 'View Website') + ' →', url: 'shortcode_website_url', bgColor: '#1e293b', textColor: '#ffffff', borderRadius: '4', padding: '14px 40px', fontSize: '15', align: 'center', containerPadding: '20px 30px' } },
         { type: 'divider', data: { color: '#e2e8f0', thickness: '1', width: '80', padding: '20px 30px' } },
-        { type: 'text', data: { text: 'shortcode_website_name', color: '#94a3b8', fontSize: '13', align: 'center', padding: '5px 30px' } },
-        { type: 'footer', data: { text: 'shortcode_admin_email', color: '#94a3b8', fontSize: '11', align: 'center', bgColor: '#f8fafc', padding: '25px 30px', borderRadius: '0 0 8px 8px' } }
+        { type: 'text', data: { text: 'shortcode_website_name', color: '#64748b', fontSize: '13', align: 'center', padding: '5px 30px' } },
+        { type: 'footer', data: { text: 'shortcode_admin_email', color: '#64748b', fontSize: '11', align: 'center', bgColor: '#f8fafc', padding: '25px 30px', borderRadius: '0 0 8px 8px' } }
       ],
       globalSettings: { bgColor: '#f1f5f9', contentBgColor: '#ffffff', borderRadius: '0' }
     },
@@ -880,7 +880,7 @@ ${blocksHtml}
       canvas.innerHTML = `
         <div class="efb-empty-canvas">
           <i class="efb bi-envelope-plus" style="font-size:48px;color:#cbd5e1;"></i>
-          <p style="color:#94a3b8;margin-top:12px;font-size:16px;">${t_efb('ebDragBlocksHere', 'Drag blocks here to build your email template')}</p>
+          <p style="color:#64748b;margin-top:12px;font-size:16px;">${t_efb('ebDragBlocksHere', 'Drag blocks here to build your email template')}</p>
           <p style="color:#cbd5e1;font-size:13px;">${t_efb('ebOrChooseTemplate', 'or choose a template from the Templates panel')}</p>
         </div>`;
       return;
@@ -896,7 +896,7 @@ ${blocksHtml}
       html += `<div class="efb-canvas-block ${isSelected ? 'efb-block-selected' : ''} ${isMessage ? 'efb-block-required' : ''}"
         data-block-id="${block.id}" data-index="${index}" draggable="true"
         role="listitem" tabindex="0"
-        aria-label="${escHtml_efb(label)} - ${t_efb('ebBlock', 'Block')} ${index + 1}" aria-selected="${isSelected}">
+        aria-label="${escHtml_efb(label)} - ${t_efb('ebBlock', 'Block')} ${index + 1}"${isSelected ? ' aria-current="true"' : ''}>
         <div class="efb-block-label">
           <span><i class="efb ${def?.icon || 'bi-square'}"></i> ${label}</span>
           <div class="efb-block-actions" role="toolbar" aria-label="${t_efb('ebBlockActions', 'Block actions')}">
@@ -938,14 +938,14 @@ ${blocksHtml}
         const ha = data.align || 'center';
         const childrenHtml = (block.children || []).map(c => {
           const cd = Object.assign({}, BLOCK_TYPES_efb[c.type]?.defaultData || {}, c.data || {});
-          if (c.type === 'logo') { const lm = ha === 'left' ? '0 auto 10px 0' : ha === 'right' ? '0 0 10px auto' : '0 auto 10px'; return `<div style="text-align:${ha};"><img src="${cd.src}" style="width:${Math.min(cd.width,80)}px;height:auto;display:block;margin:${lm};" /></div>`; }
+          if (c.type === 'logo') { const lm = ha === 'left' ? '0 auto 10px 0' : ha === 'right' ? '0 0 10px auto' : '0 auto 10px'; return `<div style="text-align:${ha};"><img alt="" src="${cd.src}" style="width:${Math.min(cd.width,80)}px;height:auto;display:block;margin:${lm};" /></div>`; }
           if (c.type === 'title') return `<div style="text-align:${ha};color:${cd.color};font-size:${pfs(cd.fontSize)}px;font-weight:${cd.fontWeight};font-family:${cd.fontFamily || _gFont_efb()};">${previewShortcodes_efb(cd.text)}</div>`;
           return '';
         }).join('');
         return `<div style="background:${data.bgGradient || data.bgColor};padding:${spad(data.padding)};text-align:${ha};">${childrenHtml}</div>`;
       case 'logo':
         const logoM = data.align === 'left' ? '0 auto 0 0' : data.align === 'right' ? '0 0 0 auto' : '0 auto';
-        return `<div style="text-align:${data.align};padding:8px;"><img src="${data.src}" style="width:${Math.min(data.width,60)}px;height:auto;display:block;margin:${logoM};" onerror="this.style.display='none'" /></div>`;
+        return `<div style="text-align:${data.align};padding:8px;"><img alt="" src="${data.src}" style="width:${Math.min(data.width,60)}px;height:auto;display:block;margin:${logoM};" onerror="this.style.display='none'" /></div>`;
       case 'title':
         return `<div style="text-align:${data.align};color:${data.color};font-size:${pfs(data.fontSize)}px;font-weight:${data.fontWeight};font-family:${data.fontFamily || _gFont_efb()};padding:5px;">${previewShortcodes_efb(data.text)}</div>`;
       case 'text':
@@ -963,10 +963,10 @@ ${blocksHtml}
       case 'divider':
         return `<div style="padding:${spad(data.padding)};"><hr style="border:none;border-top:${data.thickness}px solid ${data.color};width:${data.width}%;margin:0 auto;" /></div>`;
       case 'spacer':
-        return `<div style="height:${Math.min(data.height,30)}px;background:${data.bgColor};border:1px dashed #e5e7eb;text-align:center;line-height:${Math.min(data.height,30)}px;color:#cbd5e1;font-size:10px;">${data.height}px</div>`;
+        return `<div style="height:${Math.min(data.height,30)}px;background:${data.bgColor};border:1px dashed #e5e7eb;text-align:center;line-height:${Math.min(data.height,30)}px;color:#64748b;font-size:10px;">${data.height}px</div>`;
       case 'image':
-        if (!data.src) return `<div style="text-align:center;padding:15px;border:2px dashed #e5e7eb;color:#94a3b8;"><i class="efb bi-card-image" style="font-size:24px;"></i><div style="font-size:11px;margin-top:4px;">${t_efb('ebAddImageURL', 'Add image URL')}</div></div>`;
-        return `<div style="text-align:${data.align};padding:${spad(data.padding)};"><img src="${data.src}" style="max-width:100%;max-height:80px;height:auto;" onerror="this.style.display='none'" /></div>`;
+        if (!data.src) return `<div style="text-align:center;padding:15px;border:2px dashed #e5e7eb;color:#64748b;"><i class="efb bi-card-image" style="font-size:24px;"></i><div style="font-size:11px;margin-top:4px;">${t_efb('ebAddImageURL', 'Add image URL')}</div></div>`;
+        return `<div style="text-align:${data.align};padding:${spad(data.padding)};"><img alt="" src="${data.src}" style="max-width:100%;max-height:80px;height:auto;" onerror="this.style.display='none'" /></div>`;
       case 'columns':
         return `<div style="display:flex;gap:8px;padding:${spad(data.padding)};">
           <div style="flex:1;background:#f8fafc;padding:8px;font-size:${pfs(data.fontSize)}px;color:${data.leftColor};font-family:${data.fontFamily || _gFont_efb()};">${previewShortcodes_efb(data.leftContent)}</div>
@@ -986,7 +986,7 @@ ${blocksHtml}
       case 'htmlBlock':
         return `<div style="padding:5px;font-size:11px;color:#64748b;border:1px dashed #cbd5e1;max-height:60px;overflow:hidden;"><code>&lt;/&gt; ${t_efb('ebCustomHTML', 'Custom HTML')}</code></div>`;
       default:
-        return `<div style="padding:8px;color:#94a3b8;">${t_efb('ebUnknownBlock', 'Unknown block')}</div>`;
+        return `<div style="padding:8px;color:#64748b;">${t_efb('ebUnknownBlock', 'Unknown block')}</div>`;
     }
   }
 
@@ -1206,7 +1206,7 @@ ${blocksHtml}
       panel.innerHTML = `
         <div class="efb-props-empty">
           <i class="efb bi-hand-index" style="font-size:32px;color:#cbd5e1;"></i>
-          <p style="color:#94a3b8;margin-top:8px;font-size:13px;">${t_efb('ebSelectBlock', 'Select a block to edit its properties')}</p>
+          <p style="color:#64748b;margin-top:8px;font-size:13px;">${t_efb('ebSelectBlock', 'Select a block to edit its properties')}</p>
         </div>`;
       return;
     }
@@ -2657,9 +2657,9 @@ ${blocksHtml}
       white-space: nowrap;
     }
     .efb-tb-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
-    .efb-tb-btn.efb-tb-primary { background: #667eea; color: #fff; border-color: #667eea; }
-    .efb-tb-btn.efb-tb-primary:hover { background: #5a6fd6; }
-    .efb-tb-btn.efb-tb-danger { color: #ef4444; }
+    .efb-tb-btn.efb-tb-primary { background: #4c51bf; color: #fff; border-color: #4c51bf; }
+    .efb-tb-btn.efb-tb-primary:hover { background: #3f43a8; }
+    .efb-tb-btn.efb-tb-danger { color: #c81e1e; }
     .efb-tb-btn.efb-tb-danger:hover { background: #fef2f2; border-color: #fca5a5; }
     .efb-tb-sep { width: 1px; height: 20px; background: #e2e8f0; margin: 0 4px; }
 
@@ -2698,13 +2698,13 @@ ${blocksHtml}
       transition: all .15s;
     }
     .efb-stab:hover { color: #334155; }
-    .efb-stab.active { color: #667eea; border-bottom-color: #667eea; }
+    .efb-stab.active { color: #4c51bf; border-bottom-color: #667eea; }
     .efb-sidebar-content { flex: 1; overflow-y: auto; min-height: 0; }
     .efb-stab-panel { display: none; padding: 8px; }
     .efb-stab-panel.active { display: block; }
 
     .efb-block-category { margin-bottom: 12px; }
-    .efb-cat-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; padding: 4px 0; letter-spacing: 0.5px; }
+    .efb-cat-label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; padding: 4px 0; letter-spacing: 0.5px; }
     .efb-cat-blocks { display: flex; flex-direction: column; gap: 3px; }
     .efb-draggable-block {
       display: flex;
@@ -2735,9 +2735,9 @@ ${blocksHtml}
       transition: all .15s;
     }
     .efb-template-card:hover { border-color: #667eea; background: #eef2ff; transform: translateY(-1px); }
-    .efb-tpl-icon { margin-bottom: 4px; color: #667eea; }
+    .efb-tpl-icon { margin-bottom: 4px; color: #4c51bf; }
     .efb-tpl-name { font-size: 11px; font-weight: 600; color: #334155; }
-    .efb-tpl-count { font-size: 10px; color: #94a3b8; }
+    .efb-tpl-count { font-size: 10px; color: #64748b; }
 
     .efb-builder-canvas-wrap {
       background: #f1f5f9;
@@ -2806,7 +2806,7 @@ ${blocksHtml}
       transition: all .1s;
     }
     .efb-blk-btn:hover { background: #e2e8f0; color: #334155; }
-    .efb-blk-btn.efb-blk-btn-danger:hover { background: #fef2f2; color: #ef4444; }
+    .efb-blk-btn.efb-blk-btn-danger:hover { background: #fef2f2; color: #c81e1e; }
     .efb-block-preview { padding: 0; }
 
     .efb-canvas-block.efb-dragging { opacity: 0.4; }
@@ -2937,7 +2937,7 @@ ${blocksHtml}
     }
     .efb-chip-editor:empty::before {
       content: attr(data-placeholder);
-      color: #94a3b8;
+      color: #64748b;
       pointer-events: none;
     }
     .efb-chip-editor-single {
@@ -3009,7 +3009,7 @@ ${blocksHtml}
     .efb-pad-side-label {
       font-size: 9px;
       font-weight: 700;
-      color: #94a3b8;
+      color: #64748b;
       text-transform: uppercase;
       margin-bottom: 2px;
       letter-spacing: 0.5px;
@@ -3043,7 +3043,7 @@ ${blocksHtml}
       border: 1px solid #e2e8f0;
       border-radius: 6px;
       background: #f8fafc;
-      color: #94a3b8;
+      color: #64748b;
       cursor: pointer;
       font-size: 14px;
       padding: 0;
@@ -3055,7 +3055,7 @@ ${blocksHtml}
     .efb-pad-link-btn.active {
       background: #eef2ff;
       border-color: #c7d2fe;
-      color: #667eea;
+      color: #4c51bf;
     }
     .efb-pad-linked .efb-pad-input {
       border-color: #c7d2fe;
@@ -3243,7 +3243,7 @@ ${blocksHtml}
     }
     .efb-sc-badge-required {
       margin-left: auto;
-      color: #ef4444;
+      color: #c81e1e;
       font-size: 14px;
       font-weight: 700;
       line-height: 1;
@@ -3263,7 +3263,7 @@ ${blocksHtml}
       letter-spacing: 0.5px;
       border-top: 1px dashed #cbd5e1;
     }
-    .efb-sc-section-header i { font-size: 12px; color: #94a3b8; }
+    .efb-sc-section-header i { font-size: 12px; color: #64748b; }
 
     .efb-sc-item {
       position: relative;
@@ -3309,7 +3309,7 @@ ${blocksHtml}
       gap: 4px;
     }
     .efb-sc-req-dot {
-      color: #667eea;
+      color: #4c51bf;
       font-size: 8px;
       line-height: 1;
     }
@@ -3339,7 +3339,7 @@ ${blocksHtml}
       border: 1px solid #e2e8f0;
       border-radius: 5px;
       background: #ffffff;
-      color: #94a3b8;
+      color: #64748b;
       cursor: pointer;
       font-size: 12px;
       transition: all .15s;
@@ -3351,7 +3351,7 @@ ${blocksHtml}
     .efb-sc-insert-btn:hover {
       background: #eef2ff;
       border-color: #a5b4fc;
-      color: #667eea;
+      color: #4c51bf;
     }
     .efb-sc-copy-btn:hover {
       background: #f0fdf4;

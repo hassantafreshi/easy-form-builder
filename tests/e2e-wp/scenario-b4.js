@@ -24,6 +24,10 @@
  *            builder, a form in the builder, its entries, Add-ons and Payments, in en at 1280 px and fa_IR and ar at
  *            375 px: no serious or critical violation in the plugin's part of the screen (#wpbody-content); and the
  *            fixed nodes themselves (the header's logo and icon links, the lists without <hr>, the muted text's colour).
+ *            QA1-004 / QA1-005 / QA1-006 (FX-ADMIN): also Settings › Responses, Captchas, Email and Email Template and an
+ *            entry open in the viewer. In the Email Template designer the colour contrast of the owner's own e-mail
+ *            design (the blocks' preview, drawn with the colours the owner chose) is the owner's; every other rule
+ *            applies there too, and the designer's own controls are checked in full.
  *  b4-mobile-preview  BUG-03 row 370: the builder's mobile preview frame (previewFormEfb('mobile'); no control opens it
  *            today) is a whole page: the screen's stylesheets (the form is styled: Bootstrap's grid and the plugin's
  *            button), a phone's viewport, the screen's direction, no stray script text; en and fa_IR.
@@ -317,14 +321,18 @@ module.exports = function (S) {
   });
 
   /* ================================================================== b4-a11y */
-  async function axeRun(p) {
+  /* userContent: a selector of what the site owner designed (the e-mail template's blocks, drawn with the owner's own
+     colours): its colour contrast is the owner's choice, not the plugin's (every other rule still applies there). */
+  async function axeRun(p, userContent) {
     await p.addScriptTag({ path: path.join(__dirname, '..', '..', 'node_modules', 'axe-core', 'axe.min.js') });
-    return p.evaluate(async () => {
+    return p.evaluate(async (uc) => {
       const res = await axe.run(document.getElementById('wpbody-content') || document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] }, resultTypes: ['violations'] });
       // Other plugins' notices are not the plugin's (the plugin's screens remove them anyway).
-      const own = (n) => { try { const e = document.querySelector(n.target[0]); return !!e && !e.closest('.notice:not([data-efb-nm]):not(.efb):not([class*="efb-"])'); } catch (x) { return true; } };
-      return res.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => ({ id: v.id, impact: v.impact, nodes: v.nodes.filter(own).map((n) => n.target.join(' ') + ' :: ' + (n.failureSummary || '').split('\n')[1]).slice(0, 4), n: v.nodes.filter(own).length })).filter((v) => v.n > 0);
-    });
+      const ownNode = (n) => { try { const e = document.querySelector(n.target[0]); return !!e && !e.closest('.notice:not([data-efb-nm]):not(.efb):not([class*="efb-"])'); } catch (x) { return true; } };
+      const owners = (v, n) => { if (!uc || v.id !== 'color-contrast') return false; try { const e = document.querySelector(n.target[0]); return !!e && !!e.closest(uc) && !!e.closest('[style*="color"]'); } catch (x) { return false; } };
+      const own = (v) => (n) => ownNode(n) && !owners(v, n);
+      return res.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical').map((v) => ({ id: v.id, impact: v.impact, nodes: v.nodes.filter(own(v)).map((n) => n.target.join(' ') + ' :: ' + (n.failureSummary || '').split('\n')[1]).slice(0, 4), n: v.nodes.filter(own(v)).length })).filter((v) => v.n > 0);
+    }, userContent || '');
   }
   scenario('b4-a11y', 'A11Y-01: axe (WCAG 2.1 AA) finds no serious or critical issue on the plugin\'s admin screens, en 1280 and fa_IR / ar 375; the fixed nodes', async ({ adminPage }) => {
     ctl('plan', '3');
@@ -339,19 +347,26 @@ module.exports = function (S) {
           const screens = [
             ['forms', '/wp-admin/admin.php?page=Emsfb', async () => { await p.waitForFunction(() => typeof fun_get_form_by_id === 'function', null, { timeout: 20000 }); await sleep(800); }],
             ['settings', '/wp-admin/admin.php?page=Emsfb&state=setting', async () => { await p.waitForSelector('#nav-tabContent', { timeout: 20000 }); await sleep(800); }],
+            // QA1-004 / QA1-005: the settings tabs A11Y-01 did not reach.
+            ['settings-responses', '/wp-admin/admin.php?page=Emsfb&state=setting&tab=responses', async () => { await p.waitForSelector('#nav-response.active #sessionDuration_emsFormBuilder', { timeout: 20000 }); await sleep(800); }],
+            ['settings-captchas', '/wp-admin/admin.php?page=Emsfb&state=setting&tab=captchas', async () => { await p.waitForSelector('#nav-google.active #efb-spam-settings', { timeout: 20000 }); await sleep(800); }],
+            ['settings-email', '/wp-admin/admin.php?page=Emsfb&state=setting&tab=email', async () => { await p.waitForSelector('#nav-email.active #email_emsFormBuilder', { timeout: 20000 }); await sleep(800); }],
+            ['settings-email-template', '/wp-admin/admin.php?page=Emsfb&state=setting&tab=email-template', async () => { await p.waitForSelector('#nav-emailtemplate.active .efb-canvas-block', { timeout: 20000 }); await sleep(1000); }, '#efb-email-builder .efb-block-preview'],
             ['create', '/wp-admin/admin.php?page=Emsfb_create', async () => { await p.waitForSelector('#listFormCardsEFB', { timeout: 20000 }); await sleep(800); }],
             ['builder-new', '/wp-admin/admin.php?page=Emsfb_create', async () => { await p.waitForFunction(() => typeof create_form_by_type_emsfb === 'function', null, { timeout: 20000 }); await p.evaluate(() => create_form_by_type_emsfb('form', 'npreview')); await p.waitForSelector('#dropZoneEFB', { timeout: 20000 }); await sleep(1200); }],
             ['builder-edit', '/wp-admin/admin.php?page=Emsfb', async () => { await p.waitForFunction(() => typeof fun_get_form_by_id === 'function', null, { timeout: 20000 }); await p.evaluate((id) => fun_get_form_by_id(Number(id)), F.form_id); await builderReady(p); await sleep(1200); }],
             ['entries', '/wp-admin/admin.php?page=Emsfb', async () => { await p.waitForFunction(() => typeof fun_get_messages_by_id === 'function', null, { timeout: 20000 }); await p.evaluate((id) => { form_type_emsFormBuilder = 'form'; fun_get_messages_by_id(Number(id)); }, F.form_id); await p.waitForSelector('.efb-ent-table, .efb-ent-row', { timeout: 20000 }); await sleep(800); }],
+            // QA1-006: an entry open in the viewer (the reply box with its file input, Notes / History).
+            ['entry-viewer', '/wp-admin/admin.php?page=Emsfb', async () => { await p.waitForFunction(() => typeof fun_get_messages_by_id === 'function', null, { timeout: 20000 }); await p.evaluate((id) => { form_type_emsFormBuilder = 'form'; fun_get_messages_by_id(Number(id)); }, F.form_id); await p.waitForSelector('.efb-ent-open-txt', { timeout: 20000 }); await sleep(500); await p.click('.efb-ent-open-txt >> nth=0'); await p.waitForSelector('#settingModalEfb.show #efbEntViewExtra', { timeout: 20000 }); await sleep(1200); }],
             ['addons', '/wp-admin/admin.php?page=Emsfb_addon', async () => { await p.waitForSelector('a.addons', { timeout: 30000 }); await sleep(600); }],
             ['payments', '/wp-admin/admin.php?page=Emsfb_payments', async () => { await sleep(600); }],
           ];
-          for (const [name, url, ready] of screens) {
+          for (const [name, url, ready, userContent] of screens) {
             await p.goto(CFG.base + url, { waitUntil: 'load' });
             await ready();
-            const v = await axeRun(p);
+            const v = await axeRun(p, userContent);
             R.check(`b4-a11y (${tag}, ${name}): no serious or critical axe violation in the plugin's part of the screen`, v.length === 0, v);
-            if (name === 'forms' || name === 'builder-new') await p.screenshot({ path: SHOT(`b4-a11y-${name}-${loc || 'en'}-${w}`) });
+            if (['forms', 'builder-new', 'settings-email-template', 'entry-viewer'].includes(name)) await p.screenshot({ path: SHOT(`b4-a11y-${name}-${loc || 'en'}-${w}`) });
             if (name === 'forms') {
               const f = await p.evaluate(() => {
                 const logo = document.querySelector('#navbar img.logo');

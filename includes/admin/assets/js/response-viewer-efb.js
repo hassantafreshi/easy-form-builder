@@ -413,10 +413,10 @@ const chatHistory = document.getElementById('resp_efb');
     return `
       <span class="efb-editor-toolbar-sep"></span>
       <button type="button" class="efb-editor-btn efb-attach-btn" id="efb_attach_btn"
-              title="${titleupload}" data-id="${msgId}">
-        <i class="bi bi-paperclip"></i>
+              title="${titleupload}" aria-label="${titleupload}" data-id="${msgId}">
+        <i class="bi bi-paperclip" aria-hidden="true"></i>
       </button>
-      <input type="file" class="efb-upload-input" id="resp_file_efb_" name="file" data-id="${msgId}" multiple>`;
+      <input type="file" class="efb-upload-input" id="resp_file_efb_" name="file" data-id="${msgId}" multiple aria-label="${titleupload}" tabindex="-1">`;
   }
 
   function buildFileUploadArea(msgId, isPanel, track) {

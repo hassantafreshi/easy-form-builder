@@ -2826,3 +2826,14 @@ div#Listefb-150 {
    (no background icon, which covered the digits in RTL) and the reason under it in red #b02a37 (6.3:1 on white). */
 #wpbody-content .efb .efb-num-invalid, #wpbody-content .efb .efb-num-invalid:focus { border-color: #b02a37 !important; box-shadow: 0 0 0 .2rem rgba(176, 42, 55, .2) !important; }
 #wpbody-content .efb .efb-num-err { color: #b02a37; unicode-bidi: plaintext; text-align: start; }
+
+/* QA1-004 / QA1-006 (axe, WCAG 1.4.3): Settings › Responses' "Customize colors" button shows the plugin's blue, not
+   the response colour chosen (#a5a3d1 read 2.39:1); a warning sentence in dark amber (#8a5a00, 5.6:1; Bootstrap's
+   text-warning was 1.63:1); links on the light grey note of Settings › Email in #0a58ca (6.4:1 on #f8f9fa); the
+   entry viewer's Notes / History tabs in #334155 / #4636f1 like the entries list (History read 2.39:1). */
+#wpbody-content .efb-settings-win .efb-customize-colors-btn { color: #3644d2; border-color: #3644d2; }
+#wpbody-content .efb-settings-win .efb-customize-colors-btn:hover, #wpbody-content .efb-settings-win .efb-customize-colors-btn:focus-visible { color: #fff; background: #3644d2; }
+#wpbody-content .efb .efb-text-warn, .efb .efb-text-warn { color: #8a5a00; }
+#wpbody-content .efb-settings-win .bg-light a.efb, #wpbody-content .efb-settings-win .bg-light a { color: #0a58ca; }
+.efb-ent-view-extra .efb-ent-tab:not(.active) { color: #334155 !important; }
+.efb-ent-view-extra .efb-ent-tab.active { color: #4636f1 !important; }
