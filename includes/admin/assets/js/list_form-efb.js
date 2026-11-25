@@ -2300,6 +2300,10 @@ function efb_privacy_days_input_efb(el) {
   clearTimeout(window.efb_prv_preview_timer_efb);
   window.efb_prv_preview_timer_efb = setTimeout(() => efb_privacy_preview_efb(r.ok ? String(r.n) : '0'), 400);
 }
+/* QA1-027: one entry or several ("1 entries" read wrong). */
+function efb_prv_count_text_efb(n) {
+  return (n === 1 ? efb_prv_t_efb('prvPreview1', '%s entry will be removed on the next run.') : efb_prv_t_efb('prvPreview', '%s entries will be removed on the next run.')).replace('%s', efb_prv_number_efb(n));
+}
 async function efb_privacy_preview_efb(days) {
   const out = document.getElementById('prvPreview_efb');
   if (!out) return 0;
@@ -2308,7 +2312,7 @@ async function efb_privacy_preview_efb(days) {
   const r = await efb_privacy_post_efb('efb_privacy_preview_Emsfb', { days: d });
   const count = r && r.success ? Number(r.count) || 0 : 0;
   window.efb_prv_preview_efb = { days: d, count: count };
-  out.textContent = count > 0 ? efb_prv_t_efb('prvPreview', '%s entries will be removed on the next run.').replace('%s', efb_prv_number_efb(count)) : '';
+  out.textContent = count > 0 ? efb_prv_count_text_efb(count) : '';
   return count;
 }
 async function efb_privacy_run_now_efb(btn) {
@@ -2334,7 +2338,7 @@ async function efb_privacy_confirm_save_efb() {
   const d = Number(efb_prv_digits_efb(document.getElementById('prvDays_efb').value)) || 0;
   const count = (window.efb_prv_preview_efb && window.efb_prv_preview_efb.days === d) ? window.efb_prv_preview_efb.count : await efb_privacy_preview_efb(d);
   if (!count) return true;
-  const msg = efb_prv_t_efb('prvPreview', '%s entries will be removed on the next run.').replace('%s', efb_prv_number_efb(count)) + ' '
+  const msg = efb_prv_count_text_efb(count) + ' '
     + efb_prv_t_efb('prvConfirm', 'Entries older than %1$s days will be removed. This cannot be undone. Continue?').replace('%1$s', efb_prv_number_efb(d));
   const ok = typeof window.efb_confirm_efb === 'function' ? window.efb_confirm_efb({ variant: 'warning', message: msg }) : Promise.resolve(window.confirm(msg));
   setTimeout(() => { const c = document.querySelector('#modal-footer-efb .efb-btn-cancel'); if (c) c.focus(); }, 60);

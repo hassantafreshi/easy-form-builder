@@ -1099,11 +1099,12 @@ scenario('8', 'F13 privacy: IP setting, guest entry without IP, retention cron w
   await admin.type('#prvDays_efb', '۹۰'); // Persian digits
   await admin.waitForFunction(() => /\S/.test((document.getElementById('prvPreview_efb') || {}).textContent || ''), null, { timeout: 10000 }).catch(() => {});
   const prev = await admin.evaluate(() => ({ v: document.getElementById('prvDays_efb').value, t: document.getElementById('prvPreview_efb').textContent, live: document.getElementById('prvPreview_efb').getAttribute('aria-live') }));
-  R.check('8e: Persian digits become 90 and the preview (aria-live) says 1 entry will be removed', prev.v === '90' && /^1 entries will be removed/.test(prev.t) && prev.live === 'polite', prev);
+  // QA1-010: the box keeps what was typed (it is read as 90; a wrong value is refused, never rewritten); QA1-027: "1 entry".
+  R.check('8e: Persian digits are read as 90 (the box keeps them) and the preview (aria-live) says 1 entry will be removed', prev.v === '۹۰' && /^1 entry will be removed/.test(prev.t) && prev.live === 'polite', prev);
   const saving = f13SaveSettings(admin);
   const confirmBtn = await admin.waitForSelector('#modalConfirmBtnEfb', { timeout: 8000 }).catch(() => null);
   const confirmText = confirmBtn ? await admin.evaluate(() => (document.querySelector('#settingModalEfb') || document.body).innerText) : '';
-  R.check('8e: Save asks first, with the number and the days ("1 entries … older than 90 days … cannot be undone")', !!confirmBtn && /1 entries will be removed/.test(confirmText) && /older than 90 days/.test(confirmText), confirmText.slice(0, 300));
+  R.check('8e: Save asks first, with the number and the days ("1 entry … older than 90 days … cannot be undone")', !!confirmBtn && /1 entry will be removed/.test(confirmText) && /older than 90 days/.test(confirmText), confirmText.slice(0, 300));
   await admin.screenshot({ path: SHOT('8e-retention-confirm') });
   if (confirmBtn) await confirmBtn.click();
   const savedDays = await saving;

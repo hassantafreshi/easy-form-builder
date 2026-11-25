@@ -2790,6 +2790,8 @@ class efbFunction {
 			"prvFiles" => $state && isset($ac->text->prvFiles) ? $ac->text->prvFiles : esc_html__('Also delete uploaded files','easy-form-builder'),
 			/* translators: F13: preview of automatic deletion. %s: number of entries */
 			"prvPreview" => $state && isset($ac->text->prvPreview) ? $ac->text->prvPreview : esc_html__('%s entries will be removed on the next run.','easy-form-builder'),
+			/* translators: %s: 1 (the number of entries, in the site's digits) */
+			"prvPreview1" => $state && isset($ac->text->prvPreview1) ? $ac->text->prvPreview1 : esc_html__('%s entry will be removed on the next run.','easy-form-builder'),
 			/* translators: F13: confirmation before saving automatic deletion. %1$s: number of days */
 			"prvConfirm" => $state && isset($ac->text->prvConfirm) ? $ac->text->prvConfirm : esc_html__('Entries older than %1$s days will be removed. This cannot be undone. Continue?','easy-form-builder'),
 			/* translators: F13: status of the automatic deletion. %1$s: date and time, %2$s: number of entries */
