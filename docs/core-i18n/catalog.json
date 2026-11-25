@@ -4,7 +4,7 @@
     "plugin_version": "4.3.2",
     "updated": "2026-11-25",
     "counts": {
-        "active": 4558,
+        "active": 4607,
         "obsolete": 521
     },
     "entries": [
@@ -32,8 +32,7 @@
             "plural": null,
             "translators": "Price display format - e.g., $27/year",
             "files": [
-                "dist/build/easy-form-builder/includes/functions.php",
-                "includes/functions.php"
+                "dist/build/easy-form-builder/includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -385,6 +384,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%1$s form uses %2$s, which is not available now. It is protected by %3$s.",
+            "context": null,
+            "plural": "%1$s forms use %2$s, which is not available now. They are protected by %3$s.",
+            "translators": "QA1-027: %1$s: number of forms, %2$s: a CAPTCHA add-on, %3$s: what protects them now",
+            "files": [
+                "includes/class-Emsfb-spam-notice.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -1294,6 +1308,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%s Toman",
+            "context": null,
+            "plural": null,
+            "translators": "%s: an amount in Iranian toman",
+            "files": [
+                "includes/class-Emsfb-builder-api.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s can only have letters, spaces, hyphens, apostrophes and dots.",
             "context": null,
             "plural": null,
@@ -1609,6 +1638,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s entry will be removed on the next run.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: 1 (the number of entries, in the site's digits)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -2017,6 +2061,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%s other settings",
+            "context": null,
+            "plural": null,
+            "translators": "Versions › Compare: %s: a number of settings that changed without a name of their own",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s payment entries were anonymized and kept for financial records.",
             "context": null,
             "plural": null,
@@ -2347,6 +2406,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s/year",
+            "context": null,
+            "plural": null,
+            "translators": "I18N-05: %s: the yearly Pro price with its currency, from the server (\"$27\", \"۱٬۳۰۰٬۰۰۰ تومان\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -12688,6 +12762,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Codes sent in one visit",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Collapse earlier rows when a row is added",
             "context": null,
             "plural": null,
@@ -13657,6 +13746,51 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Contact us template for signed-in users",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Contact us template in several steps",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Contact us template, rounded",
+            "context": null,
+            "plural": null,
+            "translators": "QA1-025: a template's title (one phrase each, so every language can order its words)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -14782,6 +14916,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Create unlimited forms",
+            "context": null,
+            "plural": null,
+            "translators": "QA1-029: the three labels drawn over the Panel's illustration",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -16330,6 +16479,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Deleted.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Deleting responses",
             "context": null,
             "plural": null,
@@ -16770,6 +16934,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Different numbers or addresses in one visit",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -17981,6 +18160,66 @@
             "obsolete_since": null
         },
         {
+            "msgid": "E-mail codes from one visitor address per day",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "E-mail codes from one visitor address per hour",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "E-mail codes to one address per day",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "E-mail codes to one address per hour",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "E-mail notifications are turned off in the settings.",
             "context": null,
             "plural": null,
@@ -18981,6 +19220,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Edit field: %s",
+            "context": null,
+            "plural": null,
+            "translators": "the name a field of the builder's canvas has for screen readers; %s: its label",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -20805,6 +21059,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Enter a number from %1$s to %2$s.",
+            "context": null,
+            "plural": null,
+            "translators": "%1$s, %2$s: the smallest and the largest number (a decimal point allowed)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Enter a valid postal code for %s.",
             "context": null,
             "plural": null,
@@ -20824,9 +21093,11 @@
             "msgid": "Enter a whole number from %1$s to %2$s.",
             "context": null,
             "plural": null,
-            "translators": "%1$s: the smallest number allowed, %2$s: the largest.",
+            "translators": "%1$s: the smallest number allowed, %2$s: the largest. translators: %1$s, %2$s: the smallest and the largest number a setting takes",
             "files": [
-                "includes/class-Emsfb-verification.php"
+                "includes/admin/class-Emsfb-admin.php",
+                "includes/class-Emsfb-verification.php",
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -23800,6 +24071,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Forms not moved back: %s.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: how many forms stayed on the new payment field",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -33826,6 +34112,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Mobile-friendly responsive forms",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Mode",
             "context": null,
             "plural": null,
@@ -34243,8 +34544,9 @@
             "msgid": "Move every form back",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "Settings › Payments: moves every moved form back to its older payment field",
             "files": [
+                "includes/functions.php",
                 "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
@@ -34261,6 +34563,21 @@
             "translators": "",
             "files": [
                 "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Move every moved form back to its older payment field? Visitors then pay through the older fields again.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -34625,8 +34942,7 @@
             "plural": null,
             "translators": "",
             "files": [
-                "dist/build/easy-form-builder/includes/functions.php",
-                "includes/functions.php"
+                "dist/build/easy-form-builder/includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -39280,6 +39596,36 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Overwrite",
+            "context": null,
+            "plural": null,
+            "translators": "a button: save this version over the one saved elsewhere",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Overwrite saves your version here and removes that change. Reload shows the saved form; your changes here are lost.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Own holidays",
@@ -44021,6 +44367,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Pro adds %1$s and more, for %2$s a year.",
+            "context": null,
+            "plural": null,
+            "translators": "QA1-015: the Pro box. %1$s: Pro features (a list from the plan registry), %2$s: the yearly price (from the server)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Pro feature",
             "context": null,
             "plural": null,
@@ -44551,6 +44912,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Purchase order with payment",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -45996,6 +46372,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Reload",
+            "context": null,
+            "plural": null,
+            "translators": "a button: load the saved form again (verb)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -47600,6 +47991,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Right-to-left languages",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Ring",
             "context": null,
             "plural": null,
@@ -48171,6 +48577,96 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "SMS codes from one form per hour",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "SMS codes from one visitor address per day",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "SMS codes from one visitor address per hour",
+            "context": null,
+            "plural": null,
+            "translators": "Settings › Verification, a limit (a number per hour)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "SMS codes to numbers with the same prefix per hour",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "SMS codes to one number per day",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "SMS codes to one number per hour",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -51004,6 +51500,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Setup actions",
+            "context": null,
+            "plural": null,
+            "translators": "the name of the first-run guide's group of buttons",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Setup finished. Notifications are on.",
             "context": null,
             "plural": null,
@@ -52251,6 +52762,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Skip to the form",
+            "context": null,
+            "plural": null,
+            "translators": "a link after the builder's field search that moves the keyboard into the form",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -56476,8 +57002,7 @@
             "plural": null,
             "translators": "%s is the item type that was deleted (e.g., files, forms, messages)",
             "files": [
-                "dist/build/easy-form-builder/includes/functions.php",
-                "includes/functions.php"
+                "dist/build/easy-form-builder/includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -57072,6 +57597,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The add-on was deleted.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The add-ons are already being reinstalled in another tab or in the background. Wait a minute, then reload this page.",
             "context": null,
             "plural": null,
@@ -57441,6 +57981,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The charts cannot be drawn here: the chart library of the plugin is missing. Reinstall the plugin.",
+            "context": null,
+            "plural": null,
+            "translators": "the poll results when the plugin's chart library (Chart.js) is missing",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -58128,6 +58683,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The entry was deleted.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The field was deleted.",
+            "context": null,
+            "plural": null,
+            "translators": "QA1-027: after a delete (one phrase per thing, so every language can inflect it)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The file could not be read. Please try attaching it again.",
             "context": null,
             "plural": null,
@@ -58523,6 +59108,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The form was deleted.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -59395,6 +59995,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The payment field was changed after the move, so this form cannot be moved back.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -60364,6 +60979,21 @@
             "obsolete_since": "4.3.1"
         },
         {
+            "msgid": "The step was deleted.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The survey has been successfully completed.",
             "context": null,
             "plural": null,
@@ -61043,6 +61673,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "There is no copy of this form from before the move.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -62161,6 +62806,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This form no longer exists.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This form opens on %s.",
             "context": null,
             "plural": null,
@@ -62239,6 +62899,36 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This form was changed elsewhere",
+            "context": null,
+            "plural": null,
+            "translators": "the builder's Save found the form saved elsewhere since it was opened",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This form was changed somewhere else (another tab or the assistant) after you opened it.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/admin/class-Emsfb-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -66247,9 +66937,7 @@
             "translators": "%1$s, %2$s and %3$s: the price (the start of its emphasis, the amount, the end), %4$s and %5$s: the start and end of the link to the Pro features. translators: 1: the opening emphasis tag, 2: the yearly price, 3: the closing tag",
             "files": [
                 "dist/build/easy-form-builder/includes/class-email-handler.php",
-                "dist/build/easy-form-builder/includes/functions.php",
-                "includes/class-email-handler.php",
-                "includes/functions.php"
+                "dist/build/easy-form-builder/includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -67531,6 +68219,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "View Pro Features",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -70894,6 +71597,36 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Wrong codes for one number or address per day",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Wrong codes from one visitor address per hour",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "X-WP-Nonce header is missing",
