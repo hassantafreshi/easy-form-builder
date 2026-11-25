@@ -543,10 +543,38 @@ class Store {
 		$t = self::table( 'emsfb_pmt_' );
 		$m = in_array( $mode, array( 'test', 'live' ), true ) ? $mode : '';
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
-		$paid = $wpdb->get_results( $wpdb->prepare( "SELECT currency, SUM(amount_minor - refunded_minor) AS total, COUNT(*) AS n FROM `{$t}` WHERE status IN ('paid','partially_refunded') AND (%s = '' OR mode = %s) GROUP BY currency", $m, $m ), ARRAY_A );
+		$by_gw = $wpdb->get_results( $wpdb->prepare( "SELECT currency, gateway, SUM(amount_minor - refunded_minor) AS total, COUNT(*) AS n FROM `{$t}` WHERE status IN ('paid','partially_refunded') AND (%s = '' OR mode = %s) GROUP BY currency, gateway", $m, $m ), ARRAY_A );
 		$pending = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM `{$t}` WHERE status IN ('created','pending','authorized') AND (%s = '' OR mode = %s)", $m, $m ) );
 		// phpcs:enable
-		return array( 'paid' => (array) $paid, 'pending' => $pending );
+		return array( 'paid' => self::paid_totals( (array) $by_gw ), 'pending' => $pending );
+	}
+
+	/**
+	 * QA3-018 (BUGS-FOUND 214): each gateway counts a currency in its own exponent (efb_currency_exponent), so the totals
+	 * of one currency are summed at the largest exponent among its gateways and carry the gateway to format them with.
+	 * $rows: currency, gateway, total, n. Returns one row per currency: currency, total (minor units of that exponent),
+	 * n, gateway.
+	 */
+	public static function paid_totals( array $rows ) {
+		$out = array();
+		foreach ( $rows as $r ) {
+			if ( ! is_array( $r ) || ! isset( $r['currency'] ) ) continue;
+			$cur = (string) $r['currency'];
+			$gw = isset( $r['gateway'] ) ? (string) $r['gateway'] : '';
+			$e = Currency::exponent( $cur, $gw );
+			if ( ! isset( $out[ $cur ] ) ) $out[ $cur ] = array( 'currency' => $cur, 'total' => 0, 'n' => 0, 'gateway' => $gw, 'e' => $e );
+			$o =& $out[ $cur ];
+			if ( $e > $o['e'] ) {
+				$o['total'] *= (int) pow( 10, $e - $o['e'] );
+				$o['e'] = $e;
+				$o['gateway'] = $gw;
+			}
+			$o['total'] += (int) $r['total'] * (int) pow( 10, $o['e'] - $e );
+			$o['n'] += isset( $r['n'] ) ? (int) $r['n'] : 0;
+			unset( $o );
+		}
+		ksort( $out );
+		return array_values( array_map( function ( $o ) { unset( $o['e'] ); return $o; }, $out ) );
 	}
 
 	/**

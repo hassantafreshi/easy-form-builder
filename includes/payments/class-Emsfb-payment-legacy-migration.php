@@ -17,11 +17,21 @@
  *     charged with Pricing::quote() of the moved form (filter efb_legacy_gateway_same_amount); any difference, or no
  *     answer, keeps the form as it is ("amount_differs", final until the owner moves it by hand);
  *   - the moved form is ready (Readiness::of_form(); else the issue's code, retried).
- * Before the form is written, its original JSON (the stored text, byte for byte) is kept in the option
- * emsfb_pay_legacy_bak_<form_id> (not autoloaded) and read back; the form is written and read back too (a failed write
- * is retried by the next batch). Every step is logged per form in the option emsfb_pay_legacy_migration (status, from,
- * to, when, why, by; the last 10 events). Rollback (per form, admin): the backup is written back byte for byte and the
- * form is not moved again automatically ("rolled_back"); "Move again" moves it on request.
+ * Before the form is written, its JSON as it is right before this move (the stored text, byte for byte) is kept in the
+ * option emsfb_pay_legacy_bak_<form_id> (not autoloaded; each move writes it again, so it is never an older form) and
+ * read back; the form is written and read back too (a failed write is retried by the next batch). Every step is logged
+ * per form in the option emsfb_pay_legacy_migration (status, from, to, when, why, by; the last 10 events).
+ * Rollback (per form, or every moved form at once before going back to an older version, admin) undoes only the move
+ * (QA3-003): the gateway field's type and row 0's keys the move changed get their values from the backup, and only
+ * where they still hold what the move wrote; every other edit made since the move is kept. A form not edited since is
+ * written back byte for byte; a form whose gateway field was changed or removed since is left as it is
+ * ("field_changed": its form versions take it back). The form is not moved again automatically ("rolled_back"); "Move
+ * again" moves it on request.
+ *
+ * QA4-003: an older version of the plugin (4.3.1 and before) cannot show the add-ons' new fields. When an older Easy
+ * Form Builder replaces this one (Plugins › Add New › Upload, or any upgrader) while moved forms exist, the upgrader
+ * says so and points to Payments › Moved forms, whose "Move every form back" is
+ * rollback_all().
  *
  * Batches: 20 forms per run; the run is a single cron event (efb_pay_legacy_migrate) queued from the admin (at most
  * hourly) and again a minute later while a run moved forms and some are left; one run at a time (a 2-minute lock). Entries, receipts and the older payments table
@@ -30,7 +40,8 @@
  * The filter efb_legacy_migration_auto (false) holds the background run; the admin's buttons still work.
  *
  * REST (manage_options): GET Emsfb/v1/payments/legacy-migration (the log), POST …/run (one batch now),
- * POST …/rollback {form_id}, POST …/migrate {form_id} (one form now, also after a rollback).
+ * POST …/rollback {form_id}, POST …/rollback-all (every moved form), POST …/migrate {form_id} (one form now, also
+ * after a rollback).
  *
  * The legacy_gateway contract is deprecated by this step and is removed in the next major version (5.0); see
  * docs/split/SPLIT-spec (legacy gateway section) and includes/payments/legacy-gateway-shim-efb.php.
@@ -60,6 +71,9 @@ class Legacy_Migration {
 		add_action( self::HOOK, array( __CLASS__, 'cron' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'routes' ) );
 		add_action( 'admin_init', array( __CLASS__, 'maybe_queue' ) );
+		// QA4-003: an older Easy Form Builder replacing this one while forms are moved.
+		add_filter( 'upgrader_source_selection', array( __CLASS__, 'downgrade_feedback' ), 10, 4 );
+		add_filter( 'install_plugin_overwrite_comparison_details', array( __CLASS__, 'downgrade_compare' ), 10, 3 );
 	}
 
 	/* ------------------------------------------------------------------------------------------------ the map */
@@ -220,19 +234,154 @@ class Legacy_Migration {
 		return self::log_set( $form_id, $base + array( 'status' => 'migrated', 'field_id' => $plan['field_id'] ), $by );
 	}
 
-	/** Puts the form's original JSON back (byte for byte) and keeps it out of the automatic run. */
+	/**
+	 * Moves a form back to its older field (QA3-003): only what the move changed is undone, edits made since are kept.
+	 * Returns array( ok, entry ) or array( ok false, code no_backup | no_form | unreadable | field_changed | form_not_written ).
+	 */
 	public static function rollback( $form_id, $by = 'admin' ) {
 		$form_id = (int) $form_id;
 		$bak = self::backup_get( $form_id );
 		if ( ! $bak ) return array( 'ok' => false, 'code' => 'no_backup' );
 		$f = self::read_form( $form_id );
 		if ( ! $f ) return array( 'ok' => false, 'code' => 'no_form' );
-		if ( $f['raw'] !== $bak['raw'] && ! self::write_form( $form_id, $bak['raw'], $f['raw'], $bak['type'] !== '' ? $bak['type'] : null ) ) return array( 'ok' => false, 'code' => 'form_not_written' );
+		$log = self::log_get( $form_id );
+		$undo = self::undo( $bak, $f, $log );
+		if ( ! $undo['ok'] ) return $undo;
+		if ( $f['raw'] !== $undo['raw'] && ! self::write_form( $form_id, $undo['raw'], $f['raw'], $undo['type'] !== $f['type'] ? $undo['type'] : null ) ) return array( 'ok' => false, 'code' => 'form_not_written' );
 		$back = self::read_form( $form_id );
 		if ( is_array( $back['rows'] ) ) self::saved( $form_id, $back['rows'], is_array( $f['rows'] ) ? $f['rows'] : array(), 'Payment field moved back to the older field' );
-		$log = self::log_get( $form_id );
-		$entry = self::log_set( $form_id, array( 'status' => 'rolled_back', 'from' => $log ? $log['from'] : '', 'to' => $log ? $log['to'] : '', 'name' => $f['name'] ), $by );
-		return array( 'ok' => true, 'entry' => $entry );
+		$entry = self::log_set( $form_id, array( 'status' => 'rolled_back', 'reason' => $undo['kept_edits'] ? 'edits_kept' : '', 'from' => $log ? $log['from'] : '', 'to' => $log ? $log['to'] : '', 'name' => $f['name'] ), $by );
+		return array( 'ok' => true, 'entry' => $entry, 'kept_edits' => $undo['kept_edits'] );
+	}
+
+	/**
+	 * What a rollback writes: array( ok, raw, type, kept_edits ) or array( ok false, code ). The backup is the form right
+	 * before the move; plan() of it gives what the move wrote. Unchanged since: the backup itself. Edited since: the
+	 * current rows with each value the move changed (the gateway field, found by its id, and row 0) set back from the
+	 * backup, where it still holds what the move wrote (an owner's own change of it is kept).
+	 */
+	public static function undo( array $bak, array $f, $log = null ) {
+		if ( $f['raw'] === $bak['raw'] ) return array( 'ok' => true, 'raw' => $bak['raw'], 'type' => $bak['type'] !== '' ? $bak['type'] : $f['type'], 'kept_edits' => false );
+		$json =function_exists( 'emsfb_json_normalize_efb' ) ? emsfb_json_normalize_efb( $bak['raw'] ) : str_replace( '\\"', '"', $bak['raw'] );
+		$orig = function_exists( 'emsfb_json_decode_efb' ) ? emsfb_json_decode_efb( $json, true ) : json_decode( $json, true );
+		$type = $bak['type'] !== '' ? $bak['type'] : $f['type'];
+		if ( ! is_array( $orig ) ) return array( 'ok' => false, 'code' => 'unreadable' );
+		$fields = self::legacy_fields( $orig );
+		$legacy = $fields ? reset( $fields ) : '';
+		$to = is_array( $log ) && ! empty( $log['to'] ) ? (string) $log['to'] : '';
+		if ( $legacy === '' || $to === '' ) return array( 'ok' => false, 'code' => 'unreadable' );
+		$plan = self::plan( $orig, array( $legacy => $to ) );
+		if ( ! $plan['ok'] ) return array( 'ok' => false, 'code' => 'unreadable' );
+		$now = $f['rows'];
+		if ( ! is_array( $now ) ) return array( 'ok' => false, 'code' => 'unreadable' );
+		// Not edited since the move: the form as it was, byte for byte.
+		if ( $now == $plan['rows'] ) return array( 'ok' => true, 'raw' => $bak['raw'], 'type' => $type, 'kept_edits' => false ); // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- same rows whatever the key order
+		$i = key( $fields );
+		$fid = $plan['field_id'];
+		$at = null;
+		foreach ( $now as $k => $r ) {
+			if ( $k > 0 && is_array( $r ) && isset( $r['id_'] ) && is_scalar( $r['id_'] ) && (string) $r['id_'] === $fid ) { $at = $k; break; }
+		}
+		// The moved field was removed, or given another gateway, since: nothing is guessed.
+		if ( $fid === '' || $at === null || ! isset( $now[ $at ]['type'] ) || $now[ $at ]['type'] !== $to ) return array( 'ok' => false, 'code' => 'field_changed' );
+		$back = function ( array $cur, array $was, array $moved ) {
+			foreach ( array_unique( array_merge( array_keys( $was ), array_keys( $moved ) ) ) as $key ) {
+				$in_was = array_key_exists( $key, $was );
+				$in_moved = array_key_exists( $key, $moved );
+				if ( $in_was === $in_moved && ( ! $in_was || $was[ $key ] === $moved[ $key ] ) ) continue; // the move did not change it
+				$in_cur = array_key_exists( $key, $cur );
+				if ( $in_cur !== $in_moved || ( $in_cur && $cur[ $key ] !== $moved[ $key ] ) ) continue; // changed by the owner since
+				if ( $in_was ) $cur[ $key ] = $was[ $key ]; else unset( $cur[ $key ] );
+			}
+			return $cur;
+		};
+		$now[ $at ] = $back( $now[ $at ], $orig[ $i ], $plan['rows'][ $i ] );
+		$now[0] = $back( is_array( $now[0] ) ? $now[0] : array(), is_array( $orig[0] ) ? $orig[0] : array(), is_array( $plan['rows'][0] ) ? $plan['rows'][0] : array() );
+		$out = wp_json_encode( $now, JSON_UNESCAPED_UNICODE );
+		if ( ! is_string( $out ) ) return array( 'ok' => false, 'code' => 'unreadable' );
+		return array( 'ok' => true, 'raw' => str_replace( '"', '\\"', $out ), 'type' => $f['type'] === 'payment' && $type !== '' ? $type : $f['type'], 'kept_edits' => true );
+	}
+
+	/** The ids of the forms moved now (log status migrated). */
+	public static function moved_ids() {
+		$out = array();
+		foreach ( self::log_all()['forms'] as $id => $e ) {
+			if ( is_array( $e ) && isset( $e['status'] ) && $e['status'] === 'migrated' ) $out[] = (int) $id;
+		}
+		sort( $out );
+		return $out;
+	}
+
+	/**
+	 * QA4-003: every moved form back to its older field (before going back to an older version), each as rollback().
+	 * @return array {done: [form_id], failed: [form_id => code]}
+	 */
+	public static function rollback_all( $by = 'admin' ) {
+		$done = array();
+		$failed = array();
+		foreach ( self::moved_ids() as $id ) {
+			$r = self::rollback( $id, $by );
+			if ( $r['ok'] ) $done[] = $id; else $failed[ $id ] = $r['code'];
+		}
+		return array( 'done' => $done, 'failed' => $failed );
+	}
+
+	/* ------------------------------------------------------------------------------------- going back (QA4-003) */
+
+	/** Whether $new is an older version than this plugin (both "x.y.z"). */
+	public static function is_older( $new ) {
+		$cur = defined( 'EMSFB_PLUGIN_VERSION' ) ? (string) EMSFB_PLUGIN_VERSION : '';
+		return is_string( $new ) && $new !== '' && $cur !== '' && version_compare( $new, $cur, '<' );
+	}
+
+	/** The owner's words: how many forms, and where to move them back. */
+	public static function downgrade_text( $n ) {
+		/* translators: %s: number of forms */
+		return sprintf( _n( '%s payment form was moved to its payment add-on\'s new field, which Easy Form Builder 4.3.1 and older cannot show: visitors could not pay with it. Before you install an older version, move it back in Easy Form Builder › Payments › Moved forms.', '%s payment forms were moved to their payment add-ons\' new fields, which Easy Form Builder 4.3.1 and older cannot show: visitors could not pay with them. Before you install an older version, move them back in Easy Form Builder › Payments › Moved forms.', $n, 'easy-form-builder' ), number_format_i18n( $n ) );
+	}
+
+	/** Payments' card for going back (Payments › Moved forms). */
+	public static function downgrade_url() {
+		return function_exists( 'admin_url' ) ? admin_url( 'admin.php?page=Emsfb_payments&tab=downgrade' ) : '';
+	}
+
+	/** The plugin folder's version as an upgrader unpacked it ('' when it is not Easy Form Builder). */
+	public static function package_version( $dir ) {
+		$dir = rtrim( (string) $dir, '/\\' );
+		$main = $dir . '/emsfb.php';
+		if ( $dir === '' || ! is_readable( $main ) ) return '';
+		$head = (string) file_get_contents( $main, false, null, 0, 8192 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- the plugin header of a local folder
+		if ( ! preg_match( '/^[ \t\/*#@]*Plugin Name:\s*Easy Form Builder\s*$/mi', $head ) ) return '';
+		return preg_match( '/^[ \t\/*#@]*Version:\s*([0-9][0-9.]*)/mi', $head, $m ) ? $m[1] : '';
+	}
+
+	/**
+	 * upgrader_source_selection: an older Easy Form Builder is about to replace this one while forms are moved → the
+	 * upgrader's page (or WP-CLI) says so, with the link. Nothing is blocked; the source is returned as it came.
+	 */
+	public static function downgrade_feedback( $source, $remote = '', $upgrader = null, $extra = array() ) {
+		if ( ! is_string( $source ) ) return $source;
+		$v = self::package_version( $source );
+		if ( $v === '' || ! self::is_older( $v ) ) return $source;
+		$n = count( self::moved_ids() );
+		if ( ! $n ) return $source;
+		$msg = self::downgrade_text( $n ) . ' ' . self::downgrade_url();
+		if ( is_object( $upgrader ) && isset( $upgrader->skin ) && is_object( $upgrader->skin ) && method_exists( $upgrader->skin, 'feedback' ) ) $upgrader->skin->feedback( esc_html( $msg ) );
+		if ( function_exists( 'do_action' ) ) do_action( 'efb_legacy_downgrade_warning', $n, $v );
+		return $source;
+	}
+
+	/**
+	 * install_plugin_overwrite_comparison_details (Plugins › Add New › Upload, "Replace current with uploaded"): the
+	 * warning under the version comparison, before the owner chooses, with the link to move the forms back.
+	 */
+	public static function downgrade_compare( $table, $current = array(), $new = array() ) {
+		$cur_name = is_array( $current ) && isset( $current['Name'] ) ? (string) $current['Name'] : '';
+		$v = is_array( $new ) && isset( $new['Version'] ) ? (string) $new['Version'] : '';
+		if ( stripos( $cur_name, 'Easy Form Builder' ) === false || ! self::is_older( $v ) ) return $table;
+		$n = count( self::moved_ids() );
+		if ( ! $n ) return $table;
+		return $table . '<div class="notice notice-warning inline efb-pay-downgrade-warn"><p>' . esc_html( self::downgrade_text( $n ) ) . '</p><p><a class="button" href="' . esc_url( self::downgrade_url() ) . '">' . esc_html__( 'Move the forms back first', 'easy-form-builder' ) . '</a></p></div>';
 	}
 
 	/* ------------------------------------------------------------------------------------------------- batches */
@@ -327,10 +476,10 @@ class Legacy_Migration {
 
 	private static function backup( $form_id, array $f ) {
 		$name = self::BAK . (int) $form_id;
-		$have = self::backup_get( $form_id );
-		if ( $have ) return true; // the first original is kept (a form moved, rolled back and moved again keeps it)
+		// QA3-003: the form as it is right before THIS move (moved, rolled back, edited and moved again: the edited form),
+		// so a Move back never brings back an older form.
 		$val = array( 'raw' => $f['raw'], 'type' => $f['type'], 'sha' => hash( 'sha256', $f['raw'] ), 'at' => gmdate( 'Y-m-d H:i:s' ) );
-		if ( function_exists( 'add_option' ) ) add_option( $name, $val, '', 'no' ); else update_option( $name, $val, false );
+		if ( get_option( $name, null ) === null && function_exists( 'add_option' ) ) add_option( $name, $val, '', 'no' ); else update_option( $name, $val, false );
 		$back = self::backup_get( $form_id );
 		return $back && $back['raw'] === $f['raw'];
 	}
@@ -406,6 +555,7 @@ class Legacy_Migration {
 		register_rest_route( 'Emsfb/v1', 'payments/legacy-migration', array( 'methods' => 'GET', 'callback' => array( __CLASS__, 'rest_status' ), 'permission_callback' => $can ) );
 		register_rest_route( 'Emsfb/v1', 'payments/legacy-migration/run', array( 'methods' => 'POST', 'callback' => array( __CLASS__, 'rest_run' ), 'permission_callback' => $can ) );
 		register_rest_route( 'Emsfb/v1', 'payments/legacy-migration/rollback', array( 'methods' => 'POST', 'callback' => array( __CLASS__, 'rest_rollback' ), 'permission_callback' => $can ) );
+		register_rest_route( 'Emsfb/v1', 'payments/legacy-migration/rollback-all', array( 'methods' => 'POST', 'callback' => array( __CLASS__, 'rest_rollback_all' ), 'permission_callback' => $can ) );
 		register_rest_route( 'Emsfb/v1', 'payments/legacy-migration/migrate', array( 'methods' => 'POST', 'callback' => array( __CLASS__, 'rest_migrate' ), 'permission_callback' => $can ) );
 	}
 
@@ -445,7 +595,12 @@ class Legacy_Migration {
 		$id = (int) $r->get_param( 'form_id' );
 		if ( $id < 1 ) return new \WP_REST_Response( array( 'code' => 'bad_request', 'message' => __( 'Send form_id.', 'easy-form-builder' ) ), 400 );
 		$res = self::rollback( $id, 'admin' );
-		return new \WP_REST_Response( $res, $res['ok'] ? 200 : ( $res['code'] === 'no_form' || $res['code'] === 'no_backup' ? 404 : 500 ) );
+		return new \WP_REST_Response( $res, $res['ok'] ? 200 : ( $res['code'] === 'no_form' || $res['code'] === 'no_backup' ? 404 : ( $res['code'] === 'field_changed' ? 409 : 500 ) ) );
+	}
+
+	public static function rest_rollback_all( $r ) {
+		$res = self::rollback_all( 'admin' );
+		return new \WP_REST_Response( $res + array( 'status' => self::status() ), $res['failed'] ? 207 : 200 );
 	}
 
 	public static function rest_migrate( $r ) {

@@ -184,6 +184,9 @@ Yes, with the Stripe add-on (Free Plus and Pro). Install it from Easy Form Build
 = Does Easy Form Builder support PayPal payments? =
 Yes. You can add and set up the PayPal payment field to accept online payments through your WordPress forms. The PayPal add-on supports one-time payments as well as recurring billing options including daily, weekly, monthly, and yearly subscriptions. Payment entries are managed alongside other form submissions in the Form Entry & Message Management Dashboard.
 
+= How do I go back to version 4.3.1? =
+Version 4.3.2 moves forms with the older Stripe, PayPal and Persia Pay fields to the add-ons' new payment fields, which 4.3.1 cannot show. Before you install 4.3.1, open Easy Form Builder > Payments > Moved forms and press "Move every form back". Edits made since the move are kept. Then install 4.3.1. Entries and payments stay as they are.
+
 = Does Easy Form Builder support survey forms? =
 Yes. The form builder includes survey and poll fields such as rating stars and NPS.
 

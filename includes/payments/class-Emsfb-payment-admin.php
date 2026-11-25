@@ -8,6 +8,12 @@
  * are shown as "•••• abcd" and an empty field keeps the stored key; "Test connection"; Test / Live
  * with a confirmation before Live; the webhook address to give the provider.
  *
+ * Tab "Moved forms" (QA4-003, while forms use the add-ons' new fields after PAY-OUT step 5): before going back to an
+ * older version, "Move every form back" (Legacy_Migration::rollback_all(); edits made since the move are kept).
+ *
+ * QA3-005: without any gateway add-on the screen stays, read only, while the payments table has rows (or forms are
+ * moved): the list and each payment; checking or refunding a payment needs its gateway add-on, and the screen says so.
+ *
  * Every action: nonce + capability Emsfb_payments (administrators; manage_options as fallback).
  */
 namespace Emsfb\Payments;
@@ -38,6 +44,7 @@ class Admin {
 		add_filter( 'parent_file', array( __CLASS__, 'older_parent' ) );
 		add_filter( 'submenu_file', array( __CLASS__, 'older_submenu' ) );
 		add_action( 'admin_post_efb_pay_settings', array( __CLASS__, 'save_settings' ) );
+		add_action( 'admin_post_efb_pay_legacy_rollback_all', array( __CLASS__, 'rollback_all' ) );
 		add_action( 'wp_ajax_efb_pay_action', array( __CLASS__, 'ajax' ) );
 		// UX-01: through the notice manager (one notice at a time on the plugin's screens). Payment readiness is no longer a
 		// notice: a badge per form in the forms list and a summary on Payments (readiness_summary()).
@@ -56,20 +63,43 @@ class Admin {
 		return current_user_can( 'Emsfb_payments' ) || current_user_can( 'manage_options' );
 	}
 
-	/** Whether the payment screens exist at all: only while a gateway add-on is installed and active. */
+	/** Whether a gateway add-on is installed and active (the screens' actions, the Gateway settings). */
 	public static function active() {
 		return (bool) Registry::all();
 	}
 
+	/** Whether the payments table holds a payment (once per request). */
+	public static function has_payments() {
+		static $has = null;
+		if ( $has !== null ) return $has;
+		if ( ! Store::ready() ) return $has = false;
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- table from $wpdb->prefix, one row
+		return $has = (bool) $wpdb->get_var( 'SELECT id FROM `' . Store::table( 'emsfb_pmt_' ) . '` LIMIT 1' );
+	}
+
+	/** Forms on the add-ons' new fields (PAY-OUT step 5) that an older version could not show. */
+	private static function moved() {
+		return class_exists( '\\Emsfb\\Payments\\Legacy_Migration' ) ? Legacy_Migration::moved_ids() : array();
+	}
+
+	/**
+	 * Whether Payments is in the menu: a gateway add-on is active, or (QA3-005, read only) the payments table holds
+	 * payments, or (QA4-003) forms are moved. Without any of them: nothing of the payment framework in the menu.
+	 */
+	public static function available() {
+		return self::active() || self::has_payments() || (bool) self::moved();
+	}
+
 	public static function menu() {
-		if ( ! self::active() ) return; // no gateway add-on: nothing of the payment framework in the menu
+		if ( ! self::available() ) return;
 		add_submenu_page( 'Emsfb', esc_html__( 'Payments', 'easy-form-builder' ), esc_html__( 'Payments', 'easy-form-builder' ), current_user_can( 'Emsfb_payments' ) ? 'Emsfb_payments' : 'manage_options', self::SLUG, array( __CLASS__, 'page' ) );
 	}
 
 	/** admin_menu (late, after the add-ons): which older-payments screens go into Payments' "Older payments". */
 	public static function older_menu() {
 		global $submenu;
-		if ( ! self::active() || ! isset( $submenu['Emsfb'] ) || ! is_array( $submenu['Emsfb'] ) ) return;
+		if ( ! self::available() || ! isset( $submenu['Emsfb'] ) || ! is_array( $submenu['Emsfb'] ) ) return;
 		foreach ( $submenu['Emsfb'] as $item ) {
 			if ( isset( $item[2] ) && in_array( $item[2], self::OLDER_SCREENS, true ) && current_user_can( $item[1] ) ) {
 				self::$older[ $item[2] ] = trim( wp_strip_all_tags( isset( $item[3] ) && $item[3] !== '' ? $item[3] : $item[0] ) );
@@ -189,6 +219,12 @@ class Admin {
 		return isset( $l[ $s ] ) ? $l[ $s ] : $s;
 	}
 
+	/** QA3-011: the mode as a short badge word, translatable (TEST / LIVE). */
+	private static function mode_label( $m ) {
+		/* translators: payment mode badge in the Payments list (upper case in English): LIVE = real money, TEST = no real money */
+		return $m === 'live' ? _x( 'LIVE', 'payment mode badge', 'easy-form-builder' ) : _x( 'TEST', 'payment mode badge', 'easy-form-builder' );
+	}
+
 	private static function badge( $s ) {
 		$c = array( 'paid' => 'success', 'pending' => 'warning', 'created' => 'secondary', 'authorized' => 'info', 'failed' => 'danger', 'canceled' => 'secondary', 'expired' => 'secondary', 'refunded' => 'dark', 'partially_refunded' => 'dark' );
 		return '<span class="efb-pay-badge efb-pay-' . esc_attr( isset( $c[ $s ] ) ? $c[ $s ] : 'secondary' ) . '">' . esc_html( self::status_label( $s ) ) . '</span>';
@@ -201,10 +237,11 @@ class Admin {
 	}
 
 	public static function page() {
-		if ( ! self::can() || ! self::active() ) wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'easy-form-builder' ) );
+		if ( ! self::can() || ! self::available() ) wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'easy-form-builder' ) );
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only screen parameters
-		$tab = isset( $_GET['tab'] ) && in_array( $_GET['tab'], array( 'gateways', 'older' ), true ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'payments';
+		$tab = isset( $_GET['tab'] ) && in_array( $_GET['tab'], array( 'gateways', 'older', 'downgrade' ), true ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'payments';
 		if ( $tab === 'older' && ! self::$older ) $tab = 'payments';
+		$moved = self::moved();
 		$id = isset( $_GET['payment'] ) ? absint( $_GET['payment'] ) : 0;
 		// phpcs:enable
 		$base = admin_url( 'admin.php?page=' . self::SLUG );
@@ -217,7 +254,18 @@ class Admin {
 		if ( self::$older ) {
 			echo '<a class="nav-tab' . ( $tab === 'older' ? ' nav-tab-active' : '' ) . '" href="' . esc_url( $base . '&tab=older' ) . '"' . ( $tab === 'older' ? ' aria-current="page"' : '' ) . '>' . esc_html__( 'Older payments', 'easy-form-builder' ) . '</a>';
 		}
+		if ( $moved || $tab === 'downgrade' ) {
+			echo '<a class="nav-tab' . ( $tab === 'downgrade' ? ' nav-tab-active' : '' ) . '" href="' . esc_url( $base . '&tab=downgrade' ) . '"' . ( $tab === 'downgrade' ? ' aria-current="page"' : '' ) . '>' . esc_html__( 'Moved forms', 'easy-form-builder' ) . '</a>';
+		}
 		echo '</nav>';
+		if ( $tab === 'downgrade' ) {
+			self::downgrade_tab( $moved );
+			echo '</div>';
+			return;
+		}
+		if ( ! self::active() && $tab !== 'gateways' ) {
+			echo '<div class="notice notice-info inline efb-pay-readonly" data-code="pay_read_only"><p>' . esc_html__( 'No payment add-on is active, so this list is read only. To check a payment again or refund it, turn its add-on on in Add-ons.', 'easy-form-builder' ) . ' <a href="' . esc_url( admin_url( 'admin.php?page=Emsfb_addon' ) ) . '">' . esc_html__( 'Open Add-ons', 'easy-form-builder' ) . '</a></p></div>';
+		}
 		if ( ! Store::ready() ) {
 			echo '<p>' . esc_html__( 'The payment tables are being created. Please reload this page in a moment.', 'easy-form-builder' ) . '</p></div>';
 			return;
@@ -248,8 +296,9 @@ class Admin {
 		$res = Store::search( $f );
 		$stats = Store::stats( $f['mode'] );
 		echo '<div class="efb-pay-stats">';
+		// QA3-018: each currency's total in its gateways' exponent (Store::stats() sums every gateway at the largest one).
 		foreach ( $stats['paid'] as $row ) {
-			echo '<div class="efb-pay-stat"><span>' . esc_html__( 'Paid', 'easy-form-builder' ) . ' ' . esc_html( $row['currency'] ) . '</span><strong><bdi>' . esc_html( Money::format( (int) $row['total'], $row['currency'], get_user_locale() ) ) . '</bdi></strong></div>';
+			echo '<div class="efb-pay-stat"><span>' . esc_html__( 'Paid', 'easy-form-builder' ) . ' <bdi>' . esc_html( $row['currency'] ) . '</bdi></span><strong><bdi>' . esc_html( Money::format( (int) $row['total'], $row['currency'], get_user_locale(), isset( $row['gateway'] ) ? (string) $row['gateway'] : '' ) ) . '</bdi></strong></div>';
 		}
 		echo '<div class="efb-pay-stat"><span>' . esc_html__( 'Pending', 'easy-form-builder' ) . '</span><strong>' . esc_html( number_format_i18n( $stats['pending'] ) ) . '</strong></div></div>';
 
@@ -258,24 +307,40 @@ class Admin {
 		foreach ( Registry::all() as $slug => $g ) echo '<option value="' . esc_attr( $slug ) . '"' . selected( $f['gateway'], $slug, false ) . '>' . esc_html( $g->label() ) . '</option>';
 		echo '</select></label> <label>' . esc_html__( 'Status', 'easy-form-builder' ) . ' <select name="status"><option value="">' . esc_html__( 'All', 'easy-form-builder' ) . '</option>';
 		foreach ( Store::STATUSES as $s ) echo '<option value="' . esc_attr( $s ) . '"' . selected( $f['status'], $s, false ) . '>' . esc_html( self::status_label( $s ) ) . '</option>';
-		echo '</select></label> <label>' . esc_html__( 'Mode', 'easy-form-builder' ) . ' <select name="mode"><option value="">' . esc_html__( 'All', 'easy-form-builder' ) . '</option><option value="test"' . selected( $f['mode'], 'test', false ) . '>TEST</option><option value="live"' . selected( $f['mode'], 'live', false ) . '>LIVE</option></select></label>';
+		echo '</select></label> <label>' . esc_html__( 'Mode', 'easy-form-builder' ) . ' <select name="mode"><option value="">' . esc_html__( 'All', 'easy-form-builder' ) . '</option><option value="test"' . selected( $f['mode'], 'test', false ) . '>' . esc_html( self::mode_label( 'test' ) ) . '</option><option value="live"' . selected( $f['mode'], 'live', false ) . '>' . esc_html( self::mode_label( 'live' ) ) . '</option></select></label>';
 		echo ' <label>' . esc_html__( 'From', 'easy-form-builder' ) . ' <input type="date" name="from" value="' . esc_attr( $f['from'] ) . '"></label> <label>' . esc_html__( 'To', 'easy-form-builder' ) . ' <input type="date" name="to" value="' . esc_attr( $f['to'] ) . '"></label>';
 		echo ' <label>' . esc_html__( 'Search', 'easy-form-builder' ) . ' <input type="search" name="q" value="' . esc_attr( $f['q'] ) . '" placeholder="' . esc_attr__( 'Reference, confirmation code, e-mail', 'easy-form-builder' ) . '"></label> <button class="button">' . esc_html__( 'Filter', 'easy-form-builder' ) . '</button></form>';
 
 		if ( empty( $res['rows'] ) ) {
-			echo '<p>' . esc_html__( 'No payments yet.', 'easy-form-builder' ) . '</p>';
+			// QA3-016: a filter that matches nothing is not an empty list.
+			$filtered = $f['gateway'] !== '' || $f['status'] !== '' || $f['mode'] !== '' || $f['q'] !== '' || $f['from'] !== '' || $f['to'] !== '' || $f['form_id'] > 0;
+			echo '<p class="efb-pay-empty" data-code="' . ( $filtered ? 'pay_no_match' : 'pay_none' ) . '">' . esc_html( $filtered ? __( 'No payments match these filters.', 'easy-form-builder' ) : __( 'No payments yet.', 'easy-form-builder' ) ) . '</p>';
+			if ( $filtered ) echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=' . self::SLUG ) ) . '">' . esc_html__( 'Show all payments', 'easy-form-builder' ) . '</a></p>';
 			return;
 		}
-		echo '<table class="widefat striped efb-pay-table"><thead><tr>';
-		foreach ( array( __( 'Date', 'easy-form-builder' ), __( 'Form', 'easy-form-builder' ), __( 'Confirmation Code', 'easy-form-builder' ), __( 'Gateway', 'easy-form-builder' ), __( 'Method', 'easy-form-builder' ), __( 'Amount', 'easy-form-builder' ), __( 'Status', 'easy-form-builder' ), __( 'Mode', 'easy-form-builder' ), __( 'Payer', 'easy-form-builder' ) ) as $h ) echo '<th scope="col">' . esc_html( $h ) . '</th>';
+		// QA3-008: WordPress' list-table pattern: on a phone each payment is a card (its date first, the other columns
+		// under it with their names), no sideways scroll, right to left too.
+		$cols = array( 'date' => __( 'Date', 'easy-form-builder' ), 'form' => __( 'Form', 'easy-form-builder' ), 'track' => __( 'Confirmation Code', 'easy-form-builder' ), 'gateway' => __( 'Gateway', 'easy-form-builder' ), 'method' => __( 'Method', 'easy-form-builder' ), 'amount' => __( 'Amount', 'easy-form-builder' ), 'status' => __( 'Status', 'easy-form-builder' ), 'mode' => __( 'Mode', 'easy-form-builder' ), 'payer' => __( 'Payer', 'easy-form-builder' ) );
+		echo '<table class="wp-list-table widefat fixed striped table-view-list efb-pay-table"><thead><tr>';
+		foreach ( $cols as $k => $h ) echo '<th scope="col" class="manage-column column-' . esc_attr( $k ) . ( $k === 'date' ? ' column-primary' : '' ) . '">' . esc_html( $h ) . '</th>';
 		echo '</tr></thead><tbody>';
 		foreach ( $res['rows'] as $p ) {
 			$g = Registry::get( $p['gateway'] );
 			$link = admin_url( 'admin.php?page=' . self::SLUG . '&payment=' . (int) $p['id'] );
-			echo '<tr><td><a href="' . esc_url( $link ) . '">' . esc_html( self::local_time( $p['created_at'] ) ) . '</a></td><td>' . (int) $p['form_id'] . '</td><td><code>' . esc_html( $p['track'] ) . '</code></td>';
-			echo '<td>' . esc_html( $g ? $g->label() : $p['gateway'] ) . '</td><td>' . esc_html( $p['method'] ) . '</td>';
-			echo '<td><bdi>' . esc_html( Money::format( $p['amount_minor'], $p['currency'], get_user_locale(), $p['gateway'] ) ) . '</bdi></td><td>' . self::badge( $p['status'] ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- badge() escapes
-			echo '<td>' . ( $p['mode'] === 'live' ? 'LIVE' : '<span class="efb-pay-test">TEST</span>' ) . '</td><td>' . esc_html( $p['payer_email'] ) . '</td></tr>';
+			$cell = array(
+				'form'    => (string) (int) $p['form_id'],
+				'track'   => '<code><bdi>' . esc_html( $p['track'] ) . '</bdi></code>',
+				'gateway' => esc_html( $g ? $g->label() : Readiness::addon_name( $p['gateway'] ) ),
+				'method'  => esc_html( $p['method'] ),
+				'amount'  => '<bdi>' . esc_html( Money::format( $p['amount_minor'], $p['currency'], get_user_locale(), $p['gateway'] ) ) . '</bdi>',
+				'status'  => self::badge( $p['status'] ),
+				'mode'    => $p['mode'] === 'live' ? esc_html( self::mode_label( 'live' ) ) : '<span class="efb-pay-test">' . esc_html( self::mode_label( 'test' ) ) . '</span>',
+				'payer'   => '<bdi>' . esc_html( $p['payer_email'] ) . '</bdi>',
+			);
+			echo '<tr><td class="column-date column-primary" data-colname="' . esc_attr( $cols['date'] ) . '"><a href="' . esc_url( $link ) . '"><bdi>' . esc_html( self::local_time( $p['created_at'] ) ) . '</bdi></a>'
+				. '<button type="button" class="toggle-row"><span class="screen-reader-text">' . esc_html__( 'Show more details', 'easy-form-builder' ) . '</span></button></td>';
+			foreach ( $cell as $k => $v ) echo '<td class="column-' . esc_attr( $k ) . '" data-colname="' . esc_attr( $cols[ $k ] ) . '">' . $v . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- each cell escaped above
+			echo '</tr>';
 		}
 		echo '</tbody></table>';
 		$pages = (int) ceil( $res['total'] / $res['per_page'] );
@@ -300,10 +365,10 @@ class Admin {
 		$g = Registry::get( $p['gateway'] );
 		$sup = $g ? array_merge( ( new Gateway_Defaults() )->supports(), (array) $g->supports() ) : array();
 		echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=' . self::SLUG ) ) . '">← ' . esc_html__( 'All payments', 'easy-form-builder' ) . '</a></p>';
-		echo '<h2>' . esc_html( Money::format( $p['amount_minor'], $p['currency'], get_user_locale(), $p['gateway'] ) ) . ' ' . self::badge( $p['status'] ) . ( $p['mode'] !== 'live' ? ' <span class="efb-pay-test">TEST</span>' : '' ) . '</h2>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped parts
+		echo '<h2>' . esc_html( Money::format( $p['amount_minor'], $p['currency'], get_user_locale(), $p['gateway'] ) ) . ' ' . self::badge( $p['status'] ) . ( $p['mode'] !== 'live' ? ' <span class="efb-pay-test">' . esc_html( self::mode_label( 'test' ) ) . '</span>' : '' ) . '</h2>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped parts
 		echo '<table class="widefat efb-pay-kv"><tbody>';
 		$kv = array(
-			__( 'Gateway', 'easy-form-builder' )           => $g ? $g->label() : $p['gateway'],
+			__( 'Gateway', 'easy-form-builder' )           => $g ? $g->label() : Readiness::addon_name( $p['gateway'] ),
 			__( 'Gateway reference', 'easy-form-builder' ) => $p['gateway_ref'],
 			__( 'Method', 'easy-form-builder' )            => $p['method'],
 			__( 'Confirmation Code', 'easy-form-builder' ) => $p['track'],
@@ -321,10 +386,15 @@ class Admin {
 			foreach ( $q['items'] as $it ) echo '<li>' . esc_html( $it['label'] ) . ': <bdi>' . esc_html( Money::format( $it['total_minor'], $q['currency'], get_user_locale(), $p['gateway'] ) ) . '</bdi></li>';
 			echo '</ul><p class="description">' . esc_html__( 'Quote', 'easy-form-builder' ) . ' <code>' . esc_html( substr( (string) ( $q['hash'] ?? '' ), 0, 16 ) ) . '</code></p>';
 		}
+		if ( ! $g ) {
+			// QA3-005: read only without the payment's gateway add-on; a refund goes through that gateway.
+			/* translators: %s: name of the payment add-on (e.g. Stripe) */
+			echo '<p class="efb-pay-needs-gw" data-code="pay_gateway_inactive">' . esc_html( sprintf( __( 'Checking or refunding this payment goes through %s, and its add-on is not active. Turn the add-on on in Add-ons to refund it here.', 'easy-form-builder' ), Readiness::addon_name( $p['gateway'] ) ) ) . ' <a href="' . esc_url( admin_url( 'admin.php?page=Emsfb_addon' ) ) . '">' . esc_html__( 'Open Add-ons', 'easy-form-builder' ) . '</a></p>';
+		}
 		$n = wp_create_nonce( 'efb_pay_action' );
 		echo '<div class="efb-pay-actions" data-id="' . (int) $p['id'] . '" data-nonce="' . esc_attr( $n ) . '">';
-		if ( in_array( $p['status'], array( 'created', 'pending', 'authorized' ), true ) ) echo '<button type="button" class="button" data-efb-pay="recheck">' . esc_html__( 'Check status now', 'easy-form-builder' ) . '</button> ';
-		if ( in_array( $p['status'], array( 'paid', 'partially_refunded' ), true ) ) {
+		if ( $g && in_array( $p['status'], array( 'created', 'pending', 'authorized' ), true ) ) echo '<button type="button" class="button" data-efb-pay="recheck">' . esc_html__( 'Check status now', 'easy-form-builder' ) . '</button> ';
+		if ( $g && in_array( $p['status'], array( 'paid', 'partially_refunded' ), true ) ) {
 			if ( ! empty( $sup['refund'] ) ) {
 				$left = Money::to_decimal_string( max( 0, $p['amount_minor'] - $p['refunded_minor'] - Service::pending_refunds( $p['id'] ) ), $p['currency'], $p['gateway'] );
 				echo '<label>' . esc_html__( 'Amount', 'easy-form-builder' ) . ' <input type="text" inputmode="decimal" dir="ltr" size="8" id="efbPayRefundAmt" value="' . esc_attr( $left ) . '"' . ( empty( $sup['partial_refund'] ) ? ' readonly' : '' ) . '></label> ';
@@ -335,7 +405,7 @@ class Admin {
 				echo '<p>' . esc_html( self::unsupported_refund_text( $g, $p ) !== '' ? self::unsupported_refund_text( $g, $p ) : sprintf( __( 'This payment method cannot be refunded through the API. Use the %s dashboard.', 'easy-form-builder' ), $g ? $g->label() : $p['gateway'] ) ) . '</p>';
 			}
 		}
-		if ( in_array( $p['status'], array( 'paid', 'partially_refunded' ), true ) ) {
+		if ( $g && in_array( $p['status'], array( 'paid', 'partially_refunded' ), true ) ) {
 			// Money given back from the provider's dashboard or the bank: recorded here, no call to the provider.
 			$left = Money::to_decimal_string( max( 0, $p['amount_minor'] - $p['refunded_minor'] - Service::pending_refunds( $p['id'] ) ), $p['currency'], $p['gateway'] );
 			echo '<details class="efb-pay-ext"><summary>' . esc_html__( 'Mark as refunded outside EFB', 'easy-form-builder' ) . '</summary>';
@@ -352,7 +422,7 @@ class Admin {
 			foreach ( $refunds as $rf ) {
 				echo '<li><time>' . esc_html( self::local_time( $rf['created_at'] ) ) . '</time> <bdi>' . esc_html( Money::format( (int) $rf['amount_minor'], $rf['currency'], get_user_locale(), $p['gateway'] ) ) . '</bdi> — ' . esc_html( isset( $rl[ $rf['status'] ] ) ? $rl[ $rf['status'] ] : $rf['status'] );
 				if ( $rf['reason'] !== '' ) echo ' — ' . esc_html( $rf['reason'] );
-				if ( $rf['status'] === 'pending' ) {
+				if ( $g && $rf['status'] === 'pending' ) {
 					echo ' <button type="button" class="button button-small" data-efb-pay="refund_settle" data-refund="' . (int) $rf['id'] . '" data-to="refunded" data-confirm="' . esc_attr__( 'The gateway confirmed this refund?', 'easy-form-builder' ) . '">' . esc_html__( 'Confirm refund', 'easy-form-builder' ) . '</button>';
 					echo ' <button type="button" class="button button-small" data-efb-pay="refund_settle" data-refund="' . (int) $rf['id'] . '" data-to="failed" data-confirm="' . esc_attr__( 'The gateway declined this refund?', 'easy-form-builder' ) . '">' . esc_html__( 'Mark as declined', 'easy-form-builder' ) . '</button>';
 				}
@@ -418,7 +488,7 @@ class Admin {
 				$modes = ! empty( $fd['per_mode'] ) ? array( 'test', 'live' ) : array( '' );
 				foreach ( $modes as $m ) {
 					$name = $m === '' ? $fd['key'] : $fd['key'] . '__' . $m;
-					$label = ( isset( $fd['label'] ) ? $fd['label'] : $fd['key'] ) . ( $m !== '' ? ' (' . ( $m === 'live' ? 'Live' : 'Test' ) . ')' : '' );
+					$label = ( isset( $fd['label'] ) ? $fd['label'] : $fd['key'] ) . ( $m !== '' ? ' (' . ( $m === 'live' ? __( 'Live', 'easy-form-builder' ) : __( 'Test', 'easy-form-builder' ) ) . ')' : '' );
 					$type = isset( $fd['type'] ) ? $fd['type'] : 'text';
 					echo '<tr><th scope="row"><label for="efbpay_' . esc_attr( $slug . '_' . $name ) . '">' . esc_html( $label ) . '</label></th><td>';
 					if ( $type === 'secret' ) {
@@ -542,7 +612,7 @@ class Admin {
 	}
 
 	public static function ajax() {
-		if ( ! self::can() || ! self::active() || ! check_ajax_referer( 'efb_pay_action', 'nonce', false ) ) wp_send_json_error( array( 'm' => __( 'Sorry, you are not allowed to do that.', 'easy-form-builder' ) ), 403 );
+		if ( ! self::can() || ! self::available() || ! check_ajax_referer( 'efb_pay_action', 'nonce', false ) ) wp_send_json_error( array( 'm' => __( 'Sorry, you are not allowed to do that.', 'easy-form-builder' ) ), 403 );
 		$do = isset( $_POST['do'] ) ? sanitize_key( wp_unslash( $_POST['do'] ) ) : '';
 		if ( $do === 'test_connection' ) {
 			$slug = isset( $_POST['gateway'] ) ? sanitize_key( wp_unslash( $_POST['gateway'] ) ) : '';
@@ -570,6 +640,10 @@ class Admin {
 		}
 		$p = Store::get( isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0 );
 		if ( ! $p ) wp_send_json_error( array( 'm' => __( 'This payment does not exist.', 'easy-form-builder' ) ) );
+		if ( ! Registry::get( $p['gateway'] ) ) {
+			/* translators: %s: name of the payment add-on (e.g. Stripe) */
+			wp_send_json_error( array( 'm' => sprintf( __( 'Turn the %s add-on on first: this payment is checked and refunded through it.', 'easy-form-builder' ), Readiness::addon_name( $p['gateway'] ) ), 'code' => 'pay_gateway_inactive' ) );
+		}
 		if ( $do === 'recheck' ) {
 			$r = Service::refresh( $p, 'admin' );
 			$now = Store::get( $p['id'] );
@@ -602,6 +676,48 @@ class Admin {
 		wp_send_json_error( array( 'm' => __( 'Unknown action.', 'easy-form-builder' ) ) );
 	}
 
+	/* ------------------------------------------------------------------ moved forms (QA4-003) */
+
+	/** "Moved forms": the forms on the add-ons' new fields, and "Move every form back" before going back to an older version. */
+	private static function downgrade_tab( array $ids ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- the message after the redirect
+		$done = isset( $_GET['efb_back'] ) ? absint( $_GET['efb_back'] ) : -1;
+		$kept = isset( $_GET['efb_left'] ) ? absint( $_GET['efb_left'] ) : 0;
+		// phpcs:enable
+		echo '<section class="efb-pay-card efb-pay-downgrade" aria-labelledby="efbPayDowngradeH"><h2 id="efbPayDowngradeH">' . esc_html__( 'Before going back to an older version', 'easy-form-builder' ) . '</h2>';
+		if ( $done >= 0 ) {
+			/* translators: %s: number of forms */
+			echo '<div class="notice notice-success inline" role="status"><p>' . esc_html( sprintf( _n( '%s form was moved back to its older payment field.', '%s forms were moved back to their older payment fields.', $done, 'easy-form-builder' ), number_format_i18n( $done ) ) ) . '</p></div>';
+		}
+		if ( $kept > 0 ) {
+			/* translators: %s: number of forms */
+			echo '<div class="notice notice-warning inline"><p>' . esc_html( sprintf( _n( '%s form could not be moved back: its payment field was changed after the move. Open the form\'s versions in the builder to go back.', '%s forms could not be moved back: their payment fields were changed after the move. Open each form\'s versions in the builder to go back.', $kept, 'easy-form-builder' ), number_format_i18n( $kept ) ) ) . '</p></div>';
+		}
+		if ( ! $ids ) {
+			echo '<p>' . esc_html__( 'No form uses the payment add-ons\' new fields now. An older version of Easy Form Builder can show every payment form.', 'easy-form-builder' ) . '</p></section>';
+			return;
+		}
+		echo '<p>' . esc_html( Legacy_Migration::downgrade_text( count( $ids ) ) ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Moving a form back changes only its payment field: edits made since the move are kept, and the form can be moved again later from Settings › Payments.', 'easy-form-builder' ) . '</p><ul class="efb-pay-moved">';
+		$log = Legacy_Migration::log_all();
+		foreach ( $ids as $id ) {
+			$name = isset( $log['forms'][ $id ]['name'] ) ? wp_strip_all_tags( str_replace( '@efb@dq#', '"', (string) $log['forms'][ $id ]['name'] ) ) : '';
+			echo '<li><bdi><a href="' . esc_url( admin_url( 'admin.php?page=Emsfb&state=edit-form&id=' . (int) $id ) ) . '">' . esc_html( ( $name !== '' ? $name : __( 'Form', 'easy-form-builder' ) ) . ' (#' . (int) $id . ')' ) . '</a></bdi></li>';
+		}
+		echo '</ul><form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+		wp_nonce_field( 'efb_pay_legacy_rollback_all' );
+		echo '<input type="hidden" name="action" value="efb_pay_legacy_rollback_all"><p><button class="button button-primary" data-efb-confirm="' . esc_attr__( 'Move every form back to its older payment field? Visitors then pay through the older fields again.', 'easy-form-builder' ) . '">' . esc_html__( 'Move every form back', 'easy-form-builder' ) . '</button></p></form></section>';
+		wp_print_inline_script_tag( '(function(){var b=document.querySelector(".efb-pay-downgrade [data-efb-confirm]");if(b)b.form.addEventListener("submit",function(e){if(!window.confirm(b.getAttribute("data-efb-confirm")))e.preventDefault();});})();' );
+	}
+
+	/** admin-post: every moved form back (Legacy_Migration::rollback_all()), then the tab with the counts. */
+	public static function rollback_all() {
+		if ( ! current_user_can( 'manage_options' ) || ! check_admin_referer( 'efb_pay_legacy_rollback_all' ) ) wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'easy-form-builder' ), 403 );
+		$r = Legacy_Migration::rollback_all( 'admin' );
+		wp_safe_redirect( admin_url( 'admin.php?page=' . self::SLUG . '&tab=downgrade&efb_back=' . count( $r['done'] ) . '&efb_left=' . count( $r['failed'] ) ) );
+		exit;
+	}
+
 	private static function style() {
 		echo '<style>.efb-pay-admin .efb-pay-stats{display:flex;gap:1rem;flex-wrap:wrap;margin:1rem 0}.efb-pay-stat{background:#fff;border:1px solid #dcdcde;border-radius:6px;padding:.6rem 1rem;display:flex;flex-direction:column}.efb-pay-filters{display:flex;flex-wrap:wrap;gap:.5rem;align-items:end;margin:.5rem 0 1rem}.efb-pay-badge{display:inline-block;padding:.1rem .5rem;border-radius:999px;font-size:12px;font-weight:600;background:#e9ecef;color:#1d2327}.efb-pay-success{background:#d1e7dd;color:#0a3622}.efb-pay-warning{background:#fff3cd;color:#664d03}.efb-pay-danger{background:#f8d7da;color:#58151c}.efb-pay-info{background:#cff4fc;color:#055160}.efb-pay-dark{background:#495057;color:#fff}.efb-pay-test{background:#fff3cd;color:#664d03;padding:0 .4rem;border-radius:4px;font-weight:700}.efb-pay-card{background:#fff;border:1px solid #dcdcde;border-radius:8px;padding:0 1rem 1rem;margin:1rem 0;max-width:60rem}.efb-pay-kv th{width:14rem}.efb-pay-err{color:#b32d2e}.efb-pay-events pre{white-space:pre-wrap;max-height:16rem;overflow:auto}.efb-pay-pages{margin:1rem 0}'
 			// UX-01: the readiness summary (a card, not a notice: it is about these screens' work).
@@ -610,7 +726,11 @@ class Admin {
 			. '.efb-pay-older ul{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.efb-pay-older .button{min-height:36px;display:inline-flex;align-items:center}.efb-pay-older .description{max-width:52rem}'
 			// F16 rule on a right-to-left screen: a sentence keeps its own direction (English, not translated yet: its full stop
 			// stays at its end) and starts at the screen's start.
-			. '.efb-pay-admin :is(p,.notice p,.description,li,label,.efb-pay-msg){unicode-bidi:plaintext}.rtl .efb-pay-admin :is(p,.notice p,.description,li,.efb-pay-msg){text-align:right}</style>';
+			. '.efb-pay-admin :is(p,.notice p,.description,li,label,.efb-pay-msg){unicode-bidi:plaintext}.rtl .efb-pay-admin :is(p,.notice p,.description,li,.efb-pay-msg){text-align:right}'
+			// QA3-008: the list at phone width (WordPress' list-table cards below 783 px); the filters and the details fit too.
+			. '.efb-pay-table .column-date{width:9.5rem}.efb-pay-table .column-form{width:4rem}.efb-pay-table .column-mode{width:4.5rem}.efb-pay-table code{white-space:nowrap}.efb-pay-table td{overflow-wrap:anywhere}'
+			. '@media (max-width:782px){.efb-pay-admin .efb-pay-filters label{display:flex;flex-direction:column;flex:1 1 9rem;min-width:0}.efb-pay-admin .efb-pay-filters :is(select,input){max-width:100%;min-height:40px}.efb-pay-table .column-date{width:auto}.efb-pay-table td code{white-space:normal}.efb-pay-kv th{width:auto}.efb-pay-kv td{overflow-wrap:anywhere}.efb-pay-admin .nav-tab{margin-block-end:4px}}'
+			. '.efb-pay-moved{list-style:disc;padding-inline-start:1.25rem;margin-inline-start:0}</style>';
 	}
 
 	private static function script() {

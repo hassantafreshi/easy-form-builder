@@ -455,7 +455,7 @@ class Readiness {
 	}
 
 	/** The add-on's name for a message (the compatibility catalogue), else the field type. */
-	private static function addon_name( $type ) {
+	public static function addon_name( $type ) {
 		$key = self::addon_of( $type );
 		if ( $key !== '' && class_exists( '\Emsfb_Addon_Compatibility' ) && method_exists( '\Emsfb_Addon_Compatibility', 'addon_requirements' ) ) {
 			$req = \Emsfb_Addon_Compatibility::addon_requirements();

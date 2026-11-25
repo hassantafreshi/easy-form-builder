@@ -259,7 +259,100 @@ $GLOBALS['efb_can'] = false;
 $t('I REST: only an administrator (manage_options)', $perm(), false);
 $GLOBALS['efb_can'] = true;
 $t('I REST rollback without form_id: 400', M::rest_rollback(new WP_REST_Request('POST'))->get_status(), 400);
-$t('I REST routes: status, run, rollback, migrate', array_values(array_filter(array_keys($GLOBALS['efb_routes']), function ($k) { return strpos($k, 'legacy-migration') !== false; })), array('Emsfb/v1/payments/legacy-migration', 'Emsfb/v1/payments/legacy-migration/run', 'Emsfb/v1/payments/legacy-migration/rollback', 'Emsfb/v1/payments/legacy-migration/migrate'));
+$t('I REST routes: status, run, rollback, rollback-all (QA4-003), migrate', array_values(array_filter(array_keys($GLOBALS['efb_routes']), function ($k) { return strpos($k, 'legacy-migration') !== false; })), array('Emsfb/v1/payments/legacy-migration', 'Emsfb/v1/payments/legacy-migration/run', 'Emsfb/v1/payments/legacy-migration/rollback', 'Emsfb/v1/payments/legacy-migration/rollback-all', 'Emsfb/v1/payments/legacy-migration/migrate'));
+
+/* ---------------------------------------------------------------- J */
+echo "\n=== J Move back keeps the owner's edits (QA3-003); every form back before an older version (QA4-003)\n";
+if (!function_exists('_n')) { function _n($a, $b, $n, $d = null) { return $n == 1 ? $a : $b; } }
+if (!function_exists('number_format_i18n')) { function number_format_i18n($n, $d = 0) { return number_format((float) $n, $d); } }
+if (!function_exists('esc_html__')) { function esc_html__($s, $d = null) { return $s; } }
+if (!defined('EMSFB_PLUGIN_VERSION')) define('EMSFB_PLUGIN_VERSION', '4.3.2');
+if (!function_exists('admin_url')) { function admin_url($p = '') { return 'https://site.example/wp-admin/' . $p; } }
+/* The owner's edit in the builder after the move: the stored rows changed by $fn (written the way a save writes them). */
+function mg_edit($db, $id, $fn) {
+	$rows = $fn(mg_rows($db, $id));
+	$db->update('wp_emsfb_form', array('form_structer' => str_replace('"', '\\"', json_encode($rows, JSON_UNESCAPED_UNICODE))), array('form_id' => (int) $id));
+	return $rows;
+}
+$db = mg_env();
+mg_old_keys();
+$fid = $db->add_form(mg_form('stripe'), 'payment');
+$orig = mg_raw($db, $fid);
+M::migrate_form($fid);
+$edited = mg_edit($db, $fid, function ($r) { $r[4]['price'] = '30'; $r[0]['formName'] = 'Legacy stripe (2027)'; $r[6]['name'] = 'Pay by card'; $r[] = array('id_' => 'nt', 'type' => 'text', 'name' => 'Notes', 'step' => 1); return $r; });
+$r = M::rollback($fid);
+$back = mg_rows($db, $fid);
+$t('J Move back after edits: the gateway field and row 0 are the older ones again (stripe), logged rolled_back, edits_kept', array($r['ok'], $back[6]['type'], $back[6]['elementId'], $back[0]['getway'], M::log_get($fid)['status'], M::log_get($fid)['reason']), array(true, 'stripe', 'stripe', 'stripe', 'rolled_back', 'edits_kept'));
+$t('J ...the Adult price of 30, the new form name, the field\'s new label and the added field are kept (old code: the backup with 25)', array($back[4]['price'], $back[0]['formName'], $back[6]['name'], end($back)['id_'], count($back)), array('30', 'Legacy stripe (2027)', 'Pay by card', 'nt', 8));
+$exp = $edited; $exp[6]['type'] = 'stripe'; $exp[6]['elementId'] = 'stripe'; $exp[0]['getway'] = 'stripe';
+$t('J ...the stored form is the edited form with only the move undone', $back, $exp);
+$saved = array_values(array_filter($GLOBALS['efb_actions_log'], function ($a) { return $a[0] === 'efb_form_saved' && strpos($a[1][2]['rev_note'], 'moved back') !== false; }));
+$t('J ...the save hooks ran (a form version of the move back)', count($saved), 1);
+// A second move: the backup is the form right before it (with the edits), and the next Move back does not bring the older form.
+M::migrate_form($fid, 'admin', true);
+$t('J a second move: the backup is the edited form (not the first original)', array(M::backup_get($fid)['raw'] === mg_raw($db, $fid), M::backup_get($fid)['raw'] === $orig, json_decode(str_replace('\\"', '"', M::backup_get($fid)['raw']), true)[4]['price']), array(false, false, '30'));
+$t('J ...Move back right away gives that form back byte for byte (price 30)', array(M::rollback($fid)['ok'], mg_rows($db, $fid)[4]['price'], mg_rows($db, $fid)[6]['type']), array(true, '30', 'stripe'));
+// An owner's own change of a value the move wrote is kept (row 0's currency after a ZarinPal move).
+$z = $db->add_form(mg_form('persiaPay'), 'persiaPay');
+M::migrate_form($z);
+mg_edit($db, $z, function ($r) { $r[0]['currency'] = 'irt'; $r[5]['price'] = '150000'; return $r; });
+$r = M::rollback($z);
+$zb = mg_rows($db, $z);
+$t('J ZarinPal: Move back restores the field (persiaPay), row 0 persiaPay = zarinPal, the form type; keeps the owner\'s currency and price', array($r['ok'], $zb[6]['type'], $zb[0]['persiaPay'], $zb[0]['getway'], $zb[0]['currency'], $zb[5]['price'], (string) $db->get_var('SELECT form_type FROM wp_emsfb_form WHERE form_id = ' . (int) $z)), array(true, 'persiaPay', 'zarinPal', 'persiaPay', 'irt', '150000', 'persiaPay'));
+// The moved field given to another gateway or removed since: nothing is guessed.
+$c = $db->add_form(mg_form('stripe'), 'payment');
+M::migrate_form($c);
+$before = mg_edit($db, $c, function ($r) { $r[6]['type'] = 'paypalcheckout'; $r[0]['getway'] = 'paypalcheckout'; return $r; });
+$r = M::rollback($c);
+$t('J the moved field changed to another gateway since: field_changed, nothing written, still migrated', array($r['ok'], $r['code'], mg_rows($db, $c) === $before, M::log_get($c)['status']), array(false, 'field_changed', true, 'migrated'));
+$GLOBALS['efb_routes'] = array();
+M::routes();
+$GLOBALS['efb_can'] = true;
+$rq = new WP_REST_Request('POST');
+$rq->set_param('form_id', $c);
+$rr = M::rest_rollback($rq);
+$t('J REST rollback answers field_changed with an error status (the per-form button shows the failure)', array($rr->get_status(), $rr->get_data()['code']), array(409, 'field_changed'));
+
+/* QA4-003: every moved form back at once, then the upgrader's warning. */
+$db = mg_env();
+mg_old_keys();
+$ids = array($db->add_form(mg_form('stripe'), 'payment'), $db->add_form(mg_form('paypal'), 'payment'), $db->add_form(mg_form('persiaPay'), 'persiaPay'));
+$raws = array_map(function ($i) use ($db) { return mg_raw($db, $i); }, $ids);
+$keep = $db->add_form(mg_form('stripe', array('paymentmethod' => 'subscription')), 'payment'); // stays on the older field
+M::run_batch();
+$t('J three forms moved (one subscription form stays)', array(M::moved_ids(), M::log_get($keep)['status']), array($ids, 'recurring'));
+mg_edit($db, $ids[1], function ($r) { $r[2]['name'] = 'Your e-mail'; return $r; });
+$GLOBALS['efb_routes'] = array();
+M::routes();
+$res = M::rest_rollback_all(new WP_REST_Request('POST'));
+$d = $res->get_data();
+$t('J REST payments/legacy-migration/rollback-all: every moved form back (200), none left moved', array($res->get_status(), $d['done'], $d['failed'], M::moved_ids()), array(200, $ids, array(), array()));
+$t('J ...each unedited form equals its backup byte for byte (the 4.3.1 form)', array(mg_raw($db, $ids[0]) === $raws[0], mg_raw($db, $ids[2]) === $raws[2]), array(true, true));
+$pb = mg_rows($db, $ids[1]);
+$exp = json_decode(str_replace('\\"', '"', $raws[1]), true); $exp[2]['name'] = 'Your e-mail';
+$t('J ...the edited one equals its backup plus the later edit (label), on the older PayPal field', $pb, $exp);
+$t('J the REST route is registered (administrators only)', isset($GLOBALS['efb_routes']['Emsfb/v1/payments/legacy-migration/rollback-all']) && $GLOBALS['efb_routes']['Emsfb/v1/payments/legacy-migration/rollback-all']['permission_callback']() === true, true);
+// The upgrader: an older Easy Form Builder about to replace this one while forms are moved.
+M::migrate_form($ids[0], 'admin', true);
+$pkg = sys_get_temp_dir() . '/efb-pkg-' . getmypid();
+@mkdir($pkg);
+file_put_contents($pkg . '/emsfb.php', "<?php\n/**\n * Plugin Name: Easy Form Builder\n * Version: 4.3.1\n */\n");
+$skin = new class { public $said = array(); public function feedback($m) { $this->said[] = $m; } };
+$up = (object) array('skin' => $skin);
+$t('J upgrader_source_selection: 4.3.1 over 4.3.2 with a moved form → the upgrader says so with the link; the source unchanged', array(M::downgrade_feedback($pkg, '', $up, array()), count($skin->said), strpos($skin->said[0], '1 payment form was moved') !== false, strpos($skin->said[0], 'page=Emsfb_payments&amp;tab=downgrade') !== false || strpos($skin->said[0], 'page=Emsfb_payments&tab=downgrade') !== false), array($pkg, 1, true, true));
+file_put_contents($pkg . '/emsfb.php', "<?php\n/**\n * Plugin Name: Easy Form Builder\n * Version: 4.3.3\n */\n");
+M::downgrade_feedback($pkg, '', $up, array());
+file_put_contents($pkg . '/emsfb.php', "<?php\n/**\n * Plugin Name: Other plugin\n * Version: 1.0\n */\n");
+M::downgrade_feedback($pkg, '', $up, array());
+$t('J ...a newer Easy Form Builder or another plugin: nothing said', count($skin->said), 1);
+$html = M::downgrade_compare('<table></table>', array('Name' => 'Easy Form Builder', 'Version' => '4.3.2'), array('Name' => 'Easy Form Builder', 'Version' => '4.3.1'));
+$t('J Plugins › Upload "Replace current with uploaded": the warning and "Move the forms back first" under the comparison', array(strpos($html, '<table></table>') === 0, strpos($html, 'efb-pay-downgrade-warn') !== false, strpos($html, 'Move the forms back first') !== false), array(true, true, true));
+$t('J ...not for an upgrade', M::downgrade_compare('<table></table>', array('Name' => 'Easy Form Builder'), array('Version' => '4.3.3')), '<table></table>');
+M::rollback_all();
+$t('J ...nor when no form is moved', array(M::downgrade_compare('<t/>', array('Name' => 'Easy Form Builder'), array('Version' => '4.3.1')), M::downgrade_feedback($pkg, '', $up, array()), count($skin->said)), array('<t/>', $pkg, 1));
+@unlink($pkg . '/emsfb.php'); @rmdir($pkg);
+$readme = (string) file_get_contents(__DIR__ . '/../readme.txt');
+$t('J readme.txt tells how to go back to 4.3.1 (move the payment forms back first, where)', array((bool) preg_match('/= How do I go back to (version )?4\.3\.1\b.*?=/i', $readme), (bool) preg_match('/Payments > Moved forms.{0,40}Move every form back/', $readme)), array(true, true));
 
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

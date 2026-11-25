@@ -99,12 +99,26 @@ class Money {
 		$cur = Currency::code( $currency );
 		$dec = self::to_decimal_string( $minor, $cur, $gateway );
 		if ( class_exists( '\NumberFormatter' ) && $cur !== '' ) {
-			$f = new \NumberFormatter( $locale !== '' ? $locale : 'en_US', \NumberFormatter::CURRENCY );
+			$loc = $locale !== '' ? $locale : 'en_US';
+			$f = new \NumberFormatter( $loc, \NumberFormatter::CURRENCY );
 			$f->setAttribute( \NumberFormatter::FRACTION_DIGITS, Currency::exponent( $cur, $gateway ) );
 			$out = $f->formatCurrency( (float) $dec, $cur );
-			if ( is_string( $out ) && $out !== '' ) return $out;
+			if ( is_string( $out ) && $out !== '' ) return self::isolate_sign( $out, $cur, $loc );
 		}
 		return trim( $dec . ' ' . $cur );
+	}
+
+	/**
+	 * QA3-013: in a right-to-left language a currency sign of Latin letters and a sign ("US$", "JP¥") read reversed
+	 * ("$US"): the sign is isolated (U+2068 … U+2069, what <bdi> does) so it keeps its own order; the twin of
+	 * payment-runtime-efb.js isolate(). Left-to-right languages are unchanged.
+	 */
+	public static function isolate_sign( $text, $cur, $locale ) {
+		if ( ! preg_match( '/^(ar|arq|ary|arz|azb|ckb|dv|fa|haz|he|ku|ps|sd|ug|ur|yi)([-_@]|$)/i', (string) $locale ) || strpos( $text, "\u{2068}" ) !== false ) return $text;
+		$g = new \NumberFormatter( preg_replace( '/@.*$/', '', (string) $locale ) . '@currency=' . $cur, \NumberFormatter::CURRENCY );
+		$sign = (string) $g->getSymbol( \NumberFormatter::CURRENCY_SYMBOL );
+		$at = $sign !== '' ? strpos( $text, $sign ) : false;
+		return $at === false ? $text : substr_replace( $text, "\u{2068}" . $sign . "\u{2069}", $at, strlen( $sign ) );
 	}
 
 	public static function latin_digits( $s ) {
