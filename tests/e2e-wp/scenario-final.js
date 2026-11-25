@@ -159,7 +159,7 @@ module.exports = function (S) {
             await a.waitForFunction(() => { const m = document.getElementById('efbAdrMsg'); return m && !m.hidden && m.textContent.trim() !== ''; }, null, { timeout: 10000 }).catch(() => {});
             const sv = await a.evaluate(() => { const m = document.getElementById('efbAdrMsg'); return { cls: m.className, role: m.getAttribute('role'), text: m.textContent.trim() }; });
             R.check(`ui-a (${tag}): Save answers in a success notice of the plugin's style (efb-notice, role status)`, /notice-success/.test(sv.cls) && /efb-notice/.test(sv.cls) && sv.role === 'status' && sv.text !== '', sv);
-            const al = await a.evaluate(() => [document.querySelector('.efb-adr-wrap > p'), document.querySelector('#efbAdrMsg p')].map((e) => e ? getComputedStyle(e).textAlign : 'none'));
+            const al = await a.evaluate(() => [document.querySelector('.efb-adr-wrap p.efb-addon-desc'), document.querySelector('#efbAdrMsg p')].map((e) => e ? getComputedStyle(e).textAlign : 'none'));
             R.check(`ui-a (${tag}): the help and the answer (English, not translated yet) start on the right, as the F16 rule says`, al[0] === 'right' && al[1] === 'right', al);
           }
           await a.screenshot({ path: SHOT(`final-${name}-${loc}-375`), fullPage: true });

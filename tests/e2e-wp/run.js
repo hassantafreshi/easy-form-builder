@@ -810,7 +810,37 @@ async function f18DialogShot(adminPage, { width, height, locale, file }) {
   return { st, html, shot: SHOT(file) };
 }
 
+/* Scenario 6 on its own (B4's hand-off: it needed 2 and 3 before it): the masks form of scenario 2 through the builder's
+   sanitizer (ctl.php f03-form), its shortcode page and one stored entry with the values scenario 3 sends. Nothing is
+   made when 2 and 3 have run. */
+function s6OwnState() {
+  if (SHARED.pageUrl && SHARED.F && SHARED.formId) return false;
+  if (!['1', '3'].includes(String(ctl('state').emsfb_pro))) ctl('plan', 3);
+  const f = ctl('f03-form', 'E2E masks form (scenario 6)', JSON.stringify([
+    { key: 'mobile', type: 'text', name: 'Mobile number', mask_preset: 'ir.mobile' },
+    { key: 'nid', type: 'text', name: 'National ID', mask_preset: 'ir.national_id' },
+    { key: 'sheba', type: 'text', name: 'Sheba', mask_preset: 'ir.sheba' },
+    { key: 'country', type: 'conturyList', name: 'Country', value: 'IR' },
+    { key: 'state', type: 'stateProvince', name: 'State', country: 'IR' },
+    { key: 'email', type: 'email', name: 'Email' },
+  ]));
+  if (!f || !f.form_id || !f.ids) throw new Error('scenario 6: the masks form could not be made: ' + JSON.stringify(f));
+  SHARED.formId = f.form_id;
+  SHARED.F = f.ids;
+  SHARED.pageUrl = ctl('page', f.form_id).url;
+  const ids = f.ids;
+  const e = ctl('f14-seed', f.form_id, JSON.stringify([
+    { id_: ids.mobile, name: 'Mobile number', type: 'text', value: '+989121234567', amount: 2 },
+    { id_: ids.nid, name: 'National ID', type: 'text', value: '0012345679', amount: 3 },
+    { id_: ids.sheba, name: 'Sheba', type: 'text', value: 'IR120170000001234567890123', amount: 4 },
+    { id_: ids.email, name: 'Email', type: 'email', value: 'guest@example.test', amount: 7 },
+  ]));
+  SHARED.entry = { msg_id: e && e.msg_id, track: e && e.track };
+  return true;
+}
+
 scenario('6', 'fa_IR and 375 px: F18 dialog (en/fa × desktop/phone), RTL public form, response viewer LTR in RTL', async ({ context, adminPage }) => {
+  if (s6OwnState()) R.check('6: on its own, it made the masks form, its page and an entry (ctl.php)', !!(SHARED.pageUrl && SHARED.F.mobile && SHARED.entry.msg_id), { formId: SHARED.formId, entry: SHARED.entry });
   // The dialog that offers Activate (S1) needs Free; the screenshots are taken on Free and the plan
   // is put back to Free Plus afterwards (WP-CLI, test setup only).
   ctl('plan', 2);
@@ -913,6 +943,11 @@ scenario('6', 'fa_IR and 375 px: F18 dialog (en/fa × desktop/phone), RTL public
   if (SHARED.entry && SHARED.entry.msg_id) {
     const admin = await adminPage({}, 'admin-fa');
     await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+    // A site with many forms lists 25 at first and 5 more per "Show more": until the form is there (scenario 6 on its own makes a new one).
+    for (let i = 0; i < 400 && !(await admin.$(`.efb-act-msg[data-id="${SHARED.formId}"]`)) && (await admin.isVisible('#more_emsFormBuilder').catch(() => false)); i++) {
+      await admin.click('#more_emsFormBuilder');
+      await sleep(200);
+    }
     await admin.click(`.efb-act-msg[data-id="${SHARED.formId}"]`);
     await admin.waitForSelector(`#btn-m-${SHARED.entry.msg_id}`, { timeout: 20000 });
     await admin.click(`#btn-m-${SHARED.entry.msg_id}`);
@@ -1455,8 +1490,13 @@ scenario('9', 'PAY00 payments with the test gateway: builder, fixed / computed /
   await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments&tab=gateways', { waitUntil: 'load' });
   const gwPage = await admin.content();
   R.check('9f: gateway settings: keys never shown (only •••• and the last four), webhook address listed', gwPage.indexOf(secret) === -1 && gwPage.indexOf('mock_test_E2Ekey000') === -1 && /•••• y000/.test(gwPage) && /payments\/webhook\/efbmock/.test(gwPage));
-  await admin.click('[data-efb-pay="test_connection"][data-mode="test"]');
-  await admin.waitForFunction(() => /Connected/.test((document.querySelector('.efb-pay-msg') || {}).textContent || ''), null, { timeout: 10000 });
+  // The test gateway's own card (B4's hand-off: the first card is another gateway's, PayPal Checkout on a site with that add-on).
+  await admin.click('[data-efb-pay="test_connection"][data-gateway="efbmock"][data-mode="test"]');
+  await admin.waitForFunction(() => {
+    const b = document.querySelector('[data-efb-pay="test_connection"][data-gateway="efbmock"][data-mode="test"]');
+    const card = b && (b.closest('.efb-pay-gw, .efb-pay-card, .card, section, form') || document);
+    return /Connected/.test(Array.from(card.querySelectorAll('.efb-pay-msg')).map((m) => m.textContent).join(' '));
+  }, null, { timeout: 10000 });
   R.check('9f: Test connection (Test) → Connected', true);
 
   /* 9g fa_IR: right to left, Persian texts, the amount isolated */
