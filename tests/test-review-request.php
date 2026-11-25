@@ -75,7 +75,18 @@ $restore = array(
 	'emsfb_pro'          => get_option( 'emsfb_pro', null ),
 	'emsfb_install_date' => get_option( 'emsfb_install_date', null ),
 	'emsfb_review_state' => get_option( 'emsfb_review_state', null ),
+	'emsfb_updated_at'   => get_option( 'emsfb_updated_at', null ),
+	'emsfb_addons_reinstall_required' => get_option( 'emsfb_addons_reinstall_required', null ),
+	'emsfb_addon_recovery_result'     => get_option( 'emsfb_addon_recovery_result', null ),
 );
+// QA4-009: the rules about real use and updates are checked in section L; elsewhere the site has had its first
+// visit, enough entries and no update in progress.
+delete_option( 'emsfb_updated_at' );
+delete_option( 'emsfb_addons_reinstall_required' );
+delete_option( 'emsfb_addon_recovery_result' );
+$efb_entries = 10;
+add_filter( 'emsfb_review_entries_efb', function () { return $GLOBALS['efb_entries']; } );
+$efb_seen = array( 'first_seen' => time() - 5 * DAY_IN_SECONDS );
 
 /**
  * Put every option back exactly as it was found.
@@ -192,24 +203,24 @@ if ( ! empty( $admins ) ) {
 }
 
 update_option( 'emsfb_pro', 2, false );
-delete_option( 'emsfb_review_state' );
+update_option( 'emsfb_review_state', $efb_seen, false );
 
 update_option( 'emsfb_install_date', time() - ( 12 * HOUR_IN_SECONDS ), false );
 efb_t( 'D1 twelve hours in, nobody is asked', false === $request->should_ask_efb() );
 
 // The day before the gate and the day it opens, so a change to MIN_DAYS
 // fails here rather than only in K4.
-update_option( 'emsfb_install_date', time() - ( DAY_IN_SECONDS - HOUR_IN_SECONDS ), false );
-efb_t( 'D2 twenty-three hours in, still nobody is asked', false === $request->should_ask_efb() );
+update_option( 'emsfb_install_date', time() - ( 7 * DAY_IN_SECONDS - HOUR_IN_SECONDS ), false );
+efb_t( 'D2 a week less an hour in, still nobody is asked (QA4-009: a week of real use)', false === $request->should_ask_efb() );
 
-update_option( 'emsfb_install_date', time() - DAY_IN_SECONDS, false );
-efb_t( 'D3 at one day a free site is asked', true === $request->should_ask_efb() );
+update_option( 'emsfb_install_date', time() - 7 * DAY_IN_SECONDS, false );
+efb_t( 'D3 at a week a free site is asked', true === $request->should_ask_efb() );
 
 update_option( 'emsfb_pro', 3, false );
-efb_t( 'D4 at one day a Free Plus site is asked', true === $request->should_ask_efb() );
+efb_t( 'D4 at a week a Free Plus site is asked', true === $request->should_ask_efb() );
 
 update_option( 'emsfb_pro', 1, false );
-efb_t( 'D5 a Pro site at one day is still not asked', false === $request->should_ask_efb() );
+efb_t( 'D5 a Pro site at a week is still not asked', false === $request->should_ask_efb() );
 update_option( 'emsfb_pro', 2, false );
 
 // The filter is the documented escape hatch for a site that wants silence.
@@ -231,14 +242,14 @@ efb_t( 'E2 a site that already rated is not asked again', false === $request->sh
 
 update_option(
 	'emsfb_review_state',
-	array( 'status' => 'snoozed', 'snooze_until' => time() + ( 10 * DAY_IN_SECONDS ) ),
+	array( 'status' => 'snoozed', 'snooze_until' => time() + ( 10 * DAY_IN_SECONDS ) ) + $efb_seen,
 	false
 );
 efb_t( 'E3 a live snooze suppresses the ask', false === $request->should_ask_efb() );
 
 update_option(
 	'emsfb_review_state',
-	array( 'status' => 'snoozed', 'snooze_until' => time() - HOUR_IN_SECONDS ),
+	array( 'status' => 'snoozed', 'snooze_until' => time() - HOUR_IN_SECONDS ) + $efb_seen,
 	false
 );
 efb_t( 'E4 an expired snooze lets the ask through again', true === $request->should_ask_efb() );
@@ -353,7 +364,7 @@ echo "\nI. Markup contract\n";
 
 update_option( 'emsfb_pro', 2, false );
 update_option( 'emsfb_install_date', time() - ( 30 * DAY_IN_SECONDS ), false );
-delete_option( 'emsfb_review_state' );
+update_option( 'emsfb_review_state', $efb_seen, false );
 
 // render_modal_efb() screen-checks through get_current_screen(), which does not
 // exist outside a real admin request, so the markup is exercised by calling the
@@ -412,7 +423,7 @@ if ( '' !== $markup ) {
 echo "\nJ. The modal stops asking on its own\n";
 
 if ( '' !== $markup ) {
-	delete_option( 'emsfb_review_state' );
+	update_option( 'emsfb_review_state', $efb_seen, false );
 
 	ob_start();
 	$request->render_modal_efb();
@@ -429,7 +440,7 @@ if ( '' !== $markup ) {
 	efb_t( 'J3 the next sighting is one day away', 1 === $gap_days, $gap_days . ' days' );
 
 	// A preview must never spend a real site's turn.
-	delete_option( 'emsfb_review_state' );
+	update_option( 'emsfb_review_state', $efb_seen, false );
 	$_GET[ \Emsfb\Review_Request::PREVIEW_ARG ] = '1';
 
 	ob_start();
@@ -455,6 +466,64 @@ if ( '' !== $markup ) {
 }
 
 /* ---------------------------------------------------------------------
+ * L. QA4-009 and QA-5's note: only after real use, never in the way
+ * ------------------------------------------------------------------ */
+
+echo "\nL. Real use, updates, the first visit, the builder and the AI dock\n";
+
+update_option( 'emsfb_pro', 2, false );
+update_option( 'emsfb_install_date', time() - ( 30 * DAY_IN_SECONDS ), false );
+update_option( 'emsfb_review_state', $efb_seen, false );
+efb_t( 'L0 a month in, with entries, after the first visit: asked', true === $request->should_ask_efb() );
+
+$GLOBALS['efb_entries'] = 2;
+efb_t( 'L1 fewer than MIN_ENTRIES entries: not asked', false === $request->should_ask_efb() );
+$GLOBALS['efb_entries'] = 10;
+
+update_option( 'emsfb_addons_reinstall_required', time() - 10 * DAY_IN_SECONDS, false );
+efb_t( 'L2 while "Finish updating" (add-ons to reinstall) is pending: not asked', false === $request->should_ask_efb() );
+delete_option( 'emsfb_addons_reinstall_required' );
+
+update_option( 'emsfb_addon_recovery_result', array( 'errors' => array( 'AdnSPF' => 'download failed' ) ), false );
+efb_t( 'L3 while the last add-on recovery failed: not asked', false === $request->should_ask_efb() );
+delete_option( 'emsfb_addon_recovery_result' );
+
+update_option( 'emsfb_updated_at', time() - DAY_IN_SECONDS, false );
+efb_t( 'L4 a day after an update: not asked', false === $request->should_ask_efb() );
+update_option( 'emsfb_updated_at', time() - 4 * DAY_IN_SECONDS, false );
+efb_t( 'L5 four days after an update: asked again', true === $request->should_ask_efb() );
+delete_option( 'emsfb_updated_at' );
+$main_src = (string) file_get_contents( $plugin_dir . '/includes/class-Emsfb.php' );
+efb_t( 'L6 an update records its time (emsfb_updated_at, in run_upgrade_tasks_efb)', false !== strpos( $main_src, "update_option('emsfb_updated_at', time(), false);" ) );
+
+// The first visit to an Easy Form Builder screen: remembered, never the one the invitation opens on.
+delete_option( 'emsfb_review_state' );
+$fresh = new \Emsfb\Review_Request();
+$enq = new ReflectionMethod( $fresh, 'enqueue_assets_efb' );
+$enq->invoke( $fresh, 'toplevel_page_Emsfb' );
+efb_t( 'L7 the first visit to the plugin\'s screens is remembered and does not ask', ! empty( $fresh->state_efb()['first_seen'] ) && false === $fresh->should_ask_efb() && ! wp_script_is( 'efb-review-request', 'enqueued' ) );
+$next = new \Emsfb\Review_Request();
+efb_t( 'L8 a later visit may ask', true === $next->should_ask_efb() );
+
+// The builder and the AI Site Assistant's dock: never covered.
+$busy = new ReflectionMethod( $next, 'screen_is_busy_efb' );
+$busy->setAccessible( true );
+efb_t( 'L9 the form builder (Create) is never interrupted', true === $busy->invoke( $next, 'easy-form-builder_page_Emsfb_create' ) && false === $busy->invoke( $next, 'toplevel_page_Emsfb' ) );
+wp_register_script( 'aisaautopilot-ai-dock', 'https://example.test/ai-dock.js', array(), '1', true );
+wp_enqueue_script( 'aisaautopilot-ai-dock' );
+efb_t( 'L10 a screen with the AI assistant\'s dock is never covered', true === $busy->invoke( $next, 'toplevel_page_Emsfb' ) );
+if ( function_exists( 'set_current_screen' ) ) {
+	set_current_screen( 'toplevel_page_Emsfb' );
+	ob_start();
+	$next->render_modal_efb();
+	$covered = (string) ob_get_clean();
+	efb_t( 'L11 ... the invitation is not printed there', false === strpos( $covered, 'efb-review-modal' ) );
+}
+wp_dequeue_script( 'aisaautopilot-ai-dock' );
+wp_deregister_script( 'aisaautopilot-ai-dock' );
+update_option( 'emsfb_review_state', $efb_seen, false );
+
+/* ---------------------------------------------------------------------
  * K. The AJAX door
  * ------------------------------------------------------------------ */
 
@@ -465,7 +534,7 @@ efb_t( 'K1 the AJAX action is registered', has_action( 'wp_ajax_emsfb_review_req
 $reflect = new ReflectionClass( '\Emsfb\Review_Request' );
 efb_t( 'K2 the nonce action and the AJAX action are the same name', 'emsfb_review_request' === $reflect->getConstant( 'ACTION' ) );
 efb_t( 'K3 four stars and up take the review route', 4 === $reflect->getConstant( 'REWARD_THRESHOLD' ) );
-efb_t( 'K4 the wait is one day', 1 === $reflect->getConstant( 'MIN_DAYS' ) );
+efb_t( 'K4 the wait is a week (QA4-009)', 7 === $reflect->getConstant( 'MIN_DAYS' ) );
 efb_t( 'K5 the gap between sightings is one day', 1 === $reflect->getConstant( 'SNOOZE_DAYS' ) );
 
 // The claim path leans on the deactivation survey's signed pipeline. If that

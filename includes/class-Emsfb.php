@@ -2143,6 +2143,8 @@ class Emsfb {
         // check confirms every enabled add-on is present again (the flag clears
         // itself at that point via addon_recovery_state_efb()).
         update_option('emsfb_addons_reinstall_required', time());
+        // QA4-009: the rating invitation keeps quiet for a few days after an update (Review_Request::busy_with_update_efb()).
+        update_option('emsfb_updated_at', time(), false);
         // A new release is a new situation: let the first page load retry at once
         // instead of waiting out a backoff left by a failure on the old version.
         delete_transient('emsfb_addons_dl_backoff');

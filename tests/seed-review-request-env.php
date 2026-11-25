@@ -28,7 +28,9 @@ require_once $wp_load;
 $mode   = isset( $argv[1] ) ? $argv[1] : '';
 $marker = 'efb_review_browser_test_state';
 
-$watched = array( 'emsfb_pro', 'emsfb_install_date', 'emsfb_review_state', 'WPLANG' );
+$watched = array( 'emsfb_pro', 'emsfb_install_date', 'emsfb_review_state', 'WPLANG', 'emsfb_updated_at', 'emsfb_addons_reinstall_required', 'emsfb_addon_recovery_result' );
+// QA4-009: a site past its first visit to the plugin's screens (the invitation never opens on that one).
+$seen = array( 'first_seen' => time() - DAY_IN_SECONDS );
 
 switch ( $mode ) {
 	case 'setup':
@@ -44,7 +46,11 @@ switch ( $mode ) {
 
 		update_option( 'emsfb_pro', 2, false );
 		update_option( 'emsfb_install_date', time() - ( 30 * DAY_IN_SECONDS ), false );
-		delete_option( 'emsfb_review_state' );
+		update_option( 'emsfb_review_state', $seen, false );
+		// QA4-009: no update in progress (the invitation keeps quiet then).
+		delete_option( 'emsfb_updated_at' );
+		delete_option( 'emsfb_addons_reinstall_required' );
+		delete_option( 'emsfb_addon_recovery_result' );
 
 		echo wp_json_encode( array( 'ok' => true, 'mode' => 'setup' ) );
 		break;
@@ -52,19 +58,19 @@ switch ( $mode ) {
 	case 'reset':
 		// Put the conversation back to "never answered" between passes, without
 		// touching the snapshot.
-		delete_option( 'emsfb_review_state' );
+		update_option( 'emsfb_review_state', $seen, false );
 		echo wp_json_encode( array( 'ok' => true, 'mode' => 'reset' ) );
 		break;
 
 	case 'rtl':
 		update_option( 'WPLANG', 'fa_IR', false );
-		delete_option( 'emsfb_review_state' );
+		update_option( 'emsfb_review_state', $seen, false );
 		echo wp_json_encode( array( 'ok' => true, 'mode' => 'rtl' ) );
 		break;
 
 	case 'ltr':
 		update_option( 'WPLANG', '', false );
-		delete_option( 'emsfb_review_state' );
+		update_option( 'emsfb_review_state', $seen, false );
 		echo wp_json_encode( array( 'ok' => true, 'mode' => 'ltr' ) );
 		break;
 

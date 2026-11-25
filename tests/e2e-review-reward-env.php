@@ -120,15 +120,22 @@ switch ( $mode ) {
 					'emsfb_pro'          => get_option( 'emsfb_pro', null ),
 					'emsfb_install_date' => get_option( 'emsfb_install_date', null ),
 					'emsfb_review_state' => get_option( 'emsfb_review_state', null ),
+					'emsfb_updated_at'   => get_option( 'emsfb_updated_at', null ),
+					'emsfb_addons_reinstall_required' => get_option( 'emsfb_addons_reinstall_required', null ),
+					'emsfb_addon_recovery_result'     => get_option( 'emsfb_addon_recovery_result', null ),
 				),
 				false
 			);
 		}
 
-		// A Free site that crossed the one-day gate one minute ago.
+		// A Free site that crossed the one-week gate one minute ago (QA4-009), past its first visit to the plugin's
+		// screens, with no update in progress.
 		update_option( 'emsfb_pro', 2, false );
-		update_option( 'emsfb_install_date', time() - DAY_IN_SECONDS - MINUTE_IN_SECONDS, false );
-		delete_option( 'emsfb_review_state' );
+		update_option( 'emsfb_install_date', time() - 7 * DAY_IN_SECONDS - MINUTE_IN_SECONDS, false );
+		update_option( 'emsfb_review_state', array( 'first_seen' => time() - DAY_IN_SECONDS ), false );
+		delete_option( 'emsfb_updated_at' );
+		delete_option( 'emsfb_addons_reinstall_required' );
+		delete_option( 'emsfb_addon_recovery_result' );
 
 		file_put_contents( $WP_MU, efb_e2e_endpoint_mu() );
 		file_put_contents( $WS_MU, efb_e2e_capture_mu( $MAILBOX ) );

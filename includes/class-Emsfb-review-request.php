@@ -2,9 +2,12 @@
 /**
  * The rating invitation.
  *
- * A day after somebody starts using Easy Form Builder, a Free or Free Plus
- * site is asked - on an Easy Form Builder screen and nowhere else - to rate
- * the plugin. Walking away without answering brings it back one day later;
+ * After a week of real use (MIN_DAYS, and MIN_ENTRIES entries received), a
+ * Free or Free Plus site is asked - on an Easy Form Builder screen and nowhere
+ * else - to rate the plugin. Never on the first visit to those screens, never
+ * in the builder or over an assistant's dock, and never while an update still
+ * needs the owner (add-ons to reinstall, a failed recovery, the first
+ * UPDATE_QUIET_DAYS after it; QA4-009). Walking away without answering brings it back one day later;
  * answering it, either way, ends the asking for good.
  *
  * There are two ways out of the question, and they are deliberately different
@@ -55,8 +58,26 @@ class Review_Request {
 	/** Nonce action and AJAX action share one name, as elsewhere in the plugin. */
 	const ACTION = 'emsfb_review_request';
 
-	/** How long someone has to have been using the plugin before we ask. */
-	const MIN_DAYS = 1;
+	/**
+	 * How long someone has to have been using the plugin before we ask. QA4-009: a week of real use (it was one day,
+	 * which asked people who had only just arrived).
+	 */
+	const MIN_DAYS = 7;
+
+	/** QA4-009: entries the site must have received before we ask (real use, not a first look). */
+	const MIN_ENTRIES = 3;
+
+	/** QA4-009: days after a plugin update during which nobody is asked (the update has the owner's attention). */
+	const UPDATE_QUIET_DAYS = 3;
+
+	/** QA4-009: the option holding when the plugin was last updated (written by Emsfb::run_upgrade_tasks_efb()). */
+	const OPTION_UPDATED = 'emsfb_updated_at';
+
+	/** QA5 note: script handles of an assistant dock the invitation must never cover (the AI Site Assistant's). */
+	const DOCK_SCRIPTS = array( 'aisaautopilot-ai-dock' );
+
+	/** QA4-009: true when this request is the first visit to an Easy Form Builder screen (never the one we ask on). */
+	private $first_visit_now = false;
 
 	/**
 	 * The gap between one sighting and the next.
@@ -243,6 +264,7 @@ class Review_Request {
 				'rated_at'     => 0,
 				'username'     => '',
 				'outcome'      => '',
+				'first_seen'   => 0,
 			),
 			$state
 		);
@@ -306,7 +328,17 @@ class Review_Request {
 			return false;
 		}
 
+		// QA4-009: only after real use, never in the middle of something else.
+		if ( $this->entries_received_efb() < self::MIN_ENTRIES || $this->busy_with_update_efb() ) {
+			return false;
+		}
+
 		$state = $this->state_efb();
+
+		// QA4-009: never on the first visit to the plugin's screens.
+		if ( $this->first_visit_now || empty( $state['first_seen'] ) ) {
+			return false;
+		}
 
 		if ( in_array( $state['status'], array( 'rated', 'dismissed' ), true ) ) {
 			return false;
@@ -323,6 +355,82 @@ class Review_Request {
 		 * @param Review_Request $request The instance making the decision.
 		 */
 		return (bool) apply_filters( 'emsfb_review_should_ask_efb', true, $this );
+	}
+
+	/**
+	 * QA4-009: how many entries the site has received, counted up to MIN_ENTRIES (filter emsfb_review_entries_efb, for
+	 * a test or a site that counts differently).
+	 *
+	 * @return int
+	 */
+	public function entries_received_efb() {
+		$n = apply_filters( 'emsfb_review_entries_efb', null );
+		if ( null !== $n ) {
+			return (int) $n;
+		}
+		global $wpdb;
+		if ( ! is_object( $wpdb ) ) {
+			return 0;
+		}
+		$table    = $wpdb->prefix . 'emsfb_msg_';
+		$suppress = $wpdb->suppress_errors( true );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- the plugin's own table; at most MIN_ENTRIES rows read
+		$n = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM (SELECT 1 FROM `{$table}` LIMIT %d) efb_r", self::MIN_ENTRIES ) );
+		$wpdb->suppress_errors( $suppress );
+		return $n;
+	}
+
+	/**
+	 * QA4-009: whether the plugin is busy with an update: the add-ons still have to be reinstalled ("Finish updating"),
+	 * the last recovery failed, or the update is less than UPDATE_QUIET_DAYS old.
+	 *
+	 * @return bool
+	 */
+	public function busy_with_update_efb() {
+		if ( get_option( 'emsfb_addons_reinstall_required' ) ) {
+			return true;
+		}
+		$last = get_option( 'emsfb_addon_recovery_result', array() );
+		if ( is_array( $last ) && ! empty( $last['errors'] ) ) {
+			return true;
+		}
+		$updated = (int) get_option( self::OPTION_UPDATED, 0 );
+		return $updated > 0 && time() - $updated < self::UPDATE_QUIET_DAYS * DAY_IN_SECONDS;
+	}
+
+	/**
+	 * QA4-009: the first visit to an Easy Form Builder screen is remembered (state first_seen) and is never the one the
+	 * invitation opens on.
+	 *
+	 * @return void
+	 */
+	protected function note_screen_visit_efb() {
+		if ( ! current_user_can( 'manage_options' ) || $this->is_preview_efb() ) {
+			return;
+		}
+		$state = $this->state_efb();
+		if ( empty( $state['first_seen'] ) ) {
+			$this->save_state_efb( array( 'first_seen' => time() ) );
+			$this->first_visit_now = true;
+		}
+	}
+
+	/**
+	 * QA5 note: whether the screen carries a dock the invitation would cover (the AI Site Assistant's on Create), or
+	 * is the form builder, where the owner is in the middle of building a form.
+	 *
+	 * @param string $hook Current admin page.
+	 * @return bool
+	 */
+	protected function screen_is_busy_efb( $hook ) {
+		foreach ( self::DOCK_SCRIPTS as $handle ) {
+			if ( function_exists( 'wp_script_is' ) && ( wp_script_is( $handle, 'enqueued' ) || wp_script_is( $handle, 'done' ) ) ) {
+				return true;
+			}
+		}
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		$id     = is_string( $hook ) && '' !== $hook ? $hook : ( $screen && isset( $screen->id ) ? (string) $screen->id : '' );
+		return false !== stripos( $id, 'emsfb_create' );
 	}
 
 	/**
@@ -470,7 +578,11 @@ class Review_Request {
 	 * @return void
 	 */
 	public function enqueue_assets_efb( $hook ) {
-		if ( ! $this->is_plugin_screen_efb( $hook ) || ! $this->should_ask_efb() ) {
+		if ( ! $this->is_plugin_screen_efb( $hook ) ) {
+			return;
+		}
+		$this->note_screen_visit_efb();
+		if ( ! $this->should_ask_efb() || ( ! $this->is_preview_efb() && $this->screen_is_busy_efb( $hook ) ) ) {
 			return;
 		}
 
@@ -556,7 +668,7 @@ class Review_Request {
 	 * @return void
 	 */
 	public function render_modal_efb() {
-		if ( ! $this->is_plugin_screen_efb( '' ) || ! $this->should_ask_efb() ) {
+		if ( ! $this->is_plugin_screen_efb( '' ) || ! $this->should_ask_efb() || ( ! $this->is_preview_efb() && $this->screen_is_busy_efb( '' ) ) ) {
 			return;
 		}
 
