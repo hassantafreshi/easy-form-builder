@@ -196,7 +196,7 @@ async function patchViaAdminAjax(page, patch) {
     originalSettings = await adminPage.evaluate(() => ({ ...window.EFBHumanShieldAdmin.settings }));
     check(originalSettings.enabled === 0, 'Pre-test add-on state is disabled');
     const heading = await adminPage.locator('h1').first().innerText();
-    check(heading === 'Form Security & Spam Protection', 'Admin heading decodes the ampersand once', heading);
+    check(heading === 'Human Shield', 'Admin heading is the add-on\'s name (ADD-01: "Human Shield" in the menu and on the screen)', heading);
 
     // This is a real UI activation test, not a direct database change.
     await setViaUi(adminPage, { enabled: 1, mode: 'soft_block', submit_ip_per_minute: 10 });

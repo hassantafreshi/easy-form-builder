@@ -3,7 +3,7 @@
  * PAY06 Paymob add-on: error scenarios (docs/payments/payment-error-matrix.en.md), fake Paymob:
  *  - the e-mail (every method) and the mobile number (the wallet) are declared required with their
  *    formats: core's owner warnings, the page / server stop at the empty or malformed field with no
- *    intention request and nothing stored; the card does not need the mobile;
+ *    intention request and nothing stored; the card needs the mobile too (ADD-04, never "NA");
  *  - Paymob refusing a billing value (400 phone_number) → payer_invalid at the mobile field;
  *  - a transaction that ends unpaid → the reason in safe words (insufficient funds, 3-D Secure,
  *    voided → cancelled, otherwise declined).
@@ -29,7 +29,7 @@ $t('visitor: wallet and the mobile empty → payer_missing at the mobile field n
 $r = pmb_create($db, array('form' => $mf, 'method' => 'wallet', 'rows' => pmb_rows('ro1', array(), '12-34')));
 $t('visitor: a mobile number that is not one → payer_invalid (phone), no request', array($r['code'], $r['field_id'], $r['m'], PmbFake::count_calls('/v1/intention/') - $n0), array('payer_invalid', 'mob', 'Please enter a valid phone number in "Mobile".', 0));
 $r = pmb_create($db, array('form' => $mf, 'method' => 'card', 'rows' => pmb_rows('ro1', array(), '')));
-$t('visitor: the card does not need the mobile → the payment starts', $r['success'], true);
+$t('visitor: the card needs the mobile too (owner decision ADD-04: Paymob never gets "NA") → asked at the mobile field, no request', array($r['success'], $r['code'], $r['field_id'], PmbFake::count_calls('/v1/intention/') - $n0), array(false, 'payer_invalid', 'mob', 0));
 $rows = pmb_rows(); $rows[1]['value'] = '';
 $r = pmb_create($db, array('form' => pmb_form('egp', array('pgw_map_email' => 'em')), 'rows' => $rows, 'payer_email' => ''));
 $t('visitor: the e-mail empty → payer_missing at the e-mail field', array($r['code'], $r['field_id']), array('payer_missing', 'em'));

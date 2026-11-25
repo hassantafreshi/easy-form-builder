@@ -141,8 +141,11 @@ $res = pmb_create($db, array('rows' => pmb_rows('ro1', array(), '')));
 $ev = json_encode(Store::events((int) $db->get_var("SELECT id FROM wp_emsfb_pmt_ ORDER BY id DESC LIMIT 1")));
 $t('wallet only and no mobile field mapped: the form is not ready (pay_not_ready), nothing sent to Paymob', array($res['success'], count(PmbFake::state()['intentions']) - $before, $res['code']), array(false, 0, 'pay_not_ready'));
 pmb_settings('eg');
+$before = count(PmbFake::state()['intentions']);
 $res = pmb_create($db, array('rows' => pmb_rows('ro1', array(), '')));
-$t('card without a mobile number: phone_number "NA" (as Paymob\'s own plugins)', array($res['success'], pmb_last_intention()['billing_data']['phone_number']), array(true, 'NA'));
+$t('card without a mobile number: not sent to Paymob, the visitor is asked (owner decision ADD-04: never "NA")', array($res['success'], $res['code'], count(PmbFake::state()['intentions']) - $before), array(false, 'gateway_declined', 0));
+$res = pmb_create($db, array('rows' => pmb_rows('ro1', array(), ''), 'client_data' => array('payer_phone' => '01012345678')));
+$t('...the number the visitor typed next to Pay (client_data payer_phone) is sent', array($res['success'], pmb_last_intention()['billing_data']['phone_number']), array(true, '01012345678'));
 $res = pmb_create($db, array('rows' => pmb_rows('ro1', array(), '+20 (10) ۱۲۳۴-۵۶۷۸')));
 $t('mobile "+20 (10) ۱۲۳۴-۵۶۷۸" → +201012345678', pmb_last_intention()['billing_data']['phone_number'], '+201012345678');
 $noemail = pmb_form();
@@ -150,9 +153,9 @@ $noemail[0]['email_to'] = '';
 $before = count(PmbFake::state()['intentions']);
 $res = pmb_create($db, array('form' => $noemail, 'rows' => array(array('id_' => 'rad', 'id_ob' => 'ro1', 'type' => 'payRadio')), 'payer_email' => ''));
 $t('no e-mail field at all: the form is not ready (pay_not_ready), nothing sent to Paymob', array($res['success'], count(PmbFake::state()['intentions']) - $before, $res['code']), array(false, 0, 'pay_not_ready'));
-$res = pmb_create($db, array('rows' => array(array('id_' => 'em', 'type' => 'email', 'value' => 'solo@example.test'), array('id_' => 'rad', 'id_ob' => 'ro2', 'type' => 'payRadio')), 'payer_email' => 'solo@example.test'));
+$res = pmb_create($db, array('rows' => array(array('id_' => 'em', 'type' => 'email', 'value' => 'solo@example.test'), array('id_' => 'rad', 'id_ob' => 'ro2', 'type' => 'payRadio')), 'payer_email' => 'solo@example.test', 'client_data' => array('payer_name' => 'Solo', 'payer_phone' => '01012345678')));
 $b = pmb_last_intention();
-$t('no name field: first name from the e-mail, last name "NA"', array($b['billing_data']['first_name'], $b['billing_data']['last_name']), array('solo', 'NA'));
+$t('no name field: the name the visitor typed next to Pay; one word is the first and the last name (never "NA")', array($b['billing_data']['first_name'], $b['billing_data']['last_name']), array('Solo', 'Solo'));
 $t('75.50 + 100 = 17550 piasters', $b['amount'], 17550);
 
 // Currencies and limits.
@@ -196,7 +199,7 @@ if (!$vf) {
 		array('id_' => 'pf', 'type' => 'paymob', 'name' => 'Pay', 'step' => 1),
 	);
 	$rows = array(array('id_' => 'em', 'type' => 'email', 'value' => 'payer@example.test'), array('id_' => 'guests', 'id_ob' => 'guests_', 'type' => 'number', 'value' => '3'), array('id_' => 'total', 'type' => 'prcfld', 'value' => '1', 'price' => '1'));
-	$r = pmb_create($db, array('form' => $b7, 'rows' => $rows));
+	$r = pmb_create($db, array('form' => $b7, 'rows' => $rows, 'client_data' => array('payer_name' => 'Mona Abdel Rahman', 'payer_phone' => '01012345678')));
 	$t('computed (3 guests x 150.50 EGP) = 45150 although the browser said 1.00', array($r['success'], pmb_last_intention()['amount']), array(true, 45150));
 }
 
