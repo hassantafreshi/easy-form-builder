@@ -4,8 +4,8 @@
     "plugin_version": "4.3.2",
     "updated": "2026-11-25",
     "counts": {
-        "active": 4549,
-        "obsolete": 517
+        "active": 4550,
+        "obsolete": 521
     },
     "entries": [
         {
@@ -1564,13 +1564,28 @@
                 "core"
             ],
             "first_seen": "4.3.2",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "%s form was moved back to its older payment field.",
             "context": null,
             "plural": "%s forms were moved back to their older payment fields.",
+            "translators": "%s: number of forms",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s form was not moved back: its payment field changed after the move. Use its form versions.",
+            "context": null,
+            "plural": "%s forms were not moved back: their payment fields changed after the move. Use their form versions.",
             "translators": "%s: number of forms",
             "files": [
                 "includes/payments/class-Emsfb-payment-admin.php"
@@ -1888,6 +1903,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%s payment form uses a new payment field that version 4.3.1 and older cannot show. Move it back first: Easy Form Builder › Payments › Moved forms.",
+            "context": null,
+            "plural": "%s payment forms use new payment fields that version 4.3.1 and older cannot show. Move them back first: Easy Form Builder › Payments › Moved forms.",
+            "translators": "%s: number of forms",
+            "files": [
+                "includes/payments/class-Emsfb-payment-legacy-migration.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s payment form was moved to its payment add-on's new field, which Easy Form Builder 4.3.1 and older cannot show: visitors could not pay with it. Before you install an older version, move it back in Easy Form Builder › Payments › Moved forms.",
             "context": null,
             "plural": "%s payment forms were moved to their payment add-ons' new fields, which Easy Form Builder 4.3.1 and older cannot show: visitors could not pay with them. Before you install an older version, move them back in Easy Form Builder › Payments › Moved forms.",
@@ -1899,8 +1929,8 @@
                 "core"
             ],
             "first_seen": "4.3.2",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "%s places left",
@@ -19478,6 +19508,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Enter a whole number from %1$s to %2$s.",
+            "context": null,
+            "plural": null,
+            "translators": "%1$s: the smallest number allowed, %2$s: the largest.",
+            "files": [
+                "includes/class-Emsfb-verification.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Enter administrators’ mobile numbers",
             "context": null,
             "plural": null,
@@ -32316,8 +32361,8 @@
                 "core"
             ],
             "first_seen": "4.3.2",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Moving from Contact Form 7?",
@@ -33651,7 +33696,7 @@
             "obsolete_since": null
         },
         {
-            "msgid": "No form uses the payment add-ons' new fields now. An older version of Easy Form Builder can show every payment form.",
+            "msgid": "No form uses the new payment fields.",
             "context": null,
             "plural": null,
             "translators": "",
@@ -33664,6 +33709,21 @@
             "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
+        },
+        {
+            "msgid": "No form uses the payment add-ons' new fields now. An older version of Easy Form Builder can show every payment form.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "No forms available. Create a form first.",
@@ -36039,6 +36099,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Only the payment field changes; your later edits are kept.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
