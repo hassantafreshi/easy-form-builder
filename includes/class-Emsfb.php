@@ -1387,6 +1387,26 @@ class Emsfb {
      * @param string|null $raw Set it (after a write: what was written); null reads it.
      * @return object|null The decoded copy, or null when this request has not read the settings.
      */
+    /**
+     * SEC-05: the copy of the settings row in the option emsfb_settings (older add-ons and the AI plugin read it) holds
+     * no secret and is not autoloaded: each secret key of the row (Captcha\Admin::SECRET_SETTING_KEYS, the activation
+     * code, the e-mail service key, the payment token) becomes "••••••" when set. The row itself is unchanged.
+     */
+    public static function settings_option_efb($json) {
+        $d = is_string($json) ? json_decode($json, true) : null;
+        if (is_array($d)) {
+            $keys = array('secretKey', 'rciSecretKey', 'rc3SecretKey', 'hcSecretKey', 'tsSecretKey', 'stripeSKey', 'paypalSKey', 'activeCode', 'email_key', 'payToken');
+            $keys = function_exists('apply_filters') ? (array) apply_filters('efb_secret_setting_keys', $keys) : $keys;
+            $hit = false;
+            foreach ($keys as $k) if (is_string($k) && isset($d[$k]) && is_scalar($d[$k]) && strlen(trim((string) $d[$k])) > 5) { $d[$k] = '••••••'; $hit = true; }
+            if ($hit) $json = wp_json_encode($d, JSON_UNESCAPED_UNICODE);
+        }
+        if (update_option('emsfb_settings', $json, false)) return true;
+        // Unchanged value: update_option() leaves its autoload as it was (an upgraded site had it on).
+        if (function_exists('wp_set_option_autoload')) wp_set_option_autoload('emsfb_settings', false);
+        return false;
+    }
+
     public static function settings_base_efb($raw = null) {
         if ($raw !== null) {
             self::$settings_base_raw_efb = is_string($raw) && $raw !== '' ? $raw : null;
@@ -1448,7 +1468,7 @@ class Emsfb {
                 return new \stdClass();
             }
 
-            update_option('emsfb_settings', $raw);
+            self::settings_option_efb($raw);
             set_transient('emsfb_settings_transient', $raw, 1800);
         } else {
             $raw = $transient;
@@ -1462,7 +1482,7 @@ class Emsfb {
         if ($raw !== $original_raw && json_decode($raw) !== null) {
             $cleanJson = json_encode(json_decode($raw), JSON_UNESCAPED_UNICODE);
             if (!empty($cleanJson)) {
-                update_option('emsfb_settings', $cleanJson);
+                self::settings_option_efb($cleanJson);
                 set_transient('emsfb_settings_transient', $cleanJson, 1800);
                 $raw = $cleanJson;
 
@@ -1496,7 +1516,7 @@ class Emsfb {
 
             if ($decoded !== null) {
                 $cleanJson = json_encode($decoded, JSON_UNESCAPED_UNICODE);
-                update_option('emsfb_settings', $cleanJson);
+                self::settings_option_efb($cleanJson);
                 set_transient('emsfb_settings_transient', $cleanJson, 1800);
                 $raw = $cleanJson;
 
@@ -1581,7 +1601,7 @@ class Emsfb {
                 if ($settings_changed) {
                     $updated_json = wp_json_encode($decoded, JSON_UNESCAPED_UNICODE);
                     if (!empty($updated_json)) {
-                        update_option('emsfb_settings', $updated_json);
+                        self::settings_option_efb($updated_json);
                         set_transient('emsfb_settings_transient', $updated_json, 1800);
                     }
                 }

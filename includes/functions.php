@@ -11573,16 +11573,9 @@ public function addon_add_efb($value) {
 			$activeCode = get_option('emsfb_pro_activeCode');
 			if (empty($activeCode)) {
 
-				$st = get_option('emsfb_settings' , 'null');
-				if($st=='null'){
-					$st = get_setting_Emsfb();
-					$activeCode = is_object($st) && isset($st->activeCode) ? $st->activeCode : '';
-
-				}else{
-
-					$st = emsfb_json_decode_efb($st);
-					$activeCode = is_object($st) && isset($st->activeCode) ? $st->activeCode : '';
-				}
+				// SEC-05: the option emsfb_settings no longer holds the code; the settings row does.
+				$st = get_setting_Emsfb();
+				$activeCode = is_object($st) && isset($st->activeCode) ? $st->activeCode : '';
 
 				if(strlen($activeCode)>5){
 					update_option('emsfb_pro_activeCode', $activeCode);
@@ -12354,7 +12347,7 @@ public function addon_add_efb($value) {
             return false;
         }
 
-        update_option('emsfb_settings', $json);
+        if (method_exists('Emsfb', 'settings_option_efb')) \Emsfb::settings_option_efb($json); else update_option('emsfb_settings', $json); // SEC-05
         set_transient('emsfb_settings_transient', $json, 1800);
         // What this request now holds: a later write in the same request merges against it.
         if (class_exists('\Emsfb') && method_exists('\Emsfb', 'settings_base_efb')) {

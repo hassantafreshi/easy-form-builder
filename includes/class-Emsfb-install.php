@@ -296,7 +296,7 @@ class Install {
 					// The database row is canonical, but the option/transient are read
 					// by the admin page and public handlers before their next DB lookup.
 					// Seed all three stores together on a first installation.
-					update_option('emsfb_settings', $setting);
+					if (method_exists('Emsfb', 'settings_option_efb')) \Emsfb::settings_option_efb($setting); else update_option('emsfb_settings', $setting); // SEC-05
 					set_transient('emsfb_settings_transient', $setting, 1800);
 					wp_cache_delete('settings:decoded', 'emsfb');
 					wp_cache_delete('settings:pub', 'emsfb');

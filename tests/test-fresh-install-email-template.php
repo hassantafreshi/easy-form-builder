@@ -236,9 +236,13 @@ try {
 
 	// These two stores are read before a later database lookup in normal admin
 	// and public requests, so both must receive the exact first-row JSON.
+	// SEC-05 (B6): the option is the row with each set secret (here the generated email_key) as "••••••", not autoloaded.
+	$efb_copy = json_decode( (string) get_option( 'emsfb_settings', '' ), true );
+	$efb_row  = json_decode( (string) $raw, true );
+	if ( is_array( $efb_row ) && isset( $efb_row['email_key'] ) && strlen( (string) $efb_row['email_key'] ) > 5 ) $efb_row['email_key'] = '••••••';
 	efb_fresh_install_check(
-		'fresh install seeds emsfb_settings with the settings-row JSON',
-		get_option( 'emsfb_settings', null ) === $raw
+		'fresh install seeds emsfb_settings with the settings-row JSON (secrets masked, SEC-05)',
+		is_array( $efb_copy ) && $efb_copy === $efb_row && strpos( (string) get_option( 'emsfb_settings', '' ), (string) json_decode( (string) $raw, true )['email_key'] ) === false
 	);
 	efb_fresh_install_check(
 		'fresh install seeds emsfb_settings_transient with the settings-row JSON',
