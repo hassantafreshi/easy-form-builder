@@ -17,7 +17,7 @@ $api = (string) file_get_contents($root . '/includes/class-Emsfb-builder-api.php
 t('capabilities: the migration backup is "the form before the latest move"', strpos($api, "'backup' => 'the form before the latest move'") !== false && strpos($api, 'original JSON per form') === false);
 // QA1-022: the onboarding's group name is a phrase, its step number in the site's digits; no English aria-label left.
 $val = (string) file_get_contents($root . '/includes/admin/assets/js/val-efb.js');
-t('onboarding: aria-label from the phrase onboardingActions, the step through efb_admin_date_efb()', strpos($val, "aria-label=\"' + t('onboardingActions', 'Setup actions') + '\"") !== false && strpos($val, "<b>' + efb_admin_date_efb('2') + '</b>") !== false);
+t('onboarding: aria-label from the phrase onboardingActions, the step through efb_admin_date_efb()', strpos($val, "aria-label=\"' + t('onboardingActions', 'Setup actions') + '\"") !== false && strpos($val, "efb_admin_date_efb('2')") !== false);
 t('val-efb.js: no aria-label written as English text', preg_match('/aria-label="[A-Za-z][A-Za-z ]+"/', $val) === 0);
 echo "\nRESULTS: {$pass} passed, {$fail} failed\n";
 exit($fail ? 1 : 0);

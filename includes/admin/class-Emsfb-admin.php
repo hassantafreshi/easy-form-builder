@@ -364,8 +364,21 @@ class Admin {
         }
         $valp =\emsfb_json_normalize_efb($post_value);
 		$valp = json_decode($valp,true);
+        // QA5-002: the builder sends the hash of the form it opened (base_hash); a save made elsewhere since (the assistant,
+        // another tab) is not overwritten without asking (stale_hash; overwrite=1 is the owner's answer).
+        $ctx = array('lang' => $lang);
+        $base = isset($_POST['base_hash']) ? sanitize_key(wp_unslash($_POST['base_hash'])) : '';
+        $st = $base !== '' && class_exists('\Emsfb\Form_Update') ? Form_Update::stored($id) : null;
+        if ($st) {
+            if (empty($_POST['overwrite']) && !hash_equals(Form_Update::hash_of($st['rows'], $st['form_name']), $base)) {
+                wp_send_json_success(array('success' => false, 'r' => 'not_saved', 'code' => 'stale_hash', 'm' => __('This form was changed somewhere else (another tab or the assistant) after you opened it.', 'easy-form-builder')), 200);
+            }
+            $ctx['expected_raw'] = $st['raw'];
+        }
         // AI-2: the save itself is save_existing_form_efb(); form.update of the form package (Form_Package::update()) runs it too.
-        wp_send_json_success($this->save_existing_form_efb($id, $name, $valp, array('lang' => $lang)), 200);
+        $res = $this->save_existing_form_efb($id, $name, $valp, $ctx);
+        if (!empty($res['success']) && class_exists('\Emsfb\Form_Update') && ($st = Form_Update::stored($id))) $res['base_hash'] = Form_Update::hash_of($st['rows'], $st['form_name']);
+        wp_send_json_success($res, 200);
     }
 
     /**
@@ -1596,7 +1609,8 @@ class Admin {
         if ( $use_decoded ) {
             $value = wp_json_encode( $decoded_form, JSON_UNESCAPED_UNICODE );
         }
-        $response = ['success' => true, 'ajax_value' => $value, 'id' => $id];
+        $st = class_exists('\Emsfb\Form_Update') ? Form_Update::stored((int) $id) : null;
+        $response = ['success' => true, 'ajax_value' => $value, 'id' => $id, 'base_hash' => $st ? Form_Update::hash_of($st['rows'], $st['form_name']) : ''];
         wp_send_json_success($response, 200);
     }
     public function get_messages_id_Emsfb() {

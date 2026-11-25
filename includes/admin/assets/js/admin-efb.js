@@ -1094,8 +1094,10 @@ async function  actionSendData_emsFormBuilder(saveMode) {
         value: ls_val,
         name: name,
         nonce: _efb_nonce_,
-        id: form_ID_emsFormBuilder
+        id: form_ID_emsFormBuilder,
+        base_hash: window.efb_base_hash_efb || ''
       };
+      if (window._efb_overwrite_efb) { data.overwrite = 1; window._efb_overwrite_efb = false; }
     }
     // F15: how this save was made (a restored version, AutoPilot, the builder) for the form's versions.
     if (typeof efbSaveMetaEfb === 'function') Object.assign(data, efbSaveMetaEfb());
@@ -1121,6 +1123,7 @@ async function  actionSendData_emsFormBuilder(saveMode) {
           fun_pr(0);
         }
       } else if ((res.data.r == "update" || res.data.r == "updated") && res.data.success == true) {
+        if (res.data.base_hash) window.efb_base_hash_efb = res.data.base_hash;
         show_message_result_form_set_EFB(2, res.data.value);
         efb_apply_save_warnings_efb(res.data.warnings);
         if (!_efb_autosave_in_progress) efb_builder_maybe_warn_email_delivery_after_save();
@@ -1129,6 +1132,13 @@ async function  actionSendData_emsFormBuilder(saveMode) {
         sessionStorage.setItem('formId_efb', res.data.value);
         fun_pr(1);
         try { document.dispatchEvent(new CustomEvent('efb:form-saved', { detail: efb_save_event_detail_efb(form_ID_emsFormBuilder, false, res.data) })); } catch (e) { /* old browsers */ }
+      } else if (res.data.code === 'stale_hash' && typeof window.efb_confirm_efb === 'function') {
+        // QA5-002: saved elsewhere since this form was opened: keep this version (Overwrite) or load the saved one (Reload).
+        fun_pr(0);
+        state_modal_show_efb(0); // the "Please wait" card gives the screen to the question
+        const T = (k, d) => (efb_var.text && efb_var.text[k]) || d;
+        window.efb_confirm_efb({ variant: 'warning', title: T('staleTitle', 'This form was changed elsewhere'), message: res.data.m + ' ' + T('staleChoice', 'Overwrite saves your version here and removes that change. Reload shows the saved form; your changes here are lost.'), confirmLabel: T('staleOverwrite', 'Overwrite'), cancelLabel: T('staleReload', 'Reload'), cancelValue: 'reload' })
+          .then((v) => { if (v === true) { window._efb_overwrite_efb = true; actionSendData_emsFormBuilder(saveMode); } else if (v === 'reload') { clear_auto_save_efb(); location.reload(); } });
       } else {
 
         if (res.data.m == null || res.data.m.length > 1) {

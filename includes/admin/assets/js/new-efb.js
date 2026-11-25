@@ -127,7 +127,7 @@ window.efb_confirm_efb = (options = {}) => new Promise((resolve) => {
       finish(true);
       state_modal_show_efb(0);
     }, { once: true });
-    if (cancelButton) cancelButton.addEventListener('click', () => finish(false), { once: true });
+    if (cancelButton) cancelButton.addEventListener('click', () => finish(options.cancelValue !== undefined ? options.cancelValue : false), { once: true });
     if (backdrop) backdrop.onclick = () => {
       finish(false);
       state_modal_show_efb(0);
@@ -140,7 +140,7 @@ window.efb_confirm_efb = (options = {}) => new Promise((resolve) => {
     escapeHtml(title),
     'efb ' + icon + ' mx-2',
     type,
-    { onShown: wire }
+    { onShown: wire, confirmLabel: options.confirmLabel, cancelLabel: options.cancelLabel }
   );
   if (painted) state_modal_show_efb(1);
 });

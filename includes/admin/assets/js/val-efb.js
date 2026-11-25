@@ -302,21 +302,21 @@ const prvPiiEls = (indx) => {
   </div>`;
 };
 const privacyEls = () => `
-          <!-- privacy section (F13) -->
-          <div class="efb d-grid gap-2">
-            <button class="efb btn btn-outline-light mt-3" id="privacy_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrivacy" aria-expanded="false" aria-controls="collapsePrivacy">
-              <i class="efb bi-shield-lock me-1" id="privacy_collapse_id"></i>${efb_prv_text_efb('prvTitle', 'Privacy')}
-            </button>
-          </div>
-          <div class="efb mb-3 mt-3 collapse" id="collapsePrivacy">
-            <div class="efb mb-3 px-3 row">
-              ${prvNoStoreEls()}
-              ${prvIpEls()}
-              ${prvDaysEls()}
-              ${prvIdFieldEls()}
-            </div>
-          </div>
-          <!-- privacy section end -->`;
+  <!-- privacy section (F13) -->
+  <div class="efb d-grid gap-2">
+   <button class="efb btn btn-outline-light mt-3" id="privacy_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrivacy" aria-expanded="false" aria-controls="collapsePrivacy">
+   <i class="efb bi-shield-lock me-1" id="privacy_collapse_id"></i>${efb_prv_text_efb('prvTitle', 'Privacy')}
+   </button>
+  </div>
+  <div class="efb mb-3 mt-3 collapse" id="collapsePrivacy">
+   <div class="efb mb-3 px-3 row">
+   ${prvNoStoreEls()}
+   ${prvIpEls()}
+   ${prvDaysEls()}
+   ${prvIdFieldEls()}
+   </div>
+  </div>
+  <!-- privacy section end -->`;
 
 const surveyChartTypeEls = () => {
   if (!valj_efb[0].hasOwnProperty('survey_chart_type')) {
@@ -512,9 +512,9 @@ const currencyTypeEls=(idset)=>{
   }
   return `
   <label for="currencyTypeEl" class="efb mt-3 efb"><i class="efb bi-cash fs-7 ${iconMarginGlobal}"></i>${efb_var.text.currency}</label>
-                    <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="currencyTypeEl"  data-tag="${valj_efb[0].currency}">
-                       ${op}
-                    </select>
+     <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="currencyTypeEl"  data-tag="${valj_efb[0].currency}">
+     ${op}
+     </select>
   `
 
 }
@@ -754,7 +754,7 @@ const ElcountriesListSelections = (idset,indx) => {
      <thead class="efb efblist">
        <tr> <div class="efb searchSection efblist p-2 bg-light">
        <!-- <i class="efb efblist searchIcon  bi-search text-primary "></i> -->
-           <input type="text" class="efb efblist search searchBox my-1 col-12 rounded " data-id="menu-${rndm}" data-tag="search" placeholder="🔍 ${efb_var.text.search}" onkeyup="FunSearchTableEfb('menu-${rndm}')"> </div>
+  <input type="text" class="efb efblist search searchBox my-1 col-12 rounded " data-id="menu-${rndm}" data-tag="search" placeholder="🔍 ${efb_var.text.search}" onkeyup="FunSearchTableEfb('menu-${rndm}')"> </div>
      </tr> </thead>
      <tbody class="efb fs-7">
       ${optn}
@@ -955,11 +955,11 @@ function show_setting_window_efb(idset, opts) {
       return `
     ${pro_efb==true ?"":funProEfb('setting:email_noti_type', { fallback: 'free_plus', resume: { kind: 'focus', id: 'emailNotiContainsEl' } })}
     <label for="emailNotiContainsEl" class="efb mt-2 mb-1   efb">${efb_var.text.emlc}</label>
-                        <select  class="efb elEdit form-select efb border-d rounded-4 mb-1" data-id="${idset}"  id="emailNotiContainsEl" >
-                            <option value="cc" ${val == 'cc' ? `selected` : ''} ${String(valj_efb[0].prv_nostore || '') === '1' ? 'disabled' : ''}>${efb_var.text.emlacl}</option>
-                            <option value="msg" ${val == 'msg' ? `selected` : ''}>${efb_var.text.emlml}</option>
-                            <option value="just_msg" ${val == 'just_msg' ? `selected` : ''}>${efb_var.text.emlcc}</option>
-                        </select>
+      <select  class="efb elEdit form-select efb border-d rounded-4 mb-1" data-id="${idset}"  id="emailNotiContainsEl" >
+       <option value="cc" ${val == 'cc' ? `selected` : ''} ${String(valj_efb[0].prv_nostore || '') === '1' ? 'disabled' : ''}>${efb_var.text.emlacl}</option>
+       <option value="msg" ${val == 'msg' ? `selected` : ''}>${efb_var.text.emlml}</option>
+       <option value="just_msg" ${val == 'just_msg' ? `selected` : ''}>${efb_var.text.emlcc}</option>
+      </select>
 
     `};
     const trackingCodeEls = `<div class="efb mx-1 my-3 efb">
@@ -1044,13 +1044,13 @@ function show_setting_window_efb(idset, opts) {
     </div>`;
 
     const languageSelectPresentEls = `
-                     <label for="languageSelectPresentEl" class="efb mt-3 px-1 efb"><i class="efb bi-translate fs-7 ${iconMarginGlobal}"></i>${efb_var.text.stsd}</label>
-                      <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="languageSelectPresentEl"  data-tag="${valj_efb[indx].type}">
-                      <option value="1" ${ valj_efb[indx].hasOwnProperty('stylish')==false || valj_efb[indx].stylish == 1 ? `selected` : ''} >${efb_var.text.nlan} (${efb_var.text.elan})</option>
-                      <option value="2" ${ valj_efb[indx].stylish == 2 ? `selected` : ''}>${efb_var.text.nlan}</option>
-                      <option value="3" ${ valj_efb[indx].stylish == 3 ? `selected` : ''}>${efb_var.text.elan}</option>
+     <label for="languageSelectPresentEl" class="efb mt-3 px-1 efb"><i class="efb bi-translate fs-7 ${iconMarginGlobal}"></i>${efb_var.text.stsd}</label>
+     <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="languageSelectPresentEl"  data-tag="${valj_efb[indx].type}">
+     <option value="1" ${ valj_efb[indx].hasOwnProperty('stylish')==false || valj_efb[indx].stylish == 1 ? `selected` : ''} >${efb_var.text.nlan} (${efb_var.text.elan})</option>
+     <option value="2" ${ valj_efb[indx].stylish == 2 ? `selected` : ''}>${efb_var.text.nlan}</option>
+     <option value="3" ${ valj_efb[indx].stylish == 3 ? `selected` : ''}>${efb_var.text.elan}</option>
 
-                      </select>`;
+     </select>`;
 
     const qtyPlcEls = valj_efb[indx].hasOwnProperty('pholder_chl_value')? `<label for="qtyPlclEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.label}<span class="efb  mx-1 efb text-danger">*</span></label> <input type="text"  data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1"  placeholder="${efb_var.text.placeholder}" id="qtyPlcEl" required value="${valj_efb[indx].pholder_chl_value ? valj_efb[indx].pholder_chl_value : ''}">` :'';
 
@@ -1068,30 +1068,30 @@ function show_setting_window_efb(idset, opts) {
 
     const labelFontSizeEls = `<div class="efb efb-desktop-settings-efb ${deskHideEfb}">
       <label for="labelFontSizeEl" class="efb mt-3 efb"><i class="efb bi-aspect-ratio fs-7 ${iconMarginGlobal}"></i>${efb_var.text.slabelSize.replace('%s', '') || efb_var.text.labelSize}</label>
-                        <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="labelFontSizeEl"  data-tag="${valj_efb[indx].type}">
-                            <option value="fs-6" ${ valj_efb[indx].label_text_size == 'fs-6' ? `selected` : ''}>${efb_var.text.default}</option>
-                            <option value="fs-7" ${ valj_efb[indx].label_text_size == 'fs-7' ? `selected` : ''}>${efb_var.text.small}</option>
-                            <option value="fs-5" ${ valj_efb[indx].label_text_size == 'fs-5' ? `selected` : ''} >${efb_var.text.large}</option>
-                            <option value="fs-4" ${ valj_efb[indx].label_text_size == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>
-                            <option value="fs-3" ${ valj_efb[indx].label_text_size == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>
-                        </select></div>`;
+      <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="labelFontSizeEl"  data-tag="${valj_efb[indx].type}">
+       <option value="fs-6" ${ valj_efb[indx].label_text_size == 'fs-6' ? `selected` : ''}>${efb_var.text.default}</option>
+       <option value="fs-7" ${ valj_efb[indx].label_text_size == 'fs-7' ? `selected` : ''}>${efb_var.text.small}</option>
+       <option value="fs-5" ${ valj_efb[indx].label_text_size == 'fs-5' ? `selected` : ''} >${efb_var.text.large}</option>
+       <option value="fs-4" ${ valj_efb[indx].label_text_size == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>
+       <option value="fs-3" ${ valj_efb[indx].label_text_size == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>
+      </select></div>`;
     const optnsStyleEls = `<div class="efb efb-desktop-settings-efb ${deskHideEfb}">
       <label for="optnsStyleEl" class="efb mt-3 efb"><i class="efb bi-layout-split fs-7 ${iconMarginGlobal}"></i>${efb_var.text.cols}</label>
-                        <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="optnsStyleEl"  data-tag="${valj_efb[indx].type}">
-                            <option value="1" ${ !valj_efb[indx].hasOwnProperty('op_style') || valj_efb[indx].op_style == '1' ? `selected` : ''}>${efb_var.text.default}</option>
-                            <option value="2" ${ valj_efb[indx].op_style == '2' ? `selected` : ''}>${efb_var.text.col} 2</option>
-                            <option value="3" ${ valj_efb[indx].op_style == '3' ? `selected` : ''} >${efb_var.text.col} 3</option>
-                        </select></div>`;
+      <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="optnsStyleEl"  data-tag="${valj_efb[indx].type}">
+       <option value="1" ${ !valj_efb[indx].hasOwnProperty('op_style') || valj_efb[indx].op_style == '1' ? `selected` : ''}>${efb_var.text.default}</option>
+       <option value="2" ${ valj_efb[indx].op_style == '2' ? `selected` : ''}>${efb_var.text.col} 2</option>
+       <option value="3" ${ valj_efb[indx].op_style == '3' ? `selected` : ''} >${efb_var.text.col} 3</option>
+      </select></div>`;
 
     // Mobile option columns default to 1 column (stacked) - the published
     // frontend has always stacked options below 768px unless overridden.
     const mobileOptnsStyleEls = efbMobileProControlEfb(`<div class="efb efb-mobile-settings-efb ${mobHideEfb}">
       <label for="mobileOptnsStyleEl" class="efb mt-3 efb"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${efb_var.text.cols}</label>
-                        <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="mobileOptnsStyleEl"  data-tag="${valj_efb[indx].type}">
-                            <option value="1" ${ !valj_efb[indx].hasOwnProperty('mobile_op_style') || valj_efb[indx].mobile_op_style == '1' ? `selected` : ''}>${efb_var.text.default}</option>
-                            <option value="2" ${ valj_efb[indx].mobile_op_style == '2' ? `selected` : ''}>${efb_var.text.col} 2</option>
-                            <option value="3" ${ valj_efb[indx].mobile_op_style == '3' ? `selected` : ''} >${efb_var.text.col} 3</option>
-                        </select></div>`);
+      <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="mobileOptnsStyleEl"  data-tag="${valj_efb[indx].type}">
+       <option value="1" ${ !valj_efb[indx].hasOwnProperty('mobile_op_style') || valj_efb[indx].mobile_op_style == '1' ? `selected` : ''}>${efb_var.text.default}</option>
+       <option value="2" ${ valj_efb[indx].mobile_op_style == '2' ? `selected` : ''}>${efb_var.text.col} 2</option>
+       <option value="3" ${ valj_efb[indx].mobile_op_style == '3' ? `selected` : ''} >${efb_var.text.col} 3</option>
+      </select></div>`);
 
     // Checked color picker for radio/checkbox elements (PRO feature)
     const selectCheckedColorEls = () => {
@@ -1163,10 +1163,10 @@ function show_setting_window_efb(idset, opts) {
 
       const thankYouTypeEls = `
       <label for="thankYouTypeEl" class="efb mt-3 bi-card-heading mx-0 mb-2 fs-6 form-text border-secondary  border-bottom text-secondary">${efb_var.text.landingTnx}</label>
-                        <select  data-id="thankYouTypeEl" class="efb elEdit form-select efb border-d rounded-4"  id="thankYouTypeEl"  data-tag="${valj_efb[0].thank_you}">
-                        <option value="rdrct" ${ valj_efb[0].thank_you == 'rdrct' ? `selected` : ''}>${efb_var.text.redirectPage}</option>
-                        <option value="msg" ${ valj_efb[0].thank_you == 'msg' ? `selected` : ''}>${efb_var.text.thankYouMessage}</option>
-                        </select>`;
+      <select  data-id="thankYouTypeEl" class="efb elEdit form-select efb border-d rounded-4"  id="thankYouTypeEl"  data-tag="${valj_efb[0].thank_you}">
+      <option value="rdrct" ${ valj_efb[0].thank_you == 'rdrct' ? `selected` : ''}>${efb_var.text.redirectPage}</option>
+      <option value="msg" ${ valj_efb[0].thank_you == 'msg' ? `selected` : ''}>${efb_var.text.thankYouMessage}</option>
+      </select>`;
 
     const thankYouredirectEls = `<div id="tnxrdrct" class="efb tnxrdrct my-1 ${ valj_efb[0].thank_you == 'rdrct'? 'd-block' :'d-none' }">
     ${pro_efb==true ?"":funProEfb('setting:thank_you_redirect', { fallback: 'free_plus', resume: { kind: 'focus', id: 'thankYouredirectEl' } })}
@@ -1178,55 +1178,55 @@ function show_setting_window_efb(idset, opts) {
     <label for="labelPostionEl" class="efb  mt-3 col-12"><i class="efb bi-arrows-angle-contract fs-7 ${iconMarginGlobal}"></i>${efb_var.text.slabelPosition.replace('%s', '') || efb_var.text.labelPostion}</label>
       <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-id="${idset}"  id="labelPostionEl">
         <label class="efb  ntb btn-primary bi-chevron-bar-down ${valj_efb[indx].label_position && valj_efb[indx].label_position == 'up' ? `active` : ''}" onclick="funSetPosElEfb('${idset}','up')">
-          <input type="radio" name="options" class="efb  opButtonEfb elEdit "   data-id="${idset}"  id="labelPostionEl" value="up" >${efb_var.text.up}</label>
+  <input type="radio" name="options" class="efb  opButtonEfb elEdit "   data-id="${idset}"  id="labelPostionEl" value="up" >${efb_var.text.up}</label>
         <span class="efb  border-right border border-light "></span>
         <label class="efb  ntb btn-primary bi-chevron-bar-right ${valj_efb[indx].label_position && (valj_efb[indx].label_position == 'beside' || valj_efb[indx].label_position == 'besie') ? `active` : ''}" onclick="funSetPosElEfb('${idset}','beside')">
-          <input type="radio" name="options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="labelPostionEl" value="beside"> ${efb_var.text.beside}
+  <input type="radio" name="options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="labelPostionEl" value="beside"> ${efb_var.text.beside}
         </label>
       </div></div></div>`;
 
     const widthEls = `<div class="efb efb-desktop-settings-efb ${deskHideEfb}">
       <label for="sizeEl" class="efb  mt-3"><i class="efb bi-arrow-left-right fs-7 ${iconMarginGlobal}"></i>${efb_var.text.swidth.replace('%s', '') || efb_var.text.width}</label>
       <select  data-id="${idset}" class="efb  rounded-4 elEdit form-select"  id="sizeEl" >
-          <option value="8" ${valj_efb[indx].size == 8.3 ? `selected` : ''}>8%</option>
-          <option value="17" ${valj_efb[indx].size == 17 ? `selected` : ''}>17%</option>
-          <option value="25" ${valj_efb[indx].size == 25 ? `selected` : ''}>25%</option>
-          <option value="33" ${valj_efb[indx].size == 33 ? `selected` : ''}>33%</option>
-          <option value="42" ${valj_efb[indx].size == 42 ? `selected` : ''}>42%</option>
-          <option value="50" ${valj_efb[indx].size == 50 ? `selected` : ''}>50%</option>
-          <option value="58" ${valj_efb[indx].size == 58 ? `selected` : ''}>58%</option>
-          <option value="67" ${valj_efb[indx].size == 67 ? `selected` : ''}>67%</option>
-          <option value="75" ${valj_efb[indx].size == 75 ? `selected` : ''}>75%</option>
-          <option value="83" ${valj_efb[indx].size == 80 || valj_efb[indx].size == 83 ? `selected` : ''} >83%</option>
-          <option value="92" ${valj_efb[indx].size == 92 ? `selected` : ''} >92%</option>
-          <option value="100" ${valj_efb[indx].hasOwnProperty('size')==false || valj_efb[indx].size == 100 ? `selected` : ''} >100%</option>
+  <option value="8" ${valj_efb[indx].size == 8.3 ? `selected` : ''}>8%</option>
+  <option value="17" ${valj_efb[indx].size == 17 ? `selected` : ''}>17%</option>
+  <option value="25" ${valj_efb[indx].size == 25 ? `selected` : ''}>25%</option>
+  <option value="33" ${valj_efb[indx].size == 33 ? `selected` : ''}>33%</option>
+  <option value="42" ${valj_efb[indx].size == 42 ? `selected` : ''}>42%</option>
+  <option value="50" ${valj_efb[indx].size == 50 ? `selected` : ''}>50%</option>
+  <option value="58" ${valj_efb[indx].size == 58 ? `selected` : ''}>58%</option>
+  <option value="67" ${valj_efb[indx].size == 67 ? `selected` : ''}>67%</option>
+  <option value="75" ${valj_efb[indx].size == 75 ? `selected` : ''}>75%</option>
+  <option value="83" ${valj_efb[indx].size == 80 || valj_efb[indx].size == 83 ? `selected` : ''} >83%</option>
+  <option value="92" ${valj_efb[indx].size == 92 ? `selected` : ''} >92%</option>
+  <option value="100" ${valj_efb[indx].hasOwnProperty('size')==false || valj_efb[indx].size == 100 ? `selected` : ''} >100%</option>
       </select></div>
       `
     const mobileWidthEls = efbMobileProControlEfb(`<div class="efb efb-mobile-settings-efb ${mobHideEfb}">
       <label for="mobileSizeEl" class="efb  mt-3"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${efb_var.text.swidth.replace('%s' , efb_var.text.mobile) || 'Mobile Width!'}</label>
       <select  data-id="${idset}" class="efb  rounded-4 elEdit form-select"  id="mobileSizeEl" >
-          <option value="8" ${valj_efb[indx].mobile_size == 8 ? `selected` : ''}>8%</option>
-          <option value="17" ${valj_efb[indx].mobile_size == 17 ? `selected` : ''}>17%</option>
-          <option value="25" ${valj_efb[indx].mobile_size == 25 ? `selected` : ''}>25%</option>
-          <option value="33" ${valj_efb[indx].mobile_size == 33 ? `selected` : ''}>33%</option>
-          <option value="42" ${valj_efb[indx].mobile_size == 42 ? `selected` : ''}>42%</option>
-          <option value="50" ${valj_efb[indx].mobile_size == 50 ? `selected` : ''}>50%</option>
-          <option value="58" ${valj_efb[indx].mobile_size == 58 ? `selected` : ''}>58%</option>
-          <option value="67" ${valj_efb[indx].mobile_size == 67 ? `selected` : ''}>67%</option>
-          <option value="75" ${valj_efb[indx].mobile_size == 75 ? `selected` : ''}>75%</option>
-          <option value="83" ${valj_efb[indx].mobile_size == 83 ? `selected` : ''}>83%</option>
-          <option value="92" ${valj_efb[indx].mobile_size == 92 ? `selected` : ''}>92%</option>
-          <option value="100" ${!valj_efb[indx].hasOwnProperty('mobile_size') || valj_efb[indx].mobile_size == 100 ? `selected` : ''}>100%</option>
+  <option value="8" ${valj_efb[indx].mobile_size == 8 ? `selected` : ''}>8%</option>
+  <option value="17" ${valj_efb[indx].mobile_size == 17 ? `selected` : ''}>17%</option>
+  <option value="25" ${valj_efb[indx].mobile_size == 25 ? `selected` : ''}>25%</option>
+  <option value="33" ${valj_efb[indx].mobile_size == 33 ? `selected` : ''}>33%</option>
+  <option value="42" ${valj_efb[indx].mobile_size == 42 ? `selected` : ''}>42%</option>
+  <option value="50" ${valj_efb[indx].mobile_size == 50 ? `selected` : ''}>50%</option>
+  <option value="58" ${valj_efb[indx].mobile_size == 58 ? `selected` : ''}>58%</option>
+  <option value="67" ${valj_efb[indx].mobile_size == 67 ? `selected` : ''}>67%</option>
+  <option value="75" ${valj_efb[indx].mobile_size == 75 ? `selected` : ''}>75%</option>
+  <option value="83" ${valj_efb[indx].mobile_size == 83 ? `selected` : ''}>83%</option>
+  <option value="92" ${valj_efb[indx].mobile_size == 92 ? `selected` : ''}>92%</option>
+  <option value="100" ${!valj_efb[indx].hasOwnProperty('mobile_size') || valj_efb[indx].mobile_size == 100 ? `selected` : ''}>100%</option>
       </select></div>`);
     const mobileLabelPostionEls = efbMobileProControlEfb(`<div class="efb efb-mobile-settings-efb ${mobHideEfb}">
     <div class="efb row efb">
     <label for="mobileLabelPostionEl" class="efb  mt-3 col-12"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${efb_var.text.slabelPosition.replace('%s', efb_var.text.mobile) || 'Mobile Label Position'}</label>
     <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-id="${idset}"  id="mobileLabelPostionEl">
         <label class="efb  ntb btn-primary bi-chevron-bar-down ${valj_efb[indx].hasOwnProperty('mobile_label_position') && valj_efb[indx].mobile_label_position == 'up' ? `active` : (!valj_efb[indx].hasOwnProperty('mobile_label_position') ? `active` : '')}" onclick="funSetMobilePosElEfb('${idset}','up')">
-            <input type="radio" name="mobile_pos_options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="mobileLabelPostionEl" value="up" >${efb_var.text.up}</label>
+   <input type="radio" name="mobile_pos_options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="mobileLabelPostionEl" value="up" >${efb_var.text.up}</label>
         <span class="efb  border-right border border-light "></span>
         <label class="efb  ntb btn-primary bi-chevron-bar-right ${valj_efb[indx].hasOwnProperty('mobile_label_position') && valj_efb[indx].mobile_label_position == 'beside' ? `active` : ''}" onclick="funSetMobilePosElEfb('${idset}','beside')">
-            <input type="radio" name="mobile_pos_options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="mobileLabelPostionEl" value="beside"> ${efb_var.text.beside}
+   <input type="radio" name="mobile_pos_options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="mobileLabelPostionEl" value="beside"> ${efb_var.text.beside}
         </label>
     </div></div></div>`);
 
@@ -1235,11 +1235,11 @@ function show_setting_window_efb(idset, opts) {
     const mobileLabelFontSizeEls = efbMobileProControlEfb(`<div class="efb efb-mobile-settings-efb ${mobHideEfb}">
       <label for="mobileLabelFontSizeEl" class="efb mt-3 efb"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${efb_var.text.slabelSize.replace('%s', efb_var.text.mobile) || 'Mobile Label size'}</label>
       <select  data-id="${idset}" class="efb elEdit form-select efb border-d rounded-4"  id="mobileLabelFontSizeEl"  data-tag="${valj_efb[indx].type}">
-          <option value="fs-6" ${ mobileLabelFontSizeVal == 'fs-6' ? `selected` : ''}>${efb_var.text.default}</option>
-          <option value="fs-7" ${ mobileLabelFontSizeVal == 'fs-7' ? `selected` : ''}>${efb_var.text.small}</option>
-          <option value="fs-5" ${ mobileLabelFontSizeVal == 'fs-5' ? `selected` : ''} >${efb_var.text.large}</option>
-          <option value="fs-4" ${ mobileLabelFontSizeVal == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>
-          <option value="fs-3" ${ mobileLabelFontSizeVal == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>
+  <option value="fs-6" ${ mobileLabelFontSizeVal == 'fs-6' ? `selected` : ''}>${efb_var.text.default}</option>
+  <option value="fs-7" ${ mobileLabelFontSizeVal == 'fs-7' ? `selected` : ''}>${efb_var.text.small}</option>
+  <option value="fs-5" ${ mobileLabelFontSizeVal == 'fs-5' ? `selected` : ''} >${efb_var.text.large}</option>
+  <option value="fs-4" ${ mobileLabelFontSizeVal == 'fs-4' ? `selected` : ''} >${efb_var.text.xlarge}</option>
+  <option value="fs-3" ${ mobileLabelFontSizeVal == 'fs-3' ? `selected` : ''} >${efb_var.text.xxlarge}</option>
       </select></div>`);
 
     const MobileElementAlignEls = (side, indx, idset) => {
@@ -1257,14 +1257,14 @@ function show_setting_window_efb(idset, opts) {
       <div class="efb  row">
       <label for="MobileElementAlignEl" class="efb  mt-3 col-12"><i class="efb bi-phone fs-7 ${iconMarginGlobal}"></i>${labText}</label>
       <div class="efb  btn-group btn-group-toggle col-12 " data-toggle="buttons" data-side="${side}" data-id="${idset}"  id="MobileElementAlignEl">
-          <label class="efb ntb btn-primary ${value == left ? `active` : ''}" onclick="funSetMobileAlignElEfb('${idset}','${left}','${side}')"><i class="efb bi-align-start fs-7 ${iconMarginGlobal}"></i>
-              <input type="radio" name="mobile_align_options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="MobileElementAlignEl" value="left" >${efb_var.text.left}</label>
-          <span class="efb border-right border border-light "></span>
-          <label class="efb ntb btn-primary ${value == center ? `active` : ''}" onclick="funSetMobileAlignElEfb('${idset}','${center}','${side}')"><i class="efb bi-align-center fs-7 ${iconMarginGlobal}"></i>
-              <input type="radio" name="mobile_align_options" class="efb opButtonEfb elEdit" data-id="${idset}"  id="MobileElementAlignEl" value="center">${efb_var.text.center}</label>
-          <span class="efb border-right border border-light "></span>
-          <label class="efb ntb btn-primary ${value == right ? `active` : ''}" onclick="funSetMobileAlignElEfb('${idset}','${right}','${side}')"><i class="efb bi-align-end fs-7 ${iconMarginGlobal}"></i>
-              <input type="radio" name="mobile_align_options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="MobileElementAlignEl" value="right">${efb_var.text.right}</label>
+  <label class="efb ntb btn-primary ${value == left ? `active` : ''}" onclick="funSetMobileAlignElEfb('${idset}','${left}','${side}')"><i class="efb bi-align-start fs-7 ${iconMarginGlobal}"></i>
+   <input type="radio" name="mobile_align_options" class="efb  opButtonEfb elEdit "  data-id="${idset}"  id="MobileElementAlignEl" value="left" >${efb_var.text.left}</label>
+  <span class="efb border-right border border-light "></span>
+  <label class="efb ntb btn-primary ${value == center ? `active` : ''}" onclick="funSetMobileAlignElEfb('${idset}','${center}','${side}')"><i class="efb bi-align-center fs-7 ${iconMarginGlobal}"></i>
+   <input type="radio" name="mobile_align_options" class="efb opButtonEfb elEdit" data-id="${idset}"  id="MobileElementAlignEl" value="center">${efb_var.text.center}</label>
+  <span class="efb border-right border border-light "></span>
+  <label class="efb ntb btn-primary ${value == right ? `active` : ''}" onclick="funSetMobileAlignElEfb('${idset}','${right}','${side}')"><i class="efb bi-align-end fs-7 ${iconMarginGlobal}"></i>
+   <input type="radio" name="mobile_align_options" class="efb  opButtonEfb elEdit" data-id="${idset}"  id="MobileElementAlignEl" value="right">${efb_var.text.right}</label>
       </div>${visibilityToggle}</div></div>`);
     }
 
@@ -1326,49 +1326,49 @@ function show_setting_window_efb(idset, opts) {
       <div class="efb efb-mask-settings mt-3" id="efbMaskBoxEl" data-id="${idset}">
         <label for="maskPresetEl" class="efb mt-1"><i class="efb bi-input-cursor-text fs-7 ${iconMarginGlobal}"></i>${t.mskFormat || 'Format / mask'}</label>
         <select data-id="${idset}" class="efb elEdit form-select border-d rounded-4" id="maskPresetEl" data-tag="${row.type}">
-          <option value="" ${cur === '' ? 'selected' : ''}>${t.mskNone || 'None'}</option>
-          <option value="custom" ${isCustom ? 'selected' : ''}>${t.mskCustom || 'Custom mask'}</option>
-          ${maskKindEfb === 'text' ? `<option value="numeric" ${cur === 'numeric' ? 'selected' : ''}>${t.mskNumeric || 'Number or amount'}</option>` : ''}
-          ${known ? `<option value="${cur}" selected>${cur}</option>` : ''}
-          <option value="" disabled data-efb-loading="1">${t.mskLoading || 'Loading formats…'}</option>
+  <option value="" ${cur === '' ? 'selected' : ''}>${t.mskNone || 'None'}</option>
+  <option value="custom" ${isCustom ? 'selected' : ''}>${t.mskCustom || 'Custom mask'}</option>
+  ${maskKindEfb === 'text' ? `<option value="numeric" ${cur === 'numeric' ? 'selected' : ''}>${t.mskNumeric || 'Number or amount'}</option>` : ''}
+  ${known ? `<option value="${cur}" selected>${cur}</option>` : ''}
+  <option value="" disabled data-efb-loading="1">${t.mskLoading || 'Loading formats…'}</option>
         </select>
         <small class="efb text-muted fs-8 mx-2 d-block" id="maskPresetNoteEl"></small>
         <div class="efb efb-mask-custom ${isCustom ? '' : 'd-none'}" id="maskCustomBoxEl">
-          <label for="maskCustomEl" class="efb mt-2">${t.mskCustom || 'Custom mask'}</label>
-          <input type="text" data-id="${idset}" class="efb elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1" id="maskCustomEl" dir="ltr" maxlength="64" autocomplete="off" spellcheck="false" placeholder="(999) 999-9999">
-          <small class="efb text-muted fs-8 mx-2 d-block">${t.mskCustomHelp || 'Use 9 for a digit, a for a letter, * for a letter or digit and [ ] for an optional part.'}</small>
-          <small class="efb text-danger fs-8 mx-2 d-none" id="maskCustomErrEl">${t.mskInvalidMask || 'This mask is not valid.'}</small>
-          <div class="efb fs-7 mx-2 my-1">${t.mskPreview || 'Preview'}: <output id="maskPreviewEl" dir="ltr" class="efb fw-bold"></output></div>
-          <small class="efb text-muted fs-8 mx-2 d-block">${t.mskCustomHelpCase || 'A and & work like a and * and turn letters into capitals.'}</small>
-          <small class="efb text-muted fs-8 mx-2 d-block">${t.mskCustomHelpAlt || 'Separate masks with || to accept any of them, for example (99) 9999-9999||(99) 99999-9999.'}</small>
-          <label for="maskCaseEl" class="efb mt-2">${t.mskCase || 'Letter case'}</label>
-          <select data-id="${idset}" class="efb elEdit form-select border-d rounded-4" id="maskCaseEl">
-            <option value="" ${!row.mask_case ? 'selected' : ''}>${t.mskCaseNone || 'As typed'}</option>
-            <option value="upper" ${row.mask_case === 'upper' ? 'selected' : ''}>${t.mskCaseUpper || 'UPPERCASE'}</option>
-            <option value="lower" ${row.mask_case === 'lower' ? 'selected' : ''}>${t.mskCaseLower || 'lowercase'}</option>
-          </select>
-          <label for="maskChecksumEl" class="efb mt-2">${t.mskChecksum || 'Check digit'}</label>
-          <select data-id="${idset}" class="efb elEdit form-select border-d rounded-4" id="maskChecksumEl">${csOpts}</select>
+  <label for="maskCustomEl" class="efb mt-2">${t.mskCustom || 'Custom mask'}</label>
+  <input type="text" data-id="${idset}" class="efb elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1" id="maskCustomEl" dir="ltr" maxlength="64" autocomplete="off" spellcheck="false" placeholder="(999) 999-9999">
+  <small class="efb text-muted fs-8 mx-2 d-block">${t.mskCustomHelp || 'Use 9 for a digit, a for a letter, * for a letter or digit and [ ] for an optional part.'}</small>
+  <small class="efb text-danger fs-8 mx-2 d-none" id="maskCustomErrEl">${t.mskInvalidMask || 'This mask is not valid.'}</small>
+  <div class="efb fs-7 mx-2 my-1">${t.mskPreview || 'Preview'}: <output id="maskPreviewEl" dir="ltr" class="efb fw-bold"></output></div>
+  <small class="efb text-muted fs-8 mx-2 d-block">${t.mskCustomHelpCase || 'A and & work like a and * and turn letters into capitals.'}</small>
+  <small class="efb text-muted fs-8 mx-2 d-block">${t.mskCustomHelpAlt || 'Separate masks with || to accept any of them, for example (99) 9999-9999||(99) 99999-9999.'}</small>
+  <label for="maskCaseEl" class="efb mt-2">${t.mskCase || 'Letter case'}</label>
+  <select data-id="${idset}" class="efb elEdit form-select border-d rounded-4" id="maskCaseEl">
+   <option value="" ${!row.mask_case ? 'selected' : ''}>${t.mskCaseNone || 'As typed'}</option>
+   <option value="upper" ${row.mask_case === 'upper' ? 'selected' : ''}>${t.mskCaseUpper || 'UPPERCASE'}</option>
+   <option value="lower" ${row.mask_case === 'lower' ? 'selected' : ''}>${t.mskCaseLower || 'lowercase'}</option>
+  </select>
+  <label for="maskChecksumEl" class="efb mt-2">${t.mskChecksum || 'Check digit'}</label>
+  <select data-id="${idset}" class="efb elEdit form-select border-d rounded-4" id="maskChecksumEl">${csOpts}</select>
         </div>
         <div class="efb efb-mask-num ${cur === 'numeric' ? '' : 'd-none'}" id="maskNumBoxEl">
-          ${numEls()}
+  ${numEls()}
         </div>
         <div class="efb efb-mask-store mt-2 ${cur !== '' ? '' : 'd-none'}" id="maskStoreBoxEl" role="radiogroup" aria-labelledby="maskStoreLabEl">
-          <span class="efb d-block" id="maskStoreLabEl">${t.mskStore || 'Save the value'}</span>
-          <div class="efb form-check mx-2">
-            <input class="efb elEdit form-check-input" type="radio" name="maskStoreEfb" id="maskStoreCanonicalEl" data-id="${idset}" value="canonical" ${store === 'canonical' ? 'checked' : ''}>
-            <label class="efb form-check-label" for="maskStoreCanonicalEl">${t.mskStoreCanonical || 'Clean value (recommended)'}</label>
-          </div>
-          <div class="efb form-check mx-2">
-            <input class="efb elEdit form-check-input" type="radio" name="maskStoreEfb" id="maskStoreDisplayEl" data-id="${idset}" value="display" ${store === 'display' ? 'checked' : ''}>
-            <label class="efb form-check-label" for="maskStoreDisplayEl">${t.mskStoreDisplay || 'As shown to the visitor'}</label>
-          </div>
+  <span class="efb d-block" id="maskStoreLabEl">${t.mskStore || 'Save the value'}</span>
+  <div class="efb form-check mx-2">
+   <input class="efb elEdit form-check-input" type="radio" name="maskStoreEfb" id="maskStoreCanonicalEl" data-id="${idset}" value="canonical" ${store === 'canonical' ? 'checked' : ''}>
+   <label class="efb form-check-label" for="maskStoreCanonicalEl">${t.mskStoreCanonical || 'Clean value (recommended)'}</label>
+  </div>
+  <div class="efb form-check mx-2">
+   <input class="efb elEdit form-check-input" type="radio" name="maskStoreEfb" id="maskStoreDisplayEl" data-id="${idset}" value="display" ${store === 'display' ? 'checked' : ''}>
+   <label class="efb form-check-label" for="maskStoreDisplayEl">${t.mskStoreDisplay || 'As shown to the visitor'}</label>
+  </div>
         </div>
         <div class="efb mx-1 my-2 d-none" id="maskStrictBoxEl">
-          <button type="button" id="maskStrictEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb btn-toggle ${strict ? 'active' : ''}" data-toggle="button" aria-pressed="${strict ? 'true' : 'false'}" autocomplete="off" data-id="${idset}" onclick="fun_switch_form_efb(this)">
-          <div class="efb handle"></div>
-          </button>
-          <label class="efb form-check-label pt-1" for="maskStrictEl">${t.mskStrict || 'Strict format'}</label>
+  <button type="button" id="maskStrictEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb btn-toggle ${strict ? 'active' : ''}" data-toggle="button" aria-pressed="${strict ? 'true' : 'false'}" autocomplete="off" data-id="${idset}" onclick="fun_switch_form_efb(this)">
+  <div class="efb handle"></div>
+  </button>
+  <label class="efb form-check-label pt-1" for="maskStrictEl">${t.mskStrict || 'Strict format'}</label>
         </div>
       </div>`;
     }
@@ -1426,22 +1426,22 @@ function show_setting_window_efb(idset, opts) {
 
       return `
       <div class="efb ${ side!="DoneIconEfb"? '' :`tnxmsg mt-1 ${valj_efb[0].thank_you=="msg" ? 'd-block' :'d-none'}` }"> <label for="iconEl" class="efb form-label mt-2 mb-0" id="DoneIconEfb"><i class="efb bi-heptagon fs-7 ${iconMarginGlobal}"></i>${t} ${efb_var.text.icon} </label>
-          <div class="efb  listSelect my-2">
-            <div class="efb  efblist mx-1  p-2 inplist  h-d-efb elEdit border efb border-d rounded-4 bi-chevron-down" id="iconEl"
+  <div class="efb  listSelect my-2">
+   <div class="efb  efblist mx-1  p-2 inplist  h-d-efb elEdit border efb border-d rounded-4 bi-chevron-down" id="iconEl"
             data-id="${iset}" data-idset="${idset}" data-side="${side}"  data-no="1" data-parent="1" data-iconset="${iNo}"
             data-select="">${icon=="" ? efb_var.text.selectOption :icon!='bi-undefined'? `<i class="efb ${icon} fs-5"></i>` :'None'}</div>
-            <div class="efb  efblist mx-1  listContent d-none rounded-bottom  bg-light border" data-id="${iset}" data-list="${iset}">
-            <table class="efb  table ${iset}">
-                    <thead class="efb  efblist">
-                      <tr><div class="efb  searchSection efblist  p-2 bg-light">
-                        <!--  <i class="efb  efblist  searchIcon  bi-search text-primary "></i> -->
-                          <input type="text" class="efb  efblist search searchBox my-1 col-12 rounded " data-id="${iset}" data-tag="search" placeholder="🔍 ${efb_var.text.search}" onkeyup="FunSearchTableEfb('${iset}')">
-                        </div></tr>
-                    </thead> <tbody class="efb bg-white">
-                    ${list}
-                    </tbody></table>
-            </div>
-          </div>
+   <div class="efb  efblist mx-1  listContent d-none rounded-bottom  bg-light border" data-id="${iset}" data-list="${iset}">
+   <table class="efb  table ${iset}">
+     <thead class="efb  efblist">
+     <tr><div class="efb  searchSection efblist  p-2 bg-light">
+      <!--  <i class="efb  efblist  searchIcon  bi-search text-primary "></i> -->
+      <input type="text" class="efb  efblist search searchBox my-1 col-12 rounded " data-id="${iset}" data-tag="search" placeholder="🔍 ${efb_var.text.search}" onkeyup="FunSearchTableEfb('${iset}')">
+      </div></tr>
+     </thead> <tbody class="efb bg-white">
+     ${list}
+     </tbody></table>
+   </div>
+  </div>
       </div>
         `
     }
@@ -1575,15 +1575,15 @@ function show_setting_window_efb(idset, opts) {
     }
 
     const fileTypeEls = `
-          <label for="fileTypeEl" class="efb  mt-3"><i class="efb bi-file-earmark-medical fs-7 ${iconMarginGlobal}"></i>${efb_var.text.fileType}</label>
-          <select  data-id="${idset}" class="efb  elEdit form-select border-d rounded-4"  id="fileTypeEl" data-tag="${valj_efb[indx].type}">
-          <option value="allformat" ${!valj_efb[indx].hasOwnProperty('file') || valj_efb[indx].file == 'allformat' ? `selected` : ''} >${efb_var.text.allformat}</option>
-          <option value="document" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'document' ? `selected` : ''} >${efb_var.text.documents}</option>
-          <option value="image" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'image' ? `selected` : ''}>${efb_var.text.image}</option>
-          <option value="media" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'media' ? `selected` : ''} >${efb_var.text.media}</option>
-          <option value="zip" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'zip' ? `selected` : ''} >${efb_var.text.zip}</option>
-          ${ valj_efb[indx].type=='dadfile' ? `<option value="customize" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'customize' ? `selected` : ''} >${efb_var.text.cstm_rd}</option>` :''}
-          </select>
+  <label for="fileTypeEl" class="efb  mt-3"><i class="efb bi-file-earmark-medical fs-7 ${iconMarginGlobal}"></i>${efb_var.text.fileType}</label>
+  <select  data-id="${idset}" class="efb  elEdit form-select border-d rounded-4"  id="fileTypeEl" data-tag="${valj_efb[indx].type}">
+  <option value="allformat" ${!valj_efb[indx].hasOwnProperty('file') || valj_efb[indx].file == 'allformat' ? `selected` : ''} >${efb_var.text.allformat}</option>
+  <option value="document" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'document' ? `selected` : ''} >${efb_var.text.documents}</option>
+  <option value="image" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'image' ? `selected` : ''}>${efb_var.text.image}</option>
+  <option value="media" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'media' ? `selected` : ''} >${efb_var.text.media}</option>
+  <option value="zip" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'zip' ? `selected` : ''} >${efb_var.text.zip}</option>
+  ${ valj_efb[indx].type=='dadfile' ? `<option value="customize" ${valj_efb[indx].hasOwnProperty('file') && valj_efb[indx].file == 'customize' ? `selected` : ''} >${efb_var.text.cstm_rd}</option>` :''}
+  </select>
       `
 
     const fileCustomizeTypleEls =()=>{
@@ -1682,167 +1682,167 @@ function show_setting_window_efb(idset, opts) {
       case 'mobile':
       case 'prcfld':
         body = `
-                <div class="efb  mb-3">
-                <!--  not   advanced-->
-                ${Nadvanced}
-                ${placeholderEls}
-                ${el.dataset.tag == 'textarea' && typeof efbLayoutRichEls === 'function' ? efbLayoutRichEls(indx, idset) : ''}
-                ${maskKindEfb !== null ? maskEls() : ''}
-                ${inputmodeTypesEfb.includes(el.dataset.tag) ? inputmodeEls() : ''}
-                ${typeof efbFieldRulesMainEls === 'function' ? efbFieldRulesMainEls(indx, idset) : '<!-- F03 field-rules-builder-efb.js not loaded -->'}
-                ${el.dataset.tag == 'number' && typeof efbNumPanelEls === 'function' ? efbNumPanelEls(indx, idset, 'number') : ''}
-                ${typeof efbPrefillEls === 'function' ? efbPrefillEls(indx, idset) : ''}
-                ${el.dataset.tag == "mobile" ? smsEnableEls : ''}
-                ${(el.dataset.tag == 'pdate' || el.dataset.tag == 'ardate') && typeof efbAdvdateUpgradeEls === 'function' ? efbAdvdateUpgradeEls(indx, idset) : ''}
-                ${el.dataset.tag == "email" ? emailEls : ''}
-                ${(el.dataset.tag == "email" || el.dataset.tag == "mobile") && typeof efbVerifyBuilderEls === 'function' ? efbVerifyBuilderEls(indx, idset, el.dataset.tag) : ''}
-                ${el.dataset.tag == "mobile" ? ElcountriesListSelections(idset,indx) : ''}
-                <!--  not   advanced-->
-                <div class="efb  d-grid gap-2">
-                  <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-                        <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
-                    </button>
-                </div>
-                <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
-                        <div class="efb  mb-3 px-3 row">
+    <div class="efb  mb-3">
+    <!--  not   advanced-->
+    ${Nadvanced}
+    ${placeholderEls}
+    ${el.dataset.tag == 'textarea' && typeof efbLayoutRichEls === 'function' ? efbLayoutRichEls(indx, idset) : ''}
+    ${maskKindEfb !== null ? maskEls() : ''}
+    ${inputmodeTypesEfb.includes(el.dataset.tag) ? inputmodeEls() : ''}
+    ${typeof efbFieldRulesMainEls === 'function' ? efbFieldRulesMainEls(indx, idset) : '<!-- F03 field-rules-builder-efb.js not loaded -->'}
+    ${el.dataset.tag == 'number' && typeof efbNumPanelEls === 'function' ? efbNumPanelEls(indx, idset, 'number') : ''}
+    ${typeof efbPrefillEls === 'function' ? efbPrefillEls(indx, idset) : ''}
+    ${el.dataset.tag == "mobile" ? smsEnableEls : ''}
+    ${(el.dataset.tag == 'pdate' || el.dataset.tag == 'ardate') && typeof efbAdvdateUpgradeEls === 'function' ? efbAdvdateUpgradeEls(indx, idset) : ''}
+    ${el.dataset.tag == "email" ? emailEls : ''}
+    ${(el.dataset.tag == "email" || el.dataset.tag == "mobile") && typeof efbVerifyBuilderEls === 'function' ? efbVerifyBuilderEls(indx, idset, el.dataset.tag) : ''}
+    ${el.dataset.tag == "mobile" ? ElcountriesListSelections(idset,indx) : ''}
+    <!--  not   advanced-->
+    <div class="efb  d-grid gap-2">
+    <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+      <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+     </button>
+    </div>
+    <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
+      <div class="efb  mb-3 px-3 row">
 
-                        ${labelFontSizeEls}
+      ${labelFontSizeEls}
     ${mobileLabelFontSizeEls}
-                        ${selectColorEls('label','text')}
-                        ${selectColorEls('description','text')}
-                        ${selectColorEls('el','text')}
-                        ${selectBorderColorEls('element',indx,idset)}
-                        ${ el.dataset.tag != "ardate"  && el.dataset.tag != "pdate" && el.dataset.tag != "mobile" && !maskSetEfb ? miLenEls() :''}
-                        ${el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  && el.dataset.tag != "mobile" && !maskSetEfb ? mLenEls() :''}
-                        ${typeof efbFieldRulesAdvEls === 'function' ? efbFieldRulesAdvEls(indx, idset) : ''}
+      ${selectColorEls('label','text')}
+      ${selectColorEls('description','text')}
+      ${selectColorEls('el','text')}
+      ${selectBorderColorEls('element',indx,idset)}
+      ${ el.dataset.tag != "ardate"  && el.dataset.tag != "pdate" && el.dataset.tag != "mobile" && !maskSetEfb ? miLenEls() :''}
+      ${el.dataset.tag != "ardate"  && el.dataset.tag != "pdate"  && el.dataset.tag != "mobile" && !maskSetEfb ? mLenEls() :''}
+      ${typeof efbFieldRulesAdvEls === 'function' ? efbFieldRulesAdvEls(indx, idset) : ''}
 
-                        ${labelPostionEls}
+      ${labelPostionEls}
     ${mobileLabelPostionEls}
-                        ${ElementAlignEls('label',indx,idset)}
+      ${ElementAlignEls('label',indx,idset)}
     ${MobileElementAlignEls('label',indx,idset)}
-                        ${ElementAlignEls('description',indx,idset)}
+      ${ElementAlignEls('description',indx,idset)}
     ${MobileElementAlignEls('description',indx,idset)}
-                        ${widthEls}
-                        ${mobileWidthEls}
-                        ${selectHeightEls(idset,indx)}
-                        ${cornerEls('',indx,idset)}
-                        ${el.dataset.tag != "textarea" ? valueEls : valueTextereaEls}
-                        ${classesEls}
-                        ${disabledEls}
-                        ${hiddenEls}
-                        ${showInPublicResultsEls}
-                        ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(indx) : '<!--efb-->'}
-                        </div>
-                    </div>
-                </div><div class="efb  clearfix"></div>
+      ${widthEls}
+      ${mobileWidthEls}
+      ${selectHeightEls(idset,indx)}
+      ${cornerEls('',indx,idset)}
+      ${el.dataset.tag != "textarea" ? valueEls : valueTextereaEls}
+      ${classesEls}
+      ${disabledEls}
+      ${hiddenEls}
+      ${showInPublicResultsEls}
+      ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(indx) : '<!--efb-->'}
+      </div>
+     </div>
+    </div><div class="efb  clearfix"></div>
                 `
         break;
       case "calc":
         // F04: the formula, show / empty, the number format of the result; layout settings like other fields.
         body = `
-                <div class="efb  mb-3">
-                ${Nadvanced}
-                ${typeof efbCalcPanelEls === 'function' ? efbCalcPanelEls(indx, idset) : '<!-- F04 calc-builder-efb.js not loaded -->'}
-                ${typeof efbNumPanelEls === 'function' ? efbNumPanelEls(indx, idset, 'calc') : ''}
-                <div class="efb  d-grid gap-2">
-                  <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-                        <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
-                    </button>
-                </div>
-                <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
-                  <div class="efb  mb-3 px-3 row">
-                  ${labelFontSizeEls}
-                  ${selectColorEls('label','text')}
-                  ${selectColorEls('description','text')}
-                  ${selectColorEls('el','text')}
-                  ${labelPostionEls}
-                  ${ElementAlignEls('label',indx,idset)}
-                  ${ElementAlignEls('description',indx,idset)}
-                  ${widthEls}
-                  ${mobileWidthEls}
-                  ${classesEls}
-                  ${hiddenEls}
-                  </div>
-                </div><div class="efb  clearfix"></div>
+    <div class="efb  mb-3">
+    ${Nadvanced}
+    ${typeof efbCalcPanelEls === 'function' ? efbCalcPanelEls(indx, idset) : '<!-- F04 calc-builder-efb.js not loaded -->'}
+    ${typeof efbNumPanelEls === 'function' ? efbNumPanelEls(indx, idset, 'calc') : ''}
+    <div class="efb  d-grid gap-2">
+    <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+      <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+     </button>
+    </div>
+    <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
+    <div class="efb  mb-3 px-3 row">
+    ${labelFontSizeEls}
+    ${selectColorEls('label','text')}
+    ${selectColorEls('description','text')}
+    ${selectColorEls('el','text')}
+    ${labelPostionEls}
+    ${ElementAlignEls('label',indx,idset)}
+    ${ElementAlignEls('description',indx,idset)}
+    ${widthEls}
+    ${mobileWidthEls}
+    ${classesEls}
+    ${hiddenEls}
+    </div>
+    </div><div class="efb  clearfix"></div>
                 `
         break;
       case "repeater":
         // F09: the group's title, description and required, its rows (limits, from a field, title, collapsible,
         // layout, the Add button) and the layout settings like other fields.
         body = `
-                <div class="efb  mb-3">
-                ${idHidden}
-                ${labelEls}
-                ${hideLabelEls}
-                ${requireEls}
-                ${desEls}
-                ${typeof efbRptPanelEls === 'function' ? efbRptPanelEls(indx, idset) : '<!-- F09 repeater-builder-efb.js not loaded -->'}
-                <div class="efb  d-grid gap-2">
-                  <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-                        <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
-                    </button>
-                </div>
-                <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
-                  <div class="efb  mb-3 px-3 row">
-                  ${labelFontSizeEls}
-                  ${selectColorEls('label','text')}
-                  ${selectColorEls('description','text')}
-                  ${ElementAlignEls('label',indx,idset)}
-                  ${ElementAlignEls('description',indx,idset)}
-                  ${widthEls}
-                  ${mobileWidthEls}
-                  ${classesEls}
-                  </div>
-                </div><div class="efb  clearfix"></div>
+    <div class="efb  mb-3">
+    ${idHidden}
+    ${labelEls}
+    ${hideLabelEls}
+    ${requireEls}
+    ${desEls}
+    ${typeof efbRptPanelEls === 'function' ? efbRptPanelEls(indx, idset) : '<!-- F09 repeater-builder-efb.js not loaded -->'}
+    <div class="efb  d-grid gap-2">
+    <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+      <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+     </button>
+    </div>
+    <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
+    <div class="efb  mb-3 px-3 row">
+    ${labelFontSizeEls}
+    ${selectColorEls('label','text')}
+    ${selectColorEls('description','text')}
+    ${ElementAlignEls('label',indx,idset)}
+    ${ElementAlignEls('description',indx,idset)}
+    ${widthEls}
+    ${mobileWidthEls}
+    ${classesEls}
+    </div>
+    </div><div class="efb  clearfix"></div>
                 `
         break;
       case "hiddenField":
         // F08: name (admin and export column only), "Fill with", template, visitor copy, prefill key.
         body = `
-                <div class="efb  mb-3">
-                ${labelEls}
-                ${typeof efbHiddenPanelEls === 'function' ? efbHiddenPanelEls(indx, idset) : '<!-- F08 smart-tags-builder-efb.js not loaded -->'}
-                <div class="efb  clearfix"></div>
+    <div class="efb  mb-3">
+    ${labelEls}
+    ${typeof efbHiddenPanelEls === 'function' ? efbHiddenPanelEls(indx, idset) : '<!-- F08 smart-tags-builder-efb.js not loaded -->'}
+    <div class="efb  clearfix"></div>
                 `
         break;
       case "heading":
         body = `
-                <div class="efb  mb-3">
-                <!--  not   advanced-->
-                ${valueEls}
-                ${selectColorEls('el','heading')}
-                ${fontSizeEls(idset,indx)}
-                ${widthEls}
-                ${mobileWidthEls}
-                ${typeof efbLayoutVisEls === 'function' ? efbLayoutVisEls(indx, idset) : ''}
-                ${classesEls}
-                <div class="efb  clearfix"></div>
+    <div class="efb  mb-3">
+    <!--  not   advanced-->
+    ${valueEls}
+    ${selectColorEls('el','heading')}
+    ${fontSizeEls(idset,indx)}
+    ${widthEls}
+    ${mobileWidthEls}
+    ${typeof efbLayoutVisEls === 'function' ? efbLayoutVisEls(indx, idset) : ''}
+    ${classesEls}
+    <div class="efb  clearfix"></div>
                 `
         break;
       case "section":
         // F10-B: a section heading (layout-builder-efb.js): title, description, collapsible, collapsed.
         body = `
-                <div class="efb  mb-3">
-                ${labelEls}
-                ${desEls}
-                ${typeof efbLayoutSectionPanelEls === 'function' ? efbLayoutSectionPanelEls(indx, idset) : '<!-- F10 layout-builder-efb.js not loaded -->'}
-                ${typeof efbLayoutVisEls === 'function' ? efbLayoutVisEls(indx, idset) : ''}
-                ${classesEls}
-                <div class="efb  clearfix"></div>
+    <div class="efb  mb-3">
+    ${labelEls}
+    ${desEls}
+    ${typeof efbLayoutSectionPanelEls === 'function' ? efbLayoutSectionPanelEls(indx, idset) : '<!-- F10 layout-builder-efb.js not loaded -->'}
+    ${typeof efbLayoutVisEls === 'function' ? efbLayoutVisEls(indx, idset) : ''}
+    ${classesEls}
+    <div class="efb  clearfix"></div>
                 `
         break;
       case "link":
         body = `
-                <div class="efb  mb-3">
-                <!--  not   advanced-->
-                ${valueEls}
-                ${hrefEls(idset,indx)}
-                ${selectColorEls('el','link')}
-                ${selectHeightEls(idset,indx)}
-                ${widthEls}
-                ${mobileWidthEls}
-                ${classesEls}
-                <div class="efb  clearfix"></div>
+    <div class="efb  mb-3">
+    <!--  not   advanced-->
+    ${valueEls}
+    ${hrefEls(idset,indx)}
+    ${selectColorEls('el','link')}
+    ${selectHeightEls(idset,indx)}
+    ${widthEls}
+    ${mobileWidthEls}
+    ${classesEls}
+    <div class="efb  clearfix"></div>
                 `
         break;
       case "radio":
@@ -1878,75 +1878,75 @@ function show_setting_window_efb(idset, opts) {
         }
 
         body = `
-                <div class="efb  mb-3">
-                <!--notAdvanced-->
-                ${Nadvanced}
-                ${typeof efbPrefillEls === 'function' ? efbPrefillEls(indx, idset) : ''}
-                ${el.dataset.tag=="stateProvince" || el.dataset.tag=='cityList' ? countries_list_el_select(el.dataset.tag,idset,indx):""}
-                ${el.dataset.tag=='cityList' ? state_list_el_select('statePovListEl',idset,indx):""}
-                ${el.dataset.tag=="stateProvince" || el.dataset.tag=='cityList' ? languageSelectPresentEls:""}
-                ${ el.dataset.tag == 'multiselect' ||el.dataset.tag == 'payMultiselect'? selectMultiSelectEls :''}
-                <div class="efb m-0 p-0 col-md-12 row">
-                <div for="optionListefb" class="efb  col-md-6">${efb_var.text.options}
-                <button type="button" id="addOption" onclick="add_option_edit_pro_efb('${el.id.trim()}','${el.dataset.tag.trim()}' ,${valj_efb.length})" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndm}"   class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" >
-                <i class="efb  bi-plus-circle  text-success"></i>
-                  </button>
-                ${typeof efbBulkBtnEl === 'function' ? efbBulkBtnEl(el.id.trim(), el.dataset.tag.trim()) : ''}
-                </div>
-                <div class="efb col-md-6 text-darkb align-self-center text-decoration-underline fs-7 show" id="showAtrEls" onclick="funShowAttrElsEfb(this)">${efb_var.text.shwattr}</div>
-                </div>
+    <div class="efb  mb-3">
+    <!--notAdvanced-->
+    ${Nadvanced}
+    ${typeof efbPrefillEls === 'function' ? efbPrefillEls(indx, idset) : ''}
+    ${el.dataset.tag=="stateProvince" || el.dataset.tag=='cityList' ? countries_list_el_select(el.dataset.tag,idset,indx):""}
+    ${el.dataset.tag=='cityList' ? state_list_el_select('statePovListEl',idset,indx):""}
+    ${el.dataset.tag=="stateProvince" || el.dataset.tag=='cityList' ? languageSelectPresentEls:""}
+    ${ el.dataset.tag == 'multiselect' ||el.dataset.tag == 'payMultiselect'? selectMultiSelectEls :''}
+    <div class="efb m-0 p-0 col-md-12 row">
+    <div for="optionListefb" class="efb  col-md-6">${efb_var.text.options}
+    <button type="button" id="addOption" onclick="add_option_edit_pro_efb('${el.id.trim()}','${el.dataset.tag.trim()}' ,${valj_efb.length})" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndm}"   class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" >
+    <i class="efb  bi-plus-circle  text-success"></i>
+    </button>
+    ${typeof efbBulkBtnEl === 'function' ? efbBulkBtnEl(el.id.trim(), el.dataset.tag.trim()) : ''}
+    </div>
+    <div class="efb col-md-6 text-darkb align-self-center text-decoration-underline fs-7 show" id="showAtrEls" onclick="funShowAttrElsEfb(this)">${efb_var.text.shwattr}</div>
+    </div>
 
-                <div id="optionListeHeadfb" class="efb  mx-1 col-md-12 row ">
-                    <div class="efb  col-md-7 text-capitalize">${efb_var.text.title}</div>
+    <div id="optionListeHeadfb" class="efb  mx-1 col-md-12 row ">
+     <div class="efb  col-md-7 text-capitalize">${efb_var.text.title}</div>
 
-                    ${el.dataset.tag.includes('pay')?`<div class="efb  col-md-3">${efb_var.text.price}</div>`:''}
-                </div>
+     ${el.dataset.tag.includes('pay')?`<div class="efb  col-md-3">${efb_var.text.price}</div>`:''}
+    </div>
 
-                <div class="efb  mb-3"  id="optionListefb" data-idstate="false">
-                 ${opetions}
-                </div>
-                ${qtyPlcEls}
-                ${typeof efbChoicesPanelEls === 'function' ? efbChoicesPanelEls(indx, idset, el.dataset.tag) : ''}
-                <!--notAdvanced-->
+    <div class="efb  mb-3"  id="optionListefb" data-idstate="false">
+    ${opetions}
+    </div>
+    ${qtyPlcEls}
+    ${typeof efbChoicesPanelEls === 'function' ? efbChoicesPanelEls(indx, idset, el.dataset.tag) : ''}
+    <!--notAdvanced-->
 
-                <!--advanced-->
-                <div class="efb  d-grid gap-2">
-                  <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-                    <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
-                  </button>
-                </div>
-                <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
-                        <div class="efb  mb-3 px-3 row">
+    <!--advanced-->
+    <div class="efb  d-grid gap-2">
+    <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+     <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+    </button>
+    </div>
+    <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
+      <div class="efb  mb-3 px-3 row">
 
-                        ${o_c ? optnsStyleEls :''}
+      ${o_c ? optnsStyleEls :''}
     ${o_c ? mobileOptnsStyleEls : ''}
-                        ${o_c ? selectCheckedColorEls() :''}
-                        ${labelFontSizeEls}
+      ${o_c ? selectCheckedColorEls() :''}
+      ${labelFontSizeEls}
     ${mobileLabelFontSizeEls}
-                        ${selectColorEls('label','text')}
-                        ${selectColorEls('description','text')}
-                        ${fun_el_select_in_efb(el.dataset.tag)  ? cornerEls('',indx,idset) : ''}
-                        ${fun_el_select_in_efb(el.dataset.tag) ? selectBorderColorEls('element',indx,idset) : ''}
-                        ${el.dataset.tag != 'multiselect' && el.dataset.tag != 'payMultiselect' && el.dataset.tag != 'imgRadio'? selectColorEls('el','text') : ''}
-                        ${labelPostionEls}
+      ${selectColorEls('label','text')}
+      ${selectColorEls('description','text')}
+      ${fun_el_select_in_efb(el.dataset.tag)  ? cornerEls('',indx,idset) : ''}
+      ${fun_el_select_in_efb(el.dataset.tag) ? selectBorderColorEls('element',indx,idset) : ''}
+      ${el.dataset.tag != 'multiselect' && el.dataset.tag != 'payMultiselect' && el.dataset.tag != 'imgRadio'? selectColorEls('el','text') : ''}
+      ${labelPostionEls}
     ${mobileLabelPostionEls}
-                        ${ElementAlignEls('label',indx,idset)}
+      ${ElementAlignEls('label',indx,idset)}
     ${MobileElementAlignEls('label',indx,idset)}
-                        ${ElementAlignEls('description',indx,idset)}
+      ${ElementAlignEls('description',indx,idset)}
     ${MobileElementAlignEls('description',indx,idset)}
-                        ${widthEls}
-                        ${mobileWidthEls}
-                        ${fun_el_select_in_efb(el.dataset.tag) ? selectHeightEls(idset,indx) : ''}
-                        ${classesEls}
-                        ${disabledEls}
-                        ${hiddenEls}
-                        ${showInPublicResultsEls}
-                        ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(indx) : '<!--efb-->'}
-                        </div>
-                    </div>
+      ${widthEls}
+      ${mobileWidthEls}
+      ${fun_el_select_in_efb(el.dataset.tag) ? selectHeightEls(idset,indx) : ''}
+      ${classesEls}
+      ${disabledEls}
+      ${hiddenEls}
+      ${showInPublicResultsEls}
+      ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(indx) : '<!--efb-->'}
+      </div>
+     </div>
 
-                </div>
-                <div class="efb  clearfix"></div>
+    </div>
+    <div class="efb  clearfix"></div>
                 `
         break;
       case "date":
@@ -1967,51 +1967,51 @@ function show_setting_window_efb(idset, opts) {
         ${typeof efbPrefillEls === 'function' ? efbPrefillEls(indx, idset) : ''}
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">
-            <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-              <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
-            </button>
+   <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+   <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+   </button>
         </div>
         <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
-                <div class="efb  mb-3 px-3 row">
+    <div class="efb  mb-3 px-3 row">
 
-                ${el.dataset.tag == "switch" ?textEls(el.id.trim(),efb_var.text.lson ,'text',valj_efb[indx].on ,'on' ,idset):''}
-                ${el.dataset.tag == "switch" ?textEls(el.id.trim(), efb_var.text.lsoff,'text',valj_efb[indx].off,'off',idset):''}
-                ${el.dataset.tag == "switch" ? selectSwitchOnColorEls() :''}
-                ${el.dataset.tag == "switch" ? selectSwitchOffColorEls() :''}
-                ${el.dataset.tag == "switch" ? selectSwitchHandleColorEls() :''}
-                ${labelFontSizeEls}
+    ${el.dataset.tag == "switch" ?textEls(el.id.trim(),efb_var.text.lson ,'text',valj_efb[indx].on ,'on' ,idset):''}
+    ${el.dataset.tag == "switch" ?textEls(el.id.trim(), efb_var.text.lsoff,'text',valj_efb[indx].off,'off',idset):''}
+    ${el.dataset.tag == "switch" ? selectSwitchOnColorEls() :''}
+    ${el.dataset.tag == "switch" ? selectSwitchOffColorEls() :''}
+    ${el.dataset.tag == "switch" ? selectSwitchHandleColorEls() :''}
+    ${labelFontSizeEls}
     ${mobileLabelFontSizeEls}
-                ${selectColorEls('label','text')}
-                ${selectColorEls('description','text')}
+    ${selectColorEls('label','text')}
+    ${selectColorEls('description','text')}
 
-                ${el.dataset.tag == 'rating' || el.dataset.tag == 'range'  || el.dataset.tag == 'switch' ? "" : selectBorderColorEls('element',indx,idset)}
-                ${labelPostionEls}
+    ${el.dataset.tag == 'rating' || el.dataset.tag == 'range'  || el.dataset.tag == 'switch' ? "" : selectBorderColorEls('element',indx,idset)}
+    ${labelPostionEls}
     ${mobileLabelPostionEls}
-                ${ElementAlignEls('label',indx,idset)}
+    ${ElementAlignEls('label',indx,idset)}
     ${MobileElementAlignEls('label',indx,idset)}
-                ${ElementAlignEls('description',indx,idset)}
+    ${ElementAlignEls('description',indx,idset)}
     ${MobileElementAlignEls('description',indx,idset)}
-                ${el.dataset.tag == "range" || el.dataset.tag == "date" ?miLenEls():''}
-                ${el.dataset.tag == "range" || el.dataset.tag == "date" ? mLenEls() :''}
-                ${el.dataset.tag == "range" ?valueEls:''}
-                ${el.dataset.tag == 'range' && typeof efbNumPanelEls === 'function' ? efbNumPanelEls(indx, idset, 'range') : ''}
-                ${el.dataset.tag == "range" ? selectRangeThumbColorEls() :''}
-                ${el.dataset.tag == "range" ? selectRangeValueColorEls() :''}
+    ${el.dataset.tag == "range" || el.dataset.tag == "date" ?miLenEls():''}
+    ${el.dataset.tag == "range" || el.dataset.tag == "date" ? mLenEls() :''}
+    ${el.dataset.tag == "range" ?valueEls:''}
+    ${el.dataset.tag == 'range' && typeof efbNumPanelEls === 'function' ? efbNumPanelEls(indx, idset, 'range') : ''}
+    ${el.dataset.tag == "range" ? selectRangeThumbColorEls() :''}
+    ${el.dataset.tag == "range" ? selectRangeValueColorEls() :''}
 
-                ${el.dataset.tag == 'rating' ? '' : widthEls}
-                ${el.dataset.tag == 'rating' ? '' : mobileWidthEls}
-                ${el.dataset.tag != 'range' ? selectHeightEls(idset,indx) :''}
-                ${el.dataset.tag == 'rating' || el.dataset.tag == 'switch' || el.dataset.tag == 'range' ? '' : cornerEls('',indx,idset)}
-                ${ ''}
-                ${el.dataset.tag == 'esign' ? iconEls('') : ''}
-                ${el.dataset.tag == 'esign' ? btnColorEls(idset,indx) : ''}
-                ${el.dataset.tag == 'esign' ? SingleTextEls('',idset,indx) : ''}
-                ${disabledEls}
-                ${hiddenEls}
-                ${showInPublicResultsEls}
-                ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(indx) : '<!--efb-->'}
-                </div>
-            </div>
+    ${el.dataset.tag == 'rating' ? '' : widthEls}
+    ${el.dataset.tag == 'rating' ? '' : mobileWidthEls}
+    ${el.dataset.tag != 'range' ? selectHeightEls(idset,indx) :''}
+    ${el.dataset.tag == 'rating' || el.dataset.tag == 'switch' || el.dataset.tag == 'range' ? '' : cornerEls('',indx,idset)}
+    ${ ''}
+    ${el.dataset.tag == 'esign' ? iconEls('') : ''}
+    ${el.dataset.tag == 'esign' ? btnColorEls(idset,indx) : ''}
+    ${el.dataset.tag == 'esign' ? SingleTextEls('',idset,indx) : ''}
+    ${disabledEls}
+    ${hiddenEls}
+    ${showInPublicResultsEls}
+    ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(indx) : '<!--efb-->'}
+    </div>
+   </div>
         </div><div class="efb  clearfix"></div>
         `
         break;
@@ -2028,36 +2028,36 @@ function show_setting_window_efb(idset, opts) {
         ${typeof efbUploadSettingsEls === 'function' ? efbUploadSettingsEls(indx, idset) : '<!-- F07 upload-builder-efb.js not loaded -->'}
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">
-          <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-            <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
-          </button>
+  <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+   <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+  </button>
         </div>
         <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
-                <div class="efb  mb-3 px-3 row">
+    <div class="efb  mb-3 px-3 row">
 
-                ${labelFontSizeEls}
+    ${labelFontSizeEls}
     ${mobileLabelFontSizeEls}
-                ${selectColorEls('label','text')}
-                ${selectColorEls('description','text')}
-                ${el.dataset.tag == 'dadfile' ? selectColorEls('icon','text') : ''}
-                ${el.dataset.tag == 'dadfile' ? btnColorEls(idset,indx) : ''}
-                ${selectBorderColorEls('element',indx,idset)}
-                ${labelPostionEls}
+    ${selectColorEls('label','text')}
+    ${selectColorEls('description','text')}
+    ${el.dataset.tag == 'dadfile' ? selectColorEls('icon','text') : ''}
+    ${el.dataset.tag == 'dadfile' ? btnColorEls(idset,indx) : ''}
+    ${selectBorderColorEls('element',indx,idset)}
+    ${labelPostionEls}
     ${mobileLabelPostionEls}
-                ${ElementAlignEls('label',indx,idset)}
+    ${ElementAlignEls('label',indx,idset)}
     ${MobileElementAlignEls('label',indx,idset)}
-                ${ElementAlignEls('description',indx,idset)}
+    ${ElementAlignEls('description',indx,idset)}
     ${MobileElementAlignEls('description',indx,idset)}
-                ${widthEls}
-                ${mobileWidthEls}
-                ${selectHeightEls(idset,indx)}
-                ${cornerEls("",indx,idset)}
-                ${classesEls}
-                ${disabledEls}
-                ${hiddenEls}
-                <!-- select type of file -->
-                </div>
-            </div>
+    ${widthEls}
+    ${mobileWidthEls}
+    ${selectHeightEls(idset,indx)}
+    ${cornerEls("",indx,idset)}
+    ${classesEls}
+    ${disabledEls}
+    ${hiddenEls}
+    <!-- select type of file -->
+    </div>
+   </div>
         </div><div class="efb  clearfix"></div>
         `
         break;
@@ -2080,33 +2080,33 @@ function show_setting_window_efb(idset, opts) {
         ${fileSizeMaxEls()}
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">
-          <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-            <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
-          </button>
+  <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+   <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+  </button>
         </div>
         <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
-                <div class="efb  mb-3 px-3 row">
+    <div class="efb  mb-3 px-3 row">
 
-                ${labelFontSizeEls}
+    ${labelFontSizeEls}
     ${mobileLabelFontSizeEls}
-                ${selectColorEls('label','text')}
-                ${selectColorEls('description','text')}
-                ${selectBorderColorEls('element',indx,idset)}
-                ${labelPostionEls}
+    ${selectColorEls('label','text')}
+    ${selectColorEls('description','text')}
+    ${selectBorderColorEls('element',indx,idset)}
+    ${labelPostionEls}
     ${mobileLabelPostionEls}
-                ${ElementAlignEls('label',indx,idset)}
+    ${ElementAlignEls('label',indx,idset)}
     ${MobileElementAlignEls('label',indx,idset)}
-                ${ElementAlignEls('description',indx,idset)}
+    ${ElementAlignEls('description',indx,idset)}
     ${MobileElementAlignEls('description',indx,idset)}
-                ${widthEls}
-                ${mobileWidthEls}
-                ${selectHeightEls(idset,indx)}
-                ${cornerEls("",indx,idset)}
-                ${classesEls}
-                ${disabledEls}
-                ${hiddenEls}
-                </div>
-            </div>
+    ${widthEls}
+    ${mobileWidthEls}
+    ${selectHeightEls(idset,indx)}
+    ${cornerEls("",indx,idset)}
+    ${classesEls}
+    ${disabledEls}
+    ${hiddenEls}
+    </div>
+   </div>
         </div><div class="efb  clearfix"></div>
         `
         break;
@@ -2128,29 +2128,29 @@ function show_setting_window_efb(idset, opts) {
         <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control border-d rounded-4 efb h-d-efb mb-1" placeholder=${efb_var.text.exDot}  1" id="marksEl" required value="${valj_efb[indx].mark}">
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">
-          <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-            <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
-          </button>
+  <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+   <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+  </button>
         </div>
         <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
-                <div class="efb  mb-3 px-3 row">
+    <div class="efb  mb-3 px-3 row">
 
-                ${labelPostionEls}
+    ${labelPostionEls}
     ${mobileLabelPostionEls}
-                ${ElementAlignEls('label',indx,idset)}
+    ${ElementAlignEls('label',indx,idset)}
     ${MobileElementAlignEls('label',indx,idset)}
-                ${ElementAlignEls('description',indx,idset)}
+    ${ElementAlignEls('description',indx,idset)}
     ${MobileElementAlignEls('description',indx,idset)}
-                ${widthEls}
-                ${mobileWidthEls}
-                ${labelFontSizeEls}
+    ${widthEls}
+    ${mobileWidthEls}
+    ${labelFontSizeEls}
     ${mobileLabelFontSizeEls}
-                ${selectColorEls('label','text')}
-                ${selectColorEls('description','text')}
-                ${disabledEls}
-                ${hiddenEls}
-                </div>
-            </div>
+    ${selectColorEls('label','text')}
+    ${selectColorEls('description','text')}
+    ${disabledEls}
+    ${hiddenEls}
+    </div>
+   </div>
         </div><div class="efb  clearfix"></div>
         `
 
@@ -2178,40 +2178,40 @@ function show_setting_window_efb(idset, opts) {
         ${typeof efbPrefillEls === 'function' ? efbPrefillEls(indx, idset) : ''}
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">
-          <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-            <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
-          </button>
+  <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+   <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+  </button>
         </div>
         <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
-                <div class="efb  mb-3 px-3 row">
-                ${labelFontSizeEls}
+    <div class="efb  mb-3 px-3 row">
+    ${labelFontSizeEls}
     ${mobileLabelFontSizeEls}
-                ${selectColorEls('label','text')}
-                ${selectColorEls('description','text')}
-                ${selectColorEls('el','text')}
-                ${btnColorEls(idset,indx)}
-                ${labelPostionEls}
+    ${selectColorEls('label','text')}
+    ${selectColorEls('description','text')}
+    ${selectColorEls('el','text')}
+    ${btnColorEls(idset,indx)}
+    ${labelPostionEls}
     ${mobileLabelPostionEls}
-                ${ElementAlignEls('label',indx,idset)}
+    ${ElementAlignEls('label',indx,idset)}
     ${MobileElementAlignEls('label',indx,idset)}
-                ${ElementAlignEls('description',indx,idset)}
+    ${ElementAlignEls('description',indx,idset)}
     ${MobileElementAlignEls('description',indx,idset)}
 
-                ${widthEls}
-                ${mobileWidthEls}
-                ${selectHeightEls(idset,indx)}
-                ${cornerEls('yesNo',indx,idset)}
-                <label for="valueEl" class="efb  mt-3 mb-0"><i class="efb bi-cursor-text fs-7 ${iconMarginGlobal}"></i>${efb_var.text.button1Value}</label>
-                <input type="text"  data-id="${idset}" class="efb elEdit border-d rounded-4 text-muted form-control efb mb-3" id="valueEl" data-tag="yesNo" data-no="1" placeholder="${efb_var.text.exDot} ${efb_var.text.yes}" value="${valj_efb[indx].button_1_text}">
-                <label for="valueEl" class="efb  mt-0 mb-1"><i class="efb bi-cursor-text fs-7 ${iconMarginGlobal}"></i>${efb_var.text.button2Value}</label>
-                <input type="text"  data-id="${idset}" class="efb elEdit border-d rounded-4 text-muted form-control efb mb-3" id="valueEl" data-tag="yesNo" data-no="2" placeholder="${efb_var.text.exDot} ${efb_var.text.no}" value="${valj_efb[indx].button_2_text}">
-                ${classesEls}
-                ${disabledEls}
-                ${hiddenEls}
-                ${showInPublicResultsEls}
-                 ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(indx) : '<!--efb-->'}
-                </div>
-            </div>
+    ${widthEls}
+    ${mobileWidthEls}
+    ${selectHeightEls(idset,indx)}
+    ${cornerEls('yesNo',indx,idset)}
+    <label for="valueEl" class="efb  mt-3 mb-0"><i class="efb bi-cursor-text fs-7 ${iconMarginGlobal}"></i>${efb_var.text.button1Value}</label>
+    <input type="text"  data-id="${idset}" class="efb elEdit border-d rounded-4 text-muted form-control efb mb-3" id="valueEl" data-tag="yesNo" data-no="1" placeholder="${efb_var.text.exDot} ${efb_var.text.yes}" value="${valj_efb[indx].button_1_text}">
+    <label for="valueEl" class="efb  mt-0 mb-1"><i class="efb bi-cursor-text fs-7 ${iconMarginGlobal}"></i>${efb_var.text.button2Value}</label>
+    <input type="text"  data-id="${idset}" class="efb elEdit border-d rounded-4 text-muted form-control efb mb-3" id="valueEl" data-tag="yesNo" data-no="2" placeholder="${efb_var.text.exDot} ${efb_var.text.no}" value="${valj_efb[indx].button_2_text}">
+    ${classesEls}
+    ${disabledEls}
+    ${hiddenEls}
+    ${showInPublicResultsEls}
+    ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(indx) : '<!--efb-->'}
+    </div>
+   </div>
         </div><div class="efb  clearfix"></div>
         `
         break;
@@ -2223,33 +2223,33 @@ function show_setting_window_efb(idset, opts) {
         ${currencyTypeEls(idset)}
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">
-          <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-            <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
-          </button>
+  <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+   <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+  </button>
         </div>
         <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
-                <div class="efb  mb-3 px-3 row">
-                ${labelFontSizeEls}
+    <div class="efb  mb-3 px-3 row">
+    ${labelFontSizeEls}
     ${mobileLabelFontSizeEls}
-                ${selectColorEls('label','text')}
-                ${selectColorEls('description','text')}
-                ${selectColorEls('el','text')}
+    ${selectColorEls('label','text')}
+    ${selectColorEls('description','text')}
+    ${selectColorEls('el','text')}
 
-                ${labelPostionEls}
+    ${labelPostionEls}
     ${mobileLabelPostionEls}
-                ${ElementAlignEls('label',indx,idset)}
+    ${ElementAlignEls('label',indx,idset)}
     ${MobileElementAlignEls('label',indx,idset)}
-                ${ElementAlignEls('description',indx,idset)}
+    ${ElementAlignEls('description',indx,idset)}
     ${MobileElementAlignEls('description',indx,idset)}
 
-                ${widthEls}
-                ${mobileWidthEls}
-                ${selectHeightEls(idset,indx)}
+    ${widthEls}
+    ${mobileWidthEls}
+    ${selectHeightEls(idset,indx)}
 
-                ${classesEls}
-                ${hiddenEls}
-                </div>
-            </div>
+    ${classesEls}
+    ${hiddenEls}
+    </div>
+   </div>
         </div><div class="efb  clearfix"></div>
         `
         break;
@@ -2267,21 +2267,21 @@ function show_setting_window_efb(idset, opts) {
         </div>
         <!--  not   advanced-->
         <div class="efb  d-grid gap-2">
-          <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-            <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
-          </button>
+  <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+   <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+  </button>
         </div>
         <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
-                <div class="efb  mb-3 px-3 row">
-                ${iconEls('')}
+    <div class="efb  mb-3 px-3 row">
+    ${iconEls('')}
 
-                ${selectColorEls('label','text')}
-                ${selectColorEls('description','text')}
-                ${selectColorEls('icon','text')}
-                ${typeof efbStepBgPanelEfb === 'function' ? efbStepBgPanelEfb(indx) : ''}
-                <!-- {classesEls} -->
-                </div>
-            </div>
+    ${selectColorEls('label','text')}
+    ${selectColorEls('description','text')}
+    ${selectColorEls('icon','text')}
+    ${typeof efbStepBgPanelEfb === 'function' ? efbStepBgPanelEfb(indx) : ''}
+    <!-- {classesEls} -->
+    </div>
+   </div>
         </div>
         ${logic_steps}
         <div class="efb  clearfix"></div>
@@ -2302,116 +2302,116 @@ function show_setting_window_efb(idset, opts) {
 
         if (valj_efb[0].button_state != "single") {
           content = `
-             ${SingleTextEls("Previous",idset,indx)}
-             ${iconEls("Previous")}
-             ${SingleTextEls("Next",idset,indx)}
-             ${iconEls("Next")}
-             ${selectColorEls('el','text')}
-             ${selectColorEls('icon','text')}
-             ${btnColorEls(idset,indx)}
-             ${ElementAlignEls('buttons',indx,idset)}
-             ${cornerEls('Next',indx,idset)}
-             ${selectHeightEls(idset,indx)}
+   ${SingleTextEls("Previous",idset,indx)}
+   ${iconEls("Previous")}
+   ${SingleTextEls("Next",idset,indx)}
+   ${iconEls("Next")}
+   ${selectColorEls('el','text')}
+   ${selectColorEls('icon','text')}
+   ${btnColorEls(idset,indx)}
+   ${ElementAlignEls('buttons',indx,idset)}
+   ${cornerEls('Next',indx,idset)}
+   ${selectHeightEls(idset,indx)}
              `
         }
         body = `
         <div class="efb  mb-3">
         <!--  not   advanced-->
-                    ${content}
+     ${content}
         </div>
         `
         break;
       case 'formSet':
         deactive_element_efb();
         body = `
-          <label for="formNameEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.formName}<span class="efb  mx-1 efb text-danger">*</span></label>
-           <input type="text"  data-id="${idset}" class="efb elEdit text-muted form-control efb  h-d-efb  mb-1"  placeholder="${efb_var.text.formName}" id="formNameEl" required value="${valj_efb[0].formName}">
-          ${trackingCodeEls}
-          ${valj_efb[0].type=="payment" ? '<!--efb-->' : captchaEls}
-          ${typeof efbSpamFormEls === 'function' ? efbSpamFormEls() : '<!-- F12 spam-builder-efb.js not loaded -->'}
-          ${shieldSilentCaptchaEls}
-          ${showSIconsEls}
-          ${globalMobileHideLabelEls}
-          ${showSprosiEls}
-          ${showformLoggedEls}
-          ${typeof efbLayoutFormEls === 'function' ? efbLayoutFormEls() : '<!-- F10 layout-builder-efb.js not loaded -->'}
-          ${cardEls}
-          ${offLineEls}
-          ${adminFormEmailEls}
-          ${FormEmailSubjectEls()}
-          ${valj_efb[0].type=="form" || valj_efb[0].type=="payment" ?  EmailNotiContainsEls() :'<!--efb-->'}
-          ${selectColorEls('progessbar','btn')}
+  <label for="formNameEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.formName}<span class="efb  mx-1 efb text-danger">*</span></label>
+  <input type="text"  data-id="${idset}" class="efb elEdit text-muted form-control efb  h-d-efb  mb-1"  placeholder="${efb_var.text.formName}" id="formNameEl" required value="${valj_efb[0].formName}">
+  ${trackingCodeEls}
+  ${valj_efb[0].type=="payment" ? '<!--efb-->' : captchaEls}
+  ${typeof efbSpamFormEls === 'function' ? efbSpamFormEls() : '<!-- F12 spam-builder-efb.js not loaded -->'}
+  ${shieldSilentCaptchaEls}
+  ${showSIconsEls}
+  ${globalMobileHideLabelEls}
+  ${showSprosiEls}
+  ${showformLoggedEls}
+  ${typeof efbLayoutFormEls === 'function' ? efbLayoutFormEls() : '<!-- F10 layout-builder-efb.js not loaded -->'}
+  ${cardEls}
+  ${offLineEls}
+  ${adminFormEmailEls}
+  ${FormEmailSubjectEls()}
+  ${valj_efb[0].type=="form" || valj_efb[0].type=="payment" ?  EmailNotiContainsEls() :'<!--efb-->'}
+  ${selectColorEls('progessbar','btn')}
 
-          <!-- sms section -->
-          <div class="efb d-grid gap-2">
-            <button class="efb btn btn-outline-light mt-3" id="sms_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSMS" aria-expanded="false" aria-controls="collapseSMS">
-              <i class="efb bi-chat-left-dots me-1" id="sms_collapse_id"></i>${efb_var.text.sms}
-            </button>
-          </div>
-          <div class="efb mb-3 mt-3 collapse" id="collapseSMS">
-            <div class="efb mb-3 px-3 row">
-              ${smsEnableEls}
-              ${smsAdminsPhoneNoEls()}
-              ${`<span class="efb my-3 fs-7 smsmsg ${valj_efb[0].hasOwnProperty('smsnoti') && Number(valj_efb[0].smsnoti) == 1 ? '' : 'd-none'}">${efb_var.text.messages}</span>`}
-              ${smsContentEls('newMessageReceived')}
-              ${valj_efb[0].type != "login" && valj_efb[0].type != "register" ? smsContentEls('WeRecivedUrM') : ''}
-              ${valj_efb[0].type != "login" && valj_efb[0].type != "register" ? smsContentEls('responsedMessage') : ''}
-            </div>
-          </div>
+  <!-- sms section -->
+  <div class="efb d-grid gap-2">
+   <button class="efb btn btn-outline-light mt-3" id="sms_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSMS" aria-expanded="false" aria-controls="collapseSMS">
+   <i class="efb bi-chat-left-dots me-1" id="sms_collapse_id"></i>${efb_var.text.sms}
+   </button>
+  </div>
+  <div class="efb mb-3 mt-3 collapse" id="collapseSMS">
+   <div class="efb mb-3 px-3 row">
+   ${smsEnableEls}
+   ${smsAdminsPhoneNoEls()}
+   ${`<span class="efb my-3 fs-7 smsmsg ${valj_efb[0].hasOwnProperty('smsnoti') && Number(valj_efb[0].smsnoti) == 1 ? '' : 'd-none'}">${efb_var.text.messages}</span>`}
+   ${smsContentEls('newMessageReceived')}
+   ${valj_efb[0].type != "login" && valj_efb[0].type != "register" ? smsContentEls('WeRecivedUrM') : ''}
+   ${valj_efb[0].type != "login" && valj_efb[0].type != "register" ? smsContentEls('responsedMessage') : ''}
+   </div>
+  </div>
         <!-- sms section end -->
 
-          ${(efb_var.addons.hasOwnProperty('AdnTLG') && Number(efb_var.addons.AdnTLG) === 1) ? `
-          <!-- telegram section -->
-          <div class="efb d-grid gap-2">
-            <button class="efb btn btn-outline-light mt-3" id="telegram_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTelegram" aria-expanded="false" aria-controls="collapseTelegram">
-              <i class="efb bi-telegram me-1" id="telegram_collapse_id"></i>${efb_var.text.telegram || 'Telegram'}
-            </button>
-          </div>
-          <div class="efb mb-3 mt-3 collapse" id="collapseTelegram">
-            <div class="efb mb-3 px-3 row">
-              ${telegramEnableEls}
-              ${`<span class="efb my-3 fs-7 telegrammsg ${valj_efb[0].hasOwnProperty('telegramnoti') && Number(valj_efb[0].telegramnoti) == 1 ? '' : 'd-none'}">${efb_var.text.messages || 'Messages'}</span>`}
-              ${telegramContentEls('newMessageReceived')}
-              ${valj_efb[0].type != "login" && valj_efb[0].type != "register" ? telegramContentEls('responsedMessage') : ''}
-            </div>
-          </div>
+  ${(efb_var.addons.hasOwnProperty('AdnTLG') && Number(efb_var.addons.AdnTLG) === 1) ? `
+  <!-- telegram section -->
+  <div class="efb d-grid gap-2">
+   <button class="efb btn btn-outline-light mt-3" id="telegram_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTelegram" aria-expanded="false" aria-controls="collapseTelegram">
+   <i class="efb bi-telegram me-1" id="telegram_collapse_id"></i>${efb_var.text.telegram || 'Telegram'}
+   </button>
+  </div>
+  <div class="efb mb-3 mt-3 collapse" id="collapseTelegram">
+   <div class="efb mb-3 px-3 row">
+   ${telegramEnableEls}
+   ${`<span class="efb my-3 fs-7 telegrammsg ${valj_efb[0].hasOwnProperty('telegramnoti') && Number(valj_efb[0].telegramnoti) == 1 ? '' : 'd-none'}">${efb_var.text.messages || 'Messages'}</span>`}
+   ${telegramContentEls('newMessageReceived')}
+   ${valj_efb[0].type != "login" && valj_efb[0].type != "register" ? telegramContentEls('responsedMessage') : ''}
+   </div>
+  </div>
         <!-- telegram section end -->` : '<!-- telegram addon not active -->'}
-          ${(efb_var.addons && efb_var.addons.hasOwnProperty('AdnSMF') && Number(efb_var.addons.AdnSMF) >= 1) ? `
-          <!-- conditional logic section -->
-          <div class="efb d-grid gap-2" id="efb-conlog-btn-wrap">
-            <button class="efb btn btn-outline-light mt-3" type="button" onclick="open_conditional_logic_efb()">
-              <i class="efb bi-diagram-3"></i>${efb_var.text.conlog || 'Conditional Logic'}
-              ${(valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) ? '<span class="efb badge bg-primary ms-2">' + valj_efb[0].logic_rules.length + '</span>' : ''}
-            </button>
-          </div>
-          <!-- conditional logic section end -->` : '<!-- conditional logic addon not active -->'}
-          ${typeof accessLimitsEls === 'function' ? accessLimitsEls() : '<!-- F11 form-limits-efb.js not loaded -->'}
-          ${privacyEls()}
-          <div class="efb  d-grid gap-2">
-            <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-            <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
-            </button>
-          </div>
-          <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
-              <div class="efb  mb-3 px-3 row">
-          ${thankYouTypeEls}
-          ${valj_efb[0].type!="login" ? iconEls('tnx'):''}
-          ${valj_efb[0].type!="register" && valj_efb[0].type!="login" ? thankYouMessageDoneEls :''}
-          ${valj_efb[0].type!="login" ? thankYouMessageEls :''}
-          ${valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? thankYouMessageConfirmationCodeEls :''}
-          ${valj_efb[0].type!="login" ?selectColorEls('clrdoneTitleEfb','text'):''}
-          ${valj_efb[0].type!="login" ?selectColorEls('clrdoniconEfb','text'):''}
-          ${valj_efb[0].type!="login" ?selectColorEls('clrdoneMessageEfb','text'):''}
-          ${thankYouredirectEls}
-          ${formTypeEls()}
-          ${surveyChartTypeEls()}
-          ${loadingTypeEls()}
-          ${typeof efbA11yFormEls === 'function' ? efbA11yFormEls() : '<!-- F16 a11y-builder-efb.js not loaded -->'}
-          ${typeof efbUploadFormEls === 'function' && (valj_efb[0].type=="form" || valj_efb[0].type=="payment") ? efbUploadFormEls() : '<!-- F07 -->'}
-          ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(0) : '<!--efb-->'}
-         <!-- content_colors_setting_efb() -->
-          </div>
-          </div>
+  ${(efb_var.addons && efb_var.addons.hasOwnProperty('AdnSMF') && Number(efb_var.addons.AdnSMF) >= 1) ? `
+  <!-- conditional logic section -->
+  <div class="efb d-grid gap-2" id="efb-conlog-btn-wrap">
+   <button class="efb btn btn-outline-light mt-3" type="button" onclick="open_conditional_logic_efb()">
+   <i class="efb bi-diagram-3"></i>${efb_var.text.conlog || 'Conditional Logic'}
+   ${(valj_efb[0].hasOwnProperty('logic_rules') && Array.isArray(valj_efb[0].logic_rules) && valj_efb[0].logic_rules.length > 0) ? '<span class="efb badge bg-primary ms-2">' + valj_efb[0].logic_rules.length + '</span>' : ''}
+   </button>
+  </div>
+  <!-- conditional logic section end -->` : '<!-- conditional logic addon not active -->'}
+  ${typeof accessLimitsEls === 'function' ? accessLimitsEls() : '<!-- F11 form-limits-efb.js not loaded -->'}
+  ${privacyEls()}
+  <div class="efb  d-grid gap-2">
+   <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+   <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+   </button>
+  </div>
+  <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
+   <div class="efb  mb-3 px-3 row">
+  ${thankYouTypeEls}
+  ${valj_efb[0].type!="login" ? iconEls('tnx'):''}
+  ${valj_efb[0].type!="register" && valj_efb[0].type!="login" ? thankYouMessageDoneEls :''}
+  ${valj_efb[0].type!="login" ? thankYouMessageEls :''}
+  ${valj_efb[0].type!="register" && valj_efb[0].type!="login"  ? thankYouMessageConfirmationCodeEls :''}
+  ${valj_efb[0].type!="login" ?selectColorEls('clrdoneTitleEfb','text'):''}
+  ${valj_efb[0].type!="login" ?selectColorEls('clrdoniconEfb','text'):''}
+  ${valj_efb[0].type!="login" ?selectColorEls('clrdoneMessageEfb','text'):''}
+  ${thankYouredirectEls}
+  ${formTypeEls()}
+  ${surveyChartTypeEls()}
+  ${loadingTypeEls()}
+  ${typeof efbA11yFormEls === 'function' ? efbA11yFormEls() : '<!-- F16 a11y-builder-efb.js not loaded -->'}
+  ${typeof efbUploadFormEls === 'function' && (valj_efb[0].type=="form" || valj_efb[0].type=="payment") ? efbUploadFormEls() : '<!-- F07 -->'}
+  ${typeof efbActiveAutoFillEls !== 'undefined' ? efbActiveAutoFillEls(0) : '<!--efb-->'}
+  <!-- content_colors_setting_efb() -->
+  </div>
+  </div>
       </div>
 
       <div class="efb  clearfix"></div>
@@ -2430,98 +2430,98 @@ function show_setting_window_efb(idset, opts) {
 
             for (let ob of obj_r_matrix) {
               let cont = ` <div class="efb  btn-edit-holder newop" id="deleteOption" data-parent_id="${ob.parent}">
-                <button type="button" id="deleteOption"  onclick="delete_option_efb('${ob.id_op}')" data-parent="${el.id}" data-tag="${el.dataset.tag}"  data-id="${ob.id_op}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}">
-                    <i class="efb  efb bi-x-lg text-danger"></i>
-                </button>
-                <button type="button" id="addOption" onclick="add_r_matrix_edit_pro_efb('${el.id.trim()}','${el.dataset.tag.trim()}' ,${valj_efb.length})" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndmm}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" >
-                    <i class="efb  bi-plus-circle  text-success"></i>
-                </button>
+    <button type="button" id="deleteOption"  onclick="delete_option_efb('${ob.id_op}')" data-parent="${el.id}" data-tag="${el.dataset.tag}"  data-id="${ob.id_op}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.delete}">
+     <i class="efb  efb bi-x-lg text-danger"></i>
+    </button>
+    <button type="button" id="addOption" onclick="add_r_matrix_edit_pro_efb('${el.id.trim()}','${el.dataset.tag.trim()}' ,${valj_efb.length})" data-parent="${el.id}" data-tag="${el.dataset.tag}" data-id="${newRndmm}" class="efb btn efb btn-edit btn-sm elEdit" data-bs-toggle="tooltip" title="${efb_var.text.add}" >
+     <i class="efb  bi-plus-circle  text-success"></i>
+    </button>
 
-              </div>`
+   </div>`
               r_matrixs += `<div id="${ob.id_op}-gs" class="efb mx-0 col-sm-12 row opt">
-              <div id="${ob.id_op}-v" class="efb col-sm-12 mx-0 px-0">
-              <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-op="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb  col-md-12  text-muted mb-1 fs-6 border-d rounded-4 elEdit">
-              ${cont}
-              </div>
-              </div>`
+   <div id="${ob.id_op}-v" class="efb col-sm-12 mx-0 px-0">
+   <input type="text" placeholder="${efb_var.text.name}" id="EditOption"  value="${ob.value}" data-parent="${el.id}" data-op="${el.id}" data-id="${ob.id_op}" data-tag="${el.dataset.tag}" class="efb  col-md-12  text-muted mb-1 fs-6 border-d rounded-4 elEdit">
+   ${cont}
+   </div>
+   </div>`
             }
           }
 
           body = `
-                    <div class="efb  mb-3">
-                    <!--notAdvanced-->
-                    ${Nadvanced}
+     <div class="efb  mb-3">
+     <!--notAdvanced-->
+     ${Nadvanced}
 
-                    ${el.dataset.tag == 'multiselect' || el.dataset.tag == 'payMultiselect' ? selectMultiSelectEls : ''}
-                    <label for="optionListefb" class="efb  ">${efb_var.text.options}
+     ${el.dataset.tag == 'multiselect' || el.dataset.tag == 'payMultiselect' ? selectMultiSelectEls : ''}
+     <label for="optionListefb" class="efb  ">${efb_var.text.options}
 
-                    </label>
-                    <div id="optionListeHeadfb" class="efb  mx-1 col-md-12 row ">
-                        <div class="efb  col-md-7 text-capitalize">${efb_var.text.title}</div>
-                    </div>
-                    <div class="efb  mb-3" id="optionListefb" data-idstate="false">
-                     ${r_matrixs}
-                    </div>
-                    ${type_field_efb == "radio" ? addOtherslEls : ''}
-                    <!--notAdvanced-->
+     </label>
+     <div id="optionListeHeadfb" class="efb  mx-1 col-md-12 row ">
+      <div class="efb  col-md-7 text-capitalize">${efb_var.text.title}</div>
+     </div>
+     <div class="efb  mb-3" id="optionListefb" data-idstate="false">
+     ${r_matrixs}
+     </div>
+     ${type_field_efb == "radio" ? addOtherslEls : ''}
+     <!--notAdvanced-->
 
-                    <!--advanced-->
-                    <div class="efb  d-grid gap-2">
-                      <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-                        <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
-                      </button>
-                    </div>
-                    <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
-                            <div class="efb  mb-3 px-3 row">
+     <!--advanced-->
+     <div class="efb  d-grid gap-2">
+     <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+      <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+     </button>
+     </div>
+     <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
+       <div class="efb  mb-3 px-3 row">
 
-                            ${labelFontSizeEls}
+       ${labelFontSizeEls}
     ${mobileLabelFontSizeEls}
 
-                            ${labelPostionEls}
+       ${labelPostionEls}
     ${mobileLabelPostionEls}
-                            ${ElementAlignEls('label',indx,idset)}
+       ${ElementAlignEls('label',indx,idset)}
     ${MobileElementAlignEls('label',indx,idset)}
-                            ${ElementAlignEls('description',indx,idset)}
+       ${ElementAlignEls('description',indx,idset)}
     ${MobileElementAlignEls('description',indx,idset)}
-                            <!-- ${widthEls} -->
+       <!-- ${widthEls} -->
 
-                            ${classesEls}
-                            ${showInPublicResultsEls}
-                            </div>
-                        </div>
+       ${classesEls}
+       ${showInPublicResultsEls}
+       </div>
+      </div>
 
-                    </div>
-                    <div class="efb  clearfix"></div>
+     </div>
+     <div class="efb  clearfix"></div>
                     `
           break;
         case "pointr10":
         case "pointr5":
 
               body = `
-                        <div class="efb  mb-3" >
-                        <!--  not   advanced-->
-                        ${Nadvanced}
-                        ${typeof efbPrefillEls === 'function' ? efbPrefillEls(indx, idset) : ''}
-                        <!--  not   advanced-->
-                        <div class="efb  d-grid gap-2">
-                          <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
-                           <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
-                          </button>
-                        </div>
-                        <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
-                                <div class="efb  mb-3 px-3 row">
-                                ${labelPostionEls}
+      <div class="efb  mb-3" >
+      <!--  not   advanced-->
+      ${Nadvanced}
+      ${typeof efbPrefillEls === 'function' ? efbPrefillEls(indx, idset) : ''}
+      <!--  not   advanced-->
+      <div class="efb  d-grid gap-2">
+      <button class="efb btn btn-outline-light mt-3" id="advanced_collapse" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvanced" aria-expanded="true" aria-controls="collapseAdvanced">
+      <i class="efb  bi-arrow-down-circle-fill me-1" id="advanced_collapse_id"></i>${efb_var.text.advanced}
+      </button>
+      </div>
+      <div class="efb mb-3 mt-3 collapse show" id="collapseAdvanced">
+        <div class="efb  mb-3 px-3 row">
+        ${labelPostionEls}
     ${mobileLabelPostionEls}
-                                ${ElementAlignEls('label',indx,idset)}
+        ${ElementAlignEls('label',indx,idset)}
     ${MobileElementAlignEls('label',indx,idset)}
-                                ${ElementAlignEls('description',indx,idset)}
+        ${ElementAlignEls('description',indx,idset)}
     ${MobileElementAlignEls('description',indx,idset)}
-                                <!-- ${widthEls} -->
-                                ${classesEls}
-                                ${showInPublicResultsEls}
-                                </div>
-                            </div>
-                        </div><div class="efb  clearfix"></div>
+        <!-- ${widthEls} -->
+        ${classesEls}
+        ${showInPublicResultsEls}
+        </div>
+       </div>
+      </div><div class="efb  clearfix"></div>
                         `
               break;
       default:
@@ -2724,65 +2724,65 @@ function creator_form_builder_Efb() {
   <div class="efb ${mobile_view_efb ? 'my-2 mx-1' : 'my-2 mx-0'}" id="pCreatorEfb" >
   <div id="panel_efb">
       <nav class="efb navbar navbar-expand-lg navbar-light bg-light my-2 bg-response efb">
-          <div class="efb container-fluid">
-              <button class="efb navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="${efb_var.text.toggleNavigation}"><span class="efb navbar-toggler-icon"></span></button>
-              <div class="efb collapse navbar-collapse py-1" id="navbarTogglerDemo01"><ul class="efb navbar-nav me-auto mb-2 mb-lg-0">${nav}</ul></div>
-          </div>
+  <div class="efb container-fluid">
+   <button class="efb navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="${efb_var.text.toggleNavigation}"><span class="efb navbar-toggler-icon"></span></button>
+   <div class="efb collapse navbar-collapse py-1" id="navbarTogglerDemo01"><ul class="efb navbar-nav me-auto mb-2 mb-lg-0">${nav}</ul></div>
+  </div>
       </nav>
       <div class="efb row">
       <!-- over page -->
       <div id="overlay_efb" class="efb d-none">${efbLoadingCard('bg-white',4)}</div>
       <!--end  over page -->
-          <div class="efb  col-md-4" id="listElEfb">
-            <div class="efb efb-palette-search" role="search">
-              <label for="efbPaletteSearch" class="efb visually-hidden">${efb_var.text.searchFields || 'Search fields'}</label>
-              <i class="efb bi-search efb-palette-search-icon" aria-hidden="true"></i>
-              <input type="search" id="efbPaletteSearch" class="efb form-control efb-palette-search-input" role="searchbox" aria-controls="efbPaletteTilesEfb" aria-describedby="efbPaletteSearchLive" autocomplete="off" spellcheck="false" placeholder="${efb_var.text.searchFields || 'Search fields'}">
-              <div id="efbPaletteSearchLive" class="efb efb-palette-live" aria-live="polite"></div>
-              <a href="#dropZoneEFB" class="efb visually-hidden-focusable efb-skip-canvas" onclick="event.preventDefault();const f=document.querySelector('#dropZoneEFB section[tabindex=&quot;0&quot;]');if(f)f.focus();">${efb_var.text.skipToCanvas || 'Skip to the form'}</a>
-            </div>
-            <ul class="efb my-2 row efb-list-rule" id="listCatEfb">
-                <li class="efb efb-col-3 px-1">
-                  <a class="efb nav-link cat fs-7 efb active all" aria-current="page" onclick="funUpdateLisetElEfb('all')" role="button">${efb_var.text.all}</a>
-                </li>
-                <li class="efb efb-col-3 px-1">
-                  <a class="efb nav-link cat fs-7 efb basic" onclick="funUpdateLisetElEfb('basic')"  role="button">${efb_var.text.basic}</a>
-                </li>
-                <li class="efb efb-col-3 px-1">
-                  <a class="efb nav-link cat fs-7 efb payment" onclick="funUpdateLisetElEfb('payment')"  role="button">${efb_var.text.payment}</a>
-                </li>
-                <li class="efb efb-col-3 px-1">
-                  <a class="efb nav-link cat fs-7 efb advance" onclick="funUpdateLisetElEfb('advance')"  role="button">${efb_var.text.advanced}</a>
-                </li>
-            </ul>
-          <div class="efb row" id="efbPaletteTilesEfb">${els}</div></div>
-         <div class="efb  col-md-8 body-dpz-efb">
-         <div class="efb d-flex justify-content-center mb-2" id="viewToggleEfb">
-           <div class="efb btn-group" role="group" aria-label="${efb_var.text.viewToggle}">
-             <button type="button" class="efb btn btn-sm btn-outline-primary active" id="desktopViewBtnEfb" onclick="switchViewEfb('desktop')">
-               <i class="efb bi-display me-1"></i>${efb_var.text.desktop || 'Desktop'}
-             </button>
-             <button type="button" class="efb btn btn-sm btn-outline-primary" id="mobileViewBtnEfb" onclick="switchViewEfb('mobile')">
-               <i class="efb bi-phone me-1"></i>${efb_var.text.mobileView || 'Mobile'}
-             </button>
-           </div>
-         </div>
-         <div class="efb crd efb  drag-box" id="dragBoxWrapperEfb"><div class="efb card-body dropZoneEFB row items px-0 mx-0" id="dropZoneEFB">
+  <div class="efb  col-md-4" id="listElEfb">
+   <div class="efb efb-palette-search" role="search">
+   <label for="efbPaletteSearch" class="efb visually-hidden">${efb_var.text.searchFields || 'Search fields'}</label>
+   <i class="efb bi-search efb-palette-search-icon" aria-hidden="true"></i>
+   <input type="search" id="efbPaletteSearch" class="efb form-control efb-palette-search-input" role="searchbox" aria-controls="efbPaletteTilesEfb" aria-describedby="efbPaletteSearchLive" autocomplete="off" spellcheck="false" placeholder="${efb_var.text.searchFields || 'Search fields'}">
+   <div id="efbPaletteSearchLive" class="efb efb-palette-live" aria-live="polite"></div>
+   <a href="#dropZoneEFB" class="efb visually-hidden-focusable efb-skip-canvas" onclick="event.preventDefault();const f=document.querySelector('#dropZoneEFB section[tabindex=&quot;0&quot;]');if(f)f.focus();">${efb_var.text.skipToCanvas || 'Skip to the form'}</a>
+   </div>
+   <ul class="efb my-2 row efb-list-rule" id="listCatEfb">
+    <li class="efb efb-col-3 px-1">
+    <a class="efb nav-link cat fs-7 efb active all" aria-current="page" onclick="funUpdateLisetElEfb('all')" role="button">${efb_var.text.all}</a>
+    </li>
+    <li class="efb efb-col-3 px-1">
+    <a class="efb nav-link cat fs-7 efb basic" onclick="funUpdateLisetElEfb('basic')"  role="button">${efb_var.text.basic}</a>
+    </li>
+    <li class="efb efb-col-3 px-1">
+    <a class="efb nav-link cat fs-7 efb payment" onclick="funUpdateLisetElEfb('payment')"  role="button">${efb_var.text.payment}</a>
+    </li>
+    <li class="efb efb-col-3 px-1">
+    <a class="efb nav-link cat fs-7 efb advance" onclick="funUpdateLisetElEfb('advance')"  role="button">${efb_var.text.advanced}</a>
+    </li>
+   </ul>
+  <div class="efb row" id="efbPaletteTilesEfb">${els}</div></div>
+  <div class="efb  col-md-8 body-dpz-efb">
+  <div class="efb d-flex justify-content-center mb-2" id="viewToggleEfb">
+  <div class="efb btn-group" role="group" aria-label="${efb_var.text.viewToggle}">
+   <button type="button" class="efb btn btn-sm btn-outline-primary active" id="desktopViewBtnEfb" onclick="switchViewEfb('desktop')">
+   <i class="efb bi-display me-1"></i>${efb_var.text.desktop || 'Desktop'}
+   </button>
+   <button type="button" class="efb btn btn-sm btn-outline-primary" id="mobileViewBtnEfb" onclick="switchViewEfb('mobile')">
+   <i class="efb bi-phone me-1"></i>${efb_var.text.mobileView || 'Mobile'}
+   </button>
+  </div>
+  </div>
+  <div class="efb crd efb  drag-box" id="dragBoxWrapperEfb"><div class="efb card-body dropZoneEFB row items px-0 mx-0" id="dropZoneEFB">
 
         <div id="efb-dd" class="efb text-center ">
         <h1 class="efb text-muted display-1  bi-plus-circle-dotted"> </h1>
         <div class="efb text-muted fs-5 efb">${!mobile_view_efb ? efb_var.text.dadFieldHere : ''}</div>
         </div>
 
-         </div></div></div></div>
+  </div></div></div></div>
       </div>
   <div class="efb modal fade test" id="settingModalEfb"  aria-labelledby="settingModalEfb"  role="dialog" tabindex="-1" data-backdrop="static" >
       <div class="efb modal-dialog modal-dialog-centered " id="settingModalEfb_" >
-          <div class="efb modal-content efb " id="settingModalEfb-sections">
-                  <div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks fs-7 ${iconMarginGlobal}" id="settingModalEfb-icon"></i><span id="settingModalEfb-title" class="efb fs-3">${efb_var.text.editField}</span></h5></div>
-                  <div class="efb modal-body" id="settingModalEfb-body">
-                     ${efbLoadingCard('',4)}
-                  </div>
+  <div class="efb modal-content efb " id="settingModalEfb-sections">
+    <div class="efb modal-header efb"> <h5 class="efb modal-title efb" ><i class="efb bi-ui-checks fs-7 ${iconMarginGlobal}" id="settingModalEfb-icon"></i><span id="settingModalEfb-title" class="efb fs-3">${efb_var.text.editField}</span></h5></div>
+    <div class="efb modal-body" id="settingModalEfb-body">
+     ${efbLoadingCard('',4)}
+    </div>
   </div></div></div>
   </div></div>
 
@@ -3158,13 +3158,13 @@ function show_setting_up_easy_form_builder_Efb() {
       <!-- Header Content -->
       <div class="efb-setup-header">
         <div class="efb-header-content">
-          <h3 class="efb-main-title">
-            <i class="bi bi-heart-fill" aria-hidden="true"></i>
-            ${efb_var.text.easyFormBuilder}
-          </h3>
-          <p class="efb-subtitle">
-            ${efb_var.text.buildProfessionalForms}
-          </p>
+  <h3 class="efb-main-title">
+   <i class="bi bi-heart-fill" aria-hidden="true"></i>
+   ${efb_var.text.easyFormBuilder}
+  </h3>
+  <p class="efb-subtitle">
+   ${efb_var.text.buildProfessionalForms}
+  </p>
         </div>
       </div>
 
@@ -3173,135 +3173,135 @@ function show_setting_up_easy_form_builder_Efb() {
 
         <!-- Free Plan -->
         <div class="efb-plan-card">
-          <div class="efb-card-content">
-            <div class="efb-plan-header">
-              <h6 class="efb-plan-title">${efb_var.text.free}</h6>
-              <span class="efb-plan-badge efb-badge-light">${efb_var.text.essentialFeatures}</span>
-            </div>
+  <div class="efb-card-content">
+   <div class="efb-plan-header">
+   <h6 class="efb-plan-title">${efb_var.text.free}</h6>
+   <span class="efb-plan-badge efb-badge-light">${efb_var.text.essentialFeatures}</span>
+   </div>
 
-            <p class="efb-plan-description">${efb_var.text.perfectForGettingStarted}</p>
+   <p class="efb-plan-description">${efb_var.text.perfectForGettingStarted}</p>
 
-            <ul class="efb-features-list">
-              <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-                ${efb_var.text.planFreeFields20 || efb_var.text.coreFormFields}
-              </li>
-              <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-                ${efb_var.text.emailNotifications}
-              </li>
-              <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-                ${efb_var.text.planCsvExport || 'CSV export of entries'}
-              </li>
-              <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-                ${efb_var.text.planFreeAddons || 'Free add-ons: offline forms, addresses and postal codes'}
-              </li>
-              <li class="efb-feature-item efb-feature-locked">
-                <i class="bi bi-lock-fill" aria-hidden="true"></i><span class="efb visually-hidden">${efb_var.text.planNotIncluded || 'Not included:'} </span>
-                ${efb_var.text.advancedFormFields}
-              </li>
-              <li class="efb-feature-item efb-feature-locked">
-                <i class="bi bi-lock-fill" aria-hidden="true"></i><span class="efb visually-hidden">${efb_var.text.planNotIncluded || 'Not included:'} </span>
-                ${efb_var.text.planFreePlusAddonsLocked || 'Payments and the other Free Plus add-ons'}
-              </li>
-            </ul>
+   <ul class="efb-features-list">
+   <li class="efb-feature-item efb-feature-included">
+    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+    ${efb_var.text.planFreeFields20 || efb_var.text.coreFormFields}
+   </li>
+   <li class="efb-feature-item efb-feature-included">
+    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+    ${efb_var.text.emailNotifications}
+   </li>
+   <li class="efb-feature-item efb-feature-included">
+    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+    ${efb_var.text.planCsvExport || 'CSV export of entries'}
+   </li>
+   <li class="efb-feature-item efb-feature-included">
+    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+    ${efb_var.text.planFreeAddons || 'Free add-ons: offline forms, addresses and postal codes'}
+   </li>
+   <li class="efb-feature-item efb-feature-locked">
+    <i class="bi bi-lock-fill" aria-hidden="true"></i><span class="efb visually-hidden">${efb_var.text.planNotIncluded || 'Not included:'} </span>
+    ${efb_var.text.advancedFormFields}
+   </li>
+   <li class="efb-feature-item efb-feature-locked">
+    <i class="bi bi-lock-fill" aria-hidden="true"></i><span class="efb visually-hidden">${efb_var.text.planNotIncluded || 'Not included:'} </span>
+    ${efb_var.text.planFreePlusAddonsLocked || 'Payments and the other Free Plus add-ons'}
+   </li>
+   </ul>
 
-            <div class="efb-plan-action">
-              <button class="efb-btn efb-btn-outline" onclick="handle_setup_modal_action('free')">
-                ${efb_var.text.startWithFree}
-              </button>
-            </div>
-          </div>
+   <div class="efb-plan-action">
+   <button class="efb-btn efb-btn-outline" onclick="handle_setup_modal_action('free')">
+    ${efb_var.text.startWithFree}
+   </button>
+   </div>
+  </div>
         </div>
 
         <!-- Free Plus Plan (Recommended) -->
         <div class="efb-plan-card efb-recommended">
-          <div class="efb-card-content">
+  <div class="efb-card-content">
 
-          <div class="efb-plan-header">
-          <h6 class="efb-plan-title">${efb_var.text.freePlus}</h6>
-          <span class="efb-recommended-badge">${efb_var.text.recommended}</span>
+  <div class="efb-plan-header">
+  <h6 class="efb-plan-title">${efb_var.text.freePlus}</h6>
+  <span class="efb-recommended-badge">${efb_var.text.recommended}</span>
 
-            </div>
+   </div>
 
-            <p class="efb-plan-description">${efb_var.text.planFreePlusDesc || 'Advanced fields and features at no cost, with a small credit link on your forms.'}</p>
+   <p class="efb-plan-description">${efb_var.text.planFreePlusDesc || 'Advanced fields and features at no cost, with a small credit link on your forms.'}</p>
 
-            <ul class="efb-features-list">
-              <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-                ${efb_var.text.coreAdvancedFormFields}
-              </li>
-              <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-                ${efb_var.text.emailNotifications}
-              </li>
-              <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-                ${efb_var.text.builtInAdvancedFeatures}
-              </li>
-              <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-                ${efb_var.text.planPaymentsFreeAddons || 'Payments: Stripe, PayPal and other gateways (free add-ons)'}
-              </li>
-              <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-                ${efb_var.text.planFreePlusAddons || 'Conditional logic, calculations and CAPTCHA add-ons'}
-              </li>
-              <li class="efb-feature-item efb-feature-locked">
-                <i class="bi bi-lock-fill" aria-hidden="true"></i><span class="efb visually-hidden">${efb_var.text.planNotIncluded || 'Not included:'} </span>
-                ${efb_var.text.planProAddonsLocked || 'Pro add-ons: SMS, Telegram, Google Sheets, booking and more'}
-              </li>
-              <li class="efb-feature-item efb-feature-info">
-                <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
-                ${efb_var.text.planPoweredLink || 'Shows a small “Powered by Easy Form Builder” link'}
-              </li>
-            </ul>
+   <ul class="efb-features-list">
+   <li class="efb-feature-item efb-feature-included">
+    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+    ${efb_var.text.coreAdvancedFormFields}
+   </li>
+   <li class="efb-feature-item efb-feature-included">
+    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+    ${efb_var.text.emailNotifications}
+   </li>
+   <li class="efb-feature-item efb-feature-included">
+    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+    ${efb_var.text.builtInAdvancedFeatures}
+   </li>
+   <li class="efb-feature-item efb-feature-included">
+    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+    ${efb_var.text.planPaymentsFreeAddons || 'Payments: Stripe, PayPal and other gateways (free add-ons)'}
+   </li>
+   <li class="efb-feature-item efb-feature-included">
+    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+    ${efb_var.text.planFreePlusAddons || 'Conditional logic, calculations and CAPTCHA add-ons'}
+   </li>
+   <li class="efb-feature-item efb-feature-locked">
+    <i class="bi bi-lock-fill" aria-hidden="true"></i><span class="efb visually-hidden">${efb_var.text.planNotIncluded || 'Not included:'} </span>
+    ${efb_var.text.planProAddonsLocked || 'Pro add-ons: SMS, Telegram, Google Sheets, booking and more'}
+   </li>
+   <li class="efb-feature-item efb-feature-info">
+    <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+    ${efb_var.text.planPoweredLink || 'Shows a small “Powered by Easy Form Builder” link'}
+   </li>
+   </ul>
 
-            <div class="efb-plan-action">
-              <button class="efb-btn efb-btn-primary" onclick="handle_setup_modal_action('free_plus')">
-                ${efb_var.text.continueWithFreePlus}
-              </button>
-            </div>
-          </div>
+   <div class="efb-plan-action">
+   <button class="efb-btn efb-btn-primary" onclick="handle_setup_modal_action('free_plus')">
+    ${efb_var.text.continueWithFreePlus}
+   </button>
+   </div>
+  </div>
         </div>
 
         <!-- Pro Plan (Premium) -->
         <div class="efb-plan-card efb-pro-highlighted">
-          <div class="efb-card-content">
-            <div class="efb-plan-header">
-              <h6 class="efb-plan-title">${efb_var.text.pro}</h6>
-              <span class="efb-plan-badge efb-badge-premium">${efb_var.text.advancedAdFree}</span>
-            </div>
+  <div class="efb-card-content">
+   <div class="efb-plan-header">
+   <h6 class="efb-plan-title">${efb_var.text.pro}</h6>
+   <span class="efb-plan-badge efb-badge-premium">${efb_var.text.advancedAdFree}</span>
+   </div>
 
-            <p class="efb-plan-description">${efb_var.text.completeCleanExperience}</p>
+   <p class="efb-plan-description">${efb_var.text.completeCleanExperience}</p>
 
-            <ul class="efb-features-list">
-              <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-                ${efb_var.text.everythingInFreePlus}
-              </li>
-              <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-                ${efb_var.text.planProAllAddons || 'Every add-on: SMS, Telegram, Google Sheets, booking and more'}
-              </li>
-              <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-                ${efb_var.text.planProSecurity || 'Human Shield security and spam protection'}
-              </li>
-              <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-                ${efb_var.text.noCreditsPromo}
-              </li>
-            </ul>
+   <ul class="efb-features-list">
+   <li class="efb-feature-item efb-feature-included">
+    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+    ${efb_var.text.everythingInFreePlus}
+   </li>
+   <li class="efb-feature-item efb-feature-included">
+    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+    ${efb_var.text.planProAllAddons || 'Every add-on: SMS, Telegram, Google Sheets, booking and more'}
+   </li>
+   <li class="efb-feature-item efb-feature-included">
+    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+    ${efb_var.text.planProSecurity || 'Human Shield security and spam protection'}
+   </li>
+   <li class="efb-feature-item efb-feature-included">
+    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+    ${efb_var.text.noCreditsPromo}
+   </li>
+   </ul>
 
-            <div class="efb-plan-action">
-              <button class="efb-btn efb-btn-premium" onclick="handle_setup_modal_action('pro')">
-                ${efb_var.text.upgradeToPro}
-              </button>
-            </div>
-          </div>
+   <div class="efb-plan-action">
+   <button class="efb-btn efb-btn-premium" onclick="handle_setup_modal_action('pro')">
+    ${efb_var.text.upgradeToPro}
+   </button>
+   </div>
+  </div>
         </div>
 
       </div>
@@ -3309,14 +3309,14 @@ function show_setting_up_easy_form_builder_Efb() {
       <!-- Footer Info -->
       <div class="efb-setup-footer">
         <div class="efb-footer-info">
-          <i class="bi bi-info-circle" aria-hidden="true"></i>
-          <p>${efb_var.text.canChangeAnytime}</p>
+  <i class="bi bi-info-circle" aria-hidden="true"></i>
+  <p>${efb_var.text.canChangeAnytime}</p>
         </div>
 
         <div class="efb-footer-actions">
-          <button class="efb-btn efb-btn-link" onclick="handle_setup_modal_action('later')">
-            ${efb_var.text.maybeLater}
-          </button>
+  <button class="efb-btn efb-btn-link" onclick="handle_setup_modal_action('later')">
+   ${efb_var.text.maybeLater}
+  </button>
         </div>
       </div>
     </div>
@@ -4093,28 +4093,28 @@ function show_plan_downgrade_confirmation_efb(copy, onConfirm, onCancel) {
       <div class="efb-dlg__backdrop"></div>
       <div class="efb-dlg__shell" role="document" tabindex="-1">
         <div class="efb-dlg__head">
-          <i class="efb-dlg__head-icon bi bi-arrow-down-circle"></i>
-          <h2 class="efb-dlg__title">${text('planChange', 'Plan change')}</h2>
+  <i class="efb-dlg__head-icon bi bi-arrow-down-circle"></i>
+  <h2 class="efb-dlg__title">${text('planChange', 'Plan change')}</h2>
         </div>
         <div class="efb-dlg__body">
-          <div class="efb-dlg__centered">
-            <div class="efb-dlg__badge efb-dlg__badge--soft"><i class="bi bi-exclamation-triangle-fill"></i></div>
-            <h3 class="efb-dlg__headline" id="efb-plan-downgrade-title"></h3>
-            <p class="efb-dlg__text efb-plan-downgrade-message"></p>
-            <div class="efb-dlg__plan-path">
-              <span class="efb-dlg__plan-tag efb-dlg__plan-tag--from"></span>
-              <i class="bi ${rtl ? 'bi-arrow-left' : 'bi-arrow-right'}"></i>
-              <span class="efb-dlg__plan-tag efb-plan-downgrade-to"></span>
-            </div>
-            <div class="efb-dlg__note efb-dlg__note--plain">
-              <i class="bi bi-database-check"></i>
-              <span>${text('downgradeDataKept', 'Your data stays untouched; only access to the features is limited.')}</span>
-            </div>
-          </div>
+  <div class="efb-dlg__centered">
+   <div class="efb-dlg__badge efb-dlg__badge--soft"><i class="bi bi-exclamation-triangle-fill"></i></div>
+   <h3 class="efb-dlg__headline" id="efb-plan-downgrade-title"></h3>
+   <p class="efb-dlg__text efb-plan-downgrade-message"></p>
+   <div class="efb-dlg__plan-path">
+   <span class="efb-dlg__plan-tag efb-dlg__plan-tag--from"></span>
+   <i class="bi ${rtl ? 'bi-arrow-left' : 'bi-arrow-right'}"></i>
+   <span class="efb-dlg__plan-tag efb-plan-downgrade-to"></span>
+   </div>
+   <div class="efb-dlg__note efb-dlg__note--plain">
+   <i class="bi bi-database-check"></i>
+   <span>${text('downgradeDataKept', 'Your data stays untouched; only access to the features is limited.')}</span>
+   </div>
+  </div>
         </div>
         <div class="efb-dlg__foot">
-          <button type="button" class="efb-dlg-btn efb-dlg-btn--ghost efb-plan-downgrade-cancel"><i class="bi bi-shield-check"></i><span></span></button>
-          <button type="button" class="efb-dlg-btn efb-dlg-btn--danger efb-plan-downgrade-confirm"><i class="bi bi-arrow-down-circle"></i><span></span></button>
+  <button type="button" class="efb-dlg-btn efb-dlg-btn--ghost efb-plan-downgrade-cancel"><i class="bi bi-shield-check"></i><span></span></button>
+  <button type="button" class="efb-dlg-btn efb-dlg-btn--danger efb-plan-downgrade-confirm"><i class="bi bi-arrow-down-circle"></i><span></span></button>
         </div>
       </div>`;
 
@@ -4962,7 +4962,7 @@ function efb_onboarding_card_markup_efb(configuredEmail, options) {
     options = options || {};
     const t = efb_onboarding_text_efb;
     return '<div class="efb-onboarding-card is-asking' + (options.builder ? ' is-builder' : '') + '" id="efb-onboarding-card">'
-        + '<div class="efb-onboarding-steps"><span class="is-done"><i class="bi bi-check-circle-fill"></i> ' + t('onboardingPlanSelected', 'Plan selected') + '</span><span class="is-current"><b>' + efb_admin_date_efb('2') + '</b> ' + t('onboardingStepEmailCheck', 'Email check') + '</span></div>'
+        + '<div class="efb-onboarding-steps"><span class="is-done"><i class="bi bi-check-circle-fill"></i> ' + t('onboardingPlanSelected', 'Plan selected') + '</span><span class="is-current"><b>' + (typeof efb_admin_date_efb === 'function' ? efb_admin_date_efb('2') : '2') + '</b> ' + t('onboardingStepEmailCheck', 'Email check') + '</span></div>'
         + '<div class="efb-onboarding-hero"><div class="efb-onboarding-icon"><i class="bi bi-envelope-check-fill"></i></div><h2>' + t('onboardingAskTitle', 'Shall we check that your form emails arrive?') + '</h2><p>' + t('onboardingAskBody', 'When someone fills in a form, your site emails you. Email is sent by your hosting company, so it sometimes goes missing or lands in spam. We can check this in about a minute and email you the full report.') + '</p></div>'
         + '<div class="efb-onboarding-ask"><label class="efb-onboarding-label" for="efb-onboarding-admin-email">' + t('onboardingYourEmail', 'Your email') + '</label><input id="efb-onboarding-admin-email" type="email" value="' + efb_onboarding_escape_efb(configuredEmail) + '" autocomplete="email"><p class="efb-onboarding-hint">' + t('onboardingYourEmailHint', 'Notifications and the report go here.') + '</p><p class="efb-onboarding-input-error" id="efb-onboarding-email-error" role="alert" hidden></p></div>'
         + '<div id="efb-onboarding-email-report" class="efb-onboarding-report" aria-live="polite"></div>'
@@ -5667,12 +5667,12 @@ function showSetupAsOverlayPage(options) {
 
     overlayPage.innerHTML = `
         <div class="efb-overlay-container packages">
-            <div class="efb-overlay-content">
-                ${setupContent}
-            </div>
-            <button type="button" class="efb-overlay-close" onclick="efb_setup_overlay_user_close_efb()" aria-label="${efb_var.text.close || 'Close'}">
-                <i class="bi bi-x-lg" aria-hidden="true"></i>
-            </button>
+   <div class="efb-overlay-content">
+    ${setupContent}
+   </div>
+   <button type="button" class="efb-overlay-close" onclick="efb_setup_overlay_user_close_efb()" aria-label="${efb_var.text.close || 'Close'}">
+    <i class="bi bi-x-lg" aria-hidden="true"></i>
+   </button>
         </div>
 
         <style>
@@ -6165,7 +6165,7 @@ function getCurrentPlanBadge_efb() {
     }
 
     return `<span class="efb text-muted fs-6">${crntPlnLabel}:</span>
-            <span class="efb badge rounded-4 ${badgeClass} fs-6 ${div_mx} py-2">${iconHtml}${planName}</span>`;
+   <span class="efb badge rounded-4 ${badgeClass} fs-6 ${div_mx} py-2">${iconHtml}${planName}</span>`;
 }
 
 function updatePlanBadge_efb() {

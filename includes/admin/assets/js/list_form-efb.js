@@ -891,6 +891,7 @@ function fun_get_form_by_id(id) {
        * the error and returns the user to the forms list instead of hanging.
        */
       const value = (res.data && res.data.success == true) ? efb_safe_json_parse(res.data.ajax_value) : null;
+      window.efb_base_hash_efb = (res.data && res.data.base_hash) || ''; // QA5-002: sent back with Save
       if (!res.data || res.data.success !== true || !Array.isArray(value) || value.length === 0) {
         const msg = (res.data && res.data.m) || (efb_var.text && efb_var.text.somethingWentWrongPleaseRefresh) || 'This form could not be loaded.';
         alert_message_efb('', msg, 17, 'danger');

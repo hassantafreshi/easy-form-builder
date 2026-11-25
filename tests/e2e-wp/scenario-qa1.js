@@ -29,6 +29,9 @@
  *                and gives the focus back; its No / Yes are <button>s.
  *  qa1-autosave  QA1-019: with builder work kept in the browser, Settings and a form's entries show no "An auto-saved
  *                version exists" dialog (it covered their messages); the forms list still offers it.
+ *  qa1-stale     QA5-002: a form open in the builder while it is saved elsewhere (the assistant's form.update, another
+ *                tab): the builder's Save does not overwrite that change silently; it answers stale_hash and asks
+ *                "Overwrite" or "Reload" in plain words; Overwrite then saves this version.
  */
 'use strict';
 
@@ -429,6 +432,45 @@ module.exports = function (S) {
     } finally {
       await a.evaluate(() => { ['efb_auto_save', 'efb_auto_save_valj_efb', 'efb_auto_save_time'].forEach((k) => localStorage.removeItem(k)); }).catch(() => {});
       await a.context().close();
+    }
+  });
+
+  /* ================================================================== qa1-stale */
+  scenario('qa1-stale', 'QA5-002: the builder does not overwrite a change saved elsewhere after it opened the form', async ({ adminPage }) => {
+    ctl('plan', '3');
+    const F = ctl('f11-form', 'QA1 stale form', '', '1');
+    const elsewhere = (label) => wp('eval', `$s = \\Emsfb\\Form_Update::stored(${F.form_id}); $r = $s['rows']; foreach ($r as $i => $x) { if ($i > 0 && isset($x['type']) && $x['type'] === 'text') { $r[$i]['name'] = '${label}'; break; } } global $wpdb; $wpdb->update($wpdb->prefix . 'emsfb_form', array('form_structer' => str_replace('"', '\\"', wp_json_encode($r, JSON_UNESCAPED_UNICODE))), array('form_id' => ${F.form_id})); wp_cache_flush(); echo 'ok';`);
+    const label = () => { const rows = ctl('form', String(F.form_id)).form_structer || []; const r = rows.find((x, i) => i > 0 && x.type === 'text'); return r ? r.name : ''; };
+    try {
+      const a = await adminPage({ viewport: { width: 1280, height: 900 } }, 'qa1-stale');
+      await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+      await a.waitForFunction(() => typeof fun_get_form_by_id === 'function', null, { timeout: 20000 });
+      await a.evaluate((id) => fun_get_form_by_id(Number(id)), F.form_id);
+      await a.waitForFunction(() => typeof valj_efb !== 'undefined' && valj_efb.length > 1 && window.efb_base_hash_efb, null, { timeout: 30000 });
+      await sleep(1000);
+      elsewhere('Changed by the assistant');
+      await a.evaluate(() => { const r = valj_efb.find((x, i) => i > 0 && x.type === 'text'); r.name = 'Changed in this tab'; });
+      await a.evaluate(() => saveFormEfb(1));
+      await a.waitForSelector('#settingModalEfb.show #modalConfirmBtnEfb', { timeout: 30000 });
+      await sleep(500);
+      const q = await a.evaluate(() => ({ text: document.getElementById('settingModalEfb').innerText, yes: document.getElementById('modalConfirmBtnEfb').textContent.trim(), no: (document.querySelector('#modal-footer-efb .efb-btn-cancel') || {}).textContent.trim() }));
+      const kept = label();
+      R.check('qa5-002: the builder\'s Save is refused while the form was saved elsewhere: the other change is kept, the dialog says so and offers "Overwrite" / "Reload"', kept === 'Changed by the assistant' && /changed somewhere else/.test(q.text) && q.yes === 'Overwrite' && q.no === 'Reload', { kept, q: { yes: q.yes, no: q.no, text: q.text.slice(0, 200) } });
+      await a.screenshot({ path: SHOT('qa1-stale-en-1280') });
+      await a.click('#modalConfirmBtnEfb');
+      await a.waitForFunction(() => document.querySelector('#settingModalEfb.show .efb-dlg__code-panel'), null, { timeout: 30000 }).catch(() => {});
+      await sleep(800);
+      R.check('qa5-002: Overwrite saves this tab\'s version', label() === 'Changed in this tab', label());
+      // A second save from the same tab needs no question (the builder got the new hash).
+      await a.evaluate(() => { state_modal_show_efb(0); const r = valj_efb.find((x, i) => i > 0 && x.type === 'text'); r.name = 'Second save'; });
+      await sleep(400);
+      await a.evaluate(() => saveFormEfb(1));
+      await a.waitForFunction(() => document.querySelector('#settingModalEfb.show .efb-dlg__code-panel'), null, { timeout: 30000 }).catch(() => {});
+      await sleep(800);
+      R.check('qa5-002: the next save of the same tab goes through without a question', label() === 'Second save', label());
+      await a.context().close();
+    } finally {
+      try { ctl('f12-delete-form', String(F.form_id)); } catch (e) { /* ignore */ }
     }
   });
 };

@@ -6723,6 +6723,51 @@ class efbFunction {
 			/* B7 phrases end */
 
 		];
+		// FX-ADMIN (4.3.2): the phrases of the QA-1 fixes; the Localization tab overrides them like the others.
+		foreach (array(
+			/* translators: %1$s, %2$s: the smallest and the largest number a setting takes */
+			'numRangeInt' => __('Enter a whole number from %1$s to %2$s.', 'easy-form-builder'),
+			/* translators: %1$s, %2$s: the smallest and the largest number (a decimal point allowed) */
+			'numRangeDec' => __('Enter a number from %1$s to %2$s.', 'easy-form-builder'),
+			/* translators: Settings › Verification, a limit (a number per hour) */
+			'vrfLimIpHourSms' => __('SMS codes from one visitor address per hour', 'easy-form-builder'),
+			'vrfLimIpDaySms' => __('SMS codes from one visitor address per day', 'easy-form-builder'),
+			'vrfLimIpHourEmail' => __('E-mail codes from one visitor address per hour', 'easy-form-builder'),
+			'vrfLimIpDayEmail' => __('E-mail codes from one visitor address per day', 'easy-form-builder'),
+			'vrfLimSidDest' => __('Different numbers or addresses in one visit', 'easy-form-builder'),
+			'vrfLimSidSends' => __('Codes sent in one visit', 'easy-form-builder'),
+			'vrfLimFormHourSms' => __('SMS codes from one form per hour', 'easy-form-builder'),
+			'vrfLimPrefixHourSms' => __('SMS codes to numbers with the same prefix per hour', 'easy-form-builder'),
+			'vrfLimFailDestDay' => __('Wrong codes for one number or address per day', 'easy-form-builder'),
+			'vrfLimFailIpHour' => __('Wrong codes from one visitor address per hour', 'easy-form-builder'),
+			'vrfLimSmsDestHour' => __('SMS codes to one number per hour', 'easy-form-builder'),
+			'vrfLimSmsDestDay' => __('SMS codes to one number per day', 'easy-form-builder'),
+			'vrfLimEmailDestHour' => __('E-mail codes to one address per hour', 'easy-form-builder'),
+			'vrfLimEmailDestDay' => __('E-mail codes to one address per day', 'easy-form-builder'),
+			/* translators: Versions › Compare: %s: a number of settings that changed without a name of their own */
+			'revOtherKeys' => __('%s other settings', 'easy-form-builder'),
+			/* translators: the name a field of the builder's canvas has for screen readers; %s: its label */
+			'editFieldN' => __('Edit field: %s', 'easy-form-builder'),
+			/* translators: a link after the builder's field search that moves the keyboard into the form */
+			'skipToCanvas' => __('Skip to the form', 'easy-form-builder'),
+			/* translators: the name of the first-run guide's group of buttons */
+			'onboardingActions' => __('Setup actions', 'easy-form-builder'),
+			/* translators: Settings › Payments: moves every moved form back to its older payment field */
+			'pmvUndoAll' => __('Move every form back', 'easy-form-builder'),
+			'pmvConfirmAll' => __('Move every moved form back to its older payment field? Visitors then pay through the older fields again.', 'easy-form-builder'),
+			/* translators: %s: how many forms stayed on the new payment field */
+			'pmvAllLeft' => __('Forms not moved back: %s.', 'easy-form-builder'),
+			'pmvErrChanged' => __('The payment field was changed after the move, so this form cannot be moved back.', 'easy-form-builder'),
+			'pmvErrNoBackup' => __('There is no copy of this form from before the move.', 'easy-form-builder'),
+			'pmvErrNoForm' => __('This form no longer exists.', 'easy-form-builder'),
+			/* translators: the builder's Save found the form saved elsewhere since it was opened */
+			'staleTitle' => __('This form was changed elsewhere', 'easy-form-builder'),
+			'staleChoice' => __('Overwrite saves your version here and removes that change. Reload shows the saved form; your changes here are lost.', 'easy-form-builder'),
+			/* translators: a button: save this version over the one saved elsewhere */
+			'staleOverwrite' => __('Overwrite', 'easy-form-builder'),
+			/* translators: a button: load the saved form again (verb) */
+			'staleReload' => __('Reload', 'easy-form-builder'),
+		) as $k => $v) $lang[$k] = $state && isset($ac->text->$k) ? $ac->text->$k : esc_html($v);
 
 		$rtrn =[];
 		$st="null";
