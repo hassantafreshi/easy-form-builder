@@ -253,7 +253,7 @@ public static function verify_upload_token($token, $basename, $form_id, $field_i
 ## ۱۰. منطق شرطی
 
 - مقدار فیلد فایل در `efb_conditional_values_map()` (`class-Emsfb-public.php:5965-6012`) امروز «آخرین `value`» است، یعنی `@file@`. یک شاخه اضافه کن: برای انواع بارگذاری، مقدار = تعداد فایل‌های معتبر به‌صورت رشته (`"0"`، `"2"`). با این کار `is_empty`/`not_empty` (برای `"0"`، باید `is_empty` درست باشد؛ در `efb_evaluate_conditional_condition`، 6100، حالت `"0"` برای نوع فایل خالی حساب شود) و مقایسهٔ عددی کار می‌کند.
-- افزونهٔ منطق (`AdnSMF`، خارج از مخزن): همین قرارداد در `build_values_map` و دستهٔ عملگر «فایل» (`is_empty`، `not_empty`، `count_gte`، `count_lte`). کار در مخزن افزونه انجام می‌شود.
+- افزونهٔ منطق (`AdnSMF`، خارج از مخزن): همین قرارداد در `build_values_map` و دستهٔ عملگر «فایل» (`is_empty`، `not_empty`، `count_gte`، `count_lte`). کار در مخزن افزونه انجام می‌شود. **انجام شد (B8، ADD-03، `vendores-efb` `48cf4ac`)**: سازنده شرط شمار فایل را با کدهای `is_not_empty` / `is_empty` / `gte` / `lte` ذخیره می‌کند (کدهایی که ذخیرهٔ هسته نگه می‌دارد؛ `count_gte` / `count_lte` به «is» تبدیل می‌شدند) و اعتبارسنج و اجرای صفحه `count_gte` / `count_lte` را هم می‌خوانند.
 - نمایش و پنهان کردن فیلد فایل در کلاینت تغییری نمی‌کند. فایل‌های فیلد پنهان‌شده ارسال نمی‌شوند (رفتار فعلی `sendBack`).
 
 ---

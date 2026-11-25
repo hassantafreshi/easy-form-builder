@@ -106,7 +106,7 @@ Content-Type: application/json
 ```
 
 - `items`: جمع `amount`ها باید برابر `amount` باشد؛ از `quote.items` ساخته می‌شود و تخفیف/مالیات/کارمزد به‌شکل اقلام جدا (تخفیف با مبلغ منفی پذیرفته نیست → تخفیف از قلم‌ها کسر و یک قلم «جمع پس از تخفیف» فرستاده می‌شود؛ پرسش باز ۳).
-- `billing_data.phone_number` الزامی: از فیلد موبایل/تلفن فرم با نگاشت `pgw_map_phone` (F01 یکسان‌سازی ارقام)؛ اگر فرم ندارد، فیلد درگاه پرسش تلفن را خودش در جزء `fields` اضافه می‌کند (کلید `pf_ask_phone`).
+- `billing_data.phone_number` الزامی: از فیلد موبایل/تلفن فرم با نگاشت `pgw_map_phone` (F01 یکسان‌سازی ارقام)؛ اگر فرم ندارد، فیلد درگاه پرسش تلفن را خودش در جزء `fields` اضافه می‌کند (کلید `pf_ask_phone`). (B8، تصمیم مالک ۱۵: برای همهٔ روش‌ها، و نام هم؛ هرگز «NA» فرستاده نمی‌شود.)
 - `expiration` (ثانیه) = تنظیم `pending_ttl` برای کارت و کیف‌پول (۱ ساعت)؛ کیوسک طولانی‌تر.
 
 ### ۷.۲ خواندن
@@ -309,7 +309,7 @@ Paymob: the e-mail is required for every method (format email) and the mobile nu
 |---|---|---|
 | Is the payer's e-mail required? | the Intention's `billing_data` is required ([Create Intention](https://developers.paymob.com/paymob-docs/developers/intention-apis/create-intention)); the Accept API: "All the fields in this object are mandatory … if it isn't available, please send it to be "NA", except, first_name, last_name, email, and phone_number cannot be sent as "NA"" ([Payment API flow](https://weaccept.readme.io/docs/accept-standard-redirect)) | **required** (unchanged: `pgw_map_email` `required`, `format: email`) |
 | Must it be the payer's own? | billing data of the payer | yes: the mapped field or the confirmation e-mail field; never another e-mail field (before: the first e-mail answered) |
-| Other payer fields | `phone_number`: the Intention reference shows only `"phone_number": ["This field is required."]`; the Accept API says it cannot be "NA" | **owner decision**: today the mobile number is required only for the mobile wallet and other methods send "NA" (as the earlier PAY06 notes say Paymob's own plug-ins do); first and last name fall back to "NA" too. If Paymob refuses "NA" on a Live account, make `pgw_map_phone` and the name `required` for every method |
+| Other payer fields | `phone_number`: the Intention reference shows only `"phone_number": ["This field is required."]`; the Accept API says it cannot be "NA" | **owner decision 15, done in B8 (`vendores-efb` `c762d0c`)**: Paymob never gets "NA". When the form has no name or mobile field (or it is empty), the visitor types them next to Pay (`client_data.payer_name` / `payer_phone`), for every method; a one-word name is both the first and the last name. Core tests: `tests/test-addon-paymob-create.php`, `tests/test-addon-paymob-errors.php` |
 
 Core rule (unchanged, gateway-neutral): the payer e-mail is the field chosen in the payment field's
 "Payer e-mail" option, else the form's confirmation e-mail field (row 0 `email_to`, an Email field): the
