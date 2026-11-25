@@ -45,7 +45,7 @@ A WordPress plugin for create forms by using an interactive drag & drop wizard. 
   </tbody>
 </table>
 
-[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![License: GPL v2 or later](https://img.shields.io/badge/License-GPLv2%20or%20later-blue.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![Star on GitHub](https://img.shields.io/github/stars/hassantafreshi/easy-form-builder.svg?style=social)](https://github.com/hassantafreshi/easy-form-builder/stargazers)
 
 **Version Numbers**
@@ -55,7 +55,7 @@ A WordPress plugin for create forms by using an interactive drag & drop wizard. 
 * [Easy Form Builder 3.X.X](https://github.com/hassantafreshi/easy-form-builder/tree/v3) is deprecated.
 * [Easy Form Builder 4.X.X](https://github.com/hassantafreshi/easy-form-builder/tree/v4) is under active development. (recommended)
 
-**Latest release: 4.3.1** - forms use your theme's font, Stripe payments are verified on the server, form emails are on by default, Contact Form 7 import, and fixes across the payment, SMS, Telegram, Google Sheets, Conditional Logic, Auto-Populate and date picker add-ons. See the [changelog](https://wordpress.org/plugins/easy-form-builder/#developers).
+**Latest release: 4.3.2** - spam protection without a CAPTCHA, a new entries screen, form limits and schedules, field checks and one-time codes, new fields (advanced date, repeater, ranking, hidden fields), accessible forms, Undo and form versions in the builder, a Payments screen, and privacy settings. Payment gateways, calculations, typed signatures and the map are add-ons; Contact Form 7 import moved to the free Easy Form Builder Data Tools plugin. Requires WordPress 6.3. See [CHANGELOG.md](CHANGELOG.md) for every change.
 
 
 ## Features 💡
@@ -93,7 +93,7 @@ Features:
 - Contact forms for inquiries
 - Support and feedback forms with message tracking
 - Survey and poll forms with result visualization
-- Payment forms (Stripe & PayPal)
+- Payment forms (payment add-ons: Stripe, PayPal, Mollie, Payplug, Tap, Omise, PayTabs, Paymob, Xendit, ZarinPal)
 - Login (sign-in) forms for WordPress users
 - Registration (sign-up) forms for new users
 - File upload forms
@@ -105,7 +105,7 @@ Features:
 - **Selection Fields** - Dropdown, multiple select, radio buttons, checkboxes
 - **File Upload** - Drag-and-drop file upload with multiple file support
 - **Date Pickers** - Gregorian, Hijri (Qamari), and Jalali (Shamsi) date pickers
-- **Location & Geographic Fields** - Location picker (OpenStreetMap), country, state/province, city dropdowns
+- **Location & Geographic Fields** - Country, state/province and city dropdowns (lists bundled with the plugin); location picker (OpenStreetMap) with the Address & Postal add-on
 - **Signature Field** - E-signature capture for agreements and authorization
 - **Advanced Fields** - Rating stars, 5-point scale, Net Promoter Score (NPS), Yes/No questions, switch/toggle, range slider
 - **International Telephone Input** - Country-aware formatted phone number input
@@ -121,18 +121,19 @@ Features:
 - Export survey responses to CSV format
 
 #### Payment Forms & Integration
-- **Stripe Payment Fields** - Secure payment collection through Stripe
-- **PayPal Integration** - PayPal payment forms and processing
+- **Payment Add-ons** - Stripe, PayPal, Persia Pay (ZarinPal), Mollie, Payplug, Tap Payments, Omise, PayTabs, Paymob and Xendit, each a separate add-on with its own payment field
+- **Payments Screen** - Every payment with its history, re-check and refunds
 - **Custom Payment Forms** - Build flexible payment forms with custom pricing
 - **Donation Forms** - Accept donations with customizable amounts
 - **Booking & Service Payments** - Payment collection for services and booking confirmations
 - **Payment Field Options** - Single select, multi-select, dropdown, and custom pricing fields
 
 #### Security & Spam Protection
-- **Google reCAPTCHA v2** - Reduce spam and automated bot submissions
+- **Spam Protection Without a CAPTCHA** - Hidden trap field, minimum time to fill, Akismet, a Spam tab for entries
+- **Google reCAPTCHA v2 / v3** - Per site or per form; Turnstile, hCaptcha, ALTCHA, Question CAPTCHA and Friendly Captcha as add-ons
 - **Shield Security silentCAPTCHA** - Invisible bot and spam protection
 - **Server & Client-Side Validation** - Comprehensive form input validation
-- **Data Ownership** - All submissions stored locally on your WordPress site (no external services by default)
+- **Data Ownership** - All submissions stored locally on your WordPress site (no external services by default; see "External services" in readme.txt)
 - **Secure File Handling** - Safe file upload and management
 
 #### Email & Communication
@@ -146,8 +147,8 @@ Features:
 #### Integrations & Add-ons
 - **SMS Notifications** - Send SMS text messages on form submission (via WSMS plugin)
 - **Telegram Bot Integration** - Real-time Telegram updates and admin notifications
-- **Stripe Add-on** - Extended payment processing and workflows
-- **PayPal Add-on** - Full PayPal payment integration
+- **Payment Add-ons** - Stripe, PayPal and other payment gateways
+- **Easy Form Builder Data Tools** - Free separate plugin: form export and import, Contact Form 7 import, backups
 - **Autofill Add-on** - Auto-complete form fields from CSV data or external APIs
 - **Offline Forms Add-on** - Collect data without active internet connection
 - **Hijri Date Picker Add-on** - Islamic (Qamari) calendar support
@@ -202,10 +203,18 @@ The most recent documentation for Easy Form Builder can be found at:
 
 
 ## Requirements 🔨
-* [WordPress](https://wordpress.org/) >= `5.7`
+* [WordPress](https://wordpress.org/) >= `6.3`
 * [PHP](https://secure.php.net/manual/en/install.php) >= `7.4`
 
 
+
+## License
+
+Easy Form Builder is free software, released under the [GNU General Public License v2 or later](https://www.gnu.org/licenses/gpl-2.0.html) (GPLv2 or later).
+
+## Building a release
+
+`bin/build-zip.sh` builds the release zip from the committed files; see [docs/release/RELEASE.en.md](docs/release/RELEASE.en.md).
 
 ## Contributors ✨
 

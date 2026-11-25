@@ -184,7 +184,9 @@ t('AI-7 the plugin header and EMSFB_PLUGIN_VERSION are one version (' . ($hv[1] 
 $api = file_get_contents(__DIR__ . '/../includes/class-Emsfb-builder-api.php') . file_get_contents(__DIR__ . '/../includes/class-Emsfb-form-package.php');
 t('AI-7 the registry, the templates and the form package read the constant (no version written by hand)', preg_match_all("/'(efb|plugin)_version'\s*=>\s*defined\('EMSFB_PLUGIN_VERSION'\) \? EMSFB_PLUGIN_VERSION : ''/", $api) === 4 && !preg_match("/'(efb|plugin)_version'\s*=>\s*'4\./", $api));
 preg_match('/^Stable tag:\s*(\S+)/m', file_get_contents(__DIR__ . '/../readme.txt'), $st);
-t('AI-7 readme.txt: the Stable tag is the released version (it moves with the release, not with development; the changelog has "Unreleased")', isset($st[1]) && version_compare($st[1], $hv[1], '<=') && strpos(file_get_contents(__DIR__ . '/../readme.txt'), '= Unreleased =') !== false, $st[1] ?? null);
+// B1 REL-01: 4.3.2 is the release (the Stable tag moved with it, and its changelog is "= 4.3.2 =", no "Unreleased");
+// tests/test-release-readme.php checks the rest of the release text.
+t('AI-7 readme.txt: the Stable tag is the plugin version and the changelog starts with it (REL-01)', isset($st[1]) && $st[1] === $hv[1] && strpos(file_get_contents(__DIR__ . '/../readme.txt'), "== Changelog ==\n\n= {$hv[1]} =") !== false && strpos(file_get_contents(__DIR__ . '/../readme.txt'), '= Unreleased =') === false, $st[1] ?? null);
 
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);
