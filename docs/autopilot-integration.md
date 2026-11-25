@@ -2125,7 +2125,8 @@ never a hand-kept list.
 (`efb_smart_tag_namespaces`, `efb_smart_tag_value`, `efb_hidden_field_note`), `portal` v1 (F20-core, built 2026-11-18:
 `capabilities.portal_core`, below).
 `form_package` is **1.1** since SPLIT-G: `import()` returns `import_token`, `Form_Package::delete($form_id,
-$import_token)` undoes an import, `Form_Package::import_entries($form_id, $rows)` stores entries through the submit's
+$import_token, $force = false)` undoes an import (4.3.2, QA5-001: a form changed since the import, published or with
+entries is refused with 409 `package_form_in_use` and `data.reasons`; pass `$force` only after the owner confirmed), `Form_Package::import_entries($form_id, $rows)` stores entries through the submit's
 rules (docs/form-package-contract.en.md). Generic hooks an add-on uses: `efb_addon_catalog`, `efb_addon_keys`,
 `efb_public_enqueue`, `efb_admin_enqueue_builder`, `efb_render_field` (`maps`), `efb_esign_parts`, `efb_esign_row`,
 `efb_choice_option_state`, `efb_legacy_gateway_*`, `efb_maps_assets`.
