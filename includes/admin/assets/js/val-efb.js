@@ -926,11 +926,11 @@ function show_setting_window_efb(idset, opts) {
     <button type="button" id="SendemailEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${ (valj_efb[indx].hasOwnProperty('noti') && Number(valj_efb[indx].noti) ==1) ? 'active' : ''}" data-toggle="button" aria-pressed="${(valj_efb[indx].hasOwnProperty('noti') && Number(valj_efb[indx].noti) ==1) ? 'true' : 'false'}" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >
     <div class="efb handle"></div>
     </button>
-    <label class="efb form-check-label pt-1" for="SendemailEl">${efb_var.text.thisEmailNotificationReceive} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="EmailNoti"> </i>
+    <label class="efb form-check-label pt-1" for="SendemailEl">${efb_var.text.thisEmailNotificationReceive} </label>${efb_help_link_efb('EmailNoti', efb_var.text.thisEmailNotificationReceive)}
     </div>`;
     const adminFormEmailEls = `
 
-    <label for="adminFormEmailEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti}<i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="EmailNoti"> </i></label>
+    <label for="adminFormEmailEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.enterAdminEmailReceiveNoti}</label>${efb_help_link_efb('EmailNoti', efb_var.text.enterAdminEmailReceiveNoti)}
     <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.email}" id="adminFormEmailEl" required value="${valj_efb[0].email ? valj_efb[0].email : ''}">`
     const FormEmailSubjectEls = () =>{
       const value = valj_efb[0].hasOwnProperty('email_sub') ? valj_efb[0].email_sub : '';
@@ -1027,7 +1027,7 @@ function show_setting_window_efb(idset, opts) {
     <button type="button" id="smsEnableEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${ (valj_efb[indx].hasOwnProperty('smsnoti') && Number(valj_efb[indx].smsnoti) ==1) ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >
     <div class="efb handle"></div>
     </button>
-    <label class="efb form-check-label pt-1" for="smsEnableEl">${efb_var.text.esmsno} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="SMSNoti"> </i>
+    <label class="efb form-check-label pt-1" for="smsEnableEl">${efb_var.text.esmsno} </label>${efb_help_link_efb('SMSNoti', efb_var.text.esmsno)}
     </div>`;
 
     const telegramEnableEls = `<div class="efb mx-1 my-3 efb">
@@ -1040,7 +1040,7 @@ function show_setting_window_efb(idset, opts) {
     <button type="button" id="enableConEl" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${ (valj_efb[indx].hasOwnProperty('logic') && Number(valj_efb[indx].logic) ==1) ? 'active' : ''}" data-toggle="button" aria-pressed="false" autocomplete="off"  data-id="${idset}" data-vid="${valj_efb[indx].id_}"  onclick="fun_switch_form_efb(this)" >
     <div class="efb handle"></div>
     </button>
-    <label class="efb form-check-label pt-1" for="enableConEl">${efb_var.text.condlogic} </label> <i class="efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="condi"> </i>
+    <label class="efb form-check-label pt-1" for="enableConEl">${efb_var.text.condlogic} </label>${efb_help_link_efb('condi', efb_var.text.condlogic)}
     </div>`;
 
     const languageSelectPresentEls = `
@@ -1170,7 +1170,7 @@ function show_setting_window_efb(idset, opts) {
 
     const thankYouredirectEls = `<div id="tnxrdrct" class="efb tnxrdrct my-1 ${ valj_efb[0].thank_you == 'rdrct'? 'd-block' :'d-none' }">
     ${pro_efb==true ?"":funProEfb('setting:thank_you_redirect', { fallback: 'free_plus', resume: { kind: 'focus', id: 'thankYouredirectEl' } })}
-    <label for="thankYouredirectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.redirectPage} <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('redirectPage')"> </i></label>
+    <label for="thankYouredirectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.redirectPage}</label>${efb_help_link_efb('redirectPage', efb_var.text.redirectPage)}
     <input type="url" data-id="thankYouredirectEl" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4  mb-1 efb" placeholder="${efb_var.text.url}" id="thankYouredirectEl" required value="${ valj_efb[0].hasOwnProperty('rePage') ? efb_url_from_storage_efb(valj_efb[0].rePage) : ''}"></div>`
 
     const labelPostionEls = `<div class="efb efb-desktop-settings-efb ${deskHideEfb}">
@@ -1507,7 +1507,7 @@ function show_setting_window_efb(idset, opts) {
       const overHost = hostMax > 0 && Number(file_size) > hostMax;
       return`
       <div class="efb  mt-3">
-      <label for="fileSizeMaxEl" class="efb  mt-3"><i class="efb bi-file-earmark-medical fs-7 ${iconMarginGlobal}"></i>${efb_var.text.maxfs} <small>(MB)</small> <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('file_size')"> </i></label>
+      <label for="fileSizeMaxEl" class="efb  mt-3"><i class="efb bi-file-earmark-medical fs-7 ${iconMarginGlobal}"></i>${efb_var.text.maxfs} <small>(MB)</small></label>${efb_help_link_efb('file_size', efb_var.text.maxfs)}
 
       <input type="number" min="1" max="300" data-id="${idset}" class="efb  elEdit form-control text-muted border-d rounded-4 h-d-efb mb-1 efb" placeholder="${efb_var.text.exDot} 20" id="fileSizeMaxEl" required value="${file_size}">
       ${hostMax > 0 ? `<small class="efb text-muted fs-8 mx-2 d-block">${(efb_var.text.hostUploadLimit || 'Your hosting accepts uploads up to %s MB.').replace('%s', hostMax)}</small>` : ''}
@@ -2123,7 +2123,7 @@ function show_setting_window_efb(idset, opts) {
         <label for="lonEl" class="efb  form-label  mt-2">${efb_var.text.zoom}</label>
         <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control border-d rounded-4 efb h-d-efb mb-1" placeholder="13 " id="zoomMapEl" required value="${valj_efb[indx].zoom}">
         <label for="marksEl" class="efb  form-label  mt-2">${efb_var.text.points.toUpperCase()}
-        <i class="efb bi-patch-question fs-7 text-success pointer-efb" onclick="Link_emsFormBuilder('pickupByUser')"> </i>
+        ${efb_help_link_efb('pickupByUser', efb_var.text.elpo || efb_var.text.locationPicker)}
         </label>
         <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control border-d rounded-4 efb h-d-efb mb-1" placeholder=${efb_var.text.exDot}  1" id="marksEl" required value="${valj_efb[indx].mark}">
         <!--  not   advanced-->
@@ -2606,7 +2606,12 @@ function efb_palette_tiles_html_efb() {
     let gem = '';
 
     if (formType == "login") { if (ob.id == "html" || ob.id == "link" || ob.id == "heading") { dragab = true; disable = "disable" } else { dragab = false; disable = ond } }
-    if (registry) {
+    // QA1-016: without the old add-on, the Jalali / Hijri tile adds Date (advanced) with that calendar (free, no upgrade).
+    const oldCal = { pdate: ['AdnPDP', 'persian'], ardate: ['AdnADP', 'islamic-umalqura'] }[ob.id];
+    if (oldCal && formType != "login" && Number(efb_var.addons && efb_var.addons[oldCal[0]]) !== 1) {
+      disable = `onclick="efb_add_cal_date_efb('${oldCal[1]}')"`;
+      dragab = false;
+    } else if (registry) {
       const key = 'field:' + ob.id;
       if (efb_feature_entry_efb(key) && !efb_feature_available_efb(key)) {
         const call = `efb_upgrade_prompt_efb({feature:'${key}', resume:{kind:'add_field', id:'${ob.id}'}, origin:'palette', opener:this})`;
@@ -2816,6 +2821,12 @@ function efbZeroAdminBodyPaddingEfb() {
   if (wpBody) wpBody.style.setProperty('padding-bottom', '0', 'important');
 }
 
+function efb_add_cal_date_efb(cal) {
+  const had = new Set(valj_efb.map((x) => x && x.id_));
+  add_element_dpz_efb('advdate');
+  const r = valj_efb.find((x) => x && x.type === 'advdate' && !had.has(x.id_));
+  if (r && window.efbBuilderApi) { try { efbBuilderApi.setDateConfig(r.id_, { cal_default: cal, cal_allowed: [cal] }); } catch (e) { /* the field stays Gregorian */ } }
+}
 function funUpdateLisetElEfb(cat){
   change_active_cat_efb(cat);
   change_visible_el_efb(cat);

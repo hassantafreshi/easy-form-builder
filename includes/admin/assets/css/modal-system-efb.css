@@ -988,9 +988,13 @@ body.efb-dlg-open {
 #settingModalEfb-body .efb-dlg__centered,
 #settingModalEfb-body .efb-dlg__centered *,
 #settingModalEfb-body .efb-dlg__loading,
-#settingModalEfb-body .efb-dlg__loading * {
+#settingModalEfb-body .efb-dlg__loading *,
+#settingModalEfb-body .efb-dlg__code-panel,
+#settingModalEfb-body .efb-dlg__code-panel * {
 	box-sizing: border-box;
 }
+/* QA1-024: the save result's shortcode panel stays inside the dialog (it was clipped by 12 px on one side). */
+#settingModalEfb-body .efb-dlg__code-panel { max-width: 100%; }
 
 /* Save flow (loading card, then the insert/update result) -------------- */
 

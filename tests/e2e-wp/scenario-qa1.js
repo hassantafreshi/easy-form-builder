@@ -19,11 +19,15 @@
  *                formatter (the viewer showed Latin digits).
  *  qa1-upgrade   FR re-show: a site updated from 4.3.1 whose plan was chosen and whose first-run e-mail check was still
  *                "pending" sees neither the plan picker nor the e-mail check again: the update ends the first-run guide.
+ *  qa1-builder   QA1-016: on Free Plus, without the old add-ons, the Jalali / Hijri tiles add Date (advanced) with that
+ *                calendar and open no upgrade dialog (fa_IR). QA1-017: the help "?" and documentation links are real
+ *                links (href, Tab reaches them, a name). QA1-024: the save result's shortcode panel is inside the dialog
+ *                (en 1280, fa_IR / ar 375).
  */
 'use strict';
 
 module.exports = function (S) {
-  const { scenario, R, ctl, wp, CFG, sleep, SHOT } = S;
+  const { scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm } = S;
 
   const settingsUrl = (tab) => CFG.base + '/wp-admin/admin.php?page=Emsfb&state=setting' + (tab ? '&tab=' + tab : '');
   async function openSettings(a, tab) {
@@ -269,6 +273,70 @@ module.exports = function (S) {
       if (before.v) wp('option', 'update', 'emsfb_version', before.v);
       if (before.pend !== '') wp('option', 'update', 'emsfb_onboarding_pending', before.pend);
       if (before.init !== '') wp('option', 'update', 'emsfb_onboarding_initial_install', before.init); else { try { wp('option', 'delete', 'emsfb_onboarding_initial_install'); } catch (e) { /* ignore */ } }
+    }
+  });
+
+  /* ================================================================== qa1-builder */
+  scenario('qa1-builder', 'QA1-016 / QA1-017 / QA1-024: the Jalali and Hijri tiles add Date (advanced); help links are real links; the save dialog\'s shortcode panel is not clipped', async ({ adminPage }) => {
+    ctl('plan', '3');
+    const made = [];
+    try {
+      for (const [loc, w] of [['', 1280], ['fa_IR', 375], ['ar', 375]]) {
+        if (loc) ctl('locale', loc);
+        try {
+          const a = await adminPage({ viewport: { width: w, height: w < 600 ? 812 : 900 }, locale: loc ? loc.replace('_', '-') : 'en-US' }, 'qa1-builder-' + (loc || 'en'));
+          const tag = `${loc || 'en'} ${w}`;
+          await openNewForm(a);
+          if (loc !== 'ar') {
+            // QA1-016
+            for (const [tile, cal] of [['pdate', 'persian'], ['ardate', 'islamic-umalqura']]) {
+              const has = await a.evaluate((t) => !!document.getElementById(t + '_b'), tile);
+              if (!has) continue;
+              const n = await a.evaluate(() => valj_efb.length);
+              await a.evaluate((t) => { const b = document.getElementById(t + '_b'); b.scrollIntoView({ block: 'center' }); b.click(); }, tile);
+              await sleep(1500);
+              const r = await a.evaluate(([n0]) => ({ added: valj_efb.slice(1).filter((x) => x.type === 'advdate').map((x) => ({ cal: x.cal_default, allowed: x.cal_allowed })), n: valj_efb.length - n0, upgrade: !!document.querySelector('.efb-upg-dialog, #efbUpgradeDlg, [data-efb-upgrade-dialog]') || /Pro feature|افزونه/.test((document.querySelector('#settingModalEfb.show') || { textContent: '' }).textContent) }), [n]);
+              const last = r.added[r.added.length - 1] || {};
+              R.check(`qa1-builder (${tag}) QA1-016: the "${tile}" tile adds Date (advanced) with the ${cal} calendar, no upgrade dialog`, r.n >= 1 && last.cal === cal && !r.upgrade, r);
+            }
+          }
+          // QA1-024: save, then measure the shortcode panel inside the dialog.
+          if (loc === '') await a.evaluate(() => { const i = valj_efb.findIndex((x, k) => k > 0 && x.type === 'advdate'); if (i < 0) add_element_dpz_efb('text'); });
+          else await a.evaluate(() => { if (valj_efb.length < 2) add_element_dpz_efb('text'); });
+          await sleep(800);
+          await a.evaluate(() => saveFormEfb(1));
+          await a.waitForSelector('#settingModalEfb.show .efb-dlg__code-panel', { timeout: 30000 });
+          await sleep(900);
+          const box = await a.evaluate(() => {
+            const p = document.querySelector('#settingModalEfb .efb-dlg__code-panel').getBoundingClientRect();
+            const c = document.querySelector('#settingModalEfb .modal-content').getBoundingClientRect();
+            return { pl: Math.round(p.left), pr: Math.round(p.right), cl: Math.round(c.left), cr: Math.round(c.right), fid: typeof form_ID_emsFormBuilder !== 'undefined' ? form_ID_emsFormBuilder : 0 };
+          });
+          if (box.fid) made.push(box.fid);
+          R.check(`qa1-builder (${tag}) QA1-024: the shortcode panel sits inside the dialog (8 px or more from each edge), nothing clipped`, box.pl >= box.cl + 8 && box.pr <= box.cr - 8, box);
+          await a.screenshot({ path: SHOT(`qa1-builder-saved-${loc || 'en'}-${w}`) });
+          await a.context().close();
+        } finally { if (loc) ctl('locale', ''); }
+      }
+      // QA1-017: Settings › SMS: the WP SMS "?" and "Learn more" are links Tab reaches, with names; Settings › Email's links too.
+      const s = await adminPage({ viewport: { width: 1280, height: 900 } }, 'qa1-builder-help');
+      await s.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb&state=setting&tab=sms', { waitUntil: 'load' });
+      await s.waitForSelector('#nav-smsconfig.active', { timeout: 20000 });
+      await sleep(600);
+      const h = await s.evaluate(() => {
+        const q = document.querySelector('#nav-smsconfig a.efb-help-link');
+        const docs = Array.from(document.querySelectorAll('#nav-email a[target="_blank"], #nav-smsconfig p a[target="_blank"]'));
+        return { help: q ? { href: q.getAttribute('href'), name: q.getAttribute('aria-label'), tab: q.tabIndex, rel: q.getAttribute('rel') } : null, docs: docs.map((x) => ({ href: x.getAttribute('href'), text: x.textContent.trim() })), bare: document.querySelectorAll('#wpbody-content i[data-eventform="links"], #wpbody-content a[data-eventform="links"]:not([href])').length };
+      });
+      R.check('qa1-builder QA1-017: the WP SMS "?" is a link (href, Tab reaches it, rel noopener) named "Help: … (opens in a new tab)"; the doc links of Email and SMS have an href; no bare "links" icon left', !!h.help && /wp-sms/.test(h.help.href) && /^Help: .+\(opens in a new tab\)$/.test(h.help.name || '') && h.help.tab === 0 && h.docs.length >= 3 && h.docs.every((d) => /^https:\/\//.test(d.href) && d.text) && h.bare === 0, h);
+      // Tab reaches it (from the SMS section's radio).
+      await s.focus('#wp_sms_plugin');
+      let reached = false;
+      for (let i = 0; i < 4 && !reached; i++) { await s.keyboard.press('Tab'); reached = await s.evaluate(() => document.activeElement && document.activeElement.classList.contains('efb-help-link')); }
+      R.check('qa1-builder QA1-017: Tab from the WP SMS choice reaches its "?"', reached, reached);
+      await s.context().close();
+    } finally {
+      for (const id of made) { try { ctl('f12-delete-form', String(id)); } catch (e) { /* ignore */ } }
     }
   });
 };

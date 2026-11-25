@@ -34,8 +34,8 @@ function grab(name) {
   }
   throw new Error(name + ' not closed');
 }
-const code = ['efb_help_url_efb', 'lan_subdomain_wsteam_efb', 'link_url_emsFormBuilder', 'Link_emsFormBuilder', 'efb_addon_help_link_efb'].map(grab).join('\n')
-  + '\nreturn { link: link_url_emsFormBuilder, open: Link_emsFormBuilder, card: efb_addon_help_link_efb };';
+const code = ['efb_help_url_efb', 'lan_subdomain_wsteam_efb', 'link_url_emsFormBuilder', 'Link_emsFormBuilder', 'efb_addon_help_link_efb', 'efb_help_link_efb'].map(grab).join('\n')
+  + '\nreturn { link: link_url_emsFormBuilder, open: Link_emsFormBuilder, card: efb_addon_help_link_efb, help: efb_help_link_efb };';
 
 /** The catalogue as the page gets it (Addon_Catalog::js_mirror() and help_topics() for a locale). */
 const catalog = {};
@@ -119,6 +119,32 @@ t('add-on card Help: no onclick and no ec-efb (one tab, not two)', !/onclick|ec-
 t('add-on card Help: screen readers hear the add-on and that a tab opens', /visually-hidden">\s*PayPal &amp; cards \(opens in a new tab\)</.test(card), true);
 t('add-on card without a page: no Help at all', api('en_US').card({ name: 'AdnGoS', title: 'Google Sheets' }), '');
 t('the cards no longer call Link_emsFormBuilder(\'${i.name}\') from an onclick', /onClick="Link_emsFormBuilder\('\$\{i\.name\}'\)"/.test(src), false);
+
+// QA1-018 (FX-ADMIN): every help topic the admin scripts name (data-linkname="…", Link_emsFormBuilder('…'),
+// efb_help_link_efb('…'), link_url_emsFormBuilder('…')), in four languages: its own page or '' (Help hidden), never an
+// index. fa_IR's WP SMS help opened the Persian documents index; an unknown topic opened the index everywhere.
+const JS = ['admin-efb.js', 'val-efb.js', 'list_form-efb.js', 'new-efb.js', 'entries-efb.js', 'response-viewer-efb.js'].map((f) => fs.readFileSync(path.join(ROOT, 'includes/admin/assets/js', f), 'utf8')).join('\n');
+const topics = new Set();
+for (const re of [/data-linkname="([A-Za-z_]+)"/g, /(?:Link_emsFormBuilder|efb_help_link_efb|link_url_emsFormBuilder)\('([A-Za-z_]+)'/g]) { let m; while ((m = re.exec(JS))) topics.add(m[1]); }
+t(`the admin scripts name at least 15 help topics (${topics.size})`, topics.size >= 15, true);
+const homes = new Set(['ws', 'efb', 'price', 'wiki', 'support', 'translateWP', 'tutorial', 'createSampleForm', 'publishForm']); // a home, a price list or the documents list on purpose
+for (const lang of ['en_US', 'de_DE', 'ar', 'fa_IR']) {
+  const bad = [];
+  for (const k of topics) { const u = linkFor(lang, k); if (u !== '' && (!/^https:\/\//.test(u) || (INDEX.test(u) && !homes.has(k)))) bad.push(k + ' => ' + u); }
+  t(`${lang}: every help topic of the admin scripts opens its own page or has no Help; none opens an index`, bad.join(' | '), '');
+  t(`${lang}: an unknown topic has no Help ('' hides it; it opened the documents index)`, linkFor(lang, 'unknownTopicX'), '');
+}
+t('fa_IR: the WP SMS "?" opens the plugin\'s page on wordpress.org', linkFor('fa_IR', 'wpsmss'), 'https://wordpress.org/plugins/wp-sms/');
+// QA1-017: the "?" and the documentation links are real links with a name.
+const hl = api('en_US').help('EmailNoti', 'Email notifications');
+t('a help "?" is a link (href, new tab, noopener) named "Help: … (opens in a new tab)"; the icon hidden from screen readers', /^<a [^>]*href="https:\/\/whitestudio\.team\/documents\/How-to-Set-Up-Form-Notification-Emails-in-Easy-Form-Builder"[^>]*target="_blank" rel="noopener" aria-label="Help: Email notifications \(opens in a new tab\)"><i [^>]*aria-hidden="true"><\/i><\/a>$/.test(hl), true);
+t('a help link for a topic without a page: nothing (or its bare words)', api('en_US').help('unknownTopicX', 'x') + '|' + api('en_US').help('unknownTopicX', '', 'Docs'), '|Docs');
+for (const f of ['val-efb.js', 'list_form-efb.js']) {
+  const s = fs.readFileSync(path.join(ROOT, 'includes/admin/assets/js', f), 'utf8');
+  const bare = (s.match(/<(i|a)\b[^>]*data-eventform="links"[^>]*>/g) || []).filter((x) => !/href=/.test(x));
+  const clicks = (s.match(/<i\b[^>]*onclick="Link_emsFormBuilder/g) || []);
+  t(`${f}: no help icon or doc link without href (data-eventform="links" on an <i>/<a>, or an <i onclick>)`, bare.length + clicks.length, 0);
+}
 
 console.log(`RESULTS: ${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

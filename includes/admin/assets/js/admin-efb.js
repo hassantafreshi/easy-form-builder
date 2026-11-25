@@ -864,10 +864,22 @@ function link_url_emsFormBuilder(state) {
       case 'translateWP':
         link = 'https://translate.wordpress.org/projects/wp-plugins/easy-form-builder/';
         break;
+      case 'wpsmss':
+        link = 'https://wordpress.org/plugins/wp-sms/';
+        break;
     }
   }
+  // QA1-018: a topic without its own page has no Help ('' hides it), never the documents' index.
+  return /(whitestudio\.team\/document|easyformbuilder\.ir\/داکیومنت\/)$/.test(link) ? '' : link;
+}
 
-  return link;
+/* QA1-017: a help "?" (label: what it helps with) or a documentation link (text: its words) as a real link: Tab
+   reaches it, it has a name, one tab opens. '' (or the bare text) when the topic has no page. */
+function efb_help_link_efb(topic, label, text, cls) {
+  const u = link_url_emsFormBuilder(topic);
+  if (!u) return text || '';
+  const t = efb_var.text, nt = t.upgNewTab || '(opens in a new tab)';
+  return `<a class="efb ${cls || 'efb-help-link mx-1 fs-7 text-success'}" href="${u}" target="_blank" rel="noopener" ${text ? `title="${nt}"` : `aria-label="${String(t.tvHelpBtn || 'Help: %s').replace('%s', String(label || '').replace(/<[^>]*>/g, '').trim())} ${nt}"`}>${text || '<i class="efb bi-patch-question" aria-hidden="true"></i>'}</a>`;
 }
 
 function Link_emsFormBuilder(state) {

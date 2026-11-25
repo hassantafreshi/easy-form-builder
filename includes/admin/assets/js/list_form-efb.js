@@ -1272,8 +1272,8 @@ function fun_show_help__emsFormBuilder() {
     <p class="efb  card-text efb pb-3 fs-6">
     ${efb_var.text.youCanFindTutorial} ${efb_var.text.proUnlockMsg}
     </p>
-    ${efb_var.pro == true ||  efb_var.pro == 1 ? '' : `<a class="efb btn text-dark btn-r btn-warning  btn-lg ec-efb"  data-eventform="links" data-linkname="price"><i class="efb  bi-gem mx-1"></i>${efb_var.text.activateProVersion}</a>`}
-    <a class="efb btn mt-1 efb btn-outline-pink btn-lg ec-efb" data-eventform="links" data-linkname="wiki"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
+    ${efb_var.pro == true ||  efb_var.pro == 1 ? '' : efb_help_link_efb('price', '', `<i class="efb bi-gem mx-1" aria-hidden="true"></i>${efb_var.text.activateProVersion}`, 'btn text-dark btn-r btn-warning btn-lg')}
+    ${efb_help_link_efb('wiki', '', `<i class="efb bi-info-circle mx-1" aria-hidden="true"></i>${efb_var.text.documents}`, 'btn mt-1 btn-outline-pink btn-lg')}
    </div>
   </div>
   ${typeof efb_powered_by === 'function' ? efb_powered_by() : ''}
@@ -1524,7 +1524,9 @@ function fun_show_setting__emsFormBuilder() {
   });
   const mxCSize = !mobile_view_efb ? 'mx-5' : 'mx-1';
   const mxCSize4 = !mobile_view_efb ? 'mx-4' : 'mx-1';
-  let msg_email = efb_var.text.mlntip.replace('%1$s', `<a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="EmailSpam" >`).replace('%2$s', '</a>').replace('%3$s', `<a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="support" >`).replace('%4$s', '</a>');
+  // QA1-017: real links (href, Tab, one tab).
+  const docA = (k) => `<a class="efb" href="${link_url_emsFormBuilder(k)}" target="_blank" rel="noopener">`;
+  let msg_email = efb_var.text.mlntip.replace('%1$s', docA('EmailSpam')).replace('%2$s', '</a>').replace('%3$s', docA('support')).replace('%4$s', '</a>');
   const is_pro = efb_var.pro == true || efb_var.pro == "true" ? true : false;
   /* F18: a locked key field opens the dialog on the first click or key press (it used to ask only after
      the whole key was typed). readonly until the plan opens it; a plan change in the page unlocks it. */
@@ -1544,12 +1546,12 @@ function fun_show_setting__emsFormBuilder() {
   if(language_not_needed_show){
     message_lanaguage = `<div class="efb my-3 mx-4 p-3" role="" style="border-radius:10px;border:1px solid #e0e7ff;background:linear-gradient(135deg,#f0f4ff 0%,#e8f5e9 100%);">
         <p class="efb mb-2" style="line-height:1.7;">
-        <i class="efb bi-translate" style="margin-inline-end:6px;"></i>${efb_var.text.translateContrib.replace('%1$s', `<a class="efb pointer-efb ec-efb" style="font-weight:600;text-decoration:underline;" data-eventform="links" data-linkname="translateWP">`).replace('%2$s', '</a>')}
+        <i class="efb bi-translate" style="margin-inline-end:6px;"></i>${efb_var.text.translateContrib.replace('%1$s', `<a class="efb" style="font-weight:600;text-decoration:underline;" href="https://translate.wordpress.org/projects/wp-plugins/easy-form-builder/" target="_blank" rel="noopener">`).replace('%2$s', '</a>')}
         </p>
         <div class="efb" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <span style="display:inline-block;background:linear-gradient(135deg,#ff6b35,#f7c948);color:#fff;font-weight:700;font-size:13px;padding:4px 12px;border-radius:20px;white-space:nowrap;">🎁 ${translateDiscountPercent}% ${efb_var.text.discountOff || 'OFF'}</span>
         <p class="efb mb-0" style="line-height:1.6;font-size:13px;color:#37474f;">
-         ${efb_var.text.translateDiscount ? efb_var.text.translateDiscount.replace('%1$s', `<a class="efb pointer-efb ec-efb" style="font-weight:600;text-decoration:underline;" data-eventform="links" data-linkname="translateWP">`).replace('%2$s', '</a>').replace('%3$s', translateDiscountPercent + '%') : ''}
+         ${efb_var.text.translateDiscount ? efb_var.text.translateDiscount.replace('%1$s', `<a class="efb" style="font-weight:600;text-decoration:underline;" href="https://translate.wordpress.org/projects/wp-plugins/easy-form-builder/" target="_blank" rel="noopener">`).replace('%2$s', '</a>').replace('%3$s', translateDiscountPercent + '%') : ''}
         </p>
         </div>
        </div>`
@@ -1586,7 +1588,7 @@ function fun_show_setting__emsFormBuilder() {
          <i class="efb  bi-gem m-3"></i>${efb_var.text.activationCode}
         </h5>
         <!-- 3.8.6 start -->
-        ${package_type == 1 ? '' :`<a class="efb ${mxCSize} efb pointer-efb ec-efb" data-eventform="links" data-linkname="price">${efb_var.text.clickHereGetActivateCode}</a>`}
+        ${package_type == 1 ? '' : efb_help_link_efb('price', '', efb_var.text.clickHereGetActivateCode, mxCSize)}
         <!-- 3.8.6 end -->
         <div class="efb card-body mx-0 py-1 ${mxCSize4}">
         <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${package_type == 1 ? 'is-valid bg-light' : ''}" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""} data-tab="${efb_var.text.general}">
@@ -1973,7 +1975,7 @@ function fun_show_setting__emsFormBuilder() {
        <h5 class="efb  card-title mt-3 ">
        <i class="efb  bi-chat-left-dots m-3"></i>${efb_var.text.sms_config}
        </h5>
-       <p class="efb ${mxCSize}">${efb_var.text.sms_mp} <a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="smsconfig" >${efb_var.text.lrnmrs.replace('%s', '')}</a></p>
+       <p class="efb ${mxCSize}">${efb_var.text.sms_mp} ${efb_help_link_efb('smsconfig', '', efb_var.text.lrnmrs.replace('%s', ''), ' ')}</p>
        <div class="efb card-body mx-0 py-1 ${mxCSize4}">
         <label class="efb form-label mx-2 fs-6">${efb_var.text.sms_ct}</label>
         <div class="efb  col-md-12 col-sm-12 px-0 mx-0 py-0 my-0 ttEfb show" data-id="sms_config_select" id="sms_config_select" >
@@ -1985,7 +1987,7 @@ function fun_show_setting__emsFormBuilder() {
          <div class="efb  form-check  radio  efb1 " data-css="sms_config_select" data-parent="sms_config_select" data-id="wp_sms_plugin" id="wp_sms_plugin-v">
           <input class="efb  form-check-input emsFormBuilder_v   fs-7 disabled" data-tag="radio" data-type="radio" data-vid="sms_config_select" type="radio" name="sms_config_select" value="wp_sms_plugin" id="wp_sms_plugin" data-id="wp_sms_plugin-id" data-op="wp_sms_plugin" onchange="check_server_sms_method_efb(this)" data-tab="${efb_var.text.sms_config}" ${sms_method=="wpsms" ? 'checked' :''}>
           <label class="efb   text-labelEfb  h-d-efb fs-7 hStyleOpEfb " id="wp_sms_plugin_lab" for="wp_sms_plugin">${efb_var.text.sms_wpsmss}</label>
-          <i class="mx-1 efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="wpsmss" > </i>
+          ${efb_help_link_efb('wpsmss', efb_var.text.sms_wpsmss)}
          </div>
         </div>
         </div>
