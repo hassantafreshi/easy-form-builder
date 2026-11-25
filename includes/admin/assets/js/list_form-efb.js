@@ -105,21 +105,6 @@ document.addEventListener('DOMContentLoaded', function() {
   observer.observe(document.body, { childList: true, subtree: true });
 });
 
-function highlightSearchResults_efb(text, searchTerm) {
-  if (!searchTerm || searchTerm.trim() === '') return text;
-
-  let displayText = text;
-  try {
-    const parsed = JSON.parse(text);
-    if (typeof parsed === 'object') {
-      displayText = JSON.stringify(parsed, null, 2);
-    }
-  } catch (e) {
-  }
-
-  const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-  return displayText.replace(regex, '<mark class="efb search-highlight">$1</mark>');
-}
 
 function setupSearchSuggestions_efb() {
   const searchInput = document.getElementById('track_code_emsFormBuilder');
@@ -4008,17 +3993,6 @@ function fun_State_btn_set_setting_emsFormBuilder($state) {
     }
 }
 
-function fun_state_loading_message_emsFormBuilder(state) {
-  if (state !== 0) {
-    if (document.getElementById('loading_message_emsFormBuilder').classList.contains('invisible') == true) {
-      document.getElementById('loading_message_emsFormBuilder').classList.remove('invisible');
-      document.getElementById('loading_message_emsFormBuilder').classList.add('visible');
-    } else {
-      document.getElementById('loading_message_emsFormBuilder').classList.remove('visible');
-      document.getElementById('loading_message_emsFormBuilder').classList.add('invisible');
-    }
-  }
-}
 
 function fun_send_setting_emsFormBuilder(data , state_auto = 0, done) {
   const report = (ok, message) => { if (typeof done === 'function') done(ok, message); };
@@ -4770,13 +4744,6 @@ function efbEmailTestFormat(str) {
   return (str || '').replace(/%s/g, function () { return i < args.length ? String(args[i++]) : '%s'; });
 }
 
-function efbEmailTestEscape(value) {
-  const text = value == null ? '' : value.toString();
-  if (typeof sanitizeXSS_efb === 'function') return sanitizeXSS_efb(text);
-  return text.replace(/[&<>"']/g, function (match) {
-    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match];
-  });
-}
 
 function efbEmailTestIsValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((value || '').trim());
@@ -5100,9 +5067,6 @@ function efbEmailTestViewModel(state, options) {
   return view;
 }
 
-function efbEmailTestRender(state, options) {
-  return window.efbEmailTestUI.render(efbEmailTestViewModel(state, options));
-}
 
 function efbEmailTestShow(state) {
   const title = efbEmailTestText('emailServer', 'Email Server');
@@ -5551,18 +5515,6 @@ function EmailTemp2Efb() {
 </span></td></tr></tbody></center></td> </tr></table></center></body>  </html>`
 }
 
-function fun_add_email_template_efb(i) {
-  switch (i) {
-    case 1:
-      document.getElementById('emailTemp_emsFirmBuilder').value = EmailTemp1Efb();
-      break;
-
-    case 2:
-      document.getElementById('emailTemp_emsFirmBuilder').value = EmailTemp2Efb();
-      break;
-
-  }
-}
 
 function funNproEmailTemp() {
  const ws = efb_var.language != "fa_IR" ? "https://whitestudio.team/" : 'https://easyformbuilder.ir';
@@ -5750,8 +5702,6 @@ function emsFormBuilder_read(state,val){
   });
 }
 
-function efb_test_onchange(){
-}
 
 /* ---------------------------------------------------------------------------------------------
  * F11-F: "Partial" — abandoned answers of the open form (AJAX get_partial_entries_Emsfb /

@@ -2045,8 +2045,6 @@ function fun_tracking_show_emsFormBuilder() {
   }, time);
 }
 
-function fun_get_tracking_code(){
-}
 
 function fun_vaid_tracker_check_emsFormBuilder() {
   if (!navigator.onLine) {

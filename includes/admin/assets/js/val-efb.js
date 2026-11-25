@@ -5488,11 +5488,6 @@ function setupFreePlan_efb() {
     efb_var_patch_efb({ current_plan: 'free', advanced_features: false, show_credit: false });
 }
 
-function redirectToProUpgrade_efb($proUrl) {
-
-    closeSetupOverlay();
-    window.open(proUrl, '_blank');
-}
 
 function sendPlanSelectionToServer_efb(selectionData) {
     jQuery.ajax({
@@ -5629,8 +5624,6 @@ function show_info_notification_efb(message) {
     efb_notification_show_efb('info', 'bi-info-circle-fill', message, 7000);
 }
 
-function show_error_notification_efb(message) {
-}
 
 let efb_setup_overlay_is_onboarding_efb = false;
 
@@ -6217,12 +6210,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 
-function forceSetupModalOnNextLoad() {
-  sessionStorage.setItem('efb_force_setup_modal', 'true');
-}
 
-function resetSetupModal() {
-  localStorage.removeItem('efb_setup_modal_shown');
-  sessionStorage.setItem('efb_force_setup_modal', 'true');
-  location.reload();
-}

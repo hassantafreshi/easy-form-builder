@@ -416,7 +416,7 @@ class Builder_Api {
 				'contract' => isset($lc['legacy_gateway']['version']) ? $lc['legacy_gateway']['version'] : null,
 				'moved_to_addons' => array('builder_panels', 'keys_screens', 'server_pricing', 'payments_table', 'forms'),
 				'targets' => \Emsfb\Payments\Legacy_Migration::targets(),
-				'migration' => array('rest' => function_exists('rest_url') ? rest_url('Emsfb/v1/payments/legacy-migration') : '/wp-json/Emsfb/v1/payments/legacy-migration', 'per_form' => true, 'rollback' => true, 'backup' => 'original JSON per form'));
+				'migration' => array('rest' => function_exists('rest_url') ? rest_url('Emsfb/v1/payments/legacy-migration') : '/wp-json/Emsfb/v1/payments/legacy-migration', 'per_form' => true, 'rollback' => true, 'backup' => 'the form before the latest move'));
 		}
 		// AI-1: what an assistant reads after the owner's own Save: the builder's event and the server hooks carry the save
 		// answer's warnings (the same codes and messages: addon_keys_kept, pay_*, verify_*, sms_*, …).
