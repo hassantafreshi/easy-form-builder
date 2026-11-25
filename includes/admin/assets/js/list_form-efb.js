@@ -1325,6 +1325,7 @@ function efb_pay_moves_html_efb(mx, mx4) {
     + '<p class="efb ' + mx + ' efb-spam-help" id="efbPayMovesHelp">' + esc(T('pmvHelp', "Forms with the older Stripe, PayPal or Persia Pay field are moved one by one to the add-on's new field. They charge the same amounts, and earlier entries and receipts stay as they are. You can move a form back.")) + '</p>'
     + '<div class="efb card-body mx-0 py-1 ' + mx4 + '"><ul class="efb efb-cpa-list" id="efbPayMovesList" aria-labelledby="efbPayMovesTitle" aria-describedby="efbPayMovesHelp"></ul>'
     + '<button type="button" class="efb btn btn-sm btn-outline-secondary efb-cpa-btn d-none" id="efbPayMovesRun">' + esc(T('pmvRun', 'Check now')) + '</button>'
+    + ' <button type="button" class="efb btn btn-sm btn-outline-secondary efb-cpa-btn d-none" id="efbPayMovesBackAll">' + esc(T('pmvUndoAll', 'Move every form back')) + '</button>'
     + '<p class="efb text-danger small mt-1" id="efbPayMovesMsg" role="status" aria-live="polite"></p></div></section>';
 }
 
@@ -1366,14 +1367,26 @@ function efb_pay_moves_load_efb() {
     document.getElementById('efbPayMovesList').innerHTML = forms.map(efb_pay_moves_row_efb).join('');
     const run = document.getElementById('efbPayMovesRun');
     if (run) run.classList.toggle('d-none', !forms.some((f) => ['waiting_addon', 'waiting_keys', 'pending', 'not_ready', 'failed'].indexOf(f.status) !== -1));
+    const all = document.getElementById('efbPayMovesBackAll');
+    if (all) all.classList.toggle('d-none', !forms.some((f) => f.can_rollback));
   };
   const busy = (el, on) => { if (el) { el.disabled = on; el.setAttribute('aria-busy', on ? 'true' : 'false'); } };
-  const fail = () => { if (msg) msg.textContent = T('pmvFailed', 'That did not work. Please try again.'); };
+  // FX-PAY hand-off: the server's reason (its code) in words, not only "That did not work".
+  const why = { field_changed: T('pmvErrChanged', 'The payment field was changed after the move, so this form cannot be moved back.'), no_backup: T('pmvErrNoBackup', 'There is no copy of this form from before the move.'), no_form: T('pmvErrNoForm', 'This form no longer exists.') };
+  const fail = (j) => { if (msg) msg.textContent = (j && (why[j.code] || j.message)) || T('pmvFailed', 'That did not work. Please try again.'); };
   box.addEventListener('click', (e) => {
     const b = e.target.closest('button');
     if (!b || b.disabled) return;
     if (msg) msg.textContent = '';
     if (b.id === 'efbPayMovesRun') { busy(b, true); call('/run', {}).then((j) => draw(j.status)).catch(fail).finally(() => busy(b, false)); return; }
+    if (b.id === 'efbPayMovesBackAll') {
+      if (!window.confirm(T('pmvConfirmAll', 'Move every moved form back to its older payment field? Visitors then pay through the older fields again.'))) return;
+      busy(b, true);
+      // 207: some forms stayed (their reason is on each row's next try); the list shows what moved back.
+      fetch(url + '/rollback-all', { method: 'POST', credentials: 'same-origin', headers: { 'X-WP-Nonce': (typeof _efb_nonce_ !== 'undefined' && _efb_nonce_) || ev.nonce || '', 'Content-Type': 'application/json' }, body: '{}' })
+        .then((r) => r.json()).then((j) => { draw(j.status); const n = Object.keys((j && j.failed) || {}).length; if (n && msg) msg.textContent = T('pmvAllLeft', 'Forms not moved back: %s.').replace('%s', n); }).catch(fail).finally(() => busy(b, false));
+      return;
+    }
     const act = b.getAttribute('data-pmv');
     if (!act) return;
     if (act === 'rollback' && !window.confirm(T('pmvConfirm', 'Move this form back to the older payment field? Visitors then pay through the older field again.'))) return;
