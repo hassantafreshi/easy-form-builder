@@ -649,7 +649,21 @@ async function measureLayout() {
   try { ({ chromium } = require('playwright')); }
   catch (e) { return null; }
 
-  const browser = await chromium.launch();
+  // Playwright's own build, else EFB_CHROMIUM, else the newest installed headless shell (as the other browser tests;
+  // a Playwright release newer than the installed browsers stopped this test before any layout check).
+  let browser;
+  if (process.env.EFB_CHROMIUM) browser = await chromium.launch({ executablePath: process.env.EFB_CHROMIUM });
+  else {
+    try { browser = await chromium.launch(); } catch (e) {
+      const base = process.env.PLAYWRIGHT_BROWSERS_PATH || '/opt/pw-browsers';
+      const dirs = fs.existsSync(base) ? fs.readdirSync(base).filter((d) => /^chromium_headless_shell-\d+$/.test(d)).sort().reverse() : [];
+      for (const d of dirs) {
+        const exe = path.join(base, d, 'chrome-headless-shell-linux64', 'chrome-headless-shell');
+        if (fs.existsSync(exe)) { browser = await chromium.launch({ executablePath: exe }); break; }
+      }
+      if (!browser) throw e;
+    }
+  }
   const results = { sizes: {}, empty: null, rtl: null };
   try {
     for (const [w, h] of [[1920, 1080], [1440, 900], [1366, 768], [1280, 720], [1024, 640], [414, 896], [390, 844], [375, 812], [360, 740]]) {

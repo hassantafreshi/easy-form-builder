@@ -101,6 +101,20 @@ repository. Admin user `admin` / `admin-pass-123` are local test defaults only.
 
 ## Run
 
+Everything that uses the test site runs under one lock (`flock`), so a unit run never overlaps an e2e run:
+
+```bash
+LOCK=${EFB_E2E_LOCK:-/path/to/e2e.lock}
+flock "$LOCK" node tests/e2e-wp/run.js 1 2 3
+php tests/run-suite.php                 # the unit suite: pure files in parallel (EFB_WP_ROOT=none), then the
+                                        # site files one at a time under the lock, or [SKIP] while it is busy
+php tests/run-suite.php --site-only --e2e="1 2 3" --lock-wait=600   # site files and scenarios under one hold
+EFB_WP_ROOT=none php tests/run-suite.php                             # without the site (no lock)
+```
+
+`tests/run-suite.php` holds the lock itself; under an outer `flock` set `EFB_E2E_LOCK_HELD=1` so it does not wait
+for itself.
+
 ```bash
 cd /path/to/easy-form-builder
 export EFB_E2E_WPCLI="php /path/to/wp-cli.phar"   # default: wp
