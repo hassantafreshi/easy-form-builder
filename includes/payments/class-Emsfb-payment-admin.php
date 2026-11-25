@@ -389,7 +389,8 @@ class Admin {
 		if ( ! $g ) {
 			// QA3-005: read only without the payment's gateway add-on; a refund goes through that gateway.
 			/* translators: %s: name of the payment add-on (e.g. Stripe) */
-			echo '<p class="efb-pay-needs-gw" data-code="pay_gateway_inactive">' . esc_html( sprintf( __( 'Checking or refunding this payment goes through %s, and its add-on is not active. Turn the add-on on in Add-ons to refund it here.', 'easy-form-builder' ), Readiness::addon_name( $p['gateway'] ) ) ) . ' <a href="' . esc_url( admin_url( 'admin.php?page=Emsfb_addon' ) ) . '">' . esc_html__( 'Open Add-ons', 'easy-form-builder' ) . '</a></p>';
+			$needs = sprintf( __( 'Checking or refunding this payment goes through %s, and its add-on is not active. Turn the add-on on in Add-ons to refund it here.', 'easy-form-builder' ), Readiness::addon_name( $p['gateway'] ) );
+			echo '<p class="efb-pay-needs-gw" data-code="pay_gateway_inactive">' . esc_html( $needs ) . ' <a href="' . esc_url( admin_url( 'admin.php?page=Emsfb_addon' ) ) . '">' . esc_html__( 'Open Add-ons', 'easy-form-builder' ) . '</a></p>';
 		}
 		$n = wp_create_nonce( 'efb_pay_action' );
 		echo '<div class="efb-pay-actions" data-id="' . (int) $p['id'] . '" data-nonce="' . esc_attr( $n ) . '">';
