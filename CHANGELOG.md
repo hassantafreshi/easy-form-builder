@@ -25,7 +25,7 @@ WordPress 6.3 or later and PHP 7.4 or later.
 * Fix: on a phone, the form builder's field settings open on screen (they opened far below the page).
 * Changed: a new Email field now sends the visitor a confirmation e-mail to the address they type, by default (the form's first e-mail field; turn it off with the field's "Enable email notifications" switch). Forms you already saved keep their setting. The switch no longer refuses to turn on before mail delivery is confirmed; it shows the delivery check as a hint instead.
 * Fix: forms made from a template lost the accessibility defaults of a new form when the builder reopened them.
-* Fix: the notification e-mail of a reply sent from the customer portal had empty sentences.
+* Developers: a reply stored through the portal core contract (F20-core, inert without its separate add-on) gets a complete notification e-mail (its sentences were empty).
 * Fix: PHP warnings on booking forms, on forms made through the builder API, and on account recovery requests.
 * Fix: two settings saved at the same moment (for example a CAPTCHA add-on's page and the plugin's own settings, or an add-on install) no longer undo each other's change.
 * Fix: the Address & Postal add-on's "Address search" page shows only its own messages, like the CAPTCHA add-ons' pages (developers: efb_addon_screen_own_notices() for any add-on settings page).

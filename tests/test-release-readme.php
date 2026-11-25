@@ -53,6 +53,11 @@ t('the Upgrade Notice starts with a "= x.y.z =" heading (no orphan bullets)', (b
 $notice = preg_match('/^= ' . preg_quote((string) $version, '/') . ' =\s*$(.*?)(?=^= |\z)/ms', $up, $nm) ? trim($nm[1]) : null;
 t('there is an upgrade notice for ' . $version, $notice !== null && $notice !== '');
 t('the ' . $version . ' upgrade notice is at most 300 characters', $notice !== null && function_exists('mb_strlen') ? mb_strlen($notice) <= 300 : strlen((string) $notice) <= 300, (string) ($notice !== null ? strlen($notice) : 0));
+$long = array();
+foreach (preg_split('/^(?== [0-9])/m', $up) as $chunk) {
+	if (preg_match('/^= ([^=]+?) =\s*\n(.*)$/s', $chunk, $um) && strlen(trim($um[2])) > 300) $long[] = $um[1] . ' (' . strlen(trim($um[2])) . ')';
+}
+t('every upgrade notice is at most 300 characters (Plugin Check: upgrade_notice_limit)', !$long, implode(', ', $long));
 t('the upgrade notice says what to do (back up, update the payment add-ons)', $notice !== null && stripos($notice, 'back up') !== false && stripos($notice, 'add-on') !== false);
 t('readme.txt is at most 70 KB (was 117 KB)', strlen($readme) <= 70000, (string) strlen($readme));
 $short = preg_match('/^License URI:.*\n(.+)\n/m', $readme, $sm) ? trim($sm[1]) : '';
@@ -63,6 +68,10 @@ t('emsfb.php: License: GPLv2 or later', $hdr($main, 'License') === 'GPLv2 or lat
 t('readme.txt: License: GPLv2 or later', $hdr($readme, 'License') === 'GPLv2 or later', (string) $hdr($readme, 'License'));
 t('emsfb.php and readme.txt: the GPL 2.0 licence address', $hdr($main, 'License URI') === 'https://www.gnu.org/licenses/gpl-2.0.html' && $hdr($readme, 'License URI') === 'https://www.gnu.org/licenses/gpl-2.0.html');
 t('README.md: GPLv2 or later, no LGPL or GPLv3 badge', stripos($md, 'GPLv2 or later') !== false && stripos($md, 'LGPL') === false && stripos($md, 'gpl-3.0') === false);
+
+/* The owner (2026-11-25): the customer portal is left out for now; the readme does not announce or promote it (its
+   inert core contract stays a developer note in CHANGELOG.md and docs/). */
+t('readme.txt and README.md do not mention the customer portal', stripos($readme, 'portal') === false && stripos($md, 'portal') === false);
 
 /* Owner decision 7: WordPress 6.3. */
 t('emsfb.php: Requires at least: 6.3', $hdr($main, 'Requires at least') === '6.3', (string) $hdr($main, 'Requires at least'));
@@ -101,7 +110,18 @@ t('External services names every host (' . count($hosts) . ')', !$missing, implo
 foreach (array('reCAPTCHA', 'Google Charts', 'Google Fonts', 'jsDelivr', 'font', 'add-on server', 'license server', 'e-mail test', 'language packs', 'Akismet', 'Webhook', 'Add-ons') as $w) {
 	t("External services covers: $w", stripos($ext, $w) !== false);
 }
-t('every service with a third party links its terms or privacy policy', substr_count($ext, '](https://') >= 10, (string) substr_count($ext, '](https://'));
+foreach (array('https://policies.google.com/privacy', 'https://www.jsdelivr.com/terms/privacy-policy', 'https://whitestudio.team/privacy-policy-terms/', 'https://wordpress.org/about/privacy/', 'https://akismet.com/tos/') as $u) {
+	t("External services links $u", strpos($ext, "]($u)") !== false);
+}
+/* wordpress.org merges every section it does not know (External services among them) into the Description and cuts
+   it after 2,500 words (Plugin Check: trimmed_section_description): the disclosure must never be the part cut off. */
+$merged = 0;
+foreach (preg_split('/^== /m', $readme) as $chunk) {
+	if (!preg_match('/^(.+?) ==\s*\n(.*)$/s', $chunk, $sm2)) continue;
+	if (in_array(strtolower(trim($sm2[1])), array('installation', 'frequently asked questions', 'screenshots', 'changelog', 'upgrade notice'), true)) continue;
+	$merged += preg_match_all('/\S+/', $sm2[2]);
+}
+t('the Description with the sections merged into it is at most 2,500 words (was 3,480 with External services)', $merged > 1000 && $merged <= 2500, (string) $merged);
 
 echo "\nRESULTS: $pass passed, $fail failed\n";
 exit($fail ? 1 : 0);

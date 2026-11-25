@@ -12,237 +12,107 @@ Drag-and-drop WordPress forms with a built-in email delivery test, a tracking co
 
 == Description ==
 
- Easy Form Builder is a comprehensive WordPress form plugin designed to help website owners create, manage, and maintain a wide variety of forms using a visual drag-and-drop form builder interface. The plugin is suitable for users who want to build professional forms without writing code, while still keeping full control over form data, submissions, and communication workflows, including free custom email notification templates with a built-in visual editor.
-
-This form builder plugin can be used to create contact forms, support request forms, survey and feedback forms, payment forms (with a payment add-on such as Stripe or PayPal), subscription forms and custom login or registration forms for WordPress users. All form data is stored directly on your WordPress website, ensuring transparency, data ownership, and predictable behavior.
+Easy Form Builder is a WordPress form plugin with a visual drag-and-drop form builder. Build contact forms, support and feedback forms, surveys and polls, payment forms (with a payment add-on such as Stripe or PayPal), login and registration forms, file upload forms and multi-step forms without writing code, with free custom email notification templates and a built-in visual editor.
 
 [youtube https://www.youtube.com/watch?v=XBVyCFP36OY]
 
- Easy Form Builder focuses on clarity, extensibility, and usability. The plugin does not rely on external form services by default and does not send form submissions to third-party servers. This makes it suitable for websites that require clear data handling policies and on-site form management. The few remote services the plugin can use, and when, are listed under External services.
-
+Every entry is stored in your own WordPress database. The plugin does not rely on external form services and does not send form submissions to third-party servers. The few remote services it can use, and when, are listed under External services.
 
 == What Can This Form Plugin Do? ==
 
-With Easy Form Builder, you can use a single form plugin to build and manage multiple types of forms and form-based workflows:
-
-- Contact forms for general inquiries
-- Support and feedback forms with message tracking
-- Survey and poll forms with structured results
-- Payment forms with Stripe, PayPal and other payment gateways (payment add-ons)
-- Login (sign-in) forms for WordPress users
-- Registration (sign-up) forms for new users
-- File upload forms
-- Audio recording forms for collecting voice messages and voice feedback
-- Video recording forms for video testimonials and webcam responses
-- Screen recording forms for bug reports and support requests
-- Private or restricted-access forms
-- Multi-step forms for improved usability
-- Smart forms with conditional logic that show or hide fields based on user answers
+- Contact, support and feedback forms with a confirmation code and message tracking
+- Survey and poll forms with charts of the results
+- Payment, order, donation and booking forms (payment add-ons)
+- Login (sign-in) and registration (sign-up) forms for WordPress users
+- File upload forms, and audio, video and screen recording forms
+- Multi-step forms, private forms and forms open only on a schedule
+- Smart forms with conditional logic that show or hide fields based on answers
 - Electronic signature forms for contracts and agreements
-- Address forms in your country's layout, with a map location picker (Address & Postal add-on)
-- Custom email notification templates with a built-in visual editor
-- Job application forms for hiring and recruitment
-- Event registration forms for conferences and workshops
-- Order and booking forms with limits, schedules and stock for each option
-
-The form builder provides a consistent interface for form creation, submission handling, and response management inside WordPress.
-
+- Job application and event registration forms, from ready-made templates
 
 == Core Features ==
 
 = Drag & Drop Form Builder =
-The plugin includes a visual drag-and-drop form builder. Fields can be added, removed, and reordered without writing code. Each field provides configuration options such as labels, placeholders, validation rules, and display settings.
+Add, remove and reorder fields without code, each with its own labels, placeholders, checks and display settings. Undo and Redo, form versions, field search and keyboard shortcuts are built in, and ready-made templates (contact, reservation, job application, event registration, quote request, booking, order and survey forms) get you started.
 
 = Email Notification =
-Easy Form Builder supports automatic email notifications after a form is submitted. Notifications can be sent to administrators, form managers, or users. Email templates can be customized to control the message content and layout.
+Send an email to the administrator, form managers or the visitor after each submission. Custom email notification templates are free: the built-in visual editor sets the subject, body, layout and submission details without HTML.
 
-Custom email notification templates are included for free. The built-in visual editor lets you design clear, branded WordPress form notification emails without writing HTML code. You can customize the email subject, message body, layout, and submission details so each contact form, survey form, payment form, registration form, or support form can send a professional email notification that matches your website and workflow.
-
-To help you keep WordPress form notifications reliable, Easy Form Builder includes an email delivery check ("Check Email Server") that sends a real test message the same way a form email is sent, waits for it to arrive, and reports a deliverability score out of 100. A detailed report with spam score, SPF, DKIM and DMARC results and recommendations is emailed to the site admin. The Easy Form Builder dashboard widget also shows useful form activity insights, including page views for pages containing forms, completed form submissions, sent email counts, failed email counts, and an **Email Error Log** button where you can review any email sending errors when needed.
-
-For detailed setup instructions, see:
+The email delivery check ("Check Email Server") sends a real test message the same way a form email is sent, waits for it to arrive and gives a deliverability score out of 100, with a report (spam score, SPF, DKIM, DMARC and advice) emailed to the site admin. The dashboard widget shows page views of form pages, submissions, sent and failed emails, and an **Email Error Log**.
 [How to set up form notification emails in Easy Form Builder](https://whitestudio.team/document/how-to-set-up-form-notification-emails-in-easy-form-builder/)
 
 = Confirmation Code (Tracking ID) =
-Each form submission generates a unique confirmation code. This tracking ID allows administrators and users to reference, search, and manage individual submissions efficiently.
-
-Learn more about this feature:
+Each submission gets a unique confirmation code that visitors and administrators use to find it, follow it and reply to it.
 [How to activate a Confirmation Code in Easy Form Builder](https://whitestudio.team/document/how-to-activate-confirmation-code-in-easy-form-builder/)
 
 = Form Validation and Spam Protection =
-The form plugin checks every answer in the browser and again on the server: required fields, formats, unique values, word limits, patterns, allowed e-mail domains, password strength, and one-time codes by e-mail or SMS. Errors are written under each field and read by screen readers.
+Every answer is checked in the browser and again on the server: required fields, formats, unique values, word limits, patterns, allowed e-mail domains, password strength, and one-time codes by e-mail or SMS. Errors are written under each field and read by screen readers.
 
-Spam protection works without a CAPTCHA: a hidden trap field and a minimum time to fill, plus Akismet (when installed) and WordPress's own disallowed words. Spam is kept in its own tab instead of being lost. Google reCAPTCHA (v2, v2 invisible or v3) can be turned on for the whole site or per form. Cloudflare Turnstile, hCaptcha, ALTCHA, Question CAPTCHA and Friendly Captcha are add-ons (Free Plus and Pro).
+Spam protection works without a CAPTCHA: a hidden trap field and a minimum time to fill, plus Akismet (when installed) and WordPress's own disallowed words; spam waits in its own tab. Google reCAPTCHA (v2, v2 invisible or v3) can be turned on for the site or per form. Cloudflare Turnstile, hCaptcha, ALTCHA, Question CAPTCHA and Friendly Captcha are add-ons (Free Plus and Pro).
 
 = Form Limits, Scheduling and Save for Later =
-Limit how many answers a form takes, open and close it on a schedule, limit answers per user, IP address, browser or e-mail address, and limit private forms to chosen user roles. Visitors can save their answers and continue later from a private link.
-
-= Multi-Step Forms =
-Multi-step forms allow long forms to be divided into multiple sections. This improves user experience and helps reduce form abandonment.
-
-= Ready-Made Form Templates =
-The plugin includes pre-built form templates to help you get started quickly. Available templates include contact forms, reservation forms, job application forms, event registration forms, quote request forms, booking forms, order forms, survey forms, and more.
-
+Limit how many answers a form takes, open and close it on a schedule, limit answers per user, IP address, browser or e-mail address, and keep private forms for chosen user roles. Visitors can save their answers and continue later from a private link.
 
 == Form Entry & Message Management Dashboard ==
 
- Easy Form Builder includes a dedicated **Form Entry & Message Management Dashboard** that allows administrators to manage all form submissions directly from the WordPress admin area. This dashboard acts as a centralized system for reviewing messages, tracking requests, and communicating with users without relying solely on email.
-
-Through this dashboard, administrators can read submitted messages, respond directly from the WordPress backend, and attach files to replies when needed. This approach helps keep communication organized and ensures that conversations related to form submissions remain accessible in one place.
-
-The Form Entry & Message Management Dashboard also provides practical tools for organizing and reviewing submissions. Entries load page by page with tabs (All, Unread, Starred, Payment pending, Closed, Spam, Trash) and search. Administrators can star an entry, add internal notes, see its history, close or reopen it, move it to the trash with Undo, edit it and resend its notification (Free Plus), and print it. Form responses can be downloaded as PDF or exported to CSV with the columns you choose, or to Excel (Free Plus). Statistics per form show views, submissions and conversion (Free Plus).
-
+Manage every submission in the WordPress admin: read it, reply from the dashboard with attachments, and keep the conversation with the visitor in one place. Entries load page by page with tabs (All, Unread, Starred, Payment pending, Closed, Spam, Trash) and search. Star an entry, add internal notes, see its history, close or reopen it, move it to the trash with Undo, print it, and export to CSV with the columns you choose. Free Plus adds editing an entry, resending its notification, Excel export, PDF downloads and statistics per form.
 
 == Survey and Poll Forms ==
 
-Easy Form Builder includes dedicated fields for creating survey and poll forms. These fields allow website owners to collect structured feedback and analyze results directly inside WordPress.
-
-Survey-related features include:
-
-- Rating star fields
-- 5-point scale fields
-- Net Promoter Score (NPS) fields
-- Yes / No question fields
-- Visual charts for survey results
-- Exporting survey responses to CSV format
-
-Survey forms can be used for customer feedback, research, evaluations, and internal assessments.
-
+Rating stars, 5-point scales, Net Promoter Score (NPS) and Yes / No questions, with charts of the results and CSV export, for customer feedback, research and evaluations.
 
 == Conditional Logic - Show or Hide Fields Based on User Answers ==
 
-Easy Form Builder includes a visual conditional logic builder that turns static forms into smart forms. Conditional logic (also known as conditional fields) lets a form react to what a visitor enters, so each user only sees the fields that are relevant to them. Shorter, more personal forms reduce form abandonment and improve completion rates.
+The visual conditional logic builder turns static forms into smart forms: show or hide fields and steps, make fields required or optional, set or clear values, jump to a step (skip logic), and send conditional email notifications to different recipients. Conditions compare text, choices, numbers and dates and combine with AND/OR. Rules are enforced on the server too, so hidden fields are validated and sanitized correctly.
 
-With conditional logic you can:
-
-- Show or hide fields based on a user's answer
-- Show or hide entire steps in multi-step forms
-- Make fields required or optional dynamically
-- Set, copy, or clear field values automatically
-- Jump to a specific step (skip logic and conditional branching)
-- Send conditional email notifications to different recipients based on the submitted answers
-
-Conditions support text, choice, numeric, and date comparisons (is, is not, contains, greater than, less than, between, before, after) and can be combined with AND/OR groups. Rules are enforced on the server as well as in the browser, so hidden or disabled fields are validated and sanitized correctly - conditional logic is not just a front-end effect.
-
-Conditional logic is available at no cost in the Free Plus version: up to 3 logic rules per form, up to 2 conditions per rule, and up to 2 conditional email notification rules, with an in-builder Test mode. The Pro version removes these limits and adds nested AND/OR groups, calculations, rule priority, conditional thank-you messages and redirects, conditional webhooks, rule export/import, and the logic Inspector (debugger).
-
+Conditional logic is free in Free Plus (3 rules per form, 2 conditions per rule, 2 conditional email rules, Test mode). Pro removes the limits and adds nested groups, calculations, rule priority, conditional thank-you messages, redirects and webhooks, rule export and import, and the logic Inspector.
 
 == Payment Forms ==
 
- Payment gateways are add-ons, so your site only loads the gateway you use. Each add-on adds a payment field to the form builder:
+Payment gateways are add-ons, so your site only loads the gateway you use. Each adds a payment field to the builder:
 
 - Stripe and PayPal (Free Plus and Pro), including recurring billing
 - Persia Pay (ZarinPal) (Pro)
 - Mollie, Payplug, Tap Payments, Omise, PayTabs, Paymob and Xendit (Free Plus and Pro)
 
-You can use payment fields to create donation forms, order forms, and booking and service payment forms. The amount is always computed on the server. The Payments screen lists every payment with its history, and refunds it when the gateway supports refunds. Payment entries are also handled alongside other form submissions in the entries dashboard.
-
-For a step-by-step guide, see:
+The amount is always computed on the server. The Payments screen lists every payment with its history and refunds it when the gateway supports refunds.
 [How to Create a payment form to collect online payments in Easy Form Builder](https://whitestudio.team/document/how-to-create-a-payment-form-in-easy-form-builder/)
-
 
 == Login and Registration Forms ==
 
-The form builder allows you to create custom login and registration forms for WordPress users. These forms can replace the default WordPress login page and provide a customized user onboarding experience.
-
-Login and registration forms integrate with WordPress user management and allow you to control form layout, validation, and additional user fields.
+Create custom login and registration forms for WordPress users, with your own layout, checks and extra user fields, in place of the default WordPress login page.
 
 == Advanced Form Fields ==
 
- Easy Form Builder provides a wide collection of advanced form fields, including:
-
-- Drag-and-drop file upload fields
-- Audio recorder field for recording voice messages from the microphone
-- Video recorder field for recording video from the webcam
-- Screen recorder field for capturing on-screen recordings
-- Signature (e-signature) fields
-- Location picker fields (OpenStreetMap and LeafletJS, Address & Postal add-on)
-- Name and address fields in each country's format
-- Advanced date fields (Gregorian, Persian, Hijri and more) with date limits and time
-- Repeater groups, ranking fields, hidden fields and collapsible sections
-- Country, state/province, and city dropdown fields
-- Multiple select dropdown fields
-- Range slider fields
-- Rating and star fields
-- Switch and toggle fields
-- Date pickers (Gregorian, Hijri, and Jalali)
+- Drag-and-drop file upload with several files, camera capture and private storage
+- Audio, video and screen recorder fields: visitors record from the browser, and every recording is uploaded to your own site
+- Signature (e-signature) fields; typed signatures with the Typed Signature add-on
+- Name and address fields in each country's format; a map location picker (OpenStreetMap) with the Address & Postal add-on
+- Country, state/province and city lists, bundled with the plugin
+- Advanced date field (Gregorian, Persian, Hijri and more) with date limits and time; Jalali and Hijri date pickers
+- Repeater groups, ranking, hidden fields with smart tags, collapsible sections and rich text
+- Multiple select, range slider, rating, switch, telephone and mobile, color picker, and matrix and table fields
 - Calculation fields and number formats (Numbers & Calculations add-on)
-- Telephone and mobile input fields
-- Color picker fields
-- Matrix and table fields for structured data collection
-
-These fields allow you to build complex, region-aware, and structured forms without custom development.
-
-
-== Audio, Video, and Screen Recording Form Fields ==
-
-Easy Form Builder lets you add audio recording, video recording, and screen recording fields to any WordPress form, so visitors can record and submit media right from the browser - no extra apps, plugins, or third-party recording services. Every recording is uploaded to your own WordPress site, so your form data stays under your control.
-
-- Audio recorder field - let visitors record a voice message from their microphone. Great for voice feedback forms, audio testimonial forms, voice message and voicemail forms, language and pronunciation practice, and podcast or audio submission forms.
-- Video recorder field - let visitors record video from their webcam. Perfect for video testimonial forms, job application video introductions, customer video feedback, and video question-and-answer forms.
-- Screen recorder field - let visitors record their screen (with optional microphone audio). Ideal for bug report forms, technical support request forms, product feedback, and tutorial or demo submission forms.
-
-
 
 == Integrations and Add-ons ==
 
- Easy Form Builder supports optional integrations and add-ons that extend the functionality of the form plugin:
-
-- Conditional Logic add-on for building smart forms - show or hide fields and steps, send conditional email notifications, and (in Pro) trigger conditional redirects and webhooks based on user answers. Included at no cost with the Free Plus version
-
-- SMS notification add-on for sending text messages on form submission
-
+- Conditional Logic (free with Free Plus; more in Pro)
 - Payment add-ons: Stripe, PayPal, Persia Pay (ZarinPal), Mollie, Payplug, Tap Payments, Omise, PayTabs, Paymob and Xendit
-
 - CAPTCHA add-ons: Cloudflare Turnstile, hCaptcha, ALTCHA, Question CAPTCHA and Friendly Captcha
-
-- Numbers & Calculations, Typed Signature, Address & Postal, Booking and Visitor Country add-ons
-
-- Offline forms add-on for collecting data without an active internet connection
-
-- Hijri (Qamari) date picker add-on
-
-- Jalali (Shamsi) date picker add-on
-
-- Auto-Populate Integrations add-on (Autofill) for auto-filling form fields with real-time data from an external API - with API Key, Bearer Token, or Basic Auth authentication, response-to-field mapping, a built-in connection test, and smart caching
-
-- Telegram notification add-on for sending instant form submission alerts and admin response notifications to Telegram using a bot
-
-- Google Sheets integration for sending WordPress form submissions to Google Sheets automatically - no Zapier or third-party connector required. Connect your site with a Google service account (one-time setup, no OAuth login and no expiring tokens), let the plugin create a new spreadsheet or use one you already own, and bind each form to a sheet tab with a simple wizard. You can map form fields to spreadsheet columns with custom headers and ordering, apply ready-made sheet styles, and review every sync attempt in a built-in Google Sheet log. The header row and worksheet tab are created automatically on the first submission
-
-- Security & Spam Protection add-on for blocking WordPress form spam without CAPTCHA - invisible, behavior-based bot detection with a hidden honeypot field, signed single-use security tokens, and per-IP rate limiting for form submissions, file uploads, confirmation-code lookups, public replies, and payment requests. It also protects your notification budget by stopping suspicious entries from consuming email, SMS, Telegram, webhook, or Google Sheets quota, supports an IP allowlist and blocklist, and keeps privacy-aware security logs that store hashed identifiers instead of raw IP addresses. It starts in Monitor-only mode, so you can review real traffic before turning on blocking
-
-- Shield Security plugin silentCAPTCHA integration for invisible bot and spam protection without user interaction
-
+- Numbers & Calculations, Typed Signature, Address & Postal, Booking and Visitor Country
+- SMS notifications (through the WP SMS plugin) and Telegram notifications
+- Google Sheets: new entries become rows of your spreadsheet, with no Zapier or other connector
+- Human Shield: invisible bot protection with signed tokens and rate limits, which keeps bots from using up your email and SMS quota
+- Auto-Populate: fill fields from your CSV dataset or an external API
+- Offline forms, and Jalali and Hijri date pickers
+- Shield Security silentCAPTCHA integration
 - Easy Form Builder Data Tools, a free separate plugin: export and import forms, import from Contact Form 7 and other form plugins, and backups
-
-
 
 == Premium Features Included Free ==
 
-Many WordPress form plugins only offer these features in a paid plan. In Easy Form Builder, they are included at no cost:
+Entries in your own database with the entries dashboard, email notifications with custom templates, file uploads, confirmation codes, multi-step forms, survey fields, CSV export and the weekly email deliverability test are free. Free Plus, also free of charge, adds conditional logic, the Stripe and PayPal add-ons, advanced fields and PDF downloads; its only difference is a small "Powered by Easy Form Builder" credit on the page that shows the form.
 
-- Form entries stored in your own WordPress database, with a full entry management dashboard (Free)
-- Email notifications after each form submission (Free)
-- Custom email notification templates with a built-in visual editor for branded WordPress form emails (Free)
-- File upload forms (Free)
-- Confirmation code (tracking ID) for every submission (Free)
-- Multi-step forms (Free)
-- Basic survey and poll fields (Free)
-- Exporting form entries to CSV (Free)
-- Conditional logic to show or hide fields based on answers (Free Plus)
-- Payment forms with the Stripe and PayPal add-ons (Free Plus)
-- Advanced fields such as signature, location picker, matrix and table, and more (Free Plus)
-- Downloading responses as PDF (Free Plus)
-- Automated weekly email deliverability test with spam score and SPF/DKIM/DMARC checks (Free)
-
-The Free Plus version is completely free of charge - the only difference is a small "Powered by Easy Form Builder" link and credit, included only in the content of the page where the form is published.
-
-
-== Available Versions ==
-
- [Easy Form Builder is available in multiple versions](https://whitestudio.team/document/easy-form-builder-free-plus-activation-guide/) to support different usage needs. Each version is designed to provide a clear and predictable set of features.
-
+[Easy Form Builder is available in multiple versions](https://whitestudio.team/document/easy-form-builder-free-plus-activation-guide/).
 
 == Frequently Asked Questions ==
 
@@ -404,47 +274,35 @@ In the Easy Form Builder plugin settings, you can choose your preferred confirma
 
 == External services ==
 
-Easy Form Builder stores form entries in your own WordPress database and does not send them to WhiteStudio or to any other company. The plugin connects to the services below only for the feature named, and only when that feature is used. Form answers are never sent unless a service below says so.
+Entries stay in your WordPress database and are never sent to WhiteStudio or another company. The plugin contacts the services below only for the feature named. Form answers are not sent unless stated.
 
-**Google reCAPTCHA** (www.google.com, www.gstatic.com, or www.recaptcha.net when you choose it in Settings > Captchas)
-Used only when you turn reCAPTCHA on for the site, a form, the confirmation code box, or login and registration forms. The visitor's browser loads Google's reCAPTCHA script, which sends Google the information it collects about the visit. When the form is sent, your site sends Google your secret key and the visitor's reCAPTCHA token to check it (no answers, no IP address). [Google Terms of Service](https://policies.google.com/terms), [Google Privacy Policy](https://policies.google.com/privacy).
+**Google reCAPTCHA** (www.google.com, www.gstatic.com, or www.recaptcha.net if chosen in Settings > Captchas): only where you turn reCAPTCHA on. The visitor's browser loads Google's script, which sends Google data about the visit; on submit your site sends Google your secret key and the visitor's token to verify it (no answers, no IP address). [Terms](https://policies.google.com/terms), [Privacy](https://policies.google.com/privacy).
 
-**Google Charts** (www.gstatic.com)
-Administrators only: the plugin's Panel loads the Google Charts library in your browser to draw charts of your entries. The chart data stays in your browser; Google receives the request for the library (your IP address and browser). [Google Terms of Service](https://policies.google.com/terms), [Google Privacy Policy](https://policies.google.com/privacy).
+**Google Charts** (www.gstatic.com): administrators only. The Panel loads the charts library in your browser to draw your entry charts; the data stays in the browser. [Privacy](https://policies.google.com/privacy).
 
-**Google Fonts** (fonts.googleapis.com, fonts.gstatic.com) and **jsDelivr** (cdn.jsdelivr.net)
-Administrators only: the plugin's admin screens load the Roboto font from Google Fonts, and Settings > Response box loads the fonts you preview from Google Fonts and jsDelivr. Your browser's request (IP address and browser) reaches these services. Your visitors' pages never load Google Fonts: the response box fonts are included in the plugin. [Google Privacy Policy](https://policies.google.com/privacy), [jsDelivr Privacy Policy](https://www.jsdelivr.com/terms/privacy-policy).
+**Google Fonts** (fonts.googleapis.com, fonts.gstatic.com) and **jsDelivr** (cdn.jsdelivr.net): administrators only. The admin screens load the Roboto font, and Settings > Response box loads the fonts you preview. Visitors' pages never load Google Fonts: the plugin includes the fonts. [Google Privacy](https://policies.google.com/privacy), [jsDelivr Privacy](https://www.jsdelivr.com/terms/privacy-policy).
 
-**Your own font address**
-If you enter a font stylesheet address of your own in Settings > Response box, your visitors' browsers load it from the address you entered. That service is your choice.
+**Your own font address**: a font stylesheet address you enter in Settings > Response box is loaded by your visitors' browsers from that address.
 
-**Development copies only: jsDelivr** (cdn.jsdelivr.net) **and WhiteStudio's Iran mirror** (cdn.easyformbuilder.ir)
-The release from WordPress.org includes the country, state and city lists and the poll chart library (Chart.js 4.4.1). A development copy of the plugin built without these files (for example one taken straight from GitHub) loads the lists from jsDelivr, or from cdn.easyformbuilder.ir on Persian (fa_IR) sites, and Chart.js from jsDelivr, in the visitor's browser. No form data is sent. On Persian sites the plugin also checks once an hour whether cdn.easyformbuilder.ir answers. [jsDelivr Privacy Policy](https://www.jsdelivr.com/terms/privacy-policy), [WhiteStudio Privacy Policy and Terms](https://whitestudio.team/privacy-policy-terms/).
+**Development copies only** (cdn.jsdelivr.net, cdn.easyformbuilder.ir): the WordPress.org release includes the country, state and city lists and Chart.js. A copy built without them (for example straight from GitHub) loads them in the visitor's browser from jsDelivr, or from WhiteStudio's mirror cdn.easyformbuilder.ir on Persian sites. No form data is sent. Persian (fa_IR) sites also check once an hour whether that mirror answers.
 
-**WhiteStudio add-on server** (whitestudio.team; easyformbuilder.ir for Persian sites)
-When you install or update an add-on from Easy Form Builder > Add-ons, and when the plugin reinstalls your add-ons after it is updated. The request names the add-on and carries your site's domain and the WordPress and Easy Form Builder versions. [WhiteStudio Privacy Policy and Terms](https://whitestudio.team/privacy-policy-terms/).
+**WhiteStudio add-on server** (whitestudio.team; easyformbuilder.ir for Persian sites): when you install or update an add-on, or the plugin reinstalls your add-ons after an update. Sends the add-on's name, your site's domain and the WordPress and plugin versions.
 
-**WhiteStudio license server** (whitestudio.team)
-When you enter a Pro activation code, and from time to time afterwards to check that it is still valid. Sends the activation code, your site's domain, the site's admin e-mail address, the Easy Form Builder, WordPress and PHP versions, the site language and the list of active plugins. Persian (fa_IR) sites check the code on the site itself and send nothing. [WhiteStudio Privacy Policy and Terms](https://whitestudio.team/privacy-policy-terms/).
+**WhiteStudio license server** (whitestudio.team): when you enter a Pro activation code, and from time to time to check it. Sends the code, your site's domain, the admin e-mail address, the plugin, WordPress and PHP versions, the site language and the active plugins. Persian sites check the code locally and send nothing.
 
-**WhiteStudio e-mail test service** (whitestudio.team, or www.whitestudio.team when the first address does not answer)
-Tests whether your form e-mails arrive. What it receives and when is described in the FAQ "Does the email delivery check send data to an external service?". Form submissions are never sent to it. [WhiteStudio Privacy Policy and Terms](https://whitestudio.team/privacy-policy-terms/).
+**WhiteStudio e-mail test service** (whitestudio.team, www.whitestudio.team as fallback): tests whether form e-mails arrive; see the FAQ "Does the email delivery check send data to an external service?". Never receives form submissions.
 
-**WhiteStudio language packs** (whitestudio.team) **and WordPress.org translations** (api.wordpress.org, downloads.wordpress.org)
-When your site or one of its users uses a language the plugin does not include (it includes English, Persian, Arabic and German), the plugin asks these servers for a translation of Easy Form Builder in that language and installs it in wp-content/languages/plugins. The request carries the plugin's name and version and the language codes, nothing about your forms or visitors. [WhiteStudio Privacy Policy and Terms](https://whitestudio.team/privacy-policy-terms/), [WordPress.org Privacy Policy](https://wordpress.org/about/privacy/).
+**Language packs** (whitestudio.team, api.wordpress.org, downloads.wordpress.org): when a language the plugin does not include is used (it includes English, Persian, Arabic and German), it downloads that translation. Sends the plugin's name and version and the language codes.
 
-**WhiteStudio feedback and review reward** (whitestudio.team)
-Only when you press Send in the optional survey shown when you deactivate the plugin (your reason, your message, your e-mail address if you type it, and the plugin, WordPress and PHP versions; the service then checks your site's domain once), or when you ask for the review reward (your WordPress.org user name, your e-mail address, your site's domain and language, and the plugin version, to send the discount code). Nothing is sent if you skip them. [WhiteStudio Privacy Policy and Terms](https://whitestudio.team/privacy-policy-terms/).
+**Feedback and review reward** (whitestudio.team): only when you press Send in the optional deactivation survey (reason, message, e-mail if typed, plugin, WordPress and PHP versions) or ask for the review reward (WordPress.org user name, e-mail, site domain and language, plugin version).
 
-**Akismet** (through the Akismet plugin)
-When the Akismet plugin is installed and active, each answer is checked for spam by Akismet through that plugin. The visitor's IP address is included only as your privacy setting allows. [Akismet Terms](https://akismet.com/tos/), [Automattic Privacy Policy](https://automattic.com/privacy/).
+WhiteStudio's terms and privacy policy: [whitestudio.team/privacy-policy-terms](https://whitestudio.team/privacy-policy-terms/). WordPress.org: [Privacy](https://wordpress.org/about/privacy/).
 
-**Webhooks you add**
-A webhook rule of the Conditional Logic add-on sends the entry's answers to the address you enter, when its conditions are met.
+**Akismet** (through the Akismet plugin, when it is active): answers are checked for spam; the visitor's IP address only as your privacy setting allows. [Terms](https://akismet.com/tos/), [Privacy](https://automattic.com/privacy/).
 
-**Add-ons**
-Each add-on connects only to the service it is made for, and only after you set it up: the payment add-ons to their gateway (Stripe, PayPal, ZarinPal, Mollie, Payplug, Tap Payments, Omise, PayTabs, Paymob, Xendit), Google Sheets, Telegram, SMS through the WP SMS plugin, the CAPTCHA add-ons to their provider (Cloudflare Turnstile, hCaptcha, Friendly Captcha), Address & Postal to OpenStreetMap for address search, and Visitor Country to the IP location service you choose.
+**Webhooks you add**: a webhook rule of the Conditional Logic add-on sends the entry's answers to the address you enter.
 
+**Add-ons** connect only to their own service, after you set them up: payment gateways (Stripe, PayPal, ZarinPal, Mollie, Payplug, Tap Payments, Omise, PayTabs, Paymob, Xendit), Google Sheets, Telegram, SMS through WP SMS, CAPTCHA providers (Cloudflare Turnstile, hCaptcha, Friendly Captcha), OpenStreetMap for address search (Address & Postal) and the IP location service you choose (Visitor Country).
 
 == Installation ==
 
@@ -513,15 +371,11 @@ Mandatory update. Improves form builder security and sets up the i18n translatio
 
 = 4.2.0 =
 
-Recommended update. Adds an onboarding wizard and direct settings links, improves email delivery monitoring with weekly reports and an Email Error Log, strengthens form submission and add-on handling, and includes database schema updates. Back up your site before updating and verify email delivery, payment notifications, file uploads, and recorder fields after the update.
-
+Recommended update. Adds an onboarding wizard, weekly email delivery reports and an Email Error Log, and updates the database. Back up your site first, then check email delivery, payment notifications and file uploads.
 
 = 4.0.0 =
 
-Major update. New form rendering engine, Gutenberg block, Elementor/WPBakery/Visual Composer widgets, email template builder, background processing, and Shield Security integration added. Database schema upgraded (v1.1). Settings API and internal functions restructured - all official add-ons will be updated to their latest versions.
-
-**Backup your site before updating. Not backward-compatible with v3.x addons.**
-
+Major update: new form engine, Gutenberg block, page builder widgets and email template builder; database v1.1. Back up your site first. Not compatible with v3.x add-ons.
 
 == Changelog ==
 
@@ -548,7 +402,7 @@ Requires WordPress 6.3 or later. The full list of changes, with the notes for de
 * Security: Answers to password fields are never stored, e-mailed or exported. Uploaded files are tied to the visitor and the field. Secret keys are write-only. The e-mail debug log moved to a private folder.
 * Faster form pages: about a third as many database queries, minified scripts and styles, and the response viewer loads only where it is needed.
 * Fixed: Many fixes across forms, e-mails, entries, payments, booking forms, CAPTCHA, right-to-left screens and phones. See CHANGELOG.md.
-* Developers: database version 1.13 (the update runs automatically); form package, builder (efbBuilderApi), payment, CAPTCHA, notices and customer portal contracts. See CHANGELOG.md and the docs folder on GitHub.
+* Developers: database version 1.13 (the update runs automatically); form package, builder (efbBuilderApi), payment, CAPTCHA and notices contracts. See CHANGELOG.md and the docs folder on GitHub.
 
 = 4.3.1 =
 
