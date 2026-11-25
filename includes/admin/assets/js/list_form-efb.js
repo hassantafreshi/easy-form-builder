@@ -293,7 +293,7 @@ function fun_emsFormBuilder_render_view(x) {
      <span class="efb d-inline-flex align-items-center gap-1">
        <code class="efb text-muted user-select-all" style="font-size:0.85em">${sc}</code>
        <button type="button" class="efb btn btn-sm btn-outline-secondary border-0 px-1 py-0" onclick="event.stopPropagation();copyShortcode_efb('${sc}',this,'shortcode')" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.copy}">
-         <i class="efb bi-clipboard"></i>
+  <i class="efb bi-clipboard"></i>
        </button>
      </span>
    </th>
@@ -303,17 +303,17 @@ function fun_emsFormBuilder_render_view(x) {
      <div class="efb-actions-group">
        ${efb_publish_btn_efb(i)}
        <button type="button" class="efb efb-act-btn efb-act-msg ec-efb ${newM ? 'efb-has-badge' : ''}" data-id="${Number(i.form_id)}" data-eventform="message" data-efb-tip="${newM == true ? sanitize_text_efb(efb_var.text.newResponse) : sanitize_text_efb(efb_var.text.read)}" aria-label="${newM == true ? sanitize_text_efb(efb_var.text.newResponse) : sanitize_text_efb(efb_var.text.read)}">
-         <i class="efb ${newM ? 'bi-chat-dots-fill' : 'bi-chat'}"></i>
-         ${newM ? '<span class="efb-noti-badge" role="status" aria-label="' + sanitize_text_efb(efb_var.text.newResponse) + '"></span>' : ''}
+  <i class="efb ${newM ? 'bi-chat-dots-fill' : 'bi-chat'}"></i>
+  ${newM ? '<span class="efb-noti-badge" role="status" aria-label="' + sanitize_text_efb(efb_var.text.newResponse) + '"></span>' : ''}
        </button>
        <button type="button" class="efb efb-act-btn efb-act-edit ec-efb" data-id="${Number(i.form_id)}" data-eventform="edit" data-efb-tip="${sanitize_text_efb(efb_var.text.edit)}" aria-label="${sanitize_text_efb(efb_var.text.edit)}">
-         <i class="efb bi-pencil"></i>
+  <i class="efb bi-pencil"></i>
        </button>
        <button type="button" class="efb efb-act-btn efb-act-dup ec-efb" data-id="${Number(i.form_id)}" data-eventform="duplicate" data-formname="${sanitize_text_efb(i.form_name)}" data-efb-tip="${sanitize_text_efb(efb_var.text.duplicate)}" id="${Number(i.form_id)}-dup-efb" aria-label="${sanitize_text_efb(efb_var.text.duplicate)}">
-         <i class="efb bi-clipboard-plus"></i>
+  <i class="efb bi-clipboard-plus"></i>
        </button>
        <button type="button" class="efb efb-act-btn efb-act-delete ec-efb" data-id="${Number(i.form_id)}" data-eventform="delete" data-formname="${sanitize_text_efb(i.form_name)}" data-efb-tip="${sanitize_text_efb(efb_var.text.delete)}" aria-label="${sanitize_text_efb(efb_var.text.delete)}">
-         <i class="efb bi-trash3"></i>
+  <i class="efb bi-trash3"></i>
        </button>
      </div>
      <input type="text" class="efb d-none" value='[EMS_Form_Builder id=${Number(i.form_id)}]' id="${Number(i.form_id)}-fc">
@@ -344,17 +344,17 @@ function fun_emsFormBuilder_render_view(x) {
 
     document.getElementById('content-efb').innerHTML = `
    <h4 class="efb title-holder efb fs-4 d-none"> <img src="${efb_var.images.title}" class="efb title efb">
-                <i class="efb  bi-archive title-icon  mx-1 fs-4"></i>${efb_var.text.forms}
-            </h4>
+    <i class="efb  bi-archive title-icon  mx-1 fs-4"></i>${efb_var.text.forms}
+   </h4>
     <div class="efb card efb">
     <table class="efb table table-striped table-hover mt-3" id="emsFormBuilder-list">
         <thead class="efb">
-            <tr class="efb">
-            <th scope="col" class="efb">${efb_var.text.formCode}</th>
-            <th scope="col" class="efb">${efb_var.text.formName}</th>
-            <th scope="col" class="efb">${efb_var.text.createDate}</th>
-            <th scope="col" class="efb">${efb_var.text.actions}</th>
-            </tr>
+   <tr class="efb">
+   <th scope="col" class="efb">${efb_var.text.formCode}</th>
+   <th scope="col" class="efb">${efb_var.text.formName}</th>
+   <th scope="col" class="efb">${efb_var.text.createDate}</th>
+   <th scope="col" class="efb">${efb_var.text.actions}</th>
+   </tr>
         </thead>
         <tbody class="efb">${rows}</tbody>
     </table>
@@ -657,32 +657,32 @@ function fun_ws_show_list_messages(value) {
       const tooltipFull = preview.full.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
       rows += `<tr class="efb  pointer-efb" id=""  >
         <th scope="col" class="efb"><input class="efb  emsFormBuilder_v form-check-input   fs-8 onemsg" type="checkbox"  value="checkbox"  data-id="${v.msg_id}"  onclick="fun_select_rows_table(this)"></th>
-         <td class="efb ${$txtColor} ec-efb efb-content-cell" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" data-label="${efb_var.text.content || 'Content'}">
-           <div class="efb-content-preview" data-efb-tooltip="${tooltipFull}">
-             <span class="efb-preview-text">${preview.short}</span>
-           </div>
-         </td>
-         <th scope="row" class="efb ${$txtColor} ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" data-label="${efb_var.text.trackNo}">
-           <span class="efb d-inline-flex align-items-center gap-1">
-             <code class="efb text-muted user-select-all" style="font-size:0.85em">${v.track}</code>
-             <button type="button" class="efb btn btn-sm btn-outline-secondary border-0 px-1 py-0" onclick="event.stopPropagation();copyShortcode_efb('${v.track}',this ,'trackingCode')" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.copy}">
-               <i class="efb bi-clipboard"></i>
-             </button>
-           </span>
-         </th>
-           <td class="efb ${$txtColor} ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" data-label="${efb_var.text.ddate}"><bdi>${efb_list_date_efb(v)}</bdi></td>
-            <td class="efb efb-actions-cell" data-label="${efb_var.text.actions}">
-              <div class="efb-actions-group">
-                <button type="button" class="efb efb-act-btn efb-act-open ec-efb ${Number(state) != 1 && Number(state) != 4 ? 'efb-has-badge' : ''}" id="btn-m-${v.msg_id}" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" data-efb-tip="${Number(state) != 1 && Number(state) != 4 ? efb_var.text.newResponse : efb_var.text.read}" aria-label="${Number(state) != 1 && Number(state) != 4 ? efb_var.text.newResponse : efb_var.text.read}">
-                  <i class="efb ${Number(state) != 1 && Number(state) != 4 ? 'bi-envelope-fill' : iconRead}"></i>
-                  ${Number(state) != 1 && Number(state) != 4 ? '<span class="efb-noti-badge" role="status" aria-label="' + efb_var.text.newResponse + '"></span>' : ''}
-                </button>
-                <button type="button" class="efb efb-act-btn efb-act-delete ec-efb" id="btn-m-d-${v.msg_id}" data-eventform="deleteMsg" data-msgid="${v.msg_id}" data-trackid="${v.track}" data-efb-tip="${efb_var.text.delete}" aria-label="${efb_var.text.delete}">
-                  <i class="efb bi-trash3"></i>
-                </button>
-              </div>
-            </td>
-            </tr>` ;
+  <td class="efb ${$txtColor} ec-efb efb-content-cell" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" data-label="${efb_var.text.content || 'Content'}">
+  <div class="efb-content-preview" data-efb-tooltip="${tooltipFull}">
+   <span class="efb-preview-text">${preview.short}</span>
+  </div>
+  </td>
+  <th scope="row" class="efb ${$txtColor} ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" data-label="${efb_var.text.trackNo}">
+  <span class="efb d-inline-flex align-items-center gap-1">
+   <code class="efb text-muted user-select-all" style="font-size:0.85em">${v.track}</code>
+   <button type="button" class="efb btn btn-sm btn-outline-secondary border-0 px-1 py-0" onclick="event.stopPropagation();copyShortcode_efb('${v.track}',this ,'trackingCode')" data-bs-toggle="tooltip" data-bs-placement="top" title="${efb_var.text.copy}">
+   <i class="efb bi-clipboard"></i>
+   </button>
+  </span>
+  </th>
+  <td class="efb ${$txtColor} ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" data-label="${efb_var.text.ddate}"><bdi>${efb_list_date_efb(v)}</bdi></td>
+   <td class="efb efb-actions-cell" data-label="${efb_var.text.actions}">
+   <div class="efb-actions-group">
+    <button type="button" class="efb efb-act-btn efb-act-open ec-efb ${Number(state) != 1 && Number(state) != 4 ? 'efb-has-badge' : ''}" id="btn-m-${v.msg_id}" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" data-efb-tip="${Number(state) != 1 && Number(state) != 4 ? efb_var.text.newResponse : efb_var.text.read}" aria-label="${Number(state) != 1 && Number(state) != 4 ? efb_var.text.newResponse : efb_var.text.read}">
+    <i class="efb ${Number(state) != 1 && Number(state) != 4 ? 'bi-envelope-fill' : iconRead}"></i>
+    ${Number(state) != 1 && Number(state) != 4 ? '<span class="efb-noti-badge" role="status" aria-label="' + efb_var.text.newResponse + '"></span>' : ''}
+    </button>
+    <button type="button" class="efb efb-act-btn efb-act-delete ec-efb" id="btn-m-d-${v.msg_id}" data-eventform="deleteMsg" data-msgid="${v.msg_id}" data-trackid="${v.track}" data-efb-tip="${efb_var.text.delete}" aria-label="${efb_var.text.delete}">
+    <i class="efb bi-trash3"></i>
+    </button>
+   </div>
+   </td>
+   </tr>` ;
       no += 1;
     }
   } else {
@@ -1263,18 +1263,18 @@ function fun_show_help__emsFormBuilder() {
   </h4>
   <div class="efb crd efb col-md-7 d-none d-md-block"><div class="efb card-body"> <div class="efb d-grid gap-2">${str}</div></div></div>
   <div class="efb col-md-4 mx-1 py-5 crd efb">
-              <div class="efb mt-2 pd-5 col-md-12">
-                  <img src="${efb_var.images.logo}"  class="efb description-logo efb">
-                  <h1 class="efb  pointer-efb ec-efb fs-5" data-eventform="links" data-linkname="ws" ><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">${efb_var.text.easyFormBuilder}</font></font></h1>
-                  <h2 class="efb  pointer-efb  card-text ec-efb fs-7" data-eventform="links" data-linkname="ws">${efb_var.text.byWhiteStudioTeam}</h2>
-              </div>
-                  <div class="efb clearfix"></div>
-                  <p class="efb  card-text efb pb-3 fs-6">
-                  ${efb_var.text.youCanFindTutorial} ${efb_var.text.proUnlockMsg}
-                  </p>
-                  ${efb_var.pro == true ||  efb_var.pro == 1 ? '' : `<a class="efb btn text-dark btn-r btn-warning  btn-lg ec-efb"  data-eventform="links" data-linkname="price"><i class="efb  bi-gem mx-1"></i>${efb_var.text.activateProVersion}</a>`}
-                  <a class="efb btn mt-1 efb btn-outline-pink btn-lg ec-efb" data-eventform="links" data-linkname="wiki"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
-              </div>
+   <div class="efb mt-2 pd-5 col-md-12">
+    <img src="${efb_var.images.logo}"  class="efb description-logo efb">
+    <h1 class="efb  pointer-efb ec-efb fs-5" data-eventform="links" data-linkname="ws" ><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">${efb_var.text.easyFormBuilder}</font></font></h1>
+    <h2 class="efb  pointer-efb  card-text ec-efb fs-7" data-eventform="links" data-linkname="ws">${efb_var.text.byWhiteStudioTeam}</h2>
+   </div>
+    <div class="efb clearfix"></div>
+    <p class="efb  card-text efb pb-3 fs-6">
+    ${efb_var.text.youCanFindTutorial} ${efb_var.text.proUnlockMsg}
+    </p>
+    ${efb_var.pro == true ||  efb_var.pro == 1 ? '' : `<a class="efb btn text-dark btn-r btn-warning  btn-lg ec-efb"  data-eventform="links" data-linkname="price"><i class="efb  bi-gem mx-1"></i>${efb_var.text.activateProVersion}</a>`}
+    <a class="efb btn mt-1 efb btn-outline-pink btn-lg ec-efb" data-eventform="links" data-linkname="wiki"><i class="efb  bi-info-circle mx-1"></i>${efb_var.text.documents}</a>
+   </div>
   </div>
   ${typeof efb_powered_by === 'function' ? efb_powered_by() : ''}
  `;
@@ -1543,474 +1543,474 @@ function fun_show_setting__emsFormBuilder() {
   // console.log('language_not_needed_show', language_not_needed_show)
   if(language_not_needed_show){
     message_lanaguage = `<div class="efb my-3 mx-4 p-3" role="" style="border-radius:10px;border:1px solid #e0e7ff;background:linear-gradient(135deg,#f0f4ff 0%,#e8f5e9 100%);">
-                                 <p class="efb mb-2" style="line-height:1.7;">
-                                   <i class="efb bi-translate" style="margin-inline-end:6px;"></i>${efb_var.text.translateContrib.replace('%1$s', `<a class="efb pointer-efb ec-efb" style="font-weight:600;text-decoration:underline;" data-eventform="links" data-linkname="translateWP">`).replace('%2$s', '</a>')}
-                                 </p>
-                                 <div class="efb" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-                                   <span style="display:inline-block;background:linear-gradient(135deg,#ff6b35,#f7c948);color:#fff;font-weight:700;font-size:13px;padding:4px 12px;border-radius:20px;white-space:nowrap;">🎁 ${translateDiscountPercent}% ${efb_var.text.discountOff || 'OFF'}</span>
-                                   <p class="efb mb-0" style="line-height:1.6;font-size:13px;color:#37474f;">
-                                     ${efb_var.text.translateDiscount ? efb_var.text.translateDiscount.replace('%1$s', `<a class="efb pointer-efb ec-efb" style="font-weight:600;text-decoration:underline;" data-eventform="links" data-linkname="translateWP">`).replace('%2$s', '</a>').replace('%3$s', translateDiscountPercent + '%') : ''}
-                                   </p>
-                                 </div>
-                               </div>`
+        <p class="efb mb-2" style="line-height:1.7;">
+        <i class="efb bi-translate" style="margin-inline-end:6px;"></i>${efb_var.text.translateContrib.replace('%1$s', `<a class="efb pointer-efb ec-efb" style="font-weight:600;text-decoration:underline;" data-eventform="links" data-linkname="translateWP">`).replace('%2$s', '</a>')}
+        </p>
+        <div class="efb" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span style="display:inline-block;background:linear-gradient(135deg,#ff6b35,#f7c948);color:#fff;font-weight:700;font-size:13px;padding:4px 12px;border-radius:20px;white-space:nowrap;">🎁 ${translateDiscountPercent}% ${efb_var.text.discountOff || 'OFF'}</span>
+        <p class="efb mb-0" style="line-height:1.6;font-size:13px;color:#37474f;">
+         ${efb_var.text.translateDiscount ? efb_var.text.translateDiscount.replace('%1$s', `<a class="efb pointer-efb ec-efb" style="font-weight:600;text-decoration:underline;" data-eventform="links" data-linkname="translateWP">`).replace('%2$s', '</a>').replace('%3$s', translateDiscountPercent + '%') : ''}
+        </p>
+        </div>
+       </div>`
   }
 
   const planBadgeHtml = getCurrentPlanBadge_efb();
   document.getElementById('content-efb').innerHTML = `
   <div class="efb container efb-settings-win">
-            <h4 class="efb title-holder efb fs-4 d-none">
-                <img src="${efb_var.images.title}" class="efb title efb">
-                <i class="efb  bi-gear title-icon mx-1"></i>${efb_var.text.setting}
-            </h4>
-            <div class="efb crd efb">
-                <div class="efb card-body">
-                        <nav>
-                            <div class="efb nav nav-tabs" id="nav-tab" role="tablist">
-                            <button class="efb nav-link active" id="nav-general-tab" data-efb-tab="general" data-bs-toggle="tab" data-bs-target="#nav-general" type="button" role="tab" aria-controls="nav-general" aria-selected="true"><i class="efb  bi bi-gear mx-2"></i>${efb_var.text.general}</button>
-                            <button class="efb nav-link" id="nav-response-tab" data-efb-tab="responses" data-bs-toggle="tab" data-bs-target="#nav-response" type="button" role="tab" aria-controls="nav-response" aria-selected="false"><i class="efb  bi bi-chat-left-text mx-2"></i>${efb_var.text.rspcon}</button>
-                            <button class="efb nav-link" id="nav-captchas-tab" data-efb-tab="captchas" data-bs-toggle="tab" data-bs-target="#nav-google" type="button" role="tab" aria-controls="nav-google" aria-selected="false"><i class="efb  bi bi-robot mx-2"></i>${efb_var.text.captchas}</button>
-                            <button class="efb nav-link" id="nav-email-tab" data-efb-tab="email" data-bs-toggle="tab" data-bs-target="#nav-email" type="button" role="tab" aria-controls="nav-email" aria-selected="false"><i class="efb  bi bi-at mx-2"></i>${efb_var.text.emailSetting}</button>
-                            <button class="efb nav-link" id="nav-emailtemplate-tab" data-efb-tab="email-template" data-bs-toggle="tab" data-bs-target="#nav-emailtemplate" type="button" role="tab" aria-controls="nav-emailtemplate" aria-selected="false"><i class="efb  bi bi-envelope mx-2"></i>${efb_var.text.emailTemplate}</button>
-                            <button class="efb nav-link" id="nav-text-tab" data-efb-tab="localization" data-bs-toggle="tab" data-bs-target="#nav-text" type="button" role="tab" aria-controls="nav-text" aria-selected="false"><i class="efb  bi bi-fonts mx-2"></i>${efb_var.text.localization}</button>
-                            <button class="efb nav-link" id="nav-stripe-tab" data-efb-tab="payments" data-bs-toggle="tab" data-bs-target="#nav-stripe" type="button" role="tab" aria-controls="nav-stripe" aria-selected="false"><i class="efb  bi bi-credit-card mx-2"></i>${efb_var.text.payments}</button>
-                            <button class="efb nav-link" id="nav-smsconfig-tab" data-efb-tab="sms" data-bs-toggle="tab" data-bs-target="#nav-smsconfig" type="button" role="tab" aria-controls="nav-smsconfig" aria-selected="false"><i class="efb  bi bi-chat-left-dots mx-2"></i>${efb_var.text.sms_config}</button>
-                            <button class="efb nav-link" id="nav-privacy-tab" data-efb-tab="privacy" data-bs-toggle="tab" data-bs-target="#nav-privacy" type="button" role="tab" aria-controls="nav-privacy" aria-selected="false"><i class="efb  bi bi-shield-lock mx-2"></i>${efb_prv_t_efb('prvTitle', 'Privacy')}</button>
-                            <button class="efb nav-link" id="nav-verify-tab" data-efb-tab="verify" data-bs-toggle="tab" data-bs-target="#nav-verify" type="button" role="tab" aria-controls="nav-verify" aria-selected="false"><i class="efb  bi bi-patch-check mx-2"></i>${efb_prv_t_efb('vrfTab', 'Verification')}</button>
-                        </div>
-                        </nav>
-                        <div class="efb tab-content" id="nav-tabContent">
-                          <div class="efb tab-pane fade show active" id="nav-general" role="tabpanel" aria-labelledby="nav-general-tab">
-                            <!--General-->
-                            <div class="efb m-3">
-                                <h5 class="efb  card-title mt-3 mobile-title">
-                                    <i class="efb  bi-gem m-3"></i>${efb_var.text.activationCode}
-                                </h5>
-                                <!-- 3.8.6 start -->
-                                ${package_type == 1 ? '' :`<a class="efb ${mxCSize} efb pointer-efb ec-efb" data-eventform="links" data-linkname="price">${efb_var.text.clickHereGetActivateCode}</a>`}
-                                <!-- 3.8.6 end -->
-                                <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${package_type == 1 ? 'is-valid bg-light' : ''}" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""} data-tab="${efb_var.text.general}">
-                                ${package_type == 1 ? `<p class="efb text-darkb fs-7 mx-2 ">${efb_var.text.actvtcmsg}</p>` : '' }
-                                    <span id="activeCode_emsFormBuilder-message" class="efb text-danger"></span>
-                                </div>
-                                ${efb_renewal_settings_html_efb(mxCSize4)}
+   <h4 class="efb title-holder efb fs-4 d-none">
+    <img src="${efb_var.images.title}" class="efb title efb">
+    <i class="efb  bi-gear title-icon mx-1"></i>${efb_var.text.setting}
+   </h4>
+   <div class="efb crd efb">
+    <div class="efb card-body">
+      <nav>
+       <div class="efb nav nav-tabs" id="nav-tab" role="tablist">
+       <button class="efb nav-link active" id="nav-general-tab" data-efb-tab="general" data-bs-toggle="tab" data-bs-target="#nav-general" type="button" role="tab" aria-controls="nav-general" aria-selected="true"><i class="efb  bi bi-gear mx-2"></i>${efb_var.text.general}</button>
+       <button class="efb nav-link" id="nav-response-tab" data-efb-tab="responses" data-bs-toggle="tab" data-bs-target="#nav-response" type="button" role="tab" aria-controls="nav-response" aria-selected="false"><i class="efb  bi bi-chat-left-text mx-2"></i>${efb_var.text.rspcon}</button>
+       <button class="efb nav-link" id="nav-captchas-tab" data-efb-tab="captchas" data-bs-toggle="tab" data-bs-target="#nav-google" type="button" role="tab" aria-controls="nav-google" aria-selected="false"><i class="efb  bi bi-robot mx-2"></i>${efb_var.text.captchas}</button>
+       <button class="efb nav-link" id="nav-email-tab" data-efb-tab="email" data-bs-toggle="tab" data-bs-target="#nav-email" type="button" role="tab" aria-controls="nav-email" aria-selected="false"><i class="efb  bi bi-at mx-2"></i>${efb_var.text.emailSetting}</button>
+       <button class="efb nav-link" id="nav-emailtemplate-tab" data-efb-tab="email-template" data-bs-toggle="tab" data-bs-target="#nav-emailtemplate" type="button" role="tab" aria-controls="nav-emailtemplate" aria-selected="false"><i class="efb  bi bi-envelope mx-2"></i>${efb_var.text.emailTemplate}</button>
+       <button class="efb nav-link" id="nav-text-tab" data-efb-tab="localization" data-bs-toggle="tab" data-bs-target="#nav-text" type="button" role="tab" aria-controls="nav-text" aria-selected="false"><i class="efb  bi bi-fonts mx-2"></i>${efb_var.text.localization}</button>
+       <button class="efb nav-link" id="nav-stripe-tab" data-efb-tab="payments" data-bs-toggle="tab" data-bs-target="#nav-stripe" type="button" role="tab" aria-controls="nav-stripe" aria-selected="false"><i class="efb  bi bi-credit-card mx-2"></i>${efb_var.text.payments}</button>
+       <button class="efb nav-link" id="nav-smsconfig-tab" data-efb-tab="sms" data-bs-toggle="tab" data-bs-target="#nav-smsconfig" type="button" role="tab" aria-controls="nav-smsconfig" aria-selected="false"><i class="efb  bi bi-chat-left-dots mx-2"></i>${efb_var.text.sms_config}</button>
+       <button class="efb nav-link" id="nav-privacy-tab" data-efb-tab="privacy" data-bs-toggle="tab" data-bs-target="#nav-privacy" type="button" role="tab" aria-controls="nav-privacy" aria-selected="false"><i class="efb  bi bi-shield-lock mx-2"></i>${efb_prv_t_efb('prvTitle', 'Privacy')}</button>
+       <button class="efb nav-link" id="nav-verify-tab" data-efb-tab="verify" data-bs-toggle="tab" data-bs-target="#nav-verify" type="button" role="tab" aria-controls="nav-verify" aria-selected="false"><i class="efb  bi bi-patch-check mx-2"></i>${efb_prv_t_efb('vrfTab', 'Verification')}</button>
+      </div>
+      </nav>
+      <div class="efb tab-content" id="nav-tabContent">
+      <div class="efb tab-pane fade show active" id="nav-general" role="tabpanel" aria-labelledby="nav-general-tab">
+       <!--General-->
+       <div class="efb m-3">
+        <h5 class="efb  card-title mt-3 mobile-title">
+         <i class="efb  bi-gem m-3"></i>${efb_var.text.activationCode}
+        </h5>
+        <!-- 3.8.6 start -->
+        ${package_type == 1 ? '' :`<a class="efb ${mxCSize} efb pointer-efb ec-efb" data-eventform="links" data-linkname="price">${efb_var.text.clickHereGetActivateCode}</a>`}
+        <!-- 3.8.6 end -->
+        <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+        <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${package_type == 1 ? 'is-valid bg-light' : ''}" id="activeCode_emsFormBuilder" placeholder="${efb_var.text.enterActivateCode}" ${activeCode !== "null" ? `value="${activeCode}"` : ""} data-tab="${efb_var.text.general}">
+        ${package_type == 1 ? `<p class="efb text-darkb fs-7 mx-2 ">${efb_var.text.actvtcmsg}</p>` : '' }
+         <span id="activeCode_emsFormBuilder-message" class="efb text-danger"></span>
+        </div>
+        ${efb_renewal_settings_html_efb(mxCSize4)}
 
-                                <h5 class="efb  card-title mt-3 mobile-title">
-                                    <i class="efb  bi-layers m-3"></i>${efb_var.text.plnMng}
-                                </h5>
-                                <p class="efb  ${mxCSize} mobile-text">${efb_var.text.plnMngD}</p>
-                                <div class="efb d-flex align-items-center gap-2 mb-3 ${mxCSize}" id="efbCurrentPlanBadge">
-                                    ${planBadgeHtml}
-                                </div>
-                                <div class="efb card-body text-center py-1">
-                                    <button type="button" class="efb btn efb btn-outline-primary btn-lg" onclick="showSetupAsOverlayPage({ planOnly: true })" id="changePlanBtn">
-                                        <i class="efb  bi-gear mx-1 efb mobile-text"></i>${efb_var.text.chngPln}
-                                    </button>
-                                    <p class="efb text-muted fs-7 mt-2">${efb_var.text.plnMngSw}</p>
-                                </div>
-                                <!--
-                                <h5 class="efb  card-title mt-3 mobile-title">
-                                    <i class="efb  bi-bootstrap m-3 mobile-text"></i>${efb_var.text.bootStrapTemp}
-                                </h5>
-                                <h6 class="efb  ${mxCSize} text-danger mobile-text">${efb_var.text.iUsebootTempW}</h6>
-                                <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                <button type="button" id="bootstrap_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${bootstrap == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off"   >
-                                <div class="efb handle"></div>
-                                </button>
-                                <label class="efb form-check-label fs-6 efb mx-2 my-3" for="bootstrap_emsFormBuilder">${efb_var.text.iUsebootTemp}</label>
-                                </div>
+        <h5 class="efb  card-title mt-3 mobile-title">
+         <i class="efb  bi-layers m-3"></i>${efb_var.text.plnMng}
+        </h5>
+        <p class="efb  ${mxCSize} mobile-text">${efb_var.text.plnMngD}</p>
+        <div class="efb d-flex align-items-center gap-2 mb-3 ${mxCSize}" id="efbCurrentPlanBadge">
+         ${planBadgeHtml}
+        </div>
+        <div class="efb card-body text-center py-1">
+         <button type="button" class="efb btn efb btn-outline-primary btn-lg" onclick="showSetupAsOverlayPage({ planOnly: true })" id="changePlanBtn">
+          <i class="efb  bi-gear mx-1 efb mobile-text"></i>${efb_var.text.chngPln}
+         </button>
+         <p class="efb text-muted fs-7 mt-2">${efb_var.text.plnMngSw}</p>
+        </div>
+        <!--
+        <h5 class="efb  card-title mt-3 mobile-title">
+         <i class="efb  bi-bootstrap m-3 mobile-text"></i>${efb_var.text.bootStrapTemp}
+        </h5>
+        <h6 class="efb  ${mxCSize} text-danger mobile-text">${efb_var.text.iUsebootTempW}</h6>
+        <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+        <button type="button" id="bootstrap_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${bootstrap == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off"   >
+        <div class="efb handle"></div>
+        </button>
+        <label class="efb form-check-label fs-6 efb mx-2 my-3" for="bootstrap_emsFormBuilder">${efb_var.text.iUsebootTemp}</label>
+        </div>
                                 -->
-                                <h5 class="efb  card-title mt-3 mobile-title">
-                                    <i class="efb  bi-file-earmark-minus m-3"></i>${efb_var.text.clearFiles}
-                                </h5>
-                                <p class="efb  ${mxCSize} mobile-text">${efb_var.text.youCanRemoveUnnecessaryFileUploaded}</p>
-                                <div class="efb card-body text-center py-1">
-                                    <button type="button" class="efb btn efb btn-outline-pink btn-lg " OnClick="clear_garbeg_emsFormBuilder()" id="clrUnfileEfb">
-                                        <i class="efb  bi-x-lg mx-1 efb mobile-text"></i><span id="clrUnfileEfbText">${efb_var.text.clearUnnecessaryFiles}</span
-                                    </button>
-                                </div>
+        <h5 class="efb  card-title mt-3 mobile-title">
+         <i class="efb  bi-file-earmark-minus m-3"></i>${efb_var.text.clearFiles}
+        </h5>
+        <p class="efb  ${mxCSize} mobile-text">${efb_var.text.youCanRemoveUnnecessaryFileUploaded}</p>
+        <div class="efb card-body text-center py-1">
+         <button type="button" class="efb btn efb btn-outline-pink btn-lg " OnClick="clear_garbeg_emsFormBuilder()" id="clrUnfileEfb">
+          <i class="efb  bi-x-lg mx-1 efb mobile-text"></i><span id="clrUnfileEfbText">${efb_var.text.clearUnnecessaryFiles}</span
+         </button>
+        </div>
 
-                                 <h5 class="efb  card-title mt-3 mobile-title">
-                                    <i class="efb  m-3 bi-pin-map-fill mobile-text"></i>${efb_var.text.locationPicker}
-                                </h5>
-                                <p class="efb  ${mxCSize} mobile-text">${efb_var.text.lpds}</p>
-                                <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                <button type="button" id="osLocationPicker_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${osLocationPicker == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off"   >
-                                <div class="efb handle"></div>
-                                </button>
-                                <label class="efb form-check-label fs-6 efb mx-2 my-3" for="osLocationPicker_emsFormBuilder">${efb_var.text.elpo}</label>
-                                </div>
+        <h5 class="efb  card-title mt-3 mobile-title">
+         <i class="efb  m-3 bi-pin-map-fill mobile-text"></i>${efb_var.text.locationPicker}
+        </h5>
+        <p class="efb  ${mxCSize} mobile-text">${efb_var.text.lpds}</p>
+        <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+        <button type="button" id="osLocationPicker_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${osLocationPicker == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off"   >
+        <div class="efb handle"></div>
+        </button>
+        <label class="efb form-check-label fs-6 efb mx-2 my-3" for="osLocationPicker_emsFormBuilder">${efb_var.text.elpo}</label>
+        </div>
 
-                              <!-- Development Mode Toggle -->
-                              <h5 class="efb card-title mt-4 mobile-title">
-                                <i class="efb bi-code-slash m-3"></i>${efb_var.text.devMode}
-                              </h5>
-                              <p class="efb ${mxCSize}">${efb_var.text.devModeDesc}</p>
-                              <div class="efb card-body mx-0 py-0 ${mxCSize4}">
-                                  <button type="button" id="devMode_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${devMode_efb == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off" >
-                                  <div class="efb handle"></div>
-                                  </button>
-                                  <label class="efb form-check-label fs-6 efb mx-2 my-3" for="devMode_emsFormBuilder">${efb_var.text.devMode}</label>
-                              </div>
-                              <div class="efb mx-4 mt-3 mb-2">
-                                <div class="efb d-flex align-items-start p-3 rounded-3" style="background:linear-gradient(135deg,#fffde7 0%,#fff8e1 100%);border-left:4px solid #f9a825;border-top:1px solid #ffe08233;border-right:1px solid #ffe08233;border-bottom:1px solid #ffe08233;box-shadow:0 1px 4px rgba(249,168,37,0.10);">
-                                  <i class="efb bi-exclamation-triangle-fill" style="color:#f9a825;font-size:1.25rem;min-width:28px;margin-top:1px;"></i>
-                                  <div class="efb mx-2" style="line-height:1.6;">
-                                    <span class="efb" style="color:#5d4037;font-size:0.9rem;">${efb_var.text.devModeWarn}</span>
-                                  </div>
-                                </div>
-                              </div>
-                                <div class="efb clearfix"></div>
-                              ${typeof efb_revisions_settings_html_efb === 'function' ? efb_revisions_settings_html_efb(valueJson_ws_setting, mxCSize4) : ''}
+       <!-- Development Mode Toggle -->
+       <h5 class="efb card-title mt-4 mobile-title">
+        <i class="efb bi-code-slash m-3"></i>${efb_var.text.devMode}
+       </h5>
+       <p class="efb ${mxCSize}">${efb_var.text.devModeDesc}</p>
+       <div class="efb card-body mx-0 py-0 ${mxCSize4}">
+        <button type="button" id="devMode_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${devMode_efb == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off" >
+        <div class="efb handle"></div>
+        </button>
+        <label class="efb form-check-label fs-6 efb mx-2 my-3" for="devMode_emsFormBuilder">${efb_var.text.devMode}</label>
+       </div>
+       <div class="efb mx-4 mt-3 mb-2">
+        <div class="efb d-flex align-items-start p-3 rounded-3" style="background:linear-gradient(135deg,#fffde7 0%,#fff8e1 100%);border-left:4px solid #f9a825;border-top:1px solid #ffe08233;border-right:1px solid #ffe08233;border-bottom:1px solid #ffe08233;box-shadow:0 1px 4px rgba(249,168,37,0.10);">
+        <i class="efb bi-exclamation-triangle-fill" style="color:#f9a825;font-size:1.25rem;min-width:28px;margin-top:1px;"></i>
+        <div class="efb mx-2" style="line-height:1.6;">
+         <span class="efb" style="color:#5d4037;font-size:0.9rem;">${efb_var.text.devModeWarn}</span>
+        </div>
+        </div>
+       </div>
+        <div class="efb clearfix"></div>
+       ${typeof efb_revisions_settings_html_efb === 'function' ? efb_revisions_settings_html_efb(valueJson_ws_setting, mxCSize4) : ''}
 
-                            <!--End General-->
-                            </div>
-                        </div>
-                        <div class="efb tab-pane fade" id="nav-response" role="tabpanel" aria-labelledby="nav-response-tab">
-                            <!--response-->
-                            <div class="efb m-3">
+       <!--End General-->
+       </div>
+      </div>
+      <div class="efb tab-pane fade" id="nav-response" role="tabpanel" aria-labelledby="nav-response-tab">
+       <!--response-->
+       <div class="efb m-3">
 
-                              <h5 class="efb  card-title mt-3 mobile-title" id="shortCode_emsFormBuilder-title">
-                                <i class="efb  bi-search m-3" aria-hidden="true"></i>${efb_var.text.trackingCodeFinder}
-                              </h5>
-                              <p class="efb ${mxCSize}">${efb_var.text.copyAndPasteBelowShortCodeTrackingCodeFinder}</p>
-                              <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                      <div class="efb row efb col-12">
-                                          <div class="efb  col-md-8">
-                                            <input type="text"  class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="shortCode_emsFormBuilder" value="[Easy_Form_Builder_confirmation_code_finder]" readonly dir="ltr" aria-labelledby="shortCode_emsFormBuilder-title">
-                                            <span id="shortCode_emsFormBuilder-message" class="efb text-danger"></span>
-                                          </div>
-                                            <button type="button" class="efb btn col-md-4 efb btn-r h-d-efb btn-outline-pink my-1" onclick="copyCodeEfb('shortCode_emsFormBuilder','copyshortCodeEfb')">
-                                                <i class="efb  bi-clipboard-check mx-1"></i><span id="copyshortCodeEfb">${efb_var.text.copy}</span>
-                                            </button>
-                                        </div>
-                              </div>
+       <h5 class="efb  card-title mt-3 mobile-title" id="shortCode_emsFormBuilder-title">
+        <i class="efb  bi-search m-3" aria-hidden="true"></i>${efb_var.text.trackingCodeFinder}
+       </h5>
+       <p class="efb ${mxCSize}">${efb_var.text.copyAndPasteBelowShortCodeTrackingCodeFinder}</p>
+       <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+         <div class="efb row efb col-12">
+          <div class="efb  col-md-8">
+           <input type="text"  class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="shortCode_emsFormBuilder" value="[Easy_Form_Builder_confirmation_code_finder]" readonly dir="ltr" aria-labelledby="shortCode_emsFormBuilder-title">
+           <span id="shortCode_emsFormBuilder-message" class="efb text-danger"></span>
+          </div>
+           <button type="button" class="efb btn col-md-4 efb btn-r h-d-efb btn-outline-pink my-1" onclick="copyCodeEfb('shortCode_emsFormBuilder','copyshortCodeEfb')">
+            <i class="efb  bi-clipboard-check mx-1"></i><span id="copyshortCodeEfb">${efb_var.text.copy}</span>
+           </button>
+          </div>
+       </div>
 
-                              <h5 class="efb  card-title mt-3 mobile-title" id="sessionDuration_emsFormBuilder-title">
-                                <i class="efb  bi-clock m-3" aria-hidden="true"></i>${efb_var.text.sessionDuration}
-                              </h5>
-                              <p class="efb ${mxCSize}">${efb_var.text.sessionDurationDesc}</p>
-                              <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                      <div class="efb row efb col-12">
-                                          <div class="efb  col-md-8">
-                                            <select class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="sessionDuration_emsFormBuilder" data-tab="${efb_var.text.rspcon}" aria-labelledby="sessionDuration_emsFormBuilder-title">
-                                                <option value="">${efb_var.text.selectDuration}</option>
-                                                <option value="1" ${sessionDuration == 1 ? 'selected' : ''}>${efb_var.text.sessionDurationDay.replace('%s', '1')}</option>
-                                                <option value="2" ${sessionDuration == 2 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '2')}</option>
-                                                <option value="3" ${sessionDuration == 3 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '3')}</option>
-                                                <option value="4" ${sessionDuration == 4 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '4')}</option>
-                                                <option value="5" ${sessionDuration == 5 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '5')}</option>
-                                                <option value="6" ${sessionDuration == 6 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '6')}</option>
-                                                <option value="7" ${sessionDuration == 7 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '7')}</option>
-                                            </select>
-                                            <span id="sessionDuration_emsFormBuilder-message" class="efb text-danger"></span>
-                                          </div>
-                                        </div>
-                              </div>
+       <h5 class="efb  card-title mt-3 mobile-title" id="sessionDuration_emsFormBuilder-title">
+        <i class="efb  bi-clock m-3" aria-hidden="true"></i>${efb_var.text.sessionDuration}
+       </h5>
+       <p class="efb ${mxCSize}">${efb_var.text.sessionDurationDesc}</p>
+       <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+         <div class="efb row efb col-12">
+          <div class="efb  col-md-8">
+           <select class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="sessionDuration_emsFormBuilder" data-tab="${efb_var.text.rspcon}" aria-labelledby="sessionDuration_emsFormBuilder-title">
+            <option value="">${efb_var.text.selectDuration}</option>
+            <option value="1" ${sessionDuration == 1 ? 'selected' : ''}>${efb_var.text.sessionDurationDay.replace('%s', '1')}</option>
+            <option value="2" ${sessionDuration == 2 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '2')}</option>
+            <option value="3" ${sessionDuration == 3 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '3')}</option>
+            <option value="4" ${sessionDuration == 4 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '4')}</option>
+            <option value="5" ${sessionDuration == 5 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '5')}</option>
+            <option value="6" ${sessionDuration == 6 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '6')}</option>
+            <option value="7" ${sessionDuration == 7 ? 'selected' : ''}>${efb_var.text.sessionDurationDays.replace('%s', '7')}</option>
+           </select>
+           <span id="sessionDuration_emsFormBuilder-message" class="efb text-danger"></span>
+          </div>
+          </div>
+       </div>
 
-                              <h5 class="efb  card-title mt-3 mobile-title" id="trackCodeStyle_emsFormBuilder-title">
-                                <i class="efb  bi-hash m-3" aria-hidden="true"></i>${efb_var.text.trackNo}
-                              </h5>
-                              <p class="efb ${mxCSize}">${efb_var.text.trackCodeStyleDesc.replace('%s', efb_var.text.trackNo)}</p>
-                              <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                      <div class="efb row efb col-12">
-                                          <div class="efb  col-md-8">
-                                            <select class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="trackCodeStyle_emsFormBuilder" data-tab="${efb_var.text.rspcon}" aria-labelledby="trackCodeStyle_emsFormBuilder-title" onchange="efb_preview_track_code(this.value)">
-                                                ${efb_build_track_options(trackCodeStyle)}
-                                            </select>
-                                            <span id="trackCodeStyle_emsFormBuilder-message" class="efb text-danger"></span>
-                                          </div>
-                                        </div>
-                                      <div class="efb mt-2 mx-1">
-                                        <span class="efb text-muted small">${efb_var.text.preview}: </span>
-                                        <code id="trackCodePreview_efb" class="efb px-2 py-1" style="font-size:1.05em;letter-spacing:1px;background:#f6f7fb;border-radius:6px;">${efb_generate_track_preview(trackCodeStyle)}</code>
-                                      </div>
-                              </div>
+       <h5 class="efb  card-title mt-3 mobile-title" id="trackCodeStyle_emsFormBuilder-title">
+        <i class="efb  bi-hash m-3" aria-hidden="true"></i>${efb_var.text.trackNo}
+       </h5>
+       <p class="efb ${mxCSize}">${efb_var.text.trackCodeStyleDesc.replace('%s', efb_var.text.trackNo)}</p>
+       <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+         <div class="efb row efb col-12">
+          <div class="efb  col-md-8">
+           <select class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="trackCodeStyle_emsFormBuilder" data-tab="${efb_var.text.rspcon}" aria-labelledby="trackCodeStyle_emsFormBuilder-title" onchange="efb_preview_track_code(this.value)">
+            ${efb_build_track_options(trackCodeStyle)}
+           </select>
+           <span id="trackCodeStyle_emsFormBuilder-message" class="efb text-danger"></span>
+          </div>
+          </div>
+         <div class="efb mt-2 mx-1">
+          <span class="efb text-muted small">${efb_var.text.preview}: </span>
+          <code id="trackCodePreview_efb" class="efb px-2 py-1" style="font-size:1.05em;letter-spacing:1px;background:#f6f7fb;border-radius:6px;">${efb_generate_track_preview(trackCodeStyle)}</code>
+         </div>
+       </div>
 
-                              <h5 class="efb  card-title mt-3 mobile-title">
-                                <i class="efb  bi-calendar-date m-3"></i>${efb_var.text.cal_admin_display || 'Date display for admins'}
-                              </h5>
-                              <p class="efb ${mxCSize}">${efb_var.text.cal_admin_display_desc || 'How advanced date answers are shown in the response viewer, CSV, PDF and notification e-mails.'}</p>
-                              <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                      <div class="efb row efb col-12">
-                                          <div class="efb  col-md-8">
-                                            <select class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="calAdminDisplay_emsFormBuilder" data-tab="${efb_var.text.rspcon}" aria-label="${efb_var.text.cal_admin_display || 'Date display for admins'}">
-                                              ${[['site', efb_var.text.cal_admin_display_site || 'The site calendar, with the ISO date (2026-03-19)'], ['visitor', efb_var.text.cal_admin_display_visitor || 'As the visitor saw it'], ['iso', efb_var.text.cal_admin_display_iso || 'ISO only (YYYY-MM-DD)']].map((o) => `<option value="${o[0]}" ${calAdminDisplayEfb === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}
-                                            </select>
-                                          </div>
-                                        </div>
-                              </div>
+       <h5 class="efb  card-title mt-3 mobile-title">
+        <i class="efb  bi-calendar-date m-3"></i>${efb_var.text.cal_admin_display || 'Date display for admins'}
+       </h5>
+       <p class="efb ${mxCSize}">${efb_var.text.cal_admin_display_desc || 'How advanced date answers are shown in the response viewer, CSV, PDF and notification e-mails.'}</p>
+       <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+         <div class="efb row efb col-12">
+          <div class="efb  col-md-8">
+           <select class="efb form-control efb h-d-efb  border-d efb-rounded my-1" id="calAdminDisplay_emsFormBuilder" data-tab="${efb_var.text.rspcon}" aria-label="${efb_var.text.cal_admin_display || 'Date display for admins'}">
+           ${[['site', efb_var.text.cal_admin_display_site || 'The site calendar, with the ISO date (2026-03-19)'], ['visitor', efb_var.text.cal_admin_display_visitor || 'As the visitor saw it'], ['iso', efb_var.text.cal_admin_display_iso || 'ISO only (YYYY-MM-DD)']].map((o) => `<option value="${o[0]}" ${calAdminDisplayEfb === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}
+           </select>
+          </div>
+          </div>
+       </div>
 
-                              <h5 class="efb  card-title mt-3 mobile-title">
-                                <i class="efb  bi-chat-left-text m-3"></i>${efb_var.text.rbox}
-                              </h5>
-                                <div class="efb card-body mx-0 py-0 ${mxCSize4}">
-                                  <button type="button" id="scaptcha_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${scaptcha == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"   onclick="efb_check_el_pro(this)">
-                                  <div class="efb handle"></div>
-                                  </button>
-                                  <label class="efb form-check-label fs-6 efb mx-2 my-3" for="scaptcha_emsFormBuilder">${efb_var.text.scaptcha}</label>
-                                </div>
+       <h5 class="efb  card-title mt-3 mobile-title">
+        <i class="efb  bi-chat-left-text m-3"></i>${efb_var.text.rbox}
+       </h5>
+        <div class="efb card-body mx-0 py-0 ${mxCSize4}">
+        <button type="button" id="scaptcha_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${scaptcha == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"   onclick="efb_check_el_pro(this)">
+        <div class="efb handle"></div>
+        </button>
+        <label class="efb form-check-label fs-6 efb mx-2 my-3" for="scaptcha_emsFormBuilder">${efb_var.text.scaptcha}</label>
+        </div>
 
-                                <div class="efb card-body my-0 py-0 ${mxCSize4}">
-                                  <button type="button" id="showUpfile_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${dsupfile == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"  onclick="efb_check_el_pro(this)" >
-                                  <div class="efb handle"></div>
-                                  </button>
-                                  <label class="efb form-check-label fs-6 efb mx-2 my-3" for="showUpfile_emsFormBuilder">${efb_var.text.dsupfile}</label>
+        <div class="efb card-body my-0 py-0 ${mxCSize4}">
+        <button type="button" id="showUpfile_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${dsupfile == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"  onclick="efb_check_el_pro(this)" >
+        <div class="efb handle"></div>
+        </button>
+        <label class="efb form-check-label fs-6 efb mx-2 my-3" for="showUpfile_emsFormBuilder">${efb_var.text.dsupfile}</label>
 
-                                </div>
-                                <div class="efb card-body my-0 py-0 ${mxCSize4}">
-                                  <button type="button" id="activeDlBtn_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${activeDlBtn == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"   onclick="efb_check_el_pro(this)">
-                                  <div class="efb handle"></div>
-                                  </button>
-                                  <label class="efb form-check-label fs-6 efb mx-2 my-3" for="activeDlBtn_emsFormBuilder">${efb_var.text.sdlbtn}</label>
-                                </div>
-                               <div class="efb card-body my-0 py-0 ${mxCSize4}">
-                                  <button type="button" id="adminSN_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${adminSN == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"  onclick="efb_check_el_pro(this)" >
-                                  <div class="efb handle"></div>
-                                  </button>
-                                  <label class="efb form-check-label fs-6 efb mx-2 my-3" for="adminSN_emsFormBuilder">${efb_var.text.admines}</label>
-                                </div>
+        </div>
+        <div class="efb card-body my-0 py-0 ${mxCSize4}">
+        <button type="button" id="activeDlBtn_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${activeDlBtn == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"   onclick="efb_check_el_pro(this)">
+        <div class="efb handle"></div>
+        </button>
+        <label class="efb form-check-label fs-6 efb mx-2 my-3" for="activeDlBtn_emsFormBuilder">${efb_var.text.sdlbtn}</label>
+        </div>
+       <div class="efb card-body my-0 py-0 ${mxCSize4}">
+        <button type="button" id="adminSN_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${adminSN == true ? "active" : ""} setting" data-toggle="button" aria-pressed="false" autocomplete="off"  onclick="efb_check_el_pro(this)" >
+        <div class="efb handle"></div>
+        </button>
+        <label class="efb form-check-label fs-6 efb mx-2 my-3" for="adminSN_emsFormBuilder">${efb_var.text.admines}</label>
+        </div>
 
-                              <!-- Response Box Color Settings -->
-                              <h5 class="efb card-title mt-4 mobile-title">
-                                <i class="efb bi-palette m-3"></i>${efb_var.text.respColors}
-                              </h5>
-                              <p class="efb ${mxCSize}">${efb_var.text.respColorsDesc}</p>
-                              <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                <button type="button" class="efb efb-customize-colors-btn" onclick="if (efb_gate_efb('setting:response_colors', {fallback:'free_plus', origin:'panel_settings', resume:{kind:'callback', name:'open_color_modal'}, opener:this})) efb_open_color_modal()">
-                                  <i class="efb bi-palette2"></i> ${efb_var.text.respClrCustomize}
-                                </button>
-                              </div>
-                              <!-- Hidden color inputs (read by save function) -->
-                              <div style="display:none">
-                                <input type="color" id="respPrimary_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respPrimary}">
-                                <input type="color" id="respPrimaryDark_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respPrimaryDark}">
-                                <input type="color" id="respAccent_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respAccent}">
-                                <input type="color" id="respText_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respText}">
-                                <input type="color" id="respTextMuted_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respTextMuted}">
-                                <input type="color" id="respBgCard_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBgCard}">
-                                <input type="color" id="respBgMeta_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBgMeta}">
-                                <input type="color" id="respBgTrack_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBgTrack}">
-                                <input type="color" id="respBgResp_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBgResp}">
-                                <input type="color" id="respBgEditor_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBgEditor}">
-                                <input type="color" id="respEditorText_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respEditorText}">
-                                <input type="color" id="respEditorPh_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respEditorPh}">
-                                <input type="color" id="respBtnText_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBtnText}">
-                                <input type="hidden" id="respFontFamily_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respFontFamily}">
-                                <input type="hidden" id="respFontSize_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respFontSize}">
-                                <input type="hidden" id="respCustomFont_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respCustomFont.replace(/"/g, '&quot;')}">
-                                <input type="hidden" id="respPreset_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respPreset}">
-                                <input type="color" id="respBrandColor_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBrandColor}">
-                              </div>
+       <!-- Response Box Color Settings -->
+       <h5 class="efb card-title mt-4 mobile-title">
+        <i class="efb bi-palette m-3"></i>${efb_var.text.respColors}
+       </h5>
+       <p class="efb ${mxCSize}">${efb_var.text.respColorsDesc}</p>
+       <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+        <button type="button" class="efb efb-customize-colors-btn" onclick="if (efb_gate_efb('setting:response_colors', {fallback:'free_plus', origin:'panel_settings', resume:{kind:'callback', name:'open_color_modal'}, opener:this})) efb_open_color_modal()">
+        <i class="efb bi-palette2"></i> ${efb_var.text.respClrCustomize}
+        </button>
+       </div>
+       <!-- Hidden color inputs (read by save function) -->
+       <div style="display:none">
+        <input type="color" id="respPrimary_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respPrimary}">
+        <input type="color" id="respPrimaryDark_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respPrimaryDark}">
+        <input type="color" id="respAccent_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respAccent}">
+        <input type="color" id="respText_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respText}">
+        <input type="color" id="respTextMuted_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respTextMuted}">
+        <input type="color" id="respBgCard_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBgCard}">
+        <input type="color" id="respBgMeta_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBgMeta}">
+        <input type="color" id="respBgTrack_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBgTrack}">
+        <input type="color" id="respBgResp_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBgResp}">
+        <input type="color" id="respBgEditor_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBgEditor}">
+        <input type="color" id="respEditorText_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respEditorText}">
+        <input type="color" id="respEditorPh_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respEditorPh}">
+        <input type="color" id="respBtnText_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBtnText}">
+        <input type="hidden" id="respFontFamily_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respFontFamily}">
+        <input type="hidden" id="respFontSize_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respFontSize}">
+        <input type="hidden" id="respCustomFont_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respCustomFont.replace(/"/g, '&quot;')}">
+        <input type="hidden" id="respPreset_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respPreset}">
+        <input type="color" id="respBrandColor_emsFormBuilder" data-tab="${efb_var.text.rspcon}" value="${respBrandColor}">
+       </div>
 
-                            <!--End Response Customize window-->
-                            </div>
-                        </div>
-                        <div class="efb tab-pane fade" id="nav-google" role="tabpanel" aria-labelledby="nav-captchas-tab">
-                            <div class="efb m-3">
-                                <div id="message-google-efb"></div>
+       <!--End Response Customize window-->
+       </div>
+      </div>
+      <div class="efb tab-pane fade" id="nav-google" role="tabpanel" aria-labelledby="nav-captchas-tab">
+       <div class="efb m-3">
+        <div id="message-google-efb"></div>
 
-                             <!--Google-->
+       <!--Google-->
 
 
-                             <h5 class="efb  card-title mt-3 mobile-title">
-                                <i class="efb  bi-person-check m-3"></i>${efb_var.text.reCAPTCHAv2}
-                            </h5>
-                            <p class="efb ${mxCSize}"><a target="_blank" href="https://youtu.be/JI7RojBgU_o">${efb_var.text.lmavt.replace('%s',efb_var.text.grecaptcha)}</a></p>
-                            <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                <label class="efb form-label mx-2 fs-6">${efb_var.text.siteKey}</label>
-                                <input type="text" dir="ltr" spellcheck="false" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.siteKey}" ${sitekey !== "null" ? `value="${sitekey}"` : ""} data-tab="${efb_var.text.captchas}">
-                                <span id="sitekey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
-                                <label class="efb  form-label mx-2 col-12  mt-4 fs-6">${efb_var.text.SecreTKey}</label>
-                                <input type="password" autocomplete="new-password" dir="ltr" data-secret="1" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" value="" placeholder="${efb_secret_placeholder_efb(secretkey)}" aria-describedby="secretkey_emsFormBuilder-keep" data-tab="${efb_var.text.captchas}">${efb_secret_tools_efb('secretkey_emsFormBuilder', secretkey)}
-                                <span id="secretkey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
-                            </div>
+       <h5 class="efb  card-title mt-3 mobile-title">
+        <i class="efb  bi-person-check m-3"></i>${efb_var.text.reCAPTCHAv2}
+       </h5>
+       <p class="efb ${mxCSize}"><a target="_blank" href="https://youtu.be/JI7RojBgU_o">${efb_var.text.lmavt.replace('%s',efb_var.text.grecaptcha)}</a></p>
+       <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+        <label class="efb form-label mx-2 fs-6">${efb_var.text.siteKey}</label>
+        <input type="text" dir="ltr" spellcheck="false" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="sitekey_emsFormBuilder" placeholder="${efb_var.text.siteKey}" ${sitekey !== "null" ? `value="${sitekey}"` : ""} data-tab="${efb_var.text.captchas}">
+        <span id="sitekey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
+        <label class="efb  form-label mx-2 col-12  mt-4 fs-6">${efb_var.text.SecreTKey}</label>
+        <input type="password" autocomplete="new-password" dir="ltr" data-secret="1" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="secretkey_emsFormBuilder" value="" placeholder="${efb_secret_placeholder_efb(secretkey)}" aria-describedby="secretkey_emsFormBuilder-keep" data-tab="${efb_var.text.captchas}">${efb_secret_tools_efb('secretkey_emsFormBuilder', secretkey)}
+        <span id="secretkey_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
+       </div>
 
-                            ${typeof efb_spam_settings_html_efb === 'function' ? efb_spam_settings_html_efb(valueJson_ws_setting, mxCSize4) : '<!-- F12 spam-settings-efb.js not loaded -->'}
+       ${typeof efb_spam_settings_html_efb === 'function' ? efb_spam_settings_html_efb(valueJson_ws_setting, mxCSize4) : '<!-- F12 spam-settings-efb.js not loaded -->'}
 
-                            <h5 class="efb  card-title mt-3 mobile-title">
-                                <i class="efb bi-shield-check m-3"></i>${efb_var.text.shieldSilentCaptcha}
-                            </h5>
-                            <p class="efb ${mxCSize}">${efb_var.text.shieldSilentCaptchaDesc}</p>
-                            <p class="efb ${mxCSize}"><a target="_blank" href="https://clk.shldscrty.com/silentcaptchaintegrationhelp"  rel="nofollow noopener" >${efb_var.text.lmavt.replace('%s','Shield silentCAPTCHA')}</a></p>
-                            ${shieldAvailable ? '' : `<p class="efb ${mxCSize} efb-text-warn">${efb_var.text.shieldNotDetected}</p>`}
-                            <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                <button type="button" id="shieldSilentCaptcha_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${shieldSilentCaptcha == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off" ${shieldAvailable ? '' : 'disabled aria-disabled="true"'}>
-                                <div class="efb handle"></div>
-                                </button>
-                                <label class="efb form-check-label fs-6 efb mx-2 my-3" for="shieldSilentCaptcha_emsFormBuilder">${efb_var.text.shieldSilentCaptcha}</label>
-                            </div>
+       <h5 class="efb  card-title mt-3 mobile-title">
+        <i class="efb bi-shield-check m-3"></i>${efb_var.text.shieldSilentCaptcha}
+       </h5>
+       <p class="efb ${mxCSize}">${efb_var.text.shieldSilentCaptchaDesc}</p>
+       <p class="efb ${mxCSize}"><a target="_blank" href="https://clk.shldscrty.com/silentcaptchaintegrationhelp"  rel="nofollow noopener" >${efb_var.text.lmavt.replace('%s','Shield silentCAPTCHA')}</a></p>
+       ${shieldAvailable ? '' : `<p class="efb ${mxCSize} efb-text-warn">${efb_var.text.shieldNotDetected}</p>`}
+       <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+        <button type="button" id="shieldSilentCaptcha_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle  ${shieldSilentCaptcha == true ? "active" : ""}" data-toggle="button" aria-pressed="false" autocomplete="off" ${shieldAvailable ? '' : 'disabled aria-disabled="true"'}>
+        <div class="efb handle"></div>
+        </button>
+        <label class="efb form-check-label fs-6 efb mx-2 my-3" for="shieldSilentCaptcha_emsFormBuilder">${efb_var.text.shieldSilentCaptcha}</label>
+       </div>
 
-                            <h5 class="efb  card-title mt-3 mobile-title d-none">
-                                <i class="efb  bi-geo-alt m-3"></i> ${efb_var.text.maps}
-                            </h5>
-                             <a href="#" class="efb d-none">${efb_var.text.clickHereWatchVideoTutorial}</a>
-                            <p class="efb ${mxCSize} d-none">${efb_var.text.youNeedAPIgMaps}</p>
-                            <div class="efb  d-none card-body mx-0 py-1 ${mxCSize4}">
-                                <label class="efb form-label mx-2 fs-6">${efb_var.text.aPIKey}</label>
-                                <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""} ${lockedInput('setting:map_key', 'apikey_map_emsFormBuilder')} data-tab="${efb_var.text.captchas}">
-                                <span id="apikey_map_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
-                            </div>
+       <h5 class="efb  card-title mt-3 mobile-title d-none">
+        <i class="efb  bi-geo-alt m-3"></i> ${efb_var.text.maps}
+       </h5>
+       <a href="#" class="efb d-none">${efb_var.text.clickHereWatchVideoTutorial}</a>
+       <p class="efb ${mxCSize} d-none">${efb_var.text.youNeedAPIgMaps}</p>
+       <div class="efb  d-none card-body mx-0 py-1 ${mxCSize4}">
+        <label class="efb form-label mx-2 fs-6">${efb_var.text.aPIKey}</label>
+        <input type="text" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="apikey_map_emsFormBuilder" placeholder="${efb_var.text.enterAPIKey}" ${apiKeyMap !== "null" ? `value="${apiKeyMap}"` : ""} ${lockedInput('setting:map_key', 'apikey_map_emsFormBuilder')} data-tab="${efb_var.text.captchas}">
+        <span id="apikey_map_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
+       </div>
 
-                              <!--End Google-->
-                            </div>
-                        </div>
-                        <div class="efb tab-pane fade" id="nav-email" role="tabpanel" aria-labelledby="nav-email-tab">
-                            <div class="efb mx-3 ">
-                                <!--Email-->
-                                <h5 class="efb  card-title mt-3 mobile-title">
-                                    <i class="efb  bi-at m-3"></i>${efb_var.text.alertEmail}
-                                </h5>
-                                <p class="efb ${mxCSize}">${efb_var.text.whenEasyFormBuilderRecivesNewMessage}</p>
-                                <div class="efb card-body mx-0 py-1 ${mxCSize4} mb-3">
-                                    <label class="efb form-label mx-2 fs-6">${efb_var.text.email}</label>
-                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""} data-tab="${efb_var.text.emailSetting}">
-                                    <span id="email_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
-                                    <span  class="efb bg-light text-dark form-control border-0  w-75 efb">${msg_email}</span>
-                                </div>
-                                <div class="efb card-body mx-0 py-1 ${mxCSize4} mb-3">
-                                    <label class="efb form-label mx-2 fs-6">${efb_var.text.from}</label>
-                                    <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="femail_emsFormBuilder"  ${efb_var.pro != true  &&  efb_var.pro != 1 ? lockedInput('setting:sender_email', 'femail_emsFormBuilder') :''} placeholder="${'no-reply@'+ window.location.hostname}" ${femail !== "null" ? `value="${femail}"` : ""} data-tab="${efb_var.text.emailSetting}">
-                                    <span id="femail_emsFormBuilder-message" class="efb  text-danger  w-75 efb"></span>
-                                    <span  class="efb  form-control border-0  w-75 efb">${efb_var.text.msgfml}</span>
-                                </div>
+       <!--End Google-->
+       </div>
+      </div>
+      <div class="efb tab-pane fade" id="nav-email" role="tabpanel" aria-labelledby="nav-email-tab">
+       <div class="efb mx-3 ">
+        <!--Email-->
+        <h5 class="efb  card-title mt-3 mobile-title">
+         <i class="efb  bi-at m-3"></i>${efb_var.text.alertEmail}
+        </h5>
+        <p class="efb ${mxCSize}">${efb_var.text.whenEasyFormBuilderRecivesNewMessage}</p>
+        <div class="efb card-body mx-0 py-1 ${mxCSize4} mb-3">
+         <label class="efb form-label mx-2 fs-6">${efb_var.text.email}</label>
+         <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="email_emsFormBuilder" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" placeholder="${efb_var.text.enterAdminEmail}" ${email !== "null" ? `value="${email}"` : ""} data-tab="${efb_var.text.emailSetting}">
+         <span id="email_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
+         <span  class="efb bg-light text-dark form-control border-0  w-75 efb">${msg_email}</span>
+        </div>
+        <div class="efb card-body mx-0 py-1 ${mxCSize4} mb-3">
+         <label class="efb form-label mx-2 fs-6">${efb_var.text.from}</label>
+         <input type="email" class="efb form-control w-75 h-d-efb border-d efb-rounded mb-1 ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="femail_emsFormBuilder"  ${efb_var.pro != true  &&  efb_var.pro != 1 ? lockedInput('setting:sender_email', 'femail_emsFormBuilder') :''} placeholder="${'no-reply@'+ window.location.hostname}" ${femail !== "null" ? `value="${femail}"` : ""} data-tab="${efb_var.text.emailSetting}">
+         <span id="femail_emsFormBuilder-message" class="efb  text-danger  w-75 efb"></span>
+         <span  class="efb  form-control border-0  w-75 efb">${efb_var.text.msgfml}</span>
+        </div>
 
-                                <h5 class="efb card-title mt-3col-12 efb ">
-                                    <i class="efb  bi-envelope m-3"></i>${efb_var.text.emailServer}
-                                </h5>
-                                <div class="efb m-0 p-0" id="emailServerBox_efb">
-                                  <p class="efb ${mxCSize}">${efb_var.text.beforeUsingYourEmailServers}</p>
-                                  <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                      <button type="button" class="efb btn  efb btn-outline-pink btn-lg "onclick="clickToCheckEmailServer()" id="clickToCheckEmailServer">
-                                          <i class="efb  bi-chevron-double-up mx-1 text-center"></i>${efb_var.text.clickToCheckEmailServer}
-                                      </button>
-                                    <input type="hidden" id="smtp_emsFormBuilder" value="${smtp == "null" ? 'false' : smtp}">
-                                  </div>
-                                  <div class="efb card-body mx-0 py-1 mx-4" id="hostSupportSmtp_box_efb">
-                                    <button type="button" id="hostSupportSmtp_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${smtp == true ? "active" : ""}" data-toggle="button" aria-pressed="${smtp == true ? "true" : "false"}" autocomplete="off"   >
-                                    <div class="efb handle"></div>
-                                    </button>
-                                    <label class="efb form-check-label fs-6 efb mx-2 my-3" for="hostSupportSmtp_emsFormBuilder">${efb_var.text.hostSupportSmtp}</label>
-                                    <p class="efb efb-sending-off-hint text-muted fs-7 ${mxCSize4}">${efb_var.text.emailSendingOffHowTo || 'Click "Check Email Server" to test delivery, turn this switch on, then press Save.'}</p>
-                                  </div>
-                                </div>
-                                <div class="efb card-body mx-0 py-0 ${mxCSize4} mt-2">
-                                    <button type="button" id="weeklyEmailReport_emsFormBuilder" data-state="off" data-name="disabled"
+        <h5 class="efb card-title mt-3col-12 efb ">
+         <i class="efb  bi-envelope m-3"></i>${efb_var.text.emailServer}
+        </h5>
+        <div class="efb m-0 p-0" id="emailServerBox_efb">
+        <p class="efb ${mxCSize}">${efb_var.text.beforeUsingYourEmailServers}</p>
+        <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+         <button type="button" class="efb btn  efb btn-outline-pink btn-lg "onclick="clickToCheckEmailServer()" id="clickToCheckEmailServer">
+          <i class="efb  bi-chevron-double-up mx-1 text-center"></i>${efb_var.text.clickToCheckEmailServer}
+         </button>
+         <input type="hidden" id="smtp_emsFormBuilder" value="${smtp == "null" ? 'false' : smtp}">
+        </div>
+        <div class="efb card-body mx-0 py-1 mx-4" id="hostSupportSmtp_box_efb">
+         <button type="button" id="hostSupportSmtp_emsFormBuilder" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${smtp == true ? "active" : ""}" data-toggle="button" aria-pressed="${smtp == true ? "true" : "false"}" autocomplete="off"   >
+         <div class="efb handle"></div>
+         </button>
+         <label class="efb form-check-label fs-6 efb mx-2 my-3" for="hostSupportSmtp_emsFormBuilder">${efb_var.text.hostSupportSmtp}</label>
+         <p class="efb efb-sending-off-hint text-muted fs-7 ${mxCSize4}">${efb_var.text.emailSendingOffHowTo || 'Click "Check Email Server" to test delivery, turn this switch on, then press Save.'}</p>
+        </div>
+        </div>
+        <div class="efb card-body mx-0 py-0 ${mxCSize4} mt-2">
+         <button type="button" id="weeklyEmailReport_emsFormBuilder" data-state="off" data-name="disabled"
                                         class="efb mx-0 btn h-s-efb btn-toggle ${weeklyEmailReport ? "active" : ""}"
                                         data-toggle="button" aria-pressed="false" autocomplete="off"
-                                        ${weeklyEmailReportAllowed ? '' : `data-efb-lock="setting:weekly_report" data-efb-unlock="attrs" data-efb-unlock-attrs="onclick" onclick="efb_upgrade_prompt_efb({feature:'setting:weekly_report', fallback:'free_plus', origin:'panel_settings', resume:{kind:'toggle', id:'weeklyEmailReport_emsFormBuilder'}, opener:this})"`}>
-                                        <div class="efb handle"></div>
-                                    </button>
-                                    <label class="efb form-check-label fs-6 efb mx-2 my-3" for="weeklyEmailReport_emsFormBuilder">${efb_var.text.weeklyEmailReport}</label>
-                                    <p class="efb text-muted fs-7 ${mxCSize4} mb-0">${efb_var.text.weeklyEmailLastCheck.replace('%s', weeklyEmailStatus)}</p>
-                                    <p class="efb mb-1 ${mxCSize4} mt-2">${efb_var.text.weeklyEmailReportDesc}</p>
-                                </div>
-                                <div class="efb card-body mx-0 py-0 ${mxCSize4} mt-2">
-                                    <button type="button" id="emailStatsReport_emsFormBuilder" data-state="off" data-name="disabled"
+          ${weeklyEmailReportAllowed ? '' : `data-efb-lock="setting:weekly_report" data-efb-unlock="attrs" data-efb-unlock-attrs="onclick" onclick="efb_upgrade_prompt_efb({feature:'setting:weekly_report', fallback:'free_plus', origin:'panel_settings', resume:{kind:'toggle', id:'weeklyEmailReport_emsFormBuilder'}, opener:this})"`}>
+          <div class="efb handle"></div>
+         </button>
+         <label class="efb form-check-label fs-6 efb mx-2 my-3" for="weeklyEmailReport_emsFormBuilder">${efb_var.text.weeklyEmailReport}</label>
+         <p class="efb text-muted fs-7 ${mxCSize4} mb-0">${efb_var.text.weeklyEmailLastCheck.replace('%s', weeklyEmailStatus)}</p>
+         <p class="efb mb-1 ${mxCSize4} mt-2">${efb_var.text.weeklyEmailReportDesc}</p>
+        </div>
+        <div class="efb card-body mx-0 py-0 ${mxCSize4} mt-2">
+         <button type="button" id="emailStatsReport_emsFormBuilder" data-state="off" data-name="disabled"
                                         class="efb mx-0 btn h-s-efb btn-toggle ${(emailStatsReport || !emailStatsReportAllowed) ? "active" : ""}"
                                         data-toggle="button" aria-pressed="false" autocomplete="off"
-                                        ${emailStatsReportAllowed ? '' : 'onclick="lock_email_stats_toggle_efb(this, event)"'}>
-                                        <div class="efb handle"></div>
-                                    </button>
-                                    <label class="efb form-check-label fs-6 efb mx-2 my-3" for="emailStatsReport_emsFormBuilder">${efb_var.text.emailStatsReport}</label>
-                                    <p class="efb mb-1 mt-2 ${mxCSize4}">${efb_var.text.emailStatsReportDesc}</p>
-                                </div>
-                                <!--End Email-->
-                            </div>
-                        </div>
+          ${emailStatsReportAllowed ? '' : 'onclick="lock_email_stats_toggle_efb(this, event)"'}>
+          <div class="efb handle"></div>
+         </button>
+         <label class="efb form-check-label fs-6 efb mx-2 my-3" for="emailStatsReport_emsFormBuilder">${efb_var.text.emailStatsReport}</label>
+         <p class="efb mb-1 mt-2 ${mxCSize4}">${efb_var.text.emailStatsReportDesc}</p>
+        </div>
+        <!--End Email-->
+       </div>
+      </div>
 
-                        <div class="efb tab-pane fade" id="nav-text" role="tabpanel" aria-labelledby="nav-text-tab">
-                            <div class="efb mx-3 my-2">
-                            <!-- Text Section -->
-                               <h5 class="efb  card-title mt-3 mobile-title">
-                                 <i class="efb  bi-fonts m-3"></i>${efb_var.text.localization}
-                               </h5>
-                                ${message_lanaguage}
-                               <p class="efb ${mxCSize}">${efb_var.text.translateLocal}</p>
-                               <div class="efb card-body mx-0 py-1 mx-4">
+      <div class="efb tab-pane fade" id="nav-text" role="tabpanel" aria-labelledby="nav-text-tab">
+       <div class="efb mx-3 my-2">
+       <!-- Text Section -->
+       <h5 class="efb  card-title mt-3 mobile-title">
+        <i class="efb  bi-fonts m-3"></i>${efb_var.text.localization}
+       </h5>
+        ${message_lanaguage}
+       <p class="efb ${mxCSize}">${efb_var.text.translateLocal}</p>
+       <div class="efb card-body mx-0 py-1 mx-4">
 
-                               <button type="button" id="act_local_efb" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${act_local_efb == true ? "active" : ""}" onclick="act_local_efb_event(this);"  data-toggle="button" aria-pressed="false" autocomplete="off"   >
-                                <div class="efb handle"></div>
-                                </button>
-                                <label class="efb form-check-label fs-7 efb m-2 " for="act_local_efb">${efb_var.text.ilclizeFfb}</label>
+       <button type="button" id="act_local_efb" data-state="off" data-name="disabled" class="efb mx-0 btn h-s-efb  btn-toggle ${act_local_efb == true ? "active" : ""}" onclick="act_local_efb_event(this);"  data-toggle="button" aria-pressed="false" autocomplete="off"   >
+        <div class="efb handle"></div>
+        </button>
+        <label class="efb form-check-label fs-7 efb m-2 " for="act_local_efb">${efb_var.text.ilclizeFfb}</label>
 
-                                </div>
-                                <div id="textList-efb"  class="efb mt-2 py-2 ${mobile_view_efb ? '' : 'px-5'}  ${act_local_efb == false ? "d-none" : ''}">${textList} </div>
-                                <!-- END Text Section -->
-                            </div>
-                        </div>
-                        <div class="efb tab-pane fade" id="nav-stripe" role="tabpanel" aria-labelledby="nav-stripe-tab">
-                            <div class="efb mx-3 my-2 efb-pay-addons" id="efbPayAddons">
-                               <h5 class="efb  card-title mt-3 mobile-title" id="efbPayAddonsTitle">
-                                 <i class="efb  bi-credit-card m-3" aria-hidden="true"></i>${efb_var.text.payments}
-                               </h5>
-                               ${efb_pay_addons_html_efb(mxCSize, mxCSize4)}
-                               ${efb_pay_moves_html_efb(mxCSize, mxCSize4)}
-                            </div>
-                        </div>
+        </div>
+        <div id="textList-efb"  class="efb mt-2 py-2 ${mobile_view_efb ? '' : 'px-5'}  ${act_local_efb == false ? "d-none" : ''}">${textList} </div>
+        <!-- END Text Section -->
+       </div>
+      </div>
+      <div class="efb tab-pane fade" id="nav-stripe" role="tabpanel" aria-labelledby="nav-stripe-tab">
+       <div class="efb mx-3 my-2 efb-pay-addons" id="efbPayAddons">
+       <h5 class="efb  card-title mt-3 mobile-title" id="efbPayAddonsTitle">
+        <i class="efb  bi-credit-card m-3" aria-hidden="true"></i>${efb_var.text.payments}
+       </h5>
+       ${efb_pay_addons_html_efb(mxCSize, mxCSize4)}
+       ${efb_pay_moves_html_efb(mxCSize, mxCSize4)}
+       </div>
+      </div>
 
-                        <div class="efb tab-pane fade" id="nav-emailtemplate" role="tabpanel" aria-labelledby="nav-emailtemplate-tab">
-                        <div class="efb my-2 mx-1">
-                          <!-- Drag & Drop Email Template Builder -->
-                          <div id="efb-email-builder"></div>
-                          <!-- Hidden textarea keeps the same ID for save/validation compatibility -->
-                          <textarea class="efb form-control" id="emailTemp_emsFirmBuilder" rows="5" data-tab="${efb_var.text.emailTemplate}" style="display:none;">${emailTemp}</textarea>
-                          <input type="hidden" id="emailBtnBgColor_emsFormBuilder" value="${emailBtnBgColor}">
-                          <input type="hidden" id="emailBtnTextColor_emsFormBuilder" value="${emailBtnTextColor}">
-                          <span id="emailTemp_emsFirmBuilder-message" class="efb text-danger"></span>
-                        </div>
-                    </div>
-                        <!-- smsconfig Section -->
-                        <div class="efb tab-pane fade" id="nav-privacy" role="tabpanel" aria-labelledby="nav-privacy-tab">
-                          ${efb_privacy_tab_efb(prvSettings, mxCSize4)}
-                        </div>
-                        <div class="efb tab-pane fade" id="nav-verify" role="tabpanel" aria-labelledby="nav-verify-tab">
-                          ${typeof efbVerifySettingsHtml === 'function' ? efbVerifySettingsHtml(mxCSize4) : ''}
-                        </div>
-                        <div class="efb tab-pane fade" id="nav-smsconfig" role="tabpanel" aria-labelledby="nav-smsconfig-tab">
-                          <div class="efb mx-3 my-2">
+      <div class="efb tab-pane fade" id="nav-emailtemplate" role="tabpanel" aria-labelledby="nav-emailtemplate-tab">
+      <div class="efb my-2 mx-1">
+      <!-- Drag & Drop Email Template Builder -->
+      <div id="efb-email-builder"></div>
+      <!-- Hidden textarea keeps the same ID for save/validation compatibility -->
+      <textarea class="efb form-control" id="emailTemp_emsFirmBuilder" rows="5" data-tab="${efb_var.text.emailTemplate}" style="display:none;">${emailTemp}</textarea>
+      <input type="hidden" id="emailBtnBgColor_emsFormBuilder" value="${emailBtnBgColor}">
+      <input type="hidden" id="emailBtnTextColor_emsFormBuilder" value="${emailBtnTextColor}">
+      <span id="emailTemp_emsFirmBuilder-message" class="efb text-danger"></span>
+      </div>
+     </div>
+      <!-- smsconfig Section -->
+      <div class="efb tab-pane fade" id="nav-privacy" role="tabpanel" aria-labelledby="nav-privacy-tab">
+      ${efb_privacy_tab_efb(prvSettings, mxCSize4)}
+      </div>
+      <div class="efb tab-pane fade" id="nav-verify" role="tabpanel" aria-labelledby="nav-verify-tab">
+      ${typeof efbVerifySettingsHtml === 'function' ? efbVerifySettingsHtml(mxCSize4) : ''}
+      </div>
+      <div class="efb tab-pane fade" id="nav-smsconfig" role="tabpanel" aria-labelledby="nav-smsconfig-tab">
+      <div class="efb mx-3 my-2">
 
-                            <h5 class="efb  card-title mt-3 ">
-                              <i class="efb  bi-chat-left-dots m-3"></i>${efb_var.text.sms_config}
-                            </h5>
-                            <p class="efb ${mxCSize}">${efb_var.text.sms_mp} <a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="smsconfig" >${efb_var.text.lrnmrs.replace('%s', '')}</a></p>
-                              <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                                <label class="efb form-label mx-2 fs-6">${efb_var.text.sms_ct}</label>
-                                <div class="efb  col-md-12 col-sm-12 px-0 mx-0 py-0 my-0 ttEfb show" data-id="sms_config_select" id="sms_config_select" >
-                                  <div class="efb     efb1 " data-css="sms_config_select" id="sms_config_select_options">
-                                      <!-- <div class="efb  form-check  radio  efb1 " data-css="sms_config_select" data-parent="sms_config_select" data-id="efb_sms_service" id="efb_sms_service-v" >
-                                        <input class="efb  form-check-input emsFormBuilder_v   fs-7 disabled " data-tag="radio" data-type="radio" data-vid="sms_config_select" type="radio" name="sms_config_select" value="efb_sms_service" id="efb_sms_service" data-id="efb_sms_service-id" data-op="efb_sms_service" onchange="check_server_sms_method_efb(this)" data-tab="${efb_var.text.sms_config}">
-                                        <label class="efb   text-labelEfb  h-d-efb fs-7 hStyleOpEfb " id="efb_sms_service_lab" for="efb_sms_service">${efb_var.text.sms_efbs}</label>
-                                      </div> -->
-                                      <div class="efb  form-check  radio  efb1 " data-css="sms_config_select" data-parent="sms_config_select" data-id="wp_sms_plugin" id="wp_sms_plugin-v">
-                                        <input class="efb  form-check-input emsFormBuilder_v   fs-7 disabled" data-tag="radio" data-type="radio" data-vid="sms_config_select" type="radio" name="sms_config_select" value="wp_sms_plugin" id="wp_sms_plugin" data-id="wp_sms_plugin-id" data-op="wp_sms_plugin" onchange="check_server_sms_method_efb(this)" data-tab="${efb_var.text.sms_config}" ${sms_method=="wpsms" ? 'checked' :''}>
-                                        <label class="efb   text-labelEfb  h-d-efb fs-7 hStyleOpEfb " id="wp_sms_plugin_lab" for="wp_sms_plugin">${efb_var.text.sms_wpsmss}</label>
-                                        <i class="mx-1 efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="wpsmss" > </i>
-                                      </div>
-                                  </div>
-                                </div>
-                              </div>
-                          </div>
-                          <h5 class="efb  card-title mt-3 ">
-                              <i class="efb bi-phone m-3"></i>${efb_var.text.sms_noti}
-                            </h5>
-                          <p class="efb ${mxCSize}">${efb_var.text.sms_dnoti}</p>
-                          <div class="efb card-body mx-0 py-1 ${mxCSize4}">
-                          <label class="efb form-label mx-2 fs-6">${efb_var.text.sms_admn_no}</label>
-                            <input type="tel" inputmode="tel" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="pno_emsFormBuilder" pattern="^[\\+0-9\\(\\)\\-\\s,]+$" placeholder="+12345678900" ${phoneNumbers !== "null" ? `value="${phoneNumbers}"` : ""}  data-tab="${efb_var.text.sms_config}" oninput="filterPhoneNumberInput_efb(this)" onkeypress="allowOnlyPhoneChars_efb(event)" autocomplete="off">
-                            <small class="efb text-muted d-block mt-1 fs-7" ><i class="efb bi-info-circle fs-7" style="margin-inline-end:4px;"></i>${efb_var.text.phoneFormatHint || 'Format: +12345678900 or +1 (234) 567-8900'}</small>
-                            <span id="pno_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
-                            <p class="efb m-2">${efb_var.text.sms_ndnoti}</p>
-                          </div>
-                        </div>
-                        <!-- smsconfig Section end-->
-                        <button type="button" id="save-stng-efb" class="efb btn btn-r btn-primary btn-lg ${Number(efb_var.rtl) == 1 ? 'float-start' : 'float-end '}" mt-2 mx-5"  onclick="fun_set_setting_emsFormBuilder(0)">
-                            <i class="efb  bi-save mx-1"></i>${efb_var.text.save}
-                        </button>
-                </div>
-            </div>
-            </div>
-            ${typeof efb_powered_by === 'function' ? efb_powered_by() : ''}
+       <h5 class="efb  card-title mt-3 ">
+       <i class="efb  bi-chat-left-dots m-3"></i>${efb_var.text.sms_config}
+       </h5>
+       <p class="efb ${mxCSize}">${efb_var.text.sms_mp} <a class="efb pointer-efb ec-efb" data-eventform="links" data-linkname="smsconfig" >${efb_var.text.lrnmrs.replace('%s', '')}</a></p>
+       <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+        <label class="efb form-label mx-2 fs-6">${efb_var.text.sms_ct}</label>
+        <div class="efb  col-md-12 col-sm-12 px-0 mx-0 py-0 my-0 ttEfb show" data-id="sms_config_select" id="sms_config_select" >
+        <div class="efb     efb1 " data-css="sms_config_select" id="sms_config_select_options">
+         <!-- <div class="efb  form-check  radio  efb1 " data-css="sms_config_select" data-parent="sms_config_select" data-id="efb_sms_service" id="efb_sms_service-v" >
+          <input class="efb  form-check-input emsFormBuilder_v   fs-7 disabled " data-tag="radio" data-type="radio" data-vid="sms_config_select" type="radio" name="sms_config_select" value="efb_sms_service" id="efb_sms_service" data-id="efb_sms_service-id" data-op="efb_sms_service" onchange="check_server_sms_method_efb(this)" data-tab="${efb_var.text.sms_config}">
+          <label class="efb   text-labelEfb  h-d-efb fs-7 hStyleOpEfb " id="efb_sms_service_lab" for="efb_sms_service">${efb_var.text.sms_efbs}</label>
+         </div> -->
+         <div class="efb  form-check  radio  efb1 " data-css="sms_config_select" data-parent="sms_config_select" data-id="wp_sms_plugin" id="wp_sms_plugin-v">
+          <input class="efb  form-check-input emsFormBuilder_v   fs-7 disabled" data-tag="radio" data-type="radio" data-vid="sms_config_select" type="radio" name="sms_config_select" value="wp_sms_plugin" id="wp_sms_plugin" data-id="wp_sms_plugin-id" data-op="wp_sms_plugin" onchange="check_server_sms_method_efb(this)" data-tab="${efb_var.text.sms_config}" ${sms_method=="wpsms" ? 'checked' :''}>
+          <label class="efb   text-labelEfb  h-d-efb fs-7 hStyleOpEfb " id="wp_sms_plugin_lab" for="wp_sms_plugin">${efb_var.text.sms_wpsmss}</label>
+          <i class="mx-1 efb bi-patch-question fs-7 text-success pointer-efb ec-efb" data-eventform="links" data-linkname="wpsmss" > </i>
+         </div>
+        </div>
+        </div>
+       </div>
+      </div>
+      <h5 class="efb  card-title mt-3 ">
+       <i class="efb bi-phone m-3"></i>${efb_var.text.sms_noti}
+       </h5>
+      <p class="efb ${mxCSize}">${efb_var.text.sms_dnoti}</p>
+      <div class="efb card-body mx-0 py-1 ${mxCSize4}">
+      <label class="efb form-label mx-2 fs-6">${efb_var.text.sms_admn_no}</label>
+       <input type="tel" inputmode="tel" class="efb form-control w-75 h-d-efb border-d efb-rounded ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="pno_emsFormBuilder" pattern="^[\\+0-9\\(\\)\\-\\s,]+$" placeholder="+12345678900" ${phoneNumbers !== "null" ? `value="${phoneNumbers}"` : ""}  data-tab="${efb_var.text.sms_config}" oninput="filterPhoneNumberInput_efb(this)" onkeypress="allowOnlyPhoneChars_efb(event)" autocomplete="off">
+       <small class="efb text-muted d-block mt-1 fs-7" ><i class="efb bi-info-circle fs-7" style="margin-inline-end:4px;"></i>${efb_var.text.phoneFormatHint || 'Format: +12345678900 or +1 (234) 567-8900'}</small>
+       <span id="pno_emsFormBuilder-message" class="efb text-danger col-12 efb"></span>
+       <p class="efb m-2">${efb_var.text.sms_ndnoti}</p>
+      </div>
+      </div>
+      <!-- smsconfig Section end-->
+      <button type="button" id="save-stng-efb" class="efb btn btn-r btn-primary btn-lg ${Number(efb_var.rtl) == 1 ? 'float-start' : 'float-end '}" mt-2 mx-5"  onclick="fun_set_setting_emsFormBuilder(0)">
+       <i class="efb  bi-save mx-1"></i>${efb_var.text.save}
+      </button>
+    </div>
+   </div>
+   </div>
+   ${typeof efb_powered_by === 'function' ? efb_powered_by() : ''}
 `
 
   if (typeof efbEmailBuilder !== 'undefined' && document.getElementById('efb-email-builder')) {
@@ -2181,15 +2181,15 @@ function efb_privacy_uninstall_html_efb(prv, mx, dis) {
       <fieldset class="efb card-body ${mx} py-1 mt-3 border-0" id="prvUninstallSet_efb">
         <legend class="efb fs-6 fw-bold mb-1">${efb_prv_t_efb('prvUninstallTitle', 'When the plugin is deleted')}</legend>
         <div class="efb form-check my-1">
-          <input class="efb form-check-input" type="checkbox" id="prvDeleteOnUninstall_efb" ${on ? 'checked' : ''} ${dis} aria-describedby="prvUninstallHelp_efb prvUninstallWarn_efb" onchange="efb_privacy_uninstall_toggle_efb(this)">
-          <label class="efb form-check-label mx-2" for="prvDeleteOnUninstall_efb" style="unicode-bidi:plaintext">${efb_prv_t_efb('prvDeleteOnUninstall', 'Delete all data when the plugin is deleted')}</label>
+  <input class="efb form-check-input" type="checkbox" id="prvDeleteOnUninstall_efb" ${on ? 'checked' : ''} ${dis} aria-describedby="prvUninstallHelp_efb prvUninstallWarn_efb" onchange="efb_privacy_uninstall_toggle_efb(this)">
+  <label class="efb form-check-label mx-2" for="prvDeleteOnUninstall_efb" style="unicode-bidi:plaintext">${efb_prv_t_efb('prvDeleteOnUninstall', 'Delete all data when the plugin is deleted')}</label>
         </div>
         <small class="efb text-muted d-block mt-1 fs-7" id="prvUninstallHelp_efb" dir="auto" style="unicode-bidi:plaintext">${efb_prv_t_efb('prvUninstallHelp', 'Off: deleting Easy Form Builder from the Plugins screen keeps your forms, entries, files and settings for a later install. Deactivating never deletes anything.')}</small>
         <div class="efb mt-2 mb-1" id="prvUninstallWarn_efb" role="note" ${on ? '' : 'hidden'}>
-          <div class="efb d-flex align-items-start p-2 rounded-3" style="background:#fdecee;border-inline-start:4px solid #c62828;">
-            <i class="efb bi-exclamation-triangle-fill" aria-hidden="true" style="color:#c62828;font-size:1.1rem;min-width:24px;"></i>
-            <span class="efb mx-2" dir="auto" style="color:#5f1d1d;font-size:0.9rem;line-height:1.6;unicode-bidi:plaintext;">${efb_prv_t_efb('prvUninstallWarn', 'On: when you delete the plugin, every form, entry, uploaded file, payment record and setting of this site is removed for good. Export what you want to keep first.')}</span>
-          </div>
+  <div class="efb d-flex align-items-start p-2 rounded-3" style="background:#fdecee;border-inline-start:4px solid #c62828;">
+   <i class="efb bi-exclamation-triangle-fill" aria-hidden="true" style="color:#c62828;font-size:1.1rem;min-width:24px;"></i>
+   <span class="efb mx-2" dir="auto" style="color:#5f1d1d;font-size:0.9rem;line-height:1.6;unicode-bidi:plaintext;">${efb_prv_t_efb('prvUninstallWarn', 'On: when you delete the plugin, every form, entry, uploaded file, payment record and setting of this site is removed for good. Export what you want to keep first.')}</span>
+  </div>
         </div>
       </fieldset>`;
 }
@@ -2263,8 +2263,8 @@ function efb_privacy_retention_html_efb(prv, mx, dis) {
       </fieldset>
       <div class="efb card-body ${mx} py-1">
         <div class="efb form-check">
-          <input class="efb form-check-input" type="checkbox" id="prvFiles_efb" ${prv.prv_files === '1' ? 'checked' : ''} ${dis}>
-          <label class="efb form-check-label mx-2" for="prvFiles_efb">${efb_prv_t_efb('prvFiles', 'Also delete uploaded files')}</label>
+  <input class="efb form-check-input" type="checkbox" id="prvFiles_efb" ${prv.prv_files === '1' ? 'checked' : ''} ${dis}>
+  <label class="efb form-check-label mx-2" for="prvFiles_efb">${efb_prv_t_efb('prvFiles', 'Also delete uploaded files')}</label>
         </div>
       </div>
       <div class="efb card-body ${mx} py-1">
@@ -2787,73 +2787,73 @@ function efb_open_color_modal() {
 
       <div class="efb-clr-view" data-view="conv" hidden>
         <div class="efb-clr-zone" data-pick="card" data-ring="card">
-          <div class="efb-clr-card">
-            <div class="efb-clr-card__head">
-              <div class="efb-clr-zone efb-clr-zone--round" data-pick="brand" data-ring="brand">
-                <div class="efb-clr-avatar"><i class="bi bi-person"></i></div>
-              </div>
-              <div class="efb-clr-zone" data-pick="text" data-ring="text">
-                <div class="efb-clr-sender">${t('by', 'By')}:<span>${t('guest', 'Guest')}</span></div>
-              </div>
-            </div>
-            <div class="efb-clr-zone" data-pick="card">
-              <div class="efb-clr-meta">
-                <i class="bi bi-calendar3"></i>2026-02-16 &nbsp;12:30
-              </div>
-            </div>
-            <div class="efb-clr-zone" data-pick="text" data-ring="text">
-              <div class="efb-clr-rows">
-                <div class="efb-clr-row"><span class="efb-clr-row__k">${t('email', 'Email')}</span><span class="efb-clr-row__v">user@example.com</span></div>
-                <div class="efb-clr-row"><span class="efb-clr-row__k">${t('name', 'Name')}</span><span class="efb-clr-row__v">John Doe</span></div>
-                <div class="efb-clr-row"><span class="efb-clr-row__k">${t('subject', 'Subject')}</span><span class="efb-clr-row__v is-muted">${t('respPvSubject', 'Order follow-up')}</span></div>
-                <!-- The accent colour paints rating stars and payment totals in
+  <div class="efb-clr-card">
+   <div class="efb-clr-card__head">
+   <div class="efb-clr-zone efb-clr-zone--round" data-pick="brand" data-ring="brand">
+    <div class="efb-clr-avatar"><i class="bi bi-person"></i></div>
+   </div>
+   <div class="efb-clr-zone" data-pick="text" data-ring="text">
+    <div class="efb-clr-sender">${t('by', 'By')}:<span>${t('guest', 'Guest')}</span></div>
+   </div>
+   </div>
+   <div class="efb-clr-zone" data-pick="card">
+   <div class="efb-clr-meta">
+    <i class="bi bi-calendar3"></i>2026-02-16 &nbsp;12:30
+   </div>
+   </div>
+   <div class="efb-clr-zone" data-pick="text" data-ring="text">
+   <div class="efb-clr-rows">
+    <div class="efb-clr-row"><span class="efb-clr-row__k">${t('email', 'Email')}</span><span class="efb-clr-row__v">user@example.com</span></div>
+    <div class="efb-clr-row"><span class="efb-clr-row__k">${t('name', 'Name')}</span><span class="efb-clr-row__v">John Doe</span></div>
+    <div class="efb-clr-row"><span class="efb-clr-row__k">${t('subject', 'Subject')}</span><span class="efb-clr-row__v is-muted">${t('respPvSubject', 'Order follow-up')}</span></div>
+    <!-- The accent colour paints rating stars and payment totals in
                      the real response box, so the preview shows it there rather
                      than on a decorative dot. Clicking it opens Brand, the part
                      the accent belongs to. -->
-                <div class="efb-clr-row efb-clr-zone" data-pick="brand"><span class="efb-clr-row__k">${t('rating', 'Rating')}</span><span class="efb-clr-row__v efb-clr-stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i></span></div>
-              </div>
-            </div>
-            <div class="efb-clr-body">${t('respPvMsg', 'Hi, I placed my order last week and still have no tracking code. Could you check it?')}</div>
-          </div>
+    <div class="efb-clr-row efb-clr-zone" data-pick="brand"><span class="efb-clr-row__k">${t('rating', 'Rating')}</span><span class="efb-clr-row__v efb-clr-stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star"></i></span></div>
+   </div>
+   </div>
+   <div class="efb-clr-body">${t('respPvMsg', 'Hi, I placed my order last week and still have no tracking code. Could you check it?')}</div>
+  </div>
         </div>
       </div>
 
       <div class="efb-clr-view" data-view="reply" hidden>
         <div class="efb-clr-zone" data-pick="card" data-ring="card">
-          <div class="efb-clr-card">
-            <div class="efb-clr-card__title"><i class="bi bi-chat-square-text"></i>${t('respPvReplyTitle', 'Your reply')}</div>
-            <div class="efb-clr-zone" data-pick="editor" data-ring="editor">
-              <div class="efb-clr-editor">
-                <div class="efb-clr-editor__bar">
-                  <i class="bi bi-type-bold"></i><i class="bi bi-type-italic"></i><i class="bi bi-list-ul"></i><i class="bi bi-link-45deg"></i><i class="bi bi-paperclip"></i>
-                </div>
-                <div class="efb-clr-editor__area"><span class="efb-clr-editor__ph">${t('replyMsg', 'Type your reply&hellip;')}</span></div>
-              </div>
-            </div>
-            <div class="efb-clr-zone" data-pick="brand" data-ring="brand">
-              <div class="efb-clr-actions">
-                <span class="efb-clr-pill"><i class="bi bi-reply"></i>${t('reply', 'Reply')}</span>
-                <span class="efb-clr-pill efb-clr-pill--ghost"><i class="bi bi-paperclip"></i>${t('respPvAttach', 'Attach')}</span>
-              </div>
-            </div>
-          </div>
+  <div class="efb-clr-card">
+   <div class="efb-clr-card__title"><i class="bi bi-chat-square-text"></i>${t('respPvReplyTitle', 'Your reply')}</div>
+   <div class="efb-clr-zone" data-pick="editor" data-ring="editor">
+   <div class="efb-clr-editor">
+    <div class="efb-clr-editor__bar">
+    <i class="bi bi-type-bold"></i><i class="bi bi-type-italic"></i><i class="bi bi-list-ul"></i><i class="bi bi-link-45deg"></i><i class="bi bi-paperclip"></i>
+    </div>
+    <div class="efb-clr-editor__area"><span class="efb-clr-editor__ph">${t('replyMsg', 'Type your reply&hellip;')}</span></div>
+   </div>
+   </div>
+   <div class="efb-clr-zone" data-pick="brand" data-ring="brand">
+   <div class="efb-clr-actions">
+    <span class="efb-clr-pill"><i class="bi bi-reply"></i>${t('reply', 'Reply')}</span>
+    <span class="efb-clr-pill efb-clr-pill--ghost"><i class="bi bi-paperclip"></i>${t('respPvAttach', 'Attach')}</span>
+   </div>
+   </div>
+  </div>
         </div>
       </div>
 
       <div class="efb-clr-view" data-view="finder" hidden>
         <div class="efb-clr-zone" data-pick="track" data-ring="track">
-          <div class="efb-clr-track">
-            <div class="efb-clr-track__badge"><i class="bi bi-shield-check"></i></div>
-            <div class="efb-clr-track__t">${t('pleaseEnterTheTracking', 'Please enter the Confirmation Code')}</div>
-            <div class="efb-clr-track__s">${t('trackingCode', 'Confirmation Code')}</div>
-            <div class="efb-clr-track__form">
-              <div class="efb-clr-track__field">
-                <i class="bi bi-hash"></i>
-                <div class="efb-clr-track__input">${t('entrTrkngNo', 'Enter the Confirmation Code')}</div>
-              </div>
-              <div class="efb-clr-track__btn"><i class="bi bi-search"></i>${t('search', 'Search')}</div>
-            </div>
-          </div>
+  <div class="efb-clr-track">
+   <div class="efb-clr-track__badge"><i class="bi bi-shield-check"></i></div>
+   <div class="efb-clr-track__t">${t('pleaseEnterTheTracking', 'Please enter the Confirmation Code')}</div>
+   <div class="efb-clr-track__s">${t('trackingCode', 'Confirmation Code')}</div>
+   <div class="efb-clr-track__form">
+   <div class="efb-clr-track__field">
+    <i class="bi bi-hash"></i>
+    <div class="efb-clr-track__input">${t('entrTrkngNo', 'Enter the Confirmation Code')}</div>
+   </div>
+   <div class="efb-clr-track__btn"><i class="bi bi-search"></i>${t('search', 'Search')}</div>
+   </div>
+  </div>
         </div>
       </div>
     </div>`;
@@ -2862,8 +2862,8 @@ function efb_open_color_modal() {
     <div class="efb-clr" id="efbClrRoot">
       <div class="efb-clr-preview-pane">
         <div class="efb-clr-viewbar">
-          <div class="efb-clr-tabs">${tabsHtml}</div>
-          <div class="efb-clr-hint"><span class="efb-clr-hint__dot"></span>${t('respClrHint', 'Click the preview to select a part')}</div>
+  <div class="efb-clr-tabs">${tabsHtml}</div>
+  <div class="efb-clr-hint"><span class="efb-clr-hint__dot"></span>${t('respClrHint', 'Click the preview to select a part')}</div>
         </div>
         ${previewHtml}
         <div class="efb-clr-note"><i class="bi bi-info-circle"></i><span>${t('respClrScopeNote', 'These settings apply to the public response box only; the admin panel always keeps the default palette.')}</span></div>
@@ -2871,29 +2871,29 @@ function efb_open_color_modal() {
 
       <div class="efb-clr-rail">
         <div>
-          <div class="efb-clr-lbl">${t('respClrPresets', 'Presets')}</div>
-          <div class="efb-clr-presets">${presetsHtml}</div>
-          <div class="efb-clr-brandrow" id="efbClrBrandRow" hidden>
-            <input type="color" id="efbClrBrandColor" value="${esc(st.brand)}" title="${esc(t('respBrandColor', 'Your brand color'))}">
-            <div class="efb-clr-field__meta">
-              <div class="efb-clr-brandrow__t">${t('respBrandColor', 'Your brand color')}</div>
-              <div class="efb-clr-brandrow__s">${t('respBrandColorHint', 'Primary and primary dark are derived from it')}</div>
-            </div>
-          </div>
+  <div class="efb-clr-lbl">${t('respClrPresets', 'Presets')}</div>
+  <div class="efb-clr-presets">${presetsHtml}</div>
+  <div class="efb-clr-brandrow" id="efbClrBrandRow" hidden>
+   <input type="color" id="efbClrBrandColor" value="${esc(st.brand)}" title="${esc(t('respBrandColor', 'Your brand color'))}">
+   <div class="efb-clr-field__meta">
+   <div class="efb-clr-brandrow__t">${t('respBrandColor', 'Your brand color')}</div>
+   <div class="efb-clr-brandrow__s">${t('respBrandColorHint', 'Primary and primary dark are derived from it')}</div>
+   </div>
+  </div>
         </div>
 
         <div>
-          <div class="efb-clr-lbl">${t('respClrParts', 'Parts')}</div>
-          <div class="efb-clr-chips">${chipsHtml}</div>
+  <div class="efb-clr-lbl">${t('respClrParts', 'Parts')}</div>
+  <div class="efb-clr-chips">${chipsHtml}</div>
         </div>
 
         <div class="efb-clr-panel">
-          <div class="efb-clr-panel__head">
-            <i class="bi" id="efbClrPanelIcon"></i>
-            <div class="efb-clr-panel__t" id="efbClrPanelTitle"></div>
-            <button type="button" class="efb-clr-panel__reset" id="efbClrResetZone"><i class="bi bi-arrow-counterclockwise"></i>${t('respClrResetZone', 'Reset this part')}</button>
-          </div>
-          <div class="efb-clr-fields" id="efbClrFields"></div>
+  <div class="efb-clr-panel__head">
+   <i class="bi" id="efbClrPanelIcon"></i>
+   <div class="efb-clr-panel__t" id="efbClrPanelTitle"></div>
+   <button type="button" class="efb-clr-panel__reset" id="efbClrResetZone"><i class="bi bi-arrow-counterclockwise"></i>${t('respClrResetZone', 'Reset this part')}</button>
+  </div>
+  <div class="efb-clr-fields" id="efbClrFields"></div>
         </div>
       </div>
     </div>`;
@@ -3049,8 +3049,8 @@ function efb_open_color_modal() {
       return `<div class="efb-clr-field" data-key="${key}">
         <input type="color" value="${esc(st.vals[key])}" title="${esc(meta[0])}" data-color-key="${key}">
         <div class="efb-clr-field__meta">
-          <div class="efb-clr-field__t">${meta[0]}</div>
-          <div class="efb-clr-field__s">${meta[1]}</div>
+  <div class="efb-clr-field__t">${meta[0]}</div>
+  <div class="efb-clr-field__s">${meta[1]}</div>
         </div>
         <input type="text" class="efb-clr-hex" value="${esc(st.vals[key])}" spellcheck="false" autocomplete="off" aria-label="${esc(meta[0])}">
       </div>`;
@@ -3062,21 +3062,21 @@ function efb_open_color_modal() {
       ).join('');
       return `<div class="efb-clr-type">
         <div>
-          <div class="efb-clr-type__t">${t('respFontFamily', 'Font Family')}</div>
-          <select class="efb-clr-select" id="efbClrFontFamily">${opts}</select>
+  <div class="efb-clr-type__t">${t('respFontFamily', 'Font Family')}</div>
+  <select class="efb-clr-select" id="efbClrFontFamily">${opts}</select>
         </div>
         <div>
-          <div class="efb-clr-sizehead">
-            <span class="efb-clr-type__t" style="margin:0">${t('respFontSize', 'Font Size')}</span>
-            <span class="efb-clr-sizeval" id="efbClrFontSizeLabel">${st.sizePx}px</span>
-          </div>
-          <input type="range" class="efb-clr-range" id="efbClrFontSize" min="${SIZE_MIN_PX}" max="${SIZE_MIN_PX + SIZE_STEPS.length - 1}" step="1" value="${st.sizePx}">
+  <div class="efb-clr-sizehead">
+   <span class="efb-clr-type__t" style="margin:0">${t('respFontSize', 'Font Size')}</span>
+   <span class="efb-clr-sizeval" id="efbClrFontSizeLabel">${st.sizePx}px</span>
+  </div>
+  <input type="range" class="efb-clr-range" id="efbClrFontSize" min="${SIZE_MIN_PX}" max="${SIZE_MIN_PX + SIZE_STEPS.length - 1}" step="1" value="${st.sizePx}">
         </div>
         <div class="efb-clr-customfont" id="efbClrCustomFont"${st.family === '__custom__' ? '' : ' hidden'}>
-          <div class="efb-clr-customfont__d">${t('respCustomFontDesc', 'Add your own font by entering the font name and its CSS URL (e.g. Google Fonts link).')}</div>
-          <input type="text" class="efb-clr-input" id="efbClrCustomFontName" placeholder="${esc(t('respCustomFontName', 'Font Name'))}" value="${esc(st.name)}" autocomplete="off">
-          <input type="url" class="efb-clr-input efb-clr-input--url" id="efbClrCustomFontUrl" placeholder="${esc(t('respCustomFontUrl', 'Font URL (CSS/Google Fonts)'))}" value="${esc(st.url)}" autocomplete="off">
-          <div class="efb-clr-sample">https://fonts.googleapis.com/css2?family=Vazirmatn&amp;display=swap</div>
+  <div class="efb-clr-customfont__d">${t('respCustomFontDesc', 'Add your own font by entering the font name and its CSS URL (e.g. Google Fonts link).')}</div>
+  <input type="text" class="efb-clr-input" id="efbClrCustomFontName" placeholder="${esc(t('respCustomFontName', 'Font Name'))}" value="${esc(st.name)}" autocomplete="off">
+  <input type="url" class="efb-clr-input efb-clr-input--url" id="efbClrCustomFontUrl" placeholder="${esc(t('respCustomFontUrl', 'Font URL (CSS/Google Fonts)'))}" value="${esc(st.url)}" autocomplete="off">
+  <div class="efb-clr-sample">https://fonts.googleapis.com/css2?family=Vazirmatn&amp;display=swap</div>
         </div>
       </div>`;
     };
@@ -5504,14 +5504,14 @@ function EmailTemp1Efb() {
 function EmailTemp2Efb() {
   return `<html xmlns='http://www.w3.org/1999/xhtml'> <body> <style> body {margin:auto 10px;${efb_var.rtl == 1 ? `direction:rtl;` : ''}}</style><center>
 <table class='efb body-wrap' style='text-align:center;width:100%;font-family:arial,sans-serif;border:12px solid rgba(126, 122, 122, 0.08);border-spacing:4px 20px;'> <tr>
-          <img src='${efb_var.images.emailTemplate1}' style='width:36%;'>
+  <img src='${efb_var.images.emailTemplate1}' style='width:36%;'>
 </tr> <tr> <td><center> <table bgcolor='#FFFFFF' width='80%'' border='0'>  <tbody> <tr>
 <td style='font-family:Roboto-Regular,Helvetica,Arial,sans-serif;font-size:13px;color:#202020;line-height:1.5'>
 <h1 style='color:#575252;text-align:center;'>shortcode_title</h1>
 </td></tr><tr style='text-align:center;color:#000000;font-size:14px;'><td>
-            <span>shortcode_message</span>
+   <span>shortcode_message</span>
 </td> </tr><tr style='text-align:center;color:#000000;font-size:14px;height:45px;'><td> <span><b style='color:#575252;'>
-            <a href='shortcode_website_url'>shortcode_website_name</a>
+   <a href='shortcode_website_url'>shortcode_website_name</a>
 </span></td></tr></tbody></center></td> </tr></table></center></body>  </html>`
 }
 
