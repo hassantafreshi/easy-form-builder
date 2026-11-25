@@ -7,7 +7,6 @@ let form_ID_emsFormBuilder = 0;
 let form_type_emsFormBuilder = 'form';
 const efb_version = 4.1;
 let wpbakery_emsFormBuilder =false;
-let pro_price_efb =27;
 let heartbeat_efb_active =false;
 let _efb_autosave_in_progress = false;
 /* One auto-save draft, one offer to restore it - see restore_auto_save_efb(). */
@@ -2006,10 +2005,9 @@ function head_introduce_efb(state) {
   let text = `${efb_var.text.efbIsTheUserSentence} ${efb_var.text.efbYouDontNeedAnySentence}`
   let btnSize = mobile_view_efb ? '' : 'btn-lg';
   const domain = efb_var.hasOwnProperty('wsteamDomain') ? 'https://' + efb_var.wsteamDomain +'/price' : 'https://whitestudio.team/#pricing';
-  let msgpro = efb_var.text.yFreeVEnPro.replace('%2$s', pro_price_efb +'$').replace('%1$s','<span class="efb fw-bold text-pinkEfb">').replace('%3$s','</span>').replace('%4$s',`<br><a href="${domain}" target="_blank" rel="noopener noreferrer" class="efb fw-bold efb-pro-notice__link">`).replace('%5$s','</a>');
-  if(efb_var.language =='fa_IR'){
-    msgpro = efb_var.text.yFreeVEnPro.replace('%2$s',  '1,300,000<small>تومان</small>').replace('%1$s','<span class="efb fw-bold text-pinkEfb">').replace('%3$s','</span>').replace('%4$s',`<br><a href="https://easyformbuilder.ir/pricing" target="_blank" rel="noopener noreferrer" class="efb fw-bold efb-pro-notice__link">`).replace('%5$s','</a>');
-  }
+  // QA1-015: the Pro box names what Pro adds over Free Plus (the plan registry) and the price from the server.
+  const proF = Object.keys((efb_var.capabilities || {}).features || {}).filter((k) => efb_var.capabilities.features[k].package === 'pro' && !efb_var.capabilities.features[k].addon).map((k) => efb_feature_label_efb(k)).filter((l, i, a) => a.indexOf(l) === i).slice(0, 4).join(efb_var.rtl == 1 ? '، ' : ', ');
+  const msgpro = efb_var.text.yProFor.replace('%1$s', proF).replace('%2$s', `<span class="efb fw-bold text-pinkEfb">${efb_upg_price_text_efb()}</span>`) + `<br><a href="${efb_var.language == 'fa_IR' ? 'https://easyformbuilder.ir/pricing' : domain}" target="_blank" rel="noopener noreferrer" class="efb fw-bold efb-pro-notice__link">${efb_var.text.viewProF}</a>`;
   let cont = ``;
   let vType = `<div class="efb mx-3 col-lg-4 mt-2 pd-5 col-md-10 col-sm-12 alert alert-light pointer-efb buy-noti efb-pro-notice ec-efb" data-eventform="links" data-linkname="price">
   <div class="efb d-flex align-items-center efb-pro-notice__heading">

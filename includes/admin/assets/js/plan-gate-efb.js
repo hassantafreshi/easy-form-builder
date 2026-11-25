@@ -173,10 +173,14 @@ function efb_upg_num_efb(n) {
   try { return Number(n).toLocaleString(efb_upg_locale_efb()); } catch (e) { return String(n); }
 }
 
-/** "$27/year" in the site language. */
+/* I18N-05: the yearly Pro price as the server writes it (efb_var.pro_price.text: "$27", "۱٬۳۰۰٬۰۰۰ تومان"). */
+function efb_upg_price_text_efb() {
+  var p = typeof efb_var !== 'undefined' && efb_var && efb_var.pro_price;
+  return p && p.text ? efb_upg_dec_efb(p.text) : '$' + efb_upg_num_efb(27);
+}
+/** "$27/year" in the site language (the phrase keeps a placeholder for the server's price). */
 function efb_upg_price_efb() {
-  var p = (typeof pro_price_efb !== 'undefined' && pro_price_efb) ? pro_price_efb : 27;
-  return efb_upg_t_efb('priceyr', '$NN/year').replace('NN', efb_upg_num_efb(p));
+  return efb_upg_t_efb('priceyr', '%s/year').replace('%s', efb_upg_price_text_efb());
 }
 
 /** May this user change the site's plan? efb_var.can_change_plan (PHP efb_can_change_plan_efb()). */

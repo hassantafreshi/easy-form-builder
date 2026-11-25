@@ -65,8 +65,6 @@ class EmsfbEmailHandler {
             'createdBy' => __('Created by', 'easy-form-builder'),
             'newMessageReceived' => __('New message received', 'easy-form-builder'),
             'goodJob' => __('Good Job', 'easy-form-builder'),
-            /* translators: %1$s, %2$s and %3$s: the price (the start of its emphasis, the amount, the end), %4$s and %5$s: the start and end of the link to the Pro features. */
-            'yFreeVEnPro' => __('Upgrade to Pro for just %1$s%2$s%3$s/year and get access to powerful features, including advanced form fields, payment integrations, conditional logic, multi-step forms, file uploads, Security & Spam Protection, and priority support.%4$sView Pro Features%5$s', 'easy-form-builder'),
             'WeRecivedUrM' => __('We received your message', 'easy-form-builder'),
         ];
 
@@ -422,7 +420,7 @@ class EmsfbEmailHandler {
         ];
         $l = $locale_map[$wp_lan] ?? $l;
 
-        $text_keys = ['msgdml', 'mlntip', 'msgnml', 'serverEmailAble', 'vmgs', 'getProVersion', 'sentBy', 'hiUser', 'trackingCode', 'newMessage', 'createdBy', 'newMessageReceived', 'goodJob', 'yFreeVEnPro', 'WeRecivedUrM'];
+        $text_keys = ['msgdml', 'mlntip', 'msgnml', 'serverEmailAble', 'vmgs', 'getProVersion', 'sentBy', 'hiUser', 'trackingCode', 'newMessage', 'createdBy', 'newMessageReceived', 'goodJob', 'WeRecivedUrM'];
         $lang = $this->get_text_efb($text_keys);
 
         $automatic_email_disclaimer = '📧 ' . __('This email was sent automatically. Please do not reply.', 'easy-form-builder');

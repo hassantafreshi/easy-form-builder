@@ -442,7 +442,29 @@ class Builder_Api {
 		$vars['capabilities'] = self::capabilities();
 		// F18: the upgrade dialog shows "ask an administrator" (S7) when this is false.
 		$vars['can_change_plan'] = function_exists('efb_can_change_plan_efb') ? efb_can_change_plan_efb() : true;
+		$vars['pro_price'] = self::pro_price();
 		return $vars;
+	}
+
+	/**
+	 * I18N-05 (owner decision 14): the yearly Pro price comes from the server: {amount, currency, text} in the site
+	 * language. The licence server may store it (option emsfb_pro_price); the filter efb_pro_price may change it. Sites
+	 * in Persian pay in Toman (IRT).
+	 */
+	public static function pro_price() {
+		$loc = function_exists('get_locale') ? get_locale() : 'en_US';
+		$p = function_exists('get_option') ? get_option('emsfb_pro_price', null) : null;
+		if (!is_array($p) || !isset($p['amount'], $p['currency'])) $p = $loc === 'fa_IR' ? array('amount' => 1300000, 'currency' => 'IRT') : array('amount' => 27, 'currency' => 'USD');
+		$p = function_exists('apply_filters') ? apply_filters('efb_pro_price', $p) : $p;
+		$n = class_exists('\NumberFormatter') ? (new \NumberFormatter($loc, \NumberFormatter::DECIMAL))->format((float) $p['amount']) : (string) $p['amount'];
+		if ($p['currency'] !== 'IRT' && class_exists('\NumberFormatter')) {
+			$f = new \NumberFormatter($loc, \NumberFormatter::CURRENCY);
+			if (floor((float) $p['amount']) == $p['amount']) $f->setAttribute(\NumberFormatter::FRACTION_DIGITS, 0);
+			$n = $f->formatCurrency((float) $p['amount'], (string) $p['currency']);
+		} elseif ($p['currency'] !== 'IRT') $n = '$' . $n;
+		/* translators: %s: an amount in Iranian toman */
+		$t = $p['currency'] === 'IRT' ? sprintf(__('%s Toman', 'easy-form-builder'), $n) : $n;
+		return array('amount' => $p['amount'], 'currency' => (string) $p['currency'], 'text' => (string) $t);
 	}
 
 	/**
