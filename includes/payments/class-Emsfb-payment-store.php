@@ -549,12 +549,7 @@ class Store {
 		return array( 'paid' => self::paid_totals( (array) $by_gw ), 'pending' => $pending );
 	}
 
-	/**
-	 * QA3-018 (BUGS-FOUND 214): each gateway counts a currency in its own exponent (efb_currency_exponent), so the totals
-	 * of one currency are summed at the largest exponent among its gateways and carry the gateway to format them with.
-	 * $rows: currency, gateway, total, n. Returns one row per currency: currency, total (minor units of that exponent),
-	 * n, gateway.
-	 */
+	/** QA3-018: per currency, summed at its gateways' largest exponent (currency, total, n, gateway to format with). */
 	public static function paid_totals( array $rows ) {
 		$out = array();
 		foreach ( $rows as $r ) {

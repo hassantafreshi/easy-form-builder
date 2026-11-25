@@ -108,11 +108,7 @@ class Money {
 		return trim( $dec . ' ' . $cur );
 	}
 
-	/**
-	 * QA3-013: in a right-to-left language a currency sign of Latin letters and a sign ("US$", "JP¥") read reversed
-	 * ("$US"): the sign is isolated (U+2068 … U+2069, what <bdi> does) so it keeps its own order; the twin of
-	 * payment-runtime-efb.js isolate(). Left-to-right languages are unchanged.
-	 */
+	/** QA3-013: right to left, the currency sign isolated (U+2068 … U+2069) keeps its order ("US$"); twin of isolate() in JS. */
 	public static function isolate_sign( $text, $cur, $locale ) {
 		if ( ! preg_match( '/^(ar|arq|ary|arz|azb|ckb|dv|fa|haz|he|ku|ps|sd|ug|ur|yi)([-_@]|$)/i', (string) $locale ) || strpos( $text, "\u{2068}" ) !== false ) return $text;
 		$g = new \NumberFormatter( preg_replace( '/@.*$/', '', (string) $locale ) . '@currency=' . $cur, \NumberFormatter::CURRENCY );

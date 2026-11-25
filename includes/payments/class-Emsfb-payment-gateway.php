@@ -96,11 +96,8 @@ abstract class Gateway {
 	}
 
 	/**
-	 * QA3-009 (optional): an amount this gateway can never take although it is inside supports() (e.g. a currency it only
-	 * takes in whole units), checked before anything is stored. null when fine, else a Result::fail() whose message is
-	 * for the owner (logged and in the owner's alert, never shown to the visitor) and, with reason "config"
-	 * (->because( 'config' )), the gateway's settings card and an e-mail tell the owner; the visitor reads core's
-	 * "This form cannot take payments at the moment", or the Result's visitor_message.
+	 * QA3-009 (optional): an amount this gateway can never take, checked before anything is stored: null, or a
+	 * Result::fail() whose message is the owner's (->because( 'config' ) alerts the owner; the visitor never reads it).
 	 */
 	public function amount_problem( $amount_minor, $currency, Settings $s ) {
 		return null;

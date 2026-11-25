@@ -339,7 +339,7 @@ $pkg = sys_get_temp_dir() . '/efb-pkg-' . getmypid();
 file_put_contents($pkg . '/emsfb.php', "<?php\n/**\n * Plugin Name: Easy Form Builder\n * Version: 4.3.1\n */\n");
 $skin = new class { public $said = array(); public function feedback($m) { $this->said[] = $m; } };
 $up = (object) array('skin' => $skin);
-$t('J upgrader_source_selection: 4.3.1 over 4.3.2 with a moved form → the upgrader says so with the link; the source unchanged', array(M::downgrade_feedback($pkg, '', $up, array()), count($skin->said), strpos($skin->said[0], '1 payment form was moved') !== false, strpos($skin->said[0], 'page=Emsfb_payments&amp;tab=downgrade') !== false || strpos($skin->said[0], 'page=Emsfb_payments&tab=downgrade') !== false), array($pkg, 1, true, true));
+$t('J upgrader_source_selection: 4.3.1 over 4.3.2 with a moved form → the upgrader says so with the link; the source unchanged', array(M::downgrade_feedback($pkg, '', $up, array()), count($skin->said), strpos($skin->said[0], '1 payment form uses a new payment field') !== false, strpos($skin->said[0], 'page=Emsfb_payments&amp;tab=downgrade') !== false || strpos($skin->said[0], 'page=Emsfb_payments&tab=downgrade') !== false), array($pkg, 1, true, true));
 file_put_contents($pkg . '/emsfb.php', "<?php\n/**\n * Plugin Name: Easy Form Builder\n * Version: 4.3.3\n */\n");
 M::downgrade_feedback($pkg, '', $up, array());
 file_put_contents($pkg . '/emsfb.php', "<?php\n/**\n * Plugin Name: Other plugin\n * Version: 1.0\n */\n");

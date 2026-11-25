@@ -8,11 +8,8 @@
  * are shown as "•••• abcd" and an empty field keeps the stored key; "Test connection"; Test / Live
  * with a confirmation before Live; the webhook address to give the provider.
  *
- * Tab "Moved forms" (QA4-003, while forms use the add-ons' new fields after PAY-OUT step 5): before going back to an
- * older version, "Move every form back" (Legacy_Migration::rollback_all(); edits made since the move are kept).
- *
- * QA3-005: without any gateway add-on the screen stays, read only, while the payments table has rows (or forms are
- * moved): the list and each payment; checking or refunding a payment needs its gateway add-on, and the screen says so.
+ * Tab "Moved forms" (QA4-003): "Move every form back" before going back to an older version. QA3-005: without a gateway
+ * add-on the screen stays, read only, while payments or moved forms exist.
  *
  * Every action: nonce + capability Emsfb_payments (administrators; manage_options as fallback).
  */
@@ -26,12 +23,7 @@ class Admin {
 
 	const SLUG = 'Emsfb_payments';
 
-	/**
-	 * SET-01 (B8's hand-off): the Stripe and PayPal add-ons' lists of the payments their older fields took ("Older Stripe
-	 * payments" / "Older PayPal payments", in the menu while they hold rows) are a section of Payments: while Payments
-	 * exists, they leave the menu and Payments has an "Older payments" tab that opens them; on their screens the menu
-	 * shows Payments. Without Payments (no gateway add-on on the framework) they stay in the menu.
-	 */
+	/** SET-01: the add-ons' older Stripe / PayPal payments lists are Payments' "Older payments" tab while Payments exists. */
 	const OLDER_SCREENS = array( 'Emsfb_stripe_payment', 'Emsfb_paypal_payment' );
 
 	/** @var array<string, string> slug => title of the older-payments screens this request moved into Payments. */
@@ -63,12 +55,12 @@ class Admin {
 		return current_user_can( 'Emsfb_payments' ) || current_user_can( 'manage_options' );
 	}
 
-	/** Whether a gateway add-on is installed and active (the screens' actions, the Gateway settings). */
+	/** Whether a gateway add-on is active. */
 	public static function active() {
 		return (bool) Registry::all();
 	}
 
-	/** Whether the payments table holds a payment (once per request). */
+	/** Whether the payments table holds a payment. */
 	public static function has_payments() {
 		static $has = null;
 		if ( $has !== null ) return $has;
@@ -78,15 +70,11 @@ class Admin {
 		return $has = (bool) $wpdb->get_var( 'SELECT id FROM `' . Store::table( 'emsfb_pmt_' ) . '` LIMIT 1' );
 	}
 
-	/** Forms on the add-ons' new fields (PAY-OUT step 5) that an older version could not show. */
 	private static function moved() {
 		return class_exists( '\\Emsfb\\Payments\\Legacy_Migration' ) ? Legacy_Migration::moved_ids() : array();
 	}
 
-	/**
-	 * Whether Payments is in the menu: a gateway add-on is active, or (QA3-005, read only) the payments table holds
-	 * payments, or (QA4-003) forms are moved. Without any of them: nothing of the payment framework in the menu.
-	 */
+	/** Whether Payments is in the menu (a gateway add-on, payments, or moved forms). */
 	public static function available() {
 		return self::active() || self::has_payments() || (bool) self::moved();
 	}
@@ -173,11 +161,7 @@ class Admin {
 		}
 	}
 
-	/**
-	 * UX-01: on Payments, the forms visitors cannot pay with now (PAY00 readiness, computed on every load: a form drops out
-	 * once its keys are added or its payment field is fixed), each with its first problem and a link to it in the builder.
-	 * It was a red notice on every screen of the plugin, without a dismiss; the forms list marks each form too.
-	 */
+	/** UX-01: the forms visitors cannot pay with now (PAY00 readiness), each with its first problem and a builder link. */
 	public static function readiness_summary() {
 		$forms = Readiness::not_ready_forms();
 		if ( ! $forms ) return;
@@ -219,7 +203,6 @@ class Admin {
 		return isset( $l[ $s ] ) ? $l[ $s ] : $s;
 	}
 
-	/** QA3-011: the mode as a short badge word, translatable (TEST / LIVE). */
 	private static function mode_label( $m ) {
 		/* translators: payment mode badge in the Payments list (upper case in English): LIVE = real money, TEST = no real money */
 		return $m === 'live' ? _x( 'LIVE', 'payment mode badge', 'easy-form-builder' ) : _x( 'TEST', 'payment mode badge', 'easy-form-builder' );
@@ -296,7 +279,6 @@ class Admin {
 		$res = Store::search( $f );
 		$stats = Store::stats( $f['mode'] );
 		echo '<div class="efb-pay-stats">';
-		// QA3-018: each currency's total in its gateways' exponent (Store::stats() sums every gateway at the largest one).
 		foreach ( $stats['paid'] as $row ) {
 			echo '<div class="efb-pay-stat"><span>' . esc_html__( 'Paid', 'easy-form-builder' ) . ' <bdi>' . esc_html( $row['currency'] ) . '</bdi></span><strong><bdi>' . esc_html( Money::format( (int) $row['total'], $row['currency'], get_user_locale(), isset( $row['gateway'] ) ? (string) $row['gateway'] : '' ) ) . '</bdi></strong></div>';
 		}
@@ -312,14 +294,12 @@ class Admin {
 		echo ' <label>' . esc_html__( 'Search', 'easy-form-builder' ) . ' <input type="search" name="q" value="' . esc_attr( $f['q'] ) . '" placeholder="' . esc_attr__( 'Reference, confirmation code, e-mail', 'easy-form-builder' ) . '"></label> <button class="button">' . esc_html__( 'Filter', 'easy-form-builder' ) . '</button></form>';
 
 		if ( empty( $res['rows'] ) ) {
-			// QA3-016: a filter that matches nothing is not an empty list.
 			$filtered = $f['gateway'] !== '' || $f['status'] !== '' || $f['mode'] !== '' || $f['q'] !== '' || $f['from'] !== '' || $f['to'] !== '' || $f['form_id'] > 0;
 			echo '<p class="efb-pay-empty" data-code="' . ( $filtered ? 'pay_no_match' : 'pay_none' ) . '">' . esc_html( $filtered ? __( 'No payments match these filters.', 'easy-form-builder' ) : __( 'No payments yet.', 'easy-form-builder' ) ) . '</p>';
 			if ( $filtered ) echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=' . self::SLUG ) ) . '">' . esc_html__( 'Show all payments', 'easy-form-builder' ) . '</a></p>';
 			return;
 		}
-		// QA3-008: WordPress' list-table pattern: on a phone each payment is a card (its date first, the other columns
-		// under it with their names), no sideways scroll, right to left too.
+		// QA3-008: WordPress' list-table pattern (cards on a phone).
 		$cols = array( 'date' => __( 'Date', 'easy-form-builder' ), 'form' => __( 'Form', 'easy-form-builder' ), 'track' => __( 'Confirmation Code', 'easy-form-builder' ), 'gateway' => __( 'Gateway', 'easy-form-builder' ), 'method' => __( 'Method', 'easy-form-builder' ), 'amount' => __( 'Amount', 'easy-form-builder' ), 'status' => __( 'Status', 'easy-form-builder' ), 'mode' => __( 'Mode', 'easy-form-builder' ), 'payer' => __( 'Payer', 'easy-form-builder' ) );
 		echo '<table class="wp-list-table widefat fixed striped table-view-list efb-pay-table"><thead><tr>';
 		foreach ( $cols as $k => $h ) echo '<th scope="col" class="manage-column column-' . esc_attr( $k ) . ( $k === 'date' ? ' column-primary' : '' ) . '">' . esc_html( $h ) . '</th>';
@@ -387,7 +367,6 @@ class Admin {
 			echo '</ul><p class="description">' . esc_html__( 'Quote', 'easy-form-builder' ) . ' <code>' . esc_html( substr( (string) ( $q['hash'] ?? '' ), 0, 16 ) ) . '</code></p>';
 		}
 		if ( ! $g ) {
-			// QA3-005: read only without the payment's gateway add-on; a refund goes through that gateway.
 			/* translators: %s: name of the payment add-on (e.g. Stripe) */
 			$needs = sprintf( __( 'Checking or refunding this payment goes through %s, and its add-on is not active. Turn the add-on on in Add-ons to refund it here.', 'easy-form-builder' ), Readiness::addon_name( $p['gateway'] ) );
 			echo '<p class="efb-pay-needs-gw" data-code="pay_gateway_inactive">' . esc_html( $needs ) . ' <a href="' . esc_url( admin_url( 'admin.php?page=Emsfb_addon' ) ) . '">' . esc_html__( 'Open Add-ons', 'easy-form-builder' ) . '</a></p>';
@@ -677,9 +656,7 @@ class Admin {
 		wp_send_json_error( array( 'm' => __( 'Unknown action.', 'easy-form-builder' ) ) );
 	}
 
-	/* ------------------------------------------------------------------ moved forms (QA4-003) */
-
-	/** "Moved forms": the forms on the add-ons' new fields, and "Move every form back" before going back to an older version. */
+	/** "Moved forms" (QA4-003). */
 	private static function downgrade_tab( array $ids ) {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- the message after the redirect
 		$done = isset( $_GET['efb_back'] ) ? absint( $_GET['efb_back'] ) : -1;
@@ -688,22 +665,21 @@ class Admin {
 		echo '<section class="efb-pay-card efb-pay-downgrade" aria-labelledby="efbPayDowngradeH"><h2 id="efbPayDowngradeH">' . esc_html__( 'Before going back to an older version', 'easy-form-builder' ) . '</h2>';
 		if ( $done >= 0 ) {
 			/* translators: %s: number of forms */
-			echo '<div class="notice notice-success inline" role="status"><p>' . esc_html( sprintf( _n( '%s form was moved back to its older payment field.', '%s forms were moved back to their older payment fields.', $done, 'easy-form-builder' ), number_format_i18n( $done ) ) ) . '</p></div>';
+			echo '<div class="notice notice-success inline efb-notice" role="status"><p>' . esc_html( sprintf( _n( '%s form was moved back to its older payment field.', '%s forms were moved back to their older payment fields.', $done, 'easy-form-builder' ), number_format_i18n( $done ) ) ) . '</p></div>';
 		}
 		if ( $kept > 0 ) {
 			/* translators: %s: number of forms */
-			echo '<div class="notice notice-warning inline"><p>' . esc_html( sprintf( _n( '%s form could not be moved back: its payment field was changed after the move. Open the form\'s versions in the builder to go back.', '%s forms could not be moved back: their payment fields were changed after the move. Open each form\'s versions in the builder to go back.', $kept, 'easy-form-builder' ), number_format_i18n( $kept ) ) ) . '</p></div>';
+			echo '<div class="notice notice-warning inline efb-notice"><p>' . esc_html( sprintf( _n( '%s form was not moved back: its payment field changed after the move. Use its form versions.', '%s forms were not moved back: their payment fields changed after the move. Use their form versions.', $kept, 'easy-form-builder' ), number_format_i18n( $kept ) ) ) . '</p></div>';
 		}
 		if ( ! $ids ) {
-			echo '<p>' . esc_html__( 'No form uses the payment add-ons\' new fields now. An older version of Easy Form Builder can show every payment form.', 'easy-form-builder' ) . '</p></section>';
+			echo '<p>' . esc_html__( 'No form uses the new payment fields.', 'easy-form-builder' ) . '</p></section>';
 			return;
 		}
 		echo '<p>' . esc_html( Legacy_Migration::downgrade_text( count( $ids ) ) ) . '</p>';
-		echo '<p class="description">' . esc_html__( 'Moving a form back changes only its payment field: edits made since the move are kept, and the form can be moved again later from Settings › Payments.', 'easy-form-builder' ) . '</p><ul class="efb-pay-moved">';
+		echo '<p class="description">' . esc_html__( 'Only the payment field changes; your later edits are kept.', 'easy-form-builder' ) . '</p><ul class="efb-pay-moved">';
 		$log = Legacy_Migration::log_all();
 		foreach ( $ids as $id ) {
 			$name = isset( $log['forms'][ $id ]['name'] ) ? wp_strip_all_tags( str_replace( '@efb@dq#', '"', (string) $log['forms'][ $id ]['name'] ) ) : '';
-			// The name isolated on its own (a Persian name keeps "(#237)" after it on a left-to-right screen).
 			echo '<li><a href="' . esc_url( admin_url( 'admin.php?page=Emsfb&state=edit-form&id=' . (int) $id ) ) . '"><bdi>' . esc_html( $name !== '' ? $name : __( 'Form', 'easy-form-builder' ) ) . '</bdi> <bdi>(#' . (int) $id . ')</bdi></a></li>';
 		}
 		echo '</ul><form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
@@ -712,7 +688,7 @@ class Admin {
 		wp_print_inline_script_tag( '(function(){var b=document.querySelector(".efb-pay-downgrade [data-efb-confirm]");if(b)b.form.addEventListener("submit",function(e){if(!window.confirm(b.getAttribute("data-efb-confirm")))e.preventDefault();});})();' );
 	}
 
-	/** admin-post: every moved form back (Legacy_Migration::rollback_all()), then the tab with the counts. */
+	/** admin-post: every moved form back. */
 	public static function rollback_all() {
 		if ( ! current_user_can( 'manage_options' ) || ! check_admin_referer( 'efb_pay_legacy_rollback_all' ) ) wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'easy-form-builder' ), 403 );
 		$r = Legacy_Migration::rollback_all( 'admin' );
@@ -729,7 +705,6 @@ class Admin {
 			// F16 rule on a right-to-left screen: a sentence keeps its own direction (English, not translated yet: its full stop
 			// stays at its end) and starts at the screen's start.
 			. '.efb-pay-admin :is(p,.notice p,.description,li,label,.efb-pay-msg){unicode-bidi:plaintext}.rtl .efb-pay-admin :is(p,.notice p,.description,li,.efb-pay-msg){text-align:right}'
-			// QA3-008: the list at phone width (WordPress' list-table cards below 783 px); the filters and the details fit too.
 			. '.efb-pay-table .column-date{width:9.5rem}.efb-pay-table .column-form{width:4rem}.efb-pay-table .column-mode{width:4.5rem}.efb-pay-table code{white-space:nowrap}.efb-pay-table td{overflow-wrap:anywhere}'
 			. '@media (max-width:782px){.efb-pay-admin .efb-pay-filters label{display:flex;flex-direction:column;flex:1 1 9rem;min-width:0}.efb-pay-admin .efb-pay-filters :is(select,input){max-width:100%;min-height:40px}.efb-pay-table .column-date{width:auto}.efb-pay-table td.column-primary::before{content:none!important;display:none}.efb-pay-table tr td:nth-child(n+2){flex:0 1 100%}.efb-pay-table td code{white-space:normal}.efb-pay-kv th{width:auto}.efb-pay-kv td{overflow-wrap:anywhere}.efb-pay-admin .nav-tab{margin-block-end:4px}}'
 			. '.efb-pay-moved{list-style:disc;padding-inline-start:1.25rem;margin-inline-start:0}</style>';

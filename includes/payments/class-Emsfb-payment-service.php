@@ -343,7 +343,6 @@ class Service {
 		$method = isset( $a['method'] ) && is_string( $a['method'] ) && preg_match( '/^[a-z0-9_]{1,30}$/', $a['method'] ) ? $a['method'] : '';
 		$limit = self::method_limit( $gw, $settings, $method, (int) $quote['total_minor'], $quote['currency'], $locale );
 		if ( $limit ) return $limit;
-		// QA3-009: an amount the gateway can never take, before an entry or a payment is stored.
 		$bad = self::amount_problem( $gw, $settings, $mode, (int) $quote['total_minor'], $quote['currency'] );
 		if ( $bad ) return $bad;
 		if ( isset( $a['expected_minor'] ) && $a['expected_minor'] !== null && $a['expected_minor'] !== '' && (int) $a['expected_minor'] !== (int) $quote['total_minor'] ) {
@@ -519,10 +518,7 @@ class Service {
 		return self::fail( 'gateway_error' );
 	}
 
-	/**
-	 * Gateway::amount_problem() (QA3-009): null, or the visitor's answer. Nothing is stored; with reason "config" the
-	 * owner is alerted with the gateway's own words (owner_alert( …, own )); the owner's words never reach the visitor.
-	 */
+	/** QA3-009: Gateway::amount_problem() before anything is stored; reason config alerts the owner. */
 	private static function amount_problem( Gateway $gw, Settings $s, $mode, $total, $currency ) {
 		if ( ! method_exists( $gw, 'amount_problem' ) ) return null;
 		try { $r = $gw->amount_problem( (int) $total, (string) $currency, $s ); } catch ( \Throwable $e ) { $r = null; }
@@ -559,7 +555,6 @@ class Service {
 	public static function owner_alert_text( Gateway $gw, array $a ) {
 		$when = function_exists( 'wp_date' ) ? wp_date( 'Y-m-d H:i', (int) $a['at'] ) : gmdate( 'Y-m-d H:i', (int) $a['at'] );
 		$mode = $a['mode'] === 'live' ? __( 'Live', 'easy-form-builder' ) : __( 'Test', 'easy-form-builder' );
-		// The gateway's own words for a problem of the form or the account (Gateway::amount_problem()): they say what to do.
 		/* translators: %1$s: date and time, %2$s: gateway name, %3$s: Live or Test, %4$s: the gateway's own explanation */
 		if ( ! empty( $a['own'] ) && $a['m'] !== '' ) return sprintf( __( 'On %1$s a visitor could not pay with %2$s (%3$s mode). %4$s', 'easy-form-builder' ), $when, $gw->label(), $mode, $a['m'] );
 		/* translators: %1$s: date and time, %2$s: gateway name, %3$s: Live or Test, %4$s: error code */
@@ -1234,7 +1229,6 @@ class Service {
 		$state = $p['status'];
 		$kind = in_array( $state, array( 'paid', 'partially_refunded', 'refunded' ), true ) ? 'paid'
 			: ( in_array( $state, array( 'failed', 'canceled', 'expired' ), true ) ? 'failed' : 'pending' );
-		// The amount of this payment (QA3-001: back on a fresh page after a failure, the field shows what "Try again" pays).
 		$out = array( 'state' => $kind, 'status' => $state, 'form_id' => (int) $p['form_id'], 'test_mode' => $p['mode'] !== 'live', 'can_retry' => $kind === 'failed', 'total_minor' => (int) $p['amount_minor'], 'currency' => (string) $p['currency'] );
 		if ( $kind === 'pending' ) $out['poll_until'] = self::poll_until( $p );
 		$next = is_string( $p['next_json'] ) && $p['next_json'] !== '' ? json_decode( $p['next_json'], true ) : null;

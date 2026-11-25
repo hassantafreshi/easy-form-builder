@@ -52,26 +52,20 @@
       return s ? s.find(function (r) { return r && r.id_ === el.getAttribute('data-pf'); }) : null;
    };
    var gw = function (el) { return (V.gateways || {})[el.getAttribute('data-gw')] || {}; };
-   /**
-    * QA3-013: on a right-to-left page a currency sign made of Latin letters and a sign ("US$", "JP¥") came out reversed
-    * ("$US"): the sign is isolated (FSI … PDI, what <bdi> does) so it keeps its own order, the same rule as the server's
-    * Payments\Money::format(). Left-to-right pages are unchanged.
-    */
+   /** QA3-013: right to left, the currency sign isolated (FSI … PDI) keeps its order ("US$"), as Money::format(). */
    var RTL = /^(ar|arq|ary|arz|azb|ckb|dv|fa|haz|he|ku|ps|sd|ug|ur|yi)([-_]|$)/i;
    var signs = {};
    var isolate = function (txt, cur) {
-      var loc = String(V.locale || 'en').replace('_', '-');
-      if (!txt || !cur || !RTL.test(loc) || txt.indexOf('⁨') !== -1) return txt;
-      var k = loc + '|' + cur;
-      if (!Object.prototype.hasOwnProperty.call(signs, k)) {
+      var loc = String(V.locale || 'en').replace('_', '-'), k = loc + '|' + cur;
+      if (!txt || !cur || !RTL.test(loc) || txt.indexOf('\u2068') !== -1) return txt;
+      if (!(k in signs)) {
          signs[k] = '';
-         try { new Intl.NumberFormat(loc, { style: 'currency', currency: cur }).formatToParts(0).forEach(function (p) { if (p.type === 'currency') signs[k] = p.value; }); } catch (e) { /* no Intl: the code is shown */ }
+         try { new Intl.NumberFormat(loc, { style: 'currency', currency: cur }).formatToParts(0).forEach(function (p) { if (p.type === 'currency') signs[k] = p.value; }); } catch (e) { /* no Intl */ }
       }
-      var sign = signs[k];
-      return sign && txt.indexOf(sign) !== -1 ? txt.replace(sign, '⁨' + sign + '⁩') : txt;
+      return signs[k] && txt.indexOf(signs[k]) !== -1 ? txt.replace(signs[k], '\u2068' + signs[k] + '\u2069') : txt;
    };
    var fmt = function (el, minor, cur) { return isolate(C().format(minor, cur, V.locale, el.getAttribute('data-digits') === 'locale' ? 'locale' : 'latn', gw(el).exponents), String(cur || '').toUpperCase()); };
-   /** The step (1, 2, …) of the fieldset that holds the payment field; 0 when the form has no steps. */
+   /** The field's step (fieldset step-N-efb), 0 without steps. */
    var stepOf = function (el) {
       var w = el && el.closest ? el.closest('fieldset[data-step]') : null;
       var m = w ? /^step-(\d+)-efb$/.exec(String(w.getAttribute('data-step') || '')) : null;
@@ -94,7 +88,7 @@
       var q = C().quote(s, sendRows(el.getAttribute('data-formid')), { field_id: el.getAttribute('data-pf'), exponents: g.exponents, supports: { min_minor: g.min_minor || {}, max_minor: g.max_minor || {}, currencies: g.currencies || [] } });
       el._q = q;
       var cur = q.currency || String((s[0] && s[0].currency) || '').toUpperCase();
-      // Back from the provider on a fresh page (QA3-001): the stored payment's amount until the form gives one again.
+      // QA3-001: back on a fresh page, the stored payment's amount.
       var total = q.ok ? fmt(el, q.total_minor, q.currency) : (el._stored ? fmt(el, el._stored.total_minor, el._stored.currency) : '');
       el.querySelectorAll('[data-pf-total],[data-pf-amount]').forEach(function (n) { n.textContent = total; });
       var ul = el.querySelector('[data-pf-lines]');
@@ -144,8 +138,7 @@
       el._efbPay = true;
       var fid = el.getAttribute('data-formid');
       var body = document.getElementById('body_efb_' + fid);
-      // The Pay button replaces the form's own Send button on the step that holds the field (QA3-015: on a form with
-      // steps that is the last step's "Submit", #next_efb, which reads "Next" on the other steps: hidden only there).
+      // The Pay button replaces the form's Send on the field's step (QA3-015: also the last step's #next_efb, there only).
       var n = stepOf(el);
       if (body && (!n || n >= stepsOf(fid))) {
          body.classList.add('efb-pf-form');
@@ -555,27 +548,16 @@
       }
    }
 
-   /**
-    * QA3-017: the steps indicator reads complete once the payment is paid, as after the form's own Send (the final step
-    * is step max + 1 of max + 1): the same sync core's steps use, else the plain bar at 100%.
-    */
+   /** QA3-017: the steps indicator complete (step max + 1 of max + 1), as after the form's own Send. */
    function complete(fid, body) {
-      var max = stepsOf(fid);
-      var shell = body.querySelector('.efb-sp');
-      var sync = typeof efbStepsSyncEfb === 'function' ? efbStepsSyncEfb : (typeof efb_steps_sync_fallback_efb === 'function' ? efb_steps_sync_fallback_efb : null);
-      var done = false;
-      if (sync && shell) {
-         var fin = (typeof efb_var !== 'undefined' && efb_var && efb_var.text && efb_var.text.finish) || '';
-         try { done = sync(shell, max + 1, max + 1, fin) !== false; } catch (e) { done = false; }
-      }
-      if (!done) body.querySelectorAll('.progress-bar-efb, .efb-sp__fill').forEach(function (b) { b.style.width = '100%'; b.setAttribute('aria-valuenow', '100'); });
-      body.dataset.currentstep = String(max + 1);
+      var max = stepsOf(fid) + 1, shell = body.querySelector('.efb-sp'), ok = false;
+      var sync = typeof efbStepsSyncEfb === 'function' ? efbStepsSyncEfb : root.efb_steps_sync_fallback_efb;
+      try { ok = !!(shell && sync) && sync(shell, max, max, (root.efb_var && root.efb_var.text && root.efb_var.text.finish) || '') !== false; } catch (e) { /* the bar below */ }
+      if (!ok) body.querySelectorAll('.progress-bar-efb, .efb-sp__fill').forEach(function (b) { b.style.width = '100%'; });
+      body.dataset.currentstep = String(max);
    }
 
-   /**
-    * QA3-001: back from the provider with a payment that failed, was cancelled or is still open, the visitor is on the
-    * step that holds the payment field (its message and "Try again" are there), not on step 1 of an empty form.
-    */
+   /** QA3-001: a failed, cancelled or open return opens the field's step (its message and "Try again"). */
    function openStep(el, fid) {
       var n = stepOf(el);
       var body = document.getElementById('body_efb_' + fid);
@@ -670,7 +652,6 @@
          if (banner) banner.hidden = !st.test_mode;
          el._last = { uid: uid, sig: sig };
          if (st.total_minor > 0 && st.currency) { el._stored = { total_minor: Number(st.total_minor), currency: String(st.currency) }; refresh(el); }
-         // Failed, cancelled or still open: the field's step first (paid: done() shows the final step).
          if (st.state !== 'paid') openStep(el, fid);
          el.scrollIntoView({ block: 'center' });
       }
