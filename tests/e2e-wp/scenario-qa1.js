@@ -32,6 +32,9 @@
  *  qa1-stale     QA5-002: a form open in the builder while it is saved elsewhere (the assistant's form.update, another
  *                tab): the builder's Save does not overwrite that change silently; it answers stale_hash and asks
  *                "Overwrite" or "Reload" in plain words; Overwrite then saves this version.
+ *  qa1-mailurl   QA1-023: after a site move the stored e-mail template named the old host; the update turns this plugin's
+ *                address into {efb_plugin_url} once, and the Email Template designer shows the template's images from
+ *                this site.
  */
 'use strict';
 
@@ -471,6 +474,27 @@ module.exports = function (S) {
       await a.context().close();
     } finally {
       try { ctl('f12-delete-form', String(F.form_id)); } catch (e) { /* ignore */ }
+    }
+  });
+
+  /* ================================================================== qa1-mailurl */
+  scenario('qa1-mailurl', 'QA1-023: the e-mail template keeps no old host after a site move', async ({ adminPage }) => {
+    const q = (...a) => { const o = wp('eval-file', require('path').join(__dirname, 'ctl-qa1.php'), ...a).trim().split('\n'); return JSON.parse(o[o.length - 1]); };
+    try {
+      q('mail-old');
+      const moved = q('mail-state');
+      const a = await adminPage({ viewport: { width: 1280, height: 900 } }, 'qa1-mailurl');
+      await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+      await sleep(1500);
+      const after = q('mail-state');
+      await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb&state=setting&tab=email-template', { waitUntil: 'load' });
+      await a.waitForSelector('#nav-emailtemplate.active .efb-canvas-block', { timeout: 20000 });
+      await sleep(1500);
+      const imgs = await a.evaluate(() => Array.from(document.querySelectorAll('#efb-email-builder img')).map((i) => i.getAttribute('src')).filter((u) => /easy-form-builder/.test(u)));
+      R.check('qa1-mailurl (QA1-023): the update replaced the old host by {efb_plugin_url}; the designer shows the template\'s images from this site', moved.old && !after.old && after.placeholder && imgs.length > 0 && imgs.every((u) => u.indexOf(CFG.base) === 0), { moved, after, imgs });
+      await a.context().close();
+    } finally {
+      q('mail-restore');
     }
   });
 };

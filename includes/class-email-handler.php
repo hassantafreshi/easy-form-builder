@@ -1423,7 +1423,7 @@ class EmsfbEmailHandler {
         $temp = strtr($temp, $replacements);
 
         $temp = preg_replace(['/http:(?:@efb@)+/', '/https:(?:@efb@)+/'], ['http://', 'https://'], $temp);
-        $temp = str_replace('@efb@', '/', $temp);
+        $temp = str_replace(array('@efb@', '{efb_plugin_url}'), array('/', EMSFB_PLUGIN_URL), $temp); // QA1-023
 
         $isBuilderTemplate = (strpos($temp, 'efb-email-container') !== false);
 

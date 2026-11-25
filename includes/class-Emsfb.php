@@ -2111,6 +2111,12 @@ class Emsfb {
         update_option('emsfb_addons_reinstall_required', time());
         // QA4-009: the rating invitation keeps quiet for a few days after an update (Review_Request::busy_with_update_efb()).
         update_option('emsfb_updated_at', time(), false);
+        // QA1-023: the stored e-mail template names the plugin's address by its placeholder (once, for every host it had).
+        $tpl_efb = self::get_setting_Emsfb('decoded');
+        if (is_object($tpl_efb) && isset($tpl_efb->emailTemp) && is_string($tpl_efb->emailTemp)) {
+            $new_efb = self::email_template_placeholder_efb($tpl_efb->emailTemp);
+            if ($new_efb !== $tpl_efb->emailTemp) { $tpl_efb->emailTemp = $new_efb; self::get_efbFunction()->set_setting_Emsfb($tpl_efb, isset($tpl_efb->emailSupporter) ? $tpl_efb->emailSupporter : ''); }
+        }
         // FR (4.3.2): an update is not a first run: the first-run e-mail check of an earlier version is over.
         if ($old_version !== '0.0.0' && version_compare($old_version, '4.3.2', '<')) update_option('emsfb_onboarding_pending', 0, false);
         // A new release is a new situation: let the first page load retry at once
@@ -2344,12 +2350,17 @@ class Emsfb {
         return str_replace('"', "'", $normalized);
     }
 
+    /** QA1-023: this plugin's address in a template (plain, @efb@-encoded or URL-encoded, any host) → {efb_plugin_url}. */
+    public static function email_template_placeholder_efb($t) {
+        return preg_replace(array('#https?:(?:@efb@)+[^"\'\s<>]*?@efb@plugins@efb@easy-form-builder@efb@#', '#https?://[^"\'\s<>]*?/plugins/easy-form-builder/#', '#https?%3A%2F%2F[^"\'\s<>]*?%2Fplugins%2Feasy-form-builder%2F#i'), array('{efb_plugin_url}', '{efb_plugin_url}', '%7Befb_plugin_url%7D'), (string) $t);
+    }
+
     public static function get_default_email_template_efb() {
         $direction = function_exists('is_rtl') && is_rtl() ? 'rtl' : 'ltr';
         $message_align = $direction === 'rtl' ? 'right' : 'left';
-        $logo_url = defined('EMSFB_PLUGIN_URL')
-            ? EMSFB_PLUGIN_URL . 'public/assets/images/email_template1.png'
-            : '';
+        // QA1-023: the plugin's address as a placeholder, resolved when the e-mail is sent or the template drawn (a stored
+        // absolute address kept the old host after a site move).
+        $logo_url = '{efb_plugin_url}public/assets/images/email_template1.png';
         $disclaimer = function_exists('__')
             ? __('This email was sent automatically. Please do not reply directly.', 'easy-form-builder')
             : 'This email was sent automatically. Please do not reply directly.';
@@ -2450,7 +2461,7 @@ class Emsfb {
             $builder_json = '{"blocks":[{"type":"message","data":{}}]}';
         }
 
-        $safe_logo_url = function_exists('esc_url') ? esc_url($logo_url) : $logo_url;
+        $safe_logo_url = $logo_url;
         $safe_disclaimer = function_exists('esc_html')
             ? esc_html($disclaimer)
             : htmlspecialchars($disclaimer, ENT_QUOTES, 'UTF-8');
