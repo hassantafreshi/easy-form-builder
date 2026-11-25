@@ -483,7 +483,7 @@ class Form_Package {
 	const IMPORTS_OPTION = 'efb_form_package_imports';
 
 	/** Records the forms an import created under a token (the caller's own token to group a batch, or a new one). */
-	private static function remember_import($form_id, $token, $user_id) {
+	private static function remember_import($form_id, $token, $user_id, $hash = '') {
 		$all = function_exists('get_option') ? get_option(self::IMPORTS_OPTION, array()) : array();
 		$all = is_array($all) ? $all : array();
 		$now = time();
@@ -493,6 +493,7 @@ class Form_Package {
 			$all[$token] = array('forms' => array(), 'user' => (int) $user_id, 'at' => $now);
 		}
 		$all[$token]['forms'][] = (int) $form_id;
+		$all[$token]['hash'][(int) $form_id] = (string) $hash; // QA5-001: delete() refuses a form changed since
 		$all[$token]['at'] = $now;
 		if (count($all) > 100) $all = array_slice($all, -100, null, true);
 		if (function_exists('update_option')) update_option(self::IMPORTS_OPTION, $all, false);
@@ -510,9 +511,11 @@ class Form_Package {
 	/**
 	 * Undo an import: deletes a form only when the import identified by $import_token created it (and the token is the
 	 * current user's, or the user is an administrator). Its entries, versions and caches go with it, as the builder's
-	 * own delete does (efb_form_deleted). @return true|\WP_Error
+	 * own delete does (efb_form_deleted). QA5-001: refused with 409 (package_form_in_use, data.reasons: changed,
+	 * published, entries) when the form changed since its import, is published or has entries, unless $force (the
+	 * caller asked the owner and the owner confirmed). @return true|\WP_Error
 	 */
-	public static function delete($form_id, $import_token) {
+	public static function delete($form_id, $import_token, $force = false) {
 		$form_id = (int) $form_id;
 		if (!self::can_manage()) return self::err('package_forbidden', 'You are not allowed to do this.', array('status' => 403));
 		$all = function_exists('get_option') ? get_option(self::IMPORTS_OPTION, array()) : array();
@@ -522,6 +525,15 @@ class Form_Package {
 		if ((int) $rec['user'] !== $uid && !(function_exists('current_user_can') && current_user_can('manage_options'))) return self::err('package_forbidden', 'You are not allowed to do this.', array('status' => 403));
 		global $wpdb;
 		$t = $wpdb->prefix . 'emsfb_form';
+		if (!$force) {
+			$why = array();
+			$st = class_exists('\\Emsfb\\Form_Update') ? Form_Update::stored($form_id) : null;
+			$was = isset($rec['hash'][$form_id]) ? (string) $rec['hash'][$form_id] : '';
+			if (!is_array($st) || $was === '' || !hash_equals($was, Form_Update::hash_of($st['rows'], $st['form_name']))) $why[] = 'changed';
+			if (!class_exists('\\Emsfb\\Form_Status') || Form_Status::get($form_id) !== 'draft') $why[] = 'published';
+			if ((int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM `{$wpdb->prefix}emsfb_msg_` WHERE form_id = %d", $form_id)) > 0) $why[] = 'entries';
+			if ($why) return self::err('package_form_in_use', 'This form was changed, published or has entries since it was created; it is not deleted without the owner\'s confirmation.', array('status' => 409, 'reasons' => $why));
+		}
 		$r = $wpdb->delete($t, array('form_id' => $form_id), array('%d'));
 		if ($r === false) return self::err('package_not_deleted', 'The form could not be deleted.', array('status' => 500));
 		if (class_exists('\\Emsfb\\Privacy')) Privacy::delete_form_entries($form_id);
@@ -641,11 +653,13 @@ class Form_Package {
 		if ($type === 'login' || $type === 'register') do_action('create_temporary_links_table_Emsfb');
 		do_action('efb_form_created', $fid, $rows, array('form_id' => $fid, 'source' => 'import', 'user_id' => $uid, 'warnings' => isset($v['warnings']) ? $v['warnings'] : array()));
 		$x = self::import_extras($fid, $v['extras'], array('context' => 'import', 'id_map' => $v['id_map']));
-		$token = self::remember_import($fid, isset($args['import_token']) ? (string) $args['import_token'] : '', $uid);
+		$st = class_exists('\\Emsfb\\Form_Update') ? Form_Update::stored($fid) : null;
+		$hash = is_array($st) ? Form_Update::hash_of($st['rows'], $st['form_name']) : '';
+		$token = self::remember_import($fid, isset($args['import_token']) ? (string) $args['import_token'] : '', $uid, $hash);
 		$res = array('form_id' => $fid, 'import_token' => $token, 'form_name' => $name, 'form_type' => $type, 'shortcode' => '[EMS_Form_Builder id=' . $fid . ']', 'dropped' => $v['dropped'],
 			'notices' => array_merge($v['notices'], $x['notices']), 'extras_applied' => $x['applied'], 'id_map' => $v['id_map'],
 			'status' => $draft ? 'draft' : 'published', 'warnings' => isset($v['warnings']) ? $v['warnings'] : array());
-		if (class_exists('\\Emsfb\\Form_Update') && is_array($st = Form_Update::stored($fid))) $res['base_hash'] = Form_Update::hash_of($st['rows'], $st['form_name']);
+		if ($hash !== '') $res['base_hash'] = $hash;
 		if (class_exists('\\Emsfb\\Payments\\Readiness')) {
 			$a = Payments\Readiness::save_answer(array(), $rows, $fid);
 			if (isset($a['payment_ready'])) $res['payment'] = array('ready' => (bool) $a['payment_ready'], 'issues' => isset($a['payment_issues']) ? $a['payment_issues'] : array());
@@ -682,7 +696,7 @@ class Form_Package {
 		$a = self::api();
 		$out['form_package'] = array(
 			'v' => self::API_VERSION, 'spec' => 'F15-D / F20 P23', 'schema' => self::SCHEMA, 'php' => 'efb_form_package_api(); Emsfb\\Form_Package::export / validate / import',
-			'filters' => $a['filters'], 'limits' => $a['limits'], 'functions' => $a['functions'], 'import_args' => $a['import_args'], 'rules' => array('import always creates a new form (name_policy suffix | keep | fail, status published | draft)', 'update() changes a saved form: patches + base_hash (capabilities.form_update)', 'ids kept unless invalid or duplicated (then remapped through efb_form_package_remap_ids)', 'the builder / AutoPilot save path runs on every import', 'secrets and site-only keys never exported', 'an add-on block is dropped with a notice when its add-on is not active'),
+			'filters' => $a['filters'], 'limits' => $a['limits'], 'functions' => $a['functions'], 'import_args' => $a['import_args'], 'rules' => array('import always creates a new form (name_policy suffix | keep | fail, status published | draft)', 'update() changes a saved form: patches + base_hash (capabilities.form_update)', 'ids kept unless invalid or duplicated (then remapped through efb_form_package_remap_ids)', 'the builder / AutoPilot save path runs on every import', 'secrets and site-only keys never exported', 'an add-on block is dropped with a notice when its add-on is not active', 'delete($form_id, $import_token, $force = false) refuses with 409 package_form_in_use (reasons changed | published | entries) unless force'),
 			'ui' => 'none in core (the plugin Easy Form Builder Data Tools)', 'plan' => 'free',
 		);
 		return $out;
