@@ -941,7 +941,7 @@ function show_setting_window_efb(idset, opts) {
       <div class="efb mx-1 efb ">
       ${pro_efb==true ?"":funProEfb('setting:email_sub', { fallback: 'free_plus', resume: { kind: 'focus', id: 'FormEmailSubjectEl' } })}
       <label for="FormEmailSubjectEl" class="efb form-label mt-2 mb-1 efb">${efb_var.text.mlsbjt}</label>
-      <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4 efb" placeholder="${efb_var.text.emailSubject || 'Email Subject'}" id="FormEmailSubjectEl" required value="${value}">
+      <input type="text" data-id="${idset}" class="efb elEdit text-muted form-control h-d-efb border-d rounded-4 efb" placeholder="${efb_var.text.emailSubjectLabel || 'Email subject'}" id="FormEmailSubjectEl" required value="${value}">
       <small class="efb text-muted fs-8 mx-2">${hintTxt}</small>
       </div>`
 

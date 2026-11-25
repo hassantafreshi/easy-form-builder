@@ -6717,6 +6717,8 @@ class efbFunction {
 			"planProSecurity" => $state && isset($ac->text->planProSecurity) ? $ac->text->planProSecurity : esc_html__('Human Shield security and spam protection','easy-form-builder'),
 			/* translators: FR-01: read by screen readers before a feature the plan does not include */
 			"planNotIncluded" => $state && isset($ac->text->planNotIncluded) ? $ac->text->planNotIncluded : esc_html__('Not included:','easy-form-builder'),
+			/* translators: PUB-03: the name of the Calculation field's tile in the builder's field list (an add-on's field) */
+			"calcField" => $state && isset($ac->text->calcField) ? $ac->text->calcField : esc_html__('Calculation','easy-form-builder'),
 			/* B7 phrases end */
 
 		];
@@ -10300,6 +10302,13 @@ public function addon_add_efb($value) {
 			"s_t" => esc_html__('One of the free features','easy-form-builder'),
 
 		];
+		// PUB-03 (B5 → B7 hand-off): the ready-made templates' texts (forms-efb.js efbTplT()), on the Create screen only.
+		if (!function_exists('emsfb_template_phrases_efb') && defined('EMSFB_PLUGIN_DIRECTORY') && is_readable(EMSFB_PLUGIN_DIRECTORY . 'includes/admin/template-phrases-efb.php')) {
+			require_once EMSFB_PLUGIN_DIRECTORY . 'includes/admin/template-phrases-efb.php';
+		}
+		if (function_exists('emsfb_template_phrases_efb')) {
+			$r = array_merge($r, emsfb_template_phrases_efb());
+		}
 		return $r;
 	}
 
