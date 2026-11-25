@@ -18,6 +18,7 @@
  *
  * Run: php tests/test-form-package.php
  */
+if (!function_exists('wp_parse_url')) { function wp_parse_url($u, $c = -1) { return parse_url($u, $c); } } // the plugin calls wp_parse_url() (B6, Plugin Check)
 define('ABSPATH', __DIR__ . '/');
 $passed = 0; $failed = 0;
 function t($label, $actual, $expected) {

@@ -25,8 +25,8 @@ class Frontend {
 
 	private static function core_texts( $gateway_label ) {
 		return array(
-			'btn'      => str_replace( '%s', '%amount%', __( 'Pay %s', 'easy-form-builder' ) ),
-			'secure'   => sprintf( __( 'Payments are processed securely by %s. Your card details never reach this website.', 'easy-form-builder' ), $gateway_label ),
+			'btn'      => str_replace( '%s', '%amount%', /* translators: %s: the amount with its currency */ __( 'Pay %s', 'easy-form-builder' ) ),
+			'secure'   => sprintf( /* translators: %s: the payment service's name, such as Stripe */ __( 'Payments are processed securely by %s. Your card details never reach this website.', 'easy-form-builder' ), $gateway_label ),
 			'summary'  => __( 'Order summary', 'easy-form-builder' ),
 			'methods'  => __( 'Choose a payment method', 'easy-form-builder' ),
 			'pending'  => __( 'We are waiting for the payment confirmation. You can keep this page open; we will update it automatically.', 'easy-form-builder' ),
@@ -50,8 +50,8 @@ class Frontend {
 			'titleOk'    => __( 'Payment successful', 'easy-form-builder' ),
 			'titleFail'  => __( 'Payment not completed', 'easy-form-builder' ),
 			'noScript'   => __( 'This form cannot take payments at the moment. Please contact the site owner.', 'easy-form-builder' ),
-			'min'        => __( 'The amount must be at least %s.', 'easy-form-builder' ),
-			'max'        => __( 'The amount must be at most %s.', 'easy-form-builder' ),
+			'min'        => /* translators: %s: the amount with its currency */ __( 'The amount must be at least %s.', 'easy-form-builder' ),
+			'max'        => /* translators: %s: the amount with its currency */ __( 'The amount must be at most %s.', 'easy-form-builder' ),
 			/* translators: %1$s: payment method, %2$s: amount with currency */
 			'methodMin'  => __( '%1$s accepts amounts from %2$s. Please choose another payment method.', 'easy-form-builder' ),
 			/* translators: %1$s: payment method, %2$s: amount with currency */

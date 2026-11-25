@@ -30,6 +30,7 @@ $efb_test = array(
 function home_url() { global $efb_test; return $efb_test['home']; }
 function site_url() { global $efb_test; return null === $efb_test['site'] ? $efb_test['home'] : $efb_test['site']; }
 function wp_parse_url( $url, $component = -1 ) { return parse_url( $url, $component ); }
+function wp_delete_file( $file ) { return @unlink( $file ); } // the plugin deletes through wp_delete_file() (B6, Plugin Check)
 function get_locale() { global $efb_test; return $efb_test['locale']; }
 function get_option( $key, $default = false ) { global $efb_test; return array_key_exists( $key, $efb_test['options'] ) ? $efb_test['options'][ $key ] : $default; }
 function update_option( $key, $value ) { global $efb_test; $efb_test['options'][ $key ] = $value; return true; }

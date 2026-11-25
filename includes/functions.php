@@ -1200,7 +1200,7 @@ if ( ! function_exists( 'emsfb_is_local_site_efb' ) ) {
 				continue;
 			}
 			$url  = (string) call_user_func( $url_function );
-			$host = function_exists( 'wp_parse_url' ) ? wp_parse_url( $url, PHP_URL_HOST ) : parse_url( $url, PHP_URL_HOST );
+			$host = wp_parse_url( $url, PHP_URL_HOST );
 			if ( is_string( $host ) && in_array( strtolower( trim( $host, '[]' ) ), array( 'localhost', '127.0.0.1', '::1' ), true ) ) {
 				return true;
 			}
@@ -1330,7 +1330,8 @@ if ( ! function_exists( 'emsfb_delete_addon_language_file_efb' ) ) {
 			return (bool) $wp_filesystem->delete( $path, false, 'f' );
 		}
 		if ( emsfb_addon_i18n_can_efb( 'unlink' ) ) {
-			return @unlink( $path );
+			wp_delete_file( $path );
+			return ! file_exists( $path );
 		}
 		return false;
 	}
@@ -1440,7 +1441,7 @@ class efbFunction {
 			$fill_missing_defaults = [
 				'videoOrAudio' => esc_html__('(Video or Audio)','easy-form-builder'),
 				'localization' => esc_html__('Localization','easy-form-builder'),
-				'translateContrib' => esc_html__('Help us speak your language! Translate Easy Form Builder on the %1$sWordPress.org translation portal%2$s and make it accessible to your community.','easy-form-builder'),
+				'translateContrib' => /* translators: 1: the opening link tag, 2: the closing link tag */ esc_html__('Help us speak your language! Translate Easy Form Builder on the %1$sWordPress.org translation portal%2$s and make it accessible to your community.','easy-form-builder'),
 				'translateLocal' => esc_html__('You can translate Easy Form Builder into your preferred language by translating the following sentences. WARNING: If your WordPress site is multilingual, do not change the values below.','easy-form-builder'),
 			];
 
@@ -2423,7 +2424,7 @@ class efbFunction {
 			"hostSupportSmtp" => $state  &&  isset($ac->text->hostSupportSmtp) ? $ac->text->hostSupportSmtp : esc_html__('This site can send emails','easy-form-builder'),
 			"weeklyEmailReport" => $state && isset($ac->text->weeklyEmailReport) ? $ac->text->weeklyEmailReport : esc_html__('Weekly email health and form activity report','easy-form-builder'),
 			"weeklyEmailReportDesc" => $state && isset($ac->text->weeklyEmailReportDesc) ? $ac->text->weeklyEmailReportDesc : esc_html__('Adds your form activity totals &ndash; forms, views and submissions &ndash; to the weekly email your site sends the main administrator. These totals are read on your own site and are never sent to WhiteStudio.','easy-form-builder'),
-			"weeklyEmailLastCheck" => $state && isset($ac->text->weeklyEmailLastCheck) ? $ac->text->weeklyEmailLastCheck : esc_html__('Last check: %s','easy-form-builder'),
+			"weeklyEmailLastCheck" => $state && isset($ac->text->weeklyEmailLastCheck) ? $ac->text->weeklyEmailLastCheck : /* translators: %s: the date and time of the last check */ esc_html__('Last check: %s','easy-form-builder'),
 			"weeklyEmailNotRun" => $state && isset($ac->text->weeklyEmailNotRun) ? $ac->text->weeklyEmailNotRun : esc_html__('No automated email check has run yet.','easy-form-builder'),
 			"emailStatsReport" => $state && isset($ac->text->emailStatsReport) ? $ac->text->emailStatsReport : esc_html__('Collect email delivery statistics','easy-form-builder'),
 			"emailStatsReportDesc" => $state && isset($ac->text->emailStatsReportDesc) ? $ac->text->emailStatsReportDesc : esc_html__('Counts how many emails were sent or failed, shows them in the dashboard widget, and adds the email delivery status section to the weekly email. Once a week your site runs a delivery test and reports the result. Only Pro users can turn this off.','easy-form-builder'),
@@ -2448,11 +2449,11 @@ class efbFunction {
 			"requestBlocked" => $state  &&  isset($ac->text->requestBlocked) ? $ac->text->requestBlocked : esc_html__('The website\'s security settings blocked this form. Please try again in a few minutes. If it happens again, contact the site owner.','easy-form-builder'),
 			"formsClosed" => $state  &&  isset($ac->text->formsClosed) ? $ac->text->formsClosed : esc_html__('This website is not accepting forms from visitors right now. Please contact the site owner.','easy-form-builder'),
 			"formTooLarge" => $state  &&  isset($ac->text->formTooLarge) ? $ac->text->formTooLarge : esc_html__('The form is too large to send, usually because of an attached file or a signature. Use a smaller file and try again.','easy-form-builder'),
-			"formNotSentCode" => $state  &&  isset($ac->text->formNotSentCode) ? $ac->text->formNotSentCode : esc_html__('The form could not be sent (error %d). Your answers are kept. Please try again later.','easy-form-builder'),
+			"formNotSentCode" => $state  &&  isset($ac->text->formNotSentCode) ? $ac->text->formNotSentCode : /* translators: %d: the error code */ esc_html__('The form could not be sent (error %d). Your answers are kept. Please try again later.','easy-form-builder'),
 			"formExpiredSendAgain" => $state  &&  isset($ac->text->formExpiredSendAgain) ? $ac->text->formExpiredSendAgain : esc_html__('The form expired while this page was open. It has been renewed, so please send it again. Your answers are kept.','easy-form-builder'),
 			"loginChangedSendAgain" => $state  &&  isset($ac->text->loginChangedSendAgain) ? $ac->text->loginChangedSendAgain : esc_html__('You signed in or out in another tab. Please send the form again.','easy-form-builder'),
 			"noAnswerCheckFirst" => $state  &&  isset($ac->text->noAnswerCheckFirst) ? $ac->text->noAnswerCheckFirst : esc_html__('The connection was interrupted, so we could not confirm that your form arrived. If you did not receive a confirmation, please send it again.','easy-form-builder'),
-			"requestFailedCode" => $state  &&  isset($ac->text->requestFailedCode) ? $ac->text->requestFailedCode : esc_html__('Your request could not be completed (error %d). Please try again later.','easy-form-builder'),
+			"requestFailedCode" => $state  &&  isset($ac->text->requestFailedCode) ? $ac->text->requestFailedCode : /* translators: %d: the error code */ esc_html__('Your request could not be completed (error %d). Please try again later.','easy-form-builder'),
 			"noAnswerRetry" => $state  &&  isset($ac->text->noAnswerRetry) ? $ac->text->noAnswerRetry : esc_html__('No answer from the website. Please check your connection and try again.','easy-form-builder'),
 			"tooManyRequests" => $state  &&  isset($ac->text->tooManyRequests) ? $ac->text->tooManyRequests : esc_html__('Too many requests. Please try again shortly.','easy-form-builder'),
 			"paymentNotCompleted" => $state  &&  isset($ac->text->paymentNotCompleted) ? $ac->text->paymentNotCompleted : esc_html__('Your payment has not been completed. Please pay before sending the form.','easy-form-builder'),
@@ -2471,7 +2472,7 @@ class efbFunction {
 			"pWRedirect" => $state  &&  isset($ac->text->pWRedirect) ? $ac->text->pWRedirect : esc_html__('Please wait, you will be redirected shortly.','easy-form-builder'),
 			"persiaPayment" => $state  &&  isset($ac->text->persiaPayment) ? $ac->text->persiaPayment : esc_html__('Persia payment','easy-form-builder'),
 			"getPro" => $state  &&  isset($ac->text->getPro) ? $ac->text->getPro : esc_html__('Unlock Pro Features Today','easy-form-builder'),
-			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : esc_html__('Upgrade to Pro for just %1$s%2$s%3$s/year and get access to powerful features, including advanced form fields, payment integrations, conditional logic, multi-step forms, file uploads, Security & Spam Protection, and priority support.%4$sView Pro Features%5$s','easy-form-builder'),
+			"yFreeVEnPro" => $state  &&  isset($ac->text->yFreeVEnPro) ? $ac->text->yFreeVEnPro : /* translators: 1: the opening emphasis tag, 2: the yearly price, 3: the closing tag */ esc_html__('Upgrade to Pro for just %1$s%2$s%3$s/year and get access to powerful features, including advanced form fields, payment integrations, conditional logic, multi-step forms, file uploads, Security & Spam Protection, and priority support.%4$sView Pro Features%5$s','easy-form-builder'),
 			/* translators: %1$s is the name of the addon */
 			"addon" => $state  &&  isset($ac->text->addon) ? $ac->text->addon : esc_html__('Add-on','easy-form-builder'),
 			"addons" => $state  &&  isset($ac->text->addons) ? $ac->text->addons : esc_html__('Add-ons','easy-form-builder'),
@@ -3343,7 +3344,7 @@ class efbFunction {
 
 			"settings" => $state  &&  isset($ac->text->settings) ? $ac->text->settings : esc_html__('Settings','easy-form-builder'),
 			"emlcc" => $state  &&  isset($ac->text->emlcc) ? $ac->text->emlcc : esc_html__('Send email with submitted form content only','easy-form-builder'),
-			"copied" => $state  &&  isset($ac->text->copied) ? $ac->text->copied : esc_html__('%s copied!','easy-form-builder'),
+			"copied" => $state  &&  isset($ac->text->copied) ? $ac->text->copied : /* translators: %s: what was copied */ esc_html__('%s copied!','easy-form-builder'),
 			"srvnrsp" => $state  &&  isset($ac->text->srvnrsp) ? $ac->text->srvnrsp : esc_html__('The website is not responding; please refresh and try again—saving or submitting is not available until it is restored.','easy-form-builder'),
 
 			"sxnlex" => $state  &&  isset($ac->text->sxnlex) ? $ac->text->sxnlex : esc_html__('Your session has expired or is no longer valid. Please refresh the page to continue.','easy-form-builder'),
@@ -3403,7 +3404,7 @@ class efbFunction {
 			/* translators: %s is the feature name */
 			"lmavt" => $state  &&  isset($ac->text->lmavt) ? $ac->text->lmavt : esc_html__('Learn more about %s or watch the video tutorial.','easy-form-builder'),
 
-			"lrnmrs" => $state  &&  isset($ac->text->lrnmrs) ? $ac->text->lrnmrs : esc_html__('Learn more %s','easy-form-builder'),
+			"lrnmrs" => $state  &&  isset($ac->text->lrnmrs) ? $ac->text->lrnmrs : /* translators: %s: what to learn more about (may be empty) */ esc_html__('Learn more %s','easy-form-builder'),
 
 			"grecaptcha" => $state  &&  isset($ac->text->grecaptcha) ? $ac->text->grecaptcha : esc_html__('Google reCAPTCHA','easy-form-builder'),
 
@@ -3424,10 +3425,6 @@ class efbFunction {
 			"activated" => $state  &&  isset($ac->text->activated) ? $ac->text->activated : esc_html__('Activated','easy-form-builder'),
 			"thank" => $state  &&  isset($ac->text->thank) ? $ac->text->thank : esc_html__('Thank','easy-form-builder'),
 
-			/* translators: %s is the caching plugin name */
-			"excefb" => $state  &&  isset($ac->text->excefb) ? $ac->text->excefb : esc_html__('The %s plugin may interfere with Easy Form Builder form functionality. If you encounter any issues with the forms, disable caching for the Easy Form Builder plugin in the %s settings.','easy-form-builder'),
-			"rmndltr" => $state  &&  isset($ac->text->rmndltr) ? $ac->text->rmndltr : esc_html__('Remind me later','easy-form-builder'),
-			"gotitdsmss" => $state  &&  isset($ac->text->gotitdsmss) ? $ac->text->gotitdsmss : esc_html__('Got it, don\'t show again','easy-form-builder'),
 			/* translators: %1$s is the field name, %2$s is the minimum character count */
 			"ptrnMmm_" => $state  &&  isset($ac->text->ptrnMmm_) ? $ac->text->ptrnMmm_ : esc_html__('The value of the %1$s field does not match the pattern and must be at least %2$s characters.','easy-form-builder'),
 			/* translators: %1$s is the field name, %2$s is the maximum character count */
@@ -3450,8 +3447,6 @@ class efbFunction {
 			"bkFlM_" => $state  &&  isset($ac->text->bkFlM_) ? $ac->text->bkFlM_ : esc_html__('We are sorry, the %s option is currently at full capacity. Please choose from the other available options.','easy-form-builder'),
 			/* translators: %s is the payment add-on name like Stripe and Paypal */
 			"sSTAddon" => $state  &&  isset($ac->text->sSTAddon) ? $ac->text->sSTAddon : esc_html__('%s Payment Add-on','easy-form-builder'),
-			/* translators: %1$s is the payment add-on name, %2$s is the payment processor name */
-			"sSTDAddon" => $state  &&  isset($ac->text->sSTDAddon) ? $ac->text->sSTDAddon : esc_html__('The %s add-on for Easy Form Builder enables you to integrate your WordPress site with %s for payment processing, donations, and online orders.','easy-form-builder'),
 			/* translators: Activation code = license key. */
 			'activationCode' => $state  &&  isset($ac->text->activationCode) ? $ac->text->activationCode : esc_html__('Activation Code','easy-form-builder'),
 
@@ -3474,8 +3469,6 @@ class efbFunction {
 			/* translators: Search Results - header for search results */
 			'searchResults' => $state && isset($ac->text->searchResults) ? $ac->text->searchResults : esc_html__('Search Results','easy-form-builder'),
 
-			/* translators: Text for search result count message */
-			'foundResultsFor' => $state && isset($ac->text->foundResultsFor) ? $ac->text->foundResultsFor : esc_html__('Found %s %s for: "%s"','easy-form-builder'),
 
 			/* translators: Single result text */
 			'result' => $state && isset($ac->text->result) ? $ac->text->result : esc_html__('result','easy-form-builder'),
@@ -8891,6 +8884,12 @@ class efbFunction {
 			. 'window.setTimeout(function(){window.location.reload();},' . ( $seconds * 1000 ) . ');})();</script>';
 	}
 
+/** The add-on server's answer could not be used: the sentence with the server and a short code (invalid_json …). */
+	public function server_error_efb($server, $code) {
+		/* translators: 1: the add-on server's address, 2: a short error code such as invalid_json */
+		return sprintf(esc_html__('Error: server (%1$s) responded with an invalid request. responded code: %2$s', 'easy-form-builder'), $server, $code);
+	}
+
 public function addon_add_efb($value) {
 
 		// A local health check has already proved this add-on is ready. Never
@@ -8941,7 +8940,7 @@ public function addon_add_efb($value) {
 			return array(
 				'status'      => false,
 				'message'     => sprintf(
-					esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the %s server','easy-form-builder'),
+					/* translators: %s: the add-on server's host name */ esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the %s server','easy-form-builder'),
 					wp_parse_url((string) reset($remaining_endpoints), PHP_URL_HOST)
 				),
 				'unreachable' => true,
@@ -8964,8 +8963,7 @@ public function addon_add_efb($value) {
         $fallback_max_attempts = 1;
         $attempt = 0;
         $success = false;
-        $error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code: %s','easy-form-builder');
-		$error_messag = sprintf($error_message, $domain, 'not_success');
+        $error_message = $this->server_error_efb($domain, 'not_success');
         /* Walks the whole endpoint list rather than a single spare domain: with
          * an independent mirror in play a site can now have three places to
          * ask, and stopping at the second would leave the last one unused
@@ -8996,7 +8994,7 @@ public function addon_add_efb($value) {
             if (is_wp_error($request)) {
                 $attempt++;
                 $error_message = sprintf(
-                    esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the %s server','easy-form-builder'),
+                    /* translators: %s: the add-on server's host name */ esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the %s server','easy-form-builder'),
                     $server_label
                 );
 
@@ -9023,8 +9021,7 @@ public function addon_add_efb($value) {
 
             if ($response_code != 200) {
                 $attempt++;
-                $error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code: %s','easy-form-builder');
-				$error_message = sprintf($error_message, $server_label, $response_code);
+                $error_message = $this->server_error_efb($server_label, $response_code);
 
                 if ($attempt >= $max_attempts) {
                     if ($switch_to_fallback('remote_response_invalid_code')) {
@@ -9053,8 +9050,7 @@ public function addon_add_efb($value) {
 
             if (json_last_error() !== JSON_ERROR_NONE) {
                 $attempt++;
-				$error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code: %s','easy-form-builder');
-				$error_message = sprintf($error_message, $server_label, 'invalid_json');
+				$error_message = $this->server_error_efb($server_label, 'invalid_json');
 
                 if ($attempt >= $max_attempts) {
                     if ($switch_to_fallback('remote_response_invalid_json')) {
@@ -9066,8 +9062,7 @@ public function addon_add_efb($value) {
             }
 			if($data==null){
 				$attempt++;
-				$error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code: %s','easy-form-builder');
-				$error_message = sprintf($error_message, $server_label, 'invalid_data');
+				$error_message = $this->server_error_efb($server_label, 'invalid_data');
 
 				if ($attempt >= $max_attempts) {
                     if ($switch_to_fallback('remote_response_empty_data')) {
@@ -9087,8 +9082,7 @@ public function addon_add_efb($value) {
 					$error_message = esc_html__('Your Easy Form Builder Pro subscription has expired, so the Pro add-ons could not be downloaded. The plugin keeps working without them. Renew your subscription to restore all Pro features:', 'easy-form-builder') . ' ' . $renew_url;
 					return array('status' => false, 'message' => $error_message, 'expired' => true);
 				}
-				$error_message =  esc_html__('Error: server (%s) responded with an invalid request. responded code: %s','easy-form-builder');
-				$error_message = sprintf($error_message, $server_label, 'invalid_status');
+				$error_message = $this->server_error_efb($server_label, 'invalid_status');
                 if ($is_persian_locale) {
                     $attempt++;
                     if ($attempt >= $max_attempts) {
@@ -9148,8 +9142,7 @@ public function addon_add_efb($value) {
                 $success = true;
             } else {
                 $attempt++;
-                $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code: %s','easy-form-builder');
-                $error_message = sprintf($error_message, $server_label, 'download_unavailable');
+                $error_message = $this->server_error_efb($server_label, 'download_unavailable');
                 if ($attempt >= $max_attempts) {
                     if ($switch_to_fallback('download_flag_false')) {
                         continue;
@@ -9187,7 +9180,7 @@ public function addon_add_efb($value) {
 			$ac->{$value}=1;
 			$ac->efb_version=EMSFB_PLUGIN_VERSION;
 			$this->set_setting_Emsfb( $ac, $ac->emailSupporter );
-			$message = esc_html__('The %s has been successfully completed','easy-form-builder');
+			$message = /* translators: %s: the step that was completed, such as installation */ esc_html__('The %s has been successfully completed','easy-form-builder');
 			$message = sprintf($message,  esc_html__('installation','easy-form-builder'));
             return array('status' => true, 'message' => $message );
         } else {
@@ -9231,14 +9224,15 @@ public function addon_add_efb($value) {
 			}
 			$directory = EMSFB_PLUGIN_DIRECTORY . 'temp';
 			if (!file_exists($directory)) {
-				mkdir($directory, 0755, true);
+				wp_mkdir_p($directory);
 			}
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- WP_Filesystem could not start (it asks for FTP details): move the download in place directly
 			$moved = rename($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
 		}
 		if(!$moved){
 			if (file_exists($r)) {
 				if ( emsfb_is_php_function_available_efb( 'unlink' ) ) {
-					@unlink($r);
+					wp_delete_file($r);
 				}
 			}
 			return new WP_Error('move_failed',
@@ -9251,7 +9245,7 @@ public function addon_add_efb($value) {
 		$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . 'vendor/');
 		if (file_exists(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip')) {
 			if ( emsfb_is_php_function_available_efb( 'unlink' ) ) {
-				@unlink(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
+				wp_delete_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
 			}
 		}
 		if(is_wp_error($r)){
@@ -10381,13 +10375,11 @@ public function addon_add_efb($value) {
 		// address. v3 always inserted a fresh row; this restores that. Volume is
 		// handled by the sid/lookup indexes and the daily prune, not by
 		// conflating unrelated visitors.
-		$sql = $wpdb->prepare(
-			"INSERT INTO {$table_name} (`sid`, `fid`, `type_`, `status`, `ip`, `os`, `browser`, `uid`, `tc`, `active`, `date`, `read_date`)
+		$state = $wpdb->query($wpdb->prepare(
+			"INSERT INTO %i (`sid`, `fid`, `type_`, `status`, `ip`, `os`, `browser`, `uid`, `tc`, `active`, `date`, `read_date`)
 			VALUES (%s, %d, %d, %s, %s, %s, %s, %d, %s, %d, %s, %s)",
-			$sid, $fid, $type, $status, $ip, $os, $browser, $uid, $tc, 1, $date_now, $date_limit
-		);
-
-		$state = $wpdb->query($sql);
+			$table_name, $sid, $fid, $type, $status, $ip, $os, $browser, $uid, $tc, 1, $date_now, $date_limit
+		));
 		return $state === false ? '' : $sid;
 	}
 
@@ -10398,11 +10390,10 @@ public function addon_add_efb($value) {
 		$read_date = wp_date('Y-m-d H:i:s');
 		if($status=="rsp" || $status=="ppay")  $active =1;
 
-		$sql = $wpdb->prepare(
-			"UPDATE `{$table_name}` SET status = %s, active = %d, read_date = %s, tc = %s WHERE sid = %s AND active = 1",
-			$status, $active, $read_date, $tc, $sid
-		);
-		$stmt = $wpdb->query($sql);
+		$stmt = $wpdb->query($wpdb->prepare(
+			'UPDATE %i SET status = %s, active = %d, read_date = %s, tc = %s WHERE sid = %s AND active = 1',
+			$table_name, $status, $active, $read_date, $tc, $sid
+		));
 		return $stmt > 0;
     }
 
@@ -10414,12 +10405,10 @@ public function addon_add_efb($value) {
         $date_now = wp_date('Y-m-d H:i:s');
 
         if(empty($fid) || $fid == 0) {
-            $query = $wpdb->prepare("SELECT * FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 ORDER BY date DESC LIMIT 1", $sid, $date_now);
+            $result = $wpdb->get_row($wpdb->prepare('SELECT * FROM %i WHERE sid = %s AND read_date > %s AND active = 1 ORDER BY date DESC LIMIT 1', $table_name, $sid, $date_now), ARRAY_A);
         } else {
-            $query = $wpdb->prepare("SELECT * FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %s ORDER BY date DESC LIMIT 1", $sid, $date_now, $fid);
+            $result = $wpdb->get_row($wpdb->prepare('SELECT * FROM %i WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %s ORDER BY date DESC LIMIT 1', $table_name, $sid, $date_now, $fid), ARRAY_A);
         }
-
-        $result = $wpdb->get_row($query, ARRAY_A);
 
 		if(empty($result)){
 			// A caching plugin serves the sid that was minted when the page copy
@@ -10433,8 +10422,7 @@ public function addon_add_efb($value) {
 				return true;
 			}
 
-			$query = $wpdb->prepare("SELECT * FROM {$table_name} WHERE sid = %s  AND fid = %s ORDER BY date DESC LIMIT 1", $sid, $fid);
-			$result = $wpdb->get_row($query, ARRAY_A);
+			$result = $wpdb->get_row($wpdb->prepare('SELECT * FROM %i WHERE sid = %s  AND fid = %s ORDER BY date DESC LIMIT 1', $table_name, $sid, $fid), ARRAY_A);
 			$valid = ['regis','login','reset','recov','logou'];
 			if(empty($result) || !in_array($result['status'], $valid)){
 				return false;
@@ -10529,12 +10517,12 @@ public function addon_add_efb($value) {
 		$date_now = wp_date('Y-m-d H:i:s');
 
 		if(empty($fid) || $fid == 0) {
-			$query = $wpdb->prepare("SELECT status FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 ORDER BY date DESC LIMIT 1", $sid, $date_now);
+			$found = $wpdb->get_row($wpdb->prepare('SELECT status FROM %i WHERE sid = %s AND read_date > %s AND active = 1 ORDER BY date DESC LIMIT 1', $table_name, $sid, $date_now), ARRAY_A);
 		} else {
-			$query = $wpdb->prepare("SELECT status FROM {$table_name} WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %s ORDER BY date DESC LIMIT 1", $sid, $date_now, $fid);
+			$found = $wpdb->get_row($wpdb->prepare('SELECT status FROM %i WHERE sid = %s AND read_date > %s AND active = 1 AND fid = %s ORDER BY date DESC LIMIT 1', $table_name, $sid, $date_now, $fid), ARRAY_A);
 		}
 
-		if(!empty($wpdb->get_row($query, ARRAY_A))){
+		if(!empty($found)){
 			return true;
 		}
 
@@ -10564,8 +10552,7 @@ public function addon_add_efb($value) {
 
 		// Fallback: a one-shot auth session may still be pending. Mirror the
 		// acceptance rule of efb_code_validate_select() but never consume it.
-		$query = $wpdb->prepare("SELECT status FROM {$table_name} WHERE sid = %s  AND fid = %s ORDER BY date DESC LIMIT 1", $sid, $fid);
-		$result = $wpdb->get_row($query, ARRAY_A);
+		$result = $wpdb->get_row($wpdb->prepare('SELECT status FROM %i WHERE sid = %s  AND fid = %s ORDER BY date DESC LIMIT 1', $table_name, $sid, $fid), ARRAY_A);
 		$valid = ['regis','login','reset','recov','logou'];
 
 		return !empty($result) && in_array($result['status'], $valid, true);
@@ -10940,7 +10927,7 @@ public function addon_add_efb($value) {
 		$message .= esc_html__('Easy Form Builder','easy-form-builder') . '<br>';
 		$message .= esc_html__('Sent by','easy-form-builder') . ': ' . get_bloginfo('name') . '<br>';
 		$message .= esc_html__('URL','easy-form-builder') . ': ' . get_site_url() . '<br>';
-		$message .= esc_html__('Date','easy-form-builder') . ': ' . date('Y-m-d H:i:s') . '<br>';
+		$message .= esc_html__('Date','easy-form-builder') . ': ' . gmdate('Y-m-d H:i:s') . '<br>';
 
 		if(emsfb_is_email_sending_enabled_efb($settings)) $this->send_email_state_new($to ,$subject ,$message,0,"cache_plugins_noti",'null','null');
 
@@ -11201,7 +11188,7 @@ public function addon_add_efb($value) {
 			// Shape we do not recognise - still not a verdict.
 			return $this->handle_license_transport_failure_efb($code, 'missing_state', $was_active);
 		}
-		update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
+		update_option('emsfb_pro_ac_date', gmdate('Y-m-d H:i:s'));
 		$state = isset($json->state) ? $json->state : '';
 		// F21: the expiry date the server sent with this verdict (or none: an older server, a garbled field → the
 		// stored field is dropped and no reminder is shown). Never changes the verdict itself.
@@ -11211,7 +11198,7 @@ public function addon_add_efb($value) {
 		if($state=="new") {
 			$activeCode = $json->key;
 			update_option('emsfb_pro_activeCode', $activeCode);
-			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
+			update_option('emsfb_pro_ac_date', gmdate('Y-m-d H:i:s'));
 			update_option('emsfb_pro', 1);
 			$st = get_setting_Emsfb();
 			if(!is_object($st)){ $st = new \stdClass(); }
@@ -11222,7 +11209,7 @@ public function addon_add_efb($value) {
 			return true;
 		}elseif($state=="active") {
 			update_option('emsfb_pro', 1);
-			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s'));
+			update_option('emsfb_pro_ac_date', gmdate('Y-m-d H:i:s'));
 			$this->resume_addon_downloads_efb();
 			$this->license_lapse_cause_efb('');
 			return true;
@@ -11300,7 +11287,7 @@ public function addon_add_efb($value) {
 			update_option('emsfb_pro', 1);
 			// Push the next check out a little so a hard outage is not retried
 			// on every single request.
-			update_option('emsfb_pro_ac_date', date('Y-m-d H:i:s', time() - (5 * DAY_IN_SECONDS)));
+			update_option('emsfb_pro_ac_date', gmdate('Y-m-d H:i:s', time() - (5 * DAY_IN_SECONDS)));
 			return true;
 		}
 
@@ -11543,7 +11530,7 @@ public function addon_add_efb($value) {
 	public function weekly_check_pro_efb($activeCode) {
 		$ac_date = get_option('emsfb_pro_ac_date');
 		$ac_date = strtotime($ac_date);
-		$now = strtotime(date('Y-m-d H:i:s'));
+		$now = time();
 		$diff = ($now - $ac_date) / (60 * 60 * 24);
 		// F21: while the end of a subscription is 8 days away or less (or past while Pro is still on), ask every day
 		// instead of every week (at most once per 20 hours), so a renewal or the end is seen within a day.
@@ -11727,6 +11714,7 @@ public function addon_add_efb($value) {
 		} else {
 			$title   = esc_html__( 'Pro Version Required', 'easy-form-builder' );
 			$message = sprintf(
+				/* translators: %s: the add-on's name */
 				esc_html__( 'The %s add-on is a Pro feature. Please upgrade to Easy Form Builder Pro to access this functionality.', 'easy-form-builder' ),
 				'<strong>' . esc_html( $addon_name ) . '</strong>'
 			);
@@ -11743,10 +11731,10 @@ public function addon_add_efb($value) {
 			<div id="alert_efb" class="efb"></div>
 			<div class="efb mx-3 mt-5 mb-3 p-4 alert alert-light <?php echo esc_attr( $bg_class ); ?>" style="border-radius:12px; max-width:700px; margin:60px auto; text-align:center;">
 				<i class="efb <?php echo esc_attr( $icon ); ?>" style="font-size:48px; display:block; margin-bottom:16px;"></i>
-				<h2 style="margin:0 0 12px; font-size:1.4em;"><?php echo $title; ?></h2>
-				<p style="font-size:1.05em; line-height:1.7; margin-bottom:20px;"><?php echo $message; ?></p>
+				<h2 style="margin:0 0 12px; font-size:1.4em;"><?php echo esc_html( $title ); ?></h2>
+				<p style="font-size:1.05em; line-height:1.7; margin-bottom:20px;"><?php echo wp_kses( $message, array( 'bdi' => array(), 'strong' => array() ) ); ?></p>
 				<a href="<?php echo esc_url( $btn_url ); ?>"<?php echo $btn_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed attributes ?> class="efb btn btn-primary btn-lg" style="padding:10px 32px; font-size:1.1em; border-radius:8px; text-decoration:none;">
-					<?php echo $btn_text; ?>
+					<?php echo esc_html( $btn_text ); ?>
 				</a>
 			</div>
 		</div>
@@ -11776,7 +11764,7 @@ public function addon_add_efb($value) {
 	public function delete_old_rows_emsfb_stts_() {
 		global $wpdb;
 
-		$date_limit = date('Y-m-d', strtotime('-8 days'));
+		$date_limit = gmdate('Y-m-d', strtotime('-8 days'));
 
 		$table_name_stts =  $wpdb->prefix . 'emsfb_stts_';
 		 $wpdb->query(
@@ -11791,7 +11779,7 @@ public function addon_add_efb($value) {
 
 		if ($table_exists === false) {
 
-			$table_exists =  $wpdb->get_var("SHOW TABLES LIKE '{$table_name_temp_links}'") == $table_name_temp_links;
+			$table_exists =  $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_name_temp_links)) == $table_name_temp_links;
 			update_option('emsfb_temp_links_table_exists', $table_exists);
 		}
 		if ($table_exists) {
@@ -11867,7 +11855,6 @@ public function addon_add_efb($value) {
 		$allowed_properties = $this->allowed_properties_thml_efb();
 
 		$current_domain = wp_parse_url(home_url(), PHP_URL_HOST);
-		$allowed_domains = array('google.com', 'gstatic.com', 'googleapis.com', 'googleusercontent.com', 'youtube.com', 'ytimg.com', 'microsoft.com', 'office.com', 'live.com', 'msn.com', 'outlook.com', 'amazonaws.com', 'cloudfront.net', 'cdnjs.cloudflare.com', 'maxcdn.bootstrapcdn.com', 'jsdelivr.net', 'unpkg.com', 'facebook.com', 'fbcdn.net', 'twitter.com', 'twimg.com', 'github.com', 'github.io', 'vimeo.com', 'vimeocdn.com', 'wikipedia.org', 'wikimedia.org', 'wikidata.org', 'stripe.com', 'paypal.com', 'braintreepayments.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'use.fontawesome.com', 'dailymotion.com', 'dmcdn.net', 'maps.googleapis.com', 'openstreetmap.org', 'mapbox.com', 'gravatar.com', 'unsplash.com', 'placekitten.com', 'placehold.co', 'akamaihd.net', 'cloudflare.com', 'fastly.net', 'linkedin.com', 'apple.com', 'adobe.com', 'cdn.shopify.com', 'example.com', 'example.org', 'trusted.com', 'cdn.trusted.com');
 
 		$allowed_tags = array(
 			'html' => array('xmlns' => true, 'lang' => true, 'dir' => true, 'xmlns:v' => true, 'xmlns:o' => true),
@@ -12039,13 +12026,6 @@ public function addon_add_efb($value) {
 	}
 
 	public function validate_url_efb($url) {
-			global $allowed_domains;
-			$parsed_url = wp_parse_url($url);
-
-			if (isset($parsed_url['host']) && in_array($parsed_url['host'], $allowed_domains)) {
-				return esc_url($url);
-			}
-
 			$lower = strtolower(preg_replace('/\s+/', '', $url));
 			if (strpos($lower, 'javascript:') !== false ||
 			    strpos($lower, 'vbscript:') !== false ||

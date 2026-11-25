@@ -108,7 +108,7 @@ class Email_Trace {
      */
     private static function write($stage, array $data) {
         $line = [
-            'time'  => function_exists('wp_date') ? wp_date('Y-m-d H:i:s') : date('Y-m-d H:i:s'),
+            'time'  => function_exists('wp_date') ? wp_date('Y-m-d H:i:s') : gmdate('Y-m-d H:i:s'),
             'req'   => self::request_id(),
             'stage' => (string) $stage,
             'data'  => self::sanitize(self::full_detail() ? $data : self::redact_pii($data)),
@@ -389,7 +389,7 @@ class Email_Trace {
 
         // Rotate rather than grow without bound; a busy form can produce a lot.
         if (file_exists($path) && filesize($path) > self::MAX_BYTES) {
-            @rename($path, $path . '.1');
+            @rename($path, $path . '.1'); // phpcs:ignore WordPress.WP.AlternativeFunctions -- rotates the plugin's own log file
         }
 
         @file_put_contents($path, $text, FILE_APPEND | LOCK_EX);

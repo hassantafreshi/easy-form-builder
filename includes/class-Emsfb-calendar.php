@@ -73,7 +73,7 @@ class Calendar_Persian extends Calendar_Engine {
 	private function jal_cal($jy, $without_leap = false) {
 		$b = self::$breaks;
 		$bl = count($b); $gy = $jy + 621; $leap_j = -14; $jp = $b[0]; $jump = 0;
-		if ($jy < $jp || $jy >= $b[$bl - 1]) throw new \RangeError('Jalali year out of range ' . $jy);
+		if ($jy < $jp || $jy >= $b[$bl - 1]) throw new \RangeError('Jalali year out of range ' . (int) $jy);
 		for ($i = 1; $i < $bl; $i++) {
 			$jm = $b[$i]; $jump = $jm - $jp;
 			if ($jy < $jm) break;
@@ -1190,7 +1190,7 @@ class Calendar {
 	 * plain text, three levels deep.
 	 */
 	public static function sanitize_key($k, $v) {
-		$txt = function ($x) { return function_exists('sanitize_text_field') ? sanitize_text_field((string) $x) : trim(preg_replace('/[\r\n\t ]+/', ' ', strip_tags((string) $x))); };
+		$txt = function ($x) { return function_exists('sanitize_text_field') ? sanitize_text_field((string) $x) : trim(preg_replace('/[\r\n\t ]+/', ' ', preg_replace('/<[^>]*>/', '', (string) $x))); };
 		$known = function ($c, $tier3 = false) { return is_string($c) && (in_array($c, self::TIER12, true) || ($tier3 && in_array($c, self::TIER3, true))); };
 		$int = function ($x, $lo, $hi, $d) { return self::int_in($x, $lo, $hi, $d); };
 		$hm = function ($x) { return is_string($x) && preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $x) ? $x : ''; };

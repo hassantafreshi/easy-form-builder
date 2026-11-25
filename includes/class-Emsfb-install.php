@@ -85,7 +85,7 @@ class Install {
 		foreach ( (array) $wpdb->get_results( "SHOW INDEX FROM `{$msg}`", ARRAY_A ) as $row ) $keys[ $row['Key_name'] ] = true; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		if ( ! isset( $keys['uid'] ) && $wpdb->get_results( $wpdb->prepare( "SHOW COLUMNS FROM `{$msg}` LIKE %s", 'uid' ) ) ) $clauses['ADD KEY uid'] = 'ADD KEY `uid` (`uid`)'; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		if ( $clauses ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, clauses from the literal maps above
+			// phpcs:ignore WordPress.DB.PreparedSQL -- DDL: table from $wpdb->prefix, clauses from the literal maps above
 			if ( count( $clauses ) > 1 && false !== $wpdb->query( "ALTER TABLE `{$msg}` " . implode( ', ', $clauses ) ) ) {
 				foreach ( array_keys( $clauses ) as $c ) $applied[] = "emsfb_msg_: {$c}";
 			} else {
@@ -533,7 +533,7 @@ class Install {
 		// A server without INSTANT answers an error here: expected, not reported (the combined ALTER below follows).
 		$suppress = method_exists( $wpdb, 'suppress_errors' ) ? $wpdb->suppress_errors( true ) : null;
 		if ( $add_cols ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.SchemaChange -- table from $wpdb->prefix, clauses from the literal maps above
+			// phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery.SchemaChange -- DDL: table from $wpdb->prefix, clauses from the literal maps above
 			if ( false !== $wpdb->query( "ALTER TABLE `{$table}` " . implode( ', ', $add_cols ) . ', ALGORITHM=INSTANT' ) ) {
 				$done( $add_cols );
 				$add_cols = array();
@@ -542,7 +542,7 @@ class Install {
 		if ( $suppress !== null ) $wpdb->suppress_errors( $suppress );
 		$all = $add_cols + $add_keys;
 		if ( $all ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.SchemaChange -- as above
+			// phpcs:ignore WordPress.DB.PreparedSQL, WordPress.DB.DirectDatabaseQuery.SchemaChange -- as above
 			if ( false !== $wpdb->query( "ALTER TABLE `{$table}` " . implode( ', ', $all ) ) ) {
 				$done( $all );
 			}

@@ -201,7 +201,7 @@ class Language_Packs {
 		foreach ( array( 'product', 'text_domain', 'version', 'plugin_file', 'prefix' ) as $required ) {
 			$c[ $required ] = trim( (string) $c[ $required ] );
 			if ( '' === $c[ $required ] ) {
-				throw new \InvalidArgumentException( 'Language_Packs: missing ' . $required );
+				throw new \InvalidArgumentException( 'Language_Packs: missing ' . esc_html( $required ) );
 			}
 		}
 		if ( ! preg_match( '/^[a-z0-9_\-]+$/', $c['product'] ) || ! preg_match( '/^[a-z0-9_]+$/', $c['prefix'] ) ) {
@@ -1239,7 +1239,7 @@ class Language_Packs {
 			}
 			$this->write_php_translation( $locale );
 		} finally {
-			@unlink( $download['path'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			wp_delete_file( $download['path'] );
 		}
 
 		unset( $this->installed_cache[ $locale ] );
@@ -1287,7 +1287,7 @@ class Language_Packs {
 		);
 
 		$fail = function ( $code, $kind, $detail ) use ( $tmp ) {
-			@unlink( $tmp ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			wp_delete_file( $tmp );
 			return $this->failure( $code, $kind, $detail );
 		};
 
@@ -1519,7 +1519,7 @@ class Language_Packs {
 			$tmp = $this->stage( $dir . $name, $contents );
 			if ( '' === $tmp ) {
 				foreach ( $staged as $path ) {
-					@unlink( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+					wp_delete_file( $path );
 				}
 				return $this->failure( 'write_failed', 'write', $name );
 			}
@@ -1528,10 +1528,10 @@ class Language_Packs {
 
 		foreach ( $staged as $name => $tmp ) {
 			unset( $staged[ $name ] );
-			if ( ! @rename( $tmp, $dir . $name ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-				@unlink( $tmp ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			if ( ! @rename( $tmp, $dir . $name ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions -- swaps the staged pack file in at once
+				wp_delete_file( $tmp );
 				foreach ( $staged as $path ) {
-					@unlink( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+					wp_delete_file( $path );
 				}
 				return $this->failure( 'rename_failed', 'write', $name );
 			}
@@ -1555,11 +1555,11 @@ class Language_Packs {
 	private function stage( $destination, $contents ) {
 		$tmp = $destination . '.' . substr( md5( uniqid( '', true ) ), 0, 8 ) . '.tmp';
 		if ( false === @file_put_contents( $tmp, $contents, LOCK_EX ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions
-			@unlink( $tmp ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			wp_delete_file( $tmp );
 			return '';
 		}
 		$mode = defined( 'FS_CHMOD_FILE' ) ? FS_CHMOD_FILE : ( ( @fileperms( ABSPATH . 'index.php' ) & 0777 ) | 0644 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		@chmod( $tmp, $mode ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		@chmod( $tmp, $mode ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions -- the mode WordPress gives its own files
 		return $tmp;
 	}
 
@@ -1582,19 +1582,19 @@ class Language_Packs {
 
 		if ( is_string( $contents ) && '' !== $contents ) {
 			$tmp = $this->stage( $php_path, $contents );
-			if ( '' !== $tmp && @rename( $tmp, $php_path ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			if ( '' !== $tmp && @rename( $tmp, $php_path ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions -- as above
 				if ( function_exists( 'wp_opcache_invalidate' ) ) {
 					wp_opcache_invalidate( $php_path, true );
 				}
 				return;
 			}
 			if ( '' !== $tmp ) {
-				@unlink( $tmp ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				wp_delete_file( $tmp );
 			}
 		}
 
 		if ( is_file( $php_path ) ) {
-			@unlink( $php_path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			wp_delete_file( $php_path );
 		}
 	}
 

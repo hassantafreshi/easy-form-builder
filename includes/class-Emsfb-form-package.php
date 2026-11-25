@@ -269,7 +269,7 @@ class Form_Package {
 	/** efb_form_import_extras (core): the texts written to the add-ons' tables; numbers / token kept (revision), copied (duplicate) or empty (import). */
 	public static function import_core_extras($report, $form_id, $blocks, $ctx) {
 		$context = is_array($ctx) && isset($ctx['context']) ? $ctx['context'] : 'import';
-		$txt = function ($v) { return function_exists('sanitize_textarea_field') ? sanitize_textarea_field((string) $v) : trim(strip_tags((string) $v)); };
+		$txt = function ($v) { return function_exists('sanitize_textarea_field') ? sanitize_textarea_field((string) $v) : trim(preg_replace('/<[^>]*>/', '', (string) $v)); };
 		if (isset($blocks['sms']['data']) && is_array($blocks['sms']['data']) && ($sms = self::sms_addon()) && method_exists($sms, 'add_sms_contact_efb')) {
 			$d = $blocks['sms']['data'];
 			$old = method_exists($sms, 'get_sms_contact_efb') ? $sms->get_sms_contact_efb((int) $form_id) : null;
@@ -378,7 +378,7 @@ class Form_Package {
 	}
 
 	private static function text($s, $max) {
-		$s = function_exists('sanitize_text_field') ? sanitize_text_field($s) : trim(strip_tags($s));
+		$s = function_exists('sanitize_text_field') ? sanitize_text_field($s) : trim(preg_replace('/<[^>]*>/', '', $s));
 		return function_exists('mb_substr') ? mb_substr($s, 0, $max, 'UTF-8') : substr($s, 0, $max);
 	}
 
@@ -582,12 +582,12 @@ class Form_Package {
 	/** What the importing site should know (not refusals): Pro fields, add-ons, media and redirects of another host, CAPTCHA service. */
 	public static function import_warnings(array $rows) {
 		$w = array();
-		$host = function_exists('home_url') ? (string) parse_url(home_url(), PHP_URL_HOST) : '';
+		$host = function_exists('home_url') ? (string) wp_parse_url(home_url(), PHP_URL_HOST) : '';
 		foreach ($rows as $i => $r) {
 			foreach (array('src', 'rePage') as $k) {
 				if (!isset($r[$k]) || !is_string($r[$k]) || $r[$k] === '') continue;
 				$u = str_replace('@efb@', '/', $r[$k]);
-				$h = (string) parse_url($u, PHP_URL_HOST);
+				$h = (string) wp_parse_url($u, PHP_URL_HOST);
 				if ($h !== '' && $host !== '' && strcasecmp($h, $host) !== 0) $w[] = array('code' => $k === 'src' ? 'media_other_host' : 'redirect_other_host', 'row' => $i, 'host' => $h);
 			}
 		}
@@ -625,7 +625,7 @@ class Form_Package {
 		$policy = isset($args['name_policy']) && in_array($args['name_policy'], self::NAME_POLICIES, true) ? $args['name_policy'] : 'suffix';
 		if ($policy !== 'keep' && (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM `{$t}` WHERE form_name = %s", $name)) > 0) {
 			if ($policy === 'fail') return self::err('package_name_exists', 'A form with this name exists.', array('status' => 409, 'name' => $name));
-			$name = self::text(sprintf(function_exists('__') ? __('%s (imported)', 'easy-form-builder') : '%s (imported)', $name), 250);
+			$name = self::text(sprintf(function_exists('__') ? /* translators: %s: the imported form's name */ __('%s (imported)', 'easy-form-builder') : '%s (imported)', $name), 250);
 		}
 		$draft = isset($args['status']) && $args['status'] === 'draft';
 		if ($draft && (!class_exists('\\Emsfb\\Form_Status') || !Form_Status::column_ready())) return self::err('status_unavailable', 'This site cannot keep a form as a draft.', array('status' => 503));

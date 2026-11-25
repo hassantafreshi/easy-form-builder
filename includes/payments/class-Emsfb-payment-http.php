@@ -29,7 +29,7 @@ class Http {
 		if ( ! empty( $args['query'] ) && is_array( $args['query'] ) ) {
 			$url = add_query_arg( array_map( 'rawurlencode', $args['query'] ), $url );
 		}
-		$parts = function_exists( 'wp_parse_url' ) ? wp_parse_url( $url ) : parse_url( $url );
+		$parts = wp_parse_url( $url );
 		$host = is_array( $parts ) && isset( $parts['host'] ) ? strtolower( $parts['host'] ) : '';
 		if ( ! is_array( $parts ) || ( $parts['scheme'] ?? '' ) !== 'https' || $host === '' || ! self::host_allowed( $host, $allowed_hosts ) ) {
 			$out['error'] = 'host_not_allowed';

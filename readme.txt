@@ -278,8 +278,6 @@ Entries stay in your WordPress database and are never sent to WhiteStudio or ano
 
 **Google reCAPTCHA** (www.google.com, www.gstatic.com, or www.recaptcha.net if chosen in Settings > Captchas): only where you turn reCAPTCHA on. The visitor's browser loads Google's script, which sends Google data about the visit; on submit your site sends Google your secret key and the visitor's token to verify it (no answers, no IP address). [Terms](https://policies.google.com/terms), [Privacy](https://policies.google.com/privacy).
 
-**Google Charts** (www.gstatic.com): administrators only. The Panel loads the charts library in your browser to draw your entry charts; the data stays in the browser. [Privacy](https://policies.google.com/privacy).
-
 **Google Fonts** (fonts.googleapis.com, fonts.gstatic.com) and **jsDelivr** (cdn.jsdelivr.net): administrators only. The admin screens load the Roboto font, and Settings > Response box loads the fonts you preview. Visitors' pages never load Google Fonts: the plugin includes the fonts. [Google Privacy](https://policies.google.com/privacy), [jsDelivr Privacy](https://www.jsdelivr.com/terms/privacy-policy).
 
 **Your own font address**: a font stylesheet address you enter in Settings > Response box is loaded by your visitors' browsers from that address.
@@ -292,7 +290,7 @@ Entries stay in your WordPress database and are never sent to WhiteStudio or ano
 
 **WhiteStudio e-mail test service** (whitestudio.team, www.whitestudio.team as fallback): tests whether form e-mails arrive; see the FAQ "Does the email delivery check send data to an external service?". Never receives form submissions.
 
-**Language packs** (whitestudio.team, api.wordpress.org, downloads.wordpress.org): when a language the plugin does not include is used (it includes English, Persian, Arabic and German), it downloads that translation. Sends the plugin's name and version and the language codes.
+**Language packs** (whitestudio.team, api.wordpress.org, downloads.wordpress.org): when a language the plugin does not include is used (it includes English, Persian, Arabic and German), it downloads that translation. Sends the plugin's name and version and the language codes. Only translation files are downloaded, never code (the .l10n.php file is generated on your site from the downloaded .mo). For a language it installs itself, it removes WordPress.org's translation update offer for this plugin, so the two packs do not replace each other; plugin updates are never touched.
 
 **Feedback and review reward** (whitestudio.team): only when you press Send in the optional deactivation survey (reason, message, e-mail if typed, plugin, WordPress and PHP versions) or ask for the review reward (WordPress.org user name, e-mail, site domain and language, plugin version).
 
@@ -395,7 +393,7 @@ Requires WordPress 6.3 or later. The full list of changes, with the notes for de
 * New: A form made by an assistant (AutoPilot) or an import can stay a draft, hidden from visitors, until you publish it.
 * Changed: Stripe, PayPal and Persia Pay are add-ons now. Forms with their older payment fields move to the new fields automatically (subscription forms keep the older field). Update these add-ons right after this release.
 * Changed: Numbers and calculations, typed signatures, postal-code formats and the map, booking editing, and the visitor's country are add-ons. Contact Form 7 import moved to the free Easy Form Builder Data Tools plugin.
-* Changed: Fonts, the country, state and city lists and the poll chart come from the plugin, not from Google Fonts or a CDN. See External services for what the plugin still contacts.
+* Changed: Fonts, the country, state and city lists and the poll and entry charts come from the plugin, not from Google Fonts, Google Charts or a CDN. See External services for what the plugin still contacts.
 * Changed: {field_id} of a radio button or checkbox in an e-mail subject or redirect address now gives the option's label, not its ID ({field:id.value} gives its value).
 * Changed: One notice at a time on the plugin's screens; the others wait behind a "Notices" bell. Help buttons open each add-on's own guide. The admin screens meet WCAG 2.1 AA contrast.
 * Changed: Add-on settings screens share the plugin's look. The Security & Spam Protection add-on is now named "Human Shield". Paymob asks the visitor for a name and mobile number when the form has none.

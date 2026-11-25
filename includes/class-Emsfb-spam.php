@@ -790,7 +790,7 @@ class Spam {
 
 /** wp_strip_all_tags() or a copy (tests load this file alone). */
 function wp_strip_all_tags_efb_spam($s) {
-	return function_exists('wp_strip_all_tags') ? wp_strip_all_tags((string) $s) : trim(strip_tags((string) $s));
+	return function_exists('wp_strip_all_tags') ? wp_strip_all_tags((string) $s) : trim(preg_replace('/<[^>]*>/', '', (string) $s));
 }
 
 function esc_html_efb_spam($s) {

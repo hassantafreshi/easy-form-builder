@@ -358,9 +358,9 @@ class Portal_Core {
 		if ($ids && $forms) {
 			global $wpdb;
 			foreach (array_chunk($ids, 500) as $chunk) {
-				$in = implode(',', array_fill(0, count($chunk), '%d'));
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, placeholders built above
-				foreach ((array) $wpdb->get_results($wpdb->prepare("SELECT msg_id, form_id, date FROM `{$wpdb->prefix}emsfb_msg_` WHERE msg_id IN ({$in})" . Entries::active_sql(), $chunk), ARRAY_A) as $r) {
+				$act = Entries::active_sql();
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $act is Entries::active_sql(), a literal fragment
+				foreach ((array) $wpdb->get_results($wpdb->prepare('SELECT msg_id, form_id, date FROM %i WHERE msg_id IN (' . implode(',', array_fill(0, count($chunk), '%d')) . ")$act", array_merge(array($wpdb->prefix . 'emsfb_msg_'), $chunk)), ARRAY_A) as $r) {
 					$p = isset($forms[(int) $r['form_id']]) ? $forms[(int) $r['form_id']] : null;
 					if ($p && ($p['from_date'] === '' || strcmp((string) $r['date'], (string) $p['from_date']) >= 0)) $out[(int) $r['msg_id']] = (int) $r['form_id'];
 				}
@@ -495,7 +495,7 @@ class Portal_Core {
 		if ($type === 'advdate') { $out['value'] = isset($r['disp']) ? (string) $r['disp'] : (string) ($r['value'] ?? ''); $out['iso'] = (string) ($r['value'] ?? ''); return $out; }
 		if (isset($r['url']) && is_string($r['url']) && $r['url'] !== '' && ($r['value'] ?? '') === '@file@') {
 			$priv = class_exists('\\Emsfb\\Uploads') && Uploads::is_private_url($r['url']);
-			$out['file'] = array('name' => isset($r['fnm']) && is_string($r['fnm']) && $r['fnm'] !== '' ? $r['fnm'] : basename((string) parse_url($r['url'], PHP_URL_PATH)), 'private' => $priv);
+			$out['file'] = array('name' => isset($r['fnm']) && is_string($r['fnm']) && $r['fnm'] !== '' ? $r['fnm'] : basename((string) wp_parse_url($r['url'], PHP_URL_PATH)), 'private' => $priv);
 			if (!$priv) $out['file']['url'] = esc_url_raw($r['url']);
 			$out['value'] = $out['file']['name'];
 			return $out;
@@ -730,7 +730,7 @@ class Portal_Core {
 				if (!is_array($row)) continue;
 				if (in_array($row['type'] ?? '', array('closed', 'opened'), true)) $item['kind'] = $row['type'];
 				if (($row['id_'] ?? '') === 'message' && isset($row['value']) && is_string($row['value'])) $item['text'] = wp_strip_all_tags(str_replace(array('@efb@dq#', '@n#'), array('"', "\n"), $row['value']));
-				elseif (($row['value'] ?? '') === '@file@' && !empty($row['url'])) $item['files'][] = array('name' => basename((string) parse_url((string) $row['url'], PHP_URL_PATH)), 'private' => class_exists('\\Emsfb\\Uploads') && Uploads::is_private_url($row['url']));
+				elseif (($row['value'] ?? '') === '@file@' && !empty($row['url'])) $item['files'][] = array('name' => basename((string) wp_parse_url((string) $row['url'], PHP_URL_PATH)), 'private' => class_exists('\\Emsfb\\Uploads') && Uploads::is_private_url($row['url']));
 			}
 			$owner = self::by_owner($r) || $by === 0 || ($by > 0 && in_array(array('k' => 'u', 'h' => hash_hmac('sha256', 'u|' . $by, Verification::key('owner')), 'uid' => $by), $e['identity'], false));
 			if ($item['kind'] !== 'message') $item['by'] = 'system';

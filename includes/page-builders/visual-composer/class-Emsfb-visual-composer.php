@@ -87,7 +87,8 @@ class Emsfb_Visual_Composer_Integration {
         if ($is_editor) {
             $form_name = $this->get_form_name($form_id);
             return $this->get_editor_placeholder(
-                sprintf(__('Form: %s (ID: %s)', 'easy-form-builder'), $form_name, $form_id)
+                /* translators: 1: the form's name, 2: its id */
+                sprintf(__('Form: %1$s (ID: %2$s)', 'easy-form-builder'), $form_name, $form_id)
             );
         }
 
@@ -245,10 +246,10 @@ class EFB_Visual_Composer_Widget extends WP_Widget {
             return;
         }
 
-        echo $args['before_widget'];
+        echo wp_kses_post($args['before_widget']);
 
         if ($show_title === 'yes' && !empty($instance['title'])) {
-            echo $args['before_title'] . esc_html($instance['title']) . $args['after_title'];
+            echo wp_kses_post($args['before_title']) . esc_html($instance['title']) . wp_kses_post($args['after_title']);
         }
 
         if ($form_id === 'tracking') {
@@ -257,7 +258,7 @@ class EFB_Visual_Composer_Widget extends WP_Widget {
             echo do_shortcode('[EMS_Form_Builder id="' . intval($form_id) . '"]');
         }
 
-        echo $args['after_widget'];
+        echo wp_kses_post($args['after_widget']);
     }
 
     public function form($instance) {

@@ -175,7 +175,7 @@ class Revisions {
 		list($fields, $steps) = self::counts($rows);
 		$source = isset($args['source']) && in_array($args['source'], self::SOURCES, true) ? $args['source'] : 'builder';
 		$note = isset($args['note']) && is_scalar($args['note']) ? (string) $args['note'] : '';
-		$note = function_exists('sanitize_text_field') ? sanitize_text_field($note) : trim(strip_tags($note));
+		$note = function_exists('sanitize_text_field') ? sanitize_text_field($note) : trim(preg_replace('/<[^>]*>/', '', $note));
 		$note = function_exists('mb_substr') ? mb_substr($note, 0, 190, 'UTF-8') : substr($note, 0, 190);
 		$type = isset($rows[0]['type']) && is_scalar($rows[0]['type']) ? substr((string) $rows[0]['type'], 0, 15) : 'form';
 		$uid = isset($args['user_id']) ? (int) $args['user_id'] : (function_exists('get_current_user_id') ? (int) get_current_user_id() : 0);
@@ -205,7 +205,7 @@ class Revisions {
 		$ids = $wpdb->get_col($wpdb->prepare("SELECT rev_id FROM `{$t}` WHERE form_id = %d ORDER BY rev_id DESC", (int) $form_id)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$drop = array_map('intval', array_slice((array) $ids, max(1, (int) $keep + 1)));
 		if (!$drop) return 0;
-		return (int) $wpdb->query("DELETE FROM `{$t}` WHERE rev_id IN (" . implode(',', $drop) . ')'); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- integers only
+		return (int) $wpdb->query($wpdb->prepare('DELETE FROM %i WHERE rev_id IN (' . implode(',', array_fill(0, count($drop), '%d')) . ')', array_merge(array($t), $drop)));
 	}
 
 	public static function delete_for_form($form_id) {

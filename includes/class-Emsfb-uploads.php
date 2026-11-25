@@ -444,7 +444,7 @@ class Uploads {
 		$base = self::private_dir();
 		if ($base === '') return '';
 		$dir = $base . ($sub !== '' ? trailingslashit($sub) : '');
-		if (!is_dir($dir) && !(function_exists('wp_mkdir_p') ? wp_mkdir_p($dir) : @mkdir($dir, 0755, true))) return '';
+		if (!is_dir($dir) && !wp_mkdir_p($dir)) return '';
 		if (!file_exists($base . '.htaccess')) {
 			@file_put_contents($base . '.htaccess', self::htaccess_rules());
 		}
@@ -515,7 +515,7 @@ class Uploads {
 		$name = function_exists('wp_unique_filename') ? wp_unique_filename($dir, $name) : $name;
 		$path = $dir . $name;
 		if (@file_put_contents($path, $contents) === false) return array('file' => '', 'url' => '', 'error' => 'write');
-		@chmod($path, 0640);
+		@chmod($path, 0640); // phpcs:ignore WordPress.WP.AlternativeFunctions -- a private answer file: owner and group only
 		return array('file' => $path, 'url' => self::private_base_url() . $sub . '/' . $name, 'error' => '');
 	}
 
@@ -699,7 +699,7 @@ class Uploads {
 			foreach (self::download_headers($path) as $k => $v) header($k . ': ' . $v);
 		}
 		while (ob_get_level() > 0) @ob_end_clean();
-		readfile($path);
+		readfile($path); // phpcs:ignore WordPress.WP.AlternativeFunctions -- streams a private file to its allowed reader
 		exit;
 	}
 
@@ -722,7 +722,7 @@ class Uploads {
 			$out['code'] = $code;
 			$out['exposed'] = $code === 0 ? null : ($code === 200 && trim((string) wp_remote_retrieve_body($r)) === 'efb');
 		}
-		if ($dir !== '') @unlink($dir . 'probe.txt');
+		if ($dir !== '') wp_delete_file($dir . 'probe.txt');
 		/* No answer (a single-threaded server cannot request itself, or a firewall): the web
 		 * server's name decides for those that never read .htaccess (nginx, Caddy, PHP's own). */
 		if ($out['exposed'] === null) {

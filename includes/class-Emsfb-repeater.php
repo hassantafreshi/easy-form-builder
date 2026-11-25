@@ -335,7 +335,7 @@ final class Repeater {
 				return in_array($v, array('blocks', 'inline'), true) ? $v : 'blocks';
 			case 'row_label':
 			case 'btn_add_text':
-				$t = function_exists('sanitize_text_field') ? sanitize_text_field($v) : trim(strip_tags($v));
+				$t = function_exists('sanitize_text_field') ? sanitize_text_field($v) : trim(preg_replace('/<[^>]*>/', '', $v));
 				return function_exists('mb_substr') ? mb_substr($t, 0, $k === 'row_label' ? 200 : 100) : substr($t, 0, 200);
 		}
 		return '';

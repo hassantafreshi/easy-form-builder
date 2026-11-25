@@ -114,9 +114,9 @@ class Spam_Notice {
 	private static function script() {
 		$on = esc_js(self::t('spamTurnedOn', 'Spam protection is on: hidden field, 3 seconds, spam kept 30 days.'));
 		$url = esc_url_raw(admin_url('admin-ajax.php'));
-		echo "<script>(function(){if(window.efbSpamNoticeJs)return;window.efbSpamNoticeJs=1;function go(d,x){var f=new FormData();f.append('action','efb_spam_notice');f.append('do',d);f.append('nonce','" . esc_js(wp_create_nonce('wp_rest')) . "');if(x)f.append('sig',x);return fetch('" . esc_js($url) . "',{method:'POST',body:f,credentials:'same-origin'}).then(function(r){return r.json();});}"
+		wp_print_inline_script_tag("(function(){if(window.efbSpamNoticeJs)return;window.efbSpamNoticeJs=1;function go(d,x){var f=new FormData();f.append('action','efb_spam_notice');f.append('do',d);f.append('nonce','" . esc_js(wp_create_nonce('wp_rest')) . "');if(x)f.append('sig',x);return fetch('" . esc_js($url) . "',{method:'POST',body:f,credentials:'same-origin'}).then(function(r){return r.json();});}"
 			. "document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-efb-spam-do=\"enable\"]');if(b){b.disabled=true;go('enable').then(function(j){var n=document.getElementById('efb-spam-notice');if(!n)return;var s=n.querySelector('.efb-spam-notice-status');if(j&&j.success){s.textContent='" . $on . "';n.classList.remove('notice-info');n.classList.add('notice-success');var a=n.querySelector('.efb-spam-notice-actions');if(a)a.remove();}else{b.disabled=false;}});return;}"
-			. "var x=e.target.closest&&e.target.closest('.notice-dismiss');if(!x)return;var n=x.closest('[data-efb-notice]');if(!n)return;go(n.getAttribute('data-efb-notice')==='cp'?'dismiss_cp':'dismiss',n.getAttribute('data-sig'));});})();</script>";
+			. "var x=e.target.closest&&e.target.closest('.notice-dismiss');if(!x)return;var n=x.closest('[data-efb-notice]');if(!n)return;go(n.getAttribute('data-efb-notice')==='cp'?'dismiss_cp':'dismiss',n.getAttribute('data-sig'));});})();");
 	}
 
 	/** do: enable (the fresh-install defaults), dismiss (this user), dismiss_cp (this list of unavailable services). */

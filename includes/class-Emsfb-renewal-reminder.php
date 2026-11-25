@@ -103,7 +103,7 @@ class Renewal_Reminder {
 	public static function allowed_hosts() {
 		$hosts = array('whitestudio.team', 'easyformbuilder.ir');
 		if (defined('EMSFB_SERVER_URL')) {
-			$h = parse_url((string) EMSFB_SERVER_URL, PHP_URL_HOST);
+			$h = wp_parse_url((string) EMSFB_SERVER_URL, PHP_URL_HOST);
 			if (is_string($h) && $h !== '') $hosts[] = strtolower($h);
 		}
 		return array_values(array_unique($hosts));
@@ -116,7 +116,7 @@ class Renewal_Reminder {
 	 */
 	public static function safe_renew_url($url, $code = '') {
 		if (!is_string($url) || $url === '' || strlen($url) > 2048 || preg_match('/[\s\x00-\x1f\x7f<>"\'`\\\\]/', $url)) return '';
-		$p = parse_url($url);
+		$p = wp_parse_url($url);
 		if (!is_array($p) || !isset($p['scheme'], $p['host']) || strtolower($p['scheme']) !== 'https') return '';
 		if (isset($p['user']) || isset($p['pass']) || (isset($p['port']) && (int) $p['port'] !== 443)) return '';
 		$host = strtolower($p['host']);
@@ -299,7 +299,7 @@ class Renewal_Reminder {
 		}
 		$out['date'] = self::date_text($exp, $locale);
 		$out['renew_url'] = self::renew_url($info);
-		$h = parse_url($out['renew_url'], PHP_URL_HOST);
+		$h = wp_parse_url($out['renew_url'], PHP_URL_HOST);
 		$out['host'] = is_string($h) ? preg_replace('/^www\./', '', strtolower($h)) : '';
 		return $out;
 	}

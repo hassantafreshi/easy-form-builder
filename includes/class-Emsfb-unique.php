@@ -609,6 +609,6 @@ class Unique_Values {
 if (!function_exists('Emsfb\\wp_strip_all_tags_efb_fr')) {
 	/** Plain text of a message for a payment answer (the visitor sentence, without the <b> label). */
 	function wp_strip_all_tags_efb_fr($s) {
-		return html_entity_decode(strip_tags((string) $s), ENT_QUOTES, 'UTF-8');
+		return html_entity_decode(function_exists('wp_strip_all_tags') ? wp_strip_all_tags((string) $s) : preg_replace('/<[^>]*>/', '', (string) $s), ENT_QUOTES, 'UTF-8');
 	}
 }

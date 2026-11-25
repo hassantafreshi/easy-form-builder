@@ -9,7 +9,8 @@
 # Writes (and replaces):
 #   public/assets/fonts/<slug>/font.css + *.woff2   one folder per font of Settings › Response box (local @font-face)
 #   public/assets/fonts/README.txt                  each font's source, version and licence
-#   public/assets/json/geo/                         json/countries.json, json/states/<cc>.json, json/cites/<cc>/<st>.json
+#   public/assets/json/geo/                         json/countries.json, json/states/<cc>.json, json/cites/<cc>/<st>.json,
+#                                                   js/wp/countries.js (the builder's country list)
 #   public/assets/js/vendor/chart.umd.min.js        Chart.js for the poll results
 #   public/assets/fetched-assets.sha256             what was fetched, for the release notes and a later audit
 # The plugin uses each of them only when it is there (_Public::local_font_css_efb(), ::geo_base_url_efb(),
@@ -116,9 +117,10 @@ done
 # The country, province and city lists.
 git init -q "$TMP/geo"
 git -C "$TMP/geo" fetch -q --depth 1 "$GEO_REPO" "$GEO_COMMIT"
-git -C "$TMP/geo" checkout -q FETCH_HEAD -- json LICENSE
-mkdir -p "$GEO/json"
+git -C "$TMP/geo" checkout -q FETCH_HEAD -- json js/wp/countries.js LICENSE
+mkdir -p "$GEO/json" "$GEO/js/wp"
 cp -R "$TMP/geo/json/." "$GEO/json/"
+cp "$TMP/geo/js/wp/countries.js" "$GEO/js/wp/countries.js"
 cp "$TMP/geo/LICENSE" "$GEO/LICENSE"
 # A few files start with a byte-order mark; JSON has none.
 find "$GEO/json" -name '*.json' -print0 | xargs -0 python3 -c "

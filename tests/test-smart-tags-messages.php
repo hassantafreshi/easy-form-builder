@@ -9,6 +9,7 @@
  *
  * Run: php tests/test-smart-tags-messages.php
  */
+if (!function_exists('wp_parse_url')) { function wp_parse_url($u, $c = -1) { return parse_url($u, $c); } } // the plugin calls wp_parse_url() (B6, Plugin Check)
 define('ABSPATH', __DIR__ . '/');
 function sanitize_text_field($v) { if (is_array($v) || is_object($v)) return ''; $s = strip_tags((string) $v); $s = preg_replace('/%[a-f0-9]{2}/i', '', $s); return trim(preg_replace('/[\r\n\t ]+/', ' ', $s)); }
 function esc_url_raw($v) { $v = preg_replace('|[^a-z0-9-~+_.?#=!&;,/:%@$\|*\'()\[\]\x80-\xff]|i', '', (string) $v); return preg_match('#^https?://#i', $v) ? $v : ''; }

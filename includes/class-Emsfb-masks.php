@@ -704,7 +704,7 @@ class Masks {
 		}
 		if (!empty($mask['checksum'])) {
 			if (!isset($checksums[$mask['checksum']])) {
-				throw new \InvalidArgumentException('Unknown checksum ' . $mask['checksum']);
+				throw new \InvalidArgumentException('Unknown checksum ' . esc_html($mask['checksum']));
 			}
 			$cr = call_user_func(array(__CLASS__, $checksums[$mask['checksum']]), $v);
 			if ($cr === 'rule') {
@@ -716,7 +716,7 @@ class Masks {
 		}
 		if (!empty($mask['validator'])) {
 			if (!isset($validators[$mask['validator']])) {
-				throw new \InvalidArgumentException('Unknown validator ' . $mask['validator']);
+				throw new \InvalidArgumentException('Unknown validator ' . esc_html($mask['validator']));
 			}
 			if (!call_user_func(array(__CLASS__, $validators[$mask['validator']]), $v, $mask)) {
 				return array('ok' => false, 'code' => 'rule', 'value' => $v);
@@ -1176,7 +1176,7 @@ class Masks {
 		$f = self::finish_run($r);
 		if (!empty($def['checksum'])) {
 			if (!in_array($def['checksum'], self::CUSTOM_CHECKSUMS, true)) {
-				throw new \InvalidArgumentException('Unknown checksum ' . $def['checksum']);
+				throw new \InvalidArgumentException('Unknown checksum ' . esc_html($def['checksum']));
 			}
 			$fn = $def['checksum'] === 'iso7064_mod97_10' ? 'iban' : $def['checksum'];
 			if (!call_user_func(array(__CLASS__, $fn), preg_replace('/[^0-9A-Z]/', '', self::ascii_upper($f)))) {

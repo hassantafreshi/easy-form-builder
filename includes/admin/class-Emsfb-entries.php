@@ -144,7 +144,7 @@ class Entries {
 			if (!isset($present[$key])) $clauses["ADD KEY {$key}"] = "ADD KEY `{$key}` {$cols}";
 		}
 		if (!$clauses) return $applied;
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, clauses from the literal maps above
+		// phpcs:ignore WordPress.DB.PreparedSQL -- DDL: table from $wpdb->prefix, clauses from the literal maps above
 		if (count($clauses) > 1 && false !== $wpdb->query("ALTER TABLE `{$table}` " . implode(', ', $clauses))) {
 			foreach (array_keys($clauses) as $c) $applied[] = "emsfb_msg_: {$c}";
 		} else {
@@ -415,17 +415,14 @@ class Entries {
 	/** Counts of every tab of a form in one query (SUM(CASE ...)). */
 	public static function counts($form_id) {
 		global $wpdb;
-		$msg = $wpdb->prefix . 'emsfb_msg_';
-		$sql = "SELECT SUM(CASE WHEN entry_status = 0 THEN 1 ELSE 0 END) AS c_all,
+		$r = $wpdb->get_row($wpdb->prepare("SELECT SUM(CASE WHEN entry_status = 0 THEN 1 ELSE 0 END) AS c_all,
 			SUM(CASE WHEN entry_status = 0 AND read_ IN (0,3) THEN 1 ELSE 0 END) AS c_unread,
 			SUM(CASE WHEN entry_status = 0 AND starred = 1 THEN 1 ELSE 0 END) AS c_starred,
 			SUM(CASE WHEN entry_status = 0 AND read_ = 2 THEN 1 ELSE 0 END) AS c_pending,
 			SUM(CASE WHEN entry_status = 0 AND read_ = 4 THEN 1 ELSE 0 END) AS c_closed,
 			SUM(CASE WHEN entry_status = 1 THEN 1 ELSE 0 END) AS c_spam,
 			SUM(CASE WHEN entry_status = 2 THEN 1 ELSE 0 END) AS c_trash
-			FROM `{$msg}` WHERE form_id = %d";
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
-		$r = $wpdb->get_row($wpdb->prepare($sql, (int) $form_id), ARRAY_A);
+			FROM %i WHERE form_id = %d", $wpdb->prefix . 'emsfb_msg_', (int) $form_id), ARRAY_A);
 		$out = array();
 		foreach (self::TABS as $t) $out[$t] = isset($r['c_' . $t]) ? (int) $r['c_' . $t] : 0;
 		return $out;
@@ -1075,7 +1072,7 @@ class Entries {
 		global $wpdb;
 		$raw = (string) $text;
 		if (preg_match('/<\s*\/?\s*[a-z!][^>]*>/i', $raw)) return array('code' => 'efb_note_html', 'm' => self::t('entNoteHtml', 'HTML is not allowed in notes.'));
-		$note = function_exists('sanitize_textarea_field') ? sanitize_textarea_field($raw) : trim(strip_tags($raw));
+		$note = function_exists('sanitize_textarea_field') ? sanitize_textarea_field($raw) : trim(preg_replace('/<[^>]*>/', '', $raw));
 		$len = function_exists('mb_strlen') ? mb_strlen($note, 'UTF-8') : strlen($note);
 		if ($len === 0) return array('code' => 'efb_invalid', 'm' => self::t('pleaseEnterVaildValue', 'Please enter a valid value.'));
 		if ($len > self::NOTE_MAX) return array('code' => 'efb_note_long', 'm' => str_replace('%s', (string) self::NOTE_MAX, self::t('entNoteTooLong', 'A note can have at most %s characters.')));
@@ -1368,10 +1365,8 @@ class Entries {
 	private static function notes_text(array $ids) {
 		global $wpdb;
 		if (!$ids) return array();
-		$in = implode(',', array_fill(0, count($ids), '%d'));
 		$out = array();
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, placeholders built above
-		foreach ((array) $wpdb->get_results($wpdb->prepare("SELECT msg_id, note FROM `{$wpdb->prefix}" . self::NOTES . "` WHERE msg_id IN ({$in}) ORDER BY note_id", $ids), ARRAY_A) as $n) {
+		foreach ((array) $wpdb->get_results($wpdb->prepare('SELECT msg_id, note FROM %i WHERE msg_id IN (' . implode(',', array_fill(0, count($ids), '%d')) . ') ORDER BY note_id', array_merge(array($wpdb->prefix . self::NOTES), $ids)), ARRAY_A) as $n) {
 			$out[(int) $n['msg_id']][] = (string) $n['note'];
 		}
 		return array_map(function ($l) { return implode(' | ', $l); }, $out);
@@ -1454,6 +1449,7 @@ class Entries {
 		if ($a['format'] === 'csv') {
 			header('Content-Type: text/csv; charset=utf-8');
 			header('Content-Disposition: attachment; filename="' . $file . '"; filename*=UTF-8\'\'' . rawurlencode($file));
+			// phpcs:disable WordPress.WP.AlternativeFunctions -- the CSV is streamed to the browser row by row (php://output), never held in memory
 			$out = fopen('php://output', 'wb');
 			fwrite($out, "\xEF\xBB\xBF");
 			$first = true;
@@ -1462,6 +1458,7 @@ class Entries {
 				$first = false;
 			});
 			fclose($out);
+			// phpcs:enable
 			exit;
 		}
 		require_once __DIR__ . '/class-Emsfb-xlsx-writer.php';
@@ -1480,8 +1477,8 @@ class Entries {
 		header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 		header('Content-Disposition: attachment; filename="' . $file . '"; filename*=UTF-8\'\'' . rawurlencode($file));
 		header('Content-Length: ' . filesize($tmp));
-		readfile($tmp);
-		@unlink($tmp);
+		readfile($tmp); // phpcs:ignore WordPress.WP.AlternativeFunctions -- streams the finished workbook (a temp file) to the browser
+		wp_delete_file($tmp);
 		exit;
 	}
 
@@ -2083,7 +2080,7 @@ class Entries {
 				$private = $url !== '' && class_exists('\\Emsfb\\Uploads') && Uploads::is_private_url($url);
 				$value = '';
 				if (!$private && $url !== '' && ($with_pii || !$personal)) {
-					$o['fnm'] = isset($r['fnm']) && is_scalar($r['fnm']) ? (string) $r['fnm'] : basename((string) parse_url($url, PHP_URL_PATH));
+					$o['fnm'] = isset($r['fnm']) && is_scalar($r['fnm']) ? (string) $r['fnm'] : basename((string) wp_parse_url($url, PHP_URL_PATH));
 					if (isset($r['fsz']) && is_numeric($r['fsz'])) $o['fsz'] = (int) $r['fsz'];
 				} elseif ($url !== '' && $personal && !$with_pii) {
 					$value = self::API_REDACTED;

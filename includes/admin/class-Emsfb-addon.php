@@ -115,16 +115,16 @@ class Addon {
 		$addon_status = null;
 		if ($noti_pro === 0  ){
 			// F21 E: a JSON string (an apostrophe in a translation used to end the JS string).
-			$noti_pro = '<script>const noti_exp_efb=' . wp_json_encode($efbFunction->noti_expire_efb(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';</script>';
+			$noti_pro = 'const noti_exp_efb=' . wp_json_encode($efbFunction->noti_expire_efb(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';';
 
 		}else{
-			$noti_pro = '<script>const noti_exp_efb="";</script>';
+			$noti_pro = 'const noti_exp_efb="";';
 			$addon_status = emsfb_get_file_access_status_efb();
 		}
 
 	?>
 	<!-- new code ddd -->
-	<?php echo   $noti_pro ?>
+	<?php wp_print_inline_script_tag($noti_pro); ?>
 
 	<!-- Addon Directory Status Check - Only for Pro version -->
 	<?php if ($noti_pro !== 0 && $addon_status): ?>
@@ -142,12 +142,12 @@ class Addon {
 						</ul>
 					</details>
 				<?php endif; ?>
-				<p><em><?php echo sprintf(esc_html__('Checked %s ago', 'easy-form-builder'), human_time_diff(strtotime($addon_status['checked_at']), current_time('timestamp'))); ?></em></p>
+				<p><em><?php echo esc_html(sprintf(/* translators: %s: how long ago the add-on folder was checked, such as "5 mins" */ __('Checked %s ago', 'easy-form-builder'), human_time_diff(strtotime($addon_status['checked_at']), current_time('timestamp')))); ?></em></p>
 			</div>
 		<?php else: ?>
 			<div class="notice notice-success efb" style="margin: 20px 0;">
 				<p><strong><?php echo esc_html__('System Ready', 'easy-form-builder'); ?>:</strong> <?php echo esc_html($addon_status['current_message']); ?></p>
-				<p><em><?php echo sprintf(esc_html__('Checked %s ago', 'easy-form-builder'), human_time_diff(strtotime($addon_status['checked_at']), current_time('timestamp'))); ?></em></p>
+				<p><em><?php echo esc_html(sprintf(/* translators: %s: how long ago the add-on folder was checked, such as "5 mins" */ __('Checked %s ago', 'easy-form-builder'), human_time_diff(strtotime($addon_status['checked_at']), current_time('timestamp')))); ?></em></p>
 			</div>
 		<?php endif; ?>
 	<?php elseif ($noti_pro !== 0 && !$addon_status): ?>

@@ -35,9 +35,10 @@ class EfbPrivacyTestDb {
 		if (count($args) === 1 && is_array($args[0])) $args = $args[0];
 		$i = 0;
 		$pdo = $this->pdo;
-		return preg_replace_callback('/%[dsf]/', function ($m) use (&$i, $args, $pdo) {
+		return preg_replace_callback('/%[dsfi]/', function ($m) use (&$i, $args, $pdo) {
 			$v = array_key_exists($i, $args) ? $args[$i] : '';
 			$i++;
+			if ($m[0] === '%i') return '`' . str_replace('`', '``', (string) $v) . '`'; // an identifier, as wpdb::prepare() since WordPress 6.2
 			if ($m[0] === '%d') return (string) intval($v);
 			if ($m[0] === '%f') return (string) floatval($v);
 			return $pdo->quote((string) $v);

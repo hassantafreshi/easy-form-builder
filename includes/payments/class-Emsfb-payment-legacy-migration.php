@@ -247,7 +247,7 @@ class Legacy_Migration {
 			$like[] = $wpdb->prepare( 'form_structer LIKE %s', '%' . $wpdb->esc_like( '"' . $ty . '\\"' ) . '%' );
 			$like[] = $wpdb->prepare( 'form_structer LIKE %s', '%' . $wpdb->esc_like( '"' . $ty . '"' ) . '%' );
 		}
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, the LIKE parts prepared above
+		// phpcs:ignore WordPress.DB.PreparedSQL -- table from $wpdb->prefix, the LIKE parts prepared above
 		$list = $wpdb->get_results( "SELECT form_id, form_structer FROM `{$t}` WHERE " . implode( ' OR ', $like ) . ' ORDER BY form_id ASC LIMIT ' . (int) $limit, ARRAY_A );
 		// Only a field's type counts (a field named "stripe" is not one).
 		$re = '/type\\\\?"\s*:\s*\\\\?"(' . implode( '|', self::TYPES ) . ')\\\\?"/';
@@ -422,7 +422,7 @@ class Legacy_Migration {
 			$e['form_id'] = (int) $id;
 			$e['can_rollback'] = $e['status'] === 'migrated' && self::backup_get( $id ) !== null;
 			$e['can_migrate'] = $e['status'] !== 'migrated';
-			$e['name'] = function_exists( 'wp_strip_all_tags' ) ? wp_strip_all_tags( str_replace( '@efb@dq#', '"', $e['name'] ) ) : strip_tags( $e['name'] );
+			$e['name'] = function_exists( 'wp_strip_all_tags' ) ? wp_strip_all_tags( str_replace( '@efb@dq#', '"', $e['name'] ) ) : preg_replace('/<[^>]*>/', '',  $e['name'] );
 			$forms[] = $e;
 		}
 		$counts = array();

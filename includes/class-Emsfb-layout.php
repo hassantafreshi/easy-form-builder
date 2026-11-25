@@ -110,7 +110,7 @@ class Layout {
 	}
 
 	private static function text($v, $max) {
-		$t = function_exists('sanitize_text_field') ? sanitize_text_field($v) : trim(preg_replace('/[\r\n\t ]+/', ' ', strip_tags($v)));
+		$t = function_exists('sanitize_text_field') ? sanitize_text_field($v) : trim(preg_replace('/[\r\n\t ]+/', ' ', preg_replace('/<[^>]*>/', '', $v)));
 		return function_exists('mb_substr') ? mb_substr($t, 0, $max, 'UTF-8') : substr($t, 0, $max);
 	}
 
@@ -251,7 +251,7 @@ class Layout {
 		$s = is_scalar($html) ? (string) $html : '';
 		$s = preg_replace('#<\s*br\s*/?>#i', "\n", $s);
 		$s = preg_replace('#</?\s*(p|ul|ol|li|h3|h4|blockquote|div)\b[^>]*>#i', "\n", $s);
-		$s = function_exists('wp_strip_all_tags') ? wp_strip_all_tags($s, false) : strip_tags($s);
+		$s = function_exists('wp_strip_all_tags') ? wp_strip_all_tags($s, false) : preg_replace('/<[^>]*>/', '', $s);
 		$s = html_entity_decode($s, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 		$s = str_replace("\xC2\xA0", ' ', $s);
 		$s = preg_replace("/[ \t]+\n/", "\n", $s);

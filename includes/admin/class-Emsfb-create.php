@@ -58,10 +58,10 @@ class Create {
 		$noti_pro = intval(get_option('emsfb_pro' ,-1));
 		if ($noti_pro === 0  ){
 			// F21 E: a JSON string (an apostrophe in a translation used to end the JS string).
-			$noti_pro = '<script>const noti_exp_efb=' . wp_json_encode($efbFunction->noti_expire_efb(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';</script>';
+			$noti_pro = 'const noti_exp_efb=' . wp_json_encode($efbFunction->noti_expire_efb(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';';
 
 		}else{
-			$noti_pro = '<script>const noti_exp_efb="";</script>';
+			$noti_pro = 'const noti_exp_efb="";';
 		}
 
 		$lang = $efbFunction->text_efb(1);
@@ -178,7 +178,7 @@ class Create {
 				bdy[0].classList.add("bg-color");
 				const sitekye_emsFormBuilder= ""
 				</script>
-				<?php echo $noti_pro; ?>
+				<?php wp_print_inline_script_tag($noti_pro); ?>
 			<div id="alert_efb" class="efb mx-5"></div>
 			<?php if ( 'inline' === $addon_recovery_state ) : ?>
 				<?php echo $efbFunction->render_addon_recovery_ui_efb( 'inline', 'admin' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
@@ -230,7 +230,7 @@ class Create {
 		}
 
 
-		$url =CDN_ZONE_AREA.'js/wp/countries.js';
+		$url = _Public::geo_base_url_efb() . 'js/wp/countries.js'; // SEC-02: the bundled list in a release
 		if(isset($settings->AdnOF) && $settings->AdnOF==1){
 			$url = EMSFB_PLUGIN_URL . 'vendor/offline/json/countries.js';
 		}
@@ -313,7 +313,7 @@ class Create {
 			'v_efb'=>EMSFB_PLUGIN_VERSION,
 			'setting'=>class_exists('\\Emsfb\\Captcha\\Registry') ? \Emsfb\Captcha\Admin::redact_settings($settings) : $settings,
 			'colors'=>$colors,
-			'zone_area'=>CDN_ZONE_AREA,
+			'zone_area'=>_Public::geo_base_url_efb(),
 			'plugins'=>$plugins,
 			'emailHealth'=>$email_health,
 			// What the owner did about delivery (unchecked / confirmed / tested)
@@ -482,7 +482,7 @@ class Create {
 		// F03: a pattern the sanitizer would silently empty is refused with its path (API clients, AutoPilot).
 		if (is_array($valp) && class_exists('\Emsfb\Field_Rules')) {
 		    $rules_err_efb = \Emsfb\Field_Rules::validate_rows($valp);
-		    if ($rules_err_efb) wp_send_json_success(['success' => false, 'm' => sprintf(__('This pattern cannot be used: %s', 'easy-form-builder'), $rules_err_efb[0]['reason']), 'code' => 'pattern_invalid', 'path' => $rules_err_efb[0]['path'], 'errors' => $rules_err_efb], 200);
+		    if ($rules_err_efb) wp_send_json_success(['success' => false, 'm' => sprintf(/* translators: %s: why the pattern is refused */ __('This pattern cannot be used: %s', 'easy-form-builder'), $rules_err_efb[0]['reason']), 'code' => 'pattern_invalid', 'path' => $rules_err_efb[0]['path'], 'errors' => $rules_err_efb], 200);
 		}
 		// F06: advanced date limits that contradict each other refuse the save (builder, AutoPilot, API clients).
 		$date_chk_efb = class_exists('\\Emsfb\\Calendar') && is_array($valp) ? \Emsfb\Calendar::validate_rows($valp) : array('errors' => array(), 'warnings' => array());

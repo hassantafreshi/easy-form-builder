@@ -17,10 +17,8 @@ class Panel_edit  {
 				$plugins['wpsms']=1;
 			}
 			$plugins_get =null;
-			// async: only the response charts need it, and a hanging gstatic.com
-			// must not hold back the panel.
-			wp_register_script('gchart-js', 'https://www.gstatic.com/charts/loader.js', null, null, array('in_footer' => true, 'strategy' => 'async'));
-			wp_enqueue_script('gchart-js');
+			// SEC-02: the response charts draw with the plugin's own copy of Chart.js (bundled by the release build).
+			if (is_readable(EMSFB_PLUGIN_DIRECTORY . 'public/assets/js/vendor/chart.umd.min.js')) wp_enqueue_script('efb-chartjs', EMSFB_PLUGIN_URL . 'public/assets/js/vendor/chart.umd.min.js', array(), '4.4.1', true);
 			$img = ["logo" => ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-easy-form-builder.svg',
 			"head"=> ''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/header.png',
 			"title"=>''.EMSFB_PLUGIN_URL . 'includes/admin/assets/image/title.svg',
@@ -56,10 +54,10 @@ class Panel_edit  {
 			$noti_pro = intval(get_option('emsfb_pro' ,-1));
 			if ($noti_pro === 0  ){
 				// F21 E: a JSON string (an apostrophe in a translation used to end the JS string).
-			$noti_pro = '<script>const noti_exp_efb=' . wp_json_encode($efbFunction->noti_expire_efb(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';</script>';
+			$noti_pro = 'const noti_exp_efb=' . wp_json_encode($efbFunction->noti_expire_efb(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . ';';
 
 			}else{
-				$noti_pro = '<script>const noti_exp_efb="";</script>';
+				$noti_pro = 'const noti_exp_efb="";';
 			}
 			$is_rtl = is_rtl();
 			if(is_object($ac) && isset($ac->siteKey))$k= $ac->siteKey;
@@ -171,7 +169,7 @@ class Panel_edit  {
 				</div>
 				<div class="efb top_circle-efb-1"></div>
 				<script>let sitekye_emsFormBuilder="<?php echo esc_js($k); ?>";</script>
-						<?php echo $noti_pro ?>
+						<?php wp_print_inline_script_tag($noti_pro); ?>
 					<nav class="efb navbar navbar-expand-lg navbar-light efb" id="navbar">
 						<div class="efb container">
 							<a class="efb navbar-brand efb" href="admin.php?page=Emsfb_create" >
@@ -182,22 +180,22 @@ class Panel_edit  {
 							</button>
 							<div class="efb collapse navbar-collapse" id="navbarSupportedContent">
 								<ul class="efb navbar-nav me-auto mb-2 mb-lg-0">
-									<li class="efb nav-item"><a class="efb nav-link efb active ec-efb" data-eventform='forms' id="efb-nav-panel" aria-current="page"  role="button"><?php echo $lang["forms"] ?></a></li>
+									<li class="efb nav-item"><a class="efb nav-link efb active ec-efb" data-eventform='forms' id="efb-nav-panel" aria-current="page"  role="button"><?php echo esc_html($lang["forms"]) ?></a></li>
 									<li class="efb nav-item">
-										<a class="efb nav-link efb ec-efb" id="efb-nav-setting" data-eventform='setting'  role="button"><?php echo $lang["settings"] ?></a>
+										<a class="efb nav-link efb ec-efb" id="efb-nav-setting" data-eventform='setting'  role="button"><?php echo esc_html($lang["settings"]) ?></a>
 									</li>
 									<li class="efb nav-item">
-										<a class="efb nav-link efb ec-efb" href="admin.php?page=Emsfb_create" role="button"><?php echo $lang["create"]  ?></a>
+										<a class="efb nav-link efb ec-efb" href="admin.php?page=Emsfb_create" role="button"><?php echo esc_html($lang["create"]) ?></a>
 									</li>
 									<li class="efb nav-item">
-										<a class="efb nav-link efb ec-efb" id="efb-nav-help" data-eventform='help' role="button"><?php echo $lang["help"] ?></a>
+										<a class="efb nav-link efb ec-efb" id="efb-nav-help" data-eventform='help' role="button"><?php echo esc_html($lang["help"]) ?></a>
 									</li>
 								</ul>
 								<div class="efb d-flex">
 									<form class="efb d-flex">
 									<?php echo !$is_rtl ? '<i class="efb  bi-search search-icon"></i>' : '' ?>
-									<input class="efb form-control efb search-form-control efb-rounded efb mx-2" type="search" id="track_code_emsFormBuilder" placeholder="<?php echo $lang["search"]  ?> &hellip;"  aria-label="<?php echo $lang["search"]  ?>">
-										<a class="efb btn efb btn-outline-pink mx-2 ec-efb" type="submit" id="track_code_btn_emsFormBuilder" data-eventform='searchCC'><?php echo   $lang["search"] ?></a>
+									<input class="efb form-control efb search-form-control efb-rounded efb mx-2" type="search" id="track_code_emsFormBuilder" placeholder="<?php echo esc_attr($lang["search"]) ?> &hellip;"  aria-label="<?php echo esc_attr($lang["search"]) ?>">
+										<a class="efb btn efb btn-outline-pink mx-2 ec-efb" type="submit" id="track_code_btn_emsFormBuilder" data-eventform='searchCC'><?php echo esc_html($lang["search"]) ?></a>
 									</form>
 									<div class="efb nav-icon efb mx-2">
 										<a class="efb nav-link efb" href="https://whitestudio.team/login" target="_blank" rel="noopener" aria-label="<?php /* translators: A11Y-01: the name of the header's account icon link; it opens a new tab */ echo esc_attr__('Your WhiteStudio account (opens in a new tab)', 'easy-form-builder') ?>"><i class="efb  bi-person" aria-hidden="true"></i></a>
@@ -399,7 +397,7 @@ class Panel_edit  {
 				wp_register_script('jquery-dd-efb', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/jquery-dd-efb.js', array('jquery'),  true,EMSFB_PLUGIN_VERSION);
 				wp_enqueue_script('jquery-dd-efb');
 
-			$url =CDN_ZONE_AREA.'js/wp/countries.js';
+			$url = _Public::geo_base_url_efb() . 'js/wp/countries.js'; // SEC-02: the bundled list in a release
 			if(isset($ac->AdnOF) && $ac->AdnOF==1){
 				$url = EMSFB_PLUGIN_URL . 'vendor/offline/json/countries.js';
 			}
@@ -466,7 +464,7 @@ class Panel_edit  {
 					'messages_state' =>$this->get_not_read_message(),
 					'response_state' =>$this->get_not_read_response(),
 					'poster'=> EMSFB_PLUGIN_URL . 'public/assets/images/efb-poster.svg',
-					'zone_area'=>CDN_ZONE_AREA,
+					'zone_area'=>_Public::geo_base_url_efb(),
 					'bootstrap'=>$this->check_temp_is_bootstrap(),
 					'pro'=>$pro ? 1 : 0,
 					'devMode'=> get_option('emsfb_dev_mode', '0') === '1' ? 1 : 0,

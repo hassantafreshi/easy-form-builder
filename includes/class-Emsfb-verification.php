@@ -266,7 +266,7 @@ class Verification {
 	private static function plain($v, $max) {
 		if (!is_scalar($v)) return '';
 		$v = (string) $v;
-		$v = function_exists('sanitize_text_field') ? sanitize_text_field($v) : trim(strip_tags($v));
+		$v = function_exists('sanitize_text_field') ? sanitize_text_field($v) : trim(preg_replace('/<[^>]*>/', '', $v));
 		$v = str_replace(array('"', '<', '>'), '', $v);
 		return function_exists('mb_substr') ? mb_substr($v, 0, $max) : substr($v, 0, $max);
 	}
@@ -529,7 +529,7 @@ class Verification {
 			case 'email_otp_body':
 				if (!is_scalar($v)) return '';
 				$t = str_replace(array("\r\n", "\r", "\n"), '@n#', (string) $v);
-				$t = function_exists('wp_strip_all_tags') ? wp_strip_all_tags($t) : strip_tags($t);
+				$t = function_exists('wp_strip_all_tags') ? wp_strip_all_tags($t) : preg_replace('/<[^>]*>/', '', $t);
 				$t = str_replace(array('"', '<', '>'), '', $t);
 				$t = preg_replace('/[ \t]+/', ' ', $t);
 				return trim(function_exists('mb_substr') ? mb_substr($t, 0, 1000) : substr($t, 0, 1000));
@@ -903,13 +903,13 @@ class Verification {
 		if ($to === '' || !function_exists('wp_mail')) return false;
 		$site = function_exists('get_bloginfo') ? get_bloginfo('name') : '';
 		$ch = $channel === 'sms' ? 'SMS' : 'e-mail';
-		if ($kind === 'budget_80') $body = sprintf(__('Verification codes by %1$s on %2$s: %3$s of the daily budget of %4$s are used. At the budget, forms that ask for a code stop accepting submissions until the next day.', 'easy-form-builder'), $ch, $site, (int) $data['used'], (int) $data['budget']);
-		elseif ($kind === 'budget_full') $body = sprintf(__('Verification codes by %1$s on %2$s: the daily budget is used up. Forms that ask for a code cannot be sent until it renews.', 'easy-form-builder'), $ch, $site);
+		if ($kind === 'budget_80') $body = sprintf(/* translators: 1: SMS or e-mail, 2: the site's name, 3: codes used, 4: the daily budget */ __('Verification codes by %1$s on %2$s: %3$s of the daily budget of %4$s are used. At the budget, forms that ask for a code stop accepting submissions until the next day.', 'easy-form-builder'), $ch, $site, (int) $data['used'], (int) $data['budget']);
+		elseif ($kind === 'budget_full') $body = sprintf(/* translators: 1: SMS or e-mail, 2: the site's name */ __('Verification codes by %1$s on %2$s: the daily budget is used up. Forms that ask for a code cannot be sent until it renews.', 'easy-form-builder'), $ch, $site);
 		elseif ($kind === 'send_failed') $body = $channel === 'sms'
-			? sprintf(__('Verification codes on %s: an SMS could not be sent through WP SMS. Check the gateway and its credit in the WP SMS settings, then send a test code from Settings > Verification. Visitors were asked to try again.', 'easy-form-builder'), $site)
-			: sprintf(__('Verification codes on %s: an e-mail could not be sent. Check the e-mail settings of the site (Email Monitor). Visitors were asked to try again.', 'easy-form-builder'), $site);
-		else $body = sprintf(__('Verification codes by %1$s on %2$s: %3$s codes were sent in the last hour but only %4$s were entered. This can be SMS pumping (fraud). Check the limits and the allowed countries.', 'easy-form-builder'), $ch, $site, (int) $data['sent'], (int) $data['verified']);
-		$sub = sprintf(__('[%s] Verification codes need your attention', 'easy-form-builder'), $site);
+			? sprintf(/* translators: %s: the site's name */ __('Verification codes on %s: an SMS could not be sent through WP SMS. Check the gateway and its credit in the WP SMS settings, then send a test code from Settings > Verification. Visitors were asked to try again.', 'easy-form-builder'), $site)
+			: sprintf(/* translators: %s: the site's name */ __('Verification codes on %s: an e-mail could not be sent. Check the e-mail settings of the site (Email Monitor). Visitors were asked to try again.', 'easy-form-builder'), $site);
+		else $body = sprintf(/* translators: 1: SMS or e-mail, 2: the site's name, 3: codes sent, 4: codes entered */ __('Verification codes by %1$s on %2$s: %3$s codes were sent in the last hour but only %4$s were entered. This can be SMS pumping (fraud). Check the limits and the allowed countries.', 'easy-form-builder'), $ch, $site, (int) $data['sent'], (int) $data['verified']);
+		$sub = sprintf(/* translators: %s: the site's name */ __('[%s] Verification codes need your attention', 'easy-form-builder'), $site);
 		if (function_exists('do_action')) do_action('efb_verify_alert', $kind, $channel, $data);
 		return (bool) wp_mail($to, $sub, $body);
 	}
@@ -1345,8 +1345,7 @@ class Verification {
 			$ids = (array) $wpdb->get_col($wpdb->prepare("SELECT id FROM `{$t}` WHERE (status IN ('pending','superseded','failed','locked','expired','verified') AND created_at < %s) OR (status = 'consumed' AND created_at < %s) LIMIT 1000", self::utc(-max(1, $open) * 86400), self::utc(-max(1, $used) * 86400)));
 			if (!$ids) break;
 			$ids = array_map('intval', $ids);
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, integers
-			$n += (int) $wpdb->query("DELETE FROM `{$t}` WHERE id IN (" . implode(',', $ids) . ')');
+			$n += (int) $wpdb->query($wpdb->prepare('DELETE FROM %i WHERE id IN (' . implode(',', array_fill(0, count($ids), '%d')) . ')', array_merge(array($t), $ids)));
 			if (count($ids) < 1000) break;
 		}
 		return $n;
@@ -1358,8 +1357,7 @@ class Verification {
 		$ids = array_values(array_filter(array_map('intval', (array) $ids)));
 		if (!$ids || !self::ready()) return 0;
 		$t = self::table();
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, integers
-		return (int) $wpdb->query("DELETE FROM `{$t}` WHERE msg_id IN (" . implode(',', $ids) . ')');
+		return (int) $wpdb->query($wpdb->prepare('DELETE FROM %i WHERE msg_id IN (' . implode(',', array_fill(0, count($ids), '%d')) . ')', array_merge(array($t), $ids)));
 	}
 
 	public static function on_form_deleted($fid) {
@@ -1412,8 +1410,7 @@ class Verification {
 		if ($rows) {
 			$t = self::table();
 			$ids = array_map('intval', array_column($rows, 'id'));
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, integers
-			$n = (int) $wpdb->query("DELETE FROM `{$t}` WHERE id IN (" . implode(',', $ids) . ')');
+			$n = (int) $wpdb->query($wpdb->prepare('DELETE FROM %i WHERE id IN (' . implode(',', array_fill(0, count($ids), '%d')) . ')', array_merge(array($t), $ids)));
 		}
 		$norm = self::normalize_destination('email', $email);
 		if ($norm !== null && class_exists('\\Emsfb\\Rate_Limit')) {

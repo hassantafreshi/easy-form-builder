@@ -153,7 +153,7 @@ class Form_Gate {
 			case 'lim_user_msg':
 			case 'sched_pending_msg':
 			case 'sched_closed_msg':
-				$t = is_scalar($v) ? (function_exists('sanitize_text_field') ? sanitize_text_field((string) $v) : trim(strip_tags((string) $v))) : '';
+				$t = is_scalar($v) ? (function_exists('sanitize_text_field') ? sanitize_text_field((string) $v) : trim(preg_replace('/<[^>]*>/', '', (string) $v))) : '';
 				return function_exists('mb_substr') ? mb_substr($t, 0, 300) : substr($t, 0, 300);
 			case 'sched_open':
 			case 'sched_close':
@@ -367,18 +367,15 @@ class Form_Gate {
 		global $wpdb;
 		$fid = (int) $fid;
 		$m = $wpdb->prefix . 'emsfb_msg_';
-		if (self::payments_ready()) {
-			$p = $wpdb->prefix . 'emsfb_pmt_';
-			$live = "'" . implode("','", self::LIVE_PAYMENT) . "'";
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- tables from $wpdb->prefix, literal status list
-			$sql = $wpdb->prepare("SELECT COUNT(*) FROM `{$m}` m WHERE m.form_id = %d AND NOT (EXISTS (SELECT 1 FROM `{$p}` p WHERE p.msg_id = m.msg_id) AND NOT EXISTS (SELECT 1 FROM `{$p}` q WHERE q.msg_id = m.msg_id AND q.status IN ({$live})))", $fid);
-		} else {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
-			$sql = $wpdb->prepare("SELECT COUNT(*) FROM `{$m}` WHERE form_id = %d", $fid);
-		}
 		// F20-core P14: an entry its owner cancelled does not count (its place was given back).
-		if (self::owner_state_ready()) $sql = preg_replace('/WHERE (m\.)?form_id/', 'WHERE $1owner_state = 0 AND $1form_id', $sql, 1);
-		return (int) $wpdb->get_var($sql);
+		$own = self::owner_state_ready() ? 'owner_state = 0 AND ' : '';
+		if (self::payments_ready()) {
+			$own = $own ? 'm.' . $own : '';
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $own is one of the two literal fragments above
+			return (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %i m WHERE {$own}m.form_id = %d AND NOT (EXISTS (SELECT 1 FROM %i p WHERE p.msg_id = m.msg_id) AND NOT EXISTS (SELECT 1 FROM %i q WHERE q.msg_id = m.msg_id AND q.status IN (" . implode(',', array_fill(0, count(self::LIVE_PAYMENT), '%s')) . ')))', array_merge(array($m, $fid, $wpdb->prefix . 'emsfb_pmt_', $wpdb->prefix . 'emsfb_pmt_'), self::LIVE_PAYMENT)));
+		}
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $own is the literal fragment above
+		return (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %i WHERE {$own}form_id = %d", $m, $fid));
 	}
 
 	private static $own_col = null;
@@ -698,10 +695,7 @@ class Form_Gate {
 	public static function live_attempts($msg_id, $except = 0) {
 		global $wpdb;
 		if (!self::payments_ready()) return 0;
-		$t = $wpdb->prefix . 'emsfb_pmt_';
-		$live = "'" . implode("','", self::LIVE_PAYMENT) . "'";
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, literal status list
-		return (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM `{$t}` WHERE msg_id = %d AND id <> %d AND status IN ({$live})", (int) $msg_id, (int) $except));
+		return (int) $wpdb->get_var($wpdb->prepare('SELECT COUNT(*) FROM %i WHERE msg_id = %d AND id <> %d AND status IN (' . implode(',', array_fill(0, count(self::LIVE_PAYMENT), '%s')) . ')', array_merge(array($wpdb->prefix . 'emsfb_pmt_', (int) $msg_id, (int) $except), self::LIVE_PAYMENT)));
 	}
 
 	/** efb_payment_status_changed: give the place back on failure, take it again on a late payment. */

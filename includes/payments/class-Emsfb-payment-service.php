@@ -72,7 +72,7 @@ class Service {
 	 */
 	public static function site_is_local( $url = null ) {
 		$u = $url === null ? ( function_exists( 'home_url' ) ? home_url( '/' ) : '' ) : (string) $url;
-		$h = strtolower( (string) parse_url( $u, PHP_URL_HOST ) );
+		$h = strtolower( (string) wp_parse_url( $u, PHP_URL_HOST ) );
 		$local = $h === '' || $h === 'localhost' || (bool) preg_match( '/\.(local|test|localhost|invalid|example|internal|lan)$/', $h );
 		if ( ! $local && filter_var( $h, FILTER_VALIDATE_IP ) ) $local = ! filter_var( $h, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
 		if ( ! $local && strpos( $h, '.' ) === false ) $local = true;
@@ -171,11 +171,11 @@ class Service {
 			case 'method_unavailable':
 				return __( 'This payment method is not available for this payment right now. Please choose another payment method.', 'easy-form-builder' );
 			case 'quote_changed':
-				return sprintf( __( 'The amount was updated to %s. Please check and press Pay again.', 'easy-form-builder' ), isset( $extra['amount'] ) ? $extra['amount'] : '' );
+				return sprintf( /* translators: %s: the amount with its currency */ __( 'The amount was updated to %s. Please check and press Pay again.', 'easy-form-builder' ), isset( $extra['amount'] ) ? $extra['amount'] : '' );
 			case 'below_min':
-				return sprintf( __( 'The amount must be at least %s.', 'easy-form-builder' ), isset( $extra['amount'] ) ? $extra['amount'] : '' );
+				return sprintf( /* translators: %s: the amount with its currency */ __( 'The amount must be at least %s.', 'easy-form-builder' ), isset( $extra['amount'] ) ? $extra['amount'] : '' );
 			case 'above_max':
-				return sprintf( __( 'The amount must be at most %s.', 'easy-form-builder' ), isset( $extra['amount'] ) ? $extra['amount'] : '' );
+				return sprintf( /* translators: %s: the amount with its currency */ __( 'The amount must be at most %s.', 'easy-form-builder' ), isset( $extra['amount'] ) ? $extra['amount'] : '' );
 			case 'pwyw_out_of_range':
 				return __( 'Please choose a valid amount.', 'easy-form-builder' );
 			case 'no_amount':

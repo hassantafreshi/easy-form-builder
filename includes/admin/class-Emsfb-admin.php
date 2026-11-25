@@ -452,7 +452,7 @@ class Admin {
         // F03: a pattern the sanitizer would silently empty is refused with its path (API clients, AutoPilot).
         if (is_array($valp) && class_exists('\Emsfb\Field_Rules')) {
             $rules_err_efb = \Emsfb\Field_Rules::validate_rows($valp);
-            if ($rules_err_efb) return ['success' => false, 'm' => sprintf(__('This pattern cannot be used: %s', 'easy-form-builder'), $rules_err_efb[0]['reason']), 'code' => 'pattern_invalid', 'path' => $rules_err_efb[0]['path'], 'errors' => $rules_err_efb];
+            if ($rules_err_efb) return ['success' => false, 'm' => sprintf(/* translators: %s: why the pattern is refused */ __('This pattern cannot be used: %s', 'easy-form-builder'), $rules_err_efb[0]['reason']), 'code' => 'pattern_invalid', 'path' => $rules_err_efb[0]['path'], 'errors' => $rules_err_efb];
         }
         // F06: advanced date limits that contradict each other refuse the save (builder, AutoPilot, API clients).
         $date_chk_efb = class_exists('\\Emsfb\\Calendar') && is_array($valp) ? \Emsfb\Calendar::validate_rows($valp) : array('errors' => array(), 'warnings' => array());
@@ -889,8 +889,7 @@ class Admin {
         $fallback_max_attempts = 2;
         $attempt = 0;
         $success = false;
-        $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
-        $error_message = sprintf($error_message, $domain, 'not_success');
+        $error_message = get_efbFunction()->server_error_efb($domain, 'not_success');
         $switch_to_fallback = function($reason, $context = []) use (&$domain, &$u, &$attempt, &$max_attempts, &$remaining_endpoints, &$using_iran_url, $fallback_max_attempts, $build_addon_url, $post_value) {
             while (!empty($remaining_endpoints)) {
                 $next = untrailingslashit((string) array_shift($remaining_endpoints));
@@ -944,7 +943,7 @@ class Admin {
             if (is_wp_error($request)) {
                 $attempt++;
                 $error_message = sprintf(
-                    esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the %s server', 'easy-form-builder'),
+                    /* translators: %s: the add-on server's host name */ esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the %s server', 'easy-form-builder'),
                     wp_parse_url($domain, PHP_URL_HOST)
                 );
                 $this->addon_install_log_efb('remote_request_wp_error', [
@@ -990,8 +989,7 @@ class Admin {
             // blocking, which is exactly what we want to catch on Persian hosts.
             if ($response_code != 200) {
                 $attempt++;
-                $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
-                $error_message = sprintf($error_message, $domain, $response_code);
+                $error_message = get_efbFunction()->server_error_efb($domain, $response_code);
                 $this->addon_install_log_efb('remote_response_invalid_code', [
                     'requested_addon' => $post_value,
                     'attempt' => $current_attempt,
@@ -1036,8 +1034,7 @@ class Admin {
             $data = json_decode($body);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 $attempt++;
-                $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
-                $error_message = sprintf($error_message, $domain, 'invalid_json');
+                $error_message = get_efbFunction()->server_error_efb($domain, 'invalid_json');
                 $this->addon_install_log_efb('remote_response_invalid_json', [
                     'requested_addon' => $post_value,
                     'attempt' => $current_attempt,
@@ -1065,8 +1062,7 @@ class Admin {
 
             if ($data == null) {
                 $attempt++;
-                $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
-                $error_message = sprintf($error_message, $domain, 'invalid_data');
+                $error_message = get_efbFunction()->server_error_efb($domain, 'invalid_data');
                 $this->addon_install_log_efb('remote_response_empty_data', [
                     'requested_addon' => $post_value,
                     'attempt' => $current_attempt,
@@ -1151,8 +1147,7 @@ class Admin {
 
                     // Entitled locally: treat the verdict as an endpoint problem
                     // and give the other server a turn before giving up.
-                    $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
-                    $error_message = sprintf($error_message, $domain, 'plan_mismatch');
+                    $error_message = get_efbFunction()->server_error_efb($domain, 'plan_mismatch');
                     $attempt++;
                     if ($attempt >= $max_attempts) {
                         if ($switch_to_fallback('remote_response_plan_required_mismatch', [
@@ -1188,8 +1183,7 @@ class Admin {
                     wp_send_json_error($response, 200);
                     return;
                 }
-                $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
-                $error_message = sprintf($error_message, $domain, 'invalid_status');
+                $error_message = get_efbFunction()->server_error_efb($domain, 'invalid_status');
                 if ($is_persian_locale) {
                     $attempt++;
                     if ($attempt >= $max_attempts && $switch_to_fallback('remote_response_status_false', [
@@ -1330,8 +1324,7 @@ class Admin {
                 ]);
             } else {
                 $attempt++;
-                $error_message = esc_html__('Error: server (%s) responded with an invalid request. responded code : %s ', 'easy-form-builder');
-                $error_message = sprintf($error_message, $domain, 'download_unavailable');
+                $error_message = get_efbFunction()->server_error_efb($domain, 'download_unavailable');
                 $this->addon_install_log_efb('download_flag_false', [
                     'requested_addon' => $post_value,
                     'attempt' => $current_attempt,
@@ -3219,7 +3212,7 @@ class Admin {
             $still_open = isset($test_result['status']) && in_array($test_result['status'], ['pending', 'delayed'], true);
             if (!$still_open && !$delivery_confirmed) {
                 $status_data['message']['description'] = sprintf(
-                    esc_html__('Email delivery failed: %s', 'easy-form-builder'),
+                    /* translators: %s: the error the mail server gave */ esc_html__('Email delivery failed: %s', 'easy-form-builder'),
                     $failure_reason
                 );
             }
@@ -3751,13 +3744,14 @@ class Admin {
                 }
                 $directory = EMSFB_PLUGIN_DIRECTORY . 'temp';
                 if (!file_exists($directory)) {
-                    mkdir($directory, 0755, true);
+                    wp_mkdir_p($directory);
                 }
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- WP_Filesystem could not start (it asks for FTP details): move the download in place directly
                 $moved = rename($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
             }
             if(!$moved){
                 if ( emsfb_is_php_function_available_efb( 'unlink' ) ) {
-                    @unlink($r);
+                    wp_delete_file($r);
                 }
                 return new \WP_Error('move_failed',
                     esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to move the downloaded file', 'easy-form-builder')
@@ -3768,7 +3762,7 @@ class Admin {
             }
             $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . 'vendor/');
             if ( emsfb_is_php_function_available_efb( 'unlink' ) ) {
-                @unlink(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
+                wp_delete_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
             }
             if(is_wp_error($r)){
                 return new \WP_Error('unzip_failed',
@@ -3969,7 +3963,7 @@ class Admin {
     public function loading_card_efb(){
         echo "<div class='efb row justify-content-center card-body text-center efb mt-5 pt-3'>
                     <div class='efb col-md-3 col-sm-3 mx-0 my-1 d-flex flex-column align-items-center'>
-                        <img class='efb w-50' src='". EMSFB_PLUGIN_URL . "includes/admin/assets/image/efb-256.gif'>
+                        <img class='efb w-50' src='". esc_url(EMSFB_PLUGIN_URL . 'includes/admin/assets/image/efb-256.gif') . "' alt=''>
                         <h3 class='efb fs-3 text-darkb'>".  esc_html__('Easy Form Builder','easy-form-builder') ."</h3>
                         <h3 class='efb fs-2 text-dark'>".  esc_html__('Please Wait','easy-form-builder') ."</h3>
                     </div>
@@ -4164,222 +4158,19 @@ class Admin {
 
 	}
 
-function admin_notices_efb () {
-             $check = get_option('emsfb_email_status', false);
-            $efbFunction = get_efbFunction();
-            $settings= get_setting_Emsfb('decoded');
-
-            if(is_array($check)){
-                    $email_status = isset($check['status']) ? $check['status'] : '';
-                    if($email_status === 'ok_set_smtp') {
-                        return;
-                    }else if ($email_status === 'ok' ) {
-                        /* 'ok' is written by the automated (background) delivery
-                         * test. It is a diagnostic only - it must not switch
-                         * "This site can send emails" on by itself, otherwise a
-                         * fresh install shows the switch already enabled without
-                         * the admin ever confirming it. */
-                        return;
-                    }
-                    $msg_id = isset($check['message']['id']) ? $check['message']['id'] : '';
-                    if ($msg_id === 'email_test_pending' || in_array($email_status, ['pending', 'delayed', 'warning'], true)) {
-                        return;
-                    }
-                    return;
-            }else{
-                if (isset($settings->smtp) && in_array($settings->smtp, ['1', 'true', true,1], true)) {
-                       /* A site from before the status record existed: the
-                        * switch is on, nobody clicked anything today, so the
-                        * record stays undated (get_delivery_state() reports
-                        * "confirmed" without a date). The dated owner record
-                        * is only ever written by the owner's own answer. */
-                       update_option('emsfb_email_status', $this->build_email_ready_status_efb());
-                       return;
-                }else{
-                     return;
-                     $r = get_option('emsfb_email_status', false);
-                     if($r===false){
-                        $logo_url   = EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo.png';
-                        $panel_url  = admin_url('admin.php?page=Emsfb');
-                        ob_start();
-                        ?>
-                        <div id="notice-email-setup-efb" class="notice notice-info efb-notice-email-setup notice-alt efb" style="display:flex;align-items:flex-start;gap:14px;padding:14px 20px;position:relative;z-index:1000;">
-                            <button type="button" id="efb-close-setup-notice-btn"
-                                style="position:absolute;top:8px;right:8px;background:transparent;border:none;font-size:20px;cursor:pointer;line-height:1;"
-                                aria-label="<?php esc_attr_e('Close', 'easy-form-builder'); ?>">&times;</button>
-                            <img src="<?php echo esc_url($logo_url); ?>" alt="<?php esc_attr_e('Easy Form Builder', 'easy-form-builder'); ?>" style="width:46px;height:auto;margin-top:2px;flex-shrink:0;" />
-                            <div style="flex:1;min-width:0;">
-                                <p style="margin:0 0 6px 0;font-size:14px;">
-                                    <strong><?php esc_html_e('Easy Form Builder', 'easy-form-builder'); ?></strong>
-                                    &mdash;
-                                    <?php esc_html_e('Enable the Email Notification Feature', 'easy-form-builder'); ?>
-                                </p>
-                                <p style="margin:0 0 8px 0;color:#555;"><?php esc_html_e('To receive email notifications from your forms, verify your email server by following these steps:', 'easy-form-builder'); ?></p>
-                                <ol style="margin:0 0 10px 0;padding-left:22px;line-height:2;color:#333;">
-                                    <li><?php printf( wp_kses( __('Go to the <a href="%s" style="font-weight:600;">Easy Form Builder Panel</a>', 'easy-form-builder'), ['a' => ['href' => [], 'style' => []]] ), esc_url($panel_url) ); ?></li>
-                                    <li><?php esc_html_e('Click Settings from the top menu', 'easy-form-builder'); ?></li>
-                                    <li><?php esc_html_e('Select the Email Settings tab', 'easy-form-builder'); ?></li>
-                                    <li><?php esc_html_e('Click "Check Email Server" and wait for the test to finish', 'easy-form-builder'); ?></li>
-                                    <li><?php esc_html_e('If the score is above 70 — enable the "This site can send emails" switch and save', 'easy-form-builder'); ?></li>
-                                    <li><?php esc_html_e('Otherwise, follow the instructions shown in the test results', 'easy-form-builder'); ?></li>
-                                </ol>
-                            </div>
-                        </div>
-                        <script>
-                        (function () {
-                            var n = document.getElementById('notice-email-setup-efb');
-                            if (window.localStorage.getItem('efb_email_setup_notice_dismissed') === 'true') {
-                                if (n) n.style.display = 'none';
-                            }
-                            var btn = document.getElementById('efb-close-setup-notice-btn');
-                            if (btn && n) {
-                                btn.addEventListener('click', function () {
-                                    n.style.display = 'none';
-                                    window.localStorage.setItem('efb_email_setup_notice_dismissed', 'true');
-                                });
-                            }
-                        })();
-                        </script>
-                        <?php
-                        echo ob_get_clean();
-                        return;
-                     }
-                }
-
-
-            }
-            $email_notifi = sprintf(
-                esc_html__('%s notification', 'easy-form-builder'),
-                esc_html__('Email', 'easy-form-builder')
-            );
-
-            $warning =' '. sprintf(
-                esc_html__('Disabling this feature may affect the proper functionality of Easy Form Builder. If you plan to use the %s feature, please ensure it is enabled.', 'easy-form-builder'),
-                $email_notifi
-            );
-
-             $messages = [
-                'mail_function_ok' => [
-                    'title' => esc_html__('Email system is working properly.', 'easy-form-builder'),
-                    'description' => esc_html__('Your server is able to send emails using the default PHP mail system.', 'easy-form-builder'),
-                ],
-                'mail_function_missing' => [
-                    'title' => esc_html__('Email system is not available.', 'easy-form-builder'),
-                    'description' => esc_html__('The PHP mail() function is missing. Your server cannot send emails.', 'easy-form-builder') . $warning,
-                ],
-                'mail_function_disabled' => [
-                    'title' => esc_html__('Email sending is blocked by server settings.', 'easy-form-builder'),
-                    'description' => esc_html__('The mail() function is disabled in your server PHP configuration (php.ini).', 'easy-form-builder') . $warning,
-                ],
-                'wp_mail_function_missing' => [
-                    'title' => esc_html__('WordPress mail function not found.', 'easy-form-builder'),
-                    'description' => esc_html__('The wp_mail() function is missing or not available. WordPress email features may be broken.', 'easy-form-builder') . $warning,
-                ],
-                'smtp_sendmail_empty' => [
-                    'title' => esc_html__('No email handler configured.', 'easy-form-builder'),
-                    'description' => esc_html__('Your server has no SMTP host or sendmail path set. Emails may not be delivered.', 'easy-form-builder') ,
-                ],
-                'mail_function_failed' => [
-                    'title' => esc_html__('Test email could not be sent.', 'easy-form-builder'),
-                    'description' => esc_html__('It seems that your WordPress site could not send a test email. To manually test your email system, go to Easy Form Builder > Settings > Email Settings tab and click the "Check Email Server" button.', 'easy-form-builder') . $warning,
-                ],
-                'invalid_admin_email' => [
-                    'title' => esc_html__('Invalid email address.', 'easy-form-builder'),
-                    'description' => esc_html__('Please enter a valid admin email address before testing email delivery.', 'easy-form-builder'),
-                ],
-                'invalid_sender_email' => [
-                    'title' => esc_html__('Invalid sender email.', 'easy-form-builder'),
-                    'description' => esc_html__('The sender email address is not valid. Please check your email settings.', 'easy-form-builder'),
-                ],
-                'service_start_error' => [
-                    'title' => esc_html__('Email tester service error.', 'easy-form-builder'),
-                    'description' => esc_html__('Easy Form Builder could not start the email delivery test. Please try again later.', 'easy-form-builder'),
-                ],
-                'invalid_service_payload' => [
-                    'title' => esc_html__('Invalid email tester response.', 'easy-form-builder'),
-                    'description' => esc_html__('The email tester service returned an invalid response.', 'easy-form-builder'),
-                ],
-                'invalid_test_hash' => [
-                    'title' => esc_html__('Invalid email test.', 'easy-form-builder'),
-                    'description' => esc_html__('The email test identifier is invalid. Please start a new test.', 'easy-form-builder'),
-                ],
-                'service_request_error' => [
-                    'title' => esc_html__('Email tester connection error.', 'easy-form-builder'),
-                    'description' => esc_html__('Easy Form Builder could not connect to the email tester service.', 'easy-form-builder'),
-                ],
-                'invalid_json_response' => [
-                    'title' => esc_html__('Invalid email tester response.', 'easy-form-builder'),
-                    'description' => esc_html__('The email tester service returned an invalid JSON response.', 'easy-form-builder'),
-                ],
-                'service_http_error' => [
-                    'title' => esc_html__('Email tester service error.', 'easy-form-builder'),
-                    'description' => esc_html__('The email tester service could not return the result.', 'easy-form-builder'),
-                ],
-                'email_test_failed' => [
-                    'title' => esc_html__('Email delivery test failed.', 'easy-form-builder'),
-                    'description' => esc_html__('The email server test could not verify email capability.', 'easy-form-builder') . $warning,
-                ],
-                'email_test_low_score' => [
-                    'title' => esc_html__('Your emails are arriving in the spam folder.', 'easy-form-builder'),
-                    'description' => esc_html__('The test message was delivered, but its deliverability score is too low to rely on. Sending through SMTP and adding SPF and DKIM records for your domain is what fixes this.', 'easy-form-builder'),
-                ],
-                'email_test_pending' => [
-                    'title' => esc_html__('Email delivery test is pending.', 'easy-form-builder'),
-                    'description' => esc_html__('WordPress sent the test email, but delivery has not been confirmed yet.', 'easy-form-builder'),
-                ],
-            ];
-
-            $logo_url = EMSFB_PLUGIN_URL.'includes/admin/assets/image/logo.png';
-            $msg_id = isset($check['message']['id']) ? $check['message']['id'] : '';
-            $help = '<a href="https://whitestudio.team/documents/how-to-fix-email-not-working-issue#'.$msg_id.'" target="_blank" >' . esc_html__('Click here for more details','easy-form-builder') . '</a>';
-            $title = isset($messages[$msg_id]['title']) ? $messages[$msg_id]['title'] : esc_html__('Email Issue', 'easy-form-builder');
-            $description = isset($messages[$msg_id]['description']) ? $messages[$msg_id]['description'] : '';
-
-            // The status the test saved knows which of the three send stages
-            // applied - the fixed map above cannot - so its wording wins when
-            // it carries any.
-            $saved_title = isset($check['message']['title']) ? (string) $check['message']['title'] : '';
-            $saved_description = isset($check['message']['description']) ? (string) $check['message']['description'] : '';
-            if ($saved_title !== '' && $saved_description !== '') {
-                $title = $saved_title;
-                $description = $saved_description;
-            }
-            ob_start();
-            ?>
-            <div id="notice-email-efb" class="notice notice-error efb-notice-email-error notice-alt efb" style="display:flex;align-items:flex-start;gap:12px;padding:10px 20px;position:relative;z-index:1000;">
-               <button type="button" id="efb-close-notice-btn"
-            style="position:absolute;top:8px;right:8px;background:transparent;border:none;font-size:20px;cursor:pointer;"
-            aria-label="Close">&times;</button>
-                <img src="<?php echo esc_url($logo_url); ?>" alt="<?php echo esc_attr__('Easy Form Builder', 'easy-form-builder'); ?>" style="width:46px;height:auto;margin-top:4px;" />
-                <div>
-                    <p><strong><?php echo esc_html__('Easy Form Builder Email Warning:', 'easy-form-builder'); ?></strong> <?php echo esc_html($title); ?></p>
-                    <p><?php echo esc_html($description); ?></p>
-                    <p><?= $help ?></p>
-                </div>
-            </div>
-            <script>
-                var efbNotice = document.getElementById('notice-email-efb');
-                if (window.localStorage.getItem('efb_email_notice_dismissed') === 'true') {
-                    if (efbNotice) efbNotice.style.display = 'none';
-                }
-                var efbCloseBtn = document.getElementById('efb-close-notice-btn');
-
-                if (efbCloseBtn) {
-                    const page = document.querySelector('.sideMenuFEfb');
-                    if (page) {
-                        efbNotice.style.display = 'none';
-                    }
-                    efbCloseBtn.addEventListener('click', function () {
-                        var efbNotice = document.getElementById('notice-email-efb');
-                        if (efbNotice) efbNotice.style.display = 'none';
-                        window.localStorage.setItem('efb_email_notice_dismissed', 'true');
-                    });
-                }
-            </script>
-            <?php
-            $output = ob_get_clean();
-
-            echo $output;
+    /**
+     * The e-mail status notice. Every branch returned before the notice markup (the notices moved to the
+     * e-mail monitor and the Settings screen), so only the one real step stays: a site from before the
+     * status record existed, whose switch is on, gets an undated "configured" record (get_delivery_state()
+     * reports "confirmed" without a date; the dated owner record is only written by the owner's own answer).
+     */
+    public function admin_notices_efb() {
+        $check = get_option('emsfb_email_status', false);
+        get_efbFunction();
+        $settings = get_setting_Emsfb('decoded');
+        if (!is_array($check) && isset($settings->smtp) && in_array($settings->smtp, ['1', 'true', true, 1], true)) {
+            update_option('emsfb_email_status', $this->build_email_ready_status_efb());
+        }
     }
 
     public function efb_save_plan_selection() {
@@ -4611,7 +4402,7 @@ function admin_notices_efb () {
 
         $response_data = array(
             'success' => true,
-            'message' => sprintf(__('Plan "%s" has been successfully processed.', 'easy-form-builder'), $selected_plan),
+            'message' => sprintf(/* translators: %s: the plan chosen */ __('Plan "%s" has been successfully processed.', 'easy-form-builder'), $selected_plan),
             'plan' => $selected_plan,
             'action' => $action_performed,
             'redirect_url' => $redirect_url,

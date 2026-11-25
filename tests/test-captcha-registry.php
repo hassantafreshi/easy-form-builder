@@ -19,6 +19,7 @@
  * Run: php tests/test-captcha-registry.php
  */
 namespace {
+if (!function_exists('wp_parse_url')) { function wp_parse_url($u, $c = -1) { return parse_url($u, $c); } } // the plugin calls wp_parse_url() (B6, Plugin Check)
 define('ABSPATH', __DIR__ . '/');
 class WP_Error { public $c; public function __construct($c = '', $m = '') { $this->c = $c; } }
 function is_wp_error($v) { return $v instanceof WP_Error; }

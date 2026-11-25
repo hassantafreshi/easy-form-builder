@@ -499,8 +499,7 @@ class Drafts {
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
 			$ids = array_map('intval', (array) $wpdb->get_col($wpdb->prepare("SELECT id FROM `{$t}` WHERE expires_at < %s OR (status <> 'active' AND updated_at < %s) LIMIT 500", self::utc(), self::utc(-7 * 86400))));
 			if (!$ids) break;
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, ids are integers
-			$done += (int) $wpdb->query("DELETE FROM `{$t}` WHERE id IN (" . implode(',', $ids) . ')');
+			$done += (int) $wpdb->query($wpdb->prepare('DELETE FROM %i WHERE id IN (' . implode(',', array_fill(0, count($ids), '%d')) . ')', array_merge(array($t), $ids)));
 			if (count($ids) < 500) break;
 		}
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
@@ -672,8 +671,7 @@ class Drafts {
 			global $wpdb;
 			$ids = array_map(function ($d) { return (int) $d['id']; }, self::find($email));
 			if ($ids) {
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, ids are integers
-				$removed = (int) $wpdb->query('DELETE FROM `' . self::table() . '` WHERE id IN (' . implode(',', $ids) . ')') > 0;
+				$removed = (int) $wpdb->query($wpdb->prepare('DELETE FROM %i WHERE id IN (' . implode(',', array_fill(0, count($ids), '%d')) . ')', array_merge(array(self::table()), $ids))) > 0;
 			}
 			// The per-e-mail counters of F11 (lim_email) are forgotten too: "ever" and the current periods.
 			$removed = self::erase_email_counters($email) > 0 || $removed;

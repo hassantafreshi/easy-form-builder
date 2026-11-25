@@ -90,7 +90,7 @@ class Choices {
 	}
 
 	private static function plain($v, $max) {
-		$s = function_exists('sanitize_text_field') ? sanitize_text_field((string) $v) : trim(preg_replace('/\s+/u', ' ', strip_tags((string) $v)));
+		$s = function_exists('sanitize_text_field') ? sanitize_text_field((string) $v) : trim(preg_replace('/\s+/u', ' ', preg_replace('/<[^>]*>/', '', (string) $v)));
 		$s = str_replace(array('"', '<', '>'), '', $s);
 		if (function_exists('mb_strlen') && mb_strlen($s, 'UTF-8') > $max) $s = trim(mb_substr($s, 0, $max, 'UTF-8'));
 		return $s;
@@ -305,7 +305,7 @@ class Choices {
 		$max = self::int($f, 'op_other_max');
 		if ($max <= 0) $max = 200;
 		$v = isset($item['value']) && is_scalar($item['value']) ? (string) $item['value'] : '';
-		$v = function_exists('sanitize_text_field') ? sanitize_text_field($v) : trim(strip_tags($v));
+		$v = function_exists('sanitize_text_field') ? sanitize_text_field($v) : trim(preg_replace('/<[^>]*>/', '', $v));
 		if (function_exists('mb_substr')) $v = trim(mb_substr($v, 0, $max, 'UTF-8'));
 		if ($v === '') {
 			$out['m'] = self::message('otherReq', $f, $lanText);

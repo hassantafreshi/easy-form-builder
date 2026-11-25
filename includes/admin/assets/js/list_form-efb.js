@@ -4035,8 +4035,6 @@ search_comprehensive_efb =(el)=>{
           searchInfo = efb_var.text.foundResultsText
             .replace('%1$s', resultCount)
             .replace('%2$s', resultText) + `: "${searchTerm}"`;
-        } else if (efb_var.text.foundResultsFor) {
-          searchInfo = efb_var.text.foundResultsFor.replace('%s', resultCount).replace('%s', resultText).replace('%s', searchTerm);
         } else {
           searchInfo = `Found ${resultCount} ${resultText} for: "${searchTerm}"`;
         }
@@ -4432,11 +4430,6 @@ function convert_to_dataset_emsFormBuilder() {
 }
 
 function emsFormBuilder_chart(titles, colname, colvalue) {
-  let publicidofchart
-  let chartview = "<!-- charts -->";
-  let chartId = [];
-  let publicRows = [];
-  let options = {};
   let body = `
   <div class="efb  ${Number(efb_var.rtl) == 1 ? 'rtl-text' : ''}" id="overpage">
     <div id="overpage-chart">
@@ -4451,69 +4444,32 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
   if (painted) state_modal_show_efb(1);
 
   function efb_draw_charts() {
-
-    for (let t in titles) {
-      chartId.push(Math.random().toString(36).substring(8));
-      if (t != 0) {
-        chartview += ` </br> <div id="${chartId[t]}"/ class="efb ${t == 0 ? `hidden` : ``}">
-          <h1 class="efb fas fa-sync fa-spin text-primary emsFormBuilder mb-4"></h1>
-          <h3 class="efb text-white  text-center">${efb_var.text.pleaseWaiting}<h3> </div>`
-      } else { chartview += ` </br> <div id="${chartId[t]}"/ class="efb ${t == 0 ? `hidden` : ``}"></div>` }
+    const box = document.getElementById('overpage-chart');
+    if (!box) return;
+    box.innerHTML = '';
+    const rtl = Number(efb_var.rtl) == 1;
+    for (const t in titles) {
+      if (t == 0) continue; // the first row is the form's own (never charted)
+      const wrap = document.createElement('div');
+      wrap.className = 'efb mb-4';
+      wrap.style.cssText = 'position:relative;height:300px';
+      const canvas = document.createElement('canvas');
+      canvas.setAttribute('role', 'img');
+      canvas.setAttribute('aria-label', String(titles[t]));
+      wrap.appendChild(canvas);
+      box.appendChild(wrap);
+      // SEC-02: Chart.js is the plugin's own copy; without it there is no chart instead of an error.
+      if (typeof Chart === 'undefined') continue;
+      const labels = (colname[t] || []).map(String);
+      new Chart(canvas, {
+        type: 'pie',
+        data: { labels, datasets: [{ data: (colvalue[t] || []).map(Number), backgroundColor: labels.map((_, i) => colors_efb[i % colors_efb.length]) }] },
+        options: { maintainAspectRatio: false, locale: efb_var.wp_lan ? String(efb_var.wp_lan).replace('_', '-') : undefined, plugins: { title: { display: true, text: String(titles[t]) }, legend: { rtl, textDirection: rtl ? 'rtl' : 'ltr' }, tooltip: { rtl, textDirection: rtl ? 'rtl' : 'ltr' } } }
+      });
     }
-
-    document.getElementById('overpage-chart').innerHTML = chartview
-
-    let drawPieChartArr = [];
-    let rowsOfCharts = [];
-    let opetionsOfCharts = [];
-    for (let t in titles) {
-
-      opetionsOfCharts[t] = {
-        'title': titles[t],
-        'height': 300,
-        colors: colors_efb
-      };
-      const countCol = colname[t].length;
-      const rows = Array.from(Array(countCol), () => Array(2).fill(0));
-      const valj_efb_ = JSON.parse(sessionStorage.getItem("valj_efb"));
-      for (let r in colname[t]) {
-
-        rows[r][0] = colname[t][r];
-        rows[r][1] = colvalue[t][r];
-      }
-
-      rowsOfCharts[t] = rows;
-
-      // The chart library loads in the background; without it there is
-      // simply no chart instead of an error.
-      if (typeof google === 'undefined' || !google.charts) continue;
-      google.charts.load('current', { packages: ['corechart'] });
-      publicidofchart = chartId[t];
-
-      drawPieChartArr[t] = () => {
-        var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Element');
-        data.addColumn('number', 'integer');
-
-        data.addRows(rowsOfCharts[t]);
-
-        var chart = new google.visualization.PieChart(document.getElementById(chartId[t]));
-        chart.draw(data, opetionsOfCharts[t]);
-      }
-
-      try {
-
-        google.charts.setOnLoadCallback(drawPieChartArr[t]);
-      } catch (error) {
-
-      }
-
-    }
-
   }
 
 }
-
 
 
 let efbEmailServerTestTimer = null;

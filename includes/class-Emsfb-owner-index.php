@@ -171,9 +171,7 @@ class Owner_Index {
 		$ids = array_values(array_filter(array_map('intval', (array) $ids)));
 		if (!$ids || !self::ready()) return;
 		foreach (array_chunk($ids, 500) as $chunk) {
-			$in = implode(',', array_fill(0, count($chunk), '%d'));
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, placeholders built above
-			$wpdb->query($wpdb->prepare('DELETE FROM `' . self::table() . "` WHERE msg_id IN ({$in})", $chunk));
+			$wpdb->query($wpdb->prepare('DELETE FROM %i WHERE msg_id IN (' . implode(',', array_fill(0, count($chunk), '%d')) . ')', array_merge(array(self::table()), $chunk)));
 		}
 	}
 
@@ -210,9 +208,7 @@ class Owner_Index {
 		}
 		$ids = array();
 		if ($hashes && self::ready()) {
-			$in = implode(',', array_fill(0, count($hashes), '%s'));
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix, placeholders built above
-			foreach ((array) $wpdb->get_results($wpdb->prepare('SELECT msg_id, form_id, kind, verified FROM `' . self::table() . "` WHERE id_hash IN ({$in})", array_keys($hashes)), ARRAY_A) as $r) {
+			foreach ((array) $wpdb->get_results($wpdb->prepare('SELECT msg_id, form_id, kind, verified FROM %i WHERE id_hash IN (' . implode(',', array_fill(0, count($hashes), '%s')) . ')', array_merge(array(self::table()), array_keys($hashes))), ARRAY_A) as $r) {
 				if (in_array((int) $r['form_id'], $verified_forms, true) && $r['verified'] !== self::KINDS[$r['kind']]) continue;
 				$ids[(int) $r['msg_id']] = true;
 			}
@@ -231,7 +227,6 @@ class Owner_Index {
 	public static function has_entries($kind, $hash) {
 		global $wpdb;
 		if (!self::ready()) return false;
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
-		return (bool) $wpdb->get_var($wpdb->prepare('SELECT 1 FROM `' . self::table() . '` WHERE id_hash = %s AND kind = %s LIMIT 1', (string) $hash, (string) $kind));
+		return (bool) $wpdb->get_var($wpdb->prepare('SELECT 1 FROM %i WHERE id_hash = %s AND kind = %s LIMIT 1', self::table(), (string) $hash, (string) $kind));
 	}
 }

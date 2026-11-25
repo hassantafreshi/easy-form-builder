@@ -23,6 +23,8 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
+// phpcs:disable WordPress.WP.AlternativeFunctions -- a streaming writer: the sheet and the zip are written to temp files in chunks, which WP_Filesystem cannot do
+
 class Xlsx_Writer {
 
 	const MAX_COLS = 16384;

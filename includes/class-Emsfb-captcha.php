@@ -112,7 +112,7 @@ class Captcha {
 	}
 
 	public static function http_post($provider, $url, $body, array $headers = array()) {
-		$host = (string) parse_url((string) $url, PHP_URL_HOST);
+		$host = (string) wp_parse_url((string) $url, PHP_URL_HOST);
 		if (!($provider instanceof Captcha\Provider) || stripos((string) $url, 'https://') !== 0 || !in_array($host, $provider->verify_hosts(), true)) return array('ok' => false, 'code' => 'config');
 		if (is_array($body)) unset($body['remoteip']);
 		elseif (!is_string($body)) return array('ok' => false, 'code' => 'config');
@@ -126,7 +126,7 @@ class Captcha {
 	}
 
 	public static function home_host() {
-		return function_exists('home_url') ? (string) parse_url(home_url(), PHP_URL_HOST) : '';
+		return function_exists('home_url') ? (string) wp_parse_url(home_url(), PHP_URL_HOST) : '';
 	}
 
 	/** COMP-01: the loading strategy is WordPress 6.3's, the plugin's minimum. */
@@ -235,5 +235,5 @@ class Captcha {
 }
 
 function wp_strip_all_tags_efb_cp($s) {
-	return function_exists('wp_strip_all_tags') ? wp_strip_all_tags((string) $s) : trim(strip_tags((string) $s));
+	return function_exists('wp_strip_all_tags') ? wp_strip_all_tags((string) $s) : trim(preg_replace('/<[^>]*>/', '', (string) $s));
 }

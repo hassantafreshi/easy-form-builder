@@ -173,7 +173,7 @@ class Settings {
 				}
 				if ( $type === 'checkbox' ) $v = in_array( $v, array( '1', 'on', 'true' ), true ) ? '1' : '';
 				elseif ( $type === 'select' ) $v = isset( $f['options'] ) && is_array( $f['options'] ) && array_key_exists( $v, $f['options'] ) ? $v : '';
-				else $v = function_exists( 'sanitize_text_field' ) ? sanitize_text_field( $v ) : strip_tags( $v );
+				else $v = function_exists( 'sanitize_text_field' ) ? sanitize_text_field( $v ) : preg_replace('/<[^>]*>/', '',  $v );
 				if ( $v !== '' && ! empty( $f['pattern'] ) && ! @preg_match( self::pattern_re( $f['pattern'] ), $v ) ) { $refused[] = $name; continue; }
 				if ( $m === '' ) $this->data['public'][ $f['key'] ] = $v; else $this->data['public'][ $m ][ $f['key'] ] = $v;
 			}

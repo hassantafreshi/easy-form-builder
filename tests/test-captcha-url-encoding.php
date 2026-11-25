@@ -8,6 +8,7 @@
  *
  * Run: php tests/test-captcha-url-encoding.php
  */
+if (!function_exists('wp_parse_url')) { function wp_parse_url($u, $c = -1) { return parse_url($u, $c); } } // the plugin calls wp_parse_url() (B6, Plugin Check)
 
 $pass = 0;
 $fail = 0;

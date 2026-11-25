@@ -114,6 +114,7 @@ if (!defined("EMSFB_LICENSE_SERVER_URL")) {
  * itself and needs no network at all.
  */
 define("EMSFB_IR_CDN_URL", "https://cdn.easyformbuilder.ir/gh/Json-List-of-countries-states-and-cities-in-the-world/");
+// phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- only for a copy built without the bundled lists (readme: External services, development copies)
 define("EMSFB_JSDELIVR_CDN_URL", "https://cdn.jsdelivr.net/gh/hassantafreshi/Json-List-of-countries-states-and-cities-in-the-world@main/");
 
 if (!defined("CDN_ZONE_AREA")) {
@@ -154,7 +155,7 @@ function emsfb_probe_ir_cdn_status_efb() {
     return $status;
 }
 
-require 'includes/class-Emsfb.php';
+require __DIR__ . '/includes/class-Emsfb.php';
 
 $emsfb = new Emsfb();
 
@@ -215,7 +216,7 @@ function emsfb_check_file_access_efb() {
         $error_codes[] = 'VENDOR_NOT_EXIST';
     } else {
         $details['vendor_exists'] = true;
-        if (!is_writable($vendor_path)) {
+        if (!wp_is_writable($vendor_path)) {
             $status = false;
             $error_codes[] = 'VENDOR_NOT_WRITABLE';
         } else {
@@ -224,7 +225,7 @@ function emsfb_check_file_access_efb() {
     }
 
     if (!file_exists($temp_path)) {
-        if (is_writable(dirname($temp_path))) {
+        if (wp_is_writable(dirname($temp_path))) {
             $create_temp = wp_mkdir_p($temp_path);
             if (!$create_temp) {
                 $status = false;
@@ -238,7 +239,7 @@ function emsfb_check_file_access_efb() {
         }
     } else {
         $details['temp_exists'] = true;
-        if (!is_writable($temp_path)) {
+        if (!wp_is_writable($temp_path)) {
             $status = false;
             $error_codes[] = 'TEMP_NOT_WRITABLE';
         } else {
@@ -246,7 +247,7 @@ function emsfb_check_file_access_efb() {
         }
     }
 
-    if (!is_writable(EMSFB_PLUGIN_DIRECTORY)) {
+    if (!wp_is_writable(EMSFB_PLUGIN_DIRECTORY)) {
         $status = false;
         $error_codes[] = 'PLUGIN_DIR_NOT_WRITABLE';
     } else {
@@ -294,14 +295,14 @@ function emsfb_check_file_access_efb() {
                 $details['write_test'] = true;
             }
             if (emsfb_is_php_function_available_efb('unlink')) {
-                @unlink($test_file); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+                wp_delete_file($test_file);
             }
         }
     }
 
     $success_message = esc_html__('Add-on directory is ready for file operations', 'easy-form-builder');
     $error_message = sprintf(
-        esc_html__('Cannot install addons: %s', 'easy-form-builder'),
+        /* translators: %s: comma-separated error codes */ esc_html__('Cannot install addons: %s', 'easy-form-builder'),
         implode(', ', $error_codes)
     );
 

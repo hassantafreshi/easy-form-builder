@@ -242,7 +242,7 @@ t('a site without prv_* gets none added (defaults apply on read)', isset($saved[
 class PurgeDb {
 	public $prefix = 'wp_';
 	public $t = array();
-	public function prepare($q) { $a = array_slice(func_get_args(), 1); foreach ($a as $x) $q = preg_replace('/%s|%d/', is_int($x) ? (string) $x : "'" . $x . "'", $q, 1); return $q; }
+	public function prepare($q) { $a = array_slice(func_get_args(), 1); if (count($a) === 1 && is_array($a[0])) $a = $a[0]; foreach ($a as $x) $q = preg_replace_callback('/%[sdi]/', function ($m) use ($x) { return $m[0] === '%i' ? '`' . $x . '`' : (is_int($x) ? (string) $x : "'" . $x . "'"); }, $q, 1); return $q; }
 	public function get_col($q) {
 		if (preg_match("/SELECT `(\w+)` FROM `wp_(\w+)` WHERE `(\w+)` <> '' LIMIT (\d+)/", $q, $m)) {
 			$out = array(); foreach ($this->t[$m[2]] as $id => $r) { if ($r[$m[3]] !== '') $out[] = $id; if (count($out) >= (int) $m[4]) break; } return $out;

@@ -344,7 +344,7 @@ class Store {
 		$in = implode( ',', array_fill( 0, count( $from ), '%s' ) );
 		$args[] = (int) $id;
 		$args = array_merge( $args, $from );
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders -- table from $wpdb->prefix; columns from the WRITABLE allow-list
+		// phpcs:ignore WordPress.DB.PreparedSQL,WordPress.DB.PreparedSQLPlaceholders -- table from $wpdb->prefix; columns from the WRITABLE allow-list
 		$n = $wpdb->query( $wpdb->prepare( "UPDATE `{$t}` SET " . implode( ', ', $set ) . " WHERE id = %d AND status IN ({$in})", $args ) );
 		return (int) $n === 1;
 	}
@@ -380,7 +380,7 @@ class Store {
 		$cols = array_keys( $row );
 		$ph = array();
 		foreach ( $row as $v ) $ph[] = is_int( $v ) ? '%d' : '%s';
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix; columns from event_row()
+		// phpcs:ignore WordPress.DB.PreparedSQL -- table from $wpdb->prefix; columns and placeholders from event_row()
 		$n = $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO `{$t}` (`" . implode( '`,`', $cols ) . '`) VALUES (' . implode( ',', $ph ) . ')', array_values( $row ) ) );
 		return (int) $n === 1;
 	}
@@ -514,8 +514,8 @@ class Store {
 	public static function search( array $f ) {
 		global $wpdb;
 		$t = self::table( 'emsfb_pmt_' );
-		$where = array( '1=1' );
-		$args = array();
+		$where = array( '1=%d' );
+		$args = array( 1 );
 		if ( ! empty( $f['gateway'] ) ) { $where[] = 'gateway = %s'; $args[] = (string) $f['gateway']; }
 		if ( ! empty( $f['status'] ) && in_array( $f['status'], self::STATUSES, true ) ) { $where[] = 'status = %s'; $args[] = $f['status']; }
 		if ( ! empty( $f['mode'] ) && in_array( $f['mode'], array( 'test', 'live' ), true ) ) { $where[] = 'mode = %s'; $args[] = $f['mode']; }
@@ -531,8 +531,7 @@ class Store {
 		$page = max( 1, isset( $f['page'] ) ? (int) $f['page'] : 1 );
 		$w = implode( ' AND ', $where );
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix; clauses built above with placeholders
-		$count_sql = "SELECT COUNT(*) FROM `{$t}` WHERE {$w}";
-		$total = (int) $wpdb->get_var( $args ? $wpdb->prepare( $count_sql, $args ) : $count_sql );
+		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM `{$t}` WHERE {$w}", $args ) );
 		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `{$t}` WHERE {$w} ORDER BY id DESC LIMIT %d OFFSET %d", array_merge( $args, array( $per, ( $page - 1 ) * $per ) ) ), ARRAY_A );
 		// phpcs:enable
 		return array( 'rows' => array_map( array( __CLASS__, 'cast' ), (array) $rows ), 'total' => $total, 'page' => $page, 'per_page' => $per );

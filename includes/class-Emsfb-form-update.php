@@ -409,7 +409,7 @@ class Form_Update {
 		$a = self::apply($f['rows'], $patches, $name);
 		if (!is_array($a) || isset($a['error'])) return $a;
 		list($rows, $name, $changed, $form_changed) = $a;
-		$name = function_exists('sanitize_text_field') ? sanitize_text_field($name) : trim(strip_tags($name));
+		$name = function_exists('sanitize_text_field') ? sanitize_text_field($name) : trim(preg_replace('/<[^>]*>/', '', $name));
 		$name = function_exists('mb_substr') ? mb_substr($name, 0, 250) : substr($name, 0, 250);
 		$g = self::gate($f['rows'], $rows);
 		if ($g) return $g;

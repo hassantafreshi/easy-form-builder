@@ -5,6 +5,7 @@
  * the add-on folder (core's vendor/<dir>, else ../vendores-efb/<dir>). Used by tests/addons/test-*-provider.php.
  */
 namespace {
+if (!function_exists('wp_parse_url')) { function wp_parse_url($u, $c = -1) { return parse_url($u, $c); } } // the plugin calls wp_parse_url() (B6, Plugin Check)
 if (!defined('ABSPATH')) define('ABSPATH', __DIR__ . '/');
 class WP_Error { public $c; public function __construct($c = '', $m = '') { $this->c = $c; } public function get_error_code() { return $this->c; } }
 $GLOBALS['T'] = array('calls' => array(), 'reply' => null, 'filters' => array(), 'settings' => array(), 'options' => array(), 'transients' => array(), 'actions' => array(), 'routes' => array());

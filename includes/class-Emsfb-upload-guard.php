@@ -465,6 +465,7 @@ class Upload_Guard {
             return true;
         }
 
+        // phpcs:disable WordPress.WP.AlternativeFunctions -- reads the uploaded file in 1 MB chunks (it can be large) to find PHP code
         $handle = @fopen($path, 'rb');
         if (!$handle) {
             return false;
@@ -512,6 +513,7 @@ class Upload_Guard {
 
         fclose($handle);
         return true;
+        // phpcs:enable
     }
 
     /**

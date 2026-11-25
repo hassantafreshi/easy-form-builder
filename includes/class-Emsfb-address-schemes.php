@@ -595,7 +595,7 @@ class Address_Schemes {
 
 	private static function rid() {
 		$c = 'abcdefghijklmnopqrstuvwxyz0123456789'; $id = '';
-		for ($i = 0; $i < 9; $i++) $id .= $c[function_exists('random_int') ? random_int(0, 35) : mt_rand(0, 35)];
+		for ($i = 0; $i < 9; $i++) $id .= $c[random_int(0, 35)];
 		return $id;
 	}
 

@@ -441,7 +441,7 @@ class Privacy {
 			if (!isset($server[$k]) || !is_scalar($server[$k])) return '';
 			$v = (string) $server[$k];
 			if (function_exists('wp_unslash')) $v = wp_unslash($v);
-			return function_exists('sanitize_text_field') ? sanitize_text_field($v) : trim(strip_tags($v));
+			return function_exists('sanitize_text_field') ? sanitize_text_field($v) : trim(preg_replace('/<[^>]*>/', '', $v));
 		};
 		$remote = self::clean_ip($get('REMOTE_ADDR'));
 		if ($remote !== '' && self::is_trusted_proxy($remote)) {
@@ -501,8 +501,8 @@ class Privacy {
 						$ids = array_map('intval', $ids);
 						$set = "`{$col}` = ''";
 						if ($short === 'emsfb_stts_') $set .= ", `os` = '', `browser` = ''";
-						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- ids are integers
-						$n = $wpdb->query("UPDATE `{$table}` SET {$set} WHERE `{$pk}` IN (" . implode(',', $ids) . ')');
+						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $set: columns from the literal list above
+						$n = $wpdb->query($wpdb->prepare("UPDATE %i SET {$set} WHERE %i IN (" . implode(',', array_fill(0, count($ids), '%d')) . ')', array_merge(array($table, $pk), $ids)));
 						if ($n === false) break;
 						$changed += count($ids);
 						if (count($ids) < $batch) break;
@@ -1031,16 +1031,11 @@ class Privacy {
 		$uid = $user && isset($user->ID) ? (int) $user->ID : 0;
 		$msg = $wpdb->prefix . 'emsfb_msg_';
 		$like = '%' . $wpdb->esc_like($email) . '%';
-		$cols = 'msg_id, form_id, form_title_x, track, ip, date, content, read_';
 		if (self::schema_ready()) {
-			$cols .= ', uid, prv_state';
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
-			$sql = $wpdb->prepare("SELECT {$cols} FROM `{$msg}` WHERE msg_id > %d AND (content LIKE %s OR (uid > 0 AND uid = %d)) ORDER BY msg_id ASC LIMIT %d", (int) $after_id, $like, $uid, (int) $limit);
+			$candidates = (array) $wpdb->get_results($wpdb->prepare('SELECT msg_id, form_id, form_title_x, track, ip, date, content, read_, uid, prv_state FROM %i WHERE msg_id > %d AND (content LIKE %s OR (uid > 0 AND uid = %d)) ORDER BY msg_id ASC LIMIT %d', $msg, (int) $after_id, $like, $uid, (int) $limit), ARRAY_A);
 		} else {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
-			$sql = $wpdb->prepare("SELECT {$cols} FROM `{$msg}` WHERE msg_id > %d AND content LIKE %s ORDER BY msg_id ASC LIMIT %d", (int) $after_id, $like, (int) $limit);
+			$candidates = (array) $wpdb->get_results($wpdb->prepare('SELECT msg_id, form_id, form_title_x, track, ip, date, content, read_ FROM %i WHERE msg_id > %d AND content LIKE %s ORDER BY msg_id ASC LIMIT %d', $msg, (int) $after_id, $like, (int) $limit), ARRAY_A);
 		}
-		$candidates = (array) $wpdb->get_results($sql, ARRAY_A);
 		$found = array();
 		$last = (int) $after_id;
 		foreach ($candidates as $c) {

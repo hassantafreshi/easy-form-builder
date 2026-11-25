@@ -5,6 +5,7 @@
  * send_email_state_new() through a fake efbFunction that runs the phpmailer_init hooks on a fake PHPMailer), and
  * the clock of Renewal_Reminder. Several "sites" (multisite) are separate option tables: efb_rt_site($n).
  */
+if (!function_exists('wp_parse_url')) { function wp_parse_url($u, $c = -1) { return parse_url($u, $c); } } // the plugin calls wp_parse_url() (B6, Plugin Check)
 
 if (!defined('ABSPATH')) define('ABSPATH', __DIR__ . '/');
 if (!defined('DAY_IN_SECONDS')) define('DAY_IN_SECONDS', 86400);

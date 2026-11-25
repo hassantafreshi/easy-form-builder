@@ -326,7 +326,6 @@ class Lifecycle {
 				'posts_per_page'   => self::BATCH,
 				'fields'           => 'ids',
 				'no_found_rows'    => true,
-				'suppress_filters' => true,
 				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- uninstall, once
 				'meta_key'         => '_efb_form_id',
 			));

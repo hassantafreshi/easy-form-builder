@@ -313,7 +313,7 @@ class Smart_Tags {
 				if (!in_array($arg, self::ARGS[$ns], true)) return null;
 				$o = isset($ctx[$ns]) && is_array($ctx[$ns]) ? $ctx[$ns] : array();
 				if ($ns === 'page' && $arg === 'path' && !isset($o['path']) && isset($o['url'])) {
-					$path = parse_url((string) $o['url'], PHP_URL_PATH);
+					$path = wp_parse_url((string) $o['url'], PHP_URL_PATH);
 					return is_string($path) ? $path : null;
 				}
 				return isset($o[$arg]) && is_scalar($o[$arg]) ? (string) $o[$arg] : null;
@@ -504,8 +504,8 @@ class Smart_Tags {
 		}
 		$rest_out = self::resolve($rest, $ctx, 'url_query', $where, array('legacy_drop' => true));
 		$url = self::esc_url_raw($head . $path_out . $rest_out);
-		$want = parse_url(self::esc_url_raw($static), PHP_URL_HOST);
-		$got = parse_url($url, PHP_URL_HOST);
+		$want = wp_parse_url(self::esc_url_raw($static), PHP_URL_HOST);
+		$got = wp_parse_url($url, PHP_URL_HOST);
 		if ($url === '' || strtolower((string) $want) !== strtolower((string) $got)) return self::esc_url_raw($static);
 		return $url;
 	}
@@ -707,7 +707,7 @@ class Smart_Tags {
 		$url = isset($req['url']) && is_string($req['url']) ? $req['url'] : '';
 		if ($url !== '' && self::http_url($url)) {
 			$page['url'] = $url;
-			$p = parse_url($url, PHP_URL_PATH);
+			$p = wp_parse_url($url, PHP_URL_PATH);
 			$page['path'] = is_string($p) ? $p : '/';
 		}
 		$post = array('id' => '', 'title' => '', 'url' => '', 'type' => '');
@@ -875,7 +875,7 @@ class Smart_Tags {
 		$c['ref'] = ''; // the landing referrer exists in the browser only
 		$v = self::clean_value(self::resolve($tpl, $c, 'text', 'hidden'));
 		if ($cls !== 'client' || $posted === null || !is_scalar($posted)) return $v;
-		$p = self::clean_value(function_exists('sanitize_text_field') ? sanitize_text_field((string) $posted) : trim(strip_tags((string) $posted)));
+		$p = self::clean_value(function_exists('sanitize_text_field') ? sanitize_text_field((string) $posted) : trim(preg_replace('/<[^>]*>/', '', (string) $posted)));
 		if ($p === '') return $v;
 		$tags = self::tags($tpl);
 		$from_request = false;

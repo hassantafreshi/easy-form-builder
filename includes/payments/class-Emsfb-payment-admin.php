@@ -573,7 +573,7 @@ class Admin {
 		if ( $do === 'recheck' ) {
 			$r = Service::refresh( $p, 'admin' );
 			$now = Store::get( $p['id'] );
-			if ( ! $r['ok'] ) wp_send_json_error( array( 'm' => sprintf( __( 'The gateway could not be reached (%s).', 'easy-form-builder' ), $r['error'] ) ) );
+			if ( ! $r['ok'] ) wp_send_json_error( array( 'm' => sprintf( /* translators: %s: the error the payment service gave */ __( 'The gateway could not be reached (%s).', 'easy-form-builder' ), $r['error'] ) ) );
 			wp_send_json_success( array( 'm' => self::status_label( $now['status'] ), 'status' => $now['status'] ) );
 		}
 		if ( $do === 'refund' ) {
@@ -614,8 +614,7 @@ class Admin {
 	}
 
 	private static function script() {
-		$ajax = esc_url( admin_url( 'admin-ajax.php' ) );
-		echo '<script>(function(){var root=document.getElementById("efbPayAdmin");if(!root)return;'
+		wp_print_inline_script_tag( '(function(){var root=document.getElementById("efbPayAdmin");if(!root)return;'
 			. 'root.addEventListener("change",function(e){var r=e.target;if(r&&r.getAttribute&&r.getAttribute("data-efb-live")&&r.checked&&!window.confirm(r.getAttribute("data-efb-live"))){var t=r.form.querySelector(\'input[name="mode"][value="test"]\');if(t)t.checked=true;}});'
 			. 'root.addEventListener("click",function(e){var b=e.target.closest("[data-efb-pay]");if(!b)return;var box=b.closest(".efb-pay-actions")||b.closest("p");var msg=box?box.querySelector(".efb-pay-msg"):null;var d=new FormData();d.append("action","efb_pay_action");d.append("do",b.getAttribute("data-efb-pay"));'
 			. 'var a=b.closest(".efb-pay-actions");d.append("nonce",(a&&a.getAttribute("data-nonce"))||b.getAttribute("data-nonce")||"");if(a)d.append("id",a.getAttribute("data-id"));if(b.getAttribute("data-gateway")){d.append("gateway",b.getAttribute("data-gateway"));d.append("mode",b.getAttribute("data-mode"));}'
@@ -623,6 +622,6 @@ class Admin {
 			. 'if(act==="refund"){var amt=document.getElementById("efbPayRefundAmt");var v=amt?amt.value:"";if(!window.confirm(b.getAttribute("data-confirm").replace("%1$s",v+" "+b.getAttribute("data-currency"))))return;d.append("amount",v);}'
 			. 'if(act==="mark_refunded"){var ea=document.getElementById("efbPayExtAmt"),er=document.getElementById("efbPayExtReason");var ev=ea?ea.value:"";if(er&&!er.value.trim()){er.focus();if(er.reportValidity)er.reportValidity();return;}if(!window.confirm(b.getAttribute("data-confirm").replace("%1$s",ev+" "+b.getAttribute("data-currency"))))return;d.append("amount",ev);d.append("reason",er?er.value:"");}'
 			. 'if(act==="refund_settle"){if(!window.confirm(b.getAttribute("data-confirm")))return;d.append("refund",b.getAttribute("data-refund"));d.append("to",b.getAttribute("data-to"));}'
-			. 'b.disabled=true;fetch("' . $ajax . '",{method:"POST",credentials:"same-origin",body:d}).then(function(r){return r.json();}).then(function(j){b.disabled=false;if(msg)msg.textContent=(j&&j.data&&j.data.m)||"";if(j&&j.success&&act!=="test_connection"&&act!=="gateway_action")setTimeout(function(){location.reload();},700);}).catch(function(){b.disabled=false;});});})();</script>';
+			. 'b.disabled=true;fetch(' . wp_json_encode( admin_url( 'admin-ajax.php' ) ) . ',{method:"POST",credentials:"same-origin",body:d}).then(function(r){return r.json();}).then(function(j){b.disabled=false;if(msg)msg.textContent=(j&&j.data&&j.data.m)||"";if(j&&j.success&&act!=="test_connection"&&act!=="gateway_action")setTimeout(function(){location.reload();},700);}).catch(function(){b.disabled=false;});});})();' );
 	}
 }

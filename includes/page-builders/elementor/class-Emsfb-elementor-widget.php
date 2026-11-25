@@ -175,7 +175,7 @@ class Emsfb_Elementor_Widget extends Widget_Base {
 
             if ($is_edit_mode) {
 
-                echo $this->render_editor_placeholder();
+                echo wp_kses_post($this->render_editor_placeholder());
             }
             return;
         }
@@ -193,7 +193,7 @@ class Emsfb_Elementor_Widget extends Widget_Base {
         }
 
         if (class_exists('Emsfb_Widgets_Helper')) {
-            echo Emsfb_Widgets_Helper::render_form($form_id);
+            echo do_shortcode(Emsfb_Widgets_Helper::generate_shortcode($form_id));
         } else {
 
             $shortcode = $form_id === 'tracking'

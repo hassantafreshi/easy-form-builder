@@ -107,7 +107,9 @@ t('the scan found the hosts the plugin calls (Google, jsDelivr, WhiteStudio, the
 $missing = array();
 foreach ($hosts as $h => $from) if (stripos($ext, $h) === false) $missing[] = "$h ($from)";
 t('External services names every host (' . count($hosts) . ')', !$missing, implode(', ', $missing));
-foreach (array('reCAPTCHA', 'Google Charts', 'Google Fonts', 'jsDelivr', 'font', 'add-on server', 'license server', 'e-mail test', 'language packs', 'Akismet', 'Webhook', 'Add-ons') as $w) {
+// B6: the Panel's entry charts use the bundled Chart.js (class-Emsfb-panel.php), so Google Charts is neither loaded nor listed.
+t('the Panel loads no Google Charts, and External services no longer lists it', strpos((string) file_get_contents(__DIR__ . '/../includes/admin/class-Emsfb-panel.php'), 'gstatic.com/charts') === false && stripos($ext, 'Google Charts') === false);
+foreach (array('reCAPTCHA', 'Google Fonts', 'jsDelivr', 'font', 'add-on server', 'license server', 'e-mail test', 'language packs', 'Akismet', 'Webhook', 'Add-ons') as $w) {
 	t("External services covers: $w", stripos($ext, $w) !== false);
 }
 foreach (array('https://policies.google.com/privacy', 'https://www.jsdelivr.com/terms/privacy-policy', 'https://whitestudio.team/privacy-policy-terms/', 'https://wordpress.org/about/privacy/', 'https://akismet.com/tos/') as $u) {
