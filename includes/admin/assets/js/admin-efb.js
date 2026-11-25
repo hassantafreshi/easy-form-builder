@@ -2572,20 +2572,13 @@ let change_el_edit_Efb = (el) => {
   // F12b: the options of the form's CAPTCHA service (cp_*, rc3_action, rc3_fallback; spam-builder-efb.js).
   if (el.id && el.id.indexOf('cpOpt_') === 0) { if (typeof efbSpamBuilderChange === 'function') efbSpamBuilderChange(el); return; }
 
-  if (lenV > 20) {
-    timeout = 5;
-    const p = calPLenEfb(lenV) / 2
-    if (el.dataset.tag == "multiselect" || el.dataset.tag == "payMultiselect") timeout = 100;
-    lenV = (lenV * (Math.log(lenV)) * p);
-    setTimeout(() => {
-      document.getElementById("overlay_efb").classList.remove("d-none")
-      document.getElementById("overlay_efb").classList.add("d-block")
-      setTimeout(() => {
-        document.getElementById("overlay_efb").classList.remove("d-block")
-      }, lenV);
-      clearTimeout(lenV);
-    }, timeout);
-    clearTimeout(timeout);
+  /* BUG-03 (BUGS-FOUND 108): the edit is applied after EFB_EDIT_DELAY_EFB(valj_efb.length) ms, at most 150 (it was
+     valj_efb.length × 6, about 2 s on a form with a country list, and a "busy" overlay stayed up to 1.5 s more). On
+     a long form the overlay covers exactly that wait and goes when the edit is applied. */
+  const overlayEfb = lenV > 20 ? document.getElementById("overlay_efb") : null;
+  if (overlayEfb) {
+    overlayEfb.classList.remove("d-none");
+    overlayEfb.classList.add("d-block");
   }
 
   let postId = el.dataset.id.includes('step-') ? el.dataset.id.slice(5) : el.dataset.id
@@ -2597,7 +2590,7 @@ let change_el_edit_Efb = (el) => {
 
   let clss = ''
   let c, color;
-  setTimeout(async() => {
+  const applyEditEfb = async() => {
 
     if(el.hasAttribute('value') && el.id!="htmlCodeEl" && el.id!="maskCustomEl"){
 
@@ -4564,8 +4557,16 @@ let change_el_edit_Efb = (el) => {
       break;
     }
 
-  }, len_Valj * 6)
+  };
+  setTimeout(async () => {
+    try { await applyEditEfb(); } finally { if (overlayEfb) overlayEfb.classList.remove("d-block"); }
+  }, EFB_EDIT_DELAY_EFB(len_Valj));
 
+}
+/* BUG-03 (BUGS-FOUND 108): how long change_el_edit_Efb() waits before it applies a panel edit: the length of the form
+   × 6 ms as before for a short form, never more than 150 ms (a country list made it about 2 s). */
+function EFB_EDIT_DELAY_EFB(len) {
+  return Math.min(150, Math.max(0, Number(len) || 0) * 6);
 }
 
 function wating_sort_complate_efb(t) {

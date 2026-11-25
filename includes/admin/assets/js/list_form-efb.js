@@ -594,6 +594,15 @@ function getContentPreview_efb(contentStr) {
   }
 }
 
+/* BUG-03 (BUGS-FOUND 389): an entry's date in the list as the entries screen shows it: the site's date and time format
+   (date_display from the server; the stored date when there is none) in the site's digits. Escaped. */
+function efb_list_date_efb(v) {
+  const raw = v && (v.date_display || v.date) ? String(v.date_display || v.date) : '';
+  const l = String((typeof efb_var !== 'undefined' && (efb_var.wp_lan || efb_var.language)) || 'en_US');
+  const sc = /^(fa|ps|ckb)/.test(l) ? 0x06F0 : (/^ar(?!y)/.test(l) ? 0x0660 : 0);
+  const d = sc ? raw.replace(/[0-9]/g, (x) => String.fromCharCode(sc + Number(x))) : raw;
+  return d.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
 function fun_ws_show_list_messages(value) {
 
   let rows = '';
@@ -671,7 +680,7 @@ function fun_ws_show_list_messages(value) {
              </button>
            </span>
          </th>
-           <td class="efb ${$txtColor} ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" data-label="${efb_var.text.ddate}">${v.date}</td>
+           <td class="efb ${$txtColor} ec-efb" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" data-label="${efb_var.text.ddate}"><bdi>${efb_list_date_efb(v)}</bdi></td>
             <td class="efb efb-actions-cell" data-label="${efb_var.text.actions}">
               <div class="efb-actions-group">
                 <button type="button" class="efb efb-act-btn efb-act-open ec-efb ${Number(state) != 1 && Number(state) != 4 ? 'efb-has-badge' : ''}" id="btn-m-${v.msg_id}" data-eventform="openMessage" data-msgid="${v.msg_id}" data-msgstate="${state}" data-efb-tip="${Number(state) != 1 && Number(state) != 4 ? efb_var.text.newResponse : efb_var.text.read}" aria-label="${Number(state) != 1 && Number(state) != 4 ? efb_var.text.newResponse : efb_var.text.read}">
@@ -1506,7 +1515,10 @@ function fun_show_setting__emsFormBuilder() {
 
   Object.entries(text).forEach(([key, value]) => {
     state = key == "easyFormBuilder" ? "d-none" : "d-block";
-    if (key != "forbiddenChr") textList += `<input type="text"  id="${key}"  class="efb sen w-75 sen-validate-efb ${state} form-control text-muted efb  border-d efb-rounded h-d-efb  m-2"  placeholder="${value}" id="labelEl" required value="${value ? value : ''}" data-tab="${efb_var.text.localization}">`
+    // BUG-03 (BUGS-FOUND 301): the id is prefixed (efbLoc_<key>); a bare phrase key as id collided with other ids of
+    // the settings screen (vrfWebOtp …) and the input carried a second id="labelEl". The key is in data-key.
+    const locVal = String(value == null ? '' : value).replace(/"/g, '&quot;');
+    if (key != "forbiddenChr") textList += `<input type="text" id="efbLoc_${key}" data-key="${key}" class="efb sen w-75 sen-validate-efb ${state} form-control text-muted efb  border-d efb-rounded h-d-efb  m-2" placeholder="${locVal}" aria-label="${locVal}" required value="${locVal}" data-tab="${efb_var.text.localization}">`
   });
   const mxCSize = !mobile_view_efb ? 'mx-5' : 'mx-1';
   const mxCSize4 = !mobile_view_efb ? 'mx-4' : 'mx-1';
@@ -2009,7 +2021,7 @@ function fun_show_setting__emsFormBuilder() {
         el.className = colorBorderChangerEfb(el.className, "border-danger")
         fun_switch_saveSetting(true, el.id);
       } else {
-        text[el.id] = el.value;
+        text[el.dataset.key || el.id] = el.value;
         el.className = colorBorderChangerEfb(el.className, "border-d")
         fun_switch_saveSetting(false, el.id);
       }

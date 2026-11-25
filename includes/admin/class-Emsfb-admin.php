@@ -2228,6 +2228,16 @@ class Admin {
         $id = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
 
         $value = $this->db->get_results($this->db->prepare("SELECT * FROM `$table_name` WHERE track = %s", $id));
+        // BUG-03 (BUGS-FOUND 389): the list shows the date the way the entries screen does (Entries::display_date(),
+        // the site's date and time format); `date` stays as stored (sorting, the CSV).
+        $date_display_efb = static function ($rows) {
+            if (!class_exists('\Emsfb\Entries')) return $rows;
+            foreach ((array) $rows as $row) {
+                if (is_object($row) && isset($row->date)) $row->date_display = \Emsfb\Entries::display_date((string) $row->date);
+            }
+            return $rows;
+        };
+        $value = $date_display_efb($value);
 
         if (count($value) > 0) {
             $code = 'efb'. $value[0]->msg_id;
@@ -2251,9 +2261,11 @@ class Admin {
                 $search_term
             );
 
-            $combined_sql = "($sql_msg) UNION ($sql_rsp) ORDER BY date DESC";
+            // No parentheses around the two SELECTs: the same query for MySQL, and the SQLite integration (WordPress
+            // Playground) refused the parenthesized form, so a partial search answered "Not found" there.
+            $combined_sql = "$sql_msg UNION $sql_rsp ORDER BY date DESC";
 
-            $value = $this->db->get_results($combined_sql);
+            $value = $date_display_efb($this->db->get_results($combined_sql));
 
             if(count($value) > 0){
                 $code = 'efb'. $value[0]->msg_id;
