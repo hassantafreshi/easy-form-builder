@@ -237,6 +237,14 @@ module.exports = function (S) {
       await go(a, PANEL);
       const np = await notice(a);
       R.check('f21-e: the plugin\'s panel: the same "paused" notice', !!np && np.stage === 't0' && np.title === 'Pro features are paused on this site', np && np.title);
+      // QA1-013 (FX-ADMIN): a lapsed Pro site is not a first run: no plan picker (it covered every screen and hid the
+      // card) and no first-run e-mail step, on the panel and on Create.
+      await sleep(1500);
+      const pick1 = await a.evaluate(() => !!document.getElementById('efb-setup-overlay'));
+      await go(a, CFG.base + '/wp-admin/admin.php?page=Emsfb_create');
+      await sleep(1500);
+      const pick2 = await a.evaluate(() => ({ overlay: !!document.getElementById('efb-setup-overlay'), pt: efb_var.setting && efb_var.setting.package_type }));
+      R.check('f21-e (QA1-013): no first-run plan picker over the panel or Create while Pro is paused', !pick1 && !pick2.overlay, { panel: pick1, create: pick2 });
       await go(a, CFG.base + '/wp-admin/admin.php?page=Emsfb_create');
       await a.waitForSelector('.efb-renew-card', { timeout: 20000 }).catch(() => null);
       const card = await a.evaluate(() => { const c = document.querySelector('.efb-renew-card'); return c ? { text: c.textContent.replace(/\s+/g, ' ').trim(), href: (c.querySelector('a.alert-link') || {}).href, rel: (c.querySelector('a.alert-link') || { getAttribute: () => '' }).getAttribute('rel'), check: !!c.querySelector('[data-efb-renew="check"]'), html: c.outerHTML } : null; });

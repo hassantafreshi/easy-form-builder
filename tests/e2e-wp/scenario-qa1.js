@@ -17,6 +17,8 @@
  *                sheet of the screen's width (8 px gutters) and the answers are not a small box scrolling inside it.
  *                QA1-028: the forms list, the entries list and the viewer write dates in the site's digits through one
  *                formatter (the viewer showed Latin digits).
+ *  qa1-upgrade   FR re-show: a site updated from 4.3.1 whose plan was chosen and whose first-run e-mail check was still
+ *                "pending" sees neither the plan picker nor the e-mail check again: the update ends the first-run guide.
  */
 'use strict';
 
@@ -240,6 +242,33 @@ module.exports = function (S) {
       }
     } finally {
       try { ctl('f12-delete-form', String(F.form_id)); } catch (e) { /* ignore */ }
+    }
+  });
+
+  /* ================================================================== qa1-upgrade */
+  scenario('qa1-upgrade', 'FR re-show: a site updated from 4.3.1 (plan chosen, e-mail check pending) sees no first-run guide again', async ({ adminPage }) => {
+    const opt = (k) => { try { return wp('option', 'get', k).trim(); } catch (e) { return ''; } };
+    const before = { v: opt('emsfb_version'), pend: opt('emsfb_onboarding_pending'), init: opt('emsfb_onboarding_initial_install') };
+    try {
+      ctl('plan', '3');
+      wp('option', 'update', 'emsfb_version', '4.3.1');
+      wp('option', 'update', 'emsfb_onboarding_pending', '1');
+      wp('option', 'update', 'emsfb_onboarding_initial_install', '1');
+      const a = await adminPage({ viewport: { width: 1280, height: 900 } }, 'qa1-upgrade');
+      await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+      await sleep(2000);
+      // The first admin load runs the update; the next screen is what the owner sees from then on.
+      await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_create', { waitUntil: 'load' });
+      await sleep(2000);
+      const seen = await a.evaluate(() => ({ overlay: !!document.getElementById('efb-setup-overlay'), pending: efb_var.onboarding_pending }));
+      const after = { v: opt('emsfb_version'), pend: opt('emsfb_onboarding_pending') };
+      R.check('qa1-upgrade (FR): after the update from 4.3.1 the first-run guide is over: no plan picker, no e-mail check, the pending flag cleared', !seen.overlay && !seen.pending && after.pend === '0' && after.v !== '4.3.1', { seen, after });
+      await a.screenshot({ path: SHOT('qa1-upgrade-create-en-1280') });
+      await a.context().close();
+    } finally {
+      if (before.v) wp('option', 'update', 'emsfb_version', before.v);
+      if (before.pend !== '') wp('option', 'update', 'emsfb_onboarding_pending', before.pend);
+      if (before.init !== '') wp('option', 'update', 'emsfb_onboarding_initial_install', before.init); else { try { wp('option', 'delete', 'emsfb_onboarding_initial_install'); } catch (e) { /* ignore */ } }
     }
   });
 };

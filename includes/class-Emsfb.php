@@ -2111,6 +2111,8 @@ class Emsfb {
         update_option('emsfb_addons_reinstall_required', time());
         // QA4-009: the rating invitation keeps quiet for a few days after an update (Review_Request::busy_with_update_efb()).
         update_option('emsfb_updated_at', time(), false);
+        // FR (4.3.2): an update is not a first run: the first-run e-mail check of an earlier version is over.
+        if ($old_version !== '0.0.0' && version_compare($old_version, '4.3.2', '<')) update_option('emsfb_onboarding_pending', 0, false);
         // A new release is a new situation: let the first page load retry at once
         // instead of waiting out a backoff left by a failure on the old version.
         delete_transient('emsfb_addons_dl_backoff');

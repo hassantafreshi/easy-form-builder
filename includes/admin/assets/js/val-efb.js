@@ -6171,7 +6171,9 @@ function handleOverlayEscape_efb(event) {
 
 document.addEventListener('DOMContentLoaded', function() {
     const getPlan = getSelectedPlan_efb();
-    const onboardingPending = typeof efb_var !== 'undefined' && efb_onboarding_is_pending_efb(efb_var.onboarding_pending);
+    // QA1-013: a lapsed Pro site (noti_exp_efb: "Pro features are paused … Renew Pro") is not a first run.
+    const lapsed = typeof noti_exp_efb === 'string' && noti_exp_efb !== '' && noti_exp_efb !== 'null';
+    const onboardingPending = !lapsed && typeof efb_var !== 'undefined' && efb_onboarding_is_pending_efb(efb_var.onboarding_pending);
     if (onboardingPending && getPlan && getPlan.selected_plan !== 'null') {
       setTimeout(() => {
         try {
@@ -6179,7 +6181,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
         }
       }, 500);
-    } else if (getPlan && getPlan.selected_plan === 'null' && !efb_setup_snoozed_efb()) {
+    } else if (!lapsed && getPlan && getPlan.selected_plan === 'null' && !efb_setup_snoozed_efb()) {
       setTimeout(() => {
         try {
           showSetupAsOverlayPage({ onboarding: onboardingPending });
