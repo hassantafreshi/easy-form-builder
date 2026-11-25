@@ -4,8 +4,8 @@
     "plugin_version": "4.3.2",
     "updated": "2026-11-25",
     "counts": {
-        "active": 4264,
-        "obsolete": 512
+        "active": 4485,
+        "obsolete": 521
     },
     "entries": [
         {
@@ -3603,6 +3603,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Accepted formats: PDF, DOC, DOCX",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: help text under a field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Access and limits",
             "context": null,
             "plural": null,
@@ -4565,8 +4580,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Add-ons included",
@@ -4580,8 +4595,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Add-ons restored successfully",
@@ -4662,8 +4677,9 @@
             "msgid": "Address",
             "context": null,
             "plural": null,
-            "translators": "F16 form builder: group in the \"Browser autofill\" list",
+            "translators": "ready-made form template: a field label translators: F16 form builder: group in the \"Browser autofill\" list",
             "files": [
+                "includes/admin/template-phrases-efb.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -4826,6 +4842,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Ads Video",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Advance",
             "context": null,
             "plural": null,
@@ -4886,6 +4917,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Advanced fields and features at no cost, with a small credit link on your forms.",
+            "context": null,
+            "plural": null,
+            "translators": "FR-01: first-run plan chooser, the Free Plus plan in one sentence",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Advanced fields in this form",
             "context": null,
             "plural": null,
@@ -4927,8 +4973,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Afghan mobile",
@@ -5077,6 +5123,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Agreement",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -6180,6 +6241,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Any special instructions or customizations&hellip;",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: the hint inside an empty field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Any special instructions?",
             "context": null,
             "plural": null,
@@ -6255,6 +6331,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Application Details",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Application form for children’s library cards.",
             "context": null,
             "plural": null,
@@ -6326,6 +6417,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Are you registered to vote?",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -6870,6 +6976,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Attend candidate rallies",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Attend town halls",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Audio Recorder",
             "context": null,
             "plural": null,
@@ -7078,6 +7214,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "Author",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Authorized",
@@ -7367,11 +7518,27 @@
             "obsolete_since": null
         },
         {
+            "msgid": "BRIEF",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Back",
             "context": null,
             "plural": null,
             "translators": "F18: button",
             "files": [
+                "includes/admin/class-Emsfb-panel.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -7640,6 +7807,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Bank Transfer",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Banner",
             "context": null,
             "plural": null,
@@ -7711,6 +7893,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Basketball (Mon/Wed)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -8121,6 +8318,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Bocce (Mon)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Bold",
             "context": null,
             "plural": null,
@@ -8162,6 +8374,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Book Club Suggestion Form Template",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Book Suggestion",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -8553,6 +8795,36 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Budget",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Budget Range",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -9174,6 +9446,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "CV Submission",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Cache API responses to improve performance",
             "context": null,
             "plural": null,
@@ -9254,7 +9541,7 @@
             "msgid": "Calculation",
             "context": null,
             "plural": null,
-            "translators": "F04 builder: the default label of a new calculation field translators: F04 builder: palette tile of the calculation field",
+            "translators": "PUB-03: the name of the Calculation field's tile in the builder's field list (an add-on's field)",
             "files": [
                 "includes/functions.php"
             ],
@@ -9262,8 +9549,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Calculation value",
@@ -9322,6 +9609,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Can you attend?",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -10519,6 +10821,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Child's Date of Birth",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Child's Name",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Children Library Card",
             "context": null,
             "plural": null,
@@ -10958,8 +11290,9 @@
             "msgid": "City",
             "context": null,
             "plural": null,
-            "translators": "F16 builder, \"Browser autofill\" list: what the browser fills in",
+            "translators": "ready-made form template: a field label translators: F16 builder, \"Browser autofill\" list: what the browser fills in",
             "files": [
+                "includes/admin/template-phrases-efb.php",
                 "includes/data/autocomplete-labels-efb.php",
                 "includes/functions.php"
             ],
@@ -11971,14 +12304,30 @@
             "msgid": "Comment",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "ready-made form template: a field label",
             "files": [
+                "includes/admin/template-phrases-efb.php",
                 "includes/functions.php"
             ],
             "scope": [
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Comment or Message",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -12009,6 +12358,36 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Company / Organization",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: the hint inside an empty field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Company Name",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -12174,6 +12553,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Conditional logic, calculations and CAPTCHA add-ons",
+            "context": null,
+            "plural": null,
+            "translators": "FR-01: first-run plan chooser, Free Plus plan",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -12482,6 +12876,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Consulting",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Contact",
             "context": null,
             "plural": null,
@@ -12510,6 +12919,21 @@
             "first_seen": "4.3.1",
             "status": "obsolete",
             "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "Contact Information",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Contact Us Form",
@@ -12583,6 +13007,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Contact us form",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Contact-us Form",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -13151,6 +13605,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Cornhole (Thurs)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Cost Suppressed",
             "context": null,
             "plural": null,
@@ -13693,6 +14162,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Credit Card / Stripe",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Curly Cut",
             "context": null,
             "plural": null,
@@ -14026,6 +14510,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Custom Service Package",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Custom Title (optional):",
             "context": null,
             "plural": null,
@@ -14116,6 +14615,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Customer Experience",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Customer Feedback",
             "context": null,
             "plural": null,
@@ -14127,6 +14641,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Customer Information",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -14494,6 +15023,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Date of Birth",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Date of Last Store Visit",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Date of birth",
             "context": null,
             "plural": null,
@@ -14596,6 +15155,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Deadline",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -14868,6 +15442,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Delete all data when the plugin is deleted",
+            "context": null,
+            "plural": null,
+            "translators": "LIFE-01: Settings › Privacy checkbox, off by default",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -15217,6 +15806,21 @@
             "obsolete_since": "4.3.1"
         },
         {
+            "msgid": "Department",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Describe the bug and we will send you a 99% discount code for your first year of the Pro version, as a thank you.",
             "context": null,
             "plural": null,
@@ -15228,6 +15832,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Describe your project in detail&hellip;",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: the hint inside an empty field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -15273,6 +15892,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Design Type",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Desired Delivery Date",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -15468,6 +16117,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Dietary restrictions",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -15882,6 +16546,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Do you want to work with us? Please fill in your details below.",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: text under a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Document",
             "context": null,
             "plural": null,
@@ -15923,6 +16602,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Does the child reside with you (at least part-time in cases of custody arrangements)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -16801,6 +17495,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Earliest Available Start Date",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Earliest date",
             "context": null,
             "plural": null,
@@ -16812,6 +17521,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Early voting",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -17148,6 +17872,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Easy Form Builder documentation (opens in a new tab)",
+            "context": null,
+            "plural": null,
+            "translators": "A11Y-01: the name of the header's documentation icon link; it opens a new tab",
+            "files": [
+                "includes/admin/class-Emsfb-panel.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Easy Form Builder entries",
             "context": null,
             "plural": null,
@@ -17234,6 +17973,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Easy Form Builder is paused",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -17783,9 +18537,10 @@
             "msgid": "Email",
             "context": null,
             "plural": null,
-            "translators": "Email = input field for email address translators: F01 builder, mobile keyboard option: keyboard with @ and .",
+            "translators": "ready-made form template: a field label translators: Email = input field for email address translators: F01 builder, mobile keyboard option: keyboard with @ and .",
             "files": [
                 "includes/admin/class-Emsfb-admin.php",
+                "includes/admin/template-phrases-efb.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -18624,6 +19379,51 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Emergency Contact Email",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Emergency Contact Name",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Emergency Contact Phone",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Emirate",
             "context": null,
             "plural": null,
@@ -18669,6 +19469,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Employee Experience",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Employee Suggestion",
             "context": null,
             "plural": null,
@@ -18680,6 +19495,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Employee Suggestion Form Template",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Employment Type",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -19316,6 +20161,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Enter the number of items",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: help text under a field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Enter the short address, or fill in the full National Address.",
             "context": null,
             "plural": null,
@@ -19872,6 +20732,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Event registration",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Events",
             "context": null,
             "plural": null,
@@ -19898,6 +20773,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Every add-on: SMS, Telegram, Google Sheets, booking and more",
+            "context": null,
+            "plural": null,
+            "translators": "FR-01: first-run plan chooser, Pro plan",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -20033,6 +20923,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Expected Salary Range",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -20199,6 +21104,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "FORM",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -20395,6 +21315,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Feedback",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Feedback Type",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -20927,6 +21877,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Fitting rooms were clean and free of discarded merchandise",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Fix it in the payment field",
             "context": null,
             "plural": null,
@@ -21030,6 +21995,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Follow candidates on social media",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Font",
@@ -21365,8 +22345,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Form Security & Spam Protection could not load because its PHP compatibility helper is unavailable. Please reinstall Easy Form Builder.",
@@ -21410,8 +22390,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Form Settings",
@@ -22247,6 +23227,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Free add-ons: offline forms, addresses and postal codes",
+            "context": null,
+            "plural": null,
+            "translators": "FR-01: first-run plan chooser, Free plan",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Free allows up to %d steps per form",
             "context": null,
             "plural": null,
@@ -22348,6 +23343,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Freelance / Contract",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -22595,6 +23605,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Full-Time",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Fully booked",
             "context": null,
             "plural": null,
@@ -22651,6 +23676,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Games take place on the days listed at 6, 7, or 8 p.m. You'll receive a schedule for each team or tournament.",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: help text under a field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -22788,6 +23828,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Genre",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -23390,6 +24445,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Graphic Design",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -24509,6 +25579,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "How do you get information about candidates to determine who gets your vote? Select all that apply.",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "How has Easy Form Builder been for you?",
             "context": null,
             "plural": null,
@@ -24520,6 +25605,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "How likely are you to recommend us to others?",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -24580,6 +25680,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "How many of you are attending?",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -24779,6 +25894,21 @@
             "obsolete_since": "4.3.1"
         },
         {
+            "msgid": "Human Shield",
+            "context": null,
+            "plural": null,
+            "translators": "B4/B7 hand-off: the name of the security and spam add-on (a product name, formerly \"Form Security & Spam Protection\")",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Human Shield checks these functions before enforcing security rules.",
             "context": null,
             "plural": null,
@@ -24794,6 +25924,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Human Shield is disabled.",
+            "context": null,
+            "plural": null,
+            "translators": "Shown when the security add-on is switched off",
+            "files": [
+                "includes/phrases.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Human Shield or your server limited requests from this visitor's internet address (HTTP 429).",
             "context": null,
             "plural": null,
@@ -24805,6 +25950,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Human Shield security and spam protection",
+            "context": null,
+            "plural": null,
+            "translators": "FR-01: first-run plan chooser, Pro plan; Human Shield is the security add-on's name",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -24839,6 +25999,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "I give permission for my child to receive a library card.",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "I have a licence key",
             "context": null,
             "plural": null,
@@ -24869,6 +26044,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "I have read and agree to the library's terms of use and understand that any violation is grounds for revocation.",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "I have received and read the terms and waiver and agree to all.",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "I no longer need it",
             "context": null,
             "plural": null,
@@ -24895,6 +26100,51 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "I understand that I will have to pay $$ upon arrival",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "I was greeted upon entering the store",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "I will source my model",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -25245,6 +26495,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "If no PIN is entered here, your library card PIN will be set to the last 4 numbers of your phone number.",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: help text under a field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "If outgoing requests are blocked, ask your host to allow connections to the Easy Form Builder update server.",
             "context": null,
             "plural": null,
@@ -25481,6 +26746,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "If you require a model for your shoot",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -25861,6 +27141,66 @@
             "obsolete_since": null
         },
         {
+            "msgid": "In which level will the child be participating?",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "In which of the following elections have you participated in the last 4 years? Select all that apply.",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "In-Store Experience Survey Template",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "In-person voting",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Inactive",
             "context": null,
             "plural": null,
@@ -26011,6 +27351,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Info",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Inline",
             "context": null,
             "plural": null,
@@ -26129,6 +27484,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Instagram Address",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Install",
@@ -26310,6 +27680,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Internship",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -26736,6 +28121,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Invoice Later",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -27672,6 +29072,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Kickball (Tues/Thurs)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Kids (ages 5-7)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Kind",
             "context": null,
             "plural": null,
@@ -28593,6 +30023,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Let us know what kind of dish(es) you will be bringing",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: help text under a field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Let visitors sign by typing their name in a handwriting font, beside or instead of drawing.",
             "context": null,
             "plural": null,
@@ -28739,8 +30184,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Likelihood scale",
@@ -29224,6 +30669,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Local Election (council, mayor, school board, etc.)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Localization",
             "context": null,
             "plural": null,
@@ -29464,6 +30924,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Long Text",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: the hint inside an empty field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Longer Text",
             "context": null,
             "plural": null,
@@ -29655,6 +31130,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Mail-in ballot",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -30441,11 +31931,27 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Merchandise was folded or organized neatly",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Message",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "ready-made form template: a field label",
             "files": [
+                "includes/admin/template-phrases-efb.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -30467,6 +31973,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Message / Issues",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -30726,6 +32247,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Message…",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: the hint inside an empty field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Messenger address",
             "context": null,
             "plural": null,
@@ -30859,6 +32395,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Midterm Election",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -31268,6 +32819,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Mobile Number",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Mobile Phone",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Mobile Preview",
             "context": null,
             "plural": null,
@@ -31478,6 +33059,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "More than 1 min",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Moroccan CIN (national ID card)",
             "context": null,
             "plural": null,
@@ -31579,8 +33175,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Most dates (several dates)",
@@ -31945,6 +33541,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "My Products",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "My Website",
             "context": null,
             "plural": null,
@@ -31971,6 +33582,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "My items were easy to locate",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -32234,6 +33860,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Negotiable",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Neighbourhood",
             "context": null,
             "plural": null,
@@ -32350,6 +33991,51 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "New Product 1 (10$)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "New Product 2 (20$)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "New Product 3 (30$)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -33909,6 +35595,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Not included:",
+            "context": null,
+            "plural": null,
+            "translators": "FR-01: read by screen readers before a feature the plan does not include",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Not installed",
             "context": null,
             "plural": null,
@@ -34659,6 +36360,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Off: deleting Easy Form Builder from the Plugins screen keeps your forms, entries, files and settings for a later install. Deactivating never deletes anything.",
+            "context": null,
+            "plural": null,
+            "translators": "LIFE-01: help under the checkbox \"Delete all data when the plugin is deleted\"",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Offline Form Data Collection",
             "context": null,
             "plural": null,
@@ -34850,6 +36566,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "On-Location / Outside",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "On: when you delete the plugin, every form, entry, uploaded file, payment record and setting of this site is removed for good. Export what you want to keep first.",
+            "context": null,
+            "plural": null,
+            "translators": "LIFE-01: warning shown while \"Delete all data when the plugin is deleted\" is ticked",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -36015,6 +37761,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Optional - upload your cover letter",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: help text under a field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Options",
             "context": null,
             "plural": null,
@@ -36056,6 +37817,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Order",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Order Details",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -36154,8 +37945,9 @@
             "msgid": "Other",
             "context": null,
             "plural": null,
-            "translators": "Label of the auto-added \"Other\" choice on a radio field with \"Add Other option\" enabled translators: F16 form builder: group in the \"Browser autofill\" list translators: F05: the text of the “Other” choice",
+            "translators": "ready-made form template: a choice translators: Label of the auto-added \"Other\" choice on a radio field with \"Add Other option\" enabled translators: F16 form builder: group in the \"Browser autofill\" list translators: F05: the text of the “Other” choice",
             "files": [
+                "includes/admin/template-phrases-efb.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -36375,6 +38167,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Page Count",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -36605,6 +38412,66 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Parent/Guardian Email",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Parent/Guardian Name",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Parent/Guardian Phone",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Part-Time",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Partial",
             "context": null,
             "plural": null,
@@ -36706,6 +38573,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Party Invite",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -36954,8 +38836,9 @@
             "msgid": "PayPal",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "ready-made form template: a choice",
             "files": [
+                "includes/admin/template-phrases-efb.php",
                 "includes/functions.php",
                 "vendor/paypal/class-Emsfb-paypal-handler.php"
             ],
@@ -37225,6 +39108,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Payment Method",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Payment Multi choose",
@@ -37605,6 +39503,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Payments and the other Free Plus add-ons",
+            "context": null,
+            "plural": null,
+            "translators": "FR-01: first-run plan chooser, Free plan, not included",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Payments are processed securely by %s. Your card details never reach this website.",
             "context": null,
             "plural": null,
@@ -37647,6 +39560,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Payments: Stripe, PayPal and other gateways (free add-ons)",
+            "context": null,
+            "plural": null,
+            "translators": "FR-01: first-run plan chooser, Free Plus plan",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -37985,8 +39913,9 @@
             "msgid": "Personal Information",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "ready-made form template: a step title",
             "files": [
+                "includes/admin/template-phrases-efb.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -39266,6 +41195,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please explain your suggestion for how we can improve the employee experience.",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please fill in \"%1$s\": it is needed to pay with %2$s.",
             "context": null,
             "plural": null,
@@ -39433,6 +41377,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please list any products or services you would like featured in the video(s)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: help text under a field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please log in to use this form.",
             "context": null,
             "plural": null,
@@ -39496,6 +41455,51 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Please provide a brief synopsis of the book for us to share with the group.",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Please provide your contact and shipping details",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: text under a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Please provide your contact details",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: text under a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Please put the items in %s in order.",
             "context": null,
             "plural": null,
@@ -39522,6 +41526,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Please respond to the following:",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a heading",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -39965,11 +41984,27 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Postal / ZIP Code",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: the hint inside an empty field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Postal Code",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "ready-made form template: a field label",
             "files": [
+                "includes/admin/template-phrases-efb.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -40115,6 +42150,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Pre-K (ages 0-5)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Prefecture",
             "context": null,
             "plural": null,
@@ -40126,6 +42176,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Preferred Delivery Date",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -40261,6 +42326,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Presidential Election",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -40412,6 +42492,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Prices were fair compared to other similar stores",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -40641,6 +42736,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Pro add-ons: SMS, Telegram, Google Sheets, booking and more",
+            "context": null,
+            "plural": null,
+            "translators": "FR-01: first-run plan chooser, Free Plus plan, not included",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Pro feature",
             "context": null,
             "plural": null,
@@ -40762,6 +42872,111 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Product / Service",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Product A - Standard",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Product B - Premium",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Product C - Enterprise",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Product video",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Product video with model",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Products or Services",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Professional",
             "context": null,
             "plural": null,
@@ -40818,6 +43033,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Project Description",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -41227,6 +43457,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Quantity",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Quarantine score below",
             "context": null,
             "plural": null,
@@ -41374,6 +43619,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Quote Details",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -41708,6 +43968,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Read candidate literature",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Read candidate websites",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Read more about cache compatibility",
             "context": null,
             "plural": null,
@@ -41734,6 +44024,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Read past voting records or other important historical data",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -41902,6 +44207,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Rec Leagues (18+)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Recent activity",
@@ -42125,6 +44445,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Recreational Sports League Signup Form Template",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -44055,6 +46390,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Role/Title",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Rounded",
             "context": null,
             "plural": null,
@@ -44396,6 +46746,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "SEO / Marketing",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -44744,6 +47109,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Salon Consultation Form",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Salon service",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -46025,6 +48420,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Select a 4-digit PIN number",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Select a Date",
             "context": null,
             "plural": null,
@@ -46220,6 +48630,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Select all services you need",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: help text under a field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Select an SMS delivery method",
             "context": null,
             "plural": null,
@@ -46292,6 +48717,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Select your products and quantities",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: text under a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -46959,6 +49399,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Services Required",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Session Duration",
             "context": null,
             "plural": null,
@@ -47321,6 +49776,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Shipping Address",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Short address",
             "context": null,
             "plural": null,
@@ -47628,8 +50098,9 @@
             "msgid": "Show more",
             "context": null,
             "plural": null,
-            "translators": "A11Y-01: the name screen readers give the arrow button under the forms list that loads more forms",
+            "translators": "A11Y-01: the name of the icon button under the forms list that shows more forms translators: A11Y-01: the name screen readers give the arrow button under the forms list that loads more forms",
             "files": [
+                "includes/admin/class-Emsfb-panel.php",
                 "includes/class-Emsfb-notices.php"
             ],
             "scope": [
@@ -47955,6 +50426,21 @@
             "obsolete_since": "4.3.1"
         },
         {
+            "msgid": "Shows a small “Powered by Easy Form Builder” link",
+            "context": null,
+            "plural": null,
+            "translators": "FR-01: first-run plan chooser, Free Plus plan: the credit link on the forms",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Shuffle choices",
             "context": null,
             "plural": null,
@@ -47966,6 +50452,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Shuffleboard Team of 2 (Mon)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -48452,6 +50953,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Social media feed posts",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Soft block",
             "context": null,
             "plural": null,
@@ -48647,6 +51163,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "Someone offered to help me",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Something between the visitor and Easy Form Builder refused the request.",
             "context": null,
             "plural": null,
@@ -48748,6 +51279,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Sorry, I can't make it",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -48989,6 +51535,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Special Requirements / Notes",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -49353,6 +51914,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "State Election",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "State or province",
             "context": null,
             "plural": null,
@@ -49548,6 +52124,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Step 1",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Step 2",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -49822,6 +52428,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Store personnel were friendly and polite",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Store raw behavior metrics",
             "context": null,
             "plural": null,
@@ -50090,8 +52711,8 @@
                 "core"
             ],
             "first_seen": "4.3.1",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Stripe payment forms",
@@ -50636,6 +53257,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Summer Reading Program Signup Form Template",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Support",
             "context": null,
             "plural": null,
@@ -51071,6 +53707,21 @@
             "obsolete_since": "4.2.0"
         },
         {
+            "msgid": "T-shirt Size (unisex)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "THEN",
             "context": null,
             "plural": null,
@@ -51084,6 +53735,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "TV/Radio commercials",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Tables:",
@@ -51342,11 +54008,27 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Teen (ages 13-16)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Tel",
             "context": null,
             "plural": null,
-            "translators": "Tel = Telephone/Phone number",
+            "translators": "ready-made form template: a field label translators: Tel = Telephone/Phone number",
             "files": [
+                "includes/admin/template-phrases-efb.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -51432,6 +54114,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Tell us about your project requirements",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: text under a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Tell us what went wrong and we will fix it. It takes about 20 seconds.",
             "context": null,
             "plural": null,
@@ -51443,6 +54140,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Tell us why you are a great fit for this position&hellip;",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: the hint inside an empty field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -54814,6 +57526,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The music in the store was appropriate (not too loud or too quiet)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The name your review was posted under.",
             "context": null,
             "plural": null,
@@ -55854,6 +58581,51 @@
             "first_seen": "4.3.1",
             "status": "obsolete",
             "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "The store atmosphere was welcoming",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The store lighting was appropriate (not too dark or too bright)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The store was clean",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "The survey has been successfully completed.",
@@ -58555,6 +61327,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This version of Easy Form Builder needs WordPress %1$s or later. This site runs WordPress %2$s, so your forms are not shown and the plugin's screens are closed until WordPress is updated. Your forms, entries and settings are kept.",
+            "context": null,
+            "plural": null,
+            "translators": "%1$s: the WordPress version the plugin needs (6.3), %2$s: the version this site runs (6.2.6).",
+            "files": [
+                "includes/class-Emsfb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This website is not accepting forms from visitors right now. Please contact the site owner.",
             "context": null,
             "plural": null,
@@ -58626,6 +61413,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Through my registered party's recommendations",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -60371,8 +63173,9 @@
             "msgid": "URL",
             "context": null,
             "plural": null,
-            "translators": "URL = Website address/link",
+            "translators": "ready-made form template: the hint inside an empty field translators: URL = Website address/link",
             "files": [
+                "includes/admin/template-phrases-efb.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -60589,6 +63392,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Under $30,000",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Under $500",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -60967,8 +63800,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Unlock premium add-ons, unlimited features and priority support for your forms.",
@@ -61136,6 +63969,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Up to 1 min",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Up to 10 MB in total; larger files stay links. Visitors never receive the files by e-mail.",
             "context": null,
             "plural": null,
@@ -61166,6 +64014,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Update WordPress",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -61322,6 +64185,81 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Upload Cover Letter",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Upload Project Files",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Upload Resume / CV",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Upload briefs, specs, or reference files",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: help text under a field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Upload cover letter",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Upload failed",
             "context": null,
             "plural": null,
@@ -61348,6 +64286,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Upload your CV here",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Upload your documents and provide additional information",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: text under a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -61910,6 +64878,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "VIDEOGRAPHY CREATIVE BRIEF",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: text under a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Valid formats: %s",
             "context": null,
             "plural": null,
@@ -62011,6 +64994,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Vehicle",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label / a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -62855,6 +65853,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Voter Behavior Survey Template",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "WP SMS is not installed or not active.",
             "context": null,
             "plural": null,
@@ -63196,6 +66209,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Watch candidate debates",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -63715,6 +66743,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "We would be happy to hear your feedback on how we can improve your experience!",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a heading",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "We would rather fix it first. This goes straight to the team, not to the public page.",
             "context": null,
             "plural": null,
@@ -63730,6 +66773,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "We're having a party and would love to see you. Please let us know if you can come.",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: text under a step title",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Weak",
             "context": null,
             "plural": null,
@@ -63741,6 +66799,36 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Web Design",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Web Development",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -63846,6 +66934,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Website Product Page videos",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -63985,6 +67088,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "What days will you attend?",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "What happened, and where? Which page or which form? If you saw an error message, paste it here.",
             "context": null,
             "plural": null,
@@ -64027,6 +67145,51 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "What is the deadline for receiving the video?",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: help text under a field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "What is the length of the video",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "What is your budget for this project?",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: help text under a field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -64121,6 +67284,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "What type of content are you looking to create?",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "What went wrong: %s.",
             "context": null,
             "plural": null,
@@ -64147,6 +67325,36 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "What will this video be primarily used for?",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "What will you be bringing?",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -64256,6 +67464,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "When can you start?",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: help text under a field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "When do you need this delivered?",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: help text under a field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "When enabled, uses sandbox/demo servers for PayPal and other services. Disable for production.",
             "context": null,
             "plural": null,
@@ -64342,6 +67580,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "When the plugin is deleted",
+            "context": null,
+            "plural": null,
+            "translators": "LIFE-01: Settings › Privacy, title of the part about deleting the plugin from the Plugins screen",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -64481,6 +67734,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Which methods of voting have you used in the past? Select all that apply.",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Which part was confusing?",
             "context": null,
             "plural": null,
@@ -64597,6 +67865,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Why Should We Hire You?",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -65638,6 +68921,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "XL",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "XLSX export is included in Free Plus and Pro.",
             "context": null,
             "plural": null,
@@ -65668,6 +68966,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "XS",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "XSmall",
             "context": null,
             "plural": null,
@@ -65679,6 +68992,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "XXL",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -65880,6 +69208,36 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Yes, I will be there",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Yes, I'd like you to find a model for me",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -66653,6 +70011,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Young Adult (ages 17-18)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Youngest age",
             "context": null,
             "plural": null,
@@ -66774,6 +70147,21 @@
             "obsolete_since": "4.3.1"
         },
         {
+            "msgid": "Your Email",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Your Email Template cannot exceed 10,000 characters.",
             "context": null,
             "plural": null,
@@ -66855,6 +70243,21 @@
             "translators": "A11Y-01: the name screen readers give the person icon in the Easy Form Builder header (a link to the account on whitestudio.team)",
             "files": [
                 "includes/class-Emsfb-notices.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your WhiteStudio account (opens in a new tab)",
+            "context": null,
+            "plural": null,
+            "translators": "A11Y-01: the name of the header's account icon link; it opens a new tab",
+            "files": [
+                "includes/admin/class-Emsfb-panel.php"
             ],
             "scope": [
                 "core"
@@ -68352,6 +71755,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Your suggestion is regarding&hellip;",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a field label",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Your test email arrived, but it looks like spam to most inboxes. Notifications are off for now; the guide shows the fix.",
             "context": null,
             "plural": null,
@@ -68588,6 +72006,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Youth (ages 8-12)",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: a choice",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -69645,6 +73078,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "e.g. Software Developer, Designer, Manager&hellip;",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: the hint inside an empty field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "e.g. john_doe",
             "context": null,
             "plural": null,
@@ -70142,6 +73590,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "instagram.com/yourprofile",
+            "context": null,
+            "plural": null,
+            "translators": "ready-made form template: the hint inside an empty field",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -70862,8 +74325,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "price, amount",
