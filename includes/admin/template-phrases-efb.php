@@ -1,10 +1,8 @@
 <?php
 /**
- * PUB-03 (B5 → B7 hand-off): the texts of the ready-made form templates (includes/admin/assets/js/forms-efb.js:
- * field labels, help texts, hints and choices) as phrases of the phrase list, so a form made from a template is in
- * the site's language. Merged into efb_var.text on the Create screen only (efbFunction::efb_sentence_forms(), the
- * text_efb(1) set). forms-efb.js reads them with efbTplT(key, English). Generated from forms-efb.js; keep the two in
- * step (tests/test-template-phrases.php).
+ * PUB-03 (B5 → B7): the ready-made form templates' texts (forms-efb.js efbTplT(key): field labels, help texts, step
+ * titles, headings, choices, hints) as phrases, context "form template"; in efb_var.text on the Create screen only
+ * (efbFunction::efb_sentence_forms()). tests/test-template-phrases.php keeps the two files in step.
  *
  * @package EasyFormBuilder
  */
@@ -19,446 +17,226 @@ if (!function_exists('emsfb_template_phrases_efb')) {
 	 */
 	function emsfb_template_phrases_efb() {
 		$t = array(
-		/* translators: ready-made form template: a field label */
-		'tplMessageIssues' => __('Message / Issues', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplStep1' => __('Step 1', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplStep2' => __('Step 2', 'easy-form-builder'),
-		/* translators: ready-made form template: the hint inside an empty field */
-		'tplMessage' => __('Message…', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplContactUsForm' => __('Contact us form', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplAddress' => __('Address', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label / a step title */
-		'tplVehicle' => __('Vehicle', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplSalonConsultationForm' => __('Salon Consultation Form', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplSalonService' => __('Salon service', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplForm' => __('FORM', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplDesignType' => __('Design Type', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplCvSubmission' => __('CV Submission', 'easy-form-builder'),
-		/* translators: ready-made form template: text under a step title */
-		'tplDoYouWantToWork' => __('Do you want to work with us? Please fill in your details below.', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplUploadYourCvHere' => __('Upload your CV here', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplUploadCoverLetter' => __('Upload cover letter', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplBrief' => __('BRIEF', 'easy-form-builder'),
-		/* translators: ready-made form template: text under a step title */
-		'tplVideographyCreativeBrief' => __('VIDEOGRAPHY CREATIVE BRIEF', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplYourEmail' => __('Your Email', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplCompanyName' => __('Company Name', 'easy-form-builder'),
-		/* translators: ready-made form template: the hint inside an empty field */
-		'tplInstagramComYourprofile' => __('instagram.com/yourprofile', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplInstagramAddress' => __('Instagram Address', 'easy-form-builder'),
-		/* translators: ready-made form template: the hint inside an empty field */
-		'tplUrl' => __('URL', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplWhatTypeOfContentAre' => __('What type of content are you looking to create?', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplProductVideo' => __('Product video', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplProductVideoWithModel' => __('Product video with model', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplOnLocationOutside' => __('On-Location / Outside', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplWhatIsTheLengthOf' => __('What is the length of the video', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplUpTo1Min' => __('Up to 1 min', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplMoreThan1Min' => __('More than 1 min', 'easy-form-builder'),
-		/* translators: ready-made form template: the hint inside an empty field */
-		'tplLongText' => __('Long Text', 'easy-form-builder'),
-		/* translators: ready-made form template: help text under a field */
-		'tplPleaseListAnyProductsOr' => __('Please list any products or services you would like featured in the video(s)', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplProductsOrServices' => __('Products or Services', 'easy-form-builder'),
-		/* translators: ready-made form template: help text under a field */
-		'tplWhatIsTheDeadlineFor' => __('What is the deadline for receiving the video?', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplDeadline' => __('Deadline', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplWhatWillThisVideoBe' => __('What will this video be primarily used for?', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplSocialMediaFeedPosts' => __('Social media feed posts', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplWebsiteProductPageVideos' => __('Website Product Page videos', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplAdsVideo' => __('Ads Video', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplIfYouRequireAModel' => __('If you require a model for your shoot', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplYesIDLikeYou' => __('Yes, I\'d like you to find a model for me', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplIWillSourceMyModel' => __('I will source my model', 'easy-form-builder'),
-		/* translators: ready-made form template: help text under a field */
-		'tplWhatIsYourBudgetFor' => __('What is your budget for this project?', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplBudget' => __('Budget', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplPartyInvite' => __('Party Invite', 'easy-form-builder'),
-		/* translators: ready-made form template: text under a step title */
-		'tplWeReHavingAParty' => __('We\'re having a party and would love to see you. Please let us know if you can come.', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplHowManyOfYouAre' => __('How many of you are attending?', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplCanYouAttend' => __('Can you attend?', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplYesIWillBeThere' => __('Yes, I will be there', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplSorryICanTMake' => __('Sorry, I can\'t make it', 'easy-form-builder'),
-		/* translators: ready-made form template: help text under a field */
-		'tplLetUsKnowWhatKind' => __('Let us know what kind of dish(es) you will be bringing', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplWhatWillYouBeBringing' => __('What will you be bringing?', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplEventRegistration' => __('Event registration', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplWhatDaysWillYouAttend' => __('What days will you attend?', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplDietaryRestrictions' => __('Dietary restrictions', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplIUnderstandThatIWill' => __('I understand that I will have to pay $$ upon arrival', 'easy-form-builder'),
-		/* translators: ready-made form template: a heading */
-		'tplWeWouldBeHappyTo' => __('We would be happy to hear your feedback on how we can improve your experience!', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplFeedbackType' => __('Feedback Type', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplFeedback' => __('Feedback', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplInfo' => __('Info', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplOrder' => __('Order', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplMyProducts' => __('My Products', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplNewProduct110' => __('New Product 1 (10$)', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplNewProduct220' => __('New Product 2 (20$)', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplNewProduct330' => __('New Product 3 (30$)', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplInStoreExperienceSurveyTemplate' => __('In-Store Experience Survey Template', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplEmail' => __('Email', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplTel' => __('Tel', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplDateOfLastStoreVisit' => __('Date of Last Store Visit', 'easy-form-builder'),
-		/* translators: ready-made form template: a heading */
-		'tplPleaseRespondToTheFollowing' => __('Please respond to the following:', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplIWasGreetedUponEntering' => __('I was greeted upon entering the store', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplSomeoneOfferedToHelpMe' => __('Someone offered to help me', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplStorePersonnelWereFriendlyAnd' => __('Store personnel were friendly and polite', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplTheStoreWasClean' => __('The store was clean', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplMerchandiseWasFoldedOrOrganized' => __('Merchandise was folded or organized neatly', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplMyItemsWereEasyTo' => __('My items were easy to locate', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplTheStoreAtmosphereWasWelcoming' => __('The store atmosphere was welcoming', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplFittingRoomsWereCleanAnd' => __('Fitting rooms were clean and free of discarded merchandise', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplTheStoreLightingWasAppropriate' => __('The store lighting was appropriate (not too dark or too bright)', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplTheMusicInTheStore' => __('The music in the store was appropriate (not too loud or too quiet)', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplPricesWereFairComparedTo' => __('Prices were fair compared to other similar stores', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplCommentOrMessage' => __('Comment or Message', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplHowLikelyAreYouTo' => __('How likely are you to recommend us to others?', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplVoterBehaviorSurveyTemplate' => __('Voter Behavior Survey Template', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplAreYouRegisteredToVote' => __('Are you registered to vote?', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplInWhichOfTheFollowing' => __('In which of the following elections have you participated in the last 4 years? Select all that apply.', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplPresidentialElection' => __('Presidential Election', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplMidtermElection' => __('Midterm Election', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplStateElection' => __('State Election', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplLocalElectionCouncilMayorSchool' => __('Local Election (council, mayor, school board, etc.)', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplHowDoYouGetInformation' => __('How do you get information about candidates to determine who gets your vote? Select all that apply.', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplAttendTownHalls' => __('Attend town halls', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplReadCandidateWebsites' => __('Read candidate websites', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplFollowCandidatesOnSocialMedia' => __('Follow candidates on social media', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplWatchCandidateDebates' => __('Watch candidate debates', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplReadCandidateLiterature' => __('Read candidate literature', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplAttendCandidateRallies' => __('Attend candidate rallies', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplTvRadioCommercials' => __('TV/Radio commercials', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplReadPastVotingRecordsOr' => __('Read past voting records or other important historical data', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplThroughMyRegisteredPartyS' => __('Through my registered party\'s recommendations', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplOther' => __('Other', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplWhichMethodsOfVotingHave' => __('Which methods of voting have you used in the past? Select all that apply.', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplEarlyVoting' => __('Early voting', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplMailInBallot' => __('Mail-in ballot', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplInPersonVoting' => __('In-person voting', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplMessage2' => __('Message', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplSummerReadingProgramSignupForm' => __('Summer Reading Program Signup Form Template', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplChildSName' => __('Child\'s Name', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplChildSDateOfBirth' => __('Child\'s Date of Birth', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplInWhichLevelWillThe' => __('In which level will the child be participating?', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplPreKAges05' => __('Pre-K (ages 0-5)', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplKidsAges57' => __('Kids (ages 5-7)', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplYouthAges812' => __('Youth (ages 8-12)', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplTeenAges1316' => __('Teen (ages 13-16)', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplYoungAdultAges1718' => __('Young Adult (ages 17-18)', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplParentGuardianName' => __('Parent/Guardian Name', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplParentGuardianEmail' => __('Parent/Guardian Email', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplMobileNumber' => __('Mobile Number', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplComment' => __('Comment', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplRecLeagues18' => __('Rec Leagues (18+)', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplKickballTuesThurs' => __('Kickball (Tues/Thurs)', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplBasketballMonWed' => __('Basketball (Mon/Wed)', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplRecreationalSportsLeagueSignupForm' => __('Recreational Sports League Signup Form Template', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplMobilePhone' => __('Mobile Phone', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplDateOfBirth' => __('Date of Birth', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplTShirtSizeUnisex' => __('T-shirt Size (unisex)', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplXs' => __('XS', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplXl' => __('XL', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplXxl' => __('XXL', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplEmergencyContactName' => __('Emergency Contact Name', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplEmergencyContactPhone' => __('Emergency Contact Phone', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplEmergencyContactEmail' => __('Emergency Contact Email', 'easy-form-builder'),
-		/* translators: ready-made form template: help text under a field */
-		'tplGamesTakePlaceOnThe' => __('Games take place on the days listed at 6, 7, or 8 p.m. You\'ll receive a schedule for each team or tournament.', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplShuffleboardTeamOf2Mon' => __('Shuffleboard Team of 2 (Mon)', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplBocceMon' => __('Bocce (Mon)', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplCornholeThurs' => __('Cornhole (Thurs)', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplAgreement' => __('Agreement', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplIHaveReceivedAndRead' => __('I have received and read the terms and waiver and agree to all.', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplParentGuardianPhone' => __('Parent/Guardian Phone', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplContactUsForm2' => __('Contact-us Form', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplCity' => __('City', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplDoesTheChildResideWith' => __('Does the child reside with you (at least part-time in cases of custody arrangements)', 'easy-form-builder'),
-		/* translators: ready-made form template: help text under a field */
-		'tplIfNoPinIsEntered' => __('If no PIN is entered here, your library card PIN will be set to the last 4 numbers of your phone number.', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplSelectA4DigitPin' => __('Select a 4-digit PIN number', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplIHaveReadAndAgree' => __('I have read and agree to the library\'s terms of use and understand that any violation is grounds for revocation.', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplIGivePermissionForMy' => __('I give permission for my child to receive a library card.', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplEmployeeSuggestionFormTemplate' => __('Employee Suggestion Form Template', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplDepartment' => __('Department', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplRoleTitle' => __('Role/Title', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplYourSuggestionIsRegardingHellip' => __('Your suggestion is regarding&hellip;', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplEmployeeExperience' => __('Employee Experience', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplCustomerExperience' => __('Customer Experience', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplPleaseExplainYourSuggestionFor' => __('Please explain your suggestion for how we can improve the employee experience.', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplBookClubSuggestionFormTemplate' => __('Book Club Suggestion Form Template', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplBookSuggestion' => __('Book Suggestion', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplAuthor' => __('Author', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplGenre' => __('Genre', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplPageCount' => __('Page Count', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplPleaseProvideABriefSynopsis' => __('Please provide a brief synopsis of the book for us to share with the group.', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplContactInformation' => __('Contact Information', 'easy-form-builder'),
-		/* translators: ready-made form template: text under a step title */
-		'tplPleaseProvideYourContactDetails' => __('Please provide your contact details', 'easy-form-builder'),
-		/* translators: ready-made form template: the hint inside an empty field */
-		'tplCompanyOrganization' => __('Company / Organization', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplQuoteDetails' => __('Quote Details', 'easy-form-builder'),
-		/* translators: ready-made form template: text under a step title */
-		'tplTellUsAboutYourProject' => __('Tell us about your project requirements', 'easy-form-builder'),
-		/* translators: ready-made form template: help text under a field */
-		'tplSelectAllServicesYouNeed' => __('Select all services you need', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplServicesRequired' => __('Services Required', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplWebDesign' => __('Web Design', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplWebDevelopment' => __('Web Development', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplGraphicDesign' => __('Graphic Design', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplSeoMarketing' => __('SEO / Marketing', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplConsulting' => __('Consulting', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplBudgetRange' => __('Budget Range', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplUnder500' => __('Under $500', 'easy-form-builder'),
-		/* translators: ready-made form template: help text under a field */
-		'tplWhenDoYouNeedThis' => __('When do you need this delivered?', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplDesiredDeliveryDate' => __('Desired Delivery Date', 'easy-form-builder'),
-		/* translators: ready-made form template: help text under a field */
-		'tplUploadBriefsSpecsOrReference' => __('Upload briefs, specs, or reference files', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplUploadProjectFiles' => __('Upload Project Files', 'easy-form-builder'),
-		/* translators: ready-made form template: the hint inside an empty field */
-		'tplDescribeYourProjectInDetail' => __('Describe your project in detail&hellip;', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplProjectDescription' => __('Project Description', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplCustomerInformation' => __('Customer Information', 'easy-form-builder'),
-		/* translators: ready-made form template: text under a step title */
-		'tplPleaseProvideYourContactAnd' => __('Please provide your contact and shipping details', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplShippingAddress' => __('Shipping Address', 'easy-form-builder'),
-		/* translators: ready-made form template: the hint inside an empty field */
-		'tplPostalZipCode' => __('Postal / ZIP Code', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplPostalCode' => __('Postal Code', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplOrderDetails' => __('Order Details', 'easy-form-builder'),
-		/* translators: ready-made form template: text under a step title */
-		'tplSelectYourProductsAndQuantities' => __('Select your products and quantities', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplProductService' => __('Product / Service', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplProductAStandard' => __('Product A - Standard', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplProductBPremium' => __('Product B - Premium', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplProductCEnterprise' => __('Product C - Enterprise', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplCustomServicePackage' => __('Custom Service Package', 'easy-form-builder'),
-		/* translators: ready-made form template: help text under a field */
-		'tplEnterTheNumberOfItems' => __('Enter the number of items', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplQuantity' => __('Quantity', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplPreferredDeliveryDate' => __('Preferred Delivery Date', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplPaymentMethod' => __('Payment Method', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplCreditCardStripe' => __('Credit Card / Stripe', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplPaypal' => __('PayPal', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplBankTransfer' => __('Bank Transfer', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplInvoiceLater' => __('Invoice Later', 'easy-form-builder'),
-		/* translators: ready-made form template: the hint inside an empty field */
-		'tplAnySpecialInstructionsOrCustomization' => __('Any special instructions or customizations&hellip;', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplSpecialRequirementsNotes' => __('Special Requirements / Notes', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplPersonalInformation' => __('Personal Information', 'easy-form-builder'),
-		/* translators: ready-made form template: the hint inside an empty field */
-		'tplEGSoftwareDeveloperDesigner' => __('e.g. Software Developer, Designer, Manager&hellip;', 'easy-form-builder'),
-		/* translators: ready-made form template: a step title */
-		'tplApplicationDetails' => __('Application Details', 'easy-form-builder'),
-		/* translators: ready-made form template: text under a step title */
-		'tplUploadYourDocumentsAndProvide' => __('Upload your documents and provide additional information', 'easy-form-builder'),
-		/* translators: ready-made form template: help text under a field */
-		'tplWhenCanYouStart' => __('When can you start?', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplEarliestAvailableStartDate' => __('Earliest Available Start Date', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplExpectedSalaryRange' => __('Expected Salary Range', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplUnder30000' => __('Under $30,000', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplNegotiable' => __('Negotiable', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplEmploymentType' => __('Employment Type', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplFullTime' => __('Full-Time', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplPartTime' => __('Part-Time', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplFreelanceContract' => __('Freelance / Contract', 'easy-form-builder'),
-		/* translators: ready-made form template: a choice */
-		'tplInternship' => __('Internship', 'easy-form-builder'),
-		/* translators: ready-made form template: help text under a field */
-		'tplAcceptedFormatsPdfDocDocx' => __('Accepted formats: PDF, DOC, DOCX', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplUploadResumeCv' => __('Upload Resume / CV', 'easy-form-builder'),
-		/* translators: ready-made form template: help text under a field */
-		'tplOptionalUploadYourCoverLetter' => __('Optional - upload your cover letter', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplUploadCoverLetter2' => __('Upload Cover Letter', 'easy-form-builder'),
-		/* translators: ready-made form template: the hint inside an empty field */
-		'tplTellUsWhyYouAre' => __('Tell us why you are a great fit for this position&hellip;', 'easy-form-builder'),
-		/* translators: ready-made form template: a field label */
-		'tplWhyShouldWeHireYou' => __('Why Should We Hire You?', 'easy-form-builder'),
+		'tplMessageIssues' => _x('Message / Issues', 'form template', 'easy-form-builder'),
+		'tplStep1' => _x('Step 1', 'form template', 'easy-form-builder'),
+		'tplStep2' => _x('Step 2', 'form template', 'easy-form-builder'),
+		'tplMessage' => _x('Message…', 'form template', 'easy-form-builder'),
+		'tplContactUsForm' => _x('Contact us form', 'form template', 'easy-form-builder'),
+		'tplAddress' => _x('Address', 'form template', 'easy-form-builder'),
+		'tplVehicle' => _x('Vehicle', 'form template', 'easy-form-builder'),
+		'tplSalonConsultationForm' => _x('Salon Consultation Form', 'form template', 'easy-form-builder'),
+		'tplSalonService' => _x('Salon service', 'form template', 'easy-form-builder'),
+		'tplForm' => _x('FORM', 'form template', 'easy-form-builder'),
+		'tplDesignType' => _x('Design Type', 'form template', 'easy-form-builder'),
+		'tplCvSubmission' => _x('CV Submission', 'form template', 'easy-form-builder'),
+		'tplDoYouWantToWork' => _x('Do you want to work with us? Please fill in your details below.', 'form template', 'easy-form-builder'),
+		'tplUploadYourCvHere' => _x('Upload your CV here', 'form template', 'easy-form-builder'),
+		'tplUploadCoverLetter' => _x('Upload cover letter', 'form template', 'easy-form-builder'),
+		'tplBrief' => _x('BRIEF', 'form template', 'easy-form-builder'),
+		'tplVideographyCreativeBrief' => _x('VIDEOGRAPHY CREATIVE BRIEF', 'form template', 'easy-form-builder'),
+		'tplYourEmail' => _x('Your Email', 'form template', 'easy-form-builder'),
+		'tplCompanyName' => _x('Company Name', 'form template', 'easy-form-builder'),
+		'tplInstagramComYourprofile' => _x('instagram.com/yourprofile', 'form template', 'easy-form-builder'),
+		'tplInstagramAddress' => _x('Instagram Address', 'form template', 'easy-form-builder'),
+		'tplUrl' => _x('URL', 'form template', 'easy-form-builder'),
+		'tplWhatTypeOfContentAre' => _x('What type of content are you looking to create?', 'form template', 'easy-form-builder'),
+		'tplProductVideo' => _x('Product video', 'form template', 'easy-form-builder'),
+		'tplProductVideoWithModel' => _x('Product video with model', 'form template', 'easy-form-builder'),
+		'tplOnLocationOutside' => _x('On-Location / Outside', 'form template', 'easy-form-builder'),
+		'tplWhatIsTheLengthOf' => _x('What is the length of the video', 'form template', 'easy-form-builder'),
+		'tplUpTo1Min' => _x('Up to 1 min', 'form template', 'easy-form-builder'),
+		'tplMoreThan1Min' => _x('More than 1 min', 'form template', 'easy-form-builder'),
+		'tplLongText' => _x('Long Text', 'form template', 'easy-form-builder'),
+		'tplPleaseListAnyProductsOr' => _x('Please list any products or services you would like featured in the video(s)', 'form template', 'easy-form-builder'),
+		'tplProductsOrServices' => _x('Products or Services', 'form template', 'easy-form-builder'),
+		'tplWhatIsTheDeadlineFor' => _x('What is the deadline for receiving the video?', 'form template', 'easy-form-builder'),
+		'tplDeadline' => _x('Deadline', 'form template', 'easy-form-builder'),
+		'tplWhatWillThisVideoBe' => _x('What will this video be primarily used for?', 'form template', 'easy-form-builder'),
+		'tplSocialMediaFeedPosts' => _x('Social media feed posts', 'form template', 'easy-form-builder'),
+		'tplWebsiteProductPageVideos' => _x('Website Product Page videos', 'form template', 'easy-form-builder'),
+		'tplAdsVideo' => _x('Ads Video', 'form template', 'easy-form-builder'),
+		'tplIfYouRequireAModel' => _x('If you require a model for your shoot', 'form template', 'easy-form-builder'),
+		'tplYesIDLikeYou' => _x('Yes, I\'d like you to find a model for me', 'form template', 'easy-form-builder'),
+		'tplIWillSourceMyModel' => _x('I will source my model', 'form template', 'easy-form-builder'),
+		'tplWhatIsYourBudgetFor' => _x('What is your budget for this project?', 'form template', 'easy-form-builder'),
+		'tplBudget' => _x('Budget', 'form template', 'easy-form-builder'),
+		'tplPartyInvite' => _x('Party Invite', 'form template', 'easy-form-builder'),
+		'tplWeReHavingAParty' => _x('We\'re having a party and would love to see you. Please let us know if you can come.', 'form template', 'easy-form-builder'),
+		'tplHowManyOfYouAre' => _x('How many of you are attending?', 'form template', 'easy-form-builder'),
+		'tplCanYouAttend' => _x('Can you attend?', 'form template', 'easy-form-builder'),
+		'tplYesIWillBeThere' => _x('Yes, I will be there', 'form template', 'easy-form-builder'),
+		'tplSorryICanTMake' => _x('Sorry, I can\'t make it', 'form template', 'easy-form-builder'),
+		'tplLetUsKnowWhatKind' => _x('Let us know what kind of dish(es) you will be bringing', 'form template', 'easy-form-builder'),
+		'tplWhatWillYouBeBringing' => _x('What will you be bringing?', 'form template', 'easy-form-builder'),
+		'tplEventRegistration' => _x('Event registration', 'form template', 'easy-form-builder'),
+		'tplWhatDaysWillYouAttend' => _x('What days will you attend?', 'form template', 'easy-form-builder'),
+		'tplDietaryRestrictions' => _x('Dietary restrictions', 'form template', 'easy-form-builder'),
+		'tplIUnderstandThatIWill' => _x('I understand that I will have to pay $$ upon arrival', 'form template', 'easy-form-builder'),
+		'tplWeWouldBeHappyTo' => _x('We would be happy to hear your feedback on how we can improve your experience!', 'form template', 'easy-form-builder'),
+		'tplFeedbackType' => _x('Feedback Type', 'form template', 'easy-form-builder'),
+		'tplFeedback' => _x('Feedback', 'form template', 'easy-form-builder'),
+		'tplInfo' => _x('Info', 'form template', 'easy-form-builder'),
+		'tplOrder' => _x('Order', 'form template', 'easy-form-builder'),
+		'tplMyProducts' => _x('My Products', 'form template', 'easy-form-builder'),
+		'tplNewProduct110' => _x('New Product 1 (10$)', 'form template', 'easy-form-builder'),
+		'tplNewProduct220' => _x('New Product 2 (20$)', 'form template', 'easy-form-builder'),
+		'tplNewProduct330' => _x('New Product 3 (30$)', 'form template', 'easy-form-builder'),
+		'tplInStoreExperienceSurveyTemplate' => _x('In-Store Experience Survey Template', 'form template', 'easy-form-builder'),
+		'tplEmail' => _x('Email', 'form template', 'easy-form-builder'),
+		'tplTel' => _x('Tel', 'form template', 'easy-form-builder'),
+		'tplDateOfLastStoreVisit' => _x('Date of Last Store Visit', 'form template', 'easy-form-builder'),
+		'tplPleaseRespondToTheFollowing' => _x('Please respond to the following:', 'form template', 'easy-form-builder'),
+		'tplIWasGreetedUponEntering' => _x('I was greeted upon entering the store', 'form template', 'easy-form-builder'),
+		'tplSomeoneOfferedToHelpMe' => _x('Someone offered to help me', 'form template', 'easy-form-builder'),
+		'tplStorePersonnelWereFriendlyAnd' => _x('Store personnel were friendly and polite', 'form template', 'easy-form-builder'),
+		'tplTheStoreWasClean' => _x('The store was clean', 'form template', 'easy-form-builder'),
+		'tplMerchandiseWasFoldedOrOrganized' => _x('Merchandise was folded or organized neatly', 'form template', 'easy-form-builder'),
+		'tplMyItemsWereEasyTo' => _x('My items were easy to locate', 'form template', 'easy-form-builder'),
+		'tplTheStoreAtmosphereWasWelcoming' => _x('The store atmosphere was welcoming', 'form template', 'easy-form-builder'),
+		'tplFittingRoomsWereCleanAnd' => _x('Fitting rooms were clean and free of discarded merchandise', 'form template', 'easy-form-builder'),
+		'tplTheStoreLightingWasAppropriate' => _x('The store lighting was appropriate (not too dark or too bright)', 'form template', 'easy-form-builder'),
+		'tplTheMusicInTheStore' => _x('The music in the store was appropriate (not too loud or too quiet)', 'form template', 'easy-form-builder'),
+		'tplPricesWereFairComparedTo' => _x('Prices were fair compared to other similar stores', 'form template', 'easy-form-builder'),
+		'tplCommentOrMessage' => _x('Comment or Message', 'form template', 'easy-form-builder'),
+		'tplHowLikelyAreYouTo' => _x('How likely are you to recommend us to others?', 'form template', 'easy-form-builder'),
+		'tplVoterBehaviorSurveyTemplate' => _x('Voter Behavior Survey Template', 'form template', 'easy-form-builder'),
+		'tplAreYouRegisteredToVote' => _x('Are you registered to vote?', 'form template', 'easy-form-builder'),
+		'tplInWhichOfTheFollowing' => _x('In which of the following elections have you participated in the last 4 years? Select all that apply.', 'form template', 'easy-form-builder'),
+		'tplPresidentialElection' => _x('Presidential Election', 'form template', 'easy-form-builder'),
+		'tplMidtermElection' => _x('Midterm Election', 'form template', 'easy-form-builder'),
+		'tplStateElection' => _x('State Election', 'form template', 'easy-form-builder'),
+		'tplLocalElectionCouncilMayorSchool' => _x('Local Election (council, mayor, school board, etc.)', 'form template', 'easy-form-builder'),
+		'tplHowDoYouGetInformation' => _x('How do you get information about candidates to determine who gets your vote? Select all that apply.', 'form template', 'easy-form-builder'),
+		'tplAttendTownHalls' => _x('Attend town halls', 'form template', 'easy-form-builder'),
+		'tplReadCandidateWebsites' => _x('Read candidate websites', 'form template', 'easy-form-builder'),
+		'tplFollowCandidatesOnSocialMedia' => _x('Follow candidates on social media', 'form template', 'easy-form-builder'),
+		'tplWatchCandidateDebates' => _x('Watch candidate debates', 'form template', 'easy-form-builder'),
+		'tplReadCandidateLiterature' => _x('Read candidate literature', 'form template', 'easy-form-builder'),
+		'tplAttendCandidateRallies' => _x('Attend candidate rallies', 'form template', 'easy-form-builder'),
+		'tplTvRadioCommercials' => _x('TV/Radio commercials', 'form template', 'easy-form-builder'),
+		'tplReadPastVotingRecordsOr' => _x('Read past voting records or other important historical data', 'form template', 'easy-form-builder'),
+		'tplThroughMyRegisteredPartyS' => _x('Through my registered party\'s recommendations', 'form template', 'easy-form-builder'),
+		'tplOther' => _x('Other', 'form template', 'easy-form-builder'),
+		'tplWhichMethodsOfVotingHave' => _x('Which methods of voting have you used in the past? Select all that apply.', 'form template', 'easy-form-builder'),
+		'tplEarlyVoting' => _x('Early voting', 'form template', 'easy-form-builder'),
+		'tplMailInBallot' => _x('Mail-in ballot', 'form template', 'easy-form-builder'),
+		'tplInPersonVoting' => _x('In-person voting', 'form template', 'easy-form-builder'),
+		'tplMessage2' => _x('Message', 'form template', 'easy-form-builder'),
+		'tplSummerReadingProgramSignupForm' => _x('Summer Reading Program Signup Form Template', 'form template', 'easy-form-builder'),
+		'tplChildSName' => _x('Child\'s Name', 'form template', 'easy-form-builder'),
+		'tplChildSDateOfBirth' => _x('Child\'s Date of Birth', 'form template', 'easy-form-builder'),
+		'tplInWhichLevelWillThe' => _x('In which level will the child be participating?', 'form template', 'easy-form-builder'),
+		'tplPreKAges05' => _x('Pre-K (ages 0-5)', 'form template', 'easy-form-builder'),
+		'tplKidsAges57' => _x('Kids (ages 5-7)', 'form template', 'easy-form-builder'),
+		'tplYouthAges812' => _x('Youth (ages 8-12)', 'form template', 'easy-form-builder'),
+		'tplTeenAges1316' => _x('Teen (ages 13-16)', 'form template', 'easy-form-builder'),
+		'tplYoungAdultAges1718' => _x('Young Adult (ages 17-18)', 'form template', 'easy-form-builder'),
+		'tplParentGuardianName' => _x('Parent/Guardian Name', 'form template', 'easy-form-builder'),
+		'tplParentGuardianEmail' => _x('Parent/Guardian Email', 'form template', 'easy-form-builder'),
+		'tplMobileNumber' => _x('Mobile Number', 'form template', 'easy-form-builder'),
+		'tplComment' => _x('Comment', 'form template', 'easy-form-builder'),
+		'tplRecLeagues18' => _x('Rec Leagues (18+)', 'form template', 'easy-form-builder'),
+		'tplKickballTuesThurs' => _x('Kickball (Tues/Thurs)', 'form template', 'easy-form-builder'),
+		'tplBasketballMonWed' => _x('Basketball (Mon/Wed)', 'form template', 'easy-form-builder'),
+		'tplRecreationalSportsLeagueSignupForm' => _x('Recreational Sports League Signup Form Template', 'form template', 'easy-form-builder'),
+		'tplMobilePhone' => _x('Mobile Phone', 'form template', 'easy-form-builder'),
+		'tplDateOfBirth' => _x('Date of Birth', 'form template', 'easy-form-builder'),
+		'tplTShirtSizeUnisex' => _x('T-shirt Size (unisex)', 'form template', 'easy-form-builder'),
+		'tplXs' => _x('XS', 'form template', 'easy-form-builder'),
+		'tplXl' => _x('XL', 'form template', 'easy-form-builder'),
+		'tplXxl' => _x('XXL', 'form template', 'easy-form-builder'),
+		'tplEmergencyContactName' => _x('Emergency Contact Name', 'form template', 'easy-form-builder'),
+		'tplEmergencyContactPhone' => _x('Emergency Contact Phone', 'form template', 'easy-form-builder'),
+		'tplEmergencyContactEmail' => _x('Emergency Contact Email', 'form template', 'easy-form-builder'),
+		'tplGamesTakePlaceOnThe' => _x('Games take place on the days listed at 6, 7, or 8 p.m. You\'ll receive a schedule for each team or tournament.', 'form template', 'easy-form-builder'),
+		'tplShuffleboardTeamOf2Mon' => _x('Shuffleboard Team of 2 (Mon)', 'form template', 'easy-form-builder'),
+		'tplBocceMon' => _x('Bocce (Mon)', 'form template', 'easy-form-builder'),
+		'tplCornholeThurs' => _x('Cornhole (Thurs)', 'form template', 'easy-form-builder'),
+		'tplAgreement' => _x('Agreement', 'form template', 'easy-form-builder'),
+		'tplIHaveReceivedAndRead' => _x('I have received and read the terms and waiver and agree to all.', 'form template', 'easy-form-builder'),
+		'tplParentGuardianPhone' => _x('Parent/Guardian Phone', 'form template', 'easy-form-builder'),
+		'tplContactUsForm2' => _x('Contact-us Form', 'form template', 'easy-form-builder'),
+		'tplCity' => _x('City', 'form template', 'easy-form-builder'),
+		'tplDoesTheChildResideWith' => _x('Does the child reside with you (at least part-time in cases of custody arrangements)', 'form template', 'easy-form-builder'),
+		'tplIfNoPinIsEntered' => _x('If no PIN is entered here, your library card PIN will be set to the last 4 numbers of your phone number.', 'form template', 'easy-form-builder'),
+		'tplSelectA4DigitPin' => _x('Select a 4-digit PIN number', 'form template', 'easy-form-builder'),
+		'tplIHaveReadAndAgree' => _x('I have read and agree to the library\'s terms of use and understand that any violation is grounds for revocation.', 'form template', 'easy-form-builder'),
+		'tplIGivePermissionForMy' => _x('I give permission for my child to receive a library card.', 'form template', 'easy-form-builder'),
+		'tplEmployeeSuggestionFormTemplate' => _x('Employee Suggestion Form Template', 'form template', 'easy-form-builder'),
+		'tplDepartment' => _x('Department', 'form template', 'easy-form-builder'),
+		'tplRoleTitle' => _x('Role/Title', 'form template', 'easy-form-builder'),
+		'tplYourSuggestionIsRegardingHellip' => _x('Your suggestion is regarding&hellip;', 'form template', 'easy-form-builder'),
+		'tplEmployeeExperience' => _x('Employee Experience', 'form template', 'easy-form-builder'),
+		'tplCustomerExperience' => _x('Customer Experience', 'form template', 'easy-form-builder'),
+		'tplPleaseExplainYourSuggestionFor' => _x('Please explain your suggestion for how we can improve the employee experience.', 'form template', 'easy-form-builder'),
+		'tplBookClubSuggestionFormTemplate' => _x('Book Club Suggestion Form Template', 'form template', 'easy-form-builder'),
+		'tplBookSuggestion' => _x('Book Suggestion', 'form template', 'easy-form-builder'),
+		'tplAuthor' => _x('Author', 'form template', 'easy-form-builder'),
+		'tplGenre' => _x('Genre', 'form template', 'easy-form-builder'),
+		'tplPageCount' => _x('Page Count', 'form template', 'easy-form-builder'),
+		'tplPleaseProvideABriefSynopsis' => _x('Please provide a brief synopsis of the book for us to share with the group.', 'form template', 'easy-form-builder'),
+		'tplContactInformation' => _x('Contact Information', 'form template', 'easy-form-builder'),
+		'tplPleaseProvideYourContactDetails' => _x('Please provide your contact details', 'form template', 'easy-form-builder'),
+		'tplCompanyOrganization' => _x('Company / Organization', 'form template', 'easy-form-builder'),
+		'tplQuoteDetails' => _x('Quote Details', 'form template', 'easy-form-builder'),
+		'tplTellUsAboutYourProject' => _x('Tell us about your project requirements', 'form template', 'easy-form-builder'),
+		'tplSelectAllServicesYouNeed' => _x('Select all services you need', 'form template', 'easy-form-builder'),
+		'tplServicesRequired' => _x('Services Required', 'form template', 'easy-form-builder'),
+		'tplWebDesign' => _x('Web Design', 'form template', 'easy-form-builder'),
+		'tplWebDevelopment' => _x('Web Development', 'form template', 'easy-form-builder'),
+		'tplGraphicDesign' => _x('Graphic Design', 'form template', 'easy-form-builder'),
+		'tplSeoMarketing' => _x('SEO / Marketing', 'form template', 'easy-form-builder'),
+		'tplConsulting' => _x('Consulting', 'form template', 'easy-form-builder'),
+		'tplBudgetRange' => _x('Budget Range', 'form template', 'easy-form-builder'),
+		'tplUnder500' => _x('Under $500', 'form template', 'easy-form-builder'),
+		'tplWhenDoYouNeedThis' => _x('When do you need this delivered?', 'form template', 'easy-form-builder'),
+		'tplDesiredDeliveryDate' => _x('Desired Delivery Date', 'form template', 'easy-form-builder'),
+		'tplUploadBriefsSpecsOrReference' => _x('Upload briefs, specs, or reference files', 'form template', 'easy-form-builder'),
+		'tplUploadProjectFiles' => _x('Upload Project Files', 'form template', 'easy-form-builder'),
+		'tplDescribeYourProjectInDetail' => _x('Describe your project in detail&hellip;', 'form template', 'easy-form-builder'),
+		'tplProjectDescription' => _x('Project Description', 'form template', 'easy-form-builder'),
+		'tplCustomerInformation' => _x('Customer Information', 'form template', 'easy-form-builder'),
+		'tplPleaseProvideYourContactAnd' => _x('Please provide your contact and shipping details', 'form template', 'easy-form-builder'),
+		'tplShippingAddress' => _x('Shipping Address', 'form template', 'easy-form-builder'),
+		'tplPostalZipCode' => _x('Postal / ZIP Code', 'form template', 'easy-form-builder'),
+		'tplPostalCode' => _x('Postal Code', 'form template', 'easy-form-builder'),
+		'tplOrderDetails' => _x('Order Details', 'form template', 'easy-form-builder'),
+		'tplSelectYourProductsAndQuantities' => _x('Select your products and quantities', 'form template', 'easy-form-builder'),
+		'tplProductService' => _x('Product / Service', 'form template', 'easy-form-builder'),
+		'tplProductAStandard' => _x('Product A - Standard', 'form template', 'easy-form-builder'),
+		'tplProductBPremium' => _x('Product B - Premium', 'form template', 'easy-form-builder'),
+		'tplProductCEnterprise' => _x('Product C - Enterprise', 'form template', 'easy-form-builder'),
+		'tplCustomServicePackage' => _x('Custom Service Package', 'form template', 'easy-form-builder'),
+		'tplEnterTheNumberOfItems' => _x('Enter the number of items', 'form template', 'easy-form-builder'),
+		'tplQuantity' => _x('Quantity', 'form template', 'easy-form-builder'),
+		'tplPreferredDeliveryDate' => _x('Preferred Delivery Date', 'form template', 'easy-form-builder'),
+		'tplPaymentMethod' => _x('Payment Method', 'form template', 'easy-form-builder'),
+		'tplCreditCardStripe' => _x('Credit Card / Stripe', 'form template', 'easy-form-builder'),
+		'tplPaypal' => _x('PayPal', 'form template', 'easy-form-builder'),
+		'tplBankTransfer' => _x('Bank Transfer', 'form template', 'easy-form-builder'),
+		'tplInvoiceLater' => _x('Invoice Later', 'form template', 'easy-form-builder'),
+		'tplAnySpecialInstructionsOrCustomization' => _x('Any special instructions or customizations&hellip;', 'form template', 'easy-form-builder'),
+		'tplSpecialRequirementsNotes' => _x('Special Requirements / Notes', 'form template', 'easy-form-builder'),
+		'tplPersonalInformation' => _x('Personal Information', 'form template', 'easy-form-builder'),
+		'tplEGSoftwareDeveloperDesigner' => _x('e.g. Software Developer, Designer, Manager&hellip;', 'form template', 'easy-form-builder'),
+		'tplApplicationDetails' => _x('Application Details', 'form template', 'easy-form-builder'),
+		'tplUploadYourDocumentsAndProvide' => _x('Upload your documents and provide additional information', 'form template', 'easy-form-builder'),
+		'tplWhenCanYouStart' => _x('When can you start?', 'form template', 'easy-form-builder'),
+		'tplEarliestAvailableStartDate' => _x('Earliest Available Start Date', 'form template', 'easy-form-builder'),
+		'tplExpectedSalaryRange' => _x('Expected Salary Range', 'form template', 'easy-form-builder'),
+		'tplUnder30000' => _x('Under $30,000', 'form template', 'easy-form-builder'),
+		'tplNegotiable' => _x('Negotiable', 'form template', 'easy-form-builder'),
+		'tplEmploymentType' => _x('Employment Type', 'form template', 'easy-form-builder'),
+		'tplFullTime' => _x('Full-Time', 'form template', 'easy-form-builder'),
+		'tplPartTime' => _x('Part-Time', 'form template', 'easy-form-builder'),
+		'tplFreelanceContract' => _x('Freelance / Contract', 'form template', 'easy-form-builder'),
+		'tplInternship' => _x('Internship', 'form template', 'easy-form-builder'),
+		'tplAcceptedFormatsPdfDocDocx' => _x('Accepted formats: PDF, DOC, DOCX', 'form template', 'easy-form-builder'),
+		'tplUploadResumeCv' => _x('Upload Resume / CV', 'form template', 'easy-form-builder'),
+		'tplOptionalUploadYourCoverLetter' => _x('Optional - upload your cover letter', 'form template', 'easy-form-builder'),
+		'tplUploadCoverLetter2' => _x('Upload Cover Letter', 'form template', 'easy-form-builder'),
+		'tplTellUsWhyYouAre' => _x('Tell us why you are a great fit for this position&hellip;', 'form template', 'easy-form-builder'),
+		'tplWhyShouldWeHireYou' => _x('Why Should We Hire You?', 'form template', 'easy-form-builder'),
 		);
 		return array_map('wp_strip_all_tags', $t);
 	}

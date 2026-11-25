@@ -3,12 +3,13 @@
  * PUB-03 (B5 → B7 hand-off): the builder's texts reach the phrase list.
  *
  *  - forms-efb.js: every text of the ready-made templates a person reads (field labels, help texts, step titles,
- *    headings, choices, the hint of a text box) is efbTplT(key, English); includes/admin/template-phrases-efb.php has
- *    each key with the same English through __() and a translators comment; efbFunction::efb_sentence_forms() merges
- *    them into efb_var.text on the Create screen. No literal English is left but the technical values (the
+ *    headings, choices, the hint of a text box) is efbTplT(key); includes/admin/template-phrases-efb.php has each key
+ *    through _x(English, 'form template') (the context tells translators where it shows; no copy of the English in the
+ *    script); efbFunction::efb_sentence_forms() merges them into efb_var.text on the Create screen. No literal English
+ *    is left but the technical values (the
  *    placeholders of choice and file fields that no one sees, "document", the Stripe field);
  *  - the templates' English typos are fixed ("storet", "insatgram", "More then", a Lorem ipsum invitation …);
- *  - a template made on a site with the phrases translated carries the translations; without them the English;
+ *  - a template made with the phrases (English) is in English, with them translated it carries the translations;
  *  - val-efb.js: calcField is a phrase of core (the tile while the Numbers & Calculations add-on is not installed);
  *    the e-mail subject box uses the existing emailSubjectLabel; every efb_var.text key the builder, the settings
  *    and the templates read exists in the phrase list.
@@ -23,7 +24,7 @@ function t($name, $actual, $expected) {
 }
 $root = dirname(__DIR__);
 define('ABSPATH', sys_get_temp_dir() . '/');
-function __($s, $d = '') { return $s; }
+function _x($s, $c = '', $d = '') { return $s; }
 function wp_strip_all_tags($s) { return strip_tags((string) $s); }
 $file = $root . '/includes/admin/template-phrases-efb.php';
 t('includes/admin/template-phrases-efb.php exists', is_file($file), true);
@@ -33,19 +34,14 @@ $ph = emsfb_template_phrases_efb();
 $js = (string) file_get_contents($root . '/includes/admin/assets/js/forms-efb.js');
 $src = (string) file_get_contents($file);
 
-preg_match_all('/efbTplT\("([A-Za-z0-9]+)", ("(?:[^"\\\\]|\\\\.)*")\)/', $js, $m, PREG_SET_ORDER);
-t('forms-efb.js reads the template texts through efbTplT() (' . count($m) . ' texts)', count($m) >= 240, true);
+preg_match_all('/efbTplT\("([A-Za-z0-9]+)"\)/', $js, $m, PREG_SET_ORDER);
+t('forms-efb.js reads the template texts through efbTplT(key) (' . count($m) . ' texts)', count($m) >= 240, true);
 $bad = array();
-foreach ($m as $x) {
-	$en = json_decode($x[2]);
-	if (!isset($ph[$x[1]])) $bad[] = 'missing ' . $x[1];
-	elseif ($ph[$x[1]] !== $en) $bad[] = $x[1] . ': "' . $ph[$x[1]] . '" vs "' . $en . '"';
-}
-t('every key is a phrase of template-phrases-efb.php, with the same English', $bad, array());
+foreach ($m as $x) if (!isset($ph[$x[1]])) $bad[] = 'missing ' . $x[1];
+t('every key is a phrase of template-phrases-efb.php', $bad, array());
 $used = array_unique(array_map(function ($x) { return $x[1]; }, $m));
 t('… and every phrase there is used (' . count($ph) . ')', array_values(array_diff(array_keys($ph), $used)), array());
-t('every phrase has a translators comment', substr_count($src, "/* translators: ready-made form template:"), count($ph));
-t('the phrases go through __() in the plugin\'s text domain', substr_count($src, "', 'easy-form-builder'),"), count($ph));
+t('every phrase goes through _x() with the context "form template" in the plugin\'s text domain', substr_count($src, "', 'form template', 'easy-form-builder'),"), count($ph));
 
 $left = array();
 if (preg_match_all('/"(name|message|placeholder|value|formName)"\s*:\s*"([^"]*)"/', $js, $lm, PREG_SET_ORDER)) {
@@ -68,15 +64,16 @@ if (trim((string) shell_exec('command -v node')) !== '') {
 		. "const run = (text) => { global.efb_var = { rtl: 0, text, setting: { emailSupporter: '' } };\n"
 		. "  const f = new Function(require('fs').readFileSync(" . json_encode($root . '/includes/admin/assets/js/forms-efb.js') . ", 'utf8') + '; return { a: StoreExperienceSurveyTemplate_efb(), b: party_invite_form_efb(), c: recreational_Sports_league_signup_form_efb() };');\n"
 		. "  return f(); };\n"
-		. "const en = run({});\n"
-		. "const fa = run({ tplIWasGreetedUponEntering: 'هنگام ورود به فروشگاه به من خوشامد گفته شد', tplPartyInvite: 'دعوت به مهمانی', tplKickballTuesThurs: 'کیک‌بال (سه‌شنبه/پنجشنبه)' });\n"
+		. "const ph = " . json_encode($ph, JSON_UNESCAPED_UNICODE) . ";\n"
+		. "const en = run(Object.assign({}, ph));\n"
+		. "const fa = run(Object.assign({}, ph, { tplIWasGreetedUponEntering: 'هنگام ورود به فروشگاه به من خوشامد گفته شد', tplPartyInvite: 'دعوت به مهمانی', tplKickballTuesThurs: 'کیک‌بال (سه‌شنبه/پنجشنبه)' }));\n"
 		. "const pick = (o, rows, k, v) => { const r = rows.find((x) => x[k] === v); return r ? r : null; };\n"
 		. "console.log(JSON.stringify({ en: [en.a.some((r) => r.name === 'I was greeted upon entering the store'), en.b.some((r) => r.name === 'Party Invite')], fa: [fa.a.some((r) => r.name === 'هنگام ورود به فروشگاه به من خوشامد گفته شد'), fa.b.some((r) => r.name === 'دعوت به مهمانی'), fa.c.some((r) => r.value === 'کیک‌بال (سه‌شنبه/پنجشنبه)')], invite: (en.b.find((r) => r.type === 'step') || {}).message }));\n";
 	$tmp = tempnam(sys_get_temp_dir(), 'efbtpl') . '.js';
 	file_put_contents($tmp, $prog);
 	$out = json_decode(trim((string) shell_exec('node ' . escapeshellarg($tmp) . ' 2>&1')), true);
 	@unlink($tmp);
-	t('without the phrases a template is in English', isset($out['en']) ? $out['en'] : $out, array(true, true));
+	t('with the English phrases a template is in English', isset($out['en']) ? $out['en'] : $out, array(true, true));
 	t('with the phrases translated it carries them (a label, a step title, a choice)', isset($out['fa']) ? $out['fa'] : $out, array(true, true, true));
 	t('the party invitation says something, not Lorem ipsum', isset($out['invite']) ? $out['invite'] : null, "We're having a party and would love to see you. Please let us know if you can come.");
 }

@@ -1,19 +1,10 @@
 <?php
 /**
- * LIFE-01 (owner decision 5): what deactivating and deleting Easy Form Builder removes.
- *
- * Deactivation (Emsfb::plugin_deactivation_cleanup_efb()): every scheduled event of the plugin and of the add-ons in
- * its vendor/ folder (clear_cron()). Nothing else: the forms, entries and settings stay.
- *
- * Deletion (uninstall.php, through uninstall()), on every site of a network:
- *   - always: the scheduled events, the transients and the temporary "Form Preview" drafts (their own clean-up event
- *     is one of the events removed);
- *   - only when Settings › Privacy › "Delete all data when the plugin is deleted" (SETTING, off by default) is on for
- *     that site: the plugin's tables, options, its private upload folder, the files it registered in the Media
- *     Library, its post meta, its capabilities and roles; and, once no site keeps its data, the plugin's user meta
- *     (user meta is shared by the sites of a network).
- *
- * Self-contained: uninstall.php runs while the plugin is not loaded, so nothing here needs another plugin class.
+ * LIFE-01 (owner decision 5): what deactivating and deleting the plugin remove. Deactivation: every scheduled event
+ * (clear_cron()). Deletion (uninstall.php), per site: always the events, transients and preview drafts; with Settings ›
+ * Privacy › "Delete all data when the plugin is deleted" (SETTING) also the tables, options, private folder, Media
+ * Library files of entries, post meta, capabilities and roles, and the user meta once no site keeps its data.
+ * Self-contained: uninstall.php runs while the plugin is not loaded.
  *
  * @package EasyFormBuilder
  */
@@ -29,11 +20,7 @@ class Lifecycle {
 	/** The site setting (emsfb_setting row, Settings › Privacy). '1' = delete everything on deletion. */
 	const SETTING = 'prv_delete_on_uninstall';
 
-	/**
-	 * Every WP-Cron hook the plugin and its add-ons schedule, and the names older versions used. Any other hook whose
-	 * name starts with emsfb_ is swept as well (clear_cron()). tests/test-lifecycle-uninstall-lists.php fails when the
-	 * code schedules a hook that is not covered.
-	 */
+	/** Every WP-Cron hook the plugin and its add-ons schedule, and the names older versions used. Any other hook whose name starts with emsfb_ is swept as well (clear_cron()). tests/test-lifecycle-uninstall-lists.php fails when the code schedules a hook that is not covered. */
 	const CRON_HOOKS = array(
 		'emsfb_daily_maintenance',
 		'emsfb_revalidate_license',
@@ -101,11 +88,7 @@ class Lifecycle {
 
 	/* ------------------------------------------------------------------ deactivation */
 
-	/**
-	 * Remove every scheduled event of the plugin on this site.
-	 *
-	 * @return int Events removed.
-	 */
+	/** Remove every scheduled event of the plugin on this site. */
 	public static function clear_cron() {
 		if (!function_exists('wp_unschedule_hook')) {
 			return 0;
@@ -130,12 +113,7 @@ class Lifecycle {
 		return $removed;
 	}
 
-	/**
-	 * Deactivation: the events of this site, or of every site when the plugin is deactivated for the whole network.
-	 *
-	 * @param bool $network_wide Network deactivation.
-	 * @return int Events removed.
-	 */
+	/** Deactivation: the events of this site, or of every site when the plugin is deactivated for the whole network. */
 	public static function deactivate($network_wide = false) {
 		if (!$network_wide || !function_exists('is_multisite') || !is_multisite()) {
 			return self::clear_cron();
@@ -151,11 +129,7 @@ class Lifecycle {
 
 	/* ------------------------------------------------------------------ uninstall */
 
-	/**
-	 * Deletion of the plugin (uninstall.php). Each site decides for its own data.
-	 *
-	 * @return array{sites:int, removed:int, kept:int} How many sites had their data removed or kept.
-	 */
+	/** Deletion of the plugin (uninstall.php). Each site decides for its own data. */
 	public static function uninstall() {
 		$sum = array('sites' => 0, 'removed' => 0, 'kept' => 0);
 		if (function_exists('is_multisite') && is_multisite()) {
@@ -179,11 +153,7 @@ class Lifecycle {
 		return $sum;
 	}
 
-	/**
-	 * One site: events, transients and preview drafts always; everything else when the site asked for it.
-	 *
-	 * @return bool True when the site's data was removed.
-	 */
+	/** One site: events, transients and preview drafts always; everything else when the site asked for it. */
 	public static function uninstall_site() {
 		self::clear_cron();
 		self::delete_transients();
@@ -195,11 +165,7 @@ class Lifecycle {
 		return true;
 	}
 
-	/**
-	 * Whether this site's settings ask for its data to be removed when the plugin is deleted (off by default).
-	 *
-	 * @return bool
-	 */
+	/** Whether this site's settings ask for its data to be removed when the plugin is deleted (off by default). */
 	public static function wants_data_removal() {
 		global $wpdb;
 		if (!is_object($wpdb)) {
@@ -217,12 +183,7 @@ class Lifecycle {
 		return self::setting_on($raw);
 	}
 
-	/**
-	 * Read the switch from the stored settings JSON (also an older double-escaped copy).
-	 *
-	 * @param mixed $raw The settings row.
-	 * @return bool
-	 */
+	/** Read the switch from the stored settings JSON (also an older double-escaped copy). */
 	public static function setting_on($raw) {
 		if (!is_string($raw) || $raw === '') {
 			return false;
@@ -237,11 +198,7 @@ class Lifecycle {
 		return (bool) preg_match('/"' . self::SETTING . '\\\\*"\s*:\s*\\\\*"?(1|true)\b/', $raw);
 	}
 
-	/**
-	 * Everything the plugin stored for this site.
-	 *
-	 * @return void
-	 */
+	/** Everything the plugin stored for this site. */
 	public static function delete_data() {
 		self::delete_media();
 		self::delete_private_dir();
@@ -252,11 +209,7 @@ class Lifecycle {
 		self::flush_cache_groups();
 	}
 
-	/**
-	 * The plugin's tables of this site ({prefix}emsfb…; a network's other sites have their own prefix).
-	 *
-	 * @return int Tables dropped.
-	 */
+	/** The plugin's tables of this site ({prefix}emsfb…; a network's other sites have their own prefix). */
 	public static function drop_tables() {
 		global $wpdb;
 		$tables = (array) $wpdb->get_col($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($wpdb->prefix . 'emsfb') . '%'));
@@ -273,11 +226,7 @@ class Lifecycle {
 		return $n;
 	}
 
-	/**
-	 * The plugin's options of this site.
-	 *
-	 * @return int Options deleted.
-	 */
+	/** The plugin's options of this site. */
 	public static function delete_options() {
 		global $wpdb;
 		$like = array('emsfb\_%', 'Emsfb\_%');
@@ -297,12 +246,7 @@ class Lifecycle {
 		return $n;
 	}
 
-	/**
-	 * Transients of the plugin on this site: their values and timeouts in the options table (a single site's site
-	 * transients too) and, with a persistent object cache, the ones with a fixed name.
-	 *
-	 * @return int Rows deleted.
-	 */
+	/** Transients of the plugin on this site: their values and timeouts in the options table (a single site's site transients too) and, with a persistent object cache, the ones with a fixed name. */
 	public static function delete_transients() {
 		global $wpdb;
 		$like = array();
@@ -329,11 +273,7 @@ class Lifecycle {
 		return $n;
 	}
 
-	/**
-	 * A network's site transients (sitemeta); a single site keeps them in its options (delete_transients()).
-	 *
-	 * @return int Rows deleted.
-	 */
+	/** A network's site transients (sitemeta); a single site keeps them in its options (delete_transients()). */
 	public static function delete_site_transients() {
 		global $wpdb;
 		if (!function_exists('is_multisite') || !is_multisite() || empty($wpdb->sitemeta)) {
@@ -357,11 +297,7 @@ class Lifecycle {
 		return $n;
 	}
 
-	/**
-	 * The "Form Preview" drafts (page easy-form-builder-preview, option preview@…) whose clean-up event is gone.
-	 *
-	 * @return int Drafts deleted.
-	 */
+	/** The "Form Preview" drafts (page easy-form-builder-preview, option preview@…) whose clean-up event is gone. */
 	public static function delete_preview_pages() {
 		global $wpdb;
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- uninstall: the preview pointers
@@ -380,11 +316,7 @@ class Lifecycle {
 		return $n;
 	}
 
-	/**
-	 * Files of entries that were registered in the Media Library (private attachments with _efb_form_id).
-	 *
-	 * @return int Attachments deleted.
-	 */
+	/** Files of entries that were registered in the Media Library (private attachments with _efb_form_id). */
 	public static function delete_media() {
 		$n = 0;
 		for ($round = 0; $round < 500; $round++) {
@@ -414,11 +346,7 @@ class Lifecycle {
 		return $n;
 	}
 
-	/**
-	 * The private upload folder (uploads/efb-private, or the folder the emsfb_private_upload_dir filter names).
-	 *
-	 * @return bool True when it was there and is gone.
-	 */
+	/** The private upload folder (uploads/efb-private, or the folder the emsfb_private_upload_dir filter names). */
 	public static function delete_private_dir() {
 		$dir = self::private_dir();
 		if ($dir === '' || !is_dir($dir) || is_link(rtrim($dir, '/'))) {
@@ -428,12 +356,7 @@ class Lifecycle {
 		return !is_dir($dir);
 	}
 
-	/**
-	 * The private folder of this site when it is safe to delete: it exists, its name says it is the plugin's, and it
-	 * is none of WordPress's own folders (nor one of their parents).
-	 *
-	 * @return string Absolute path with a trailing slash, or ''.
-	 */
+	/** The private folder of this site when it is safe to delete: it exists, its name says it is the plugin's, and it is none of WordPress's own folders (nor one of their parents). */
 	public static function private_dir() {
 		$uploads = wp_upload_dir(null, false);
 		if (!is_array($uploads) || !empty($uploads['error']) || empty($uploads['basedir'])) {
@@ -459,12 +382,7 @@ class Lifecycle {
 		return trailingslashit($real);
 	}
 
-	/**
-	 * Delete a folder and what it holds; a link is removed, never followed.
-	 *
-	 * @param string $dir Absolute path without a trailing slash.
-	 * @return void
-	 */
+	/** Delete a folder and what it holds; a link is removed, never followed. */
 	private static function rrmdir($dir) {
 		$items = scandir($dir);
 		foreach ((array) $items as $item) {
@@ -482,22 +400,14 @@ class Lifecycle {
 		@rmdir($dir);
 	}
 
-	/**
-	 * The plugin's post meta (marks on pages with a form, links of Media Library files to entries).
-	 *
-	 * @return void
-	 */
+	/** The plugin's post meta (marks on pages with a form, links of Media Library files to entries). */
 	public static function delete_post_meta() {
 		foreach (self::POST_META as $key) {
 			delete_post_meta_by_key($key);
 		}
 	}
 
-	/**
-	 * The plugin's capabilities (Emsfb…) from every role of this site, and any role it added.
-	 *
-	 * @return int Capabilities removed.
-	 */
+	/** The plugin's capabilities (Emsfb…) from every role of this site, and any role it added. */
 	public static function remove_capabilities() {
 		if (!function_exists('wp_roles')) {
 			return 0;
@@ -523,11 +433,7 @@ class Lifecycle {
 		return $n;
 	}
 
-	/**
-	 * The plugin's user meta (shared by all sites of a network).
-	 *
-	 * @return int Meta keys removed.
-	 */
+	/** The plugin's user meta (shared by all sites of a network). */
 	public static function delete_user_meta() {
 		global $wpdb;
 		$keys = self::USER_META;
@@ -547,11 +453,7 @@ class Lifecycle {
 		return $n;
 	}
 
-	/**
-	 * The plugin's object cache groups, where the cache can flush one group.
-	 *
-	 * @return void
-	 */
+	/** The plugin's object cache groups, where the cache can flush one group. */
 	public static function flush_cache_groups() {
 		if (function_exists('wp_cache_supports') && wp_cache_supports('flush_group')) {
 			wp_cache_flush_group('emsfb');
@@ -559,11 +461,7 @@ class Lifecycle {
 		}
 	}
 
-	/**
-	 * The ids of a network's sites.
-	 *
-	 * @return int[]
-	 */
+	/** The ids of a network's sites. */
 	private static function site_ids() {
 		if (!function_exists('get_sites')) {
 			return array(get_current_blog_id());

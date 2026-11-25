@@ -4666,7 +4666,7 @@ function admin_notices_efb () {
         if ($form_id === null) {
             $this->form_cache = array();
 
-            if (function_exists('wp_cache_supports') && wp_cache_supports('flush_group')) { // COMP-01: a persistent cache without group flushes answers _doing_it_wrong()
+            if (function_exists('wp_cache_flush_group') && (!function_exists('wp_cache_supports') || wp_cache_supports('flush_group'))) { // COMP-01: a cache without group flushes answers _doing_it_wrong()
                 wp_cache_flush_group('emsfb');
             }
 

@@ -1,19 +1,9 @@
 <?php
 /**
- * SEC-04 follow-up (owner decision 6): answers of password fields stored before 4.3.2 become the mask.
- *
- * Since 4.3.2 a password field's answer is checked and never stored (_Public::validate_rows_efb() writes
- * _Public::PASSWORD_MASK_EFB). Entries saved before still hold what visitors typed. This one-time step replaces those
- * values, and their copies in the entries' history (emsfb_msg_log_), with the same mask:
- *  - started by the update to 4.3.2 (Emsfb::run_upgrade_tasks_efb()), never inside a visitor's request;
- *  - in slices of SLICE entry ids (the primary key), as many as fit in a few seconds per run, on WP-Cron
- *    (HOOK) until the last id the table had when it started; an administrator's screen continues it when WP-Cron
- *    does not run;
- *  - idempotent: a value that is already the mask is left alone, and a finished run does nothing again;
- *  - logged in the option LOG_OPTION (started, finished, entries scanned and changed, values masked, history rows,
- *    runs), and once in the PHP error log when it finishes with something masked.
- * Exports read the stored entries, so they are clean once it has run; until then the exports mask these rows
- * themselves (Entries::export_row_text(), convertToCSV in list_form-efb.js).
+ * SEC-04 follow-up (owner decision 6): password answers stored before 4.3.2 (password fields, the register and login
+ * forms' rows, their edits in emsfb_msg_log_) become the mask once, after the update, on WP-Cron in slices of entry ids
+ * with a time budget and a lock; an administrator's screen continues it when WP-Cron does not run. Idempotent; logged
+ * in LOG_OPTION and once in the PHP error log. Until then the exports mask these rows themselves.
  *
  * @package EasyFormBuilder
  */
@@ -40,22 +30,14 @@ class Password_Scrub {
 	const SLICE = 2000;
 	const BUDGET = 8;
 
-	/**
-	 * Hooks: the event, and the continuation from an administrator's screen when WP-Cron has not run it for an hour.
-	 *
-	 * @return void
-	 */
+	/** Hooks: the event, and the continuation from an administrator's screen when WP-Cron has not run it for an hour. */
 	public static function register() {
 		if (!function_exists('add_action')) return;
 		add_action(self::HOOK, array(__CLASS__, 'run'), 10, 0);
 		add_action('admin_init', array(__CLASS__, 'maybe_continue'), 20, 0);
 	}
 
-	/**
-	 * Start (or restart after a reset) the scrub: records the last entry id and schedules the first run.
-	 *
-	 * @return array The log.
-	 */
+	/** Start (or restart after a reset) the scrub: records the last entry id and schedules the first run. */
 	public static function start() {
 		$log = self::log();
 		if (!empty($log['state']) && in_array($log['state'], array('running', 'done'), true)) {
@@ -75,12 +57,7 @@ class Password_Scrub {
 		return $log;
 	}
 
-	/**
-	 * One run: slices until the budget is spent or the last id is reached.
-	 *
-	 * @param int $budget Seconds.
-	 * @return array The log.
-	 */
+	/** One run: slices until the budget is spent or the last id is reached. */
 	public static function run($budget = self::BUDGET) {
 		$log = self::log();
 		if (empty($log['state']) || $log['state'] !== 'running') return $log;
@@ -108,12 +85,7 @@ class Password_Scrub {
 		return $log;
 	}
 
-	/**
-	 * An administrator's screen: when the scrub is still running and WP-Cron has not run it for an hour (or has no
-	 * event for it), a short run here.
-	 *
-	 * @return void
-	 */
+	/** An administrator's screen: when the scrub is still running and WP-Cron has not run it for an hour (or has no event for it), a short run here. */
 	public static function maybe_continue() {
 		$log = self::log();
 		if (empty($log['state']) || $log['state'] !== 'running') return;
@@ -124,12 +96,7 @@ class Password_Scrub {
 		self::run(2);
 	}
 
-	/**
-	 * One slice of entry ids (cursor, cursor + SLICE], only the entries whose content can hold a password row.
-	 *
-	 * @param array $log The log.
-	 * @return array The log.
-	 */
+	/** One slice of entry ids (cursor, cursor + SLICE], only the entries whose content can hold a password row. */
 	public static function slice(array $log) {
 		global $wpdb;
 		$table = $wpdb->prefix . 'emsfb_msg_';
@@ -158,12 +125,7 @@ class Password_Scrub {
 		return $log;
 	}
 
-	/**
-	 * The stored content with every password answer replaced by the mask.
-	 *
-	 * @param string $raw The stored content.
-	 * @return array|null [content, values masked, the password rows' ids] or null when the content is not readable.
-	 */
+	/** The stored content with every password answer replaced by the mask. */
 	public static function scrub_content($raw) {
 		if (!class_exists('\\Emsfb\\Privacy') && is_readable(__DIR__ . '/class-Emsfb-privacy.php')) require_once __DIR__ . '/class-Emsfb-privacy.php';
 		$rows = class_exists('\\Emsfb\\Privacy') ? Privacy::decode_content($raw) : null;
@@ -180,25 +142,14 @@ class Password_Scrub {
 		return array($n ? Privacy::encode_content($rows) : $raw, $n, array_values(array_unique($ids)));
 	}
 
-	/**
-	 * Whether an answer row holds a password (a password field, or the register and login forms' password rows).
-	 *
-	 * @param array $row Answer row.
-	 * @return bool
-	 */
+	/** Whether an answer row holds a password (a password field, or the register and login forms' password rows). */
 	public static function is_password_row(array $row) {
 		$type = isset($row['type']) && is_scalar($row['type']) ? (string) $row['type'] : '';
 		$id = isset($row['id_']) && is_scalar($row['id_']) ? (string) $row['id_'] : '';
 		return in_array($type, self::TYPES, true) || in_array($id, self::IDS, true);
 	}
 
-	/**
-	 * The entry's history (emsfb_msg_log_): old and new values of its password fields.
-	 *
-	 * @param int      $msg_id Entry.
-	 * @param string[] $ids    The password rows' field ids.
-	 * @return int Rows changed.
-	 */
+	/** The entry's history (emsfb_msg_log_): old and new values of its password fields. */
 	private static function scrub_history($msg_id, array $ids) {
 		global $wpdb;
 		$log = $wpdb->prefix . 'emsfb_msg_log_';

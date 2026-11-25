@@ -1322,11 +1322,6 @@ msgstr ""
 msgid "Accepted for sending; delivery not confirmed yet"
 msgstr ""
 
-#. translators: ready-made form template: help text under a field
-#: includes/admin/template-phrases-efb.php:451
-msgid "Accepted formats: PDF, DOC, DOCX"
-msgstr ""
-
 #. translators: F11: builder section title (form settings)
 #: includes/functions.php:2845
 msgid "Access and limits"
@@ -1636,10 +1631,9 @@ msgstr ""
 msgid "Addon Installation Issue"
 msgstr ""
 
-#. translators: ready-made form template: a field label translators: F16 form
-#. builder: group in the "Browser autofill" list
-#: includes/admin/template-phrases-efb.php:33 includes/functions.php:2383
-#: includes/functions.php:3259 includes/functions.php:4693
+#. translators: F16 form builder: group in the "Browser autofill" list
+#: includes/functions.php:2383 includes/functions.php:3259
+#: includes/functions.php:4693
 msgid "Address"
 msgstr ""
 
@@ -1685,11 +1679,6 @@ msgstr ""
 #. translators: F14: resend option
 #: includes/functions.php:6597
 msgid "Administrator only"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:97
-msgid "Ads Video"
 msgstr ""
 
 #: includes/functions.php:2465
@@ -1781,11 +1770,6 @@ msgstr ""
 #. translators: F05 ready-made list
 #: includes/functions.php:5559
 msgid "Age range (Persian)"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:293
-msgid "Agreement"
 msgstr ""
 
 #. translators: F05 ready-made list
@@ -2102,11 +2086,6 @@ msgstr ""
 msgid "Any domain"
 msgstr ""
 
-#. translators: ready-made form template: the hint inside an empty field
-#: includes/admin/template-phrases-efb.php:419
-msgid "Any special instructions or customizations&hellip;"
-msgstr ""
-
 #. translators: Form template additional field labels
 #: includes/functions.php:4313
 msgid "Any special instructions?"
@@ -2130,11 +2109,6 @@ msgstr ""
 msgid "Appearance"
 msgstr ""
 
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:427
-msgid "Application Details"
-msgstr ""
-
 #: includes/functions.php:2193
 msgid "Application form for children’s library cards."
 msgstr ""
@@ -2155,11 +2129,6 @@ msgstr ""
 
 #: includes/functions.php:8196
 msgid "Arabic Date Picker"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:189
-msgid "Are you registered to vote?"
 msgstr ""
 
 #: includes/functions.php:2499
@@ -2322,16 +2291,6 @@ msgstr ""
 msgid "Attempts made"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:213
-msgid "Attend candidate rallies"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:203
-msgid "Attend town halls"
-msgstr ""
-
 #: includes/functions.php:1752
 msgid "Audio Recorder"
 msgstr ""
@@ -2384,11 +2343,6 @@ msgstr ""
 #. translators: Authentication Value = field label
 #: includes/phrases.php:389
 msgid "Authentication Value"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:331
-msgid "Author"
 msgstr ""
 
 #: includes/payments/class-Emsfb-payment-admin.php:181
@@ -2479,11 +2433,6 @@ msgstr ""
 
 #: includes/functions.php:4357
 msgid "Avg Length"
-msgstr ""
-
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:53
-msgid "BRIEF"
 msgstr ""
 
 #. translators: F18: button
@@ -2578,11 +2527,6 @@ msgstr ""
 msgid "Bahraini mobile number"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:415
-msgid "Bank Transfer"
-msgstr ""
-
 #: includes/functions.php:4343
 msgid "Banner"
 msgstr ""
@@ -2600,11 +2544,6 @@ msgstr ""
 #. of basic_info
 #: includes/phrases.php:452 includes/phrases.php:555
 msgid "Basic Information"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:263
-msgid "Basketball (Mon/Wed)"
 msgstr ""
 
 #: includes/functions.php:2486
@@ -2698,11 +2637,6 @@ msgstr ""
 msgid "Blue"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:289
-msgid "Bocce (Mon)"
-msgstr ""
-
 #. translators: Tooltip on the Bold button in the response-viewer rich-text
 #. editor toolbar translators: F10: editor button
 #: includes/functions.php:3930 includes/functions.php:5799
@@ -2716,16 +2650,6 @@ msgstr ""
 
 #: includes/functions.php:2196
 msgid "Book Club Suggestion"
-msgstr ""
-
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:327
-msgid "Book Club Suggestion Form Template"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:329
-msgid "Book Suggestion"
 msgstr ""
 
 #: includes/functions.php:2171
@@ -2845,16 +2769,6 @@ msgstr ""
 #. translators: F16 form builder: what the browser may fill into a field
 #: includes/functions.php:4590
 msgid "Browser autofill"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:107
-msgid "Budget"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:363
-msgid "Budget Range"
 msgstr ""
 
 #: includes/functions.php:4292
@@ -3042,11 +2956,6 @@ msgstr ""
 msgid "CV Application"
 msgstr ""
 
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:45
-msgid "CV Submission"
-msgstr ""
-
 #. translators: Help text above the cache duration field
 #: includes/functions.php:3379 includes/phrases.php:593
 msgid "Cache API responses to improve performance"
@@ -3092,11 +3001,6 @@ msgstr ""
 #. translators: F07 builder: label of the camera option
 #: includes/functions.php:5292
 msgid "Camera"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:115
-msgid "Can you attend?"
 msgstr ""
 
 #. translators: Title of the form builder's question about email delivery.
@@ -3455,16 +3359,6 @@ msgstr ""
 msgid "Checking your review"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:237
-msgid "Child's Date of Birth"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:235
-msgid "Child's Name"
-msgstr ""
-
 #: includes/functions.php:2192
 msgid "Children Library Card"
 msgstr ""
@@ -3596,9 +3490,7 @@ msgstr ""
 msgid "Cities follow the chosen province"
 msgstr ""
 
-#. translators: ready-made form template: a field label translators: F16
-#. builder, "Browser autofill" list: what the browser fills in
-#: includes/admin/template-phrases-efb.php:301
+#. translators: F16 builder, "Browser autofill" list: what the browser fills in
 #: includes/data/autocomplete-labels-efb.php:52 includes/functions.php:4249
 msgid "City"
 msgstr ""
@@ -3898,14 +3790,8 @@ msgstr ""
 msgid "Come back and claim the code"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:257 includes/functions.php:4250
+#: includes/functions.php:4250
 msgid "Comment"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:183
-msgid "Comment or Message"
 msgstr ""
 
 #: includes/functions.php:4290
@@ -3915,16 +3801,6 @@ msgstr ""
 #. translators: F12b: builder: CAPTCHA option value (size)
 #: includes/functions.php:5981
 msgid "Compact"
-msgstr ""
-
-#. translators: ready-made form template: the hint inside an empty field
-#: includes/admin/template-phrases-efb.php:343
-msgid "Company / Organization"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:59
-msgid "Company Name"
 msgstr ""
 
 #. translators: F16 builder, "Browser autofill" list: what the browser fills in
@@ -4040,20 +3916,10 @@ msgstr ""
 msgid "Connects Gmail, Outlook, Brevo and almost any SMTP service to WordPress. Free."
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:361
-msgid "Consulting"
-msgstr ""
-
 #. translators: F11: column translators: F16 form builder: group in the
 #. "Browser autofill" list
 #: includes/functions.php:2939 includes/functions.php:4691
 msgid "Contact"
-msgstr ""
-
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:339
-msgid "Contact Information"
 msgstr ""
 
 #: includes/functions.php:2276
@@ -4074,16 +3940,6 @@ msgstr ""
 
 #: includes/functions.php:2373
 msgid "Contact us Template"
-msgstr ""
-
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:31
-msgid "Contact us form"
-msgstr ""
-
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:299
-msgid "Contact-us Form"
 msgstr ""
 
 #: includes/page-builders/elementor/class-Emsfb-elementor-widget.php:87
@@ -4248,11 +4104,6 @@ msgstr ""
 msgid "Corners"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:291
-msgid "Cornhole (Thurs)"
-msgstr ""
-
 #: includes/admin/class-Emsfb-admin.php:2547
 msgid "Could not start email test."
 msgstr ""
@@ -4400,11 +4251,6 @@ msgstr ""
 msgid "Credit / debit card number"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:411
-msgid "Credit Card / Stripe"
-msgstr ""
-
 #: includes/functions.php:4309
 msgid "Curly Cut"
 msgstr ""
@@ -4504,11 +4350,6 @@ msgstr ""
 msgid "Custom SVG Code"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:401
-msgid "Custom Service Package"
-msgstr ""
-
 #: includes/page-builders/visual-composer/class-Emsfb-visual-composer.php:297
 msgid "Custom Title (optional):"
 msgstr ""
@@ -4534,18 +4375,8 @@ msgstr ""
 msgid "Custom “required” message"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:323
-msgid "Customer Experience"
-msgstr ""
-
 #: includes/functions.php:2378
 msgid "Customer Feedback"
-msgstr ""
-
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:379
-msgid "Customer Information"
 msgstr ""
 
 #. translators: Customize Colors = button label to open the color customization
@@ -4670,16 +4501,6 @@ msgstr ""
 msgid "Date display for admins"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:269
-msgid "Date of Birth"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:157
-msgid "Date of Last Store Visit"
-msgstr ""
-
 #. translators: F16 builder, "Browser autofill" list: what the browser fills in
 #. translators: F06 builder, advanced date field panel
 #: includes/data/autocomplete-labels-efb.php:78 includes/functions.php:5215
@@ -4714,11 +4535,6 @@ msgstr ""
 #. translators: F05 ready-made list
 #: includes/functions.php:5575
 msgid "Days of the week (from Sunday, Arabic)"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:89
-msgid "Deadline"
 msgstr ""
 
 #. translators: F01 builder, number format: how many digits after the decimal
@@ -4893,18 +4709,8 @@ msgstr ""
 msgid "Delivery result unknown"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:315
-msgid "Department"
-msgstr ""
-
 #: includes/class-Emsfb-deactivation-feedback.php:1019
 msgid "Describe the bug and we will send you a 99% discount code for your first year of the Pro version, as a thank you."
-msgstr ""
-
-#. translators: ready-made form template: the hint inside an empty field
-#: includes/admin/template-phrases-efb.php:375
-msgid "Describe your project in detail&hellip;"
 msgstr ""
 
 #: includes/functions.php:1780
@@ -4918,16 +4724,6 @@ msgstr ""
 #: includes/page-builders/wpbakery/class-Emsfb-wpbakery.php:79
 #: includes/page-builders/wpbakery/class-Emsfb-wpbakery.php:85
 msgid "Design"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:43
-msgid "Design Type"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:369
-msgid "Desired Delivery Date"
 msgstr ""
 
 #. translators: Desktop = computer/PC view
@@ -4985,11 +4781,6 @@ msgstr ""
 #. translators: F02 visitor: link that shows delivery tips
 #: includes/functions.php:4827
 msgid "Did not get the code?"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:129
-msgid "Dietary restrictions"
 msgstr ""
 
 #. translators: F12b: builder: CAPTCHA option
@@ -5107,11 +4898,6 @@ msgstr ""
 msgid "Do not store entries, send notifications only"
 msgstr ""
 
-#. translators: ready-made form template: text under a step title
-#: includes/admin/template-phrases-efb.php:47
-msgid "Do you want to work with us? Please fill in your details below."
-msgstr ""
-
 #: includes/functions.php:2235
 msgid "Document"
 msgstr ""
@@ -5122,11 +4908,6 @@ msgstr ""
 
 #: includes/functions.php:2234
 msgid "Documents"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:303
-msgid "Does the child reside with you (at least part-time in cases of custody arrangements)"
 msgstr ""
 
 #. translators: Label of the DMARC check in the next-steps box
@@ -5385,19 +5166,9 @@ msgstr ""
 msgid "Earlier entries checked. Duplicates already stored: %s"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:433
-msgid "Earliest Available Start Date"
-msgstr ""
-
 #. translators: F06 builder, advanced date field panel
 #: includes/functions.php:5199
 msgid "Earliest date"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:225
-msgid "Early voting"
 msgstr ""
 
 #: emsfb.php includes/admin/class-Emsfb-admin.php:225
@@ -5535,7 +5306,7 @@ msgstr ""
 msgid "Easy Form Builder is an intuitive and user-friendly tool that lets you create custom, multi-step forms in just minutes, without requiring any coding skills."
 msgstr ""
 
-#: includes/class-Emsfb.php:78
+#: includes/class-Emsfb.php:67
 msgid "Easy Form Builder is paused"
 msgstr ""
 
@@ -5708,11 +5479,9 @@ msgstr ""
 msgid "Elements:"
 msgstr ""
 
-#. translators: ready-made form template: a field label translators: Email =
-#. input field for email address translators: F01 builder, mobile keyboard
-#. option: keyboard with @ and .
-#: includes/admin/class-Emsfb-admin.php:4253
-#: includes/admin/template-phrases-efb.php:153 includes/functions.php:1628
+#. translators: Email = input field for email address translators: F01 builder,
+#. mobile keyboard option: keyboard with @ and .
+#: includes/admin/class-Emsfb-admin.php:4253 includes/functions.php:1628
 #: includes/functions.php:4422
 msgid "Email"
 msgstr ""
@@ -5957,21 +5726,6 @@ msgstr ""
 msgid "Emails, SMS, Telegram, Google Sheets and webhooks still work. The entry list, CSV, response box and replies are not available. The confirmation code is only a reference number."
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:283
-msgid "Emergency Contact Email"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:279
-msgid "Emergency Contact Name"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:281
-msgid "Emergency Contact Phone"
-msgstr ""
-
 #: includes/functions.php:4645
 msgid "Emirate"
 msgstr ""
@@ -5987,23 +5741,8 @@ msgstr ""
 msgid "Emirates of the UAE"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:321
-msgid "Employee Experience"
-msgstr ""
-
 #: includes/functions.php:2194
 msgid "Employee Suggestion"
-msgstr ""
-
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:313
-msgid "Employee Suggestion Form Template"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:441
-msgid "Employment Type"
 msgstr ""
 
 #. translators: Empty = comparison operator meaning the field has no value
@@ -6188,11 +5927,6 @@ msgstr ""
 #. translators: F02 visitor: announced when the code box opens
 #: includes/functions.php:4831
 msgid "Enter the code you received."
-msgstr ""
-
-#. translators: ready-made form template: help text under a field
-#: includes/admin/template-phrases-efb.php:403
-msgid "Enter the number of items"
 msgstr ""
 
 #. translators: F17 form: Saudi National Address
@@ -6383,11 +6117,6 @@ msgstr ""
 msgid "Event Registration Forms"
 msgstr ""
 
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:125
-msgid "Event registration"
-msgstr ""
-
 #: includes/payments/class-Emsfb-payment-admin.php:366
 msgid "Events"
 msgstr ""
@@ -6439,11 +6168,6 @@ msgstr ""
 msgid "Executive Limousine"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:435
-msgid "Expected Salary Range"
-msgstr ""
-
 #: includes/payments/class-Emsfb-payment-admin.php:185
 msgid "Expired"
 msgstr ""
@@ -6489,11 +6213,6 @@ msgstr ""
 
 #: includes/class-Emsfb-formbuilder.php:4303
 msgid "Extra text, often a PHP notice or another plugin's output, was printed before the answer, so it could not be read. The entry may or may not have been saved."
-msgstr ""
-
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:41
-msgid "FORM"
 msgstr ""
 
 #. translators: Title shown when a required-field validation step fails
@@ -6547,16 +6266,6 @@ msgstr ""
 
 #: includes/functions.php:4287
 msgid "Feature request"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:137
-msgid "Feedback"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:135
-msgid "Feedback Type"
 msgstr ""
 
 #: includes/functions.php:4275
@@ -6711,11 +6420,6 @@ msgstr ""
 msgid "Fit the text"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:175
-msgid "Fitting rooms were clean and free of discarded merchandise"
-msgstr ""
-
 #: includes/payments/class-Emsfb-payment-registry.php:531
 msgid "Fix it in the payment field"
 msgstr ""
@@ -6735,11 +6439,6 @@ msgstr ""
 #. translators: Form template graphic design type options
 #: includes/functions.php:4338
 msgid "Flyer"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:207
-msgid "Follow candidates on social media"
 msgstr ""
 
 #. translators: Font = name of the typography group translators: Property panel
@@ -7162,11 +6861,6 @@ msgstr ""
 msgid "Free-plan limits are set by each service and change over time; check the plan before you rely on it."
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:447
-msgid "Freelance / Contract"
-msgstr ""
-
 #: includes/functions.php:4277
 msgid "French"
 msgstr ""
@@ -7249,11 +6943,6 @@ msgstr ""
 msgid "Full width"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:443
-msgid "Full-Time"
-msgstr ""
-
 #. translators: F05 visitor: a choice that has no place left
 #: includes/functions.php:5477
 msgid "Fully booked"
@@ -7268,11 +6957,6 @@ msgstr ""
 #. list
 #: includes/data/masks-labels-efb.php:265
 msgid "GTIN / EAN / UPC barcode"
-msgstr ""
-
-#. translators: ready-made form template: help text under a field
-#: includes/admin/template-phrases-efb.php:285
-msgid "Games take place on the days listed at 6, 7, or 8 p.m. You'll receive a schedule for each team or tournament."
 msgstr ""
 
 #: includes/functions.php:3810
@@ -7314,11 +6998,6 @@ msgstr ""
 
 #: includes/functions.php:4286
 msgid "General question"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:333
-msgid "Genre"
 msgstr ""
 
 #. translators: Alert shown when the browser does not support the Geolocation
@@ -7457,11 +7136,6 @@ msgstr ""
 
 #: includes/functions.php:4601
 msgid "Grandfather's name"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:357
-msgid "Graphic Design"
 msgstr ""
 
 #: includes/functions.php:2172
@@ -7811,18 +7485,8 @@ msgstr ""
 msgid "How can we help you?"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:201
-msgid "How do you get information about candidates to determine who gets your vote? Select all that apply."
-msgstr ""
-
 #: includes/class-Emsfb-review-request.php:1154
 msgid "How has Easy Form Builder been for you?"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:185
-msgid "How likely are you to recommend us to others?"
 msgstr ""
 
 #. translators: F06 builder, advanced date field panel
@@ -7833,11 +7497,6 @@ msgstr ""
 #. translators: F05 builder
 #: includes/functions.php:5507
 msgid "How many choices"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:113
-msgid "How many of you are attending?"
 msgstr ""
 
 #: includes/functions.php:1435 includes/functions.php:2112
@@ -7918,11 +7577,6 @@ msgstr ""
 msgid "I found a bug or something is broken"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:311
-msgid "I give permission for my child to receive a library card."
-msgstr ""
-
 #. translators: F18: link to the licence key setting
 #: includes/functions.php:3109
 msgid "I have a licence key"
@@ -7935,37 +7589,12 @@ msgstr ""
 msgid "I have read and agree to %1$sthe terms and conditions%2$s"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:309
-msgid "I have read and agree to the library's terms of use and understand that any violation is grounds for revocation."
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:295
-msgid "I have received and read the terms and waiver and agree to all."
-msgstr ""
-
 #: includes/class-Emsfb-deactivation-feedback.php:1011
 msgid "I no longer need it"
 msgstr ""
 
 #: includes/class-Emsfb-review-request.php:1170
 msgid "I posted it - get my code"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:131
-msgid "I understand that I will have to pay $$ upon arrival"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:161
-msgid "I was greeted upon entering the store"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:103
-msgid "I will source my model"
 msgstr ""
 
 #: includes/functions.php:2508
@@ -8047,11 +7676,6 @@ msgstr ""
 msgid "If it lapses:"
 msgstr ""
 
-#. translators: ready-made form template: help text under a field
-#: includes/admin/template-phrases-efb.php:305
-msgid "If no PIN is entered here, your library card PIN will be set to the last 4 numbers of your phone number."
-msgstr ""
-
 #: includes/functions.php:10178
 msgid "If outgoing requests are blocked, ask your host to allow connections to the Easy Form Builder update server."
 msgstr ""
@@ -8120,11 +7744,6 @@ msgstr ""
 
 #: includes/class-email-handler.php:2155
 msgid "If you receive this email multiple times, it could indicate a recurring issue."
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:99
-msgid "If you require a model for your shoot"
 msgstr ""
 
 #. translators: Small print under the two buttons of the first-run email
@@ -8232,26 +7851,6 @@ msgstr ""
 msgid "In the page"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:239
-msgid "In which level will the child be participating?"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:191
-msgid "In which of the following elections have you participated in the last 4 years? Select all that apply."
-msgstr ""
-
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:151
-msgid "In-Store Experience Survey Template"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:229
-msgid "In-person voting"
-msgstr ""
-
 #. translators: Inactive = status shown for a disabled API connection
 #: includes/phrases.php:612
 msgid "Inactive"
@@ -8300,11 +7899,6 @@ msgstr ""
 msgid "Indian mobile number"
 msgstr ""
 
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:139
-msgid "Info"
-msgstr ""
-
 #. translators: F12b: builder: CAPTCHA option value (badge)
 #: includes/functions.php:5993
 msgid "Inline"
@@ -8330,11 +7924,6 @@ msgstr ""
 #. translators: Shortcode button labels for email builder
 #: includes/functions.php:3817
 msgid "Insert shortcode:"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:63
-msgid "Instagram Address"
 msgstr ""
 
 #. translators: Button that installs an Easy Form Builder add-on translators:
@@ -8399,11 +7988,6 @@ msgstr ""
 #. list
 #: includes/data/masks-labels-efb.php:131
 msgid "International phone (E.164)"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:449
-msgid "Internship"
 msgstr ""
 
 #: includes/functions.php:2432
@@ -8509,11 +8093,6 @@ msgstr ""
 #. translators: F12b: builder: CAPTCHA option value (size)
 #: includes/functions.php:5985
 msgid "Invisible"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:417
-msgid "Invoice Later"
 msgstr ""
 
 #. translators: country group in the form builder's "Format / mask" list
@@ -8807,16 +8386,6 @@ msgstr ""
 msgid "Keys are stored encrypted and never shown again. Leave a key empty to keep the saved one."
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:261
-msgid "Kickball (Tues/Thurs)"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:243
-msgid "Kids (ages 5-7)"
-msgstr ""
-
 #: includes/class-Emsfb-drafts.php:654
 msgid "Kind"
 msgstr ""
@@ -9093,11 +8662,6 @@ msgstr ""
 msgid "Let the visitor switch calendars"
 msgstr ""
 
-#. translators: ready-made form template: help text under a field
-#: includes/admin/template-phrases-efb.php:121
-msgid "Let us know what kind of dish(es) you will be bringing"
-msgstr ""
-
 #. translators: Typed Signature add-on card description on the Add-ons page
 #: includes/functions.php:3988
 msgid "Let visitors sign by typing their name in a handwriting font, beside or instead of drawing."
@@ -9310,11 +8874,6 @@ msgstr ""
 msgid "Loading&hellip;"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:199
-msgid "Local Election (council, mayor, school board, etc.)"
-msgstr ""
-
 #: includes/functions.php:1442 includes/functions.php:2267
 msgid "Localization"
 msgstr ""
@@ -9356,11 +8915,6 @@ msgstr ""
 
 #: includes/functions.php:1715
 msgid "Logout"
-msgstr ""
-
-#. translators: ready-made form template: the hint inside an empty field
-#: includes/admin/template-phrases-efb.php:81
-msgid "Long Text"
 msgstr ""
 
 #. translators: Textarea = input field for text[textarea]
@@ -9416,11 +8970,6 @@ msgstr ""
 #. frame
 #: includes/functions.php:3224
 msgid "Made by Easy Form Builder"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:227
-msgid "Mail-in ballot"
 msgstr ""
 
 #: includes/functions.php:4654
@@ -9633,23 +9182,12 @@ msgstr ""
 msgid "Medium"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:169
-msgid "Merchandise was folded or organized neatly"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:231 includes/functions.php:2202
+#: includes/functions.php:2202
 msgid "Message"
 msgstr ""
 
 #: includes/functions.php:3818
 msgid "Message *"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:23
-msgid "Message / Issues"
 msgstr ""
 
 #: includes/functions.php:3754
@@ -9706,11 +9244,6 @@ msgstr ""
 msgid "Messages"
 msgstr ""
 
-#. translators: ready-made form template: the hint inside an empty field
-#: includes/admin/template-phrases-efb.php:29
-msgid "Message…"
-msgstr ""
-
 #. translators: F16 builder, "Browser autofill" list: what the browser fills in
 #: includes/data/autocomplete-labels-efb.php:42
 msgid "Messenger address"
@@ -9753,11 +9286,6 @@ msgstr ""
 #. translators: F16 builder, "Browser autofill" list: what the browser fills in
 #: includes/data/autocomplete-labels-efb.php:20 includes/functions.php:4599
 msgid "Middle name"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:195
-msgid "Midterm Election"
 msgstr ""
 
 #. translators: F05 ready-made list
@@ -9850,7 +9378,7 @@ msgstr ""
 msgid "Missing challenge."
 msgstr ""
 
-#: includes/class-Emsfb.php:973
+#: includes/class-Emsfb.php:962
 msgid "Missing files:"
 msgstr ""
 
@@ -9861,16 +9389,6 @@ msgstr ""
 #. translators: Mobile = mobile phone view
 #: includes/functions.php:1839 includes/functions.php:2390
 msgid "Mobile"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:255
-msgid "Mobile Number"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:267
-msgid "Mobile Phone"
 msgstr ""
 
 #: includes/functions.php:2119
@@ -9931,11 +9449,6 @@ msgstr ""
 #: includes/functions.php:6469
 #, php-format
 msgid "More than %s"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:79
-msgid "More than 1 min"
 msgstr ""
 
 #. translators: input format preset shown in the form builder's "Format / mask"
@@ -10089,11 +9602,6 @@ msgstr ""
 msgid "Muted Text"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:143
-msgid "My Products"
-msgstr ""
-
 #. translators: Sample site name shown in place of the shortcode_website_name
 #. merge tag when previewing an email template
 #: includes/functions.php:3927
@@ -10102,11 +9610,6 @@ msgstr ""
 
 #: includes/functions.php:4289
 msgid "My account"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:171
-msgid "My items were easy to locate"
 msgstr ""
 
 #: includes/functions.php:2346
@@ -10187,11 +9690,6 @@ msgstr ""
 msgid "Needs the reCAPTCHA v2 keys too."
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:439
-msgid "Negotiable"
-msgstr ""
-
 #: includes/functions.php:4662
 msgid "Neighbourhood"
 msgstr ""
@@ -10220,21 +9718,6 @@ msgstr ""
 
 #: includes/class-Emsfb-public.php:10528
 msgid "New Password"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:145
-msgid "New Product 1 (10$)"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:147
-msgid "New Product 2 (20$)"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:149
-msgid "New Product 3 (30$)"
 msgstr ""
 
 #: includes/functions.php:1726
@@ -10956,11 +10439,6 @@ msgstr ""
 msgid "On your first year of Pro · the code is emailed to you"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:73
-msgid "On-Location / Outside"
-msgstr ""
-
 #. translators: LIFE-01: warning shown while "Delete all data when the plugin
 #. is deleted" is ticked
 #: includes/functions.php:6699
@@ -11316,11 +10794,6 @@ msgstr ""
 msgid "Optional"
 msgstr ""
 
-#. translators: ready-made form template: help text under a field
-#: includes/admin/template-phrases-efb.php:455
-msgid "Optional - upload your cover letter"
-msgstr ""
-
 #: includes/functions.php:2443
 msgid "Options"
 msgstr ""
@@ -11331,16 +10804,6 @@ msgstr ""
 
 #: includes/functions.php:3275
 msgid "Orbit"
-msgstr ""
-
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:141
-msgid "Order"
-msgstr ""
-
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:389
-msgid "Order Details"
 msgstr ""
 
 #: includes/class-Emsfb-formbuilder.php:5414
@@ -11372,13 +10835,11 @@ msgstr ""
 msgid "Order summary"
 msgstr ""
 
-#. translators: ready-made form template: a choice translators: Label of the
-#. auto-added "Other" choice on a radio field with "Add Other option" enabled
-#. translators: F16 form builder: group in the "Browser autofill" list
-#. translators: F05: the text of the “Other” choice
-#: includes/admin/template-phrases-efb.php:221 includes/functions.php:2227
-#: includes/functions.php:4272 includes/functions.php:4697
-#: includes/functions.php:5439
+#. translators: Label of the auto-added "Other" choice on a radio field with
+#. "Add Other option" enabled translators: F16 form builder: group in the
+#. "Browser autofill" list translators: F05: the text of the “Other” choice
+#: includes/functions.php:2227 includes/functions.php:4272
+#: includes/functions.php:4697 includes/functions.php:5439
 msgid "Other"
 msgstr ""
 
@@ -11435,11 +10896,6 @@ msgstr ""
 #. translators: Generic noun used in labels like "%s Views". Example: "Page"
 #: includes/functions.php:3284
 msgid "Page"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:335
-msgid "Page Count"
 msgstr ""
 
 #: includes/functions.php:5383
@@ -11508,26 +10964,6 @@ msgstr ""
 msgid "Parameter name"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:253
-msgid "Parent/Guardian Email"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:251
-msgid "Parent/Guardian Name"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:297
-msgid "Parent/Guardian Phone"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:445
-msgid "Part-Time"
-msgstr ""
-
 #. translators: F11: tab of the entries list
 #: includes/functions.php:2933
 msgid "Partial"
@@ -11554,11 +10990,6 @@ msgstr ""
 
 #: includes/functions.php:2178
 msgid "Party Invitation"
-msgstr ""
-
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:109
-msgid "Party Invite"
 msgstr ""
 
 #. translators: input format preset shown in the form builder's "Format / mask"
@@ -11631,9 +11062,8 @@ msgstr ""
 msgid "Pay button"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:413 includes/functions.php:3416
-#: includes/functions.php:8197 vendor/paypal/class-Emsfb-paypal-handler.php:350
+#: includes/functions.php:3416 includes/functions.php:8197
+#: vendor/paypal/class-Emsfb-paypal-handler.php:350
 msgid "PayPal"
 msgstr ""
 
@@ -11686,11 +11116,6 @@ msgstr ""
 
 #: vendor/stripe/class-Emsfb-stripe-legacy.php:470
 msgid "Payment Intent ID is missing"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:409
-msgid "Payment Method"
 msgstr ""
 
 #: includes/functions.php:2406
@@ -11907,8 +11332,7 @@ msgstr ""
 msgid "Persian Date Picker"
 msgstr ""
 
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:423 includes/functions.php:4251
+#: includes/functions.php:4251
 msgid "Personal Information"
 msgstr ""
 
@@ -12140,7 +11564,7 @@ msgstr ""
 msgid "Please confirm you are not a robot."
 msgstr ""
 
-#: includes/class-Emsfb.php:229
+#: includes/class-Emsfb.php:218
 msgid "Please confirm your email address with the link we sent you before logging in."
 msgstr ""
 
@@ -12271,11 +11695,6 @@ msgstr ""
 msgid "Please enter your message"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:325
-msgid "Please explain your suggestion for how we can improve the employee experience."
-msgstr ""
-
 #. translators: %1$s: name of the form field (e.g. Mobile), %2$s: payment
 #. method
 #: includes/payments/class-Emsfb-payment-frontend.php:61
@@ -12335,11 +11754,6 @@ msgstr ""
 msgid "Please kindly report the following issue to the Easy Form Builder team."
 msgstr ""
 
-#. translators: ready-made form template: help text under a field
-#: includes/admin/template-phrases-efb.php:83
-msgid "Please list any products or services you would like featured in the video(s)"
-msgstr ""
-
 #: includes/class-Emsfb-calendar-rest.php:72
 #: includes/class-Emsfb-drafts.php:146 includes/class-Emsfb-public.php:294
 #: includes/class-Emsfb-public.php:3024
@@ -12359,21 +11773,6 @@ msgstr ""
 msgid "Please pick a topic or write a sentence first."
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:337
-msgid "Please provide a brief synopsis of the book for us to share with the group."
-msgstr ""
-
-#. translators: ready-made form template: text under a step title
-#: includes/admin/template-phrases-efb.php:381
-msgid "Please provide your contact and shipping details"
-msgstr ""
-
-#. translators: ready-made form template: text under a step title
-#: includes/admin/template-phrases-efb.php:341
-msgid "Please provide your contact details"
-msgstr ""
-
 #. translators: F05 visitor: %s = the field label
 #: includes/functions.php:5527
 #, php-format
@@ -12383,11 +11782,6 @@ msgstr ""
 #. translators: Ask the visitor to reload the form and submit again
 #: includes/phrases.php:246
 msgid "Please refresh the form and try again."
-msgstr ""
-
-#. translators: ready-made form template: a heading
-#: includes/admin/template-phrases-efb.php:159
-msgid "Please respond to the following:"
 msgstr ""
 
 #. translators: Validation message shown before a form is chosen
@@ -12520,13 +11914,7 @@ msgstr ""
 msgid "Post your 5-star review"
 msgstr ""
 
-#. translators: ready-made form template: the hint inside an empty field
-#: includes/admin/template-phrases-efb.php:385
-msgid "Postal / ZIP Code"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:387 includes/functions.php:3260
+#: includes/functions.php:3260
 msgid "Postal Code"
 msgstr ""
 
@@ -12562,18 +11950,8 @@ msgstr ""
 msgid "Powered by Easy Form Builder, the best form plugin for WordPress."
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:241
-msgid "Pre-K (ages 0-5)"
-msgstr ""
-
 #: includes/functions.php:4647
 msgid "Prefecture"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:407
-msgid "Preferred Delivery Date"
 msgstr ""
 
 #. translators: F16 builder, "Browser autofill" list: what the browser fills in
@@ -12619,11 +11997,6 @@ msgstr ""
 #. the ready-made palette buttons
 #: includes/functions.php:2725 includes/functions.php:3610
 msgid "Presets"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:193
-msgid "Presidential Election"
 msgstr ""
 
 #: includes/class-Emsfb-review-request.php:1160
@@ -12672,11 +12045,6 @@ msgstr ""
 
 #: includes/functions.php:3262
 msgid "Price field"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:181
-msgid "Prices were fair compared to other similar stores"
 msgstr ""
 
 #. translators: Primary Color = label for main brand color picker
@@ -12796,41 +12164,6 @@ msgstr ""
 msgid "Pro plan activated with existing activation code."
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:393
-msgid "Product / Service"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:395
-msgid "Product A - Standard"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:397
-msgid "Product B - Premium"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:399
-msgid "Product C - Enterprise"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:69
-msgid "Product video"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:71
-msgid "Product video with model"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:85
-msgid "Products or Services"
-msgstr ""
-
 #. translators: Template labels for email builder
 #: includes/functions.php:3765
 msgid "Professional"
@@ -12847,11 +12180,6 @@ msgstr ""
 
 #: includes/functions.php:1792
 msgid "Progress bar style"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:377
-msgid "Project Description"
 msgstr ""
 
 #: includes/functions.php:3845
@@ -12930,11 +12258,6 @@ msgstr ""
 msgid "Qty"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:405
-msgid "Quantity"
-msgstr ""
-
 #. translators: Query Parameters = section title translators: camelCase alias
 #. of query_params
 #: includes/phrases.php:413 includes/phrases.php:535
@@ -12963,11 +12286,6 @@ msgstr ""
 #: includes/functions.php:5811
 #: includes/payments/class-Emsfb-payment-admin.php:322
 msgid "Quote"
-msgstr ""
-
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:345
-msgid "Quote Details"
 msgstr ""
 
 #. translators: F19: gradient type
@@ -13049,27 +12367,12 @@ msgstr ""
 msgid "Read and Reply to Form Submissions with File Attachments"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:211
-msgid "Read candidate literature"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:205
-msgid "Read candidate websites"
-msgstr ""
-
 #: includes/functions.php:3960
 msgid "Read more about cache compatibility"
 msgstr ""
 
 #: includes/functions.php:3970
 msgid "Read more about security plugin compatibility"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:217
-msgid "Read past voting records or other important historical data"
 msgstr ""
 
 #: includes/class-Emsfb-email-monitor.php:1618
@@ -13109,11 +12412,6 @@ msgstr ""
 #. translators: F14: edit form
 #: includes/functions.php:6571
 msgid "Reason (optional)"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:259
-msgid "Rec Leagues (18+)"
 msgstr ""
 
 #. translators: F13: label in the email delivery log export translators:
@@ -13171,11 +12469,6 @@ msgstr ""
 
 #: includes/functions.php:8729
 msgid "Recover add-ons"
-msgstr ""
-
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:265
-msgid "Recreational Sports League Signup Form Template"
 msgstr ""
 
 #: includes/functions.php:2264
@@ -13760,11 +13053,6 @@ msgstr ""
 msgid "Ripple"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:317
-msgid "Role/Title"
-msgstr ""
-
 #: includes/functions.php:1847
 msgid "Rounded"
 msgstr ""
@@ -13864,11 +13152,6 @@ msgstr ""
 msgid "Russian"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:359
-msgid "SEO / Marketing"
-msgstr ""
-
 #: includes/class-email-handler.php:2191
 msgid "SID Validation Error"
 msgstr ""
@@ -13963,16 +13246,6 @@ msgstr ""
 
 #: includes/functions.php:2170
 msgid "Salon Consultation"
-msgstr ""
-
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:37
-msgid "Salon Consultation Form"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:39
-msgid "Salon service"
 msgstr ""
 
 #. translators: F19: mobile background option
@@ -14336,11 +13609,6 @@ msgstr ""
 msgid "Select Year"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:307
-msgid "Select a 4-digit PIN number"
-msgstr ""
-
 #: includes/functions.php:4264
 msgid "Select a Date"
 msgstr ""
@@ -14397,11 +13665,6 @@ msgstr ""
 msgid "Select all %s results"
 msgstr ""
 
-#. translators: ready-made form template: help text under a field
-#: includes/admin/template-phrases-efb.php:349
-msgid "Select all services you need"
-msgstr ""
-
 #: includes/functions.php:2655
 msgid "Select an SMS delivery method"
 msgstr ""
@@ -14422,11 +13685,6 @@ msgstr ""
 #. translators: Help text under the target form selector
 #: includes/functions.php:3367 includes/phrases.php:572
 msgid "Select the form that will receive data from the API"
-msgstr ""
-
-#. translators: ready-made form template: text under a step title
-#: includes/admin/template-phrases-efb.php:391
-msgid "Select your products and quantities"
 msgstr ""
 
 #: includes/functions.php:2246
@@ -14601,11 +13859,6 @@ msgstr ""
 msgid "Service error"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:351
-msgid "Services Required"
-msgstr ""
-
 #. translators: Session Duration = title for nonce/session expiration settings
 #: includes/functions.php:3495
 msgid "Session Duration"
@@ -14697,11 +13950,6 @@ msgstr ""
 
 #: includes/class-Emsfb-formbuilder.php:5447
 msgid "Shield Security silentCAPTCHA Integration"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:383
-msgid "Shipping Address"
 msgstr ""
 
 #: includes/functions.php:4664
@@ -14909,11 +14157,6 @@ msgstr ""
 msgid "Shuffle choices"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:287
-msgid "Shuffleboard Team of 2 (Mon)"
-msgstr ""
-
 #. translators: F05 builder: badge on the canvas
 #: includes/functions.php:5437
 msgid "Shuffled for each visitor"
@@ -15050,11 +14293,6 @@ msgstr ""
 msgid "Social Links"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:93
-msgid "Social media feed posts"
-msgstr ""
-
 #. translators: F05 ready-made list
 #: includes/functions.php:5545
 msgid "Solar Hijri months"
@@ -15097,13 +14335,8 @@ msgstr ""
 msgid "Some of your forms use features that are now add-ons."
 msgstr ""
 
-#: includes/class-Emsfb.php:972
+#: includes/class-Emsfb.php:961
 msgid "Some plugin files are missing, so the plugin stopped loading to keep your site running. Please reinstall Easy Form Builder from the Plugins page — your forms, messages, and settings are kept."
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:163
-msgid "Someone offered to help me"
 msgstr ""
 
 #: includes/class-Emsfb-formbuilder.php:4289
@@ -15134,11 +14367,6 @@ msgstr ""
 
 #: includes/functions.php:4270
 msgid "Somewhat"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:119
-msgid "Sorry, I can't make it"
 msgstr ""
 
 #. translators: errorMRobot = Error message for robot verification failure
@@ -15225,11 +14453,6 @@ msgstr ""
 #. list
 #: includes/data/masks-labels-efb.php:217
 msgid "Spanish NIE"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:421
-msgid "Special Requirements / Notes"
 msgstr ""
 
 #: includes/class-Emsfb-review-request.php:1150
@@ -15327,11 +14550,6 @@ msgstr ""
 msgid "State / Province"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:197
-msgid "State Election"
-msgstr ""
-
 #. translators: F16 builder, "Browser autofill" list: what the browser fills in
 #: includes/data/autocomplete-labels-efb.php:54
 msgid "State or province"
@@ -15402,16 +14620,6 @@ msgstr ""
 #: includes/functions.php:4144
 #, php-format
 msgid "Step %s of 5"
-msgstr ""
-
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:25
-msgid "Step 1"
-msgstr ""
-
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:27
-msgid "Step 2"
 msgstr ""
 
 #. translators: Step Name = name of a step in a multi-step form
@@ -15494,11 +14702,6 @@ msgstr ""
 #. last part
 #: includes/functions.php:2763
 msgid "Store anonymized (last part removed)"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:165
-msgid "Store personnel were friendly and polite"
 msgstr ""
 
 #. translators: F06 builder, advanced date field panel translators: F05
@@ -15690,11 +14893,6 @@ msgstr ""
 msgid "Summer Reading Program"
 msgstr ""
 
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:233
-msgid "Summer Reading Program Signup Form Template"
-msgstr ""
-
 #: includes/functions.php:1713 includes/functions.php:2462
 #: includes/functions.php:3315
 msgid "Support"
@@ -15793,16 +14991,6 @@ msgstr ""
 msgid "System Ready"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:271
-msgid "T-shirt Size (unisex)"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:215
-msgid "TV/Radio commercials"
-msgstr ""
-
 #: includes/payments/class-Emsfb-payment-frontend.php:283
 msgid "Tabs"
 msgstr ""
@@ -15879,14 +15067,8 @@ msgstr ""
 msgid "Technical details for support"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:247
-msgid "Teen (ages 13-16)"
-msgstr ""
-
-#. translators: ready-made form template: a field label translators: Tel =
-#. Telephone/Phone number
-#: includes/admin/template-phrases-efb.php:155 includes/functions.php:1634
+#. translators: Tel = Telephone/Phone number
+#: includes/functions.php:1634
 msgid "Tel"
 msgstr ""
 
@@ -15908,18 +15090,8 @@ msgstr ""
 msgid "Telephone, Mobile and Color Picker Fields"
 msgstr ""
 
-#. translators: ready-made form template: text under a step title
-#: includes/admin/template-phrases-efb.php:347
-msgid "Tell us about your project requirements"
-msgstr ""
-
 #: includes/class-Emsfb-deactivation-feedback.php:1005
 msgid "Tell us what went wrong and we will fix it. It takes about 20 seconds."
-msgstr ""
-
-#. translators: ready-made form template: the hint inside an empty field
-#: includes/admin/template-phrases-efb.php:459
-msgid "Tell us why you are a great fit for this position&hellip;"
 msgstr ""
 
 #: includes/functions.php:3832
@@ -16889,11 +16061,6 @@ msgstr ""
 msgid "The missing add-on files could not be restored. Check the server connection and file permissions, then try again."
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:179
-msgid "The music in the store was appropriate (not too loud or too quiet)"
-msgstr ""
-
 #: includes/class-Emsfb-review-request.php:1177
 msgid "The name your review was posted under."
 msgstr ""
@@ -17176,21 +16343,6 @@ msgstr ""
 #. translators: F06 builder, advanced date field panel
 #: includes/functions.php:5255
 msgid "The site's"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:173
-msgid "The store atmosphere was welcoming"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:177
-msgid "The store lighting was appropriate (not too dark or too bright)"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:167
-msgid "The store was clean"
 msgstr ""
 
 #: includes/functions.php:2303
@@ -17547,7 +16699,7 @@ msgstr ""
 msgid "This email domain is not accepted."
 msgstr ""
 
-#: includes/class-email-handler.php:1376 includes/class-Emsfb.php:2329
+#: includes/class-email-handler.php:1376 includes/class-Emsfb.php:2311
 #: includes/functions.php:3868
 msgid "This email was sent automatically. Please do not reply directly."
 msgstr ""
@@ -17996,7 +17148,7 @@ msgstr ""
 
 #. translators: %1$s: the WordPress version the plugin needs (6.3), %2$s: the
 #. version this site runs (6.2.6).
-#: includes/class-Emsfb.php:81
+#: includes/class-Emsfb.php:70
 #, php-format
 msgid "This version of Easy Form Builder needs WordPress %1$s or later. This site runs WordPress %2$s, so your forms are not shown and the plugin's screens are closed until WordPress is updated. Your forms, entries and settings are kept."
 msgstr ""
@@ -18023,11 +17175,6 @@ msgstr ""
 
 #: includes/functions.php:4609
 msgid "Three-part Arabic name"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:219
-msgid "Through my registered party's recommendations"
 msgstr ""
 
 #. translators: F06 picker translators: F06 builder, advanced date field panel
@@ -18526,10 +17673,8 @@ msgstr ""
 msgid "UPPERCASE"
 msgstr ""
 
-#. translators: ready-made form template: the hint inside an empty field
 #. translators: URL = Website address/link
-#: includes/admin/template-phrases-efb.php:65 includes/functions.php:1644
-#: includes/functions.php:10942
+#: includes/functions.php:1644 includes/functions.php:10942
 msgid "URL"
 msgstr ""
 
@@ -18598,16 +17743,6 @@ msgstr ""
 
 #: includes/functions.php:1957
 msgid "Unable to change the plan. Please try again."
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:437
-msgid "Under $30,000"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:365
-msgid "Under $500"
 msgstr ""
 
 #. translators: Tooltip on the Underline button in the response-viewer
@@ -18773,11 +17908,6 @@ msgstr ""
 msgid "Up to %s words"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:77
-msgid "Up to 1 min"
-msgstr ""
-
 #. translators: F07 form settings: help
 #: includes/functions.php:5332
 msgid "Up to 10 MB in total; larger files stay links. Visitors never receive the files by e-mail."
@@ -18792,7 +17922,7 @@ msgstr ""
 msgid "Update %s to keep using it with this version."
 msgstr ""
 
-#: includes/class-Emsfb.php:88
+#: includes/class-Emsfb.php:77
 msgid "Update WordPress"
 msgstr ""
 
@@ -18848,31 +17978,6 @@ msgstr ""
 msgid "Upload"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:457
-msgid "Upload Cover Letter"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:373
-msgid "Upload Project Files"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:453
-msgid "Upload Resume / CV"
-msgstr ""
-
-#. translators: ready-made form template: help text under a field
-#: includes/admin/template-phrases-efb.php:371
-msgid "Upload briefs, specs, or reference files"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:51
-msgid "Upload cover letter"
-msgstr ""
-
 #. translators: F07 visitor: state of one file
 #: includes/functions.php:5356
 msgid "Upload failed"
@@ -18882,16 +17987,6 @@ msgstr ""
 #: includes/functions.php:3383
 #, php-format
 msgid "Upload the %s file"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:49
-msgid "Upload your CV here"
-msgstr ""
-
-#. translators: ready-made form template: text under a step title
-#: includes/admin/template-phrases-efb.php:429
-msgid "Upload your documents and provide additional information"
 msgstr ""
 
 #. translators: F07 visitor: state of one file
@@ -19034,11 +18129,6 @@ msgstr ""
 msgid "Uses the list in Settings › Discussion › Disallowed Comment Keys."
 msgstr ""
 
-#. translators: ready-made form template: text under a step title
-#: includes/admin/template-phrases-efb.php:55
-msgid "VIDEOGRAPHY CREATIVE BRIEF"
-msgstr ""
-
 #. translators: %s is the list of valid file formats
 #: includes/functions.php:3330
 #, php-format
@@ -19068,11 +18158,6 @@ msgstr ""
 
 #: includes/functions.php:4294
 msgid "Vegetarian"
-msgstr ""
-
-#. translators: ready-made form template: a field label / a step title
-#: includes/admin/template-phrases-efb.php:35
-msgid "Vehicle"
 msgstr ""
 
 #. translators: input format preset shown in the form builder's "Format / mask"
@@ -19333,11 +18418,6 @@ msgstr ""
 msgid "Voter Behavior Survey"
 msgstr ""
 
-#. translators: ready-made form template: a step title
-#: includes/admin/template-phrases-efb.php:187
-msgid "Voter Behavior Survey Template"
-msgstr ""
-
 #. translators: F02 settings: WP SMS is not active
 #: includes/functions.php:4945
 msgid "WP SMS is not installed or not active."
@@ -19438,11 +18518,6 @@ msgstr ""
 
 #: includes/functions.php:4334
 msgid "Wash & Go"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:209
-msgid "Watch candidate debates"
 msgstr ""
 
 #: includes/functions.php:3276
@@ -19607,34 +18682,14 @@ msgstr ""
 msgid "We store your IP address only in anonymized form (its last part removed), and the type of your browser."
 msgstr ""
 
-#. translators: ready-made form template: a heading
-#: includes/admin/template-phrases-efb.php:133
-msgid "We would be happy to hear your feedback on how we can improve your experience!"
-msgstr ""
-
 #: includes/class-Emsfb-review-request.php:1216
 msgid "We would rather fix it first. This goes straight to the team, not to the public page."
-msgstr ""
-
-#. translators: ready-made form template: text under a step title
-#: includes/admin/template-phrases-efb.php:111
-msgid "We're having a party and would love to see you. Please let us know if you can come."
 msgstr ""
 
 #. translators: One-word label next to the delivery score: 20 to 39.
 #. translators: F03 password strength level
 #: includes/functions.php:2036 includes/functions.php:4701
 msgid "Weak"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:353
-msgid "Web Design"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:355
-msgid "Web Development"
 msgstr ""
 
 #. translators: F01 builder, mobile keyboard option: keyboard with / and .com
@@ -19654,11 +18709,6 @@ msgstr ""
 #: includes/functions.php:3903 includes/functions.php:4318
 #: includes/functions.php:11446
 msgid "Website"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:95
-msgid "Website Product Page videos"
 msgstr ""
 
 #. translators: F16 builder, "Browser autofill" list: what the browser fills in
@@ -19701,11 +18751,6 @@ msgstr ""
 msgid "Welcome!"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:127
-msgid "What days will you attend?"
-msgstr ""
-
 #: includes/class-Emsfb-deactivation-feedback.php:1013
 msgid "What happened, and where? Which page or which form? If you saw an error message, paste it here."
 msgstr ""
@@ -19717,21 +18762,6 @@ msgstr ""
 
 #: includes/functions.php:10168
 msgid "What is missing"
-msgstr ""
-
-#. translators: ready-made form template: help text under a field
-#: includes/admin/template-phrases-efb.php:87
-msgid "What is the deadline for receiving the video?"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:75
-msgid "What is the length of the video"
-msgstr ""
-
-#. translators: ready-made form template: help text under a field
-#: includes/admin/template-phrases-efb.php:105
-msgid "What is your budget for this project?"
 msgstr ""
 
 #: includes/class-Emsfb-review-request.php:1215
@@ -19761,11 +18791,6 @@ msgstr ""
 msgid "What to do with spam"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:67
-msgid "What type of content are you looking to create?"
-msgstr ""
-
 #. translators: %s: what went wrong
 #: includes/class-Emsfb-language-packs.php:2334
 #, php-format
@@ -19775,16 +18800,6 @@ msgstr ""
 #. translators: F18: expands a preview of the Free Plus credit
 #: includes/functions.php:3093
 msgid "What will appear?"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:91
-msgid "What will this video be primarily used for?"
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:123
-msgid "What will you be bringing?"
 msgstr ""
 
 #. translators: Heading of the box offering two ways to fix a low email score
@@ -19818,16 +18833,6 @@ msgstr ""
 
 #: includes/functions.php:2212
 msgid "When a new message is received through an Easy Form Builder form, an alert email is sent to the site administrator."
-msgstr ""
-
-#. translators: ready-made form template: help text under a field
-#: includes/admin/template-phrases-efb.php:431
-msgid "When can you start?"
-msgstr ""
-
-#. translators: ready-made form template: help text under a field
-#: includes/admin/template-phrases-efb.php:367
-msgid "When do you need this delivered?"
 msgstr ""
 
 #: includes/functions.php:3319
@@ -19909,11 +18914,6 @@ msgstr ""
 msgid "Which field"
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:223
-msgid "Which methods of voting have you used in the past? Select all that apply."
-msgstr ""
-
 #: includes/class-Emsfb-deactivation-feedback.php:1015
 msgid "Which part was confusing?"
 msgstr ""
@@ -19947,11 +18947,6 @@ msgstr ""
 #. or a rich text editor changed
 #: includes/functions.php:5841
 msgid "Who sees a field, or a rich text editor, has changed on this form."
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:461
-msgid "Why Should We Hire You?"
 msgstr ""
 
 #: includes/class-Emsfb-formbuilder.php:4242
@@ -20242,11 +19237,6 @@ msgstr ""
 msgid "X-WP-Nonce header is missing"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:275
-msgid "XL"
-msgstr ""
-
 #. translators: F14: export
 #: includes/functions.php:6659
 msgid "XLSX export is included in Free Plus and Pro."
@@ -20256,18 +19246,8 @@ msgstr ""
 msgid "XLarge"
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:273
-msgid "XS"
-msgstr ""
-
 #: includes/functions.php:2416
 msgid "XSmall"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:277
-msgid "XXL"
 msgstr ""
 
 #: includes/functions.php:1816
@@ -20330,16 +19310,6 @@ msgstr ""
 #. translators: F05 ready-made list
 #: includes/functions.php:5603
 msgid "Yes / no / not sure"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:117
-msgid "Yes, I will be there"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:101
-msgid "Yes, I'd like you to find a model for me"
 msgstr ""
 
 #. translators: Button for a site owner who already knows the host can send
@@ -20572,11 +19542,6 @@ msgstr ""
 msgid "You're getting this because you manage %s, which uses Easy Form Builder Pro. It was sent by your own website, once for this renewal. To stop these reminders, renew, or turn off \"Email me before my Pro subscription ends\" in Easy Form Builder › Settings."
 msgstr ""
 
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:249
-msgid "Young Adult (ages 17-18)"
-msgstr ""
-
 #. translators: F06 builder, advanced date field panel
 #: includes/functions.php:5093
 msgid "Youngest age"
@@ -20605,11 +19570,6 @@ msgstr ""
 
 #: includes/admin/class-Emsfb-admin.php:1185
 msgid "Your Easy Form Builder Pro subscription has expired, so this add-on cannot be downloaded."
-msgstr ""
-
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:57
-msgid "Your Email"
 msgstr ""
 
 #: includes/functions.php:2362
@@ -21088,11 +20048,6 @@ msgstr ""
 msgid "Your subscription needs renewing before the missing add-ons can be restored."
 msgstr ""
 
-#. translators: ready-made form template: a field label
-#: includes/admin/template-phrases-efb.php:319
-msgid "Your suggestion is regarding&hellip;"
-msgstr ""
-
 #. translators: One-sentence result: delivered, but the score is too low to
 #. rely on.
 #: includes/functions.php:2018
@@ -21166,11 +20121,6 @@ msgstr ""
 
 #: includes/class-Emsfb-formbuilder.php:4270
 msgid "Your website does not accept form requests from visitors"
-msgstr ""
-
-#. translators: ready-made form template: a choice
-#: includes/admin/template-phrases-efb.php:245
-msgid "Youth (ages 8-12)"
 msgstr ""
 
 #: includes/functions.php:2238
@@ -21505,11 +20455,6 @@ msgstr ""
 msgid "e.g."
 msgstr ""
 
-#. translators: ready-made form template: the hint inside an empty field
-#: includes/admin/template-phrases-efb.php:425
-msgid "e.g. Software Developer, Designer, Manager&hellip;"
-msgstr ""
-
 #: includes/class-Emsfb-review-request.php:1176
 msgid "e.g. john_doe"
 msgstr ""
@@ -21586,6 +20531,1106 @@ msgstr ""
 msgid "form submissions PDF export"
 msgstr ""
 
+#: includes/admin/template-phrases-efb.php:234
+msgctxt "form template"
+msgid "Accepted formats: PDF, DOC, DOCX"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:25
+msgctxt "form template"
+msgid "Address"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:57
+msgctxt "form template"
+msgid "Ads Video"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:155
+msgctxt "form template"
+msgid "Agreement"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:218
+msgctxt "form template"
+msgid "Any special instructions or customizations&hellip;"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:222
+msgctxt "form template"
+msgid "Application Details"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:103
+msgctxt "form template"
+msgid "Are you registered to vote?"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:115
+msgctxt "form template"
+msgid "Attend candidate rallies"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:110
+msgctxt "form template"
+msgid "Attend town halls"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:174
+msgctxt "form template"
+msgid "Author"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:35
+msgctxt "form template"
+msgid "BRIEF"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:216
+msgctxt "form template"
+msgid "Bank Transfer"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:140
+msgctxt "form template"
+msgid "Basketball (Mon/Wed)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:153
+msgctxt "form template"
+msgid "Bocce (Mon)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:172
+msgctxt "form template"
+msgid "Book Club Suggestion Form Template"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:173
+msgctxt "form template"
+msgid "Book Suggestion"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:62
+msgctxt "form template"
+msgid "Budget"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:190
+msgctxt "form template"
+msgid "Budget Range"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:31
+msgctxt "form template"
+msgid "CV Submission"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:66
+msgctxt "form template"
+msgid "Can you attend?"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:127
+msgctxt "form template"
+msgid "Child's Date of Birth"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:126
+msgctxt "form template"
+msgid "Child's Name"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:159
+msgctxt "form template"
+msgid "City"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:137
+msgctxt "form template"
+msgid "Comment"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:100
+msgctxt "form template"
+msgid "Comment or Message"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:180
+msgctxt "form template"
+msgid "Company / Organization"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:38
+msgctxt "form template"
+msgid "Company Name"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:189
+msgctxt "form template"
+msgid "Consulting"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:178
+msgctxt "form template"
+msgid "Contact Information"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:24
+msgctxt "form template"
+msgid "Contact us form"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:158
+msgctxt "form template"
+msgid "Contact-us Form"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:154
+msgctxt "form template"
+msgid "Cornhole (Thurs)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:214
+msgctxt "form template"
+msgid "Credit Card / Stripe"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:209
+msgctxt "form template"
+msgid "Custom Service Package"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:170
+msgctxt "form template"
+msgid "Customer Experience"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:198
+msgctxt "form template"
+msgid "Customer Information"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:143
+msgctxt "form template"
+msgid "Date of Birth"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:87
+msgctxt "form template"
+msgid "Date of Last Store Visit"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:53
+msgctxt "form template"
+msgid "Deadline"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:166
+msgctxt "form template"
+msgid "Department"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:196
+msgctxt "form template"
+msgid "Describe your project in detail&hellip;"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:30
+msgctxt "form template"
+msgid "Design Type"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:193
+msgctxt "form template"
+msgid "Desired Delivery Date"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:73
+msgctxt "form template"
+msgid "Dietary restrictions"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:32
+msgctxt "form template"
+msgid "Do you want to work with us? Please fill in your details below."
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:160
+msgctxt "form template"
+msgid "Does the child reside with you (at least part-time in cases of custody arrangements)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:225
+msgctxt "form template"
+msgid "Earliest Available Start Date"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:121
+msgctxt "form template"
+msgid "Early voting"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:85
+msgctxt "form template"
+msgid "Email"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:150
+msgctxt "form template"
+msgid "Emergency Contact Email"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:148
+msgctxt "form template"
+msgid "Emergency Contact Name"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:149
+msgctxt "form template"
+msgid "Emergency Contact Phone"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:169
+msgctxt "form template"
+msgid "Employee Experience"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:165
+msgctxt "form template"
+msgid "Employee Suggestion Form Template"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:229
+msgctxt "form template"
+msgid "Employment Type"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:210
+msgctxt "form template"
+msgid "Enter the number of items"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:71
+msgctxt "form template"
+msgid "Event registration"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:226
+msgctxt "form template"
+msgid "Expected Salary Range"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:29
+msgctxt "form template"
+msgid "FORM"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:77
+msgctxt "form template"
+msgid "Feedback"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:76
+msgctxt "form template"
+msgid "Feedback Type"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:96
+msgctxt "form template"
+msgid "Fitting rooms were clean and free of discarded merchandise"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:112
+msgctxt "form template"
+msgid "Follow candidates on social media"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:232
+msgctxt "form template"
+msgid "Freelance / Contract"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:230
+msgctxt "form template"
+msgid "Full-Time"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:151
+msgctxt "form template"
+msgid "Games take place on the days listed at 6, 7, or 8 p.m. You'll receive a schedule for each team or tournament."
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:175
+msgctxt "form template"
+msgid "Genre"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:187
+msgctxt "form template"
+msgid "Graphic Design"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:109
+msgctxt "form template"
+msgid "How do you get information about candidates to determine who gets your vote? Select all that apply."
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:101
+msgctxt "form template"
+msgid "How likely are you to recommend us to others?"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:65
+msgctxt "form template"
+msgid "How many of you are attending?"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:164
+msgctxt "form template"
+msgid "I give permission for my child to receive a library card."
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:163
+msgctxt "form template"
+msgid "I have read and agree to the library's terms of use and understand that any violation is grounds for revocation."
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:156
+msgctxt "form template"
+msgid "I have received and read the terms and waiver and agree to all."
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:74
+msgctxt "form template"
+msgid "I understand that I will have to pay $$ upon arrival"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:89
+msgctxt "form template"
+msgid "I was greeted upon entering the store"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:60
+msgctxt "form template"
+msgid "I will source my model"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:161
+msgctxt "form template"
+msgid "If no PIN is entered here, your library card PIN will be set to the last 4 numbers of your phone number."
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:58
+msgctxt "form template"
+msgid "If you require a model for your shoot"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:128
+msgctxt "form template"
+msgid "In which level will the child be participating?"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:104
+msgctxt "form template"
+msgid "In which of the following elections have you participated in the last 4 years? Select all that apply."
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:84
+msgctxt "form template"
+msgid "In-Store Experience Survey Template"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:123
+msgctxt "form template"
+msgid "In-person voting"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:78
+msgctxt "form template"
+msgid "Info"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:40
+msgctxt "form template"
+msgid "Instagram Address"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:233
+msgctxt "form template"
+msgid "Internship"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:217
+msgctxt "form template"
+msgid "Invoice Later"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:139
+msgctxt "form template"
+msgid "Kickball (Tues/Thurs)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:130
+msgctxt "form template"
+msgid "Kids (ages 5-7)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:69
+msgctxt "form template"
+msgid "Let us know what kind of dish(es) you will be bringing"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:108
+msgctxt "form template"
+msgid "Local Election (council, mayor, school board, etc.)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:49
+msgctxt "form template"
+msgid "Long Text"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:122
+msgctxt "form template"
+msgid "Mail-in ballot"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:93
+msgctxt "form template"
+msgid "Merchandise was folded or organized neatly"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:124
+msgctxt "form template"
+msgid "Message"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:20
+msgctxt "form template"
+msgid "Message / Issues"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:23
+msgctxt "form template"
+msgid "Message…"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:106
+msgctxt "form template"
+msgid "Midterm Election"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:136
+msgctxt "form template"
+msgid "Mobile Number"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:142
+msgctxt "form template"
+msgid "Mobile Phone"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:48
+msgctxt "form template"
+msgid "More than 1 min"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:80
+msgctxt "form template"
+msgid "My Products"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:94
+msgctxt "form template"
+msgid "My items were easy to locate"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:228
+msgctxt "form template"
+msgid "Negotiable"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:81
+msgctxt "form template"
+msgid "New Product 1 (10$)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:82
+msgctxt "form template"
+msgid "New Product 2 (20$)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:83
+msgctxt "form template"
+msgid "New Product 3 (30$)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:45
+msgctxt "form template"
+msgid "On-Location / Outside"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:236
+msgctxt "form template"
+msgid "Optional - upload your cover letter"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:79
+msgctxt "form template"
+msgid "Order"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:203
+msgctxt "form template"
+msgid "Order Details"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:119
+msgctxt "form template"
+msgid "Other"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:176
+msgctxt "form template"
+msgid "Page Count"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:135
+msgctxt "form template"
+msgid "Parent/Guardian Email"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:134
+msgctxt "form template"
+msgid "Parent/Guardian Name"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:157
+msgctxt "form template"
+msgid "Parent/Guardian Phone"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:231
+msgctxt "form template"
+msgid "Part-Time"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:63
+msgctxt "form template"
+msgid "Party Invite"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:215
+msgctxt "form template"
+msgid "PayPal"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:213
+msgctxt "form template"
+msgid "Payment Method"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:220
+msgctxt "form template"
+msgid "Personal Information"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:171
+msgctxt "form template"
+msgid "Please explain your suggestion for how we can improve the employee experience."
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:50
+msgctxt "form template"
+msgid "Please list any products or services you would like featured in the video(s)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:177
+msgctxt "form template"
+msgid "Please provide a brief synopsis of the book for us to share with the group."
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:199
+msgctxt "form template"
+msgid "Please provide your contact and shipping details"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:179
+msgctxt "form template"
+msgid "Please provide your contact details"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:88
+msgctxt "form template"
+msgid "Please respond to the following:"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:201
+msgctxt "form template"
+msgid "Postal / ZIP Code"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:202
+msgctxt "form template"
+msgid "Postal Code"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:129
+msgctxt "form template"
+msgid "Pre-K (ages 0-5)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:212
+msgctxt "form template"
+msgid "Preferred Delivery Date"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:105
+msgctxt "form template"
+msgid "Presidential Election"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:99
+msgctxt "form template"
+msgid "Prices were fair compared to other similar stores"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:205
+msgctxt "form template"
+msgid "Product / Service"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:206
+msgctxt "form template"
+msgid "Product A - Standard"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:207
+msgctxt "form template"
+msgid "Product B - Premium"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:208
+msgctxt "form template"
+msgid "Product C - Enterprise"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:43
+msgctxt "form template"
+msgid "Product video"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:44
+msgctxt "form template"
+msgid "Product video with model"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:51
+msgctxt "form template"
+msgid "Products or Services"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:197
+msgctxt "form template"
+msgid "Project Description"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:211
+msgctxt "form template"
+msgid "Quantity"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:181
+msgctxt "form template"
+msgid "Quote Details"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:114
+msgctxt "form template"
+msgid "Read candidate literature"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:111
+msgctxt "form template"
+msgid "Read candidate websites"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:117
+msgctxt "form template"
+msgid "Read past voting records or other important historical data"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:138
+msgctxt "form template"
+msgid "Rec Leagues (18+)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:141
+msgctxt "form template"
+msgid "Recreational Sports League Signup Form Template"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:167
+msgctxt "form template"
+msgid "Role/Title"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:188
+msgctxt "form template"
+msgid "SEO / Marketing"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:27
+msgctxt "form template"
+msgid "Salon Consultation Form"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:28
+msgctxt "form template"
+msgid "Salon service"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:162
+msgctxt "form template"
+msgid "Select a 4-digit PIN number"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:183
+msgctxt "form template"
+msgid "Select all services you need"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:204
+msgctxt "form template"
+msgid "Select your products and quantities"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:184
+msgctxt "form template"
+msgid "Services Required"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:200
+msgctxt "form template"
+msgid "Shipping Address"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:152
+msgctxt "form template"
+msgid "Shuffleboard Team of 2 (Mon)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:55
+msgctxt "form template"
+msgid "Social media feed posts"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:90
+msgctxt "form template"
+msgid "Someone offered to help me"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:68
+msgctxt "form template"
+msgid "Sorry, I can't make it"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:219
+msgctxt "form template"
+msgid "Special Requirements / Notes"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:107
+msgctxt "form template"
+msgid "State Election"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:21
+msgctxt "form template"
+msgid "Step 1"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:22
+msgctxt "form template"
+msgid "Step 2"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:91
+msgctxt "form template"
+msgid "Store personnel were friendly and polite"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:125
+msgctxt "form template"
+msgid "Summer Reading Program Signup Form Template"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:144
+msgctxt "form template"
+msgid "T-shirt Size (unisex)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:116
+msgctxt "form template"
+msgid "TV/Radio commercials"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:132
+msgctxt "form template"
+msgid "Teen (ages 13-16)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:86
+msgctxt "form template"
+msgid "Tel"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:182
+msgctxt "form template"
+msgid "Tell us about your project requirements"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:238
+msgctxt "form template"
+msgid "Tell us why you are a great fit for this position&hellip;"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:98
+msgctxt "form template"
+msgid "The music in the store was appropriate (not too loud or too quiet)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:95
+msgctxt "form template"
+msgid "The store atmosphere was welcoming"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:97
+msgctxt "form template"
+msgid "The store lighting was appropriate (not too dark or too bright)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:92
+msgctxt "form template"
+msgid "The store was clean"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:118
+msgctxt "form template"
+msgid "Through my registered party's recommendations"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:41
+msgctxt "form template"
+msgid "URL"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:227
+msgctxt "form template"
+msgid "Under $30,000"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:191
+msgctxt "form template"
+msgid "Under $500"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:47
+msgctxt "form template"
+msgid "Up to 1 min"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:237
+msgctxt "form template"
+msgid "Upload Cover Letter"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:195
+msgctxt "form template"
+msgid "Upload Project Files"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:235
+msgctxt "form template"
+msgid "Upload Resume / CV"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:194
+msgctxt "form template"
+msgid "Upload briefs, specs, or reference files"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:34
+msgctxt "form template"
+msgid "Upload cover letter"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:33
+msgctxt "form template"
+msgid "Upload your CV here"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:223
+msgctxt "form template"
+msgid "Upload your documents and provide additional information"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:36
+msgctxt "form template"
+msgid "VIDEOGRAPHY CREATIVE BRIEF"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:26
+msgctxt "form template"
+msgid "Vehicle"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:102
+msgctxt "form template"
+msgid "Voter Behavior Survey Template"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:113
+msgctxt "form template"
+msgid "Watch candidate debates"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:75
+msgctxt "form template"
+msgid "We would be happy to hear your feedback on how we can improve your experience!"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:64
+msgctxt "form template"
+msgid "We're having a party and would love to see you. Please let us know if you can come."
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:185
+msgctxt "form template"
+msgid "Web Design"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:186
+msgctxt "form template"
+msgid "Web Development"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:56
+msgctxt "form template"
+msgid "Website Product Page videos"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:72
+msgctxt "form template"
+msgid "What days will you attend?"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:52
+msgctxt "form template"
+msgid "What is the deadline for receiving the video?"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:46
+msgctxt "form template"
+msgid "What is the length of the video"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:61
+msgctxt "form template"
+msgid "What is your budget for this project?"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:42
+msgctxt "form template"
+msgid "What type of content are you looking to create?"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:54
+msgctxt "form template"
+msgid "What will this video be primarily used for?"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:70
+msgctxt "form template"
+msgid "What will you be bringing?"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:224
+msgctxt "form template"
+msgid "When can you start?"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:192
+msgctxt "form template"
+msgid "When do you need this delivered?"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:120
+msgctxt "form template"
+msgid "Which methods of voting have you used in the past? Select all that apply."
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:239
+msgctxt "form template"
+msgid "Why Should We Hire You?"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:146
+msgctxt "form template"
+msgid "XL"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:145
+msgctxt "form template"
+msgid "XS"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:147
+msgctxt "form template"
+msgid "XXL"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:67
+msgctxt "form template"
+msgid "Yes, I will be there"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:59
+msgctxt "form template"
+msgid "Yes, I'd like you to find a model for me"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:133
+msgctxt "form template"
+msgid "Young Adult (ages 17-18)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:37
+msgctxt "form template"
+msgid "Your Email"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:168
+msgctxt "form template"
+msgid "Your suggestion is regarding&hellip;"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:131
+msgctxt "form template"
+msgid "Youth (ages 8-12)"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:221
+msgctxt "form template"
+msgid "e.g. Software Developer, Designer, Manager&hellip;"
+msgstr ""
+
+#: includes/admin/template-phrases-efb.php:39
+msgctxt "form template"
+msgid "instagram.com/yourprofile"
+msgstr ""
+
 #: includes/class-Emsfb-formbuilder.php:5463
 msgid "free WordPress form plugin"
 msgstr ""
@@ -21650,11 +21695,6 @@ msgstr ""
 #. (shown after "This pattern cannot be used:")
 #: includes/functions.php:4723
 msgid "inline flags such as (?i) are not supported; use the switch instead"
-msgstr ""
-
-#. translators: ready-made form template: the hint inside an empty field
-#: includes/admin/template-phrases-efb.php:61
-msgid "instagram.com/yourprofile"
 msgstr ""
 
 #: includes/functions.php:3395 includes/functions.php:9191

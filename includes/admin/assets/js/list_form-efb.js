@@ -594,8 +594,7 @@ function getContentPreview_efb(contentStr) {
   }
 }
 
-/* BUG-03 (BUGS-FOUND 389): an entry's date in the list as the entries screen shows it: the site's date and time format
-   (date_display from the server; the stored date when there is none) in the site's digits. Escaped. */
+/* BUG-03 (389): an entry's date as the entries screen shows it (date_display, else stored) in the site's digits. */
 function efb_list_date_efb(v) {
   const raw = v && (v.date_display || v.date) ? String(v.date_display || v.date) : '';
   const l = String((typeof efb_var !== 'undefined' && (efb_var.wp_lan || efb_var.language)) || 'en_US');
@@ -1515,8 +1514,7 @@ function fun_show_setting__emsFormBuilder() {
 
   Object.entries(text).forEach(([key, value]) => {
     state = key == "easyFormBuilder" ? "d-none" : "d-block";
-    // BUG-03 (BUGS-FOUND 301): the id is prefixed (efbLoc_<key>); a bare phrase key as id collided with other ids of
-    // the settings screen (vrfWebOtp …) and the input carried a second id="labelEl". The key is in data-key.
+    // BUG-03 (301): a prefixed id (a bare phrase key collided with other ids); the key is in data-key.
     const locVal = String(value == null ? '' : value).replace(/"/g, '&quot;');
     if (key != "forbiddenChr") textList += `<input type="text" id="efbLoc_${key}" data-key="${key}" class="efb sen w-75 sen-validate-efb ${state} form-control text-muted efb  border-d efb-rounded h-d-efb  m-2" placeholder="${locVal}" aria-label="${locVal}" required value="${locVal}" data-tab="${efb_var.text.localization}">`
   });
@@ -2104,9 +2102,7 @@ function efb_privacy_tab_efb(prv, mx) {
       <!--efb-privacy-extra-->
     </div>`;
 }
-/* LIFE-01 (owner decision 5): what deleting the plugin from the Plugins screen does with this site's data. Off (the
-   default) keeps everything; on, uninstall.php removes the tables, options, files, capabilities and the plugin's user
-   meta (Lifecycle::SETTING). The warning shows while the box is ticked. */
+/* LIFE-01: "Delete all data when the plugin is deleted" (off by default; uninstall.php, Lifecycle::SETTING). */
 function efb_privacy_uninstall_html_efb(prv, mx, dis) {
   const on = prv.prv_delete_on_uninstall === '1';
   return `
@@ -4116,8 +4112,7 @@ function efb_csv_repeater_rows_efb(content) {
 }
 /* F17 / P22: a name or address group gets a column with its full line (EFBNameAddr, the stored line when there is
    one), placed before its parts; the parts keep their own columns (a postal code stays text: leading zeros kept). */
-/* SEC-04 (owner decision 6): a password answer of an entry saved before 4.3.2 (until the one-time scrub reaches it)
-   leaves as the mask, the way new entries store it; the server export does the same (Entries::export_row_text()). */
+/* SEC-04: a password answer saved before 4.3.2 leaves as the mask until the scrub reaches it (as the server export). */
 function efb_csv_mask_secrets_efb(content) {
   if (!Array.isArray(content)) return content;
   const types = ['password', 'pswRegister', 'pswLogin'];

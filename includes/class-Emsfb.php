@@ -26,9 +26,7 @@ class Emsfb {
         $this->plugin_url  = EMSFB_PLUGIN_URL;
 
         if (!self::wp_version_supported_efb()) {
-            // COMP-01: an update copied onto an older WordPress (WordPress refuses only the activation, and before
-            // 5.8 not even that). Load nothing that could call a function this WordPress does not have; say why
-            // to whoever can fix it. The forms, entries and settings stay in the database for after the update.
+            // COMP-01: an update copied onto an older WordPress: load nothing, say why (the data stays).
             add_action('admin_notices', [$this, 'wp_version_notice_efb']);
             add_action('network_admin_notices', [$this, 'wp_version_notice_efb']);
             return;
@@ -49,12 +47,7 @@ class Emsfb {
 
     }
 
-    /**
-     * Whether this WordPress is new enough for the plugin (MIN_WP_VERSION_EFB).
-     *
-     * @param string|null $version A version to check instead of the running one (tests).
-     * @return bool
-     */
+    /** Whether this WordPress (or $version) is at least MIN_WP_VERSION_EFB. */
     public static function wp_version_supported_efb($version = null): bool {
         if ($version === null) {
             $version = isset($GLOBALS['wp_version']) ? (string) $GLOBALS['wp_version'] : '';
@@ -63,11 +56,7 @@ class Emsfb {
         return $version === '' || version_compare($version, self::MIN_WP_VERSION_EFB, '>=');
     }
 
-    /**
-     * COMP-01: the notice of a WordPress older than MIN_WP_VERSION_EFB (the plugin stays inert).
-     *
-     * @return void
-     */
+    /** COMP-01: the notice of a WordPress older than MIN_WP_VERSION_EFB (the plugin stays inert). */
     public function wp_version_notice_efb(): void {
         if (!current_user_can('activate_plugins') && !current_user_can('update_core')) {
             return;
@@ -1727,15 +1716,8 @@ class Emsfb {
         return $addons;
     }
 
-    /**
-     * Deactivation. LIFE-01: every scheduled event of the plugin and its add-ons goes (Lifecycle::CRON_HOOKS and any
-     * other emsfb_ hook), on every site when the plugin is deactivated for the whole network. Code that runs later in
-     * the same request (the plugin-list refresh on deactivated_plugin, a cache rescan) could schedule one again, so
-     * the sweep runs once more at shutdown while the plugin stays inactive. Forms, entries and settings stay.
-     *
-     * @param bool $network_wide Network deactivation.
-     * @return void
-     */
+    /** Deactivation. LIFE-01: every scheduled event goes (Lifecycle), on every site for a network deactivation, and
+     * once more at shutdown (later code in the request can schedule again). Nothing else is deleted. */
     public static function plugin_deactivation_cleanup_efb($network_wide = false)
     {
         if (!class_exists('\Emsfb\Lifecycle') && is_readable(__DIR__ . '/class-Emsfb-lifecycle.php')) {
@@ -1778,7 +1760,7 @@ class Emsfb {
             wp_cache_flush();
         }
 
-        if (function_exists('wp_cache_supports') && wp_cache_supports('flush_group')) { // COMP-01: a persistent cache without group flushes answers _doing_it_wrong()
+        if (function_exists('wp_cache_flush_group') && (!function_exists('wp_cache_supports') || wp_cache_supports('flush_group'))) { // COMP-01: a cache without group flushes answers _doing_it_wrong()
             wp_cache_flush_group('emsfb');
         }
     }
@@ -2108,7 +2090,7 @@ class Emsfb {
         if (function_exists('wp_cache_flush')) {
             wp_cache_flush();
         }
-        if (function_exists('wp_cache_supports') && wp_cache_supports('flush_group')) { // COMP-01: a persistent cache without group flushes answers _doing_it_wrong()
+        if (function_exists('wp_cache_flush_group') && (!function_exists('wp_cache_supports') || wp_cache_supports('flush_group'))) { // COMP-01: a cache without group flushes answers _doing_it_wrong()
             wp_cache_flush_group('emsfb');
         }
         $wpdb->query(
@@ -2694,13 +2676,7 @@ class Emsfb {
         return $cache;
     }
 
-    /**
-     * The UTF-8 bytes of one code point. COMP-01: mb_chr() needs mbstring, which WordPress before 7.1 does not
-     * polyfill and many hosts leave out (a fatal error on the settings screen). '' for a code point that is not one.
-     *
-     * @param int $cp Code point.
-     * @return string
-     */
+    /** UTF-8 bytes of a code point ('' if none). COMP-01: mb_chr() needs mbstring, polyfilled only from WP 7.1. */
     public static function utf8_chr_efb($cp): string {
         $cp = (int) $cp;
         if ($cp < 0 || $cp > 0x10FFFF || ($cp >= 0xD800 && $cp <= 0xDFFF)) return '';

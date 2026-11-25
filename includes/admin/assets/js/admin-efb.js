@@ -2572,9 +2572,7 @@ let change_el_edit_Efb = (el) => {
   // F12b: the options of the form's CAPTCHA service (cp_*, rc3_action, rc3_fallback; spam-builder-efb.js).
   if (el.id && el.id.indexOf('cpOpt_') === 0) { if (typeof efbSpamBuilderChange === 'function') efbSpamBuilderChange(el); return; }
 
-  /* BUG-03 (BUGS-FOUND 108): the edit is applied after EFB_EDIT_DELAY_EFB(valj_efb.length) ms, at most 150 (it was
-     valj_efb.length × 6, about 2 s on a form with a country list, and a "busy" overlay stayed up to 1.5 s more). On
-     a long form the overlay covers exactly that wait and goes when the edit is applied. */
+  /* BUG-03 (108): applied after EFB_EDIT_DELAY_EFB() ms (at most 150); the overlay covers just that wait. */
   const overlayEfb = lenV > 20 ? document.getElementById("overlay_efb") : null;
   if (overlayEfb) {
     overlayEfb.classList.remove("d-none");
@@ -4563,8 +4561,7 @@ let change_el_edit_Efb = (el) => {
   }, EFB_EDIT_DELAY_EFB(len_Valj));
 
 }
-/* BUG-03 (BUGS-FOUND 108): how long change_el_edit_Efb() waits before it applies a panel edit: the length of the form
-   × 6 ms as before for a short form, never more than 150 ms (a country list made it about 2 s). */
+/* BUG-03 (108): change_el_edit_Efb()'s wait: len × 6 ms, at most 150 (was about 2 s with a country list). */
 function EFB_EDIT_DELAY_EFB(len) {
   return Math.min(150, Math.max(0, Number(len) || 0) * 6);
 }
@@ -7027,10 +7024,7 @@ function efbNoticeCenterEfb() {
 efbNoticeCenterEfb();
 document.addEventListener('DOMContentLoaded', efbNoticeCenterEfb);
 
-/* A11Y-01: the names and text alternatives the runtime bridge (efbA11yRepairEfb) used to add are in the markup now
-   (B7, B4 hand-off): class-Emsfb-panel.php (the header's logo alt="", its account and documentation links, "Show more",
-   Close, Back), val-efb.js (the palette's category list draws its rule with efb-list-rule, no <hr> in the <ul>), and
-   the scripts that print icon-only controls (aria-label). tests/e2e-wp/scenario-b4.js keeps axe at 0 serious or critical. */
+/* A11Y-01: the names the runtime bridge (efbA11yRepairEfb) added are in the markup now (B7). */
 /* B5 hand-off (PUB-01 in the builder): the buttons' label colour (row 0's el_text_color) against the button colour
    (button_color). Under 4.5:1 the Buttons panel says so under its colour controls (role status), with the colour the
    visitors see instead (the page draws the label white or near-black). One formula: efb_btn_text_class_efb(btn, text,
