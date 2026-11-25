@@ -6766,6 +6766,8 @@ class efbFunction {
 			'heroForms' => __('Create unlimited forms', 'easy-form-builder'),
 			'heroMobile' => __('Mobile-friendly responsive forms', 'easy-form-builder'),
 			'heroRtl' => __('Right-to-left languages', 'easy-form-builder'),
+			/* translators: the poll results when the plugin's chart library (Chart.js) is missing */
+			'chartMissing' => __('The charts cannot be drawn here: the chart library of the plugin is missing. Reinstall the plugin.', 'easy-form-builder'),
 			/* translators: the name of the first-run guide's group of buttons */
 			'onboardingActions' => __('Setup actions', 'easy-form-builder'),
 			/* translators: Settings › Payments: moves every moved form back to its older payment field */

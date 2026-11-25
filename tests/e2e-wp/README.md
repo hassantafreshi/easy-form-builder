@@ -84,6 +84,10 @@ $WP core install --path="$SITE" --url=http://127.0.0.1:8088 --title=EFB --admin_
 ln -s /path/to/easy-form-builder wp-content/plugins/easy-form-builder
 mkdir -p wp-content/mu-plugins
 cp /path/to/easy-form-builder/tests/e2e-wp/mu-plugins/efb-e2e.php wp-content/mu-plugins/
+# The third-party files the release zip carries but git does not (Chart.js for the poll charts, the response box's fonts,
+# the country / province / city lists): fetch them once into the checkout, or the charts are not tested (the screen
+# then says the chart library is missing). bin/build-zip.sh runs the same script.
+bash /path/to/easy-form-builder/bin/fetch-public-assets.sh
 $WP plugin activate easy-form-builder --path="$SITE"
 $WP rewrite structure '/%postname%/' --path="$SITE"
 $WP language core install fa_IR --path="$SITE"      # is_rtl() needs WordPress's own fa_IR pack

@@ -4537,6 +4537,8 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
   function efb_draw_charts() {
     const box = document.getElementById('overpage-chart');
     if (!box) return;
+    // Without the plugin's copy of Chart.js (a development checkout before bin/fetch-public-assets.sh) say so.
+    if (typeof Chart === 'undefined') { box.innerHTML = `<p class="efb text-muted my-4" role="status">${efb_var.text.chartMissing || 'The charts cannot be drawn here: the chart library of the plugin is missing. Reinstall the plugin.'}</p>`; return; }
     box.innerHTML = '';
     const rtl = Number(efb_var.rtl) == 1;
     for (const t in titles) {
@@ -4549,8 +4551,6 @@ function emsFormBuilder_chart(titles, colname, colvalue) {
       canvas.setAttribute('aria-label', String(titles[t]));
       wrap.appendChild(canvas);
       box.appendChild(wrap);
-      // SEC-02: Chart.js is the plugin's own copy; without it there is no chart instead of an error.
-      if (typeof Chart === 'undefined') continue;
       const labels = (colname[t] || []).map(String);
       new Chart(canvas, {
         type: 'pie',

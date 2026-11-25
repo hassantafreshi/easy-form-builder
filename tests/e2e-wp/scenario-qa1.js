@@ -513,6 +513,10 @@ module.exports = function (S) {
         await p.waitForSelector('.efb-plans-grid .efb-plan-card', { timeout: 10000 });
         await sleep(800);
         const cards = await p.evaluate(() => Array.from(document.querySelectorAll('.efb-plans-grid .efb-plan-card')).map((c) => ({ rec: c.classList.contains('efb-recommended'), top: Math.round(c.getBoundingClientRect().top), w: Math.round(c.getBoundingClientRect().width) })).sort((a, b) => a.top - b.top));
+        // Dev assets: without the plugin's Chart.js (not in git; bin/fetch-public-assets.sh) the poll chart says so.
+        const chart = await p.evaluate(async () => { const had = window.Chart; if (!window.__efbKeepChart) window.Chart = undefined; emsFormBuilder_chart(['f', 'Q1'], [[], ['a', 'b']], [[], [1, 2]]); await new Promise((r) => setTimeout(r, 1600)); const t = (document.getElementById('overpage-chart') || {}).textContent || ''; window.Chart = had; state_modal_show_efb(0); return t; });
+        if (loc === 'fa_IR') R.check('qa1-firstrun: the poll chart without Chart.js says that the chart library is missing (not an empty box)', /chart library/.test(chart) || /[\u0600-\u06FF]/.test(chart), chart);
+        await sleep(400);
         R.check(`qa1-firstrun (${loc} 375): three phrases over the illustration; the plan cards one under the other, the recommended Free Plus first, each nearly the screen's width`, hero.length === 3 && hero.every((x) => x.length > 3) && cards.length === 3 && cards[0].rec && cards[1].top > cards[0].top && cards.every((c) => c.w >= 300), { hero, cards });
         await p.screenshot({ path: SHOT(`qa1-firstrun-plans-${loc}-375`) });
         await p.context().close();
