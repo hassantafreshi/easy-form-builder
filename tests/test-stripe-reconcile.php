@@ -245,7 +245,10 @@ try {
     // --- Deactivation clears the hook (read from source: running it would wipe this site's caches) ---
     $cleanup = new ReflectionMethod('Emsfb', 'plugin_deactivation_cleanup_efb');
     $lines = array_slice(file($cleanup->getFileName()), $cleanup->getStartLine() - 1, $cleanup->getEndLine() - $cleanup->getStartLine() + 1);
-    $check(strpos(implode('', $lines), "wp_clear_scheduled_hook('emsfb_stripe_reconcile_efb')") !== false, 'Deactivation removes the queued check');
+    // LIFE-01 (B7): deactivation clears every hook through Emsfb\Lifecycle (CRON_HOOKS lists this one).
+    if (!class_exists('Emsfb\\Lifecycle')) require_once dirname(__DIR__) . '/includes/class-Emsfb-lifecycle.php';
+    $by_lifecycle = strpos(implode('', $lines), 'Lifecycle::deactivate(') !== false && class_exists('Emsfb\\Lifecycle') && in_array('emsfb_stripe_reconcile_efb', \Emsfb\Lifecycle::CRON_HOOKS, true);
+    $check($by_lifecycle || strpos(implode('', $lines), "wp_clear_scheduled_hook('emsfb_stripe_reconcile_efb')") !== false, 'Deactivation removes the queued check');
 
     fwrite(STDOUT, "$passed Stripe resilience checks passed (real SDK, local HTTP client, real WordPress/database).\n");
 } catch (Throwable $error) {
