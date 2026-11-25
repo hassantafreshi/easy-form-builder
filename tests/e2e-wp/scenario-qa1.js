@@ -23,6 +23,10 @@
  *                calendar and open no upgrade dialog (fa_IR). QA1-017: the help "?" and documentation links are real
  *                links (href, Tab reaches them, a name). QA1-024: the save result's shortcode panel is inside the dialog
  *                (en 1280, fa_IR / ar 375).
+ *  qa1-keyboard  QA1-002: a "Skip to the form" link after the palette search reaches the canvas; a field is a tab stop
+ *                named "Edit field: …", shows its toolbar while focused and opens its settings with Enter. QA1-003: the
+ *                shared dialog (the save result, the delete question) takes the focus, keeps Tab inside, closes on Esc
+ *                and gives the focus back; its No / Yes are <button>s.
  */
 'use strict';
 
@@ -337,6 +341,70 @@ module.exports = function (S) {
       await s.context().close();
     } finally {
       for (const id of made) { try { ctl('f12-delete-form', String(id)); } catch (e) { /* ignore */ } }
+    }
+  });
+
+  /* ================================================================== qa1-keyboard */
+  scenario('qa1-keyboard', 'QA1-002 / QA1-003: the builder and its dialogs with the keyboard only', async ({ adminPage }) => {
+    ctl('plan', '3');
+    let fid = 0;
+    try {
+      const a = await adminPage({ viewport: { width: 1280, height: 900 } }, 'qa1-keyboard');
+      await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_create', { waitUntil: 'load' });
+      await a.waitForSelector('button#contact.efbCreateNewForm', { timeout: 20000 });
+      await a.click('button#contact.efbCreateNewForm');
+      await a.waitForFunction(() => typeof valj_efb !== 'undefined' && valj_efb.length > 2 && document.querySelector('#dropZoneEFB section[tabindex="0"]'), null, { timeout: 30000 });
+      await sleep(1200);
+      // QA1-002
+      await a.focus('#efbPaletteSearch');
+      await a.keyboard.press('Tab');
+      const skip = await a.evaluate(() => ({ cls: document.activeElement.className, text: document.activeElement.textContent.trim() }));
+      await a.keyboard.press('Enter');
+      await sleep(300);
+      // The first field after the step header.
+      await a.keyboard.press('Tab');
+      for (let i = 0; i < 8 && !(await a.evaluate(() => /-id$/.test(document.activeElement.dataset.id || ''))); i++) await a.keyboard.press('Tab');
+      const f = await a.evaluate(() => { const e = document.activeElement; const h = e && e.querySelector('.btn-edit-holder'); return { inCanvas: !!e.closest('#dropZoneEFB'), id: e.dataset.id || '', name: e.getAttribute('aria-label') || '', toolbar: !!h && !h.classList.contains('d-none') && h.offsetParent !== null }; });
+      R.check('qa1-keyboard (QA1-002): Tab after the palette search reaches "Skip to the form"; Enter moves into the form, Tab reaches a field named "Edit field: …", its toolbar shown', /efb-skip-canvas/.test(skip.cls) && !!skip.text && f.inCanvas && !!f.id && /^Edit field: \S/.test(f.name) && f.toolbar, { skip, f });
+      await a.keyboard.press('Enter');
+      await a.waitForFunction(() => document.getElementById('sideBoxEfb').classList.contains('show'), null, { timeout: 8000 }).catch(() => {});
+      const panel = await a.evaluate(() => ({ open: document.getElementById('sideBoxEfb').classList.contains('show'), label: !!document.getElementById('labelEl') }));
+      R.check('qa1-keyboard (QA1-002): Enter on the field opens its settings (the label box is there)', panel.open && panel.label, panel);
+      await a.keyboard.press('Escape');
+      await sleep(500);
+      // Tab moves from field to field (one stop each).
+      const cur = await a.evaluate(() => { const e = document.querySelector('#dropZoneEFB section[data-id$="-id"][tabindex="0"]'); e.focus(); return e.dataset.id; });
+      await a.keyboard.press('Tab');
+      let hops = 0, next = '';
+      for (; hops < 25; hops++) { next = await a.evaluate((c) => (document.activeElement.dataset.id !== c && document.activeElement.getAttribute('aria-label')) || '', cur); if (/^Edit field:/.test(next)) break; await a.keyboard.press('Tab'); }
+      R.check('qa1-keyboard (QA1-002): the next field is reached with a few Tabs (its preview and toolbar between)', /^Edit field:/.test(next) && hops < 25, { hops, next });
+      // QA1-003: the save result.
+      await a.keyboard.press('Control+s');
+      await a.waitForSelector('#settingModalEfb.show .efb-dlg__code-panel', { timeout: 30000 });
+      await sleep(400);
+      fid = await a.evaluate(() => (typeof form_ID_emsFormBuilder !== 'undefined' ? Number(form_ID_emsFormBuilder) : 0));
+      const inDlg = await a.evaluate(() => document.getElementById('settingModalEfb').contains(document.activeElement));
+      let stays = true;
+      for (let i = 0; i < 12; i++) { await a.keyboard.press('Tab'); if (!(await a.evaluate(() => document.getElementById('settingModalEfb').contains(document.activeElement)))) stays = false; }
+      await a.keyboard.press('Escape');
+      await sleep(500);
+      const after = await a.evaluate(() => ({ open: document.getElementById('settingModalEfb').classList.contains('show'), back: document.activeElement && document.activeElement !== document.body && !!document.activeElement.closest('#wpbody-content') }));
+      R.check('qa1-keyboard (QA1-003): Ctrl+S → the save dialog has the focus, Tab stays inside, Esc closes it and the focus is back on the page', inDlg && stays && !after.open && after.back, { inDlg, stays, after });
+      // QA1-003: the delete question.
+      // The field's own Delete in its toolbar (shown while the field has the focus), pressed with Enter.
+      await a.evaluate(() => { const e = document.querySelector('#dropZoneEFB section[data-id$="-id"][tabindex="0"]'); e.focus(); const d = e.querySelector('.btn-edit-holder [onclick*="delete" i], .btn-edit-holder .btn-delete, .btn-edit-holder button:last-child'); if (d) d.focus(); });
+      await a.keyboard.press('Enter');
+      await a.waitForSelector('#settingModalEfb.show #modalConfirmBtnEfb', { timeout: 8000 }).catch(() => {});
+      await sleep(400);
+      const q = await a.evaluate(() => ({ tags: Array.from(document.querySelectorAll('#modal-footer-efb .efb-btn-cancel, #modalConfirmBtnEfb')).map((b) => b.tagName + ':' + b.textContent.trim()), focus: document.getElementById('settingModalEfb').contains(document.activeElement) }));
+      await a.keyboard.press('Escape');
+      await sleep(400);
+      const closed = await a.evaluate(() => !document.getElementById('settingModalEfb').classList.contains('show'));
+      R.check('qa1-keyboard (QA1-003, QA1-027): the delete question is two <button>s "No" / "Yes" with the focus inside; Esc closes it', q.tags.length === 2 && q.tags.every((x) => /^BUTTON:/.test(x)) && q.tags[0] === 'BUTTON:No' && q.focus && closed, { q, closed });
+      await a.screenshot({ path: SHOT('qa1-keyboard-en-1280') });
+      await a.context().close();
+    } finally {
+      if (fid) { try { ctl('f12-delete-form', String(fid)); } catch (e) { /* ignore */ } }
     }
   });
 };

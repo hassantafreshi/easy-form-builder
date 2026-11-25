@@ -382,12 +382,8 @@ const efb_modal_paint_efb = (body, title, icon, type, opts) => {
     foot.className = 'efb modal-footer efb-confirm-footer';
     foot.id = 'modal-footer-efb';
     foot.innerHTML = `
-      <a type="button" class="efb-btn-cancel" onclick="state_modal_show_efb(0)">
-          ${cancelLabel}
-      </a>
-      <a type="button" class="${confirmClass}" id="modalConfirmBtnEfb">
-          ${confirmLabel}
-      </a>`;
+      <button type="button" class="efb-btn-cancel" onclick="state_modal_show_efb(0)">${cancelLabel}</button>
+      <button type="button" class="${confirmClass}" id="modalConfirmBtnEfb">${confirmLabel}</button>`;
     document.getElementById('settingModalEfb-sections').appendChild(foot);
   } else if (type == "saveBox") {
     document.getElementById("settingModalEfb").classList.remove('modal-new-efb')

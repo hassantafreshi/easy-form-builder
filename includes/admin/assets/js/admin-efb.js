@@ -6356,6 +6356,33 @@ state_modal_show_efb=(i)=>{
 
   }
    i==1 ? show() : remove();
+   efb_modal_focus_efb(el, i == 1);
+}
+/* QA1-003: the shared dialog takes the focus when it opens (its first control, else its title), keeps Tab inside, closes
+   on Esc and gives the focus back to what had it. */
+function efb_modal_focus_efb(el, open) {
+  if (!el) return;
+  const W = window;
+  if (!open) { const o = W._efbModalOpener; W._efbModalOpener = null; if (o && o.isConnected && typeof o.focus === 'function') setTimeout(() => { if (!el.classList.contains('show')) o.focus(); }, 0); return; }
+  if (!el.contains(document.activeElement) && document.activeElement !== document.body) W._efbModalOpener = document.activeElement;
+  const items = () => Array.from(el.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]):not([type=hidden]),select,textarea,[tabindex]:not([tabindex="-1"])')).filter((x) => x.offsetWidth || x.offsetHeight || x.getClientRects().length);
+  setTimeout(() => {
+    if (!el.classList.contains('show') || el.contains(document.activeElement)) return;
+    const body = items().filter((x) => !x.closest('.modal-header'));
+    const t = body[0] || items()[0] || document.getElementById('settingModalEfb-title');
+    if (t) { if (!t.hasAttribute('tabindex') && !/^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/.test(t.tagName)) t.setAttribute('tabindex', '-1'); t.focus(); }
+  }, 60);
+  if (el._efbKeys) return;
+  el._efbKeys = true;
+  el.addEventListener('keydown', (e) => {
+    if (!el.classList.contains('show')) return;
+    if (e.key === 'Escape' && !el.hasAttribute('data-efb-no-esc')) { e.preventDefault(); e.stopPropagation(); state_modal_show_efb(0); return; }
+    if (e.key !== 'Tab') return;
+    const f = items();
+    if (!f.length) return;
+    const i = f.indexOf(document.activeElement);
+    if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+  });
 }
 
 function add_r_matrix_edit_pro_efb(parent, tag, len) {
@@ -7714,6 +7741,18 @@ function fub_shwBtns_efb() {
         el.classList.remove('efb-field-hover');
       });
       el._efbHoverBound = true;
+    }
+
+    /* QA1-002: a field is reachable with Tab, named, and opens its settings with Enter or Space; its toolbar shows
+       while the focus is in it (as on hover). */
+    if (!el._efbKeyBound && el.dataset.id && !(el.parentElement && el.parentElement.closest('.showBtns'))) {
+      const row = typeof valj_efb !== 'undefined' ? valj_efb.find((r) => r && r.dataId === el.dataset.id) : null;
+      if (!el.hasAttribute('tabindex')) el.tabIndex = 0;
+      el.setAttribute('aria-label', String(efb_var.text.editFieldN || 'Edit field: %s').replace('%s', String((row && (row.name || row.type)) || '').replace(/<[^>]*>/g, '')));
+      el.addEventListener('keydown', (e) => { if (e.target === el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); efbSelectFieldEfb(el, e); } });
+      el.addEventListener('focusin', () => { const h = el.querySelector('.btn-edit-holder'); if (h && h.classList.contains('d-none')) { h.classList.remove('d-none'); h.classList.add('efb-hover-visible'); } });
+      el.addEventListener('focusout', (e) => { if (el.contains(e.relatedTarget)) return; const h = el.querySelector('.btn-edit-holder'); if (h && h.classList.contains('efb-hover-visible') && activeEl_efb !== el.dataset.id) { h.classList.add('d-none'); h.classList.remove('efb-hover-visible'); } });
+      el._efbKeyBound = true;
     }
 
     if (!el._efbTouchBound) {

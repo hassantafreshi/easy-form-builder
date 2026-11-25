@@ -2846,3 +2846,4 @@ div#Listefb-150 {
 	#settingModalEfb .efb-resp-viewer { max-height: none; }
 	#settingModalEfb .efb-resp-viewer .efb-resp-messages { max-height: none; min-height: 0; overflow-y: visible; }
 }
+#modal-footer-efb.efb-confirm-footer button { font-family: inherit; }

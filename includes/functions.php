@@ -1597,7 +1597,7 @@ class efbFunction {
 			"loading" => $state && isset($ac->text->loading) ? $ac->text->loading : esc_html__('Loading','easy-form-builder'),
 			"remove" => $state && isset($ac->text->remove) ? $ac->text->remove : esc_html__('Remove!','easy-form-builder'),
 			"areYouSureYouWantDeleteItem" => $state && isset($ac->text->areYouSureYouWantDeleteItem) ? $ac->text->areYouSureYouWantDeleteItem : esc_html__('Are you sure you want to delete this?','easy-form-builder'),
-			"no" => $state && isset($ac->text->no) ? $ac->text->no : esc_html__('NO','easy-form-builder'),
+			"no" => $state && isset($ac->text->no) ? $ac->text->no : esc_html__('No','easy-form-builder'),
 			"yes" => $state && isset($ac->text->yes) ? $ac->text->yes : esc_html__('Yes','easy-form-builder'),
 
 			"proVersion" => $state && isset($ac->text->proVersion) ? $ac->text->proVersion : esc_html__('Pro Version','easy-form-builder'),

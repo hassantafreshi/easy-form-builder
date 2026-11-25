@@ -2739,6 +2739,7 @@ function creator_form_builder_Efb() {
               <i class="efb bi-search efb-palette-search-icon" aria-hidden="true"></i>
               <input type="search" id="efbPaletteSearch" class="efb form-control efb-palette-search-input" role="searchbox" aria-controls="efbPaletteTilesEfb" aria-describedby="efbPaletteSearchLive" autocomplete="off" spellcheck="false" placeholder="${efb_var.text.searchFields || 'Search fields'}">
               <div id="efbPaletteSearchLive" class="efb efb-palette-live" aria-live="polite"></div>
+              <a href="#dropZoneEFB" class="efb visually-hidden-focusable efb-skip-canvas" onclick="event.preventDefault();const f=document.querySelector('#dropZoneEFB section[tabindex=&quot;0&quot;]');if(f)f.focus();">${efb_var.text.skipToCanvas || 'Skip to the form'}</a>
             </div>
             <ul class="efb my-2 row efb-list-rule" id="listCatEfb">
                 <li class="efb efb-col-3 px-1">
