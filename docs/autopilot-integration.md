@@ -253,7 +253,10 @@ Two small core changes support it:
 
 Errors are thrown as `Error` with a stable `code`: `builder_not_ready`, `invalid_form`,
 `invalid_items`, `invalid_id`, `invalid_type`, `duplicate_id`, `orphan_option`, `unknown_target`,
-`unknown_step`, `unknown_field`, `unsupported_position`, `unsupported_type`, `not_rendered`.
+`unknown_step`, `unknown_field`, `unsupported_position`, `unsupported_type`, `not_rendered`,
+`low_contrast` (4.3.2, B4: `setForm()` / `setFormSettings()` set row 0's `el_text_color` / `button_color` to a pair
+that reads under 4.5:1; `e.ratio`, `e.fix` = the label class that reads, `e.path`; a pair the form already has is
+kept, so an older form still round-trips; the formula is the page's `efb_btn_text_class_efb(btn, text, true)`).
 A refused call leaves the form unchanged.
 
 Events on `document`:

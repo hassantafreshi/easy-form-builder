@@ -2815,3 +2815,7 @@ div#Listefb-150 {
 #listCardTitleEfb, #listCatEfb.efb-list-rule { border-bottom: 1px solid #e3e3ef; padding-bottom: 4px; }
 /* A11Y-01: the notice's "View diagnostic details" disclosure is a 24 px target (WCAG 2.2 2.5.8). */
 .efb-request-health-notice summary { min-height: 24px; line-height: 24px; cursor: pointer; }
+
+/* B5 hand-off: the Buttons panel's note when the label colour reads under 4.5:1 on the button colour. */
+#sideMenuConEfb .efb-btn-contrast { margin: 6px 0 4px; padding: 6px 10px; border-inline-start: 3px solid #dba617; background: #fcf9e8; color: #5c4400; font-size: .85rem; line-height: 1.5; unicode-bidi: plaintext; text-align: start; }
+#sideMenuConEfb .efb-btn-contrast[hidden] { display: none; }

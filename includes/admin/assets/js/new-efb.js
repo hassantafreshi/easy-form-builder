@@ -423,6 +423,9 @@ const efb_modal_paint_efb = (body, title, icon, type, opts) => {
  * el_text_color is that label's colour, chosen apart from button_color (text-labelEfb on btn-darkb read 1.4:1). Below
  * 4.5:1 against the button (both ends of a gradient) the label is white or near-black, whichever reads better; the
  * form keeps its value; unknown classes stay. Twin of Formbuilder::button_text_class_efb() (PHP).
+ * B4 (the builder's warning and efbBuilderApi's low_contrast): a third argument true answers {cls, ratio, ok} instead
+ * (ratio: the label's lowest contrast against the button, null for colours it does not know; ok: ratio >= 4.5), so the
+ * builder uses this one formula. The two-argument call is unchanged.
  */
 function efb_btn_text_class_efb(btn, text) {
   const bgs = { primary: ['#3644d2'], darkb: ['#202a8d', '#4757e7'], pinkEfb: ['#ff4b93', '#ce0051'], danger: ['#e91a26', '#ec5560'],
@@ -437,15 +440,17 @@ function efb_btn_text_class_efb(btn, text) {
     if (m[1] === 'colorDEfb' && m[2]) return ['#' + m[2]];
     return Object.prototype.hasOwnProperty.call(map, m[1]) ? [].concat(map[m[1]]) : null;
   };
+  const detail = arguments.length > 2 && arguments[2] === true;
   const bg = hex(btn, 'btn', bgs), tc = hex(text, 'text', texts);
-  if (!bg || !tc) return text;
+  if (!bg || !tc) return detail ? { cls: text, ratio: null, ok: true } : text;
   const lum = (h) => { const c = [1, 3, 5].map((i) => { const v = parseInt(h.substr(i, 2), 16) / 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
   const min = (fg) => bg.reduce((r, b) => { const a = lum(fg), c = lum(b); return Math.min(r, (Math.max(a, c) + 0.05) / (Math.min(a, c) + 0.05)); }, 21);
   const cur = min(tc[0]);
-  if (cur >= 4.5) return text;
+  if (cur >= 4.5) return detail ? { cls: text, ratio: cur, ok: true } : text;
   const w = min('#ffffff'), d = min('#212529');
   const best = w >= d ? ['text-white', w] : ['text-dark', d];
-  return best[1] > cur ? best[0] : text;
+  const cls = best[1] > cur ? best[0] : text;
+  return detail ? { cls: cls, ratio: cur, ok: false } : cls;
 }
 
 let add_buttons_zone_efb = (state, id) => {

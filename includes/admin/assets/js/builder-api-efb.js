@@ -263,10 +263,32 @@
     });
   }
 
+  /**
+   * PUB-01 / B4: the buttons' label colour (row 0 el_text_color) against the button colour (button_color) must read at
+   * 4.5:1 (WCAG 2.1 AA). A call that sets a pair under it is refused with low_contrast (e.ratio, e.fix: the label class
+   * that reads, e.button_color, e.el_text_color) and changes nothing; a pair the form already has is kept (a form from
+   * before 4.3.2 still round-trips through getForm() / setForm()). The formula is the page's: efb_btn_text_class_efb().
+   */
+  function contrastCheck(next0, cur0) {
+    if (!next0 || typeof efb_btn_text_class_efb !== 'function') return null;
+    var btn = next0.button_color, txt = next0.el_text_color;
+    if (cur0 && cur0.button_color === btn && cur0.el_text_color === txt) return null;
+    var c = efb_btn_text_class_efb(btn, txt, true);
+    if (!c || typeof c !== 'object' || c.ok) return null;
+    var ratio = Math.floor(c.ratio * 10) / 10;
+    var e = fail('low_contrast', 'The buttons\' label colour ' + txt + ' reads ' + ratio + ':1 on ' + btn + '; at least 4.5:1 is needed' + (c.cls !== txt ? ' (' + c.cls + ' reads).' : '. Choose another colour.'));
+    e.ratio = ratio; e.fix = c.cls !== txt ? c.cls : null; e.button_color = btn; e.el_text_color = txt; e.path = 'rows[0].el_text_color';
+    return e;
+  }
+
   function setForm(items, opts) {
     if (!Array.isArray(items) || !items[0] || typeof items[0] !== 'object' || typeof items[0].type !== 'string') {
       throw fail('invalid_form', 'setForm() needs the whole form: row 0 holds the form settings.');
     }
+    var curRows = null;
+    try { curRows = rows(); } catch (e0) { /* no form yet: every pair is new */ }
+    var lowC = contrastCheck(items[0], curRows ? curRows[0] : null);
+    if (lowC) throw lowC;
     if (items.length > 1) checkRows(items.slice(1), []);
     var frErrs = fieldRulesErrors(items, 0);
     if (frErrs.length) throw failRules(frErrs);
@@ -679,6 +701,11 @@
       if (!/^[A-Za-z0-9_]+$/.test(k) || k === 'type' || k === 'id_') throw fail('invalid_setting', 'key ' + k + ' cannot be set here.');
       if (v !== null && typeof v === 'object') throw fail('invalid_setting', k + ' must be a string, number or boolean.');
     });
+    // PUB-01 / B4: the buttons' colours read (low_contrast), like setForm().
+    if (patch.button_color !== undefined || patch.el_text_color !== undefined) {
+      var lowC0 = contrastCheck({ button_color: patch.button_color !== undefined ? String(patch.button_color) : r[0].button_color, el_text_color: patch.el_text_color !== undefined ? String(patch.el_text_color) : r[0].el_text_color }, r[0]);
+      if (lowC0) throw lowC0;
+    }
     // F16: val_timing ("blur" | "change"), err_summary and warn_unsaved ("1" | "0") with the save rules.
     keys.forEach(function (k) {
       if (['val_timing', 'err_summary', 'warn_unsaved'].indexOf(k) === -1 || typeof efbA11yClean !== 'function') return;

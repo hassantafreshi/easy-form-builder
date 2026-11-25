@@ -287,6 +287,12 @@ class Notices {
 			'a11yMore'  => __('Show more', 'easy-form-builder'),
 			/* translators: SET-01: a link in Settings › Captchas to the screen of the Human Shield add-on (a product name) */
 			'setHsLink' => __('Open the Human Shield settings', 'easy-form-builder'),
+			/* translators: builder, Buttons panel: the form's button label colour reads poorly on the button colour; %s: a contrast ratio such as 2.1:1 */
+			'btnContrastWhite' => __('The label colour is hard to read on this button (%s; at least 4.5:1 is needed). Visitors see the label in white.', 'easy-form-builder'),
+			/* translators: builder, Buttons panel: the form's button label colour reads poorly on the button colour; %s: a contrast ratio such as 2.1:1 */
+			'btnContrastDark'  => __('The label colour is hard to read on this button (%s; at least 4.5:1 is needed). Visitors see the label in near-black.', 'easy-form-builder'),
+			/* translators: builder, Buttons panel: the form's button label colour reads poorly on the button colour and no automatic colour helps; %s: a contrast ratio such as 2.1:1 */
+			'btnContrastNone'  => __('The label colour is hard to read on this button (%s; at least 4.5:1 is needed). Choose another button or label colour.', 'easy-form-builder'),
 			/* translators: UX-01: the button in the Easy Form Builder header that opens the list of the plugin's other notices (a number follows it) */
 			'nmNotices' => __('Notices', 'easy-form-builder'),
 			/* translators: UX-01: a button under an Easy Form Builder notice; %s: a number of days (7) */

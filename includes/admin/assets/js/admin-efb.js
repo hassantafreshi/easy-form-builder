@@ -3780,6 +3780,7 @@ let change_el_edit_Efb = (el) => {
           document.getElementById(`prev_efb`).className = colorBtnChangerEfb(document.getElementById(`prev_efb`).className, "btn-" + clss)
         }
         valj_efb[indx].button_color = "btn-" + clss;
+        if (indx == 0) setTimeout(efbBtnContrastNoteEfb, 0); // B5 hand-off: the buttons' label against the new colour
 
         if (clss.includes('colorDEfb')) {
           valj_efb[indx].style_btn_color ? valj_efb[indx].style_btn_color = color : Object.assign(valj_efb[indx], { style_btn_color: color });
@@ -3807,6 +3808,7 @@ let change_el_edit_Efb = (el) => {
         } else if (el.dataset.el == "el") {
           valj_efb[indx].el_text_color = "text-" + c;
           postId = '_'
+          if (indx == 0) setTimeout(efbBtnContrastNoteEfb, 0); // B5 hand-off: the buttons' label colour
         }
          else if (el.dataset.el == "clrdoneMessageEfb") {
           valj_efb[0].clrdoneMessageEfb = "text-" + c;
@@ -7056,6 +7058,42 @@ function efbA11yRepairEfb() {
     el.setAttribute('aria-label', name);
   }
 }
+/* B5 hand-off (PUB-01 in the builder): the buttons' label colour (row 0's el_text_color) against the button colour
+   (button_color). Under 4.5:1 the Buttons panel says so under its colour controls (role status), with the colour the
+   visitors see instead (the page draws the label white or near-black). One formula: efb_btn_text_class_efb(btn, text,
+   true) in new-efb.js, the twin of Formbuilder::button_text_class_efb(); efbBuilderApi refuses the same pair
+   (low_contrast). */
+function efbBtnContrastEfb(row) {
+  if (!row || typeof efb_btn_text_class_efb !== 'function') return null;
+  const r = efb_btn_text_class_efb(row.button_color, row.el_text_color, true);
+  return r && typeof r === 'object' ? r : null;
+}
+function efbBtnContrastNoteEfb() {
+  const panel = document.getElementById('sideMenuConEfb');
+  const btn = panel ? panel.querySelector('#btnColorEl[data-id^="button_group"]') : null;
+  if (!btn || typeof valj_efb === 'undefined' || !valj_efb[0]) return;
+  let note = document.getElementById('efbBtnContrastNote');
+  if (!note) {
+    note = document.createElement('p');
+    note.id = 'efbBtnContrastNote';
+    note.className = 'efb form-text efb-btn-contrast';
+    note.setAttribute('role', 'status');
+    note.setAttribute('aria-live', 'polite');
+    btn.insertAdjacentElement('afterend', note);
+    btn.setAttribute('aria-describedby', 'efbBtnContrastNote');
+    const txt = panel.querySelector('#selectColorEl[data-el="el"][data-id^="button_group"]');
+    if (txt) txt.setAttribute('aria-describedby', 'efbBtnContrastNote');
+  }
+  const c = efbBtnContrastEfb(valj_efb[0]);
+  if (!c || c.ok) { note.textContent = ''; note.hidden = true; return; }
+  const key = c.cls === 'text-white' ? 'btnContrastWhite' : (c.cls === 'text-dark' ? 'btnContrastDark' : 'btnContrastNone');
+  const fb = { btnContrastWhite: 'The label colour is hard to read on this button (%s; at least 4.5:1 is needed). Visitors see the label in white.', btnContrastDark: 'The label colour is hard to read on this button (%s; at least 4.5:1 is needed). Visitors see the label in near-black.', btnContrastNone: 'The label colour is hard to read on this button (%s; at least 4.5:1 is needed). Choose another button or label colour.' }[key];
+  const ratio = (Math.floor(c.ratio * 10) / 10).toFixed(1) + ':1';
+  note.innerHTML = efbSbEscEfb(efbSbTextEfb(key, fb)).replace('%s', '<bdi dir="ltr">' + efbSbEscEfb(ratio) + '</bdi>');
+  note.setAttribute('data-efb-contrast', c.cls);
+  note.hidden = false;
+}
+
 /* SET-01 phase 1: Settings › Captchas links to Human Shield, the security add-on's own screen, while it is on
    (efb_var.addon_catalog.AdnHSH.screen); that screen links back to Settings › Captchas. After the sentence that tells it
    apart from the Shield Security plugin. */
@@ -7079,10 +7117,11 @@ let efbA11yTimerEfb = 0;
 function efbA11yWatchEfb() {
   efbA11yRepairEfb();
   efbCaptchasHumanShieldEfb();
+  efbBtnContrastNoteEfb();
   const root = document.getElementById('wpbody-content');
   if (!root || !window.MutationObserver || root.getAttribute('data-efb-a11y') === '1') return;
   root.setAttribute('data-efb-a11y', '1');
-  new MutationObserver(() => { clearTimeout(efbA11yTimerEfb); efbA11yTimerEfb = setTimeout(() => { efbA11yRepairEfb(); efbCaptchasHumanShieldEfb(); }, 250); }).observe(root, { childList: true, subtree: true });
+  new MutationObserver(() => { clearTimeout(efbA11yTimerEfb); efbA11yTimerEfb = setTimeout(() => { efbA11yRepairEfb(); efbCaptchasHumanShieldEfb(); efbBtnContrastNoteEfb(); }, 250); }).observe(root, { childList: true, subtree: true });
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', efbA11yWatchEfb); else efbA11yWatchEfb();
 
