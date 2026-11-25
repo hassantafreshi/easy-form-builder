@@ -46,6 +46,10 @@ if (!function_exists('efb_addon_contract_versions')) {
 			// F12b: an add-on CAPTCHA provider (Emsfb\Captcha\Provider::API); core keeps Google itself.
 			'captcha_provider' => array('version' => 2, 'min' => 2, 'core' => false),
 			// F20-core: the customer portal (EMSFB_PORTAL_API, efb_portal_core_api()); the free plugin EFB Customer Portal builds on it.
+			// ADD-03 (B8 → B6): the Conditional Logic add-on (AdnSMF). 1.1 = an upload field is its number of files (gte / lte;
+			// count_gte / count_lte are kept by the save and read the same), a jump passes over a step with no field for the
+			// visitor, rule edits are named in the builder's Undo.
+			'logic'           => array('version' => 1.1, 'min' => 1, 'core' => false),
 			'portal'          => array('version' => defined('EMSFB_PORTAL_API') ? (int) EMSFB_PORTAL_API : 1, 'min' => 1, 'core' => function_exists('efb_portal_core_api')),
 		);
 	}

@@ -6930,6 +6930,7 @@ public function check_nonce_permission_efb($request) {
 		$value_lower = strtolower($value);
 		$expected_lower = strtolower($expected_scalar);
 
+		if ($compare === 'count_gte' || $compare === 'count_lte') $compare = substr($compare, 6); // ADD-03: an upload field's count
 		switch ($compare) {
 			case 'is': return $value_lower === $expected_lower;
 			case 'is_not': return $value_lower !== $expected_lower;

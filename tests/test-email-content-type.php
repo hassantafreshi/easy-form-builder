@@ -29,6 +29,10 @@ if ($ok) {
 $src = file_get_contents(__DIR__ . '/../includes/class-email-handler.php');
 t('send_email_state_new() takes the type explicitly and asks the helper', strpos($src, 'public function send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st = "null", $content_type = null)') !== false
 	&& strpos($src, '$email_content_type = self::content_type_for_state($state, $content_type);') !== false);
+// B6 (B5 hand-off): efbFunction's wrapper passes the 8th argument on (it dropped it).
+$fn = (string) file_get_contents(__DIR__ . '/../includes/functions.php');
+t('efbFunction::send_email_state_new() takes and passes the content type', strpos($fn, 'public function send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st = "null", $content_type = null)') !== false
+	&& strpos($fn, '$emailHandler->send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st, $content_type);') !== false);
 t('the old isset($state[2]) read is gone', strpos($src, "\$email_content_type = isset(\$state[2]) ? \$state[2] : 'traking_link';") === false);
 
 echo "\nRESULTS: $pass passed, $fail failed\n";

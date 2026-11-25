@@ -6780,7 +6780,8 @@ class efbFunction {
 		return $rtrn;
 	}
 
-	public function send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st = "null") {
+	/** $content_type (B5 → B6): traking_link, message_link or just_message, passed on to EmsfbEmailHandler (see content_type_for_state()). */
+	public function send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st = "null", $content_type = null) {
 
 		if (!class_exists('EmsfbEmailHandler')) {
 			$email_handler_file = EMSFB_PLUGIN_DIRECTORY . 'includes/class-email-handler.php';
@@ -6792,7 +6793,7 @@ class efbFunction {
 		}
 
 		$emailHandler = new EmsfbEmailHandler();
-		return $emailHandler->send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st);
+		return $emailHandler->send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st, $content_type);
 	}
 
 	public function response_to_user_by_msd_id($msg_id,$pro){
@@ -7744,7 +7745,9 @@ class efbFunction {
 			'is_paid', 'is_not_paid', 'amount_eq', 'amount_gt', 'amount_lt',
 			'date_before', 'date_after', 'date_between',
 			/* F06 advanced date operators, the same as Calendar::LOGIC_OPS. */
-			'date_weekday_is', 'date_age_gte', 'date_age_lte', 'date_within_next', 'date_range_nights_gte', 'date_range_nights_lte'
+			'date_weekday_is', 'date_age_gte', 'date_age_lte', 'date_within_next', 'date_range_nights_gte', 'date_range_nights_lte',
+			/* ADD-03: the number of files of an upload field, read by the logic add-on as gte / lte. */
+			'count_gte', 'count_lte'
 		);
 		$allowed_sources = array('field', 'query_param', 'user', 'current_step');
 		$clean = array(

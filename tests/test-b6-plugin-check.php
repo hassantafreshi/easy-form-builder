@@ -149,5 +149,22 @@ $gone = array('includes/class-Emsfb-webhook.php', 'includes/class-Emsfb-requirem
 $back = array_values(array_filter($gone, function ($g) use ($root) { return file_exists("$root/$g"); }));
 t('the files nothing loads stay out of the plugin', !$back, implode(', ', $back));
 
+/* ------------------------------------------------------ 8. hand-offs */
+// ADD-03 (B8 → B6): the Conditional Logic contract and the file-count operators.
+if (!defined('ABSPATH')) define('ABSPATH', $root . '/');
+require_once "$root/includes/addon-contracts-functions-efb.php";
+$cv = efb_addon_contract_versions();
+t('efb_addon_contract_versions() lists logic 1.1 (min 1, an add-on contract)', isset($cv['logic']) && $cv['logic']['version'] == 1.1 && $cv['logic']['min'] == 1 && $cv['logic']['core'] === false, json_encode($cv['logic'] ?? null));
+preg_match('/\$allowed_compares = array\(([^)]*)\)/s', $fn, $ac);
+$bapi = $rd('includes/class-Emsfb-builder-api.php');
+t('the logic save keeps count_gte / count_lte, Builder_Api::LOGIC_COMPARES knows them, core reads them as gte / lte', isset($ac[1]) && strpos($ac[1], "'count_gte', 'count_lte'") !== false && preg_match("/const LOGIC_COMPARES = array\\([^;]*'count_gte', 'count_lte'\\);/s", $bapi) === 1 && strpos($rd('includes/class-Emsfb-public.php'), "if (\$compare === 'count_gte' || \$compare === 'count_lte') \$compare = substr(\$compare, 6);") !== false);
+// PUB-03 (B5 → B6): the answers of AJAX and REST routes are phrases.
+$lit = array();
+foreach (array('includes/admin/class-Emsfb-admin.php' => "'m' =>'Security Error'", 'includes/class-Emsfb-choices.php' => "'Unknown list'", 'includes/class-Emsfb-form-gate.php' => "'message' => 'Form not found.'", 'includes/payments/class-Emsfb-payment-registry.php' => "'message' => 'Form not found.'", 'includes/payments/class-Emsfb-payment-legacy-migration.php' => "'Give form_id.'", 'includes/class-Emsfb-form-package.php' => "'m' => 'No answers.'", 'includes/payments/class-Emsfb-payment-admin.php' => "'unknown action'") as $p => $s) {
+	if (strpos($rd($p), $s) !== false) $lit[] = "$p $s";
+}
+if (strpos($rd('includes/class-Emsfb-choices.php'), "array('m' => 'Forbidden')") !== false) $lit[] = 'choices Forbidden';
+t('no fixed English in the answers of the admin AJAX, choices, form gate, form package and payment routes (PUB-03)', !$lit, implode(', ', $lit));
+
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);
