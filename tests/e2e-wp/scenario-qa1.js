@@ -27,6 +27,8 @@
  *                named "Edit field: …", shows its toolbar while focused and opens its settings with Enter. QA1-003: the
  *                shared dialog (the save result, the delete question) takes the focus, keeps Tab inside, closes on Esc
  *                and gives the focus back; its No / Yes are <button>s.
+ *  qa1-autosave  QA1-019: with builder work kept in the browser, Settings and a form's entries show no "An auto-saved
+ *                version exists" dialog (it covered their messages); the forms list still offers it.
  */
 'use strict';
 
@@ -405,6 +407,28 @@ module.exports = function (S) {
       await a.context().close();
     } finally {
       if (fid) { try { ctl('f12-delete-form', String(fid)); } catch (e) { /* ignore */ } }
+    }
+  });
+
+  /* ================================================================== qa1-autosave */
+  scenario('qa1-autosave', 'QA1-019: the auto-save restore dialog only on the forms list and the template chooser', async ({ adminPage }) => {
+    const a = await adminPage({ viewport: { width: 1280, height: 900 } }, 'qa1-autosave');
+    const seed = () => a.evaluate(() => { localStorage.setItem('efb_auto_save', '1'); localStorage.setItem('efb_auto_save_valj_efb', JSON.stringify([{ type: 'form', formName: 'Draft', steps: 1 }])); localStorage.setItem('efb_auto_save_time', String(Date.now())); });
+    const shown = () => a.evaluate(() => document.getElementById('settingModalEfb') && document.getElementById('settingModalEfb').classList.contains('show') && /bi-clock-history/.test(document.getElementById('settingModalEfb').innerHTML));
+    try {
+      await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb&state=setting&tab=email', { waitUntil: 'load' });
+      await seed();
+      const where = {};
+      for (const [k, u] of [['settings', '?page=Emsfb&state=setting&tab=email'], ['help', '?page=Emsfb&state=help'], ['list', '?page=Emsfb']]) {
+        await a.goto(CFG.base + '/wp-admin/admin.php' + u, { waitUntil: 'load' });
+        await sleep(5000);
+        where[k] = await shown();
+        if (where[k]) await a.evaluate(() => state_modal_show_efb(0));
+      }
+      R.check('qa1-autosave (QA1-019): Settings and Help show no auto-save dialog; the forms list offers it', !where.settings && !where.help && where.list, where);
+    } finally {
+      await a.evaluate(() => { ['efb_auto_save', 'efb_auto_save_valj_efb', 'efb_auto_save_time'].forEach((k) => localStorage.removeItem(k)); }).catch(() => {});
+      await a.context().close();
     }
   });
 };

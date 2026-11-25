@@ -7435,8 +7435,10 @@ function addClickListenerToElementListEFB(element) {
 function restore_auto_save_efb(){
   // Only offer the auto-save restore prompt on the Create and Panel pages.
   // Never show it on the Add-ons page or any add-on settings page.
-  const efb_page = new URLSearchParams(window.location.search).get('page');
+  const efb_q = new URLSearchParams(window.location.search), efb_page = efb_q.get('page');
   if(efb_page !== 'Emsfb' && efb_page !== 'Emsfb_create') return;
+  // QA1-019: on the Panel only the forms list (no state=…): Settings, entries and Help are other work.
+  if(efb_page === 'Emsfb' && efb_q.get('state')) return;
 
   const auto_save = Number(localStorage.getItem('efb_auto_save')) === 1;
   if(auto_save==false) return;
