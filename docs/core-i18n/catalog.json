@@ -4,8 +4,8 @@
     "plugin_version": "4.3.2",
     "updated": "2026-11-25",
     "counts": {
-        "active": 4496,
-        "obsolete": 521
+        "active": 4466,
+        "obsolete": 567
     },
     "entries": [
         {
@@ -274,7 +274,7 @@
             "msgid": "%1$s cannot run because required PHP functions are unavailable (%2$s). Ask your hosting provider to enable the required PHP extension or remove the listed functions from disable_functions in php.ini.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "1: the add-on's name, 2: the reasons",
             "files": [
                 "includes/class-Emsfb-addon-compatibility.php"
             ],
@@ -941,7 +941,7 @@
             "msgid": "%s (imported)",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: the imported form's name",
             "files": [
                 "includes/class-Emsfb-form-package.php"
             ],
@@ -1316,7 +1316,7 @@
             "msgid": "%s copied!",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: what was copied",
             "files": [
                 "includes/functions.php"
             ],
@@ -1603,7 +1603,7 @@
             "msgid": "%s is currently unavailable.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: the add-on's name",
             "files": [
                 "includes/class-Emsfb-addon-compatibility.php"
             ],
@@ -1824,8 +1824,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "%s of 5 steps done",
@@ -2986,6 +2986,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "A login or registration form needs these fields: %s",
+            "context": null,
+            "plural": null,
+            "translators": "%s: comma-separated field types (email, password …)",
+            "files": [
+                "includes/class-Emsfb-form-package.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "A mobile field asks for the confirmation SMS, but SMS notifications are off for this form, so no SMS will be sent.",
             "context": null,
             "plural": null,
@@ -3150,6 +3165,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.3.1"
+        },
+        {
+            "msgid": "A run is in progress. Try again in a minute.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-legacy-migration.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "A security plugin, a firewall or your hosting company refused the request before it reached Easy Form Builder (HTTP %d). It is not caused by a cache plugin.",
@@ -9513,7 +9543,7 @@
             "msgid": "Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the %s server",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: the add-on server's host name",
             "files": [
                 "includes/admin/class-Emsfb-admin.php",
                 "includes/functions.php"
@@ -9592,7 +9622,7 @@
             "msgid": "Cannot install addons: %s",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: comma-separated error codes",
             "files": [
                 "emsfb.php"
             ],
@@ -10388,7 +10418,7 @@
             "msgid": "Checked %s ago",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: how long ago the add-on folder was checked, such as \"5 mins\"",
             "files": [
                 "includes/admin/class-Emsfb-addon.php"
             ],
@@ -11238,8 +11268,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Click \"Check Email Server\" to test delivery, turn this switch on, then press Save.",
@@ -11268,8 +11298,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Click any part of the preview to edit the colors of that part.",
@@ -11307,7 +11337,6 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/admin/class-Emsfb-admin.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -11458,7 +11487,6 @@
             "plural": null,
             "translators": "F11: close button of the popup",
             "files": [
-                "includes/admin/class-Emsfb-admin.php",
                 "includes/admin/class-Emsfb-create.php",
                 "includes/admin/class-Emsfb-panel.php",
                 "includes/class-Emsfb-deactivation-feedback.php",
@@ -15666,8 +15694,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Disallowed words",
@@ -16920,8 +16948,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Easy Form Builder Pro ends on %s",
@@ -17130,8 +17158,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Easy Form Builder could not reinstall its add-on files automatically. Forms that rely on those add-ons are showing a temporary message to visitors until this is resolved.",
@@ -17160,8 +17188,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Easy Form Builder couldn't locate the form settings. Please check your settings or contact support for assistance.",
@@ -17861,7 +17889,6 @@
             "plural": null,
             "translators": "Email = input field for email address translators: F01 builder, mobile keyboard option: keyboard with @ and .",
             "files": [
-                "includes/admin/class-Emsfb-admin.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -17973,8 +18000,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Email Server Status",
@@ -18117,7 +18144,7 @@
             "msgid": "Email delivery failed: %s",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: the error the mail server gave",
             "files": [
                 "includes/admin/class-Emsfb-admin.php"
             ],
@@ -18200,8 +18227,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Email delivery test is pending.",
@@ -18215,8 +18242,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Email domains",
@@ -18410,8 +18437,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Email server",
@@ -18485,8 +18512,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Email system is working properly.",
@@ -18500,8 +18527,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Email template blocks",
@@ -18560,8 +18587,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Email tester service error",
@@ -18590,8 +18617,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Email text: Easy Form Builder sends its own emails, listing every answer, so the message text written in Contact Form 7 was not copied.",
@@ -19117,8 +19144,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Enabled",
@@ -19873,6 +19900,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Error: server (%1$s) responded with an invalid request. responded code: %2$s",
+            "context": null,
+            "plural": null,
+            "translators": "1: the add-on server's address, 2: a short error code such as invalid_json",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Error: server (%s) responded with an invalid request. responded code : %s ",
             "context": null,
             "plural": null,
@@ -19884,8 +19926,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Error: server (%s) responded with an invalid request. responded code: %s",
@@ -19899,8 +19941,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Essential Features",
@@ -21756,8 +21798,10 @@
             "plural": null,
             "translators": "",
             "files": [
+                "includes/class-Emsfb-form-gate.php",
                 "includes/class-Emsfb-public.php",
-                "includes/functions.php"
+                "includes/functions.php",
+                "includes/payments/class-Emsfb-payment-registry.php"
             ],
             "scope": [
                 "core"
@@ -21903,6 +21947,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Form: %1$s (ID: %2$s)",
+            "context": null,
+            "plural": null,
+            "translators": "1: the form's name, 2: its id",
+            "files": [
+                "includes/page-builders/visual-composer/class-Emsfb-visual-composer.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Form: %s (ID: %s)",
             "context": null,
             "plural": null,
@@ -21914,8 +21973,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Format / mask",
@@ -22079,8 +22138,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Four-part Arabic name",
@@ -23120,8 +23179,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Go to the add-ons page in the Easy Form Builder plugin, install the %s add-on, and try again.",
@@ -23406,8 +23465,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Governorate",
@@ -23943,7 +24002,7 @@
             "msgid": "Help us speak your language! Translate Easy Form Builder on the %1$sWordPress.org translation portal%2$s and make it accessible to your community.",
             "context": null,
             "plural": null,
-            "translators": "%1$s and %2$s are opening and closing HTML link tags for the WordPress.org translation portal",
+            "translators": "1: the opening link tag, 2: the closing link tag translators: %1$s and %2$s are opening and closing HTML link tags for the WordPress.org translation portal",
             "files": [
                 "includes/functions.php"
             ],
@@ -25497,8 +25556,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "If we find submissions for %s, a code is on its way.",
@@ -26568,8 +26627,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Invalid email test.",
@@ -26583,8 +26642,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Invalid email tester response.",
@@ -26598,8 +26657,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Invalid form",
@@ -26797,8 +26856,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Invalid service account JSON. Make sure you selected the correct key file downloaded from Google Cloud Console.",
@@ -27234,8 +27293,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "It was hard to set up or use",
@@ -28294,7 +28353,7 @@
             "msgid": "Last check: %s",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: the date and time of the last check",
             "files": [
                 "includes/functions.php"
             ],
@@ -28492,7 +28551,7 @@
             "msgid": "Learn more %s",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: what to learn more about (may be empty)",
             "files": [
                 "includes/functions.php"
             ],
@@ -32905,7 +32964,7 @@
             "msgid": "No answer from the website. Please check your connection and try again.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%d: the error code",
             "files": [
                 "includes/functions.php"
             ],
@@ -32920,7 +32979,7 @@
             "msgid": "No automated email check has run yet.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: the date and time of the last check",
             "files": [
                 "includes/functions.php"
             ],
@@ -33168,8 +33227,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "No entries match these filters.",
@@ -36334,7 +36393,7 @@
             "msgid": "Order summary",
             "context": null,
             "plural": null,
-            "translators": "%s is a number or %amount% stays as written",
+            "translators": "%s: the payment service's name, such as Stripe translators: %s is a number or %amount% stays as written",
             "files": [
                 "includes/payments/class-Emsfb-payment-admin.php",
                 "includes/payments/class-Emsfb-payment-frontend.php"
@@ -36388,8 +36447,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Outer Padding",
@@ -37090,7 +37149,7 @@
             "msgid": "Pay %s",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: the amount with its currency",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
             ],
@@ -37819,7 +37878,7 @@
             "msgid": "Payments are processed securely by %s. Your card details never reach this website.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: the payment service's name, such as Stripe",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php"
             ],
@@ -38496,7 +38555,7 @@
             "msgid": "Plan \"%s\" has been successfully processed.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: the plan chosen",
             "files": [
                 "includes/admin/class-Emsfb-admin.php"
             ],
@@ -39214,8 +39273,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Please enter a valid admin email address.",
@@ -42797,8 +42856,7 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/class-Emsfb-renewal-reminder.php",
-                "includes/functions.php"
+                "includes/class-Emsfb-renewal-reminder.php"
             ],
             "scope": [
                 "core"
@@ -46517,8 +46575,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Select the form that will receive data from the API",
@@ -46819,6 +46877,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Send form_id or form.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-registry.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Send form_id.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-legacy-migration.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -51880,8 +51968,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Test emails may land in your spam folder. If emails are not delivered, this is usually related to your hosting or email server configuration.server settings %1$sLearn how to fix email delivery issues%2$s or %3$scontact Easy Form Builder support%4$s.",
@@ -52406,14 +52494,14 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "The %s add-on is a Pro feature. Please upgrade to Easy Form Builder Pro to access this functionality.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: the add-on's name",
             "files": [
                 "includes/functions.php"
             ],
@@ -52489,7 +52577,7 @@
             "msgid": "The %s has been successfully completed",
             "context": null,
             "plural": null,
-            "translators": "%s is the action or process that was successfully completed",
+            "translators": "%s is the action or process that was successfully completed translators: %s: the step that was completed, such as installation",
             "files": [
                 "includes/functions.php"
             ],
@@ -52527,8 +52615,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "The Auto-Populate add-on enables you to automatically populate form fields from datasets, previously submitted forms, or external APIs.",
@@ -52737,8 +52825,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "The Password Must Contain At Least 1 Capital Letter!",
@@ -53149,7 +53237,7 @@
             "msgid": "The amount must be at least %s.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: the amount with its currency",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php",
                 "includes/payments/class-Emsfb-payment-service.php"
@@ -53165,7 +53253,7 @@
             "msgid": "The amount must be at most %s.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: the amount with its currency",
             "files": [
                 "includes/payments/class-Emsfb-payment-frontend.php",
                 "includes/payments/class-Emsfb-payment-service.php"
@@ -53197,7 +53285,7 @@
             "msgid": "The amount was updated to %s. Please check and press Pay again.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: the amount with its currency",
             "files": [
                 "includes/payments/class-Emsfb-payment-service.php"
             ],
@@ -53910,8 +53998,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "The email tester service could not return the result.",
@@ -54031,6 +54119,36 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The entry could not be saved.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-form-package.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The entry has no answers.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-form-package.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -54186,6 +54304,21 @@
             "obsolete_since": "4.3.1"
         },
         {
+            "msgid": "The form could not be read.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-form-package.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The form could not be saved. Your input has been kept.",
             "context": null,
             "plural": null,
@@ -54204,7 +54337,7 @@
             "msgid": "The form could not be sent (error %d). Your answers are kept. Please try again later.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%d: the error code",
             "files": [
                 "includes/functions.php"
             ],
@@ -54219,7 +54352,7 @@
             "msgid": "The form expired while this page was open. It has been renewed, so please send it again. Your answers are kept.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%d: the error code",
             "files": [
                 "includes/functions.php"
             ],
@@ -54609,7 +54742,7 @@
             "msgid": "The gateway could not be reached (%s).",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: the error the payment service gave",
             "files": [
                 "includes/payments/class-Emsfb-payment-admin.php"
             ],
@@ -54932,8 +55065,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "The main WordPress administrator email address is not valid.",
@@ -55929,8 +56062,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "The server computes the amount again from the answers; a negative result is refused.",
@@ -56244,8 +56377,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "The test reached its time limit. Your server may be slow, or may block outbound email.",
@@ -56596,7 +56729,7 @@
             "msgid": "The website is not responding; please refresh and try again—saving or submitting is not available until it is restored.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: what was copied",
             "files": [
                 "includes/functions.php"
             ],
@@ -56679,8 +56812,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "The youngest age is above the oldest age.",
@@ -58267,6 +58400,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This list is not available.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-choices.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This mask is not valid.",
             "context": null,
             "plural": null,
@@ -58375,7 +58523,7 @@
             "msgid": "This pattern cannot be used: %s",
             "context": null,
             "plural": null,
-            "translators": "F03 builder error. %s: why the pattern cannot be used",
+            "translators": "%s: why the pattern is refused translators: F03 builder error. %s: why the pattern cannot be used",
             "files": [
                 "includes/admin/class-Emsfb-admin.php",
                 "includes/admin/class-Emsfb-create.php",
@@ -58566,6 +58714,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This request must come from this site.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-form-gate.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -59245,8 +59408,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "To use %1$s features in your forms, you need to get your %2$s keys.",
@@ -59425,6 +59588,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Too many entries in one call.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-form-package.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -61063,6 +61241,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Unknown action.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Unknown block",
             "context": null,
             "plural": null,
@@ -61551,7 +61744,7 @@
             "msgid": "Upgrade to Pro for just %1$s%2$s%3$s/year and get access to powerful features, including advanced form fields, payment integrations, conditional logic, multi-step forms, file uploads, Security & Spam Protection, and priority support.%4$sView Pro Features%5$s",
             "context": null,
             "plural": null,
-            "translators": "%1$s, %2$s and %3$s: the price (the start of its emphasis, the amount, the end), %4$s and %5$s: the start and end of the link to the Pro features.",
+            "translators": "%1$s, %2$s and %3$s: the price (the start of its emphasis, the amount, the end), %4$s and %5$s: the start and end of the link to the Pro features. translators: 1: the opening emphasis tag, 2: the yearly price, 3: the closing tag",
             "files": [
                 "includes/class-email-handler.php",
                 "includes/functions.php"
@@ -62380,7 +62573,7 @@
             "msgid": "Verification codes by %1$s on %2$s: %3$s codes were sent in the last hour but only %4$s were entered. This can be SMS pumping (fraud). Check the limits and the allowed countries.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "1: SMS or e-mail, 2: the site's name, 3: codes sent, 4: codes entered",
             "files": [
                 "includes/class-Emsfb-verification.php"
             ],
@@ -62395,7 +62588,7 @@
             "msgid": "Verification codes by %1$s on %2$s: %3$s of the daily budget of %4$s are used. At the budget, forms that ask for a code stop accepting submissions until the next day.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "1: SMS or e-mail, 2: the site's name, 3: codes used, 4: the daily budget",
             "files": [
                 "includes/class-Emsfb-verification.php"
             ],
@@ -62410,7 +62603,7 @@
             "msgid": "Verification codes by %1$s on %2$s: the daily budget is used up. Forms that ask for a code cannot be sent until it renews.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "1: SMS or e-mail, 2: the site's name",
             "files": [
                 "includes/class-Emsfb-verification.php"
             ],
@@ -62440,7 +62633,7 @@
             "msgid": "Verification codes on %s: an SMS could not be sent through WP SMS. Check the gateway and its credit in the WP SMS settings, then send a test code from Settings > Verification. Visitors were asked to try again.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: the site's name",
             "files": [
                 "includes/class-Emsfb-verification.php"
             ],
@@ -62455,7 +62648,7 @@
             "msgid": "Verification codes on %s: an e-mail could not be sent. Check the e-mail settings of the site (Email Monitor). Visitors were asked to try again.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: the site's name",
             "files": [
                 "includes/class-Emsfb-verification.php"
             ],
@@ -65561,8 +65754,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "WordPress on this site is set to block outgoing connections (WP_HTTP_BLOCK_EXTERNAL)",
@@ -66236,6 +66429,7 @@
             "plural": null,
             "translators": "",
             "files": [
+                "includes/class-Emsfb-choices.php",
                 "includes/class-Emsfb-deactivation-feedback.php",
                 "includes/class-Emsfb-review-request.php"
             ],
@@ -66521,7 +66715,7 @@
             "msgid": "You can translate Easy Form Builder into your preferred language by translating the following sentences. WARNING: If your WordPress site is multilingual, do not change the values below.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "1: the opening link tag, 2: the closing link tag",
             "files": [
                 "includes/functions.php"
             ],
@@ -67628,8 +67822,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Your emails are being delivered to spam",
@@ -68191,7 +68385,7 @@
             "msgid": "Your request could not be completed (error %d). Please try again later.",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%d: the error code",
             "files": [
                 "includes/functions.php"
             ],
@@ -68394,8 +68588,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Your server has successfully sent this test email. The email delivery system is properly configured and functioning.",
@@ -68424,8 +68618,8 @@
                 "core"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Your server is capable of sending emails",
@@ -68972,7 +69166,7 @@
             "msgid": "[%s] Verification codes need your attention",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: the site's name",
             "files": [
                 "includes/class-Emsfb-verification.php"
             ],
@@ -69875,7 +70069,7 @@
             "msgid": "disabled in php.ini: %s",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: comma-separated PHP function names",
             "files": [
                 "includes/class-Emsfb-addon-compatibility.php"
             ],
@@ -71228,6 +71422,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Gender",
+            "context": "form template",
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Genre",
             "context": "form template",
             "plural": null,
@@ -71559,6 +71768,21 @@
         },
         {
             "msgid": "Kids (ages 5-7)",
+            "context": "form template",
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Language",
             "context": "form template",
             "plural": null,
             "translators": "",
@@ -73268,6 +73492,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "What is your favorite food?",
+            "context": "form template",
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/admin/template-phrases-efb.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "What type of content are you looking to create?",
             "context": "form template",
             "plural": null,
@@ -73766,7 +74005,7 @@
             "msgid": "installation",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: the step that was completed, such as installation",
             "files": [
                 "includes/functions.php"
             ],
@@ -74171,7 +74410,7 @@
             "msgid": "not provided by PHP or its required extension: %s",
             "context": null,
             "plural": null,
-            "translators": "",
+            "translators": "%s: comma-separated PHP function names",
             "files": [
                 "includes/class-Emsfb-addon-compatibility.php"
             ],
