@@ -403,7 +403,7 @@ class Panel_edit  {
 			}
 			wp_register_script('countries-js', $url, array(), EMSFB_PLUGIN_VERSION, array('in_footer' => true, 'strategy' => 'async'));
 			wp_enqueue_script('countries-js');
-			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);
+			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', array(), EMSFB_PLUGIN_VERSION, true);
 			wp_enqueue_script('intlTelInput-js');
 			wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,EMSFB_PLUGIN_VERSION);
 			wp_enqueue_style('intlTelInput-css');

@@ -242,7 +242,7 @@ class Create {
 		// not hold back the builder scripts printed after it.
 		wp_register_script('countries-js', $url, array(), EMSFB_PLUGIN_VERSION, array('in_footer' => true, 'strategy' => 'async'));
 		wp_enqueue_script('countries-js');
-		wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);
+		wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', array(), EMSFB_PLUGIN_VERSION, true);
 		wp_enqueue_script('intlTelInput-js');
 		wp_register_style('intlTelInput-css', EMSFB_PLUGIN_URL . 'includes/admin/assets/css/intlTelInput.min-efb.css',true,EMSFB_PLUGIN_VERSION);
 		wp_enqueue_style('intlTelInput-css');
@@ -472,7 +472,7 @@ class Create {
 			$response = array( 'success' => false , "m"=>$m);
 			wp_send_json_success($response, 200);
 		}
-		if(isset($_POST['email']) ){$email =sanitize_email($_POST['email']);}
+		if(isset($_POST['email']) ){$email =sanitize_email(wp_unslash($_POST['email']));}
 		$this->id_ ="hid";
 		$this->name =  sanitize_text_field($_POST['name']);
 		$this->email =  $email;
@@ -543,7 +543,7 @@ class Create {
 		if (is_array($valp) && class_exists('\\Emsfb\\Smart_Tags')) {
 			$save_warnings_efb = array_merge(isset($save_warnings_efb) ? $save_warnings_efb : array(), \Emsfb\Smart_Tags::form_warnings_text($valp, isset($lang) && is_array($lang) ? $lang : array()));
 		}
-		$this->formtype =  sanitize_text_field($_POST['type']);
+		$this->formtype =  sanitize_text_field(wp_unslash($_POST['type']));
 		if($this->isScript($_POST['value']) ||$this->isScript($_POST['type'])){
 			$response = array( 'success' => false , "m"=> $lang['NAllowedscriptTag']);
 			wp_send_json_success($response, 200);

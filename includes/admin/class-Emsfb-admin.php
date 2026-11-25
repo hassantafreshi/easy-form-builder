@@ -4181,7 +4181,7 @@ class Admin {
         // the plugin's admin screens, filter efb_can_change_plan; never from cron or REST.
         $currrent_user_can = function_exists('efb_can_change_plan_efb') ? efb_can_change_plan_efb() : $efbFunction->user_permission_efb_admin_dashboard();
 
-        $nonce = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
         if (!wp_verify_nonce($nonce, 'wp_rest') || !$currrent_user_can) {
             $response = ['success' => false, 'm' => $lang['error403']];
             wp_send_json_error($response, 403);
