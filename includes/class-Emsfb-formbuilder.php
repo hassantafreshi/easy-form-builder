@@ -2101,6 +2101,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$amount   = is_numeric($amount) ? $amount + 0 : 0;
 		$currency = is_string($currency) ? $currency : '';
 
+		// QA3-014: the payment summary's formatter (Payments\Money::format(): the site language, the currency's minor unit).
+		if ($currency !== '' && class_exists('\NumberFormatter') && class_exists('\Emsfb\Payments\Money')) {
+			$m = \Emsfb\Payments\Money::from_decimal($amount, $currency);
+			if ($m !== null) return \Emsfb\Payments\Money::format($m, $currency, function_exists('get_locale') ? get_locale() : '');
+		}
 		$currency_details = self::get_currency_details_efb($currency);
     	$formatted_amount = number_format_i18n($amount, $currency_details['d']);
 		if (is_rtl()) {
