@@ -369,6 +369,10 @@ class Install {
 
 		$applied = array();
 
+		// 4.3.2 (B10 hand-off, UPG-01): everything 1.4, 1.10 and 1.12 add to emsfb_msg_ at once (see
+		// upgrade_msg_table()). The per-version steps below then find their part present and skip it.
+		$applied = array_merge( $applied, self::upgrade_msg_table() );
+
 		// emsfb_form.status came after 3.9.x and create_table_if_absent() never
 		// alters an existing table, so sites updated from 3.9 had no column for
 		// the "active forms" count (weekly report query error). DB version 1.3.
@@ -456,6 +460,94 @@ class Install {
 
 		update_option( 'Emsfb_db_version', EMSFB_DB_VERSION );
 
+		return $applied;
+	}
+
+	/** Columns emsfb_msg_ gets from DB 1.4 (F13), 1.10 (F14) and 1.12 (F20-core), in that order. */
+	const MSG_COLUMNS = array(
+		'uid'            => 'BIGINT UNSIGNED NOT NULL DEFAULT 0',
+		'prv_state'      => 'TINYINT NOT NULL DEFAULT 0',
+		'entry_status'   => 'TINYINT NOT NULL DEFAULT 0',
+		'starred'        => 'TINYINT NOT NULL DEFAULT 0',
+		'trashed_at'     => 'DATETIME NULL DEFAULT NULL',
+		'edited_at'      => 'DATETIME NULL DEFAULT NULL',
+		'owner_state'    => 'TINYINT NOT NULL DEFAULT 0',
+		'owner_state_at' => 'DATETIME NULL DEFAULT NULL',
+	);
+
+	/** Keys emsfb_msg_ gets from DB 1.4, 1.10 and 1.12. */
+	const MSG_KEYS = array(
+		'form_date'        => '(`form_id`,`date`)',
+		'track'            => '(`track`)',
+		'date'             => '(`date`)',
+		'form_status_date' => '(`form_id`,`entry_status`,`date`)',
+		'read_'            => '(`read_`)',
+		'uid'              => '(`uid`)',
+	);
+
+	/**
+	 * emsfb_msg_ in as few table rebuilds as the server allows (UPG-01: on 1,000,000 entries on MySQL 8.4 the steps
+	 * of 1.4, 1.10 and 1.12 took five ALTERs and 28 s, two of them rebuilding the table, 12.5 s and 10.5 s):
+	 *  1. the missing columns with ALGORITHM=INSTANT (MySQL 8.0.12+, MariaDB 10.3+: no copy, no rebuild);
+	 *  2. the missing keys in one ALTER (built in place, the table is read once);
+	 *  where the server refuses INSTANT (MySQL 5.7, older MariaDB, SQLite), the columns and the keys in ONE ALTER
+	 *  (one rebuild); where it refuses that too, the per-version steps after this one add each part on its own.
+	 * Every part is looked up first: a second run, or a site that has them, issues nothing.
+	 *
+	 * @return array<int, string> Applied steps.
+	 */
+	public static function upgrade_msg_table() {
+		global $wpdb;
+		$applied = array();
+		$table = $wpdb->prefix . 'emsfb_msg_';
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+			return $applied;
+		}
+		$cols = array();
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		foreach ( (array) $wpdb->get_results( "SHOW COLUMNS FROM `{$table}`", ARRAY_A ) as $row ) {
+			if ( isset( $row['Field'] ) ) $cols[ strtolower( $row['Field'] ) ] = true;
+		}
+		$keys = array();
+		$first = array();
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
+		foreach ( (array) $wpdb->get_results( "SHOW INDEX FROM `{$table}`", ARRAY_A ) as $row ) {
+			if ( ! isset( $row['Key_name'] ) ) continue;
+			$keys[ $row['Key_name'] ] = true;
+			if ( isset( $row['Seq_in_index'], $row['Column_name'] ) && (int) $row['Seq_in_index'] === 1 ) $first[ $row['Column_name'] ] = true;
+		}
+		if ( ! $cols ) {
+			return $applied; // The server could not describe the table: leave it to the per-version steps.
+		}
+		$add_cols = array();
+		foreach ( self::MSG_COLUMNS as $col => $def ) {
+			if ( ! isset( $cols[ $col ] ) ) $add_cols[ "ADD COLUMN {$col}" ] = "ADD COLUMN `{$col}` {$def}";
+		}
+		$add_keys = array();
+		foreach ( self::MSG_KEYS as $key => $def ) {
+			if ( ! isset( $keys[ $key ] ) ) $add_keys[ "ADD KEY {$key}" ] = "ADD KEY `{$key}` {$def}";
+		}
+		$done = function ( $clauses ) use ( &$applied ) {
+			foreach ( array_keys( $clauses ) as $c ) $applied[] = "emsfb_msg_: {$c}";
+		};
+		// A server without INSTANT answers an error here: expected, not reported (the combined ALTER below follows).
+		$suppress = method_exists( $wpdb, 'suppress_errors' ) ? $wpdb->suppress_errors( true ) : null;
+		if ( $add_cols ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.SchemaChange -- table from $wpdb->prefix, clauses from the literal maps above
+			if ( false !== $wpdb->query( "ALTER TABLE `{$table}` " . implode( ', ', $add_cols ) . ', ALGORITHM=INSTANT' ) ) {
+				$done( $add_cols );
+				$add_cols = array();
+			}
+		}
+		if ( $suppress !== null ) $wpdb->suppress_errors( $suppress );
+		$all = $add_cols + $add_keys;
+		if ( $all ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.SchemaChange -- as above
+			if ( false !== $wpdb->query( "ALTER TABLE `{$table}` " . implode( ', ', $all ) ) ) {
+				$done( $all );
+			}
+		}
+		if ( class_exists( '\\Emsfb\\Entries' ) ) \Emsfb\Entries::reset_ready();
 		return $applied;
 	}
 
