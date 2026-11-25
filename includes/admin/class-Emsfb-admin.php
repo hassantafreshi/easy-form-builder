@@ -2001,7 +2001,7 @@ class Admin {
         }
         // QA1-010: a number out of its range is refused (invalid_<key>, nothing saved), never clamped into it.
         $bad_efb = is_array($m) ? self::invalid_setting_number_efb($m, $ac) : null;
-        if ($bad_efb) wp_send_json_success(array('success' => false, 'code' => 'invalid_' . $bad_efb[0], 'key' => $bad_efb[0], 'm' => sprintf(__('Enter a whole number from %1$s to %2$s.', 'easy-form-builder'), number_format_i18n($bad_efb[1]), number_format_i18n($bad_efb[2]))), 200);
+        if ($bad_efb) wp_send_json_success(array('success' => false, 'code' => 'invalid_' . $bad_efb[0], 'key' => $bad_efb[0], 'm' => sprintf(/* translators: %1$s, %2$s: the smallest and the largest number allowed */ __('Enter a whole number from %1$s to %2$s.', 'easy-form-builder'), number_format_i18n($bad_efb[1]), number_format_i18n($bad_efb[2]))), 200);
         foreach ($m as $key => $value) {
              if (in_array($key ,['emailSupporter','femail'])) {
                 $value = sanitize_text_field($value);

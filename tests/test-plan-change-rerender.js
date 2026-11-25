@@ -64,7 +64,9 @@ const ESIGN = { id_: 'sig1abcde', dataId: 'sig1abcde-id', type: 'esign', element
       pro_efb, pro: efb_var.pro, pkg: efb_var.setting.package_type, sett: setting_emsFormBuilder.package_type, vjs: valueJson_ws_setting.package_type,
       ajax: ajax_object_efm.pro, ws: pro_ws_efb, lic: sessionStorage.getItem('efb_license_selected'), badge: document.getElementById('efbCurrentPlanBadge').textContent,
       freePlusTilesWithGem, drag: document.getElementById('esign').getAttribute('draggable'),
-      proTileGem: fields_efb.some((f) => f.id === 'pdate') ? !!document.querySelector('#pdate .pro-version-efb') : 'n/a',
+      // QA1-016: pdate / ardate add Date (advanced) without the old add-on (no gem); another Pro-only tile keeps its gem.
+      proTileGem: (() => { const t = fields_efb.find((f) => f.id !== 'pdate' && f.id !== 'ardate' && efb_feature_required_efb('field:' + f.id) === 'pro'); return t ? !!document.querySelector('#' + t.id + ' .pro-version-efb') : 'n/a'; })(),
+      pdateGem: !!document.querySelector('#pdate .pro-version-efb'),
       canvasBadge: !!document.querySelector('#dropZoneEFB .btn-pro-efb'), sigOnCanvas: !!document.querySelector('#dropZoneEFB [data-id="sig1abcde-id"]'),
       stored: JSON.parse(sessionStorage.getItem('valj_efb')).some((r) => r.id_ === 'sig1abcde'),
       panelOpen: document.getElementById('sideBoxEfb').classList.contains('show'),
@@ -80,7 +82,7 @@ const ESIGN = { id_: 'sig1abcde', dataId: 'sig1abcde-id', type: 'esign', element
     res.pro_efb === true && res.pro === '1' && res.pkg === 3 && res.sett === 3 && res.vjs === 3 && res.ajax === '1' && res.ws === true && res.lic === '3', res);
   c.check('plan badge says Free Plus', /T:crntPln|Current Plan|Free Plus/.test(res.badge) && /Free Plus/.test(res.badge), res.badge);
   c.check('palette: no gem left on any Free Plus tile; Signature draggable', res.freePlusTilesWithGem.length === 0 && res.drag === 'true', res.freePlusTilesWithGem);
-  c.check('palette: a Pro-only tile (pdate) keeps its gem', res.proTileGem === true || res.proTileGem === 'n/a', res.proTileGem);
+  c.check('palette: a Pro-only tile keeps its gem; the Jalali tile (Date advanced, QA1-016) has none', (res.proTileGem === true || res.proTileGem === 'n/a') && res.pdateGem === false, res);
   c.check('canvas: the Pro badge over Signature is gone, the field is still there (and in sessionStorage)', !res.canvasBadge && res.sigOnCanvas && res.stored, res);
   c.check('settings panel: still open, redrawn without Free Plus gems', res.panelOpen && res.panelGems === 0, res);
   c.check('lock markers: Free Plus gem removed, input unlocked (onclick, readonly, marker); Pro gem stays', !res.gemT && !res.inT.onclick && !res.inT.ro && !res.inT.lock && res.gemPro, res);

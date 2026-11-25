@@ -2111,6 +2111,11 @@ class Emsfb {
         update_option('emsfb_addons_reinstall_required', time());
         // QA4-009: the rating invitation keeps quiet for a few days after an update (Review_Request::busy_with_update_efb()).
         update_option('emsfb_updated_at', time(), false);
+        // A new release is a new situation: let the first page load retry at once
+        // instead of waiting out a backoff left by a failure on the old version.
+        delete_transient('emsfb_addons_dl_backoff');
+        delete_transient('emsfb_addon_recovery_running');
+        delete_option('emsfb_addons_dl_failures');
         // QA1-023: the stored e-mail template names the plugin's address by its placeholder (once, for every host it had).
         $tpl_efb = self::get_setting_Emsfb('decoded');
         if (is_object($tpl_efb) && isset($tpl_efb->emailTemp) && is_string($tpl_efb->emailTemp)) {
@@ -2119,11 +2124,6 @@ class Emsfb {
         }
         // FR (4.3.2): an update is not a first run: the first-run e-mail check of an earlier version is over.
         if ($old_version !== '0.0.0' && version_compare($old_version, '4.3.2', '<')) update_option('emsfb_onboarding_pending', 0, false);
-        // A new release is a new situation: let the first page load retry at once
-        // instead of waiting out a backoff left by a failure on the old version.
-        delete_transient('emsfb_addons_dl_backoff');
-        delete_transient('emsfb_addon_recovery_running');
-        delete_option('emsfb_addons_dl_failures');
 
         // Keep only the add-on language files of locales this site uses. A no-op on
         // local sites and git checkouts; never throws, never affects the upgrade.

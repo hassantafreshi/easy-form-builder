@@ -1982,8 +1982,8 @@ function fun_total_pay_efb(form_id) {
      if(Number(form_id)!=Number(form_ID_emsFormBuilder)) valj_efb = get_structure_by_form_id_efb(form_id);
     for (const l of document.querySelectorAll(".totalpayEfb")) {
       // QA3-014: the payment summary's formatter (efbPayCoreEfb.format with its locale and the gateway's minor unit).
-      const pc = window.efbPayCoreEfb, pv = window.efb_pay_vars || {}, cur = valj_efb[0].currency, ex = ((pv.gateways || {})[valj_efb[0].getway] || {}).exponents, mi = pc ? pc.fromDecimal(Number(i), cur, ex) : null;
-      l.textContent = mi != null ? pc.format(mi, cur, pv.locale || (window.efb_var && efb_var.wp_lan) || lan_name_emsFormBuilder, 'latn', ex) : Number(i).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: cur })
+      const pc = typeof efbPayCoreEfb !== 'undefined' ? efbPayCoreEfb : null, pv = (typeof efb_pay_vars !== 'undefined' && efb_pay_vars) || {}, cur = valj_efb[0].currency, ex = ((pv.gateways || {})[valj_efb[0].getway] || {}).exponents, mi = pc ? pc.fromDecimal(Number(i), cur, ex) : null;
+      l.innerHTML = mi != null ? pc.format(mi, cur, pv.locale || (typeof efb_var !== 'undefined' && efb_var.wp_lan) || lan_name_emsFormBuilder, 'latn', ex) : Number(i).toLocaleString(lan_name_emsFormBuilder, { style: 'currency', currency: cur })
       if(l.classList.contains('paypal')){
         const paypal_btn = document.querySelectorAll(`.paypalEfb[data-formid="${form_id}"]`);
         if (paypal_btn.length) {
