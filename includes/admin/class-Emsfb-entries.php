@@ -2264,7 +2264,22 @@ class Entries {
 			$tot['views'] += $v[0]; $tot['submits'] += $v[1]; $tot['spam'] += $v[2];
 		}
 		return array('days' => $days, 'series' => $series, 'totals' => $tot,
-			'conversion' => $tot['views'] > 0 ? round(100 * $tot['submits'] / $tot['views'], 1) : null, 'has_views' => $tot['views'] > 0);
+			'conversion' => self::conversion_rate($tot['views'], $tot['submits']), 'has_views' => $tot['views'] > 0);
+	}
+
+	/**
+	 * Submissions ÷ views in %, one decimal; null (shown "—") without a view, and when there are more submissions
+	 * than views (QA4-007): the upgrade's backfill brings the past submissions while views are only counted from the
+	 * upgrade on (the 7 days emsfb_stts_ still held at most), so a rate above 100 % would be made up. Views cannot be
+	 * backfilled further: they were never recorded.
+	 *
+	 * @return float|null
+	 */
+	public static function conversion_rate($views, $submits) {
+		$views = (int) $views;
+		$submits = (int) $submits;
+		if ($views <= 0 || $submits > $views) return null;
+		return round(100 * $submits / $views, 1);
 	}
 
 	/** The forms with the most views since $from (Y-m-d), with their submissions and conversion rate. */
@@ -2279,7 +2294,7 @@ class Entries {
 		foreach ((array) $rows as $r) {
 			if ($r['form_name'] === null) continue; // a form that was deleted
 			$v = (int) $r['views']; $s = (int) $r['submits'];
-			$out[] = array('form_id' => (int) $r['form_id'], 'name' => (string) $r['form_name'], 'views' => $v, 'submits' => $s, 'conversion' => $v > 0 ? round(100 * $s / $v, 1) : null);
+			$out[] = array('form_id' => (int) $r['form_id'], 'name' => (string) $r['form_name'], 'views' => $v, 'submits' => $s, 'conversion' => self::conversion_rate($v, $s));
 		}
 		return $out;
 	}

@@ -95,6 +95,15 @@ $db->pdo->exec("UPDATE wp_emsfb_stats_ SET form_id = {$f4} WHERE form_id = 4");
 Entries::bump(777, 'views', 999, $today); // a form that was deleted
 $top = Entries::top_forms($ago(6), 5);
 t('top forms: most views first, the deleted form left out, conversion null without views', array(array_column($top, 'form_id'), $top[0]['views'], $top[1]['conversion']), array(array($f3, $f4), 15, null));
+// QA4-007: after an upgrade the backfill brings past submissions, views are counted from the upgrade on.
+$f5 = $db->add_form(array(array('type' => 'form')));
+Entries::bump($f5, 'views', 1, $today);
+Entries::bump($f5, 'submits', 5, $today);
+$row5 = null;
+foreach (Entries::top_forms($ago(6), 5) as $r) if ($r['form_id'] === $f5) $row5 = $r;
+t('QA4-007: top forms never show more than 100 % (1 view, 5 submissions: conversion null, shown "—")', $row5 ? array($row5['views'], $row5['submits'], $row5['conversion']) : 'missing', array(1, 5, null));
+t('QA4-007: stats() of that form: conversion null too', Entries::stats($f5, 7)['conversion'], null);
+t('QA4-007: conversion_rate(): 100 % at most, one decimal, null without views', array(Entries::conversion_rate(4, 4), Entries::conversion_rate(3, 1), Entries::conversion_rate(0, 2), Entries::conversion_rate(1, 2)), array(100.0, 33.3, null, null));
 
 /* ------------------------------------------------------------------ AJAX */
 $ajax = function ($post) { $_POST = $post; try { Entries::ajax_stats(); } catch (EfbJsonExit $x) { return $x->data; } return null; };
