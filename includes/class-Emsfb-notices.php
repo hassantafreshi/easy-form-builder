@@ -48,6 +48,13 @@ class Notices {
 	/** @var array<string, string> what the last render() printed: id => top | list | screen (tests, e2e). */
 	public static $last = array();
 
+	/** QA1-028: the bell's count in the site language's digits (Persian, Arabic-Indic). */
+	private static function digits_efb($s) {
+		$l = function_exists('get_user_locale') ? get_user_locale() : (function_exists('get_locale') ? get_locale() : '');
+		$sc = preg_match('/^(fa|ps|ckb)/', $l) ? 'fa' : (preg_match('/^ar(?!y)/', $l) ? 'ar' : '');
+		return $sc !== '' && class_exists('\Emsfb\Entries') ? Entries::local_digits($s, $sc) : $s;
+	}
+
 	public static function register() {
 		if (self::$registered || !function_exists('add_filter')) return;
 		self::$registered = true;
@@ -229,7 +236,7 @@ class Notices {
 		}
 		$n = count($items);
 		echo '<div class="efb efb-nm-bar"' . ($n ? '' : ' hidden') . '><button type="button" class="efb efb-nm-toggle" id="efbNmToggle" aria-expanded="false" aria-controls="efbNmList">'
-			. '<span class="dashicons dashicons-bell" aria-hidden="true"></span> <span class="efb efb-nm-label">' . esc_html($t['nmNotices']) . '</span> <span class="efb efb-nm-count">' . esc_html(number_format_i18n($n)) . '</span></button></div>';
+			. '<span class="dashicons dashicons-bell" aria-hidden="true"></span> <span class="efb efb-nm-label">' . esc_html($t['nmNotices']) . '</span> <span class="efb efb-nm-count">' . esc_html(self::digits_efb(number_format_i18n($n))) . '</span></button></div>';
 		echo '<div class="efb efb-nm-list" id="efbNmList" role="region" aria-labelledby="efbNmToggle" hidden>';
 		foreach ($items as $it) {
 			self::$last[$it['id']] = 'list';
@@ -254,7 +261,7 @@ class Notices {
 			. 'function dec(n){var b=n.querySelector(".efb-nm-snooze-row");if(b||D.ids.indexOf(n.getAttribute("data-efb-nm"))<0)return;var p=document.createElement("p");p.className="efb-nm-snooze-row";var x=document.createElement("button");x.type="button";x.className="button-link efb-nm-snooze";x.textContent=D.snooze;x.setAttribute("data-efb-nm-snooze",n.getAttribute("data-efb-nm"));p.appendChild(x);n.appendChild(p);}'
 			. 'var all=document.querySelectorAll("[data-efb-nm]");for(var i=0;i<all.length;i++)dec(all[i]);'
 			. 'var live=document.getElementById("efbNmLive");if(!live){live=document.createElement("div");live.id="efbNmLive";live.className="screen-reader-text";live.setAttribute("role","status");live.setAttribute("aria-live","polite");document.body?document.body.appendChild(live):document.documentElement.appendChild(live);}'
-			. 'function count(){var l=document.getElementById("efbNmList");if(!l)return;var ids={},ch=l.querySelectorAll("[data-efb-nm]");for(var k=0;k<ch.length;k++)ids[ch[k].getAttribute("data-efb-nm")]=1;var n=Object.keys(ids).length;var cs=document.querySelectorAll(".efb-nm-count");for(var j=0;j<cs.length;j++)cs[j].textContent=String(n);var bars=document.querySelectorAll(".efb-nm-bar, .efb-nm-bell");for(var q=0;q<bars.length;q++)bars[q].hidden=n===0;if(!n){l.hidden=true;}}'
+			. 'function count(){var l=document.getElementById("efbNmList");if(!l)return;var ids={},ch=l.querySelectorAll("[data-efb-nm]");for(var k=0;k<ch.length;k++)ids[ch[k].getAttribute("data-efb-nm")]=1;var n=Object.keys(ids).length;var cs=document.querySelectorAll(".efb-nm-count");for(var j=0;j<cs.length;j++)cs[j].textContent=typeof efb_admin_date_efb==="function"?efb_admin_date_efb(String(n)):String(n);var bars=document.querySelectorAll(".efb-nm-bar, .efb-nm-bell");for(var q=0;q<bars.length;q++)bars[q].hidden=n===0;if(!n){l.hidden=true;}}'
 			. 'var L=document.getElementById("efbNmList");if(L&&window.MutationObserver)new MutationObserver(count).observe(L,{childList:true,subtree:true});'
 			. 'document.addEventListener("click",function(e){var s=e.target.closest&&e.target.closest("[data-efb-nm-snooze]");if(s){var id=s.getAttribute("data-efb-nm-snooze");s.disabled=true;var f=new FormData();f.append("action",D.action);f.append("nonce",D.nonce);f.append("id",id);fetch(D.ajax,{method:"POST",credentials:"same-origin",body:f}).then(function(r){return r.json();}).then(function(j){if(!j||!j.success){s.disabled=false;return;}var ns=document.querySelectorAll("[data-efb-nm=\""+id+"\"]");for(var k=0;k<ns.length;k++)ns[k].remove();live.textContent=D.done;count();},function(){s.disabled=false;});return;}'
 			. 'var t=e.target.closest&&e.target.closest(".efb-nm-toggle");if(t){var l=document.getElementById("efbNmList");if(!l)return;var o=t.getAttribute("aria-expanded")!=="true";var ts=document.querySelectorAll(".efb-nm-toggle");for(var k=0;k<ts.length;k++)ts[k].setAttribute("aria-expanded",o?"true":"false");l.hidden=!o;if(o){var f=l.querySelector("a[href],button,input,[tabindex]");if(f)f.focus();}}});'

@@ -1141,9 +1141,12 @@ scenario('8', 'F13 privacy: IP setting, guest entry without IP, retention cron w
   await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
   // The forms list can still be wiring its buttons right after "load": a click that lands
   // before that opens nothing (it failed in several full runs, never when run alone), so click again once.
-  await admin.click(`.efb-act-msg[data-id="${formId}"]`);
+  // On a site with many forms the form can be on a later page of the list: open its entries the way the list's button does.
+  const openMsgs = () => admin.evaluate((id) => { const b = document.querySelector(`.efb-act-msg[data-id="${id}"]`); if (b) b.click(); else emsFormBuilder_messages(Number(id)); }, formId);
+  await admin.waitForFunction(() => typeof emsFormBuilder_messages === 'function', null, { timeout: 20000 });
+  await openMsgs();
   if (!(await admin.waitForSelector(`#btn-m-${anon.msg_id}`, { timeout: 8000 }).catch(() => null))) {
-    await admin.click(`.efb-act-msg[data-id="${formId}"]`);
+    await openMsgs();
     await admin.waitForSelector(`#btn-m-${anon.msg_id}`, { timeout: 20000 });
   }
   await admin.click(`#btn-m-${anon.msg_id}`);

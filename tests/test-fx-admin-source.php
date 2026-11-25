@@ -52,5 +52,8 @@ t('template titles are single phrases (tplCurvedContact, tplStepsContact, tplPri
 t('no "The %s have been deleted." filled with a noun in the admin scripts', strpos($admjs . (string) file_get_contents($root . '/includes/admin/assets/js/list_form-efb.js'), 'text.tDeleted') === false && strpos($fn, "'delField' => __('The field was deleted.'") !== false);
 t('the CAPTCHA notice counts forms with _n()', strpos((string) file_get_contents($root . '/includes/class-Emsfb-spam-notice.php'), "_n('%1\$s form uses %2\$s") !== false);
 t('the visitor\'s confirmation e-mail is headed "We received your message"', strpos((string) file_get_contents($root . '/includes/class-email-handler.php'), "strpos((string) \$state, 'notiToUser') === 0 ? \$lang['WeRecivedUrM'] : \$lang['newMessage']") !== false);
+// QA1-028: the notices bell counts in the site's digits (server and browser).
+$nt = (string) file_get_contents($root . '/includes/class-Emsfb-notices.php');
+t('the bell\'s count goes through the local digits (PHP digits_efb(), JS efb_admin_date_efb())', strpos($nt, 'esc_html(self::digits_efb(number_format_i18n($n)))') !== false && strpos($nt, 'efb_admin_date_efb(String(n))') !== false);
 echo "\nRESULTS: {$pass} passed, {$fail} failed\n";
 exit($fail ? 1 : 0);
