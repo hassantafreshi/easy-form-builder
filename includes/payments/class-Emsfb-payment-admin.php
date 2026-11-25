@@ -561,7 +561,7 @@ class Admin {
 			$g = Registry::get( $slug );
 			if ( ! $g ) wp_send_json_error( array( 'm' => __( 'Unknown payment gateway.', 'easy-form-builder' ) ) );
 			$s = Settings::load( $slug );
-			if ( ! in_array( $act, array_column( self::gateway_actions( $g, $s ), 'id' ), true ) ) wp_send_json_error( array( 'm' => 'unknown action' ) );
+			if ( ! in_array( $act, array_column( self::gateway_actions( $g, $s ), 'id' ), true ) ) wp_send_json_error( array( 'm' => __( 'Unknown action.', 'easy-form-builder' ) ) );
 			try { $r = $g->run_settings_action( $act, $s, $mode ); } catch ( \Throwable $e ) { $r = Result::fail( 'exception' ); }
 			if ( ! $r instanceof Result ) $r = Result::fail( 'bad_result' );
 			Store::log_event( null, $slug, 'admin', array( 'type' => 'settings_action', 'note' => $act . ' ' . ( $r->ok ? 'ok' : $r->error ) . ' by user ' . get_current_user_id() ) );
@@ -599,7 +599,7 @@ class Admin {
 			if ( ! $ok ) wp_send_json_error( array( 'm' => __( 'This refund is no longer waiting.', 'easy-form-builder' ) ) );
 			wp_send_json_success( array( 'm' => $to === 'refunded' ? __( 'Refunded', 'easy-form-builder' ) : __( 'Declined', 'easy-form-builder' ), 'status' => Store::get( $p['id'] )['status'] ) );
 		}
-		wp_send_json_error( array( 'm' => 'unknown action' ) );
+		wp_send_json_error( array( 'm' => __( 'Unknown action.', 'easy-form-builder' ) ) );
 	}
 
 	private static function style() {

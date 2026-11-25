@@ -808,11 +808,11 @@ class Form_Gate {
 	/** POST forms/gate/state {form_id}: {state, code, message, next, closes_at, left?} for this visitor. */
 	public static function rest_visitor_state($r) {
 		if (function_exists('nocache_headers')) nocache_headers();
-		if (!class_exists('\\Emsfb\\Request_Health') || !Request_Health::same_origin()) return new \WP_REST_Response(array('code' => 'efb_origin_denied', 'message' => 'Same origin required.'), 403);
+		if (!class_exists('\\Emsfb\\Request_Health') || !Request_Health::same_origin()) return new \WP_REST_Response(array('code' => 'efb_origin_denied', 'message' => __('This request must come from this site.', 'easy-form-builder')), 403);
 		$j = $r->get_json_params();
 		$fid = is_array($j) && isset($j['form_id']) && is_scalar($j['form_id']) ? (int) $j['form_id'] : 0;
 		$rows = $fid > 0 && class_exists('\\Emsfb\\Payments\\Service') ? \Emsfb\Payments\Service::form_rows($fid) : null;
-		if (!is_array($rows) || !isset($rows[0]) || !is_array($rows[0])) return new \WP_REST_Response(array('code' => 'efb_form_missing', 'message' => 'Form not found.'), 404);
+		if (!is_array($rows) || !isset($rows[0]) || !is_array($rows[0])) return new \WP_REST_Response(array('code' => 'efb_form_missing', 'message' => __('Form not found.', 'easy-form-builder')), 404);
 		$cfg = self::cfg($rows[0]);
 		$st = self::state($rows[0], self::context($fid));
 		$out = array('state' => $st['state'], 'code' => $st['code'], 'message' => $st['state'] === 'open' ? '' : self::message($st, $cfg), 'next' => $st['next'], 'closes_at' => $st['closes_at']);
@@ -827,7 +827,7 @@ class Form_Gate {
 	public static function rest_status($r) {
 		$fid = (int) $r->get_param('form_id');
 		$rows = $fid > 0 && class_exists('\\Emsfb\\Payments\\Service') ? \Emsfb\Payments\Service::form_rows($fid) : null;
-		if (!is_array($rows) || !isset($rows[0])) return new \WP_REST_Response(array('code' => 'form_not_found', 'message' => 'Form not found.'), 404);
+		if (!is_array($rows) || !isset($rows[0])) return new \WP_REST_Response(array('code' => 'form_not_found', 'message' => __('Form not found.', 'easy-form-builder')), 404);
 		return new \WP_REST_Response(self::status($rows[0], $fid), 200);
 	}
 

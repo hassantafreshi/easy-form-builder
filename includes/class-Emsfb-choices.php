@@ -269,7 +269,7 @@ class Choices {
 	private static function ajax_guard() {
 		$fn = function_exists('get_efbFunction') ? get_efbFunction() : null;
 		if (!check_ajax_referer('wp_rest', 'nonce', false) || !$fn || !$fn->user_permission_efb_admin_dashboard()) {
-			wp_send_json_error(array('m' => 'Forbidden'), 403);
+			wp_send_json_error(array('m' => esc_html__('You are not allowed to do that.', 'easy-form-builder')), 403); // PUB-03
 		}
 	}
 
@@ -278,7 +278,7 @@ class Choices {
 		self::ajax_guard();
 		$id = isset($_POST['preset']) ? sanitize_key(wp_unslash($_POST['preset'])) : '';
 		$lines = self::preset_lines($id);
-		if ($lines === null) wp_send_json_error(array('m' => 'Unknown list'), 404);
+		if ($lines === null) wp_send_json_error(array('m' => esc_html__('This list is not available.', 'easy-form-builder')), 404); // PUB-03
 		$p = self::presets();
 		wp_send_json_success(array('id' => $id, 'lines' => $lines, 'count' => count($p[$id]['items']), 'lang' => $p[$id]['lang']));
 	}

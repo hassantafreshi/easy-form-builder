@@ -455,7 +455,7 @@ class Form_Package {
 		$dc = class_exists('\\Emsfb\\Calendar') ? Calendar::validate_rows($valp) : array('errors' => array(), 'warnings' => array());
 		if (!empty($dc['errors'])) return array('rows' => $valp, 'warnings' => $warn, 'error' => array('code' => $dc['errors'][0]['code'], 'm' => $dc['errors'][0]['m']));
 		if ($fn) $valp = $fn->sanitize_obj_msg_efb($valp);
-		if (!is_array($valp) || !isset($valp[0]['type'])) return array('rows' => array(), 'warnings' => $warn, 'error' => array('code' => 'package_invalid', 'm' => 'The form could not be read.'));
+		if (!is_array($valp) || !isset($valp[0]['type'])) return array('rows' => array(), 'warnings' => $warn, 'error' => array('code' => 'package_invalid', 'm' => __('The form could not be read.', 'easy-form-builder')));
 		if (class_exists('\\Emsfb\\Privacy')) $valp = Privacy::normalize_form_settings($valp);
 		if (class_exists('\\Emsfb\\Form_Gate')) {
 			$valp = Form_Gate::normalize_form_settings($valp, null);
@@ -469,7 +469,7 @@ class Form_Package {
 			if (class_exists('\\Emsfb\\Payments\\Registry')) $warn = array_merge($warn, Payments\Registry::form_warnings($valp));
 			if (class_exists('\\Emsfb\\Verification')) $warn = array_merge($warn, Verification::form_warnings($valp));
 			$miss = Builder_Api::auth_fields_missing($valp);
-			if ($miss) return array('rows' => $valp, 'warnings' => $warn, 'error' => array('code' => 'auth_fields_missing', 'm' => 'A login or registration form needs these fields: ' . implode(', ', $miss), 'missing' => $miss));
+			if ($miss) return array('rows' => $valp, 'warnings' => $warn, 'error' => array('code' => 'auth_fields_missing', 'm' => /* translators: %s: comma-separated field types (email, password …) */ sprintf(__('A login or registration form needs these fields: %s', 'easy-form-builder'), implode(', ', $miss)), 'missing' => $miss));
 		}
 		if (!empty($dc['warnings'])) $warn = array_merge($warn, $dc['warnings']);
 		if (class_exists('\\Emsfb\\Uploads')) { list($valp, $uw) = Uploads::normalize_rows($valp, null); $warn = array_merge($warn, $uw); }
@@ -560,9 +560,9 @@ class Form_Package {
 		// F14 columns (entry status, star) when this site has them: a backup restored keeps them.
 		$cols = array_map('strtolower', (array) $wpdb->get_col("SHOW COLUMNS FROM `{$msg}`"));
 		foreach (array_values($rows) as $i => $row) {
-			if (count($out['msg_ids']) + count($out['skipped']) >= self::MAX_ROWS) { $out['skipped'][] = array('index' => $i, 'code' => 'package_too_many', 'm' => 'Too many entries in one call.'); continue; }
+			if (count($out['msg_ids']) + count($out['skipped']) >= self::MAX_ROWS) { $out['skipped'][] = array('index' => $i, 'code' => 'package_too_many', 'm' => __('Too many entries in one call.', 'easy-form-builder')); continue; }
 			$answers = is_array($row) && isset($row['answers']) && is_array($row['answers']) ? array_values(array_filter($row['answers'], 'is_array')) : null;
-			if (!$answers) { $out['skipped'][] = array('index' => $i, 'code' => 'package_entry_invalid', 'm' => 'No answers.'); continue; }
+			if (!$answers) { $out['skipped'][] = array('index' => $i, 'code' => 'package_entry_invalid', 'm' => __('The entry has no answers.', 'easy-form-builder')); continue; }
 			$v = $pub->validate_rows_efb($form, $answers, array('admin_edit' => true, 'form_condition' => ''));
 			if (empty($v['ok'])) { $out['skipped'][] = array('index' => $i, 'code' => 'package_entry_refused', 'm' => isset($v['m']) ? wp_strip_all_tags((string) $v['m']) : '', 'field_id' => isset($v['field_id']) ? (string) $v['field_id'] : ''); continue; }
 			$content = $pub->encode_rows_efb(isset($v['rows']) ? $v['rows'] : array());
@@ -571,7 +571,7 @@ class Form_Package {
 			$rec = array('form_id' => $form_id, 'track' => $track, 'ip' => '', 'form_title_x' => function_exists('sanitize_text_field') ? sanitize_text_field($name) : $name, 'content' => $content, 'date' => $date, 'read_' => isset($row['read']) ? min(9, max(0, (int) $row['read'])) : 0, 'read_by' => '');
 			if (in_array('entry_status', $cols, true) && isset($row['entry_status'])) $rec['entry_status'] = min(9, max(0, (int) $row['entry_status']));
 			if (in_array('starred', $cols, true) && isset($row['starred'])) $rec['starred'] = empty($row['starred']) ? 0 : 1;
-			if ($wpdb->insert($msg, $rec) === false) { $out['skipped'][] = array('index' => $i, 'code' => 'package_entry_not_saved', 'm' => 'The entry could not be saved.'); continue; }
+			if ($wpdb->insert($msg, $rec) === false) { $out['skipped'][] = array('index' => $i, 'code' => 'package_entry_not_saved', 'm' => __('The entry could not be saved.', 'easy-form-builder')); continue; }
 			$out['msg_ids'][] = (int) $wpdb->insert_id;
 			$out['imported']++;
 			if (function_exists('do_action')) do_action('efb_entry_imported', (int) $wpdb->insert_id, $form_id);

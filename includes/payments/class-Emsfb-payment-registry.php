@@ -579,9 +579,9 @@ class Readiness {
 			$out = self::of_form( array_slice( $form, 0, 2000 ), $id );
 		} elseif ( $id > 0 ) {
 			$out = self::for_form_id( $id );
-			if ( $out === null ) return new \WP_REST_Response( array( 'code' => 'form_not_found', 'message' => 'Form not found.' ), 404 );
+			if ( $out === null ) return new \WP_REST_Response( array( 'code' => 'form_not_found', 'message' => __( 'Form not found.', 'easy-form-builder' ) ), 404 );
 		} else {
-			return new \WP_REST_Response( array( 'code' => 'bad_request', 'message' => 'Give form_id or form.' ), 400 );
+			return new \WP_REST_Response( array( 'code' => 'bad_request', 'message' => __( 'Send form_id or form.', 'easy-form-builder' ) ), 400 );
 		}
 		return new \WP_REST_Response( array( 'form_id' => $id ) + $out, 200 );
 	}

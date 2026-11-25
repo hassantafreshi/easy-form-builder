@@ -4109,7 +4109,7 @@ class Admin {
 
         if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
 
-            $response = ['success' => false, 'm' =>'Security Error'];
+            $response = ['success' => false, 'm' => esc_html__('Security Error', 'easy-form-builder')]; // PUB-03
             wp_send_json_success($response, 200);
         }
         $new_nonce = wp_create_nonce('wp_rest');
@@ -4122,7 +4122,7 @@ class Admin {
 
         if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
 
-            $response = ['success' => false, 'm' =>'Security Error'];
+            $response = ['success' => false, 'm' => esc_html__('Security Error', 'easy-form-builder')]; // PUB-03
             wp_send_json_success($response, 200);
         }
 

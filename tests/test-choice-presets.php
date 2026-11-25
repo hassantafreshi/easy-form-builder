@@ -16,6 +16,7 @@ function t($label, $actual, $expected) {
 }
 function sanitize_key($k) { return preg_replace('/[^a-z0-9_\-]/', '', strtolower((string) $k)); }
 function wp_unslash($v) { return $v; }
+function esc_html__($s, $d = null) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); } // the AJAX errors are phrases (B6, PUB-03)
 $GLOBALS['ajax'] = array('nonce' => false, 'perm' => false, 'out' => null);
 function check_ajax_referer($a, $q, $die) { return $GLOBALS['ajax']['nonce']; }
 class FakeFn { public function user_permission_efb_admin_dashboard() { return $GLOBALS['ajax']['perm']; } }

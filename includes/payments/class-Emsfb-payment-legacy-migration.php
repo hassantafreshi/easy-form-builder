@@ -437,20 +437,20 @@ class Legacy_Migration {
 
 	public static function rest_run( $r ) {
 		$res = self::run_batch( self::BATCH, 'admin' );
-		if ( ! $res['ran'] ) return new \WP_REST_Response( array( 'code' => 'busy', 'message' => 'A run is in progress.' ) + $res, 409 );
+		if ( ! $res['ran'] ) return new \WP_REST_Response( array( 'code' => 'busy', 'message' => __( 'A run is in progress. Try again in a minute.', 'easy-form-builder' ) ) + $res, 409 );
 		return new \WP_REST_Response( $res + array( 'status' => self::status() ), 200 );
 	}
 
 	public static function rest_rollback( $r ) {
 		$id = (int) $r->get_param( 'form_id' );
-		if ( $id < 1 ) return new \WP_REST_Response( array( 'code' => 'bad_request', 'message' => 'Give form_id.' ), 400 );
+		if ( $id < 1 ) return new \WP_REST_Response( array( 'code' => 'bad_request', 'message' => __( 'Send form_id.', 'easy-form-builder' ) ), 400 );
 		$res = self::rollback( $id, 'admin' );
 		return new \WP_REST_Response( $res, $res['ok'] ? 200 : ( $res['code'] === 'no_form' || $res['code'] === 'no_backup' ? 404 : 500 ) );
 	}
 
 	public static function rest_migrate( $r ) {
 		$id = (int) $r->get_param( 'form_id' );
-		if ( $id < 1 ) return new \WP_REST_Response( array( 'code' => 'bad_request', 'message' => 'Give form_id.' ), 400 );
+		if ( $id < 1 ) return new \WP_REST_Response( array( 'code' => 'bad_request', 'message' => __( 'Send form_id.', 'easy-form-builder' ) ), 400 );
 		$e = self::migrate_form( $id, 'admin', true );
 		return new \WP_REST_Response( array( 'ok' => $e['status'] === 'migrated', 'entry' => $e ), 200 );
 	}
