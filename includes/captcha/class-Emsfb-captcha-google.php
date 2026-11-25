@@ -81,7 +81,7 @@ class Google extends Provider {
 
 	public function verify_hosts() { return array('www.google.com', 'www.recaptcha.net'); }
 
-	public function csp_hosts() { return array('www.google.com', 'www.gstatic.com', 'www.recaptcha.net'); }
+	public function csp_hosts() { return array('www.google.com', 'www.gstatic.com', 'www.recaptcha.net'); } // phpcs:ignore PluginCheck.CodeAnalysis.Offloading -- CSP hosts
 
 	public function privacy() { return array('sends' => array('token', 'ip_from_browser', 'browser'), 'where' => 'Google (USA)', 'cookies' => true); }
 

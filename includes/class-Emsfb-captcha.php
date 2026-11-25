@@ -129,7 +129,6 @@ class Captcha {
 		return function_exists('home_url') ? (string) wp_parse_url(home_url(), PHP_URL_HOST) : '';
 	}
 
-	/** COMP-01: the loading strategy is WordPress 6.3's, the plugin's minimum. */
 	private static function script_args() {
 		return array('in_footer' => true, 'strategy' => 'defer');
 	}
