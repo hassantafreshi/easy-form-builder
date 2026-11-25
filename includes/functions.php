@@ -6780,8 +6780,13 @@ class efbFunction {
 		return $rtrn;
 	}
 
-	/** $content_type (B5 → B6): traking_link, message_link or just_message, passed on to EmsfbEmailHandler (see content_type_for_state()). */
-	public function send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st = "null", $content_type = null) {
+	/**
+	 * An 8th argument (B5 → B6), the content type (traking_link, message_link or just_message), is passed on to
+	 * EmsfbEmailHandler (content_type_for_state()). Read with func_get_arg() so a subclass that overrides this method
+	 * with the seven parameters stays compatible.
+	 */
+	public function send_email_state_new($to, $sub, $cont, $pro, $state, $link, $st = "null") {
+		$content_type = func_num_args() > 7 ? func_get_arg(7) : null;
 
 		if (!class_exists('EmsfbEmailHandler')) {
 			$email_handler_file = EMSFB_PLUGIN_DIRECTORY . 'includes/class-email-handler.php';
