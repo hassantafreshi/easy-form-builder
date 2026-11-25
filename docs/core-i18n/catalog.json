@@ -4,8 +4,8 @@
     "plugin_version": "4.3.2",
     "updated": "2026-11-25",
     "counts": {
-        "active": 4466,
-        "obsolete": 567
+        "active": 4549,
+        "obsolete": 517
     },
     "entries": [
         {
@@ -1553,6 +1553,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "%s form could not be moved back: its payment field was changed after the move. Open the form's versions in the builder to go back.",
+            "context": null,
+            "plural": "%s forms could not be moved back: their payment fields were changed after the move. Open each form's versions in the builder to go back.",
+            "translators": "%s: number of forms",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s form was moved back to its older payment field.",
+            "context": null,
+            "plural": "%s forms were moved back to their older payment fields.",
+            "translators": "%s: number of forms",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s has no keys for Live mode yet, so visitors cannot pay. Add them in Payments → Gateways.",
             "context": null,
             "plural": null,
@@ -1854,6 +1884,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "%s payment form was moved to its payment add-on's new field, which Easy Form Builder 4.3.1 and older cannot show: visitors could not pay with it. Before you install an older version, move it back in Easy Form Builder › Payments › Moved forms.",
+            "context": null,
+            "plural": "%s payment forms were moved to their payment add-ons' new fields, which Easy Form Builder 4.3.1 and older cannot show: visitors could not pay with them. Before you install an older version, move them back in Easy Form Builder › Payments › Moved forms.",
+            "translators": "%s: number of forms",
+            "files": [
+                "includes/payments/class-Emsfb-payment-legacy-migration.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -3163,8 +3208,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "A run is in progress. Try again in a minute.",
@@ -3238,6 +3283,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "A test file written to the private uploads folder was refused to a request without a login (HTTP %d).",
+            "context": null,
+            "plural": null,
+            "translators": "%d: the HTTP status code the web server answered (for example 403)",
+            "files": [
+                "includes/class-Emsfb-uploads.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "A test file written to the private uploads folder was served to a request without any login. Files that visitors sent to forms set to \"private\" and the e-mail debug log are kept there, and anyone who has their address can download them.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-uploads.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -3659,8 +3734,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Access denied. Make sure the spreadsheet is shared with the service account email as Editor.",
@@ -3674,8 +3749,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Accounting & Sell question",
@@ -5453,8 +5528,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "All formats",
@@ -7061,8 +7136,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Authentication",
@@ -7121,8 +7196,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Authorized",
@@ -7181,8 +7256,8 @@
                 "addon:autofill"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Auto-Populate Integrations",
@@ -7191,9 +7266,11 @@
             "translators": "Link text pointing to the Auto-Populate Integrations page",
             "files": [
                 "includes/functions.php",
-                "includes/phrases.php"
+                "includes/phrases.php",
+                "vendor/autofill/class-Emsfb-autofill.php"
             ],
             "scope": [
+                "addon:autofill",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -7772,6 +7849,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Before going back to an older version",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -10490,6 +10582,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Checking or refunding this payment goes through %s, and its add-on is not active. Turn the add-on on in Add-ons to refund it here.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: name of the payment add-on (e.g. Stripe)",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Checking the amount…",
             "context": null,
             "plural": null,
@@ -12417,8 +12524,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Connected successfully. %d spreadsheet is currently shared with this service account.",
@@ -12432,8 +12539,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Connected successfully. Spreadsheet \"%1$s\" found, tab \"%2$s\" exists.",
@@ -12447,8 +12554,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Connected successfully. Spreadsheet \"%1$s\" found. Tab \"%2$s\" will be created automatically on the first submission.",
@@ -12462,8 +12569,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Connected.",
@@ -13001,13 +13108,9 @@
             "translators": "",
             "files": [
                 "includes/class-Emsfb-deactivation-feedback.php",
-                "includes/functions.php",
-                "vendor/paypal/class-Emsfb-paypal-payment.php",
-                "vendor/stripe/class-Emsfb-stripe-payment.php"
+                "includes/functions.php"
             ],
             "scope": [
-                "addon:paypal",
-                "addon:stripe",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -14366,8 +14469,8 @@
                 "addon:autofill"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Dataset",
@@ -14866,8 +14969,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Default value",
@@ -15152,8 +15255,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Deleting responses",
@@ -15167,6 +15270,36 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Deleting this plugin also deletes all its forms, entries and uploaded files.",
+            "context": null,
+            "plural": null,
+            "translators": "shown under Easy Form Builder on the Plugins screen while \"Delete all data when the plugin is deleted\" is on",
+            "files": [
+                "includes/class-Emsfb-privacy.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Deleting this plugin keeps your forms, entries and uploaded files.",
+            "context": null,
+            "plural": null,
+            "translators": "shown under Easy Form Builder on the Plugins screen while \"Delete all data when the plugin is deleted\" is off (the default)",
+            "files": [
+                "includes/class-Emsfb-privacy.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -16180,8 +16313,8 @@
                 "addon:stripe"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Download Video",
@@ -16905,6 +17038,7 @@
                 "includes/class-Emsfb-formbuilder.php",
                 "includes/class-Emsfb-privacy.php",
                 "includes/class-Emsfb-public.php",
+                "includes/class-Emsfb.php",
                 "includes/class-email-handler.php",
                 "includes/functions.php",
                 "includes/page-builders/elementor/class-Emsfb-elementor-widget.php",
@@ -17113,6 +17247,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Easy Form Builder could not check its private uploads folder",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-uploads.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -17342,6 +17491,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Easy Form Builder private uploads",
+            "context": null,
+            "plural": null,
+            "translators": "the name of a Site Health test (Tools › Site Health)",
+            "files": [
+                "includes/class-Emsfb-uploads.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Easy Form Builder refused this submission",
             "context": null,
             "plural": null,
@@ -17383,6 +17547,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Easy Form Builder's private uploads are protected",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-uploads.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Easy Form Builder's private uploads can be downloaded by anyone",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-uploads.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -20378,8 +20572,8 @@
                 "addon:autofill"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Failed to parse API response",
@@ -20408,8 +20602,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Failing since: %s",
@@ -23240,8 +23434,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Google API rate limit reached. The next submissions will keep syncing once the quota window resets.",
@@ -23255,8 +23449,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Google Sheet",
@@ -23270,8 +23464,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Google Sheet Add-on",
@@ -23300,8 +23494,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Google Sheets",
@@ -23360,8 +23554,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Google reCAPTCHA",
@@ -26582,8 +26776,8 @@
                 "addon:autofill"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Invalid country code",
@@ -26672,8 +26866,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Invalid form request.",
@@ -26781,8 +26975,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Invalid request format",
@@ -26871,8 +27065,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Invalid service account.",
@@ -26886,8 +27080,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Invalid service response",
@@ -29214,7 +29408,8 @@
             "plural": null,
             "translators": "",
             "files": [
-                "includes/payments/class-Emsfb-payment-admin.php"
+                "includes/payments/class-Emsfb-payment-admin.php",
+                "includes/payments/class-Emsfb-payment-service.php"
             ],
             "scope": [
                 "core"
@@ -29505,8 +29700,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Log retention days",
@@ -31444,8 +31639,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Missing subscription data",
@@ -31914,6 +32109,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Move every form back",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Move every form back to its older payment field? Visitors then pay through the older fields again.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Move into group",
             "context": null,
             "plural": null,
@@ -31970,6 +32195,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Move the forms back first",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-legacy-migration.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -32046,6 +32286,36 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Moved forms",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Moving a form back changes only its payment field: edits made since the move are kept, and the form can be moved again later from Settings › Payments.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -32783,12 +33053,10 @@
             "files": [
                 "includes/functions.php",
                 "includes/page-builders/elementor/class-Emsfb-elementor-widget.php",
-                "vendor/paypal/class-Emsfb-paypal-payment.php",
-                "vendor/stripe/class-Emsfb-stripe-payment.php"
+                "vendor/googlesheet/class-Emsfb-googlesheet.php"
             ],
             "scope": [
-                "addon:paypal",
-                "addon:stripe",
+                "addon:googlesheet",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -33032,8 +33300,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "No comment",
@@ -33383,6 +33651,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "No form uses the payment add-ons' new fields now. An older version of Easy Form Builder can show every payment form.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "No forms available. Create a form first.",
             "context": null,
             "plural": null,
@@ -33593,6 +33876,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "No payment add-on is active, so this list is read only. To check a payment again or refund it, turn its add-on on in Add-ons.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "No payment amount detected. Please review your selected items and try again. If the problem persists, contact support.",
             "context": null,
             "plural": null,
@@ -33636,6 +33934,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "No payments match these filters.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "No payments yet.",
@@ -33799,8 +34112,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "No spreadsheet is linked to this form.",
@@ -33814,8 +34127,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "No style selected — the sheet is left as-is.",
@@ -33829,8 +34142,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "No time can be chosen on this day.",
@@ -35079,6 +35392,36 @@
             "obsolete_since": null
         },
         {
+            "msgid": "On %1$s a visitor could not pay with %2$s (%3$s mode). %4$s",
+            "context": null,
+            "plural": null,
+            "translators": "%1$s: date and time, %2$s: gateway name, %3$s: Live or Test, %4$s: the gateway's own explanation",
+            "files": [
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "On nginx, add this rule to the server block of the site and reload nginx. Apache and LiteSpeed read the folder's own .htaccess file and need nothing.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-uploads.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "On your first year of Pro · the code is emailed to you",
             "context": null,
             "plural": null,
@@ -35945,6 +36288,7 @@
             "plural": null,
             "translators": "",
             "files": [
+                "includes/payments/class-Emsfb-payment-admin.php",
                 "includes/payments/class-Emsfb-payment-registry.php"
             ],
             "scope": [
@@ -36554,8 +36898,8 @@
                 "addon:stripe"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "PHP requirements are ready.",
@@ -38158,8 +38502,8 @@
                 "addon:autofill"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Permission denied.",
@@ -38865,8 +39209,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Please choose a country in \"%s\".",
@@ -38896,8 +39240,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Please choose a stronger password.",
@@ -39018,8 +39362,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Please choose the date it depends on first.",
@@ -39123,8 +39467,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Please contact our support team for assistance.",
@@ -40787,6 +41131,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Privacy settings",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-privacy.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -45491,9 +45850,11 @@
             "plural": null,
             "translators": "Saved = confirmation shown after the colors are stored",
             "files": [
-                "includes/functions.php"
+                "includes/functions.php",
+                "vendor/googlesheet/class-Emsfb-googlesheet.php"
             ],
             "scope": [
+                "addon:googlesheet",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -45953,6 +46314,21 @@
             "first_seen": "4.2.0",
             "status": "obsolete",
             "obsolete_since": "4.2.0"
+        },
+        {
+            "msgid": "Security",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-uploads.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Security & Spam Protection",
@@ -47224,8 +47600,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Service account not found.",
@@ -47239,8 +47615,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Service account removed.",
@@ -47254,8 +47630,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Service account saved, but the connection test failed: %s",
@@ -47269,8 +47645,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Service error",
@@ -47863,6 +48239,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Show all payments",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Show as a popup",
             "context": null,
             "plural": null,
@@ -47961,6 +48352,21 @@
             "files": [
                 "includes/admin/class-Emsfb-panel.php",
                 "includes/class-Emsfb-notices.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Show more details",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
             ],
             "scope": [
                 "core"
@@ -49409,8 +49815,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Square",
@@ -50480,8 +50886,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Style applied.",
@@ -50495,8 +50901,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Subject",
@@ -50632,8 +51038,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Submitted Form",
@@ -50782,8 +51188,8 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Subscription suspended successfully.",
@@ -50797,8 +51203,8 @@
                 "addon:paypal"
             ],
             "first_seen": "4.2.0",
-            "status": "active",
-            "obsolete_since": null
+            "status": "obsolete",
+            "obsolete_since": "4.3.2"
         },
         {
             "msgid": "Success",
@@ -51322,8 +51728,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Synced successfully",
@@ -51337,8 +51743,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Syria",
@@ -51863,6 +52269,22 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Test",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php",
+                "includes/payments/class-Emsfb-payment-service.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -52419,8 +52841,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "That email did not work",
@@ -52509,6 +52931,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The %s add-on of this payment field is missing (its files are not on the site), so visitors cannot pay. Install it again in Easy Form Builder → Add-ons, or remove the payment field.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: name of a payment add-on (the gateway's name)",
+            "files": [
+                "includes/class-Emsfb-formbuilder.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -52810,8 +53247,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "The PHP mail() function is missing. Your server cannot send emails.",
@@ -56186,6 +56623,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The site could not fetch a test file from its own private uploads folder, so it cannot tell whether the web server hands those files out. Check it on the server.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-uploads.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The site leaves this field out of the page and out of the sent answers for anyone else, and it is never required for them. Administrators follow the rule too.",
             "context": null,
             "plural": null,
@@ -58774,8 +59226,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "This service gets the visitor's IP address from the browser, whatever your IP setting.",
@@ -60321,6 +60773,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Turn the %s add-on on first: this payment is checked and refunded through it.",
+            "context": null,
+            "plural": null,
+            "translators": "%s: name of the payment add-on (e.g. Stripe)",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Tutorial",
             "context": null,
             "plural": null,
@@ -61099,8 +61566,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Unique ID",
@@ -61297,8 +61764,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Unknown function “%s”.",
@@ -61372,8 +61839,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Unlimited Forms and Form Entries",
@@ -66069,8 +66536,8 @@
                 "addon:googlesheet"
             ],
             "first_seen": "4.2.0",
-            "status": "obsolete",
-            "obsolete_since": "4.3.1"
+            "status": "active",
+            "obsolete_since": null
         },
         {
             "msgid": "Would you like to customize the form using the colors of the active template?",
@@ -66351,12 +66818,10 @@
                 "includes/functions.php",
                 "includes/page-builders/elementor/class-Emsfb-elementor-widget.php",
                 "includes/page-builders/wpbakery/class-Emsfb-wpbakery.php",
-                "vendor/paypal/class-Emsfb-paypal-payment.php",
-                "vendor/stripe/class-Emsfb-stripe-payment.php"
+                "vendor/googlesheet/class-Emsfb-googlesheet.php"
             ],
             "scope": [
-                "addon:paypal",
-                "addon:stripe",
+                "addon:googlesheet",
                 "core"
             ],
             "first_seen": "4.2.0",
@@ -74628,6 +75093,36 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "LIVE",
+            "context": "payment mode badge",
+            "plural": null,
+            "translators": "payment mode badge in the Payments list (upper case in English): LIVE = real money, TEST = no real money",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "TEST",
+            "context": "payment mode badge",
+            "plural": null,
+            "translators": "payment mode badge in the Payments list (upper case in English): LIVE = real money, TEST = no real money",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
