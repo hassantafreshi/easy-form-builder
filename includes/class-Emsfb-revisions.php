@@ -20,7 +20,8 @@
  *
  * Personal data: a version holds the form, never an entry; only the editor's user id. WordPress' eraser
  * ("Easy Form Builder form versions") and the deletion of a user set that id to 0. The table stays after the
- * plugin is removed, like every table of the plugin (no uninstall routine drops tables).
+ * plugin is deleted, like every table of the plugin, unless Settings › Privacy › "Delete all data when the plugin is
+ * deleted" is on (uninstall.php, Emsfb\Lifecycle).
  */
 namespace Emsfb;
 

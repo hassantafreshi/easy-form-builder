@@ -415,3 +415,9 @@ ALTER TABLE `{p}emsfb_rsp_` ADD KEY `msg_id` (`msg_id`);
 - `entries.read` در API فیلدهایی را که `prv_pii` مؤثرشان `"1"` است به‌صورت `"[redacted]"` برمی‌گرداند، مگر `include_pii` و `manage_options`. IP، user agent و `uid` هرگز برنمی‌گردند. فرم `prv_nostore` در پاسخ API `stored: false` دارد.
 - schema عمومی برای هر فیلد `pii` و برای فرم `stored` را نشان می‌دهد تا دستیار بازدیدکننده مقدار شخصی را در لاگ گفتگو کپی نکند و به بازدیدکننده بگوید پاسخ ذخیره نمی‌شود.
 - خاموش کردن `prv_nostore` یا تغییر `prv_ip`/`prv_days` در `security_changes` گزارش می‌شود.
+
+## افزوده (B7، LIFE-01، تصمیم مالک ۵): حذف افزونه
+
+- تنظیمات › حریم خصوصی › «When the plugin is deleted»: کادر «Delete all data when the plugin is deleted» (کلید سراسری `prv_delete_on_uninstall`، `''` پیش‌فرض یا `'1'`، فقط `manage_options`، با `set_setting_Emsfb()` مانند دیگر کلیدهای `prv_*`؛ در رجیستری `setting:privacy_site`). تا کادر تیک دارد هشدار قرمز زیر آن دیده می‌شود.
+- غیرفعال‌سازی فقط همهٔ رویدادهای زمان‌بندی‌شدهٔ افزونه و افزونه‌هایش را پاک می‌کند (`Emsfb\Lifecycle::CRON_HOOKS` و هر قلاب `emsfb_`). حذف افزونه (`uninstall.php`) همیشه رویدادها، transientها و پیش‌نویس‌های «Form Preview» را پاک می‌کند و فقط با کادر روشن: جدول‌های `{prefix}emsfb*`، گزینه‌ها، پوشهٔ `uploads/efb-private`، فایل‌های کتابخانهٔ رسانهٔ پاسخ‌ها، فرادادهٔ نوشته، قابلیت‌ها و نقش‌های `Emsfb*`؛ فرادادهٔ کاربر وقتی هیچ سایتی داده‌اش را نگه نمی‌دارد. در شبکه هر سایت جدا تصمیم می‌گیرد.
+- تست‌ها: `tests/test-lifecycle-uninstall-lists.php`، `tests/test-lifecycle-uninstall-site.php` (غیرفعال‌سازی و حذف واقعی روی کپی خصوصی سایت آزمون، خاموش و روشن).
