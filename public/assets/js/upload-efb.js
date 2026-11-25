@@ -396,13 +396,19 @@
     return Promise.resolve(fallback());
   }
 
+  /* ADD-03 (B8 → B6): a file finished, failed or was removed: "efb:upload" on the document, detail {form_id,
+     field_id, state: done | error | removed, count: files on the server}, for add-ons that read the number of files. */
+  function fire(st, state) {
+    try { root.document.dispatchEvent(new root.CustomEvent('efb:upload', { detail: { form_id: st.formId, field_id: st.id, state: state, count: count(st.id, st.formId) } })); } catch (e) {}
+  }
+
   function upload(st, it) {
     it.state = 'uploading';
     it.progress = 0;
     it.err = '';
     st.running += 1;
     markInflight(st, it, true);
-    var done = function () { st.running = Math.max(0, st.running - 1); markInflight(st, it, false); render(st); pump(st); };
+    var done = function () { st.running = Math.max(0, st.running - 1); markInflight(st, it, false); render(st); fire(st, it.state); pump(st); };
     var send = root.fetch_uploadFile;
     if (typeof send !== 'function') { it.state = 'error'; it.err = T('fileFailed', 'Upload failed'); done(); return; }
     runtimeOf(st.formId).then(function (rt) {
@@ -481,6 +487,7 @@
     if (it.thumb) { try { URL.revokeObjectURL(it.thumb); } catch (e) {} }
     st.items.splice(i, 1);
     render(st);
+    fire(st, 'removed');
     live(st, T('fileRemovedA11y', '%s removed').replace('%s', it.name));
     // Focus goes to the next item's button, or back to the picker.
     var buttons = st.list.querySelectorAll('.efb-file-rm');

@@ -92,6 +92,7 @@ const SETUP = (lan) => `
   await p.addScriptTag({ content: SETUP('en_US') });
   await p.addStyleTag({ path: CSS });
   await p.addScriptTag({ path: UP });
+  await p.evaluate(() => { window.upEvents = []; document.addEventListener('efb:upload', (e) => window.upEvents.push(e.detail)); });
   const bound = await p.evaluate(() => [EFBUpload.bind('docs', 7), EFBUpload.bind('pics', 7), EFBUpload.bind('one', 7)]);
   check('bind: several files yes, one file no (old path)', JSON.stringify(bound) === '[true,true,false]', bound);
   await p.setInputFiles('#docs_', [
@@ -146,6 +147,9 @@ const SETUP = (lan) => `
   check('Remove: labelled with the file name, 44 × 44 px, focus moves to the next button', rm.label === 'Remove a.pdf' && rm.w >= 44 && rm.h >= 44 && /efb-file-rm/.test(rm.focus), rm);
   const live = await p.evaluate(() => new Promise((res) => setTimeout(() => res(document.querySelector('#docs_-sum + [aria-live]').textContent), 80)));
   check('the removal is announced (aria-live)', live === 'a.pdf removed', live);
+  // B6 (ADD-03): efb:upload tells add-ons that the number of files changed (done, error, removed).
+  const ev = await p.evaluate(() => window.upEvents.filter((d) => d.field_id === 'docs').map((d) => d.state + ':' + d.count + ':' + d.form_id));
+  check('efb:upload: each finished, failed and removed file, with the count of stored files', JSON.stringify(ev) === JSON.stringify(['done:1:7', 'done:2:7', 'error:2:7', 'done:3:7', 'removed:2:7']), ev);
   // Minimum: a required field with min 2 holding only… two: fine; a field with one file and min 2 refused.
   const minChk = await p.evaluate(() => { const st = EFBUpload._fields['7|docs']; st.items = st.items.filter((i) => i.fnm !== 'x' && i.state === 'done').slice(0, 1); return EFBUpload.check('docs', 7); });
   check('check(): fewer than the minimum asks for it', minChk && minChk.code === 'min_files' && /at least 2 files to Documents/.test(minChk.message), minChk);
