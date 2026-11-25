@@ -70,16 +70,23 @@ the reasons the remaining warnings stay are in [`plugin-check-waivers.md`](plugi
    | logic.zip | 529692 | `17c83425e413c8941ca8953238bf1418dc49434432d09b5df5f3dfa548b924a7` |
    | offline.zip | 1998550 | `8ce3144974e9dd64299e361689ba81447295b9fcfe919dc94c59fe4d00c742b2` |
    | paymob.zip | 42187 | `b1df28e37b323e3c5904d4db015b93258c581225877534c5b09cb79a3b129f9d` |
-   | paypal.zip | 397129 | `96282d46b8d64338b15223e2170c1c82eaeb2ce23da911dabbd35bec507781d7` |
-   | stripe.zip | 775371 | `7f2c5958fe5fda53afbd6d917bf26bdbecf441049071d2d5a50c165a8f27a6d4` |
-   | xendit.zip | 35874 | `c17df93b95a289e264f6e2acc070911efa69dc8eea4b4063f2ae5ac7237b541f` |
-   | persiapay.zip | 32781 | `21520ed5be0a6179ec9ec7d4771b571d38b4b5c43e3bfd61382eafb8910303bf` |
+   | paypal.zip | 398814 | `d9bf66739e751a5d7f5852cbf9d0b8ab74fa5fc6ca6ea8b2c9ed5582299203d2` |
+   | stripe.zip | 777143 | `12c2a764c4d2dd46d4efb468ef16ba538a697d35a28fae55a6eb1a429ee35498` |
+   | xendit.zip | 36271 | `f20a699027b71b5c590377151ec6de4e99d05c879c09fe5dc7ae0e9356d29927` |
+   | persiapay.zip | 38270 | `473750af8a6602f8e7e152d6d98058893abcfb3687017d6e82aa0217dc57a3a9` |
    | smssended.zip | 405272 | `ecb1e38559d13f5328b1e0fb1359a1b0a00e50017469a3f98436d5a0c9a9d15e` |
 
    The first eight changed in batch B8 (add-on screens, Paymob payer fields, Xendit refunds made outside EFB,
    Conditional Logic file counts, the `emsfb_pay_` amount column); persiapay and smssended changed earlier and were
-   not uploaded yet. Install each on a clean 4.3.1 and a clean 4.3.2 site before publishing core.
+   not uploaded yet. FX-PAY (QA-3, 2026-11-25) rebuilt paypal, stripe, xendit and persiapay (older payments screens
+   in gettext, Xendit and ZarinPal amount checks before storage, ZarinPal texts in efb-persiapay with its fa_IR file).
+   Install each on a clean 4.3.1 and a clean 4.3.2 site before publishing core.
 2. 24 hours later: commit the release folder to the wordpress.org SVN `trunk`, copy it to `tags/<version>`. The zip
    from step 2 is what goes there (unzip it into `trunk`).
-3. The same day: Easy Form Builder Data Tools 1.1.0 (its own repository).
+3. The same day: Easy Form Builder Data Tools 1.1.0 (its own repository): `bin/build-zip.sh` there packs the
+   committed files minus `.distignore` (no tests/ or docs/), reproducibly; with `EFBDT_PLUGIN_CHECK_WP` and
+   `EFBDT_WPCLI` (as root with `--allow-root`) it runs Plugin Check too. 1.1.0 from commit `7c49d53`:
+   `easy-form-builder-data-tools-1.1.0.zip`, 149759 bytes, sha256
+   `a89d02c3a1103b76bb5af2f4fbc7bb5c58114d36808e19dd3de893c9ce26c88f`; Plugin Check 0 errors, 30 warnings (direct
+   database calls on core's tables).
 4. Keep `dist/easy-form-builder-<version>.manifest.json` with the release notes: it says what was published.

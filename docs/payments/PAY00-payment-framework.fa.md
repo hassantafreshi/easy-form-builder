@@ -966,7 +966,17 @@ An add-on written before them works unchanged; an add-on that uses them still sa
 | `Remote_State::$visitor_message`, `$note`, `$notify_owner` | `''`, `''`, false | while pending, the status page shows the gateway's text (e.g. a kiosk reference, "being reviewed"); the note is logged once (and e-mailed to the owner when asked), e.g. a fraud hold |
 | `return_page( $p, $query, $continue )` | `''` | the gateway's own small return page (e.g. a frame that tells its parent page to go to `$continue`); core still asks the provider first; POST return fields reach `parse_return()` |
 | `Refund_Result` status `pending` | — | the refund row stays pending, `refunded_minor` counts confirmed refunds only, a pending amount cannot be refunded again; the owner can "Confirm refund" / "Mark as declined" |
+| `amount_problem( $amount_minor, $currency, $s )` | `null` | (QA3-009, 2026-11-25) an amount the gateway can never take although `supports()` allows it (Xendit: IDR / VND with a fraction; ZarinPal: a fraction of a rial); asked in `payments/create` after the quote and the method limits, **before** the entry and the payment are stored. A `Result::fail()` with reason `config` alerts the owner with the gateway's own words (settings card `pay_config_failed`, e-mail; `owner_alert( …, own )`); the visitor reads `pay_unavailable` (or the Result's `visitor_message`), never the owner's instruction |
 | `pending_ttl( $p )` | 1 day | also the browser's polling window (`poll_until` in the create and status answers, 15 minutes to 24 hours) and the reconcile window (31 days, filter `efb_payment_reconcile_days`) |
+
+QA-3 (2026-11-25): back from the provider with a payment that failed, was cancelled or is still open, the runtime
+opens the step that holds the payment field before it shows the result; `payments/status` also answers `total_minor`
+and `currency` (the field shows what "Try again" pays on a fresh page). On a form with steps the last step's "Submit"
+(`#next_efb`) is hidden while the field's step is shown (class `efb-pf-on-step`); after a payment the steps indicator
+reads complete. Amounts in a right-to-left language isolate the currency sign (U+2068 … U+2069, `Money::format()` and
+the runtime's `fmt()`). The Payments screen stays, read only, while the payments table has rows (or forms are moved)
+and no gateway add-on is active; its list is WordPress' list table (cards on a phone); the per-currency Paid totals are
+summed at the largest exponent of the currency's gateways (`Store::paid_totals()`).
 
 Core also added, for every gateway: `payments/retry` (Try again / a new QR for the same pending entry,
 the adapter's `ctx.retry()` / `EFBPay.retry(el)`), the Payments screen's "Mark as refunded outside EFB",

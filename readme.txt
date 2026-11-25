@@ -403,6 +403,7 @@ Requires WordPress 6.3 or later. The full list of changes, with the notes for de
 * New: "Delete all data when the plugin is deleted" in Settings › Privacy (off by default: deleting the plugin keeps your forms and entries). Deactivating the plugin removes its scheduled tasks.
 * Security: Answers to password fields are never stored, e-mailed or exported; those saved by earlier versions are replaced by •••• after the update. Uploaded files are tied to the visitor and the field. Secret keys are write-only and no longer copied into an option WordPress loads on every page. The e-mail debug log moved to a private folder.
 * Faster form pages: about a third as many database queries, minified scripts and styles, and the response viewer loads only where it is needed.
+* Fixed: Payments: back from a failed payment a form with steps opens the payment step with "Try again" (the same entry), the Payments screen stays readable without a payment add-on and fits a phone, and a moved payment form can be moved back without losing your edits.
 * Fixed: Many fixes across forms, e-mails, entries, payments, booking forms, CAPTCHA, right-to-left screens and phones. See CHANGELOG.md.
 * Developers: database version 1.13 (the update runs automatically); form package, builder (efbBuilderApi), payment, CAPTCHA and notices contracts. See CHANGELOG.md and the docs folder on GitHub.
 

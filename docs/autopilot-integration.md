@@ -2152,10 +2152,14 @@ Owner rule: payment gateways are always add-ons. What an integration reads and d
   add-on is off reports `pay_addon_inactive` with the add-on's code (the three new types are in the catalogue).
 - **Migration** (administrators, cookie + `X-WP-Nonce`): `GET payments/legacy-migration` → `{forms: [{form_id, name,
   status, reason, from, to, at, by, events, can_rollback, can_migrate}], counts, targets, runs, last_run, queued}`;
-  `POST …/run` (one batch of 20), `POST …/rollback {form_id}`, `POST …/migrate {form_id}`. Statuses: `pending`,
+  `POST …/run` (one batch of 20), `POST …/rollback {form_id}`, `POST …/rollback-all` (every moved form; `{done, failed:
+  {form_id: code}, status}`, 207 when some failed), `POST …/migrate {form_id}`. Statuses: `pending`,
   `migrated`, `rolled_back`, `waiting_addon`, `waiting_keys`, `recurring`, `gateway_unsupported`, `several_gateways`,
-  `amount_differs`, `not_ready`, `failed`. An agent never moves or rolls back a form on its own: it reports the list
-  and links to Settings › Payments.
+  `amount_differs`, `not_ready`, `failed`. A rollback (QA3-003, 2026-11-25) undoes only the move: edits made since are
+  kept (reason `edits_kept`); a moved field changed or removed since answers `409 field_changed`; each move refreshes
+  the backup. Before going back to 4.3.1 or older, every moved form is moved back (Payments › Moved forms; the
+  upgrader warns). An agent never moves or rolls back a form on its own: it reports the list and links to Settings ›
+  Payments (or Payments › Moved forms before a downgrade).
 - **Keys**: each add-on keeps its keys on its own screen (`admin.php?page=Emsfb_stripe_keys`, `…_paypal_keys`,
   `…_persiapay_keys`); `payment_keys.stripe|paypal` still say only whether they are set (filter
   `efb_legacy_gateway_keys_set`). No key or ciphertext is ever returned.
