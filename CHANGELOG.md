@@ -9,6 +9,38 @@ published add their lines to the 4.3.2 section below.
 Database version 1.3 → 1.13 (the steps run automatically on the first request after the update). Requires
 WordPress 6.3 or later and PHP 7.4 or later.
 
+* Fixed (FX-ADMIN, QA-1): Settings › Verification is stored by the page's own Save (its second Save, which the page
+  Save ignored, is gone); every number of Settings is checked against its range in the browser (aria-invalid, the
+  reason under the box, the tab opened) and on the server (invalid_<key>, nothing stored; Verification::invalid_number(),
+  Admin::invalid_setting_number_efb()), never clamped; the verification limits are labelled in words (QA1-001, 010, 011).
+* Fixed (QA1-004 … 006): no serious or critical axe issue on Settings › Responses, Captchas, Email, the Email Template
+  designer and an open entry (labels, aria-current instead of aria-selected, decorative preview images, contrast).
+* Fixed (QA1-007, 008, 026): the block's editor script comes from block.json (editorScript, editor.asset.php) with its
+  text domain, so its words are translated; the shortcode is left to right; the stylesheet reaches the editor once.
+* Fixed (QA1-009, 020, 028): the entry viewer is a full-width sheet on a phone; a reloaded entries URL keeps the list and
+  its &efbq= filters; efb_admin_date_efb() writes the admin's dates in the site's digits.
+* Fixed (QA1-012): Versions › Compare normalises types (1 / true / "1"), ignores EfbVersion and amount, names changes
+  in words.
+* Fixed (QA1-013, FR): a lapsed Pro site shows its "Pro paused" card, not the plan picker; an update from before 4.3.2
+  ends the first-run e-mail check.
+* Fixed (QA1-002, 003, 016 … 019, 022, 024, 025, 027, 029): the builder's fields are tab stops that open with Enter, with
+  a "Skip to the form" link; the shared dialog manages focus (Esc, trap, return); the Jalali / Hijri tiles add Date
+  (advanced) with that calendar; help "?" and doc links are real links (efb_help_link_efb()) and a topic without a page
+  has no Help; the auto-save offer only on the forms list and the template chooser; one phrase per template title and
+  per "deleted" message; _n() in the CAPTCHA notice; the visitor's confirmation e-mail headline; text-free Panel
+  artwork; stacked plan cards on a phone; the save dialog's shortcode panel is not clipped.
+* Fixed (QA1-015, I18N-05): the Pro box lists Pro-only features of the registry; the Pro price comes from the server
+  (Builder_Api::pro_price(), efb_var.pro_price, filter efb_pro_price, option emsfb_pro_price; Toman on fa_IR) and the
+  phrase "%s/year" keeps a placeholder.
+* Fixed (QA1-023): the e-mail template names the plugin's address {efb_plugin_url} (resolved when sending and drawing);
+  the update migrates stored addresses of any host once.
+* Fixed (QA5-002): the builder sends base_hash with Save (update_form_Emsfb); a form saved elsewhere since it was opened
+  answers stale_hash (nothing written) and the builder asks "Overwrite" (overwrite=1) or "Reload".
+* Fixed (QA3-014): priced choices and totals use Payments\Money::format() / efbPayCoreEfb.format() like the payment
+  summary. Settings › Payments: "Move every form back" (REST rollback-all) and the server's reason when a Move back
+  is refused. capabilities.payments.migration.backup = "the form before the latest move".
+* Fixed: "Unlock D&D File Upload" (the feature name was escaped twice); "1 entry will be removed".
+
 * Changed (PC-01): Plugin Check on the release zip: 282 errors and 1,791 warnings before, 5 errors after (each with a written waiver: docs/release/plugin-check-waivers.md). Translatable strings with placeholders carry translator comments and number them; output is escaped (the notices' inline scripts through wp_print_inline_script_tag()); IN (...) lists are one placeholder per value and tables %i; wp_parse_url, wp_delete_file, wp_mkdir_p, wp_is_writable and gmdate replace the PHP functions; the streaming writers (XLSX, CSV export, the upload scan) are annotated. Unused files removed: includes/class-Emsfb-webhook.php (a test route), class-Emsfb-requirement.php, integrate-wpb.php and five images.
 * Fixed: an e-mail template or HTML field with a style url() pointing to a host made the save fail on PHP 8 (validate_url_efb() read a global that was never set). The add-on server's error sentence showed "%s" instead of the server and the code.
 * Changed (SEC-02): the Panel's entry charts use the plugin's Chart.js (no Google Charts), and Create and the Panel read the country list (js/wp/countries.js, fetched with the other lists by bin/fetch-public-assets.sh) and the province lists from the plugin.

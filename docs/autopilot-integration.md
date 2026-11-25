@@ -2140,7 +2140,7 @@ Owner rule: payment gateways are always add-ons. What an integration reads and d
   { "v": 1, "deprecated": true, "removal": "5.0", "contract": 2.2,
     "moved_to_addons": ["builder_panels", "keys_screens", "server_pricing", "payments_table", "forms"],
     "targets": { "stripe": "stripecheckout", "paypal": "paypalcheckout", "persiaPay": "zarinpalgate", "zarinPal": "zarinpalgate", "persiapay": "zarinpalgate" },
-    "migration": { "rest": ".../wp-json/Emsfb/v1/payments/legacy-migration", "per_form": true, "rollback": true, "backup": "original JSON per form" } }
+    "migration": { "rest": ".../wp-json/Emsfb/v1/payments/legacy-migration", "per_form": true, "rollback": true, "backup": "the form before the latest move" } }
   ```
   `targets` lists only the framework fields registered now (the add-on is on and recent). **Build new payment forms
   with the target palette id** (`efbBuilderApi.newItems('stripecheckout')`, `Builder_Api::field_templates('paypalcheckout')`,
@@ -2260,7 +2260,13 @@ integration: check the registry entry (or `efb_form_package_api()['version'] >= 
    `addon_name`, `state` addon | update, `feature`, `install`), `plan_required` 403 (`data.package`, `feature`),
    `html_not_allowed` 400, and the save path's own codes (`pattern_invalid`, `auth_fields_missing`, the F06 date codes,
    the F11 gate codes). A refusal writes nothing.
-7. **Auth** like the rest of the builder API: the plugin's admins only; over REST a logged-in cookie with `X-WP-Nonce`
+7. **The builder's own Save is conditional too (QA5-002, 4.3.2).** The builder reads `base_hash` with the form
+   (`get_form_id_Emsfb` answers it, the same `Form_Update::hash_of()`) and sends it with Save (`update_form_Emsfb`,
+   `base_hash`). When the stored form changed since (an approved `form.update`, another tab), the save answers
+   `{success: false, code: "stale_hash"}` and writes nothing; the builder asks the owner "Overwrite" (the save is sent
+   again with `overwrite=1`) or "Reload". A successful save answers the new `base_hash`. So an assistant's approved
+   change is never lost silently to an editor tab opened before it.
+8. **Auth** like the rest of the builder API: the plugin's admins only; over REST a logged-in cookie with `X-WP-Nonce`
    (`wp_rest`) or an application password (Basic auth). Never public.
 
 ```php

@@ -526,3 +526,5 @@ CREATE TABLE {p}emsfb_stats_ (
 - هر خواندن از API یک ردیف `emsfb_msg_log_` با `action: "api_read"` (بدون مقدار، فقط نام برنامه و تعداد) و `do_action('efb_api_entries_read', ...)` می‌نویسد.
 - ویرایش، حذف، ارسال دوباره و خروجی در نسخهٔ ۱ قرارداد برای دستیار باز نیستند و فقط در پیشخوان EFB انجام می‌شوند. `efb_entry_updated` و `efb_message_deleted` برای همگام‌سازی SitePilot کافی‌اند.
 - **پیاده‌سازی شد** (163075a9): `efb_api_entries_query`، `efb_api_entry_get`، `efb_api_entries_stats` و مسیرهای REST ‏`GET Emsfb/v1/admin/forms/{id}/entries`، `admin/entries/{msg_id}`، `admin/forms/{id}/stats`؛ پاسخ‌های شخصی `"[redacted]"` مگر `include_pii` با `manage_options`؛ هرگز IP، uid، گذرواژه، شناسهٔ پرداخت یا نشانی خام فایل؛ ۶۰ درخواست در دقیقه. ذخیره‌سازی `entry_status` همان TINYINT این سند است (۰/۱/۲) و API همیشه `active|spam|trash` می‌دهد (C1 از سمت F14).
+
+**به‌روزرسانی ۴.۳.۲ (FX-ADMIN):** بارگذاری دوبارهٔ `?state=show-messages&id=…&efbq=…` همان فهرست را با پالایه‌هایش باز می‌کند (QA1-020)؛ نمایش پاسخ در گوشی تمام‌عرض است (QA1-009)؛ تاریخ‌ها در فهرست فرم‌ها، فهرست پاسخ‌ها و نمایش پاسخ با یک قالب‌بند و رقم‌های زبان سایت‌اند (`efb_admin_date_efb()`، QA1-028).
