@@ -116,9 +116,12 @@ class Notices {
 	}
 
 	/**
-	 * Easy Form Builder's other admin_notices callbacks (a file of the plugin or an add-on that does not register here)
-	 * become sources too, so they wait their turn like the rest. Not on a screen where they were taken off already: an
-	 * add-on's own settings screen calls efb_addon_screen_own_notices(), which takes this manager off as well.
+	 * Easy Form Builder's other admin_notices callbacks (a file of the plugin or of an add-on in its vendor/ folder that
+	 * does not register here) become sources too, so they wait their turn like the rest. Only callbacks defined in the
+	 * plugin's own folder: another plugin's notices are never taken in, whatever its namespace (owner, 2026-11-25: no
+	 * screen of the plugin shows or links a separate plugin such as the customer portal). Not on a screen where they were
+	 * taken off already: an add-on's own settings screen calls efb_addon_screen_own_notices(), which takes this manager
+	 * off as well.
 	 */
 	public static function absorb() {
 		global $wp_filter;
@@ -133,8 +136,7 @@ class Notices {
 					$r = is_array($f) ? new \ReflectionMethod($f[0], $f[1]) : (is_string($f) && strpos($f, '::') ? new \ReflectionMethod($f) : new \ReflectionFunction($f));
 				} catch (\ReflectionException $e) { continue; }
 				$file = function_exists('wp_normalize_path') ? wp_normalize_path((string) $r->getFileName()) : (string) $r->getFileName();
-				$ns = $r instanceof \ReflectionMethod ? $r->getDeclaringClass()->getName() : $r->getNamespaceName();
-				if (stripos($ns, 'Emsfb') !== 0 && strpos($file, $root) !== 0) continue;
+				if ($file === '' || strpos($file, $root) !== 0) continue;
 				remove_action('admin_notices', $f, $prio);
 				// A stable id (the snooze is kept across requests): the method's name, or a closure's file and line.
 				$sig = is_array($f) ? (is_object($f[0]) ? get_class($f[0]) : (string) $f[0]) . '::' . $f[1] : (is_string($f) ? $f : $file . ':' . $r->getStartLine());

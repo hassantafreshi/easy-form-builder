@@ -52,11 +52,13 @@ try {
 		return $out;
 	};
 
-	// UX-01 (B4): on the panel the plugin's notices go through the notice center (one shown, the others in its list; the
-	// add-on's notice, printed straight on admin_notices, is taken in too); payment readiness is on Payments, not a notice.
+	// UX-01 (B4): on the panel the plugin's notices go through the notice center (one shown, the others in its list);
+	// payment readiness is on Payments, not a notice. The stand-in here is a must-use plugin's closure in the Emsfb
+	// namespace: not a file of the plugin's folder, so the center leaves it where it is (only the plugin's and its
+	// add-ons' own callbacks are taken in; owner 2026-11-25: no separate plugin shows in it).
 	$pbody = $get('page=Emsfb')['body'];
 	$panel = $notices($pbody);
-	t('the plugin\'s panel: the notice center with the add-on\'s notice in it, and the other plugin\'s notice', array(strpos($pbody, 'id="efbNoticeCenter"') !== false, in_array('efb-addon-probe', $panel['outside'], true), (bool) preg_match('/data-efb-nm="x_[a-f0-9]{10}" class="notice notice-info efb-notice efb-addon-probe inline"/', $pbody), in_array('other-plugin-probe', $panel['outside'], true)), array(true, true, true, true));
+	t('the plugin\'s panel: the notice center, the stand-in add-on\'s notice (printed where it was, not taken in) and the other plugin\'s notice', array(strpos($pbody, 'id="efbNoticeCenter"') !== false, in_array('efb-addon-probe', $panel['outside'], true), (bool) preg_match('/data-efb-nm="[^"]*" class="notice notice-info efb-notice efb-addon-probe/', $pbody), in_array('other-plugin-probe', $panel['outside'], true)), array(true, true, false, true));
 
 	$r = $get('page=Emsfb_captcha&provider=turnstile&efb_msg=saved');
 	$sc = $notices($r['body']);

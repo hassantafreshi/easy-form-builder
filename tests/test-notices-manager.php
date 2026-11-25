@@ -20,8 +20,9 @@
 namespace {
 	define('ABSPATH', __DIR__ . '/');
 	define('DAY_IN_SECONDS', 86400);
-	// The plugin's folder for absorb(): includes/ here, so this test file stands for another plugin's file.
-	define('EMSFB_PLUGIN_DIRECTORY', dirname(__DIR__) . '/includes/');
+	// The plugin's folder for absorb(): the repository (this test file stands for a file of an add-on in it); another
+	// plugin's callbacks are written to a temporary file outside it below.
+	define('EMSFB_PLUGIN_DIRECTORY', dirname(__DIR__) . '/');
 	$GLOBALS['t_screen'] = 'toplevel_page_Emsfb';
 	$GLOBALS['t_meta'] = array();
 	$GLOBALS['t_actions'] = array();
@@ -130,17 +131,22 @@ namespace {
 	$w = where(render_now());
 	t('an "error" (a payment failing now) is shown first, whatever its priority', $w['pay_fail'], 'top');
 
-	// absorb(): Easy Form Builder's own callbacks straight on admin_notices are taken in; another plugin's are not.
+	// absorb(): Easy Form Builder's own callbacks straight on admin_notices are taken in; another plugin's are not, even
+	// in the Emsfb namespace (a separate plugin such as the customer portal never shows in the plugin's notice center).
 	Notices::reset();
 	$GLOBALS['wp_filter'] = array();
 	add_action('admin_notices', \Emsfb\t_addon_closure());
-	function t_other_plugin_notice() { echo '<div class="notice notice-info other-plugin"><p>Other</p></div>'; }
+	$other = tempnam(sys_get_temp_dir(), 'efbnm') . '.php';
+	file_put_contents($other, '<?php namespace Emsfb { function t_foreign_emsfb_notice() { echo "<div class=\\"notice notice-info efb-foreign\\"><p>Other plugin, Emsfb namespace</p></div>"; } } namespace { function t_other_plugin_notice() { echo "<div class=\\"notice notice-info other-plugin\\"><p>Other</p></div>"; } }');
+	require $other;
 	add_action('admin_notices', 't_other_plugin_notice');
+	add_action('admin_notices', 'Emsfb\\t_foreign_emsfb_notice');
 	Notices::add('mine', array('render' => \Emsfb\t_note('mine', 'notice-warning'), 'priority' => 80));
 	$n = Notices::absorb();
+	@unlink($other);
 	$src = Notices::sources();
 	$abs = array_values(array_filter(array_keys($src), function ($k) { return strpos($k, 'x_') === 0; }));
-	t('absorb(): the add-on\'s closure (Emsfb namespace) is taken off admin_notices into the manager; another plugin\'s stays', array($n, count($abs), isset($GLOBALS['wp_filter']['admin_notices']->callbacks[10]['t_other_plugin_notice'])), array(1, 1, true));
+	t('absorb(): the add-on\'s closure (a file in the plugin\'s folder) is taken into the manager; another plugin\'s callbacks stay where they are, its Emsfb-namespace one too', array($n, count($abs), isset($GLOBALS['wp_filter']['admin_notices']->callbacks[10]['t_other_plugin_notice']), isset($GLOBALS['wp_filter']['admin_notices']->callbacks[10]['Emsfb\\t_foreign_emsfb_notice'])), array(1, 1, true, true));
 	$items = Notices::collect('toplevel_page_Emsfb');
 	t('a notice taken in gets its priority from its severity (error: first)', array($items[0]['id'] === $abs[0], $items[0]['priority']), array(true, 90));
 	$id2 = $abs[0];
