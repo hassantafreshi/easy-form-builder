@@ -83,7 +83,14 @@ rm -f "$STAGE/public/assets/js/jquery.js" # the stub is gone from git; never shi
 # 2. The pinned third-party assets, checked against the lock.
 if [ "$FETCH" = 1 ]; then
   say "fetching the pinned public assets (bin/fetch-public-assets.sh)"
-  bash "$ROOT/bin/fetch-public-assets.sh" "$STAGE"
+  # Google Fonts does not always answer the same CSS (now and then a /l/font?kit= address the fetch script does not
+  # read): up to three tries. The lock below still decides whether the bytes are the pinned ones.
+  for attempt in 1 2 3; do
+    if bash "$ROOT/bin/fetch-public-assets.sh" "$STAGE"; then break; fi
+    [ "$attempt" -lt 3 ] || die "bin/fetch-public-assets.sh failed three times"
+    say "  the fetch failed (try $attempt of 3); again in 10 s"
+    sleep 10
+  done
   # The plugin asks for a list by code (json/cites/<country>/<state code>.json, lower case). A few files of the dataset
   # are copies ("mah (1).json") or named after the state ("la vega.json"): no code reaches them, and Plugin Check
   # refuses their names (badly_named_files). They stay out of the release.
