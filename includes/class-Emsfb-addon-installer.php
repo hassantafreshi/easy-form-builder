@@ -170,10 +170,7 @@ class Addon_Installer {
 			$path = $dir . '/' . $item;
 			if (is_dir($path) && !is_link($path)) {
 				self::rrmdir($path);
-			} elseif (is_link($path)) {
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- a link inside a package: remove the link itself
-				@unlink($path);
-			} else {
+			} else { // a file, or a link (removed itself, never followed)
 				wp_delete_file($path);
 			}
 		}

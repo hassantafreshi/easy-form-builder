@@ -1931,24 +1931,6 @@ class Emsfb {
         <?php
     }
 
-    public function apply_elementor_admin_fixes_efb() {
-
-        add_action('admin_footer', array($this, 'elementor_admin_conflict_prevention_efb'));
-    }
-
-    public function is_elementor_admin_active_efb() {
-
-        if (class_exists('\Elementor\Plugin') || defined('ELEMENTOR_VERSION')) {
-            return true;
-        }
-
-        if (function_exists('is_plugin_active') && is_plugin_active('elementor/elementor.php')) {
-            return true;
-        }
-
-        return false;
-    }
-
     public function elementor_admin_conflict_prevention_efb() {
         $current_page = isset($_GET['page']) ? sanitize_key( $_GET['page'] ) : '';
         ?>

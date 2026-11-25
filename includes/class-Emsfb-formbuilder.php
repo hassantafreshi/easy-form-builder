@@ -1224,50 +1224,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 		return $ui;
 	}
 
-	public function generate_pdate_input_efb ($rndm, $vj, $pos, $formId, $texts, $desc, $label, $ttip, $aire_describedby, $previewSate) {
-
-		$classes = sprintf('form-control %s', $vj->el_border_color ?? '');
-		$required = ($vj->required == 1 || $vj->required == true) ? 'required' : '';
-		$ariaRequired = $vj->required == 1 ? 'true' : 'false';
-		$readonly =  '';
-		$value = !empty($vj->value) ? sprintf('value="%s"', esc_attr($vj->value)) : '';
-		$el_height = isset($vj->el_height) ? $vj->el_height : '';
-		$el_text_color = isset($vj->el_text_color) ? $vj->el_text_color : '';
-		$corner = isset($vj->corner) ? $vj->corner : 'rounded-3';
-		$extra_classes = str_replace(',', ' ', $vj->classes);
-
-		$ui = sprintf(
-			'%s
-			<div class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="%s-f">
-				%s
-				<input type="text" class="efb pdpF2 input-efb px-2 mb-0 emsFormBuilder_v w-100 %s %s %s %s %s efbField efb1 %s"
-				data-css="%s" data-id="%s-el" data-vid="%s" id="%s_" %s aria-required="%s" aria-label="%s" %s %s>
-				%s
-			</div>',
-			$label,
-			$pos[3],
-			$rndm,
-			$ttip,
-			$classes,
-			$el_height,
-			$corner,
-			$el_text_color,
-			$required,
-			$extra_classes,
-			$rndm,
-			$rndm,
-			$rndm,
-			$value,
-			$ariaRequired,
-			esc_attr($vj->value),
-			$aire_describedby,
-			$readonly,
-			$desc
-		);
-
-		return $ui;
-	}
-
 	public function generate_html_code_efb($rndm, $vj, $pos, $formId, $texts, $previewSate) {
 		if (strlen($vj->value) < 2) {
 			$ui = sprintf(
@@ -2359,43 +2315,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 		}
 
 		return $r;
-	}
-
-	public function switch_el_pro_efb($previewSate, $pos, $rndm, $vj, $desc, $formId, $label, $ttip, $aire_describedby, $texts) {
-		$vj->on = property_exists($vj, 'on') ? $vj->on : $texts['on'];
-		$vj->off = property_exists($vj, 'off') ? $vj->off : $texts['off'];
-
-		$disabled = property_exists($vj, 'disabled') && $vj->disabled == true ? 'disabled' : '';
-		$required = $vj->required == 1 || $vj->required == true ? 'required' : '';
-		$readonly = $previewSate != true ? 'readonly' : '';
-		$classes = str_replace(',', ' ', $vj->classes);
-		$el_height = isset($vj->el_height) ? $vj->el_height : '';
-
-		$ui = sprintf(
-			'
-			%s
-			%s
-			<div class="efb %s ' . $this->mobile_pos[3] . ' px-0 mx-0 ttEfb show" id="%s-f" %s data-formid="%s">
-				<label class="efb fs-6" id="%s_off">%s</label>
-				<button type="button" data-state="off" class="efb btn %s btn-toggle efb1 %s" data-css="%s" data-toggle="button" aria-pressed="false" data-vid="%s" onclick="fun_switch_efb(this)" data-id="%s-el" id="%s_" %s %s>
-					<div class="efb handle"></div>
-				</button>
-				<label class="efb fs-6" id="%s_on">%s</label>
-				<div class="efb mb-3">%s</div>
-			',
-			$label,
-			$ttip,
-			$pos[3],
-			$rndm, $aire_describedby, $formId,
-			$rndm, $vj->off,
-			$el_height, $classes,
-			$rndm, $rndm, $rndm, $rndm,
-			$readonly, $disabled,
-			$rndm, $vj->on,
-			$desc
-		);
-
-		return $ui;
 	}
 
 	public function rating_el_pro_efb($previewSate, $pos, $rndm, $vj, $desc, $formId, $label, $ttip, $aire_describedby, $texts) {

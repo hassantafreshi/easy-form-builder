@@ -1552,7 +1552,7 @@ function efb_resolve_addon_display_efb(i) {
   let title = i.title;
   let desc = i.desc;
   if (title.trim().split(/\s+/).length === 1) {
-    // A one-word title is a phrase key; a product name of one word (hCaptcha, ALTCHA) stays as it is (QA3-007).
+    // A one-word title is a phrase key; a one-word product name stays as it is (QA3-007).
     title = efb_var.text[title] || title;
     desc = efb_var.text[desc] || desc;
   }

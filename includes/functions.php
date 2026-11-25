@@ -10688,34 +10688,6 @@ public function addon_add_efb($value) {
 		return true;
 	}
 
-	public function send_email_noti_about_cache_plugins($val){
-		$to = [];
-		$to[] = get_option('admin_email');
-		$settings = get_setting_Emsfb('decoded');
-		if(is_object($settings) && isset($settings->emailSupporter) && $settings->emailSupporter != null && $settings->emailSupporter != 'null' && $settings->emailSupporter != ''){
-			$to[] = $settings->emailSupporter;
-		}
-		$cache_plugins = json_decode($val ,true);
-		$subject = esc_html__('Important: Caching Plugin May Affect Easy Form Builder','easy-form-builder');
-		$message = esc_html__('The following caching plugins are active on your site:','easy-form-builder') . '<br>';
-		foreach ($cache_plugins as $plugin) {
-			$message .= esc_html__('Plugin Name','easy-form-builder') . ': ' . $plugin['name'] . '<br>';
-			$message .= esc_html__('Version','easy-form-builder') . ': ' . $plugin['version'] . '<br>';
-			$message .= esc_html__('Slug','easy-form-builder') . ': ' . $plugin['slug'] . '<br><br>';
-		}
-		$message .= esc_html__('Please note that these plugins may affect the functionality of Easy Form Builder.','easy-form-builder') . '<br>';
-
-		$message .= esc_html__('If you experience any issues, please exclude the page where your form is published from caching or disable these plugins. For detailed guidance on how to set up this exclusion, please refer to the documentation of the respective caching plugin.','easy-form-builder') . '<br>';
-		$message .= esc_html__('Easy Form Builder','easy-form-builder') . '<br>';
-		$message .= esc_html__('Sent by','easy-form-builder') . ': ' . get_bloginfo('name') . '<br>';
-		$message .= esc_html__('URL','easy-form-builder') . ': ' . get_site_url() . '<br>';
-		$message .= esc_html__('Date','easy-form-builder') . ': ' . gmdate('Y-m-d H:i:s') . '<br>';
-
-		if(emsfb_is_email_sending_enabled_efb($settings)) $this->send_email_state_new($to ,$subject ,$message,0,"cache_plugins_noti",'null','null');
-
-		return true;
-	}
-
 	/**
 	 * Farsi (fa_IR) sites run the licence in "offline" mode.
 	 *
