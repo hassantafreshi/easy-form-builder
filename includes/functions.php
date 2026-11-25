@@ -12178,6 +12178,15 @@ public function addon_add_efb($value) {
 		return false;
 	}
 
+	/**
+	 * QA4-002: site-wide settings, credentials, add-ons, Development Mode, the file cleanup and the plan are the
+	 * administrator's (manage_options). The Emsfb capability alone keeps forms and entries only (who may do what:
+	 * docs/EFB-CORE-KNOWLEDGE-BASE.en.md, "Who may do what").
+	 */
+	function user_permission_efb_site_settings(){
+		return is_user_logged_in() && current_user_can('manage_options');
+	}
+
 	/** Whether this request holds the settings lock (set_setting_Emsfb()). */
 	private static $settings_lock_held_efb = false;
 

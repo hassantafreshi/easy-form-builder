@@ -26,14 +26,13 @@ class Admin_Bar_Development_Mode {
 	}
 
 	/**
-	 * Keep visibility and authorization aligned with the Easy Form Builder
-	 * dashboard, including sites that assign the custom Emsfb capability.
+	 * QA4-002: Development Mode puts the site's payments on sandbox (PayPal, Persia Pay), so it is the
+	 * administrator's (manage_options); the Emsfb capability alone builds forms and reads entries.
 	 *
 	 * @return bool
 	 */
 	private function current_user_can_manage_mode() {
-		return is_user_logged_in()
-			&& ( current_user_can( 'manage_options' ) || current_user_can( 'Emsfb' ) );
+		return is_user_logged_in() && current_user_can( 'manage_options' );
 	}
 
 	/**

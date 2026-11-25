@@ -6177,6 +6177,9 @@ function handleOverlayEscape_efb(event) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // QA4-002: the plan and the first-run guide are the administrator's (efb_can_change_plan_efb() in PHP); a user
+    // with the Emsfb capability alone could not save either, so neither opens for them.
+    if (typeof efb_var !== 'undefined' && efb_var && [false, 0, '0', 'false'].indexOf(efb_var.can_change_plan) !== -1) return;
     const getPlan = getSelectedPlan_efb();
     const onboardingPending = typeof efb_var !== 'undefined' && efb_onboarding_is_pending_efb(efb_var.onboarding_pending);
     if (onboardingPending && getPlan && getPlan.selected_plan !== 'null') {

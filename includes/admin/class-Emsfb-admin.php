@@ -739,7 +739,8 @@ class Admin {
         $allw = $efbFunction->get_all_addon_keys_efb();
         $addon_index = array_search($post_value, $allw, true);
         $dd = gettype($addon_index);
-        $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
+        // QA4-002: installing an add-on puts code on the site: the administrator's alone.
+        $currrent_user_can = $efbFunction->user_permission_efb_site_settings();
         $nonce_valid = check_ajax_referer('wp_rest', 'nonce', false);
         $locale = get_locale();
         $is_persian_locale = 'fa_IR' === $locale;
@@ -1415,7 +1416,9 @@ class Admin {
         $lang= $efbFunction->text_efb($text);
         $ac= get_setting_Emsfb('decoded');
 
-         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
+        // QA4-002: removing an add-on is a site-wide change (manage_options), and the value is an add-on code of the
+        // catalogue: it used to set ANY settings key to 0 (emailSupporter, siteKey, activeCode...).
+        $currrent_user_can = $efbFunction->user_permission_efb_site_settings();
         if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
             $m = $lang['error403'];
             $response = ['success' => false, 'm' => $m];
@@ -1423,14 +1426,8 @@ class Admin {
             die("secure!");
         }
         $post_value = isset($_POST['value']) ? sanitize_text_field( wp_unslash( $_POST['value'] ) ) : '';
-        if ($this->isScript($post_value)) {
-            $m = $lang["nAllowedUseHtml"];
-            $response = ['success' => false, "m" => $m];
-            wp_send_json_success($response, 200);
-        }
-        if ($this->isScript($post_value)) {
-            $m = $lang['nAllowedUseHtml'];
-            $response = ['success' => false, "m" => $m];
+        if (!in_array($post_value, $efbFunction->get_all_addon_keys_efb(), true)) {
+            $response = ['success' => false, 'm' => $lang['invalidRequire'], 'code' => 'addon_unknown'];
             wp_send_json_success($response, 200);
             die();
         }
@@ -2276,7 +2273,8 @@ class Admin {
         $ac= get_setting_Emsfb('decoded');
         $text = ["fileDeleted","error403"];
         $lang= $efbFunction->text_efb($text);
-         $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
+        // QA4-002: deleting files of the whole uploads folder is the administrator's.
+        $currrent_user_can = $efbFunction->user_permission_efb_site_settings();
         if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
             $m = $lang['error403'];
             $response = ['success' => false, 'm' =>$m];
@@ -2325,7 +2323,8 @@ class Admin {
         $text = ["error403","emailServer"];
         $lang= $efbFunction->text_efb($text);
         $m = $lang['error403'];
-        $currrent_user_can = $efbFunction->user_permission_efb_admin_dashboard();
+        // QA4-002: the e-mail check writes the site's e-mail settings (recipient, sending switch).
+        $currrent_user_can = $efbFunction->user_permission_efb_site_settings();
         if (!check_ajax_referer('wp_rest', 'nonce', false) || !$currrent_user_can) {
             $response = ['success' => false, 'm' => $m];
             $this->email_tester_log_efb('ajax_forbidden', [
@@ -2363,7 +2362,8 @@ class Admin {
      */
     public function efb_save_onboarding_email() {
         $efbFunction = get_efbFunction();
-        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$efbFunction->user_permission_efb_admin_dashboard()) {
+        // QA4-002: the site's notification recipient is the administrator's.
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$efbFunction->user_permission_efb_site_settings()) {
             wp_send_json_error(array('message' => esc_html__('You do not have permission to update these settings.', 'easy-form-builder')), 403);
         }
 
@@ -2385,7 +2385,8 @@ class Admin {
     /** Mark the guided setup as seen without changing any plan or mail state. */
     public function efb_complete_onboarding() {
         $efbFunction = get_efbFunction();
-        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$efbFunction->user_permission_efb_admin_dashboard()) {
+        // QA4-002: the first-run guide is the administrator's (the screens show it to them only).
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$efbFunction->user_permission_efb_site_settings()) {
             wp_send_json_error(array('message' => esc_html__('You do not have permission to complete setup.', 'easy-form-builder')), 403);
         }
 
@@ -2406,7 +2407,8 @@ class Admin {
      */
     public function efb_dismiss_onboarding() {
         $efbFunction = get_efbFunction();
-        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$efbFunction->user_permission_efb_admin_dashboard()) {
+        // QA4-002: the first-run guide is the administrator's (the screens show it to them only).
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$efbFunction->user_permission_efb_site_settings()) {
             wp_send_json_error(array('message' => esc_html__('You do not have permission to complete setup.', 'easy-form-builder')), 403);
         }
 
