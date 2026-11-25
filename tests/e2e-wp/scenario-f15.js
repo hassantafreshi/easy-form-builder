@@ -369,7 +369,9 @@ module.exports = function (S) {
       await admin.click(`#efbRevDlg button[data-op="compare"][data-rev="${oldest}"]`);
       await admin.waitForSelector('#efbRevDlg .efb-pd-diff', { timeout: 8000 });
       const cmp = await admin.evaluate(() => document.querySelector('#efbRevDlg .efb-pd-diff').textContent);
-      R.check('f15c: Compare lists the field that differs ("Full name": name) ', /Changed/.test(cmp) && /Full name/.test(cmp) && /name/.test(cmp), cmp.slice(0, 200));
+      // QA1-012: only the label changed between the first version and now: one field, in words, no form setting and no
+      // key name (it said "Changed (6) … step, EfbVersion, visible … Form settings changed: steps, trackingCode, …").
+      R.check('f15c: Compare lists only the field that differs, in words: "Changed (1)", "Full name · Label"; no form setting, no internal key', /Changed \(1\)/.test(cmp) && /Full name · Label/.test(cmp) && !/Form settings changed/.test(cmp) && !/EfbVersion|required|step/.test(cmp), cmp.slice(0, 300));
       await admin.click('#efbRevDlg .btn-link');
       await admin.waitForSelector(`#efbRevDlg button[data-op="restore"][data-rev="${oldest}"]`, { timeout: 8000 });
       const before = await admin.evaluate(() => JSON.stringify(valj_efb));

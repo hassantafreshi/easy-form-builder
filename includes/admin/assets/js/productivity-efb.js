@@ -151,6 +151,32 @@
 
   /* Row-0 keys the add-ons keep outside the form (texts, numbers, tokens): never compared, never put in a version. */
   var SENSITIVE_ROW0 = ['sms_msg_new_noti', 'sms_msg_responsed_noti', 'sms_msg_recived_usr', 'sms_msg_recived_user', 'sms_admins_phone_no', 'telegram_msg_new_noti', 'telegram_msg_responsed_noti', 'telegram_msg_recived_usr', 'telegram_msg_recived_user', 'telegram_bot_token', 'telegram_admin_chat_ids'];
+  /* QA1-012: the builder keeps 1, true and "1" for the same answer (and false, "" or nothing for no), the server
+     stores strings; a value is compared in one canonical form, so a version that differs only in types is the same. */
+  function canon(v) {
+    if (v === true) return '1';
+    if (v === false || v === null || v === undefined) return '';
+    if (typeof v === 'number') return String(v);
+    if (typeof v === 'string') return v === 'true' ? '1' : (v === 'false' ? '' : v);
+    if (Array.isArray(v)) return '[' + v.map(canon).join(',') + ']';
+    if (typeof v === 'object') return '{' + Object.keys(v).sort().filter(function (k) { return canon(v[k]) !== ''; }).map(function (k) { return k + ':' + canon(v[k]); }).join(',') + '}';
+    return String(v);
+  }
+  var isObj = function (v) { return !!v && typeof v === 'object' && !Array.isArray(v); };
+  /* Two values are the same when their canonical forms are; inside a nested set (the thank-you texts) a text the
+     builder fills in by itself on one side only (a default) is not a change. */
+  var NO = ['', '0', 'false'];
+  function sameValue(a, b) {
+    // A switch the builder holds as true / false and the server as "1" / "0" / "".
+    if (typeof a === 'boolean' || typeof b === 'boolean') {
+      var bo = typeof a === 'boolean' ? a : b, ot = typeof a === 'boolean' ? b : a;
+      if (typeof ot !== 'boolean') return bo ? canon(ot) === '1' : (ot === null || ot === undefined || NO.indexOf(canon(ot)) !== -1);
+    }
+    if (isObj(a) && isObj(b)) return Object.keys(a).every(function (k) { return !Object.prototype.hasOwnProperty.call(b, k) || sameValue(a[k], b[k]); });
+    return canon(a) === canon(b);
+  }
+  /* Bookkeeping of the builder (never a change someone made): the computed amount, the builder's format version. */
+  var DIFF_IGNORE = ['amount', 'EfbVersion'];
   function diffFormsImpl(oldRows, nowRows) {
     var isField = function (r, i) { return i > 0 && r && r.type !== 'option' && r.type !== 'r_matrix'; };
     var byId = function (list) { var m = {}; (list || []).forEach(function (r, i) { if (isField(r, i)) m[String(r.id_)] = r; }); return m; };
@@ -160,16 +186,36 @@
     Object.keys(a).forEach(function (id) {
       if (!b[id]) { out.onlyOld.push({ id: id, name: a[id].name || a[id].type, type: a[id].type }); return; }
       var keys = {};
-      Object.keys(a[id]).concat(Object.keys(b[id])).forEach(function (k) { if (k !== 'amount' && JSON.stringify(a[id][k]) !== JSON.stringify(b[id][k])) keys[k] = 1; });
+      Object.keys(a[id]).concat(Object.keys(b[id])).forEach(function (k) { if (DIFF_IGNORE.indexOf(k) === -1 && !sameValue(a[id][k], b[id][k])) keys[k] = 1; });
       if (opts(oldRows, id) !== opts(nowRows, id)) keys.options = 1;
       if (Object.keys(keys).length) out.changed.push({ id: id, name: b[id].name || b[id].type, type: b[id].type, keys: Object.keys(keys) });
     });
     Object.keys(b).forEach(function (id) { if (!a[id]) out.onlyNow.push({ id: id, name: b[id].name || b[id].type, type: b[id].type }); });
     var r0a = (oldRows && oldRows[0]) || {}, r0b = (nowRows && nowRows[0]) || {};
-    Object.keys(r0a).concat(Object.keys(r0b)).forEach(function (k) { if (SENSITIVE_ROW0.indexOf(k) === -1 && out.settings.indexOf(k) === -1 && JSON.stringify(r0a[k]) !== JSON.stringify(r0b[k])) out.settings.push(k); });
+    Object.keys(r0a).concat(Object.keys(r0b)).forEach(function (k) { if (SENSITIVE_ROW0.indexOf(k) === -1 && DIFF_IGNORE.indexOf(k) === -1 && out.settings.indexOf(k) === -1 && !sameValue(r0a[k], r0b[k])) out.settings.push(k); });
     return out;
   }  /** What restoring a version would change (pure; also used by the Versions dialog). */
   pure.diffForms = function (oldRows, nowRows) { return diffFormsImpl(oldRows, nowRows); };
+  /* QA1-012: a changed key in words: [phrase key, English]; a key without a name here is counted, never printed. */
+  var KEY_LABELS = {
+    name: ['label', 'Label'], required: ['required', 'Required'], placeholder: ['placeholder', 'Placeholder'], value: ['defaultValue', 'Default value'],
+    options: ['options', 'Options'], step: ['step', 'Step'], price: ['price', 'Price'], disabled: ['disabled', 'Disabled'], hidden: ['hField', 'Hidden Field'],
+    tooltip: ['tooltip', 'Tooltip'], icon: ['icon', 'Icon'], mlen: ['mlen', 'Max length'], milen: ['milen', 'Min length'], size: ['width', 'Width'],
+    noti: ['emailNotifications', 'Email notifications'], message: ['description', 'Description'],
+    formName: ['formName', 'Form Name'], trackingCode: ['trackingCode', 'Confirmation Code'], thank_you_message: ['thankYouMessage', 'Thank you message'],
+    captcha: ['reCAPTCHA', 'reCAPTCHA'], private: ['showTheFormTologgedUsers', 'Private form'], email: ['email', 'Email'],
+  };
+  /** The changed keys in words: { named: [labels…], other: number of keys without a name }. t(key, English) reads a phrase. */
+  pure.keyLabels = function (keys, t) {
+    var named = [], other = 0;
+    (keys || []).forEach(function (k) {
+      var x = KEY_LABELS[k];
+      if (!x) { other++; return; }
+      var l = t ? t(x[0], x[1]) : x[1];
+      if (named.indexOf(l) === -1) named.push(l);
+    });
+    return { named: named, other: other };
+  };
 
   if (typeof window === 'undefined' || typeof document === 'undefined') return pure;
 
@@ -731,8 +777,15 @@
     };
     part(T('revOnlyOld', 'Only in this version'), d.onlyOld, function (x) { return [el('bdi', { text: String(x.name) }), el('span', { class: 'efb efb-pd-muted', text: ' · ' + x.type })]; });
     part(T('revOnlyNow', 'Only in the current form'), d.onlyNow, function (x) { return [el('bdi', { text: String(x.name) }), el('span', { class: 'efb efb-pd-muted', text: ' · ' + x.type })]; });
-    part(T('revDiffer', 'Changed'), d.changed, function (x) { return [el('bdi', { text: String(x.name) }), el('span', { class: 'efb efb-pd-muted', dir: 'ltr', text: ' · ' + x.keys.slice(0, 6).join(', ') })]; });
-    if (d.settings.length) box.appendChild(el('p', { class: 'efb efb-pd-note' }, [sentence(T('revSettingsChanged', 'Form settings changed: %s'), [d.settings.slice(0, 12).join(', ')])]));
+    // QA1-012: what changed in words (Label, Required…); keys without a name are counted, never shown as code.
+    var words = function (keys) {
+      var k = pure.keyLabels(keys, T);
+      var parts = k.named.slice(0, 6);
+      if (k.other) parts.push(String(T('revOtherKeys', '%s other settings')).replace('%s', num(k.other)));
+      return parts.join(rtl() ? '، ' : ', ');
+    };
+    part(T('revDiffer', 'Changed'), d.changed, function (x) { return [el('bdi', { text: String(x.name) }), el('span', { class: 'efb efb-pd-muted', text: ' · ' + words(x.keys) })]; });
+    if (d.settings.length) box.appendChild(el('p', { class: 'efb efb-pd-note' }, [sentence(T('revSettingsChanged', 'Form settings changed: %s'), [words(d.settings)])]));
     return box;
   }
 
