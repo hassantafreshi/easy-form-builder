@@ -18,9 +18,21 @@ class Emsfb {
 
     private $core_files_ok = true;
 
+    /** COMP-01 (owner decision 7): the oldest WordPress this release runs on, the "Requires at least" header. */
+    const MIN_WP_VERSION_EFB = '6.3';
+
     public function __construct() {
         $this->plugin_path = EMSFB_PLUGIN_DIRECTORY;
         $this->plugin_url  = EMSFB_PLUGIN_URL;
+
+        if (!self::wp_version_supported_efb()) {
+            // COMP-01: an update copied onto an older WordPress (WordPress refuses only the activation, and before
+            // 5.8 not even that). Load nothing that could call a function this WordPress does not have; say why
+            // to whoever can fix it. The forms, entries and settings stay in the database for after the update.
+            add_action('admin_notices', [$this, 'wp_version_notice_efb']);
+            add_action('network_admin_notices', [$this, 'wp_version_notice_efb']);
+            return;
+        }
 
         $this->includes();
         if (!$this->core_files_ok) {
@@ -35,6 +47,47 @@ class Emsfb {
             $this->init_elementor_compatibility();
         }
 
+    }
+
+    /**
+     * Whether this WordPress is new enough for the plugin (MIN_WP_VERSION_EFB).
+     *
+     * @param string|null $version A version to check instead of the running one (tests).
+     * @return bool
+     */
+    public static function wp_version_supported_efb($version = null): bool {
+        if ($version === null) {
+            $version = isset($GLOBALS['wp_version']) ? (string) $GLOBALS['wp_version'] : '';
+        }
+        // No version at all (a stripped bootstrap): do not stop the plugin on a guess.
+        return $version === '' || version_compare($version, self::MIN_WP_VERSION_EFB, '>=');
+    }
+
+    /**
+     * COMP-01: the notice of a WordPress older than MIN_WP_VERSION_EFB (the plugin stays inert).
+     *
+     * @return void
+     */
+    public function wp_version_notice_efb(): void {
+        if (!current_user_can('activate_plugins') && !current_user_can('update_core')) {
+            return;
+        }
+        $running = isset($GLOBALS['wp_version']) ? (string) $GLOBALS['wp_version'] : '';
+        // dir="auto": a sentence not translated yet reads left to right on a right-to-left screen, a translation follows its script.
+        echo '<div class="notice notice-error efb-notice" role="alert"><p dir="auto"><strong>'
+            . esc_html__('Easy Form Builder is paused', 'easy-form-builder') . '</strong></p><p dir="auto">'
+            . sprintf(
+                /* translators: %1$s: the WordPress version the plugin needs (6.3), %2$s: the version this site runs (6.2.6). */
+                esc_html__('This version of Easy Form Builder needs WordPress %1$s or later. This site runs WordPress %2$s, so your forms are not shown and the plugin\'s screens are closed until WordPress is updated. Your forms, entries and settings are kept.', 'easy-form-builder'),
+                '<bdi dir="ltr">' . esc_html(self::MIN_WP_VERSION_EFB) . '</bdi>',
+                '<bdi dir="ltr">' . esc_html($running) . '</bdi>'
+            )
+            . '</p>';
+        if (current_user_can('update_core')) {
+            echo '<p><a class="button button-primary" href="' . esc_url(network_admin_url('update-core.php')) . '">'
+                . esc_html__('Update WordPress', 'easy-form-builder') . '</a></p>';
+        }
+        echo '</div>';
     }
 
     private function init_hooks(): void {
@@ -1721,7 +1774,7 @@ class Emsfb {
             wp_cache_flush();
         }
 
-        if (function_exists('wp_cache_flush_group')) {
+        if (function_exists('wp_cache_supports') && wp_cache_supports('flush_group')) { // COMP-01: a persistent cache without group flushes answers _doing_it_wrong()
             wp_cache_flush_group('emsfb');
         }
     }
@@ -2051,7 +2104,7 @@ class Emsfb {
         if (function_exists('wp_cache_flush')) {
             wp_cache_flush();
         }
-        if (function_exists('wp_cache_flush_group')) {
+        if (function_exists('wp_cache_supports') && wp_cache_supports('flush_group')) { // COMP-01: a persistent cache without group flushes answers _doing_it_wrong()
             wp_cache_flush_group('emsfb');
         }
         $wpdb->query(
@@ -2453,6 +2506,8 @@ class Emsfb {
         $defaults->prv_files             = '1';
         $defaults->prv_erase_mode        = 'delete';
         $defaults->prv_nostore_file_days = '30';
+        // LIFE-01 (owner decision 5): deleting the plugin keeps the data unless this is '1' (uninstall.php).
+        $defaults->prv_delete_on_uninstall = '';
         $defaults->adminSN           = '1';
         $defaults->osLocationPicker  = '';
         $defaults->sessionDuration   = '5';
@@ -2621,12 +2676,28 @@ class Emsfb {
         if ($info[1] !== null) {
             $digits = [];
             for ($i = 0; $i <= 9; $i++) {
-                $digits[$i] = mb_chr($info[1] + $i, 'UTF-8');
+                $digits[$i] = self::utf8_chr_efb($info[1] + $i);
             }
         }
 
         $cache = ['alpha' => $alpha, 'digits' => $digits];
         return $cache;
+    }
+
+    /**
+     * The UTF-8 bytes of one code point. COMP-01: mb_chr() needs mbstring, which WordPress before 7.1 does not
+     * polyfill and many hosts leave out (a fatal error on the settings screen). '' for a code point that is not one.
+     *
+     * @param int $cp Code point.
+     * @return string
+     */
+    public static function utf8_chr_efb($cp): string {
+        $cp = (int) $cp;
+        if ($cp < 0 || $cp > 0x10FFFF || ($cp >= 0xD800 && $cp <= 0xDFFF)) return '';
+        if ($cp < 0x80) return chr($cp);
+        if ($cp < 0x800) return chr(0xC0 | ($cp >> 6)) . chr(0x80 | ($cp & 0x3F));
+        if ($cp < 0x10000) return chr(0xE0 | ($cp >> 12)) . chr(0x80 | (($cp >> 6) & 0x3F)) . chr(0x80 | ($cp & 0x3F));
+        return chr(0xF0 | ($cp >> 18)) . chr(0x80 | (($cp >> 12) & 0x3F)) . chr(0x80 | (($cp >> 6) & 0x3F)) . chr(0x80 | ($cp & 0x3F));
     }
 
     public function plugin_update_completed_efb($upgrader_object, $options) {

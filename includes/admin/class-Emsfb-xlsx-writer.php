@@ -71,10 +71,24 @@ class Xlsx_Writer {
 		return $s;
 	}
 
+	/**
+	 * ISO-8859-1 bytes as UTF-8, without mbstring (COMP-01: utf8_encode() is deprecated since PHP 8.2 and only
+	 * WordPress 6.9 and later polyfill it).
+	 */
+	public static function latin1_to_utf8($v) {
+		$v = (string) $v;
+		$out = '';
+		for ($i = 0, $n = strlen($v); $i < $n; $i++) {
+			$o = ord($v[$i]);
+			$out .= $o < 0x80 ? $v[$i] : chr(0xC0 | ($o >> 6)) . chr(0x80 | ($o & 0x3F));
+		}
+		return $out;
+	}
+
 	/** Text a worksheet may hold: XML 1.0 characters only, at most 32,767 characters, escaped. */
 	public static function clean($v) {
 		$v = is_scalar($v) ? (string) $v : (string) json_encode($v);
-		if (!preg_match('//u', $v)) $v = function_exists('mb_convert_encoding') ? mb_convert_encoding($v, 'UTF-8', 'UTF-8') : utf8_encode($v);
+		if (!preg_match('//u', $v)) $v = function_exists('mb_convert_encoding') ? mb_convert_encoding($v, 'UTF-8', 'UTF-8') : self::latin1_to_utf8($v);
 		$v = preg_replace('/[^\x{9}\x{A}\x{D}\x{20}-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}-\x{10FFFF}]/u', '', $v);
 		if ((function_exists('mb_strlen') ? mb_strlen($v, 'UTF-8') : strlen($v)) > self::MAX_CELL) {
 			$v = (function_exists('mb_substr') ? mb_substr($v, 0, self::MAX_CELL - 1, 'UTF-8') : substr($v, 0, self::MAX_CELL - 1)) . '…';

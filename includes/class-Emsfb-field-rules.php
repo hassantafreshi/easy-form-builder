@@ -491,8 +491,30 @@ class Field_Rules {
 		if ($lit === null) return -1;
 		if (strlen($lit) > 1 && $lit[0] === '\\') { $m = array('n' => 10, 'r' => 13, 't' => 9, 'f' => 12); return $m[$lit[1]]; }
 		if (strlen($lit) === 3 && $lit[0] === 'x') return hexdec(substr($lit, 1));
-		$u = mb_ord($lit, 'UTF-8');
-		return $u === false ? -1 : $u;
+		return self::utf8_ord($lit);
+	}
+
+	/**
+	 * The code point of the first character of a UTF-8 string, -1 when it is not one. COMP-01: mb_ord() needs
+	 * mbstring, which WordPress before 7.1 does not polyfill.
+	 */
+	public static function utf8_ord($s) {
+		$s = (string) $s;
+		if ($s === '') return -1;
+		$b = array_values(unpack('C*', substr($s, 0, 4)));
+		$n = count($b);
+		$c = function ($i) use ($b, $n) { return $i < $n && ($b[$i] & 0xC0) === 0x80 ? ($b[$i] & 0x3F) : null; };
+		if ($b[0] < 0x80) return $b[0];
+		if (($b[0] & 0xE0) === 0xC0 && $b[0] >= 0xC2 && $c(1) !== null) return (($b[0] & 0x1F) << 6) | $c(1);
+		if (($b[0] & 0xF0) === 0xE0 && $c(1) !== null && $c(2) !== null) {
+			$u = (($b[0] & 0x0F) << 12) | ($c(1) << 6) | $c(2);
+			return $u >= 0x800 && ($u < 0xD800 || $u > 0xDFFF) ? $u : -1;
+		}
+		if (($b[0] & 0xF8) === 0xF0 && $c(1) !== null && $c(2) !== null && $c(3) !== null) {
+			$u = (($b[0] & 0x07) << 18) | ($c(1) << 12) | ($c(2) << 6) | $c(3);
+			return $u >= 0x10000 && $u <= 0x10FFFF ? $u : -1;
+		}
+		return -1;
 	}
 
 	/**

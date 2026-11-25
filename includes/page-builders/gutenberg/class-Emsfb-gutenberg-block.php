@@ -37,13 +37,8 @@ class Emsfb_Gutenberg_Block {
         $block_args = [
             'render_callback' => [$this, 'render_block']
         ];
-        // register_block_type() takes a block.json path only since WP 5.8;
-        // on 5.7 (the plugin's minimum) the block was silently not registered.
-        if (function_exists('register_block_type_from_metadata') && version_compare(get_bloginfo('version'), '5.8', '<')) {
-            register_block_type_from_metadata($block_json, $block_args);
-        } else {
-            register_block_type($block_json, $block_args);
-        }
+        // COMP-01: WordPress 6.3 or later reads block.json (apiVersion 3) through register_block_type().
+        register_block_type($block_json, $block_args);
     }
 
     public function enqueue_editor_assets() {

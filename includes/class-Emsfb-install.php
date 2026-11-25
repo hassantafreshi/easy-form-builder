@@ -256,9 +256,8 @@ class Install {
 
 			$s = false;
 
-			// %i (identifier placeholder) needs WordPress 6.2; this plugin supports
-			// 5.7+. The name is the site prefix plus a constant, never user input.
-			$v = $wpdb->get_var( "SELECT setting FROM `" . esc_sql( $table_name_stng ) . "` ORDER BY id DESC LIMIT 1" );
+			// COMP-01: %i (identifier placeholder, WordPress 6.2) now that the minimum is 6.3.
+			$v = $wpdb->get_var( $wpdb->prepare( 'SELECT setting FROM %i ORDER BY id DESC LIMIT 1', $table_name_stng ) );
 			$rand = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'), 0, 10);
 			// smtp (the "This site can send emails" switch) starts ON: the owner's
 			// first form must email them, or the plugin looks broken. The email

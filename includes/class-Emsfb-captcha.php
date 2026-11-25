@@ -129,9 +129,9 @@ class Captcha {
 		return function_exists('home_url') ? (string) parse_url(home_url(), PHP_URL_HOST) : '';
 	}
 
+	/** COMP-01: the loading strategy is WordPress 6.3's, the plugin's minimum. */
 	private static function script_args() {
-		global $wp_version;
-		return (isset($wp_version) && version_compare((string) $wp_version, '6.3', '>=')) ? array('in_footer' => true, 'strategy' => 'defer') : true;
+		return array('in_footer' => true, 'strategy' => 'defer');
 	}
 
 	public static function enqueue_provider($p, array $ctx = array()) {

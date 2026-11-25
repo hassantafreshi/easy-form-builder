@@ -14,9 +14,8 @@ class Cache_Compat {
     private static $canonical = array();
 
     public static function register() {
-        global $wp_version;
         add_action('wp', array(__CLASS__, 'current_page'), 0);
-        add_action(version_compare($wp_version,'5.6','>=') ? 'wp_after_insert_post' : 'save_post', array(__CLASS__, 'saved'), 100, 2);
+        add_action('wp_after_insert_post', array(__CLASS__, 'saved'), 100, 2); // COMP-01: WordPress 5.6+ (the minimum is 6.3)
         foreach (array('added_post_meta', 'updated_post_meta', 'deleted_post_meta') as $hook) {
             add_action($hook, array(__CLASS__, 'metadata'), 100, 4);
         }
