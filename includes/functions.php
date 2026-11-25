@@ -1899,16 +1899,12 @@ class efbFunction {
 			"planFreeFields20" => $state && isset($ac->text->planFreeFields20) ? $ac->text->planFreeFields20 : esc_html__('20 form fields','easy-form-builder'),
 			/* translators: Plan card bullet: downloading form entries as a CSV file. */
 			"planCsvExport" => $state && isset($ac->text->planCsvExport) ? $ac->text->planCsvExport : esc_html__('CSV export of entries','easy-form-builder'),
-			/* translators: Plan card bullet: taking payments in forms with Stripe and PayPal. */
-			"planStripePaypal" => $state && isset($ac->text->planStripePaypal) ? $ac->text->planStripePaypal : esc_html__('Stripe and PayPal payments','easy-form-builder'),
 			/* translators: Email notifications = automatic email alerts */
 			"emailNotifications" => $state && isset($ac->text->emailNotifications) ? $ac->text->emailNotifications : esc_html__('Email notifications','easy-form-builder'),
 			/* translators: Advanced form fields = complex input types like file upload, date picker */
 			"advancedFormFields" => $state && isset($ac->text->advancedFormFields) ? $ac->text->advancedFormFields : esc_html__('Advanced form fields','easy-form-builder'),
 			/* translators: Built-in advanced features = integrated advanced functionality */
 			"builtInAdvancedFeatures" => $state && isset($ac->text->builtInAdvancedFeatures) ? $ac->text->builtInAdvancedFeatures : esc_html__('Built-in advanced features','easy-form-builder'),
-			/* translators: Add-ons & extensions = additional plugins or modules */
-			"addonsExtensions" => $state && isset($ac->text->addonsExtensions) ? $ac->text->addonsExtensions : esc_html__('Add-ons & extensions','easy-form-builder'),
 			/* translators: Start with Free = button text for free plan */
 			"startWithFree" => $state && isset($ac->text->startWithFree) ? $ac->text->startWithFree : esc_html__('Start with Free','easy-form-builder'),
 			/* translators: Free Plus = plan name for enhanced free version */
@@ -1917,12 +1913,8 @@ class efbFunction {
 			"proPending" => $state && isset($ac->text->proPending) ? $ac->text->proPending : esc_html__('Pro Pending','easy-form-builder'),
 			/* translators: Recommended = label for suggested plan */
 			"recommended" => $state && isset($ac->text->recommended) ? $ac->text->recommended : esc_html__('Recommended','easy-form-builder'),
-			/* translators: Unlock advanced features message */
-			"unlockAdvancedFeatures" => $state && isset($ac->text->unlockAdvancedFeatures) ? $ac->text->unlockAdvancedFeatures : esc_html__('Unlock advanced features - supported by a credit line.','easy-form-builder'),
 			/* translators: Core & advanced form fields = both basic and complex input types */
 			"coreAdvancedFormFields" => $state && isset($ac->text->coreAdvancedFormFields) ? $ac->text->coreAdvancedFormFields : esc_html__('Core & advanced form fields','easy-form-builder'),
-			/* translators: Powered by credit line message */
-			"poweredByCredit" => $state && isset($ac->text->poweredByCredit) ? $ac->text->poweredByCredit : esc_html__('Lightweight “Powered by Easy Form Builder” credit & link','easy-form-builder'),
 			/* translators: Continue with Free Plus = button text */
 			"continueWithFreePlus" => $state && isset($ac->text->continueWithFreePlus) ? $ac->text->continueWithFreePlus : esc_html__('Continue with Free Plus','easy-form-builder'),
 			/* translators: Pro = professional/premium plan name */
@@ -1935,18 +1927,10 @@ class efbFunction {
 			"completeCleanExperience" => $state && isset($ac->text->completeCleanExperience) ? $ac->text->completeCleanExperience : esc_html__('For professionals who want the complete, clean experience.','easy-form-builder'),
 			/* translators: Everything in Free Plus = includes all features from lower plan */
 			"everythingInFreePlus" => $state && isset($ac->text->everythingInFreePlus) ? $ac->text->everythingInFreePlus : esc_html__('Everything in Free Plus','easy-form-builder'),
-			/* translators: Advanced integrations = complex third-party connections */
-			"advancedIntegrations" => $state && isset($ac->text->advancedIntegrations) ? $ac->text->advancedIntegrations : esc_html__('Advanced integrations','easy-form-builder'),
-			/* translators: Add-ons included = extensions are part of the package */
-			"addonsIncluded" => $state && isset($ac->text->addonsIncluded) ? $ac->text->addonsIncluded : esc_html__('Add-ons included','easy-form-builder'),
 			/* translators: No promotional messages = ad-free experience */
 			"noCreditsPromo" => $state && isset($ac->text->noCreditsPromo) ? $ac->text->noCreditsPromo : esc_html__('No credits or promotional messages','easy-form-builder'),
-			/* translators: Premium experience = high-quality, professional experience */
-			"premiumExperience" => $state && isset($ac->text->premiumExperience) ? $ac->text->premiumExperience : esc_html__('premium experience','easy-form-builder'),
 			/* translators: Upgrade to Pro = button text for upgrading */
 			"upgradeToPro" => $state && isset($ac->text->upgradeToPro) ? $ac->text->upgradeToPro : esc_html__('Upgrade to Pro','easy-form-builder'),
-			/* translators: Most Popular = label indicating most chosen plan */
-			"mostPopular" => $state && isset($ac->text->mostPopular) ? $ac->text->mostPopular : esc_html__('Most Popular','easy-form-builder'),
 			/* translators: Information about plan changeability */
 			"canChangeAnytime" => $state && isset($ac->text->canChangeAnytime) ? $ac->text->canChangeAnytime : esc_html__('You can change this at any time from the panel settings menu. No data is lost when you upgrade.','easy-form-builder'),
 			/* translators: Maybe later = postpone action button */
@@ -6713,6 +6697,26 @@ class efbFunction {
 			"prvUninstallHelp" => $state && isset($ac->text->prvUninstallHelp) ? $ac->text->prvUninstallHelp : esc_html__('Off: deleting Easy Form Builder from the Plugins screen keeps your forms, entries, files and settings for a later install. Deactivating never deletes anything.','easy-form-builder'),
 			/* translators: LIFE-01: warning shown while "Delete all data when the plugin is deleted" is ticked */
 			"prvUninstallWarn" => $state && isset($ac->text->prvUninstallWarn) ? $ac->text->prvUninstallWarn : esc_html__('On: when you delete the plugin, every form, entry, uploaded file, payment record and setting of this site is removed for good. Export what you want to keep first.','easy-form-builder'),
+			/* translators: FR-01: first-run plan chooser, Free plan */
+			"planFreeAddons" => $state && isset($ac->text->planFreeAddons) ? $ac->text->planFreeAddons : esc_html__('Free add-ons: offline forms, addresses and postal codes','easy-form-builder'),
+			/* translators: FR-01: first-run plan chooser, Free plan, not included */
+			"planFreePlusAddonsLocked" => $state && isset($ac->text->planFreePlusAddonsLocked) ? $ac->text->planFreePlusAddonsLocked : esc_html__('Payments and the other Free Plus add-ons','easy-form-builder'),
+			/* translators: FR-01: first-run plan chooser, the Free Plus plan in one sentence */
+			"planFreePlusDesc" => $state && isset($ac->text->planFreePlusDesc) ? $ac->text->planFreePlusDesc : esc_html__('Advanced fields and features at no cost, with a small credit link on your forms.','easy-form-builder'),
+			/* translators: FR-01: first-run plan chooser, Free Plus plan */
+			"planPaymentsFreeAddons" => $state && isset($ac->text->planPaymentsFreeAddons) ? $ac->text->planPaymentsFreeAddons : esc_html__('Payments: Stripe, PayPal and other gateways (free add-ons)','easy-form-builder'),
+			/* translators: FR-01: first-run plan chooser, Free Plus plan */
+			"planFreePlusAddons" => $state && isset($ac->text->planFreePlusAddons) ? $ac->text->planFreePlusAddons : esc_html__('Conditional logic, calculations and CAPTCHA add-ons','easy-form-builder'),
+			/* translators: FR-01: first-run plan chooser, Free Plus plan, not included */
+			"planProAddonsLocked" => $state && isset($ac->text->planProAddonsLocked) ? $ac->text->planProAddonsLocked : esc_html__('Pro add-ons: SMS, Telegram, Google Sheets, booking and more','easy-form-builder'),
+			/* translators: FR-01: first-run plan chooser, Free Plus plan: the credit link on the forms */
+			"planPoweredLink" => $state && isset($ac->text->planPoweredLink) ? $ac->text->planPoweredLink : esc_html__('Shows a small “Powered by Easy Form Builder” link','easy-form-builder'),
+			/* translators: FR-01: first-run plan chooser, Pro plan */
+			"planProAllAddons" => $state && isset($ac->text->planProAllAddons) ? $ac->text->planProAllAddons : esc_html__('Every add-on: SMS, Telegram, Google Sheets, booking and more','easy-form-builder'),
+			/* translators: FR-01: first-run plan chooser, Pro plan; Human Shield is the security add-on's name */
+			"planProSecurity" => $state && isset($ac->text->planProSecurity) ? $ac->text->planProSecurity : esc_html__('Human Shield security and spam protection','easy-form-builder'),
+			/* translators: FR-01: read by screen readers before a feature the plan does not include */
+			"planNotIncluded" => $state && isset($ac->text->planNotIncluded) ? $ac->text->planNotIncluded : esc_html__('Not included:','easy-form-builder'),
 			/* B7 phrases end */
 
 		];

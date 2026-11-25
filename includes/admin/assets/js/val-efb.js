@@ -3147,7 +3147,7 @@ function show_setting_up_easy_form_builder_Efb() {
       <div class="efb-setup-header">
         <div class="efb-header-content">
           <h3 class="efb-main-title">
-            <i class="bi bi-heart-fill"></i>
+            <i class="bi bi-heart-fill" aria-hidden="true"></i>
             ${efb_var.text.easyFormBuilder}
           </h3>
           <p class="efb-subtitle">
@@ -3171,28 +3171,28 @@ function show_setting_up_easy_form_builder_Efb() {
 
             <ul class="efb-features-list">
               <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill"></i>
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
                 ${efb_var.text.planFreeFields20 || efb_var.text.coreFormFields}
               </li>
               <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill"></i>
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
                 ${efb_var.text.emailNotifications}
               </li>
               <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill"></i>
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
                 ${efb_var.text.planCsvExport || 'CSV export of entries'}
               </li>
+              <li class="efb-feature-item efb-feature-included">
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                ${efb_var.text.planFreeAddons || 'Free add-ons: offline forms, addresses and postal codes'}
+              </li>
               <li class="efb-feature-item efb-feature-locked">
-                <i class="bi bi-lock-fill"></i>
+                <i class="bi bi-lock-fill" aria-hidden="true"></i><span class="efb visually-hidden">${efb_var.text.planNotIncluded || 'Not included:'} </span>
                 ${efb_var.text.advancedFormFields}
               </li>
               <li class="efb-feature-item efb-feature-locked">
-                <i class="bi bi-lock-fill"></i>
-                ${efb_var.text.builtInAdvancedFeatures}
-              </li>
-              <li class="efb-feature-item efb-feature-locked">
-                <i class="bi bi-lock-fill"></i>
-                ${efb_var.text.addonsExtensions}
+                <i class="bi bi-lock-fill" aria-hidden="true"></i><span class="efb visually-hidden">${efb_var.text.planNotIncluded || 'Not included:'} </span>
+                ${efb_var.text.planFreePlusAddonsLocked || 'Payments and the other Free Plus add-ons'}
               </li>
             </ul>
 
@@ -3214,32 +3214,36 @@ function show_setting_up_easy_form_builder_Efb() {
 
             </div>
 
-            <p class="efb-plan-description">${efb_var.text.unlockAdvancedFeatures}</p>
+            <p class="efb-plan-description">${efb_var.text.planFreePlusDesc || 'Advanced fields and features at no cost, with a small credit link on your forms.'}</p>
 
             <ul class="efb-features-list">
               <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill"></i>
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
                 ${efb_var.text.coreAdvancedFormFields}
               </li>
               <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill"></i>
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
                 ${efb_var.text.emailNotifications}
               </li>
               <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill"></i>
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
                 ${efb_var.text.builtInAdvancedFeatures}
               </li>
               <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill"></i>
-                ${efb_var.text.planStripePaypal || 'Stripe and PayPal payments'}
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                ${efb_var.text.planPaymentsFreeAddons || 'Payments: Stripe, PayPal and other gateways (free add-ons)'}
+              </li>
+              <li class="efb-feature-item efb-feature-included">
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                ${efb_var.text.planFreePlusAddons || 'Conditional logic, calculations and CAPTCHA add-ons'}
               </li>
               <li class="efb-feature-item efb-feature-locked">
-                <i class="bi bi-lock-fill"></i>
-                ${efb_var.text.addonsExtensions}
+                <i class="bi bi-lock-fill" aria-hidden="true"></i><span class="efb visually-hidden">${efb_var.text.planNotIncluded || 'Not included:'} </span>
+                ${efb_var.text.planProAddonsLocked || 'Pro add-ons: SMS, Telegram, Google Sheets, booking and more'}
               </li>
               <li class="efb-feature-item efb-feature-info">
-                <i class="bi bi-info-circle-fill"></i>
-                ${efb_var.text.poweredByCredit}
+                <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+                ${efb_var.text.planPoweredLink || 'Shows a small “Powered by Easy Form Builder” link'}
               </li>
             </ul>
 
@@ -3254,8 +3258,6 @@ function show_setting_up_easy_form_builder_Efb() {
         <!-- Pro Plan (Premium) -->
         <div class="efb-plan-card efb-pro-highlighted">
           <div class="efb-card-content">
-            <span class="efb-pro-badge">${efb_var.text.mostPopular || 'Most Popular'}</span>
-
             <div class="efb-plan-header">
               <h6 class="efb-plan-title">${efb_var.text.pro}</h6>
               <span class="efb-plan-badge efb-badge-premium">${efb_var.text.advancedAdFree}</span>
@@ -3265,24 +3267,20 @@ function show_setting_up_easy_form_builder_Efb() {
 
             <ul class="efb-features-list">
               <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill"></i>
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
                 ${efb_var.text.everythingInFreePlus}
               </li>
               <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill"></i>
-                ${efb_var.text.advancedIntegrations}
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                ${efb_var.text.planProAllAddons || 'Every add-on: SMS, Telegram, Google Sheets, booking and more'}
               </li>
               <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill"></i>
-                ${efb_var.text.addonsIncluded}
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                ${efb_var.text.planProSecurity || 'Human Shield security and spam protection'}
               </li>
               <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill"></i>
+                <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
                 ${efb_var.text.noCreditsPromo}
-              </li>
-              <li class="efb-feature-item efb-feature-included">
-                <i class="bi bi-check-circle-fill"></i>
-                ${efb_var.text.premiumExperience}
               </li>
             </ul>
 
@@ -3299,7 +3297,7 @@ function show_setting_up_easy_form_builder_Efb() {
       <!-- Footer Info -->
       <div class="efb-setup-footer">
         <div class="efb-footer-info">
-          <i class="bi bi-info-circle"></i>
+          <i class="bi bi-info-circle" aria-hidden="true"></i>
           <p>${efb_var.text.canChangeAnytime}</p>
         </div>
 
@@ -3504,7 +3502,7 @@ function show_setting_up_easy_form_builder_Efb() {
 
       .efb-badge-light {
         background: rgba(108, 117, 125, 0.1);
-        color: #6c757d;
+        color: #545b62; /* FR-01: 5.9:1 (was #6c757d, 4.1:1) */
       }
 
       .efb-badge-primary {
@@ -3518,6 +3516,7 @@ function show_setting_up_easy_form_builder_Efb() {
       }
 
       .efb-plan-description {
+        unicode-bidi: plaintext; /* an untranslated sentence keeps its full stop at the end on a right-to-left screen */
         color: #666;
         font-size: 0.95rem;
         line-height: 1.5;
@@ -3551,11 +3550,11 @@ function show_setting_up_easy_form_builder_Efb() {
       }
 
       .efb-feature-locked {
-        color: #999;
+        color: #64687a; /* FR-01: 5.5:1 on white, 5.0:1 on the chosen card (was #999, 2.8:1) */
       }
 
       .efb-feature-locked i {
-        color: #999;
+        color: #64687a;
       }
 
       .efb-feature-info {
@@ -3969,7 +3968,8 @@ function show_setting_up_easy_form_builder_Efb() {
 
       .efb-plan-selected {
         border: 3px solid #28a745 !important;
-        background: linear-gradient(135deg, rgba(40, 167, 69, 0.05) 0%, rgba(40, 167, 69, 0.08) 100%) !important;
+        /* FR-01: opaque, so the glow behind the card stays a ring and the card's text keeps its contrast. */
+        background: linear-gradient(135deg, #f3fbf5 0%, #e9f7ed 100%) !important;
         box-shadow: 0 15px 40px rgba(40, 167, 69, 0.2) !important;
         position: relative;
       }
@@ -3986,6 +3986,13 @@ function show_setting_up_easy_form_builder_Efb() {
         border-radius: 1.2rem;
         z-index: -1;
         animation: selectedGlow 2s ease infinite;
+        /* FR-01: a ring only. A card that makes its own stacking context (its hover transform) painted this whole
+           gradient over its background, under green-on-green text. */
+        padding: 3px;
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
       }
 
       .efb-plan-checkmark {
@@ -5658,8 +5665,8 @@ function showSetupAsOverlayPage(options) {
             <div class="efb-overlay-content">
                 ${setupContent}
             </div>
-            <button class="efb-overlay-close" onclick="efb_setup_overlay_user_close_efb()">
-                <i class="bi bi-x-lg"></i>
+            <button type="button" class="efb-overlay-close" onclick="efb_setup_overlay_user_close_efb()" aria-label="${efb_var.text.close || 'Close'}">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
             </button>
         </div>
 

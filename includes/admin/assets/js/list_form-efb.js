@@ -2102,10 +2102,15 @@ function efb_privacy_uninstall_html_efb(prv, mx, dis) {
         <legend class="efb fs-6 fw-bold mb-1">${efb_prv_t_efb('prvUninstallTitle', 'When the plugin is deleted')}</legend>
         <div class="efb form-check my-1">
           <input class="efb form-check-input" type="checkbox" id="prvDeleteOnUninstall_efb" ${on ? 'checked' : ''} ${dis} aria-describedby="prvUninstallHelp_efb prvUninstallWarn_efb" onchange="efb_privacy_uninstall_toggle_efb(this)">
-          <label class="efb form-check-label mx-2" for="prvDeleteOnUninstall_efb">${efb_prv_t_efb('prvDeleteOnUninstall', 'Delete all data when the plugin is deleted')}</label>
+          <label class="efb form-check-label mx-2" for="prvDeleteOnUninstall_efb" style="unicode-bidi:plaintext">${efb_prv_t_efb('prvDeleteOnUninstall', 'Delete all data when the plugin is deleted')}</label>
         </div>
-        <small class="efb text-muted d-block mt-1" id="prvUninstallHelp_efb">${efb_prv_t_efb('prvUninstallHelp', 'Off: deleting Easy Form Builder from the Plugins screen keeps your forms, entries, files and settings for a later install. Deactivating never deletes anything.')}</small>
-        <p class="efb alert alert-danger py-2 px-3 mt-2 mb-1" id="prvUninstallWarn_efb" role="note" ${on ? '' : 'hidden'}><i class="efb bi-exclamation-triangle mx-1" aria-hidden="true"></i>${efb_prv_t_efb('prvUninstallWarn', 'On: when you delete the plugin, every form, entry, uploaded file, payment record and setting of this site is removed for good. Export what you want to keep first.')}</p>
+        <small class="efb text-muted d-block mt-1" id="prvUninstallHelp_efb" dir="auto" style="unicode-bidi:plaintext">${efb_prv_t_efb('prvUninstallHelp', 'Off: deleting Easy Form Builder from the Plugins screen keeps your forms, entries, files and settings for a later install. Deactivating never deletes anything.')}</small>
+        <div class="efb mt-2 mb-1" id="prvUninstallWarn_efb" role="note" ${on ? '' : 'hidden'}>
+          <div class="efb d-flex align-items-start p-2 rounded-3" style="background:#fdecee;border-inline-start:4px solid #c62828;">
+            <i class="efb bi-exclamation-triangle-fill" aria-hidden="true" style="color:#c62828;font-size:1.1rem;min-width:24px;"></i>
+            <span class="efb mx-2" dir="auto" style="color:#5f1d1d;font-size:0.9rem;line-height:1.6;unicode-bidi:plaintext;">${efb_prv_t_efb('prvUninstallWarn', 'On: when you delete the plugin, every form, entry, uploaded file, payment record and setting of this site is removed for good. Export what you want to keep first.')}</span>
+          </div>
+        </div>
       </fieldset>`;
 }
 function efb_privacy_uninstall_toggle_efb(el) {
