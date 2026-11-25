@@ -146,6 +146,8 @@ class Split {
 		if ($e && $e['contract'] === 'legacy_gateway') {
 			$settings = function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null;
 			if (!Addon_Catalog::flag_on($code, $settings)) return 'addon';
+			// QA4-005: the flag is on but the files are gone (a core update replaced vendor/): missing, not outdated.
+			if (!Addon_Catalog::files_present($code)) return 'addon';
 			if (function_exists('emsfb_is_addon_compatible_efb') && !emsfb_is_addon_compatible_efb($code)) return 'addon';
 			$c = function_exists('efb_addon_contracts') ? efb_addon_contracts() : array();
 			return isset($c['legacy_gateway']['providers'][$code]) ? null : 'update';

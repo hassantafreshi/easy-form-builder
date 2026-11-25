@@ -279,11 +279,28 @@ class Addon_Catalog {
 		return is_array($scan) && isset($scan['grandfather']) && is_array($scan['grandfather']) && in_array((string) $code, $scan['grandfather'], true);
 	}
 
+	/**
+	 * QA4-005: whether the files that prove the add-on is installed are on disk (an add-on without such files, true).
+	 * A core update or a reinstall replaces vendor/; the flag stays on while the files are gone, and such an add-on is
+	 * missing ("Install"), not outdated ("Update").
+	 */
+	public static function files_present($code) {
+		$e = self::get($code);
+		if (!$e || empty($e['files'])) return true;
+		$dir = defined('EMSFB_PLUGIN_DIRECTORY') ? rtrim((string) EMSFB_PLUGIN_DIRECTORY, '/') . '/' : '';
+		if ($dir === '') return true;
+		foreach ($e['files'] as $f) {
+			if (!is_file($dir . $f)) return false;
+		}
+		return true;
+	}
+
 	/** Why an add-on is not usable now: null (usable), 'addon' (not installed / off / files missing), 'plan', 'update' (contract too old). */
 	public static function state($code, $settings = null) {
 		$e = self::get($code);
 		if (!$e) return 'addon';
 		if (!self::flag_on($code, $settings)) return 'addon';
+		if (!self::files_present($code)) return 'addon'; // QA4-005
 		if (!self::plan_allows($code)) return 'plan';
 		if ($e['contract'] && $e['loader'] === 'routes' && function_exists('efb_addon_contracts')) {
 			$c = efb_addon_contracts();

@@ -2078,11 +2078,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$name = $code !== '' && class_exists('\\Emsfb\\Addon_Catalog') ? \Emsfb\Addon_Catalog::name($code) : $type;
 		// PAY-OUT: an add-on that is on but older than this core: the owner reads "update", not "activate".
 		$upd = $code !== '' && class_exists('\\Emsfb\\Split') && \Emsfb\Split::addon_state($code) === 'update';
-		$issue = array('code' => $upd ? 'pay_addon_update' : 'pay_addon_inactive', 'level' => 'error', 'field_id' => isset($vj->id_) ? (string) $vj->id_ : '', 'gateway' => $type, 'addon' => $code,
+		// QA4-005: on, but its files are gone (a core update replaced vendor/): it is missing and must be installed again.
+		$gone = !$upd && $code !== '' && class_exists('\\Emsfb\\Addon_Catalog') && \Emsfb\Addon_Catalog::flag_on($code, function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null) && !\Emsfb\Addon_Catalog::files_present($code);
+		$issue = array('code' => $upd ? 'pay_addon_update' : ($gone ? 'pay_addon_missing' : 'pay_addon_inactive'), 'level' => 'error', 'field_id' => isset($vj->id_) ? (string) $vj->id_ : '', 'gateway' => $type, 'addon' => $code,
 			/* translators: %s: name of an Easy Form Builder add-on (a product name) */
 			'm' => $upd ? sprintf(__('Update %s to keep using it with this version.', 'easy-form-builder'), $name)
 			/* translators: %s: name of a payment add-on (the gateway's name) */
-			: sprintf(__('The %s add-on of this payment field is not active, so visitors cannot pay. Activate it in Easy Form Builder → Add-ons, or remove the payment field.', 'easy-form-builder'), $name),
+			: ($gone ? sprintf(__('The %s add-on of this payment field is missing (its files are not on the site), so visitors cannot pay. Install it again in Easy Form Builder → Add-ons, or remove the payment field.', 'easy-form-builder'), $name)
+			/* translators: %s: name of a payment add-on (the gateway's name) */
+			: sprintf(__('The %s add-on of this payment field is not active, so visitors cannot pay. Activate it in Easy Form Builder → Add-ons, or remove the payment field.', 'easy-form-builder'), $name)),
 			'fix' => array('kind' => 'addons', 'url' => function_exists('admin_url') ? admin_url('admin.php?page=Emsfb_addon') : '', 'label' => __('Add-ons', 'easy-form-builder')));
 		if (class_exists('\\Emsfb\\Payments\\Readiness')) {
 			return '<div class="efb ' . $this->mobile_pos[3] . ' px-0 mx-0" id="' . esc_attr($rndm) . '-f">' . \Emsfb\Payments\Readiness::public_notice(array('issues' => array($issue)), $issue['field_id'], $form_id) . '</div>';
