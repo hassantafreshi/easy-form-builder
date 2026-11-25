@@ -1237,10 +1237,7 @@ function actionSendAddonsUn_efb(val) {
     $.post(ajaxurl, data, function (res) {
       if (res.data.r == "done") {
         if (res.data.value && res.data.success == true) {
-          let m = efb_var.text.tDeleted;
-          const ad = (efb_var.text.addon || '').replace('%s1', '').replace(/%\d+\$s/g, '').trim().toLowerCase();
-          m =m.replace('%s', ad);
-          alert_message_efb(m,'', 30,'success');
+          alert_message_efb(efb_var.text.delAddon || 'The add-on was deleted.', '', 30, 'success'); // QA1-027: one phrase per noun
           location.reload();
         } else {
           alert(res, "error")
@@ -1471,12 +1468,12 @@ const boxs_efb = [
   { id: 'support', title: efb_var.text.supportForm, desc: efb_var.text.createSupportForm, status: true, icon: 'bi-shield-check', tag: 'all support', pro: false },
   { id: 'survey', title: efb_var.text.survey, desc: efb_var.text.createsurveyForm, status: true, icon: 'bi-bar-chart-line', tag: 'all survey', pro: false },
   { id: 'contactTemplate', title: efb_var.text.contactusTemplate, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
-  { id: 'curvedContactTemplate', title: `${efb_var.text.curved} ${efb_var.text.contactusTemplate}`, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
-  { id: 'multipleStepContactTemplate', title: `${efb_var.text.multiStep} ${efb_var.text.contactusTemplate}`, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
-  { id: 'privateContactTemplate', title: `${efb_var.text.showTheFormTologgedUsers} ${efb_var.text.contactusTemplate}`, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
+  { id: 'curvedContactTemplate', title: efb_var.text.tplCurvedContact, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
+  { id: 'multipleStepContactTemplate', title: efb_var.text.tplStepsContact, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
+  { id: 'privateContactTemplate', title: efb_var.text.tplPrivateContact, desc: efb_var.text.createContactusForm, status: true, icon: 'bi-envelope', tag: 'all contactUs', pro: false },
   { id: 'customerFeedback', title: efb_var.text.customerFeedback, desc: efb_var.text.createSupportForm, status: true, icon: 'bi-shield-check', tag: 'all support', pro: false },
   { id: 'supportTicketForm', title: efb_var.text.supportTicketF, desc: efb_var.text.createSupportForm, status: true, icon: 'bi-shield-check', tag: 'all support', pro: false },
-  { id: 'orderForm', title: `${efb_var.text.purchaseOrder} ${efb_var.text.payment}`, desc: efb_var.text.purchaseOrder, status: true, icon: 'bi-bag', tag: 'all payment', pro: true },
+  { id: 'orderForm', title: efb_var.text.tplOrderPay, desc: efb_var.text.purchaseOrder, status: true, icon: 'bi-bag', tag: 'all payment', pro: true },
   { id: 'register', title: efb_var.text.registerForm, desc: efb_var.text.createRegistrationForm, status: true, icon: 'bi-person-plus', tag: 'all signInUp', pro: false },
   { id: 'login', title: efb_var.text.loginForm, desc: efb_var.text.createLoginForm, status: true, icon: 'bi-box-arrow-in-right', tag: 'all signInUp', pro: false },
   { id: 'subscription', title: efb_var.text.subscriptionForm, desc: efb_var.text.createnewsletterForm, status: true, icon: 'bi-bell', tag: 'all', pro: false },
@@ -5668,7 +5665,7 @@ function show_delete_window_efb(idset,iVJ) {
           obj_delete_row(idset, false, confirmBtn.dataset.id);
           activeEl_efb = 0;
           state_modal_show_efb(0)
-          setTimeout(() => { alert_message_efb(efb_var.text.tDeleted.replace('%s', efb_var.text.field?.replace('%s1','').toLowerCase() || 'element'), '', 4, 'success') }, 300);
+          setTimeout(() => { alert_message_efb(efb_var.text.delField || 'The field was deleted.', '', 4, 'success') }, 300);
         })
       } else {
         confirmBtn.dataset.id = idset;
@@ -5684,7 +5681,7 @@ function show_delete_window_efb(idset,iVJ) {
           obj_delete_row(idset, true)
           document.getElementById(confirmBtn.dataset.id).remove();
           state_modal_show_efb(0)
-          setTimeout(() => { alert_message_efb(efb_var.text.tDeleted.replace('%s', efb_var.text.step?.replace('%s1','').toLowerCase() || 'step'), '', 4, 'success') }, 300);
+          setTimeout(() => { alert_message_efb(efb_var.text.delStep || 'The step was deleted.', '', 4, 'success') }, 300);
 
         })
       }
@@ -6146,20 +6143,16 @@ function emsFormBuilder_delete(id, type,value) {
       const confirmBtn = document.getElementById('modalConfirmBtnEfb');
       if (!confirmBtn) return;
       confirmBtn.addEventListener("click", (e) => {
-        let _deleteTypeLabel = '';
         if(type=='form'){
           fun_confirm_remove_emsFormBuilder(Number(id))
-          _deleteTypeLabel = efb_var.text.form?.replace('%s1','') || 'form';
         }else if(type=='message'){
           fun_confirm_remove_message_emsFormBuilder(Number(id))
-          _deleteTypeLabel = efb_var.text.message?.replace('%s1','') || 'message';
         }else if (type =='addon'){
           addons_btn_state_efb(id);
           fun_confirm_remove_addon_emsFormBuilder(id);
         }else if (type =="condlogic"){
 
           fun_remove_condition_efb(id , value);
-          _deleteTypeLabel = efb_var.text.condlogic?.replace('%s1','') || 'condition';
         }else if(type=="messagelist"){
 
           fun_confirm_remove_all_message_emsFormBuilder(value)
@@ -6169,12 +6162,11 @@ function emsFormBuilder_delete(id, type,value) {
             fun_confirm_remove_dataset_autofilled_emsFormBuilder(id, value);
           } else {
           }
-          _deleteTypeLabel = efb_var.text.datas?.replace('%s1','') || 'dataset';
         }
         activeEl_efb = 0;
         state_modal_show_efb(0)
         if (type === 'condlogic') {
-          setTimeout(() => { alert_message_efb(efb_var.text.tDeleted.replace('%s', _deleteTypeLabel.toLowerCase()), '', 4, 'success') }, 300);
+          setTimeout(() => { alert_message_efb(efb_var.text.delDone || 'Deleted.', '', 4, 'success') }, 300);
         }
       })
     }

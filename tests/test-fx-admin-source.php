@@ -46,5 +46,11 @@ t('the price phrase keeps a placeholder ("%s/year", no hard-coded "$NN")', strpo
 $admjs = (string) file_get_contents($root . '/includes/admin/assets/js/admin-efb.js');
 t('admin-efb.js hard-codes no price (pro_price_efb = 27 and "1,300,000" are gone)', strpos($admjs, 'pro_price_efb') === false && strpos($admjs, '1,300,000') === false);
 t('the Pro box lists the registry\'s Pro features (package pro), not "payment integrations, conditional logic, multi-step forms, file uploads"', strpos($admjs, "efb_var.capabilities.features[k].package === 'pro' && !efb_var.capabilities.features[k].addon") !== false && strpos($fn . (string) file_get_contents($root . '/includes/class-email-handler.php'), 'multi-step forms, file uploads') === false);
+// QA1-025: one phrase per template title (no "${curved} ${contactusTemplate}" built from two phrases).
+t('template titles are single phrases (tplCurvedContact, tplStepsContact, tplPrivateContact, tplOrderPay)', !preg_match('/title: `\$\{efb_var\.text\.\w+\} \$\{efb_var\.text\.\w+\}`/', $admjs) && substr_count($admjs, 'title: efb_var.text.tpl') === 4 && substr_count($fn, "'tplOrderPay' => __(") === 1);
+// QA1-027: per-noun "deleted", the spam notice's plural, the visitor's e-mail headline.
+t('no "The %s have been deleted." filled with a noun in the admin scripts', strpos($admjs . (string) file_get_contents($root . '/includes/admin/assets/js/list_form-efb.js'), 'text.tDeleted') === false && strpos($fn, "'delField' => __('The field was deleted.'") !== false);
+t('the CAPTCHA notice counts forms with _n()', strpos((string) file_get_contents($root . '/includes/class-Emsfb-spam-notice.php'), "_n('%1\$s form uses %2\$s") !== false);
+t('the visitor\'s confirmation e-mail is headed "We received your message"', strpos((string) file_get_contents($root . '/includes/class-email-handler.php'), "strpos((string) \$state, 'notiToUser') === 0 ? \$lang['WeRecivedUrM'] : \$lang['newMessage']") !== false);
 echo "\nRESULTS: {$pass} passed, {$fail} failed\n";
 exit($fail ? 1 : 0);

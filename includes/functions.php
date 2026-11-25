@@ -3398,8 +3398,6 @@ class efbFunction {
 			/* translators: %s is the location name of places or cities */
 			"slocation" => $state  &&  isset($ac->text->slocation) ? $ac->text->slocation : esc_html__('%s Location','easy-form-builder'),
 			"installation" => $state  &&  isset($ac->text->installation) ? $ac->text->installation : esc_html__('installation','easy-form-builder'),
-			/* translators: %s is the item type that was deleted (e.g., files, forms, messages) */
-			"tDeleted" => $state && isset($ac->text->tDeleted) ? $ac->text->tDeleted : esc_html__('The %s have been deleted.','easy-form-builder'),
 			/* translators: %s is the label name of field that must be filled correctly (e.g., Email, Password) */
 			"sfmcfop" => $state  &&  isset($ac->text->sfmcfop) ? $ac->text->sfmcfop : esc_html__('The %s field must be correctly filled out to proceed.','easy-form-builder'),
 			"fform" => $state  &&  isset($ac->text->fform) ? $ac->text->fform : esc_html__('Submitted Form','easy-form-builder'),
@@ -6752,6 +6750,18 @@ class efbFunction {
 			'editFieldN' => __('Edit field: %s', 'easy-form-builder'),
 			/* translators: a link after the builder's field search that moves the keyboard into the form */
 			'skipToCanvas' => __('Skip to the form', 'easy-form-builder'),
+			/* translators: QA1-025: a template's title (one phrase each, so every language can order its words) */
+			'tplCurvedContact' => __('Contact us template, rounded', 'easy-form-builder'),
+			'tplStepsContact' => __('Contact us template in several steps', 'easy-form-builder'),
+			'tplPrivateContact' => __('Contact us template for signed-in users', 'easy-form-builder'),
+			'tplOrderPay' => __('Purchase order with payment', 'easy-form-builder'),
+			/* translators: QA1-027: after a delete (one phrase per thing, so every language can inflect it) */
+			'delField' => __('The field was deleted.', 'easy-form-builder'),
+			'delStep' => __('The step was deleted.', 'easy-form-builder'),
+			'delForm' => __('The form was deleted.', 'easy-form-builder'),
+			'delMsg' => __('The entry was deleted.', 'easy-form-builder'),
+			'delAddon' => __('The add-on was deleted.', 'easy-form-builder'),
+			'delDone' => __('Deleted.', 'easy-form-builder'),
 			/* translators: the name of the first-run guide's group of buttons */
 			'onboardingActions' => __('Setup actions', 'easy-form-builder'),
 			/* translators: Settings › Payments: moves every moved form back to its older payment field */

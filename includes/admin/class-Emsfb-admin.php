@@ -4219,7 +4219,9 @@ class Admin {
         $option_active_code = trim((string) get_option('emsfb_pro_activeCode', ''));
         $has_active_code = $settings_active_code !== '' || $option_active_code !== '';
         $current_package_type = (int) get_option('emsfb_pro', 2);
-        if (!in_array($current_package_type, [0, 1, 2, 3], true)) {
+        // QA1-027: a fresh install had no plan before (the answer said previous_package_type 2).
+        $had_plan_efb = in_array($current_package_type, [0, 1, 2, 3], true);
+        if (!$had_plan_efb) {
             $current_package_type = 2;
         }
         /*
@@ -4243,7 +4245,7 @@ class Admin {
                 'package_type' => $current_package_type,
                 'plan_changed' => false,
                 'unchanged' => true,
-                'previous_package_type' => $current_package_type,
+                'previous_package_type' => $had_plan_efb ? $current_package_type : null,
                 'onboarding_pending' => $onboarding_pending,
             ));
         }
@@ -4379,7 +4381,7 @@ class Admin {
             'timestamp' => $timestamp,
             'saved_at' => current_time('mysql'),
             'package_type' => $package_type_efb,
-            'previous_package_type' => $current_package_type,
+            'previous_package_type' => $had_plan_efb ? $current_package_type : null,
             'source' => $source,
             'plan_changed' => $plan_changed,
             'activation_code_removed' => $removes_activation_code,

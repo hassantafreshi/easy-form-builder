@@ -482,9 +482,10 @@ class EmsfbEmailHandler {
         // shared template so custom header/title blocks must receive a useful
         // report-specific shortcode_title value.
         $isWeeklyReportState = $state === 'weeklyAdminReport';
+        // QA1-027: the visitor's confirmation is headed "We received your message", not the owner's "New Message".
         $title = $isWeeklyReportState
             ? __('Weekly Easy Form Builder report', 'easy-form-builder')
-            : $lang['newMessage'];
+            : (strpos((string) $state, 'notiToUser') === 0 ? $lang['WeRecivedUrM'] : $lang['newMessage']);
         $message = is_string($m) ? "<h3>$m</h3>" : "<h3>{$m[0]}</h3>";
         $blogName = get_bloginfo('name');
         // shortcode_admin_email: the site's Administration Email Address

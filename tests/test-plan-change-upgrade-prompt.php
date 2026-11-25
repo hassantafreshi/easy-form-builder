@@ -185,6 +185,11 @@ add_filter('efb_can_change_plan', function () { return false; });
 $v = \Emsfb\Builder_Api::localize_vars(array('pro' => 0), 'create');
 check('efb_var.can_change_plan follows the filter', $v['can_change_plan'] === false);
 
+// QA1-027 (FX-ADMIN): a fresh install (emsfb_pro -1: no plan yet) answers previous_package_type null, not 2.
+reset_world(array('emsfb_pro' => -1), array('AdnSPF' => 0, 'emailSupporter' => ''));
+$r = call_plan($admin, array('selected_plan' => 'free_plus', 'timestamp' => 1));
+check('a fresh install: previous_package_type null (no plan before)', $r && $r->ok && array_key_exists('previous_package_type', $r->data) && $r->data['previous_package_type'] === null, $r ? $r->data : null);
+
 echo "\n========================================\n";
 echo "RESULTS: $pass passed, $fail failed\n";
 echo "========================================\n";

@@ -103,7 +103,8 @@ class Spam_Notice {
 			$code = array_search($want, Captcha\Admin::ADDONS, true);
 			$name = $code !== false && class_exists('\\Emsfb\\Addon_Catalog') ? Addon_Catalog::name($code) : $want;
 			$by = $e['by'] ? (Captcha\Registry::get($e['by']) ? Captcha\Registry::get($e['by'])->label() : $e['by']) : self::t('cpFallbackSoft', 'the hidden field and the minimum time');
-			$txt = sprintf(esc_html(self::t('cpUnavailableNotice', '%1$s forms use %2$s, which is not available now. They are protected by %3$s.')), '<bdi>' . esc_html(number_format_i18n(count($e['ids']))) . '</bdi>', '<bdi>' . esc_html($name) . '</bdi>', '<bdi>' . esc_html($by) . '</bdi>');
+			/* translators: QA1-027: %1$s: number of forms, %2$s: a CAPTCHA add-on, %3$s: what protects them now */
+			$txt = sprintf(esc_html(_n('%1$s form uses %2$s, which is not available now. It is protected by %3$s.', '%1$s forms use %2$s, which is not available now. They are protected by %3$s.', count($e['ids']), 'easy-form-builder')), '<bdi>' . esc_html(number_format_i18n(count($e['ids']))) . '</bdi>', '<bdi>' . esc_html($name) . '</bdi>', '<bdi>' . esc_html($by) . '</bdi>');
 			echo '<li style="unicode-bidi:plaintext">' . wp_kses($txt, array('bdi' => array())) . ' <span class="efb-cp-ids">(<bdi>' . esc_html(implode(', ', array_slice($e['ids'], 0, 10))) . '</bdi>)</span></li>';
 		}
 		echo '</ul><p><a class="button button-primary" href="' . esc_url(admin_url('admin.php?page=Emsfb_addon')) . '">' . esc_html(self::t('cpInstallAddon', 'Install the add-on')) . '</a></p></div>';

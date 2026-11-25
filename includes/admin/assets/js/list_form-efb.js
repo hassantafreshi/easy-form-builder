@@ -752,7 +752,7 @@ function fun_delete_form_with_id_by_server(id) {
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success == true) {
-        const m = efb_var.text.tDeleted.replace('%s', efb_var.text.form.replace('%s1','').toLowerCase());
+        const m = efb_var.text.delForm || 'The form was deleted.'; // QA1-027
         setTimeout(() => {
           alert_message_efb(m, '', 5, 'success')
         }, 3)
@@ -779,7 +779,7 @@ function fun_delete_message_with_id_by_server(id) {
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.success == true) {
-        const m = efb_var.text.tDeleted.replace('%s', efb_var.text.message.replace('%s1','').toLowerCase());
+        const m = efb_var.text.delMsg || 'The entry was deleted.';
         setTimeout(() => {
           alert_message_efb(m, '', 5, 'success')
         }, 3)
@@ -808,7 +808,7 @@ function fun_delete_all_message_by_server(val) {
     };
     $.post(ajax_object_efm.ajax_url, data, function (res) {
       if (res.data.success == true) {
-        const m = efb_var.text.tDeleted.replace('%s', efb_var.text.message.replace('%s1','').toLowerCase());
+        const m = efb_var.text.delMsg || 'The entry was deleted.';
         setTimeout(() => {
           alert_message_efb(m, '', 5, 'success')
 
