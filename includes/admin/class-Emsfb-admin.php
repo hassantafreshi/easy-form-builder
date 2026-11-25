@@ -339,6 +339,18 @@ class Admin {
         $response = ['success' => true, 'r' => $r];
         wp_send_json_success($response, 200);
     }
+    /** QA1-010: [key, min, max] of the first number of a settings save that is not a whole number in its range, or null.
+     *  A value equal to the stored one is not checked again (a save of another tab never fails on an old value). */
+    public static function invalid_setting_number_efb(array $m, $ac = null) {
+        $r = array('form_rev_keep' => array(0, 50), 'spam_min_time' => array(0, 60), 'spam_retention_days' => array(0, 3650), 'reply_pass_min' => array(5, 1440), 'reply_rl_track' => array(1, 100), 'reply_rl_ip' => array(0, 1000), 'prv_days' => array(0, 3650), 'prv_file_link_days' => array(1, 90), 'prv_nostore_file_days' => array(1, 365), 'trash_days' => array(0, 3650));
+        foreach ($r as $k => $mm) {
+            if (!array_key_exists($k, $m) || (is_object($ac) && isset($ac->$k) && is_scalar($m[$k]) && (string) $ac->$k === (string) $m[$k])) continue;
+            $v = is_int($m[$k]) ? (string) $m[$k] : (is_string($m[$k]) ? trim(strtr($m[$k], array('۰' => 0, '۱' => 1, '۲' => 2, '۳' => 3, '۴' => 4, '۵' => 5, '۶' => 6, '۷' => 7, '۸' => 8, '۹' => 9))) : '');
+            if (!preg_match('/^[0-9]{1,6}$/', $v) || (int) $v < $mm[0] || (int) $v > $mm[1]) return array($k, $mm[0], $mm[1]);
+        }
+        return null;
+    }
+
     public function update_form_id_Emsfb() {
         $efbFunction = get_efbFunction();
         $text = ["sms_noti","msg_adons","error403","invalidRequire","nAllowedUseHtml","updated","upDMsg" ,"newMessageReceived","trackNo","url","newResponse","WeRecivedUrM","somethingWentWrongPleaseRefresh","smsOffAddonMissing","telegramOffAddonMissing","authFieldsMissing","login","register","smsAdminPhoneInvalid","smsFieldWithoutForm"];
@@ -1987,6 +1999,9 @@ class Admin {
         if (is_array($m) && class_exists('\Emsfb\Captcha\Admin')) {
             $m = \Emsfb\Captcha\Admin::without_addon_keys($m);
         }
+        // QA1-010: a number out of its range is refused (invalid_<key>, nothing saved), never clamped into it.
+        $bad_efb = is_array($m) ? self::invalid_setting_number_efb($m, $ac) : null;
+        if ($bad_efb) wp_send_json_success(array('success' => false, 'code' => 'invalid_' . $bad_efb[0], 'key' => $bad_efb[0], 'm' => sprintf(__('Enter a whole number from %1$s to %2$s.', 'easy-form-builder'), number_format_i18n($bad_efb[1]), number_format_i18n($bad_efb[2]))), 200);
         foreach ($m as $key => $value) {
              if (in_array($key ,['emailSupporter','femail'])) {
                 $value = sanitize_text_field($value);
