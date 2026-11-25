@@ -69,14 +69,12 @@ A message's `content` column is a JSON object of submitted values, generally str
 | `includes/admin/class-Emsfb-addon.php` | `Emsfb\Addon` | Add-ons marketplace page (remote catalogue fetch + PHP-compatibility warnings + add-on file recovery UI). |
 | `includes/admin/class-Emsfb-dashboard-widget.php` | `Emsfb\Dashboard_Widget` | Native WP Dashboard widget (stats + email health chart). |
 | `includes/class-Emsfb-addon-compatibility.php` | — | `emsfb_is_addon_compatible_efb('AdnXXX')` — PHP-version/environment compatibility gate used before every addon `require_once`. |
-| `includes/class-Emsfb-webhook.php` | — | A **separate**, simpler webhook-related module (has its own duplicate REST registration of `Emsfb/v1/test/...`, coexists with `class-Emsfb-public.php`'s registration because the HTTP method differs). Treat `docs/webhook-addon-roadmap.md` as aspirational future architecture, not a description of this file. |
 | `includes/class-email-handler.php`, `includes/class-Emsfb-email-monitor.php` | — | Email sending + the 4.1.0 "AI-analyzed Email Deliverability Monitor" (sends a test email, gets it analyzed **server-side on WhiteStudio's infrastructure by Claude**, returns a plain-language deliverability diagnosis). This is the **only** shipped AI integration today, and it's a remote-service call, not an in-admin generative feature — see §9. |
 | `includes/class-Emsfb-admin-bar.php` | — | Admin-bar "dev mode" toggle. |
-| `includes/class-Emsfb-requirement.php` | — | Environment/requirement checks (PHP version, required extensions). |
 | `includes/class-Emsfb-widgets-helper.php` | — | Widget/shortcode helper glue. |
 | `includes/functions.php` | — | Grab-bag of global helper functions: the **addon registry** (`get_addon_required_files_efb()` at ~line 2773, canonical addon-key list at ~line 2752, human labels at ~line 2868), i18n phrase helpers, settings decoding, preset form-template names. **This is the single source of truth for "what addons exist and what their toggle key is."** |
 | `includes/phrases.php` | — | Central translation-string registry (a big associative map of phrase keys → `esc_html__()`-wrapped strings), used so admin-facing/user-facing copy is translatable in one place instead of scattered `__()` calls. **Any new user-facing string should be added here following the existing pattern**, not inlined ad hoc — this is an explicit convention, confirmed as the intended home for new AI-feature strings by `docs/EFB-AI-FORM-BUILDER-TASKS-AND-PREREQS.fa.md` itself (Phase 13 task list). |
-| `includes/integrate-wpb.php` + `includes/page-builders/{elementor,gutenberg,visual-composer,wpbakery}/` | — | Page-builder integrations. Gutenberg has its own small REST surface (`efb/v1/forms`, `efb/v1/preview/{id}`) for the block inserter/preview, separate namespace from the main `Emsfb/v1` API. |
+| `includes/page-builders/{elementor,gutenberg,visual-composer,wpbakery}/` | — | Page-builder integrations. Gutenberg has its own small REST surface (`efb/v1/forms`, `efb/v1/preview/{id}`) for the block inserter/preview, separate namespace from the main `Emsfb/v1` API. |
 
 ---
 
