@@ -8,11 +8,15 @@
  *                General, Captchas, Privacy and Verification is refused with its reason (aria-invalid, a message tied
  *                with aria-describedby, the tab opened and the box focused); nothing is sent and the stored value
  *                stays. The server refuses the same (invalid_<key>).
+ *  qa1-block     QA1-007 / QA1-008 / QA1-026: the block editor in fa_IR (375 and 1280 px): the block's own words come
+ *                from the translation (editorScript of block.json with its text domain), the shortcode is code (left to
+ *                right), the sentence takes its own direction; its stylesheet reaches the editor once and WordPress does
+ *                not warn that it was added to the iframe the wrong way. en 1280 for comparison.
  */
 'use strict';
 
 module.exports = function (S) {
-  const { scenario, R, ctl, CFG, sleep, SHOT } = S;
+  const { scenario, R, ctl, wp, CFG, sleep, SHOT } = S;
 
   const settingsUrl = (tab) => CFG.base + '/wp-admin/admin.php?page=Emsfb&state=setting' + (tab ? '&tab=' + tab : '');
   async function openSettings(a, tab) {
@@ -111,6 +115,66 @@ module.exports = function (S) {
     } finally {
       ctl('f02-settings', JSON.stringify({ sms: { ttl: v0.sms.ttl }, email: { blocked_domains: (v0.email.blocked_domains || []).join(',') } }));
       await a.context().close();
+    }
+  });
+
+  /* ================================================================== qa1-block */
+  async function openBlockEditor(p, postId) {
+    await p.goto(CFG.base + '/wp-admin/post.php?post=' + postId + '&action=edit', { waitUntil: 'load' });
+    await p.waitForFunction(() => window.wp && wp.data && wp.data.select('core/block-editor') && wp.data.select('core/block-editor').getBlocks().length > 0, null, { timeout: 60000 });
+    await p.evaluate(() => {
+      try { wp.data.dispatch('core/preferences').set('core/edit-post', 'welcomeGuide', false); } catch (e) { /* older editor */ }
+      try { wp.data.dispatch('core/preferences').set('core', 'fixedToolbar', false); } catch (e) { /* ignore */ }
+      const b = wp.data.select('core/block-editor').getBlocks().find((x) => x.name === 'easy-form-builder/form');
+      if (b) wp.data.dispatch('core/block-editor').selectBlock(b.clientId);
+    });
+    await sleep(2500);
+  }
+  const canvas = (p) => p.frame({ name: 'editor-canvas' }) || p.mainFrame();
+
+  scenario('qa1-block', 'QA1-007 / QA1-008 / QA1-026: the Easy Form Builder block in the editor speaks the site language, its shortcode reads left to right, its stylesheet is added once', async ({ adminPage }) => {
+    const F = ctl('f11-form', 'QA1 block form', '', '1');
+    const pg = ctl('page', String(F.form_id), 'block');
+    try {
+      for (const [loc, w] of [['fa_IR', 375], ['fa_IR', 1280], ['', 1280]]) {
+        if (loc) ctl('locale', loc);
+        try {
+          const p = await adminPage({ viewport: { width: w, height: w < 600 ? 812 : 900 }, locale: loc ? loc.replace('_', '-') : 'en-US' }, 'qa1-block-' + (loc || 'en') + '-' + w);
+          const warns = [];
+          p.on('console', (m) => { if (/efb|easy-form-builder/i.test(m.text()) && /iframe|enqueue_block_assets|block\.json/i.test(m.text())) warns.push(m.type() + ': ' + m.text().slice(0, 200)); });
+          await openBlockEditor(p, pg.id);
+          const tag = `${loc || 'en'} ${w}`;
+          const ui = await p.evaluate(() => ({
+            t: wp.i18n.__('Form will be displayed here on the frontend.', 'easy-form-builder'),
+            name: wp.i18n.__('Easy Form Builder', 'easy-form-builder'),
+            handle: !!(window.wp && wp.blocks && wp.blocks.getBlockType('easy-form-builder/form')),
+            styleLinks: document.querySelectorAll('link[href*="page-builders/gutenberg/editor.css"]').length,
+          }));
+          const fr = canvas(p);
+          const blk = await fr.evaluate(() => {
+            const code = document.querySelector('.wp-block-easy-form-builder-form code, [data-type="easy-form-builder/form"] code');
+            const par = code ? code.parentElement.querySelector('p') : null;
+            return {
+              code: code ? { text: code.textContent, dir: getComputedStyle(code).direction, attr: code.getAttribute('dir') } : null,
+              p: par ? { text: par.textContent, dir: getComputedStyle(par).direction } : null,
+              styleLinks: document.querySelectorAll('link[href*="page-builders/gutenberg/editor.css"]').length,
+              docDir: document.documentElement.dir || getComputedStyle(document.body).direction,
+            };
+          });
+          if (loc === 'fa_IR') {
+            R.check(`qa1-block (${tag}) QA1-007: the block's words are Persian (the script's translations are loaded)`, /[\u0600-\u06FF]/.test(ui.t) && /[\u0600-\u06FF]/.test(ui.name) && !!blk.p && /[\u0600-\u06FF]/.test(blk.p.text), { ui, p: blk.p });
+            R.check(`qa1-block (${tag}) QA1-008: the shortcode is code, left to right ([EMS_Form_Builder id="${F.form_id}"] in order); the sentence takes its own direction (rtl)`, !!blk.code && blk.code.dir === 'ltr' && blk.code.text === `[EMS_Form_Builder id="${F.form_id}"]` && blk.p.dir === 'rtl', blk);
+          } else {
+            R.check(`qa1-block (${tag}): English stays English; the shortcode left to right`, ui.t === 'Form will be displayed here on the frontend.' && !!blk.code && blk.code.dir === 'ltr', { ui, blk });
+          }
+          R.check(`qa1-block (${tag}) QA1-026: the block's stylesheet is in the editor's canvas once (and at most once around it), and WordPress does not warn about it`, blk.styleLinks === 1 && ui.styleLinks <= 1 && warns.length === 0, { parent: ui.styleLinks, iframe: blk.styleLinks, warns });
+          await p.screenshot({ path: SHOT(`qa1-block-${loc || 'en'}-${w}`) });
+          await p.context().close();
+        } finally { if (loc) ctl('locale', ''); }
+      }
+    } finally {
+      try { wp('post', 'delete', String(pg.id), '--force'); } catch (e) { /* the wipe of scenario 1 removes it too */ }
+      try { ctl('f12-delete-form', String(F.form_id)); } catch (e) { /* ignore */ }
     }
   });
 };

@@ -389,9 +389,16 @@
                                             color: '#333'
                                         }
                                     },
+                                        // QA1-008: the name and the code isolated (<bdi>), so a Latin name or a number keeps its
+                                    // place in a right-to-left sentence.
                                     form.type === 'tracking'
-                                        ? form.name
-                                        : form.name + ' (' + __('Form Code', 'easy-form-builder') + ': ' + form.id + ')'
+                                        ? wp.element.createElement('bdi', null, form.name)
+                                        : [
+                                            wp.element.createElement('bdi', { key: 'n' }, form.name),
+                                            ' (' + __('Form Code', 'easy-form-builder') + ': ',
+                                            wp.element.createElement('bdi', { key: 'i', dir: 'ltr' }, String(form.id)),
+                                            ')'
+                                        ]
                                 )
                             ))
                         ) : wp.element.createElement(
@@ -445,13 +452,13 @@
                                 null,
                                 wp.element.createElement(
                                     'div',
-                                    { style: { fontSize: '16px', fontWeight: '600', marginBottom: '2px' } },
+                                    { dir: 'auto', style: { fontSize: '16px', fontWeight: '600', marginBottom: '2px' } },
                                     formName || __('Form', 'easy-form-builder')
                                 ),
                                 wp.element.createElement(
                                     'div',
                                     { style: { fontSize: '12px', opacity: 0.8 } },
-                                    'Easy Form Builder'
+                                    __('Easy Form Builder', 'easy-form-builder')
                                 )
                             )
                         ),
@@ -499,12 +506,16 @@
                             },
                             wp.element.createElement(
                                 'p',
-                                { style: { margin: '0 0 10px 0', fontSize: '14px' } },
+                                // QA1-008: the sentence takes the direction of its own words (its period at its end).
+                                { dir: 'auto', style: { margin: '0 0 10px 0', fontSize: '14px' } },
                                 __('Form will be displayed here on the frontend.', 'easy-form-builder')
                             ),
                             wp.element.createElement(
                                 'code',
                                 {
+                                    // QA1-008: a shortcode is code: left to right in every language.
+                                    dir: 'ltr',
+                                    className: 'efb-block-shortcode',
                                     style: {
                                         display: 'inline-block',
                                         background: '#f1f3f5',

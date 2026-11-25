@@ -41,24 +41,26 @@ class Emsfb_Gutenberg_Block {
         register_block_type($block_json, $block_args);
     }
 
+    /** The handle WordPress gave block.json's editorScript ("file:./editor.js"). */
+    public static function editor_handle() {
+        return function_exists('generate_block_asset_handle') ? generate_block_asset_handle('easy-form-builder/form', 'editorScript') : 'easy-form-builder-form-editor-script';
+    }
+
+    /**
+     * The editor's data (forms, logo, the strings it shows). QA1-007: the script and its style come from block.json
+     * (editorScript, editorStyle): WordPress registers both with the block, loads the script's translations through
+     * the block's text domain and adds the style to the editor's iframe. QA1-026: nothing is enqueued here a second
+     * time (the style was added twice, and WordPress warned that it reached the iframe the wrong way).
+     */
     public function enqueue_editor_assets() {
-
-        $asset_file = [
-            'dependencies' => ['wp-blocks', 'wp-i18n', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-api-fetch'],
-            'version' => EMSFB_PLUGIN_VERSION
-        ];
-
-        wp_register_script(
-            'efb-gutenberg-editor',
-            EMSFB_PLUGIN_URL . 'includes/page-builders/gutenberg/editor.js',
-            $asset_file['dependencies'],
-            $asset_file['version'],
-            true
-        );
+        $handle = self::editor_handle();
+        if (!wp_script_is($handle, 'registered')) {
+            return;
+        }
 
         // 'strings' is nested, so core leaves its entities untouched, and the
         // editor renders these as React text nodes rather than as HTML.
-        wp_localize_script('efb-gutenberg-editor', 'efbBlockData', emsfb_decode_typographic_entities_efb([
+        wp_localize_script($handle, 'efbBlockData', emsfb_decode_typographic_entities_efb([
             'forms' => $this->get_forms_for_js(),
             'pluginUrl' => EMSFB_PLUGIN_URL,
             'logoUrl' => Emsfb_Widgets_Helper::get_logo_url(),
@@ -74,16 +76,6 @@ class Emsfb_Gutenberg_Block {
                 'trackingForm' => __('📍 Confirmation Code Finder (Tracking Form)', 'easy-form-builder')
             ]
         ]));
-
-        wp_enqueue_script('efb-gutenberg-editor');
-
-        wp_register_style(
-            'efb-gutenberg-editor-style',
-            EMSFB_PLUGIN_URL . 'includes/page-builders/gutenberg/editor.css',
-            [],
-            EMSFB_PLUGIN_VERSION
-        );
-        wp_enqueue_style('efb-gutenberg-editor-style');
     }
 
     public function register_rest_routes() {

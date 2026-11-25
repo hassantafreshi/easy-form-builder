@@ -60,5 +60,6 @@
         "className": true,
         "customClassName": true
     },
+    "editorScript": "file:./editor.js",
     "editorStyle": "file:./editor.css"
 }
