@@ -401,7 +401,7 @@ class Panel_edit  {
 			if(isset($ac->AdnOF) && $ac->AdnOF==1){
 				$url = EMSFB_PLUGIN_URL . 'vendor/offline/json/countries.js';
 			}
-			wp_register_script('countries-js', $url, null, null, array('in_footer' => true, 'strategy' => 'async'));
+			wp_register_script('countries-js', $url, array(), EMSFB_PLUGIN_VERSION, array('in_footer' => true, 'strategy' => 'async'));
 			wp_enqueue_script('countries-js');
 			wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);
 			wp_enqueue_script('intlTelInput-js');

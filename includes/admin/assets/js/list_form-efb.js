@@ -2089,7 +2089,7 @@ function efb_privacy_tab_efb(prv, mx) {
         ${radio('store', 'prvIpStore', 'Store')}
         ${radio('anon', 'prvIpAnon', 'Store anonymized (last part removed)')}
         ${radio('none', 'prvIpNone', 'Do not store')}
-        <small class="efb text-muted d-block mt-1" id="prvIpHelp_efb">${efb_prv_t_efb('prvIpHelp', 'Rate limits and spam protection still work. The address is only read during the request.')}</small>
+        <small class="efb text-muted d-block mt-1 fs-7" id="prvIpHelp_efb">${efb_prv_t_efb('prvIpHelp', 'Rate limits and spam protection still work. The address is only read during the request.')}</small>
       </fieldset>
       <div class="efb card-body ${mx} py-1" data-prv-section="ip-purge">
         ${can ? `<button type="button" class="efb btn btn-outline-danger btn-sm" id="prvPurgeIpBtn_efb" onclick="efb_privacy_purge_ip_efb(this)"><i class="efb bi-eraser mx-1"></i>${efb_prv_t_efb('prvPurgeIp', 'Clear IP addresses already stored')}</button>` : ''}
@@ -2112,7 +2112,7 @@ function efb_privacy_uninstall_html_efb(prv, mx, dis) {
           <input class="efb form-check-input" type="checkbox" id="prvDeleteOnUninstall_efb" ${on ? 'checked' : ''} ${dis} aria-describedby="prvUninstallHelp_efb prvUninstallWarn_efb" onchange="efb_privacy_uninstall_toggle_efb(this)">
           <label class="efb form-check-label mx-2" for="prvDeleteOnUninstall_efb" style="unicode-bidi:plaintext">${efb_prv_t_efb('prvDeleteOnUninstall', 'Delete all data when the plugin is deleted')}</label>
         </div>
-        <small class="efb text-muted d-block mt-1" id="prvUninstallHelp_efb" dir="auto" style="unicode-bidi:plaintext">${efb_prv_t_efb('prvUninstallHelp', 'Off: deleting Easy Form Builder from the Plugins screen keeps your forms, entries, files and settings for a later install. Deactivating never deletes anything.')}</small>
+        <small class="efb text-muted d-block mt-1 fs-7" id="prvUninstallHelp_efb" dir="auto" style="unicode-bidi:plaintext">${efb_prv_t_efb('prvUninstallHelp', 'Off: deleting Easy Form Builder from the Plugins screen keeps your forms, entries, files and settings for a later install. Deactivating never deletes anything.')}</small>
         <div class="efb mt-2 mb-1" id="prvUninstallWarn_efb" role="note" ${on ? '' : 'hidden'}>
           <div class="efb d-flex align-items-start p-2 rounded-3" style="background:#fdecee;border-inline-start:4px solid #c62828;">
             <i class="efb bi-exclamation-triangle-fill" aria-hidden="true" style="color:#c62828;font-size:1.1rem;min-width:24px;"></i>
@@ -2181,7 +2181,7 @@ function efb_privacy_retention_html_efb(prv, mx, dis) {
       <div class="efb card-body ${mx} py-1 mt-3" data-prv-section="retention">
         <label class="efb form-label fw-bold fs-6 mb-1" for="prvDays_efb">${efb_prv_t_efb('prvDays', 'Delete entries automatically after (days)')}</label>
         <input type="text" inputmode="numeric" autocomplete="off" maxlength="4" class="efb form-control w-25 h-d-efb border-d efb-rounded" id="prvDays_efb" value="${efb_prv_digits_efb(prv.prv_days)}" ${dis} aria-describedby="prvDaysHelp_efb prvPreview_efb" oninput="efb_privacy_days_input_efb(this)">
-        <small class="efb text-muted d-block mt-1" id="prvDaysHelp_efb">${efb_prv_t_efb('prvDaysHelp', '0 = never. Counted from the last activity (entry or reply).')}</small>
+        <small class="efb text-muted d-block mt-1 fs-7" id="prvDaysHelp_efb">${efb_prv_t_efb('prvDaysHelp', '0 = never. Counted from the last activity (entry or reply).')}</small>
         <span class="efb d-block mt-1 text-danger" id="prvPreview_efb" aria-live="polite"></span>
       </div>
       <fieldset class="efb card-body ${mx} py-1 border-0" id="prvActionSet_efb">

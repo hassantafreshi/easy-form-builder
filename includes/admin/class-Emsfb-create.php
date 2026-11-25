@@ -240,7 +240,7 @@ class Create {
 		wp_enqueue_script('jquery-dd-efb');
 		// async: a CDN that hangs (jsDelivr is often unreachable from Iran) must
 		// not hold back the builder scripts printed after it.
-		wp_register_script('countries-js', $url, null, null, array('in_footer' => true, 'strategy' => 'async'));
+		wp_register_script('countries-js', $url, array(), EMSFB_PLUGIN_VERSION, array('in_footer' => true, 'strategy' => 'async'));
 		wp_enqueue_script('countries-js');
 		wp_register_script('intlTelInput-js', EMSFB_PLUGIN_URL . 'includes/admin/assets/js/intlTelInput.min-efb.js', null, null, true);
 		wp_enqueue_script('intlTelInput-js');

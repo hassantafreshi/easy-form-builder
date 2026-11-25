@@ -1454,6 +1454,8 @@ div#sideBoxEfb .efb-sb-head a.efb.close.sidemenu.efb-sb-close:focus-visible { ou
    margin-top: 5px;
    margin-left: 5px;
 }
+/* B6: a Pro gem after a setting's label sits beside the text in both directions (absolute, it covered the words). */
+label > .efb.pro-version-efb { position: static; display: inline-flex; flex: 0 0 auto; vertical-align: middle; width: 22px; height: 22px; margin: 0 0 0 0; margin-inline-start: .35rem; font-size: .75rem !important; }
 .pro-version-efb-modal i {	font-size: 72px !important;
    background: -webkit-linear-gradient(#f3b807, #bb2d3b);
    -webkit-background-clip: text;

@@ -11,8 +11,7 @@
  *  b7-search     BUG-03 row 389: the global search shows an entry's date in the site's format (as the entries screen,
  *                Entries::display_date()), in Persian digits on fa_IR; a partial code finds the entry (the UNION).
  *
- * Not in tests/e2e-wp/run.js yet (B7 did not edit the runner): add
- *   require('./scenario-b7.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT });
+ * Wired in tests/e2e-wp/run.js by B6.
  */
 'use strict';
 const path = require('path');

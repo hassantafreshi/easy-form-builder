@@ -2177,6 +2177,15 @@ require('./scenario-b4.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, builderRea
  * tests/e2e-wp/scenario-b5.js. */
 require('./scenario-b5.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT });
 
+/* Batch B7 (lifecycle and the Settings screen): the uninstall setting saved on and off, the first-run plan chooser,
+ * the global search's dates: tests/e2e-wp/scenario-b7.js. */
+require('./scenario-b7.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT });
+
+/* Batch B6 (Plugin Check hygiene and the hand-offs): the Pro gem beside a field setting's label (fa_IR and en at
+ * 1280 px), the Privacy descriptions in one size (fa_IR at 375 px), the Panel's charts and country list from the
+ * plugin (no Google Charts, no CDN): tests/e2e-wp/scenario-b6.js. */
+require('./scenario-b6.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, builderReady, canvasDrawn, closePanel });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */
