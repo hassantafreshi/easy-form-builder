@@ -29,6 +29,10 @@ class Emsfb {
             // COMP-01: an update copied onto an older WordPress: load nothing, say why (the data stays).
             add_action('admin_notices', [$this, 'wp_version_notice_efb']);
             add_action('network_admin_notices', [$this, 'wp_version_notice_efb']);
+            // QA4-006: visitors see nothing where a form was (never the raw shortcode), and the plugin's screens say
+            // why they are closed instead of WordPress' "not allowed".
+            add_action('init', [$this, 'paused_placeholders_efb']);
+            add_action('admin_menu', [$this, 'paused_menu_efb']);
             return;
         }
 
@@ -56,11 +60,54 @@ class Emsfb {
         return $version === '' || version_compare($version, self::MIN_WP_VERSION_EFB, '>=');
     }
 
+    /** QA4-006: the plugin's shortcodes (forms, the confirmation-code finder, the page builders' own). */
+    const PAUSED_SHORTCODES_EFB = ['EMS_Form_Builder', 'ems_form_builder', 'Easy_Form_Builder_confirmation_code_finder', 'efb_wpbakery_form', 'efb_vc_form'];
+
+    /** QA4-006: the plugin's admin screens besides the Panel (core's and the add-ons'), bookmarked by their owners. */
+    const PAUSED_SCREENS_EFB = ['Emsfb_create', 'Emsfb_addon', 'Emsfb_payments', 'Emsfb_human_shield_efb', 'Emsfb_telegram_efb', 'Emsfb_googlesheet_efb', 'Emsfb_googlesheet_logs_efb', 'Emsfb_autofill_efb', 'Emsfb_autofill_api_efb', 'Emsfb_sms_efb', 'Emsfb_stripe_payment', 'Emsfb_paypal_payment'];
+
+    /** QA4-006 (paused): every shortcode and the block render nothing, so a page never shows [EMS_Form_Builder id=1]. */
+    public function paused_placeholders_efb(): void {
+        foreach (self::PAUSED_SHORTCODES_EFB as $tag) {
+            add_shortcode($tag, '__return_empty_string');
+        }
+        if (function_exists('register_block_type') && (!class_exists('WP_Block_Type_Registry') || !\WP_Block_Type_Registry::get_instance()->is_registered('easy-form-builder/form'))) {
+            register_block_type('easy-form-builder/form', ['render_callback' => '__return_empty_string']);
+        }
+    }
+
+    /** QA4-006 (paused): the plugin's menu and screens stay, and each says why it is closed. */
+    public function paused_menu_efb(): void {
+        $name = esc_html__('Easy Form Builder', 'easy-form-builder');
+        // The plugin's capability, or manage_options for an administrator whose role never got it (activated by WP-CLI).
+        $cap = current_user_can('Emsfb') ? 'Emsfb' : 'manage_options';
+        add_menu_page($name, $name, $cap, 'Emsfb', [$this, 'paused_screen_efb'], EMSFB_PLUGIN_URL . 'includes/admin/assets/image/logo-gray.png');
+        foreach (self::PAUSED_SCREENS_EFB as $slug) {
+            add_submenu_page('', $name, $name, $cap, $slug, [$this, 'paused_screen_efb']);
+        }
+    }
+
+    /** QA4-006 (paused): the body of every screen of the plugin: the pause message, to anyone who may open the screen. */
+    public function paused_screen_efb(): void {
+        echo '<div class="wrap efb-paused"><h1>' . esc_html__('Easy Form Builder', 'easy-form-builder') . '</h1>';
+        $this->wp_version_message_efb();
+        echo '</div>';
+    }
+
     /** COMP-01: the notice of a WordPress older than MIN_WP_VERSION_EFB (the plugin stays inert). */
     public function wp_version_notice_efb(): void {
         if (!current_user_can('activate_plugins') && !current_user_can('update_core')) {
             return;
         }
+        // QA4-006: the plugin's own screens show the message as their body (paused_screen_efb()), not twice.
+        if (isset($GLOBALS['plugin_page']) && is_string($GLOBALS['plugin_page']) && ($GLOBALS['plugin_page'] === 'Emsfb' || in_array($GLOBALS['plugin_page'], self::PAUSED_SCREENS_EFB, true))) {
+            return;
+        }
+        $this->wp_version_message_efb();
+    }
+
+    /** COMP-01: the pause message (an error notice) itself. */
+    private function wp_version_message_efb(): void {
         $running = isset($GLOBALS['wp_version']) ? (string) $GLOBALS['wp_version'] : '';
         // dir="auto": a sentence not translated yet reads left to right on a right-to-left screen, a translation follows its script.
         echo '<div class="notice notice-error efb-notice" role="alert"><p dir="auto"><strong>'

@@ -42,6 +42,12 @@ function esc_html__($s, $d = '') { return htmlspecialchars($s, ENT_QUOTES); }
 function esc_html($s) { return htmlspecialchars((string) $s, ENT_QUOTES); }
 function esc_url($s) { return (string) $s; }
 function network_admin_url($p = '') { return 'https://example.test/wp-admin/network/' . $p; }
+$GLOBALS['efb_t_sc'] = array(); $GLOBALS['efb_t_blocks'] = array(); $GLOBALS['efb_t_pages'] = array();
+function add_shortcode($tag, $cb) { $GLOBALS['efb_t_sc'][$tag] = $cb; }
+function register_block_type($name, $args = array()) { $GLOBALS['efb_t_blocks'][$name] = $args; return true; }
+function add_menu_page($a, $b, $cap, $slug, $cb = '', $icon = '') { $GLOBALS['efb_t_pages'][$slug] = array('', $cap, $cb); return $slug; }
+function add_submenu_page($parent, $a, $b, $cap, $slug, $cb = '') { $GLOBALS['efb_t_pages'][$slug] = array($parent, $cap, $cb); return $slug; }
+function __return_empty_string() { return ''; }
 
 $GLOBALS['wp_version'] = '6.2.6';
 require $root . '/includes/class-Emsfb.php';
@@ -73,8 +79,36 @@ t('WordPress 6.2.6: constructing the plugin throws nothing', $e, null);
 t('… and loads nothing from includes/ (no Install, Form_Runtime, Notices class)', array(class_exists('\\Emsfb\\Install', false), class_exists('\\Emsfb\\Form_Runtime', false), class_exists('\\Emsfb\\Notices', false)), array(false, false, false));
 $hooks = array_map(function ($h) { return $h[0]; }, $GLOBALS['efb_t_hooks']);
 sort($hooks);
-t('… and adds only the notice (admin_notices, network_admin_notices)', $hooks, array('admin_notices', 'network_admin_notices'));
+t('… and adds only the notice and the paused placeholders (admin_menu, admin_notices, init, network_admin_notices)', $hooks, array('admin_menu', 'admin_notices', 'init', 'network_admin_notices'));
 t('… the notice is wp_version_notice_efb()', $GLOBALS['efb_t_hooks'][0][1], 'Emsfb::wp_version_notice_efb');
+
+/* QA4-006: paused, a page with the shortcode or the block shows nothing, and the plugin's screens say why. */
+$emsfb->paused_placeholders_efb();
+$sc_out = array();
+foreach (array('EMS_Form_Builder', 'ems_form_builder', 'Easy_Form_Builder_confirmation_code_finder', 'efb_wpbakery_form', 'efb_vc_form') as $tag) {
+	$sc_out[$tag] = isset($GLOBALS['efb_t_sc'][$tag]) ? call_user_func($GLOBALS['efb_t_sc'][$tag], array('id' => '1'), '', $tag) : 'NOT REGISTERED';
+}
+t('QA4-006: every shortcode of the plugin renders \'\' (never the raw [EMS_Form_Builder id=1])', array_unique(array_values($sc_out)), array(''));
+t('QA4-006: the block easy-form-builder/form renders \'\'', isset($GLOBALS['efb_t_blocks']['easy-form-builder/form']['render_callback']) ? call_user_func($GLOBALS['efb_t_blocks']['easy-form-builder/form']['render_callback'], array('formId' => '1'), '') : 'NOT REGISTERED', '');
+$GLOBALS['efb_t_caps'] = array('Emsfb' => true);
+$emsfb->paused_menu_efb();
+$screens = array('Emsfb', 'Emsfb_create', 'Emsfb_addon', 'Emsfb_payments', 'Emsfb_telegram_efb', 'Emsfb_human_shield_efb');
+$ok = true;
+foreach ($screens as $slug) $ok = $ok && isset($GLOBALS['efb_t_pages'][$slug]) && $GLOBALS['efb_t_pages'][$slug][1] === 'Emsfb' && is_callable($GLOBALS['efb_t_pages'][$slug][2]);
+t('QA4-006: the Panel, Create, Add-ons, Payments and the add-on screens exist (no WordPress 403)', $ok, true);
+$GLOBALS['efb_t_caps'] = array('manage_options' => true);
+$emsfb->paused_menu_efb();
+t('QA4-006: ... for an administrator whose role never got the Emsfb capability too (manage_options)', $GLOBALS['efb_t_pages']['Emsfb_create'][1], 'manage_options');
+$GLOBALS['efb_t_caps'] = array('Emsfb' => true); // a staff role: no activate_plugins
+ob_start(); call_user_func($GLOBALS['efb_t_pages']['Emsfb_create'][2]); $screen = ob_get_clean();
+t('QA4-006: a screen shows the pause message (versions in <bdi>, data kept), also to a user who may not update', strpos($screen, 'Easy Form Builder is paused') !== false && strpos($screen, '<bdi dir="ltr">6.2.6</bdi>') !== false && strpos($screen, 'Your forms, entries and settings are kept.') !== false, true);
+$GLOBALS['efb_t_caps'] = array('activate_plugins' => true, 'update_core' => true);
+$GLOBALS['plugin_page'] = 'Emsfb_create';
+ob_start(); $emsfb->wp_version_notice_efb(); $dup = ob_get_clean();
+t('QA4-006: on the plugin\'s own screen the notice is not printed a second time', $dup, '');
+unset($GLOBALS['plugin_page']);
+$main_file = (string) file_get_contents($root . '/emsfb.php');
+t('QA4-006: the activation\'s file check (WP-Cron) does nothing while paused (it was a fatal error: helpers not loaded)', (bool) preg_match('/function emsfb_perform_file_access_check_efb\(\) \{\s*(?:\/\/[^\n]*\n\s*)*if \(!Emsfb::wp_version_supported_efb\(\)/', $main_file), true);
 
 ob_start();
 $emsfb->wp_version_notice_efb();

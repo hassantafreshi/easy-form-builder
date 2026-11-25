@@ -170,6 +170,11 @@ function emsfb_schedule_file_access_check() {
 }
 
 function emsfb_perform_file_access_check_efb() {
+    // QA4-006: paused below WordPress 6.3 (or an incomplete install) the plugin's helpers are not loaded, and this
+    // event left from the activation was a fatal error in WP-Cron: there is nothing to check then.
+    if (!Emsfb::wp_version_supported_efb() || !function_exists('emsfb_is_php_function_available_efb')) {
+        return;
+    }
     $result = emsfb_check_file_access_efb();
 
 }
