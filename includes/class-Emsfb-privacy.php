@@ -60,6 +60,9 @@ class Privacy {
 			'prv_nostore_file_days' => '30',
 			// F07 §4.3: days a signed link to a private file works (owner e-mail, personal-data export).
 			'prv_file_link_days'    => '7',
+			// LIFE-01 (owner decision 5): '1' = deleting the plugin removes all its data (uninstall.php,
+			// Lifecycle::SETTING). Off by default: the data stays for a later install.
+			'prv_delete_on_uninstall' => '',
 		);
 	}
 
@@ -132,6 +135,7 @@ class Privacy {
 			case 'prv_days':
 				return self::days($value, 3650);
 			case 'prv_files':
+			case 'prv_delete_on_uninstall':
 				return in_array($value, array(true, 1, '1', 'true', 'on'), true) ? '1' : '';
 			case 'prv_nostore_file_days':
 				$d = self::digits($value);

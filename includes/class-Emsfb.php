@@ -1670,12 +1670,31 @@ class Emsfb {
         return $addons;
     }
 
-    public static function plugin_deactivation_cleanup_efb()
+    /**
+     * Deactivation. LIFE-01: every scheduled event of the plugin and its add-ons goes (Lifecycle::CRON_HOOKS and any
+     * other emsfb_ hook), on every site when the plugin is deactivated for the whole network. Code that runs later in
+     * the same request (the plugin-list refresh on deactivated_plugin, a cache rescan) could schedule one again, so
+     * the sweep runs once more at shutdown while the plugin stays inactive. Forms, entries and settings stay.
+     *
+     * @param bool $network_wide Network deactivation.
+     * @return void
+     */
+    public static function plugin_deactivation_cleanup_efb($network_wide = false)
     {
-        wp_clear_scheduled_hook('emsfb_cache_scan_v1');
-        wp_clear_scheduled_hook('emsfb_cache_scan_v2');
-        wp_clear_scheduled_hook('emsfb_stripe_reconcile_efb');
-        wp_clear_scheduled_hook('emsfb_privacy_retention_continue'); // F13
+        if (!class_exists('\Emsfb\Lifecycle') && is_readable(__DIR__ . '/class-Emsfb-lifecycle.php')) {
+            require_once __DIR__ . '/class-Emsfb-lifecycle.php';
+        }
+        if (class_exists('\Emsfb\Lifecycle')) {
+            \Emsfb\Lifecycle::deactivate((bool) $network_wide);
+            add_action('shutdown', static function () use ($network_wide) {
+                $self = plugin_basename(EMSFB_PLUGIN_FILE);
+                $active = in_array($self, (array) get_option('active_plugins', array()), true)
+                    || (is_multisite() && isset(((array) get_site_option('active_sitewide_plugins', array()))[$self]));
+                if (!$active) {
+                    \Emsfb\Lifecycle::deactivate((bool) $network_wide);
+                }
+            }, PHP_INT_MAX);
+        }
         if (class_exists('\Emsfb\Email_Monitor')) {
             \Emsfb\Email_Monitor::deactivate();
         }
@@ -2593,8 +2612,8 @@ class Emsfb {
         $alpha = [];
         foreach ($info[0] as $range) {
             for ($i = $range[0]; $i <= $range[1]; $i++) {
-                $ch = mb_chr($i, 'UTF-8');
-                if ($ch !== false) $alpha[] = $ch;
+                $ch = self::utf8_chr_efb($i);
+                if ($ch !== '') $alpha[] = $ch;
             }
         }
 

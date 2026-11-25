@@ -1403,7 +1403,7 @@ function fun_show_setting__emsFormBuilder() {
   let act_local_efb =scaptcha =false;
   let dsupfile= activeDlBtn =scaptcha=act_local_efb =false;
 
-  const prvSettings = { prv_ip_mode: 'store', prv_days: '0', prv_action: 'delete', prv_files: '1', prv_erase_mode: 'delete', prv_nostore_file_days: '30', prv_file_link_days: '7' };
+  const prvSettings = { prv_ip_mode: 'store', prv_days: '0', prv_action: 'delete', prv_files: '1', prv_erase_mode: 'delete', prv_nostore_file_days: '30', prv_file_link_days: '7', prv_delete_on_uninstall: '' };
   let phoneNumbers=sms_method = 'null';
   let femail ='null';
   let demail ='no-reply@'+ window.location.hostname;
@@ -2088,8 +2088,29 @@ function efb_privacy_tab_efb(prv, mx) {
       ${efb_privacy_retention_html_efb(prv, mx, dis)}
       ${efb_privacy_requests_html_efb(prv, mx, dis)}
       ${efb_entries_settings_html_efb(mx, dis)}
+      ${efb_privacy_uninstall_html_efb(prv, mx, dis)}
       <!--efb-privacy-extra-->
     </div>`;
+}
+/* LIFE-01 (owner decision 5): what deleting the plugin from the Plugins screen does with this site's data. Off (the
+   default) keeps everything; on, uninstall.php removes the tables, options, files, capabilities and the plugin's user
+   meta (Lifecycle::SETTING). The warning shows while the box is ticked. */
+function efb_privacy_uninstall_html_efb(prv, mx, dis) {
+  const on = prv.prv_delete_on_uninstall === '1';
+  return `
+      <fieldset class="efb card-body ${mx} py-1 mt-3 border-0" id="prvUninstallSet_efb">
+        <legend class="efb fs-6 fw-bold mb-1">${efb_prv_t_efb('prvUninstallTitle', 'When the plugin is deleted')}</legend>
+        <div class="efb form-check my-1">
+          <input class="efb form-check-input" type="checkbox" id="prvDeleteOnUninstall_efb" ${on ? 'checked' : ''} ${dis} aria-describedby="prvUninstallHelp_efb prvUninstallWarn_efb" onchange="efb_privacy_uninstall_toggle_efb(this)">
+          <label class="efb form-check-label mx-2" for="prvDeleteOnUninstall_efb">${efb_prv_t_efb('prvDeleteOnUninstall', 'Delete all data when the plugin is deleted')}</label>
+        </div>
+        <small class="efb text-muted d-block mt-1" id="prvUninstallHelp_efb">${efb_prv_t_efb('prvUninstallHelp', 'Off: deleting Easy Form Builder from the Plugins screen keeps your forms, entries, files and settings for a later install. Deactivating never deletes anything.')}</small>
+        <p class="efb alert alert-danger py-2 px-3 mt-2 mb-1" id="prvUninstallWarn_efb" role="note" ${on ? '' : 'hidden'}><i class="efb bi-exclamation-triangle mx-1" aria-hidden="true"></i>${efb_prv_t_efb('prvUninstallWarn', 'On: when you delete the plugin, every form, entry, uploaded file, payment record and setting of this site is removed for good. Export what you want to keep first.')}</p>
+      </fieldset>`;
+}
+function efb_privacy_uninstall_toggle_efb(el) {
+  const w = document.getElementById('prvUninstallWarn_efb');
+  if (w) w.hidden = !el.checked;
 }
 /* F14: how long the trash keeps entries, and what AI assistants (SitePilot entries.read) may read. */
 function efb_entries_settings_html_efb(mx, dis) {
@@ -2252,6 +2273,9 @@ function efb_privacy_patch_efb() {
   if (td) { const d = efb_prv_digits_efb(td.value).replace(/[^0-9]/g, ''); out.trash_days = String(Math.min(3650, Number(d === '' ? 30 : d))); }
   const ai = document.querySelector('input[name="entAiAccess_efb"]:checked');
   if (ai && ['off', 'stats', 'rows'].includes(ai.value)) out.ai_entries_access = ai.value;
+  // LIFE-01: delete all data when the plugin is deleted ('' = keep, the default).
+  const un = document.getElementById('prvDeleteOnUninstall_efb');
+  if (un) out.prv_delete_on_uninstall = un.checked ? '1' : '';
   return out;
 }
 function efb_privacy_post_efb(action, extra) {

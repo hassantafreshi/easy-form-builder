@@ -6703,6 +6703,16 @@ class efbFunction {
 			/* translators: F14 settings section title */
 			"entSettingsTitle" => $state && isset($ac->text->entSettingsTitle) ? $ac->text->entSettingsTitle : esc_html__('Entries','easy-form-builder'),
 			/* F04 phrases end */
+			/* B7 (4.3.2 backlog: lifecycle, Settings, builder) phrases */
+			/* translators: LIFE-01: Settings › Privacy, title of the part about deleting the plugin from the Plugins screen */
+			"prvUninstallTitle" => $state && isset($ac->text->prvUninstallTitle) ? $ac->text->prvUninstallTitle : esc_html__('When the plugin is deleted','easy-form-builder'),
+			/* translators: LIFE-01: Settings › Privacy checkbox, off by default */
+			"prvDeleteOnUninstall" => $state && isset($ac->text->prvDeleteOnUninstall) ? $ac->text->prvDeleteOnUninstall : esc_html__('Delete all data when the plugin is deleted','easy-form-builder'),
+			/* translators: LIFE-01: help under the checkbox "Delete all data when the plugin is deleted" */
+			"prvUninstallHelp" => $state && isset($ac->text->prvUninstallHelp) ? $ac->text->prvUninstallHelp : esc_html__('Off: deleting Easy Form Builder from the Plugins screen keeps your forms, entries, files and settings for a later install. Deactivating never deletes anything.','easy-form-builder'),
+			/* translators: LIFE-01: warning shown while "Delete all data when the plugin is deleted" is ticked */
+			"prvUninstallWarn" => $state && isset($ac->text->prvUninstallWarn) ? $ac->text->prvUninstallWarn : esc_html__('On: when you delete the plugin, every form, entry, uploaded file, payment record and setting of this site is removed for good. Export what you want to keep first.','easy-form-builder'),
+			/* B7 phrases end */
 
 		];
 

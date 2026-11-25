@@ -667,7 +667,8 @@ SitePilot contract §5.5, §6.2, §9):
 - **Registry.** All free: `setting:privacy_ip`, `setting:privacy_retention`, `setting:privacy_nostore`,
   `setting:privacy_requests` (form keys above) and `setting:privacy_site` (`scope: site`,
   `settings_keys`: `prv_ip_mode`, `prv_days`, `prv_action`, `prv_files`, `prv_nostore_file_days`,
-  `prv_erase_mode`). Every `field:<type>` entry gains `pii_default` (true / false; `null` for types without
+  `prv_erase_mode`, `prv_file_link_days`, `prv_delete_on_uninstall` (4.3.2, LIFE-01: `"1"` = deleting the plugin
+  removes all its data; `''`, the default, keeps it)). Every `field:<type>` entry gains `pii_default` (true / false; `null` for types without
   an answer). SitePilot's "email only, no storage" preference maps to `prv_nostore: "1"`.
 - **Save.** Scalars; `Privacy::normalize_form_settings()` runs after `sanitize_obj_msg_efb()` on the builder
   update, the builder create and the CF7 import. The site settings are changed only by an administrator

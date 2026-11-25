@@ -52,7 +52,7 @@ foreach (array(2, 0, 3, 1) as $pkg) {
 }
 $caps = Builder_Api::capabilities(array('package' => 2, 'settings' => (object) array()));
 $site = $caps['features']['setting:privacy_site'];
-t('setting:privacy_site: scope site, free, every global key', array($site['scope'], $site['package'], $site['settings_keys']), array('site', 'free', array('prv_ip_mode', 'prv_days', 'prv_action', 'prv_files', 'prv_nostore_file_days', 'prv_erase_mode', 'prv_file_link_days')));
+t('setting:privacy_site: scope site, free, every global key', array($site['scope'], $site['package'], $site['settings_keys']), array('site', 'free', array('prv_ip_mode', 'prv_days', 'prv_action', 'prv_files', 'prv_nostore_file_days', 'prv_erase_mode', 'prv_file_link_days', 'prv_delete_on_uninstall')));
 $a = $site['settings_keys']; sort($a); $b = array_keys(\Emsfb\Privacy::setting_defaults()); sort($b);
 t('the site keys are exactly Privacy::setting_defaults()', $a, $b);
 $labels = array();
