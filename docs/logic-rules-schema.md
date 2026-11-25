@@ -88,6 +88,7 @@ Groups nest (the validator stops at depth 5). A **condition**:
 | `is_empty`, `is_not_empty` | – |
 | `is_paid`, `is_not_paid`, `amount_eq`, `amount_gt`, `amount_lt` | payment fields (`payment`, `stripe`, `paypal`, `persiaPay`): paid state and charged amount from the gateway rows |
 | `date_before`, `date_after`, `date_between` | dates (`date_between`: `[from, to]`); an unparseable date never matches |
+| `count_gte`, `count_lte` | an upload field's number of files, read as `gte` / `lte` (the add-on stores `gte` / `lte`; the save keeps both spellings since B6; contract `logic` 1.1) |
 
 Free Plus allows **2 conditions per group on field rules** (the add-on's `FREE_PLUS_LIMITS.fieldConditionsPerGroup`;
 nested groups are not counted).

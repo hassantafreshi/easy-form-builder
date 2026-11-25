@@ -1060,6 +1060,10 @@ default. `bk_*` keys belong to the future Booking add-on and are kept as plain J
 - **Conditional Logic** operators: `date_before`, `date_after`, `date_between` (start of a range,
   "today+N"), `date_weekday_is` ("6,7"), `date_age_gte`, `date_age_lte`, `date_within_next`,
   `date_range_nights_gte`, `date_range_nights_lte` (core, `Builder_Api::LOGIC_COMPARES` and the Logic add-on).
+- **Conditional Logic** on upload fields (B6, contract `logic` 1.1 in `efb_addon_contract_versions()`): an upload
+  field's value is its number of files; `count_gte` / `count_lte` are kept by the save and read as `gte` / `lte`.
+  The page fires `efb:upload` on `document` (`detail` `{form_id, field_id, state: done | error | removed, count}`)
+  when a file finishes, fails or is removed.
 - **Tests.** `test-calendar-*.php|js`, `test-advdate-*.php|js`, `calendar-ui-browser.js` and the e2e
   scenarios `f06a` … `f06d`, `f06pay` (AutoPilot: `f06a` `setDateConfig`, `insertItems` refusal,
   capabilities, save refusal).

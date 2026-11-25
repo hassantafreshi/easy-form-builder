@@ -53,7 +53,9 @@ On a WordPress of its own (never the shared test site: the build replaces the pl
 EFB_PLUGIN_CHECK_WP=/path/to/wordpress EFB_WPCLI="php /path/to/wp-cli.phar" bin/build-zip.sh
 ```
 
-The release needs 0 errors, or a written waiver for each remaining sniff (QA plan, exit criteria).
+The release needs 0 errors, or a written waiver for each remaining sniff (QA plan, exit criteria): the waivers and
+the reasons the remaining warnings stay are in [`plugin-check-waivers.md`](plugin-check-waivers.md). As root, add
+`--allow-root` to `EFB_WPCLI` (WP-CLI refuses to run otherwise and the CSV comes out empty).
 
 ## 4. Publish (owner decision 3)
 
