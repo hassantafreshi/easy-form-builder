@@ -3995,6 +3995,12 @@ class efbFunction {
 			"addonNeededT" => $state && isset($ac->text->addonNeededT) ? $ac->text->addonNeededT : esc_html__('Needs the %s add-on','easy-form-builder'),
 			/* translators: Button that installs an Easy Form Builder add-on */
 			"addonInstallBtn" => $state && isset($ac->text->addonInstallBtn) ? $ac->text->addonInstallBtn : esc_html__('Install','easy-form-builder'),
+			/* translators: Button on an add-on card of the Add-ons page: the installed add-on is older than this version of Easy Form Builder and is downloaded again (QA3-002) */
+			"addonUpdateBtn" => $state && isset($ac->text->addonUpdateBtn) ? $ac->text->addonUpdateBtn : esc_html__('Update','easy-form-builder'),
+			/* translators: %s: name of a payment add-on. Card description on the Add-ons page while the add-on server's catalogue cannot be reached (QA3-007) */
+			"addonPayDescT" => $state && isset($ac->text->addonPayDescT) ? $ac->text->addonPayDescT : esc_html__('Take payments in your forms with %s.','easy-form-builder'),
+			/* translators: %s: name of a CAPTCHA add-on (a product name). Card description on the Add-ons page while the add-on server's catalogue cannot be reached (QA3-007) */
+			"addonCaptchaDescT" => $state && isset($ac->text->addonCaptchaDescT) ? $ac->text->addonCaptchaDescT : esc_html__('Protect your forms from spam with %s.','easy-form-builder'),
 			/* translators: %s: name of an Easy Form Builder add-on (a product name) */
 			"addonKeysKept" => $state && isset($ac->text->addonKeysKept) ? $ac->text->addonKeysKept : esc_html__('Settings of %s are kept until the add-on is installed.','easy-form-builder'),
 			/* translators: Admin message: a payment form whose amount comes from the calculation add-on */
@@ -7848,22 +7854,11 @@ class efbFunction {
 		return $clean;
 	}
 
-	public function get_geolocation() {
-		  $ip = $this->get_ip_address();
-	  }
-
 	  public function get_ip_address() {
 		// Trusted-proxy aware (F13; BUGS-FOUND "spoofable IP"): see \Emsfb\Privacy::client_ip().
 		if (!class_exists('\\Emsfb\\Privacy')) require_once __DIR__ . '/class-Emsfb-privacy.php';
 		return \Emsfb\Privacy::client_ip();
 	  }
-
-	public function addon_adds_cron_efb(){
-		// Kept as a no-op for backward compatibility with sites that have an old
-		// scheduled event. Add-on recovery is request-driven and never relies on
-		// WP-Cron, so a visitor is never left waiting for a cron worker.
-		return false;
-	}
 
 	public function resume_addon_downloads_efb(){
 
@@ -8167,18 +8162,6 @@ class efbFunction {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Queue a recovery only when a local health check finds missing files.
-	 * The scheduler prevents network work from delaying the current request.
-	 */
-	public function schedule_missing_addon_recovery_efb( $settings = null ){
-		$health = $this->get_addon_local_health_efb( $settings );
-		// Deprecated compatibility wrapper. Recovery is performed immediately by
-		// recover_missing_addons_efb() at the relevant admin/form entry point;
-		// nothing is queued to WP-Cron.
-		return ! empty( $health['missing'] );
 	}
 
 	/**
@@ -9198,76 +9181,11 @@ public function addon_add_efb($value) {
 }
 
 	   public function fun_addon_new($url){
-
-		// WordPress is already loaded here (this runs from an admin request), so
-		// wp-load.php is not included by a computed path any more: scanners treat
-		// that pattern as a loader, and it never did anything useful.
-		require_once (ABSPATH .'wp-admin/includes/admin.php');
-		require_once(ABSPATH . 'wp-admin/includes/file.php');
-
-		$name =substr($url,strrpos($url ,"/")+1,-4);
-
-		$r =download_url($url);
-		if(is_wp_error($r)){
-			return new WP_Error('download_failed',
-				esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to download files', 'easy-form-builder')
-				. ' (' . $r->get_error_message() . ')'
-			);
+		// QA3-002: one download path with the Add-ons page (staged, swapped, the opcode cache told).
+		if (!class_exists('\\Emsfb\\Addon_Installer')) {
+			require_once EMSFB_PLUGIN_DIRECTORY . 'includes/class-Emsfb-addon-installer.php';
 		}
-		$filesystem_ready = WP_Filesystem();
-		if ($filesystem_ready) {
-			global $wp_filesystem;
-
-			$directory = EMSFB_PLUGIN_DIRECTORY . 'temp';
-			if (!$wp_filesystem->exists($directory)) {
-				$wp_filesystem->mkdir($directory, 0755);
-			}
-			$moved = $wp_filesystem->move($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', true);
-		} else {
-			if ( ! emsfb_is_php_function_available_efb( 'mkdir' ) || ! emsfb_is_php_function_available_efb( 'rename' ) ) {
-				return new WP_Error(
-					'filesystem_functions_unavailable',
-					esc_html__( 'Cannot install add-ons because this server has disabled the PHP filesystem functions needed to prepare the download. Please ask your hosting provider to enable mkdir and rename, or configure the WordPress filesystem.', 'easy-form-builder' )
-				);
-			}
-			$directory = EMSFB_PLUGIN_DIRECTORY . 'temp';
-			if (!file_exists($directory)) {
-				wp_mkdir_p($directory);
-			}
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- WP_Filesystem could not start (it asks for FTP details): move the download in place directly
-			$moved = rename($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
-		}
-		if(!$moved){
-			if (file_exists($r)) {
-				if ( emsfb_is_php_function_available_efb( 'unlink' ) ) {
-					wp_delete_file($r);
-				}
-			}
-			return new WP_Error('move_failed',
-				esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to move the downloaded file', 'easy-form-builder')
-			);
-		}
-		if (!$filesystem_ready) {
-			WP_Filesystem();
-		}
-		$r = unzip_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . 'vendor/');
-		if (file_exists(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip')) {
-			if ( emsfb_is_php_function_available_efb( 'unlink' ) ) {
-				wp_delete_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
-			}
-		}
-		if(is_wp_error($r)){
-			return new WP_Error('unzip_failed',
-				esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files', 'easy-form-builder')
-				. ' (' . $r->get_error_message() . ')'
-			);
-		}
-		// Keep only the add-on language files of locales this site uses. Never
-		// throws and never changes the install result.
-		if ( function_exists( 'emsfb_prune_addon_languages_efb' ) ) {
-			emsfb_prune_addon_languages_efb();
-		}
-		return true;
+		return \Emsfb\Addon_Installer::download_and_install($url);
 	}
 
 	public function download_all_addons_efb( $return_details = false ){
@@ -9811,20 +9729,6 @@ public function addon_add_efb($value) {
 	}
 
 	/**
-	 * Record that a domain answered, clearing any stored verdict against it.
-	 *
-	 * @param  string $domain
-	 * @return void
-	 */
-	public function addon_api_mark_up_efb( $domain ) {
-		$domain = untrailingslashit( (string) $domain );
-		if ( '' === $domain ) {
-			return;
-		}
-		delete_transient( $this->addon_api_down_key_efb( $domain ) );
-	}
-
-	/**
 	 * Has every add-on API endpoint timed out during this request?
 	 *
 	 * Then addon_add_efb() answers each further add-on at once, without a
@@ -10203,99 +10107,6 @@ public function addon_add_efb($value) {
 			. "</h3><p class='efb fs-5 text-center my-1 text-pinkEfb' style='text-align: center;'><p>"
 			. $this->addon_reload_script_efb($retry_after_seconds)
 			. "</div></div>";
-	}
-
-	public function flush_addon_wait_message_efb(){
-		if (function_exists('wp_ob_end_flush_all')) {
-			wp_ob_end_flush_all();
-		} else {
-			while (ob_get_level() > 0) {
-				ob_end_flush();
-			}
-		}
-		flush();
-	}
-
-	public function update_message_admin_side_efb(){
-		$text = ['wmaddon','contactUs' ,'addons' ,'easyFormBuilder'];
-        $lang= $this->text_efb($text);
-		return '<div id="body_efb" class="efb card-public efb" style="max-width:680px; margin:60px auto; text-align:center;">
-			<div class="efb alert alert-light bg-dark" style="border-radius:16px; padding:40px 32px; box-shadow:0 4px 24px rgba(54,68,210,0.13);">
-				<div style="margin-bottom:18px;">
-					<span style="display:inline-flex; align-items:center; justify-content:center; width:64px; height:64px; border-radius:50%; background:rgba(233,195,26,0.15);">
-						<i class="efb bi-arrow-repeat text-warning" style="font-size:32px;"></i>
-					</span>
-				</div>
-				<h3 class="efb text-warning" style="font-size:2em; margin:0 0 14px; font-weight:600;">'.$lang['addons'].'</h3>
-				<p class="efb text-info" style="font-size:1.5em; line-height:1.8; margin:0 0 18px; opacity:0.9;">'.$lang['wmaddon'].'</p>
-				<p class="efb text-warning" style="margin:0 0 12px; font-size:1.5em; font-weight:600;">
-				 <span id="efb-addon-countdown">03:00</span>
-				</p>
-				<hr style="border-color:rgba(255,255,255,0.1); margin:18px 0;">
-				<p class="efb" style="margin:0; font-size:0.95em;">
-					<a href="https://whitestudio.team/support/" target="_blank" class="efb text-info" style="text-decoration:none; font-weight:500;">
-						<i class="efb bi-headset mx-1"></i>'.$lang['contactUs'].'
-					</a>
-				</p>
-				<p class="efb text-pinkEfb" style="margin:12px 0 0; font-size:0.9em; font-weight:600;">
-					<i class="efb bi-plugin mx-1"></i>'.$lang['easyFormBuilder'].'
-				</p>
-			</div>
-		</div>
-		<script>
-		(function(){
-			if (window.efbAddonCountdownStarted) {
-				return;
-			}
-			window.efbAddonCountdownStarted = true;
-
-			var remaining = 180;
-			var node = document.getElementById("efb-addon-countdown");
-
-			function renderTimer() {
-				if (!node) {
-					node = document.getElementById("efb-addon-countdown");
-					if (!node) {
-						return;
-					}
-				}
-
-				var min = Math.floor(remaining / 60);
-				var sec = remaining % 60;
-				node.textContent = String(min).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
-			}
-
-			renderTimer();
-
-			var intervalId = setInterval(function(){
-				remaining -= 1;
-				renderTimer();
-
-				if (remaining <= 0) {
-					clearInterval(intervalId);
-					window.location.reload();
-				}
-			}, 1000);
-		})();
-		</script>';
-	}
-
-	function admin_notice_msg_efb($s) {
-		$v = esc_html__('Easy Form Builder','easy-form-builder');
-		$t = "notice-success";
-		if($s=="dlproblem"){
-			$t = "notice-error";
-			$v =esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to connect to the whitestudio.team server','easy-form-builder');
-		}else if($s=="unzipproblem"){
-			$t = "notice-error";
-			$v =esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files','easy-form-builder');
-
-		}
-		?>
-		<div class="notice efb-notice <?php echo esc_attr($t); ?> is-dismissible">
-			<p><?php echo $v; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_html__() above ?></p>
-		</div>
-		<?php
 	}
 
 	public function efb_sentence_forms(){
@@ -10875,43 +10686,6 @@ public function addon_add_efb($value) {
 		$settings = get_setting_Emsfb('decoded');
 		if(emsfb_is_email_sending_enabled_efb($settings)) $this->send_email_state_new('reportProblem' ,'reportProblem' ,$str,0,"reportProblem",'null','null');
 		return true;
-	}
-
-	public function parsing_plugins_efb(){
-		$plugins = get_plugins();
-		$active_plugins = get_option('active_plugins');
-		$plugin_list = [];
-		$cache_plugins_slug = array(
-			'wp-optimize', 'hummingbird-performance', 'big-scoots-cache', 'wp-cloudflare-page-cache',
-			'breeze', 'jetpack', 'w3-total-cache', 'wp-fastest-cache',
-			'wp-rocket', 'comet-cache', 'hyper-cache', 'cache-enabler',
-			'wp-super-cache', 'litespeed-cache', 'nitropack', 'jetpack-boost',
-			'autoptimize', 'wp-rest-cache', 'speedycache', 'clear-cache-for-widgets',
-			'wp-cache', 'wp-cache-system', 'atec-cache-info', 'atec-cache-apcu',
-			'wpspeed', 'wp-speed', 'flying-press',
-			'sg-optimizer', 'swift-performance', 'powered-cache'
-		);
-		foreach ($plugins as $plugin_file => $plugin_data) {
-			$slug = explode('/', $plugin_file)[0];
-			$exists_cache = in_array($slug, $cache_plugins_slug);
-			if($exists_cache){
-				$plugin_list[] = [
-					'name' => $plugin_data['Name'],
-					'version' => $plugin_data['Version'],
-					'slug' => $slug
-				];
-			}
-		}
-
-		$val = !empty($plugin_list) ? json_encode($plugin_list) : 0;
-		$old_val = get_option('emsfb_cache_plugins' ,0);
-		if($val != $old_val){
-			update_option('emsfb_cache_plugins', $val );
-			$this->send_email_noti_about_cache_plugins($val);
-		}else{
-			update_option('emsfb_cache_plugins', $val );
-		}
-
 	}
 
 	public function send_email_noti_about_cache_plugins($val){
@@ -11726,13 +11500,15 @@ public function addon_add_efb($value) {
 		}
 
 		?>
-		<div class="wrap">
+		<div class="wrap" id="efb-pro-gate">
 			<?php /* admin-efb.js, which a gated add-on page still loads, reads a page
-			 * without #alert_efb as broken by a plugin conflict and replaces it. */ ?>
+			 * without #alert_efb as broken by a plugin conflict and replaces it, and it removes every child of
+			 * #wpbody-content whose id does not name the plugin: the id keeps this card (QA3-006). */ ?>
 			<div id="alert_efb" class="efb"></div>
 			<div class="efb mx-3 mt-5 mb-3 p-4 alert alert-light <?php echo esc_attr( $bg_class ); ?>" style="border-radius:12px; max-width:700px; margin:60px auto; text-align:center;">
 				<i class="efb <?php echo esc_attr( $icon ); ?>" style="font-size:48px; display:block; margin-bottom:16px;"></i>
-				<h2 style="margin:0 0 12px; font-size:1.4em;"><?php echo esc_html( $title ); ?></h2>
+				<?php /* QA3-004: the card's own colour; WordPress' heading colour (#1d2327) on the dark card was 1.02:1. */ ?>
+				<h2 style="margin:0 0 12px; font-size:1.4em; color:inherit;"><?php echo esc_html( $title ); ?></h2>
 				<p style="font-size:1.05em; line-height:1.7; margin-bottom:20px;"><?php echo wp_kses( $message, array( 'bdi' => array(), 'strong' => array() ) ); ?></p>
 				<a href="<?php echo esc_url( $btn_url ); ?>"<?php echo $btn_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed attributes ?> class="efb btn btn-primary btn-lg" style="padding:10px 32px; font-size:1.1em; border-radius:8px; text-decoration:none;">
 					<?php echo esc_html( $btn_text ); ?>
@@ -12099,54 +11875,6 @@ public function addon_add_efb($value) {
 		}
 
 		return $s . $colon . $endClosers . $endSpaces;
-	}
-
-	public function invalidate_lang_cache_on_settings_update($old_value, $value){
-		self::$lang_cache = [];
-	}
-
-	function fun_is_plugin_active_by_slug( $slug ) {
-
-		if ( ! function_exists( 'is_plugin_active' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
-
-		static $all_plugins = null;
-		if ( $all_plugins === null ) {
-
-			$all_plugins = get_plugins();
-		}
-
-		foreach ( $all_plugins as $plugin_file => $data ) {
-
-			$dir = ( strpos( $plugin_file, '/' ) !== false )
-				? substr( $plugin_file, 0, strpos( $plugin_file, '/' ) )
-				: basename( $plugin_file, '.php' );
-
-			if ( $dir === $slug || sanitize_title( $data['Name'] ) === $slug ) {
-
-				if ( is_multisite() && is_plugin_active_for_network( $plugin_file ) ) {
-					return true;
-				}
-
-				if ( is_plugin_active( $plugin_file ) ) {
-					return true;
-				}
-			}
-		}
-
-		$mu_plugins = function_exists( 'get_mu_plugins' ) ? get_mu_plugins() : [];
-		foreach ( $mu_plugins as $mu_file => $data ) {
-
-			$base   = basename( $mu_file, '.php' );
-			$folder = basename( dirname( $mu_file ) );
-
-			if ( $folder === $slug || $base === $slug || sanitize_title( $data['Name'] ) === $slug ) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	function fun_get_addons_list_efb($ac = null){

@@ -13,6 +13,25 @@ class Addon {
 	public $userId;
 	public $formtype;
 	protected $db;
+	/**
+	 * QA1-014: the address of the add-on catalogue script: <domain>/wp-json/wl/v1/addons.js<host>, where host is this
+	 * site's name as the add-on server knows it (efbFunction::addon_request_host_efb(): lower case, no "www.", no port),
+	 * URL-encoded.
+	 *
+	 * @param string $domain    The catalogue server.
+	 * @param string $http_host The request's Host header.
+	 * @return string
+	 */
+	public static function catalogue_src_efb($domain, $http_host) {
+		$host = strtolower(trim((string) $http_host));
+		$host = preg_replace('/:\d+$/', '', $host);
+		$host = preg_replace('/^www\./', '', (string) $host);
+		if ($host === '' && function_exists('home_url') && function_exists('wp_parse_url')) {
+			$host = strtolower((string) wp_parse_url(home_url(), PHP_URL_HOST));
+		}
+		return untrailingslashit((string) $domain) . '/wp-json/wl/v1/addons.js' . rawurlencode($host === '' ? 'localhost' : $host);
+	}
+
 	public function __construct() {
 		$this->setting_name = 'Emsfb_addon';
 		global $wpdb;
@@ -65,7 +84,7 @@ class Addon {
 		// A locale now in use may lack an add-on language file pruned at install.
 		// Runtime scope above: translations never lock or banner this page.
 		$efb_recovery_fn->process_addon_i18n_refetch_efb();
-		$server_name = str_replace("www.", "", isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '');
+		$http_host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
 		/*
 		 * The shared helper is the single source of truth for catalogue requests.
 		 * Persian sites retain Whitestudio as the primary legacy source. When it
@@ -93,7 +112,8 @@ class Addon {
 				$domain = untrailingslashit( $cached_domain );
 			} else {
 				foreach ( $allowed_domains as $candidate ) {
-					$probe = wp_remote_head( $candidate, array( 'timeout' => 4 ) );
+					// QA3-007: a short probe; the page must not hang on a host that does not answer.
+					$probe = wp_remote_head( $candidate, array( 'timeout' => 3 ) );
 					$code = is_wp_error( $probe ) ? 0 : (int) wp_remote_retrieve_response_code( $probe );
 					if ( $code >= 200 && $code < 400 ) {
 						$domain = $candidate;
@@ -106,7 +126,10 @@ class Addon {
 				set_transient( $catalogue_cache_key, $domain, 5 * MINUTE_IN_SECONDS );
 			}
 		}
-		wp_register_script('whiteStudioAddone', $domain . '/wp-json/wl/v1/addons.js' .$server_name, null, null, true);
+		// QA1-014 / QA3-007: the host without its port (":8091" made the address answer 404, which Chrome blocks), and
+		// loaded async so a catalogue server that does not answer never holds the page: admin-efb.js shows the
+		// catalogue built from Addon_Catalog as soon as the script fails, or after a few seconds.
+		wp_register_script('whiteStudioAddone', self::catalogue_src_efb($domain, $http_host), array(), null, array('in_footer' => true, 'strategy' => 'async'));
 
         wp_enqueue_script('whiteStudioAddone');
 

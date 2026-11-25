@@ -1275,8 +1275,10 @@ class Admin {
                     'target_exists_before_install' => $directory_exists,
                 ]);
 
-                if (!$directory_exists) {
-                    $this->addon_install_log_efb('download_helper_started', [
+                // QA3-002: an add-on that is already there is downloaded again and replaced (an outdated one got
+                // "success" with nothing changed). Only a linked folder (a development checkout) is left alone.
+                if (!$directory_exists || !is_link(rtrim($directory, '/'))) {
+                    $this->addon_install_log_efb($directory_exists ? 'download_replacing_existing_directory' : 'download_helper_started', [
                         'requested_addon' => $post_value,
                         'download_url' => $url,
                         'target_directory' => $directory,
@@ -1312,7 +1314,7 @@ class Admin {
                         'target_directory' => $directory,
                     ]);
                 } else {
-                    $this->addon_install_log_efb('download_skipped_existing_directory', [
+                    $this->addon_install_log_efb('download_skipped_linked_directory', [
                         'requested_addon' => $post_value,
                         'target_directory' => $directory,
                     ]);
@@ -1466,6 +1468,15 @@ class Admin {
 
         delete_option($name_space);
         $efbFunction->set_setting_Emsfb( $ac, $ac->emailSupporter );
+        // QA3-002: "Remove" (confirmed with "Are you sure you want to delete this?") deletes the add-on's files as well, so
+        // a later Install downloads the current version; its settings and data stay for that reinstall.
+        $entry = class_exists('\\Emsfb\\Addon_Catalog') ? Addon_Catalog::get($post_value) : null;
+        if ($entry && $entry['dir'] !== '') {
+            if (!class_exists('\\Emsfb\\Addon_Installer')) {
+                require_once EMSFB_PLUGIN_DIRECTORY . 'includes/class-Emsfb-addon-installer.php';
+            }
+            Addon_Installer::remove_folder(EMSFB_PLUGIN_DIRECTORY . 'vendor/', $entry['dir']);
+        }
         // F12b D4: the screen gets the settings without their secrets.
         $newAc = json_encode( class_exists('\Emsfb\Captcha\Registry') ? \Emsfb\Captcha\Admin::redact_settings($ac) : $ac, JSON_UNESCAPED_UNICODE );
         $response = ['success' => true, 'r' =>"done", 'value' => "add_addons_Emsfb",'new'=>$newAc];
@@ -2385,8 +2396,7 @@ class Admin {
     /** Mark the guided setup as seen without changing any plan or mail state. */
     public function efb_complete_onboarding() {
         $efbFunction = get_efbFunction();
-        // QA4-002: the first-run guide is the administrator's (the screens show it to them only).
-        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$efbFunction->user_permission_efb_site_settings()) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$efbFunction->user_permission_efb_admin_dashboard()) {
             wp_send_json_error(array('message' => esc_html__('You do not have permission to complete setup.', 'easy-form-builder')), 403);
         }
 
@@ -2407,8 +2417,7 @@ class Admin {
      */
     public function efb_dismiss_onboarding() {
         $efbFunction = get_efbFunction();
-        // QA4-002: the first-run guide is the administrator's (the screens show it to them only).
-        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$efbFunction->user_permission_efb_site_settings()) {
+        if (!check_ajax_referer('wp_rest', 'nonce', false) || !$efbFunction->user_permission_efb_admin_dashboard()) {
             wp_send_json_error(array('message' => esc_html__('You do not have permission to complete setup.', 'easy-form-builder')), 403);
         }
 
@@ -3716,72 +3725,12 @@ class Admin {
     }
         public function isScript( $str ) { return preg_match( "/<script.*type=\"(?!text\/x-template).*>(.*)<\/script>/im", $str ) != 0; }
         public function fun_addon_new($url){
-            $name =substr($url,strrpos($url ,"/")+1,-4);
-            require_once(ABSPATH . 'wp-admin/includes/file.php');
-
-            $r = download_url($url);
-            if(is_wp_error($r)){
-                $r = download_url($url, 300, true);
-                if (is_wp_error($r)) {
-                    return new \WP_Error('download_failed',
-                        esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to download files', 'easy-form-builder')
-                        . ' (' . $r->get_error_message() . ')'
-                    );
-                }
+            // QA3-002: downloaded, unzipped into a staging folder and moved into vendor/ in one step (an outdated
+            // add-on's folder is replaced and put back when that fails); the opcode cache forgets the old files.
+            if (!class_exists('\\Emsfb\\Addon_Installer')) {
+                require_once EMSFB_PLUGIN_DIRECTORY . 'includes/class-Emsfb-addon-installer.php';
             }
-            $filesystem_ready = WP_Filesystem();
-            if ($filesystem_ready) {
-                global $wp_filesystem;
-                $directory = EMSFB_PLUGIN_DIRECTORY . 'temp';
-                if (!$wp_filesystem->exists($directory)) {
-                    $wp_filesystem->mkdir($directory, 0755);
-                }
-                $moved = $wp_filesystem->move($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', true);
-            } else {
-                if ( ! emsfb_is_php_function_available_efb( 'mkdir' ) || ! emsfb_is_php_function_available_efb( 'rename' ) ) {
-                    return new \WP_Error(
-                        'filesystem_functions_unavailable',
-                        esc_html__( 'Cannot install add-ons because this server has disabled the PHP filesystem functions needed to prepare the download. Please ask your hosting provider to enable mkdir and rename, or configure the WordPress filesystem.', 'easy-form-builder' )
-                    );
-                }
-                $directory = EMSFB_PLUGIN_DIRECTORY . 'temp';
-                if (!file_exists($directory)) {
-                    wp_mkdir_p($directory);
-                }
-                // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename -- WP_Filesystem could not start (it asks for FTP details): move the download in place directly
-                $moved = rename($r, EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
-            }
-            if(!$moved){
-                if ( emsfb_is_php_function_available_efb( 'unlink' ) ) {
-                    wp_delete_file($r);
-                }
-                return new \WP_Error('move_failed',
-                    esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to move the downloaded file', 'easy-form-builder')
-                );
-            }
-            if (!$filesystem_ready) {
-                WP_Filesystem();
-            }
-            $r = unzip_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip', EMSFB_PLUGIN_DIRECTORY . 'vendor/');
-            if ( emsfb_is_php_function_available_efb( 'unlink' ) ) {
-                wp_delete_file(EMSFB_PLUGIN_DIRECTORY . 'temp/temp.zip');
-            }
-            if(is_wp_error($r)){
-                return new \WP_Error('unzip_failed',
-                    esc_html__('Cannot install add-ons of Easy Form Builder because the plugin is not able to unzip files', 'easy-form-builder')
-                    . ' (' . $r->get_error_message() . ')'
-                );
-            }
-            // Keep only the add-on language files of locales this site uses. A global
-            // function (this class does not extend efbFunction); it never throws and
-            // never changes the install result.
-            if ( ! function_exists( 'emsfb_prune_addon_languages_efb' ) && function_exists( 'get_efbFunction' ) ) {
-                get_efbFunction();
-            }
-            if ( function_exists( 'emsfb_prune_addon_languages_efb' ) ) {
-                emsfb_prune_addon_languages_efb();
-            }
-            return true;
+            return Addon_Installer::download_and_install($url);
         }
     public function file_upload_public(){
 
@@ -3874,16 +3823,6 @@ class Admin {
 		wp_send_json_success($response,200);
 
 	}
-    public function custom_ui_plugins(){
-           if( is_plugin_active('js_composer/js_composer.php')){
-                 if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/wpbakery")){
-                 }
-             }
-             if (function_exists('register_block_type')) {
-                 if(!is_dir(EMSFB_PLUGIN_DIRECTORY."/vendor/gutenberg")){
-                }
-             }
-    }
     public function send_sms_admin_Emsfb(){
 
         $efbFunction = get_efbFunction();
@@ -4445,16 +4384,6 @@ class Admin {
         return true;
     }
 
-    public function bulk_update_form_cache_efb($forms_data, $fields = array('form_structer', 'form_type')) {
-        $results = array();
-
-        foreach ($forms_data as $form_id => $form_data) {
-            $results[$form_id] = $this->update_form_cache_efb($form_id, $form_data, $fields);
-        }
-
-        return $results;
-    }
-
     public function clear_form_cache_efb($form_id = null, $fields = array()) {
         if ($form_id === null) {
             $this->form_cache = array();
@@ -4489,56 +4418,6 @@ class Admin {
         }
 
         return true;
-    }
-
-    public function get_form_cache_stats_efb() {
-        $memory_cache_count = count($this->form_cache);
-        $memory_size_estimate = strlen(serialize($this->form_cache));
-
-        return array(
-            'memory_cache_items' => $memory_cache_count,
-            'memory_size_bytes' => $memory_size_estimate,
-            'memory_size_mb' => round($memory_size_estimate / 1024 / 1024, 2),
-            'cache_keys' => array_keys($this->form_cache)
-        );
-    }
-
-    public function validate_and_refresh_cache_efb($form_id, $fields = array('form_structer', 'form_type'), $force_refresh = false) {
-        $form_id = intval($form_id);
-        $cache_key = $form_id . '_' . md5(implode('_', $fields));
-
-        if ($force_refresh) {
-            unset($this->form_cache[$cache_key]);
-            wp_cache_delete('efb_form_' . $cache_key, 'emsfb');
-        }
-
-        if (!$force_refresh && isset($this->form_cache[$cache_key])) {
-            return $this->form_cache[$cache_key];
-        }
-
-        if(empty($this->db)){
-            global $wpdb;
-            $this->db = $wpdb;
-        }
-
-        $table_name = $this->db->prefix . "emsfb_form";
-        $fields_str = implode(', ', array_map('esc_sql', $fields));
-
-        $result = $this->db->get_results(
-            $this->db->prepare(
-                "SELECT {$fields_str} FROM `{$table_name}` WHERE form_id = %d ORDER BY form_id DESC LIMIT 1",
-                $form_id
-            )
-        );
-
-        if (!$result || empty($result)) {
-            return null;
-        }
-
-        $this->form_cache[$cache_key] = $result[0];
-        wp_cache_set('efb_form_' . $cache_key, $result[0], 'emsfb', 3600);
-
-        return $result[0];
     }
 
 }

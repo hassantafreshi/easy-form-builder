@@ -1931,22 +1931,6 @@ class Emsfb {
         <?php
     }
 
-    public function init_elementor_compatibility_efb() {
-
-        if (!$this->is_elementor_admin_active_efb()) {
-            return;
-        }
-
-        if (isset($_GET['page']) && (
-            sanitize_key( $_GET['page'] ) === 'Emsfb' ||
-            sanitize_key( $_GET['page'] ) === 'Emsfb_create' ||
-            sanitize_key( $_GET['page'] ) === 'Emsfb_addon' ||
-            sanitize_key( $_GET['page'] ) === 'Emsfb_sms_efb'
-        )) {
-            add_action('admin_enqueue_scripts', array($this, 'apply_elementor_admin_fixes_efb'), 1);
-        }
-    }
-
     public function apply_elementor_admin_fixes_efb() {
 
         add_action('admin_footer', array($this, 'elementor_admin_conflict_prevention_efb'));

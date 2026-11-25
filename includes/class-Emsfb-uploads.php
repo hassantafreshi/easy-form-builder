@@ -104,12 +104,8 @@ class Uploads {
 	}
 
 	/**
-	 * QA4-004: writes a canary file into the private folder (uploads/efb-private), fetches it over HTTP and deletes it
-	 * (probe(true)). Critical when the web server hands it out (nginx and other servers that never read the folder's
-	 * .htaccess): every private file and the e-mail debug log can then be downloaded by anyone who has the address. The
-	 * description carries nginx_rule(). Without an answer (a server that cannot request itself) it is a recommendation.
-	 *
-	 * @return array Site Health result.
+	 * QA4-004: a canary file in uploads/efb-private fetched over HTTP (probe(true)): critical when it is served (nginx
+	 * without the rule; nginx_rule() in the description), good when refused, recommended without an answer.
 	 */
 	public static function site_health_private_uploads() {
 		$p    = self::probe(true);

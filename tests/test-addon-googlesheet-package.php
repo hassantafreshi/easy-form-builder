@@ -33,6 +33,8 @@ function get_option($k, $d = false) { return array_key_exists($k, $GLOBALS['opt'
 function update_option($k, $v, $a = null) { $GLOBALS['opt'][$k] = $v; return true; }
 function esc_html__($s, $d = null) { return $s; }
 function __($s, $d = null) { return $s; }
+if (!function_exists('esc_html')) { function esc_html($s) { return (string) $s; } } // the add-on's phrase file escapes and counts some phrases
+if (!function_exists('_n')) { function _n($a, $b, $n, $d = null) { return $n == 1 ? $a : $b; } }
 require $dir . '/class-Emsfb-googlesheet.php';
 $g = (new ReflectionClass('Emsfb\GoogleSheetAddon'))->newInstanceWithoutConstructor();
 $GLOBALS['opt']['emsfb_googlesheet_form_bindings'] = array(7 => array('enabled' => 1, 'connection_id' => 'conn1', 'spreadsheet_id' => 'SHEET123', 'sheet_tab' => 'Leads', 'field_mode' => 'mapped',

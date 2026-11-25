@@ -96,17 +96,6 @@ class Split {
 		return $c;
 	}
 
-	/** Whether an add-on (not core) already registered the contract (it then wins). */
-	private static function addon_provides($contract) {
-		static $busy = false;
-		if ($busy || !function_exists('apply_filters')) return false;
-		$busy = true;
-		$all = apply_filters('efb_addon_contracts', array());
-		$busy = false;
-		foreach (isset($all[$contract]) && is_array($all[$contract]) ? $all[$contract] : array() as $code => $v) if ($code !== 'core') return true;
-		return false;
-	}
-
 	/* --------------------------------------------------------------------------------------------- types */
 
 	/** Legacy gateway field types and their add-on (contract legacy_gateway v1, filter efb_legacy_gateway_types). */

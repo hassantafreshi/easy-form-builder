@@ -2,8 +2,9 @@
 /**
  * QA4-002: a user who holds only the Emsfb capability (a staff role an owner made with a role editor: read, Emsfb,
  * Emsfb_panel, Emsfb_create) keeps forms and entries, but the site-wide settings, credentials, add-ons,
- * Development Mode, the file cleanup, the plan and the Telegram / Google Sheets / onboarding-email settings are the
- * administrator's (manage_options). remove_addons_Emsfb takes an add-on code of the catalogue only; it used to set
+ * Development Mode, the file cleanup and the Telegram / Google Sheets / onboarding-email settings are the
+ * administrator's (manage_options). The plan and closing the first-run guide stay with the plugin's own admin permission
+ * (owner decision, F18). remove_addons_Emsfb takes an add-on code of the catalogue only; it used to set
  * ANY settings key to 0 (emailSupporter, siteKey, activeCode...), even for an administrator.
  *
  *   A. Core handlers, called as admin-ajax would call them, as the staff user: each is refused and changes nothing.
@@ -134,18 +135,13 @@ try {
 	$r = efb_ssc_call( array( $admin, 'efb_save_onboarding_email' ), array( 'action' => 'efb_save_onboarding_email', 'nonce' => $rest, 'email' => $cur_mail ) );
 	efb_ssc_check( 'A7 efb_save_onboarding_email is refused', efb_ssc_refused( $r ), wp_json_encode( $r ) );
 
+	// Owner decisions kept: closing the first-run guide is a UI flag of the plugin's admin screens, and the plan may be
+	// changed by the plugin's own admin permission (F18 open question 2): both stay open to the Emsfb capability.
 	update_option( 'emsfb_onboarding_initial_install', 1, false );
 	update_option( 'emsfb_onboarding_pending', 1, false );
 	$r = efb_ssc_call( array( $admin, 'efb_dismiss_onboarding' ), array( 'action' => 'efb_dismiss_onboarding', 'nonce' => $rest ) );
-	efb_ssc_check( 'A8 efb_dismiss_onboarding is refused and the guide stays for the administrator', efb_ssc_refused( $r ) && (int) get_option( 'emsfb_onboarding_pending' ) === 1, wp_json_encode( $r ) );
-	$r = efb_ssc_call( array( $admin, 'efb_complete_onboarding' ), array( 'action' => 'efb_complete_onboarding', 'nonce' => $rest ) );
-	efb_ssc_check( 'A9 efb_complete_onboarding is refused', efb_ssc_refused( $r ) && (int) get_option( 'emsfb_onboarding_pending' ) === 1, wp_json_encode( $r ) );
-
-	$pkg  = (int) get_option( 'emsfb_pro', 2 );
-	$plan = $pkg === 1 ? 'pro' : ( $pkg === 3 ? 'free_plus' : 'free' );
-	$r = efb_ssc_call( array( $admin, 'efb_save_plan_selection' ), array( 'action' => 'efb_save_plan_selection', 'nonce' => $rest, 'plan_data' => wp_json_encode( array( 'selected_plan' => $plan ) ) ) );
-	efb_ssc_check( 'A10 efb_save_plan_selection (a site-wide plan) is refused', efb_ssc_refused( $r ), wp_json_encode( $r ) );
-	efb_ssc_check( 'A11 efb_can_change_plan_efb() is false for the staff user (the dialog shows its S7 state)', function_exists( 'efb_can_change_plan_efb' ) && ! efb_can_change_plan_efb() );
+	efb_ssc_check( 'A8 the staff user may still close the first-run guide (a UI flag, owner decision)', ! efb_ssc_refused( $r ), wp_json_encode( $r ) );
+	efb_ssc_check( 'A9 the staff user may still change the plan (F18 owner decision: efb_can_change_plan_efb())', function_exists( 'efb_can_change_plan_efb' ) && efb_can_change_plan_efb() );
 
 	$dev_before = (string) get_option( 'emsfb_dev_mode', '0' );
 	$bar = new \Emsfb\Admin_Bar_Development_Mode();

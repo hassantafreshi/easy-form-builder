@@ -2012,22 +2012,6 @@ class Email_Monitor {
             . '</td></tr></table>';
     }
 
-    private static function build_report_table($rows, $direction, $align, $label_padding) {
-        if (empty($rows)) {
-            return '';
-        }
-
-        $html = '<table role="presentation" dir="' . esc_attr($direction) . '" cellspacing="0" cellpadding="0" border="0" width="100%" style="width:100%;margin:12px 0 0 0;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;">';
-        foreach ($rows as $label => $value) {
-            $html .= '<tr>'
-                . '<td width="70%" align="' . esc_attr($align) . '" style="width:70%;padding:9px ' . esc_attr($label_padding) . ' 9px 12px;border-bottom:1px solid #e5e7eb;color:#4b5563;font-size:13px;line-height:20px;text-align:' . esc_attr($align) . ';">' . esc_html($label) . '</td>'
-                . '<td width="30%" dir="auto" align="' . esc_attr($align) . '" style="width:30%;padding:9px 12px;border-bottom:1px solid #e5e7eb;color:#111827;font-size:14px;line-height:20px;font-weight:700;text-align:' . esc_attr($align) . ';white-space:nowrap;">' . esc_html($value) . '</td>'
-                . '</tr>';
-        }
-
-        return $html . '</table>';
-    }
-
     /**
      * A heading kept outside of the data tables so it remains readable in
      * Outlook versions that ignore table-cell margins.

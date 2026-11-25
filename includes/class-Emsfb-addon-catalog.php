@@ -355,11 +355,23 @@ class Addon_Catalog {
 		return $vars;
 	}
 
-	/** code => {package, name, contract, help} for the builder and the Add-ons page (help: this site's language, '' = none). */
+	/**
+	 * code => {package, name, contract, help, screen, state} for the builder and the Add-ons page (help: this site's
+	 * language, '' = none). QA3-002: state of an add-on that is on: 'ok', 'update' (older than this core: the card offers
+	 * Update) or 'missing' (its files are gone: Install); '' while it is off.
+	 */
 	public static function js_mirror($locale = null) {
 		$out = array();
 		$locale = $locale === null ? self::locale() : (string) $locale;
-		foreach (self::all() as $code => $e) $out[$code] = array('package' => (int) $e['package'], 'name' => $e['name'], 'contract' => $e['contract'], 'help' => empty($e['help']) ? '' : self::resolve_help($e['help'], $locale), 'screen' => self::screen_url($code));
+		$settings = function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null;
+		foreach (self::all() as $code => $e) {
+			$state = '';
+			if (self::flag_on($code, $settings)) {
+				if (!self::files_present($code)) $state = 'missing';
+				else $state = class_exists('\\Emsfb\\Split') && Split::addon_state($code) === 'update' ? 'update' : 'ok';
+			}
+			$out[$code] = array('package' => (int) $e['package'], 'name' => $e['name'], 'contract' => $e['contract'], 'help' => empty($e['help']) ? '' : self::resolve_help($e['help'], $locale), 'screen' => self::screen_url($code), 'state' => $state);
+		}
 		return $out;
 	}
 

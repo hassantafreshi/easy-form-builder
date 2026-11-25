@@ -104,7 +104,8 @@ t('JS mirror: efb_addon_required_package_efb() equals the PHP table for every ke
 $fb_ok = true;
 foreach ($old_keys as $k) if ($res['fb'][$k] !== (isset($old_tiers[$k]) ? $old_tiers[$k] : 1)) { $fb_ok = false; echo "  JS fallback of {$k}\n"; }
 t('JS mirror without efb_var.addon_catalog (an old page) still answers the old table', $fb_ok, true);
-t('admin-efb.js lists the SPLIT add-on cards', count(array_filter(array('AdnCLC', 'AdnTSG', 'AdnADR', 'AdnBEF', 'AdnGEO'), function ($k) use ($src) { return strpos($src, "name:'{$k}'") !== false; })), 5);
+// QA3-007: the fallback cards come from Addon_Catalog; admin-efb.js keeps each card's words (efb_addon_card_ui_efb).
+t('admin-efb.js lists the SPLIT add-on cards', count(array_filter(array('AdnCLC', 'AdnTSG', 'AdnADR', 'AdnBEF', 'AdnGEO'), function ($k) use ($src) { return strpos($src, "  {$k}: ['") !== false; })), 5);
 
 // The loader.
 function emsfb_is_addon_compatible_efb($k) { return $GLOBALS['compat_efb']; }

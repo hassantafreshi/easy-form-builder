@@ -409,13 +409,9 @@ class Lifecycle {
 	const UPLOAD_NAME = '/^(?:efb-(?:PLG|rec)-[0-9]{6}-[A-Za-z0-9]+(?:-[0-9]+)?|emsfb-PLG-[A-Za-z0-9_-]+)\.[A-Za-z0-9]{1,10}$/';
 
 	/**
-	 * QA4-001: the visitors' files of the default storage. The private folder and the Media Library files have their
-	 * own steps; this removes the uploads folder's files with the plugin's names (uploads/<year>/<month>/efb-PLG-*,
-	 * efb-rec-* and the top folder when month folders are off), the files the entries and replies name anywhere under
-	 * the uploads folder, and the ledger of files not yet attached (emsfb_pending_uploads). Only names the plugin
-	 * generates are ever deleted, so an owner's own file is safe even when an entry links to it.
-	 *
-	 * @return int Files deleted.
+	 * QA4-001: the visitors' files of the default storage: plugin-named files in uploads/ and uploads/<y>/<m>/, those
+	 * the entries and replies name anywhere under uploads/, and the emsfb_pending_uploads ledger. Only names the plugin
+	 * generates are deleted, so an owner's own file stays even when an entry links to it. @return int Files deleted.
 	 */
 	public static function delete_uploads() {
 		global $wpdb;

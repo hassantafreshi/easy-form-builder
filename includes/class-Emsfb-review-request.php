@@ -58,25 +58,16 @@ class Review_Request {
 	/** Nonce action and AJAX action share one name, as elsewhere in the plugin. */
 	const ACTION = 'emsfb_review_request';
 
-	/**
-	 * How long someone has to have been using the plugin before we ask. QA4-009: a week of real use (it was one day,
-	 * which asked people who had only just arrived).
-	 */
+	/** QA4-009: real use first: days in use, entries received; quiet days after an update (emsfb_updated_at). */
 	const MIN_DAYS = 7;
-
-	/** QA4-009: entries the site must have received before we ask (real use, not a first look). */
 	const MIN_ENTRIES = 3;
-
-	/** QA4-009: days after a plugin update during which nobody is asked (the update has the owner's attention). */
 	const UPDATE_QUIET_DAYS = 3;
-
-	/** QA4-009: the option holding when the plugin was last updated (written by Emsfb::run_upgrade_tasks_efb()). */
 	const OPTION_UPDATED = 'emsfb_updated_at';
 
-	/** QA5 note: script handles of an assistant dock the invitation must never cover (the AI Site Assistant's). */
+	/** QA5 note: an assistant dock the invitation must never cover (the AI Site Assistant's). */
 	const DOCK_SCRIPTS = array( 'aisaautopilot-ai-dock' );
 
-	/** QA4-009: true when this request is the first visit to an Easy Form Builder screen (never the one we ask on). */
+	/** QA4-009: this request is the first visit to the plugin's screens. */
 	private $first_visit_now = false;
 
 	/**
@@ -357,12 +348,7 @@ class Review_Request {
 		return (bool) apply_filters( 'emsfb_review_should_ask_efb', true, $this );
 	}
 
-	/**
-	 * QA4-009: how many entries the site has received, counted up to MIN_ENTRIES (filter emsfb_review_entries_efb, for
-	 * a test or a site that counts differently).
-	 *
-	 * @return int
-	 */
+	/** QA4-009: entries received, counted up to MIN_ENTRIES (filter emsfb_review_entries_efb). @return int */
 	public function entries_received_efb() {
 		$n = apply_filters( 'emsfb_review_entries_efb', null );
 		if ( null !== $n ) {
@@ -380,12 +366,7 @@ class Review_Request {
 		return $n;
 	}
 
-	/**
-	 * QA4-009: whether the plugin is busy with an update: the add-ons still have to be reinstalled ("Finish updating"),
-	 * the last recovery failed, or the update is less than UPDATE_QUIET_DAYS old.
-	 *
-	 * @return bool
-	 */
+	/** QA4-009: add-ons to reinstall ("Finish updating"), a failed recovery, or an update under UPDATE_QUIET_DAYS old. */
 	public function busy_with_update_efb() {
 		if ( get_option( 'emsfb_addons_reinstall_required' ) ) {
 			return true;
@@ -398,12 +379,7 @@ class Review_Request {
 		return $updated > 0 && time() - $updated < self::UPDATE_QUIET_DAYS * DAY_IN_SECONDS;
 	}
 
-	/**
-	 * QA4-009: the first visit to an Easy Form Builder screen is remembered (state first_seen) and is never the one the
-	 * invitation opens on.
-	 *
-	 * @return void
-	 */
+	/** QA4-009: remembers the first visit to the plugin's screens (state first_seen); the invitation never opens on it. */
 	protected function note_screen_visit_efb() {
 		if ( ! current_user_can( 'manage_options' ) || $this->is_preview_efb() ) {
 			return;
@@ -415,13 +391,7 @@ class Review_Request {
 		}
 	}
 
-	/**
-	 * QA5 note: whether the screen carries a dock the invitation would cover (the AI Site Assistant's on Create), or
-	 * is the form builder, where the owner is in the middle of building a form.
-	 *
-	 * @param string $hook Current admin page.
-	 * @return bool
-	 */
+	/** QA5 note: the form builder, or a screen with an assistant's dock: never covered. @return bool */
 	protected function screen_is_busy_efb( $hook ) {
 		foreach ( self::DOCK_SCRIPTS as $handle ) {
 			if ( function_exists( 'wp_script_is' ) && ( wp_script_is( $handle, 'enqueued' ) || wp_script_is( $handle, 'done' ) ) ) {

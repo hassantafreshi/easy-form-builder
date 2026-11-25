@@ -547,28 +547,79 @@ function deepFreeze_efb_admin(obj) {
   return Object.freeze(obj);
 }
 
+/* QA3-007: the cards shown when the add-on server's catalogue (addons.js) does not arrive. The list comes from
+   efb_var.addon_catalog (Emsfb\Addon_Catalog, every add-on this core knows, with its plan); this table only gives each
+   card its words, icon and search tags. A payment gateway or a CAPTCHA add-on without its own words gets a sentence
+   naming it. Codes without files (old flags such as AdnATC) are no add-on and get no card. v_required 0: the server
+   checks the version when the add-on is installed. */
+const efb_addon_card_ui_efb = {
+  AdnSS: ['smsTAddon', 'smsDAddon', 'bi-chat-left-text', 'form sms notification integrate'],
+  AdnSPF: ['stripeTAddon', 'stripeDAddon', 'bi-stripe', 'pay payment'],
+  AdnPPF: ['persiaPayTAddon', 'persiaPayDAddon', 'bi-credit-card-2-front', 'pay payment persia form'],
+  AdnPDP: ['datePTAddon', 'datePDAddon', 'bi-calendar', 'date form persia'],
+  AdnADP: ['dateATAddon', 'dateADAddon', 'bi-calendar', 'date form arabic'],
+  AdnOF: ['offlineTAddon', 'offlineDAddon', 'bi-chat-text', 'offline'],
+  AdnATF: ['TAdnAtF', 'DAdnAtF', 'bi-database-add', 'data form'],
+  AdnPAP: ['payPalTAddon', 'payPalDAddon', 'bi-paypal', 'form pay payment'],
+  AdnTLG: ['tlgmAddon', 'tlgmDAddon', 'bi-telegram', 'form social notification integrate'],
+  AdnGoS: ['TAdnGoS', 'DAdnGoS', 'bi-file-earmark-spreadsheet', 'form integration google sheet spreadsheet data export sync'],
+  AdnSMF: ['condATAddon', 'condADAddon', 'bi-diagram-3', 'form logic conditional smart'],
+  AdnHSH: ['TAdnHSH', 'DAdnHSH', 'bi-shield-check', 'form security spam protection rate limit'],
+  AdnCLC: ['TAdnCLC', 'DAdnCLC', 'bi-calculator', 'number calculation formula price slider'],
+  AdnTSG: ['TAdnTSG', 'DAdnTSG', 'bi-pen', 'signature typed font'],
+  AdnADR: ['TAdnADR', 'DAdnADR', 'bi-geo-alt', 'address postal zip map location'],
+  AdnBEF: ['TAdnBEF', 'DAdnBEF', 'bi-calendar-check', 'booking reservation capacity date'],
+  AdnGEO: ['TAdnGEO', 'DAdnGEO', 'bi-globe', 'country ip geolocation hidden'],
+  AdnMOL: ['mollieTAddon', '', 'bi-credit-card', 'pay payment gateway mollie'],
+  AdnPPG: ['payplugTAddon', '', 'bi-credit-card', 'pay payment gateway payplug'],
+  AdnTAP: ['tapTAddon', '', 'bi-credit-card', 'pay payment gateway tap'],
+  AdnOMS: ['omiseTAddon', '', 'bi-credit-card', 'pay payment gateway omise'],
+  AdnPTB: ['paytabsTAddon', '', 'bi-credit-card', 'pay payment gateway paytabs'],
+  AdnPMB: ['paymobTAddon', '', 'bi-credit-card', 'pay payment gateway paymob'],
+  AdnXND: ['xenditTAddon', '', 'bi-credit-card', 'pay payment gateway xendit'],
+};
 function fun_default_addons_efb_admin() {
-  return [
-    {id:7, name:'AdnSS', title:'smsTAddon', desc:'smsDAddon', icon:'bi-chat-left-text', link:'', download:true, pro:true, state:true, tag:'form sms notification integrate', version:0.1, v_required:3.7, package:1},
-    {id:1, name:'AdnSPF', title:'stripeTAddon', desc:'stripeDAddon', icon:'bi-stripe', link:'', download:true, pro:true, state:true, tag:'pay payment', version:0.1, v_required:3.4, package:1},
-    {id:3, name:'AdnPPF', title:'persiaPayTAddon', desc:'persiaPayDAddon', icon:'bi-credit-card-2-front', link:'', download:true, pro:true, state:true, tag:'pay payment persia form', version:0.1, v_required:3.4, package:1},
-    {id:4, name:'AdnATC', title:'trackCTAddon', desc:'trackCDAddon', icon:'bi-pentagon', link:'', download:true, pro:true, state:false, tag:'form tracking track', version:0.0, v_required:10, package:1},
-    {id:5, name:'AdnPDP', title:'datePTAddon', desc:'datePDAddon', icon:'bi-calendar', link:'', download:true, pro:true, state:true, tag:'date form persia', version:0.1, v_required:3.6, package:1},
-    {id:6, name:'AdnADP', title:'dateATAddon', desc:'dateADAddon', icon:'bi-calendar', link:'', download:true, pro:true, state:true, tag:'date form arabic', version:0.1, v_required:3.6, package:1},
-    {id:2, name:'AdnOF', title:'offlineTAddon', desc:'offlineDAddon', icon:'bi-chat-text', link:'', download:true, pro:false, state:true, tag:'offline', version:0.1, v_required:3.4, package:0},
-    {id:9, name:'AdnATF', title:'TAdnAtF', desc:'DAdnAtF', icon:'bi-database-add', link:'', download:true, pro:true, state:true, tag:'data form', version:0.1, v_required:4.0, package:1},
-    {id:8, name:'AdnPAP', title:'payPalTAddon', desc:'payPalDAddon', icon:'bi-paypal', link:'', download:true, pro:true, state:true, tag:'form pay payment', version:0.1, v_required:4.0, package:1},
-    {id:8, name:'AdnTLG', title:'tlgmAddon', desc:'tlgmDAddon', icon:'bi-telegram', link:'', download:true, pro:true, state:true, tag:'form social notification integrate', version:0.1, v_required:4.0, package:1},
-    {id:12, name:'AdnGoS', title:'TAdnGoS', desc:'DAdnGoS', icon:'bi-file-earmark-spreadsheet', link:'', download:true, pro:true, state:true, tag:'form integration google sheet spreadsheet data export sync', version:0.1, v_required:4.1, package:4},
-    {id:10, name:'AdnSMF', title:'condATAddon', desc:'condADAddon', icon:'bi-diagram-3', link:'', download:true, pro:false, state:true, tag:'form logic conditional smart', version:0.1, v_required:4.0, package:1},
-    {id:11, name:'AdnHSH', title:'TAdnHSH', desc:'DAdnHSH', icon:'bi-shield-check', link:'', download:true, pro:true, state:true, tag:'form security spam protection rate limit', version:0.1, v_required:4.1, package:4},
-    /* SPLIT: features that left core (plans from efb_var.addon_catalog: Emsfb\Addon_Catalog). */
-    {id:20, name:'AdnCLC', title:'TAdnCLC', desc:'DAdnCLC', icon:'bi-calculator', link:'', download:true, pro:true, state:true, tag:'number calculation formula price slider', version:1.0, v_required:4.3, package:3},
-    {id:21, name:'AdnTSG', title:'TAdnTSG', desc:'DAdnTSG', icon:'bi-pen', link:'', download:true, pro:true, state:true, tag:'signature typed font', version:1.0, v_required:4.3, package:3},
-    {id:22, name:'AdnADR', title:'TAdnADR', desc:'DAdnADR', icon:'bi-geo-alt', link:'', download:true, pro:false, state:true, tag:'address postal zip map location', version:1.0, v_required:4.3, package:0},
-    {id:23, name:'AdnBEF', title:'TAdnBEF', desc:'DAdnBEF', icon:'bi-calendar-check', link:'', download:true, pro:true, state:true, tag:'booking reservation capacity date', version:1.0, v_required:4.3, package:1},
-    {id:24, name:'AdnGEO', title:'TAdnGEO', desc:'DAdnGEO', icon:'bi-globe', link:'', download:true, pro:true, state:true, tag:'country ip geolocation hidden', version:1.0, v_required:4.3, package:3},
-  ];
+  const ev = (typeof efb_var !== 'undefined' && efb_var) || {};
+  const cat = ev.addon_catalog || {};
+  const t = ev.text || {};
+  const out = [];
+  let id = 1;
+  for (const code of Object.keys(cat)) {
+    const c = cat[code] || {};
+    const ui = efb_addon_card_ui_efb[code];
+    const kind = c.contract === 'payments' ? 'pay' : (c.contract === 'captcha_provider' ? 'captcha' : '');
+    if (!ui && !kind) continue;
+    const title = ui ? ui[0] : String(c.name || code);
+    const named = t[title] || title;
+    let desc = ui && ui[1] ? ui[1] : '';
+    if (!desc) desc = String(kind === 'captcha' ? (t.addonCaptchaDescT || 'Protect your forms from spam with %s.') : (t.addonPayDescT || 'Take payments in your forms with %s.')).replace('%s', named);
+    out.push({ id: id++, name: code, title: title, desc: desc, icon: ui ? ui[2] : (kind === 'captcha' ? 'bi-shield-lock' : 'bi-credit-card'),
+      link: '', download: true, pro: Number(c.package) !== 0, state: true, tag: ui ? ui[3] : (kind === 'captcha' ? 'form security spam captcha' : 'pay payment gateway'),
+      version: 1, v_required: 0, package: Number(c.package) });
+  }
+  return out;
+}
+
+/* QA3-007: the Add-ons page waits for the add-on server's catalogue (whiteStudioAddone, loaded async) only until it
+   arrives or fails, and at most EFB_ADDONS_WAIT_MS; then it shows the catalogue built from Addon_Catalog. It polled for
+   about 30 s before. A catalogue that arrives later still replaces the cards. */
+const EFB_ADDONS_WAIT_MS = 5000;
+function efb_addons_wait_catalogue_efb() {
+  let shown = false;
+  const ready = () => typeof addons_efb !== 'undefined' && Array.isArray(addons_efb);
+  const show = () => { if (shown) return; shown = true; fun_get_addons_efb_admin(); add_addons_emsFormBuilder(); };
+  if (ready()) { show(); return; }
+  const tag = document.getElementById('whiteStudioAddone-js');
+  if (!tag) { show(); return; }
+  tag.addEventListener('load', () => setTimeout(() => {
+    if (!shown) { show(); return; }
+    if (ready()) add_addons_emsFormBuilder();
+  }, 0));
+  tag.addEventListener('error', show);
+  try {
+    if (window.performance && performance.getEntriesByName && performance.getEntriesByName(tag.src).length) { setTimeout(show, 0); return; }
+  } catch (e) { /* no timing data: the timer below decides */ }
+  setTimeout(show, EFB_ADDONS_WAIT_MS);
 }
 
 function fun_get_addons_efb_admin() {
@@ -603,27 +654,7 @@ jQuery(function () {
     add_dasboard_emsFormBuilder();
 
   }else if(state_check_ws_p==2){
-    timeout=500;
-    let addon_wait_attempts_efb = 0;
-
-    fun_timeout=()=>{
-      setTimeout(() => {
-        if(typeof addons_efb =='undefined' || !Array.isArray(addons_efb)){
-          timeout +=100
-          addon_wait_attempts_efb += 1;
-
-          if (addon_wait_attempts_efb < 20) {
-            fun_timeout();
-            return;
-          }
-
-          fun_get_addons_efb_admin();
-          add_addons_emsFormBuilder();
-        }else{
-          add_addons_emsFormBuilder();}
-       }, timeout);
-    }
-    fun_timeout();
+    efb_addons_wait_catalogue_efb();
   }
 
 
@@ -1333,7 +1364,13 @@ createCardAddoneEfb = (i) => {
   let nameNtn = efb_var.text.install;
   let iconNtn = 'bi-download';
   let colorNtn = 'btn-primary';
-  if (isInstalled){
+  /* QA3-002: an installed add-on that is older than this core (state 'update') or whose files are gone ('missing') is
+     downloaded again from its card: Update / Install, not Remove. */
+  const addonState = (efb_var.addon_catalog && efb_var.addon_catalog[i.name] && efb_var.addon_catalog[i.name].state) || '';
+  if (isInstalled && (addonState === 'update' || addonState === 'missing')) {
+    nameNtn = addonState === 'update' ? (efb_var.text.addonUpdateBtn || 'Update') : (efb_var.text.addonInstallBtn || efb_var.text.install);
+    iconNtn = addonState === 'update' ? 'bi-arrow-repeat' : 'bi-download';
+  }else if (isInstalled){
     funNtn=`funBTNAddOnsUnEFB('${i.name}')`;
     nameNtn = efb_var.text.remove;
     iconNtn ='';
@@ -1352,8 +1389,11 @@ createCardAddoneEfb = (i) => {
     colorNtn = 'btn-warning';
   }
 
+  /* QA3-007: the search tags were bare classes of the card: "hidden" (Visitor Country's) hid its card and "map"
+     (Address & Postal's) gave its row the map field's height, so one row of cards ran far down the page. */
+  const tagCls = String(i.tag || '').split(/\s+/).filter((w) => /^[A-Za-z0-9_-]+$/.test(w)).map((w) => 'efb-tag-' + w).join(' ');
   return `
-  <div class="efb tag mt-0 mb-2 col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${i.tag}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
+  <div class="efb tag mt-0 mb-2 col ${efb_var.rtl == 1 ? 'rtl-text' : ''} ${tagCls}" id="${i.id}"> <div class="efb card efb"><div class="efb card-body">
   ${isLockedAddon ? funProEfb('addon:' + i.name, { fallback: efb_addon_required_package_efb(i) === 3 ? 'free_plus' : 'pro', origin: 'addons' }) : ''}
   <h5 class="efb card-title efb"><i class="efb  ${i.icon} mx-1"></i>${i.title} </h5>
   <div class="efb row" ><p class="efb card-text efb ${mobile_view_efb ? '' : 'fs-7'} float-start my-3">${i.desc}  </p></div>
@@ -1512,8 +1552,9 @@ function efb_resolve_addon_display_efb(i) {
   let title = i.title;
   let desc = i.desc;
   if (title.trim().split(/\s+/).length === 1) {
-    title = efb_var.text[title];
-    desc = efb_var.text[desc];
+    // A one-word title is a phrase key; a product name of one word (hCaptcha, ALTCHA) stays as it is (QA3-007).
+    title = efb_var.text[title] || title;
+    desc = efb_var.text[desc] || desc;
   }
   return { 'name': i.name, 'id': i.id, 'tag': i.tag, 'icon': i.icon,
            'title': title, 'desc': desc, 'v_required': i.v_required, 'pro': i.pro };
