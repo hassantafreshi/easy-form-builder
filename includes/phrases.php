@@ -237,7 +237,7 @@ class EfbAddonPhrases {
         return [
 
             /* translators: Shown when the security add-on is switched off */
-            "hsDisabled" => $state && isset($ac->text->hsDisabled) ? $ac->text->hsDisabled : __('Form Security & Spam Protection is disabled.', 'easy-form-builder'),
+            "hsDisabled" => $state && isset($ac->text->hsDisabled) ? $ac->text->hsDisabled : __('Human Shield is disabled.', 'easy-form-builder'),
 
             /* translators: Shown when the server cannot run the security checks but the form still works */
             "hsServiceNotAvailable" => $state && isset($ac->text->hsServiceNotAvailable) ? $ac->text->hsServiceNotAvailable : __('The security service is not available right now. Your form still works.', 'easy-form-builder'),

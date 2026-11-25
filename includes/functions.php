@@ -3987,7 +3987,8 @@ class efbFunction {
 
 			"TAdnAtF" => $state  &&  isset($ac->text->TAdnAtF) ? $ac->text->TAdnAtF : esc_html__('Auto-Populate Add-on','easy-form-builder'),
 			"DAdnAtF" => $state  &&  isset($ac->text->DAdnAtF) ? $ac->text->DAdnAtF : esc_html__('The Auto-Populate add-on enables you to automatically populate form fields from datasets, previously submitted forms, or external APIs.','easy-form-builder'),
-			"TAdnHSH" => $state  &&  isset($ac->text->TAdnHSH) ? $ac->text->TAdnHSH : esc_html__('Form Security & Spam Protection','easy-form-builder'),
+			/* translators: B4/B7 hand-off: the name of the security and spam add-on (a product name, formerly "Form Security & Spam Protection") */
+			"TAdnHSH" => $state  &&  isset($ac->text->TAdnHSH) ? $ac->text->TAdnHSH : esc_html__('Human Shield','easy-form-builder'),
 			"DAdnHSH" => $state  &&  isset($ac->text->DAdnHSH) ? $ac->text->DAdnHSH : esc_html__('Behavior-based anti-spam and API abuse protection with rate limits and a stop-loss for paid notifications such as SMS, Telegram, email and webhooks.','easy-form-builder'),
 			/* translators: Google Sheet add-on card title on the Add-ons page */
 			"TAdnGoS" => $state  &&  isset($ac->text->TAdnGoS) ? $ac->text->TAdnGoS : esc_html__('Google Sheet Add-on','easy-form-builder'),
@@ -8192,7 +8193,7 @@ class efbFunction {
 			'AdnATF' => esc_html__( 'Auto-Populate', 'easy-form-builder' ),
 			'AdnGoS' => esc_html__( 'Google Sheets', 'easy-form-builder' ),
 			'AdnSMF' => esc_html__( 'Conditional Logic', 'easy-form-builder' ),
-			'AdnHSH' => esc_html__( 'Form Security & Spam Protection', 'easy-form-builder' ),
+			'AdnHSH' => esc_html__( 'Human Shield', 'easy-form-builder' ),
 		);
 
 		return isset( $labels[ $addon_key ] ) ? $labels[ $addon_key ] : sanitize_text_field( $addon_key );

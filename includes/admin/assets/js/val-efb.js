@@ -2735,7 +2735,7 @@ function creator_form_builder_Efb() {
               <input type="search" id="efbPaletteSearch" class="efb form-control efb-palette-search-input" role="searchbox" aria-controls="efbPaletteTilesEfb" aria-describedby="efbPaletteSearchLive" autocomplete="off" spellcheck="false" placeholder="${efb_var.text.searchFields || 'Search fields'}">
               <div id="efbPaletteSearchLive" class="efb efb-palette-live" aria-live="polite"></div>
             </div>
-            <ul class="efb my-2 row" id="listCatEfb">
+            <ul class="efb my-2 row efb-list-rule" id="listCatEfb">
                 <li class="efb efb-col-3 px-1">
                   <a class="efb nav-link cat fs-7 efb active all" aria-current="page" onclick="funUpdateLisetElEfb('all')" role="button">${efb_var.text.all}</a>
                 </li>
@@ -2748,7 +2748,6 @@ function creator_form_builder_Efb() {
                 <li class="efb efb-col-3 px-1">
                   <a class="efb nav-link cat fs-7 efb advance" onclick="funUpdateLisetElEfb('advance')"  role="button">${efb_var.text.advanced}</a>
                 </li>
-                <hr class="efb hr">
             </ul>
           <div class="efb row" id="efbPaletteTilesEfb">${els}</div></div>
          <div class="efb  col-md-8 body-dpz-efb">

@@ -7026,38 +7026,10 @@ function efbNoticeCenterEfb() {
 efbNoticeCenterEfb();
 document.addEventListener('DOMContentLoaded', efbNoticeCenterEfb);
 
-/* A11Y-01: names and text alternatives for markup the screens' PHP and the other scripts print, bridged here until it is
-   fixed where it is printed (class-Emsfb-panel.php: the header's logo and its two icon links, the "more forms" button;
-   val-efb.js: the <hr> in the palette's category list; the entries screen's buttons whose words hide on a phone):
-   - an image of the plugin without alt is decorative (each sits beside its own words): alt="";
-   - an icon-only link or button gets a name: the words it hides, its title, or the header icon's own name (+ "(opens in a
-     new tab)" for a link that does);
-   - an <hr> right inside a list leaves it (only <li> may be there); the list draws the line itself (efb-list-rule).
-   Idempotent; on load and whenever the screen draws (debounced). */
-function efbA11yRepairEfb() {
-  const root = document.getElementById('wpbody-content');
-  if (!root) return;
-  for (const im of root.querySelectorAll('img:not([alt])')) {
-    if (im.closest('.efb') || /\/easy-form-builder\//.test(im.getAttribute('src') || '')) im.setAttribute('alt', '');
-  }
-  for (const hr of root.querySelectorAll('ul.efb > hr, ol.efb > hr')) { hr.parentNode.classList.add('efb-list-rule'); hr.remove(); }
-  const newTab = efbSbTextEfb('upgNewTab', '(opens in a new tab)');
-  const known = [
-    ['a[href*="whitestudio.team/login"]', efbSbTextEfb('a11yAccount', 'Your WhiteStudio account')],
-    ['a[href*="whitestudio.team/documents"]', efbSbTextEfb('a11yDocs', 'Easy Form Builder documentation')],
-    ['#more_emsFormBuilder', efbSbTextEfb('a11yMore', 'Show more')],
-  ];
-  for (const el of root.querySelectorAll('.efb a[href], a.efb[href], .efb button, button.efb')) {
-    if (el.hasAttribute('aria-label') || el.hasAttribute('aria-labelledby')) continue;
-    if ((el.innerText || '').trim() !== '' || el.querySelector('img[alt]:not([alt=""])')) continue;
-    let name = (el.getAttribute('title') || el.getAttribute('data-efb-tip') || '').trim();
-    if (!name) name = (el.textContent || '').replace(/\s+/g, ' ').trim(); // words a narrow screen hides
-    if (!name) { const k = known.find((x) => el.matches(x[0])); if (k) name = k[1]; }
-    if (!name) continue;
-    if (el.tagName === 'A' && /^_?blank$/.test(el.getAttribute('target') || '') && name.indexOf(newTab) === -1) name += ' ' + newTab;
-    el.setAttribute('aria-label', name);
-  }
-}
+/* A11Y-01: the names and text alternatives the runtime bridge (efbA11yRepairEfb) used to add are in the markup now
+   (B7, B4 hand-off): class-Emsfb-panel.php (the header's logo alt="", its account and documentation links, "Show more",
+   Close, Back), val-efb.js (the palette's category list draws its rule with efb-list-rule, no <hr> in the <ul>), and
+   the scripts that print icon-only controls (aria-label). tests/e2e-wp/scenario-b4.js keeps axe at 0 serious or critical. */
 /* B5 hand-off (PUB-01 in the builder): the buttons' label colour (row 0's el_text_color) against the button colour
    (button_color). Under 4.5:1 the Buttons panel says so under its colour controls (role status), with the colour the
    visitors see instead (the page draws the label white or near-black). One formula: efb_btn_text_class_efb(btn, text,
@@ -7115,13 +7087,12 @@ function efbCaptchasHumanShieldEfb() {
 }
 let efbA11yTimerEfb = 0;
 function efbA11yWatchEfb() {
-  efbA11yRepairEfb();
   efbCaptchasHumanShieldEfb();
   efbBtnContrastNoteEfb();
   const root = document.getElementById('wpbody-content');
   if (!root || !window.MutationObserver || root.getAttribute('data-efb-a11y') === '1') return;
   root.setAttribute('data-efb-a11y', '1');
-  new MutationObserver(() => { clearTimeout(efbA11yTimerEfb); efbA11yTimerEfb = setTimeout(() => { efbA11yRepairEfb(); efbCaptchasHumanShieldEfb(); efbBtnContrastNoteEfb(); }, 250); }).observe(root, { childList: true, subtree: true });
+  new MutationObserver(() => { clearTimeout(efbA11yTimerEfb); efbA11yTimerEfb = setTimeout(() => { efbCaptchasHumanShieldEfb(); efbBtnContrastNoteEfb(); }, 250); }).observe(root, { childList: true, subtree: true });
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', efbA11yWatchEfb); else efbA11yWatchEfb();
 

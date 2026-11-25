@@ -103,7 +103,8 @@
   .efb-ent-cond select, .efb-ent-cond input { flex: 1 1 100%; }
   .efb-ent-bulkbar { border-radius: 0; margin-inline: -12px; }
   .efb-ent-tab, .efb-act-btn, .efb-ent-star { min-height: 44px; min-width: 44px; }
-  .efb-ent-headbtns .btn span { display: none; }
+  /* A11Y-01 (B4 hand-off, in the stylesheet now): on a phone the words leave the screen, not the button's name. */
+  .efb-ent-headbtns .btn span { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 }
 
 /* The entry in the response viewer: star, status, actions above; notes (pale yellow, administrators only) and

@@ -1703,7 +1703,7 @@ class Emsfb {
             'AdnBEF' => 'Booking',
             'AdnPDP' => 'Persian Date Picker',
             'AdnADP' => 'َArabic Date Picker',
-            'AdnHSH' => 'Form Security & Spam Protection',
+            'AdnHSH' => 'Human Shield',
         ];
 
         foreach ( $addon_keys as $key => $name ) {

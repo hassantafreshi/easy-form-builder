@@ -62,7 +62,7 @@ class Emsfb_Addon_Compatibility {
 				'functions' => array( 'openssl_pkey_get_private', 'openssl_sign', 'json_encode', 'json_decode', 'base64_encode' ),
 			),
 			'AdnHSH' => array(
-				'name'      => 'Form Security & Spam Protection',
+				'name'      => 'Human Shield',
 				'functions' => array( 'hash_hmac', 'hash', 'json_encode', 'json_decode', 'base64_encode', 'base64_decode' ),
 			),
 		);

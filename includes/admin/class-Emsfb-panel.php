@@ -175,7 +175,7 @@ class Panel_edit  {
 					<nav class="efb navbar navbar-expand-lg navbar-light efb" id="navbar">
 						<div class="efb container">
 							<a class="efb navbar-brand efb" href="admin.php?page=Emsfb_create" >
-								<img src="<?php echo EMSFB_PLUGIN_URL.'/includes/admin/assets/image/logo-easy-form-builder.svg' ?>" class="efb logo efb">
+								<img src="<?php echo esc_url(EMSFB_PLUGIN_URL.'includes/admin/assets/image/logo-easy-form-builder.svg') ?>" class="efb logo efb" alt="">
 								<?php echo esc_html__('Easy Form Builder','easy-form-builder') ?></a>
 							<button class="efb navbar-toggler efb" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 								<span class="efb navbar-toggler-icon efb"></span>
@@ -200,10 +200,10 @@ class Panel_edit  {
 										<a class="efb btn efb btn-outline-pink mx-2 ec-efb" type="submit" id="track_code_btn_emsFormBuilder" data-eventform='searchCC'><?php echo   $lang["search"] ?></a>
 									</form>
 									<div class="efb nav-icon efb mx-2">
-										<a class="efb nav-link efb" href="https://whitestudio.team/login" target="blank"><i class="efb  bi-person"></i></a>
+										<a class="efb nav-link efb" href="https://whitestudio.team/login" target="_blank" rel="noopener" aria-label="<?php /* translators: A11Y-01: the name of the header's account icon link; it opens a new tab */ echo esc_attr__('Your WhiteStudio account (opens in a new tab)', 'easy-form-builder') ?>"><i class="efb  bi-person" aria-hidden="true"></i></a>
 									</div>
 									<div class="efb nav-icon efb">
-										<a class="efb nav-link efb ec-efb" href="https://whitestudio.team/documents" target="blank"><i class="efb  bi-file-earmark-richtext"></i></a>
+										<a class="efb nav-link efb ec-efb" href="https://whitestudio.team/documents" target="_blank" rel="noopener" aria-label="<?php /* translators: A11Y-01: the name of the header's documentation icon link; it opens a new tab */ echo esc_attr__('Easy Form Builder documentation (opens in a new tab)', 'easy-form-builder') ?>"><i class="efb  bi-file-earmark-richtext" aria-hidden="true"></i></a>
 									</div>
 								</div>
 							</div>
@@ -219,7 +219,7 @@ class Panel_edit  {
 								<div class="efb modal-content efb " id="settingModalEfb-sections">
 										<div class="efb modal-header efb">
 											<h5 class="efb modal-title efb" ><i class="efb bi-ui-checks mx-2" id="settingModalEfb-icon"></i><span id="settingModalEfb-title"></span></h5>
-										<a class="mt-3 mx-3 efb  text-danger position-absolute top-0 <?php echo  is_rtl() ? 'start-0' : 'end-0' ?>" id="settingModalEfb-close" onclick="state_modal_show_efb(0)" role="button"><i class="efb bi-x-lg"></i></a>
+										<a class="mt-3 mx-3 efb  text-danger position-absolute top-0 <?php echo  is_rtl() ? 'start-0' : 'end-0' ?>" id="settingModalEfb-close" onclick="state_modal_show_efb(0)" role="button" tabindex="0" aria-label="<?php echo esc_attr__('Close', 'easy-form-builder') ?>"><i class="efb bi-x-lg" aria-hidden="true"></i></a>
 										</div>
 										<div class="efb modal-body" id="settingModalEfb-body">
 											<div class="efb card-body text-center">
@@ -227,7 +227,7 @@ class Panel_edit  {
 										</div></div><!-- settingModalEfb-body-->
 						</div></div></div>
 						<div class="efb row mb-2">
-						<button type="button" class="efb btn btn-secondary" id="back_emsFormBuilder" onClick="fun_emsFormBuilder_back()" style="display:none;"><i class="efb fa fa-home"></i></button>
+						<button type="button" class="efb btn btn-secondary" id="back_emsFormBuilder" onClick="fun_emsFormBuilder_back()" style="display:none;" aria-label="<?php echo esc_attr__('Back', 'easy-form-builder') ?>"><i class="efb fa fa-home" aria-hidden="true"></i></button>
 						</div>
 
 						<div class="efb row m-0 p-0" id ="content-efb">
@@ -236,7 +236,7 @@ class Panel_edit  {
 						</div>
 						</div>
 						<div class="efb mt-3 d-flex justify-content-center align-items-center ">
-						<button type="button" id="more_emsFormBuilder" class="efb  btn btn-delete btn-sm" onClick="fun_emsFormBuilder_more()" style="display:none;"><i class="efb bi-chevron-double-down"></i></button>
+						<button type="button" id="more_emsFormBuilder" class="efb  btn btn-delete btn-sm" onClick="fun_emsFormBuilder_more()" style="display:none;" aria-label="<?php /* translators: A11Y-01: the name of the icon button under the forms list that shows more forms */ echo esc_attr__('Show more', 'easy-form-builder') ?>"><i class="efb bi-chevron-double-down" aria-hidden="true"></i></button>
 						</div></div>
 						<datalist id="color_list_efb">
 							<option value="#0d6efd"><option value="#198754"><option value="#6c757d"><option value="#ff455f"> <option value="#e9c31a"> <option value="#31d2f2"><option value="#FBFBFB"> <option value="#202a8d"> <option value="#898aa9"> <option value="#ff4b93"><option value="#ffff"><option value="#212529"> <option value="#777777">
