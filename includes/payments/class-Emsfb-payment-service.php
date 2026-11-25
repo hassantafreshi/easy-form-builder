@@ -1234,7 +1234,8 @@ class Service {
 		$state = $p['status'];
 		$kind = in_array( $state, array( 'paid', 'partially_refunded', 'refunded' ), true ) ? 'paid'
 			: ( in_array( $state, array( 'failed', 'canceled', 'expired' ), true ) ? 'failed' : 'pending' );
-		$out = array( 'state' => $kind, 'status' => $state, 'form_id' => (int) $p['form_id'], 'test_mode' => $p['mode'] !== 'live', 'can_retry' => $kind === 'failed' );
+		// The amount of this payment (QA3-001: back on a fresh page after a failure, the field shows what "Try again" pays).
+		$out = array( 'state' => $kind, 'status' => $state, 'form_id' => (int) $p['form_id'], 'test_mode' => $p['mode'] !== 'live', 'can_retry' => $kind === 'failed', 'total_minor' => (int) $p['amount_minor'], 'currency' => (string) $p['currency'] );
 		if ( $kind === 'pending' ) $out['poll_until'] = self::poll_until( $p );
 		$next = is_string( $p['next_json'] ) && $p['next_json'] !== '' ? json_decode( $p['next_json'], true ) : null;
 		$own = $kind === 'pending' && is_array( $next ) && isset( $next['status_text'] ) ? Field::text( (string) $next['status_text'], 300 ) : '';

@@ -2162,6 +2162,11 @@ require('./scenario-jump.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT });
  * versions, and fa_IR / ar at 375 px of every moved screen beside its old place: tests/e2e-wp/scenario-payout.js. */
 require('./scenario-payout.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, builderReady, canvasDrawn, openField, closePanel });
 
+/* QA-3's payment findings: a two-step payment form (failed return, Try again, Submit beside Pay, the steps bar, Arabic
+ * currency signs) and the Payments screen (375 px, no match, read only without a gateway add-on):
+ * tests/e2e-wp/scenario-pay-steps.js. */
+require('./scenario-pay-steps.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT });
+
 /* The core changes the AI builder plugin needs (AI-1, AI-4, AI-8): the builder's payment panel and Settings at 375 px
  * (fa_IR, ar) and en 1280, a draft in the forms list and on the page, efb:form-saved with the save warnings, an imported
  * form without the keys the builder draws with, drawn and saved (ai-bare), the field settings panel whole on a desktop

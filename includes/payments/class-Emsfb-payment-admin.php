@@ -729,7 +729,7 @@ class Admin {
 			. '.efb-pay-admin :is(p,.notice p,.description,li,label,.efb-pay-msg){unicode-bidi:plaintext}.rtl .efb-pay-admin :is(p,.notice p,.description,li,.efb-pay-msg){text-align:right}'
 			// QA3-008: the list at phone width (WordPress' list-table cards below 783 px); the filters and the details fit too.
 			. '.efb-pay-table .column-date{width:9.5rem}.efb-pay-table .column-form{width:4rem}.efb-pay-table .column-mode{width:4.5rem}.efb-pay-table code{white-space:nowrap}.efb-pay-table td{overflow-wrap:anywhere}'
-			. '@media (max-width:782px){.efb-pay-admin .efb-pay-filters label{display:flex;flex-direction:column;flex:1 1 9rem;min-width:0}.efb-pay-admin .efb-pay-filters :is(select,input){max-width:100%;min-height:40px}.efb-pay-table .column-date{width:auto}.efb-pay-table td code{white-space:normal}.efb-pay-kv th{width:auto}.efb-pay-kv td{overflow-wrap:anywhere}.efb-pay-admin .nav-tab{margin-block-end:4px}}'
+			. '@media (max-width:782px){.efb-pay-admin .efb-pay-filters label{display:flex;flex-direction:column;flex:1 1 9rem;min-width:0}.efb-pay-admin .efb-pay-filters :is(select,input){max-width:100%;min-height:40px}.efb-pay-table .column-date{width:auto}.efb-pay-table td.column-primary::before{content:none!important;display:none}.efb-pay-table tr td:nth-child(n+2){flex:0 1 100%}.efb-pay-table td code{white-space:normal}.efb-pay-kv th{width:auto}.efb-pay-kv td{overflow-wrap:anywhere}.efb-pay-admin .nav-tab{margin-block-end:4px}}'
 			. '.efb-pay-moved{list-style:disc;padding-inline-start:1.25rem;margin-inline-start:0}</style>';
 	}
 

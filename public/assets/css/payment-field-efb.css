@@ -101,6 +101,8 @@
 [dir="rtl"] .efb-pf .bi-chevron-right, [dir="rtl"] .efb-pf .bi-arrow-right { transform: scaleX(-1); }
 /* The Pay button sends the form: the form's own Send button is not shown next to it. */
 .efb-pf-form #btn_send_efb { display: none !important; }
+/* A form with steps: on the step that holds the field, the last step's "Submit" (#next_efb) is the Pay button's job too. */
+.efb-pf-form.efb-pf-on-step #next_efb { display: none !important; }
 .efb-pf-done #btn_send_efb, .efb-pf-done #next_efb, .efb-pf-done #prev_efb { display: none !important; }
 @media (max-width: 767.98px) {
 	.efb-pf { padding: .8rem; }
