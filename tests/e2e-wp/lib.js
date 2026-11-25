@@ -85,8 +85,14 @@ function isPluginSource(url, base) {
   return false;
 }
 
+/* Page errors that are the browser's and not the plugin's, matched by their exact text (and no plugin file in the stack).
+ * WordPress 7.1's cross-document page transitions (@view-transition): when a reload (the settings Save reloads the
+ * screen) is followed by another navigation before the new page is revealed, Chromium rejects the transition's
+ * promise with this DOMException. No script of the page throws it (no stack); f15c/7 failed on it now and then. */
+const BENIGN_PAGEERRORS = ['Transition was aborted because of invalid state. Page already revealed'];
+
 function guard(page, sink, label) {
-  page.on('pageerror', (e) => sink.push({ kind: 'pageerror', where: label, url: page.url(), text: String(e && e.message || e), stack: String(e && e.stack || '').split('\n').slice(0, 4).join(' | ') }));
+  page.on('pageerror', (e) => BENIGN_PAGEERRORS.includes(String(e && e.message || e)) && !String(e && e.stack || '').includes('/plugins/') ? null : sink.push({ kind: 'pageerror', where: label, url: page.url(), text: String(e && e.message || e), stack: String(e && e.stack || '').split('\n').slice(0, 4).join(' | ') }));
   page.on('console', (m) => {
     if (m.type() !== 'error') return;
     const text = m.text();
@@ -137,4 +143,4 @@ function makeReport() {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-module.exports = { CFG, ROOT, wp, ctl, freshInstall, launch, guard, login, makeReport, sleep, ALLOW };
+module.exports = { CFG, ROOT, wp, ctl, freshInstall, launch, guard, login, makeReport, sleep, ALLOW, BENIGN_PAGEERRORS };

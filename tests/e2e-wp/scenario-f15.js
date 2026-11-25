@@ -402,7 +402,9 @@ module.exports = function (S) {
       let body = null;
       const handler = async (route) => { const req = route.request(); if (req.method() !== 'POST' || !(req.postData() || '').includes('action=set_settings_Emsfb')) return route.continue(); const res = await route.fetch(); try { body = JSON.parse(await res.text()); } catch (e) { body = null; } return route.fulfill({ response: res }); };
       await admin.route('**/admin-ajax.php', handler);
-      await admin.click('#save-stng-efb');
+      // The Save reloads the screen: wait for the new page's load (a navigation before it is revealed aborts
+      // WordPress 7.1's page transition).
+      await Promise.all([admin.waitForEvent('load', { timeout: 30000 }), admin.click('#save-stng-efb')]);
       for (let i = 0; i < 100 && body === null; i++) await sleep(200);
       await admin.unroute('**/admin-ajax.php', handler);
       await sleep(800);

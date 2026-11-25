@@ -292,10 +292,16 @@ module.exports = function (S) {
     R.check(`b4-help: ${cards.length} add-on cards: Help only on the ${cards.filter((c) => c.page).length} with a page, each a link to it (new tab, noopener, named for screen readers); none to an index`, cards.length >= 8 && cards.filter((c) => c.page).length >= 3 && bad.length === 0 && cards.every((c) => !c.href || !/\/(document|documents)\/?$/.test(c.href)), { bad, cards });
     // One tab per click (it opened two: its onclick and the page's "links" handler).
     const withPage = cards.find((c) => c.page);
+    // The new tab can take a while on a busy test box: wait for the first one (up to 20 s), then for a second one.
     let pages = 0;
-    a.context().on('page', (pg) => { pages++; pg.close().catch(() => {}); });
-    await a.click(`.efb-addon-help[data-addon="${withPage.code}"]`);
-    await sleep(1500);
+    const onPage = (pg) => { pages++; pg.close().catch(() => {}); };
+    a.context().on('page', onPage);
+    const first = a.context().waitForEvent('page', { timeout: 20000 }).catch(() => null);
+    await a.locator(`.efb-addon-help[data-addon="${withPage.code}"]`).scrollIntoViewIfNeeded();
+    await a.click(`.efb-addon-help[data-addon="${withPage.code}"]`, { timeout: 15000 });
+    await first;
+    await sleep(2000);
+    a.context().off('page', onPage);
     R.check('b4-help: a click on Help opens one tab', pages === 1, { pages });
     await a.screenshot({ path: SHOT('b4-help-addons-en-1280') });
     // The builder's Conditional Logic help ("?" beside the switch): its guide.

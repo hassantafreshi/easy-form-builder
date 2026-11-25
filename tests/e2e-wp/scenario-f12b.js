@@ -1079,12 +1079,17 @@ module.exports = function (S) {
          the plugin's screens; the add-on's screen shows only its own ("Settings saved."). */
       ctl('pay-mock', '1');
       ctl('pay-clear-keys');
-      made.push(ctl('pay-form', 'fixed', 'F12b-L notices'));
+      const payForm = ctl('pay-form', 'fixed', 'F12b-L notices');
+      made.push(payForm);
       await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+      await admin.waitForFunction(() => typeof fun_get_form_by_id === 'function', null, { timeout: 20000 });
+      await sleep(600);
       const onPanel = await efbNotices(admin);
+      // UX-01: payment readiness is no longer a notice: a badge beside the form in the forms list (and a summary on Payments).
+      onPanel.badge = await admin.evaluate((fid) => !!document.querySelector(`[data-efb-pay-notready="${fid}"]`), payForm.form_id);
       await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_captcha&provider=hcaptcha&efb_msg=saved', { waitUntil: 'load' });
       const onScreen = await efbNotices(admin);
-      R.check('f12b-10: the add-on\'s screen shows only its own notices: the payment readiness notice (and SPLIT\'s, when there) is on the plugin\'s panel, not here; "Settings saved." is', onPanel.outside.includes('efbPayNotReadyNotice') && onScreen.outside.length === 0 && onScreen.inside.length === 1, { onPanel, onScreen });
+      R.check('f12b-10: the add-on\'s screen shows only its own notices ("Settings saved."); the payment readiness is a badge beside the form on the plugin\'s forms list (UX-01), not a notice anywhere', onPanel.badge && !onPanel.outside.includes('efbPayNotReadyNotice') && onScreen.outside.length === 0 && onScreen.inside.length === 1, { onPanel, onScreen });
       // Turnstile's screen: a new site key (Cloudflare's "always passes" test key with another prefix), the secret kept.
       await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_captcha&provider=turnstile', { waitUntil: 'load' });
       await admin.fill('#efbcps_turnstile_site_key', '1x00000000000000000000AA');
