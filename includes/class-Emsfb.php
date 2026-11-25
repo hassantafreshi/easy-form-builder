@@ -278,8 +278,15 @@ class Emsfb {
                 delete_transient('emsfb_schema_lock');
             }
         }
+        // PERF-02 (B5 → B6): with the tables, the two facts every form view asked the database for: the statistics
+        // table (Entries::bump()) and the form's status column (Form_Status::column_ready()).
+        $facts = 1;
+        if (!$missing) {
+            $stats = $wpdb->prefix . 'emsfb_stats_';
+            $facts = array('stats' => $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $stats)) === $stats, 'form_status' => (bool) $wpdb->get_results($wpdb->prepare('SHOW COLUMNS FROM %i LIKE %s', $wpdb->prefix . 'emsfb_form', 'status')));
+        }
         $wpdb->suppress_errors($suppress);
-        set_transient('emsfb_tables_ok', 1, $missing ? 5 * MINUTE_IN_SECONDS : 12 * HOUR_IN_SECONDS);
+        set_transient('emsfb_tables_ok', $facts, $missing ? 5 * MINUTE_IN_SECONDS : 12 * HOUR_IN_SECONDS);
     }
 
     /**

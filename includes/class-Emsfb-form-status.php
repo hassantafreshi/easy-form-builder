@@ -43,6 +43,8 @@ class Form_Status {
 	/** Whether this site's form table has the status column (it does since 3.9.x; checked once per request). */
 	public static function column_ready() {
 		if (self::$column !== null) return self::$column;
+		$ok = function_exists('get_transient') ? get_transient('emsfb_tables_ok') : false; // PERF-02: Emsfb::ensure_tables_efb() checked it
+		if (is_array($ok) && !empty($ok['form_status'])) return self::$column = true;
 		global $wpdb;
 		$t = $wpdb->prefix . 'emsfb_form';
 		self::$column = (bool) $wpdb->get_results($wpdb->prepare("SHOW COLUMNS FROM `{$t}` LIKE %s", 'status')); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix

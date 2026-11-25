@@ -2221,7 +2221,10 @@ class Entries {
 		if ($form_id <= 0 || $n === 0 || !in_array($col, array('views', 'submits', 'spam'), true) || !is_object($wpdb)) return false;
 		$t = $wpdb->prefix . self::STATS;
 		$day = is_string($day) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $day) ? $day : self::today();
-		if (self::$stats_exists === null) self::$stats_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $t)) === $t;
+		if (self::$stats_exists === null) {
+			$ok = function_exists('get_transient') ? get_transient('emsfb_tables_ok') : false; // PERF-02: Emsfb::ensure_tables_efb() checked it
+			self::$stats_exists = (is_array($ok) && !empty($ok['stats'])) || $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $t)) === $t;
+		}
 		if (!self::$stats_exists) return false;
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table from $wpdb->prefix
 		$wpdb->query($wpdb->prepare("INSERT IGNORE INTO `{$t}` (form_id, day, views, submits, spam) VALUES (%d, %s, 0, 0, 0)", $form_id, $day));

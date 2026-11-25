@@ -24,6 +24,7 @@ class Split_Fake_Wpdb {
 	public function suppress_errors($on = true) { $was = end($this->suppressed) ?: false; $this->suppressed[] = $on; return $was; }
 	public function prepare($q, $a) { return str_replace('%s', $a, $q); }
 	public function get_var($q) { $this->shows++; $name = substr($q, strlen('SHOW TABLES LIKE ')); return in_array($name, $this->tables, true) ? $name : null; }
+	public function get_results($q) { $this->shows++; return strpos($q, 'SHOW COLUMNS FROM') === 0 && in_array('wp_emsfb_form', $this->tables, true) ? array((object) array('Field' => 'status')) : array(); }
 }
 $GLOBALS['wpdb'] = new Split_Fake_Wpdb();
 $all = array('wp_emsfb_form', 'wp_emsfb_msg_', 'wp_emsfb_rsp_', 'wp_emsfb_stts_', 'wp_emsfb_setting');
@@ -39,6 +40,11 @@ t('tables there: nothing installed, the check remembered for 12 hours', array(\E
 $n = $GLOBALS['wpdb']->shows;
 $fx->ensure_tables_efb(); $fx->ensure_tables_efb();
 t('…the next requests ask the database nothing', $GLOBALS['wpdb']->shows, $n);
+// B6 (PERF-02): the same check keeps the two facts a form view asked for (statistics table, form status column).
+t('…and records the facts Form_Status and Entries::bump() read instead of SHOW COLUMNS / SHOW TABLES', $GLOBALS['tr']['emsfb_tables_ok'][0], array('stats' => false, 'form_status' => true));
+$fs = (string) file_get_contents(__DIR__ . '/../includes/class-Emsfb-form-status.php');
+$en = (string) file_get_contents(__DIR__ . '/../includes/admin/class-Emsfb-entries.php');
+t('Form_Status::column_ready() and Entries::bump() read emsfb_tables_ok first', array(strpos($fs, "get_transient('emsfb_tables_ok')") !== false, strpos($en, "get_transient('emsfb_tables_ok')") !== false), array(true, true));
 
 // Data Tools' "Remove": every table dropped, core still active.
 $GLOBALS['wpdb']->tables = array(); $GLOBALS['tr'] = array();
