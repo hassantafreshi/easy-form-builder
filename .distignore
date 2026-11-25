@@ -1,0 +1,46 @@
+# What the release zip leaves out (REL-04). bin/build-zip.sh packs the committed files of a commit (git archive)
+# minus these paths (rsync --exclude-from), adds the pinned third-party assets of bin/fetch-public-assets.sh and the
+# minified twins, and refuses a zip whose top level holds anything but the plugin's own entries.
+# Same syntax as `wp dist-archive`: a leading "/" anchors to the plugin folder, other patterns match at any depth.
+
+# Version control, editors, CI and agents
+/.git
+/.gitattributes
+/.gitignore
+/.distignore
+/.github
+/.claude
+/.vscode
+/.idea
+.DS_Store
+Thumbs.db
+
+# Development: tests, docs, tools, build output, scratch work
+/tests
+/docs
+/bin
+/dist
+/temp
+/_workspace
+/node_modules
+/package.json
+/package-lock.json
+/composer.json
+/composer.lock
+
+# The root Composer copy is unused (nothing requires it). vendor/autoload.php and vendor/composer/ stay: older
+# Stripe add-ons fall back to them when their own SDK bootstrap is missing.
+/composer
+/autoload.php
+
+# GitHub and planning notes (the release has readme.txt and CHANGELOG.md)
+/README.md
+/MOBILE-PRO-FEATURES-IMPLEMENTATION.md
+/addons-as-separate-plugin.md
+
+# Source maps, backups and editor leftovers
+*.map
+*.bak
+*.orig
+*.swp
+*~

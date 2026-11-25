@@ -151,3 +151,6 @@ public/assets/fonts/
 public/assets/json/geo/
 public/assets/js/vendor/
 public/assets/fetched-assets.sha256
+
+# REL-04: the release build (bin/build-zip.sh): the zip, its manifest and Plugin Check output are never committed
+/dist/
