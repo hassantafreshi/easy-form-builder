@@ -117,11 +117,27 @@ $t('HTTP Basic with the Test key and an empty password, JSON body', array($req['
 $t('payment pending with the ps- reference, method qris, expiry stored', array($p['status'], Xendit_Api::is_session_id($p['gateway_ref']), $p['method'], $p['expires_at'] !== null), array('pending', true, 'qris', true));
 $t('the browser answer has no key, no token, test_mode true', array(strpos(json_encode($res), 'xnd_') === false && strpos(json_encode($res), 'efbFakeCallback') === false, $res['pay']['test_mode'], $res['pay']['total_minor']), array(true, true, 15250000));
 
-// IDR with sen: refused before Xendit.
+// IDR with sen (QA3-009): refused before Xendit AND before anything is stored; the visitor never reads the owner's
+// instruction; the owner is alerted the way the framework alerts for a set-up problem (settings card, e-mail).
 $before = count($F::state()['sessions']);
+$n_pay = (int) $db->get_var('SELECT COUNT(*) FROM wp_emsfb_pmt_');
+$n_msg = (int) $db->get_var('SELECT COUNT(*) FROM wp_emsfb_msg_');
+$GLOBALS['efb_mails'] = array();
 $r = xnd_create($db, array('form' => xnd_form('idr', array(), array('150000.50', '1'))));
-$last = Store::get((int) $db->get_var('SELECT id FROM wp_emsfb_pmt_ ORDER BY id DESC LIMIT 1'));
-$t('IDR 152,500.50 (with sen): refused before Xendit, logged amount_not_whole, payment failed', array($r['success'], count($F::state()['sessions']) - $before, $last['status'], strpos(json_encode(Store::events($last['id'])), 'amount_not_whole') !== false), array(false, 0, 'failed', true));
+$t('IDR 152,500.50 (with sen): refused before Xendit, no entry and no payment stored (old code: both stored, payment failed)', array($r['success'], count($F::state()['sessions']) - $before, (int) $db->get_var('SELECT COUNT(*) FROM wp_emsfb_pmt_') - $n_pay, (int) $db->get_var('SELECT COUNT(*) FROM wp_emsfb_msg_') - $n_msg), array(false, 0, 0, 0));
+$t('...the visitor reads core\'s friendly words, never "Remove the decimals from the prices."', array($r['code'], strpos($r['m'], 'cannot take payments at the moment') !== false, strpos(json_encode($r), 'decimals') === false), array('pay_unavailable', true, true));
+require_once __DIR__ . '/../includes/payments/class-Emsfb-payment-admin.php';
+$al = get_option('emsfb_pmt_alert_xendit');
+$card = \Emsfb\Payments\Admin::core_notices(\Emsfb\Payments\Registry::get('xendit'), \Emsfb\Payments\Settings::load('xendit'));
+$cfg = array_values(array_filter($card, function ($n) { return isset($n['code']) && $n['code'] === 'pay_config_failed'; }));
+$t('...the owner: an alert on Xendit\'s settings card with Xendit\'s own words (whole rupiah, remove the decimals)', array(is_array($al) ? $al['error'] : null, count($cfg), $cfg ? strpos($cfg[0]['m'], 'a visitor could not pay with Xendit (Test mode). Xendit takes Indonesian rupiah in whole amounts only') !== false : false), array('amount_not_whole', 1, true));
+$t('...and an e-mail to the site\'s address ("Visitors cannot pay with Xendit")', count(array_filter($GLOBALS['efb_mails'], function ($m) { return strpos($m['subject'] ?? (is_array($m) ? json_encode($m) : ''), 'Visitors cannot pay with Xendit') !== false; })) >= 1, true);
+// A core without amount_problem() reaches create(): the failure is the owner's (reason config), never visible.
+$gwx = new \Emsfb\Payments\Xendit\Xendit_Gateway();
+$cr = $gwx->create(new \Emsfb\Payments\Payment(array('uid' => 'U1', 'form_id' => 1, 'amount_minor' => 15250050, 'currency' => 'IDR', 'mode' => 'test')), \Emsfb\Payments\Settings::load('xendit'), new \Emsfb\Payments\Checkout_Context(array()));
+$t('...create() itself (an older core): amount_not_whole with reason config and no visitor message', array($cr->ok, $cr->error, $cr->reason, $cr->visitor_message), array(false, 'amount_not_whole', 'config', ''));
+$t('...amount_problem(): whole IDR, VND and PHP amounts are fine', array($gwx->amount_problem(15250000, 'IDR', \Emsfb\Payments\Settings::load('xendit')), $gwx->amount_problem(255000, 'VND', \Emsfb\Payments\Settings::load('xendit')), $gwx->amount_problem(149975, 'PHP', \Emsfb\Payments\Settings::load('xendit'))), array(null, null, null));
+delete_option('emsfb_pmt_alert_xendit');
 
 // Zero-decimal VND and two-decimal PHP.
 $r = xnd_create($db, array('form' => xnd_form('vnd', array(), array('250000', '1'), '5000'), 'method' => 'momo'));

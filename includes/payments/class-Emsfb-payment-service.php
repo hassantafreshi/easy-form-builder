@@ -343,6 +343,9 @@ class Service {
 		$method = isset( $a['method'] ) && is_string( $a['method'] ) && preg_match( '/^[a-z0-9_]{1,30}$/', $a['method'] ) ? $a['method'] : '';
 		$limit = self::method_limit( $gw, $settings, $method, (int) $quote['total_minor'], $quote['currency'], $locale );
 		if ( $limit ) return $limit;
+		// QA3-009: an amount the gateway can never take, before an entry or a payment is stored.
+		$bad = self::amount_problem( $gw, $settings, $mode, (int) $quote['total_minor'], $quote['currency'] );
+		if ( $bad ) return $bad;
 		if ( isset( $a['expected_minor'] ) && $a['expected_minor'] !== null && $a['expected_minor'] !== '' && (int) $a['expected_minor'] !== (int) $quote['total_minor'] ) {
 			$r = self::fail( 'quote_changed', array( 'amount' => Money::format( $quote['total_minor'], $quote['currency'], $locale, $slug ) ) );
 			$r['total_minor'] = $quote['total_minor'];
@@ -517,13 +520,30 @@ class Service {
 	}
 
 	/**
+	 * Gateway::amount_problem() (QA3-009): null, or the visitor's answer. Nothing is stored; with reason "config" the
+	 * owner is alerted with the gateway's own words (owner_alert( …, own )); the owner's words never reach the visitor.
+	 */
+	private static function amount_problem( Gateway $gw, Settings $s, $mode, $total, $currency ) {
+		if ( ! method_exists( $gw, 'amount_problem' ) ) return null;
+		try { $r = $gw->amount_problem( (int) $total, (string) $currency, $s ); } catch ( \Throwable $e ) { $r = null; }
+		if ( ! $r instanceof Result || $r->ok ) return null;
+		$reason = Reasons::clean( $r->reason );
+		if ( $reason === '' ) $reason = Reasons::of_error( (string) $r->error );
+		Store::log_event( null, $gw->slug(), 'api', array( 'type' => 'amount_refused', 'note' => Redactor::redact_string( $r->error . ' ' . $total . ' ' . $currency ) ) );
+		if ( $reason === 'config' ) self::owner_alert( $gw, $mode, (string) $r->error, Field::text( (string) $r->message, 300 ), true );
+		$visitor = Field::text( (string) $r->visitor_message, 200 );
+		if ( $visitor !== '' ) return self::fail( 'gateway_declined', array( 'visitor' => $visitor, 'reason' => $reason ) );
+		return self::fail( 'pay_unavailable' );
+	}
+
+	/**
 	 * The owner is told that a visitor could not pay because of the gateway's setup (keys refused,
 	 * wrong mode, an account that does not accept the currency …): a notice on the gateway's settings
 	 * card and, at most once a day per gateway, an e-mail. Cleared by the next payment that starts.
 	 */
-	public static function owner_alert( Gateway $gw, $mode, $error, $message ) {
+	public static function owner_alert( Gateway $gw, $mode, $error, $message, $own = false ) {
 		$slug = $gw->slug();
-		$a = array( 'at' => Store::time(), 'mode' => $mode === 'live' ? 'live' : 'test', 'error' => substr( preg_replace( '/[^a-z0-9_.-]/i', '', (string) $error ), 0, 60 ), 'm' => Field::text( Redactor::redact_string( (string) $message ), 300 ) );
+		$a = array( 'at' => Store::time(), 'mode' => $mode === 'live' ? 'live' : 'test', 'error' => substr( preg_replace( '/[^a-z0-9_.-]/i', '', (string) $error ), 0, 60 ), 'm' => Field::text( Redactor::redact_string( (string) $message ), 300 ), 'own' => $own && trim( (string) $message ) !== '' ? 1 : 0 );
 		update_option( 'emsfb_pmt_alert_' . $slug, $a, false );
 		Store::log_event( null, $slug, 'api', array( 'type' => 'config_failed', 'note' => $a['mode'] . ' ' . $a['error'] ) );
 		if ( function_exists( 'wp_mail' ) && ! get_transient( 'emsfb_pmt_alert_mail_' . $slug ) ) {
@@ -538,8 +558,12 @@ class Service {
 	/** The owner's words for a stored alert (settings card, e-mail). */
 	public static function owner_alert_text( Gateway $gw, array $a ) {
 		$when = function_exists( 'wp_date' ) ? wp_date( 'Y-m-d H:i', (int) $a['at'] ) : gmdate( 'Y-m-d H:i', (int) $a['at'] );
+		$mode = $a['mode'] === 'live' ? __( 'Live', 'easy-form-builder' ) : __( 'Test', 'easy-form-builder' );
+		// The gateway's own words for a problem of the form or the account (Gateway::amount_problem()): they say what to do.
+		/* translators: %1$s: date and time, %2$s: gateway name, %3$s: Live or Test, %4$s: the gateway's own explanation */
+		if ( ! empty( $a['own'] ) && $a['m'] !== '' ) return sprintf( __( 'On %1$s a visitor could not pay with %2$s (%3$s mode). %4$s', 'easy-form-builder' ), $when, $gw->label(), $mode, $a['m'] );
 		/* translators: %1$s: date and time, %2$s: gateway name, %3$s: Live or Test, %4$s: error code */
-		$t = sprintf( __( 'On %1$s a visitor could not pay because %2$s refused the payment set-up of %3$s mode (%4$s). Check the keys and the account (currencies, payment methods), then press Test connection.', 'easy-form-builder' ), $when, $gw->label(), $a['mode'] === 'live' ? 'Live' : 'Test', $a['error'] !== '' ? $a['error'] : '-' );
+		$t = sprintf( __( 'On %1$s a visitor could not pay because %2$s refused the payment set-up of %3$s mode (%4$s). Check the keys and the account (currencies, payment methods), then press Test connection.', 'easy-form-builder' ), $when, $gw->label(), $mode, $a['error'] !== '' ? $a['error'] : '-' );
 		return $a['m'] !== '' ? $t . ' ' . $a['m'] : $t;
 	}
 
