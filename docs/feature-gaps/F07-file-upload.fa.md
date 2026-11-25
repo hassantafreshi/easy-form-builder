@@ -367,7 +367,7 @@ Checkpoint (انجام شد)
 - تست‌ها: `tests/test-upload-token.php` (۵۳، SQLite با DDL واقعی `Rate_Limit`)، آزمون‌های موجود آپلود بدون تغییر سبز، `tests/test-upload-multi-submit-http.php` (۴۹ روی وردپرس واقعی).
 - وضعیت ترجمه: —
 - مورد باز: رفع پاک‌کن (§۱ ردیف ۱۷) را F13-D پیش‌تر با `locate_upload` انجام داده بود؛ F07 پوشهٔ خصوصی را به آن افزود.
-- اقدام بعدی: نسخهٔ بعد `emsfb_upload_require_token` را `true` کند.
+- ~~اقدام بعدی: نسخهٔ بعد `emsfb_upload_require_token` را `true` کند.~~ انجام شد در 4.3.2 (FX-CORE-A، QA4-004، تصمیم مالک ۱۳): پیش‌فرض `true`؛ مسیر قدیمی `new-efb.js` (ضبط صدا و تصویر و فیلد تک‌فایل) هم `ut` را می‌فرستد؛ فیلتر با `false` قاعدهٔ دفتر معلق 4.3.1 را برمی‌گرداند.
 
 ### C — رابط چندفایلی در کلاینت
 - فایل‌ها: `public/assets/js/upload-efb.js` (جدید)، `new-efb.js` (`uid`، `onProgress`)، `core-efb.js` (715-728، 827-845، 1413-1475، 1515-1520)، `pro_els-efb.js` (271-466)، رندرکننده‌های §۶، CSS در `public/assets/css/` و نسخهٔ RTL، و enqueue در `class-Emsfb-public.php` و `class-Emsfb-create.php`.
@@ -525,3 +525,10 @@ Checkpoint (انجام شد، جز ترجمه)
 
 **برای مالک.** روشن کردن `emsfb_upload_require_token` در نسخهٔ بعد؛ تصمیم بارگذاری تکه‌ای؛ ترجمهٔ عبارت‌ها؛ برای سایت nginx، قاعدهٔ `location ^~ /wp-content/uploads/efb-private/ { deny all; }` یا جابه‌جایی پوشه با `emsfb_private_upload_dir` (بیلدر هشدار را نشان می‌دهد)؛ افزونهٔ منطق شرطی (`AdnSMF`) عملگرهای «تعداد فایل» (`count_gte` / `count_lte`) را هنوز ندارد، هرچند ارزیاب هسته مقدار فیلد فایل را تعداد فایل‌ها می‌داند.
 
+
+
+## افزوده (FX-CORE-A، QA4-004، تصمیم مالک ۱۳): توکن پیش‌فرض و Site Health
+
+- `Upload_Guard::require_token()` پیش‌فرض `true` است. هر مسیر بارگذاری هسته توکن را می‌فرستد: `upload-efb.js` (فیلدهای فایل) و `new-efb.js` (`fun_upload_file_api_emsFormBuilder`: ضبط‌ها، فیلد تک‌فایل قدیمی). پیوست پاسخ‌ها (Response Box) توکن رزرو خودش را دارد. هیچ افزونه‌ای جز Human Shield (که فقط سرآیند می‌افزاید) خودش بارگذاری نمی‌کند.
+- ابزارها › سلامت سایت: آزمون مستقیم `efb_private_uploads` (`Uploads::site_health_private_uploads()`) با `probe(true)` فایل آزمایشی را در `uploads/efb-private` می‌نویسد، با HTTP می‌خواند و پاک می‌کند: سرو شد → critical با قاعدهٔ `Uploads::nginx_rule()` در توضیح؛ ۴۰۳ → good؛ بی‌پاسخ → recommended با همان قاعده.
+- تست‌ها: `tests/test-site-health-private-uploads.php` (۸)، `tests/test-upload-token.php`.

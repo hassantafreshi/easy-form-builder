@@ -65,8 +65,8 @@ the reasons the remaining warnings stay are in [`plugin-check-waivers.md`](plugi
 
    | Zip | Bytes | sha256 |
    |---|---|---|
-   | address.zip | 89034 | `1bb67db0b4240bca1a5754724ce719d8b6207e2603cc36ee00937fe35b507b4a` |
-   | human-shield.zip | 1143405 | `93dfac903e527d3ad5591279b5b9e011d241949fe3a6dbda12c86b7fc631c774` |
+   | address.zip | 89422 | `051cf5efae873c349f65f484a41a59c08a57eceb8bc94f86631ba28dacb34279` |
+   | human-shield.zip | 1143760 | `689e5e3efe4eedca29115415884cd7a71cad0c8ecae1d1bf911c62ae9c672ffa` |
    | logic.zip | 529692 | `17c83425e413c8941ca8953238bf1418dc49434432d09b5df5f3dfa548b924a7` |
    | offline.zip | 1998550 | `8ce3144974e9dd64299e361689ba81447295b9fcfe919dc94c59fe4d00c742b2` |
    | paymob.zip | 42187 | `b1df28e37b323e3c5904d4db015b93258c581225877534c5b09cb79a3b129f9d` |
@@ -75,6 +75,9 @@ the reasons the remaining warnings stay are in [`plugin-check-waivers.md`](plugi
    | xendit.zip | 36271 | `f20a699027b71b5c590377151ec6de4e99d05c879c09fe5dc7ae0e9356d29927` |
    | persiapay.zip | 38270 | `473750af8a6602f8e7e152d6d98058893abcfb3687017d6e82aa0217dc57a3a9` |
    | smssended.zip | 405272 | `ecb1e38559d13f5328b1e0fb1359a1b0a00e50017469a3f98436d5a0c9a9d15e` |
+   | telegram.zip | 610180 | `aa7c291a1cc0c3410cda743679f3a800f80e8be6ec70d49ddc54c8f2d3f6a6e8` |
+   | googlesheet.zip | 1564019 | `4b66bdba08f406110df0442954796d3362881f70d233d913b081066d9c44a97e` |
+   | autofill.zip | 837727 | `5329af3ab80f3fa2ace0640981788587c1e78178f1dca12d2754ed8822ccc7b9` |
 
    The first eight changed in batch B8 (add-on screens, Paymob payer fields, Xendit refunds made outside EFB,
    Conditional Logic file counts, the `emsfb_pay_` amount column); persiapay and smssended changed earlier and were

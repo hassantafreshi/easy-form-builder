@@ -421,3 +421,11 @@ ALTER TABLE `{p}emsfb_rsp_` ADD KEY `msg_id` (`msg_id`);
 - تنظیمات › حریم خصوصی › «When the plugin is deleted»: کادر «Delete all data when the plugin is deleted» (کلید سراسری `prv_delete_on_uninstall`، `''` پیش‌فرض یا `'1'`، فقط `manage_options`، با `set_setting_Emsfb()` مانند دیگر کلیدهای `prv_*`؛ در رجیستری `setting:privacy_site`). تا کادر تیک دارد هشدار قرمز زیر آن دیده می‌شود.
 - غیرفعال‌سازی فقط همهٔ رویدادهای زمان‌بندی‌شدهٔ افزونه و افزونه‌هایش را پاک می‌کند (`Emsfb\Lifecycle::CRON_HOOKS` و هر قلاب `emsfb_`). حذف افزونه (`uninstall.php`) همیشه رویدادها، transientها و پیش‌نویس‌های «Form Preview» را پاک می‌کند و فقط با کادر روشن: جدول‌های `{prefix}emsfb*`، گزینه‌ها، پوشهٔ `uploads/efb-private`، فایل‌های کتابخانهٔ رسانهٔ پاسخ‌ها، فرادادهٔ نوشته، قابلیت‌ها و نقش‌های `Emsfb*`؛ فرادادهٔ کاربر وقتی هیچ سایتی داده‌اش را نگه نمی‌دارد. در شبکه هر سایت جدا تصمیم می‌گیرد.
 - تست‌ها: `tests/test-lifecycle-uninstall-lists.php`، `tests/test-lifecycle-uninstall-site.php` (غیرفعال‌سازی و حذف واقعی روی کپی خصوصی سایت آزمون، خاموش و روشن).
+
+
+## افزوده (FX-CORE-A، QA4-001، QA4-011، QA4-012)
+
+- با کادر «Delete all data when the plugin is deleted»، `Lifecycle::delete_uploads()` پیش از حذف جدول‌ها فایل‌های بازدیدکننده در ذخیره‌گاه پیش‌فرض را هم پاک می‌کند: فایل‌های با نام افزونه (`efb-PLG-*`، `efb-rec-*`، `emsfb-PLG-*` قدیمی) در `uploads/` و `uploads/<سال>/<ماه>/`، فایل‌هایی با نام افزونه که پاسخ‌ها و پاسخ‌های تیکت به آن‌ها اشاره می‌کنند (هر جای `uploads/`) و دفتر `emsfb_pending_uploads`. فایلِ خود مالک حتی اگر پاسخی به آن پیوند داده باشد می‌ماند. کادر خاموش: همه‌چیز می‌ماند.
+- `remove_capabilities()` هیچ نقشی را حذف نمی‌کند (افزونه نقشی نمی‌سازد؛ نقشی با کلید `emsfb…` از آنِ مالک است) و فقط قابلیت‌های `Emsfb*` را برمی‌دارد.
+- صفحهٔ افزونه‌ها زیر ردیف افزونه می‌گوید حذف داده‌ها را نگه می‌دارد یا پاک می‌کند (`Privacy::plugin_row_uninstall_note()`، با پیوند به تنظیمات › حریم خصوصی).
+- تست: `tests/test-lifecycle-uninstall-site.php` (۴۷، روی کپی خصوصی سایت).
