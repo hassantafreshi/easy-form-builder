@@ -51,14 +51,18 @@
       var s = ptrim(iso == null ? '' : iso).toUpperCase();
       return /^[A-Z]{3}$/.test(s) ? s : '';
    }
-   function exponent(iso) {
-      var c = currencyCode(iso);
+   /* BUGS-FOUND 214: a gateway's own exponents (efb_currency_exponent, efb_pay_vars.gateways[slug].exponents), given to
+      quote() as ctx.exponents or to the helpers as their last argument, so the page counts as the server does. */
+   var EXP = null;
+   function exponent(iso, exps) {
+      var c = currencyCode(iso), o = exps || EXP;
+      if (o && has(o, c)) return o[c];
       return has(EXPONENTS, c) ? EXPONENTS[c] : 2;
    }
    function latinDigits(s) {
       return String(s).replace(/[۰-۹٠-٩٫٬]/g, function (d) { return DIGITS[d]; });
    }
-   function fromDecimal(value, currency) {
+   function fromDecimal(value, currency, exps) {
       var s;
       if (typeof value === 'boolean' || value == null) return null;
       if (typeof value === 'number') {
@@ -77,16 +81,16 @@
       var neg = m[1] === '-';
       var intp = m[2].replace(/^0+/, '');
       var frac = m[3] || '';
-      var e = exponent(currency);
+      var e = exponent(currency, exps);
       var keep = (frac + '0'.repeat(e)).slice(0, e);
       var next = frac.length > e ? Number(frac.charAt(e)) : 0;
       var n = Number((((intp === '' ? '0' : intp) + keep).replace(/^0+/, '')) || '0');
       if (next >= 5) n++;
       return neg ? -n : n;
    }
-   function toDecimal(minor, currency) {
+   function toDecimal(minor, currency, exps) {
       minor = Math.trunc(Number(minor) || 0);
-      var e = exponent(currency);
+      var e = exponent(currency, exps);
       var neg = minor < 0;
       var s = String(Math.abs(minor));
       if (e > 0) {
@@ -96,12 +100,12 @@
       return (neg ? '-' : '') + s;
    }
    /** Display only. digits 'latn' keeps 0-9 in every language; 'locale' uses the language's digits. */
-   function format(minor, currency, locale, digits) {
+   function format(minor, currency, locale, digits, exps) {
       var cur = currencyCode(currency);
-      var dec = toDecimal(minor, cur);
+      var dec = toDecimal(minor, cur, exps);
       try {
          var loc = String(locale || 'en').replace('_', '-');
-         var opt = { style: 'currency', currency: cur, minimumFractionDigits: exponent(cur), maximumFractionDigits: exponent(cur) };
+         var opt = { style: 'currency', currency: cur, minimumFractionDigits: exponent(cur, exps), maximumFractionDigits: exponent(cur, exps) };
          // 'locale': the language's own digits. Arabic and Persian name them (ICU now gives Latin digits
          // for plain "ar"): Arabic-Indic (arab) for Arabic, extended Arabic-Indic (arabext) for Persian.
          if (digits !== 'locale') opt.numberingSystem = 'latn';
@@ -449,7 +453,7 @@
             checks.forEach(function (c) {
                var dv = sanitizeKey(c[0], get(r, c[0]));
                if (dv === '') return;
-               var m = fromDecimal(dv, cur);
+               var m = fromDecimal(dv, cur, g.exponents);
                if (m === null || m <= 0) return;
                if (max !== null && m > max && c[1] !== 'min') out.push(base({ code: 'pay_amount_limit', level: c[1] === 'fixed' ? 'error' : 'warning', what: c[1], limit: 'max', amount_minor: m, limit_minor: max, currency: cur }));
                else if (min !== null && m < min && c[1] !== 'max') out.push(base({ code: 'pay_amount_limit', level: 'warning', what: c[1], limit: 'min', amount_minor: m, limit_minor: min, currency: cur }));
@@ -775,6 +779,11 @@
    }
 
    function quote(form, rows, ctx) {
+      var prev = EXP;
+      EXP = ctx && ctx.exponents ? ctx.exponents : null;
+      try { return quoteIn(form, rows, ctx); } finally { EXP = prev; }
+   }
+   function quoteIn(form, rows, ctx) {
       ctx = ctx || {};
       var err = function (code, fid) { var e = { ok: false, error: code }; if (fid) e.field_id = fid; return e; };
       var item = function (id, label, minor, kind) { return { id: String(id), label: String(label), qty: 1, unit_minor: minor, total_minor: minor, kind: kind }; };

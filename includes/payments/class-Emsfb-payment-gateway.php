@@ -271,7 +271,7 @@ class Payment {
 	}
 
 	public function amount_decimal() {
-		return Money::to_decimal_string( $this->amount_minor, $this->currency );
+		return Money::to_decimal_string( $this->amount_minor, $this->currency, $this->gateway );
 	}
 
 	public function is_test() {

@@ -91,13 +91,16 @@ class Money {
 		return ( $neg ? '-' : '' ) . $s;
 	}
 
-	/** Display text: "€12.50" style, through intl when present, else code + amount. */
-	public static function format( $minor, $currency, $locale = '' ) {
+	/**
+	 * Display text: "€12.50" style, through intl when present, else code + amount. $gateway: the payment's gateway, whose
+	 * own exponent (efb_currency_exponent) its amounts are counted in (BUGS-FOUND 214: a gateway that takes IDR without decimals).
+	 */
+	public static function format( $minor, $currency, $locale = '', $gateway = '' ) {
 		$cur = Currency::code( $currency );
-		$dec = self::to_decimal_string( $minor, $cur );
+		$dec = self::to_decimal_string( $minor, $cur, $gateway );
 		if ( class_exists( '\NumberFormatter' ) && $cur !== '' ) {
 			$f = new \NumberFormatter( $locale !== '' ? $locale : 'en_US', \NumberFormatter::CURRENCY );
-			$f->setAttribute( \NumberFormatter::FRACTION_DIGITS, Currency::exponent( $cur ) );
+			$f->setAttribute( \NumberFormatter::FRACTION_DIGITS, Currency::exponent( $cur, $gateway ) );
 			$out = $f->formatCurrency( (float) $dec, $cur );
 			if ( is_string( $out ) && $out !== '' ) return $out;
 		}

@@ -36,6 +36,14 @@ $t('round trip for 1000 random amounts in four currencies', (function () {
 })(), true);
 add_filter('efb_currency_exponent', function ($e, $iso, $gw) { return $iso === 'IDR' && $gw === 'xendit' ? 0 : $e; });
 $t('filter: IDR without decimals for one gateway only', array(Currency::exponent('IDR', 'xendit'), Currency::exponent('IDR')), array(0, 2));
+// BUGS-FOUND 214 (B6): the display, the decimal string and the refund box count a payment in its gateway's exponent.
+$t('to_decimal_string: 150000 IDR minor units of the gateway without decimals = "150000"', array(Money::to_decimal_string(150000, 'IDR', 'xendit'), Money::to_decimal_string(150000, 'IDR')), array('150000', '1500.00'));
+$fi = Money::format(150000, 'IDR', 'en_US', 'xendit');
+$t('format with the gateway: IDR 150,000 without decimals (was 1,500.00)', strpos($fi, '150') !== false && strpos($fi, '1,500') === false && strpos($fi, '.00') === false, true);
+$pay_src = (string) file_get_contents(__DIR__ . '/../includes/payments/class-Emsfb-payment-admin.php') . (string) file_get_contents(__DIR__ . '/../includes/payments/class-Emsfb-payment-service.php');
+preg_match_all('/Money::(?:format|to_decimal_string|from_decimal)\(((?:[^()]|\((?:[^()]|\([^()]*\))*\))*)\)/', $pay_src, $pm);
+$miss = array_values(array_filter($pm[1], function ($a) { return strpos($a, "\$p['currency']") !== false && strpos($a, "\$p['gateway']") === false; }));
+$t('the Payments screen and the service pass the payment\'s gateway to every Money call on a payment', $miss, array());
 $t('filter result outside 0..4 is ignored', (function () { add_filter('efb_currency_exponent', function () { return 9; }); return Currency::exponent('EUR'); })(), 2);
 $f = Money::format(1250, 'EUR', 'en_US');
 $t('format shows the amount with two decimals', strpos($f, '12.50') !== false, true);

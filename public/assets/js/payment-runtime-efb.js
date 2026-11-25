@@ -52,7 +52,7 @@
       return s ? s.find(function (r) { return r && r.id_ === el.getAttribute('data-pf'); }) : null;
    };
    var gw = function (el) { return (V.gateways || {})[el.getAttribute('data-gw')] || {}; };
-   var fmt = function (el, minor, cur) { return C().format(minor, cur, V.locale, el.getAttribute('data-digits') === 'locale' ? 'locale' : 'latn'); };
+   var fmt = function (el, minor, cur) { return C().format(minor, cur, V.locale, el.getAttribute('data-digits') === 'locale' ? 'locale' : 'latn', gw(el).exponents); };
    var status = function (el, msg, kind) {
       var s = el.querySelector('[data-pf-status]');
       if (!s) return;
@@ -66,7 +66,7 @@
       var s = structure(el.getAttribute('data-formid'));
       if (!s || !C()) return null;
       var g = gw(el);
-      var q = C().quote(s, sendRows(el.getAttribute('data-formid')), { field_id: el.getAttribute('data-pf'), supports: { min_minor: g.min_minor || {}, max_minor: g.max_minor || {}, currencies: g.currencies || [] } });
+      var q = C().quote(s, sendRows(el.getAttribute('data-formid')), { field_id: el.getAttribute('data-pf'), exponents: g.exponents, supports: { min_minor: g.min_minor || {}, max_minor: g.max_minor || {}, currencies: g.currencies || [] } });
       el._q = q;
       var cur = q.currency || String((s[0] && s[0].currency) || '').toUpperCase();
       var total = q.ok ? fmt(el, q.total_minor, q.currency) : '';
@@ -83,7 +83,7 @@
          });
       }
       el.querySelectorAll('[data-pf-preset]').forEach(function (b) {
-         var m = C().fromDecimal(b.getAttribute('data-pf-preset'), cur);
+         var m = C().fromDecimal(b.getAttribute('data-pf-preset'), cur, g.exponents);
          var bdi = b.querySelector('bdi');
          if (bdi && m !== null && cur) bdi.textContent = fmt(el, m, cur);
       });

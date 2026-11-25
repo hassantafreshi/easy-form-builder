@@ -259,7 +259,7 @@ class Service {
 				'test_mode'   => $test,
 				'total_minor' => (int) $p['amount_minor'],
 				'currency'    => $p['currency'],
-				'amount_text' => Money::format( (int) $p['amount_minor'], $p['currency'], $p['locale'] ),
+				'amount_text' => Money::format( (int) $p['amount_minor'], $p['currency'], $p['locale'], $p['gateway'] ),
 				'poll_until'  => self::poll_until( $p ),
 			),
 		);
@@ -291,7 +291,7 @@ class Service {
 		$quote = Pricing::quote( $form, isset( $a['rows'] ) && is_array( $a['rows'] ) ? $a['rows'] : array(), array( 'field_id' => (string) $field['id_'], 'gateway' => $gw->slug(), 'supports' => $sup ) );
 		if ( empty( $quote['ok'] ) ) return self::fail( $quote['error'], isset( $quote['field_id'] ) ? array( 'field_id' => $quote['field_id'] ) : array() );
 		$locale = isset( $a['locale'] ) && is_string( $a['locale'] ) && preg_match( '/^[a-z]{2,3}(_[A-Z]{2})?$/', $a['locale'] ) ? $a['locale'] : ( function_exists( 'determine_locale' ) ? determine_locale() : '' );
-		return array( 'success' => true, 'quote' => array( 'total_minor' => (int) $quote['total_minor'], 'currency' => $quote['currency'], 'amount' => Money::format( (int) $quote['total_minor'], $quote['currency'], $locale ) ) );
+		return array( 'success' => true, 'quote' => array( 'total_minor' => (int) $quote['total_minor'], 'currency' => $quote['currency'], 'amount' => Money::format( (int) $quote['total_minor'], $quote['currency'], $locale, $gw->slug() ) ) );
 	}
 
 	/* ------------------------------------------------------------------ create */
@@ -336,7 +336,7 @@ class Service {
 		$quote = Pricing::quote( $form, $a['rows'], array( 'field_id' => $fid, 'gateway' => $slug, 'supports' => $sup ) );
 		if ( empty( $quote['ok'] ) ) {
 			$extra = isset( $quote['field_id'] ) ? array( 'field_id' => $quote['field_id'] ) : array();
-			if ( isset( $quote['limit_minor'] ) ) $extra['amount'] = Money::format( $quote['limit_minor'], $quote['currency'], isset( $a['locale'] ) ? $a['locale'] : '' );
+			if ( isset( $quote['limit_minor'] ) ) $extra['amount'] = Money::format( $quote['limit_minor'], $quote['currency'], isset( $a['locale'] ) ? $a['locale'] : '', $slug );
 			return self::fail( $quote['error'], $extra );
 		}
 		$locale = isset( $a['locale'] ) && is_string( $a['locale'] ) && preg_match( '/^[a-z]{2,3}(_[A-Z]{2})?$/', $a['locale'] ) ? $a['locale'] : ( function_exists( 'determine_locale' ) ? determine_locale() : '' );
@@ -344,7 +344,7 @@ class Service {
 		$limit = self::method_limit( $gw, $settings, $method, (int) $quote['total_minor'], $quote['currency'], $locale );
 		if ( $limit ) return $limit;
 		if ( isset( $a['expected_minor'] ) && $a['expected_minor'] !== null && $a['expected_minor'] !== '' && (int) $a['expected_minor'] !== (int) $quote['total_minor'] ) {
-			$r = self::fail( 'quote_changed', array( 'amount' => Money::format( $quote['total_minor'], $quote['currency'], $locale ) ) );
+			$r = self::fail( 'quote_changed', array( 'amount' => Money::format( $quote['total_minor'], $quote['currency'], $locale, $slug ) ) );
 			$r['total_minor'] = $quote['total_minor'];
 			$r['currency'] = $quote['currency'];
 			return $r;
@@ -359,7 +359,7 @@ class Service {
 			'type'            => 'payment',
 			'paymentGateway'  => $slug,
 			'paymentIntent'   => '',
-			'paymentAmount'   => Money::to_decimal_string( $quote['total_minor'], $quote['currency'] ),
+			'paymentAmount'   => Money::to_decimal_string( $quote['total_minor'], $quote['currency'], $slug ),
 			'paymentcurrency' => $quote['currency'],
 			'paymentmethod'   => isset( $form0['paymentmethod'] ) && is_string( $form0['paymentmethod'] ) ? $form0['paymentmethod'] : 'charge',
 			'paymentCreated'  => function_exists( 'wp_date' ) ? wp_date( 'Y/m/d H:i' ) : gmdate( 'Y/m/d H:i' ),
@@ -621,8 +621,8 @@ class Service {
 			if ( $m[0] !== $method || ! isset( $m[2] ) ) continue;
 			$min = isset( $m[2]['min_minor'][ $currency ] ) ? (int) $m[2]['min_minor'][ $currency ] : null;
 			$max = isset( $m[2]['max_minor'][ $currency ] ) ? (int) $m[2]['max_minor'][ $currency ] : null;
-			if ( $min !== null && $total < $min ) return self::fail( 'method_below_min', array( 'method' => Field::text( $m[1], 60 ), 'amount' => Money::format( $min, $currency, $locale ) ) );
-			if ( $max !== null && $total > $max ) return self::fail( 'method_above_max', array( 'method' => Field::text( $m[1], 60 ), 'amount' => Money::format( $max, $currency, $locale ) ) );
+			if ( $min !== null && $total < $min ) return self::fail( 'method_below_min', array( 'method' => Field::text( $m[1], 60 ), 'amount' => Money::format( $min, $currency, $locale, $gw->slug() ) ) );
+			if ( $max !== null && $total > $max ) return self::fail( 'method_above_max', array( 'method' => Field::text( $m[1], 60 ), 'amount' => Money::format( $max, $currency, $locale, $gw->slug() ) ) );
 		}
 		return null;
 	}
@@ -916,7 +916,7 @@ class Service {
 		if ( ! is_array( $p ) ) return false;
 		$r = Store::get_refund( $refund_id );
 		if ( ! $r || (int) $r['payment_id'] !== (int) $p['id'] || ! Store::settle_refund( $refund_id, $to ) ) return false;
-		Store::log_event( $p['id'], $p['gateway'], $source, array( 'type' => $to === 'refunded' ? 'refund_confirmed' : 'refund_declined', 'note' => 'refund #' . (int) $refund_id . ' ' . Money::to_decimal_string( (int) $r['amount_minor'], $p['currency'] ) . ( $user_id ? ' by user ' . (int) $user_id : '' ) ) );
+		Store::log_event( $p['id'], $p['gateway'], $source, array( 'type' => $to === 'refunded' ? 'refund_confirmed' : 'refund_declined', 'note' => 'refund #' . (int) $refund_id . ' ' . Money::to_decimal_string( (int) $r['amount_minor'], $p['currency'], $p['gateway'] ) . ( $user_id ? ' by user ' . (int) $user_id : '' ) ) );
 		if ( $to !== 'refunded' ) return true;
 		$total = $counted ? max( (int) $p['refunded_minor'], Store::refunded_total( $p['id'] ) ) : min( (int) $p['amount_minor'], (int) $p['refunded_minor'] + (int) $r['amount_minor'] );
 		$status = $total >= (int) $p['amount_minor'] ? 'refunded' : 'partially_refunded';
@@ -1364,7 +1364,7 @@ class Service {
 	 */
 	public static function refund_message( array $r, array $p ) {
 		$left = max( 0, (int) $p['amount_minor'] - (int) $p['refunded_minor'] - self::pending_refunds( $p['id'] ) );
-		$left_t = Money::format( $left, $p['currency'] );
+		$left_t = Money::format( $left, $p['currency'], '', $p['gateway'] );
 		$why = isset( $r['message'] ) ? Field::text( (string) $r['message'], 300 ) : '';
 		switch ( isset( $r['error'] ) ? $r['error'] : '' ) {
 			case 'unsupported':
@@ -1419,7 +1419,7 @@ class Service {
 		$total = (int) $p['refunded_minor'] + $amount_minor;
 		$to = $total >= (int) $p['amount_minor'] ? 'refunded' : 'partially_refunded';
 		self::move( $p, $to, array( 'refunded_minor' => $total ), 'admin', 'refunded outside EFB by user ' . (int) $user_id );
-		Store::log_event( $p['id'], $p['gateway'], 'admin', array( 'type' => 'refund_external', 'note' => 'refund #' . $rid . ' ' . Money::to_decimal_string( $amount_minor, $p['currency'] ) . ' ' . $p['currency'] . ' by user ' . (int) $user_id . ': ' . $reason ) );
+		Store::log_event( $p['id'], $p['gateway'], 'admin', array( 'type' => 'refund_external', 'note' => 'refund #' . $rid . ' ' . Money::to_decimal_string( $amount_minor, $p['currency'], $p['gateway'] ) . ' ' . $p['currency'] . ' by user ' . (int) $user_id . ': ' . $reason ) );
 		$after = Store::get( $p['id'] );
 		self::update_entry( $after, array( 'status' => $to ) );
 		if ( function_exists( 'do_action' ) ) do_action( 'efb_payment_refunded', $after, $amount_minor );
@@ -1446,7 +1446,7 @@ class Service {
 		$body = sprintf( "%s\n\n%s: %s\n%s: %s\n%s: %s %s\n%s: %s\n", $subject,
 			__( 'Confirmation Code', 'easy-form-builder' ), $p['track'],
 			__( 'Gateway', 'easy-form-builder' ), $p['gateway'] . ' ' . $p['gateway_ref'],
-			__( 'Amount', 'easy-form-builder' ), Money::to_decimal_string( $p['amount_minor'], $p['currency'] ), $p['currency'],
+			__( 'Amount', 'easy-form-builder' ), Money::to_decimal_string( $p['amount_minor'], $p['currency'], $p['gateway'] ), $p['currency'],
 			__( 'Status', 'easy-form-builder' ), $p['status'] . ( $note !== '' ? ' (' . $note . ')' : '' ) );
 		wp_mail( $to, $subject, $body );
 	}

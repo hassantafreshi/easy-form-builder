@@ -274,7 +274,7 @@ class Admin {
 			$link = admin_url( 'admin.php?page=' . self::SLUG . '&payment=' . (int) $p['id'] );
 			echo '<tr><td><a href="' . esc_url( $link ) . '">' . esc_html( self::local_time( $p['created_at'] ) ) . '</a></td><td>' . (int) $p['form_id'] . '</td><td><code>' . esc_html( $p['track'] ) . '</code></td>';
 			echo '<td>' . esc_html( $g ? $g->label() : $p['gateway'] ) . '</td><td>' . esc_html( $p['method'] ) . '</td>';
-			echo '<td><bdi>' . esc_html( Money::format( $p['amount_minor'], $p['currency'], get_user_locale() ) ) . '</bdi></td><td>' . self::badge( $p['status'] ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- badge() escapes
+			echo '<td><bdi>' . esc_html( Money::format( $p['amount_minor'], $p['currency'], get_user_locale(), $p['gateway'] ) ) . '</bdi></td><td>' . self::badge( $p['status'] ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- badge() escapes
 			echo '<td>' . ( $p['mode'] === 'live' ? 'LIVE' : '<span class="efb-pay-test">TEST</span>' ) . '</td><td>' . esc_html( $p['payer_email'] ) . '</td></tr>';
 		}
 		echo '</tbody></table>';
@@ -300,7 +300,7 @@ class Admin {
 		$g = Registry::get( $p['gateway'] );
 		$sup = $g ? array_merge( ( new Gateway_Defaults() )->supports(), (array) $g->supports() ) : array();
 		echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=' . self::SLUG ) ) . '">← ' . esc_html__( 'All payments', 'easy-form-builder' ) . '</a></p>';
-		echo '<h2>' . esc_html( Money::format( $p['amount_minor'], $p['currency'], get_user_locale() ) ) . ' ' . self::badge( $p['status'] ) . ( $p['mode'] !== 'live' ? ' <span class="efb-pay-test">TEST</span>' : '' ) . '</h2>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped parts
+		echo '<h2>' . esc_html( Money::format( $p['amount_minor'], $p['currency'], get_user_locale(), $p['gateway'] ) ) . ' ' . self::badge( $p['status'] ) . ( $p['mode'] !== 'live' ? ' <span class="efb-pay-test">TEST</span>' : '' ) . '</h2>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped parts
 		echo '<table class="widefat efb-pay-kv"><tbody>';
 		$kv = array(
 			__( 'Gateway', 'easy-form-builder' )           => $g ? $g->label() : $p['gateway'],
@@ -311,14 +311,14 @@ class Admin {
 			__( 'Payer', 'easy-form-builder' )             => $p['payer_email'],
 			__( 'Created', 'easy-form-builder' )           => self::local_time( $p['created_at'] ),
 			__( 'Paid', 'easy-form-builder' )              => self::local_time( $p['paid_at'] ),
-			__( 'Refunded', 'easy-form-builder' )          => $p['refunded_minor'] ? Money::format( $p['refunded_minor'], $p['currency'], get_user_locale() ) : '',
+			__( 'Refunded', 'easy-form-builder' )          => $p['refunded_minor'] ? Money::format( $p['refunded_minor'], $p['currency'], get_user_locale(), $p['gateway'] ) : '',
 		);
 		foreach ( $kv as $k => $v ) echo '<tr><th scope="row">' . esc_html( $k ) . '</th><td>' . esc_html( (string) $v ) . '</td></tr>';
 		echo '</tbody></table>';
 		$q = json_decode( (string) $p['quote'], true );
 		if ( is_array( $q ) && ! empty( $q['items'] ) ) {
 			echo '<h3>' . esc_html__( 'Order summary', 'easy-form-builder' ) . '</h3><ul>';
-			foreach ( $q['items'] as $it ) echo '<li>' . esc_html( $it['label'] ) . ': <bdi>' . esc_html( Money::format( $it['total_minor'], $q['currency'], get_user_locale() ) ) . '</bdi></li>';
+			foreach ( $q['items'] as $it ) echo '<li>' . esc_html( $it['label'] ) . ': <bdi>' . esc_html( Money::format( $it['total_minor'], $q['currency'], get_user_locale(), $p['gateway'] ) ) . '</bdi></li>';
 			echo '</ul><p class="description">' . esc_html__( 'Quote', 'easy-form-builder' ) . ' <code>' . esc_html( substr( (string) ( $q['hash'] ?? '' ), 0, 16 ) ) . '</code></p>';
 		}
 		$n = wp_create_nonce( 'efb_pay_action' );
@@ -326,7 +326,7 @@ class Admin {
 		if ( in_array( $p['status'], array( 'created', 'pending', 'authorized' ), true ) ) echo '<button type="button" class="button" data-efb-pay="recheck">' . esc_html__( 'Check status now', 'easy-form-builder' ) . '</button> ';
 		if ( in_array( $p['status'], array( 'paid', 'partially_refunded' ), true ) ) {
 			if ( ! empty( $sup['refund'] ) ) {
-				$left = Money::to_decimal_string( max( 0, $p['amount_minor'] - $p['refunded_minor'] - Service::pending_refunds( $p['id'] ) ), $p['currency'] );
+				$left = Money::to_decimal_string( max( 0, $p['amount_minor'] - $p['refunded_minor'] - Service::pending_refunds( $p['id'] ) ), $p['currency'], $p['gateway'] );
 				echo '<label>' . esc_html__( 'Amount', 'easy-form-builder' ) . ' <input type="text" inputmode="decimal" dir="ltr" size="8" id="efbPayRefundAmt" value="' . esc_attr( $left ) . '"' . ( empty( $sup['partial_refund'] ) ? ' readonly' : '' ) . '></label> ';
 				/* translators: %1$s: amount with currency */
 				echo '<button type="button" class="button button-secondary" data-efb-pay="refund" data-confirm="' . esc_attr( __( 'Refund %1$s to the payer? This cannot be undone.', 'easy-form-builder' ) ) . '" data-currency="' . esc_attr( $p['currency'] ) . '">' . esc_html__( 'Refund', 'easy-form-builder' ) . '</button>';
@@ -337,7 +337,7 @@ class Admin {
 		}
 		if ( in_array( $p['status'], array( 'paid', 'partially_refunded' ), true ) ) {
 			// Money given back from the provider's dashboard or the bank: recorded here, no call to the provider.
-			$left = Money::to_decimal_string( max( 0, $p['amount_minor'] - $p['refunded_minor'] - Service::pending_refunds( $p['id'] ) ), $p['currency'] );
+			$left = Money::to_decimal_string( max( 0, $p['amount_minor'] - $p['refunded_minor'] - Service::pending_refunds( $p['id'] ) ), $p['currency'], $p['gateway'] );
 			echo '<details class="efb-pay-ext"><summary>' . esc_html__( 'Mark as refunded outside EFB', 'easy-form-builder' ) . '</summary>';
 			echo '<p class="description">' . esc_html__( 'Use this when the money was given back in the gateway dashboard or by the bank. Nothing is sent to the gateway.', 'easy-form-builder' ) . '</p>';
 			echo '<label>' . esc_html__( 'Amount', 'easy-form-builder' ) . ' <input type="text" inputmode="decimal" dir="ltr" size="8" id="efbPayExtAmt" value="' . esc_attr( $left ) . '"></label> ';
@@ -350,7 +350,7 @@ class Admin {
 			$rl = array( 'pending' => __( 'Waiting for the gateway', 'easy-form-builder' ), 'refunded' => __( 'Refunded', 'easy-form-builder' ), 'failed' => __( 'Declined', 'easy-form-builder' ), 'canceled' => __( 'Canceled', 'easy-form-builder' ) );
 			echo '<h3>' . esc_html__( 'Refunds', 'easy-form-builder' ) . '</h3><ul class="efb-pay-refunds">';
 			foreach ( $refunds as $rf ) {
-				echo '<li><time>' . esc_html( self::local_time( $rf['created_at'] ) ) . '</time> <bdi>' . esc_html( Money::format( (int) $rf['amount_minor'], $rf['currency'], get_user_locale() ) ) . '</bdi> — ' . esc_html( isset( $rl[ $rf['status'] ] ) ? $rl[ $rf['status'] ] : $rf['status'] );
+				echo '<li><time>' . esc_html( self::local_time( $rf['created_at'] ) ) . '</time> <bdi>' . esc_html( Money::format( (int) $rf['amount_minor'], $rf['currency'], get_user_locale(), $p['gateway'] ) ) . '</bdi> — ' . esc_html( isset( $rl[ $rf['status'] ] ) ? $rl[ $rf['status'] ] : $rf['status'] );
 				if ( $rf['reason'] !== '' ) echo ' — ' . esc_html( $rf['reason'] );
 				if ( $rf['status'] === 'pending' ) {
 					echo ' <button type="button" class="button button-small" data-efb-pay="refund_settle" data-refund="' . (int) $rf['id'] . '" data-to="refunded" data-confirm="' . esc_attr__( 'The gateway confirmed this refund?', 'easy-form-builder' ) . '">' . esc_html__( 'Confirm refund', 'easy-form-builder' ) . '</button>';
@@ -577,7 +577,7 @@ class Admin {
 			wp_send_json_success( array( 'm' => self::status_label( $now['status'] ), 'status' => $now['status'] ) );
 		}
 		if ( $do === 'refund' ) {
-			$amt = isset( $_POST['amount'] ) ? Money::from_decimal( sanitize_text_field( wp_unslash( $_POST['amount'] ) ), $p['currency'] ) : null;
+			$amt = isset( $_POST['amount'] ) ? Money::from_decimal( sanitize_text_field( wp_unslash( $_POST['amount'] ) ), $p['currency'], $p['gateway'] ) : null;
 			if ( $amt === null ) wp_send_json_error( array( 'm' => __( 'Please choose a valid amount.', 'easy-form-builder' ) ) );
 			$r = Service::refund( $p, $amt, isset( $_POST['reason'] ) ? sanitize_text_field( wp_unslash( $_POST['reason'] ) ) : '', get_current_user_id() );
 			if ( ! $r['ok'] ) {
@@ -587,7 +587,7 @@ class Admin {
 			wp_send_json_success( array( 'm' => ! empty( $r['pending'] ) ? __( 'The refund was requested. It counts once the gateway confirms it.', 'easy-form-builder' ) : __( 'Refunded', 'easy-form-builder' ), 'status' => Store::get( $p['id'] )['status'] ) );
 		}
 		if ( $do === 'mark_refunded' ) {
-			$amt = isset( $_POST['amount'] ) ? Money::from_decimal( sanitize_text_field( wp_unslash( $_POST['amount'] ) ), $p['currency'] ) : null;
+			$amt = isset( $_POST['amount'] ) ? Money::from_decimal( sanitize_text_field( wp_unslash( $_POST['amount'] ) ), $p['currency'], $p['gateway'] ) : null;
 			if ( $amt === null ) wp_send_json_error( array( 'm' => __( 'Please choose a valid amount.', 'easy-form-builder' ) ) );
 			$r = Service::record_external_refund( $p, $amt, isset( $_POST['reason'] ) ? sanitize_text_field( wp_unslash( $_POST['reason'] ) ) : '', get_current_user_id() );
 			if ( ! $r['ok'] ) wp_send_json_error( array( 'm' => Service::refund_message( $r, $p ), 'code' => 'refund_' . $r['error'] ) );

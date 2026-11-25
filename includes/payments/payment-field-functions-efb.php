@@ -535,7 +535,7 @@ class Field {
 				foreach ( $checks as $k => $what ) {
 					$d = self::sanitize_key( $k, self::get( $r, $k ) );
 					if ( $d === '' ) continue;
-					$m = Money::from_decimal( $d, $cur );
+					$m = Money::from_decimal( $d, $cur, (string) $r['type'] );
 					if ( $m === null || $m <= 0 ) continue;
 					if ( $max !== null && $m > $max && $what !== 'min' ) $out[] = $base + array( 'code' => 'pay_amount_limit', 'level' => $what === 'fixed' ? 'error' : 'warning', 'what' => $what, 'limit' => 'max', 'amount_minor' => $m, 'limit_minor' => $max, 'currency' => $cur );
 					elseif ( $min !== null && $m < $min && $what !== 'max' ) $out[] = $base + array( 'code' => 'pay_amount_limit', 'level' => 'warning', 'what' => $what, 'limit' => 'min', 'amount_minor' => $m, 'limit_minor' => $min, 'currency' => $cur );

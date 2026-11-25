@@ -289,8 +289,8 @@ class Registry {
 				/* translators: %s: gateway name */
 				return sprintf( __( 'This site cannot be reached from the internet, so %s cannot send payment confirmations to it. Payments are confirmed when the visitor comes back and by the regular check.', 'easy-form-builder' ), $label );
 			case 'pay_amount_limit':
-				$lim = Money::format( $w['limit_minor'], $w['currency'] );
-				$amt = Money::format( $w['amount_minor'], $w['currency'] );
+				$lim = Money::format( $w['limit_minor'], $w['currency'], '', $w['gateway'] );
+				$amt = Money::format( $w['amount_minor'], $w['currency'], '', $w['gateway'] );
 				if ( $w['what'] === 'fixed' ) {
 					return $w['limit'] === 'max'
 						/* translators: %1$s: gateway name, %2$s: the gateway's maximum, %3$s: the form's fixed amount */
@@ -364,7 +364,15 @@ class Registry {
 		$sup = array_merge( ( new Gateway_Defaults() )->supports(), (array) $g->supports() );
 		try { $schema = Field::clean_schema( $g->field_schema() ); } catch ( \Throwable $e ) { $schema = array(); }
 		try { $ready = (bool) $g->is_configured( $s, $s->mode() ); } catch ( \Throwable $e ) { $ready = false; }
+		// BUGS-FOUND 214: the currencies this gateway counts with another exponent (efb_currency_exponent), so the builder
+		// and the page count as the server does (payment-core-efb.js exponent()).
+		$exps = array();
+		foreach ( (array) $sup['currencies'] as $c ) {
+			$c = Currency::code( $c );
+			if ( $c !== '' && Currency::exponent( $c, $slug ) !== Currency::exponent( $c ) ) $exps[ $c ] = Currency::exponent( $c, $slug );
+		}
 		return array(
+			'exponents'    => (object) $exps,
 			'slug'         => $slug,
 			'ready'        => $ready,
 			'addon'        => (string) $g->addon_key(),
