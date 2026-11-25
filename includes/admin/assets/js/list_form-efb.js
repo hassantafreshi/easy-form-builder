@@ -4099,6 +4099,15 @@ function efb_csv_repeater_rows_efb(content) {
 }
 /* F17 / P22: a name or address group gets a column with its full line (EFBNameAddr, the stored line when there is
    one), placed before its parts; the parts keep their own columns (a postal code stays text: leading zeros kept). */
+/* SEC-04 (owner decision 6): a password answer of an entry saved before 4.3.2 (until the one-time scrub reaches it)
+   leaves as the mask, the way new entries store it; the server export does the same (Entries::export_row_text()). */
+function efb_csv_mask_secrets_efb(content) {
+  if (!Array.isArray(content)) return content;
+  const types = ['password', 'pswRegister', 'pswLogin'];
+  const ids = ['passwordRegisterEFB', 'repasswordRegisterEFB', 'passwordlogin'];
+  return content.map((r) => (r && typeof r === 'object' && (types.includes(r.type) || ids.includes(r.id_)) && r.value != null && String(r.value) !== '')
+    ? Object.assign({}, r, { value: '\u2022\u2022\u2022\u2022' }) : r);
+}
 function efb_csv_na_rows_efb(content) {
   if (!Array.isArray(content) || typeof EFBNameAddr === 'undefined') return content;
   const groups = EFBNameAddr.groups(content).filter((g) => Object.keys(g.parts).length > 1);
@@ -4163,7 +4172,7 @@ function fun_export_rows_for_Subscribe_emsFormBuilder(value) {
     // F05: choices as labels or stored values, "Other: text", a ranking "A > B > C".
     const csvModeEfb = window.efb_csv_opt_val_now || (typeof efb_csv_opt_val_efb === 'function' ? efb_csv_opt_val_efb() : 'label');
     const parsedEfb = rptRowsEfb(parsedAllEfb[vIdxEfb]);
-    const content = (typeof efb_csv_na_rows_efb === 'function' ? efb_csv_na_rows_efb : (c) => c)(Array.isArray(parsedEfb) && typeof efb_csv_choice_row_efb === 'function' ? parsedEfb.map((r) => efb_csv_choice_row_efb(r, csvModeEfb)) : parsedEfb);
+    const content = (typeof efb_csv_na_rows_efb === 'function' ? efb_csv_na_rows_efb : (c) => c)((typeof efb_csv_mask_secrets_efb === 'function' ? efb_csv_mask_secrets_efb : (c) => c)(Array.isArray(parsedEfb) && typeof efb_csv_choice_row_efb === 'function' ? parsedEfb.map((r) => efb_csv_choice_row_efb(r, csvModeEfb)) : parsedEfb));
     count += 1;
     i_count += i_count == -1 ? 2 : 1;
     rows[i_count][1] = v.date;

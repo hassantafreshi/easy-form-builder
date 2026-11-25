@@ -1287,6 +1287,11 @@ class Entries {
 	private static function export_row_text(array $r, $msg_id, array $a) {
 		$type = isset($r['type']) ? (string) $r['type'] : '';
 		$v = isset($r['value']) ? $r['value'] : '';
+		// SEC-04 (owner decision 6): an entry saved before 4.3.2 may still hold a password as typed until the
+		// one-time scrub (Password_Scrub) reaches it; the export never carries it.
+		if (in_array($type, self::API_SECRET_TYPES, true) || (isset($r['id_']) && in_array((string) $r['id_'], array('passwordRegisterEFB', 'repasswordRegisterEFB', 'passwordlogin'), true))) {
+			return is_scalar($v) && (string) $v !== '' ? "\u{2022}\u{2022}\u{2022}\u{2022}" : '';
+		}
 		if ($v === Privacy::REDACTED) return self::decode_text($v);
 		if ($v === '@file@' || in_array($type, array('file', 'dadfile', 'image', 'media', 'document', 'allformat', 'zip'), true)) {
 			$url = isset($r['url']) && is_string($r['url']) ? $r['url'] : '';

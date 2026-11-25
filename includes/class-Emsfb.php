@@ -508,6 +508,10 @@ class Emsfb {
         if ($this->require_plugin_file_efb('includes/class-Emsfb-privacy.php')) {
             \Emsfb\Privacy::register();
         }
+        // SEC-04 follow-up: the one-time scrub of password answers stored before 4.3.2 (WP-Cron, in slices).
+        if ($this->require_plugin_file_efb('includes/class-Emsfb-password-scrub.php')) {
+            \Emsfb\Password_Scrub::register();
+        }
 
         // F11: atomic counters (shared with F02), the visitor's address for limits, the form
         // gate (schedule, caps, per-person limits, roles), per-form CSS and saved / partial
@@ -2120,6 +2124,12 @@ class Emsfb {
         }
 
         $this->migrate_fix_double_escaped_settings_efb($wpdb);
+
+        // 4.3.2 (SEC-04, owner decision 6): password answers stored before this version are replaced by the mask,
+        // in the background (Password_Scrub). Idempotent: started once per site.
+        if (version_compare((string) $old_version, '4.3.2', '<') && class_exists('\Emsfb\Password_Scrub')) {
+            \Emsfb\Password_Scrub::start();
+        }
 
         // 4.3.1: form emails are on by default. Sites set up on an older
         // version start with them off, and a failed check used to switch them
