@@ -82,6 +82,37 @@ class Privacy {
 		add_filter('wp_privacy_personal_data_exporters', array(__CLASS__, 'register_exporter'));
 		add_filter('wp_privacy_personal_data_erasers', array(__CLASS__, 'register_eraser'));
 		add_action('admin_init', array(__CLASS__, 'policy_text'));
+		// QA4-011: the Plugins screen says what deleting the plugin does with the data, before WordPress asks.
+		add_filter('plugin_row_meta', array(__CLASS__, 'plugin_row_uninstall_note'), 10, 2);
+	}
+
+	/**
+	 * QA4-011: WordPress asks "Are you sure you want to delete Easy Form Builder and its data?" whatever the plugin
+	 * does. The plugin's row on the Plugins screen says what the current setting (Settings › Privacy › "Delete all data
+	 * when the plugin is deleted", Lifecycle::SETTING) will do: keep the forms, entries and files, or delete them.
+	 *
+	 * @param array  $meta The row's links (Version, By, …).
+	 * @param string $file The plugin's basename.
+	 * @return array
+	 */
+	public static function plugin_row_uninstall_note($meta, $file) {
+		if (!is_array($meta) || !defined('EMSFB_PLUGIN_DIRECTORY') || !function_exists('plugin_basename')
+			|| $file !== plugin_basename(EMSFB_PLUGIN_DIRECTORY . 'emsfb.php') || !current_user_can('delete_plugins')) {
+			return $meta;
+		}
+		$s  = function_exists('get_setting_Emsfb') ? get_setting_Emsfb('decoded') : null;
+		$on = is_object($s) && isset($s->prv_delete_on_uninstall) && in_array($s->prv_delete_on_uninstall, array('1', 1, true, 'true'), true);
+		$text = $on
+			/* translators: shown under Easy Form Builder on the Plugins screen while "Delete all data when the plugin is deleted" is on */
+			? __('Deleting this plugin also deletes all its forms, entries and uploaded files.', 'easy-form-builder')
+			/* translators: shown under Easy Form Builder on the Plugins screen while "Delete all data when the plugin is deleted" is off (the default) */
+			: __('Deleting this plugin keeps your forms, entries and uploaded files.', 'easy-form-builder');
+		$link = current_user_can('manage_options')
+			? ' <a href="' . esc_url(admin_url('admin.php?page=Emsfb&state=setting&tab=privacy')) . '">' . esc_html__('Privacy settings', 'easy-form-builder') . '</a>'
+			: '';
+		$meta[] = '<span class="efb-uninstall-note" data-efb-delete-data="' . ($on ? '1' : '0') . '">'
+			. ($on ? '<strong>' . esc_html($text) . '</strong>' : esc_html($text)) . $link . '</span>';
+		return $meta;
 	}
 
 	/** efb_var.privacy on the EFB admin screens: what the settings tab needs besides the settings. */

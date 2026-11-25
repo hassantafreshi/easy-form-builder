@@ -3,7 +3,8 @@
  * LIFE-01 (owner decision 5): what deactivating and deleting the plugin remove. Deactivation: every scheduled event
  * (clear_cron()). Deletion (uninstall.php), per site: always the events, transients and preview drafts; with Settings ›
  * Privacy › "Delete all data when the plugin is deleted" (SETTING) also the tables, options, private folder, Media
- * Library files of entries, post meta, capabilities and roles, and the user meta once no site keeps its data.
+ * Library files of entries, the visitors' uploads of the default storage (QA4-001), post meta and capabilities (never a
+ * role, QA4-012), and the user meta once no site keeps its data.
  * Self-contained: uninstall.php runs while the plugin is not loaded.
  *
  * @package EasyFormBuilder
@@ -202,6 +203,7 @@ class Lifecycle {
 	public static function delete_data() {
 		self::delete_media();
 		self::delete_private_dir();
+		self::delete_uploads(); // QA4-001: before drop_tables(), it reads the entries.
 		self::drop_tables();
 		self::delete_options();
 		self::delete_post_meta();
@@ -399,6 +401,110 @@ class Lifecycle {
 		@rmdir($dir);
 	}
 
+	/**
+	 * A file name the plugin gave an upload: efb-PLG-<yymmdd>-<random>.<ext> (files), efb-rec-… (recordings), "-1" when
+	 * wp_unique_filename() added it, and the emsfb-PLG-… of older versions (clear_garbeg_Emsfb). Upload_Guard has the
+	 * same rule; this copy keeps uninstall.php free of the plugin's other files.
+	 */
+	const UPLOAD_NAME = '/^(?:efb-(?:PLG|rec)-[0-9]{6}-[A-Za-z0-9]+(?:-[0-9]+)?|emsfb-PLG-[A-Za-z0-9_-]+)\.[A-Za-z0-9]{1,10}$/';
+
+	/**
+	 * QA4-001: the visitors' files of the default storage. The private folder and the Media Library files have their
+	 * own steps; this removes the uploads folder's files with the plugin's names (uploads/<year>/<month>/efb-PLG-*,
+	 * efb-rec-* and the top folder when month folders are off), the files the entries and replies name anywhere under
+	 * the uploads folder, and the ledger of files not yet attached (emsfb_pending_uploads). Only names the plugin
+	 * generates are ever deleted, so an owner's own file is safe even when an entry links to it.
+	 *
+	 * @return int Files deleted.
+	 */
+	public static function delete_uploads() {
+		global $wpdb;
+		$uploads = wp_upload_dir(null, false);
+		if (!is_array($uploads) || !empty($uploads['error']) || empty($uploads['basedir'])) {
+			return 0;
+		}
+		$base = realpath($uploads['basedir']);
+		if ($base === false || !is_dir($base)) {
+			return 0;
+		}
+		$base    = trailingslashit(wp_normalize_path($base));
+		$baseurl = isset($uploads['baseurl']) ? trailingslashit((string) $uploads['baseurl']) : '';
+		$files   = array();
+
+		// 1. The uploads folder and its <year>/<month> folders.
+		$dirs = array($base);
+		foreach ((array) glob($base . '[0-9][0-9][0-9][0-9]/[0-9][0-9]', GLOB_ONLYDIR) as $d) {
+			$dirs[] = trailingslashit(wp_normalize_path($d));
+		}
+		foreach ($dirs as $d) {
+			foreach ((array) scandir($d) as $name) {
+				if (is_string($name) && preg_match(self::UPLOAD_NAME, $name)) {
+					$files[$d . $name] = true;
+				}
+			}
+		}
+
+		// 2. The files the entries and replies name (and the ledger's), wherever they are under the uploads folder.
+		$named = array();
+		$ledger = get_option('emsfb_pending_uploads', array());
+		if (is_array($ledger)) {
+			foreach (array_keys($ledger) as $name) {
+				$named[wp_basename((string) $name)] = true;
+			}
+		}
+		$urls = array();
+		foreach (array('emsfb_msg_', 'emsfb_rsp_') as $t) {
+			$table = $wpdb->prefix . $t;
+			$suppress = $wpdb->suppress_errors(true);
+			if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))) !== $table) {
+				$wpdb->suppress_errors($suppress);
+				continue;
+			}
+			for ($offset = 0; $offset < 5000000; $offset += 500) {
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- uninstall: the plugin's own table, read in pages
+				$rows = (array) $wpdb->get_col($wpdb->prepare("SELECT content FROM `{$table}` WHERE content LIKE %s OR content LIKE %s LIMIT %d, 500", '%' . $wpdb->esc_like('PLG-') . '%', '%' . $wpdb->esc_like('efb-rec-') . '%', $offset));
+				foreach ($rows as $content) {
+					$content = preg_replace('#\\\\+/#', '/', (string) $content); // JSON's \/ (once or more escaped)
+					if (preg_match_all('#[^"\'\s<>]*(?:efb-(?:PLG|rec)-[0-9]{6}-[A-Za-z0-9]+(?:-[0-9]+)?|emsfb-PLG-[A-Za-z0-9_-]+)\.[A-Za-z0-9]{1,10}#', $content, $m)) {
+						foreach ($m[0] as $u) {
+							$named[wp_basename($u)] = true;
+							$urls[$u] = true;
+						}
+					}
+				}
+				if (count($rows) < 500) {
+					break;
+				}
+			}
+			$wpdb->suppress_errors($suppress);
+		}
+		foreach (array_keys($urls) as $u) {
+			if ($baseurl !== '' && strpos($u, $baseurl) === 0) {
+				$rel  = rawurldecode(substr($u, strlen($baseurl)));
+				$real = strpos($rel, '..') === false ? realpath($base . $rel) : false;
+				if ($real !== false && is_file($real)) {
+					$real = wp_normalize_path($real);
+					if (strpos($real, $base) === 0 && preg_match(self::UPLOAD_NAME, wp_basename($real))) {
+						$files[$real] = true;
+					}
+				}
+			}
+		}
+
+		$n = 0;
+		foreach (array_keys($files) as $f) {
+			if (is_link($f)) {
+				continue;
+			}
+			wp_delete_file($f);
+			if (!file_exists($f)) {
+				$n++;
+			}
+		}
+		delete_option('emsfb_pending_uploads');
+		return $n;
+	}
+
 	/** The plugin's post meta (marks on pages with a form, links of Media Library files to entries). */
 	public static function delete_post_meta() {
 		foreach (self::POST_META as $key) {
@@ -406,7 +512,11 @@ class Lifecycle {
 		}
 	}
 
-	/** The plugin's capabilities (Emsfb…) from every role of this site, and any role it added. */
+	/**
+	 * The plugin's capabilities (Emsfb…) from every role of this site. QA4-012: a role is never removed: the plugin adds
+	 * none, so a role whose key starts with "emsfb" is one the owner made (a staff role made with a role editor); it
+	 * keeps its other capabilities and its users.
+	 */
 	public static function remove_capabilities() {
 		if (!function_exists('wp_roles')) {
 			return 0;
@@ -414,10 +524,6 @@ class Lifecycle {
 		$roles = wp_roles();
 		$n     = 0;
 		foreach ((array) $roles->roles as $name => $role) {
-			if (stripos((string) $name, 'emsfb') === 0) {
-				remove_role($name);
-				continue;
-			}
 			$obj = get_role($name);
 			if (!$obj) {
 				continue;

@@ -6,8 +6,10 @@
  *      deletion removes the events, the transients and the preview drafts and keeps every table, option, file, user
  *      meta and capability;
  *   2. the plugin installed again (the data is found), the switch turned on through set_setting_Emsfb(): deletion
- *      removes the tables, the options, the private upload folder, the Media Library files of entries, the post
- *      meta, the user meta and the capabilities as well.
+ *      removes the tables, the options, the private upload folder, the Media Library files of entries, the visitors'
+ *      uploads of the default storage and the pending-upload ledger (QA4-001), the post meta, the user meta and the
+ *      capabilities as well, but never the owner's own file or a role the owner made (QA4-012). The plugin row on the
+ *      Plugins screen says which of the two will happen (QA4-011).
  * Each step prints the counts (tables, options, autoloaded options, cron events, transients, user meta, post meta,
  * capabilities, private folder) so the run is its own record.
  *
@@ -96,8 +98,22 @@ $up = wp_upload_dir(null, false);
 $priv = trailingslashit($up['basedir']) . 'efb-private';
 $previews = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_name LIKE 'easy-form-builder-preview%'");
 $entries = in_array($wpdb->prefix . 'emsfb_msg_', $tables, true) ? (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}emsfb_msg_") : 0;
+// QA4-001: visitor uploads of the default storage (uploads/<y>/<m>, the top folder, the seeded efb-lc-custom folder).
+$uploads = 0;
+$dirs = array_merge(array(trailingslashit($up['basedir']), trailingslashit($up['basedir']) . 'efb-lc-custom/'), (array) glob(trailingslashit($up['basedir']) . '[0-9][0-9][0-9][0-9]/[0-9][0-9]/'));
+foreach ($dirs as $d) foreach ((array) @scandir($d) as $n) if (is_string($n) && preg_match('/^efb-(PLG|rec)-[0-9]{6}-/', $n)) $uploads++;
+$owner_file = is_file(trailingslashit($up['basedir']) . 'efb-lc-custom/owner-photo.png');
+// QA4-012: the owner's role emsfb_lc_staff (read, edit_posts, Emsfb, Emsfb_panel).
+$role = get_role('emsfb_lc_staff');
+$role_caps = $role ? array_keys(array_filter((array) $role->capabilities)) : null;
+if (is_array($role_caps)) sort($role_caps);
+// QA4-011: the note under the plugin's row (as an administrator).
+wp_set_current_user(1);
+$row = apply_filters('plugin_row_meta', array(), 'easy-form-builder/emsfb.php', array(), 'all');
+$note = preg_match('/data-efb-delete-data="([01])"/', implode(' ', (array) $row), $m) ? $m[1] : 'none';
 echo wp_json_encode(array('tables' => count($tables), 'entries' => $entries, 'options' => $opts, 'autoloaded' => $auto, 'cron' => $cron, 'transients' => $tr,
 	'user_meta' => $um, 'post_meta' => $pm, 'attachments' => $att, 'caps' => $caps, 'private_dir' => is_dir($priv), 'previews' => $previews,
+	'uploads' => $uploads, 'owner_file' => $owner_file, 'ledger' => get_option('emsfb_pending_uploads', null) !== null, 'owner_role' => $role_caps, 'row_note' => $note,
 	'active' => is_plugin_active('easy-form-builder/emsfb.php')));
 PHP;
 
@@ -121,6 +137,27 @@ update_user_meta(1, 'efb_dt_card_dismissed', 1);
 $priv = trailingslashit($up['basedir']) . 'efb-private/2026/11';
 wp_mkdir_p($priv);
 file_put_contents($priv . '/lifecycle-probe.txt', 'private');
+// QA4-001: visitor uploads of the default storage (not in the Media Library): a file and a recording in uploads/<y>/<m>,
+// one in the ledger of files not yet attached, a file in another folder that only an entry names, and the owner's own
+// file that an entry links to (never the plugin's to delete).
+$d = date('ymd');
+$f1 = trailingslashit($up['path']) . 'efb-PLG-' . $d . '-' . wp_generate_password(12, false) . '.png';
+$f2 = trailingslashit($up['path']) . 'efb-rec-' . $d . '-' . wp_generate_password(12, false) . '.webm';
+$f3 = trailingslashit($up['path']) . 'efb-PLG-' . $d . '-' . wp_generate_password(12, false) . '.pdf';
+$custom = trailingslashit($up['basedir']) . 'efb-lc-custom';
+wp_mkdir_p($custom);
+$f4 = $custom . '/efb-PLG-' . $d . '-' . wp_generate_password(12, false) . '.jpg';
+$own = $custom . '/owner-photo.png';
+foreach (array($f1, $f2, $f3, $f4, $own) as $f) file_put_contents($f, 'upload');
+$ledger = (array) get_option('emsfb_pending_uploads', array());
+$ledger[basename($f3)] = time();
+update_option('emsfb_pending_uploads', $ledger, false);
+$url = function ($f) use ($up) { return str_replace('/', '\\/', trailingslashit($up['baseurl']) . ltrim(substr($f, strlen(trailingslashit($up['basedir']))), '/')); };
+global $wpdb;
+$wpdb->insert($wpdb->prefix . 'emsfb_msg_', array('form_id' => 1, 'track' => 'LIFEUP' . wp_rand(10, 99), 'ip' => '', 'read_' => 0, 'date' => current_time('mysql'),
+	'content' => '[{"id_":"f1","type":"file","url":"' . $url($f1) . '"},{"id_":"f4","type":"file","url":"' . $url($f4) . '"},{"id_":"o","type":"file","url":"' . $url($own) . '"}]'));
+// QA4-012: a role the owner made whose key starts with "emsfb".
+if (!get_role('emsfb_lc_staff')) add_role('emsfb_lc_staff', 'Form staff', array('read' => true, 'edit_posts' => true, 'Emsfb' => true, 'Emsfb_panel' => true));
 echo wp_json_encode(array('page' => $page, 'attachment' => $att, 'file' => $file));
 PHP;
 
@@ -171,6 +208,8 @@ t('run 1: the tables and their entries are kept', array($u1['tables'], $u1['entr
 t('run 1: the options are kept (deletion removed none)', $u1['options'], $d1['options']);
 t('run 1: the private folder, the Media Library files, the post meta are kept', array($u1['private_dir'], $u1['attachments'], $u1['post_meta']), array(true, $b1['attachments'], $b1['post_meta']));
 t('run 1: user meta and capabilities are kept', array($u1['user_meta'], $u1['caps']), array($b1['user_meta'], $b1['caps']));
+t('run 1 (QA4-001): the visitor uploads of the default storage and the ledger are kept', array($b1['uploads'] >= 4, $u1['uploads'], $u1['ledger'], $u1['owner_file']), array(true, $b1['uploads'], true, true));
+t('run 1 (QA4-011): before deletion the plugin row says the data is kept', $b1['row_note'], '0');
 
 /* ---- run 2: installed again, the switch on ---- */
 echo "\n== Run 2: installed again, \"Delete all data when the plugin is deleted\" ON\n";
@@ -203,6 +242,11 @@ t('run 2: no EFB cron event, no transient, no preview draft', array($u2['cron'],
 t('run 2: the private upload folder is gone', $u2['private_dir'], false);
 t('run 2: the Media Library files of entries and the post meta are gone', array($u2['attachments'], $u2['post_meta']), array(0, 0));
 t('run 2: the user meta and the capabilities are gone', array($u2['user_meta'], $u2['caps']), array(0, 0));
+t('run 2 (QA4-011): before deletion the plugin row says the data is deleted', $b2['row_note'], '1');
+t('run 2 (QA4-001): every visitor upload of the default storage is gone (uploads/<y>/<m>, a folder an entry names)', array($b2['uploads'] >= 4, $u2['uploads']), array(true, 0));
+t('run 2 (QA4-001): the pending-upload ledger is gone', $u2['ledger'], false);
+t('run 2 (QA4-001): the owner\'s own file an entry linked to is kept', $u2['owner_file'], true);
+t('run 2 (QA4-012): the owner\'s role emsfb_lc_staff is kept, without the Emsfb capabilities', $u2['owner_role'], array('edit_posts', 'read'));
 list($code, $out) = wp_efb('eval ' . escapeshellarg('echo "SITE=", count(get_users(array("fields" => "ID"))) > 0 && get_option("siteurl") ? "ok" : "broken";'));
 t('run 2: the rest of the site is intact (users, siteurl)', preg_match('/SITE=(\w+)/', $out, $m) ? $m[1] : $out, 'ok');
 
