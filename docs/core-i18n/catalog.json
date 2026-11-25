@@ -2,9 +2,9 @@
     "domain": "easy-form-builder",
     "about": "Every phrase looked up in the easy-form-builder text domain: the core plus add-ons that still use that domain. Maintained by tests/core-i18n/extract.php (agent efb-core-i18n); do not edit by hand.",
     "plugin_version": "4.3.2",
-    "updated": "2026-11-19",
+    "updated": "2026-11-25",
     "counts": {
-        "active": 4259,
+        "active": 4264,
         "obsolete": 512
     },
     "entries": [
@@ -34704,6 +34704,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "Older payments",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "Oldest age",
             "context": null,
             "plural": null,
@@ -37601,6 +37616,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Payments taken with the Stripe and PayPal fields Easy Form Builder had before version 4.3.2. Each list is kept by its add-on; new payments are on the Payments tab.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/payments/class-Emsfb-payment-admin.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -54420,6 +54450,51 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The label colour is hard to read on this button (%s; at least 4.5:1 is needed). Choose another button or label colour.",
+            "context": null,
+            "plural": null,
+            "translators": "builder, Buttons panel: the form's button label colour reads poorly on the button colour and no automatic colour helps; %s: a contrast ratio such as 2.1:1",
+            "files": [
+                "includes/class-Emsfb-notices.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The label colour is hard to read on this button (%s; at least 4.5:1 is needed). Visitors see the label in near-black.",
+            "context": null,
+            "plural": null,
+            "translators": "builder, Buttons panel: the form's button label colour reads poorly on the button colour; %s: a contrast ratio such as 2.1:1",
+            "files": [
+                "includes/class-Emsfb-notices.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "The label colour is hard to read on this button (%s; at least 4.5:1 is needed). Visitors see the label in white.",
+            "context": null,
+            "plural": null,
+            "translators": "builder, Buttons panel: the form's button label colour reads poorly on the button colour; %s: a contrast ratio such as 2.1:1",
+            "files": [
+                "includes/class-Emsfb-notices.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
