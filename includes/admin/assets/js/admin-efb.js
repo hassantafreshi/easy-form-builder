@@ -873,6 +873,15 @@ function link_url_emsFormBuilder(state) {
   return /(whitestudio\.team\/document|easyformbuilder\.ir\/داکیومنت\/)$/.test(link) ? '' : link;
 }
 
+/* QA1-028: the one formatter of the admin's dates (the forms list, the entries list, the entry viewer): the date as the
+   server wrote it (wp_date(): the site's date format and calendar, which a calendar plugin may change) in the site
+   language's digits (Persian ۰-۹, Arabic-Indic ٠-٩). Plain text: the caller escapes it and isolates it (<bdi>). */
+function efb_admin_date_efb(raw) {
+  const s = raw == null ? '' : String(raw);
+  const l = String((typeof efb_var !== 'undefined' && efb_var && (efb_var.wp_lan || efb_var.language)) || 'en_US');
+  const sc = /^(fa|ps|ckb)/.test(l) ? 0x06F0 : (/^ar(?!y)/.test(l) ? 0x0660 : 0);
+  return sc ? s.replace(/[0-9]/g, (x) => String.fromCharCode(sc + Number(x))) : s;
+}
 /* QA1-017: a help "?" (label: what it helps with) or a documentation link (text: its words) as a real link: Tab
    reaches it, it has a name, one tab opens. '' (or the bare text) when the topic has no page. */
 function efb_help_link_efb(topic, label, text, cls) {

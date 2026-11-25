@@ -39,10 +39,14 @@ t('no id="labelEl" left on these inputs', /id="labelEl"/.test(html), false);
 t('the change handler stores the text under data-key', js.includes('text[el.dataset.key || el.id] = el.value;'), true);
 
 /* ---- row 389 ---- */
-const fs0 = js.indexOf('function efb_admin_date_efb(raw) {'); // QA1-028: efb_list_date_efb() escapes efb_admin_date_efb()
-const fe = js.indexOf('\n}\n', js.indexOf('function efb_list_date_efb(v) {')) + 2;
-t('efb_list_date_efb() and the one admin date formatter efb_admin_date_efb() are in list_form-efb.js', fs0 > 0 && js.indexOf('function efb_list_date_efb(v) {') > fs0, true);
-const dateFn = (lan) => new Function('efb_var', js.slice(fs0, fe) + '; return efb_list_date_efb;')({ wp_lan: lan });
+// QA1-028: efb_list_date_efb() (list_form-efb.js) escapes the admin's one date formatter efb_admin_date_efb() (admin-efb.js).
+const adminJs = fs.readFileSync(path.join(root, 'includes/admin/assets/js/admin-efb.js'), 'utf8');
+const fs0 = js.indexOf('function efb_list_date_efb(v) {');
+const fe = js.indexOf('\n}\n', fs0) + 2;
+const as0 = adminJs.indexOf('function efb_admin_date_efb(raw) {');
+const ae = adminJs.indexOf('\n}\n', as0) + 2;
+t('efb_list_date_efb() is in list_form-efb.js, efb_admin_date_efb() in admin-efb.js', fs0 > 0 && as0 > 0, true);
+const dateFn = (lan) => new Function('efb_var', adminJs.slice(as0, ae) + js.slice(fs0, fe) + '; return efb_list_date_efb;')({ wp_lan: lan });
 t('en: the date as the entries list shows it (date_display)', dateFn('en_US')({ date: '2026-11-19 10:05:00', date_display: 'November 19, 2026 10:05 am' }), 'November 19, 2026 10:05 am');
 t('fa_IR: in Persian digits', dateFn('fa_IR')({ date: '2026-11-19 10:05:00', date_display: '19 نوامبر 2026 10:05' }), '۱۹ نوامبر ۲۰۲۶ ۱۰:۰۵');
 t('ar: in Arabic-Indic digits', dateFn('ar')({ date: '2026-11-19 10:05:00', date_display: '19 نوفمبر 2026' }), '١٩ نوفمبر ٢٠٢٦');
