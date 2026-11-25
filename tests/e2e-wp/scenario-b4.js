@@ -27,6 +27,9 @@
  *  b4-mobile-preview  BUG-03 row 370: the builder's mobile preview frame (previewFormEfb('mobile'); no control opens it
  *            today) is a whole page: the screen's stylesheets (the form is styled: Bootstrap's grid and the plugin's
  *            button), a phone's viewport, the screen's direction, no stray script text; en and fa_IR.
+ *  b4-older-payments  SET-01 (B8 hand-off): while Payments exists, the Stripe / PayPal add-ons' "Older … payments"
+ *            screens are not in the menu but behind Payments' "Older payments" tab, which opens them (the menu shows
+ *            Payments there); the add-on screens get core's shared add-on screen style.
  */
 'use strict';
 const path = require('path');
@@ -402,5 +405,31 @@ module.exports = function (S) {
     } finally {
       actl('delete', String(F.form_id));
     }
+  });
+  /* ================================================================== b4-older-payments */
+  scenario('b4-older-payments', 'SET-01: "Older payments" is a section of Payments (the add-ons\' older-payment screens leave the menu); their screens show Payments in the menu and core\'s shared style', async ({ adminPage }) => {
+    ctl('plan', '3');
+    ctl('pay-mock', '1');
+    const a = await adminPage({ viewport: { width: 1280, height: 900 } }, 'b4-older');
+    await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments', { waitUntil: 'load' });
+    const m = await a.evaluate(() => ({
+      menu: Array.from(document.querySelectorAll('#adminmenu a[href*="page="]')).map((x) => (x.getAttribute('href').match(/page=([^&]+)/) || [])[1]),
+      tab: (() => { const t = Array.from(document.querySelectorAll('.efb-pay-admin .nav-tab')).find((x) => /tab=older/.test(x.getAttribute('href'))); return t ? t.textContent.trim() : null; })(),
+    }));
+    const legacy = m.menu.filter((x) => /^Emsfb_(stripe|paypal)_payment$/.test(x));
+    if (!m.tab) {
+      // A site without older payments: nothing to move, nothing in the menu either.
+      R.check('b4-older-payments: no older Stripe / PayPal payments on this site: no tab and no menu entry', legacy.length === 0, m);
+    } else {
+      R.check('b4-older-payments: Payments has the "Older payments" tab; the older-payment screens are not in the menu', m.tab === 'Older payments' && legacy.length === 0, m);
+      await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_payments&tab=older', { waitUntil: 'load' });
+      const links = await a.evaluate(() => Array.from(document.querySelectorAll('#efbPayAdmin .efb-pay-older a.button')).map((x) => ({ href: x.getAttribute('href'), text: x.textContent.trim() })));
+      R.check('b4-older-payments: the tab explains them and opens each add-on\'s list', links.length >= 1 && links.every((l) => /page=Emsfb_(stripe|paypal)_payment$/.test(l.href) && /Older/.test(l.text)), links);
+      await a.screenshot({ path: SHOT('b4-older-payments-en-1280') });
+      await a.goto(links[0].href.startsWith('http') ? links[0].href : CFG.base + '/wp-admin/' + links[0].href.replace(/^.*wp-admin\//, ''), { waitUntil: 'load' });
+      const scr = await a.evaluate(() => ({ h1: (document.querySelector('.efb-addon-screen h1') || {}).textContent || '', current: (document.querySelector('#adminmenu .current a, #adminmenu li.current > a') || {}).textContent || '', css: !!document.getElementById('efb-addon-screen-css'), back: !!document.querySelector('.efb-addon-back a[href*="Emsfb_payments"]') }));
+      R.check('b4-older-payments: the add-on\'s screen opens, the menu shows Payments, core\'s shared add-on screen style is there, its link back goes to Payments', /Older/.test(scr.h1) && /Payments/.test(scr.current) && scr.css && scr.back, scr);
+    }
+    await a.context().close();
   });
 };

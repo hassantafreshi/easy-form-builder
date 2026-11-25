@@ -20,8 +20,23 @@ class Admin {
 
 	const SLUG = 'Emsfb_payments';
 
+	/**
+	 * SET-01 (B8's hand-off): the Stripe and PayPal add-ons' lists of the payments their older fields took ("Older Stripe
+	 * payments" / "Older PayPal payments", in the menu while they hold rows) are a section of Payments: while Payments
+	 * exists, they leave the menu and Payments has an "Older payments" tab that opens them; on their screens the menu
+	 * shows Payments. Without Payments (no gateway add-on on the framework) they stay in the menu.
+	 */
+	const OLDER_SCREENS = array( 'Emsfb_stripe_payment', 'Emsfb_paypal_payment' );
+
+	/** @var array<string, string> slug => title of the older-payments screens this request moved into Payments. */
+	private static $older = array();
+
 	public static function register() {
 		add_action( 'admin_menu', array( __CLASS__, 'menu' ), 20 );
+		add_action( 'admin_menu', array( __CLASS__, 'older_menu' ), 999 );
+		add_action( 'admin_head', array( __CLASS__, 'older_hide' ), 1 );
+		add_filter( 'parent_file', array( __CLASS__, 'older_parent' ) );
+		add_filter( 'submenu_file', array( __CLASS__, 'older_submenu' ) );
 		add_action( 'admin_post_efb_pay_settings', array( __CLASS__, 'save_settings' ) );
 		add_action( 'wp_ajax_efb_pay_action', array( __CLASS__, 'ajax' ) );
 		// UX-01: through the notice manager (one notice at a time on the plugin's screens). Payment readiness is no longer a
@@ -49,6 +64,54 @@ class Admin {
 	public static function menu() {
 		if ( ! self::active() ) return; // no gateway add-on: nothing of the payment framework in the menu
 		add_submenu_page( 'Emsfb', esc_html__( 'Payments', 'easy-form-builder' ), esc_html__( 'Payments', 'easy-form-builder' ), current_user_can( 'Emsfb_payments' ) ? 'Emsfb_payments' : 'manage_options', self::SLUG, array( __CLASS__, 'page' ) );
+	}
+
+	/** admin_menu (late, after the add-ons): which older-payments screens go into Payments' "Older payments". */
+	public static function older_menu() {
+		global $submenu;
+		if ( ! self::active() || ! isset( $submenu['Emsfb'] ) || ! is_array( $submenu['Emsfb'] ) ) return;
+		foreach ( $submenu['Emsfb'] as $item ) {
+			if ( isset( $item[2] ) && in_array( $item[2], self::OLDER_SCREENS, true ) && current_user_can( $item[1] ) ) {
+				self::$older[ $item[2] ] = trim( wp_strip_all_tags( isset( $item[3] ) && $item[3] !== '' ? $item[3] : $item[0] ) );
+			}
+		}
+	}
+
+	/**
+	 * admin_head: they leave the menu as it is drawn (menu-header.php comes after admin_head). Not at admin_menu:
+	 * WordPress checks a screen's access against the menu first, and a screen missing from it answers 403.
+	 */
+	public static function older_hide() {
+		foreach ( array_keys( self::$older ) as $slug ) remove_submenu_page( 'Emsfb', $slug );
+	}
+
+	/** @return array<string, string> the older-payments screens in Payments: slug => title. */
+	public static function older_screens() {
+		return self::$older;
+	}
+
+	private static function on_older_screen() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- which screen, read only
+		return is_admin() && isset( $_GET['page'] ) && isset( self::$older[ (string) wp_unslash( $_GET['page'] ) ] );
+	}
+
+	/** parent_file / submenu_file: on an older-payments screen the menu shows Payments. */
+	public static function older_parent( $f ) {
+		return self::on_older_screen() ? 'Emsfb' : $f;
+	}
+
+	public static function older_submenu( $f ) {
+		return self::on_older_screen() ? self::SLUG : $f;
+	}
+
+	/** The "Older payments" tab: what they are and a link to each add-on's list. */
+	private static function older_tab() {
+		echo '<section class="efb-pay-older" aria-labelledby="efbPayOlderH"><h2 id="efbPayOlderH">' . esc_html__( 'Older payments', 'easy-form-builder' ) . '</h2>';
+		echo '<p class="description">' . esc_html__( 'Payments taken with the Stripe and PayPal fields Easy Form Builder had before version 4.3.2. Each list is kept by its add-on; new payments are on the Payments tab.', 'easy-form-builder' ) . '</p><ul>';
+		foreach ( self::$older as $slug => $title ) {
+			echo '<li><a class="button" href="' . esc_url( admin_url( 'admin.php?page=' . $slug ) ) . '">' . esc_html( $title ) . '</a></li>';
+		}
+		echo '</ul></section>';
 	}
 
 	/** Problems of the registry (an add-on for another framework version) and a disabled WP-Cron (both notices). */
@@ -140,7 +203,8 @@ class Admin {
 	public static function page() {
 		if ( ! self::can() || ! self::active() ) wp_die( esc_html__( 'Sorry, you are not allowed to access this page.', 'easy-form-builder' ) );
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only screen parameters
-		$tab = isset( $_GET['tab'] ) && $_GET['tab'] === 'gateways' ? 'gateways' : 'payments';
+		$tab = isset( $_GET['tab'] ) && in_array( $_GET['tab'], array( 'gateways', 'older' ), true ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'payments';
+		if ( $tab === 'older' && ! self::$older ) $tab = 'payments';
 		$id = isset( $_GET['payment'] ) ? absint( $_GET['payment'] ) : 0;
 		// phpcs:enable
 		$base = admin_url( 'admin.php?page=' . self::SLUG );
@@ -150,9 +214,17 @@ class Admin {
 		echo '<nav class="nav-tab-wrapper" aria-label="' . esc_attr__( 'Payments', 'easy-form-builder' ) . '">';
 		echo '<a class="nav-tab' . ( $tab === 'payments' ? ' nav-tab-active' : '' ) . '" href="' . esc_url( $base ) . '"' . ( $tab === 'payments' ? ' aria-current="page"' : '' ) . '>' . esc_html__( 'Payments', 'easy-form-builder' ) . '</a>';
 		echo '<a class="nav-tab' . ( $tab === 'gateways' ? ' nav-tab-active' : '' ) . '" href="' . esc_url( $base . '&tab=gateways' ) . '"' . ( $tab === 'gateways' ? ' aria-current="page"' : '' ) . '>' . esc_html__( 'Gateway settings', 'easy-form-builder' ) . '</a>';
+		if ( self::$older ) {
+			echo '<a class="nav-tab' . ( $tab === 'older' ? ' nav-tab-active' : '' ) . '" href="' . esc_url( $base . '&tab=older' ) . '"' . ( $tab === 'older' ? ' aria-current="page"' : '' ) . '>' . esc_html__( 'Older payments', 'easy-form-builder' ) . '</a>';
+		}
 		echo '</nav>';
 		if ( ! Store::ready() ) {
 			echo '<p>' . esc_html__( 'The payment tables are being created. Please reload this page in a moment.', 'easy-form-builder' ) . '</p></div>';
+			return;
+		}
+		if ( $tab === 'older' ) {
+			self::older_tab();
+			echo '</div>';
 			return;
 		}
 		self::readiness_summary();
@@ -534,6 +606,8 @@ class Admin {
 		echo '<style>.efb-pay-admin .efb-pay-stats{display:flex;gap:1rem;flex-wrap:wrap;margin:1rem 0}.efb-pay-stat{background:#fff;border:1px solid #dcdcde;border-radius:6px;padding:.6rem 1rem;display:flex;flex-direction:column}.efb-pay-filters{display:flex;flex-wrap:wrap;gap:.5rem;align-items:end;margin:.5rem 0 1rem}.efb-pay-badge{display:inline-block;padding:.1rem .5rem;border-radius:999px;font-size:12px;font-weight:600;background:#e9ecef;color:#1d2327}.efb-pay-success{background:#d1e7dd;color:#0a3622}.efb-pay-warning{background:#fff3cd;color:#664d03}.efb-pay-danger{background:#f8d7da;color:#58151c}.efb-pay-info{background:#cff4fc;color:#055160}.efb-pay-dark{background:#495057;color:#fff}.efb-pay-test{background:#fff3cd;color:#664d03;padding:0 .4rem;border-radius:4px;font-weight:700}.efb-pay-card{background:#fff;border:1px solid #dcdcde;border-radius:8px;padding:0 1rem 1rem;margin:1rem 0;max-width:60rem}.efb-pay-kv th{width:14rem}.efb-pay-err{color:#b32d2e}.efb-pay-events pre{white-space:pre-wrap;max-height:16rem;overflow:auto}.efb-pay-pages{margin:1rem 0}'
 			// UX-01: the readiness summary (a card, not a notice: it is about these screens' work).
 			. '.efb-pay-ready{background:#fcf9e8;border:1px solid #dcdcde;border-inline-start:4px solid #dba617;border-radius:6px;padding:.25rem 1rem .5rem;margin:1rem 0;max-width:60rem}.efb-pay-ready h2{font-size:1.1em;margin:.75rem 0 .25rem}.efb-pay-ready ul{list-style:disc;padding-inline-start:1.25rem;margin-inline-start:0}.efb-pay-ready summary{cursor:pointer;color:#2271b1;min-height:24px}'
+			// SET-01: the "Older payments" tab.
+			. '.efb-pay-older ul{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.efb-pay-older .button{min-height:36px;display:inline-flex;align-items:center}.efb-pay-older .description{max-width:52rem}'
 			// F16 rule on a right-to-left screen: a sentence keeps its own direction (English, not translated yet: its full stop
 			// stays at its end) and starts at the screen's start.
 			. '.efb-pay-admin :is(p,.notice p,.description,li,label,.efb-pay-msg){unicode-bidi:plaintext}.rtl .efb-pay-admin :is(p,.notice p,.description,li,.efb-pay-msg){text-align:right}</style>';

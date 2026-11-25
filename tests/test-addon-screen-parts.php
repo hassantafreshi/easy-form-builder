@@ -63,6 +63,10 @@ t('Human Shield\'s screen: none while the add-on has not registered it', C::js_m
 $GLOBALS['submenu'] = array('Emsfb' => array(array('Panel', 'Emsfb', 'Emsfb'), array('Human Shield', 'Emsfb_human_shield_efb', 'Emsfb_human_shield_efb')));
 t('… its address once it is in Easy Form Builder\'s menu (Settings › Captchas links to it)', C::js_mirror()['AdnHSH']['screen'], 'http://site.test/wp-admin/admin.php?page=Emsfb_human_shield_efb');
 t('an add-on without a screen of its own in the list has none', C::js_mirror()['AdnGoS']['screen'], '');
+// B8 hand-off: the Conditional Logic add-on implements the "logic" contract (1.1); the catalogue says so.
+t('the catalogue names the contract of Conditional Logic (AdnSMF): logic', array(C::get('AdnSMF')['contract'], C::js_mirror()['AdnSMF']['contract']), array('logic', 'logic'));
+// SET-01: the shared style is printed on the plugin's screens (admin_head), for add-on screens with the shared classes.
+t('core prints the shared add-on screen style on the plugin\'s screens (admin_head), once', method_exists('\\Emsfb\\Addon_Catalog', 'print_screen_css') && strpos(file_get_contents(dirname(__DIR__) . '/includes/class-Emsfb-addon-catalog.php'), "add_action('admin_head', array(__CLASS__, 'print_screen_css'))") !== false, true);
 
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

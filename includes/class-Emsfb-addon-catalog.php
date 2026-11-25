@@ -40,7 +40,7 @@ class Addon_Catalog {
 		'AdnWHS' => array('dir' => '', 'name' => 'Webhook', 'package' => 1, 'contract' => null, 'files' => array(), 'loader' => 'manual'),
 		'AdnPAP' => array('dir' => 'paypal', 'name' => 'PayPal Payment', 'package' => 3, 'contract' => 'legacy_gateway', 'files' => array('vendor/paypal/paypalefb.php'), 'loader' => 'manual'),
 		'AdnWSP' => array('dir' => '', 'name' => 'WhatsApp', 'package' => 1, 'contract' => null, 'files' => array(), 'loader' => 'manual'),
-		'AdnSMF' => array('dir' => 'logic', 'name' => 'Conditional Logic', 'package' => 3, 'contract' => null, 'files' => array('vendor/logic/logic/class-Emsfb-logic-validator.php'), 'loader' => 'manual'),
+		'AdnSMF' => array('dir' => 'logic', 'name' => 'Conditional Logic', 'package' => 3, 'contract' => 'logic', 'files' => array('vendor/logic/logic/class-Emsfb-logic-validator.php'), 'loader' => 'manual'),
 		'AdnPLF' => array('dir' => '', 'name' => 'AdnPLF', 'package' => 1, 'contract' => null, 'files' => array(), 'loader' => 'manual'),
 		'AdnMSF' => array('dir' => '', 'name' => 'AdnMSF', 'package' => 1, 'contract' => null, 'files' => array(), 'loader' => 'manual'),
 		// SPLIT §9.2: the booking add-on (Pro). Before SPLIT the key was listed without any add-on (§20 item 6).
@@ -437,5 +437,15 @@ class Addon_Catalog {
 		// from here because this file is always loaded, whatever the order of class-Emsfb.php.
 		if (!class_exists('\\Emsfb\\Notices') && is_readable(__DIR__ . '/class-Emsfb-notices.php')) require_once __DIR__ . '/class-Emsfb-notices.php';
 		if (class_exists('\\Emsfb\\Notices')) Notices::register();
+		// SET-01: the add-on screens' shared look (efb-addon-screen, efb-addon-back, efb-addon-desc, efb-addon-savebar) on
+		// every screen of the plugin's menu, so an add-on screen that prints those classes looks like core's.
+		if (function_exists('add_action')) add_action('admin_head', array(__CLASS__, 'print_screen_css'));
+	}
+
+	/** admin_head: the shared parts' style on the plugin's screens (once; screen_header() then prints none). */
+	public static function print_screen_css() {
+		$s = function_exists('get_current_screen') ? get_current_screen() : null;
+		if (!$s || stripos((string) $s->id, 'emsfb') === false) return;
+		echo self::screen_css(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- a fixed stylesheet
 	}
 }
