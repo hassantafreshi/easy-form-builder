@@ -2847,3 +2847,9 @@ div#Listefb-150 {
 	#settingModalEfb .efb-resp-viewer .efb-resp-messages { max-height: none; min-height: 0; overflow-y: visible; }
 }
 #modal-footer-efb.efb-confirm-footer button { font-family: inherit; }
+/* QA1-029: the Panel's illustration has no words of its own; its three labels are phrases drawn over its pills. */
+.efb-hero { position: relative; container-type: inline-size; }
+.efb-hero > span { position: absolute; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; font-weight: 600; font-size: 2.6cqw; color: #5b34b8; unicode-bidi: plaintext; }
+.efb-hero .efb-hero-0 { left: 6.5%; top: 21%; width: 30%; height: 9%; color: #fff; }
+.efb-hero .efb-hero-1 { left: 50.5%; top: 47.5%; width: 45%; height: 8.5%; }
+.efb-hero .efb-hero-2 { left: 13.5%; top: 61.8%; width: 29.5%; height: 7.5%; }

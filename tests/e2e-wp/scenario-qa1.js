@@ -35,6 +35,8 @@
  *  qa1-mailurl   QA1-023: after a site move the stored e-mail template named the old host; the update turns this plugin's
  *                address into {efb_plugin_url} once, and the Email Template designer shows the template's images from
  *                this site.
+ *  qa1-firstrun  QA1-029: the Panel's illustration carries no English of its own (its three labels are phrases drawn over
+ *                it); at 375 px the plan picker stacks its cards, the recommended Free Plus first (fa_IR, ar).
  */
 'use strict';
 
@@ -495,6 +497,26 @@ module.exports = function (S) {
       await a.context().close();
     } finally {
       q('mail-restore');
+    }
+  });
+
+  /* ================================================================== qa1-firstrun */
+  scenario('qa1-firstrun', 'QA1-029: a text-free illustration with phrases over it; the plan cards stacked on a phone, Free Plus first', async ({ adminPage }) => {
+    for (const loc of ['fa_IR', 'ar']) {
+      ctl('locale', loc);
+      try {
+        const p = await adminPage({ viewport: { width: 375, height: 812 }, locale: loc.replace('_', '-') }, 'qa1-firstrun-' + loc);
+        await p.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+        await p.waitForFunction(() => typeof head_introduce_efb === 'function', null, { timeout: 20000 });
+        const hero = await p.evaluate(() => { const d = document.createElement('div'); d.innerHTML = head_introduce_efb('panel'); return Array.from(d.querySelectorAll('.efb-hero > span')).map((x) => x.textContent); });
+        await p.evaluate(() => showSetupAsOverlayPage({ planOnly: true }));
+        await p.waitForSelector('.efb-plans-grid .efb-plan-card', { timeout: 10000 });
+        await sleep(800);
+        const cards = await p.evaluate(() => Array.from(document.querySelectorAll('.efb-plans-grid .efb-plan-card')).map((c) => ({ rec: c.classList.contains('efb-recommended'), top: Math.round(c.getBoundingClientRect().top), w: Math.round(c.getBoundingClientRect().width) })).sort((a, b) => a.top - b.top));
+        R.check(`qa1-firstrun (${loc} 375): three phrases over the illustration; the plan cards one under the other, the recommended Free Plus first, each nearly the screen's width`, hero.length === 3 && hero.every((x) => x.length > 3) && cards.length === 3 && cards[0].rec && cards[1].top > cards[0].top && cards.every((c) => c.w >= 300), { hero, cards });
+        await p.screenshot({ path: SHOT(`qa1-firstrun-plans-${loc}-375`) });
+        await p.context().close();
+      } finally { ctl('locale', ''); }
     }
   });
 };

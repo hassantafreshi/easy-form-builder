@@ -6762,6 +6762,10 @@ class efbFunction {
 			'delMsg' => __('The entry was deleted.', 'easy-form-builder'),
 			'delAddon' => __('The add-on was deleted.', 'easy-form-builder'),
 			'delDone' => __('Deleted.', 'easy-form-builder'),
+			/* translators: QA1-029: the three labels drawn over the Panel's illustration */
+			'heroForms' => __('Create unlimited forms', 'easy-form-builder'),
+			'heroMobile' => __('Mobile-friendly responsive forms', 'easy-form-builder'),
+			'heroRtl' => __('Right-to-left languages', 'easy-form-builder'),
 			/* translators: the name of the first-run guide's group of buttons */
 			'onboardingActions' => __('Setup actions', 'easy-form-builder'),
 			/* translators: Settings › Payments: moves every moved form back to its older payment field */

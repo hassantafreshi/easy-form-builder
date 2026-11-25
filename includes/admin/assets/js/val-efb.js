@@ -5850,52 +5850,16 @@ function showSetupAsOverlayPage(options) {
                 padding: 15px !important;
             }
 
+            /* QA1-029: on a phone the plans are stacked, the recommended Free Plus first (the side strip showed 28 px of it). */
             .efb-overlay-content .efb-plans-grid {
                 display: flex !important;
-                overflow-x: auto !important;
-                overflow-y: visible !important;
+                flex-direction: column !important;
                 gap: 15px !important;
-                /* 22px on top: room for the Pro badge that sits above its card. */
-                padding: 22px 5px 20px 5px !important;
-                scroll-behavior: smooth !important;
-                -webkit-overflow-scrolling: touch !important;
-                scrollbar-width: thin !important;
-                position: relative !important;
+                padding: 22px 0 0 !important;
             }
-
-            .efb-overlay-content .efb-plans-grid::after {
-                content: '‹ ‹ ‹ ‹ ‹ › › › › ›' !important;
-                position: absolute !important;
-                bottom: 0 !important;
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                font-size: 0.7rem !important;
-                color: rgba(32, 42, 141, 0.6) !important;
-                text-align: center !important;
-                animation: fadeInOut 3s ease-in-out !important;
-            }
-
-            @keyframes fadeInOut {
-                0%, 100% { opacity: 0; }
-                50% { opacity: 1; }
-            }
-
-            .efb-overlay-content .efb-plans-grid::-webkit-scrollbar {
-                height: 6px !important;
-            }
-
-            .efb-overlay-content .efb-plans-grid::-webkit-scrollbar-track {
-                background: rgba(0, 0, 0, 0.1) !important;
-                border-radius: 3px !important;
-            }
-
-            .efb-overlay-content .efb-plans-grid::-webkit-scrollbar-thumb {
-                background: rgba(32, 42, 141, 0.5) !important;
-                border-radius: 3px !important;
-            }
-
+            .efb-overlay-content .efb-plans-grid .efb-recommended { order: -1; }
             .efb-overlay-content .efb-plan-card {
-                flex: 0 0 280px !important;
+                flex: none !important;
                 margin-bottom: 0 !important;
             }
 

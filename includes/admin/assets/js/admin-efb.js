@@ -2044,7 +2044,7 @@ function head_introduce_efb(state) {
 
               </div>
               ${state == "create" && (efb_var.pro==false || efb_var.pro =='false') ? vType : ''}
-              ${(state != "create") ? `<div class="efb col-lg-5 col-md-12 efb-header-img-wrap"> <img src="${efb_var.images.head}" alt="" class="efb img-fluid efb-header-img"></div>` : ''}
+              ${(state != "create") ? `<div class="efb col-lg-5 col-md-12 efb-header-img-wrap"><div class="efb efb-hero"><img src="${efb_var.images.head}" alt="" class="efb img-fluid efb-header-img">${['heroForms', 'heroMobile', 'heroRtl'].map((k, i) => `<span class="efb efb-hero-${i}" dir="auto">${efb_var.text[k] || ''}</span>`).join('')}</div></div>` : ''}
     </div>
   </section> `
 }
