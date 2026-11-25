@@ -87,6 +87,10 @@ function efb_feature_plan_ok_efb(key, pkg, fallback) {
 }
 
 /** The translated name of a feature: its label key in efb_var.text, the palette name of a field, or a readable key. */
+/* QA5 (F18): phrases arrive escaped (esc_html__): decoded once, escaped where written ("D&amp;amp;D" in the title). */
+function efb_upg_dec_efb(s) {
+  return String(s).replace(/&(amp|lt|gt|quot|#0?39);/g, function (m, k) { return { amp: '&', lt: '<', gt: '>', quot: '"' }[k] || "'"; });
+}
 function efb_feature_label_efb(key, label) {
   if (label) return String(label);
   var t = (typeof efb_var !== 'undefined' && efb_var && efb_var.text) ? efb_var.text : {};
@@ -95,9 +99,9 @@ function efb_feature_label_efb(key, label) {
   var parts = String(key || '').split(':');
   if (!lk && parts[0] === 'field') lk = parts[1];
   if (parts[0] === 'field' && typeof fields_efb !== 'undefined' && Array.isArray(fields_efb)) {
-    for (var i = 0; i < fields_efb.length; i++) if (fields_efb[i].id === parts[1] && fields_efb[i].name) return String(fields_efb[i].name);
+    for (var i = 0; i < fields_efb.length; i++) if (fields_efb[i].id === parts[1] && fields_efb[i].name) return efb_upg_dec_efb(fields_efb[i].name);
   }
-  if (lk && typeof t[lk] === 'string' && t[lk] !== '' && t[lk].indexOf('%') === -1) return t[lk];
+  if (lk && typeof t[lk] === 'string' && t[lk] !== '' && t[lk].indexOf('%') === -1) return efb_upg_dec_efb(t[lk]);
   var raw = parts.length > 1 ? parts.slice(1).join(':') : String(key || '');
   return raw.replace(/[_-]+/g, ' ').replace(/^./, function (c) { return c.toUpperCase(); });
 }

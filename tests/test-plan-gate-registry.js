@@ -107,6 +107,12 @@ if (!fs.existsSync(FILE)) {
     g.efb_feature_label_efb('field:esign') === 'Signature' && g.efb_feature_label_efb('setting:thank_you_redirect') === 'Redirect page' && g.efb_feature_label_efb('setting:mobile_layout') === 'Mobile layout settings');
   check('an unknown key without a label falls back to a readable name, never "undefined"', !/undefined/.test(String(g.efb_feature_label_efb('nope:x'))));
 
+  // QA5 (F18): a phrase arrives escaped (esc_html__ 'D&D File Upload' = 'D&amp;D File Upload'): the dialog title says
+  // "D&D File Upload" once (it showed "D&amp;D", escaped twice).
+  const amp = load({ package_type: 2 }, { capabilities: P.caps, text: { dadfile: 'D&amp;D File Upload', upgDialogTitle: 'Unlock %s' } });
+  check('an escaped phrase label is decoded once: efb_feature_label_efb("field:dadfile") = "D&D File Upload"', amp.efb_feature_label_efb('field:dadfile') === 'D&D File Upload', amp.efb_feature_label_efb('field:dadfile'));
+  check('…and the title escapes it once: "Unlock D&amp;D File Upload"', amp.efb_upg_fmt_efb('Unlock %s', [amp.efb_feature_label_efb('field:dadfile')]).indexOf('D&amp;D File Upload') !== -1 && amp.efb_upg_fmt_efb('Unlock %s', [amp.efb_feature_label_efb('field:dadfile')]).indexOf('&amp;amp;') === -1);
+
   // A page without the registry (old cached page): the caller's own level is used.
   const bare = load({ package_type: 2 });
   check('without efb_var.capabilities: required falls back to opts / pro', bare.efb_feature_required_efb('field:esign', 'free_plus') === 'free_plus' && bare.efb_feature_required_efb('field:esign') === 'pro');
