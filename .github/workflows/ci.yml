@@ -1,0 +1,297 @@
+# QA-02: the CI matrix of Easy Form Builder (core).
+#
+#   unit       the pure unit suite (tests/run-suite.php, EFB_WP_ROOT=none) on PHP 7.4 - 8.4
+#   wordpress  the site-backed tests and a smoke e2e (tests/e2e-wp/run.js 1 2 3) on a real WordPress:
+#              PHP 7.4 - 8.4 x WordPress 6.3 (the minimum, owner decision 7), 6.6, latest x MySQL 8.0, MariaDB 10.6, SQLite
+#   upgrade    4.3.1 -> this version with 100,000 entries on MySQL 8.0 and MariaDB 10.6 (tests/upgrade/run-upgrade-431.sh;
+#              at most 30 s, the same rows and content, a second run that changes nothing)
+#   build      the release zip (bin/build-zip.sh) and Plugin Check on it; dist/ as an artifact
+#
+# The add-ons live in their own repository (vendores-efb); many tests load them from vendor/<dir>. The workflow checks
+# that repository out next to the core with the secret EFB_ADDONS_TOKEN (read access) and links each add-on into
+# vendor/. Without the secret those tests run without the add-ons (they skip or fail on purpose: set the secret).
+# Pinned combinations WordPress does not support are left out (see "exclude").
+name: CI
+
+on:
+  push:
+    branches: [dev4, main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  ADDONS_REPO: hassantafreshi/vendores-efb
+  ADDONS_REF: dev4
+  HAS_ADDONS_TOKEN: ${{ secrets.EFB_ADDONS_TOKEN != '' }}
+
+jobs:
+  unit:
+    name: unit (PHP ${{ matrix.php }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add-ons repository
+        uses: actions/checkout@v4
+        if: ${{ env.HAS_ADDONS_TOKEN == 'true' }}
+        with:
+          repository: ${{ env.ADDONS_REPO }}
+          ref: ${{ env.ADDONS_REF }}
+          token: ${{ secrets.EFB_ADDONS_TOKEN }}
+          path: _addons
+      - name: Link the add-ons into vendor/
+        run: |
+          if [ -d _addons ]; then
+            for d in _addons/*/; do n=$(basename "$d"); [ -e "vendor/$n" ] || ln -s "$PWD/_addons/$n" "vendor/$n"; done
+            echo "EFB_ADDONS_DIR=$PWD/_addons" >> "$GITHUB_ENV"
+          fi
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, intl, mysqli, pdo_sqlite, sqlite3, zip, gd
+          ini-values: memory_limit=1024M, error_reporting=E_ALL, display_errors=On
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Node packages and Chromium
+        run: |
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Unit suite (no WordPress)
+        env:
+          EFB_WP_ROOT: none
+        run: php tests/run-suite.php --no-site --json="$RUNNER_TEMP/unit.json" --logs="$RUNNER_TEMP/unit-logs"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-php${{ matrix.php }}
+          path: |
+            ${{ runner.temp }}/unit.json
+            ${{ runner.temp }}/unit-logs
+          if-no-files-found: ignore
+
+  wordpress:
+    name: site (PHP ${{ matrix.php }}, WP ${{ matrix.wp }}, ${{ matrix.db }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+      matrix:
+        php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+        wp: ['6.3', '6.6', 'latest']
+        db: [mysql, mariadb, sqlite]
+        include:
+          - db: mysql
+            db_image: 'mysql:8.0'
+          - db: mariadb
+            db_image: 'mariadb:10.6'
+          - db: sqlite
+            db_image: ''
+        exclude:
+          # WordPress supports PHP 8.3 from 6.4 and PHP 8.4 from 6.7.
+          - { wp: '6.3', php: '8.3' }
+          - { wp: '6.3', php: '8.4' }
+          - { wp: '6.6', php: '8.4' }
+          # The SQLite integration plugin needs WordPress 6.4.
+          - { wp: '6.3', db: sqlite }
+    services:
+      db:
+        # No container for SQLite (an empty image starts none).
+        image: ${{ matrix.db_image }}
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MARIADB_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress
+          MARIADB_DATABASE: wordpress
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    env:
+      SITE: ${{ github.workspace }}/../wpsite
+      EFB_WP_URL: http://127.0.0.1:8088
+      EFB_E2E_URL: http://127.0.0.1:8088
+      EFB_E2E_WPCLI: wp
+      EFB_E2E_LOCK: ${{ github.workspace }}/../e2e.lock
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add-ons repository
+        uses: actions/checkout@v4
+        if: ${{ env.HAS_ADDONS_TOKEN == 'true' }}
+        with:
+          repository: ${{ env.ADDONS_REPO }}
+          ref: ${{ env.ADDONS_REF }}
+          token: ${{ secrets.EFB_ADDONS_TOKEN }}
+          path: _addons
+      - name: Link the add-ons into vendor/
+        run: |
+          if [ -d _addons ]; then
+            for d in _addons/*/; do n=$(basename "$d"); [ -e "vendor/$n" ] || ln -s "$PWD/_addons/$n" "vendor/$n"; done
+          fi
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, intl, mysqli, pdo_sqlite, sqlite3, zip, gd
+          ini-values: memory_limit=1024M
+          tools: wp-cli
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Node packages and Chromium
+        run: |
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: WordPress ${{ matrix.wp }} on ${{ matrix.db }}
+        run: |
+          SITE=$(realpath -m "$SITE"); echo "SITE=$SITE" >> "$GITHUB_ENV"
+          echo "EFB_WP_ROOT=$SITE" >> "$GITHUB_ENV"; echo "EFB_E2E_SITE_DIR=$SITE" >> "$GITHUB_ENV"
+          mkdir -p "$SITE"
+          wp core download --version="${{ matrix.wp }}" --path="$SITE" --quiet
+          if [ "${{ matrix.db }}" = sqlite ]; then
+            curl -fsSLo "$RUNNER_TEMP/sqlite.zip" https://downloads.wordpress.org/plugin/sqlite-database-integration.zip
+            unzip -q "$RUNNER_TEMP/sqlite.zip" -d "$SITE/wp-content/plugins/"
+            cp "$SITE/wp-content/plugins/sqlite-database-integration/db.copy" "$SITE/wp-content/db.php"
+            sed -i "s#{SQLITE_IMPLEMENTATION_FOLDER_PATH}#$SITE/wp-content/plugins/sqlite-database-integration#; s#{SQLITE_PLUGIN}#sqlite-database-integration/load.php#" "$SITE/wp-content/db.php"
+            cp "$SITE/wp-config-sample.php" "$SITE/wp-config.php"
+          else
+            wp config create --path="$SITE" --dbname=wordpress --dbuser=root --dbpass=root --dbhost=127.0.0.1:3306 --skip-check --quiet
+          fi
+          wp config set WP_DEBUG true --raw --path="$SITE"
+          wp core install --path="$SITE" --url=http://127.0.0.1:8088 --title=EFB --admin_user=admin \
+            --admin_password=admin-pass-123 --admin_email=admin@example.test --skip-email --quiet
+          ln -s "$GITHUB_WORKSPACE" "$SITE/wp-content/plugins/easy-form-builder"
+          mkdir -p "$SITE/wp-content/mu-plugins"
+          cp tests/e2e-wp/mu-plugins/efb-e2e.php "$SITE/wp-content/mu-plugins/"
+          wp plugin activate easy-form-builder --path="$SITE"
+          wp rewrite structure '/%postname%/' --path="$SITE" --quiet
+          wp language core install fa_IR ar --path="$SITE" --quiet || true
+      - name: Serve the site
+        run: |
+          cd "$SITE"
+          PHP_CLI_SERVER_WORKERS=8 nohup php -d realpath_cache_ttl=1 -S 127.0.0.1:8088 > "$RUNNER_TEMP/server.log" 2>&1 &
+          for i in $(seq 1 30); do curl -fsS -o /dev/null http://127.0.0.1:8088/ && break; sleep 1; done
+      - name: Site-backed tests and the smoke e2e (under the e2e lock)
+        run: php tests/run-suite.php --site-only --e2e="1 2 3" --json="$RUNNER_TEMP/site.json" --logs="$RUNNER_TEMP/site-logs"
+        env:
+          EFB_E2E_OUT: ${{ runner.temp }}/e2e-out
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: site-php${{ matrix.php }}-wp${{ matrix.wp }}-${{ matrix.db }}
+          path: |
+            ${{ runner.temp }}/site.json
+            ${{ runner.temp }}/site-logs
+            ${{ runner.temp }}/e2e-out
+            ${{ runner.temp }}/server.log
+          if-no-files-found: ignore
+
+  upgrade:
+    name: upgrade 4.3.1 (PHP ${{ matrix.php }}, ${{ matrix.db_image }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.3']
+        db_image: ['mysql:8.0', 'mariadb:10.6']
+    services:
+      db:
+        image: ${{ matrix.db_image }}
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MARIADB_ROOT_PASSWORD: root
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, intl, mysqli, zip
+          ini-values: memory_limit=1024M
+          tools: wp-cli
+          coverage: none
+      - name: 4.3.1 -> this version, 100,000 entries
+        env:
+          EFB_UPG_DB_HOST: 127.0.0.1:3306
+          EFB_UPG_DB_USER: root
+          EFB_UPG_DB_PASS: root
+          EFB_UPG_DIR: ${{ runner.temp }}/upgrade
+          EFB_UPG_MAX_SECONDS: '30'
+        run: tests/upgrade/run-upgrade-431.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: upgrade-php${{ matrix.php }}-${{ strategy.job-index }}
+          path: |
+            ${{ runner.temp }}/upgrade/*.json
+            ${{ runner.temp }}/upgrade/*.out
+            ${{ runner.temp }}/upgrade/*.txt
+          if-no-files-found: ignore
+
+  build:
+    name: release zip and Plugin Check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, pdo_sqlite, sqlite3, zip
+          ini-values: memory_limit=2048M
+          tools: wp-cli
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: A WordPress for Plugin Check (SQLite)
+        run: |
+          PC="$RUNNER_TEMP/pcsite"; mkdir -p "$PC"; echo "EFB_PLUGIN_CHECK_WP=$PC" >> "$GITHUB_ENV"
+          wp core download --path="$PC" --quiet
+          curl -fsSLo "$RUNNER_TEMP/sqlite.zip" https://downloads.wordpress.org/plugin/sqlite-database-integration.zip
+          unzip -q "$RUNNER_TEMP/sqlite.zip" -d "$PC/wp-content/plugins/"
+          cp "$PC/wp-content/plugins/sqlite-database-integration/db.copy" "$PC/wp-content/db.php"
+          sed -i "s#{SQLITE_IMPLEMENTATION_FOLDER_PATH}#$PC/wp-content/plugins/sqlite-database-integration#; s#{SQLITE_PLUGIN}#sqlite-database-integration/load.php#" "$PC/wp-content/db.php"
+          cp "$PC/wp-config-sample.php" "$PC/wp-config.php"
+          wp core install --path="$PC" --url=http://127.0.0.1:8099 --title=PC --admin_user=admin --admin_password=admin-pass-123 --admin_email=admin@example.test --skip-email --quiet
+          wp plugin install plugin-check --activate --path="$PC" --quiet
+      - name: Build the zip (bin/build-zip.sh)
+        env:
+          EFB_WPCLI: wp --allow-root
+        run: bin/build-zip.sh | tee "$RUNNER_TEMP/build.log"
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Release zip"
+            grep -E '^(built|  [0-9]+ files|  manifest|  Plugin Check)' "$RUNNER_TEMP/build.log" || true
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dist
+          path: |
+            dist/*.zip
+            dist/*.sha256
+            dist/*.manifest.json
+            dist/plugin-check-*
+          if-no-files-found: ignore
