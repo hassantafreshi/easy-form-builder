@@ -88,6 +88,56 @@ class Uploads {
 		add_filter('efb_capabilities', array(__CLASS__, 'capabilities'), 23, 2);
 		add_filter('efb_form_schema_field', array(__CLASS__, 'schema_field'), 10, 3);
 		add_filter('efb_admin_localize_vars', array(__CLASS__, 'localize_vars'), 20, 2);
+		// QA4-004 (owner decision 13): Tools › Site Health checks that the private folder is not served (nginx).
+		add_filter('site_status_tests', array(__CLASS__, 'site_status_tests'));
+	}
+
+	/** QA4-004: the Site Health test "Easy Form Builder's private uploads" (a direct test). */
+	public static function site_status_tests($tests) {
+		if (!is_array($tests)) return $tests;
+		$tests['direct']['efb_private_uploads'] = array(
+			/* translators: the name of a Site Health test (Tools › Site Health) */
+			'label' => __('Easy Form Builder private uploads', 'easy-form-builder'),
+			'test'  => array(__CLASS__, 'site_health_private_uploads'),
+		);
+		return $tests;
+	}
+
+	/**
+	 * QA4-004: writes a canary file into the private folder (uploads/efb-private), fetches it over HTTP and deletes it
+	 * (probe(true)). Critical when the web server hands it out (nginx and other servers that never read the folder's
+	 * .htaccess): every private file and the e-mail debug log can then be downloaded by anyone who has the address. The
+	 * description carries nginx_rule(). Without an answer (a server that cannot request itself) it is a recommendation.
+	 *
+	 * @return array Site Health result.
+	 */
+	public static function site_health_private_uploads() {
+		$p    = self::probe(true);
+		$rule = isset($p['rule']) && is_string($p['rule']) && $p['rule'] !== '' ? $p['rule'] : self::nginx_rule();
+		$fix  = '<p>' . esc_html__('On nginx, add this rule to the server block of the site and reload nginx. Apache and LiteSpeed read the folder\'s own .htaccess file and need nothing.', 'easy-form-builder') . '</p>'
+			. '<p><code dir="ltr">' . esc_html($rule) . '</code></p>';
+		$out  = array(
+			'badge' => array('label' => __('Security', 'easy-form-builder'), 'color' => 'blue'),
+			'test'  => 'efb_private_uploads',
+			'actions' => '',
+		);
+		if ($p['exposed'] === true && empty($p['guess'])) {
+			$out['status'] = 'critical';
+			$out['badge']['color'] = 'red';
+			$out['label'] = __('Easy Form Builder\'s private uploads can be downloaded by anyone', 'easy-form-builder');
+			$out['description'] = '<p>' . esc_html__('A test file written to the private uploads folder was served to a request without any login. Files that visitors sent to forms set to "private" and the e-mail debug log are kept there, and anyone who has their address can download them.', 'easy-form-builder') . '</p>' . $fix;
+		} elseif ($p['exposed'] === false) {
+			$out['status'] = 'good';
+			$out['label'] = __('Easy Form Builder\'s private uploads are protected', 'easy-form-builder');
+			/* translators: %d: the HTTP status code the web server answered (for example 403) */
+			$out['description'] = '<p>' . esc_html(sprintf(__('A test file written to the private uploads folder was refused to a request without a login (HTTP %d).', 'easy-form-builder'), (int) $p['code'])) . '</p>';
+		} else {
+			$out['status'] = 'recommended';
+			$out['badge']['color'] = 'orange';
+			$out['label'] = __('Easy Form Builder could not check its private uploads folder', 'easy-form-builder');
+			$out['description'] = '<p>' . esc_html__('The site could not fetch a test file from its own private uploads folder, so it cannot tell whether the web server hands those files out. Check it on the server.', 'easy-form-builder') . '</p>' . $fix;
+		}
+		return $out;
 	}
 
 	public static function routes() {

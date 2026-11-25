@@ -1430,12 +1430,14 @@ class Upload_Guard {
     }
 
     /**
-     * Whether a submission without a valid upload token is refused. False in the
-     * first F07 release (pages cached before it send no token: their files are
-     * checked against the pending ledger instead), true from the next one.
+     * Whether a submission without a valid upload token is refused. On by default since 4.3.2 (owner decision 13,
+     * QA4-004): every upload path of the plugin sends the token it was given (upload-efb.js for the file fields,
+     * new-efb.js for recordings and the older single-file path). The filter emsfb_upload_require_token (false) brings
+     * back the 4.3.1 rule for a site whose cached pages still have the old script: a file without a token is then
+     * checked against the pending ledger instead.
      */
     public static function require_token() {
-        return (bool) apply_filters('emsfb_upload_require_token', false);
+        return (bool) apply_filters('emsfb_upload_require_token', true);
     }
 
     /**

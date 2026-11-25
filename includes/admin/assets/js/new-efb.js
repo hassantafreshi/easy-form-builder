@@ -1182,6 +1182,9 @@ function uploadFile_api(file, id, pl, nonce_msg ,indx,idn,page_id,fid,sid,option
             type: files_emsFormBuilder[currentIndx].type,
             value: '@file@',
             url: files_emsFormBuilder[currentIndx].url,
+            // QA4-004: the upload token of this file (recordings and the single-file path); the submit refuses a file
+            // without one (Upload_Guard::require_token(), on by default).
+            ut: typeof responseData.ut === 'string' ? responseData.ut : '',
             session: sessionPub_emsFormBuilder,
             page_id: page_id,
             form_id: sendbackFormId,

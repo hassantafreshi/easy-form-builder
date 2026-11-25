@@ -74,7 +74,7 @@ t('far-future token: refused', G::verify_upload_token(G::issue_upload_token($nam
 t('garbage: refused', array(G::verify_upload_token('', $name, 12, 'docs', array($b)), G::verify_upload_token(array('x'), $name, 12, 'docs', array($b)), G::verify_upload_token('1.2', $name, 12, 'docs', array($b))), array(false, false, false));
 t('an empty session bucket never matches', G::verify_upload_token(G::issue_upload_token($name, 12, 'docs', 'sid:'), $name, 12, 'docs', array('sid:')), false);
 t('a token of the path ../ name does not verify the stored name', G::verify_upload_token(G::issue_upload_token('../../' . $name, 12, 'docs', $b), $name, 12, 'docs', array($b)), true); // basename only: the stored name is what is signed
-t('require_token is off in the first release', G::require_token(), false);
+t('QA4-004: require_token is on by default (owner decision 13)', G::require_token(), true);
 
 /* ---------------------------------------------------------------- 2. slots */
 $structure = array(

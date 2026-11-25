@@ -130,6 +130,22 @@ foreach ( array( 'soft_block', 'strict' ) as $mode ) {
 		$results[] = array( "[$mode] file_upload ALLOWED (score={$up['score']}, honeypot)", $allowed, $allowed ? 'allowed' : 'blocked:' . wp_json_encode( $guard->get_data() ) );
 	}
 
+	// QA4 note: the upload route is exempt from the score and the honeypot only, never from the token. A missing
+	// token and a forged one are refused here, as at the submit.
+	// (From other addresses, so these calls do not spend the per-IP upload budget of the checks around them.)
+	foreach ( array( 'missing' => '', 'forged' => 'eyJmb3JnZWQiOnRydWV9.' . str_repeat( 'a', 43 ) ) as $kind => $tok ) {
+		$_SERVER['REMOTE_ADDR'] = $kind === 'missing' ? '198.51.100.' . ( $mode === 'strict' ? 21 : 11 ) : '198.51.100.' . ( $mode === 'strict' ? 22 : 12 );
+		$req = new WP_REST_Request( 'POST', '/Emsfb/v1/forms/file/upload' );
+		$req->set_header( 'Content-Type', 'application/json' );
+		$req->set_body( wp_json_encode( array( 'id' => '37ab3xk9q', 'fid' => $FID, 'sid' => $SID ) ) );
+		if ( $tok !== '' ) $req->set_header( 'x_efb_human_token', $tok );
+		$req->set_header( 'x_efb_form_id', (string) $FID );
+		$guard   = $call( 'guard_efb_rest', array( null, $server, $req ) );
+		$refused = ( null !== $guard && is_object( $guard ) );
+		$results[] = array( "[$mode] file_upload with a $kind token REFUSED", $refused, $refused ? 'refused' : 'WRONGLY ALLOWED' );
+	}
+	$_SERVER['REMOTE_ADDR'] = '203.0.113.77';
+
 	// submit must STILL be blocked with the same bad metrics.
 	$sub = $mint( '/Emsfb/v1/forms/message/add' );
 	if ( isset( $sub['err'] ) ) {
@@ -144,6 +160,22 @@ foreach ( array( 'soft_block', 'strict' ) as $mode ) {
 		$results[] = array( "[$mode] submit STILL blocked", $blocked, $blocked ? 'blocked' : 'WRONGLY ALLOWED' );
 	}
 }
+
+// Monitor mode (the add-on's default) blocks nothing, by design: it logs what each mode would do so the owner can
+// tune the thresholds first. A missing token is logged as token_missing and the upload goes on, like a submission.
+$s         = get_option( 'emsfb_human_shield_settings' );
+$s['mode'] = 'monitor';
+$shield->update_settings( $s );
+$_SERVER['REMOTE_ADDR'] = '198.51.100.31';
+$req = new WP_REST_Request( 'POST', '/Emsfb/v1/forms/file/upload' );
+$req->set_header( 'Content-Type', 'application/json' );
+$req->set_body( wp_json_encode( array( 'id' => '37ab3xk9q', 'fid' => $FID, 'sid' => $SID ) ) );
+$req->set_header( 'x_efb_form_id', (string) $FID );
+$results[] = array( '[monitor] file_upload without a token is only logged (by design, the default mode)', null === $call( 'guard_efb_rest', array( null, $server, $req ) ), 'monitor' );
+$req = new WP_REST_Request( 'POST', '/Emsfb/v1/forms/message/add' );
+$req->set_header( 'Content-Type', 'application/json' );
+$req->set_body( wp_json_encode( array( 'id' => $FID, 'sid' => $SID ) ) );
+$results[] = array( '[monitor] ... exactly like a submission without a token', null === $call( 'guard_efb_rest', array( null, $server, $req ) ), 'monitor' );
 
 // cleanup + restore
 $wpdb->delete( $stts, array( 'sid' => $SID ) );
