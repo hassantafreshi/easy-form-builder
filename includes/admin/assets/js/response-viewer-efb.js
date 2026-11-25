@@ -962,7 +962,8 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   richSafeEfb.forEach((h, i) => { if (h !== null && content[i] && typeof content[i] === 'object') content[i].__efbRich = h; });
   userIp = escHtmlEfb(userIp);
   track = escHtmlEfb(track);
-  date = escHtmlEfb(date);
+  // QA1-028: the admin's one date formatter (the site's digits), as in the entries list.
+  date = escHtmlEfb(typeof efb_admin_date_efb === 'function' ? efb_admin_date_efb(date) : date);
   efb_apply_resp_colors();
   stock_state_efb=false;
   let totalpaid =0;
@@ -1003,7 +1004,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
     <div class="efb-msg-meta-bar">
       ${ipSection}
       ${track != 0 ? `<div class="efb-msg-meta-item"><i class="bi bi-hash"></i><span class="efb-msg-meta-label">${efb_var.text.trackNo}:</span><span class="efb-msg-meta-val">${track}</span></div>` : ''}
-      <div class="efb-msg-meta-item"><i class="bi bi-calendar3"></i><span class="efb-msg-meta-label">${efb_var.text.ddate}:</span><span class="efb-msg-meta-val">${date}</span></div>
+      <div class="efb-msg-meta-item"><i class="bi bi-calendar3"></i><span class="efb-msg-meta-label">${efb_var.text.ddate}:</span><span class="efb-msg-meta-val"><bdi class="efb efb-admin-date">${date}</bdi></span></div>
       ${content.some((x) => x && x.value === '@prv@') ? `<div class="efb-msg-meta-item efb-prv-badge"><i class="bi bi-incognito"></i><span class="efb-msg-meta-val">${(efb_var.text && efb_var.text.prvAnonBadge) || 'Anonymized'}</span></div>` : ''}
       ${bySection ? '' : dlWrapHtml}
     </div>

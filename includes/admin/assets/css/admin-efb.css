@@ -2837,3 +2837,12 @@ div#Listefb-150 {
 #wpbody-content .efb-settings-win .bg-light a.efb, #wpbody-content .efb-settings-win .bg-light a { color: #0a58ca; }
 .efb-ent-view-extra .efb-ent-tab:not(.active) { color: #334155 !important; }
 .efb-ent-view-extra .efb-ent-tab.active { color: #4636f1 !important; }
+
+/* QA1-009: on a phone the shared dialog (entry viewer, charts) is a sheet of the screen's width with the usual 8 px
+   gutters (save-efb's 70% left it 262 px wide and pinned to one side), and an entry's answers are part of the dialog's
+   one scroll instead of a 160-220 px box scrolling inside it. */
+@media (max-width: 576px) {
+	.modal-dialog.save-efb, .modal-dialog.save-efb.efb-save-narrow { max-width: none !important; width: auto !important; margin: .5rem !important; }
+	#settingModalEfb .efb-resp-viewer { max-height: none; }
+	#settingModalEfb .efb-resp-viewer .efb-resp-messages { max-height: none; min-height: 0; overflow-y: visible; }
+}

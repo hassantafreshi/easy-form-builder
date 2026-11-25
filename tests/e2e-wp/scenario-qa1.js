@@ -12,6 +12,11 @@
  *                from the translation (editorScript of block.json with its text domain), the shortcode is code (left to
  *                right), the sentence takes its own direction; its stylesheet reaches the editor once and WordPress does
  *                not warn that it was added to the iframe the wrong way. en 1280 for comparison.
+ *  qa1-entries   QA1-020: reloading a form's entries (?state=show-messages&id=…&efbq=…) shows the same list with the same
+ *                tab and search (it went back to the forms list). QA1-009: fa_IR / ar at 375 px the entry viewer is a
+ *                sheet of the screen's width (8 px gutters) and the answers are not a small box scrolling inside it.
+ *                QA1-028: the forms list, the entries list and the viewer write dates in the site's digits through one
+ *                formatter (the viewer showed Latin digits).
  */
 'use strict';
 
@@ -174,6 +179,66 @@ module.exports = function (S) {
       }
     } finally {
       try { wp('post', 'delete', String(pg.id), '--force'); } catch (e) { /* the wipe of scenario 1 removes it too */ }
+      try { ctl('f12-delete-form', String(F.form_id)); } catch (e) { /* ignore */ }
+    }
+  });
+
+  /* ================================================================== qa1-entries */
+  async function openEntries(p, fid) {
+    await p.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+    await p.waitForFunction(() => typeof emsFormBuilder_messages === 'function' && typeof ajax_object_efm !== 'undefined', null, { timeout: 20000 });
+    await p.evaluate((id) => emsFormBuilder_messages(Number(id)), fid);
+    await p.waitForSelector('#efbEnt .efb-ent-open-txt, .efb-ent-open-txt', { timeout: 20000 });
+    await sleep(600);
+  }
+  scenario('qa1-entries', 'QA1-020 / QA1-009 / QA1-028: an entries URL survives a reload with its filters; the entry viewer is a full-width sheet on a phone; dates in the site\'s digits everywhere', async ({ adminPage }) => {
+    ctl('plan', '3');
+    const F = ctl('f11-form', 'QA1 entries form', '', '1');
+    ctl('f13-seed', String(F.form_id), '1');
+    try {
+      // QA1-020
+      const a = await adminPage({ viewport: { width: 1280, height: 900 } }, 'qa1-entries-en');
+      await openEntries(a, F.form_id);
+      await a.click('#efbEntTab-unread');
+      await sleep(1200);
+      const before = await a.evaluate(() => ({ url: location.search, tab: (document.querySelector('.efb-ent-tab.active') || {}).id || '' }));
+      await a.reload({ waitUntil: 'load' });
+      await a.waitForSelector('#efbEnt .efb-ent-tab.active, .efb-ent-tab.active', { timeout: 20000 }).catch(() => {});
+      await sleep(1000);
+      const after = await a.evaluate(() => ({ url: location.search, tab: (document.querySelector('.efb-ent-tab.active') || {}).id || '', table: !!document.getElementById('emsFormBuilder-list'), formsList: !!document.querySelector('.efb-act-edit') }));
+      R.check('qa1-entries (QA1-020): after a reload the same form\'s entries are shown, on the same tab (Unread), with &efbq= kept; not the forms list', /state=show-messages/.test(before.url) && /efbq=/.test(before.url) && after.url === before.url && after.tab === 'efbEntTab-unread' && before.tab === 'efbEntTab-unread' && after.table && !after.formsList, { before, after });
+      await a.context().close();
+      // QA1-009 / QA1-028
+      for (const loc of ['fa_IR', 'ar']) {
+        ctl('locale', loc);
+        try {
+          const p = await adminPage({ viewport: { width: 375, height: 812 }, locale: loc.replace('_', '-'), isMobile: true, hasTouch: true }, 'qa1-entries-' + loc);
+          await p.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+          await p.waitForFunction(() => typeof emsFormBuilder_messages === 'function', null, { timeout: 20000 });
+          await sleep(800);
+          const listDate = await p.evaluate((fid) => { const c = document.querySelector(`td.emsFormBuilder-tr[data-id="${fid}"][data-label] bdi.efb-admin-date`) || document.querySelector('bdi.efb-admin-date'); return c ? c.textContent : null; }, F.form_id);
+          await p.evaluate((id) => emsFormBuilder_messages(Number(id)), F.form_id);
+          await p.waitForSelector('.efb-ent-open-txt', { timeout: 20000 });
+          await sleep(600);
+          const rowDate = await p.evaluate(() => { const c = document.querySelector('#emsFormBuilder-list tbody bdi.efb-admin-date'); return c ? c.textContent : null; });
+          await p.click('.efb-ent-open-txt >> nth=0');
+          await p.waitForSelector('#settingModalEfb.show .efb-resp-messages', { timeout: 20000 });
+          await sleep(1500);
+          const m = await p.evaluate(() => {
+            const d = document.querySelector('#settingModalEfb .modal-dialog').getBoundingClientRect();
+            const box = document.querySelector('#settingModalEfb .efb-resp-messages');
+            const cs = getComputedStyle(box);
+            const vd = document.querySelector('#settingModalEfb .efb-msg-meta-val bdi.efb-admin-date');
+            return { left: Math.round(d.left), right: Math.round(innerWidth - d.right), w: Math.round(d.width), vw: innerWidth, innerScroll: box.scrollHeight > box.clientHeight + 2 && cs.overflowY !== 'visible', maxH: cs.maxHeight, viewDate: vd ? vd.textContent : null, sw: document.documentElement.scrollWidth };
+          });
+          const local = loc === 'fa_IR' ? /[۰-۹]/ : /[٠-٩]/;
+          R.check(`qa1-entries (${loc} 375) QA1-009: the entry viewer is a sheet of the screen's width (8 px each side, ≥ viewport − 24), the answers are not a box scrolling inside it, no sideways scroll`, m.w >= m.vw - 24 && Math.abs(m.left - m.right) <= 2 && !m.innerScroll && m.maxH === 'none' && m.sw <= m.vw + 1, m);
+          R.check(`qa1-entries (${loc} 375) QA1-028: the forms list, the entries list and the viewer write dates in the site's digits, the list and the viewer the same date`, !!listDate && local.test(listDate) && !/[0-9]/.test(listDate) && !!rowDate && local.test(rowDate) && !!m.viewDate && local.test(m.viewDate) && !/[0-9]/.test(m.viewDate) && m.viewDate === rowDate, { listDate, rowDate, viewDate: m.viewDate });
+          await p.screenshot({ path: SHOT(`qa1-entries-viewer-${loc}-375`) });
+          await p.context().close();
+        } finally { ctl('locale', ''); }
+      }
+    } finally {
       try { ctl('f12-delete-form', String(F.form_id)); } catch (e) { /* ignore */ }
     }
   });

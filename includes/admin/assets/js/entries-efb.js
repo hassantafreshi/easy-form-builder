@@ -27,6 +27,8 @@
   const isRtl = () => !!((W.efb_var && Number(W.efb_var.rtl) === 1) || (D && D.documentElement && D.documentElement.dir === 'rtl'));
   /** Latin digits to the site's (Persian ۰-۹ for fa, Arabic-Indic ٠-٩ for ar). */
   const digits = (s) => { const sc = script(); if (!sc) return String(s); const base = sc === 'fa' ? 0x06F0 : 0x0660; return String(s).replace(/[0-9]/g, (d) => String.fromCharCode(base + Number(d))); };
+  /** QA1-028: a date the server wrote, through the admin's one date formatter (list_form-efb.js efb_admin_date_efb). */
+  const adminDate = (s) => (typeof W.efb_admin_date_efb === 'function' ? W.efb_admin_date_efb(s) : digits(s));
   /** Persian / Arabic-Indic digits typed by a person to Latin. */
   const latin = (s) => String(s == null ? '' : s).replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06F0)).replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660));
   /** A count in the site's digits with grouping (1,234 / ۱٬۲۳۴ / ١٬٢٣٤). */
@@ -215,7 +217,7 @@
       <td class="efb efb-ent-starcol" data-label="${esc(T('entStarred', 'Starred'))}"><button type="button" class="efb efb-ent-star${starred ? ' is-on' : ''}" data-ent="star" data-msgid="${id}" aria-pressed="${starred ? 'true' : 'false'}" aria-label="${esc(starred ? T('entUnstar', 'Remove star') : T('entStar', 'Star'))}">${icon(starred ? 'bi-star-fill' : 'bi-star')}</button></td>
       <td class="efb efb-content-cell" data-label="${esc(T('content', 'Content'))}"><button type="button" class="efb efb-ent-open-txt" data-ent="open" data-msgid="${id}"><span class="efb-preview-text" title="${esc(pv.full)}">${pv.short}</span></button>${statusBadge(row) ? ' ' + statusBadge(row) : ''}${edited}${notes}</td>
       <td class="efb" data-label="${esc(T('trackNo', 'Confirmation Code'))}"><code class="efb text-muted user-select-all"><bdi dir="ltr">${esc(row.track)}</bdi></code></td>
-      <td class="efb" data-label="${esc(T('ddate', 'Date'))}"><bdi>${esc(digits(row.date))}</bdi></td>
+      <td class="efb" data-label="${esc(T('ddate', 'Date'))}"><bdi class="efb efb-admin-date">${esc(adminDate(row.date))}</bdi></td>
       ${extra}
       <td class="efb efb-actions-cell" data-label="${esc(T('actions', 'Actions'))}"><div class="efb-actions-group">
         <button type="button" class="efb efb-act-btn efb-act-open${unread ? ' efb-has-badge' : ''}" id="btn-m-${id}" data-ent="open" data-msgid="${id}" aria-label="${esc(unread ? T('newResponse', 'New response') : T('read', 'Read'))}">${icon(unread ? 'bi-envelope-fill' : 'bi-envelope-open')}</button>

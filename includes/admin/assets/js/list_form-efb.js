@@ -313,7 +313,7 @@ function fun_emsFormBuilder_render_view(x) {
      </span>
    </th>
    <td class="efb emsFormBuilder-tr" data-id="${Number(i.form_id)}" data-label="${efb_var.text.formName}">${sanitize_text_efb(i.form_name)}${efb_draft_badge_efb(i)}${efb_pay_badge_efb(fid)}${efb_split_badge_efb(fid)}</td>
-   <td class="efb emsFormBuilder-tr" data-id="${Number(i.form_id)}" data-label="${efb_var.text.createDate}">${sanitize_text_efb(i.form_create_date)}</td>
+   <td class="efb emsFormBuilder-tr" data-id="${Number(i.form_id)}" data-label="${efb_var.text.createDate}"><bdi class="efb efb-admin-date">${efb_list_date_efb({ date: sanitize_text_efb(i.form_create_date) })}</bdi></td>
    <td class="efb efb-actions-cell" data-label="${efb_var.text.actions}">
      <div class="efb-actions-group">
        ${efb_publish_btn_efb(i)}
@@ -594,13 +594,19 @@ function getContentPreview_efb(contentStr) {
   }
 }
 
-/* BUG-03 (389): an entry's date as the entries screen shows it (date_display, else stored) in the site's digits. */
+/* QA1-028: the one formatter of the admin's dates (the forms list, the entries list, the entry viewer): the date as the
+   server wrote it (wp_date(): the site's date format and calendar, which a calendar plugin may change) in the site
+   language's digits (Persian ۰-۹, Arabic-Indic ٠-٩). Plain text: the caller escapes it and isolates it (<bdi>). */
+function efb_admin_date_efb(raw) {
+  const s = raw == null ? '' : String(raw);
+  const l = String((typeof efb_var !== 'undefined' && efb_var && (efb_var.wp_lan || efb_var.language)) || 'en_US');
+  const sc = /^(fa|ps|ckb)/.test(l) ? 0x06F0 : (/^ar(?!y)/.test(l) ? 0x0660 : 0);
+  return sc ? s.replace(/[0-9]/g, (x) => String.fromCharCode(sc + Number(x))) : s;
+}
+/* BUG-03 (389): an entry's date as the entries screen shows it (date_display, else stored), escaped for HTML. */
 function efb_list_date_efb(v) {
   const raw = v && (v.date_display || v.date) ? String(v.date_display || v.date) : '';
-  const l = String((typeof efb_var !== 'undefined' && (efb_var.wp_lan || efb_var.language)) || 'en_US');
-  const sc = /^(fa|ps|ckb)/.test(l) ? 0x06F0 : (/^ar(?!y)/.test(l) ? 0x0660 : 0);
-  const d = sc ? raw.replace(/[0-9]/g, (x) => String.fromCharCode(sc + Number(x))) : raw;
-  return d.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  return efb_admin_date_efb(raw).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 function fun_ws_show_list_messages(value) {
 
@@ -1189,6 +1195,19 @@ function fun_show_content_page_emsFormBuilder(state) {
     document.getElementById("track_code_emsFormBuilder").value =sanitize_text_efb(localStorage.getItem('search_efb'));
     fun_find_track_emsFormBuilder();
   }else if(state=="show-messages"){
+    /* QA1-020: a reload or a bookmark of a form's entries (?state=show-messages&id=N&form_type=T&efbq=...) opens the
+       same list again; the entries screen restores its filters from &efbq= (F14 §4.1). Only a form that is gone
+       falls back to the forms list. */
+    const sid = Number(sanitize_text_efb(getUrlparams_efb.get('id') || '')) || 0;
+    const srow = sid && ajax_object_efm && Array.isArray(ajax_object_efm.ajax_value) ? ajax_object_efm.ajax_value.find((x) => Number(x.form_id) === sid) : null;
+    if (srow) {
+      efb_var.msg_id = sid;
+      form_type_emsFormBuilder = srow.form_type;
+      document.getElementById('content-efb').innerHTML = `<div class="efb card-body text-center my-5" id="emsFormBuilder-list">${efbLoadingCard('',5)}</div>`;
+      fun_get_messages_by_id(sid);
+      fun_backButton_efb(0);
+      return;
+    }
     document.getElementById('content-efb').innerHTML = `<div class="efb card-body text-center my-5"><div id="loading_message_emsFormBuilder" class="efb -color text-center"> ${efbLoadingCard('',4)}</div>`
     history.pushState("setting",null,'?page=Emsfb');
     window.location.reload();
