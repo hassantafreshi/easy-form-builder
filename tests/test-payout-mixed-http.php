@@ -192,7 +192,7 @@ foreach ($COMBOS as $name => $combo) {
 
 	/* T (step 4): the payments table is the add-ons' */
 	$pt = $M->ctl('pay-table');
-	t("$name T1 the Stripe payments (one paid, one not) are in the add-ons' table (" . ($newcore ? 'created by the add-on' : 'as before') . ')', array($pt['table'], $pt['rows'] >= 2, $pt['version']), array(true, true, '1.0'));
+	t("$name T1 the Stripe payments (one paid, one not) are in the add-ons' table (" . ($newcore ? 'created by the add-on' : 'as before') . ')', array($pt['table'], $pt['rows'] >= 2, $pt['version']), array(true, true, '1.1')); // B8: the add-ons' table schema is 1.1 (decimal(15,3))
 	$A = isset($A) ? $A : new EfbF11Http();
 	if (!$A->login('admin', 'admin-pass-123')) $A->login('admin', 'admin-pass-123');
 	$pg = $A->http('GET', '/wp-admin/admin.php?page=Emsfb_stripe_payment', null, array(), false);
@@ -203,7 +203,7 @@ foreach ($COMBOS as $name => $combo) {
 		$M->ctl('pay-table', 'reset');
 		$H->http('GET', '/wp-json/', null, array(), false);
 		$pt = $M->ctl('pay-table');
-		t("$name T4 a site that never opened the payments page: the table exists after the add-on's first request (BUGS PAY08)", array($pt['table'], $pt['version']), array(true, '1.0'));
+		t("$name T4 a site that never opened the payments page: the table exists after the add-on's first request (BUGS PAY08)", array($pt['table'], $pt['version']), array(true, '1.1'));
 	}
 }
 $M->restore();
