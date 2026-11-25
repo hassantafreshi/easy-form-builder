@@ -32,6 +32,11 @@ if (!is_file($file)) { echo "\nRESULTS: {$passed} passed, {$failed} failed\n"; e
 require $file;
 $ph = emsfb_template_phrases_efb();
 $js = (string) file_get_contents($root . '/includes/admin/assets/js/forms-efb.js');
+// B6 (B7 hand-off): the survey template of admin-efb.js reads its texts the same way (no literal English left there).
+$adm = (string) file_get_contents($root . '/includes/admin/assets/js/admin-efb.js');
+$sv = preg_match('/\} else if \(id == "survey"\) \{(.*?)\} else if \(id == "payment"\)/s', $adm, $svm) ? $svm[1] : '';
+t('the survey template (admin-efb.js) has no literal English label', preg_match_all('/"name": "[^"]*[A-Za-z]{2}[^"]*"/', $sv), 0);
+$js .= $sv;
 $src = (string) file_get_contents($file);
 
 preg_match_all('/efbTplT\("([A-Za-z0-9]+)"\)/', $js, $m, PREG_SET_ORDER);

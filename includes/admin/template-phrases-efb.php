@@ -237,6 +237,10 @@ if (!function_exists('emsfb_template_phrases_efb')) {
 		'tplUploadCoverLetter2' => _x('Upload Cover Letter', 'form template', 'easy-form-builder'),
 		'tplTellUsWhyYouAre' => _x('Tell us why you are a great fit for this position&hellip;', 'form template', 'easy-form-builder'),
 		'tplWhyShouldWeHireYou' => _x('Why Should We Hire You?', 'form template', 'easy-form-builder'),
+		// The survey template (admin-efb.js).
+		'tplFavoriteFood' => _x('What is your favorite food?', 'form template', 'easy-form-builder'),
+		'tplLanguage' => _x('Language', 'form template', 'easy-form-builder'),
+		'tplGender' => _x('Gender', 'form template', 'easy-form-builder'),
 		);
 		return array_map('wp_strip_all_tags', $t);
 	}
