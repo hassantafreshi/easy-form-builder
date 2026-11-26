@@ -2654,7 +2654,7 @@ async function response_fill_form_efb(res ,form_id=0) {
   } else {
     if(efb_final_step){efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder text-center'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center efb fs-3  text-center"></i></h1><h3 class="efb  text-center fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5"> ${res.data.m}</span>
     ${isSubmitAjaxError ? `<div class="efb efb-submit-error-badge-slot my-2 d-flex justify-content-center" id="efb-submit-error-badge-slot-${form_id}"></div>` : ``}
-    <div class="efb m-1 d-flex flex-wrap justify-content-center">${isSubmitAjaxError ? efb_retry_button_efb(valj_efb, form_id) : ''}${efb_error_prev_button_efb(valj_efb, `efb_hide_submit_ajax_badge_efb(${form_id}); ${btn_prev}; efb_focus_step_efb(${form_id}, document.getElementById('body_efb_${form_id}').dataset.currentstep)`)}</div></div>`;
+    <div class="efb m-1 d-flex flex-wrap justify-content-center">${isSubmitAjaxError && !res.data.efb_no_retry ? efb_retry_button_efb(valj_efb, form_id) : ''}${efb_error_prev_button_efb(valj_efb, `efb_hide_submit_ajax_badge_efb(${form_id}); ${btn_prev}; efb_focus_step_efb(${form_id}, document.getElementById('body_efb_${form_id}').dataset.currentstep)`)}</div></div>`;
       if (isSubmitAjaxError) { efb_show_submit_ajax_badge_efb(form_id); }
       // QA2-006: back online, the kept answers are sent again by themselves.
       if (res.data.efb_offline) window.addEventListener('online', () => { if (document.getElementById('efb_retry_' + form_id)) efb_retry_send_efb(form_id); }, { once: true });
@@ -3023,7 +3023,10 @@ function efb_failure_cause_efb(info) {
   const s = info ? Number(info.status) || 0 : 0, c = info ? String(info.code || '') : '';
   if (!s) return 'unknown_outcome';
   // F11: the form gate (closed, not open yet, full, per-person limit, role) says it in its own words.
-  if (['efb_form_pending', 'efb_form_closed', 'efb_form_full', 'efb_limit_reached', 'efb_role_denied'].includes(c)) return 'form_gate';
+  if (['efb_form_pending', 'efb_form_closed', 'efb_form_full', 'efb_limit_reached', 'efb_role_denied'].includes(c)) {
+    if (c === 'efb_form_full') document.querySelectorAll('.efb-gate-left').forEach((e) => e.remove()); // QA2-016: no "1 place left" over "full"
+    return 'form_gate';
+  }
   // The X-WP-Nonce header never arrived: a proxy, firewall or security plugin removed it.
   if (c === 'efb_nonce_missing') return 'blocked';
   if (['rest_cookie_invalid_nonce', 'efb_nonce_expired'].includes(c)) return 'stale_token';
@@ -3155,7 +3158,7 @@ async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
       if ((cause==='stale_context' || cause==='identity_changed') && window.EFBRuntime && typeof window.EFBRuntime.reset==='function') window.EFBRuntime.reset(Number(form_id)||0);
       const visitorText=efb_visitor_text_efb(cause,info);
       efb_report_submit_ajax_error_efb(new Error(visitorText),{status:error.status||0,formId:form_id,failure:{cause,status:error.status||0,code:info.code,serverMessage:info.m,visitorText,step:'prepare'}});
-      await response_fill_form_efb({success:false,data:{success:false,m:visitorText,efb_ajax_submission_error:true}},form_id);
+      await response_fill_form_efb({success:false,data:{success:false,m:visitorText,efb_ajax_submission_error:true,efb_no_retry:cause==='form_gate'}},form_id);
       return;
     }
     const url = efb_var.rest_url+'Emsfb/v1/forms/message/add';
@@ -3211,7 +3214,7 @@ async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
       }
       const visitorText = efb_visitor_text_efb(cause, info);
       efb_report_submit_ajax_error_efb(new Error(visitorText), { status: response.status, url, formId: form_id, failure: { cause, status: response.status, code: info.code, serverMessage: info.m, visitorText, shape: info.shape, legacy: !runtime || !!runtime.legacy } });
-      await response_fill_form_efb({ success: false, data: { success: false, m: visitorText, efb_ajax_submission_error: true } }, form_id);
+      await response_fill_form_efb({ success: false, data: { success: false, m: visitorText, efb_ajax_submission_error: true, efb_no_retry: cause === 'form_gate' } }, form_id);
       return;
     }
     let responseData;
@@ -5788,8 +5791,6 @@ const check_form_payment_filled_efb = (form_id=0) =>{
  * form: prepare says which one is right now. A card in "card" mode (or a hidden one that only
  * carries the next change) reloads the page when the form opens or closes within a day.
  * ------------------------------------------------------------------------------------------- */
-const EFB_GATE_CODES = ['efb_form_pending', 'efb_form_closed', 'efb_form_full', 'efb_limit_reached', 'efb_role_denied'];
-const EFB_GATE_STATES = { efb_form_pending: 'pending', efb_form_closed: 'closed', efb_form_full: 'full', efb_limit_reached: 'limited', efb_role_denied: 'role' };
 const EFB_GATE_ICONS = { open: 'bi-check2-circle', pending: 'bi-hourglass-split', closed: 'bi-calendar-x', full: 'bi-people-fill', limited: 'bi-person-check', role: 'bi-shield-lock-fill' };
 function efb_gate_escape_efb(v) {
   return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
@@ -5843,11 +5844,12 @@ async function efb_gate_check_efb(fid) {
   const left = v.left != null ? Number(v.left) : null;
   card.outerHTML = efb_gate_card_html_efb(state, message, fid, next, 'swap');
   if (body) body.classList.toggle('d-none', state !== 'open');
-  if (left != null) {
-    const t = (typeof ajax_object_efm !== 'undefined' && ajax_object_efm && ajax_object_efm.text) ? ajax_object_efm.text.limLeft : '';
-    const old = document.getElementById('efb-gate-left-' + fid);
-    const html = efb_gate_left_html_efb(left, fid, t, efb_gate_locale_efb());
-    if (old) old.outerHTML = html; else if (body) body.insertAdjacentHTML('beforebegin', html);
+  const oldLeft = document.getElementById('efb-gate-left-' + fid);
+  if (state !== 'open') { if (oldLeft) oldLeft.remove(); } // QA2-016: no "N places left" over a closed or full form
+  else if (left != null) {
+    const t = v.left_text ? String(v.left_text) : ((typeof ajax_object_efm !== 'undefined' && ajax_object_efm && ajax_object_efm.text) ? ajax_object_efm.text.limLeft : '');
+    const html = efb_gate_left_html_efb(left, fid, t, efb_gate_locale_efb()); // left_text: the server's sentence, digits included
+    if (oldLeft) oldLeft.outerHTML = html; else if (body) body.insertAdjacentHTML('beforebegin', html);
   }
   efb_gate_timer_efb(fid, next, 'swap');
   return state;

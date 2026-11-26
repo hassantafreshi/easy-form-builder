@@ -816,7 +816,7 @@ class Form_Gate {
 		$cfg = self::cfg($rows[0]);
 		$st = self::state($rows[0], self::context($fid));
 		$out = array('state' => $st['state'], 'code' => $st['code'], 'message' => $st['state'] === 'open' ? '' : self::message($st, $cfg), 'next' => $st['next'], 'closes_at' => $st['closes_at']);
-		if ($cfg['show_left'] && $cfg['total'] > 0 && $st['left'] !== null) $out['left'] = (int) $st['left'];
+		if ($cfg['show_left'] && $cfg['total'] > 0 && $st['left'] !== null) { $out['left'] = (int) $st['left']; $out['left_text'] = self::left_text($st['left']); }
 		return new \WP_REST_Response($out, 200);
 	}
 
@@ -995,10 +995,18 @@ class Form_Gate {
 			. '</div>';
 	}
 
+	/** QA2-016: "1 place left" / "N places left" (the plural of the language); an owner's own text is used as typed. */
+	public static function left_text($left) {
+		$l = self::texts(array('limLeft'))['limLeft'];
+		$def = function_exists('esc_html__') ? esc_html__('%s places left', 'easy-form-builder') : '%s places left';
+		/* translators: QA2-016: visitor: above a form with a limit; %s = the number of answers it still accepts */
+		if (($l === $def || $l === '%s places left') && function_exists('_n')) $l = _n('%s place left', '%s places left', (int) $left, 'easy-form-builder');
+		return str_replace('%s', self::fmt_number((int) $left), $l);
+	}
+
 	/** "N places left" above the form (twin of efb_gate_left_html_efb()). */
 	public static function left_html($left, $fid) {
-		$l = self::texts(array('limLeft'));
-		$t = str_replace('%s', self::fmt_number((int) $left), $l['limLeft']);
+		$t = self::left_text($left);
 		return '<p class="efb efb-gate-left text-center fs-6 my-2" id="efb-gate-left-' . (int) $fid . '" aria-live="polite" data-left="' . (int) $left . '">' . (function_exists('esc_html') ? esc_html($t) : $t) . '</p>';
 	}
 

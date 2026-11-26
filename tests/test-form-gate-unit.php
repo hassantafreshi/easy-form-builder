@@ -198,5 +198,9 @@ t('render_gate: a non-cacheable page gets only the card when closed', G::render_
 t('render_gate: a cacheable page gets the card and hides the form', array_intersect_key(G::render_gate(array('sched_close' => '2020-01-01T00:00'), 5, true), array('card_only' => 1, 'hide_form' => 1)), array('card_only' => false, 'hide_form' => true));
 t('render_gate: no rules → null (old forms print what they printed)', G::render_gate(array('type' => 'form'), 5, false), null);
 
+// QA2-016: the plural of the language ("1 place left"), an owner's own sentence as typed.
+if (!function_exists('_n')) { function _n($a, $b, $n) { return (int) $n === 1 ? $a : $b; } }
+t('QA2-016: left_text: "1 place left", "3 places left"', array(G::left_text(1), G::left_text(3)), array('1 place left', '3 places left'));
+
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed ? 1 : 0);

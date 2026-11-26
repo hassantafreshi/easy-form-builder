@@ -15,6 +15,8 @@
  *        Send keeps that sentence (it said "Photo: This field is required.").
  *  qa2g  QA2-006: Send while offline: the error offers "Try again" (not only Previous) and has the focus; back online
  *        the kept answers are sent by themselves, once.
+ *  qa2h  QA2-016: "1 place left" (singular); a tab opened before the last place was taken drops the line when it
+ *        learns the form is full (it stayed above "This form has reached its limit").
  * Every form is made with `ctl.php f03-form` and deleted at the end; site settings are put back.
  */
 'use strict';
@@ -235,6 +237,30 @@ module.exports = function (S) {
       await sleep(2000);
       const n = (ctl('entries', String(F.form_id)) || []).length;
       R.check('qa2g: back online the answers are sent by themselves; one entry', !!r && n === 1, { status: r && r.status(), n });
+    } finally {
+      drop(F.form_id);
+    }
+  });
+
+  /* ------------------------------------------------------------------ qa2h */
+  scenario('qa2h', 'QA2-016: "1 place left"; the line goes away when the form is full', async ({ context, errors }) => {
+    ctl('locale', '');
+    const F = form('QA2 limit', [{ key: 'nm', type: 'text', name: 'Name' }], 'lim_total=1&lim_show_left=1');
+    try {
+      const g = await open(context, F.form_id, 'qa2h-a');
+      const left0 = await g.evaluate((fid) => (document.getElementById('efb-gate-left-' + fid) || {}).textContent || '', F.form_id);
+      const g2 = await open(context, F.form_id, 'qa2h-b');
+      await g2.fill(byId(F.ids.nm + '_'), 'First');
+      const resp = g2.waitForResponse((x) => /forms\/message\/add/.test(x.url()), { timeout: 30000 }).catch(() => null);
+      await g2.click(`#body_efb_${F.form_id} #btn_send_efb`);
+      await resp; await sleep(1200);
+      await g.fill(byId(F.ids.nm + '_'), 'Second');
+      await g.click(`#body_efb_${F.form_id} #btn_send_efb`);
+      await sleep(2500);
+      const after = await g.evaluate((fid) => ({ left: !!document.getElementById('efb-gate-left-' + fid), card: (document.querySelector(`#body_efb_${fid} #efb-final-step`) || {}).innerText || '' }), F.form_id);
+      // The full form's 403 on forms/session/prepare is the expected answer (the browser logs it).
+      for (let i = errors.length - 1; i >= 0; i--) if (/403/.test(errors[i].text || '') && /session\/prepare|message\/add/.test(errors[i].src || errors[i].url || '')) errors.splice(i, 1);
+      R.check('qa2h: "1 place left" (not "1 places left"); once full, Send in the open tab says so (no Try again) and the line is gone', /^\s*1 place left\s*$/.test(left0) && !after.left && /limit/i.test(after.card) && !/Try again/.test(after.card), { left0, after });
     } finally {
       drop(F.form_id);
     }
