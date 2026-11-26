@@ -5264,7 +5264,7 @@ function efb_advdate_sync_efb() {
 }
 /* F06: a typed date the picker refused (wrong format, a closed day) has no answer row: Next / Send stop at it. */
 function efb_advdate_typed_invalid_efb(row, form_id) {
-  if (!row || row.type !== 'advdate') return false;
+  if (!row || (row.type !== 'advdate' && row.type !== 'mobile')) return false; // QA2-002: a typed mobile number refused at its field too
   const el = efb_get_by_id_in_form_efb(form_id, `${row.id_}_`);
   if (!el || String(el.value || '').trim() === '') return false;
   return get_row_sendback_by_id_efb_v4(row.id_, form_id) === -1;

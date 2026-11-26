@@ -9,6 +9,8 @@
  *
  * Run: php tests/test-qa2-render.php
  */
+$GLOBALS['efb_qa2_locale'] = 'en_US';
+if (!function_exists('get_locale')) { function get_locale() { return $GLOBALS['efb_qa2_locale']; } }
 if (!defined('EMSFB_PLUGIN_DIRECTORY')) define('EMSFB_PLUGIN_DIRECTORY', sys_get_temp_dir() . '/efb-qa2-no-addons-' . getmypid() . '/');
 $GLOBALS['efb_qa2_queued'] = array();
 if (!function_exists('get_efbFunction')) {
@@ -46,6 +48,11 @@ t('QA2-001: the add-on recovery is still queued for both', $GLOBALS['efb_qa2_que
 require_once __DIR__ . '/../includes/class-Emsfb-split.php';
 $u = \Emsfb\Split::unrequire_absent(array(array('type' => 'form'), array('type' => 'pdate', 'id_' => 'a', 'required' => '1'), array('type' => 'text', 'id_' => 'b', 'required' => '1')));
 t('QA2-001: the submit does not require a pdate field whose add-on is absent (SPLIT §4.1); a text field stays required', empty($u[1]['required']) && $u[2]['required'] === '1', json_encode($u));
+
+/* QA2-002 */
+$mc = function ($loc, $allowed) { $GLOBALS['efb_qa2_locale'] = $loc; return \Emsfb\Formbuilder::mobile_country_efb($allowed); };
+t('QA2-002: a mobile field starts on the site\'s country (en_US → us, fa_IR → ir), or on its first allowed one (de_DE, only FR / BE → fr), none for "ar"', array($mc('en_US', array()), $mc('fa_IR', array()), $mc('fa_IR', array('IR', 'TR')), $mc('de_DE', array('FR', 'BE')), $mc('ar', array())) === array('us', 'ir', 'ir', 'fr', ''));
+$GLOBALS['efb_qa2_locale'] = 'en_US';
 
 $moji = array();
 $root = dirname(__DIR__);

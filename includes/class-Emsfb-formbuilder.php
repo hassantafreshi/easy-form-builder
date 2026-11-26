@@ -1550,6 +1550,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 		return $ui;
 	}
 
+	/** QA2-002: the country a mobile field starts on: the site's (its locale's region) when allowed, else the field's first allowed one. */
+	public static function mobile_country_efb($allowed) {
+		$allowed = array_values(array_filter(array_map(function ($c) { return strtolower((string) $c); }, is_array($allowed) ? $allowed : array())));
+		$site = preg_match('/^[a-z]{2,3}_([A-Z]{2})/', function_exists('get_locale') ? (string) get_locale() : '', $m) ? strtolower($m[1]) : '';
+		if ($site !== '' && (!$allowed || in_array($site, $allowed, true))) return $site;
+		return $allowed ? $allowed[0] : '';
+	}
+
 	private function create_intlTelInput_efb($rndm,$vj, $previewSate, $corner,$form_id) {
 		$disabled = isset($vj->disabled) && $vj->disabled == 1 ? 'disabled' : '';
 		$required = $vj->required == 1 || $vj->required == true ? 'required' : '';
@@ -1606,6 +1614,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				}
 				const iti = window.intlTelInput(el_emsfb_%1$s, {
 					onlyCountries: %11$s,
+					initialCountry: "%13$s",
 					nationalMode: true,
 					autoPlaceholder: "polite",
 					placeholderNumberType: "MOBILE",
@@ -1620,6 +1629,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					elem.classList.remove("border-success");
 					messageElem.innerHTML = "";
 					messageElem.style.display = "none";
+					if (!elem.value.trim()) sendback_state_handler_efb_v4("%2$s", true, 0, "%12$s");
 					if (elem.value.trim()) {
 						if (iti.isValidNumber()) {
 							elem.classList.add("border-success");
@@ -1641,7 +1651,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 								session: sessionPub_emsFormBuilder,
 								form_id: "%12$s"
 							});
+							sendback_state_handler_efb_v4("%2$s", true, 0, "%12$s");
 						} else {
+							sendback_state_handler_efb_v4("%2$s", false, 0, "%12$s");
 							elem.classList.add("border-danger");
 							let errorCode = iti.getValidationError();
 							errorCode = errorMap[errorCode] ? errorMap[errorCode] : errorMap[0];
@@ -1667,8 +1679,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$texts['cpntl'],
 			EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils-efb.js',
 			$onlyCountries,
-			$form_id
-
+			$form_id,
+			esc_js(self::mobile_country_efb(isset($vj->c_c) ? $vj->c_c : array()))
     	);
 
 		$inputPhone = sprintf(

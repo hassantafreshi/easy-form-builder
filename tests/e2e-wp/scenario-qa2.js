@@ -5,6 +5,8 @@
  *  qa2b  QA2-007 / QA5-014: a Conditional Logic forward jump (choice on step 1 → step 3): Next pressed at once on the
  *        step the jump showed stops at its empty required field with the focus ON that field (was: on Next), the
  *        visitor fills it and sends; no warning toast stays over the thank-you.
+ *  qa2c  QA2-002: an optional mobile field with no country chosen: 2127365000 is stored as +12127365000 (the field starts
+ *        on the site's country); a wrong number stops Send at the field instead of being dropped from the entry.
  * Every form is made with `ctl.php f03-form` and deleted at the end; site settings are put back.
  */
 'use strict';
@@ -91,6 +93,38 @@ module.exports = function (S) {
       R.check('qa2b: the entry is stored and no warning toast stays over the thank-you', !!r && r.status() === 200 && !/required/i.test(left), { status: r && r.status(), left });
     } finally {
       drop(fid);
+    }
+  });
+
+  /* ------------------------------------------------------------------ qa2c */
+  scenario('qa2c', 'QA2-002: a mobile number typed without choosing a country is taken in the site\'s country; a wrong one stops Send', async ({ context }) => {
+    ctl('locale', '');
+    const F = form('QA2 mobile', [{ key: 'nm', type: 'text', name: 'Name', required: 1 }, { key: 'mo', type: 'mobile', name: 'Mobile', c_c: [] }]);
+    try {
+      const g = await open(context, F.form_id, 'qa2c');
+      await g.waitForFunction((id) => document.querySelector(`[id="${id}_"]`) && document.querySelector(`[id="${id}_"]`).closest('.iti'), F.ids.mo, { timeout: 15000 });
+      await g.fill(byId(F.ids.nm + '_'), 'Mo Bile');
+      let posted = 0;
+      g.on('request', (q) => { if (/forms\/message\/add/.test(q.url())) posted++; });
+      await g.fill(byId(F.ids.mo + '_'), '123');
+      await g.press(byId(F.ids.mo + '_'), 'Tab');
+      await sleep(800);
+      await g.click(`#body_efb_${F.form_id} #btn_send_efb`);
+      await sleep(1500);
+      const bad = await g.evaluate((id) => ({ msg: (document.getElementById(id + '_-message') || {}).textContent || '' }), F.ids.mo);
+      R.check('qa2c: a wrong mobile number stops Send with its message at the field (was: sent without it)', posted === 0 && bad.msg.trim() !== '', { posted, bad });
+      await g.fill(byId(F.ids.mo + '_'), '2127365000');
+      await g.press(byId(F.ids.mo + '_'), 'Tab');
+      await sleep(800);
+      const resp = g.waitForResponse((x) => /forms\/message\/add/.test(x.url()), { timeout: 30000 }).catch(() => null);
+      await g.click(`#body_efb_${F.form_id} #btn_send_efb`);
+      await resp;
+      await sleep(1500);
+      const e = (ctl('entries', String(F.form_id)) || []).pop();
+      const mob = e && (e.content || []).find((r) => r && r.id_ === F.ids.mo);
+      R.check('qa2c: 2127365000 with no country chosen is stored as +12127365000 (the site\'s country, en_US)', !!mob && mob.value === '+12127365000', e && e.content);
+    } finally {
+      drop(F.form_id);
     }
   });
 };
