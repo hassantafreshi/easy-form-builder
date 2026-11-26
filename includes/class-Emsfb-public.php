@@ -8010,6 +8010,16 @@ public function check_nonce_permission_efb($request) {
 			$na_groups_efb = function_exists('efb_name_address_groups') ? efb_name_address_groups($content) : array();
 			$na_seen_efb = array();
 			$na_title_efb = $na_groups_efb ? $this->efbFunction->text_efb(array('addrFullLine', 'nmFull')) : array();
+			// QA2-015: the choices of one checkbox field on one line ("C1, C3"), not a row each.
+			$cb_at_efb = array(); $cb_out_efb = array();
+			foreach ((array) $content as $c) {
+				if (is_array($c) && ($c['type'] ?? '') === 'checkbox' && isset($c['id_'], $c['value']) && is_scalar($c['id_']) && is_string($c['value']) && !isset($c['rg'])) {
+					if (isset($cb_at_efb[(string) $c['id_']])) { $cb_out_efb[$cb_at_efb[(string) $c['id_']]]['value'] .= '@efb!' . $c['value']; continue; }
+					$cb_at_efb[(string) $c['id_']] = count($cb_out_efb);
+				}
+				$cb_out_efb[] = $c;
+			}
+			$content = $cb_out_efb;
 			foreach ($content as $c){
 
 				if (!is_array($c)) { continue; }
@@ -8089,11 +8099,12 @@ public function check_nonce_permission_efb($request) {
 				$q     = '';
 
 				if (isset($c['value']) && is_string($c['value'])) {
-					$q = str_replace('@efb!', ',', $c['value']);
+					// QA2-015: "M1, M2" (no trailing comma); a terms answer's [text](link) is a link.
+					$q = str_replace('@efb!', ', ', preg_replace('/(?:@efb!)+\s*$/', '', $c['value']));
 					$q = str_replace('@n#', '<br>', $q);
 					$q = $this->email_escape_leaf_efb($q);
 					if ($q !== '@file@') {
-						$q = '<b>'.$q.'</b>';
+						$q = '<b>' . preg_replace('/\[([^\]]+)\]\((https?:\/\/[^\s)"<]+)\)/', '<a href="$2">$1</a>', $q) . '</b>';
 						// F01: phone numbers, IDs and IBANs read left to right in RTL mail clients
 						// (+989121234567, not 989121234567+). Only values made of those characters.
 						if (preg_match('/^[+(0-9A-Z][0-9A-Z +\-\/().:]*$/', $c['value'])) {
