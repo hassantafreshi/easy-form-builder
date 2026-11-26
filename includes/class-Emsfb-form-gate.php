@@ -998,10 +998,10 @@ class Form_Gate {
 	/** QA2-016: "1 place left" / "N places left" (the plural of the language); an owner's own text is used as typed. */
 	public static function left_text($left) {
 		$l = self::texts(array('limLeft'))['limLeft'];
-		/* translators: F11: visitor: above a form with a limit; %s = the number of answers it still accepts */
-		$def = function_exists('esc_html__') ? esc_html__('%s places left', 'easy-form-builder') : '%s places left';
+		// The English sentence (not translated, not the owner's): its singular. A translated sentence is used as it is
+		// until its pack has the plural.
 		/* translators: QA2-016: visitor: above a form with a limit; %s = the number of answers it still accepts */
-		if (($l === $def || $l === '%s places left') && function_exists('_n')) $l = _n('%s place left', '%s places left', (int) $left, 'easy-form-builder');
+		if ($l === '%s places left' && function_exists('_n')) $l = _n('%s place left', '%s places left', (int) $left, 'easy-form-builder');
 		return str_replace('%s', self::fmt_number((int) $left), $l);
 	}
 
