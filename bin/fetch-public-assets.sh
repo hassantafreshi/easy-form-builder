@@ -58,7 +58,9 @@ rm -rf "$FONTS" "$GEO" "$VENDOR_JS/chart.umd.min.js"
 mkdir -p "$FONTS" "$GEO" "$VENDOR_JS"
 {
   echo "Fonts of Easy Form Builder's response box, served from the plugin (no request to a font CDN)."
-  echo "Fetched by bin/fetch-public-assets.sh on $(date -u +%Y-%m-%d). Each font keeps its own licence."
+  # No date here: this file is pinned in bin/public-assets.lock.sha256, and a date made every build on another day
+  # stop at the lock check (and two builds on different days differ).
+  echo "Fetched by bin/fetch-public-assets.sh at the versions below. Each font keeps its own licence."
   echo
 } > "$FONTS/README.txt"
 

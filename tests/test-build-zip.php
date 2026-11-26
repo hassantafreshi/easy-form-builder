@@ -39,6 +39,10 @@ t('it fixes times, order and permissions (reproducible)', strpos($sh, 'touch -h 
 t('it never installs into a linked or git-managed plugin folder for Plugin Check', strpos($sh, '[ -L "$target" ] || [ -e "$target/.git" ]') !== false);
 t('bin/minify-assets.js is valid JavaScript', trim((string) shell_exec('node --check ' . escapeshellarg("$root/bin/minify-assets.js") . ' 2>&1')) === '');
 $lock = (string) @file_get_contents("$root/bin/public-assets.lock.sha256");
+// A fetched file the lock pins must not depend on the day: the fonts README said "Fetched … on <date>", so every build
+// after the lock's day stopped at the lock check (final regression, 2026-11-26).
+$fetch = (string) @file_get_contents("$root/bin/fetch-public-assets.sh");
+t('bin/fetch-public-assets.sh writes nothing that depends on the day (no date in the pinned files)', $fetch !== '' && !preg_match('/\$\(date\b/', $fetch));
 t('bin/public-assets.lock.sha256 pins the fetched fonts, Chart.js and the lists', preg_match_all('/^[0-9a-f]{64}  public\/assets\/fonts\//m', $lock) > 20 && strpos($lock, '  public/assets/js/vendor/chart.umd.min.js') !== false && (bool) preg_match('/^[0-9a-f]{64}  public\/assets\/json\/geo\/ \(\d+ files\)$/m', $lock));
 
 /* The repository itself. */
