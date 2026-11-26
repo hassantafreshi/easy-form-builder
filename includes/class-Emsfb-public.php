@@ -834,6 +834,13 @@ public function check_nonce_permission_efb($request) {
 		$draft_note = class_exists( '\\Emsfb\\Form_Status' ) ? \Emsfb\Form_Status::render_note( (int) self::form_id_from_atts_efb( $atts ) ) : null;
 		if ( '' === $draft_note ) return '';
 		$markup = $this->EFB_Form_Builder( $atts );
+		// QA2-008: a second copy of a form on one page is removed by the browser (core-efb.js); an administrator reads why.
+		static $efb_seen = array();
+		$fid_seen = (int) self::form_id_from_atts_efb( $atts );
+		if ( $fid_seen > 0 && is_string( $markup ) && '' !== $markup && isset( $efb_seen[ $fid_seen ] ) && current_user_can( 'manage_options' ) ) {
+			$markup = '<p class="efb efb-dup-note small" role="note">' . esc_html__( 'This form is already on this page: visitors see only its first copy.', 'easy-form-builder' ) . '</p>' . $markup;
+		}
+		if ( $fid_seen > 0 && is_string( $markup ) && '' !== $markup ) $efb_seen[ $fid_seen ] = true;
 		// F11-H: [EMS_Form_Builder id=5 popup="1" popup_label="…" popup_style="button|link" popup_delay="0"] (Free Plus).
 		$popup = self::popup_atts_efb( $atts );
 		if ( $popup && is_string( $markup ) && '' !== $markup && ( ! class_exists( '\\Emsfb\\Form_Gate' ) || \Emsfb\Form_Gate::plan_ok( 'popup' ) ) ) {

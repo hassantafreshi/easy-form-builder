@@ -1499,6 +1499,18 @@ function efb_ascii_digits_efb(str) {
   return String(str).replace(/[\u06F0-\u06F9]/g, function (d) { return String(d.charCodeAt(0) - 0x06F0); })
     .replace(/[\u0660-\u0669]/g, function (d) { return String(d.charCodeAt(0) - 0x0660); });
 }
+/* QA2-008: the same form twice on a page (content and a widget) shares its element ids and the thank-you went to the
+ * wrong copy: the first copy works, the later ones are removed before anything binds to them. */
+(function () {
+  if (typeof document === 'undefined' || !document.querySelectorAll) return;
+  const seen = {};
+  document.querySelectorAll('[id^="body_efb_"], [id^="efb-gate-"]').forEach((b) => {
+    if (!seen[b.id]) { seen[b.id] = 1; return; }
+    const al = b.id.indexOf('body_efb_') === 0 && b.nextElementSibling && b.nextElementSibling.classList.contains('alert_efb') ? b.nextElementSibling : null;
+    b.remove();
+    if (al) al.remove();
+  });
+})();
 /* QA2-003: a number box (type="number") drops Persian / Arabic digits; they are typed or pasted as 0-9 instead. */
 document.addEventListener('beforeinput', function (e) {
   const el = e.target, d = typeof e.data === 'string' ? e.data : (e.dataTransfer ? e.dataTransfer.getData('text/plain') : '');

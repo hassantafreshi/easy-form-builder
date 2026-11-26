@@ -19,6 +19,8 @@
  *        learns the form is full (it stayed above "This form has reached its limit").
  *  qa2i  QA2-014: the confirmation code finder: Enter searches, a wrong code keeps the box (message under it, focus
  *        back in the box) so the right code can be typed without a reload; the reply dates are in words.
+ *  qa2j  QA2-008: the same form twice on one page: visitors get one working copy (the thank-you lands in it, one
+ *        entry); an administrator reads a note at the second shortcode.
  * Every form is made with `ctl.php f03-form` and deleted at the end; site settings are put back.
  */
 'use strict';
@@ -300,6 +302,33 @@ module.exports = function (S) {
         R.check('qa2i: no raw "YYYY-MM-DD HH:MM:SS" date on the opened entry', !(await p.evaluate(() => /\b\d{4}-\d\d-\d\d \d\d:\d\d:\d\d\b/.test(document.body.innerText))));
       }
       await ctx.close();
+    } finally {
+      drop(F.form_id);
+    }
+  });
+
+  /* ------------------------------------------------------------------ qa2j */
+  scenario('qa2j', 'QA2-008: the same form twice on a page: one working copy, the thank-you in it; a note for the administrator', async ({ context, adminPage }) => {
+    ctl('locale', '');
+    const F = form('QA2 twice', [{ key: 'nm', type: 'text', name: 'Name' }]);
+    try {
+      const pg = ctl('f12-page-multi', String(F.form_id), String(F.form_id));
+      const ctx = await context({}, 'qa2j');
+      const g = await ctx.newPage();
+      await g.goto(pg.url, { waitUntil: 'load' });
+      await g.waitForSelector('#body_efb_' + F.form_id, { timeout: 20000 });
+      await sleep(800);
+      const n = await g.evaluate((fid) => document.querySelectorAll('[id="body_efb_' + fid + '"]').length, F.form_id);
+      await g.fill(byId(F.ids.nm + '_'), 'Twice');
+      const resp = g.waitForResponse((x) => /forms\/message\/add/.test(x.url()), { timeout: 30000 }).catch(() => null);
+      await g.click(`#body_efb_${F.form_id} #btn_send_efb`);
+      await resp; await sleep(1500);
+      const done = await g.evaluate((fid) => { const f = document.querySelector(`#body_efb_${fid} #efb-final-step`); return f && !f.classList.contains('d-none') ? f.innerText : ''; }, F.form_id);
+      R.check('qa2j: one copy for the visitor; the thank-you is in it; one entry', n === 1 && /Thank|Done|Confirmation/i.test(done) && (ctl('entries', String(F.form_id)) || []).length === 1, { n, done: done.slice(0, 80) });
+      const admin = await adminPage({}, 'qa2j-admin');
+      await admin.goto(pg.url, { waitUntil: 'load' });
+      const note = await admin.evaluate(() => (document.querySelector('.efb-dup-note') || {}).textContent || '');
+      R.check('qa2j: the administrator reads "already on this page" at the second copy', /already on this page/.test(note), note);
     } finally {
       drop(F.form_id);
     }
