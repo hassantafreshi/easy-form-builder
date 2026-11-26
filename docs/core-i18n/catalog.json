@@ -2,9 +2,9 @@
     "domain": "easy-form-builder",
     "about": "Every phrase looked up in the easy-form-builder text domain: the core plus add-ons that still use that domain. Maintained by tests/core-i18n/extract.php (agent efb-core-i18n); do not edit by hand.",
     "plugin_version": "4.3.2",
-    "updated": "2026-11-25",
+    "updated": "2026-11-26",
     "counts": {
-        "active": 4607,
+        "active": 4614,
         "obsolete": 521
     },
     "entries": [
@@ -2122,12 +2122,28 @@
             "obsolete_since": "4.3.2"
         },
         {
+            "msgid": "%s place left",
+            "context": null,
+            "plural": "%s places left",
+            "translators": "QA2-016: visitor: above a form with a limit; %s = the number of answers it still accepts",
+            "files": [
+                "includes/class-Emsfb-form-gate.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "%s places left",
             "context": null,
             "plural": null,
-            "translators": "F11: above a form with a total limit. %s: number of places",
+            "translators": "F11: above a form with a total limit. %s: number of places translators: F11: visitor: above a form with a limit; %s = the number of answers it still accepts",
             "files": [
                 "dist/build/easy-form-builder/includes/functions.php",
+                "includes/class-Emsfb-form-gate.php",
                 "includes/functions.php"
             ],
             "scope": [
@@ -7924,6 +7940,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Automatic (site language)",
+            "context": null,
+            "plural": null,
+            "translators": "QA2-018: e-mail template designer: the text direction follows the language the e-mail is written in",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -21093,7 +21124,7 @@
             "msgid": "Enter a whole number from %1$s to %2$s.",
             "context": null,
             "plural": null,
-            "translators": "%1$s: the smallest number allowed, %2$s: the largest. translators: %1$s, %2$s: the smallest and the largest number a setting takes",
+            "translators": "%1$s, %2$s: the smallest and the largest number allowed translators: %1$s: the smallest number allowed, %2$s: the largest. translators: %1$s, %2$s: the smallest and the largest number a setting takes",
             "files": [
                 "includes/admin/class-Emsfb-admin.php",
                 "includes/class-Emsfb-verification.php",
@@ -42064,8 +42095,7 @@
             "plural": null,
             "translators": "Instruction to check the reCAPTCHA checkbox - 'I am not a robot'",
             "files": [
-                "dist/build/easy-form-builder/includes/functions.php",
-                "includes/functions.php"
+                "dist/build/easy-form-builder/includes/functions.php"
             ],
             "scope": [
                 "core"
@@ -43211,6 +43241,21 @@
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Please tick the box to confirm you are not a robot.",
+            "context": null,
+            "plural": null,
+            "translators": "Instruction to check the reCAPTCHA checkbox - 'I am not a robot'",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -60664,6 +60709,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "The security check could not load. Check your connection, then reload the page.",
+            "context": null,
+            "plural": null,
+            "translators": "QA2-011: visitor: the CAPTCHA service's script did not load (blocked or offline); the form is not sent",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "The security service is not available right now. Your form still works.",
             "context": null,
             "plural": null,
@@ -62607,6 +62667,21 @@
             "obsolete_since": null
         },
         {
+            "msgid": "This file type is not allowed. Allowed: %s",
+            "context": null,
+            "plural": null,
+            "translators": "QA5 note: visitor: a chosen file of a type the field refuses; %s is the list of allowed extensions (.png, .jpg, …)",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
             "msgid": "This file would pass the total limit of %s MB.",
             "context": null,
             "plural": null,
@@ -62754,6 +62829,21 @@
                 "core"
             ],
             "first_seen": "4.3.1",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "This form is already on this page: visitors see only its first copy.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/class-Emsfb-public.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
@@ -73757,13 +73847,27 @@
             "plural": null,
             "translators": "",
             "files": [
-                "dist/build/easy-form-builder/includes/functions.php",
-                "includes/functions.php"
+                "dist/build/easy-form-builder/includes/functions.php"
             ],
             "scope": [
                 "core"
             ],
             "first_seen": "4.2.0",
+            "status": "active",
+            "obsolete_since": null
+        },
+        {
+            "msgid": "Your internet connection was lost. Your answers are kept and are sent when you are back online, or select Try again.",
+            "context": null,
+            "plural": null,
+            "translators": "",
+            "files": [
+                "includes/functions.php"
+            ],
+            "scope": [
+                "core"
+            ],
+            "first_seen": "4.3.2",
             "status": "active",
             "obsolete_since": null
         },
