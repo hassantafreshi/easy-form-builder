@@ -9,6 +9,8 @@ their root; what is left is listed below with the reason it stays.
 | B1's zip (commit 9a76a089) | 284 | 1,753 |
 | Before B6 (commit 90571c7c, Plugin Check 2.2.0) | 282 | 1,791 |
 | After B6 (the zip of the B6 report) | 5 | 1,772 |
+| Final regression, before its fix (zip of `e624c7bd`): 2 `NotPrepared` errors in `includes/payments/class-Emsfb-payment-admin.php` | 7 | 1,776 |
+| Final regression, the 4.3.2 release zip (`bin/build-zip.sh --ref c2f6c32a`, sha256 `1ae016e9…`) | 5 | 1,775 |
 
 Run it with `EFB_PLUGIN_CHECK_WP=/path/to/wordpress EFB_WPCLI="php /path/to/wp-cli.phar" bin/build-zip.sh`
 (add `--allow-root` to `EFB_WPCLI` when the build runs as root, or WP-CLI refuses and the CSV comes out empty).

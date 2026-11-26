@@ -9,6 +9,10 @@ published add their lines to the 4.3.2 section below.
 Database version 1.3 → 1.13 (the steps run automatically on the first request after the update). Requires
 WordPress 6.3 or later and PHP 7.4 or later.
 
+* Fixed (final regression): `bin/build-zip.sh` stopped at the asset lock on any day but the lock's (the fetched fonts
+  README carried the date); the stored e-mail template keeps this site's plugin address instead of `{efb_plugin_url}`,
+  so a rollback to 4.3.1 keeps its logo (QA1-023 follow-up; the sender still maps an old host to this site); Payments'
+  "is there a payment" read uses `$wpdb->prepare( … %i … )` (2 Plugin Check errors).
 * Fixed (FX-ADMIN, QA-1): Settings › Verification is stored by the page's own Save (its second Save, which the page
   Save ignored, is gone); every number of Settings is checked against its range in the browser (aria-invalid, the
   reason under the box, the tab opened) and on the server (invalid_<key>, nothing stored; Verification::invalid_number(),

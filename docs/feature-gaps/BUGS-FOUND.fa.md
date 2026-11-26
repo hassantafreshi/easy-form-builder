@@ -762,3 +762,16 @@ F20-core در گزارش نخست ساخته نشد (بودجهٔ اندازهٔ
 | کم | (QA2-015، ۰۱۶، ۰۱۷، ۰۱۸، ۰۱۹، ۰۲۰) ایمیل: ویرگول اضافه، لینک markdown، ردیف‌های جدا؛ «1 places left»؛ متن درهم‌ریختهٔ ویرایشگر؛ جهت قالب ایمیل؛ دو گزینهٔ بی‌autoload و CSS اضافه؛ نام ردیف تکرارشونده در خلاصهٔ خطا. | `class-Emsfb-public.php`، `class-email-handler.php`، `class-Emsfb-form-gate.php`، `class-Emsfb-email-monitor.php`، `inline-efb.js` | **رفع شد**. |
 | کم | (یادداشت‌ها) پیام نوع فایل نامجاز؛ مرحلهٔ سوم با API؛ پیش‌فرض فیلد فایل و پیوند شرایط؛ بج‌های فهرست فرم‌ها در ۳۷۵px؛ f02e. | `core-efb.js`، `builder-api-efb.js`، `admin-efb.js`، `list_form-efb.js` | **رفع شد**. |
 | بررسی | (یادداشت QA-2/QA-4) بررسی آفلاین Pro کد `md5(host)` را می‌پذیرد. | `functions.php` | **تغییر نکرد**: طراحی مستند (حالت آفلاین fa_IR و نبود سرور مجوز)؛ حذفش مشتریان واقعی را قفل می‌کند. پیشنهاد به مالک: کد امضاشده. |
+
+## رگرسیون نهایی 4.3.2 (۲۰۲۶-۱۱-۲۶)
+
+هر رفع آزمونی دارد که روی کد پیشین شکست می‌خورد. چک‌لیست مالک: `docs/release/RELEASE-CHECKLIST-4.3.2.fa.md`.
+
+| شدت | یافته | محل | وضعیت |
+|---|---|---|---|
+| جدی (انتشار) | `bin/build-zip.sh` فقط در روز ساخت قفل دارایی‌ها کار می‌کرد: README فونت‌ها تاریخ روز را داشت و در قفل بود. | `bin/fetch-public-assets.sh` | **رفع شد**؛ `tests/test-build-zip.php` |
+| متوسط | پس از بازگشت به 4.3.1، لوگوی قالب ایمیل شکسته بود: QA1-023 نشانی را `{efb_plugin_url}` ذخیره می‌کرد. | `class-Emsfb.php`، `class-email-handler.php`، `email-template-builder-efb.js` | **رفع شد**: نشانی واقعی همین سایت ذخیره می‌شود؛ `tests/test-email-template-plugin-url.php`، e2e `payout-mixed` و `qa1-mailurl` |
+| متوسط (Data Tools) | «Undo this import» با هستهٔ 4.3.2 (QA5-001) هیچ فرمی را حذف نمی‌کرد. | `easy-form-builder-data-tools`: `class-efbdt-core-package-api.php` | **رفع شد** (`94a3c00`)؛ فرم تغییرکرده یا دارای پاسخ حذف نمی‌شود |
+| کم | Plugin Check دو خطای `NotPrepared` تازه داشت. | `payments/class-Emsfb-payment-admin.php` | **رفع شد**: `prepare( … %i … )`؛ `tests/test-b6-plugin-check.php` |
+| آزمون | `f04a`، `test-upload-runtime-http.php` و ده آزمون/سناریوی دیگر پشت تغییرهای عمدی دسته‌های رفع مانده بودند. | `tests/` | **به‌روز شد**؛ محصول درست بود |
+
