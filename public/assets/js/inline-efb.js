@@ -278,6 +278,9 @@
     return items.length;
   }
   function labelOf(scope, id) {
+    // QA2-020: a repeater copy ({field}_r{n}) is named by its input ("Email, row 2"), as a screen reader reads it.
+    const ri = /_r\d+$/.test(id) ? byId(scope, id + '_') : null;
+    if (ri && ri.getAttribute('aria-label')) return S(ri.getAttribute('aria-label')).trim();
     const l = byId(scope, id + '_lab') || byId(scope, id + '_labG') || (scope.querySelector && scope.querySelector('label[for="' + id + '_"], label[for="' + id + '"]'));
     return l ? S(l.textContent).replace(/\*\s*$/, '').trim() : '';
   }
