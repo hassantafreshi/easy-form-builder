@@ -785,7 +785,7 @@
      "dataId": "⟦id:0⟧-id",
      "type": "file",
      "placeholder": "file",
-     "value": "zip",
+     "value": "allformat",
      "size": 100,
      "message": "",
      "id": "",
@@ -795,7 +795,7 @@
      "label_text_size": "fs-6",
      "message_text_size": "fs-7",
      "el_text_size": "fs-6",
-     "file": "zip",
+     "file": "allformat",
      "label_text_color": "text-labelEfb",
      "label_position": "up",
      "el_text_color": "text-dark",
@@ -6111,7 +6111,7 @@
      "dataId": "⟦id:1⟧-id",
      "parent": "⟦id:0⟧",
      "type": "option",
-     "value": "⟦trmcn¦[¦](https://whitestudio.team/privacy-policy-terms)⟧",
+     "value": "⟦trmcn¦¦⟧",
      "id_op": "⟦id:1⟧"
     }
    ],

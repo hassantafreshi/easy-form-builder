@@ -5242,8 +5242,9 @@ let sampleElpush_efb = (rndm, elementId) => {
 
     }else if(elementId == "file"){
       const indx =(valj_efb.length) - 1;
-      valj_efb[indx].value = 'zip';
-      valj_efb[indx].file = 'zip';
+      // QA-2 note: a new File field takes documents and images ("allformat"), not only archives.
+      valj_efb[indx].value = 'allformat';
+      valj_efb[indx].file = 'allformat';
     }else if(elementId == "audio_recorder" || elementId == "video_recorder" || elementId == "screen_recorder"){
       const indx =(valj_efb.length) - 1;
       valj_efb[indx].value = 'media';
@@ -8225,8 +8226,10 @@ function addNewElement(elementId, rndm, editState, previewSate) {
         optionElpush_efb(rndm, `${efb_var.text.newOption} ${t2}`, op_2, op_2 ,dataTag);
       }else{
         opt_label = efb_var.text.trmcn;
-        opt_label = opt_label.replace('%1$s', "[");
-        opt_label = opt_label.replace('%2$s', "](https://whitestudio.team/privacy-policy-terms)");
+        // The site's privacy policy page (Settings › Privacy), else the sentence without a link (QA-2 note: it named the plugin's site).
+        const pp = typeof efb_var.privacy_url === 'string' && /^https?:\/\//.test(efb_var.privacy_url) ? efb_var.privacy_url : '';
+        opt_label = opt_label.replace('%1$s', pp ? "[" : '');
+        opt_label = opt_label.replace('%2$s', pp ? `](${pp})` : '');
         optionElpush_efb(rndm, `${opt_label}`, op_1, op_1 ,dataTag);
         opt_label = fun_get_links_from_string_Efb(opt_label,true);
       }

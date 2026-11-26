@@ -1083,6 +1083,9 @@ class Builder_Api {
 				if ($tok === 'img:head') return $head;
 				$parts = explode("\u{00A6}", $tok);
 				$key = array_shift($parts);
+				// The terms field links the site's privacy policy page when it has one (as the builder does).
+				$pp = $key === 'trmcn' && function_exists('get_privacy_policy_url') ? (string) get_privacy_policy_url() : '';
+				if ($pp !== '' && $parts === array('', '')) $parts = array('[', '](' . $pp . ')');
 				if (isset($text[$key]) && is_string($text[$key])) {
 					$value = $text[$key];
 				} elseif (isset($lower[strtolower($key)])) {

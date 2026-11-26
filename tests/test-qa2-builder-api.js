@@ -4,6 +4,8 @@
  *    template's id is always "2");
  *  - QA2-001: newItems('pdate' / 'ardate') refuses with addon_required while the old Jalali / Hijri add-on is not
  *    installed (the public page cannot draw that field without it), and builds the field when it is.
+ *  - visitor-facing defaults (QA-2 note): a new File field takes all formats (was archives only); the terms field links
+ *    the site's privacy policy page, or nothing (it linked the plugin author's site).
  *
  * Run: node tests/test-qa2-builder-api.js
  */
@@ -12,7 +14,7 @@ const { openBuilder, makeChecker, blankForm } = require('./ap-builder-harness.js
 const c = makeChecker();
 
 (async () => {
-  let h = await openBuilder({ builder: true, pro: 1, packageType: 1, form: blankForm() });
+  let h = await openBuilder({ builder: true, pro: 1, packageType: 1, form: blankForm(), text: { trmcn: 'I agree to %1$sthe terms%2$s' } });
   let r = await h.page.evaluate(() => {
     const out = [];
     for (let i = 0; i < 3; i++) {
@@ -26,6 +28,13 @@ const c = makeChecker();
 
   r = await h.page.evaluate(() => ['pdate', 'ardate'].map((p) => { try { efbBuilderApi.newItems(p); return 'built'; } catch (e) { return e.code + ':' + e.addon; } }));
   c.check('QA2-001: newItems("pdate"/"ardate") without the add-on refuses with addon_required', r.join() === 'addon_required:AdnPDP,addon_required:AdnADP', r);
+
+  r = await h.page.evaluate(() => ({ file: efbBuilderApi.newItems('file')[0].file, terms: efbBuilderApi.newItems('trmCheckbox').filter((x) => x.type === 'option').map((x) => x.value).join() }));
+  c.check('defaults: a new File field takes all formats; the terms text has no link when the site has no privacy page', r.file === 'allformat' && !/whitestudio|\]\(/.test(r.terms), r);
+  await h.browser.close();
+  h = await openBuilder({ builder: true, pro: 1, packageType: 1, form: blankForm(), text: { trmcn: 'I agree to %1$sthe terms%2$s' }, extraVar: { privacy_url: 'https://site.test/privacy/' } });
+  r = await h.page.evaluate(() => efbBuilderApi.newItems('trmCheckbox').filter((x) => x.type === 'option').map((x) => x.value).join());
+  c.check('defaults: with a privacy policy page the terms text links it', /\]\(https:\/\/site\.test\/privacy\/\)/.test(r) && !/whitestudio/.test(r), r);
   await h.browser.close();
 
   h = await openBuilder({ builder: true, pro: 1, packageType: 1, form: blankForm(), addons: { AdnPDP: 1, AdnADP: 1 } });

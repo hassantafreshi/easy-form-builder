@@ -309,6 +309,7 @@ class Create {
 			"language"=> get_locale(),
 			"addons"=>$addons,
 			'wp_lan'=>get_locale(),
+			'privacy_url'=>function_exists('get_privacy_policy_url') ? get_privacy_policy_url() : '', // the terms field's default link (QA-2 note)
 			'location'=>$location,
 			'v_efb'=>EMSFB_PLUGIN_VERSION,
 			'setting'=>class_exists('\\Emsfb\\Captcha\\Registry') ? \Emsfb\Captcha\Admin::redact_settings($settings) : $settings,
