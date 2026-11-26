@@ -106,6 +106,10 @@ foreach ($files as $f) {
 }
 t('no IN (...) list glued from a PHP array (a placeholder per value)', !$glued, implode(', ', $glued));
 t('no query runs a $sql / $query prepared somewhere else', !$later, implode(', ', $later));
+// Final regression (2026-11-26): Payments' "is there a payment" read glued the table name into the SQL with an ignore
+// that named the wrong sniff, and Plugin Check counted 2 NotPrepared errors on the release zip.
+$pa = (string) @file_get_contents("$root/includes/payments/class-Emsfb-payment-admin.php");
+t('Payments::has_payments() names its table through $wpdb->prepare( … %i … ), not a concatenation', strpos($pa, "\$wpdb->prepare( 'SELECT id FROM %i LIMIT 1', Store::table( 'emsfb_pmt_' ) )") !== false && strpos($pa, "'SELECT id FROM `' . Store::table") === false);
 
 /* ----------------------------------------------------------- 4. escaping */
 $rd = function ($p) use ($root) { return (string) @file_get_contents("$root/$p"); };

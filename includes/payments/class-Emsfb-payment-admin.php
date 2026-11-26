@@ -66,8 +66,10 @@ class Admin {
 		if ( $has !== null ) return $has;
 		if ( ! Store::ready() ) return $has = false;
 		global $wpdb;
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- table from $wpdb->prefix, one row
-		return $has = (bool) $wpdb->get_var( 'SELECT id FROM `' . Store::table( 'emsfb_pmt_' ) . '` LIMIT 1' );
+		// The table name through %i (WordPress 6.2+; the minimum is 6.3): Plugin Check counted the concatenated name as two
+		// NotPrepared errors.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- one row of the plugin's own table, no cache wanted
+		return $has = (bool) $wpdb->get_var( $wpdb->prepare( 'SELECT id FROM %i LIMIT 1', Store::table( 'emsfb_pmt_' ) ) );
 	}
 
 	private static function moved() {
