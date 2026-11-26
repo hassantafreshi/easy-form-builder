@@ -326,7 +326,9 @@
   function insertItems(items, opts) {
     opts = opts || {};
     var list = rows();
-    checkRows(items, list);
+    // A step gets the next step number below; its template's id (always "2") is not a duplicate (third step via the API).
+    var stepIn = Array.isArray(items) && items.length === 1 && items[0] && items[0].type === 'step';
+    checkRows(stepIn ? [Object.assign({}, items[0], { id_: 'step_new' })] : items, list);
     var frErrs = fieldRulesErrors(items, 0);
     if (frErrs.length) throw failRules(frErrs);
     var add = clone(items);
@@ -471,6 +473,9 @@
     // SPLIT §10.2 / §6: the map field and the calc field are their add-ons' (AdnADR, AdnCLC).
     if (paletteId === 'maps' && !addonActive('AdnADR', typeof efbCreateMap === 'function')) throw addonFail('AdnADR', 'The map field');
     if (paletteId === 'calc' && !addonActive('AdnCLC', !!window.EFBCalc)) throw addonFail('AdnCLC', 'A calculated field');
+    // QA2-001: the old Jalali / Hijri pickers are add-ons (without them use advdate with cal_default persian / islamic-umalqura).
+    var oldCal = { pdate: 'AdnPDP', ardate: 'AdnADP' }[paletteId];
+    if (oldCal && Number(typeof efb_var !== 'undefined' && efb_var.addons && efb_var.addons[oldCal]) !== 1) throw addonFail(oldCal, 'This date field');
     // The builder draws a gateway only when its add-on is installed (otherwise it shows a notice).
     // AI-5: the registry's state first (an add-on too old for this core is not active), as field_templates_efb() in PHP.
     var gatewayAddon = { stripe: 'AdnSPF', paypal: 'AdnPAP', persiaPay: 'AdnPPF' }[paletteId];

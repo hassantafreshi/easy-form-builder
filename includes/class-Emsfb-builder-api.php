@@ -982,7 +982,7 @@ class Builder_Api {
 		if (!class_exists('\\Emsfb\\Split') || !class_exists('\\Emsfb\\Addon_Catalog')) return null;
 		$map = array();
 		foreach (Addon_Catalog::MOVED as $key => $code) if (strpos($key, 'field:') === 0) $map[substr($key, 6)] = $code;
-		$map = Split::legacy_types() + $map;
+		$map = Split::legacy_types() + $map + array('pdate' => 'AdnPDP', 'ardate' => 'AdnADP');
 		if (!isset($map[$palette_id])) return null;
 		$code = $map[$palette_id];
 		$state = Split::addon_state($code);

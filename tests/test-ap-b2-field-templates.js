@@ -63,7 +63,7 @@ function canon(rows) {
   c.check('newItems() for every palette id leaves the DOM, the form, sessionStorage and the globals untouched', side.same.length === 0, side.same);
   c.check('the real setTimeout is restored', side.timeoutOk);
   const errs = Object.entries(side.results).filter(([, v]) => v.err).map(([k, v]) => k + ':' + v.err);
-  c.check('every palette id gives rows (gateways without their add-on: addon_required)', errs.every((e) => /^(stripe|paypal|persiaPay):addon_required$/.test(e)), errs);
+  c.check('every palette id gives rows (gateways and the old Jalali / Hijri pickers without their add-on: addon_required)', errs.every((e) => /^(stripe|paypal|persiaPay|pdate|ardate):addon_required$/.test(e)), errs);
   c.check('address = the five address fields with their options', side.results.address && JSON.stringify(side.results.address.types.filter((t) => t !== 'option')) === JSON.stringify(['conturyList', 'stateProvince', 'cityList', 'address_line', 'postalcode']), side.results.address);
   c.check('name = first and last name', side.results.name && JSON.stringify(side.results.name.types) === '["text","text"]');
   c.check('no page errors while building templates', h.errors.length === 0, h.errors.slice(0, 3));

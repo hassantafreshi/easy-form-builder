@@ -22,7 +22,8 @@ const COUNTRIES = '_workspace/easy-form-builder-form-builder/legacy-snapshot/ven
 const GETTER = "(k)=>k==='trmcn'?'\\u27e6trmcn\\u00a6%1$s\\u00a6%2$s\\u27e7':'\\u27e6'+k+'\\u27e7'";
 
 async function generate() {
-  const h = await openBuilder({ builder: true, pro: 1, packageType: 1, form: blankForm({ formName: 'form' }), textGetter: GETTER, preScripts: [COUNTRIES],
+  // addons: the old Jalali / Hijri pickers are built only with their add-on (QA2-001).
+  const h = await openBuilder({ builder: true, pro: 1, packageType: 1, form: blankForm({ formName: 'form' }), textGetter: GETTER, preScripts: [COUNTRIES], addons: { AdnPDP: 1, AdnADP: 1 },
     // ⟦img:head⟧: the picture of a new image-choice option; PHP writes the plugin's own URL.
     extraVar: { images: { head: '⟦img:head⟧', utilsJs: 'https://site.test/u.js', plugin_url: 'https://site.test/' } } });
   try {

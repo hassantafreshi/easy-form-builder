@@ -3142,8 +3142,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 						if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php")) {
 							if($efbFunction === null)$efbFunction = get_efbFunction();
 							/* Queued, not downloaded: this renderer also runs for visitors. */
-							$queued = $efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => 'AdnPDP', 'source' => 'public_field_render'));
-							return $efbFunction->addon_wait_message_public_efb(empty($queued['queued']) ? 0 : 25);
+							$efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => 'AdnPDP', 'source' => 'public_field_render'));
+							/* QA2-001: the field's notice in its place (SPLIT §4.1, the form still sends); the whole-form wait card returned
+							 * here was read as [markup, style, js] and broke the page. */
+							$ui = $this->addon_needed_message_efb('AdnPDP', $texts);
 						}else{
 							require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/persiadatepicker/persiandate.php");
 							$persianDatePicker = new persianDatePickerEFB() ;
@@ -3151,8 +3153,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 					}else{
 						if(!file_exists(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php")) {
 							if($efbFunction === null)$efbFunction = get_efbFunction();
-							$queued = $efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => 'AdnADP', 'source' => 'public_field_render'));
-							return $efbFunction->addon_wait_message_public_efb(empty($queued['queued']) ? 0 : 25);
+							$efbFunction->queue_addon_recovery_efb(array('form_id' => $form_id, 'addon' => 'AdnADP', 'source' => 'public_field_render'));
+							$ui = $this->addon_needed_message_efb('AdnADP', $texts);
 						}else{
 							require_once(EMSFB_PLUGIN_DIRECTORY."/vendor/arabicdatepicker/arabicdate.php");
 							$arabicDatePicker = new arabicDatePickerEfb() ;

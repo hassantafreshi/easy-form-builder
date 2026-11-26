@@ -259,7 +259,7 @@ class Split {
 	public static function field_addon(array $row) {
 		$type = isset($row['type']) && is_string($row['type']) ? $row['type'] : '';
 		if ($type === '') return '';
-		$legacy = self::legacy_types();
+		$legacy = self::legacy_types() + array('pdate' => 'AdnPDP', 'ardate' => 'AdnADP'); // QA2-001: the old Jalali / Hijri pickers
 		if (isset($legacy[$type])) return $legacy[$type];
 		foreach (class_exists('\\Emsfb\\Addon_Keys') ? Addon_Keys::manifest() : array() as $code => $m) {
 			if (in_array($type, $m['types'], true)) return $code;
