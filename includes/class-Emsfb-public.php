@@ -688,12 +688,12 @@ public function check_nonce_permission_efb($request) {
 
 										return result;
 									} catch (innerError) {
-										console.warn('ðŸ›¡ï¸ EFB: Inner method error, using safe fallback:', innerError);
+										console.warn('EFB: Inner method error, using safe fallback:', innerError);
 
 										return {};
 									}
 								} catch (e) {
-									console.warn('ðŸ›¡ï¸ EFB: Caught initOnReadyComponents error:', e);
+									console.warn('EFB: Caught initOnReadyComponents error:', e);
 
 									return {};
 								}
@@ -710,7 +710,7 @@ public function check_nonce_permission_efb($request) {
 
 									return originalInit.apply(this, arguments);
 								} catch (e) {
-									console.warn('ðŸ›¡ï¸ EFB: Caught init error:', e);
+									console.warn('EFB: Caught init error:', e);
 									return {};
 								}
 							};
@@ -1186,7 +1186,7 @@ public function check_nonce_permission_efb($request) {
 					<div style="font-size: 14px; opacity: 0.9;">'.esc_html__('The form will be displayed on the frontend.', 'easy-form-builder').'</div>
 					'.$form_info.'
 					<div style="margin-top: 15px; font-size: 12px; opacity: 0.7;">
-						<span style="background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 4px;">ðŸ“ ' . esc_html($page_builder) . '</span>
+						<span style="background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 4px;">' . esc_html($page_builder) . '</span>
 					</div>
 				</div>
 				';

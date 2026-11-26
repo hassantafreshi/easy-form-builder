@@ -4,6 +4,8 @@
  *  - QA2-001: a Jalali / Hijri date field (pdate / ardate) whose add-on folder is missing draws the field's notice in its
  *    place and returns [markup, style, js] (it returned the whole-form wait card as a string, read as $r[0..2]: a stray
  *    "<" in the form, a "d" in the style, an "i" in the script).
+ *  - QA2-017: no UTF-8 text read twice as Latin-1 ("ðŸ“ Elementor" in the page-builder placeholder) in the visitor
+ *    runtime's PHP, JS and CSS.
  *
  * Run: php tests/test-qa2-render.php
  */
@@ -44,6 +46,17 @@ t('QA2-001: the add-on recovery is still queued for both', $GLOBALS['efb_qa2_que
 require_once __DIR__ . '/../includes/class-Emsfb-split.php';
 $u = \Emsfb\Split::unrequire_absent(array(array('type' => 'form'), array('type' => 'pdate', 'id_' => 'a', 'required' => '1'), array('type' => 'text', 'id_' => 'b', 'required' => '1')));
 t('QA2-001: the submit does not require a pdate field whose add-on is absent (SPLIT §4.1); a text field stays required', empty($u[1]['required']) && $u[2]['required'] === '1', json_encode($u));
+
+$moji = array();
+$root = dirname(__DIR__);
+foreach (array('includes/class-Emsfb-public.php', 'includes/class-Emsfb-formbuilder.php', 'includes/page-builders', 'public/assets') as $p) {
+	$list = is_dir("$root/$p") ? new RecursiveIteratorIterator(new RecursiveDirectoryIterator("$root/$p", FilesystemIterator::SKIP_DOTS)) : array(new SplFileInfo("$root/$p"));
+	foreach ($list as $f) {
+		if (!preg_match('/\.(php|js|css)$/', $f->getFilename()) || preg_match('/\.min\.|\/vendor\//', $f->getPathname())) continue;
+		if (preg_match('/\xC3\xB0\xC5\xB8|\xC3\xA2\xE2\x82\xAC|\xC3\xAF\xC2\xB8/', (string) file_get_contents($f->getPathname()))) $moji[] = substr($f->getPathname(), strlen($root) + 1);
+	}
+}
+t('QA2-017: no double-encoded UTF-8 (ðŸ…, â€…) in the visitor runtime', !$moji, implode(', ', $moji));
 
 echo "\nRESULTS: {$passed} passed, {$failed} failed\n";
 exit($failed > 0 ? 1 : 0);
