@@ -406,6 +406,7 @@ Requires WordPress 6.3 or later. The full list of changes, with the notes for de
 * Faster form pages: about a third as many database queries, minified scripts and styles, and the response viewer loads only where it is needed.
 * Fixed: Payments: back from a failed payment a form with steps opens the payment step with "Try again" (the same entry), the Payments screen stays readable without a payment add-on and fits a phone, and a moved payment form can be moved back without losing your edits.
 * Fixed: An outdated add-on can be updated from the Add-ons page, which shows the add-ons within seconds when the add-on server cannot be reached. The rating invitation waits for real use and never interrupts an update.
+* Fixed: Forms for visitors: the multiselect, stars and Yes/No work by keyboard; a mobile number without a country, Persian digits, a wrong file type, an unloadable CAPTCHA and sending offline (Try again) are handled; Previous/Next follow right-to-left order.
 * Fixed: Many fixes across forms, e-mails, entries, payments, booking forms, CAPTCHA, right-to-left screens and phones. See CHANGELOG.md.
 * Developers: database version 1.13 (the update runs automatically); form package, builder (efbBuilderApi), payment, CAPTCHA and notices contracts. See CHANGELOG.md and the docs folder on GitHub.
 

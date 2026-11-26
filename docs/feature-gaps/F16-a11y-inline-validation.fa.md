@@ -417,3 +417,8 @@ F16 قاعدهٔ اعتبارسنجی تازه‌ای اضافه نمی‌کند
 - پیش‌فرض‌های «فرم تازه» (`val_timing: "blur"`، `err_summary: "1"`، `warn_unsaved: "1"`) باید در یک تابع PHP مشترک (`efb_form_defaults_efb()`) هم باشند که سازنده، CF7 Mapper و API از آن استفاده کنند. وگرنه فرمی که SitePilot می‌سازد با فرم سازنده فرق دارد (تعارض C15).
 - schema عمومی توکن مؤثر `autocomplete` هر فیلد را نشان می‌دهد. دستیار بازدیدکننده با آن تشخیص می‌دهد کدام دادهٔ بازدیدکننده به کدام فیلد می‌رود.
 - `efb_set_field_error_efb` باید هنگام `setValue` با `source: "assistant"` هم اجرا شود. رویداد `efb:submit-result` شامل `ok`، `code` و `field_id` باشد تا دستیار خطای سرور را به بازدیدکننده توضیح دهد.
+
+### FX-PUB (۲۰۲۶-۱۱-۲۶)
+- چندگزینه‌ای: دکمه (`aria-haspopup="listbox"`، `aria-expanded`) و listbox با `option`/`aria-selected`؛ Enter/Space/↓ باز می‌کند، جهت‌ها حرکت، Esc/Tab بسته و تمرکز روی دکمه.
+- ستاره و بله/خیر: `role="radiogroup"` با `aria-labelledby` برچسب فیلد؛ رادیوها پنهانِ دیداری ولی در ترتیب Tab؛ هر ستاره «N Stars».
+- خلاصهٔ خطا ردیف تکرارشونده را «Email, row 2» می‌نامد. پس از پرش شرطی، Next روی فیلد خالی تمرکز را به فیلد می‌برد.

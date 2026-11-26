@@ -507,3 +507,7 @@ if (($this->operation_data['type'] ?? '') !== 'payment_followup' && class_exists
 - کدهای `efb_form_pending`، `efb_form_closed`، `efb_form_full`، `efb_limit_reached` و `efb_role_denied` کدهای پایدار برای دستیارند. schema عمومی بلوک `gate: {state, closes_at, left?}` دارد (`left` فقط با `lim_show_left`).
 - دستیار بازدیدکننده پاسخ نیمه‌کاره یا پیش‌نویس را از طرف بازدیدکننده ذخیره نمی‌کند و رضایت `partial_consent` را خودش نمی‌زند. تغییر `lim_*`، `sched_*` و `allowed_roles` در `security_changes` گزارش می‌شود.
 - اگر F11 زودتر از F12 و F14 اجرا شود، فیلتر شمارش (`entry_status NOT IN ('spam','trash')`) باید با تصمیم نهایی تعارض C1 هم‌خوان شود.
+
+### FX-PUB (۲۰۲۶-۱۱-۲۶)
+- `Form_Gate::left_text()`: «1 place left» با `_n()` برای جملهٔ انگلیسی؛ جملهٔ ترجمه‌شده یا متن مالک همان‌طور می‌ماند. پاسخ `forms/gate/state` کلید `left_text` دارد.
+- پاسخ `efb_form_full` به ارسال، خط «N places left» صفحهٔ باز را برمی‌دارد؛ برای ردِ دروازه دکمهٔ «Try again» نشان داده نمی‌شود.

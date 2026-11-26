@@ -532,3 +532,8 @@ Checkpoint (انجام شد، جز ترجمه)
 - `Upload_Guard::require_token()` پیش‌فرض `true` است. هر مسیر بارگذاری هسته توکن را می‌فرستد: `upload-efb.js` (فیلدهای فایل) و `new-efb.js` (`fun_upload_file_api_emsFormBuilder`: ضبط‌ها، فیلد تک‌فایل قدیمی). پیوست پاسخ‌ها (Response Box) توکن رزرو خودش را دارد. هیچ افزونه‌ای جز Human Shield (که فقط سرآیند می‌افزاید) خودش بارگذاری نمی‌کند.
 - ابزارها › سلامت سایت: آزمون مستقیم `efb_private_uploads` (`Uploads::site_health_private_uploads()`) با `probe(true)` فایل آزمایشی را در `uploads/efb-private` می‌نویسد، با HTTP می‌خواند و پاک می‌کند: سرو شد → critical با قاعدهٔ `Uploads::nginx_rule()` در توضیح؛ ۴۰۳ → good؛ بی‌پاسخ → recommended با همان قاعده.
 - تست‌ها: `tests/test-site-health-private-uploads.php` (۸)، `tests/test-upload-token.php`.
+
+### FX-PUB (۲۰۲۶-۱۱-۲۶)
+- نوع فایل نامجاز: «This file type is not allowed. Allowed: .png, .jpg, …» (عبارت `fileTypeNotAllowed`، از فهرست `accept` فیلد) زیر فیلد و پس از ارسال هم می‌ماند (دیگر «This field is required.» نمی‌آید).
+- بدنهٔ بزرگ‌تر از `post_max_size`: `file_upload_api()` با `CONTENT_LENGTH` و `$_POST`/`$_FILES` خالی پاسخ «too large» با `wp_max_upload_size()` می‌دهد (QA4-008).
+- پیش‌فرض فیلد فایل تازه `allformat` است (پیش‌تر فقط آرشیو).

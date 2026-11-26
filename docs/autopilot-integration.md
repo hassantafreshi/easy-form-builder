@@ -305,6 +305,9 @@ Events on `document`:
   - A gateway (`stripe`, `paypal`, `persiaPay`) needs its add-on installed, like a drop: otherwise
     `addon_required`. The row-0 changes a drop makes (`type:'payment'`, `getway`, `currency`,
     `paymentmethod`) come back as a non-enumerable `rows.formPatch`, which `insertItems()` applies.
+  - 4.3.2 (FX-PUB): `pdate` / `ardate` (the old Jalali / Hijri pickers) also answer `addon_required` (AdnPDP /
+    AdnADP) without their add-on: use `advdate` with `cal_default` `persian` / `islamic-umalqura` instead. A step
+    template (`newItems('steps')`) can be inserted again and again (each becomes the next step).
   - Errors: `unknown_palette_id`, `addon_required`, `plan_required` (the builder refused it, e.g. a
     third step on Free), `template_failed`, `no_options`.
 - **PHP: `get_efbFunction()->field_templates_efb($palette_id = null, $args = [])`** =

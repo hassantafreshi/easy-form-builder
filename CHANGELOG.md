@@ -40,6 +40,28 @@ WordPress 6.3 or later and PHP 7.4 or later.
   summary. Settings › Payments: "Move every form back" (REST rollback-all) and the server's reason when a Move back
   is refused. capabilities.payments.migration.backup = "the form before the latest move".
 * Fixed: "Unlock D&D File Upload" (the feature name was escaped twice); "1 entry will be removed".
+* Fixed (FX-PUB, QA-2): the visitor runtime. A Jalali / Hijri date field whose add-on folder is missing draws the
+  SPLIT §4.1 notice and is not required (addNewElement_efb() returned the whole-form wait card as a string: stray
+  "<", ReferenceError, Send dead); efbBuilderApi.newItems('pdate' / 'ardate') and Builder_Api::template_addon() answer
+  addon_required without the add-on (QA2-001). The mobile field starts on the site's country
+  (Formbuilder::mobile_country_efb()) and a refused number stops the step (QA2-002). Persian / Arabic digits typed or
+  pasted into a Number field are written as 0-9 (QA2-003). The multiselect is a button + listbox with the keyboard
+  (bootstrap-select.min-efb.js), the stars and Yes / No are radio groups in the Tab order (QA2-004, QA2-005). A failed
+  send that is not the visitor's offers "Try again" and resends when back online (QA2-006). After a Conditional Logic
+  jump, Next on an empty required field focuses it; a jump applied during the Next check no longer reports the step it
+  lands on (QA2-007, QA5-014). The same form twice on a page keeps one copy (QA2-008). Elementor / WPBakery print
+  nothing for a draft (QA2-009). Google's published reCAPTCHA test secret skips the hostname check
+  (efb_captcha_check_hostname, QA2-010). A CAPTCHA whose script cannot load says so (captchaNoLoad, QA2-011). RTL
+  Previous / Next order and arrows (QA2-012). The code finder: Enter, a wrong code keeps the box, reply dates in words
+  (QA2-014). E-mails: no trailing comma, terms links, checkbox choices on one row (QA2-015); "1 place left" and no
+  stale line over a full form, left_text in forms/gate/state (QA2-016); the page-builder placeholder's mojibake
+  (QA2-017); the designed template's direction "auto" and <bdi> codes (QA2-018); no weekly-report option reads and no
+  response-viewer CSS on visitor pages (QA2-019); repeater rows named in the error summary (QA2-020).
+* Fixed (FX-PUB): a refused file type lists the allowed types (fileTypeNotAllowed); an upload over post_max_size is
+  answered "too large" with wp_max_upload_size() (QA4-008); no "Undefined property show_icon …" for 4.3.1-shape forms
+  (QA4-010); with the Conditional Logic add-on off a field targeted by a rule is optional (Split::unrequire_absent());
+  insertItems(newItems('steps')) adds a third step; a new File field takes all formats and the terms field links the
+  site's privacy policy page (efb_var.privacy_url).
 
 * Changed (PC-01): Plugin Check on the release zip: 282 errors and 1,791 warnings before, 5 errors after (each with a written waiver: docs/release/plugin-check-waivers.md). Translatable strings with placeholders carry translator comments and number them; output is escaped (the notices' inline scripts through wp_print_inline_script_tag()); IN (...) lists are one placeholder per value and tables %i; wp_parse_url, wp_delete_file, wp_mkdir_p, wp_is_writable and gmdate replace the PHP functions; the streaming writers (XLSX, CSV export, the upload scan) are annotated. Unused files removed: includes/class-Emsfb-webhook.php (a test route), class-Emsfb-requirement.php, integrate-wpb.php and five images.
 * Fixed: an e-mail template or HTML field with a style url() pointing to a host made the save fail on PHP 8 (validate_url_efb() read a global that was never set). The add-on server's error sentence showed "%s" instead of the server and the code.
