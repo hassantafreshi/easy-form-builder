@@ -424,11 +424,10 @@ module.exports = function (S) {
   /* ------------------------------------------------------------------ f02e */
   scenario('f02e', 'F02 Settings > Verification, AutoPilot setVerification / capabilities, save warning verify_unavailable', async ({ adminPage }) => {
     setup();
-    // The SMS add-on is Pro-only: on Free Plus no SMS provider is registered (reason no_provider). This scenario is about
-    // the add-on being there while WP SMS is missing (sender_not_ready): Pro, AdnSS on, WP SMS off.
-    ctl('plan', '1');
-    ctl('addon-flag', 'AdnSS', '1');
     smsOff();
+    // The SMS add-on is Pro-only: on Free Plus (setup's plan) no SMS provider is registered, so the reason is no_provider;
+    // on Pro with WP SMS missing it is sender_not_ready (the plan is not switched: the later scenarios expect Free Plus).
+    const smsWhy = String(ctl('state').emsfb_pro) === '1' ? 'sender_not_ready' : 'no_provider';
     const admin = await adminPage();
     await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb&state=setting&tab=verify', { waitUntil: 'load' });
     await admin.waitForSelector('#vrfs-ChannelStates', { timeout: 20000 });
@@ -455,7 +454,7 @@ module.exports = function (S) {
     }, [e.id_, m.id_]);
     R.check('f02e: capabilities.verification: keys, channels (e-mail ready, SMS not, add-on AdnSS), downgrade blocks_submit, no provider name', ap.cap && ap.cap.channels.email.ready === true && ap.cap.channels.sms.ready === false && ap.cap.channels.sms.addon === 'AdnSS' && ap.cap.downgrade === 'blocks_submit' && JSON.stringify(ap.cap).indexOf('wpsms') === -1, ap.cap);
     { const v_ = ap.email.changed; R.check('f02e: setVerification writes the e-mail keys', JSON.stringify(v_) === JSON.stringify(['email_confirm_mode', 'email_otp_required_when']), v_); }
-    { const v_ = ap.sms; R.check('f02e: SMS on while WP SMS is missing → efb_verify_unavailable (mode sms, reason sender_not_ready)', JSON.stringify(v_) === JSON.stringify('efb_verify_unavailable|sms|sender_not_ready'), v_); }
+    { const v_ = ap.sms; R.check('f02e: SMS on while it cannot send → efb_verify_unavailable (mode sms, reason ' + smsWhy + ')', JSON.stringify(v_) === JSON.stringify('efb_verify_unavailable|sms|' + smsWhy), v_); }
     { const v_ = ap.wrong; R.check('f02e: a mobile key on an e-mail field → unsupported_key', JSON.stringify(v_) === JSON.stringify('unsupported_key'), v_); }
     // A form saved with SMS on while it cannot be sent: saved, with the warning.
     await admin.evaluate((mid) => { const r = valj_efb.find((x) => x.id_ === mid); r.otp_enabled = '1'; }, m.id_);
@@ -464,7 +463,7 @@ module.exports = function (S) {
     const sres = await saved;
     const sj = sres ? await sres.json() : {};
     const w = ((sj.data || {}).warnings || []).find((x) => x.code === 'verify_unavailable');
-    R.check('f02e: the save answer warns verify_unavailable for the mobile field (reason sender_not_ready)', !!w && w.field_id === m.id_ && w.reason === 'sender_not_ready' && /WP SMS/.test(w.m), sj.data && sj.data.warnings);
+    R.check('f02e: the save answer warns verify_unavailable for the mobile field (reason ' + smsWhy + ')', !!w && w.field_id === m.id_ && w.reason === smsWhy && (smsWhy !== 'sender_not_ready' || /WP SMS/.test(w.m)), sj.data && sj.data.warnings);
   });
 
   /* ------------------------------------------------------------------ f02pay */
