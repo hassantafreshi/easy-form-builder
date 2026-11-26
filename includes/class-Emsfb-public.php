@@ -2236,9 +2236,9 @@ public function check_nonce_permission_efb($request) {
 					<div id="efb-live-'.$form_id.'" class="efb efb-vh" role="status" aria-live="polite" aria-atomic="true" data-efb-live></div><div id="efb-errsum-'.$form_id.'" class="efb efb-errsum d-none" tabindex="-1"></div>
 					<form id="efbform" class="mx-0 px-0 efb" data-formid="'.$this->id.'"'.$direction_attr.'>'.(class_exists('\\Emsfb\\Spam') ? \Emsfb\Spam::honeypot_html($this->id, $valj_efb[0]) : '').'
 						<div class="efb px-0 pt-2 pb-0 my-1 col-12 mb-2 view-efb" id="view-efb" data-formid="'.$this->id.'">
-						' . (intval($valj_efb[0]->show_icon) != 1
-							? '<h4 id="title_efb" class="efb fs-3 ' . $valj_efb[1]->label_text_color . ' text-center mt-3 mb-0 title_efb" data-formid="'.$this->id.'">' . $valj_efb[1]->name . '</h4>
-							<p id="desc_efb" class="efb ' . $valj_efb[1]->message_text_color . ' text-center fs-6 mb-2 desc_efb" data-formid="'.$this->id.'">' . $valj_efb[1]->message . '</p>'
+						' . (intval($valj_efb[0]->show_icon ?? 0) != 1
+							? '<h4 id="title_efb" class="efb fs-3 ' . ($valj_efb[1]->label_text_color ?? '') . ' text-center mt-3 mb-0 title_efb" data-formid="'.$this->id.'">' . ($valj_efb[1]->name ?? '') . '</h4>
+							<p id="desc_efb" class="efb ' . ($valj_efb[1]->message_text_color ?? '') . ' text-center fs-6 mb-2 desc_efb" data-formid="'.$this->id.'">' . ($valj_efb[1]->message ?? '') . '</p>'
 							: '') . '
 							' . $head . '
 							<div class="efb mt-1 px-2">' . $content . '</div>

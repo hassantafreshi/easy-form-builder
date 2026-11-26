@@ -73,6 +73,19 @@ try {
 	$html2 = do_shortcode('[EMS_Form_Builder id=' . ($fid + 1) . ']');
 	$w2 = $take(); $t('a form with a minimal row 0 (no stateForm, el_text_color, thank_you) and a file field without its button keys renders without a PHP warning', array(strpos($html2, 'wdad001') !== false, $w2), array(true, array()));
 
+	/* 1c. QA4-010: a 4.3.1-shape form (an importer, tests/upgrade/upgrade-lib.php): row 0 without show_icon, a step row
+	   without label_text_color, message_text_color and message. */
+	$rows3 = array(array('type' => 'form', 'steps' => '1', 'formName' => 'Warnings 3', 'button_single_text' => 'Send', 'button_state' => 'single'),
+		array('id_' => '1', 'type' => 'step', 'dataId' => '1', 'name' => 'Step 1', 'step' => '1', 'amount' => 1), $f('wtxt001', 'text', array('amount' => 2)));
+	$wpdb->delete($wpdb->prefix . 'emsfb_form', array('form_id' => $fid + 2));
+	$wpdb->insert($wpdb->prefix . 'emsfb_form', array('form_id' => $fid + 2, 'form_name' => 'Warnings 3', 'form_type' => 'form', 'form_structer' => str_replace('"', '\\"', wp_json_encode($rows3, JSON_UNESCAPED_UNICODE)), 'form_email' => '', 'form_created_by' => 1, 'status' => 1));
+	wp_cache_flush();
+	$take();
+	$html3 = do_shortcode('[EMS_Form_Builder id=' . ($fid + 2) . ']');
+	$w3 = array_values(array_filter($take(), function ($w) { return strpos($w, 'class-Emsfb-public.php') !== false; }));
+	$t('QA4-010: a form without show_icon and a step without its colours and message renders with its title, without a PHP warning in the public class', array(strpos($html3, 'id="title_efb"') !== false, $w3), array(true, array()));
+	$wpdb->delete($wpdb->prefix . 'emsfb_form', array('form_id' => $fid + 2));
+
 	/* 2. An e-mail sent with only a few phrases loaded (the portal's owner reply). */
 	$pub = \Emsfb\_Public::$instance_efb;
 	if (!$pub) { $pub = new \Emsfb\_Public(); }
