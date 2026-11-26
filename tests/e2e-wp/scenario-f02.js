@@ -424,6 +424,10 @@ module.exports = function (S) {
   /* ------------------------------------------------------------------ f02e */
   scenario('f02e', 'F02 Settings > Verification, AutoPilot setVerification / capabilities, save warning verify_unavailable', async ({ adminPage }) => {
     setup();
+    // The SMS add-on is Pro-only: on Free Plus no SMS provider is registered (reason no_provider). This scenario is about
+    // the add-on being there while WP SMS is missing (sender_not_ready): Pro, AdnSS on, WP SMS off.
+    ctl('plan', '1');
+    ctl('addon-flag', 'AdnSS', '1');
     smsOff();
     const admin = await adminPage();
     await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb&state=setting&tab=verify', { waitUntil: 'load' });
