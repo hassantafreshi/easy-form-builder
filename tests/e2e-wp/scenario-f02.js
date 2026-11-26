@@ -424,10 +424,11 @@ module.exports = function (S) {
   /* ------------------------------------------------------------------ f02e */
   scenario('f02e', 'F02 Settings > Verification, AutoPilot setVerification / capabilities, save warning verify_unavailable', async ({ adminPage }) => {
     setup();
+    // The state this scenario is about: the SMS add-on switched on (without it no SMS provider is registered and the
+    // reason is no_provider), WP SMS missing → sender_not_ready. The plan is left as setup() made it.
+    ctl('addon-flag', 'AdnSS', '1');
     smsOff();
-    // The SMS add-on is Pro-only: on Free Plus (setup's plan) no SMS provider is registered, so the reason is no_provider;
-    // on Pro with WP SMS missing it is sender_not_ready (the plan is not switched: the later scenarios expect Free Plus).
-    const smsWhy = String(ctl('state').emsfb_pro) === '1' ? 'sender_not_ready' : 'no_provider';
+    const smsWhy = 'sender_not_ready';
     const admin = await adminPage();
     await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb&state=setting&tab=verify', { waitUntil: 'load' });
     await admin.waitForSelector('#vrfs-ChannelStates', { timeout: 20000 });
