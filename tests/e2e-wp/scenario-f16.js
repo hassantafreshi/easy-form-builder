@@ -337,7 +337,7 @@ module.exports = function (S) {
       R.check('f16-e: axe with the repeater and the summary: no violation', ax.length === 0, ax);
       await p.screenshot({ path: SHOT('f16-e-repeater-ar-375'), fullPage: true });
       await p.context().close();
-    } finally { ctl('locale', ''); }
+    } finally { ctl('locale', ''); ctl('set-option', 'efb_e2e_f09_plan', 'del'); /* opened above: left open, f04a read calc_price as free_plus */ }
   });
 
   /* ------------------------------------------------------------------------------------------------ f16-f */
