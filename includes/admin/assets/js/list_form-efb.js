@@ -218,7 +218,7 @@ function efb_pay_badge_efb(fid) {
   const why = Array.isArray(row.issues) ? row.issues.map((x) => x && x.m ? String(x.m) : '').filter(Boolean).join(' \u2022 ') : '';
   const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const title = esc((b.hint || '') + (why ? ' ' + why : ''));
-  return ` <span class="efb badge bg-danger efb-pay-notready ms-1" data-efb-pay-notready="${Number(fid)}" title="${title}" role="note"><i class="efb bi-credit-card-2-front" aria-hidden="true"></i> ${esc(b.label || 'Payment setup incomplete')}</span>`;
+  return ` <span class="efb badge bg-danger efb-pay-notready ms-1" data-efb-pay-notready="${Number(fid)}" title="${title}" role="note" style="white-space:normal;max-width:100%;text-align:start"><i class="efb bi-credit-card-2-front" aria-hidden="true"></i> ${esc(b.label || 'Payment setup incomplete')}</span>`;
 }
 
 /* SPLIT: "Needs the X add-on" on a form that uses a feature whose add-on is not usable now (ajax_object_efm.split_forms). */
@@ -231,7 +231,7 @@ function efb_split_badge_efb(fid) {
   return list.map((a) => {
     const tpl = esc(a.state === 'update' ? (t.update || 'Update %s to keep using it with this version.') : (t.needs || 'Needs the %s add-on'));
     const txt = tpl.replace('%s', '<bdi>' + esc(a.name || a.addon) + '</bdi>');
-    return ` <span class="efb badge bg-warning text-dark efb-split-badge ms-1" data-efb-split="${esc(a.addon)}" style="unicode-bidi:plaintext;white-space:normal" role="note"><i class="efb bi-puzzle" aria-hidden="true"></i> ${txt}</span>`;
+    return ` <span class="efb badge bg-warning text-dark efb-split-badge ms-1" data-efb-split="${esc(a.addon)}" style="unicode-bidi:plaintext;white-space:normal;max-width:100%" role="note"><i class="efb bi-puzzle" aria-hidden="true"></i> ${txt}</span>`;
   }).join('');
 }
 
@@ -239,7 +239,7 @@ function efb_split_badge_efb(fid) {
 function efb_draft_badge_efb(i) {
   if (!i || Number(i.draft) !== 1) return '';
   const t = (typeof efb_var !== 'undefined' && efb_var.form_status) || {};
-  return ` <span class="efb badge efb-draft-badge ms-1" role="note" title="${sanitize_text_efb(t.draftTip || '')}" style="background:#fff4c2;color:#5c4a00;border:1px dashed #c7a600;white-space:normal"><i class="efb bi-pencil-square" aria-hidden="true"></i> ${sanitize_text_efb(t.draft || 'Draft')}</span>`;
+  return ` <span class="efb badge efb-draft-badge ms-1" role="note" title="${sanitize_text_efb(t.draftTip || '')}" style="background:#fff4c2;color:#5c4a00;border:1px dashed #c7a600;white-space:normal;max-width:100%"><i class="efb bi-pencil-square" aria-hidden="true"></i> ${sanitize_text_efb(t.draft || 'Draft')}</span>`;
 }
 function efb_publish_btn_efb(i) {
   if (!i || Number(i.draft) !== 1) return '';

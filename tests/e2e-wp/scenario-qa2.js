@@ -21,12 +21,13 @@
  *        back in the box) so the right code can be typed without a reload; the reply dates are in words.
  *  qa2j  QA2-008: the same form twice on one page: visitors get one working copy (the thank-you lands in it, one
  *        entry); an administrator reads a note at the second shortcode.
+ *  qa2k  FX-ADMIN hand-off: the forms list at 375 px with a "Payment setup incomplete" badge has no sideways scroll.
  * Every form is made with `ctl.php f03-form` and deleted at the end; site settings are put back.
  */
 'use strict';
 
 module.exports = function (S) {
-  const { scenario, R, ctl, sleep, SHOT } = S;
+  const { scenario, R, ctl, sleep, SHOT, CFG } = S;
   const byId = (id) => `[id="${id}"]`;
   const form = (name, fields, row0, steps) => ctl('f03-form', name, JSON.stringify(fields), row0 || '', String(steps || 1));
   const drop = (fid) => { try { ctl('f12-delete-form', String(fid)); } catch (e) { /* already gone */ } };
@@ -331,6 +332,29 @@ module.exports = function (S) {
       R.check('qa2j: the administrator reads "already on this page" at the second copy', /already on this page/.test(note), note);
     } finally {
       drop(F.form_id);
+    }
+  });
+
+  /* ------------------------------------------------------------------ qa2k */
+  scenario('qa2k', 'Forms list at 375 px: the payment / add-on / draft badges wrap, no sideways scroll', async ({ adminPage }) => {
+    ctl('locale', '');
+    ctl('pay-mock', '1');
+    ctl('pay-keys', 'test');
+    const P = ctl('pay-form', 'fixed', 'QA2 payment setup incomplete with a long name');
+    ctl('pay-clear-keys');
+    try {
+      const a = await adminPage({ viewport: { width: 375, height: 800 }, isMobile: true, hasTouch: true }, 'qa2k');
+      await a.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
+      await a.waitForSelector('#emsFormBuilder-list', { timeout: 20000 });
+      await a.evaluate(() => fun_emsFormBuilder_render_view(1000));
+      await a.waitForSelector(`[data-efb-pay-notready="${P.form_id}"]`, { timeout: 20000 });
+      await sleep(500);
+      const m = await a.evaluate((fid) => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth, ws: getComputedStyle(document.querySelector(`[data-efb-pay-notready="${fid}"]`)).whiteSpace }), P.form_id);
+      R.check('qa2k: at 375 px the forms list with a payment badge does not scroll sideways (scrollWidth <= clientWidth) and the badge wraps (it was one unbreakable line, 405 px under the plan picker)', m.sw <= m.cw && m.ws === 'normal', m);
+      await a.screenshot({ path: SHOT('qa2k-forms-list-375') });
+    } finally {
+      drop(P.form_id);
+      ctl('pay-mock', '0');
     }
   });
 };
