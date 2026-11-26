@@ -3104,7 +3104,7 @@ async function efb_fetch_public_request_efb(url, options, operation, sid, fid) {
       let capOk = true;
       try { capOk = await window.EFBCaptcha.beforeSend(data, Number(form_id) || 0); } catch (e) { capOk = false; }
       if (!capOk) {
-        await response_fill_form_efb({ success: false, data: { success: false, m: (typeof efb_var !== 'undefined' && efb_var && efb_var.text && efb_var.text.errorCaptcha) || 'Please complete the security check.' } }, form_id);
+        await response_fill_form_efb({ success: false, data: { success: false, m: efb_captcha_noload_efb(document.querySelector('.efb-captcha[data-formid="' + Number(form_id) + '"]')) || (typeof efb_var !== 'undefined' && efb_var && efb_var.text && efb_var.text.errorCaptcha) || 'Please complete the security check.' } }, form_id);
         return;
       }
     }
@@ -5546,9 +5546,11 @@ async function fun_validation_efb_v4(form_id) {
           max_step: max_step_v
         });
         // F12b: the form's own text (cp_msg_required) in the box's live region and the alert; focus goes to the box.
-        var cpMsgReq = valj_efb[0].cp_msg_required ? String(valj_efb[0].cp_msg_required).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }) : efb_var.text.checkedBoxIANotRobot;
-        try { var cpBox = document.querySelector('.efb-captcha[data-formid="' + Number(form_id) + '"]'); if (cpBox && window.EFBCaptcha) { window.EFBCaptcha.message(cpBox, valj_efb[0].cp_msg_required ? String(valj_efb[0].cp_msg_required) : efb_var.text.checkedBoxIANotRobot); const b = cpBox.closest('.efb-captcha-box'); if (b) b.focus(); } } catch (e) {}
-        alert_message_efb(cpMsgReq, '', 8, 'warning');
+        // QA2-011: a box whose service never loaded (blocked, offline) has nothing to tick: say so instead.
+        var cpBox = document.querySelector('.efb-captcha[data-formid="' + Number(form_id) + '"]');
+        var cpTxt = efb_captcha_noload_efb(cpBox) || (valj_efb[0].cp_msg_required ? String(valj_efb[0].cp_msg_required) : efb_var.text.checkedBoxIANotRobot);
+        try { if (cpBox && window.EFBCaptcha) { window.EFBCaptcha.message(cpBox, cpTxt); const b = cpBox.closest('.efb-captcha-box'); if (b) b.focus(); } } catch (e) {}
+        alert_message_efb(cpTxt === valj_efb[0].cp_msg_required ? efb_gate_escape_efb(cpTxt) : cpTxt, '', 8, 'warning');
         return false;
       }
     }
@@ -5574,6 +5576,10 @@ async function fun_validation_efb_v4(form_id) {
   return state
 }
 
+/* QA2-011: the sentence for a CAPTCHA box its service never drew (its script blocked or offline), else ''. */
+function efb_captcha_noload_efb(box) {
+  return box && box.getAttribute('data-provider') !== 'recaptcha_v3' && box.getAttribute('data-efb-rendered') !== '1' ? (efb_var.text.captchaNoLoad || 'The security check could not load. Check your connection, then reload the page.') : '';
+}
 /** F16-C: the problems of the shown step (every message box on screen, in page order) as summary items. */
 function efb_step_errors_efb(form_id, only) {
   const body = document.getElementById('body_efb_' + form_id);

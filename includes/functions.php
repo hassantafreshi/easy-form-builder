@@ -1426,7 +1426,7 @@ class efbFunction {
 
 			$reset_to_defaults = [
 				'copyAndPasteBelowShortCodeTrackingCodeFinder' => esc_html__('Copy and paste this shortcode to add the confirmation code finder to any page or post.','easy-form-builder'),
-				'checkedBoxIANotRobot' => esc_html__('Please check the box of I am Not robot','easy-form-builder'),
+				'checkedBoxIANotRobot' => esc_html__('Please tick the box to confirm you are not a robot.','easy-form-builder'),
 				'proUnlockMsg' => esc_html__('Activate Pro version for more features and unlimited access to all plugin services.','easy-form-builder'),
 				'beforeUsingYourEmailServers' => esc_html__('Use this test to check if your server can send emails properly.','easy-form-builder'),
 				'pcPreview' => esc_html__('Desktop Preview','easy-form-builder'),
@@ -1688,7 +1688,7 @@ class efbFunction {
 			"trackingForm" => $state && isset($ac->text->trackingForm) ? $ac->text->trackingForm : esc_html__('Tracking Form','easy-form-builder'),
 			"trackingCodeIsNotValid" => $state && isset($ac->text->trackingCodeIsNotValid) ? $ac->text->trackingCodeIsNotValid : esc_html__('The confirmation Code is not valid.','easy-form-builder'),
 			/* translators: Instruction to check the reCAPTCHA checkbox - 'I am not a robot' */
-			"checkedBoxIANotRobot" => $state && isset($ac->text->checkedBoxIANotRobot) ? $ac->text->checkedBoxIANotRobot : esc_html__('Please check the box of I am Not robot','easy-form-builder'),
+			"checkedBoxIANotRobot" => $state && isset($ac->text->checkedBoxIANotRobot) ? $ac->text->checkedBoxIANotRobot : esc_html__('Please tick the box to confirm you are not a robot.','easy-form-builder'),
 			"howConfigureEFB" => $state && isset($ac->text->howConfigureEFB) ? $ac->text->howConfigureEFB : esc_html__('How to configure Easy Form Builder','easy-form-builder'),
 
 			"howGetGooglereCAPTCHA" => $state && isset($ac->text->howGetGooglereCAPTCHA) ? $ac->text->howGetGooglereCAPTCHA : esc_html__('How to get Google reCAPTCHA and implement it into Easy Form Builder','easy-form-builder'),
@@ -5866,6 +5866,8 @@ class efbFunction {
 			"captchaLabel" => $state && isset($ac->text->captchaLabel) ? $ac->text->captchaLabel : esc_html__('Security check','easy-form-builder'),
 			/* translators: F12: visitor: the CAPTCHA widget could not load or answer */
 			"captchaFailed" => $state && isset($ac->text->captchaFailed) ? $ac->text->captchaFailed : esc_html__('The security check could not be completed. Please try again.','easy-form-builder'),
+			/* translators: QA2-011: visitor: the CAPTCHA service's script did not load (blocked or offline); the form is not sent */
+			"captchaNoLoad" => $state && isset($ac->text->captchaNoLoad) ? $ac->text->captchaNoLoad : esc_html__('The security check could not load. Check your connection, then reload the page.','easy-form-builder'),
 			/* translators: F12: visitor: while the CAPTCHA widget loads */
 			"captchaLoading" => $state && isset($ac->text->captchaLoading) ? $ac->text->captchaLoading : esc_html__('Loading the security check…','easy-form-builder'),
 			/* translators: F12: builder preview: placeholder of the CAPTCHA (%s = the service name) */

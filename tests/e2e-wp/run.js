@@ -2199,6 +2199,9 @@ require('./scenario-b6.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, builderRea
  * tests/e2e-wp/scenario-qa1.js. */
 require('./scenario-qa1.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT, openNewForm, addTile, closePanel, settle, builderReady, canvasDrawn, openField, setInput });
 
+/* FX-PUB (4.3.2): the fixes of the QA-2 report (visitor runtime): tests/e2e-wp/scenario-qa2.js. */
+require('./scenario-qa2.js')({ scenario, R, ctl, wp, CFG, sleep, SHOT });
+
 /* ---------------------------------------------------------------------------------------------
  * main
  * ------------------------------------------------------------------------------------------- */
