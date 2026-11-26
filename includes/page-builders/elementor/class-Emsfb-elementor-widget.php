@@ -180,28 +180,24 @@ class Emsfb_Elementor_Widget extends Widget_Base {
             return;
         }
 
-        echo '<div class="efb-elementor-form-wrapper">';
+        if (class_exists('Emsfb_Widgets_Helper')) {
+            $html = do_shortcode(Emsfb_Widgets_Helper::generate_shortcode($form_id));
+        } else {
+            $html = do_shortcode($form_id === 'tracking' ? '[Easy_Form_Builder_confirmation_code_finder]' : '[EMS_Form_Builder id="' . intval($form_id) . '"]');
+        }
+        // QA2-009: a draft, deleted or empty form prints nothing (not its wrapper or its name), as the shortcode and the block.
+        if (trim((string) $html) === '') return;
 
-        if ($settings['show_form_title'] === 'yes') {
-            $forms = Emsfb_Widgets_Helper::get_all_forms(true);
-            foreach ($forms as $form) {
+        echo '<div class="efb-elementor-form-wrapper">';
+        if ($settings['show_form_title'] === 'yes' && class_exists('Emsfb_Widgets_Helper')) {
+            foreach (Emsfb_Widgets_Helper::get_all_forms(true) as $form) {
                 if (strval($form['id']) === strval($form_id)) {
                     echo '<h3 class="efb-elementor-form-title">' . esc_html($form['name']) . '</h3>';
                     break;
                 }
             }
         }
-
-        if (class_exists('Emsfb_Widgets_Helper')) {
-            echo do_shortcode(Emsfb_Widgets_Helper::generate_shortcode($form_id));
-        } else {
-
-            $shortcode = $form_id === 'tracking'
-                ? '[Easy_Form_Builder_confirmation_code_finder]'
-                : '[EMS_Form_Builder id="' . intval($form_id) . '"]';
-            echo do_shortcode($shortcode);
-        }
-
+        echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the plugin's own shortcode markup
         echo '</div>';
     }
 

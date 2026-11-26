@@ -134,29 +134,24 @@ class Emsfb_WPBakery_Integration {
             $wrapper_classes[] = vc_shortcode_custom_css_class($atts['css']);
         }
 
-        $output = '<div class="' . implode(' ', $wrapper_classes) . '">';
+        if (class_exists('Emsfb_Widgets_Helper')) {
+            $html = Emsfb_Widgets_Helper::render_form($form_id);
+        } else {
+            $html = do_shortcode($form_id === 'tracking' ? '[Easy_Form_Builder_confirmation_code_finder]' : '[EMS_Form_Builder id="' . intval($form_id) . '"]');
+        }
+        // QA2-009: a draft, deleted or empty form prints nothing (not its wrapper or its name), as the shortcode and the block.
+        if (trim((string) $html) === '') return '';
 
-        if ($atts['show_title'] === 'yes') {
-            if (class_exists('Emsfb_Widgets_Helper')) {
-                $forms = Emsfb_Widgets_Helper::get_all_forms(true);
-                foreach ($forms as $form) {
-                    if (strval($form['id']) === strval($form_id)) {
-                        $output .= '<h3 class="efb-wpbakery-form-title">' . esc_html($form['name']) . '</h3>';
-                        break;
-                    }
+        $output = '<div class="' . implode(' ', $wrapper_classes) . '">';
+        if ($atts['show_title'] === 'yes' && class_exists('Emsfb_Widgets_Helper')) {
+            foreach (Emsfb_Widgets_Helper::get_all_forms(true) as $form) {
+                if (strval($form['id']) === strval($form_id)) {
+                    $output .= '<h3 class="efb-wpbakery-form-title">' . esc_html($form['name']) . '</h3>';
+                    break;
                 }
             }
         }
-
-        if (class_exists('Emsfb_Widgets_Helper')) {
-            $output .= Emsfb_Widgets_Helper::render_form($form_id);
-        } else {
-
-            $shortcode = $form_id === 'tracking'
-                ? '[Easy_Form_Builder_confirmation_code_finder]'
-                : '[EMS_Form_Builder id="' . intval($form_id) . '"]';
-            $output .= do_shortcode($shortcode);
-        }
+        $output .= $html;
 
         $output .= '</div>';
 
