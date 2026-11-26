@@ -11,6 +11,8 @@
  *        Escape), the stars and Yes / No are radio groups in the Tab order chosen with the arrow keys; the entry stores
  *        M2, 4 stars and "No".
  *  qa2e  QA2-003: a default Number field takes Persian and Arabic digits (typed ۲۵ is stored as 25, ٣٤ inserted is 34).
+ *  qa2f  QA-5 note: a wrong file type in an image-only field says the type is not allowed and lists the types, and
+ *        Send keeps that sentence (it said "Photo: This field is required.").
  * Every form is made with `ctl.php f03-form` and deleted at the end; site settings are put back.
  */
 'use strict';
@@ -188,6 +190,26 @@ module.exports = function (S) {
       R.check('qa2e: ۲۵ typed and ٣٤ inserted show as 25 and 34 and are stored so (were empty)', v.join() === '25,34' && val('nu') === '25' && val('n2') === '34', { v, nu: val('nu'), n2: val('n2') });
     } finally {
       ctl('locale', '');
+      drop(F.form_id);
+    }
+  });
+
+  /* ------------------------------------------------------------------ qa2f */
+  scenario('qa2f', 'QA-5 note: a refused file type names the allowed types, also after Send', async ({ context }) => {
+    ctl('locale', '');
+    const F = form('QA2 photo', [{ key: 'ph', type: 'file', name: 'Photo', file: 'image', required: 1 }]);
+    try {
+      const g = await open(context, F.form_id, 'qa2f');
+      await g.setInputFiles(byId(F.ids.ph + '_'), { name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('not a photo') });
+      await sleep(800);
+      const msg = () => g.evaluate((id) => (document.getElementById(id + '_-message') || {}).textContent || '', F.ids.ph);
+      const m1 = await msg();
+      await g.click(`#body_efb_${F.form_id} #btn_send_efb`);
+      await sleep(1200);
+      const m2 = await msg();
+      const all = m2 + ' | ' + (await toast(g)) + ' | ' + await g.evaluate(() => Array.from(document.querySelectorAll('.efb-errsum')).map((e) => e.innerText).join(' '));
+      R.check('qa2f: "This file type is not allowed. Allowed: .png, .jpeg …" at the field, and still after Send (never "required")', /not allowed/i.test(m1) && /\.png/.test(m1) && /not allowed/i.test(m2) && !/required/i.test(all), { m1, all });
+    } finally {
       drop(F.form_id);
     }
   });

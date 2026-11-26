@@ -1938,12 +1938,14 @@ function valid_file_emsFormBuilder(id,tp,filed,form_id) {
       filed.push(fi);
     }
     if (check > 0) {
+      if (el) delete el.dataset.efbRefused;
       hide_msg_efb(msgEl);
       fun_upload_file_api_emsFormBuilder(id, filed[0].type,tp,filed[0]);
       rtrn = true;
     } else {
       const f_s_l = val_in.hasOwnProperty('max_fsize') && val_in.max_fsize.length>0 ? val_in.max_fsize : 20;
-      const m =ajax_object_efm.text.pleaseUploadA.replace('NN', efb_var.text[val_in.file]);
+      // QA5 note: a refused type names the types the field takes ("Photo: This field is required." on Send hid it).
+      const m = efb_file_types_msg_efb(el) || ajax_object_efm.text.pleaseUploadA.replace('NN', efb_var.text[val_in.file]);
       const size_m = ajax_object_efm.text.fileSizeIsTooLarge.replace('NN', f_s_l);
       if (filed[0] && message.length < 2){ message = filed[0].size <= file_size ? m : size_m;}
       else if(filed.length==0){ message =size_m;}
@@ -1951,9 +1953,20 @@ function valid_file_emsFormBuilder(id,tp,filed,form_id) {
       newClass!=false ? msgEl.className=newClass:0;
       msgEl.textContent = efb_plain_text_efb(message);
       show_msg_efb(msgEl);
+      if (el) el.dataset.efbRefused = '1';
       rtrn = false;
     }
     return rtrn;
+}
+/* "This file type is not allowed. Allowed: .png, .jpg, …" from the input's accept list ('' when it has none). */
+function efb_file_types_msg_efb(el) {
+  const out = [];
+  String((el && el.getAttribute('accept')) || '').split(',').forEach((a) => {
+    a = a.trim().toLowerCase();
+    const x = a[0] === '.' ? a : (/^[a-z]+\/([a-z0-9]{2,5})$/.exec(a) || [])[1] ? '.' + /\/([a-z0-9]+)$/.exec(a)[1] : '';
+    if (x && x.length < 7 && out.indexOf(x) === -1) out.push(x);
+  });
+  return out.length ? String(efb_var.text.fileTypeNotAllowed || 'This file type is not allowed. Allowed: %s').replace('%s', out.slice(0, 14).join(', ')) : '';
 }
 function fun_show_alert_setting_emsFormBuilder() {
   const m = `<div class="efb alert alert-danger" role="alert"> <h2 class="efb font-weight-bold">
@@ -5331,7 +5344,7 @@ async function fun_validation_efb_v4(form_id) {
 
   const defaultMsg = efb_var.text.enterTheValueThisField;
   let state = true;
-  let idi = "null";
+  let idi = "null", refused_efb = null;
   let name_field = "";
   let valj_efb = efb_rpt_rows_for_checks_efb(get_structure_by_form_id_efb(form_id));
   let id_noti_message = valj_efb.steps > 1 ?  `step-${current_s_efb}-efb-msg` : 'alert_efb';
@@ -5478,7 +5491,9 @@ async function fun_validation_efb_v4(form_id) {
         failed: fieldFailed
       });
 
-      if (fieldFailed) {
+      if (fieldFailed && inputEl && inputEl.dataset && inputEl.dataset.efbRefused === '1' && el && el.textContent.trim()) {
+        if (state == true) { state = false; idi = valj_efb[row].id_, name_field = valj_efb[row].name; refused_efb = idi; }
+      } else if (fieldFailed) {
         if (state == true) { state = false; idi = valj_efb[row].id_ , name_field = valj_efb[row].name }
         // Use custom required message if set, otherwise use default
         const fieldMsg = valj_efb[row].hasOwnProperty('customRequiredMsg') && valj_efb[row].customRequiredMsg.length > 0 ? valj_efb[row].customRequiredMsg : defaultMsg;
@@ -5582,7 +5597,7 @@ async function fun_validation_efb_v4(form_id) {
       first_invalid_name: name_field,
       dom: efb_steps_dom_debug_efb(form_id, body_efb_v || document)
     });
-    efb_invalid_step_efb(form_id, idi);
+    efb_invalid_step_efb(form_id, idi, refused_efb === idi ? [idi] : undefined);
     return false;
   }
   if (window.EFBInline && body_efb_v) EFBInline.hideSummary(body_efb_v);

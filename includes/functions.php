@@ -1683,6 +1683,8 @@ class efbFunction {
 			"yourInformationRegistered" => $state && isset($ac->text->yourInformationRegistered) ? $ac->text->yourInformationRegistered : esc_html__('Your information is successfully registered','easy-form-builder'),
 			"youNotPermissionUploadFile" => $state && isset($ac->text->youNotPermissionUploadFile) ? $ac->text->youNotPermissionUploadFile : esc_html__('You do not have permission to upload this file:','easy-form-builder'),
 			/* translators: NN is the file type (e.g., image, document, PDF) */
+			/* translators: QA5 note: visitor: a chosen file of a type the field refuses; %s is the list of allowed extensions (.png, .jpg, …) */
+			"fileTypeNotAllowed" => $state && isset($ac->text->fileTypeNotAllowed) ? $ac->text->fileTypeNotAllowed : esc_html__('This file type is not allowed. Allowed: %s','easy-form-builder'),
 			"pleaseUploadA" => $state && isset($ac->text->pleaseUploadA) ? $ac->text->pleaseUploadA : esc_html__('Please upload NN file','easy-form-builder'),
 			"please" => $state && isset($ac->text->please) ? $ac->text->please : esc_html__('Please','easy-form-builder'),
 			"trackingForm" => $state && isset($ac->text->trackingForm) ? $ac->text->trackingForm : esc_html__('Tracking Form','easy-form-builder'),

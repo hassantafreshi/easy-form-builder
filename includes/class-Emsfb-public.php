@@ -1436,7 +1436,7 @@ public function check_nonce_permission_efb($request) {
 			/* F10: the rich text editor (rich-text-efb.js). */
 			'rteToolbar','rteBold','rteItalic','rteUnderline','rteBullets','rteNumbers','rteLink','rteQuote','rteHeading','rteClear','rteLinkPrompt','rteLinkBad','sigDraw','sigType','sigTypeLbl','sigTyped',
 			/* F12: the CAPTCHA widgets (captcha-efb.js) and Google's notice under a reCAPTCHA v3 form. */
-			'captchaLabel','captchaExpired','captchaFailed','captchaLoading','captchaNoLoad','rc3Notice',
+			'captchaLabel','captchaExpired','captchaFailed','captchaLoading','captchaNoLoad','fileTypeNotAllowed','rc3Notice',
 			/* F16: the error summary, the steps and the redirect (inline-efb.js, core-efb.js). */
 			'a11yErrPrefix','a11yErrSumOne','a11yErrSumN','a11yStepOf','a11yStepNow','a11yStay'];
 
