@@ -54,7 +54,15 @@ try {
     $check($status===200&&$renewed['sid']===$context['sid'],'Live context renewal preserves upload session');
     $id=wp_generate_uuid4();$proof=\Emsfb\Form_Runtime::verify($renewed['runtime_token'],$fid);
     $ledger='efb_op_'.substr($proof['owner'],0,8).'_'.hash_hmac('sha256',$proof['owner'].'|form|'.$id,wp_salt('nonce'));
-    $data=array('id'=>(string)$fid,'name'=>'Upload runtime test','sid'=>$renewed['sid'],'page_id'=>'0','url'=>home_url('/'),'type'=>'form','valid'=>'','request_id'=>$id,'runtime_token'=>$renewed['runtime_token'],'value'=>wp_json_encode(array(array('id_'=>'runtime_file','name'=>'File','type'=>'file','value'=>'@file@','url'=>$urls[0]))));
+    // The browser sends the upload token of the answer with the file row (upload-efb.js: it.ut = d.ut); since QA4-004 (owner
+    // decision 13) a row without it is refused by default (the cached-page path is the emsfb_upload_require_token filter).
+    $ut=(string)($uploaded['data']['ut']??'');
+    $check(preg_match('/^[0-9]{10}\.[a-f0-9]{32}$/',$ut)===1,'The upload answer carries the upload token (ut)');
+    $row=array('id_'=>'runtime_file','name'=>'File','type'=>'file','value'=>'@file@','url'=>$urls[0]);
+    $data=array('id'=>(string)$fid,'name'=>'Upload runtime test','sid'=>$renewed['sid'],'page_id'=>'0','url'=>home_url('/'),'type'=>'form','valid'=>'','request_id'=>wp_generate_uuid4(),'runtime_token'=>$renewed['runtime_token'],'value'=>wp_json_encode(array($row)));
+    [$status,$saved]=$request('forms/message/add',$data,array('X-WP-Nonce'=>$renewed['nonce'],'form-id'=>(string)$fid,'sid'=>$renewed['sid']));
+    $check($status===200&&empty($saved['data']['success'])&&($saved['data']['code']??'')==='efb_file_not_owned','QA4-004: a file row without its upload token is refused by default (efb_file_not_owned)');
+    $data['request_id']=$id;$data['value']=wp_json_encode(array($row+array('ut'=>$ut)));
     [$status,$saved]=$request('forms/message/add',$data,array('X-WP-Nonce'=>$renewed['nonce'],'form-id'=>(string)$fid,'sid'=>$renewed['sid']));
     $check($status===200&&!empty($saved['data']['success']),'Uploaded file remains valid when form is saved after context renewal');
     $check((int)$wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}emsfb_msg_ WHERE form_id=%d",$fid))===1,'Exactly one uploaded form entry saved');
