@@ -112,6 +112,7 @@ document.addEventListener("click", (evnt) => {
                 }
                 c_m_efb();
             } else {
+                setTimeout(() => ms_aria_efb(idOfMenu_efb), 0);
                 const r = e.dataset.row;
                 let fc = e.querySelector("TH");
                 if (l.dataset.select.includes(r)) {
@@ -223,8 +224,39 @@ document.addEventListener("click", (evnt) => {
 const c_m_efb = () => {
     let m = document.querySelector(`[data-list="${idOfMenu_efb}"]`);
     if (m) m.classList.add("d-none");
+    ms_aria_efb(idOfMenu_efb);
     idOfMenu_efb = "";
 }
+
+/* QA2-004: the list is a button + listbox for assistive technology and the keyboard: Enter / Space / ArrowDown open it,
+   the arrows move between the choices, Enter / Space choose, Escape and Tab close it (focus back on the button). */
+const ms_rows_efb = (menu) => Array.from(document.querySelectorAll(`[data-list="${menu}"] tr[data-row]`)).filter((r) => r.offsetParent && !r.classList.contains('efb-soldout'));
+const ms_aria_efb = (menu) => {
+    const l = menu ? document.querySelector(`.efblist.inplist[data-id="${menu}"]`) : null, m = menu ? document.querySelector(`[data-list="${menu}"]`) : null;
+    if (!l || !m) return;
+    l.setAttribute('aria-expanded', m.classList.contains('d-none') ? 'false' : 'true');
+    const sel = String(l.dataset.select || '');
+    m.querySelectorAll('tr[data-row]').forEach((r) => r.setAttribute('aria-selected', sel.indexOf(r.dataset.row + ' @efb!') !== -1 || sel === r.dataset.row ? 'true' : 'false'));
+};
+document.addEventListener('keydown', (e) => {
+    const t = e.target;
+    if (!t || !t.classList || !t.classList.contains('efblist')) return;
+    const k = e.key;
+    if (t.classList.contains('inplist')) {
+        if (k === 'Enter' || k === ' ' || k === 'ArrowDown') {
+            e.preventDefault();
+            if (idOfMenu_efb !== t.dataset.id) t.click();
+            const r = ms_rows_efb(t.dataset.id)[0];
+            if (r) r.focus();
+        } else if (k === 'Escape' && idOfMenu_efb) c_m_efb();
+        return;
+    }
+    if (t.tagName !== 'TR' || !t.dataset.row) return;
+    const menu = idOfMenu_efb, l = document.querySelector(`.efblist.inplist[data-id="${menu}"]`), rows = ms_rows_efb(menu), i = rows.indexOf(t);
+    if (k === 'ArrowDown' || k === 'ArrowUp') { e.preventDefault(); const n = rows[i + (k === 'ArrowDown' ? 1 : -1)]; if (n) n.focus(); }
+    else if (k === 'Enter' || k === ' ') { e.preventDefault(); const td = t.querySelector('td'); if (td) td.click(); ms_aria_efb(menu); if (idOfMenu_efb !== menu && l) l.focus(); }
+    else if (k === 'Escape' || k === 'Tab') { if (k === 'Escape') e.preventDefault(); c_m_efb(); if (l) l.focus(); }
+});
 
 const a_m_efb = () => {
     let m = document.querySelector(`[data-list="${idOfMenu_efb}"]`);
@@ -237,6 +269,7 @@ const a_m_efb = () => {
     }
     m.style.width = width + "px";
     if (m) m.classList.remove("d-none");
+    ms_aria_efb(idOfMenu_efb);
 }
 
 const set_icon_valEfb = (el) => {

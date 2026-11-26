@@ -7,6 +7,9 @@
  *        visitor fills it and sends; no warning toast stays over the thank-you.
  *  qa2c  QA2-002: an optional mobile field with no country chosen: 2127365000 is stored as +12127365000 (the field starts
  *        on the site's country); a wrong number stops Send at the field instead of being dropped from the entry.
+ *  qa2d  QA2-004 / QA2-005: keyboard only: the multiselect is a button that opens a listbox (Enter, arrows, Space,
+ *        Escape), the stars and Yes / No are radio groups in the Tab order chosen with the arrow keys; the entry stores
+ *        M2, 4 stars and "No".
  * Every form is made with `ctl.php f03-form` and deleted at the end; site settings are put back.
  */
 'use strict';
@@ -123,6 +126,44 @@ module.exports = function (S) {
       const e = (ctl('entries', String(F.form_id)) || []).pop();
       const mob = e && (e.content || []).find((r) => r && r.id_ === F.ids.mo);
       R.check('qa2c: 2127365000 with no country chosen is stored as +12127365000 (the site\'s country, en_US)', !!mob && mob.value === '+12127365000', e && e.content);
+    } finally {
+      drop(F.form_id);
+    }
+  });
+
+  /* ------------------------------------------------------------------ qa2d */
+  scenario('qa2d', 'QA2-004 / QA2-005: multiselect, star rating and Yes / No work with the keyboard alone and are a listbox / radio groups', async ({ context }) => {
+    ctl('locale', '');
+    ctl('plan', '3');
+    const F = form('QA2 keyboard', [{ key: 'nm', type: 'text', name: 'Name' }, { key: 'ms', type: 'multiselect', name: 'Multi', maxSelect: '3' },
+      { key: 'm1', type: 'option', parent_key: 'ms', value: 'M1' }, { key: 'm2', type: 'option', parent_key: 'ms', value: 'M2' }, { key: 'm3', type: 'option', parent_key: 'ms', value: 'M3' },
+      { key: 'st', type: 'rating', name: 'Stars' }, { key: 'yn', type: 'yesNo', name: 'Agree', button_1_text: 'Yes', button_2_text: 'No' }]);
+    try {
+      const g = await open(context, F.form_id, 'qa2d');
+      const f = () => g.evaluate(() => { const a = document.activeElement; return a ? (a.id || a.tagName) + '|' + (a.getAttribute('role') || a.type || '') : ''; });
+      await g.fill(byId(F.ids.nm + '_'), 'Key Board');
+      await g.press(byId(F.ids.nm + '_'), 'Tab');
+      const onMs = await f();
+      await g.keyboard.press('Enter'); await sleep(200);
+      const open1 = await g.evaluate((id) => ({ exp: document.getElementById(id + '_options').getAttribute('aria-expanded'), focus: document.activeElement && document.activeElement.dataset.name }), F.ids.ms);
+      await g.keyboard.press('ArrowDown'); await g.keyboard.press(' '); await sleep(200);
+      const sel = await g.evaluate((id) => ({ txt: document.getElementById(id + '_options').innerText, sel: Array.from(document.querySelectorAll('[data-list="menu-' + id + '"] tr[aria-selected="true"]')).map((r) => r.dataset.name) }), F.ids.ms);
+      await g.keyboard.press('Escape'); await sleep(200);
+      const back = await f();
+      R.check('qa2d: Tab reaches the multiselect (a button); Enter opens the listbox on its first choice; ArrowDown + Space choose M2 (aria-selected); Escape closes on the button', onMs === F.ids.ms + '_options|button' && open1.exp === 'true' && open1.focus === 'M1' && sel.sel.join() === 'M2' && /M2/.test(sel.txt) && back === F.ids.ms + '_options|button', { onMs, open1, sel, back });
+      await g.keyboard.press('Tab'); const onStar = await f();
+      await g.keyboard.press('ArrowDown'); await sleep(300);
+      await g.keyboard.press('Tab'); const onYn = await f();
+      await g.keyboard.press('ArrowRight'); await sleep(300);
+      R.check('qa2d: Tab reaches the stars and then Yes / No (radios, in the Tab order)', /-star5\|radio$/.test(onStar) && new RegExp('^' + F.ids.yn + '_1\\|radio$').test(onYn), { onStar, onYn });
+      const snap = await g.locator('#body_efb_' + F.form_id).ariaSnapshot();
+      R.check('qa2d: the accessibility tree has two named radio groups (Stars, Agree), a "Multi" button and its listbox', /radiogroup "Stars/.test(snap) && /radiogroup "Agree/.test(snap) && /button "Multi/.test(snap), snap.slice(0, 900));
+      const resp = g.waitForResponse((x) => /forms\/message\/add/.test(x.url()), { timeout: 30000 }).catch(() => null);
+      await g.focus(`#body_efb_${F.form_id} #btn_send_efb`); await g.keyboard.press('Enter');
+      await resp; await sleep(1500);
+      const e = (ctl('entries', String(F.form_id)) || []).pop();
+      const v = (k) => { const r = e && (e.content || []).find((x) => x && x.id_ === F.ids[k]); return r ? String(r.value) : null; };
+      R.check('qa2d: the entry stores M2, 4 stars and No, chosen with the keyboard alone', e && /M2/.test(v('ms') || '') && v('st') === '4' && v('yn') === 'No', e && e.content);
     } finally {
       drop(F.form_id);
     }

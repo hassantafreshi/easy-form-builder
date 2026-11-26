@@ -1131,7 +1131,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			}
 
 			$optn .= sprintf(
-				'<tr class="efb efblist %s %s%s" data-id="%s" data-name="%s" data-row="%s" data-formid="%s" data-state="0" data-visible="1"%s>
+				'<tr class="efb efblist %s %s%s" data-id="%s" data-name="%s" data-row="%s" data-formid="%s" data-state="0" data-visible="1" role="option" tabindex="-1" aria-selected="%s"%s>
 					<th scope="row" class="%s" data-formid="%s"></th>
 					<td class="efb ms col-12" data-formid="%s">%s</td>
 					%s
@@ -1143,6 +1143,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				esc_attr($i->value),
 				esc_attr($i->id_),
 				$formId,
+				$s && in_array($i->id_, $vj->value) ? 'true' : 'false',
 				$ch_opt_efb['attr'] . ($ch_opt_efb['disabled'] ? ' aria-disabled="true"' : ''),
 				$c,
 				$formId,
@@ -1170,11 +1171,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<!--multiselect-->
 			<div class="efb %s ' . $this->mobile_pos[3] . ' listSelect px-0 mx-0 ttEfb show efb1 %s" data-css="%s" id="%s-f" data-id="%s-el" data-formid="%s">
 				%s
-				<div class="efb efblist mx-0 inplist %s %s %s %s %s %s bi-chevron-down" data-id="menu-%s" data-no="%s" data-min="%s" data-parent="1" data-icon="1" data-select="%s" data-vid="%s" id="%s_options">
+				<div class="efb efblist mx-0 inplist %s %s %s %s %s %s bi-chevron-down" data-id="menu-%s" data-no="%s" data-min="%s" data-parent="1" data-icon="1" data-select="%s" data-vid="%s" id="%s_options" tabindex="0" role="button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="%4$s_labG %4$s_options">
 					%s
 				</div>
 				<div class="efb efblist mx-0 listContent shadow d-none border rounded-bottom bg-light" data-id="menu-%s" data-list="menu-%s" data-formid="%s">
-					<table class="efb table menu-%s">
+					<table class="efb table menu-%s" role="presentation">
 						<thead class="efb efblist">
 							<tr>
 								<th class="efb searchSection efblist p-2 bg-light" colspan="2">
@@ -1182,7 +1183,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								</th>
 							</tr>
 						</thead>
-						<tbody class="efb fs-7">
+						<tbody class="efb fs-7" role="listbox" aria-multiselectable="true" aria-labelledby="%4$s_labG">
 							%s
 						</tbody>
 					</table>
@@ -1359,7 +1360,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		$ui = sprintf(
 			'<div class="efb %1$s ' . $this->mobile_pos[3] . ' %2$s efb1 %3$s" data-css="%4$s" id="%4$s-f" data-formid="%5$s" %6$s>
-				<div class="efb efb-yesno-group btn-group btn-group-toggle w-100 col-md-12 col-sm-12 border border-0 %7$s" data-toggle="buttons" data-id="%4$s-id" id="%4$s_yn" role="group" data-yesno-kit="default" aria-required="%16$s">
+				<div class="efb efb-yesno-group btn-group btn-group-toggle w-100 col-md-12 col-sm-12 border border-0 %7$s" data-toggle="buttons" data-id="%4$s-id" id="%4$s_yn" role="radiogroup" aria-labelledby="%4$s_labG" data-yesno-kit="default" aria-required="%16$s">
 					<label for="%4$s_1" data-lid="%4$s" data-value="%8$s" onclick="yesNoGetEFB(\'%8$s\', \'%4$s\', \'%4$s_b_1\', \'%5$s\')" class="efb btn %9$s %10$s %11$s %12$s yesno-efb left-efb %13$s %14$s" id="%4$s_b_1">
 						<input type="radio" name="%4$s" data-type="switch" class="efb opButtonEfb elEdit emsFormBuilder_v efb" data-vid="%4$s" data-id="%4$s-id" id="%4$s_1" value="%8$s" data-formid="%5$s"><span id="%4$s_1_lab">%8$s</span>
 					</label>
@@ -1552,7 +1553,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	/** QA2-002: the country a mobile field starts on: the site's (its locale's region) when allowed, else the field's first allowed one. */
 	public static function mobile_country_efb($allowed) {
-		$allowed = array_values(array_filter(array_map(function ($c) { return strtolower((string) $c); }, is_array($allowed) ? $allowed : array())));
+		$allowed = array_values(array_filter(array_map(function ($c) { return strtolower((string) $c); }, is_array($allowed) ? $allowed : array()), function ($c) { return (bool) preg_match('/^[a-z]{2}$/', $c); }));
 		$site = preg_match('/^[a-z]{2,3}_([A-Z]{2})/', function_exists('get_locale') ? (string) get_locale() : '', $m) ? strtolower($m[1]) : '';
 		if ($site !== '' && (!$allowed || in_array($site, $allowed, true))) return $site;
 		return $allowed ? $allowed[0] : '';
@@ -1680,7 +1681,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			EMSFB_PLUGIN_URL . 'includes/admin/assets/js/utils-efb.js',
 			$onlyCountries,
 			$form_id,
-			esc_js(self::mobile_country_efb(isset($vj->c_c) ? $vj->c_c : array()))
+			self::mobile_country_efb(isset($vj->c_c) ? $vj->c_c : array())
     	);
 
 		$inputPhone = sprintf(
@@ -2347,7 +2348,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			'%s
 			%s
 			<div class="efb %s ' . $this->mobile_pos[3] . '" id="%s-f" data-formid="%s">
-				<div class="efb star-efb d-flex justify-content-center %s efb1 %s" data-css="%s" %s>
+				<div class="efb star-efb d-flex justify-content-center %s efb1 %s" data-css="%s" role="radiogroup" aria-labelledby="%s_labG" %s>
 					%s
 					%s
 					%s
@@ -2361,7 +2362,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			$label,
 			$pos[3],
 			$rndm, $formId,
-			$disabled, $classes, $rndm,
+			$disabled, $classes, $rndm, $rndm,
 			$ariaDescribedBy,
 			$this->generate_rating_input($rndm, 5, $previewSate, $disabled, $el_height, $texts['stars'], $formId),
 			$this->generate_rating_input($rndm, 4, $previewSate, $disabled, $el_height, $texts['stars'], $formId),
@@ -2376,17 +2377,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	}
 
 	private function generate_rating_input($rndm, $starValue, $previewSate, $disabled, $el_height, $starText,$form_id) {
+		// QA2-005: the radio carries the handler and a name ("4 stars"), so arrow keys rate as a click does.
+		$on = ($previewSate == true && $disabled == '') ? sprintf('onchange="fun_get_rating_efb(\'%s\',%s , \'%s\')"', $rndm, $starValue, $form_id) : '';
 		return sprintf(
-			'<input type="radio" id="%s-star%s" data-vid="%s" data-formid="%s" data-type="rating" class="efb" data-star="star" name="%s-star-efb" value="%s" data-name="star" data-id="%s-el" %s %s>
-			<label id="%s_star%s" for="%s-star%s" %s title="%s stars" class="efb %s star %s"> </label>',
-			$rndm, $starValue,$form_id,
-			$rndm, $rndm, $starValue,
-			$rndm,
-			$previewSate != true ? 'disabled' : '', $disabled,
-			$rndm, $starValue, $rndm, $starValue,
-			($previewSate == true && $disabled == '') ? sprintf('onclick="fun_get_rating_efb(\'%s\',%s , \'%s\')"', $rndm, $starValue,$form_id) : '',
-			$starValue, $el_height, $disabled,
-			$starValue, $starText
+			'<input type="radio" id="%1$s-star%2$s" data-vid="%1$s" data-formid="%3$s" data-type="rating" class="efb" data-star="star" name="%1$s-star-efb" value="%2$s" data-name="star" data-id="%1$s-el" aria-label="%2$s %4$s" %5$s %6$s %7$s>
+			<label id="%1$s_star%2$s" for="%1$s-star%2$s" title="%2$s %4$s" class="efb %8$s star %6$s" aria-hidden="true"> </label>',
+			$rndm, $starValue, $form_id, esc_attr($starText),
+			$previewSate != true ? 'disabled' : '', $disabled, $on, $el_height
 		);
 	}
 

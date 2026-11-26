@@ -766,6 +766,20 @@ input[type=range].efb {	border: transparent !important;
 }
 .yesno-efb:not(.disabled):active {	transform: scale(0.98);
 }
+/* QA2-005: the Yes / No and star radios stay in the Tab order (hidden to the eye only, never display:none or
+   visibility:hidden); the arrow keys choose; the focused choice is outlined. */
+label input[type="radio"].efb.opButtonEfb,.star-efb>input,.star-efb:not(:checked)>input {	display: block !important;
+   visibility: visible !important;
+   position: absolute !important;
+   opacity: 0;
+   width: 1px;
+   height: 1px;
+   margin: 0;
+   pointer-events: none;
+}
+.yesno-efb:has(input:focus-visible),.star-efb>input:focus-visible+label,.efblist.inplist:focus-visible,tr.efblist[role="option"]:focus {	outline: 2px solid #2684FF !important;
+   outline-offset: 2px;
+}
 #emsFormBuilder .yesno-efb input[type="radio"]:focus-visible ~ span,.yesno-efb:focus-visible {	outline: 2px solid #2684FF !important;
    outline-offset: 2px;
 }
