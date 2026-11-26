@@ -54,6 +54,12 @@ $mc = function ($loc, $allowed) { $GLOBALS['efb_qa2_locale'] = $loc; return \Ems
 t('QA2-002: a mobile field starts on the site\'s country (en_US → us, fa_IR → ir), or on its first allowed one (de_DE, only FR / BE → fr), none for "ar"', array($mc('en_US', array()), $mc('fa_IR', array()), $mc('fa_IR', array('IR', 'TR')), $mc('de_DE', array('FR', 'BE')), $mc('ar', array())) === array('us', 'ir', 'ir', 'fr', ''));
 $GLOBALS['efb_qa2_locale'] = 'en_US';
 
+/* QA2-012 */
+$GLOBALS['efb_test_rtl'] = true;
+$nav = (new \Emsfb\Formbuilder(json_decode(json_encode(array(array('type' => 'form', 'steps' => 2, 'button_Previous_icon' => 'bi-chevron-left', 'button_Next_icon' => 'bi-chevron-right', 'icon' => 'bi-send', 'icon_color' => '', 'el_height' => 'h-d-efb', 'button_color' => 'btn-darkb', 'el_text_color' => 'text-white', 'button_Previous_text' => 'P', 'button_Next_text' => 'N', 'button_single_text' => 'S'), array('type' => 'step', 'id_' => '1', 'step' => '1')))), true))->add_buttons_zone_efb(1, 7, json_decode(json_encode(array(array('type' => 'form', 'steps' => 2, 'button_Previous_icon' => 'bi-chevron-left', 'button_Next_icon' => 'bi-chevron-right', 'icon' => 'bi-send', 'icon_color' => '', 'el_height' => 'h-d-efb', 'button_color' => 'btn-darkb', 'el_text_color' => 'text-white', 'button_Previous_text' => 'P', 'button_Next_text' => 'N', 'button_single_text' => 'S')))), array(), 7);
+$GLOBALS['efb_test_rtl'] = false;
+t('QA2-012: on a right-to-left site Previous / Next are a plain row in the rtl form (Previous on the right), not a reversed one', strpos($nav, 'id="f_button_form_np"') !== false && !preg_match('/flex-row-reverse[^>]*id="f_button_form_np"/', $nav), substr($nav, 0, 200));
+
 $moji = array();
 $root = dirname(__DIR__);
 foreach (array('includes/class-Emsfb-public.php', 'includes/class-Emsfb-formbuilder.php', 'includes/page-builders', 'public/assets') as $p) {

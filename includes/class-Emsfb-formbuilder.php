@@ -2734,7 +2734,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>',
 			$btns_align,
 			$state == 1 ? 'd-block' : 'd-none',
-			is_rtl() ? 'flex-row-reverse' : 'flex-row',
+			'flex-row', // QA2-012: the form is dir="rtl" already; a reverse row put Previous on the left in fa / ar
 			$formId,
 			$formId,
 			$valj_efb[0]->button_color,

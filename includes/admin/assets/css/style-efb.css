@@ -766,6 +766,10 @@ input[type=range].efb {	border: transparent !important;
 }
 .yesno-efb:not(.disabled):active {	transform: scale(0.98);
 }
+/* QA2-012: the navigation arrows point the reading way in a right-to-left form. */
+[dir="rtl"] #f_button_form_np :is(.bi-chevron-left,.bi-chevron-right,.bi-arrow-left,.bi-arrow-right,.bi-caret-left,.bi-caret-right)::before {	display: inline-block;
+   transform: scaleX(-1);
+}
 /* QA2-005: the Yes / No and star radios stay in the Tab order (hidden to the eye only, never display:none or
    visibility:hidden); the arrow keys choose; the focused choice is outlined. */
 label input[type="radio"].efb.opButtonEfb,.star-efb>input,.star-efb:not(:checked)>input {	display: block !important;
