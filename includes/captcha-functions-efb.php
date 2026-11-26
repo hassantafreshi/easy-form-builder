@@ -34,3 +34,12 @@ if (!function_exists('efb_captcha_widget')) {
 		return \Emsfb\Spam::captcha_widget($context, is_array($args) ? $args : array());
 	}
 }
+
+/* QA2-010: Google's published reCAPTCHA test secret is answered with the hostname testkey.google.com: v2 invisible and
+ * v3 do not check the hostname for it (the CAPTCHA add-ons skip it for their test secrets the same way). */
+if (function_exists('add_filter')) {
+	add_filter('efb_captcha_check_hostname', function ($check, $id) {
+		$p = $id === 'recaptcha_v2i' || $id === 'recaptcha_v3' ? \Emsfb\Captcha\Registry::get($id) : null;
+		return $p && $p->setting($id === 'recaptcha_v3' ? 'rc3SecretKey' : 'rciSecretKey') === '6LeIxAcTAAAAAGG-vFI1TkRWxMZNFuojJ4WifJWe' ? false : $check;
+	}, 10, 2);
+}

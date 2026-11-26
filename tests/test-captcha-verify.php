@@ -108,6 +108,14 @@ t('efb_captcha_check_hostname false (several domains): another hostname passes',
 unset($GLOBALS['efb_t']['filters']['efb_captcha_check_hostname']);
 $GLOBALS['efb_t']['settings'] = array_merge($S, array('tsSecretKey' => '1x0000000000000000000000000000000AA', 'hcSecretKey' => '0x0000000000000000000000000000000000000000')); efb_cp_sync($GLOBALS['efb_t']['settings']);
 t('official test secrets: their dummy hostname / empty action pass (spec C acceptance)', array($v('turnstile', $tok, $ok(array('hostname' => 'example.com', 'action' => '')))['ok'], $v('hcaptcha', $tok, $ok(array('hostname' => 'dummy-key-pass')))['ok']), array(true, true));
+if (!function_exists('add_filter')) { function add_filter($h, $f) { $GLOBALS['efb_t']['filters'][$h] = $f; } }
+require_once __DIR__ . '/../includes/captcha-functions-efb.php';
+$GLOBALS['efb_t']['settings'] = array_merge($S, array('rciSiteKey' => '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI', 'rciSecretKey' => '6LeIxAcTAAAAAGG-vFI1TkRWxMZNFuojJ4WifJWe'));
+t('QA2-010: reCAPTCHA v2 invisible with Google\'s published test keys passes (Google answers hostname testkey.google.com)', $v('recaptcha_v2i', $tok, $ok(array('hostname' => 'testkey.google.com')))['ok'], true);
+$GLOBALS['efb_t']['settings'] = array_merge($S, array('rciSiteKey' => 'v2i-site-key-placeholder', 'rciSecretKey' => 'v2i-secret-placeholder'));
+t('… a real key still refuses that hostname', $v('recaptcha_v2i', $tok, $ok(array('hostname' => 'testkey.google.com')))['code'], 'hostname');
+unset($GLOBALS['efb_t']['filters']['efb_captcha_check_hostname']);
+$GLOBALS['efb_t']['settings'] = array_merge($S, array('tsSecretKey' => '1x0000000000000000000000000000000AA', 'hcSecretKey' => '0x0000000000000000000000000000000000000000'));
 t('official test secrets recognised; a real-looking key is not', array(Captcha::is_test_secret('turnstile', '2x0000000000000000000000000000000AA'), Captcha::is_test_secret('turnstile', '0x4AAAAAAA-secret-placeholder')), array(true, false));
 $GLOBALS['efb_t']['settings'] = $S; efb_cp_sync($GLOBALS['efb_t']['settings']);
 
