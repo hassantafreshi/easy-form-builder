@@ -635,16 +635,17 @@ scenario('4', 'F18 after Free Plus: public credit, a Pro-only feature, users who
   // 4c a Pro-only field on Free Plus: S3, no Activate, Get Pro → #pricing in a new tab
   const page = await adminPage();
   await openNewForm(page);
-  const pro = await page.evaluate(() => fields_efb.filter((f) => typeof efb_feature_required_efb === 'function' && efb_feature_required_efb('field:' + f.id) === 'pro').map((f) => f.id));
-  // QA1-016 (05123a70): without the old Jalali / Hijri add-on, the pdate / ardate tiles add Date (advanced) with that
-  // calendar (no Pro dialog; e2e qa1-builder checks it), so the Pro-only tile clicked here is another one.
-  const tile = pro.filter((id) => id !== 'pdate' && id !== 'ardate')[0];
-  R.check('4c: on Free Plus some palette tiles are still Pro-only (PersiaPay and others)', !!tile, pro);
-  await page.click(`#${tile}_b`);
+  // QA1-016 (05123a70): without the old Jalali / Hijri add-on the pdate / ardate tiles add Date (advanced) with that
+  // calendar (no Pro dialog; e2e qa1-builder checks it), and they were the palette's last Pro-only tiles on Free Plus.
+  // The Pro-only feature here is the builder's mobile layout: the call its gem makes (val-efb.js, efbMobileProControlEfb).
+  const proOnly = await page.evaluate(() => typeof efb_feature_required_efb === 'function' && efb_feature_required_efb('setting:mobile_layout') === 'pro' && !efb_feature_available_efb('setting:mobile_layout'));
+  R.check('4c: on Free Plus the mobile layout is still Pro-only', proOnly === true, proOnly);
+  const openPro = (pg) => pg.evaluate(() => efb_upgrade_prompt_efb({ feature: 'setting:mobile_layout', fallback: 'pro', origin: 'field_settings', force: true }));
+  await openPro(page);
   await waitDialog(page);
   const st = await dialogState(page);
   const buy = st.buttons.find((b) => b.id === 'buy') || {};
-  R.check('4c: a Pro-only field opens S3 (Free Plus → Pro): no Activate, Get Pro opens #pricing in a new tab', st.state === 'S3' && !st.buttons.some((b) => b.id === 'activate') && /#pricing$/.test(buy.href || '') && buy.target === '_blank', st);
+  R.check('4c: a Pro-only feature opens S3 (Free Plus → Pro): no Activate, Get Pro opens #pricing in a new tab', st.state === 'S3' && !st.buttons.some((b) => b.id === 'activate') && /#pricing$/.test(buy.href || '') && buy.target === '_blank', st);
   await page.screenshot({ path: SHOT('4c-f18-s3-en-1280') });
   await page.keyboard.press('Escape');
   await sleep(500);
@@ -663,7 +664,7 @@ scenario('4', 'F18 after Free Plus: public credit, a Pro-only feature, users who
   await openNewForm(ep);
   const canNow = await ep.evaluate(() => efb_var.can_change_plan);
   R.check('4d: with efb_can_change_plan filtered to false the page knows it', !canNow || canNow === '0' || canNow === '', canNow);
-  await ep.click(`#${tile}_b`);
+  await openPro(ep);
   await waitDialog(ep);
   const s7 = await dialogState(ep);
   R.check('4d: the Editor sees S7 "ask an administrator" with Close only', s7.state === 'S7' && /administrator/i.test(s7.text) && !s7.buttons.some((b) => ['activate', 'buy'].includes(b.id)), s7);

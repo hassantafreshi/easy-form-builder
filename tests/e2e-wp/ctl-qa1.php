@@ -31,7 +31,7 @@ switch ( $q1_cmd ) {
 		update_option( 'emsfb_version', '4.3.1' );
 		efb_q1_out( array( 'ok' => true ) );
 	case 'mail-state':
-		efb_q1_out( array( 'old' => strpos( $q1_s->emailTemp, 'old.example' ) !== false, 'placeholder' => strpos( $q1_s->emailTemp, '{efb_plugin_url}' ) !== false, 'current' => strpos( $q1_s->emailTemp, str_replace( '/', '@efb@', preg_replace( '#^https?://#', '', EMSFB_PLUGIN_URL ) ) ) !== false ) );
+		efb_q1_out( array( 'old' => strpos( $q1_s->emailTemp, 'old.example' ) !== false, 'placeholder' => strpos( $q1_s->emailTemp, '{efb_plugin_url}' ) !== false, 'current' => ( static function ( $t ) { $h = preg_replace( '#^https?://#', '', EMSFB_PLUGIN_URL ); foreach ( array( $h, str_replace( '/', '@efb@', $h ), rawurlencode( $h ) ) as $x ) { if ( strpos( $t, $x ) !== false ) return true; } return false; } )( $q1_s->emailTemp ) ) );
 	case 'mail-restore':
 		$k = get_option( 'efb_e2e_qa1_mail' );
 		if ( is_array( $k ) ) {
