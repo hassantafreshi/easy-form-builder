@@ -13,8 +13,8 @@
  *        plugin's copy and answers; fa_IR at 375 px (screenshot b5-b-finder-fa_IR-375).
  * Nothing on the page asks a third-party host (fonts.googleapis.com, fonts.gstatic.com, cdn.jsdelivr.net).
  *
- * Needs the bundled files of bin/fetch-public-assets.sh in EFB_B5_ASSETS (a folder holding public/assets/…), else b5-b
- * fetches them into a temporary folder first (network).
+ * Needs the bundled files of bin/fetch-public-assets.sh in EFB_B5_ASSETS (a folder holding public/assets/…) or in the
+ * checkout itself, else b5-b fetches them into a temporary folder first (network).
  */
 'use strict';
 const path = require('path');
@@ -124,6 +124,9 @@ module.exports = function (S) {
 
       /* b5-b: the release's bundled files in place. */
       let src = process.env.EFB_B5_ASSETS || '';
+      // The checkout already holds them when bin/fetch-public-assets.sh ran there (tests/e2e-wp/README.md's set-up): no
+      // second fetch, which depends on Google Fonts answering (run 2 of the final regression failed on that fetch).
+      if (!src && fs.existsSync(path.join(ROOT, 'public/assets/fonts/vazirmatn/font.css'))) src = ROOT;
       if (!src || !fs.existsSync(path.join(src, 'public/assets/fonts/vazirmatn/font.css'))) {
         src = fs.mkdtempSync(path.join(os.tmpdir(), 'efb-b5-assets-'));
         execFileSync('bash', [path.join(ROOT, 'bin/fetch-public-assets.sh'), src], { stdio: 'ignore', timeout: 600000 });
