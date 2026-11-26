@@ -31,7 +31,7 @@ class Email_Monitor {
         add_action(self::WEEKLY_HOOK, [__CLASS__, 'run_weekly_test']);
         add_action(self::LIFECYCLE_HOOK, [__CLASS__, 'run_lifecycle_test'], 10, 1);
         add_action(self::POLL_HOOK, [__CLASS__, 'poll_test'], 10, 1);
-        add_action('init', [__CLASS__, 'ensure_schedule']);
+        add_action('init', [__CLASS__, 'maybe_ensure_schedule']);
         // UX-01: through the notice manager (one notice at a time on the plugin's screens; every screen as before).
         if (!class_exists('\\Emsfb\\Notices') && is_readable(__DIR__ . '/class-Emsfb-notices.php')) require_once __DIR__ . '/class-Emsfb-notices.php';
         if (class_exists('\\Emsfb\\Notices')) {
@@ -770,6 +770,11 @@ class Email_Monitor {
         self::unschedule_hook(self::LIFECYCLE_HOOK);
         self::unschedule_hook(self::POLL_HOOK);
         delete_option(self::OPTION_PENDING);
+    }
+
+    /** QA2-019: the dashboard and WP-Cron keep the schedule; a visitor's page reads none of its options. */
+    public static function maybe_ensure_schedule() {
+        if (is_admin() || (function_exists('wp_doing_cron') && wp_doing_cron())) self::ensure_schedule();
     }
 
     public static function ensure_schedule() {

@@ -2666,8 +2666,11 @@ public function check_nonce_permission_efb($request) {
 			$core_deps[] = 'intlTelInput-js';
 		}
 		/* The palette of the code finder, the tracker card, the recovery card and the login notice (CSS custom properties). */
-		wp_register_style('Emsfb-response-viewer-css', self::asset_efb('includes/admin/assets/css/response-viewer-efb.css')[0], true, self::asset_efb('includes/admin/assets/css/response-viewer-efb.css')[1]);
-		wp_enqueue_style('Emsfb-response-viewer-css');
+		// QA2-019: not on a plain form (43 KB): the code finder / a response (track, css) and the login / register forms' cards.
+		if ($state !== '' || !is_string($form_structure_json) || preg_match('/type\\\\?"\s*:\s*\\\\?"(?:login|register)\\\\?"/', $form_structure_json)) {
+			wp_register_style('Emsfb-response-viewer-css', self::asset_efb('includes/admin/assets/css/response-viewer-efb.css')[0], true, self::asset_efb('includes/admin/assets/css/response-viewer-efb.css')[1]);
+			wp_enqueue_style('Emsfb-response-viewer-css');
+		}
 		/* PERF-01: the response viewer (124 KB: the conversation, replies, PDF and CSV) only where a response is opened:
 		 * the confirmation code finder and a form page opened with ?track=… ($state 'track'). A form page never calls it. */
 		if ($state === 'track') {
