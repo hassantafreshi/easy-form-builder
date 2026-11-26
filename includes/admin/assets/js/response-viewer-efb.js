@@ -940,6 +940,12 @@ function efbCsvKeyEfb(row, lbl) {
   const rows = blk ? Array.prototype.slice.call(blk.querySelectorAll('.efb-msg-rpt-row')) : [rr];
   return `${blk ? blk.getAttribute('data-name') : ''} › ${base} #${rows.indexOf(rr) + 1}`;
 }
+/* QA2-014: a reply's date on the public page in the site language ("November 25, 2026 at 9:53 PM"), not 2026-11-25 21:53:51. */
+function efb_rv_date_efb(d) {
+  const m = /^(\d{4})-(\d\d)-(\d\d)[ T](\d\d):(\d\d)/.exec(String(d || ''));
+  if (!m) return d;
+  try { return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]).toLocaleString(String((typeof efb_var !== 'undefined' && (efb_var.wp_lan || efb_var.language)) || 'en').replace(/_/g, '-'), { dateStyle: 'long', timeStyle: 'short' }); } catch (e) { return d; }
+}
 function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   /* Single choke point for stored-response XSS: every caller (dashboard list,
    * admin modal, public response box, reply thread) reaches innerHTML through
@@ -963,7 +969,7 @@ function fun_emsFormBuilder_show_messages(content, by, userIp, track, date) {
   userIp = escHtmlEfb(userIp);
   track = escHtmlEfb(track);
   // QA1-028: the admin's one date formatter (the site's digits), as in the entries list.
-  date = escHtmlEfb(typeof efb_admin_date_efb === 'function' ? efb_admin_date_efb(date) : date);
+  date = escHtmlEfb(typeof efb_admin_date_efb === 'function' ? efb_admin_date_efb(date) : efb_rv_date_efb(date));
   efb_apply_resp_colors();
   stock_state_efb=false;
   let totalpaid =0;
@@ -2046,6 +2052,13 @@ function fun_tracking_show_emsFormBuilder() {
 }
 
 
+/* QA2-014: Enter in the code box searches. */
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' || !e.target || e.target.id !== 'trackingCodeEfb') return;
+  e.preventDefault();
+  const b = document.getElementById('vaid_check_emsFormBuilder');
+  if (b && !b.classList.contains('disabled')) b.click();
+});
 function fun_vaid_tracker_check_emsFormBuilder() {
   if (!navigator.onLine) {
     noti_message_efb_v4(efb_var.text.offlineSend , 'danger' , `body_efb-track`,0 );
@@ -2222,8 +2235,12 @@ function response_Valid_tracker_efb(res) {
     }, 50);
     document.getElementById('body_efb-track').classList.add('card');
   } else {
-    document.getElementById('body_efb-track').innerHTML = `<div class="efb text-center"><h3 class='efb emsFormBuilder mt-3  text-center'><i class="efb nmsgefb  bi-exclamation-triangle-fill text-center efb fs-1"></i></h1><h3 class="efb  fs-3 text-muted  text-center">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5 mx-1"> ${res.data.m}</span>
-     <div class="efb display-btn emsFormBuilder"> <button type="button" id="emsFormBuilder-text-prevBtn-view" class="efb  btn btn-darkb m-5 text-white" onclick="(() => {  location.reload(); })()" style="display;"><i class="efb ${ajax_object_efm.rtl == 1 ? 'bi-arrow-right' : 'bi-arrow-left'}"></i></button></div></div>`;
+    // QA2-014: the box stays (a wrong code is typed again, no reload); the reason is read out under it.
+    noti_message_efb_v4(res.data.m, 'danger', 'body_efb-track', 0);
+    const n = document.querySelector('#body_efb-track #noti_content_efb');
+    if (n) n.setAttribute('role', 'alert');
+    const i = document.getElementById('trackingCodeEfb');
+    if (i) { i.setAttribute('aria-invalid', 'true'); i.focus(); }
   }
 }
 

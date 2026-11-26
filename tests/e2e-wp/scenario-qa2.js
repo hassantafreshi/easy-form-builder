@@ -17,6 +17,8 @@
  *        the kept answers are sent by themselves, once.
  *  qa2h  QA2-016: "1 place left" (singular); a tab opened before the last place was taken drops the line when it
  *        learns the form is full (it stayed above "This form has reached its limit").
+ *  qa2i  QA2-014: the confirmation code finder: Enter searches, a wrong code keeps the box (message under it, focus
+ *        back in the box) so the right code can be typed without a reload; the reply dates are in words.
  * Every form is made with `ctl.php f03-form` and deleted at the end; site settings are put back.
  */
 'use strict';
@@ -261,6 +263,43 @@ module.exports = function (S) {
       // The full form's 403 on forms/session/prepare is the expected answer (the browser logs it).
       for (let i = errors.length - 1; i >= 0; i--) if (/403/.test(errors[i].text || '') && /session\/prepare|message\/add/.test(errors[i].src || errors[i].url || '')) errors.splice(i, 1);
       R.check('qa2h: "1 place left" (not "1 places left"); once full, Send in the open tab says so (no Try again) and the line is gone', /^\s*1 place left\s*$/.test(left0) && !after.left && /limit/i.test(after.card) && !/Try again/.test(after.card), { left0, after });
+    } finally {
+      drop(F.form_id);
+    }
+  });
+
+  /* ------------------------------------------------------------------ qa2i */
+  scenario('qa2i', 'QA2-014: the code finder: Enter searches, a wrong code keeps the box, reply dates in words', async ({ context }) => {
+    ctl('locale', '');
+    const F = form('QA2 tracker', [{ key: 'nm', type: 'text', name: 'Name' }]);
+    const T = ctl('f12-page-tracker');
+    try {
+      const g = await open(context, F.form_id, 'qa2i-form');
+      await g.fill(byId(F.ids.nm + '_'), 'Track Me');
+      const resp = g.waitForResponse((x) => /forms\/message\/add/.test(x.url()), { timeout: 30000 }).catch(() => null);
+      await g.click(`#body_efb_${F.form_id} #btn_send_efb`);
+      const r = await resp; let j = null; try { j = r ? await r.json() : null; } catch (e) { j = null; }
+      const track = j && j.data && j.data.track;
+      const ctx = await context({}, 'qa2i-tracker');
+      const p = await ctx.newPage();
+      await p.goto(T.url, { waitUntil: 'load' });
+      await p.waitForSelector('#trackingCodeEfb', { timeout: 20000 });
+      await sleep(800);
+      const cp = await p.evaluate(() => !!document.querySelector('.efb-tracker-captcha .efb-captcha'));
+      await p.fill('#trackingCodeEfb', 'ZZZZZZZZZZ');
+      await p.press('#trackingCodeEfb', 'Enter');
+      await sleep(2500);
+      const w = await p.evaluate(() => ({ box: !!document.getElementById('trackingCodeEfb'), focus: document.activeElement && document.activeElement.id, msg: (document.querySelector('#body_efb-track #noti_content_efb') || {}).innerText || '' }));
+      R.check('qa2i: Enter searches; a wrong code keeps the box, says why under it and puts the focus back in it' + (cp ? ' (the tracker has a CAPTCHA here: its message counts)' : ''), w.box && w.focus === 'trackingCodeEfb' && w.msg.trim() !== '', w);
+      if (!cp && track) {
+        await p.fill('#trackingCodeEfb', String(track));
+        await p.press('#trackingCodeEfb', 'Enter');
+        await p.waitForSelector('#replayM_emsFormBuilder, #resp_efb', { timeout: 20000 }).catch(() => {});
+        const ok = await p.evaluate(() => !!document.querySelector('#resp_efb, .efb-msg-card, [id^="replay"]'));
+        R.check('qa2i: then the right code opens the entry in the same box (no reload)', ok, { track });
+        R.check('qa2i: no raw "YYYY-MM-DD HH:MM:SS" date on the opened entry', !(await p.evaluate(() => /\b\d{4}-\d\d-\d\d \d\d:\d\d:\d\d\b/.test(document.body.innerText))));
+      }
+      await ctx.close();
     } finally {
       drop(F.form_id);
     }

@@ -96,7 +96,7 @@ console.log('\n=== the shipped sources still wire these in ===');
 t('the render entry escapes the whole tree once', /content = escResponseTreeEfb\(content\);/.test(src));
 t('the ip meta value is escaped', /userIp = escHtmlEfb\(userIp\);/.test(src));
 t('the tracking code is escaped', /track = escHtmlEfb\(track\);/.test(src));
-t('the date is escaped (after the admin\'s date formatter, QA1-028)', /date = escHtmlEfb\(typeof efb_admin_date_efb === 'function' \? efb_admin_date_efb\(date\) : date\);/.test(src));
+t('the date is escaped (after the admin\'s date formatter, QA1-028, or the public one, QA2-014)', /date = escHtmlEfb\(typeof efb_admin_date_efb === 'function' \? efb_admin_date_efb\(date\) : efb_rv_date_efb\(date\)\);/.test(src));
 t('the sender name is escaped after it is resolved', /byName = escHtmlEfb\(byName\);/.test(src));
 t('a saved reply draft is escaped before it re-enters the editor', /shortcodeToHtml\(escHtmlEfb\(savedValue\)/.test(src));
 t('a signature src must be a PNG data URL', /\^data:image\\\/png;base64,\[A-Za-z0-9\+\\\/\]\+=\{0,2\}\$/.test(src));
