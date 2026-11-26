@@ -7,7 +7,7 @@
  *   mail-old         keeps the stored e-mail template and plugin version aside (option efb_e2e_qa1_mail), then names an
  *                    old host for this plugin's address in the template (as after a site move) and sets the version to
  *                    4.3.1, so the next admin load runs the update
- *   mail-state       whether the stored template names old.example and whether it has {efb_plugin_url}
+ *   mail-state       whether the stored template names old.example, has {efb_plugin_url}, names this site's plugin address
  *   mail-restore     puts the kept template and version back
  *
  * Every command prints one JSON document on its last line. Local test site only.
@@ -31,7 +31,7 @@ switch ( $q1_cmd ) {
 		update_option( 'emsfb_version', '4.3.1' );
 		efb_q1_out( array( 'ok' => true ) );
 	case 'mail-state':
-		efb_q1_out( array( 'old' => strpos( $q1_s->emailTemp, 'old.example' ) !== false, 'placeholder' => strpos( $q1_s->emailTemp, '{efb_plugin_url}' ) !== false ) );
+		efb_q1_out( array( 'old' => strpos( $q1_s->emailTemp, 'old.example' ) !== false, 'placeholder' => strpos( $q1_s->emailTemp, '{efb_plugin_url}' ) !== false, 'current' => strpos( $q1_s->emailTemp, str_replace( '/', '@efb@', preg_replace( '#^https?://#', '', EMSFB_PLUGIN_URL ) ) ) !== false ) );
 	case 'mail-restore':
 		$k = get_option( 'efb_e2e_qa1_mail' );
 		if ( is_array( $k ) ) {

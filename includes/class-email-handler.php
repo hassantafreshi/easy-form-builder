@@ -1424,6 +1424,8 @@ class EmsfbEmailHandler {
 
         $temp = preg_replace(['/http:(?:@efb@)+/', '/https:(?:@efb@)+/'], ['http://', 'https://'], $temp);
         $temp = str_replace(array('@efb@', '{efb_plugin_url}'), array('/', EMSFB_PLUGIN_URL), $temp); // QA1-023
+        // QA1-023: a template stored with this plugin's address on another host (a moved site) sends this site's address.
+        $temp = preg_replace('#https?://[^"\'\s<>]*?/plugins/easy-form-builder/#', EMSFB_PLUGIN_URL, $temp);
 
         $isBuilderTemplate = (strpos($temp, 'efb-email-container') !== false);
 

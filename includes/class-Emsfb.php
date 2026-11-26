@@ -2116,10 +2116,12 @@ class Emsfb {
         delete_transient('emsfb_addons_dl_backoff');
         delete_transient('emsfb_addon_recovery_running');
         delete_option('emsfb_addons_dl_failures');
-        // QA1-023: the stored e-mail template names the plugin's address by its placeholder (once, for every host it had).
+        // QA1-023: the stored e-mail template names this site's plugin address (once, for every host it had). An absolute
+        // address, not the {efb_plugin_url} placeholder: 4.3.1 cannot resolve the placeholder, so after a rollback the
+        // template's logo was a broken image (final regression, e2e payout-mixed); the sender still resolves both.
         $tpl_efb = self::get_setting_Emsfb('decoded');
         if (is_object($tpl_efb) && isset($tpl_efb->emailTemp) && is_string($tpl_efb->emailTemp)) {
-            $new_efb = self::email_template_placeholder_efb($tpl_efb->emailTemp);
+            $new_efb = self::email_template_absolute_efb($tpl_efb->emailTemp);
             if ($new_efb !== $tpl_efb->emailTemp) { $tpl_efb->emailTemp = $new_efb; self::get_efbFunction()->set_setting_Emsfb($tpl_efb, isset($tpl_efb->emailSupporter) ? $tpl_efb->emailSupporter : ''); }
         }
         // FR (4.3.2): an update is not a first run: the first-run e-mail check of an earlier version is over.
@@ -2355,12 +2357,25 @@ class Emsfb {
         return preg_replace(array('#https?:(?:@efb@)+[^"\'\s<>]*?@efb@plugins@efb@easy-form-builder@efb@#', '#https?://[^"\'\s<>]*?/plugins/easy-form-builder/#', '#https?%3A%2F%2F[^"\'\s<>]*?%2Fplugins%2Feasy-form-builder%2F#i'), array('{efb_plugin_url}', '{efb_plugin_url}', '%7Befb_plugin_url%7D'), (string) $t);
     }
 
+    /**
+     * QA1-023, rollback-safe: this plugin's address of any host, and the {efb_plugin_url} placeholder, become this site's
+     * address in the same encoding (the settings' @efb@ form, plain, URL-encoded). What 4.3.1 reads works after a rollback.
+     */
+    public static function email_template_absolute_efb($t) {
+        if (!defined('EMSFB_PLUGIN_URL')) return self::email_template_placeholder_efb($t);
+        $u = (string) EMSFB_PLUGIN_URL;
+        $enc = str_replace('/', '@efb@', $u);
+        $t = self::email_template_placeholder_efb($t);
+        return str_replace(array('%7Befb_plugin_url%7D', '{efb_plugin_url}'), array(rawurlencode($u), strpos($t, '@efb@') !== false ? $enc : $u), $t);
+    }
+
     public static function get_default_email_template_efb() {
         $direction = function_exists('is_rtl') && is_rtl() ? 'rtl' : 'ltr';
         $message_align = $direction === 'rtl' ? 'right' : 'left';
         // QA1-023: the plugin's address as a placeholder, resolved when the e-mail is sent or the template drawn (a stored
         // absolute address kept the old host after a site move).
-        $logo_url = '{efb_plugin_url}public/assets/images/email_template1.png';
+        // Stored as this site's address (4.3.1 reads it after a rollback); the sender maps an old host to this one.
+        $logo_url = (defined('EMSFB_PLUGIN_URL') ? EMSFB_PLUGIN_URL : '{efb_plugin_url}') . 'public/assets/images/email_template1.png';
         $disclaimer = function_exists('__')
             ? __('This email was sent automatically. Please do not reply directly.', 'easy-form-builder')
             : 'This email was sent automatically. Please do not reply directly.';

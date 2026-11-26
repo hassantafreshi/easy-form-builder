@@ -748,8 +748,8 @@ ${blocksHtml}
 </html>`;
   }
 
-  /* QA1-023: the template stores the plugin's address as {efb_plugin_url} (the server resolves it when sending), the
-     designer shows the real address. */
+  /* QA1-023: the designer shows a stored {efb_plugin_url} placeholder as this site's address and saves the real
+     address (4.3.1 cannot read the placeholder after a rollback; the sender maps any host's plugin address to this site). */
   const PU_efb = String(((window.efb_var || {}).images || {}).emailTemplate1 || '').replace(/public\/assets\/images\/email_template1\.png$/, '');
   const PH_efb = '{efb_plugin_url}';
   const swap_efb = (t, a, b) => (a ? String(t).split(a).join(b).split(encodeURIComponent(a)).join(encodeURIComponent(b)) : String(t));
@@ -760,7 +760,7 @@ ${blocksHtml}
     try {
       const builderData = { blocks: builderState_efb.blocks, globalSettings: builderState_efb.globalSettings };
       const encoded = encodeURIComponent(JSON.stringify(builderData));
-      textarea.value = swap_efb(html + '\n<!-- EFBDATA:' + encoded + ' -->', PU_efb, PH_efb);
+      textarea.value = html + '\n<!-- EFBDATA:' + encoded + ' -->';
       const jsonStore = document.getElementById('efb-builder-json');
       if (jsonStore) {
         jsonStore.value = JSON.stringify(builderData);

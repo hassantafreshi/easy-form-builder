@@ -33,8 +33,8 @@
  *                tab): the builder's Save does not overwrite that change silently; it answers stale_hash and asks
  *                "Overwrite" or "Reload" in plain words; Overwrite then saves this version.
  *  qa1-mailurl   QA1-023: after a site move the stored e-mail template named the old host; the update turns this plugin's
- *                address into {efb_plugin_url} once, and the Email Template designer shows the template's images from
- *                this site.
+ *                address of any host into this site's once (not {efb_plugin_url}: 4.3.1 reads the template after a
+ *                rollback), and the Email Template designer shows the template's images from this site.
  *  qa1-firstrun  QA1-029: the Panel's illustration carries no English of its own (its three labels are phrases drawn over
  *                it); at 375 px the plan picker stacks its cards, the recommended Free Plus first (fa_IR, ar).
  */
@@ -493,7 +493,8 @@ module.exports = function (S) {
       await a.waitForSelector('#nav-emailtemplate.active .efb-canvas-block', { timeout: 20000 });
       await sleep(1500);
       const imgs = await a.evaluate(() => Array.from(document.querySelectorAll('#efb-email-builder img')).map((i) => i.getAttribute('src')).filter((u) => /easy-form-builder/.test(u)));
-      R.check('qa1-mailurl (QA1-023): the update replaced the old host by {efb_plugin_url}; the designer shows the template\'s images from this site', moved.old && !after.old && after.placeholder && imgs.length > 0 && imgs.every((u) => u.indexOf(CFG.base) === 0), { moved, after, imgs });
+      // Final regression: the update writes this site's address, not {efb_plugin_url} (4.3.1 cannot resolve it after a rollback).
+      R.check('qa1-mailurl (QA1-023): the update replaced the old host by this site\'s address (no placeholder); the designer shows the template\'s images from this site', moved.old && !after.old && !after.placeholder && after.current && imgs.length > 0 && imgs.every((u) => u.indexOf(CFG.base) === 0), { moved, after, imgs });
       await a.context().close();
     } finally {
       q('mail-restore');
