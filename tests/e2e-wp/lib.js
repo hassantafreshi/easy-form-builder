@@ -102,11 +102,14 @@ function guard(page, sink, label) {
       // The external-host allowance only covers resources of other hosts.
       if (!allowed.external || !(loc.url || '').startsWith(CFG.base)) return;
     }
+    // A request the scenario fails on purpose (page.efbFailOnPurpose, a RegExp of its URL): the browser's own line.
+    if (page.efbFailOnPurpose && page.efbFailOnPurpose.test(loc.url || '') && /^Failed to load resource:/.test(text)) return;
     if (!isPluginSource(loc.url, CFG.base) && !/efb|emsfb|Easy Form/i.test(text)) return;
     sink.push({ kind: 'console', where: label, url: page.url(), text: text.slice(0, 500), src: loc.url ? `${loc.url}:${loc.lineNumber}` : '' });
   });
   page.on('requestfailed', (r) => {
     const u = r.url();
+    if (page.efbFailOnPurpose && page.efbFailOnPurpose.test(u)) return;
     if (u.startsWith(CFG.base) && !/favicon|heartbeat|wp-cron/.test(u) && !/ERR_ABORTED/.test((r.failure() || {}).errorText || '')) {
       sink.push({ kind: 'requestfailed', where: label, url: u, text: (r.failure() || {}).errorText || '' });
     }

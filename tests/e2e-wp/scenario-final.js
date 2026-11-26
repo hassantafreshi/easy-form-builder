@@ -184,6 +184,7 @@ module.exports = function (S) {
       for (const fail of [false, true]) {
         const ctx = await context(vp375('fa_IR'), 'guest-states-' + (fail ? 'fail' : 'ok'));
         const p = await ctx.newPage();
+        if (fail) p.efbFailOnPurpose = /json\/states\/ir\.json/; // a local list failed on purpose (lib.js guard)
         await p.route(/json\/states\/ir\.json/, (r) => fail ? r.abort() : r.fulfill({ contentType: 'application/json', body: JSON.stringify([{ n: 'Tehran', l: 'تهران', s: 'THR' }, { n: 'Fars', l: 'فارس', s: 'FAR' }]) }));
         await p.goto(F.url, { waitUntil: 'load' });
         await p.waitForFunction(() => window.EFBNameAddr && document.querySelector('[data-addr-part="state"]'), null, { timeout: 20000 });

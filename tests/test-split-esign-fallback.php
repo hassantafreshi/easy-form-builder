@@ -48,7 +48,9 @@ $fx = new SplitEsignFixture();
 $forged = array('id_' => 's1', 'type' => 'esign', 'value' => 'data:image/png;base64,AAAA', 'sig_mode' => 'type', 'sig_text' => 'Jane', 'sig_font' => 'latin');
 t('without the add-on: a forged typed row is stored without sig_mode / sig_text / sig_font', $fx->esign_row_efb($forged, array('type' => 'esign', 'esign_mode' => 'both')), array('id_' => 's1', 'type' => 'esign', 'value' => 'data:image/png;base64,AAAA'));
 t('stored typed signatures keep their display (Layout::sig_text_of)', array(\Emsfb\Layout::sig_text_of(array('sig_mode' => 'type', 'sig_text' => 'Jane Doe')), \Emsfb\Layout::sig_text_of(array('value' => 'png'))), array('Jane Doe', ''));
-t('core: no fonts, no EFBSign, no typed parts code', array(is_dir(__DIR__ . '/../public/assets/fonts'), strpos(file_get_contents(__DIR__ . '/../public/assets/js/layout-efb.js'), 'root.EFBSign'), method_exists('\Emsfb\Layout', 'sig_attrs'), strpos(file_get_contents(__DIR__ . '/../includes/class-Emsfb-formbuilder.php'), 'efb-sig-tabs')), array(false, false, false, false));
+// The typed-signature fonts (efb-sig-*.woff2) left core; public/assets/fonts itself may hold the response box's fonts
+// that bin/fetch-public-assets.sh bundles (SEC-02, git-ignored), so the folder alone proves nothing.
+t('core: no signature fonts, no EFBSign, no typed parts code', array((bool) glob(__DIR__ . '/../public/assets/fonts/efb-sig-*'), strpos(file_get_contents(__DIR__ . '/../public/assets/js/layout-efb.js'), 'root.EFBSign'), method_exists('\Emsfb\Layout', 'sig_attrs'), strpos(file_get_contents(__DIR__ . '/../includes/class-Emsfb-formbuilder.php'), 'efb-sig-tabs')), array(false, false, false, false));
 t('core: a form whose only F10 part is a typed signature no longer loads layout-efb.js for it', \Emsfb\Layout::json_needs_runtime('[{"type":"form"},{"id_":"s1","type":"esign","esign_mode":"both"}]'), false);
 
 // With the add-on (vendor/typed-signature or EFB_TYPED_SIGNATURE_DIR).

@@ -58,6 +58,9 @@ module.exports = function (S) {
     const p = await ctx.newPage();
     p.efbOut = [];
     p.on('request', (r) => { const u = r.url(); if (!/^https?:\/\/127\.0\.0\.1/.test(u) && !/^data:/.test(u)) p.efbOut.push(u); });
+    // The city list is local once bin/fetch-public-assets.sh ran (the README's set-up; a CDN address before): a list
+    // failed on purpose is the scenario's, not a console error of the plugin.
+    if (opt && opt.fail) p.efbFailOnPurpose = /json\/cites\/[a-z]{2}\/[a-z_]+\.json/;
     await p.route(/json\/cites\/[a-z]{2}\/([a-z_]+)\.json/, (r) => {
       if (opt && opt.fail) return r.abort();
       const m = r.request().url().match(/json\/cites\/[a-z]{2}\/([a-z_]+)\.json/);

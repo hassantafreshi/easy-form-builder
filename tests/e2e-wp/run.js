@@ -636,8 +636,10 @@ scenario('4', 'F18 after Free Plus: public credit, a Pro-only feature, users who
   const page = await adminPage();
   await openNewForm(page);
   const pro = await page.evaluate(() => fields_efb.filter((f) => typeof efb_feature_required_efb === 'function' && efb_feature_required_efb('field:' + f.id) === 'pro').map((f) => f.id));
-  const tile = pro.includes('pdate') ? 'pdate' : pro[0];
-  R.check('4c: on Free Plus some palette tiles are still Pro-only (Persian/Arabic date, PersiaPay)', !!tile, pro);
+  // QA1-016 (05123a70): without the old Jalali / Hijri add-on, the pdate / ardate tiles add Date (advanced) with that
+  // calendar (no Pro dialog; e2e qa1-builder checks it), so the Pro-only tile clicked here is another one.
+  const tile = pro.filter((id) => id !== 'pdate' && id !== 'ardate')[0];
+  R.check('4c: on Free Plus some palette tiles are still Pro-only (PersiaPay and others)', !!tile, pro);
   await page.click(`#${tile}_b`);
   await waitDialog(page);
   const st = await dialogState(page);
