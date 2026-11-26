@@ -3024,7 +3024,7 @@ function efb_failure_cause_efb(info) {
   if (!s) return 'unknown_outcome';
   // F11: the form gate (closed, not open yet, full, per-person limit, role) says it in its own words.
   if (['efb_form_pending', 'efb_form_closed', 'efb_form_full', 'efb_limit_reached', 'efb_role_denied'].includes(c)) {
-    if (c === 'efb_form_full') document.querySelectorAll('.efb-gate-left').forEach((e) => e.remove()); // QA2-016: no "1 place left" over "full"
+    if (c === 'efb_form_full' && typeof document !== 'undefined') document.querySelectorAll('.efb-gate-left').forEach((e) => e.remove()); // QA2-016: no "1 place left" over "full"
     return 'form_gate';
   }
   // The X-WP-Nonce header never arrived: a proxy, firewall or security plugin removed it.
