@@ -7,7 +7,7 @@
  *              efb_e2e_f07_plan is set; on this site a Pro plan without a licence falls back to Free
  *              Plus, so e-mail attachments (Pro) are reached this way; (2) emsfb_upload_quota_limit and
  *              emsfb_upload_ip_quota_limit from efb_e2e_f07_quota / efb_e2e_f07_ip_quota, so a test reaches
- *              the quota with a few uploads; (3) emsfb_upload_require_token from efb_e2e_f07_require;
+ *              the quota with a few uploads; (3) emsfb_upload_require_token from efb_e2e_f07_require (1 on, "off" off; on by default);
  *              (4) the e-mails' attachments (names and sizes) while efb_e2e_f07_mail is set
  *              (option efb_e2e_f07_mails). Copied by ctl.php f07-mu.
  */
@@ -38,7 +38,9 @@ add_filter(
 add_filter(
 	'emsfb_upload_require_token',
 	static function ( $req ) {
-		return get_option( 'efb_e2e_f07_require' ) ? true : $req;
+		// "off": the cached-page path (no token) that the filter brings back since the token is on by default (QA4-004).
+		$o = get_option( 'efb_e2e_f07_require' );
+		return 'off' === $o ? false : ( $o ? true : $req );
 	},
 	99
 );

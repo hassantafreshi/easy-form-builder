@@ -23,6 +23,11 @@ if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
  * label's class on these btn-darkb forms, text-labelEfb → text-white (the label read 1.4:1 on its button; see
  * tests/test-button-text-contrast.php). Nothing else changed.
  *
+ * Re-baselined for QA2-004 / QA2-005 (e841d56c, 2026-11-26, --write on the e2e site): only the "all-types" form changed,
+ * and only its multiselect (a button with aria-haspopup="listbox" over a listbox of role="option" rows), its Yes / No
+ * (role="radiogroup" named by its label) and its star rating (a radiogroup, each radio named "N Stars" and rating on
+ * change, the labels aria-hidden, data-vid / data-formid no longer swapped). Nothing of the repeater; nothing else.
+ *
  * Needs the e2e site: EFB_WP_LOAD=/path/wp-load.php, or EFB_E2E_SITE_DIR (tests/e2e-wp/README.md);
  * [SKIP] otherwise. Run: php tests/test-repeater-render-http.php [--write]
  */

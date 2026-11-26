@@ -317,7 +317,10 @@ if ( null !== $efb_c4 ) {
  * Main process: WordPress.
  * ====================================================================== */
 define( 'DISABLE_WP_CRON', true );
-require_once dirname( __DIR__, 5 ) . '/wp-load.php';
+// The test site through tests/wp-env.php (EFB_WP_ROOT, the shared site), like the other site tests: dirname( __DIR__, 5 )
+// only worked from a checkout inside wp-content/plugins/ and was a fatal error from anywhere else.
+require_once dirname( __DIR__ ) . '/wp-env.php';
+require_once efb_test_wp_load_or_skip();
 add_filter( 'pre_http_request', function () { return new WP_Error( 'blocked', 'blocked by test-addon-i18n-loader' ); }, 1 );
 add_filter( 'pre_wp_mail', '__return_false', 1 );
 
@@ -334,16 +337,19 @@ foreach ( array( 'emsfb_addon_i18n_refetch', 'emsfb_addon_i18n_refetch_log' ) as
 
 $efb_fn = get_efbFunction();
 
-echo "--- C3. a front-end subset never loads add-on files ---\n";
+echo "--- C3. a front-end subset of core keys never loads add-on files ---\n";
+// SPLIT §16 (6459f1af): a subset that asks for keys core no longer has reads the add-ons' base() phrases (that loads
+// their phrase files, by design); a subset of core keys only never does.
 $efb_provider_loaded_early = class_exists( 'Emsfb_Addon_Phrases_Telegram', false );
-$efb_subset = $efb_fn->text_efb( array( 'create', 'status', 'test_message' ) );
 if ( $efb_provider_loaded_early ) {
 	echo "[SKIP] provider was already loaded during bootstrap; subset isolation not observable\n";
 } else {
-	efb_i18n_assert( 'C3 subset returned the base key', isset( $efb_subset['create'] ), true );
-	efb_i18n_assert( 'C3 subset has no add-on keys', array( isset( $efb_subset['status'] ), isset( $efb_subset['test_message'] ) ), array( false, false ) );
-	efb_i18n_assert( 'C3 subset did not load the provider file', class_exists( 'Emsfb_Addon_Phrases_Telegram', false ), false );
+	$efb_subset_core = $efb_fn->text_efb( array( 'define', 'edit' ) );
+	efb_i18n_assert( 'C3 a subset of core keys only did not load the provider file', array( isset( $efb_subset_core['define'] ), class_exists( 'Emsfb_Addon_Phrases_Telegram', false ) ), array( true, false ) );
 }
+$efb_subset = $efb_fn->text_efb( array( 'create', 'status', 'test_message' ) );
+efb_i18n_assert( 'C3 subset returned the base key', isset( $efb_subset['create'] ), true );
+efb_i18n_assert( 'C3 subset has no add-on group keys', array( isset( $efb_subset['status'] ), isset( $efb_subset['test_message'] ) ), array( false, false ) );
 
 echo "\n--- C1. loader ---\n";
 $efb_fixture = $efb_plugin . '/temp/addon-i18n/loader-fixture-' . getmypid();
@@ -420,9 +426,13 @@ $efb_i18n_manifest = $efb_fn->get_addon_i18n_required_files_efb();
 $efb_agree = true;
 foreach ( $efb_i18n_manifest as $efb_key => $efb_files ) {
 	$efb_slug = preg_match( '#^vendor/([^/]+)/#', $efb_files[0], $m ) ? $m[1] : '';
-	$efb_agree = $efb_agree && isset( $efb_providers[ $efb_slug ] ) && $efb_providers[ $efb_slug ]['file'] === $efb_files[0] && $efb_files[1] === 'vendor/' . $efb_slug . '/languages/locales.json';
+	$efb_agree = $efb_agree && '' !== $efb_slug && ( ! isset( $efb_providers[ $efb_slug ] ) || $efb_providers[ $efb_slug ]['file'] === $efb_files[0] ) && $efb_files[1] === 'vendor/' . $efb_slug . '/languages/locales.json';
 }
-efb_i18n_assert( 'C2 C4 manifest agrees with the registry', $efb_agree && count( $efb_i18n_manifest ) === count( $efb_providers ), true );
+// The manifest lists every add-on with a phrase file (the PAY00 gateways, the CAPTCHA add-ons, booking and geo read
+// theirs through their own loaders); each text_efb() provider of the registry is in it, with the same file.
+$efb_manifest_files = array_map( static function ( $f ) { return $f[0]; }, $efb_i18n_manifest );
+foreach ( $efb_providers as $efb_provider ) $efb_agree = $efb_agree && in_array( $efb_provider['file'], $efb_manifest_files, true );
+efb_i18n_assert( 'C2 C4 manifest agrees with the registry (every provider in it, each entry well formed)', $efb_agree && count( $efb_i18n_manifest ) >= count( $efb_providers ), true );
 efb_i18n_assert( 'C2 provider file exists in this checkout', file_exists( EMSFB_PLUGIN_DIRECTORY . 'vendor/telegram/telegram-phrases-efb.php' ), true );
 
 // The merge loads the provider file lazily; nothing earlier needed it.
@@ -453,9 +463,10 @@ if ( file_exists( EMSFB_PLUGIN_DIRECTORY . 'vendor/human-shield/human-shield-phr
 	$efb_hs_core   = EfbAddonPhrases::get_humanshield_phrases();
 	$efb_hs_merged = efb_get_addon_phrases( 'humanshield' );
 	$efb_hs_group  = Emsfb_Addon_Phrases_HumanShield::group();
-	efb_i18n_assert( 'C2 human-shield core group keeps only the visitor messages', array_keys( $efb_hs_core ), array( 'hsDisabled', 'hsServiceNotAvailable', 'hsRefreshForm', 'hsTooManyRequests', 'hsChallengeMissing', 'hsChallengeExpired', 'hsChallengeUsed', 'hsFormMismatch', 'hsServiceTempUnavailable', 'hsFormExpired', 'hsLooksUnusual', 'hsQuarantine', 'hsServiceUnavailable' ) );
+	efb_i18n_assert( 'C2 human-shield core group keeps only the visitor messages', array_keys( $efb_hs_core ), array( 'hsDisabled', 'hsServiceNotAvailable', 'hsRefreshForm', 'hsTooManyRequests', 'hsChallengeMissing', 'hsChallengeExpired', 'hsChallengeUsed', 'hsFormMismatch', 'hsServiceTempUnavailable', 'hsFormExpired', 'hsCheckIncomplete', 'hsLooksUnusual', 'hsQuarantine', 'hsServiceUnavailable' ) );
 	efb_i18n_assert( 'C2 human-shield merge = remaining core keys + provider keys', array_keys( $efb_hs_merged ), array_keys( array_merge( $efb_hs_core, $efb_hs_group ) ) );
-	efb_i18n_assert( 'C2 human-shield provider supplies 158 keys, base() none', array( count( $efb_hs_group ), Emsfb_Addon_Phrases_HumanShield::base() ), array( 158, array() ) );
+	// 162 since ADD-01 (vendores-efb 7311efc: the screen in EFB's add-on screen form).
+	efb_i18n_assert( 'C2 human-shield provider supplies 162 keys, base() none', array( count( $efb_hs_group ), Emsfb_Addon_Phrases_HumanShield::base() ), array( 162, array() ) );
 	// The keys human-shield-admin-efb.js reads that no phrase source defined before 2026-09-17, and the unused hsEnabled.
 	efb_i18n_assert( 'C2 human-shield provider defines hsEnabled and the three keys the panel JS reads', array_values( array_diff( array( 'hsEnabled', 'hsPaidStopLossTitle', 'hsPaidStopLossDesc', 'hsFieldFailClosedLabel' ), array_keys( $efb_hs_group ) ) ), array() );
 	efb_i18n_assert( 'C2 human-shield visitor messages never come from the add-on file', array_values( array_intersect( array_keys( $efb_hs_group ), array_keys( $efb_hs_core ) ) ), array() );
@@ -487,7 +498,8 @@ if ( file_exists( EMSFB_PLUGIN_DIRECTORY . 'vendor/paypal/paypal-phrases-efb.php
 		}
 	}
 	efb_i18n_assert( 'C2 payment shared keys: same English in both domains, last provider wins', $efb_pay_shared_diff, array() );
-	efb_i18n_assert( 'C2 stripe provider supplies 66 keys, base() none', array( count( $efb_sp_group ), Emsfb_Addon_Phrases_Stripe::base() ), array( 66, array() ) );
+	// 70 since ADD-01 (vendores-efb 7311efc).
+	efb_i18n_assert( 'C2 stripe provider supplies 70 keys, base() none', array( count( $efb_sp_group ), Emsfb_Addon_Phrases_Stripe::base() ), array( 70, array() ) );
 	efb_i18n_assert( 'C2 only stripe defines the Stripe tab label', array( isset( $efb_sp_group['stripes'] ), isset( $efb_pp_group['stripes'] ) ), array( true, false ) );
 } else {
 	echo "[SKIP] vendor/paypal and vendor/stripe providers are not both in this checkout\n";
@@ -539,6 +551,9 @@ foreach ( $efb_providers as $efb_slug => $efb_provider ) {
 	}
 	$efb_all_base_keys = array_merge( $efb_all_base_keys, array_keys( $efb_p_base ) );
 }
+// calcField stays in core's base on purpose: the builder's Calculation tile (val-efb.js) is named by it while the
+// Numbers & Calculations add-on is off (SPLIT-C); the add-on's copy is the same English text.
+$efb_collisions = array_values( array_diff( $efb_collisions, array( 'calc:calcField (core base)' ) ) );
 efb_i18n_assert( 'C3 no key of any registered provider collides with core base or another provider\'s base', $efb_collisions, array() );
 
 // A group()/core-group shared key (MULTI, still pending in the ledger) must resolve to the provider's own

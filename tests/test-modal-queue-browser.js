@@ -189,8 +189,8 @@ async function closeShell(page) {
       await page.locator('#modal-footer-efb').count() === 1,
       `${await page.locator('#modal-footer-efb').count()} found`);
     t('and exactly two buttons in it',
-      await page.locator('#modal-footer-efb a').count() === 2,
-      `${await page.locator('#modal-footer-efb a').count()} found`);
+      await page.locator('#modal-footer-efb button').count() === 2,
+      `${await page.locator('#modal-footer-efb button').count()} found`);
     t('both buttons are wired to the restore handlers',
       await page.locator('#restore_auto_save_efb_btn').count() === 1 &&
       await page.locator('#restore_auto_no_efb_btn').count() === 1);
@@ -253,8 +253,8 @@ async function closeShell(page) {
       await page.locator('#modal-footer-efb').count() === 1,
       `${await page.locator('#modal-footer-efb').count()} found`);
     t('and exactly two buttons in it',
-      await page.locator('#modal-footer-efb a').count() === 2,
-      `${await page.locator('#modal-footer-efb a').count()} found`);
+      await page.locator('#modal-footer-efb button').count() === 2,
+      `${await page.locator('#modal-footer-efb button').count()} found`);
     t('the renamed button did not survive the rebuild',
       await page.locator('#efb-renamed-probe-btn').count() === 0);
 

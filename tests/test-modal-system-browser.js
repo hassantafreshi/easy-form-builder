@@ -208,7 +208,7 @@ async function closeShared(page) {
       await page.locator('#modal-footer-efb .efb-btn-confirm-primary').count() === 1 &&
       await page.locator('#modal-footer-efb .efb-btn-confirm-danger').count() === 0);
 
-    const restoreLabels = await page.locator('#modal-footer-efb a').allInnerTexts();
+    const restoreLabels = await page.locator('#modal-footer-efb button').allInnerTexts();
     t('both buttons say what they do, not "Yes" and "NO"',
       restoreLabels.length === 2 && !/^(yes|no)$/i.test(restoreLabels[0].trim()) && !/^(yes|no)$/i.test(restoreLabels[1].trim()),
       restoreLabels.join(' | '));

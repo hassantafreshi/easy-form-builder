@@ -7,9 +7,9 @@
  * flow end to end:
  *   - no lookup is sent before the box is ticked;
  *   - the token from the widget is sent as "valid";
- *   - a refused lookup shows the error card (its button reloads the page),
- *     and the widget is reset and the spent token dropped on the way;
- *   - after the reload a fresh token is sent and the ticket opens;
+ *   - a refused lookup keeps the code box with the reason under it (QA2-014: no error card, no reload), and the
+ *     widget is reset and the spent token dropped on the way; ticking again sends a fresh token;
+ *   - on a reloaded page a fresh token is sent and the ticket opens;
  *   - with reCAPTCHA off nothing changes.
  *
  * Run: node tests/test-tracker-captcha-browser.js
@@ -81,7 +81,9 @@ async function page(browser, captchaOn) {
   const state = () => p.evaluate(() => ({
     token: (sendBack_emsFormBuilder_pub.find(x => x.id_ === 'captcha_v2' && x.form_id === -1) || {}).value || null,
     disabled: document.getElementById('vaid_check_emsFormBuilder') ? document.getElementById('vaid_check_emsFormBuilder').classList.contains('disabled') : null,
-    errorCard: !!document.querySelector('#body_efb-track #emsFormBuilder-text-prevBtn-view') && document.getElementById('body_efb-track').textContent.includes('errorMRobot'),
+    errorCard: !!document.querySelector('#body_efb-track #emsFormBuilder-text-prevBtn-view'),
+    box: !!document.getElementById('trackingCodeEfb'),
+    invalid: document.getElementById('trackingCodeEfb') ? document.getElementById('trackingCodeEfb').getAttribute('aria-invalid') : null,
     resets: window.resets.slice(), notices: window.notices.slice(), results: window.results.length,
   }));
   const click = async () => { await p.evaluate(() => fun_vaid_tracker_check_emsFormBuilder()); await p.waitForTimeout(300); };
@@ -108,11 +110,15 @@ async function page(browser, captchaOn) {
   await t.click();
   check('the widget token is sent as "valid"', t.lookups.length === 1 && t.lookups[0].valid.startsWith('first-token-'), t.lookups);
   s = await t.state();
-  check('a refused lookup shows the error card with its reload button', s.errorCard === true, s);
+  check('a refused lookup keeps the code box (aria-invalid) with the reason under it, no reload card (QA2-014)', s.box && s.invalid === 'true' && s.notices.includes('errorMRobot') && !s.errorCard, s);
   check('... the widget was reset and the spent token dropped', JSON.stringify(s.resets) === '[0]' && s.token === null, s);
+  t.setAnswers([{ success: true, data: { success: true, id: 7, nonce_msg: 'x' } }]);
+  await t.solve('retry-token-' + 'z'.repeat(30));
+  await t.click();
+  check('... ticking the box again: the next lookup carries the fresh token', t.lookups.length === 2 && t.lookups[1].valid.startsWith('retry-token-'), t.lookups.map(x => x.valid));
   await t.p.close();
 
-  // The error card's button reloads the page: a new widget, a new token.
+  // A reloaded page: a new widget, a new token.
   const t2 = await page(browser, true);
   t2.p.on('pageerror', e => errors.push(e.message));
   t2.setAnswers([{ success: true, data: { success: true, id: 7, nonce_msg: 'x' } }]);

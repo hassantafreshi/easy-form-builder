@@ -5,7 +5,8 @@
  *   setup     the Human Shield add-on installed and switched off (EFB's add-on switch AdnHSH, through EFB's settings
  *             function; the test turns it on through the add-on's screen and puts it back), and a published page with a
  *             four-field guest form. Prints the form id and the page address.
- *   teardown  the add-on switch and the Human Shield settings as they were; the form and the page removed.
+ *             The site is put on Pro (Human Shield is a Pro add-on: on another plan its screen is core's Pro card).
+ *   teardown  the add-on switch, the plan and the Human Shield settings as they were; the form and the page removed.
  *
  * On the owner's site these were form 134 on post 209 and an add-on already installed and switched off.
  * Run: php tests/seed-human-shield-live-env.php setup|teardown
@@ -31,6 +32,14 @@ $write_flag = static function ( $on ) {
 	return false !== \efbFunction::set_setting_Emsfb( (object) array( 'AdnHSH' => $on ? 1 : 0 ) );
 };
 
+// The plan as ctl.php plan sets it: the settings row's package_type too (a settings write syncs emsfb_pro from it).
+$set_plan = static function ( $pkg ) {
+	get_setting_Emsfb( '_clear_cache' );
+	$ok = false !== \efbFunction::set_setting_Emsfb( (object) array( 'package_type' => (int) $pkg ) );
+	update_option( 'emsfb_pro', (int) $pkg );
+	return $ok;
+};
+
 if ( 'setup' === $mode ) {
 	if ( ! is_dir( dirname( __DIR__ ) . '/vendor/human-shield' ) ) {
 		echo json_encode( array( 'ok' => false, 'skip' => true, 'error' => 'the Human Shield add-on is not installed in vendor/human-shield' ) );
@@ -43,6 +52,7 @@ if ( 'setup' === $mode ) {
 			'flag'           => is_object( $s ) && ! empty( $s->AdnHSH ) ? 1 : 0,
 			'had_settings'   => false !== get_option( $option, false ),
 			'settings'       => get_option( $option, false ),
+			'pro'            => get_option( 'emsfb_pro', null ),
 		);
 		$field = static function ( $id, $name, $amount ) {
 			return array( 'id_' => $id, 'dataId' => $id . '-id', 'type' => 'text', 'elementId' => 'text', 'placeholder' => $name,
@@ -66,7 +76,9 @@ if ( 'setup' === $mode ) {
 	// Installed and switched off: the state the test starts from (as on the owner's site). The screen's Enabled switch
 	// is EFB's add-on switch AdnHSH (the add-on's screen is registered whenever its files are there); the test turns it
 	// on through that screen and puts it back. The site's own switch and screen values come back at teardown.
-	$ok = $state['form_id'] > 0 && $state['page_id'] > 0 && $write_flag( false );
+	// Human Shield is a Pro add-on: on another plan its screen is core's Pro card (vendores-efb 208a437, plan gating on
+	// menus). The test runs on Pro; teardown puts the site's plan back.
+	$ok = $state['form_id'] > 0 && $state['page_id'] > 0 && $write_flag( false ) && $set_plan( 1 );
 	echo json_encode( array( 'ok' => $ok, 'form_id' => $state['form_id'], 'url' => get_permalink( $state['page_id'] ) ) );
 	exit( $ok ? 0 : 1 );
 }
@@ -76,6 +88,9 @@ if ( 'teardown' === $mode ) {
 	$ok    = true;
 	if ( is_array( $state ) ) {
 		$ok = $write_flag( ! empty( $state['flag'] ) );
+		if ( array_key_exists( 'pro', $state ) && null !== $state['pro'] ) {
+			$ok = $set_plan( (int) $state['pro'] ) && $ok;
+		}
 		if ( $state['had_settings'] ) {
 			update_option( $option, $state['settings'], false );
 		} else {

@@ -14,8 +14,8 @@ if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
  *  session, another form's file, another field's file, a site media file, a file already stored in an
  *  entry (replay) → efb_file_not_owned; the same file twice → refused; three good files → stored as
  *  three rows with distinct id_ob, the server's fsz (the browser's ignored) and a cleaned fnm; a page
- *  cached before F07 (no token) is accepted only for a ledger row of this form field, and refused once
- *  emsfb_upload_require_token is on. A field of one file and its old row shape still work.
+ *  cached before F07 (no token) is refused by default (QA4-004) and, with emsfb_upload_require_token off, accepted
+ *  only for a ledger row of this form field; refused once the filter is on. A field of one file and its old row shape still work.
  *  Private store: the file lands in uploads/efb-private/YYYY/MM with deny rules; the admin download
  *  without a login is refused; a signed link works, a tampered or expired one is refused; the
  *  owner's e-mail has a signed link, not the blocked address.
@@ -190,8 +190,13 @@ try {
 	$check(empty($d['success']) && ($d['code'] ?? '') === 'efb_file_not_owned', 'submit: a token of another session → refused', $d);
 
 	/* ------------------------------------------------ cached page (no token) and the token switch */
-	list($st, $d) = $submit($c, $A, array($row('mf', $u4, array('ut' => '')), $row('mf', $big1, array('ut' => '')), array('id_' => 'one', 'name' => 'one', 'type' => 'file', 'value' => '@file@', 'url' => $uo['file']['url'])));
-	$check(!empty($d['success']), 'a page cached before F07 (no token, old row shape): accepted for files of this form field', $d);
+	$cached = array($row('mf', $u4, array('ut' => '')), $row('mf', $big1, array('ut' => '')), array('id_' => 'one', 'name' => 'one', 'type' => 'file', 'value' => '@file@', 'url' => $uo['file']['url']));
+	list($st, $d) = $submit($c, $A, $cached);
+	$check(empty($d['success']) && ($d['code'] ?? '') === 'efb_file_not_owned', 'QA4-004: the token is required by default: a page cached before F07 (no token) → refused', $d);
+	update_option('efb_e2e_f07_require', 'off', false);
+	list($st, $d) = $submit($c, $A, $cached);
+	delete_option('efb_e2e_f07_require');
+	$check(!empty($d['success']), 'emsfb_upload_require_token off: a page cached before F07 (no token, old row shape): accepted for files of this form field', $d);
 	$c = $prepare($A);
 	update_option('efb_e2e_f07_require', 1, false);
 	$u6 = $upload($c, $A, 'mf', 'six.png', $png(14), 'image/png');
