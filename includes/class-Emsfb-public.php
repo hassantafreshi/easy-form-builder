@@ -5995,6 +5995,10 @@ public function check_nonce_permission_efb($request) {
 
 	public function file_upload_api(){
 
+		// QA4-008: a body over post_max_size reaches PHP with $_POST and $_FILES empty: "too large", not "not verified".
+		if (empty($_POST) && empty($_FILES) && isset($_SERVER['CONTENT_LENGTH']) && (int) $_SERVER['CONTENT_LENGTH'] > 0 && class_exists('\\Emsfb\\Upload_Guard')) {
+			wp_send_json_success($this->upload_rejected_response_efb(\Emsfb\Upload_Guard::size_message(wp_max_upload_size())), 200);
+		}
 		if($this->efbFunction===null) $this->efbFunction = get_efbFunction();
 		$_POST['id']= isset($_POST['id']) ? sanitize_text_field( wp_unslash( $_POST['id'] ) ) : '';
         $_POST['pl']= isset($_POST['pl']) ? sanitize_text_field(wp_unslash($_POST['pl'])) : '';

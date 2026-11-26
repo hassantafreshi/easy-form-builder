@@ -44,6 +44,12 @@ try {
     [$status,$uploaded]=$upload('valid.png',$png,$context['nonce']);
     $remember($uploaded);
     $check($status===200&&!empty($uploaded['data']['success'])&&!empty($uploaded['data']['file']['url']),'Actual safe multipart image upload succeeds');
+    // QA4-008: a body over post_max_size reaches PHP with $_POST / $_FILES empty: the "too large" sentence, not the recorder's.
+    $pm=wp_convert_hr_to_bytes((string)ini_get('post_max_size'));
+    if($pm>0&&$pm<=64*1048576){
+        [$status,$big]=$upload('big.png',str_repeat('A',$pm+1048576),$context['nonce']);
+        $check($status===200&&empty($big['data']['success'])&&stripos((string)($big['data']['error']??''),'too large')!==false,'QA4-008: an upload over post_max_size is answered "too large" ('.json_encode($big['data']['error']??$big).')');
+    }
     [$status,$renewed]=$request('forms/session/prepare',array('form_id'=>$fid,'runtime_token'=>$context['runtime_token'],'sid'=>$context['sid']));
     $check($status===200&&$renewed['sid']===$context['sid'],'Live context renewal preserves upload session');
     $id=wp_generate_uuid4();$proof=\Emsfb\Form_Runtime::verify($renewed['runtime_token'],$fid);
