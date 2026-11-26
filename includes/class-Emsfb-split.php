@@ -244,6 +244,22 @@ class Split {
 
 	/** Fields drawn by an add-on that is not usable now are not required (their notice is in their place). */
 	public static function unrequire_absent(array $rows) {
+		/* The Conditional Logic add-on off or gone while the form has rules: a field a rule shows, hides or requires (or
+		 * one on a step a rule shows or hides) is never required, so no visitor is blocked by a field a rule would have
+		 * hidden; the field stays on screen as an optional one until the add-on is back. */
+		$r0 = isset($rows[0]) && is_array($rows[0]) ? $rows[0] : array();
+		if (!empty($r0['logic_rules']) && is_array($r0['logic_rules']) && self::addon_state('AdnSMF') !== null) {
+			$tf = array(); $ts = array();
+			foreach ($r0['logic_rules'] as $rule) {
+				foreach (is_array($rule) && isset($rule['actions']) && is_array($rule['actions']) ? $rule['actions'] : array() as $a) {
+					if (!is_array($a) || !isset($a['target']) || !is_scalar($a['target'])) continue;
+					if (isset($a['type']) && in_array($a['type'], array('show_step', 'hide_step'), true)) $ts[(string) $a['target']] = 1; else $tf[(string) $a['target']] = 1;
+				}
+			}
+			foreach ($rows as $i => $r) {
+				if ($i > 0 && is_array($r) && !empty($r['required']) && ((isset($r['id_']) && isset($tf[(string) $r['id_']])) || (isset($r['step']) && isset($ts[(string) $r['step']])))) $rows[$i]['required'] = false;
+			}
+		}
 		$legacy = self::legacy_types();
 		foreach ($rows as $i => $r) {
 			if ($i === 0 || !is_array($r) || empty($r['required'])) continue;

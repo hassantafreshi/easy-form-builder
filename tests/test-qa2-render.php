@@ -49,6 +49,11 @@ require_once __DIR__ . '/../includes/class-Emsfb-split.php';
 $u = \Emsfb\Split::unrequire_absent(array(array('type' => 'form'), array('type' => 'pdate', 'id_' => 'a', 'required' => '1'), array('type' => 'text', 'id_' => 'b', 'required' => '1')));
 t('QA2-001: the submit does not require a pdate field whose add-on is absent (SPLIT §4.1); a text field stays required', empty($u[1]['required']) && $u[2]['required'] === '1', json_encode($u));
 
+$lr = array('type' => 'form', 'logic_rules' => array(array('id' => 'co', 'actions' => array(array('type' => 'show_field', 'target' => 'co1')))));
+$u = \Emsfb\Split::unrequire_absent(array($lr, array('type' => 'text', 'id_' => 'co1', 'required' => '1', 'step' => '1'), array('type' => 'text', 'id_' => 'em1', 'required' => '1', 'step' => '1')));
+$u2 = \Emsfb\Split::unrequire_absent(array(array('type' => 'form'), array('type' => 'text', 'id_' => 'co1', 'required' => '1')));
+t('logic add-on off: a field a rule shows is not required (the visitor is never blocked); other fields and forms without rules unchanged', empty($u[1]['required']) && $u[2]['required'] === '1' && $u2[1]['required'] === '1', json_encode(array($u, $u2)));
+
 /* QA2-002 */
 $mc = function ($loc, $allowed) { $GLOBALS['efb_qa2_locale'] = $loc; return \Emsfb\Formbuilder::mobile_country_efb($allowed); };
 t('QA2-002: a mobile field starts on the site\'s country (en_US → us, fa_IR → ir), or on its first allowed one (de_DE, only FR / BE → fr), none for "ar"', array($mc('en_US', array()), $mc('fa_IR', array()), $mc('fa_IR', array('IR', 'TR')), $mc('de_DE', array('FR', 'BE')), $mc('ar', array())) === array('us', 'ir', 'ir', 'fr', ''));
