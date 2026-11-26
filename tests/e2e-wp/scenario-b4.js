@@ -266,7 +266,7 @@ module.exports = function (S) {
           await m.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb', { waitUntil: 'load' });
           await sleep(1200);
           const r = await nm(m);
-          R.check(`b4-notices (${loc} 375): one notice above the header, the bell on the screen beside the menu button with the count, no sideways scroll`, r.shown.length === 1 && r.bellInHeader && r.bellVisible && Number(r.count) === r.listIds.length && r.scroll <= 1, r);
+          R.check(`b4-notices (${loc} 375): one notice above the header, the bell on the screen beside the menu button with the count in the site's digits (QA1-028), no sideways scroll`, r.shown.length === 1 && r.bellInHeader && r.bellVisible && Number(String(r.count).replace(/[۰-۹]/g, (d) => d.charCodeAt(0) - 0x06F0).replace(/[٠-٩]/g, (d) => d.charCodeAt(0) - 0x0660)) === r.listIds.length && !/[0-9]/.test(r.count) && r.scroll <= 1, r);
           await m.screenshot({ path: SHOT(`b4-notices-${loc}-375`) });
           await m.context().close();
         } finally { ctl('locale', ''); }

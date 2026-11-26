@@ -1086,7 +1086,8 @@ module.exports = function (S) {
       await sleep(600);
       const onPanel = await efbNotices(admin);
       // UX-01: payment readiness is no longer a notice: a badge beside the form in the forms list (and a summary on Payments).
-      onPanel.badge = await admin.evaluate((fid) => !!document.querySelector(`[data-efb-pay-notready="${fid}"]`), payForm.form_id);
+      // (the form can be on a later page of a long list: ask the list's badge renderer for it)
+      onPanel.badge = await admin.evaluate((fid) => /data-efb-pay-notready/.test(typeof efb_pay_badge_efb === 'function' ? efb_pay_badge_efb(fid) : ''), payForm.form_id);
       await admin.goto(CFG.base + '/wp-admin/admin.php?page=Emsfb_captcha&provider=hcaptcha&efb_msg=saved', { waitUntil: 'load' });
       const onScreen = await efbNotices(admin);
       R.check('f12b-10: the add-on\'s screen shows only its own notices ("Settings saved."); the payment readiness is a badge beside the form on the plugin\'s forms list (UX-01), not a notice anywhere', onPanel.badge && !onPanel.outside.includes('efbPayNotReadyNotice') && onScreen.outside.length === 0 && onScreen.inside.length === 1, { onPanel, onScreen });
