@@ -2471,6 +2471,8 @@ async function response_fill_form_efb(res ,form_id=0) {
     btn_prev = `efb_go_to_step_direct(${form_id}, ${_backStep})`;
   }
   if (res.data.success == true) {
+    // QA5-014: a warning toast of an earlier try does not stay over the thank-you.
+    document.querySelectorAll('#alert_container_efb .alert_item_efb').forEach((a) => a.remove());
     // Register and login answer with their message in m and the address in
     // redirect_url; their own cases below redirect, m is not a URL for them.
     if(valj_efb.length>0 && valj_efb[0].hasOwnProperty('thank_you')==true && valj_efb[0].thank_you=='rdrct' && typeof res.data.m === 'string' && t.type != 'register' && t.type != 'login'){
@@ -5285,7 +5287,15 @@ async function fun_validation_efb_v4(form_id) {
   });
   if (typeof window.efb_logic_runtime !== 'undefined' &&
       typeof window.efb_logic_runtime.validate === 'function') {
-    const logicValidation = window.efb_logic_runtime.validate(form_id, current_s_efb);
+    let logicValidation = window.efb_logic_runtime.validate(form_id, current_s_efb);
+    /* QA5-014: a forward jump applied by that check moved the visitor to a step they have not seen yet; the add-on then
+       checked THAT step. Its empty fields are not an error: the step they left is checked below, the Next handler
+       adopts the jump. A blocked submit still stops. */
+    if (!logicValidation.valid && !logicValidation.submit_blocked && body_efb_v && Number(body_efb_v.dataset.currentstep) !== Number(current_s_efb)) {
+      const lm = logicValidation.missing_field && efb_get_by_id_in_form_efb(form_id, logicValidation.missing_field + '_-message');
+      if (lm) hide_msg_efb(lm);
+      logicValidation = { valid: true };
+    }
     efb_steps_debug_efb('validation:logic-result', {
       form_id: form_id,
       current_step: current_s_efb,
@@ -5296,10 +5306,9 @@ async function fun_validation_efb_v4(form_id) {
       const logicAlertMsg = logicValidation.submit_blocked && logicValidation.missing_name
         ? logicValidation.missing_name
         : efb_var.text.fillrequiredfields;
-      alert_message_efb(logicAlertMsg, '', 6, 'warning');
-      if (logicValidation.missing_field && typeof smoothy_scroll_postion_efb === 'function') {
-        smoothy_scroll_postion_efb(logicValidation.missing_field, form_id);
-      }
+      // QA2-007: a required field of the step: the summary or the toast, and the focus on the field (as core's check).
+      if (logicValidation.submit_blocked || !logicValidation.missing_field) alert_message_efb(logicAlertMsg, '', 6, 'warning');
+      else efb_invalid_step_efb(form_id, logicValidation.missing_field);
       efb_steps_debug_efb('validation:stop:logic-invalid', {
         form_id: form_id,
         current_step: current_s_efb,

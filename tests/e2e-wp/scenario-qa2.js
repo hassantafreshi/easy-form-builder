@@ -2,6 +2,9 @@
  * FX-PUB (4.3.2): the fixes of the QA-2 report (visitor runtime) in a real browser on the real WordPress.
  *  qa2a  QA2-011: a reCAPTCHA box whose script never loads (Google blocked): the visitor reads that the check could
  *        not load (not "tick the box"), for v2 and v2 invisible, and nothing is sent.
+ *  qa2b  QA2-007 / QA5-014: a Conditional Logic forward jump (choice on step 1 → step 3): Next pressed at once on the
+ *        step the jump showed stops at its empty required field with the focus ON that field (was: on Next), the
+ *        visitor fills it and sends; no warning toast stays over the thank-you.
  * Every form is made with `ctl.php f03-form` and deleted at the end; site settings are put back.
  */
 'use strict';
@@ -58,6 +61,36 @@ module.exports = function (S) {
     } finally {
       drop(V2.form_id); drop(VI.form_id);
       if (own) ctl('f12-setting', 'siteKey=del&secretKey=del&rciSiteKey=del&rciSecretKey=del&spam_min_time=del');
+    }
+  });
+
+  /* ------------------------------------------------------------------ qa2b */
+  scenario('qa2b', 'QA2-007 / QA5-014: after a forward jump, Next on the empty required field focuses that field; no toast stays over the thank-you', async ({ context }) => {
+    ctl('locale', '');
+    ctl('addon-flag', 'AdnSMF', '1');
+    const J = ctl('jump-form', 'form', 'QA2 jump form');
+    const fid = Number(J.form_id);
+    try {
+      const g = await open(context, fid, 'qa2b');
+      await g.fill(`[data-id="${J.em}-el"]`, 'visitor@example.test');
+      await g.selectOption(byId(J.plan + '_options'), { label: 'Express' });
+      await g.click(`#body_efb_${fid} #next_efb`);
+      await sleep(1200);
+      const a = await g.evaluate((fid) => ({ step: document.getElementById('body_efb_' + fid).dataset.currentstep, focus: document.activeElement && document.activeElement.id }), fid);
+      R.check('qa2b: the jump lands on step 3; Next on its empty required field puts the focus on that field (not on Next)', a.step === '3' && a.focus !== 'next_efb' && /_$/.test(a.focus || ''), a);
+      await g.fill(byId(a.focus), 'Last answer');
+      await g.press(byId(a.focus), 'Tab');
+      const resp = g.waitForResponse((x) => /forms\/message\/add/.test(x.url()), { timeout: 30000 }).catch(() => null);
+      await g.click(`#body_efb_${fid} #next_efb`);
+      await sleep(800);
+      const confirm = g.getByText('Confirm and submit', { exact: true });
+      if (await confirm.isVisible().catch(() => false)) await confirm.click();
+      const r = await resp;
+      await sleep(900);
+      const left = await toast(g);
+      R.check('qa2b: the entry is stored and no warning toast stays over the thank-you', !!r && r.status() === 200 && !/required/i.test(left), { status: r && r.status(), left });
+    } finally {
+      drop(fid);
     }
   });
 };
