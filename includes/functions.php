@@ -3847,6 +3847,8 @@ class efbFunction {
 			"ebEmailBg" => $state && isset($ac->text->ebEmailBg) ? $ac->text->ebEmailBg : esc_html__('Email Background','easy-form-builder'),
 			"ebContentBg" => $state && isset($ac->text->ebContentBg) ? $ac->text->ebContentBg : esc_html__('Content Background','easy-form-builder'),
 			"ebContentWidth" => $state && isset($ac->text->ebContentWidth) ? $ac->text->ebContentWidth : esc_html__('Content Width (px)','easy-form-builder'),
+			/* translators: QA2-018: e-mail template designer: the text direction follows the language the e-mail is written in */
+			"ebDirAuto" => $state && isset($ac->text->ebDirAuto) ? $ac->text->ebDirAuto : esc_html__('Automatic (site language)','easy-form-builder'),
 			"ebDirection" => $state && isset($ac->text->ebDirection) ? $ac->text->ebDirection : esc_html__('Direction','easy-form-builder'),
 
 			/* translators: Message block notice in email builder properties */

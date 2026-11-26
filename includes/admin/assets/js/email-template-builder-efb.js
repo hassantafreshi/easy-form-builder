@@ -601,7 +601,7 @@
       contentWidth: '600',
       borderRadius: '8',
       fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif",
-      direction: isRtl_efb() ? 'rtl' : 'ltr',
+      direction: 'auto', // QA2-018: the e-mail's own language decides (was the admin screen's)
       btnBgColor: '#202a8d',
       btnTextColor: '#ffffff'
     },
@@ -732,7 +732,7 @@ body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
 }
 </style>
 </head>
-<body style="margin: 0; padding: 0; width: 100%; background-color: ${sanitizeCss_efb(gs.bgColor)}; direction: ${sanitizeAttr_efb(gs.direction)}; font-family: ${sanitizeCss_efb(gs.fontFamily)};">
+<body style="margin: 0; padding: 0; width: 100%; background-color: ${sanitizeCss_efb(gs.bgColor)}; direction: ${sanitizeAttr_efb(gs.direction === 'ltr' || gs.direction === 'rtl' ? gs.direction : (isRtl_efb() ? 'rtl' : 'ltr'))}; font-family: ${sanitizeCss_efb(gs.fontFamily)};">
 <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: ${sanitizeCss_efb(gs.bgColor)};">
 <tr><td align="center" style="padding: 20px 0;">
 <!--[if mso]><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="${sanitizeAttr_efb(gs.contentWidth)}" align="center"><tr><td><![endif]-->
@@ -867,7 +867,7 @@ ${blocksHtml}
         contentWidth: '600',
         borderRadius: '8',
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif",
-        direction: isRtl_efb() ? 'rtl' : 'ltr'
+        direction: 'auto'
       };
     }
 
@@ -2067,6 +2067,7 @@ ${blocksHtml}
         <div class="efb-prop-row">
           <label class="efb-prop-label">${t_efb('ebDirection', 'Direction')}</label>
           <select class="efb-prop-select efb-gs-select" data-gs="direction">
+            <option value="auto" ${gs.direction!=='ltr'&&gs.direction!=='rtl'?'selected':''}>${t_efb('ebDirAuto', 'Automatic (site language)')}</option>
             <option value="ltr" ${gs.direction==='ltr'?'selected':''}>LTR</option>
             <option value="rtl" ${gs.direction==='rtl'?'selected':''}>RTL</option>
           </select>
@@ -2157,7 +2158,7 @@ ${blocksHtml}
     canvas.style.backgroundColor = gs.contentBgColor || '#ffffff';
     canvas.style.maxWidth = (gs.contentWidth || 600) + 'px';
     canvas.style.borderRadius = (gs.borderRadius || 0) + 'px';
-    canvas.style.direction = gs.direction || 'ltr';
+    canvas.style.direction = gs.direction === 'ltr' || gs.direction === 'rtl' ? gs.direction : (isRtl_efb() ? 'rtl' : 'ltr');
     canvas.style.fontFamily = gs.fontFamily || DEFAULT_FONT_efb;
 
     const wrap = canvas.closest('.efb-builder-canvas-wrap');

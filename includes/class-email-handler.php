@@ -726,7 +726,7 @@ class EmsfbEmailHandler {
             } else {
                 $link = strpos($link, "?") !== false ? $link . '&track=' . $m : $link . '?track=' . $m;
                 return "<h2 style='text-align:center'>" . $lang["newMessageReceived"] . "</h2>
-                <p style='text-align:center'>" . $lang["trackingCode"] . ": " . $m . " </p>" . $tracking_section;
+                <p style='text-align:center'>" . $lang["trackingCode"] . ": " . "<bdi dir='ltr'>" . $m . "</bdi>" . " </p>" . $tracking_section;
             }
         } else {
             $link = strpos($link, "?") !== false ? $link . '&track=' . $m[0] : $link . '?track=' . $m[0];
@@ -746,7 +746,7 @@ class EmsfbEmailHandler {
                         <tr>
                             <td style='text-align: center; padding: 20px;'>
                                 <h2>" . $lang["WeRecivedUrM"] . "</h2>
-                                <p>" . $lang["trackingCode"] . ": " . $track_id . " </p>
+                                <p>" . $lang["trackingCode"] . ": " . "<bdi dir='ltr'>" . $track_id . "</bdi>" . " </p>
                                 " . $tracking_section . "
                             </td>
                         </tr>
@@ -781,7 +781,7 @@ class EmsfbEmailHandler {
                 $track_id = $m;
                 $title = ($state == "newMessage") ? $lang["newMessageReceived"] : $lang["WeRecivedUrM"];
                 return "<h2 style='text-align:center'>" . $title . "</h2>
-                <p style='text-align:center'>" . $lang["trackingCode"] . ": " . $track_id . " </p>" . $tracking_section;
+                <p style='text-align:center'>" . $lang["trackingCode"] . ": " . "<bdi dir='ltr'>" . $track_id . "</bdi>" . " </p>" . $tracking_section;
             }
         } elseif (is_array($m) && count($m) >= 2) {
 
@@ -796,7 +796,7 @@ class EmsfbEmailHandler {
                         <td style='text-align: center; padding: 20px;'>
                             <h2>" . $title . "</h2>
                             <div style=\"" . $divStyle . "\">
-                              <p style='text-align:center'>" . $lang["trackingCode"] . ": <strong>" . $track_id . "</strong></p>"
+                              <p style='text-align:center'>" . $lang["trackingCode"] . ": <strong>" . "<bdi dir='ltr'>" . $track_id . "</bdi>" . "</strong></p>"
                              . $form_content .
                               " </div>
                             " . $tracking_section . "
@@ -862,7 +862,7 @@ class EmsfbEmailHandler {
                 $track_id = $m;
                 $title = ($state == "newMessage") ? $lang["newMessageReceived"] : $lang["WeRecivedUrM"];
                 return "<h2 style='text-align:center'>" . $title . "</h2>
-                <p style='text-align:center'>" . $lang["trackingCode"] . ": " . $track_id . " </p>" . $tracking_section;
+                <p style='text-align:center'>" . $lang["trackingCode"] . ": " . "<bdi dir='ltr'>" . $track_id . "</bdi>" . " </p>" . $tracking_section;
             }
         } elseif (is_array($m) && count($m) >= 2) {
 
@@ -879,7 +879,7 @@ class EmsfbEmailHandler {
                     <tr>
                         <td style='text-align: center; padding: 20px;'>
                             <h2>" . $title . "</h2>
-                            <p style='text-align:center'>" . $lang["trackingCode"] . ": <strong>" . $track_id . "</strong></p>
+                            <p style='text-align:center'>" . $lang["trackingCode"] . ": <strong>" . "<bdi dir='ltr'>" . $track_id . "</bdi>" . "</strong></p>
                             <p style='text-align:center'> " . __('Your message has been received and recorded successfully.', 'easy-form-builder') . "</p>
                             " . $tracking_section . "
                         </td>
@@ -1498,7 +1498,8 @@ class EmsfbEmailHandler {
         $contentWidth   = intval($gs['contentWidth'] ?? 600);
         $borderRadius   = intval($gs['borderRadius'] ?? 8);
         $fontFamily     = $gs['fontFamily']      ?? "'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif";
-        $direction      = $gs['direction']       ?? (is_rtl() ? 'rtl' : 'ltr');
+        // QA2-018: "auto" (the default) or anything but a fixed ltr / rtl follows the language the e-mail is written in.
+        $direction      = isset($gs['direction']) && in_array($gs['direction'], array('ltr', 'rtl'), true) ? $gs['direction'] : (is_rtl() ? 'rtl' : 'ltr');
 
         $rows_html = '';
         foreach ($blocks as $block) {
