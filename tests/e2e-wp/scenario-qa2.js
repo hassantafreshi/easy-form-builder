@@ -13,6 +13,8 @@
  *  qa2e  QA2-003: a default Number field takes Persian and Arabic digits (typed ۲۵ is stored as 25, ٣٤ inserted is 34).
  *  qa2f  QA-5 note: a wrong file type in an image-only field says the type is not allowed and lists the types, and
  *        Send keeps that sentence (it said "Photo: This field is required.").
+ *  qa2g  QA2-006: Send while offline: the error offers "Try again" (not only Previous) and has the focus; back online
+ *        the kept answers are sent by themselves, once.
  * Every form is made with `ctl.php f03-form` and deleted at the end; site settings are put back.
  */
 'use strict';
@@ -209,6 +211,30 @@ module.exports = function (S) {
       const m2 = await msg();
       const all = m2 + ' | ' + (await toast(g)) + ' | ' + await g.evaluate(() => Array.from(document.querySelectorAll('.efb-errsum')).map((e) => e.innerText).join(' '));
       R.check('qa2f: "This file type is not allowed. Allowed: .png, .jpeg …" at the field, and still after Send (never "required")', /not allowed/i.test(m1) && /\.png/.test(m1) && /not allowed/i.test(m2) && !/required/i.test(all), { m1, all });
+    } finally {
+      drop(F.form_id);
+    }
+  });
+
+  /* ------------------------------------------------------------------ qa2g */
+  scenario('qa2g', 'QA2-006: offline Send offers Try again and sends by itself back online, once', async ({ context }) => {
+    ctl('locale', '');
+    const F = form('QA2 offline', [{ key: 'nm', type: 'text', name: 'Name', required: 1 }]);
+    try {
+      const g = await open(context, F.form_id, 'qa2g');
+      await g.fill(byId(F.ids.nm + '_'), 'Off Line');
+      await g.press(byId(F.ids.nm + '_'), 'Tab');
+      await g.context().setOffline(true);
+      await g.click(`#body_efb_${F.form_id} #btn_send_efb`);
+      await sleep(1500);
+      const st = await g.evaluate((fid) => ({ retry: !!document.getElementById('efb_retry_' + fid), text: (document.querySelector(`#body_efb_${fid} #efb-final-step`) || {}).innerText || '', focus: document.activeElement && document.activeElement.tagName }), F.form_id);
+      R.check('qa2g: offline: the error has "Try again" and the focus is on its heading (not BODY)', st.retry && /Try again/.test(st.text) && st.focus !== 'BODY', st);
+      const resp = g.waitForResponse((x) => /forms\/message\/add/.test(x.url()), { timeout: 30000 }).catch(() => null);
+      await g.context().setOffline(false);
+      const r = await resp;
+      await sleep(2000);
+      const n = (ctl('entries', String(F.form_id)) || []).length;
+      R.check('qa2g: back online the answers are sent by themselves; one entry', !!r && n === 1, { status: r && r.status(), n });
     } finally {
       drop(F.form_id);
     }

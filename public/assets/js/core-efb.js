@@ -1136,6 +1136,18 @@ function efb_error_prev_button_efb(valj_efb, onclick) {
   return `<button id="prev_efb_send" type="button" class="efb btn ${color} ${corner} ${height} p-2 text-center btn-lg" onclick="${onclick}">${iconTag}<span id="button_group_Previous_button_text" class="efb ${v.el_text_color}">${v.button_Previous_text}</span></button>`;
 }
 
+ /* QA2-006: an error that is not the visitor's (offline, the network, an expired session) offers "Try again": the kept
+ * answers are sent once more (a replay of the same request is not stored twice). */
+function efb_retry_button_efb(valj_efb, form_id) {
+  const v = valj_efb[0];
+  return `<button id="efb_retry_${Number(form_id)}" type="button" class="efb btn ${v.button_color || 'btn-darkb'} ${v.corner || 'rounded-3'} ${v.el_height || 'h-l-efb'} p-2 text-center btn-lg mx-1" onclick="efb_retry_send_efb(${Number(form_id)})"><span class="efb ${v.el_text_color || ''}">${efb_var.text.emailTryAgain || 'Try again'}</span></button>`;
+}
+function efb_retry_send_efb(form_id) {
+  efb_hide_submit_ajax_badge_efb(form_id);
+  efb_reset_final_step_efb(form_id, document.getElementById('body_efb_' + form_id));
+  efb_focus_final_efb(form_id);
+  actionSendData_emsFormBuilder(form_id);
+}
  async function endMessage_emsFormBuilder_view(current_step,form_id) {
   let valj_efb = get_structure_by_form_id_efb(form_id);
 
@@ -1303,7 +1315,7 @@ async function actionSendData_emsFormBuilder(form_id=0) {
     }
    }
   if (!navigator.onLine) {
-    await response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.offlineMSend } },form_id);
+    await response_fill_form_efb({ success: false, data: { success: false, m: ajax_object_efm.text.offlineMSend, efb_ajax_submission_error: true, efb_offline: true } },form_id);
     return;
   }
   form_type_emsFormBuilder = valj_efb.length >2 ? valj_efb[0].type : form_type_emsFormBuilder
@@ -2642,8 +2654,10 @@ async function response_fill_form_efb(res ,form_id=0) {
   } else {
     if(efb_final_step){efb_final_step.innerHTML = `<h3 class='efb emsFormBuilder text-center'><i class="efb nmsgefb bi-exclamation-triangle-fill text-center efb fs-3  text-center"></i></h1><h3 class="efb  text-center fs-3 text-muted">${ajax_object_efm.text.error}</h3> <span class="efb mb-2 efb fs-5"> ${res.data.m}</span>
     ${isSubmitAjaxError ? `<div class="efb efb-submit-error-badge-slot my-2 d-flex justify-content-center" id="efb-submit-error-badge-slot-${form_id}"></div>` : ``}
-    <div class="efb m-1">${efb_error_prev_button_efb(valj_efb, `efb_hide_submit_ajax_badge_efb(${form_id}); ${btn_prev}`)}</div></div>`;
+    <div class="efb m-1 d-flex flex-wrap justify-content-center">${isSubmitAjaxError ? efb_retry_button_efb(valj_efb, form_id) : ''}${efb_error_prev_button_efb(valj_efb, `efb_hide_submit_ajax_badge_efb(${form_id}); ${btn_prev}; efb_focus_step_efb(${form_id}, document.getElementById('body_efb_${form_id}').dataset.currentstep)`)}</div></div>`;
       if (isSubmitAjaxError) { efb_show_submit_ajax_badge_efb(form_id); }
+      // QA2-006: back online, the kept answers are sent again by themselves.
+      if (res.data.efb_offline) window.addEventListener('online', () => { if (document.getElementById('efb_retry_' + form_id)) efb_retry_send_efb(form_id); }, { once: true });
       efb_focus_final_efb(form_id);
     }else{
       alert_message_efb(res.data.m,'',14,'warning');
