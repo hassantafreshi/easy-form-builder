@@ -1487,6 +1487,15 @@ function efb_ascii_digits_efb(str) {
   return String(str).replace(/[\u06F0-\u06F9]/g, function (d) { return String(d.charCodeAt(0) - 0x06F0); })
     .replace(/[\u0660-\u0669]/g, function (d) { return String(d.charCodeAt(0) - 0x0660); });
 }
+/* QA2-003: a number box (type="number") drops Persian / Arabic digits; they are typed or pasted as 0-9 instead. */
+document.addEventListener('beforeinput', function (e) {
+  const el = e.target, d = typeof e.data === 'string' ? e.data : (e.dataTransfer ? e.dataTransfer.getData('text/plain') : '');
+  if (!el || el.type !== 'number' || !/[\u0660-\u0669\u06F0-\u06F9\u066B]/.test(d || '')) return;
+  e.preventDefault();
+  el.value = (e.inputType === 'insertReplacementText' ? '' : el.value) + efb_ascii_digits_efb(d).replace(/\u066B/g, '.').replace(/[^0-9.\-]/g, '');
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+  el.dispatchEvent(new Event('change', { bubbles: true }));
+}, true);
 /* An email address as the visitor meant it: Persian/Arabic digits to 0-9,
  * invisible direction marks and spaces removed, a fullwidth "@" or a Persian
  * decimal separator for the dot mapped back. These made correct Gmail

@@ -10,6 +10,7 @@
  *  qa2d  QA2-004 / QA2-005: keyboard only: the multiselect is a button that opens a listbox (Enter, arrows, Space,
  *        Escape), the stars and Yes / No are radio groups in the Tab order chosen with the arrow keys; the entry stores
  *        M2, 4 stars and "No".
+ *  qa2e  QA2-003: a default Number field takes Persian and Arabic digits (typed ۲۵ is stored as 25, ٣٤ inserted is 34).
  * Every form is made with `ctl.php f03-form` and deleted at the end; site settings are put back.
  */
 'use strict';
@@ -165,6 +166,28 @@ module.exports = function (S) {
       const v = (k) => { const r = e && (e.content || []).find((x) => x && x.id_ === F.ids[k]); return r ? String(r.value) : null; };
       R.check('qa2d: the entry stores M2, 4 stars and No, chosen with the keyboard alone', e && /M2/.test(v('ms') || '') && v('st') === '4' && v('yn') === 'No', e && e.content);
     } finally {
+      drop(F.form_id);
+    }
+  });
+
+  /* ------------------------------------------------------------------ qa2e */
+  scenario('qa2e', 'QA2-003: a Number field takes Persian and Arabic digits', async ({ context }) => {
+    const F = form('QA2 number', [{ key: 'nu', type: 'number', name: 'Age' }, { key: 'n2', type: 'number', name: 'Count' }]);
+    try {
+      ctl('locale', 'fa_IR');
+      const g = await open(context, F.form_id, 'qa2e', { locale: 'fa-IR' });
+      await g.click(byId(F.ids.nu + '_')); await g.keyboard.type('۲۵');
+      await g.click(byId(F.ids.n2 + '_')); await g.keyboard.insertText('٣٤');
+      await g.press(byId(F.ids.n2 + '_'), 'Tab');
+      const v = await g.evaluate((I) => [document.getElementById(I.nu + '_').value, document.getElementById(I.n2 + '_').value], F.ids);
+      const resp = g.waitForResponse((x) => /forms\/message\/add/.test(x.url()), { timeout: 30000 }).catch(() => null);
+      await g.click(`#body_efb_${F.form_id} #btn_send_efb`);
+      await resp; await sleep(1500);
+      const e = (ctl('entries', String(F.form_id)) || []).pop();
+      const val = (k) => { const r = e && (e.content || []).find((x) => x && x.id_ === F.ids[k]); return r ? String(r.value) : null; };
+      R.check('qa2e: ۲۵ typed and ٣٤ inserted show as 25 and 34 and are stored so (were empty)', v.join() === '25,34' && val('nu') === '25' && val('n2') === '34', { v, nu: val('nu'), n2: val('n2') });
+    } finally {
+      ctl('locale', '');
       drop(F.form_id);
     }
   });
